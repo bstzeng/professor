@@ -34,20 +34,20 @@ window.SITE_DATA = {
           title: "模組 A｜狹義相對論暖身",
           courses: [
             { title: "為什麼需要新理論：牛頓重力與光速不變性的衝突", url: "topics/relativity/lesson-01.html" },
-            { title: "狹義相對論公設與勞侖茲變換" },
-            { title: "時空圖、同時性的相對性、時間膨脹與長度收縮" },
-            { title: "四維向量與閔可夫斯基度規、不變區間" },
-            { title: "相對論性能量動量、四維速度與四維加速度" }
+            { title: "狹義相對論公設與勞侖茲變換", url: "topics/relativity/lesson-02.html" },
+            { title: "時空圖、同時性的相對性、時間膨脹與長度收縮", url: "topics/relativity/lesson-03.html" },
+            { title: "四維向量與閔可夫斯基度規、不變區間", url: "topics/relativity/lesson-04.html" },
+            { title: "相對論性能量動量、四維速度與四維加速度", url: "topics/relativity/lesson-05.html" }
           ]
         },
         {
           title: "模組 B｜數學基礎：張量分析與微分幾何",
           courses: [
-            { title: "向量與對偶向量、指標記號與愛因斯坦求和約定" },
-            { title: "座標變換與張量的嚴格定義" },
-            { title: "度規張量、指標的升降" },
-            { title: "流形是什麼：微分幾何的基本語言" },
-            { title: "切空間、基底向量與座標卡" },
+            { title: "向量與對偶向量、指標記號與愛因斯坦求和約定", url: "topics/relativity/lesson-06.html" },
+            { title: "座標變換與張量的嚴格定義", url: "topics/relativity/lesson-07.html" },
+            { title: "度規張量、指標的升降", url: "topics/relativity/lesson-08.html" },
+            { title: "流形是什麼：微分幾何的基本語言", url: "topics/relativity/lesson-09.html" },
+            { title: "切空間、基底向量與座標卡", url: "topics/relativity/lesson-10.html" },
             { title: "協變導數與克里斯托費爾符號" },
             { title: "平行移動與測地線" },
             { title: "黎曼曲率張量：定義與幾何意義" },
