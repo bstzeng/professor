@@ -48,51 +48,51 @@ window.SITE_DATA = {
             { title: "度規張量、指標的升降", url: "topics/relativity/lesson-08.html" },
             { title: "流形是什麼：微分幾何的基本語言", url: "topics/relativity/lesson-09.html" },
             { title: "切空間、基底向量與座標卡", url: "topics/relativity/lesson-10.html" },
-            { title: "協變導數與克里斯托費爾符號" },
-            { title: "平行移動與測地線" },
-            { title: "黎曼曲率張量：定義與幾何意義" },
-            { title: "里奇張量、里奇純量、比安基恆等式" },
-            { title: "愛因斯坦張量與它為何「散度為零」" }
+            { title: "協變導數與克里斯托費爾符號", url: "topics/relativity/lesson-11.html" },
+            { title: "平行移動與測地線", url: "topics/relativity/lesson-12.html" },
+            { title: "黎曼曲率張量：定義與幾何意義", url: "topics/relativity/lesson-13.html" },
+            { title: "里奇張量、里奇純量、比安基恆等式", url: "topics/relativity/lesson-14.html" },
+            { title: "愛因斯坦張量與它為何「散度為零」", url: "topics/relativity/lesson-15.html" }
           ]
         },
         {
           title: "模組 C｜廣義相對論的物理",
           courses: [
-            { title: "等效原理（弱等效原理與強等效原理）" },
-            { title: "測地線方程：重力如何變成「自由落體沿測地線走」" },
-            { title: "牛頓極限：如何從 GR 還原出牛頓重力" },
-            { title: "應力-能量張量：如何描述物質與能量的分布" },
-            { title: "GR 中的守恆律" },
-            { title: "愛因斯坦場方程式的推導與物理動機" },
-            { title: "宇宙常數與真空場方程式" },
-            { title: "線性化場方程式與量綱檢查" }
+            { title: "等效原理（弱等效原理與強等效原理）", url: "topics/relativity/lesson-16.html" },
+            { title: "測地線方程：重力如何變成「自由落體沿測地線走」", url: "topics/relativity/lesson-17.html" },
+            { title: "牛頓極限：如何從 GR 還原出牛頓重力", url: "topics/relativity/lesson-18.html" },
+            { title: "應力-能量張量：如何描述物質與能量的分布", url: "topics/relativity/lesson-19.html" },
+            { title: "GR 中的守恆律", url: "topics/relativity/lesson-20.html" },
+            { title: "愛因斯坦場方程式的推導與物理動機", url: "topics/relativity/lesson-21.html" },
+            { title: "宇宙常數與真空場方程式", url: "topics/relativity/lesson-22.html" },
+            { title: "線性化場方程式與量綱檢查", url: "topics/relativity/lesson-23.html" }
           ]
         },
         {
           title: "模組 D｜精確解與求解技巧",
           courses: [
-            { title: "利用對稱性簡化 EFE：基靈向量" },
-            { title: "Schwarzschild 解的推導" },
-            { title: "Schwarzschild 幾何：視界與奇異點" },
-            { title: "Schwarzschild 時空中的測地線：軌道與水星近日點進動" },
-            { title: "光線偏折、重力透鏡、Shapiro 延遲" },
-            { title: "Reissner–Nordström 與 Kerr 解概覽" },
-            { title: "黑洞熱力學初探" },
-            { title: "FRW 度規：宇宙學的時空設定" },
-            { title: "Friedmann 方程式" },
-            { title: "宇宙學模型：物質／輻射／暗能量主導的宇宙" }
+            { title: "利用對稱性簡化 EFE：基靈向量", url: "topics/relativity/lesson-24.html" },
+            { title: "Schwarzschild 解的推導", url: "topics/relativity/lesson-25.html" },
+            { title: "Schwarzschild 幾何：視界與奇異點", url: "topics/relativity/lesson-26.html" },
+            { title: "Schwarzschild 時空中的測地線：軌道與水星近日點進動", url: "topics/relativity/lesson-27.html" },
+            { title: "光線偏折、重力透鏡、Shapiro 延遲", url: "topics/relativity/lesson-28.html" },
+            { title: "Reissner–Nordström 與 Kerr 解概覽", url: "topics/relativity/lesson-29.html" },
+            { title: "黑洞熱力學初探", url: "topics/relativity/lesson-30.html" },
+            { title: "FRW 度規：宇宙學的時空設定", url: "topics/relativity/lesson-31.html" },
+            { title: "Friedmann 方程式", url: "topics/relativity/lesson-32.html" },
+            { title: "宇宙學模型：物質／輻射／暗能量主導的宇宙", url: "topics/relativity/lesson-33.html" }
           ]
         },
         {
           title: "模組 E｜現代應用與延伸",
           courses: [
-            { title: "線性化重力與重力波的推導" },
-            { title: "重力波偵測（LIGO）：物理量如何對應觀測訊號" },
-            { title: "GPS 的相對論修正：GR 在日常科技中的實際應用" },
-            { title: "數值相對論概覽：EFE 如何在電腦上被解" },
-            { title: "微擾方法與後牛頓近似" },
-            { title: "ADM 形式（初值問題）簡介" },
-            { title: "總結課：完整重走一遍 EFE 推導 + 開放問題" }
+            { title: "線性化重力與重力波的推導", url: "topics/relativity/lesson-34.html" },
+            { title: "重力波偵測（LIGO）：物理量如何對應觀測訊號", url: "topics/relativity/lesson-35.html" },
+            { title: "GPS 的相對論修正：GR 在日常科技中的實際應用", url: "topics/relativity/lesson-36.html" },
+            { title: "數值相對論概覽：EFE 如何在電腦上被解", url: "topics/relativity/lesson-37.html" },
+            { title: "微擾方法與後牛頓近似", url: "topics/relativity/lesson-38.html" },
+            { title: "ADM 形式（初值問題）簡介", url: "topics/relativity/lesson-39.html" },
+            { title: "總結課：完整重走一遍 EFE 推導 + 開放問題", url: "topics/relativity/lesson-40.html" }
           ]
         }
       ]
