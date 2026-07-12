@@ -1,5 +1,12 @@
 document.getElementById("year").textContent = new Date().getFullYear();
 
+function countCourses(topic) {
+  if (topic.modules) {
+    return topic.modules.reduce((sum, m) => sum + (m.courses ? m.courses.length : 0), 0);
+  }
+  return topic.courses ? topic.courses.length : 0;
+}
+
 function renderTopics() {
   const grid = document.getElementById("topics-grid");
   const topics = (window.SITE_DATA && window.SITE_DATA.topics) || [];
@@ -15,7 +22,7 @@ function renderTopics() {
 
   grid.innerHTML = topics
     .map((topic) => {
-      const courseCount = topic.courses ? topic.courses.length : 0;
+      const courseCount = countCourses(topic);
       const href = topic.url && topic.url.length > 0 ? topic.url : "#";
       return `
         <a class="topic-card" href="${href}">
