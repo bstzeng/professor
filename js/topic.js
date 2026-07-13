@@ -12,7 +12,7 @@ function renderTopicPage() {
 
   if (!topic) return;
 
-  document.title = topic.title + " ｜ 教學網站";
+  document.title = topic.title + " ｜ 博雅書院";
 
   const heroTitle = document.getElementById("topic-title");
   const heroDesc = document.getElementById("topic-description");
