@@ -103,5 +103,20 @@ window.CHORD_DATA = {
       { fret: 0 },
       { fret: 0 }
     ]
+  },
+  Fsimple: {
+    // 簡化版 F：只彈上面四條弦，食指小封閉（B、e 弦第 1 格），
+    // 給還沒學全封閉和弦（模組 D）的人先用來練 C-G-Am-F 這類進行。
+    name: "F（簡易）",
+    startFret: 1,
+    strings: [
+      { fret: "x" },
+      { fret: "x" },
+      { fret: 3, finger: 3 },
+      { fret: 2, finger: 2 },
+      { fret: 1, finger: 1 },
+      { fret: 1, finger: 1 }
+    ],
+    barre: { fret: 1, fromString: 4, toString: 5, finger: 1 }
   }
 };

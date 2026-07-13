@@ -54,12 +54,12 @@ window.SITE_DATA = {
         {
           title: "模組 B｜換和弦與節奏流暢度",
           courses: [
-            { title: "為什麼換和弦會卡：常見錯誤診斷" },
-            { title: "兩和弦循環練習法：節拍器漸進加速訓練" },
-            { title: "常見和弦進行套路：C–G–Am–F 及其變化" },
-            { title: "切分節奏與悶音（palm mute）" },
-            { title: "四四拍常見刷弦型態大全（12 種型態圖解）" },
-            { title: "搭配實際歌曲練習換和弦與節奏穩定度" }
+            { title: "為什麼換和弦會卡：常見錯誤診斷", url: "topics/guitar/lesson-06.html" },
+            { title: "兩和弦循環練習法：節拍器漸進加速訓練", url: "topics/guitar/lesson-07.html" },
+            { title: "常見和弦進行套路：C–G–Am–F 及其變化", url: "topics/guitar/lesson-08.html" },
+            { title: "切分節奏與悶音（palm mute）", url: "topics/guitar/lesson-09.html" },
+            { title: "四四拍常見刷弦型態大全（12 種型態圖解）", url: "topics/guitar/lesson-10.html" },
+            { title: "搭配實際歌曲練習換和弦與節奏穩定度", url: "topics/guitar/lesson-11.html" }
           ]
         },
         {
