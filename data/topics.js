@@ -95,20 +95,20 @@ window.SITE_DATA = {
         {
           title: "模組 F｜樂理與抓歌能力",
           courses: [
-            { title: "大調音階與指板音名" },
-            { title: "抓歌基本功：聽音高、聽和弦色彩" },
-            { title: "用「順階和弦」推測沒聽過的歌怎麼配" },
-            { title: "不用 capo 的移調：任意調性的和弦轉換" },
-            { title: "常見歌曲曲式（主歌／副歌／過門）與編排概念" }
+            { title: "大調音階與指板音名", url: "topics/guitar/lesson-27.html" },
+            { title: "抓歌基本功：聽音高、聽和弦色彩", url: "topics/guitar/lesson-28.html" },
+            { title: "用「順階和弦」推測沒聽過的歌怎麼配", url: "topics/guitar/lesson-29.html" },
+            { title: "不用 capo 的移調：任意調性的和弦轉換", url: "topics/guitar/lesson-30.html" },
+            { title: "常見歌曲曲式（主歌／副歌／過門）與編排概念", url: "topics/guitar/lesson-31.html" }
           ]
         },
         {
           title: "模組 G｜實戰彈唱",
           courses: [
-            { title: "完整拆解一首簡單歌曲的和弦與節奏" },
-            { title: "完整拆解一首中等難度歌曲（含大和弦或 capo）" },
-            { title: "把學過的技巧套用到任何新歌的方法" },
-            { title: "總結：診斷自己的弱點，規劃下一步" }
+            { title: "完整拆解一首簡單歌曲的和弦與節奏", url: "topics/guitar/lesson-32.html" },
+            { title: "完整拆解一首中等難度歌曲（含大和弦或 capo）", url: "topics/guitar/lesson-33.html" },
+            { title: "把學過的技巧套用到任何新歌的方法", url: "topics/guitar/lesson-34.html" },
+            { title: "總結：診斷自己的弱點，規劃下一步", url: "topics/guitar/lesson-35.html" }
           ]
         }
       ]
