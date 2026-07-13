@@ -35,9 +35,9 @@ window.SITE_DATA = {
       resources: [
         {
           title: "歌曲",
-          description: "歌曲和弦進行清單，點和弦可看指法圖",
+          description: "歌曲和弦進行清單，點和弦可看指法圖（另開新頁）",
           icon: "🎵",
-          url: "topics/guitar/songs.html"
+          url: "https://sheet.bstzeng.cc/guitar.html"
         },
         {
           title: "常見和弦總覽",
@@ -203,9 +203,9 @@ window.SITE_DATA = {
       resources: [
         {
           title: "歌曲",
-          description: "歌曲和弦進行清單，點和弦可看指法圖",
+          description: "歌曲和弦進行清單，點和弦可看指法圖（另開新頁）",
           icon: "🎵",
-          url: "topics/ukulele/songs.html"
+          url: "https://sheet.bstzeng.cc/ukulele.html"
         },
         {
           title: "常見和弦總覽",

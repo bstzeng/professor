@@ -24,17 +24,20 @@ function renderTopicPage() {
     resourcesContainer.innerHTML = `
       <div class="resources-grid">
         ${topic.resources
-          .map(
-            (r) => `
-              <a class="resource-card" href="${basePath}${r.url}">
+          .map((r) => {
+            const isExternal = /^https?:\/\//.test(r.url);
+            const href = isExternal ? r.url : basePath + r.url;
+            const attrs = isExternal ? ' target="_blank" rel="noopener"' : "";
+            return `
+              <a class="resource-card" href="${href}"${attrs}>
                 <span class="resource-icon">${r.icon || "📎"}</span>
                 <span>
                   <h3>${r.title}</h3>
                   <p>${r.description || ""}</p>
                 </span>
               </a>
-            `
-          )
+            `;
+          })
           .join("")}
       </div>
     `;
