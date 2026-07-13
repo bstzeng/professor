@@ -19,6 +19,27 @@ function renderTopicPage() {
   if (heroTitle) heroTitle.textContent = topic.title;
   if (heroDesc) heroDesc.textContent = topic.description || "";
 
+  const resourcesContainer = document.getElementById("resources-container");
+  if (resourcesContainer && topic.resources && topic.resources.length > 0) {
+    resourcesContainer.innerHTML = `
+      <div class="resources-grid">
+        ${topic.resources
+          .map(
+            (r) => `
+              <a class="resource-card" href="${basePath}${r.url}">
+                <span class="resource-icon">${r.icon || "📎"}</span>
+                <span>
+                  <h3>${r.title}</h3>
+                  <p>${r.description || ""}</p>
+                </span>
+              </a>
+            `
+          )
+          .join("")}
+      </div>
+    `;
+  }
+
   const container = document.getElementById("modules-container");
   if (!container || !topic.modules) return;
 

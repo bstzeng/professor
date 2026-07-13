@@ -8,6 +8,9 @@
 //   description: "簡短說明",
 //   icon: "📘",
 //   url: "topics/example-topic/index.html", // 主題頁面路徑
+//   resources: [                  // 選填：獨立參考頁（不算在課程編號裡，例如速查表）
+//     { title: "常見和弦總覽", description: "簡短說明", icon: "🎼", url: "topics/example-topic/reference.html" }
+//   ],
 //   modules: [                    // 課程依模組分組
 //     {
 //       title: "模組名稱",
@@ -22,6 +25,94 @@
 
 window.SITE_DATA = {
   topics: [
+    {
+      id: "guitar",
+      title: "民謠吉他彈唱",
+      description:
+        "從基本功穩固開始，聚焦換和弦流暢度與節奏穩定度，逐步進階到大和弦、指彈與抓歌能力，目標是能自彈自唱任何一首歌。",
+      icon: "🎸",
+      url: "topics/guitar/index.html",
+      resources: [
+        {
+          title: "常見和弦總覽",
+          description: "所有教過的和弦指法圖，一頁快速複習",
+          icon: "🎼",
+          url: "topics/guitar/chords.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎穩固",
+          courses: [
+            { title: "姿勢、握琴與左右手基本動作總複習", url: "topics/guitar/lesson-01.html" },
+            { title: "調音與節奏感訓練（節拍器怎麼用）", url: "topics/guitar/lesson-02.html" },
+            { title: "開放和弦總複習：C、G、D、Em、Am、Dm、A、E", url: "topics/guitar/lesson-03.html" },
+            { title: "換和弦的「最短路徑」原則", url: "topics/guitar/lesson-04.html" },
+            { title: "基礎八分音符刷弦型態（down-up down-up）", url: "topics/guitar/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜換和弦與節奏流暢度",
+          courses: [
+            { title: "為什麼換和弦會卡：常見錯誤診斷" },
+            { title: "兩和弦循環練習法：節拍器漸進加速訓練" },
+            { title: "常見和弦進行套路：C–G–Am–F 及其變化" },
+            { title: "切分節奏與悶音（palm mute）" },
+            { title: "四四拍常見刷弦型態大全（12 種型態圖解）" },
+            { title: "搭配實際歌曲練習換和弦與節奏穩定度" }
+          ]
+        },
+        {
+          title: "模組 C｜移調夾與和弦進行邏輯",
+          courses: [
+            { title: "認識移調夾（capo）：原理與使用時機" },
+            { title: "用 capo 簡化困難調性的歌曲" },
+            { title: "常見調性與其和弦家族（C / G / D 大調）" },
+            { title: "級數與羅馬數字記譜：I–IV–V–vi 進行" },
+            { title: "用級數概念快速抓一首新歌的和弦" }
+          ]
+        },
+        {
+          title: "模組 D｜大和弦 Barre Chords",
+          courses: [
+            { title: "大和弦的手指力量與角度訓練" },
+            { title: "F 大和弦與 Bm 大和弦" },
+            { title: "移動大和弦：一個把位彈遍所有調性" },
+            { title: "大和弦與開放和弦的混合彈奏策略" }
+          ]
+        },
+        {
+          title: "模組 E｜進階刷弦與指彈基礎",
+          courses: [
+            { title: "切音與強弱動態控制" },
+            { title: "悶音刷弦（percussive strumming）" },
+            { title: "指彈基礎：拇指與食中無名指分工（PIMA）" },
+            { title: "簡單琶音型態" },
+            { title: "民謠彈唱常見前奏／間奏套路" },
+            { title: "加花：過門與轉折的簡單技巧" }
+          ]
+        },
+        {
+          title: "模組 F｜樂理與抓歌能力",
+          courses: [
+            { title: "大調音階與指板音名" },
+            { title: "抓歌基本功：聽音高、聽和弦色彩" },
+            { title: "用「順階和弦」推測沒聽過的歌怎麼配" },
+            { title: "不用 capo 的移調：任意調性的和弦轉換" },
+            { title: "常見歌曲曲式（主歌／副歌／過門）與編排概念" }
+          ]
+        },
+        {
+          title: "模組 G｜實戰彈唱",
+          courses: [
+            { title: "完整拆解一首簡單歌曲的和弦與節奏" },
+            { title: "完整拆解一首中等難度歌曲（含大和弦或 capo）" },
+            { title: "把學過的技巧套用到任何新歌的方法" },
+            { title: "總結：診斷自己的弱點，規劃下一步" }
+          ]
+        }
+      ]
+    },
     {
       id: "relativity",
       title: "廣義相對論：從等效原理到愛因斯坦場方程式",
