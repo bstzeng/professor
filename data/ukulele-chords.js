@@ -184,5 +184,23 @@ window.UKULELE_CHORD_DATA = {
     name: "B7",
     startFret: 1,
     strings: [{ fret: 2, finger: 1 }, { fret: 3, finger: 4 }, { fret: 2, finger: 2 }, { fret: 2, finger: 3 }]
+  },
+
+  // 以下是歌曲頁常用到的簡單延伸和弦。
+  Em7: {
+    name: "Em7",
+    startFret: 1,
+    strings: [{ fret: 0 }, { fret: 2, finger: 1 }, { fret: 0 }, { fret: 2, finger: 2 }]
+  },
+  Cadd9: {
+    name: "Cadd9",
+    startFret: 1,
+    strings: [{ fret: 0 }, { fret: 2, finger: 1 }, { fret: 0 }, { fret: 3, finger: 2 }]
+  },
+  Am7: {
+    // 剛好等於四條弦全部空弦——烏克麗麗的小彩蛋。
+    name: "Am7",
+    startFret: 1,
+    strings: [{ fret: 0 }, { fret: 0 }, { fret: 0 }, { fret: 0 }]
   }
 };

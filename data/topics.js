@@ -34,6 +34,12 @@ window.SITE_DATA = {
       url: "topics/guitar/index.html",
       resources: [
         {
+          title: "歌曲",
+          description: "歌曲和弦進行清單，點和弦可看指法圖",
+          icon: "🎵",
+          url: "topics/guitar/songs.html"
+        },
+        {
           title: "常見和弦總覽",
           description: "所有教過的和弦指法圖，一頁快速複習",
           icon: "🎼",
@@ -195,6 +201,12 @@ window.SITE_DATA = {
       icon: "🎶",
       url: "topics/ukulele/index.html",
       resources: [
+        {
+          title: "歌曲",
+          description: "歌曲和弦進行清單，點和弦可看指法圖",
+          icon: "🎵",
+          url: "topics/ukulele/songs.html"
+        },
         {
           title: "常見和弦總覽",
           description: "12 個調的大和弦、小和弦、屬七和弦，共 36 個和弦指法圖",

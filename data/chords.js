@@ -349,5 +349,45 @@ window.CHORD_DATA = {
       { fret: 6, finger: 1 }
     ],
     barre: { fret: 6, fromString: 1, toString: 5, finger: 1 }
+  },
+
+  // 以下是歌曲頁（歌曲總覽功能）常用到的簡單延伸和弦。
+  Em7: {
+    // Em 拿掉無名指（D 弦放開），初學者友善。
+    name: "Em7",
+    startFret: 1,
+    strings: [
+      { fret: 0 },
+      { fret: 2, finger: 2 },
+      { fret: 0 },
+      { fret: 0 },
+      { fret: 0 },
+      { fret: 0 }
+    ]
+  },
+  Cadd9: {
+    name: "Cadd9",
+    startFret: 1,
+    strings: [
+      { fret: "x" },
+      { fret: 3, finger: 3 },
+      { fret: 2, finger: 2 },
+      { fret: 0 },
+      { fret: 3, finger: 4 },
+      { fret: 0 }
+    ]
+  },
+  Am7: {
+    // Am 拿掉無名指（G 弦放開），初學者友善。
+    name: "Am7",
+    startFret: 1,
+    strings: [
+      { fret: "x" },
+      { fret: 0 },
+      { fret: 2, finger: 2 },
+      { fret: 0 },
+      { fret: 1, finger: 1 },
+      { fret: 0 }
+    ]
   }
 };
