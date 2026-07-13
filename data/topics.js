@@ -75,21 +75,21 @@ window.SITE_DATA = {
         {
           title: "模組 D｜大和弦 Barre Chords",
           courses: [
-            { title: "大和弦的手指力量與角度訓練" },
-            { title: "F 大和弦與 Bm 大和弦" },
-            { title: "移動大和弦：一個把位彈遍所有調性" },
-            { title: "大和弦與開放和弦的混合彈奏策略" }
+            { title: "大和弦的手指力量與角度訓練", url: "topics/guitar/lesson-17.html" },
+            { title: "F 大和弦與 Bm 大和弦", url: "topics/guitar/lesson-18.html" },
+            { title: "移動大和弦：一個把位彈遍所有調性", url: "topics/guitar/lesson-19.html" },
+            { title: "大和弦與開放和弦的混合彈奏策略", url: "topics/guitar/lesson-20.html" }
           ]
         },
         {
           title: "模組 E｜進階刷弦與指彈基礎",
           courses: [
-            { title: "切音與強弱動態控制" },
-            { title: "悶音刷弦（percussive strumming）" },
-            { title: "指彈基礎：拇指與食中無名指分工（PIMA）" },
-            { title: "簡單琶音型態" },
-            { title: "民謠彈唱常見前奏／間奏套路" },
-            { title: "加花：過門與轉折的簡單技巧" }
+            { title: "切音與強弱動態控制", url: "topics/guitar/lesson-21.html" },
+            { title: "悶音刷弦（percussive strumming）", url: "topics/guitar/lesson-22.html" },
+            { title: "指彈基礎：拇指與食中無名指分工（PIMA）", url: "topics/guitar/lesson-23.html" },
+            { title: "簡單琶音型態", url: "topics/guitar/lesson-24.html" },
+            { title: "民謠彈唱常見前奏／間奏套路", url: "topics/guitar/lesson-25.html" },
+            { title: "加花：過門與轉折的簡單技巧", url: "topics/guitar/lesson-26.html" }
           ]
         },
         {

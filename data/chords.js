@@ -118,5 +118,33 @@ window.CHORD_DATA = {
       { fret: 1, finger: 1 }
     ],
     barre: { fret: 1, fromString: 4, toString: 5, finger: 1 }
+  },
+  F: {
+    // 完整封閉 F（E 形移動和弦，第 18、19 課），食指封閉全部六條弦。
+    name: "F",
+    startFret: 1,
+    strings: [
+      { fret: 1, finger: 1 },
+      { fret: 3, finger: 3 },
+      { fret: 3, finger: 4 },
+      { fret: 2, finger: 2 },
+      { fret: 1, finger: 1 },
+      { fret: 1, finger: 1 }
+    ],
+    barre: { fret: 1, fromString: 0, toString: 5, finger: 1 }
+  },
+  Bm: {
+    // Am 形移動和弦（第 18、19 課），食指封閉 A 到高音 e 弦（低音 E 不彈）。
+    name: "Bm",
+    startFret: 1,
+    strings: [
+      { fret: "x" },
+      { fret: 2, finger: 1 },
+      { fret: 4, finger: 3 },
+      { fret: 4, finger: 4 },
+      { fret: 3, finger: 2 },
+      { fret: 2, finger: 1 }
+    ],
+    barre: { fret: 2, fromString: 1, toString: 5, finger: 1 }
   }
 };
