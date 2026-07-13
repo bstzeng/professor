@@ -187,6 +187,21 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "ukulele",
+      title: "烏克麗麗",
+      description: "還沒有課程，先收錄一頁完整的常見和弦查詢表（12 個調的大和弦、小和弦、屬七和弦）。",
+      icon: "🎶",
+      url: "topics/ukulele/index.html",
+      resources: [
+        {
+          title: "常見和弦總覽",
+          description: "12 個調的大和弦、小和弦、屬七和弦，共 36 個和弦指法圖",
+          icon: "🎼",
+          url: "topics/ukulele/chords.html"
+        }
+      ]
     }
   ]
 };

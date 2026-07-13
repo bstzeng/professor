@@ -24,12 +24,13 @@ function renderTopics() {
     .map((topic) => {
       const courseCount = countCourses(topic);
       const href = topic.url && topic.url.length > 0 ? topic.url : "#";
+      const badge = courseCount > 0 ? `<span class="course-count">${courseCount} 堂課程</span>` : "";
       return `
         <a class="topic-card" href="${href}">
           <div class="topic-icon">${topic.icon || "📘"}</div>
           <h3>${topic.title}</h3>
           <p>${topic.description || ""}</p>
-          <span class="course-count">${courseCount} 堂課程</span>
+          ${badge}
         </a>
       `;
     })

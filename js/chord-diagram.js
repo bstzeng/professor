@@ -1,11 +1,12 @@
-// 和弦指法圖產生器。
-// 資料格式見 data/chords.js。strings 陣列固定 6 個元素，順序為
-// [低音 E, A, D, G, B, 高音 e]（由左到右，符合面對指板時的視覺順序）。
+// 和弦指法圖產生器，支援任意弦數（吉他 6 弦、烏克麗麗 4 弦皆可）。
+// 資料格式見 data/chords.js（吉他，[低音 E, A, D, G, B, 高音 e]）、
+// data/ukulele-chords.js（烏克麗麗，[G, C, E, A]），由左到右，符合面對指板時的視覺順序。
 // 用法：在 HTML 裡放 <div class="chord-diagram-slot" data-chord="C"></div>，
+// 若不是讀取預設的 window.CHORD_DATA，再加上 data-chord-source="UKULELE_CHORD_DATA" 這類屬性，
 // 頁面載入後呼叫 renderAllChordDiagrams()。
 
 function renderChordDiagram(container, chord) {
-  const numStrings = 6;
+  const numStrings = chord.strings.length;
   const numFrets = 4;
   const width = 120;
   const height = 150;
@@ -66,7 +67,9 @@ function renderAllChordDiagrams(selector) {
   const sel = selector || ".chord-diagram-slot";
   document.querySelectorAll(sel).forEach((el) => {
     const key = el.getAttribute("data-chord");
-    const chord = window.CHORD_DATA && window.CHORD_DATA[key];
+    const sourceName = el.getAttribute("data-chord-source") || "CHORD_DATA";
+    const source = window[sourceName];
+    const chord = source && source[key];
     if (chord) renderChordDiagram(el, chord);
   });
 }
