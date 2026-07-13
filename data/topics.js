@@ -65,11 +65,11 @@ window.SITE_DATA = {
         {
           title: "模組 C｜移調夾與和弦進行邏輯",
           courses: [
-            { title: "認識移調夾（capo）：原理與使用時機" },
-            { title: "用 capo 簡化困難調性的歌曲" },
-            { title: "常見調性與其和弦家族（C / G / D 大調）" },
-            { title: "級數與羅馬數字記譜：I–IV–V–vi 進行" },
-            { title: "用級數概念快速抓一首新歌的和弦" }
+            { title: "認識移調夾（capo）：原理與使用時機", url: "topics/guitar/lesson-12.html" },
+            { title: "用 capo 簡化困難調性的歌曲", url: "topics/guitar/lesson-13.html" },
+            { title: "常見調性與其和弦家族（C / G / D 大調）", url: "topics/guitar/lesson-14.html" },
+            { title: "級數與羅馬數字記譜：I–IV–V–vi 進行", url: "topics/guitar/lesson-15.html" },
+            { title: "用級數概念快速抓一首新歌的和弦", url: "topics/guitar/lesson-16.html" }
           ]
         },
         {
