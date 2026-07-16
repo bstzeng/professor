@@ -352,20 +352,20 @@ window.SITE_DATA = {
         {
           title: "模組 E｜量子場論入門",
           courses: [
-            { title: "為什麼粒子數必須能改變：從量子力學到量子場論" },
-            { title: "正則量子化：純量場的完整推導" },
-            { title: "費曼傳播子與微擾展開" },
-            { title: "費曼圖規則：公式怎麼畫成圖" },
-            { title: "S 矩陣與散射截面：連結理論與可觀測量" }
+            { title: "為什麼粒子數必須能改變：從量子力學到量子場論", url: "topics/standard-model/lesson-20.html" },
+            { title: "正則量子化：純量場的完整推導", url: "topics/standard-model/lesson-21.html" },
+            { title: "費曼傳播子與微擾展開", url: "topics/standard-model/lesson-22.html" },
+            { title: "費曼圖規則：公式怎麼畫成圖", url: "topics/standard-model/lesson-23.html" },
+            { title: "S 矩陣與散射截面：連結理論與可觀測量", url: "topics/standard-model/lesson-24.html" }
           ]
         },
         {
           title: "模組 F｜群論與規範場論工具箱",
           courses: [
-            { title: "群、表示與生成元：從轉動群 SO(3) 建立直覺" },
-            { title: "SU(2) 的表示論：從自旋到弱同位旋" },
-            { title: "SU(3) 的表示論：八重道的數學結構" },
-            { title: "Yang-Mills 規範場論總論：非阿貝爾規範場強張量的完整推導" }
+            { title: "群、表示與生成元：從轉動群 SO(3) 建立直覺", url: "topics/standard-model/lesson-25.html" },
+            { title: "SU(2) 的表示論：從自旋到弱同位旋", url: "topics/standard-model/lesson-26.html" },
+            { title: "SU(3) 的表示論：八重道的數學結構", url: "topics/standard-model/lesson-27.html" },
+            { title: "Yang-Mills 規範場論總論：非阿貝爾規範場強張量的完整推導", url: "topics/standard-model/lesson-28.html" }
           ]
         },
         {
