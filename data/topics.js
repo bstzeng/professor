@@ -236,25 +236,25 @@ window.SITE_DATA = {
         {
           title: "模組 B｜恆星的物理量怎麼測",
           courses: [
-            { title: "視差法：最直接的幾何距離測量" },
-            { title: "光度、溫度與史特凡－波茲曼定律" },
-            { title: "維恩定律與黑體輻射：從顏色推溫度" },
-            { title: "恆星光譜分類（OBAFGKM）與 HR 圖" },
-            { title: "分光視差法：用光譜類型推距離" },
-            { title: "造父變星：標準燭光與週光關係" },
-            { title: "雙星系統：用克卜勒定律測恆星質量" },
-            { title: "距離階梯：從視差到哈伯定律的完整測距鏈" }
+            { title: "視差法：最直接的幾何距離測量", url: "topics/astronomy/lesson-06.html" },
+            { title: "光度、溫度與史特凡－波茲曼定律", url: "topics/astronomy/lesson-07.html" },
+            { title: "維恩定律與黑體輻射：從顏色推溫度", url: "topics/astronomy/lesson-08.html" },
+            { title: "恆星光譜分類（OBAFGKM）與 HR 圖", url: "topics/astronomy/lesson-09.html" },
+            { title: "分光視差法：用光譜類型推距離", url: "topics/astronomy/lesson-10.html" },
+            { title: "造父變星：標準燭光與週光關係", url: "topics/astronomy/lesson-11.html" },
+            { title: "雙星系統：用克卜勒定律測恆星質量", url: "topics/astronomy/lesson-12.html" },
+            { title: "距離階梯：從視差到哈伯定律的完整測距鏈", url: "topics/astronomy/lesson-13.html" }
           ]
         },
         {
           title: "模組 C｜恆星的一生",
           courses: [
-            { title: "恆星誕生：分子雲與重力塌縮" },
-            { title: "主序星：氫融合與質光關係" },
-            { title: "紅巨星階段與氦閃" },
-            { title: "恆星之死：白矮星與錢卓塞卡極限" },
-            { title: "超新星爆炸、中子星與黑洞的形成" },
-            { title: "核合成：宇宙中的元素從哪裡來" }
+            { title: "恆星誕生：分子雲與重力塌縮", url: "topics/astronomy/lesson-14.html" },
+            { title: "主序星：氫融合與質光關係", url: "topics/astronomy/lesson-15.html" },
+            { title: "紅巨星階段與氦閃", url: "topics/astronomy/lesson-16.html" },
+            { title: "恆星之死：白矮星與錢卓塞卡極限", url: "topics/astronomy/lesson-17.html" },
+            { title: "超新星爆炸、中子星與黑洞的形成", url: "topics/astronomy/lesson-18.html" },
+            { title: "核合成：宇宙中的元素從哪裡來", url: "topics/astronomy/lesson-19.html" }
           ]
         },
         {
