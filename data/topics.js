@@ -214,6 +214,93 @@ window.SITE_DATA = {
           url: "topics/ukulele/chords.html"
         }
       ]
+    },
+    {
+      id: "astronomy",
+      title: "太空探索：恆星觀測到宇宙學",
+      description:
+        "從望遠鏡觀測原理、恆星物理量（距離、大小、質量、溫度）怎麼測，到星系、深空天體，最後是主流的宇宙形成假說。附完整數學推導，不省略證明過程。",
+      icon: "🔭",
+      url: "topics/astronomy/index.html",
+      modules: [
+        {
+          title: "模組 A｜觀測基礎：我們怎麼「看」宇宙",
+          courses: [
+            { title: "電磁波譜與人類觀測宇宙的極限", url: "topics/astronomy/lesson-01.html" },
+            { title: "望遠鏡技術：從光學到全波段天文學", url: "topics/astronomy/lesson-02.html" },
+            { title: "星等系統：視星等與絕對星等", url: "topics/astronomy/lesson-03.html" },
+            { title: "光譜學基礎：吸收線、發射線在說什麼", url: "topics/astronomy/lesson-04.html" },
+            { title: "測光與濾鏡：顏色指數與觀測資料怎麼來的", url: "topics/astronomy/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜恆星的物理量怎麼測",
+          courses: [
+            { title: "視差法：最直接的幾何距離測量" },
+            { title: "光度、溫度與史特凡－波茲曼定律" },
+            { title: "維恩定律與黑體輻射：從顏色推溫度" },
+            { title: "恆星光譜分類（OBAFGKM）與 HR 圖" },
+            { title: "分光視差法：用光譜類型推距離" },
+            { title: "造父變星：標準燭光與週光關係" },
+            { title: "雙星系統：用克卜勒定律測恆星質量" },
+            { title: "距離階梯：從視差到哈伯定律的完整測距鏈" }
+          ]
+        },
+        {
+          title: "模組 C｜恆星的一生",
+          courses: [
+            { title: "恆星誕生：分子雲與重力塌縮" },
+            { title: "主序星：氫融合與質光關係" },
+            { title: "紅巨星階段與氦閃" },
+            { title: "恆星之死：白矮星與錢卓塞卡極限" },
+            { title: "超新星爆炸、中子星與黑洞的形成" },
+            { title: "核合成：宇宙中的元素從哪裡來" }
+          ]
+        },
+        {
+          title: "模組 D｜星系與大尺度結構",
+          courses: [
+            { title: "銀河系的結構與我們的位置" },
+            { title: "星系分類：哈伯音叉圖" },
+            { title: "星系自轉曲線：暗物質最早的證據" },
+            { title: "星系團、超星系團與宇宙網" },
+            { title: "活躍星系核與超大質量黑洞" },
+            { title: "重力透鏡：用廣義相對論繪製暗物質地圖" }
+          ]
+        },
+        {
+          title: "模組 E｜深空與極端天體",
+          courses: [
+            { title: "深空長曝光：哈伯深空與時間回溯" },
+            { title: "中子星、脈衝星與磁星" },
+            { title: "黑洞的觀測證據：吸積盤到事件視界望遠鏡" },
+            { title: "重力波天文學：聽見宇宙的碰撞" },
+            { title: "系外行星：凌日法與徑向速度法" },
+            { title: "多信使天文學：整合光、重力波與微中子" }
+          ]
+        },
+        {
+          title: "模組 F｜宇宙學：主流的宇宙形成假說",
+          courses: [
+            { title: "奧伯斯悖論：為什麼夜空是黑的" },
+            { title: "哈伯定律與宇宙膨脹的發現" },
+            { title: "大霹靂理論：時間線與三大關鍵證據" },
+            { title: "宇宙微波背景輻射：宇宙的嬰兒照" },
+            { title: "大霹靂核合成：輕元素從哪裡來" },
+            { title: "宇宙暴脹：解決視界問題與平坦性問題" },
+            { title: "暗能量與 ΛCDM 標準模型" },
+            { title: "宇宙的命運：熱寂、大擠壓還是大撕裂" }
+          ]
+        },
+        {
+          title: "模組 G｜實戰應用",
+          courses: [
+            { title: "星圖與觀星：認識自己頭頂上的星空" },
+            { title: "公民科學與天文新聞：怎麼參與真實研究、讀懂報導" },
+            { title: "總結：還沒解決的大問題，以及怎麼持續追蹤宇宙研究" }
+          ]
+        }
+      ]
     }
   ]
 };
