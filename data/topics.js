@@ -332,10 +332,10 @@ window.SITE_DATA = {
         {
           title: "模組 C｜量子力學基礎回顧與擴充",
           courses: [
-            { title: "波函數、算符與測量公設的系統整理" },
-            { title: "角動量與自旋：完整推導升降算符與本徵值" },
-            { title: "全同粒子：波色子、費米子與包立不相容原理的量子起源" },
-            { title: "微擾理論與費米黃金定則：躍遷機率怎麼算" }
+            { title: "波函數、算符與測量公設的系統整理", url: "topics/standard-model/lesson-10.html" },
+            { title: "角動量與自旋：完整推導升降算符與本徵值", url: "topics/standard-model/lesson-11.html" },
+            { title: "全同粒子：波色子、費米子與包立不相容原理的量子起源", url: "topics/standard-model/lesson-12.html" },
+            { title: "微擾理論與費米黃金定則：躍遷機率怎麼算", url: "topics/standard-model/lesson-13.html" }
           ]
         },
         {
