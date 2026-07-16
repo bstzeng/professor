@@ -301,6 +301,135 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "standard-model",
+      title: "標準模型：從量子場論到希格斯機制",
+      description:
+        "從量子力學與相對論出發，建立量子場論、群論與規範對稱的工具箱，完整推導電弱統一、希格斯機制與量子色動力學，並系統整理所有基本粒子的性質、歷史發現過程與尚未解決的問題。附完整數學推導，不省略證明過程。",
+      icon: "⚛️",
+      url: "topics/standard-model/index.html",
+      modules: [
+        {
+          title: "模組 A｜歷史與物理圖像",
+          courses: [
+            { title: "從原子到基本粒子：電子、質子、中子的發現", url: "topics/standard-model/lesson-01.html" },
+            { title: "宇宙射線與奇異粒子：緲子、介子、K 介子的意外發現", url: "topics/standard-model/lesson-02.html" },
+            { title: "加速器年代與粒子動物園：共振態大爆發", url: "topics/standard-model/lesson-03.html" },
+            { title: "夸克模型的誕生：Gell-Mann、Zweig 與八重道", url: "topics/standard-model/lesson-04.html" },
+            { title: "標準模型拼圖完成：中性流、W/Z 玻色子到希格斯玻色子", url: "topics/standard-model/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜怎麼探測與確認一個粒子",
+          courses: [
+            { title: "對撞機物理基礎：截面、亮度與事件率" },
+            { title: "粒子偵測器：徑跡室、量能器、緲子室的原理" },
+            { title: "從撞擊數據到發現：統計顯著性與五個標準差" },
+            { title: "案例研究：J/ψ 粒子與「十一月革命」" }
+          ]
+        },
+        {
+          title: "模組 C｜量子力學基礎回顧與擴充",
+          courses: [
+            { title: "波函數、算符與測量公設的系統整理" },
+            { title: "角動量與自旋：完整推導升降算符與本徵值" },
+            { title: "全同粒子：波色子、費米子與包立不相容原理的量子起源" },
+            { title: "微擾理論與費米黃金定則：躍遷機率怎麼算" }
+          ]
+        },
+        {
+          title: "模組 D｜狹義相對論與相對論性量子力學",
+          courses: [
+            { title: "四維時空與勞倫茲協變記號回顧" },
+            { title: "Klein–Gordon 方程式：把薛丁格方程式相對論化" },
+            { title: "負機率問題與 Dirac 的洞見" },
+            { title: "完整推導 Dirac 方程式" },
+            { title: "Dirac 方程式的解：自旋、反粒子與正電子的預言" },
+            { title: "從 Dirac 海到量子場論的過渡" }
+          ]
+        },
+        {
+          title: "模組 E｜量子場論入門",
+          courses: [
+            { title: "為什麼粒子數必須能改變：從量子力學到量子場論" },
+            { title: "正則量子化：純量場的完整推導" },
+            { title: "費曼傳播子與微擾展開" },
+            { title: "費曼圖規則：公式怎麼畫成圖" },
+            { title: "S 矩陣與散射截面：連結理論與可觀測量" }
+          ]
+        },
+        {
+          title: "模組 F｜群論與規範場論工具箱",
+          courses: [
+            { title: "群、表示與生成元：從轉動群 SO(3) 建立直覺" },
+            { title: "SU(2) 的表示論：從自旋到弱同位旋" },
+            { title: "SU(3) 的表示論：八重道的數學結構" },
+            { title: "Yang-Mills 規範場論總論：非阿貝爾規範場強張量的完整推導" }
+          ]
+        },
+        {
+          title: "模組 G｜規範對稱與量子電動力學（QED）",
+          courses: [
+            { title: "諾特定理完整推導：對稱與守恆律" },
+            { title: "局域規範不變性：U(1) 對稱如何「生出」光子" },
+            { title: "QED 的拉格朗日量與費曼規則" },
+            { title: "電子異常磁矩：QED 最精確的預言" },
+            { title: "重整化初步：無窮大是怎麼被馴服的" },
+            { title: "重整化群方程式：耦合常數為什麼會「跑」" }
+          ]
+        },
+        {
+          title: "模組 H｜弱交互作用與電弱統一",
+          courses: [
+            { title: "貝他衰變與費米的接觸作用理論" },
+            { title: "宇稱不守恆：吳健雄實驗與 V−A 理論" },
+            { title: "電荷共軛、時間反轉與 CPT 定理" },
+            { title: "中性流的預言與發現" },
+            { title: "SU(2)×U(1) 規範群：電弱統一的數學結構" },
+            { title: "W、Z 玻色子的質量問題：為什麼不能直接寫進拉格朗日量" }
+          ]
+        },
+        {
+          title: "模組 I｜希格斯機制",
+          courses: [
+            { title: "WW 散射的么正性問題：為什麼希格斯是必要的" },
+            { title: "自發對稱破缺：墨西哥帽位能完整推導" },
+            { title: "Goldstone 定理與希格斯機制完整推導" },
+            { title: "規範玻色子如何「吃掉」Goldstone 玻色子獲得質量" },
+            { title: "費米子質量：湯川耦合" },
+            { title: "希格斯玻色子的發現：LHC 與 2012 年 7 月 4 日" }
+          ]
+        },
+        {
+          title: "模組 J｜強交互作用與 QCD",
+          courses: [
+            { title: "夸克模型與八重道：SU(3) 味對稱" },
+            { title: "顏色電荷的發現：為什麼需要三種「顏色」" },
+            { title: "QCD 的規範結構：SU(3) 色對稱" },
+            { title: "漸近自由與夸克禁閉" },
+            { title: "強子動物園：介子、重子與夸克組成" },
+            { title: "夸克模型的定量驗證：重子磁矩與 Gell-Mann–Okubo 質量公式" }
+          ]
+        },
+        {
+          title: "模組 K｜粒子分類總覽與味物理",
+          courses: [
+            { title: "標準模型粒子總表：三代費米子與規範玻色子" },
+            { title: "味的混合：CKM 矩陣與 CP 破壞" },
+            { title: "微中子振盪：標準模型之外第一個確定的證據" },
+            { title: "微中子質量之謎：Dirac 或 Majorana？翹翹板機制" },
+            { title: "標準模型拉格朗日總集成：把所有拼圖擺在一起" }
+          ]
+        },
+        {
+          title: "模組 L｜超越標準模型",
+          courses: [
+            { title: "標準模型的未解之謎：階層問題、物質－反物質不對稱、暗物質" },
+            { title: "大一統理論展望：耦合常數的匯聚與超對稱簡介" }
+          ]
+        }
+      ]
     }
   ]
 };
