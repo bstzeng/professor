@@ -371,23 +371,23 @@ window.SITE_DATA = {
         {
           title: "模組 G｜規範對稱與量子電動力學（QED）",
           courses: [
-            { title: "諾特定理完整推導：對稱與守恆律" },
-            { title: "局域規範不變性：U(1) 對稱如何「生出」光子" },
-            { title: "QED 的拉格朗日量與費曼規則" },
-            { title: "電子異常磁矩：QED 最精確的預言" },
-            { title: "重整化初步：無窮大是怎麼被馴服的" },
-            { title: "重整化群方程式：耦合常數為什麼會「跑」" }
+            { title: "諾特定理完整推導：對稱與守恆律", url: "topics/standard-model/lesson-29.html" },
+            { title: "局域規範不變性：U(1) 對稱如何「生出」光子", url: "topics/standard-model/lesson-30.html" },
+            { title: "QED 的拉格朗日量與費曼規則", url: "topics/standard-model/lesson-31.html" },
+            { title: "電子異常磁矩：QED 最精確的預言", url: "topics/standard-model/lesson-32.html" },
+            { title: "重整化初步：無窮大是怎麼被馴服的", url: "topics/standard-model/lesson-33.html" },
+            { title: "重整化群方程式：耦合常數為什麼會「跑」", url: "topics/standard-model/lesson-34.html" }
           ]
         },
         {
           title: "模組 H｜弱交互作用與電弱統一",
           courses: [
-            { title: "貝他衰變與費米的接觸作用理論" },
-            { title: "宇稱不守恆：吳健雄實驗與 V−A 理論" },
-            { title: "電荷共軛、時間反轉與 CPT 定理" },
-            { title: "中性流的預言與發現" },
-            { title: "SU(2)×U(1) 規範群：電弱統一的數學結構" },
-            { title: "W、Z 玻色子的質量問題：為什麼不能直接寫進拉格朗日量" }
+            { title: "貝他衰變與費米的接觸作用理論", url: "topics/standard-model/lesson-35.html" },
+            { title: "宇稱不守恆：吳健雄實驗與 V−A 理論", url: "topics/standard-model/lesson-36.html" },
+            { title: "電荷共軛、時間反轉與 CPT 定理", url: "topics/standard-model/lesson-37.html" },
+            { title: "中性流的預言與發現", url: "topics/standard-model/lesson-38.html" },
+            { title: "SU(2)×U(1) 規範群：電弱統一的數學結構", url: "topics/standard-model/lesson-39.html" },
+            { title: "W、Z 玻色子的質量問題：為什麼不能直接寫進拉格朗日量", url: "topics/standard-model/lesson-40.html" }
           ]
         },
         {
