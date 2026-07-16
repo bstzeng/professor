@@ -323,10 +323,10 @@ window.SITE_DATA = {
         {
           title: "模組 B｜怎麼探測與確認一個粒子",
           courses: [
-            { title: "對撞機物理基礎：截面、亮度與事件率" },
-            { title: "粒子偵測器：徑跡室、量能器、緲子室的原理" },
-            { title: "從撞擊數據到發現：統計顯著性與五個標準差" },
-            { title: "案例研究：J/ψ 粒子與「十一月革命」" }
+            { title: "對撞機物理基礎：截面、亮度與事件率", url: "topics/standard-model/lesson-06.html" },
+            { title: "粒子偵測器：徑跡室、量能器、緲子室的原理", url: "topics/standard-model/lesson-07.html" },
+            { title: "從撞擊數據到發現：統計顯著性與五個標準差", url: "topics/standard-model/lesson-08.html" },
+            { title: "案例研究：J/ψ 粒子與「十一月革命」", url: "topics/standard-model/lesson-09.html" }
           ]
         },
         {
