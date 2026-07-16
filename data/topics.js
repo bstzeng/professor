@@ -282,22 +282,22 @@ window.SITE_DATA = {
         {
           title: "模組 F｜宇宙學：主流的宇宙形成假說",
           courses: [
-            { title: "奧伯斯悖論：為什麼夜空是黑的" },
-            { title: "哈伯定律與宇宙膨脹的發現" },
-            { title: "大霹靂理論：時間線與三大關鍵證據" },
-            { title: "宇宙微波背景輻射：宇宙的嬰兒照" },
-            { title: "大霹靂核合成：輕元素從哪裡來" },
-            { title: "宇宙暴脹：解決視界問題與平坦性問題" },
-            { title: "暗能量與 ΛCDM 標準模型" },
-            { title: "宇宙的命運：熱寂、大擠壓還是大撕裂" }
+            { title: "奧伯斯悖論：為什麼夜空是黑的", url: "topics/astronomy/lesson-32.html" },
+            { title: "哈伯定律與宇宙膨脹的發現", url: "topics/astronomy/lesson-33.html" },
+            { title: "大霹靂理論：時間線與三大關鍵證據", url: "topics/astronomy/lesson-34.html" },
+            { title: "宇宙微波背景輻射：宇宙的嬰兒照", url: "topics/astronomy/lesson-35.html" },
+            { title: "大霹靂核合成：輕元素從哪裡來", url: "topics/astronomy/lesson-36.html" },
+            { title: "宇宙暴脹：解決視界問題與平坦性問題", url: "topics/astronomy/lesson-37.html" },
+            { title: "暗能量與 ΛCDM 標準模型", url: "topics/astronomy/lesson-38.html" },
+            { title: "宇宙的命運：熱寂、大擠壓還是大撕裂", url: "topics/astronomy/lesson-39.html" }
           ]
         },
         {
           title: "模組 G｜實戰應用",
           courses: [
-            { title: "星圖與觀星：認識自己頭頂上的星空" },
-            { title: "公民科學與天文新聞：怎麼參與真實研究、讀懂報導" },
-            { title: "總結：還沒解決的大問題，以及怎麼持續追蹤宇宙研究" }
+            { title: "星圖與觀星：認識自己頭頂上的星空", url: "topics/astronomy/lesson-40.html" },
+            { title: "公民科學與天文新聞：怎麼參與真實研究、讀懂報導", url: "topics/astronomy/lesson-41.html" },
+            { title: "總結：還沒解決的大問題，以及怎麼持續追蹤宇宙研究", url: "topics/astronomy/lesson-42.html" }
           ]
         }
       ]
