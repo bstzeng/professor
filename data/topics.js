@@ -260,23 +260,23 @@ window.SITE_DATA = {
         {
           title: "模組 D｜星系與大尺度結構",
           courses: [
-            { title: "銀河系的結構與我們的位置" },
-            { title: "星系分類：哈伯音叉圖" },
-            { title: "星系自轉曲線：暗物質最早的證據" },
-            { title: "星系團、超星系團與宇宙網" },
-            { title: "活躍星系核與超大質量黑洞" },
-            { title: "重力透鏡：用廣義相對論繪製暗物質地圖" }
+            { title: "銀河系的結構與我們的位置", url: "topics/astronomy/lesson-20.html" },
+            { title: "星系分類：哈伯音叉圖", url: "topics/astronomy/lesson-21.html" },
+            { title: "星系自轉曲線：暗物質最早的證據", url: "topics/astronomy/lesson-22.html" },
+            { title: "星系團、超星系團與宇宙網", url: "topics/astronomy/lesson-23.html" },
+            { title: "活躍星系核與超大質量黑洞", url: "topics/astronomy/lesson-24.html" },
+            { title: "重力透鏡：用廣義相對論繪製暗物質地圖", url: "topics/astronomy/lesson-25.html" }
           ]
         },
         {
           title: "模組 E｜深空與極端天體",
           courses: [
-            { title: "深空長曝光：哈伯深空與時間回溯" },
-            { title: "中子星、脈衝星與磁星" },
-            { title: "黑洞的觀測證據：吸積盤到事件視界望遠鏡" },
-            { title: "重力波天文學：聽見宇宙的碰撞" },
-            { title: "系外行星：凌日法與徑向速度法" },
-            { title: "多信使天文學：整合光、重力波與微中子" }
+            { title: "深空長曝光：哈伯深空與時間回溯", url: "topics/astronomy/lesson-26.html" },
+            { title: "中子星、脈衝星與磁星", url: "topics/astronomy/lesson-27.html" },
+            { title: "黑洞的觀測證據：吸積盤到事件視界望遠鏡", url: "topics/astronomy/lesson-28.html" },
+            { title: "重力波天文學：聽見宇宙的碰撞", url: "topics/astronomy/lesson-29.html" },
+            { title: "系外行星：凌日法與徑向速度法", url: "topics/astronomy/lesson-30.html" },
+            { title: "多信使天文學：整合光、重力波與微中子", url: "topics/astronomy/lesson-31.html" }
           ]
         },
         {
