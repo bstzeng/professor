@@ -341,12 +341,12 @@ window.SITE_DATA = {
         {
           title: "模組 D｜狹義相對論與相對論性量子力學",
           courses: [
-            { title: "四維時空與勞倫茲協變記號回顧" },
-            { title: "Klein–Gordon 方程式：把薛丁格方程式相對論化" },
-            { title: "負機率問題與 Dirac 的洞見" },
-            { title: "完整推導 Dirac 方程式" },
-            { title: "Dirac 方程式的解：自旋、反粒子與正電子的預言" },
-            { title: "從 Dirac 海到量子場論的過渡" }
+            { title: "四維時空與勞倫茲協變記號回顧", url: "topics/standard-model/lesson-14.html" },
+            { title: "Klein–Gordon 方程式：把薛丁格方程式相對論化", url: "topics/standard-model/lesson-15.html" },
+            { title: "負機率問題與 Dirac 的洞見", url: "topics/standard-model/lesson-16.html" },
+            { title: "完整推導 Dirac 方程式", url: "topics/standard-model/lesson-17.html" },
+            { title: "Dirac 方程式的解：自旋、反粒子與正電子的預言", url: "topics/standard-model/lesson-18.html" },
+            { title: "從 Dirac 海到量子場論的過渡", url: "topics/standard-model/lesson-19.html" }
           ]
         },
         {
