@@ -415,18 +415,18 @@ window.SITE_DATA = {
         {
           title: "模組 K｜粒子分類總覽與味物理",
           courses: [
-            { title: "標準模型粒子總表：三代費米子與規範玻色子" },
-            { title: "味的混合：CKM 矩陣與 CP 破壞" },
-            { title: "微中子振盪：標準模型之外第一個確定的證據" },
-            { title: "微中子質量之謎：Dirac 或 Majorana？翹翹板機制" },
-            { title: "標準模型拉格朗日總集成：把所有拼圖擺在一起" }
+            { title: "標準模型粒子總表：三代費米子與規範玻色子", url: "topics/standard-model/lesson-53.html" },
+            { title: "味的混合：CKM 矩陣與 CP 破壞", url: "topics/standard-model/lesson-54.html" },
+            { title: "微中子振盪：標準模型之外第一個確定的證據", url: "topics/standard-model/lesson-55.html" },
+            { title: "微中子質量之謎：Dirac 或 Majorana？翹翹板機制", url: "topics/standard-model/lesson-56.html" },
+            { title: "標準模型拉格朗日總集成：把所有拼圖擺在一起", url: "topics/standard-model/lesson-57.html" }
           ]
         },
         {
           title: "模組 L｜超越標準模型",
           courses: [
-            { title: "標準模型的未解之謎：階層問題、物質－反物質不對稱、暗物質" },
-            { title: "大一統理論展望：耦合常數的匯聚與超對稱簡介" }
+            { title: "標準模型的未解之謎：階層問題、物質－反物質不對稱、暗物質", url: "topics/standard-model/lesson-58.html" },
+            { title: "大一統理論展望：耦合常數的匯聚與超對稱簡介", url: "topics/standard-model/lesson-59.html" }
           ]
         }
       ]
