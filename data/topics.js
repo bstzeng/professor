@@ -393,23 +393,23 @@ window.SITE_DATA = {
         {
           title: "模組 I｜希格斯機制",
           courses: [
-            { title: "WW 散射的么正性問題：為什麼希格斯是必要的" },
-            { title: "自發對稱破缺：墨西哥帽位能完整推導" },
-            { title: "Goldstone 定理與希格斯機制完整推導" },
-            { title: "規範玻色子如何「吃掉」Goldstone 玻色子獲得質量" },
-            { title: "費米子質量：湯川耦合" },
-            { title: "希格斯玻色子的發現：LHC 與 2012 年 7 月 4 日" }
+            { title: "WW 散射的么正性問題：為什麼希格斯是必要的", url: "topics/standard-model/lesson-41.html" },
+            { title: "自發對稱破缺：墨西哥帽位能完整推導", url: "topics/standard-model/lesson-42.html" },
+            { title: "Goldstone 定理與希格斯機制完整推導", url: "topics/standard-model/lesson-43.html" },
+            { title: "規範玻色子如何「吃掉」Goldstone 玻色子獲得質量", url: "topics/standard-model/lesson-44.html" },
+            { title: "費米子質量：湯川耦合", url: "topics/standard-model/lesson-45.html" },
+            { title: "希格斯玻色子的發現：LHC 與 2012 年 7 月 4 日", url: "topics/standard-model/lesson-46.html" }
           ]
         },
         {
           title: "模組 J｜強交互作用與 QCD",
           courses: [
-            { title: "夸克模型與八重道：SU(3) 味對稱" },
-            { title: "顏色電荷的發現：為什麼需要三種「顏色」" },
-            { title: "QCD 的規範結構：SU(3) 色對稱" },
-            { title: "漸近自由與夸克禁閉" },
-            { title: "強子動物園：介子、重子與夸克組成" },
-            { title: "夸克模型的定量驗證：重子磁矩與 Gell-Mann–Okubo 質量公式" }
+            { title: "夸克模型與八重道：SU(3) 味對稱", url: "topics/standard-model/lesson-47.html" },
+            { title: "顏色電荷的發現：為什麼需要三種「顏色」", url: "topics/standard-model/lesson-48.html" },
+            { title: "QCD 的規範結構：SU(3) 色對稱", url: "topics/standard-model/lesson-49.html" },
+            { title: "漸近自由與夸克禁閉", url: "topics/standard-model/lesson-50.html" },
+            { title: "強子動物園：介子、重子與夸克組成", url: "topics/standard-model/lesson-51.html" },
+            { title: "夸克模型的定量驗證：重子磁矩與 Gell-Mann–Okubo 質量公式", url: "topics/standard-model/lesson-52.html" }
           ]
         },
         {
