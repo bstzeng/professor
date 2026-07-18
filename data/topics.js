@@ -430,6 +430,88 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "atomism",
+      title: "原子論：從德謨克利特到量子革命前夕",
+      description:
+        "標準模型的前傳。從古希臘的原子臆測、道爾頓的化學原子論、氣體動力論與布朗運動的決定性證據，到週期表、光譜學與黑體輻射危機，完整走過原子從哲學概念變成科學事實的兩千四百年。附完整數學推導與圖解，終點銜接標準模型主題第 1 課。",
+      icon: "⚗️",
+      url: "topics/atomism/index.html",
+      modules: [
+        {
+          title: "模組 A｜古代原子論的哲學根源",
+          courses: [
+            { title: "德謨克利特與留基伯：虛空與不可分割的原子", url: "topics/atomism/lesson-01.html" },
+            { title: "伊比鳩魯與盧克萊修：《物性論》與原子論的古羅馬傳承", url: "topics/atomism/lesson-02.html" },
+            { title: "亞里斯多德的連續體理論：原子論為何沉寂近兩千年", url: "topics/atomism/lesson-03.html" },
+            { title: "十七世紀的復興：伽森狄與波以耳的機械哲學", url: "topics/atomism/lesson-04.html" },
+            { title: "完整推導波以耳定律：第一個關於「看不見的粒子」的定量證據", url: "topics/atomism/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜化學原子論的誕生",
+          courses: [
+            { title: "拉瓦節與質量守恆定律：化學定量革命的起點", url: "topics/atomism/lesson-06.html" },
+            { title: "定比定律：普魯斯特與貝托雷之爭", url: "topics/atomism/lesson-07.html" },
+            { title: "完整推導倍比定律：道爾頓從化學數據中看見的規律", url: "topics/atomism/lesson-08.html" },
+            { title: "道爾頓原子論：1803 年的五條公設", url: "topics/atomism/lesson-09.html" },
+            { title: "給呂薩克氣體化合體積定律與道爾頓理論的矛盾", url: "topics/atomism/lesson-10.html" },
+            { title: "亞佛加厥假說：分子概念如何解開氣體體積之謎", url: "topics/atomism/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜原子論的物理證據：氣體動力論與布朗運動",
+          courses: [
+            { title: "完整推導理想氣體狀態方程式：從微觀碰撞模型出發", url: "topics/atomism/lesson-12.html" },
+            { title: "馬克士威—波茲曼分布：氣體分子的速度統計", url: "topics/atomism/lesson-13.html" },
+            { title: "完整推導平均自由徑：分子大小與亞佛加厥常數的第一次估計", url: "topics/atomism/lesson-14.html" },
+            { title: "布朗運動之謎：花粉為什麼會不停地抖動", url: "topics/atomism/lesson-15.html" },
+            { title: "愛因斯坦的布朗運動理論：完整推導擴散係數與愛因斯坦關係式", url: "topics/atomism/lesson-16.html" },
+            { title: "佩蘭的決定性實驗：原子論從假說變成事實", url: "topics/atomism/lesson-17.html" },
+            { title: "模組總結：懷疑論者最終的讓步", url: "topics/atomism/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 D｜元素的系統化：週期表",
+          courses: [
+            { title: "從煉金術到化學：元素概念的演化" },
+            { title: "德貝萊納的三元素組與紐蘭茲的八音律" },
+            { title: "門得列夫的週期表：鎵、鍺、鈧的預言與發現" },
+            { title: "週期表為什麼「有效」：一個當時無人能回答的問題" }
+          ]
+        },
+        {
+          title: "模組 E｜光譜學：原子內部結構的第一道線索",
+          courses: [
+            { title: "夫朗和斐譜線與克希荷夫—本生的光譜分析" },
+            { title: "用光譜發現新元素：氦如何先在太陽上被找到" },
+            { title: "巴耳末公式的發現：氫原子光譜的神祕規律" },
+            { title: "芮得柏公式的推廣：純粹經驗卻精確得驚人的公式" },
+            { title: "模組總結：沒有人知道為什麼這個公式會成立" }
+          ]
+        },
+        {
+          title: "模組 F｜古典物理的極限：黑體輻射危機",
+          courses: [
+            { title: "熱輻射的古典理論：史特凡—波茲曼與維恩位移定律回顧" },
+            { title: "完整推導空腔內電磁波模式的計數" },
+            { title: "完整推導雷立—金斯公式與紫外災變" },
+            { title: "蒲朗克的孤注一擲：量子化假設如何解決紫外災變" },
+            { title: "完整推導蒲朗克公式的兩個極限：還原維恩與雷立—金斯" },
+            { title: "模組總結：一個沒人理解物理意義的數學技巧" }
+          ]
+        },
+        {
+          title: "模組 G｜放射性的發現：通往新世界的最後一步",
+          courses: [
+            { title: "侖琴發現 X 射線：意外的開端" },
+            { title: "貝克勒的意外發現：鈾鹽的神祕輻射" },
+            { title: "居禮夫婦：釙與鐳的分離與能量之謎" },
+            { title: "課程總結：1896 年的門檻——故事在標準模型第 1 課繼續" }
+          ]
+        }
+      ]
     }
   ]
 };
