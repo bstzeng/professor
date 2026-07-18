@@ -475,20 +475,20 @@ window.SITE_DATA = {
         {
           title: "模組 D｜元素的系統化：週期表",
           courses: [
-            { title: "從煉金術到化學：元素概念的演化" },
-            { title: "德貝萊納的三元素組與紐蘭茲的八音律" },
-            { title: "門得列夫的週期表：鎵、鍺、鈧的預言與發現" },
-            { title: "週期表為什麼「有效」：一個當時無人能回答的問題" }
+            { title: "從煉金術到化學：元素概念的演化", url: "topics/atomism/lesson-19.html" },
+            { title: "德貝萊納的三元素組與紐蘭茲的八音律", url: "topics/atomism/lesson-20.html" },
+            { title: "門得列夫的週期表：鎵、鍺、鈧的預言與發現", url: "topics/atomism/lesson-21.html" },
+            { title: "週期表為什麼「有效」：一個當時無人能回答的問題", url: "topics/atomism/lesson-22.html" }
           ]
         },
         {
           title: "模組 E｜光譜學：原子內部結構的第一道線索",
           courses: [
-            { title: "夫朗和斐譜線與克希荷夫—本生的光譜分析" },
-            { title: "用光譜發現新元素：氦如何先在太陽上被找到" },
-            { title: "巴耳末公式的發現：氫原子光譜的神祕規律" },
-            { title: "芮得柏公式的推廣：純粹經驗卻精確得驚人的公式" },
-            { title: "模組總結：沒有人知道為什麼這個公式會成立" }
+            { title: "夫朗和斐譜線與克希荷夫—本生的光譜分析", url: "topics/atomism/lesson-23.html" },
+            { title: "用光譜發現新元素：氦如何先在太陽上被找到", url: "topics/atomism/lesson-24.html" },
+            { title: "巴耳末公式的發現：氫原子光譜的神祕規律", url: "topics/atomism/lesson-25.html" },
+            { title: "芮得柏公式的推廣：純粹經驗卻精確得驚人的公式", url: "topics/atomism/lesson-26.html" },
+            { title: "模組總結：沒有人知道為什麼這個公式會成立", url: "topics/atomism/lesson-27.html" }
           ]
         },
         {
