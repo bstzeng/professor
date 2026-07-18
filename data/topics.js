@@ -494,21 +494,21 @@ window.SITE_DATA = {
         {
           title: "模組 F｜古典物理的極限：黑體輻射危機",
           courses: [
-            { title: "熱輻射的古典理論：史特凡—波茲曼與維恩位移定律回顧" },
-            { title: "完整推導空腔內電磁波模式的計數" },
-            { title: "完整推導雷立—金斯公式與紫外災變" },
-            { title: "蒲朗克的孤注一擲：量子化假設如何解決紫外災變" },
-            { title: "完整推導蒲朗克公式的兩個極限：還原維恩與雷立—金斯" },
-            { title: "模組總結：一個沒人理解物理意義的數學技巧" }
+            { title: "熱輻射的古典理論：史特凡—波茲曼與維恩位移定律回顧", url: "topics/atomism/lesson-28.html" },
+            { title: "完整推導空腔內電磁波模式的計數", url: "topics/atomism/lesson-29.html" },
+            { title: "完整推導雷立—金斯公式與紫外災變", url: "topics/atomism/lesson-30.html" },
+            { title: "蒲朗克的孤注一擲：量子化假設如何解決紫外災變", url: "topics/atomism/lesson-31.html" },
+            { title: "完整推導蒲朗克公式的兩個極限：還原維恩與雷立—金斯", url: "topics/atomism/lesson-32.html" },
+            { title: "模組總結：一個沒人理解物理意義的數學技巧", url: "topics/atomism/lesson-33.html" }
           ]
         },
         {
           title: "模組 G｜放射性的發現：通往新世界的最後一步",
           courses: [
-            { title: "侖琴發現 X 射線：意外的開端" },
-            { title: "貝克勒的意外發現：鈾鹽的神祕輻射" },
-            { title: "居禮夫婦：釙與鐳的分離與能量之謎" },
-            { title: "課程總結：1896 年的門檻——故事在標準模型第 1 課繼續" }
+            { title: "侖琴發現 X 射線：意外的開端", url: "topics/atomism/lesson-34.html" },
+            { title: "貝克勒的意外發現：鈾鹽的神祕輻射", url: "topics/atomism/lesson-35.html" },
+            { title: "居禮夫婦：釙與鐳的分離與能量之謎", url: "topics/atomism/lesson-36.html" },
+            { title: "課程總結：1896 年的門檻——故事在標準模型第 1 課繼續", url: "topics/atomism/lesson-37.html" }
           ]
         }
       ]
