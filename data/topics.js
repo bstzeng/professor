@@ -432,6 +432,96 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "electromagnetism",
+      title: "電磁學：從琥珀到馬克士威方程組",
+      description:
+        "相對論的前傳。從古希臘的琥珀與磁石、富蘭克林的風箏，到庫侖的扭秤、法拉第的力線與馬克士威的統一，完整走過電與磁從奇聞軼事變成古典物理最完美理論大廈的歷程。附完整數學推導（含向量微積分工具箱）與圖解，終點停在以太之謎，銜接相對論主題第 1 課。",
+      icon: "⚡",
+      url: "topics/electromagnetism/index.html",
+      modules: [
+        {
+          title: "模組 A｜靜電的兩千年：從琥珀到富蘭克林",
+          courses: [
+            { title: "琥珀與磁石：古希臘的觀察到吉爾伯特的《論磁石》", url: "topics/electromagnetism/lesson-01.html" },
+            { title: "電的兩種型態：杜費的雙流體說與富蘭克林的電荷守恆", url: "topics/electromagnetism/lesson-02.html" },
+            { title: "萊頓瓶：電第一次被「儲存」起來", url: "topics/electromagnetism/lesson-03.html" },
+            { title: "富蘭克林的風箏：天上的雷電與地上的靜電是同一件事", url: "topics/electromagnetism/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜定量化與數學工具箱",
+          courses: [
+            { title: "庫侖的扭秤實驗：完整驗證平方反比定律", url: "topics/electromagnetism/lesson-05.html" },
+            { title: "純量場與向量場：梯度的完整推導", url: "topics/electromagnetism/lesson-06.html" },
+            { title: "通量與散度：完整推導散度定理", url: "topics/electromagnetism/lesson-07.html" },
+            { title: "環流與旋度：完整推導斯托克斯定理", url: "topics/electromagnetism/lesson-08.html" },
+            { title: "平方反比的深意：與牛頓重力的完整對照", url: "topics/electromagnetism/lesson-09.html" },
+            { title: "模組總結：為什麼電磁學需要一套新的數學語言", url: "topics/electromagnetism/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜靜電場論",
+          courses: [
+            { title: "「場」的誕生：法拉第的力線與超距作用之爭" },
+            { title: "完整推導高斯定律，以及它與庫侖定律的等價性" },
+            { title: "電位：完整推導能量與電位的關係" },
+            { title: "導體與電容：完整計算幾種經典幾何" },
+            { title: "模組總結：靜電學的完成與它還不能回答的問題" }
+          ]
+        },
+        {
+          title: "模組 D｜電流：從青蛙腿到電路定律",
+          courses: [
+            { title: "伽伐尼與伏打：「動物電」之爭與電池的發明" },
+            { title: "歐姆定律：完整推導與歐姆生前被冷落的歷史" },
+            { title: "克希荷夫電路定律：光譜學那位克希荷夫的另一項成就" },
+            { title: "焦耳熱：完整推導電能與熱的轉換" }
+          ]
+        },
+        {
+          title: "模組 E｜靜磁學：電與磁的第一次牽手",
+          courses: [
+            { title: "厄斯特 1820：一堂課上的意外——電流讓磁針偏轉" },
+            { title: "必歐—沙伐定律：完整推導經典電流組態的磁場" },
+            { title: "完整推導安培定律" },
+            { title: "磁場沒有源頭：磁單極之謎" },
+            { title: "勞侖茲力：完整推導帶電粒子在電磁場中的運動" }
+          ]
+        },
+        {
+          title: "模組 F｜電磁感應：法拉第的革命",
+          courses: [
+            { title: "法拉第 1831：磁生電的十年執念" },
+            { title: "完整推導法拉第定律與冷次定律" },
+            { title: "發電機與馬達：改變世界的應用" },
+            { title: "自感與互感：完整推導" },
+            { title: "模組總結：對稱性的暗示——電生磁、磁生電，還缺什麼？" }
+          ]
+        },
+        {
+          title: "模組 G｜馬克士威的統一",
+          courses: [
+            { title: "安培定律的矛盾：完整推導電荷守恆如何逼出位移電流" },
+            { title: "馬克士威方程組：四條方程式的完整整理" },
+            { title: "完整推導電磁波動方程式：光速從純電磁常數中浮現" },
+            { title: "光就是電磁波：史上最偉大的統一之一" },
+            { title: "赫茲 1887：完整驗證電磁波的存在" },
+            { title: "完整推導坡印廷向量與輻射壓" },
+            { title: "模組總結：古典物理最完美的理論大廈" }
+          ]
+        },
+        {
+          title: "模組 H｜裂縫與門檻：以太問題",
+          courses: [
+            { title: "波需要介質？以太假說的必然與尷尬" },
+            { title: "完整推導邁克生—莫立實驗的預期結果" },
+            { title: "零結果：物理史上最著名的「失敗」實驗" },
+            { title: "課程總結：1905 年的門檻——故事在相對論主題第 1 課繼續" }
+          ]
+        }
+      ]
+    },
+    {
       id: "atomism",
       title: "原子論：從德謨克利特到量子革命前夕",
       description:
