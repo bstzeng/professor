@@ -491,32 +491,32 @@ window.SITE_DATA = {
         {
           title: "模組 F｜電磁感應：法拉第的革命",
           courses: [
-            { title: "法拉第 1831：磁生電的十年執念" },
-            { title: "完整推導法拉第定律與冷次定律" },
-            { title: "發電機與馬達：改變世界的應用" },
-            { title: "自感與互感：完整推導" },
-            { title: "模組總結：對稱性的暗示——電生磁、磁生電，還缺什麼？" }
+            { title: "法拉第 1831：磁生電的十年執念", url: "topics/electromagnetism/lesson-25.html" },
+            { title: "完整推導法拉第定律與冷次定律", url: "topics/electromagnetism/lesson-26.html" },
+            { title: "發電機與馬達：改變世界的應用", url: "topics/electromagnetism/lesson-27.html" },
+            { title: "自感與互感：完整推導", url: "topics/electromagnetism/lesson-28.html" },
+            { title: "模組總結：對稱性的暗示——電生磁、磁生電，還缺什麼？", url: "topics/electromagnetism/lesson-29.html" }
           ]
         },
         {
           title: "模組 G｜馬克士威的統一",
           courses: [
-            { title: "安培定律的矛盾：完整推導電荷守恆如何逼出位移電流" },
-            { title: "馬克士威方程組：四條方程式的完整整理" },
-            { title: "完整推導電磁波動方程式：光速從純電磁常數中浮現" },
-            { title: "光就是電磁波：史上最偉大的統一之一" },
-            { title: "赫茲 1887：完整驗證電磁波的存在" },
-            { title: "完整推導坡印廷向量與輻射壓" },
-            { title: "模組總結：古典物理最完美的理論大廈" }
+            { title: "安培定律的矛盾：完整推導電荷守恆如何逼出位移電流", url: "topics/electromagnetism/lesson-30.html" },
+            { title: "馬克士威方程組：四條方程式的完整整理", url: "topics/electromagnetism/lesson-31.html" },
+            { title: "完整推導電磁波動方程式：光速從純電磁常數中浮現", url: "topics/electromagnetism/lesson-32.html" },
+            { title: "光就是電磁波：史上最偉大的統一之一", url: "topics/electromagnetism/lesson-33.html" },
+            { title: "赫茲 1887：完整驗證電磁波的存在", url: "topics/electromagnetism/lesson-34.html" },
+            { title: "完整推導坡印廷向量與輻射壓", url: "topics/electromagnetism/lesson-35.html" },
+            { title: "模組總結：古典物理最完美的理論大廈", url: "topics/electromagnetism/lesson-36.html" }
           ]
         },
         {
           title: "模組 H｜裂縫與門檻：以太問題",
           courses: [
-            { title: "波需要介質？以太假說的必然與尷尬" },
-            { title: "完整推導邁克生—莫立實驗的預期結果" },
-            { title: "零結果：物理史上最著名的「失敗」實驗" },
-            { title: "課程總結：1905 年的門檻——故事在相對論主題第 1 課繼續" }
+            { title: "波需要介質？以太假說的必然與尷尬", url: "topics/electromagnetism/lesson-37.html" },
+            { title: "完整推導邁克生—莫立實驗的預期結果", url: "topics/electromagnetism/lesson-38.html" },
+            { title: "零結果：物理史上最著名的「失敗」實驗", url: "topics/electromagnetism/lesson-39.html" },
+            { title: "課程總結：1905 年的門檻——故事在相對論主題第 1 課繼續", url: "topics/electromagnetism/lesson-40.html" }
           ]
         }
       ]
