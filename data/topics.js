@@ -161,20 +161,20 @@ window.SITE_DATA = {
         {
           title: "模組 B｜調性的地圖：五度圈",
           courses: [
-            { title: "調號與五度圈：12 個大調的完整地圖" },
-            { title: "關係大小調與平行大小調：一張調號、兩種心情" },
-            { title: "五度圈的實用功能：和弦親疏、轉調距離一眼看出" },
-            { title: "模組總結：聽出一首歌在什麼調——主音引力" }
+            { title: "調號與五度圈：12 個大調的完整地圖", url: "topics/music-theory/lesson-06.html" },
+            { title: "關係大小調與平行大小調：一張調號、兩種心情", url: "topics/music-theory/lesson-07.html" },
+            { title: "五度圈的實用功能：和弦親疏、轉調距離一眼看出", url: "topics/music-theory/lesson-08.html" },
+            { title: "模組總結：聽出一首歌在什麼調——主音引力", url: "topics/music-theory/lesson-09.html" }
           ]
         },
         {
           title: "模組 C｜和弦的構造",
           courses: [
-            { title: "三和弦：大、小、增、減的堆疊邏輯" },
-            { title: "大調順階和弦：I ii iii IV V vi vii° 的完整推導" },
-            { title: "小調順階和弦：為什麼小調的 V 常常「借」大三度" },
-            { title: "七和弦：maj7、7、m7、m7♭5 的構造與色彩" },
-            { title: "轉位與斜線和弦：同一個和弦的不同重心" }
+            { title: "三和弦：大、小、增、減的堆疊邏輯", url: "topics/music-theory/lesson-10.html" },
+            { title: "大調順階和弦：I ii iii IV V vi vii° 的完整推導", url: "topics/music-theory/lesson-11.html" },
+            { title: "小調順階和弦：為什麼小調的 V 常常「借」大三度", url: "topics/music-theory/lesson-12.html" },
+            { title: "七和弦：maj7、7、m7、m7♭5 的構造與色彩", url: "topics/music-theory/lesson-13.html" },
+            { title: "轉位與斜線和弦：同一個和弦的不同重心", url: "topics/music-theory/lesson-14.html" }
           ]
         },
         {
