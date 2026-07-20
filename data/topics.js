@@ -462,30 +462,30 @@ window.SITE_DATA = {
         {
           title: "模組 C｜靜電場論",
           courses: [
-            { title: "「場」的誕生：法拉第的力線與超距作用之爭" },
-            { title: "完整推導高斯定律，以及它與庫侖定律的等價性" },
-            { title: "電位：完整推導能量與電位的關係" },
-            { title: "導體與電容：完整計算幾種經典幾何" },
-            { title: "模組總結：靜電學的完成與它還不能回答的問題" }
+            { title: "「場」的誕生：法拉第的力線與超距作用之爭", url: "topics/electromagnetism/lesson-11.html" },
+            { title: "完整推導高斯定律，以及它與庫侖定律的等價性", url: "topics/electromagnetism/lesson-12.html" },
+            { title: "電位：完整推導能量與電位的關係", url: "topics/electromagnetism/lesson-13.html" },
+            { title: "導體與電容：完整計算幾種經典幾何", url: "topics/electromagnetism/lesson-14.html" },
+            { title: "模組總結：靜電學的完成與它還不能回答的問題", url: "topics/electromagnetism/lesson-15.html" }
           ]
         },
         {
           title: "模組 D｜電流：從青蛙腿到電路定律",
           courses: [
-            { title: "伽伐尼與伏打：「動物電」之爭與電池的發明" },
-            { title: "歐姆定律：完整推導與歐姆生前被冷落的歷史" },
-            { title: "克希荷夫電路定律：光譜學那位克希荷夫的另一項成就" },
-            { title: "焦耳熱：完整推導電能與熱的轉換" }
+            { title: "伽伐尼與伏打：「動物電」之爭與電池的發明", url: "topics/electromagnetism/lesson-16.html" },
+            { title: "歐姆定律：完整推導與歐姆生前被冷落的歷史", url: "topics/electromagnetism/lesson-17.html" },
+            { title: "克希荷夫電路定律：光譜學那位克希荷夫的另一項成就", url: "topics/electromagnetism/lesson-18.html" },
+            { title: "焦耳熱：完整推導電能與熱的轉換", url: "topics/electromagnetism/lesson-19.html" }
           ]
         },
         {
           title: "模組 E｜靜磁學：電與磁的第一次牽手",
           courses: [
-            { title: "厄斯特 1820：一堂課上的意外——電流讓磁針偏轉" },
-            { title: "必歐—沙伐定律：完整推導經典電流組態的磁場" },
-            { title: "完整推導安培定律" },
-            { title: "磁場沒有源頭：磁單極之謎" },
-            { title: "勞侖茲力：完整推導帶電粒子在電磁場中的運動" }
+            { title: "厄斯特 1820：一堂課上的意外——電流讓磁針偏轉", url: "topics/electromagnetism/lesson-20.html" },
+            { title: "必歐—沙伐定律：完整推導經典電流組態的磁場", url: "topics/electromagnetism/lesson-21.html" },
+            { title: "完整推導安培定律", url: "topics/electromagnetism/lesson-22.html" },
+            { title: "磁場沒有源頭：磁單極之謎", url: "topics/electromagnetism/lesson-23.html" },
+            { title: "勞侖茲力：完整推導帶電粒子在電磁場中的運動", url: "topics/electromagnetism/lesson-24.html" }
           ]
         },
         {
