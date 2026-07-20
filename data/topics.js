@@ -141,6 +141,98 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "music-theory",
+      title: "創作樂理：從音程到寫出一首歌",
+      description:
+        "為想創作音樂的人設計的樂理課：和弦怎麼疊、進行怎麼走、旋律怎麼配和弦、一首歌怎麼從零寫出來。全站第一門「聽得到」的課——每個音程、和弦、音階、進行都可以直接點擊試聽，用耳朵驗證每一個概念。與民謠吉他主題互相銜接。",
+      icon: "🎹",
+      url: "topics/music-theory/index.html",
+      modules: [
+        {
+          title: "模組 A｜音的原料：音名、音程與音階",
+          courses: [
+            { title: "十二平均律：為什麼一個八度切成 12 個半音", url: "topics/music-theory/lesson-01.html" },
+            { title: "音程（上）：度數與半音的算法", url: "topics/music-theory/lesson-02.html" },
+            { title: "音程（下）：大小完全增減與每種音程的聲音表情", url: "topics/music-theory/lesson-03.html" },
+            { title: "大調音階的構造：全全半全全全半", url: "topics/music-theory/lesson-04.html" },
+            { title: "小調音階三兄弟：自然、和聲、旋律小調", url: "topics/music-theory/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜調性的地圖：五度圈",
+          courses: [
+            { title: "調號與五度圈：12 個大調的完整地圖" },
+            { title: "關係大小調與平行大小調：一張調號、兩種心情" },
+            { title: "五度圈的實用功能：和弦親疏、轉調距離一眼看出" },
+            { title: "模組總結：聽出一首歌在什麼調——主音引力" }
+          ]
+        },
+        {
+          title: "模組 C｜和弦的構造",
+          courses: [
+            { title: "三和弦：大、小、增、減的堆疊邏輯" },
+            { title: "大調順階和弦：I ii iii IV V vi vii° 的完整推導" },
+            { title: "小調順階和弦：為什麼小調的 V 常常「借」大三度" },
+            { title: "七和弦：maj7、7、m7、m7♭5 的構造與色彩" },
+            { title: "轉位與斜線和弦：同一個和弦的不同重心" }
+          ]
+        },
+        {
+          title: "模組 D｜和聲進行的邏輯",
+          courses: [
+            { title: "和弦功能：主—下屬—屬，緊張與解決的引擎" },
+            { title: "終止式：樂句怎麼收尾——正格、變格、假終止、半終止" },
+            { title: "經典套路解剖（一）：I–V–vi–IV 與卡農進行" },
+            { title: "經典套路解剖（二）：低音下行、12 小節藍調、小調套路" },
+            { title: "和聲節奏：一小節換幾個和弦，決定歌的步伐" },
+            { title: "模組總結：完整拆解三首經典歌的和聲骨架" }
+          ]
+        },
+        {
+          title: "模組 E｜替旋律配和弦",
+          courses: [
+            { title: "旋律與和弦的關係：和弦內音與非和弦音" },
+            { title: "配和弦的完整流程：定調、找重拍音、選功能、試聽修正" },
+            { title: "同一段旋律的多種配法：重配和聲入門" },
+            { title: "經過音、掛留音、倚音：讓旋律離開和弦也好聽" },
+            { title: "旋律寫作：動機、重複與變化的平衡" },
+            { title: "實作課：從零開始替一段旋律完整配好和弦" }
+          ]
+        },
+        {
+          title: "模組 F｜色彩與進階和聲",
+          courses: [
+            { title: "副屬和弦（V/x）：向別的調借屬和弦" },
+            { title: "借用和弦：從小調借來的 ♭VII、♭VI、iv" },
+            { title: "sus2、sus4、add9：懸浮與加味" },
+            { title: "延伸和弦：9、11、13 的爵士色盤" },
+            { title: "轉調技巧：共同和弦轉調、直接轉調、副歌升 key" },
+            { title: "調式（modes）：Dorian、Mixolydian 的色彩與流行應用" },
+            { title: "模組總結：進階和聲的品味地圖" }
+          ]
+        },
+        {
+          title: "模組 G｜節奏、曲式與編曲",
+          courses: [
+            { title: "歌曲曲式：主歌、副歌、橋段的功能與能量曲線" },
+            { title: "律動（groove）：同一組和弦，節奏一改歌就變了" },
+            { title: "編曲分層思維：節奏組、和聲組、旋律組、填充" },
+            { title: "前奏、間奏、尾奏的寫法" },
+            { title: "動態與留白：編曲最常被忽略的維度" }
+          ]
+        },
+        {
+          title: "模組 H｜創作實戰",
+          courses: [
+            { title: "從和弦進行開始寫歌：完整流程示範" },
+            { title: "從旋律開始寫歌：完整流程示範" },
+            { title: "歌詞與旋律的咬合：斷句、重音與中文聲調" },
+            { title: "課程總結：建立你自己的創作工作流程與檢查清單" }
+          ]
+        }
+      ]
+    },
+    {
       id: "electromagnetism",
       title: "電磁學：從琥珀到馬克士威方程組",
       description:
