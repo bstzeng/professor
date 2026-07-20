@@ -120,6 +120,117 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "ukulele",
+      title: "烏克麗麗",
+      description: "還沒有課程，先收錄一頁完整的常見和弦查詢表（12 個調的大和弦、小和弦、屬七和弦）。",
+      icon: "🎶",
+      url: "topics/ukulele/index.html",
+      resources: [
+        {
+          title: "歌曲",
+          description: "歌曲和弦進行清單，點和弦可看指法圖（另開新頁）",
+          icon: "🎵",
+          url: "https://sheet.bstzeng.cc/ukulele.html"
+        },
+        {
+          title: "常見和弦總覽",
+          description: "12 個調的大和弦、小和弦、屬七和弦，共 36 個和弦指法圖",
+          icon: "🎼",
+          url: "topics/ukulele/chords.html"
+        }
+      ]
+    },
+    {
+      id: "electromagnetism",
+      title: "電磁學：從琥珀到馬克士威方程組",
+      description:
+        "相對論的前傳。從古希臘的琥珀與磁石、富蘭克林的風箏，到庫侖的扭秤、法拉第的力線與馬克士威的統一，完整走過電與磁從奇聞軼事變成古典物理最完美理論大廈的歷程。附完整數學推導（含向量微積分工具箱）與圖解，終點停在以太之謎，銜接相對論主題第 1 課。",
+      icon: "⚡",
+      url: "topics/electromagnetism/index.html",
+      modules: [
+        {
+          title: "模組 A｜靜電的兩千年：從琥珀到富蘭克林",
+          courses: [
+            { title: "琥珀與磁石：古希臘的觀察到吉爾伯特的《論磁石》", url: "topics/electromagnetism/lesson-01.html" },
+            { title: "電的兩種型態：杜費的雙流體說與富蘭克林的電荷守恆", url: "topics/electromagnetism/lesson-02.html" },
+            { title: "萊頓瓶：電第一次被「儲存」起來", url: "topics/electromagnetism/lesson-03.html" },
+            { title: "富蘭克林的風箏：天上的雷電與地上的靜電是同一件事", url: "topics/electromagnetism/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜定量化與數學工具箱",
+          courses: [
+            { title: "庫侖的扭秤實驗：完整驗證平方反比定律", url: "topics/electromagnetism/lesson-05.html" },
+            { title: "純量場與向量場：梯度的完整推導", url: "topics/electromagnetism/lesson-06.html" },
+            { title: "通量與散度：完整推導散度定理", url: "topics/electromagnetism/lesson-07.html" },
+            { title: "環流與旋度：完整推導斯托克斯定理", url: "topics/electromagnetism/lesson-08.html" },
+            { title: "平方反比的深意：與牛頓重力的完整對照", url: "topics/electromagnetism/lesson-09.html" },
+            { title: "模組總結：為什麼電磁學需要一套新的數學語言", url: "topics/electromagnetism/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜靜電場論",
+          courses: [
+            { title: "「場」的誕生：法拉第的力線與超距作用之爭", url: "topics/electromagnetism/lesson-11.html" },
+            { title: "完整推導高斯定律，以及它與庫侖定律的等價性", url: "topics/electromagnetism/lesson-12.html" },
+            { title: "電位：完整推導能量與電位的關係", url: "topics/electromagnetism/lesson-13.html" },
+            { title: "導體與電容：完整計算幾種經典幾何", url: "topics/electromagnetism/lesson-14.html" },
+            { title: "模組總結：靜電學的完成與它還不能回答的問題", url: "topics/electromagnetism/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜電流：從青蛙腿到電路定律",
+          courses: [
+            { title: "伽伐尼與伏打：「動物電」之爭與電池的發明", url: "topics/electromagnetism/lesson-16.html" },
+            { title: "歐姆定律：完整推導與歐姆生前被冷落的歷史", url: "topics/electromagnetism/lesson-17.html" },
+            { title: "克希荷夫電路定律：光譜學那位克希荷夫的另一項成就", url: "topics/electromagnetism/lesson-18.html" },
+            { title: "焦耳熱：完整推導電能與熱的轉換", url: "topics/electromagnetism/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 E｜靜磁學：電與磁的第一次牽手",
+          courses: [
+            { title: "厄斯特 1820：一堂課上的意外——電流讓磁針偏轉", url: "topics/electromagnetism/lesson-20.html" },
+            { title: "必歐—沙伐定律：完整推導經典電流組態的磁場", url: "topics/electromagnetism/lesson-21.html" },
+            { title: "完整推導安培定律", url: "topics/electromagnetism/lesson-22.html" },
+            { title: "磁場沒有源頭：磁單極之謎", url: "topics/electromagnetism/lesson-23.html" },
+            { title: "勞侖茲力：完整推導帶電粒子在電磁場中的運動", url: "topics/electromagnetism/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜電磁感應：法拉第的革命",
+          courses: [
+            { title: "法拉第 1831：磁生電的十年執念", url: "topics/electromagnetism/lesson-25.html" },
+            { title: "完整推導法拉第定律與冷次定律", url: "topics/electromagnetism/lesson-26.html" },
+            { title: "發電機與馬達：改變世界的應用", url: "topics/electromagnetism/lesson-27.html" },
+            { title: "自感與互感：完整推導", url: "topics/electromagnetism/lesson-28.html" },
+            { title: "模組總結：對稱性的暗示——電生磁、磁生電，還缺什麼？", url: "topics/electromagnetism/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 G｜馬克士威的統一",
+          courses: [
+            { title: "安培定律的矛盾：完整推導電荷守恆如何逼出位移電流", url: "topics/electromagnetism/lesson-30.html" },
+            { title: "馬克士威方程組：四條方程式的完整整理", url: "topics/electromagnetism/lesson-31.html" },
+            { title: "完整推導電磁波動方程式：光速從純電磁常數中浮現", url: "topics/electromagnetism/lesson-32.html" },
+            { title: "光就是電磁波：史上最偉大的統一之一", url: "topics/electromagnetism/lesson-33.html" },
+            { title: "赫茲 1887：完整驗證電磁波的存在", url: "topics/electromagnetism/lesson-34.html" },
+            { title: "完整推導坡印廷向量與輻射壓", url: "topics/electromagnetism/lesson-35.html" },
+            { title: "模組總結：古典物理最完美的理論大廈", url: "topics/electromagnetism/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 H｜裂縫與門檻：以太問題",
+          courses: [
+            { title: "波需要介質？以太假說的必然與尷尬", url: "topics/electromagnetism/lesson-37.html" },
+            { title: "完整推導邁克生—莫立實驗的預期結果", url: "topics/electromagnetism/lesson-38.html" },
+            { title: "零結果：物理史上最著名的「失敗」實驗", url: "topics/electromagnetism/lesson-39.html" },
+            { title: "課程總結：1905 年的門檻——故事在相對論主題第 1 課繼續", url: "topics/electromagnetism/lesson-40.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "relativity",
       title: "廣義相對論：從等效原理到愛因斯坦場方程式",
       description:
@@ -195,109 +306,83 @@ window.SITE_DATA = {
       ]
     },
     {
-      id: "ukulele",
-      title: "烏克麗麗",
-      description: "還沒有課程，先收錄一頁完整的常見和弦查詢表（12 個調的大和弦、小和弦、屬七和弦）。",
-      icon: "🎶",
-      url: "topics/ukulele/index.html",
-      resources: [
-        {
-          title: "歌曲",
-          description: "歌曲和弦進行清單，點和弦可看指法圖（另開新頁）",
-          icon: "🎵",
-          url: "https://sheet.bstzeng.cc/ukulele.html"
-        },
-        {
-          title: "常見和弦總覽",
-          description: "12 個調的大和弦、小和弦、屬七和弦，共 36 個和弦指法圖",
-          icon: "🎼",
-          url: "topics/ukulele/chords.html"
-        }
-      ]
-    },
-    {
-      id: "astronomy",
-      title: "太空探索：恆星觀測到宇宙學",
+      id: "atomism",
+      title: "原子論：從德謨克利特到量子革命前夕",
       description:
-        "從望遠鏡觀測原理、恆星物理量（距離、大小、質量、溫度）怎麼測，到星系、深空天體，最後是主流的宇宙形成假說。附完整數學推導，不省略證明過程。",
-      icon: "🔭",
-      url: "topics/astronomy/index.html",
+        "標準模型的前傳。從古希臘的原子臆測、道爾頓的化學原子論、氣體動力論與布朗運動的決定性證據，到週期表、光譜學與黑體輻射危機，完整走過原子從哲學概念變成科學事實的兩千四百年。附完整數學推導與圖解，終點銜接標準模型主題第 1 課。",
+      icon: "⚗️",
+      url: "topics/atomism/index.html",
       modules: [
         {
-          title: "模組 A｜觀測基礎：我們怎麼「看」宇宙",
+          title: "模組 A｜古代原子論的哲學根源",
           courses: [
-            { title: "電磁波譜與人類觀測宇宙的極限", url: "topics/astronomy/lesson-01.html" },
-            { title: "望遠鏡技術：從光學到全波段天文學", url: "topics/astronomy/lesson-02.html" },
-            { title: "星等系統：視星等與絕對星等", url: "topics/astronomy/lesson-03.html" },
-            { title: "光譜學基礎：吸收線、發射線在說什麼", url: "topics/astronomy/lesson-04.html" },
-            { title: "測光與濾鏡：顏色指數與觀測資料怎麼來的", url: "topics/astronomy/lesson-05.html" }
+            { title: "德謨克利特與留基伯：虛空與不可分割的原子", url: "topics/atomism/lesson-01.html" },
+            { title: "伊比鳩魯與盧克萊修：《物性論》與原子論的古羅馬傳承", url: "topics/atomism/lesson-02.html" },
+            { title: "亞里斯多德的連續體理論：原子論為何沉寂近兩千年", url: "topics/atomism/lesson-03.html" },
+            { title: "十七世紀的復興：伽森狄與波以耳的機械哲學", url: "topics/atomism/lesson-04.html" },
+            { title: "完整推導波以耳定律：第一個關於「看不見的粒子」的定量證據", url: "topics/atomism/lesson-05.html" }
           ]
         },
         {
-          title: "模組 B｜恆星的物理量怎麼測",
+          title: "模組 B｜化學原子論的誕生",
           courses: [
-            { title: "視差法：最直接的幾何距離測量", url: "topics/astronomy/lesson-06.html" },
-            { title: "光度、溫度與史特凡－波茲曼定律", url: "topics/astronomy/lesson-07.html" },
-            { title: "維恩定律與黑體輻射：從顏色推溫度", url: "topics/astronomy/lesson-08.html" },
-            { title: "恆星光譜分類（OBAFGKM）與 HR 圖", url: "topics/astronomy/lesson-09.html" },
-            { title: "分光視差法：用光譜類型推距離", url: "topics/astronomy/lesson-10.html" },
-            { title: "造父變星：標準燭光與週光關係", url: "topics/astronomy/lesson-11.html" },
-            { title: "雙星系統：用克卜勒定律測恆星質量", url: "topics/astronomy/lesson-12.html" },
-            { title: "距離階梯：從視差到哈伯定律的完整測距鏈", url: "topics/astronomy/lesson-13.html" }
+            { title: "拉瓦節與質量守恆定律：化學定量革命的起點", url: "topics/atomism/lesson-06.html" },
+            { title: "定比定律：普魯斯特與貝托雷之爭", url: "topics/atomism/lesson-07.html" },
+            { title: "完整推導倍比定律：道爾頓從化學數據中看見的規律", url: "topics/atomism/lesson-08.html" },
+            { title: "道爾頓原子論：1803 年的五條公設", url: "topics/atomism/lesson-09.html" },
+            { title: "給呂薩克氣體化合體積定律與道爾頓理論的矛盾", url: "topics/atomism/lesson-10.html" },
+            { title: "亞佛加厥假說：分子概念如何解開氣體體積之謎", url: "topics/atomism/lesson-11.html" }
           ]
         },
         {
-          title: "模組 C｜恆星的一生",
+          title: "模組 C｜原子論的物理證據：氣體動力論與布朗運動",
           courses: [
-            { title: "恆星誕生：分子雲與重力塌縮", url: "topics/astronomy/lesson-14.html" },
-            { title: "主序星：氫融合與質光關係", url: "topics/astronomy/lesson-15.html" },
-            { title: "紅巨星階段與氦閃", url: "topics/astronomy/lesson-16.html" },
-            { title: "恆星之死：白矮星與錢卓塞卡極限", url: "topics/astronomy/lesson-17.html" },
-            { title: "超新星爆炸、中子星與黑洞的形成", url: "topics/astronomy/lesson-18.html" },
-            { title: "核合成：宇宙中的元素從哪裡來", url: "topics/astronomy/lesson-19.html" }
+            { title: "完整推導理想氣體狀態方程式：從微觀碰撞模型出發", url: "topics/atomism/lesson-12.html" },
+            { title: "馬克士威—波茲曼分布：氣體分子的速度統計", url: "topics/atomism/lesson-13.html" },
+            { title: "完整推導平均自由徑：分子大小與亞佛加厥常數的第一次估計", url: "topics/atomism/lesson-14.html" },
+            { title: "布朗運動之謎：花粉為什麼會不停地抖動", url: "topics/atomism/lesson-15.html" },
+            { title: "愛因斯坦的布朗運動理論：完整推導擴散係數與愛因斯坦關係式", url: "topics/atomism/lesson-16.html" },
+            { title: "佩蘭的決定性實驗：原子論從假說變成事實", url: "topics/atomism/lesson-17.html" },
+            { title: "模組總結：懷疑論者最終的讓步", url: "topics/atomism/lesson-18.html" }
           ]
         },
         {
-          title: "模組 D｜星系與大尺度結構",
+          title: "模組 D｜元素的系統化：週期表",
           courses: [
-            { title: "銀河系的結構與我們的位置", url: "topics/astronomy/lesson-20.html" },
-            { title: "星系分類：哈伯音叉圖", url: "topics/astronomy/lesson-21.html" },
-            { title: "星系自轉曲線：暗物質最早的證據", url: "topics/astronomy/lesson-22.html" },
-            { title: "星系團、超星系團與宇宙網", url: "topics/astronomy/lesson-23.html" },
-            { title: "活躍星系核與超大質量黑洞", url: "topics/astronomy/lesson-24.html" },
-            { title: "重力透鏡：用廣義相對論繪製暗物質地圖", url: "topics/astronomy/lesson-25.html" }
+            { title: "從煉金術到化學：元素概念的演化", url: "topics/atomism/lesson-19.html" },
+            { title: "德貝萊納的三元素組與紐蘭茲的八音律", url: "topics/atomism/lesson-20.html" },
+            { title: "門得列夫的週期表：鎵、鍺、鈧的預言與發現", url: "topics/atomism/lesson-21.html" },
+            { title: "週期表為什麼「有效」：一個當時無人能回答的問題", url: "topics/atomism/lesson-22.html" }
           ]
         },
         {
-          title: "模組 E｜深空與極端天體",
+          title: "模組 E｜光譜學：原子內部結構的第一道線索",
           courses: [
-            { title: "深空長曝光：哈伯深空與時間回溯", url: "topics/astronomy/lesson-26.html" },
-            { title: "中子星、脈衝星與磁星", url: "topics/astronomy/lesson-27.html" },
-            { title: "黑洞的觀測證據：吸積盤到事件視界望遠鏡", url: "topics/astronomy/lesson-28.html" },
-            { title: "重力波天文學：聽見宇宙的碰撞", url: "topics/astronomy/lesson-29.html" },
-            { title: "系外行星：凌日法與徑向速度法", url: "topics/astronomy/lesson-30.html" },
-            { title: "多信使天文學：整合光、重力波與微中子", url: "topics/astronomy/lesson-31.html" }
+            { title: "夫朗和斐譜線與克希荷夫—本生的光譜分析", url: "topics/atomism/lesson-23.html" },
+            { title: "用光譜發現新元素：氦如何先在太陽上被找到", url: "topics/atomism/lesson-24.html" },
+            { title: "巴耳末公式的發現：氫原子光譜的神祕規律", url: "topics/atomism/lesson-25.html" },
+            { title: "芮得柏公式的推廣：純粹經驗卻精確得驚人的公式", url: "topics/atomism/lesson-26.html" },
+            { title: "模組總結：沒有人知道為什麼這個公式會成立", url: "topics/atomism/lesson-27.html" }
           ]
         },
         {
-          title: "模組 F｜宇宙學：主流的宇宙形成假說",
+          title: "模組 F｜古典物理的極限：黑體輻射危機",
           courses: [
-            { title: "奧伯斯悖論：為什麼夜空是黑的", url: "topics/astronomy/lesson-32.html" },
-            { title: "哈伯定律與宇宙膨脹的發現", url: "topics/astronomy/lesson-33.html" },
-            { title: "大霹靂理論：時間線與三大關鍵證據", url: "topics/astronomy/lesson-34.html" },
-            { title: "宇宙微波背景輻射：宇宙的嬰兒照", url: "topics/astronomy/lesson-35.html" },
-            { title: "大霹靂核合成：輕元素從哪裡來", url: "topics/astronomy/lesson-36.html" },
-            { title: "宇宙暴脹：解決視界問題與平坦性問題", url: "topics/astronomy/lesson-37.html" },
-            { title: "暗能量與 ΛCDM 標準模型", url: "topics/astronomy/lesson-38.html" },
-            { title: "宇宙的命運：熱寂、大擠壓還是大撕裂", url: "topics/astronomy/lesson-39.html" }
+            { title: "熱輻射的古典理論：史特凡—波茲曼與維恩位移定律回顧", url: "topics/atomism/lesson-28.html" },
+            { title: "完整推導空腔內電磁波模式的計數", url: "topics/atomism/lesson-29.html" },
+            { title: "完整推導雷立—金斯公式與紫外災變", url: "topics/atomism/lesson-30.html" },
+            { title: "蒲朗克的孤注一擲：量子化假設如何解決紫外災變", url: "topics/atomism/lesson-31.html" },
+            { title: "完整推導蒲朗克公式的兩個極限：還原維恩與雷立—金斯", url: "topics/atomism/lesson-32.html" },
+            { title: "模組總結：一個沒人理解物理意義的數學技巧", url: "topics/atomism/lesson-33.html" }
           ]
         },
         {
-          title: "模組 G｜實戰應用",
+          title: "模組 G｜放射性的發現：通往新世界的最後一步",
           courses: [
-            { title: "星圖與觀星：認識自己頭頂上的星空", url: "topics/astronomy/lesson-40.html" },
-            { title: "公民科學與天文新聞：怎麼參與真實研究、讀懂報導", url: "topics/astronomy/lesson-41.html" },
-            { title: "總結：還沒解決的大問題，以及怎麼持續追蹤宇宙研究", url: "topics/astronomy/lesson-42.html" }
+            { title: "侖琴發現 X 射線：意外的開端", url: "topics/atomism/lesson-34.html" },
+            { title: "貝克勒的意外發現：鈾鹽的神祕輻射", url: "topics/atomism/lesson-35.html" },
+            { title: "居禮夫婦：釙與鐳的分離與能量之謎", url: "topics/atomism/lesson-36.html" },
+            { title: "課程總結：1896 年的門檻——故事在標準模型第 1 課繼續", url: "topics/atomism/lesson-37.html" }
           ]
         }
       ]
@@ -432,173 +517,88 @@ window.SITE_DATA = {
       ]
     },
     {
-      id: "electromagnetism",
-      title: "電磁學：從琥珀到馬克士威方程組",
+      id: "astronomy",
+      title: "太空探索：恆星觀測到宇宙學",
       description:
-        "相對論的前傳。從古希臘的琥珀與磁石、富蘭克林的風箏，到庫侖的扭秤、法拉第的力線與馬克士威的統一，完整走過電與磁從奇聞軼事變成古典物理最完美理論大廈的歷程。附完整數學推導（含向量微積分工具箱）與圖解，終點停在以太之謎，銜接相對論主題第 1 課。",
-      icon: "⚡",
-      url: "topics/electromagnetism/index.html",
+        "從望遠鏡觀測原理、恆星物理量（距離、大小、質量、溫度）怎麼測，到星系、深空天體，最後是主流的宇宙形成假說。附完整數學推導，不省略證明過程。",
+      icon: "🔭",
+      url: "topics/astronomy/index.html",
       modules: [
         {
-          title: "模組 A｜靜電的兩千年：從琥珀到富蘭克林",
+          title: "模組 A｜觀測基礎：我們怎麼「看」宇宙",
           courses: [
-            { title: "琥珀與磁石：古希臘的觀察到吉爾伯特的《論磁石》", url: "topics/electromagnetism/lesson-01.html" },
-            { title: "電的兩種型態：杜費的雙流體說與富蘭克林的電荷守恆", url: "topics/electromagnetism/lesson-02.html" },
-            { title: "萊頓瓶：電第一次被「儲存」起來", url: "topics/electromagnetism/lesson-03.html" },
-            { title: "富蘭克林的風箏：天上的雷電與地上的靜電是同一件事", url: "topics/electromagnetism/lesson-04.html" }
+            { title: "電磁波譜與人類觀測宇宙的極限", url: "topics/astronomy/lesson-01.html" },
+            { title: "望遠鏡技術：從光學到全波段天文學", url: "topics/astronomy/lesson-02.html" },
+            { title: "星等系統：視星等與絕對星等", url: "topics/astronomy/lesson-03.html" },
+            { title: "光譜學基礎：吸收線、發射線在說什麼", url: "topics/astronomy/lesson-04.html" },
+            { title: "測光與濾鏡：顏色指數與觀測資料怎麼來的", url: "topics/astronomy/lesson-05.html" }
           ]
         },
         {
-          title: "模組 B｜定量化與數學工具箱",
+          title: "模組 B｜恆星的物理量怎麼測",
           courses: [
-            { title: "庫侖的扭秤實驗：完整驗證平方反比定律", url: "topics/electromagnetism/lesson-05.html" },
-            { title: "純量場與向量場：梯度的完整推導", url: "topics/electromagnetism/lesson-06.html" },
-            { title: "通量與散度：完整推導散度定理", url: "topics/electromagnetism/lesson-07.html" },
-            { title: "環流與旋度：完整推導斯托克斯定理", url: "topics/electromagnetism/lesson-08.html" },
-            { title: "平方反比的深意：與牛頓重力的完整對照", url: "topics/electromagnetism/lesson-09.html" },
-            { title: "模組總結：為什麼電磁學需要一套新的數學語言", url: "topics/electromagnetism/lesson-10.html" }
+            { title: "視差法：最直接的幾何距離測量", url: "topics/astronomy/lesson-06.html" },
+            { title: "光度、溫度與史特凡－波茲曼定律", url: "topics/astronomy/lesson-07.html" },
+            { title: "維恩定律與黑體輻射：從顏色推溫度", url: "topics/astronomy/lesson-08.html" },
+            { title: "恆星光譜分類（OBAFGKM）與 HR 圖", url: "topics/astronomy/lesson-09.html" },
+            { title: "分光視差法：用光譜類型推距離", url: "topics/astronomy/lesson-10.html" },
+            { title: "造父變星：標準燭光與週光關係", url: "topics/astronomy/lesson-11.html" },
+            { title: "雙星系統：用克卜勒定律測恆星質量", url: "topics/astronomy/lesson-12.html" },
+            { title: "距離階梯：從視差到哈伯定律的完整測距鏈", url: "topics/astronomy/lesson-13.html" }
           ]
         },
         {
-          title: "模組 C｜靜電場論",
+          title: "模組 C｜恆星的一生",
           courses: [
-            { title: "「場」的誕生：法拉第的力線與超距作用之爭", url: "topics/electromagnetism/lesson-11.html" },
-            { title: "完整推導高斯定律，以及它與庫侖定律的等價性", url: "topics/electromagnetism/lesson-12.html" },
-            { title: "電位：完整推導能量與電位的關係", url: "topics/electromagnetism/lesson-13.html" },
-            { title: "導體與電容：完整計算幾種經典幾何", url: "topics/electromagnetism/lesson-14.html" },
-            { title: "模組總結：靜電學的完成與它還不能回答的問題", url: "topics/electromagnetism/lesson-15.html" }
+            { title: "恆星誕生：分子雲與重力塌縮", url: "topics/astronomy/lesson-14.html" },
+            { title: "主序星：氫融合與質光關係", url: "topics/astronomy/lesson-15.html" },
+            { title: "紅巨星階段與氦閃", url: "topics/astronomy/lesson-16.html" },
+            { title: "恆星之死：白矮星與錢卓塞卡極限", url: "topics/astronomy/lesson-17.html" },
+            { title: "超新星爆炸、中子星與黑洞的形成", url: "topics/astronomy/lesson-18.html" },
+            { title: "核合成：宇宙中的元素從哪裡來", url: "topics/astronomy/lesson-19.html" }
           ]
         },
         {
-          title: "模組 D｜電流：從青蛙腿到電路定律",
+          title: "模組 D｜星系與大尺度結構",
           courses: [
-            { title: "伽伐尼與伏打：「動物電」之爭與電池的發明", url: "topics/electromagnetism/lesson-16.html" },
-            { title: "歐姆定律：完整推導與歐姆生前被冷落的歷史", url: "topics/electromagnetism/lesson-17.html" },
-            { title: "克希荷夫電路定律：光譜學那位克希荷夫的另一項成就", url: "topics/electromagnetism/lesson-18.html" },
-            { title: "焦耳熱：完整推導電能與熱的轉換", url: "topics/electromagnetism/lesson-19.html" }
+            { title: "銀河系的結構與我們的位置", url: "topics/astronomy/lesson-20.html" },
+            { title: "星系分類：哈伯音叉圖", url: "topics/astronomy/lesson-21.html" },
+            { title: "星系自轉曲線：暗物質最早的證據", url: "topics/astronomy/lesson-22.html" },
+            { title: "星系團、超星系團與宇宙網", url: "topics/astronomy/lesson-23.html" },
+            { title: "活躍星系核與超大質量黑洞", url: "topics/astronomy/lesson-24.html" },
+            { title: "重力透鏡：用廣義相對論繪製暗物質地圖", url: "topics/astronomy/lesson-25.html" }
           ]
         },
         {
-          title: "模組 E｜靜磁學：電與磁的第一次牽手",
+          title: "模組 E｜深空與極端天體",
           courses: [
-            { title: "厄斯特 1820：一堂課上的意外——電流讓磁針偏轉", url: "topics/electromagnetism/lesson-20.html" },
-            { title: "必歐—沙伐定律：完整推導經典電流組態的磁場", url: "topics/electromagnetism/lesson-21.html" },
-            { title: "完整推導安培定律", url: "topics/electromagnetism/lesson-22.html" },
-            { title: "磁場沒有源頭：磁單極之謎", url: "topics/electromagnetism/lesson-23.html" },
-            { title: "勞侖茲力：完整推導帶電粒子在電磁場中的運動", url: "topics/electromagnetism/lesson-24.html" }
+            { title: "深空長曝光：哈伯深空與時間回溯", url: "topics/astronomy/lesson-26.html" },
+            { title: "中子星、脈衝星與磁星", url: "topics/astronomy/lesson-27.html" },
+            { title: "黑洞的觀測證據：吸積盤到事件視界望遠鏡", url: "topics/astronomy/lesson-28.html" },
+            { title: "重力波天文學：聽見宇宙的碰撞", url: "topics/astronomy/lesson-29.html" },
+            { title: "系外行星：凌日法與徑向速度法", url: "topics/astronomy/lesson-30.html" },
+            { title: "多信使天文學：整合光、重力波與微中子", url: "topics/astronomy/lesson-31.html" }
           ]
         },
         {
-          title: "模組 F｜電磁感應：法拉第的革命",
+          title: "模組 F｜宇宙學：主流的宇宙形成假說",
           courses: [
-            { title: "法拉第 1831：磁生電的十年執念", url: "topics/electromagnetism/lesson-25.html" },
-            { title: "完整推導法拉第定律與冷次定律", url: "topics/electromagnetism/lesson-26.html" },
-            { title: "發電機與馬達：改變世界的應用", url: "topics/electromagnetism/lesson-27.html" },
-            { title: "自感與互感：完整推導", url: "topics/electromagnetism/lesson-28.html" },
-            { title: "模組總結：對稱性的暗示——電生磁、磁生電，還缺什麼？", url: "topics/electromagnetism/lesson-29.html" }
+            { title: "奧伯斯悖論：為什麼夜空是黑的", url: "topics/astronomy/lesson-32.html" },
+            { title: "哈伯定律與宇宙膨脹的發現", url: "topics/astronomy/lesson-33.html" },
+            { title: "大霹靂理論：時間線與三大關鍵證據", url: "topics/astronomy/lesson-34.html" },
+            { title: "宇宙微波背景輻射：宇宙的嬰兒照", url: "topics/astronomy/lesson-35.html" },
+            { title: "大霹靂核合成：輕元素從哪裡來", url: "topics/astronomy/lesson-36.html" },
+            { title: "宇宙暴脹：解決視界問題與平坦性問題", url: "topics/astronomy/lesson-37.html" },
+            { title: "暗能量與 ΛCDM 標準模型", url: "topics/astronomy/lesson-38.html" },
+            { title: "宇宙的命運：熱寂、大擠壓還是大撕裂", url: "topics/astronomy/lesson-39.html" }
           ]
         },
         {
-          title: "模組 G｜馬克士威的統一",
+          title: "模組 G｜實戰應用",
           courses: [
-            { title: "安培定律的矛盾：完整推導電荷守恆如何逼出位移電流", url: "topics/electromagnetism/lesson-30.html" },
-            { title: "馬克士威方程組：四條方程式的完整整理", url: "topics/electromagnetism/lesson-31.html" },
-            { title: "完整推導電磁波動方程式：光速從純電磁常數中浮現", url: "topics/electromagnetism/lesson-32.html" },
-            { title: "光就是電磁波：史上最偉大的統一之一", url: "topics/electromagnetism/lesson-33.html" },
-            { title: "赫茲 1887：完整驗證電磁波的存在", url: "topics/electromagnetism/lesson-34.html" },
-            { title: "完整推導坡印廷向量與輻射壓", url: "topics/electromagnetism/lesson-35.html" },
-            { title: "模組總結：古典物理最完美的理論大廈", url: "topics/electromagnetism/lesson-36.html" }
-          ]
-        },
-        {
-          title: "模組 H｜裂縫與門檻：以太問題",
-          courses: [
-            { title: "波需要介質？以太假說的必然與尷尬", url: "topics/electromagnetism/lesson-37.html" },
-            { title: "完整推導邁克生—莫立實驗的預期結果", url: "topics/electromagnetism/lesson-38.html" },
-            { title: "零結果：物理史上最著名的「失敗」實驗", url: "topics/electromagnetism/lesson-39.html" },
-            { title: "課程總結：1905 年的門檻——故事在相對論主題第 1 課繼續", url: "topics/electromagnetism/lesson-40.html" }
-          ]
-        }
-      ]
-    },
-    {
-      id: "atomism",
-      title: "原子論：從德謨克利特到量子革命前夕",
-      description:
-        "標準模型的前傳。從古希臘的原子臆測、道爾頓的化學原子論、氣體動力論與布朗運動的決定性證據，到週期表、光譜學與黑體輻射危機，完整走過原子從哲學概念變成科學事實的兩千四百年。附完整數學推導與圖解，終點銜接標準模型主題第 1 課。",
-      icon: "⚗️",
-      url: "topics/atomism/index.html",
-      modules: [
-        {
-          title: "模組 A｜古代原子論的哲學根源",
-          courses: [
-            { title: "德謨克利特與留基伯：虛空與不可分割的原子", url: "topics/atomism/lesson-01.html" },
-            { title: "伊比鳩魯與盧克萊修：《物性論》與原子論的古羅馬傳承", url: "topics/atomism/lesson-02.html" },
-            { title: "亞里斯多德的連續體理論：原子論為何沉寂近兩千年", url: "topics/atomism/lesson-03.html" },
-            { title: "十七世紀的復興：伽森狄與波以耳的機械哲學", url: "topics/atomism/lesson-04.html" },
-            { title: "完整推導波以耳定律：第一個關於「看不見的粒子」的定量證據", url: "topics/atomism/lesson-05.html" }
-          ]
-        },
-        {
-          title: "模組 B｜化學原子論的誕生",
-          courses: [
-            { title: "拉瓦節與質量守恆定律：化學定量革命的起點", url: "topics/atomism/lesson-06.html" },
-            { title: "定比定律：普魯斯特與貝托雷之爭", url: "topics/atomism/lesson-07.html" },
-            { title: "完整推導倍比定律：道爾頓從化學數據中看見的規律", url: "topics/atomism/lesson-08.html" },
-            { title: "道爾頓原子論：1803 年的五條公設", url: "topics/atomism/lesson-09.html" },
-            { title: "給呂薩克氣體化合體積定律與道爾頓理論的矛盾", url: "topics/atomism/lesson-10.html" },
-            { title: "亞佛加厥假說：分子概念如何解開氣體體積之謎", url: "topics/atomism/lesson-11.html" }
-          ]
-        },
-        {
-          title: "模組 C｜原子論的物理證據：氣體動力論與布朗運動",
-          courses: [
-            { title: "完整推導理想氣體狀態方程式：從微觀碰撞模型出發", url: "topics/atomism/lesson-12.html" },
-            { title: "馬克士威—波茲曼分布：氣體分子的速度統計", url: "topics/atomism/lesson-13.html" },
-            { title: "完整推導平均自由徑：分子大小與亞佛加厥常數的第一次估計", url: "topics/atomism/lesson-14.html" },
-            { title: "布朗運動之謎：花粉為什麼會不停地抖動", url: "topics/atomism/lesson-15.html" },
-            { title: "愛因斯坦的布朗運動理論：完整推導擴散係數與愛因斯坦關係式", url: "topics/atomism/lesson-16.html" },
-            { title: "佩蘭的決定性實驗：原子論從假說變成事實", url: "topics/atomism/lesson-17.html" },
-            { title: "模組總結：懷疑論者最終的讓步", url: "topics/atomism/lesson-18.html" }
-          ]
-        },
-        {
-          title: "模組 D｜元素的系統化：週期表",
-          courses: [
-            { title: "從煉金術到化學：元素概念的演化", url: "topics/atomism/lesson-19.html" },
-            { title: "德貝萊納的三元素組與紐蘭茲的八音律", url: "topics/atomism/lesson-20.html" },
-            { title: "門得列夫的週期表：鎵、鍺、鈧的預言與發現", url: "topics/atomism/lesson-21.html" },
-            { title: "週期表為什麼「有效」：一個當時無人能回答的問題", url: "topics/atomism/lesson-22.html" }
-          ]
-        },
-        {
-          title: "模組 E｜光譜學：原子內部結構的第一道線索",
-          courses: [
-            { title: "夫朗和斐譜線與克希荷夫—本生的光譜分析", url: "topics/atomism/lesson-23.html" },
-            { title: "用光譜發現新元素：氦如何先在太陽上被找到", url: "topics/atomism/lesson-24.html" },
-            { title: "巴耳末公式的發現：氫原子光譜的神祕規律", url: "topics/atomism/lesson-25.html" },
-            { title: "芮得柏公式的推廣：純粹經驗卻精確得驚人的公式", url: "topics/atomism/lesson-26.html" },
-            { title: "模組總結：沒有人知道為什麼這個公式會成立", url: "topics/atomism/lesson-27.html" }
-          ]
-        },
-        {
-          title: "模組 F｜古典物理的極限：黑體輻射危機",
-          courses: [
-            { title: "熱輻射的古典理論：史特凡—波茲曼與維恩位移定律回顧", url: "topics/atomism/lesson-28.html" },
-            { title: "完整推導空腔內電磁波模式的計數", url: "topics/atomism/lesson-29.html" },
-            { title: "完整推導雷立—金斯公式與紫外災變", url: "topics/atomism/lesson-30.html" },
-            { title: "蒲朗克的孤注一擲：量子化假設如何解決紫外災變", url: "topics/atomism/lesson-31.html" },
-            { title: "完整推導蒲朗克公式的兩個極限：還原維恩與雷立—金斯", url: "topics/atomism/lesson-32.html" },
-            { title: "模組總結：一個沒人理解物理意義的數學技巧", url: "topics/atomism/lesson-33.html" }
-          ]
-        },
-        {
-          title: "模組 G｜放射性的發現：通往新世界的最後一步",
-          courses: [
-            { title: "侖琴發現 X 射線：意外的開端", url: "topics/atomism/lesson-34.html" },
-            { title: "貝克勒的意外發現：鈾鹽的神祕輻射", url: "topics/atomism/lesson-35.html" },
-            { title: "居禮夫婦：釙與鐳的分離與能量之謎", url: "topics/atomism/lesson-36.html" },
-            { title: "課程總結：1896 年的門檻——故事在標準模型第 1 課繼續", url: "topics/atomism/lesson-37.html" }
+            { title: "星圖與觀星：認識自己頭頂上的星空", url: "topics/astronomy/lesson-40.html" },
+            { title: "公民科學與天文新聞：怎麼參與真實研究、讀懂報導", url: "topics/astronomy/lesson-41.html" },
+            { title: "總結：還沒解決的大問題，以及怎麼持續追蹤宇宙研究", url: "topics/astronomy/lesson-42.html" }
           ]
         }
       ]
