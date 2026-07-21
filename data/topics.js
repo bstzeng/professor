@@ -180,23 +180,23 @@ window.SITE_DATA = {
         {
           title: "模組 D｜和聲進行的邏輯",
           courses: [
-            { title: "和弦功能：主—下屬—屬，緊張與解決的引擎" },
-            { title: "終止式：樂句怎麼收尾——正格、變格、假終止、半終止" },
-            { title: "經典套路解剖（一）：I–V–vi–IV 與卡農進行" },
-            { title: "經典套路解剖（二）：低音下行、12 小節藍調、小調套路" },
-            { title: "和聲節奏：一小節換幾個和弦，決定歌的步伐" },
-            { title: "模組總結：完整拆解三首經典歌的和聲骨架" }
+            { title: "和弦功能：主—下屬—屬，緊張與解決的引擎", url: "topics/music-theory/lesson-15.html" },
+            { title: "終止式：樂句怎麼收尾——正格、變格、假終止、半終止", url: "topics/music-theory/lesson-16.html" },
+            { title: "經典套路解剖（一）：I–V–vi–IV 與卡農進行", url: "topics/music-theory/lesson-17.html" },
+            { title: "經典套路解剖（二）：低音下行、12 小節藍調、小調套路", url: "topics/music-theory/lesson-18.html" },
+            { title: "和聲節奏：一小節換幾個和弦，決定歌的步伐", url: "topics/music-theory/lesson-19.html" },
+            { title: "模組總結：完整拆解三首經典歌的和聲骨架", url: "topics/music-theory/lesson-20.html" }
           ]
         },
         {
           title: "模組 E｜替旋律配和弦",
           courses: [
-            { title: "旋律與和弦的關係：和弦內音與非和弦音" },
-            { title: "配和弦的完整流程：定調、找重拍音、選功能、試聽修正" },
-            { title: "同一段旋律的多種配法：重配和聲入門" },
-            { title: "經過音、掛留音、倚音：讓旋律離開和弦也好聽" },
-            { title: "旋律寫作：動機、重複與變化的平衡" },
-            { title: "實作課：從零開始替一段旋律完整配好和弦" }
+            { title: "旋律與和弦的關係：和弦內音與非和弦音", url: "topics/music-theory/lesson-21.html" },
+            { title: "配和弦的完整流程：定調、找重拍音、選功能、試聽修正", url: "topics/music-theory/lesson-22.html" },
+            { title: "同一段旋律的多種配法：重配和聲入門", url: "topics/music-theory/lesson-23.html" },
+            { title: "經過音、掛留音、倚音：讓旋律離開和弦也好聽", url: "topics/music-theory/lesson-24.html" },
+            { title: "旋律寫作：動機、重複與變化的平衡", url: "topics/music-theory/lesson-25.html" },
+            { title: "實作課：從零開始替一段旋律完整配好和弦", url: "topics/music-theory/lesson-26.html" }
           ]
         },
         {
