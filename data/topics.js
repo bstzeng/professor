@@ -202,32 +202,32 @@ window.SITE_DATA = {
         {
           title: "模組 F｜色彩與進階和聲",
           courses: [
-            { title: "副屬和弦（V/x）：向別的調借屬和弦" },
-            { title: "借用和弦：從小調借來的 ♭VII、♭VI、iv" },
-            { title: "sus2、sus4、add9：懸浮與加味" },
-            { title: "延伸和弦：9、11、13 的爵士色盤" },
-            { title: "轉調技巧：共同和弦轉調、直接轉調、副歌升 key" },
-            { title: "調式（modes）：Dorian、Mixolydian 的色彩與流行應用" },
-            { title: "模組總結：進階和聲的品味地圖" }
+            { title: "副屬和弦（V/x）：向別的調借屬和弦", url: "topics/music-theory/lesson-27.html" },
+            { title: "借用和弦：從小調借來的 ♭VII、♭VI、iv", url: "topics/music-theory/lesson-28.html" },
+            { title: "sus2、sus4、add9：懸浮與加味", url: "topics/music-theory/lesson-29.html" },
+            { title: "延伸和弦：9、11、13 的爵士色盤", url: "topics/music-theory/lesson-30.html" },
+            { title: "轉調技巧：共同和弦轉調、直接轉調、副歌升 key", url: "topics/music-theory/lesson-31.html" },
+            { title: "調式（modes）：Dorian、Mixolydian 的色彩與流行應用", url: "topics/music-theory/lesson-32.html" },
+            { title: "模組總結：進階和聲的品味地圖", url: "topics/music-theory/lesson-33.html" }
           ]
         },
         {
           title: "模組 G｜節奏、曲式與編曲",
           courses: [
-            { title: "歌曲曲式：主歌、副歌、橋段的功能與能量曲線" },
-            { title: "律動（groove）：同一組和弦，節奏一改歌就變了" },
-            { title: "編曲分層思維：節奏組、和聲組、旋律組、填充" },
-            { title: "前奏、間奏、尾奏的寫法" },
-            { title: "動態與留白：編曲最常被忽略的維度" }
+            { title: "歌曲曲式：主歌、副歌、橋段的功能與能量曲線", url: "topics/music-theory/lesson-34.html" },
+            { title: "律動（groove）：同一組和弦，節奏一改歌就變了", url: "topics/music-theory/lesson-35.html" },
+            { title: "編曲分層思維：節奏組、和聲組、旋律組、填充", url: "topics/music-theory/lesson-36.html" },
+            { title: "前奏、間奏、尾奏的寫法", url: "topics/music-theory/lesson-37.html" },
+            { title: "動態與留白：編曲最常被忽略的維度", url: "topics/music-theory/lesson-38.html" }
           ]
         },
         {
           title: "模組 H｜創作實戰",
           courses: [
-            { title: "從和弦進行開始寫歌：完整流程示範" },
-            { title: "從旋律開始寫歌：完整流程示範" },
-            { title: "歌詞與旋律的咬合：斷句、重音與中文聲調" },
-            { title: "課程總結：建立你自己的創作工作流程與檢查清單" }
+            { title: "從和弦進行開始寫歌：完整流程示範", url: "topics/music-theory/lesson-39.html" },
+            { title: "從旋律開始寫歌：完整流程示範", url: "topics/music-theory/lesson-40.html" },
+            { title: "歌詞與旋律的咬合：斷句、重音與中文聲調", url: "topics/music-theory/lesson-41.html" },
+            { title: "課程總結：建立你自己的創作工作流程與檢查清單", url: "topics/music-theory/lesson-42.html" }
           ]
         }
       ]
