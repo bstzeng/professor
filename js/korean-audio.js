@@ -11,6 +11,10 @@
 
   var koreanVoice = null;
   var supported = !!(window.speechSynthesis && window.SpeechSynthesisUtterance);
+  // 持續持有目前的 utterance 物件：Chrome/Safari 有個已知的坑——
+  // 如果 utterance 沒有被外部變數引用住，垃圾回收機制可能在語音引擎
+  // 真正開始念之前就把它回收掉，導致「呼叫了 speak() 卻完全沒聲音」。
+  var currentUtterance = null;
 
   function pickVoice() {
     if (!supported) return;
@@ -24,18 +28,27 @@
   if (supported) {
     pickVoice();
     window.speechSynthesis.onvoiceschanged = pickVoice;
-    // Safari 有時不觸發 onvoiceschanged，補一次延遲重試
-    setTimeout(pickVoice, 500);
+    // Safari 有時不觸發 onvoiceschanged，補幾次延遲重試
+    setTimeout(pickVoice, 300);
+    setTimeout(pickVoice, 1000);
+    setTimeout(pickVoice, 3000);
   }
 
   function speak(text, rate) {
     if (!supported) return false;
+    // 某些瀏覽器在 cancel() 之後立刻 speak() 會把新的 utterance
+    // 靜默丟掉；也有瀏覽器會把整個佇列卡在「暫停」狀態，先 resume()
+    // 保險起見。
     window.speechSynthesis.cancel();
+    window.speechSynthesis.resume();
     var u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
     if (koreanVoice) u.voice = koreanVoice;
     u.rate = rate || 0.85;
-    window.speechSynthesis.speak(u);
+    currentUtterance = u;
+    setTimeout(function () {
+      window.speechSynthesis.speak(u);
+    }, 30);
     return true;
   }
 
@@ -63,5 +76,17 @@
   styleEl.textContent = css;
   document.head.appendChild(styleEl);
 
-  window.KoreanAudio = { speak: speak, isSupported: function () { return supported; } };
+  window.KoreanAudio = {
+    speak: speak,
+    isSupported: function () { return supported; },
+    // 除錯用：列出瀏覽器目前偵測到的所有語音，以及有沒有找到韓文語音。
+    // 在瀏覽器主控台輸入 KoreanAudio.listVoices() 即可查看。
+    listVoices: function () {
+      if (!supported) { console.log('此瀏覽器不支援 Web Speech API'); return []; }
+      var voices = window.speechSynthesis.getVoices() || [];
+      console.log('偵測到 ' + voices.length + ' 個語音：', voices.map(function (v) { return v.lang + ' — ' + v.name; }));
+      console.log('目前選用的韓文語音：', koreanVoice ? (koreanVoice.lang + ' — ' + koreanVoice.name) : '（找不到，會用系統預設語音朗讀）');
+      return voices;
+    }
+  };
 })();

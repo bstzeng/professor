@@ -716,22 +716,22 @@ window.SITE_DATA = {
         {
           title: "模組 B｜拼讀練習：從字母到會讀",
           courses: [
-            { title: "基本母音全表與發音" },
-            { title: "基本子音全表與發音" },
-            { title: "複合母音：兩個母音黏起來的音" },
-            { title: "收尾音（받침）：音節最後藏起來的子音" },
-            { title: "硬音與送氣音：ㄲㄸㅃㅆㅉ 的緊張感" },
-            { title: "模組總結：完整拼讀練習，讀出你的第一個韓文句子" }
+            { title: "基本母音全表與發音", url: "topics/korean/lesson-06.html" },
+            { title: "基本子音全表與發音", url: "topics/korean/lesson-07.html" },
+            { title: "複合母音：兩個母音黏起來的音", url: "topics/korean/lesson-08.html" },
+            { title: "收尾音（받침）：音節最後藏起來的子音", url: "topics/korean/lesson-09.html" },
+            { title: "硬音與送氣音：ㄲㄸㅃㅆㅉ 的緊張感", url: "topics/korean/lesson-10.html" },
+            { title: "模組總結：完整拼讀練習，讀出你的第一個韓文句子", url: "topics/korean/lesson-11.html" }
           ]
         },
         {
           title: "模組 C｜生存韓語：基本溝通",
           courses: [
-            { title: "敬語入門：韓國人講話為什麼要看關係" },
-            { title: "打招呼與自我介紹" },
-            { title: "數字系統：漢字數字與純韓文數字，用在哪裡不一樣" },
-            { title: "生存短句：謝謝、抱歉、多少錢、廁所在哪" },
-            { title: "模組總結：迷路、生病、緊急狀況怎麼開口求助" }
+            { title: "敬語入門：韓國人講話為什麼要看關係", url: "topics/korean/lesson-12.html" },
+            { title: "打招呼與自我介紹", url: "topics/korean/lesson-13.html" },
+            { title: "數字系統：漢字數字與純韓文數字，用在哪裡不一樣", url: "topics/korean/lesson-14.html" },
+            { title: "生存短句：謝謝、抱歉、多少錢、廁所在哪", url: "topics/korean/lesson-15.html" },
+            { title: "模組總結：迷路、生病、緊急狀況怎麼開口求助", url: "topics/korean/lesson-16.html" }
           ]
         },
         {
