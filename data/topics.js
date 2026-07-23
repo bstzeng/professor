@@ -737,11 +737,11 @@ window.SITE_DATA = {
         {
           title: "模組 D｜實戰場景：交通與住宿",
           courses: [
-            { title: "機場入境：看懂機場指標與入境資訊" },
-            { title: "大眾運輸：地鐵站名與公車站牌實戰判讀" },
-            { title: "計程車與問路：怎麼表達你要去哪裡" },
-            { title: "飯店住宿常見用語與設施標示" },
-            { title: "模組總結：交通 APP 與地圖韓文介面導覽" }
+            { title: "機場入境：看懂機場指標與入境資訊", url: "topics/korean/lesson-17.html" },
+            { title: "大眾運輸：地鐵站名與公車站牌實戰判讀", url: "topics/korean/lesson-18.html" },
+            { title: "計程車與問路：怎麼表達你要去哪裡", url: "topics/korean/lesson-19.html" },
+            { title: "飯店住宿常見用語與設施標示", url: "topics/korean/lesson-20.html" },
+            { title: "模組總結：交通 APP 與地圖韓文介面導覽", url: "topics/korean/lesson-21.html" }
           ]
         },
         {
