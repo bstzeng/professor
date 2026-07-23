@@ -699,7 +699,7 @@ window.SITE_DATA = {
       id: "korean",
       title: "韓文字母入門：看懂招牌、點餐、自由行",
       description:
-        "為韓國自由行設計的實用課程。從世宗大王發明訓民正音的設計邏輯出發，完整拆解母音、子音、收尾音的拼讀規則，再進到打招呼、交通、住宿、點餐、購物等旅遊實戰場景。韓文內容可點擊發聲（瀏覽器語音合成，效果依裝置而定）。",
+        "為韓國自由行設計的實用課程。從世宗大王發明訓民正音的設計邏輯出發，完整拆解母音、子音、收尾音的拼讀規則，再進到打招呼、交通、住宿、點餐、購物等旅遊實戰場景。韓文內容可點擊聽真人發音（預錄音檔，任何裝置都能播放）。",
       icon: "🇰🇷",
       url: "topics/korean/index.html",
       modules: [
@@ -747,11 +747,11 @@ window.SITE_DATA = {
         {
           title: "模組 E｜實戰場景：吃喝購物",
           courses: [
-            { title: "看懂菜單：常見料理漢字詞與固有詞" },
-            { title: "點餐與外送常用句型" },
-            { title: "購物與退稅：市場、百貨、便利商店" },
-            { title: "咖啡廳與小吃攤常用語" },
-            { title: "模組總結：一張表看懂常見連鎖店與招牌" }
+            { title: "看懂菜單：常見料理漢字詞與固有詞", url: "topics/korean/lesson-22.html" },
+            { title: "點餐與外送常用句型", url: "topics/korean/lesson-23.html" },
+            { title: "購物與退稅：市場、百貨、便利商店", url: "topics/korean/lesson-24.html" },
+            { title: "咖啡廳與小吃攤常用語", url: "topics/korean/lesson-25.html" },
+            { title: "模組總結：一張表看懂常見連鎖店與招牌", url: "topics/korean/lesson-26.html" }
           ]
         }
       ]
