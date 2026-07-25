@@ -14,6 +14,23 @@
 
   var els = {};
 
+  function escapeHtml(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // 把整句話拆成一個個「詞」（用空白斷開，韓文本來就用空白分詞），
+  // 每個詞包成獨立可點擊的 span，重用 korean-audio.js 既有的
+  // [data-ko] 全域點擊監聽——不用另外寫點擊處理邏輯。
+  function renderSentenceWords(text) {
+    return text
+      .split(' ')
+      .map(function (word) {
+        var safe = escapeHtml(word);
+        return '<span class="ko-word" data-ko="' + safe + '">' + safe + '</span>';
+      })
+      .join(' ');
+  }
+
   function shuffle(arr) {
     var a = arr.slice();
     for (var i = a.length - 1; i > 0; i--) {
@@ -40,7 +57,7 @@
 
   function render() {
     if (!current) return;
-    els.koText.textContent = current.ko;
+    els.koText.innerHTML = renderSentenceWords(current.ko);
     els.category.textContent = current.cat || '';
     els.answerBox.hidden = true;
     els.roText.textContent = current.ro;
@@ -63,6 +80,22 @@
     window.KoreanAudio.speak(current.ko);
   }
 
+  function initSpeedControl() {
+    var buttons = document.querySelectorAll('.quiz-speed-btn');
+    if (!buttons.length || !window.KoreanAudio) return;
+
+    var savedRate = window.KoreanAudio.getRate();
+    buttons.forEach(function (btn) {
+      var rate = parseFloat(btn.dataset.rate);
+      if (rate === savedRate) btn.classList.add('is-active');
+      btn.addEventListener('click', function () {
+        window.KoreanAudio.setRate(rate);
+        buttons.forEach(function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+      });
+    });
+  }
+
   function init() {
     els.koText = document.getElementById('quiz-ko-text');
     els.category = document.getElementById('quiz-category');
@@ -73,6 +106,8 @@
     els.playBtn = document.getElementById('quiz-play');
     els.nextBtn = document.getElementById('quiz-next');
     els.progress = document.getElementById('quiz-progress');
+
+    initSpeedControl();
 
     if (!els.koText || ALL.length === 0) return;
 

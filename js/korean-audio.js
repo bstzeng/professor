@@ -10,6 +10,10 @@
 // 用法（點擊即發聲，行為由 data-ko 屬性決定）：
 //   <span class="ko" data-ko="안녕하세요">안녕하세요</span>
 //   可選 data-ko-rate="1" 覆寫語音合成備用方案的語速（預設 0.85）
+//
+// 全站共用的播放速度：KoreanAudio.setRate(0.75) 會套用到之後所有播放
+// （預錄音檔用 audio.playbackRate、語音合成備用方案用 utterance.rate 的
+// 倍率），並存進 localStorage，換頁或重新整理都會記住上次選的速度。
 
 (function () {
   'use strict';
@@ -20,6 +24,20 @@
   // 如果 utterance 沒有被外部變數引用住，垃圾回收機制可能在語音引擎
   // 真正開始念之前就把它回收掉，導致「呼叫了 speak() 卻完全沒聲音」。
   var currentUtterance = null;
+
+  var RATE_STORAGE_KEY = 'koreanAudioRate';
+  var currentRate = 1;
+  try {
+    var savedRate = window.localStorage && window.localStorage.getItem(RATE_STORAGE_KEY);
+    if (savedRate) currentRate = parseFloat(savedRate) || 1;
+  } catch (e) { /* 無痕模式等環境可能不允許 localStorage，忽略即可 */ }
+
+  function setRate(rate) {
+    currentRate = rate > 0 ? rate : 1;
+    try {
+      if (window.localStorage) window.localStorage.setItem(RATE_STORAGE_KEY, String(currentRate));
+    } catch (e) { /* 忽略 */ }
+  }
 
   // 從載入這個檔案的 <script src="...js/korean-audio.js"> 反推站台根目錄，
   // 藉此算出音檔資料夾的正確相對路徑，不論這支腳本被哪個深度的頁面引用。
@@ -63,7 +81,7 @@
     var u = new SpeechSynthesisUtterance(text);
     u.lang = 'ko-KR';
     if (koreanVoice) u.voice = koreanVoice;
-    u.rate = rate || 0.85;
+    u.rate = (rate || 0.85) * currentRate;
     currentUtterance = u;
     setTimeout(function () {
       window.speechSynthesis.speak(u);
@@ -77,6 +95,11 @@
     return new Promise(function (resolve, reject) {
       var url = AUDIO_BASE + encodeURIComponent(text) + '.mp3';
       var audio = new Audio(url);
+      audio.playbackRate = currentRate;
+      // 大多數瀏覽器預設就會在變速時保留音高，這裡明確設定以防萬一。
+      audio.preservesPitch = true;
+      audio.mozPreservesPitch = true;
+      audio.webkitPreservesPitch = true;
       var settled = false;
       audio.addEventListener('error', function () {
         if (settled) return;
@@ -123,7 +146,10 @@
     '.ko-btn{cursor:pointer;font:inherit;font-size:.95em;color:var(--gold);background:transparent;border:1px solid var(--gold);border-radius:999px;padding:.32em 1.1em;margin:.3em 0;transition:background .15s}',
     '.ko-btn:hover{background:rgba(212,180,100,.13);background:color-mix(in srgb,var(--gold) 14%,transparent)}',
     'svg [data-ko]{cursor:pointer}',
-    'svg .ko-playing{opacity:.62}'
+    'svg .ko-playing{opacity:.62}',
+    '.ko-word{cursor:pointer;border-radius:5px;padding:.04em .12em;transition:background .15s}',
+    '.ko-word:hover{background:rgba(212,180,100,.16);background:color-mix(in srgb,var(--gold) 16%,transparent)}',
+    '.ko-word.ko-playing{background:rgba(212,180,100,.3);background:color-mix(in srgb,var(--gold) 30%,transparent)}'
   ].join('\n');
   var styleEl = document.createElement('style');
   styleEl.textContent = css;
@@ -132,6 +158,10 @@
   window.KoreanAudio = {
     speak: speak,
     isSupported: function () { return supported; },
+    // 設定全站共用的播放速度倍率（1 = 原速）。會存進 localStorage，
+    // 之後所有頁面、所有點擊發聲都會套用，直到下次呼叫改變它。
+    setRate: setRate,
+    getRate: function () { return currentRate; },
     // 除錯用：檢查某句韓文有沒有預錄音檔，在主控台輸入
     // KoreanAudio.hasRecording('안녕하세요').then(console.log)
     hasRecording: function (text) {
