@@ -702,6 +702,14 @@ window.SITE_DATA = {
         "為韓國自由行設計的實用課程。從世宗大王發明訓民正音的設計邏輯出發，完整拆解母音、子音、收尾音的拼讀規則，再進到打招呼、交通、住宿、點餐、購物等旅遊實戰場景。韓文內容可點擊聽真人發音（預錄音檔，任何裝置都能播放）。",
       icon: "🇰🇷",
       url: "topics/korean/index.html",
+      resources: [
+        {
+          title: "拼音聽力練習題庫",
+          description: "100 句實用旅遊韓文隨機出題，看文字猜拼音，按鈕核對答案並試聽真人發音",
+          icon: "🎧",
+          url: "topics/korean/practice.html"
+        }
+      ],
       modules: [
         {
           title: "模組 A｜認識韓文字：訓民正音的智慧",
