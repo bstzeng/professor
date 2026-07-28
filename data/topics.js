@@ -763,6 +763,98 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "wave-theory",
+      title: "波浪理論：艾略特波浪完整解析與實戰應用",
+      description:
+        "從道氏理論出發，完整拆解艾略特波浪理論的推動浪、調整浪、費波納契比率與波浪級別系統，建立系統化的市場結構判讀能力。每個浪型都搭配線圖圖解，並誠實檢視這套理論的爭議與限制——這是一門理論解說＋圖表判讀＋批判思考並重的課程，不是操作建議。",
+      icon: "🌊",
+      url: "topics/wave-theory/index.html",
+      modules: [
+        {
+          title: "模組 A｜起源與理論基礎",
+          courses: [
+            { title: "道氏理論回顧：艾略特波浪理論的出發點", url: "topics/wave-theory/lesson-01.html" },
+            { title: "艾略特其人：從會計師到市場理論家", url: "topics/wave-theory/lesson-02.html" },
+            { title: "群眾心理與波浪：為什麼價格會呈現波浪狀態", url: "topics/wave-theory/lesson-03.html" },
+            { title: "波浪理論的基本主張：5波驅動＋3波修正", url: "topics/wave-theory/lesson-04.html" },
+            { title: "模組總結：波浪理論在技術分析體系中的位置", url: "topics/wave-theory/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜推動浪的完整規則",
+          courses: [
+            { title: "推動浪五波結構總覽：1-2-3-4-5 的角色分工", url: "topics/wave-theory/lesson-06.html" },
+            { title: "第1波與第2波：起漲的猶豫與回測", url: "topics/wave-theory/lesson-07.html" },
+            { title: "第3波：為什麼它通常是最強、最不能是最短的一波", url: "topics/wave-theory/lesson-08.html" },
+            { title: "第4波與第5波：末端的分歧與衰竭", url: "topics/wave-theory/lesson-09.html" },
+            { title: "三條鐵律：波浪理論唯一不可違反的規則，完整說明", url: "topics/wave-theory/lesson-10.html" },
+            { title: "延伸浪（Extension）：當某一推動浪特別強勁", url: "topics/wave-theory/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜調整浪的完整規則",
+          courses: [
+            { title: "調整浪總覽：為什麼修正比驅動更難判讀", url: "topics/wave-theory/lesson-12.html" },
+            { title: "鋸齒形（Zigzag）：5-3-5 的急跌急漲結構", url: "topics/wave-theory/lesson-13.html" },
+            { title: "平台形（Flat）：規則形、擴張形、失敗形三種變化", url: "topics/wave-theory/lesson-14.html" },
+            { title: "三角形調整：收斂、擴張、上升、下降、水平五種型態", url: "topics/wave-theory/lesson-15.html" },
+            { title: "複合修正（Combination）：雙重三與三重三", url: "topics/wave-theory/lesson-16.html" },
+            { title: "模組總結：調整浪型態速查與辨識技巧", url: "topics/wave-theory/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 D｜特殊型態與例外規則",
+          courses: [
+            { title: "楔形（Diagonal）：唯一允許重疊的推動浪" },
+            { title: "起始楔形與終結楔形的差異與辨識" },
+            { title: "波浪截斷（Truncation）：第五波失敗的訊號" },
+            { title: "模組總結：例外規則整理與常見誤判" }
+          ]
+        },
+        {
+          title: "模組 E｜費波納契比率與波浪測量",
+          courses: [
+            { title: "費波納契數列：完整推導黃金比例 1.618 的由來" },
+            { title: "回撤比率：38.2%、50%、61.8% 在波浪理論中的意義" },
+            { title: "延伸與目標比率：161.8%、261.8% 怎麼算出下一個目標價" },
+            { title: "波浪等長與比例關係：第五波常見的測量法則" },
+            { title: "時間週期的費波納契應用" },
+            { title: "模組總結：完整費波納契測量流程演練" }
+          ]
+        },
+        {
+          title: "模組 F｜波浪級別與標記系統",
+          courses: [
+            { title: "波浪級別總表：從超級循環到次微浪的九個層級" },
+            { title: "標記慣例：數字、羅馬數字、字母怎麼混用不出錯" },
+            { title: "碎形結構：為什麼每一段浪裡面都藏著更小的浪" }
+          ]
+        },
+        {
+          title: "模組 G｜實戰數浪：從理論到圖表",
+          courses: [
+            { title: "數浪的第一步：先定調再找起點" },
+            { title: "一步步數浪實戰：用真實線圖走一遍完整流程" },
+            { title: "常見數浪錯誤與修正方法" },
+            { title: "交替原則（Alternation）：排除錯誤波數的實用工具" },
+            { title: "搭配其他指標驗證：成交量、RSI 與波浪的交叉確認" },
+            { title: "多重可能路徑：波浪理論本質上是機率遊戲，不是唯一解" },
+            { title: "模組總結：建立自己的數浪檢查清單" }
+          ]
+        },
+        {
+          title: "模組 H｜案例研究與理論的爭議",
+          courses: [
+            { title: "歷史案例一：完整走一遍經典大浪走勢" },
+            { title: "歷史案例二：一次失敗的數浪與事後修正" },
+            { title: "對波浪理論的批評：主觀性與不可證偽性爭議" },
+            { title: "專業交易者怎麼用：作為輔助工具而非唯一系統" },
+            { title: "課程總結：波浪理論的價值、限制，以及後續可以怎麼延伸學習" }
+          ]
+        }
+      ]
     }
   ]
 };
