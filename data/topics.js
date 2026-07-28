@@ -807,51 +807,51 @@ window.SITE_DATA = {
         {
           title: "模組 D｜特殊型態與例外規則",
           courses: [
-            { title: "楔形（Diagonal）：唯一允許重疊的推動浪" },
-            { title: "起始楔形與終結楔形的差異與辨識" },
-            { title: "波浪截斷（Truncation）：第五波失敗的訊號" },
-            { title: "模組總結：例外規則整理與常見誤判" }
+            { title: "楔形（Diagonal）：唯一允許重疊的推動浪", url: "topics/wave-theory/lesson-18.html" },
+            { title: "起始楔形與終結楔形的差異與辨識", url: "topics/wave-theory/lesson-19.html" },
+            { title: "波浪截斷（Truncation）：第五波失敗的訊號", url: "topics/wave-theory/lesson-20.html" },
+            { title: "模組總結：例外規則整理與常見誤判", url: "topics/wave-theory/lesson-21.html" }
           ]
         },
         {
           title: "模組 E｜費波納契比率與波浪測量",
           courses: [
-            { title: "費波納契數列：完整推導黃金比例 1.618 的由來" },
-            { title: "回撤比率：38.2%、50%、61.8% 在波浪理論中的意義" },
-            { title: "延伸與目標比率：161.8%、261.8% 怎麼算出下一個目標價" },
-            { title: "波浪等長與比例關係：第五波常見的測量法則" },
-            { title: "時間週期的費波納契應用" },
-            { title: "模組總結：完整費波納契測量流程演練" }
+            { title: "費波納契數列：完整推導黃金比例 1.618 的由來", url: "topics/wave-theory/lesson-22.html" },
+            { title: "回撤比率：38.2%、50%、61.8% 在波浪理論中的意義", url: "topics/wave-theory/lesson-23.html" },
+            { title: "延伸與目標比率：161.8%、261.8% 怎麼算出下一個目標價", url: "topics/wave-theory/lesson-24.html" },
+            { title: "波浪等長與比例關係：第五波常見的測量法則", url: "topics/wave-theory/lesson-25.html" },
+            { title: "時間週期的費波納契應用", url: "topics/wave-theory/lesson-26.html" },
+            { title: "模組總結：完整費波納契測量流程演練", url: "topics/wave-theory/lesson-27.html" }
           ]
         },
         {
           title: "模組 F｜波浪級別與標記系統",
           courses: [
-            { title: "波浪級別總表：從超級循環到次微浪的九個層級" },
-            { title: "標記慣例：數字、羅馬數字、字母怎麼混用不出錯" },
-            { title: "碎形結構：為什麼每一段浪裡面都藏著更小的浪" }
+            { title: "波浪級別總表：從超級循環到次微浪的九個層級", url: "topics/wave-theory/lesson-28.html" },
+            { title: "標記慣例：數字、羅馬數字、字母怎麼混用不出錯", url: "topics/wave-theory/lesson-29.html" },
+            { title: "碎形結構：為什麼每一段浪裡面都藏著更小的浪", url: "topics/wave-theory/lesson-30.html" }
           ]
         },
         {
           title: "模組 G｜實戰數浪：從理論到圖表",
           courses: [
-            { title: "數浪的第一步：先定調再找起點" },
-            { title: "一步步數浪實戰：用真實線圖走一遍完整流程" },
-            { title: "常見數浪錯誤與修正方法" },
-            { title: "交替原則（Alternation）：排除錯誤波數的實用工具" },
-            { title: "搭配其他指標驗證：成交量、RSI 與波浪的交叉確認" },
-            { title: "多重可能路徑：波浪理論本質上是機率遊戲，不是唯一解" },
-            { title: "模組總結：建立自己的數浪檢查清單" }
+            { title: "數浪的第一步：先定調再找起點", url: "topics/wave-theory/lesson-31.html" },
+            { title: "一步步數浪實戰：用真實線圖走一遍完整流程", url: "topics/wave-theory/lesson-32.html" },
+            { title: "常見數浪錯誤與修正方法", url: "topics/wave-theory/lesson-33.html" },
+            { title: "交替原則（Alternation）：排除錯誤波數的實用工具", url: "topics/wave-theory/lesson-34.html" },
+            { title: "搭配其他指標驗證：成交量、RSI 與波浪的交叉確認", url: "topics/wave-theory/lesson-35.html" },
+            { title: "多重可能路徑：波浪理論本質上是機率遊戲，不是唯一解", url: "topics/wave-theory/lesson-36.html" },
+            { title: "模組總結：建立自己的數浪檢查清單", url: "topics/wave-theory/lesson-37.html" }
           ]
         },
         {
           title: "模組 H｜案例研究與理論的爭議",
           courses: [
-            { title: "歷史案例一：完整走一遍經典大浪走勢" },
-            { title: "歷史案例二：一次失敗的數浪與事後修正" },
-            { title: "對波浪理論的批評：主觀性與不可證偽性爭議" },
-            { title: "專業交易者怎麼用：作為輔助工具而非唯一系統" },
-            { title: "課程總結：波浪理論的價值、限制，以及後續可以怎麼延伸學習" }
+            { title: "歷史案例一：完整走一遍經典大浪走勢", url: "topics/wave-theory/lesson-38.html" },
+            { title: "歷史案例二：一次失敗的數浪與事後修正", url: "topics/wave-theory/lesson-39.html" },
+            { title: "對波浪理論的批評：主觀性與不可證偽性爭議", url: "topics/wave-theory/lesson-40.html" },
+            { title: "專業交易者怎麼用：作為輔助工具而非唯一系統", url: "topics/wave-theory/lesson-41.html" },
+            { title: "課程總結：波浪理論的價值、限制，以及後續可以怎麼延伸學習", url: "topics/wave-theory/lesson-42.html" }
           ]
         }
       ]
