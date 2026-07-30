@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：作用域與閉包（Closure）：看懂加密／簽章程式碼的關鍵基礎 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="JS的作用域規則與閉包機制完整說明，這是看懂網頁裡token、簽章、UUID等參數生成邏輯的必備基礎知識">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜JavaScript 語法基礎：給 Python 工程師的對照式入門 · 第 10 課</div>
+      <h1>作用域與閉包（Closure）：看懂加密／簽章程式碼的關鍵基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>理解JS的作用域（scope）規則，特別是區塊作用域</li>
+          <li>完整理解閉包：函式為什麼能「記住」外層變數</li>
+          <li>看懂一段用閉包包裝的token產生邏輯範例</li>
+        </ul>
+      </div>
+
+      <p>
+        這一課要講的閉包，是JS裡Python沒有直接對應
+        概念的機制。如果你曾經遇到「request網址裡有個
+        UUID，但這東西是JS算出來的」這種情況，
+        背後很可能就是閉包在發揮作用——這一課會把
+        原理講透，讓你之後看到類似的程式碼不再一頭霧水。
+      </p>
+
+      <h2>1. 作用域：變數「看得到」的範圍</h2>
+      <p>
+        作用域（scope）決定了一個變數在程式碼的哪些
+        地方可以被存取。JS用<code>let</code>／
+        <code>const</code>宣告的變數是<strong>區塊作用域</strong>
+        （block scope）——只在它被宣告的那對大括號
+        <code>{ }</code>裡面看得到，這點跟Python的
+        規則不完全一樣（Python的if、for區塊不會建立
+        新的作用域，但函式會）：
+      </p>
+
+      <div class="code-playground">
+        <div class="code-playground-bar">
+          <span class="code-playground-label">試試看：取消最後一行的註解，會發生什麼事？</span>
+          <button type="button" class="code-playground-run">▶ 執行</button>
+        </div>
+        <textarea class="code-playground-input" spellcheck="false">function checkScope() {
+  if (true) {
+    let secret = "只在這個 if 區塊裡看得到";
+    console.log(secret);
+  }
+  // console.log(secret); // 取消這行註解，會出現錯誤：secret 沒有定義
+}
+
+checkScope();</textarea>
+        <pre class="code-playground-output" hidden></pre>
+      </div>
+
+      <h2>2. 閉包：函式「記住」它出生時的環境</h2>
+      <p>
+        閉包（closure）是這樣一種現象：<strong>一個函式，
+        即使在它原本的外層函式已經執行完畢之後，
+        仍然能繼續存取那個外層函式裡的變數</strong>。
+        聽起來抽象，直接看範例：
+      </p>
+
+      <div class="code-playground">
+        <div class="code-playground-bar">
+          <span class="code-playground-label">經典閉包範例：一個記得住次數的計數器</span>
+          <button type="button" class="code-playground-run">▶ 執行</button>
+        </div>
+        <textarea class="code-playground-input" spellcheck="false">function makeCounter() {
+  let count = 0;          // count 屬於 makeCounter 的內部變數
+
+  return function () {    // 回傳一個函式，這個函式「記住」了 count
+    count = count + 1;
+    return count;
+  };
+}
+
+const counter = makeCounter();  // makeCounter 已經執行完畢
+console.log(counter());  // 但回傳的函式還記得 count，印出 1
+console.log(counter());  // count 持續累加，印出 2
+console.log(counter());  // 印出 3</textarea>
+        <pre class="code-playground-output" hidden></pre>
+      </div>
+
+      <p>
+        <code>makeCounter()</code>執行完之後，照Python的
+        直覺，<code>count</code>這個區域變數應該早就被
+        回收、不存在了。但JS的閉包機制讓內層那個被
+        回傳出來的函式，<strong>持續保留一份對count的參照</strong>——
+        每次呼叫<code>counter()</code>，都是在操作同一個
+        「被關住」的count，而不是每次重新歸零。
+        這就是「閉包」這個名字的由來：內層函式把外層
+        的變數「封閉」在自己的私有環境裡，外部完全
+        碰不到那個count變數本身，只能透過回傳的函式
+        間接操作它。
+      </p>
+
+      <h2>3. 這跟「JS算出來的UUID／token」有什麼關係</h2>
+      <div class="callout">
+        <h3>常見的簽章／token產生模式</h3>
+        <p>
+          真實網站上讓你困惑的「request網址裡有個
+          UUID或一長串亂碼參數」，背後常見的實作模式
+          正是閉包：網站的JS程式碼裡，有一個閉包
+          把某個密鑰、計數器、或時間戳記「關」在
+          內部狀態裡，對外只暴露一個函式（例如
+          <code>generateToken()</code>），每次呼叫它，
+          就用內部狀態＋當下的請求參數，算出一個
+          新的token或簽章值，附加在request網址或
+          headers裡送出去。你在Network分頁看到的那個
+          UUID，就是這個函式呼叫的<strong>回傳值</strong>。
+        </p>
+      </div>
+
+      <div class="code-playground">
+        <div class="code-playground-bar">
+          <span class="code-playground-label">示意範例：閉包包裝的簡化版token產生器</span>
+          <button type="button" class="code-playground-run">▶ 執行</button>
+        </div>
+        <textarea class="code-playground-input" spellcheck="false">function createTokenGenerator(secretKey) {
+  let requestCount = 0;   // 私有狀態：外部完全存取不到
+
+  return function generateToken() {
+    requestCount = requestCount + 1;
+    // 真實情況通常會用時間戳、雜湊函式等更複雜的運算
+    // 這裡簡化示範：把密鑰、次數、時間戳組合起來
+    return secretKey + "-" + requestCount + "-" + Date.now();
+  };
+}
+
+// secretKey 這個參數，外部永遠拿不到，只能透過回傳的函式間接使用
+const generateToken = createTokenGenerator("my-secret-key-123");
+
+console.log(generateToken());  // 第一次呼叫
+console.log(generateToken());  // 第二次呼叫，requestCount 累加了</textarea>
+        <pre class="code-playground-output" hidden></pre>
+      </div>
+
+      <p>
+        這正是這一課要建立的核心理解：<strong>閉包讓JS
+        可以把「怎麼算出這個值」的邏輯，跟「這個值
+        依賴的私有狀態」綁在一起，且外部完全看不到、
+        碰不到那些私有狀態</strong>——只能看到最終呼叫
+        函式得到的結果。這也是為什麼想要在Python裡
+        「複製」出同樣的token，經常需要先在DevTools
+        裡把整個閉包函式的邏輯讀懂（第 23 課會教怎麼
+        用中斷點追蹤到這段程式碼），而不能只是猜測
+        規律。
+      </p>
+
+      <h2>4. 面對真實、混淆過的閉包程式碼</h2>
+      <p>
+        需要誠實提醒：真實世界裡遇到的token產生邏輯，
+        程式碼經常被<strong>刻意壓縮、改名成無意義的
+        變數名稱</strong>（這稱為混淆，obfuscation），
+        讀起來會比這一課的乾淨範例困難很多。但底層
+        原理都是同一套：某個閉包，把私有狀態跟計算
+        邏輯包在一起。認出這個模式，是拆解這類程式碼
+        最重要的第一步——模組D第 23 課會示範具體的
+        追蹤流程。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋JS的區塊作用域跟Python作用域規則的差異</li>
+          <li>能用自己的話定義閉包，並說明計數器範例怎麼運作</li>
+          <li>能說明閉包跟網頁上常見的token／簽章產生邏輯的關聯</li>
+          <li>能說出面對混淆過的閉包程式碼時，第一步該認出什麼模式</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 11 課：陣列與物件——對照Python的list跟dict，
+        物件的語法跟JSON資料格式幾乎一模一樣，
+        這對讀懂API回傳的資料格式特別重要。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：函式與箭頭函式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：陣列與物件 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script src="../../js/code-playground.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

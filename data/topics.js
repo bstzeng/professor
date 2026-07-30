@@ -855,6 +855,74 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "web-scraping",
+      title: "HTML／JavaScript 網頁解剖學：給爬蟲工程師的實戰入門",
+      description:
+        "為已有 Python 背景、想寫爬蟲的人設計。目標不是變成前端工程師，而是看懂一個網頁「資料從哪裡來、怎麼被瀏覽器組出來」——DOM 結構、CSS 選擇器與 XPath、JavaScript 語法與非同步請求、分頁與動態載入、追蹤JS算出來的神秘參數，一路橋接到 requests／Selenium／Playwright 的實戰選擇。全程搭配 Python 對照與可直接執行的程式碼練習區。",
+      icon: "🕷️",
+      url: "topics/web-scraping/index.html",
+      modules: [
+        {
+          title: "模組 A｜HTML 深化：從爬蟲視角重新認識網頁結構",
+          courses: [
+            { title: "View Source vs. DOM：原始碼跟瀏覽器實際解析結果的關鍵差異", url: "topics/web-scraping/lesson-01.html" },
+            { title: "DOM 樹狀結構：HTML 文字怎麼變成程式看得懂的物件樹", url: "topics/web-scraping/lesson-02.html" },
+            { title: "屬性大複習：id、class、data-* 屬性在爬蟲裡的角色", url: "topics/web-scraping/lesson-03.html" },
+            { title: "CSS 選擇器完整教學：標籤、class、id、組合選擇器", url: "topics/web-scraping/lesson-04.html" },
+            { title: "XPath 入門：另一套定位元素的語言，跟CSS選擇器互補", url: "topics/web-scraping/lesson-05.html" },
+            { title: "開發者工具實戰：用 DevTools 快速找到資料的選擇器路徑", url: "topics/web-scraping/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 B｜JavaScript 語法基礎：給 Python 工程師的對照式入門",
+          courses: [
+            { title: "為什麼要學JS：現代網頁的資料不是都寫死在HTML裡", url: "topics/web-scraping/lesson-07.html" },
+            { title: "變數與資料型態：對照 Python，注意 let/const 與動態型別的坑", url: "topics/web-scraping/lesson-08.html" },
+            { title: "函式與箭頭函式：對照 def 與 lambda", url: "topics/web-scraping/lesson-09.html" },
+            { title: "作用域與閉包（Closure）：看懂加密／簽章程式碼的關鍵基礎", url: "topics/web-scraping/lesson-10.html" },
+            { title: "陣列與物件：對照 list 與 dict，重點在存取語法差異", url: "topics/web-scraping/lesson-11.html" },
+            { title: "條件、迴圈與常用內建方法：對照 Python 慣用寫法", url: "topics/web-scraping/lesson-12.html" },
+            { title: "模組總結：JS基礎語法速查表", url: "topics/web-scraping/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 C｜JavaScript 與網頁互動：DOM 操作與事件",
+          courses: [
+            { title: "用JS選取並操作DOM元素：querySelector 系列方法", url: "topics/web-scraping/lesson-14.html" },
+            { title: "事件是什麼：點擊、滾動、輸入怎麼觸發JS", url: "topics/web-scraping/lesson-15.html" },
+            { title: "網頁「動態渲染」的原理：為什麼有些資料要等JS跑完才出現", url: "topics/web-scraping/lesson-16.html" },
+            { title: "辨認靜態頁面 vs 動態渲染頁面的實戰技巧", url: "topics/web-scraping/lesson-17.html" },
+            { title: "模組總結：從畫面回推「這段資料從哪裡來」的偵探流程", url: "topics/web-scraping/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 D｜非同步與網路請求：現代網頁資料流動的核心",
+          courses: [
+            { title: "同步與非同步：為什麼JS常寫「等一下再做」", url: "topics/web-scraping/lesson-19.html" },
+            { title: "Promise 與 async/await：JS處理非同步的核心工具", url: "topics/web-scraping/lesson-20.html" },
+            { title: "Fetch API：JS怎麼發送網路請求", url: "topics/web-scraping/lesson-21.html" },
+            { title: "用 DevTools 的 Network 分頁找到隱藏的API", url: "topics/web-scraping/lesson-22.html" },
+            { title: "追蹤神秘參數：用 Initiator／中斷點回推是哪段JS算出這個值的", url: "topics/web-scraping/lesson-23.html" },
+            { title: "這對爬蟲的意義：直接打API通常比爬渲染後的HTML更簡單", url: "topics/web-scraping/lesson-24.html" },
+            { title: "模組總結：一步步示範怎麼在真實網站上找到隱藏的API", url: "topics/web-scraping/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具",
+          courses: [
+            { title: "靜態頁面策略：requests + BeautifulSoup 什麼時候就夠用", url: "topics/web-scraping/lesson-26.html" },
+            { title: "動態頁面策略：Selenium / Playwright 概念與選擇時機", url: "topics/web-scraping/lesson-27.html" },
+            { title: "分頁與動態載入完整攻略：頁碼連結、Load More、無限捲動、API分頁參數", url: "topics/web-scraping/lesson-28.html" },
+            { title: "複製JS運算結果到Python：直接執行JS片段（Node.js／PyExecJS）vs. 重寫成Python邏輯", url: "topics/web-scraping/lesson-29.html" },
+            { title: "模仿瀏覽器發送請求：headers、cookies、session 的角色", url: "topics/web-scraping/lesson-30.html" },
+            { title: "常見反爬蟲機制與應對思路：User-Agent、速率限制、驗證碼", url: "topics/web-scraping/lesson-31.html" },
+            { title: "爬蟲的合法與道德邊界：robots.txt、服務條款、資料使用的分寸", url: "topics/web-scraping/lesson-32.html" },
+            { title: "課程總結：面對一個全新網站的完整診斷流程", url: "topics/web-scraping/lesson-33.html" }
+          ]
+        }
+      ]
     }
   ]
 };

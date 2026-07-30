@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：這對爬蟲的意義：直接打API通常比爬渲染後的HTML更簡單 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="比較直接呼叫API跟爬取渲染後HTML兩種策略的優缺點：速度、穩定性、資料乾淨度、維護成本的完整權衡">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜非同步與網路請求：現代網頁資料流動的核心 · 第 24 課</div>
+      <h1>這對爬蟲的意義：直接打API通常比爬渲染後的HTML更簡單</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>完整比較「直接呼叫API」跟「爬取渲染後HTML」兩種策略</li>
+          <li>理解為什麼呼叫API通常速度更快、資料更乾淨</li>
+          <li>知道什麼情況下呼叫API反而不是最佳選擇</li>
+        </ul>
+      </div>
+
+      <p>
+        前面幾課建立了找到API、追蹤參數的技術能力；
+        這一課要退一步，講清楚<strong>為什麼</strong>值得
+        花這些力氣——直接呼叫API，多數情況下都是
+        效率最高的爬蟲策略。
+      </p>
+
+      <h2>1. 速度：省掉整個渲染過程</h2>
+      <p>
+        回顧第 16 課的時間軸：CSR模式下，瀏覽器要先
+        下載HTML骨架、下載並執行JS、JS再發送請求
+        拿資料、最後才把資料插入DOM——如果改用
+        Selenium／Playwright（第 27 課）跑完整個
+        流程，等於要重新走一遍這整條時間軸，
+        還要額外等待瀏覽器啟動、頁面渲染完成。
+        如果直接對著API發送請求（用Python的
+        <code>requests</code>），等於跳過步驟②③⑤，
+        只留下步驟④——通常快上好幾倍，
+        因為省去了瀏覽器引擎解析HTML、執行JS、
+        重新排版畫面這些額外開銷。
+      </p>
+
+      <h2>2. 資料乾淨度：JSON vs. 從HTML裡挖文字</h2>
+      <p>
+        API回傳的通常是結構化的JSON（第 11 課已經
+        建立了JS物件語法＝JSON格式的認知），
+        每個欄位名稱清楚、資料型態明確（數字就是
+        數字，不是夾雜貨幣符號的字串）。相對地，
+        從渲染後的HTML裡爬資料，經常要對付：
+        巢狀很深的div結構、樣式相關但不影響資料的
+        class名稱、需要額外清理格式的顯示文字
+        （第 3 課提過的data-*屬性，某種程度上就是
+        在彌補這個問題）。直接拿到API回傳的JSON，
+        通常一步就省掉了大半的資料清理工作。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩種策略的完整流程比較</text>
+
+          <text x="150" y="45" text-anchor="middle" font-size="10.5" fill="#ff8a65">策略一：爬渲染後的HTML</text>
+          <rect x="30" y="55" width="60" height="35" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="60" y="77" text-anchor="middle" font-size="8" fill="#ff8a65">啟動瀏覽器</text>
+          <rect x="100" y="55" width="60" height="35" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="130" y="77" text-anchor="middle" font-size="8" fill="#ff8a65">等JS跑完</text>
+          <rect x="170" y="55" width="60" height="35" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="200" y="77" text-anchor="middle" font-size="8" fill="#ff8a65">解析HTML</text>
+          <rect x="240" y="55" width="60" height="35" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="270" y="77" text-anchor="middle" font-size="8" fill="#ff8a65">清理文字</text>
+          <text x="150" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">較慢、較脆弱、需要處理格式雜訊</text>
+
+          <text x="470" y="45" text-anchor="middle" font-size="10.5" fill="var(--gold)">策略二：直接呼叫API</text>
+          <rect x="410" y="55" width="60" height="35" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="440" y="77" text-anchor="middle" font-size="8" fill="var(--gold)">requests.get</text>
+          <rect x="480" y="55" width="80" height="35" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="520" y="77" text-anchor="middle" font-size="8" fill="var(--gold)">.json() 直接用</text>
+          <text x="470" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">較快、資料乾淨，省去中間步驟</text>
+
+          <text x="300" y="150" text-anchor="middle" font-size="10" fill="var(--text-muted)">但策略二需要先完成第22、23課的偵查工作</text>
+          <text x="300" y="170" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">（找到API網址、搞懂認證與神秘參數）</text>
+        </svg>
+        <figcaption>兩種策略的流程比較：直接呼叫API跳過了渲染與清理步驟，通常更快、資料更乾淨，但前提是要先完成偵查工作，找到正確的API並處理好認證參數。</figcaption>
+      </div>
+
+      <h2>3. 什麼情況下呼叫API反而不划算</h2>
+      <div class="callout">
+        <ul>
+          <li><strong>參數計算邏輯極度複雜或頻繁改變</strong>——
+            第 23 課提過，有些網站的簽章邏輯刻意設計
+            得很難追蹤，且經常改版讓人重新破解，
+            這種情況下持續維護追蹤成本可能高過直接用
+            Selenium跑瀏覽器。</li>
+          <li><strong>API本身有嚴格的速率限制或風控機制</strong>——
+            直接高頻呼叫API反而更容易被偵測、封鎖
+            （第 31 課會談反爬蟲機制）。</li>
+          <li><strong>只需要少量、一次性的資料</strong>——
+            如果只是偶爾抓幾筆資料，工程投入的
+            性價比考量跟長期、大量爬取不同，
+            有時候直接用瀏覽器手動複製貼上更省事。</li>
+        </ul>
+      </div>
+
+      <h2>4. 實務上的判斷原則</h2>
+      <p>
+        沒有放諸四海皆準的答案，但一個合理的判斷
+        順序是：先檢查（第 17 課教的方法）內容是不是
+        本來就在HTML裡（SSR）——是的話最簡單，
+        直接用<code>requests</code>+BeautifulSoup；
+        不是的話，先花時間找找看背後的API（第 22 課）
+        跟需不需要處理神秘參數（第 23 課）——
+        如果API簡單好用，優先選它；如果參數邏輯
+        複雜到不划算，退而求其次選Selenium／
+        Playwright（第 27 課），用瀏覽器自動化
+        繞過需要理解JS邏輯的部分。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明直接呼叫API比爬渲染後HTML快的原因</li>
+          <li>能說明API回傳資料為什麼通常比HTML更乾淨</li>
+          <li>能舉出至少兩種「呼叫API反而不划算」的情況</li>
+          <li>能複述選擇爬蟲策略的判斷順序</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組D最後一課：把整個模組學到的技巧，
+        走一遍完整的實戰流程——從打開一個陌生網站，
+        到成功找出它背後隱藏的API。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：追蹤神秘參數</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：模組總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

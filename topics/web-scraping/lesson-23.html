@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：追蹤神秘參數：用 Initiator／中斷點回推是哪段JS算出這個值的 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="用DevTools的Initiator欄位與中斷點，追蹤請求網址裡的UUID、簽章等神秘參數究竟是哪一段JS計算出來的，附常見token樣式辨識">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜非同步與網路請求：現代網頁資料流動的核心 · 第 23 課</div>
+      <h1>追蹤神秘參數：用 Initiator／中斷點回推是哪段JS算出這個值的</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>學會用Initiator欄位，從一個請求回推是哪段程式碼發起的</li>
+          <li>學會設定中斷點，暫停程式執行、檢查當下的變數狀態</li>
+          <li>認識幾種常見的神秘參數樣式：時間戳、UUID、雜湊簽章</li>
+        </ul>
+      </div>
+
+      <p>
+        這一課要處理的，是爬蟲進階裡最讓人頭痛、
+        但學會之後也最有成就感的問題：request網址裡
+        有一串UUID或亂碼參數，明顯是JS算出來的——
+        該怎麼追出它的計算邏輯。
+      </p>
+
+      <h2>1. 第一步：Initiator 欄位，找出是誰發起的</h2>
+      <p>
+        回到第 22 課的Network分頁，請求列表裡有一欄
+        叫<strong>Initiator</strong>（如果沒顯示，
+        在欄位標頭上右鍵可以勾選加入）——它會告訴你
+        這個請求是被<strong>哪一段程式碼、哪一行</strong>
+        發起的。點擊Initiator欄位裡的檔名跟行號，
+        DevTools會自動跳到Sources分頁，直接定位到
+        那一行程式碼。這是整個追蹤流程最關鍵的起點：
+        先確定「是這一行叫了fetch」，才能往回推
+        「這個URL的參數是在這行程式碼執行之前，
+        由哪裡算出來的」。
+      </p>
+
+      <h2>2. 第二步：設定中斷點，暫停執行</h2>
+      <p>
+        在Sources分頁裡，直接點程式碼<strong>行號</strong>
+        左邊的空白處，可以設定一個中斷點（breakpoint）——
+        下次程式執行到這一行之前，會自動暫停，
+        讓你在瀏覽器主控台裡即時檢查<strong>當下</strong>
+        所有變數的值（包括第 10 課提過、外部原本
+        看不到的閉包內部狀態，中斷點暫停時是可以
+        看到的）。設好中斷點後，重新觸發那個會發送
+        請求的動作（重新整理頁面、點擊按鈕），
+        瀏覽器就會在你設的那一行暫停下來。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從請求回推到程式碼的追蹤流程</text>
+
+          <rect x="30" y="45" width="150" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="105" y="70" text-anchor="middle" font-size="10" fill="var(--gold)">①看到可疑的</text>
+          <text x="105" y="85" text-anchor="middle" font-size="10" fill="var(--gold)">UUID參數</text>
+
+          <path d="M 190 70 L 220 70" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arr23)"/>
+
+          <rect x="230" y="45" width="150" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="305" y="70" text-anchor="middle" font-size="10" fill="var(--accent)">②點Initiator</text>
+          <text x="305" y="85" text-anchor="middle" font-size="10" fill="var(--accent)">找到發起的那行</text>
+
+          <path d="M 390 70 L 420 70" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arr23)"/>
+
+          <rect x="430" y="45" width="150" height="50" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="505" y="70" text-anchor="middle" font-size="10" fill="#ff8a65">③設中斷點</text>
+          <text x="505" y="85" text-anchor="middle" font-size="10" fill="#ff8a65">重新觸發</text>
+
+          <path d="M 505 95 L 505 130 L 305 130 L 305 145" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arr23)"/>
+
+          <rect x="230" y="150" width="150" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="305" y="175" text-anchor="middle" font-size="10" fill="var(--gold)">④暫停時檢查</text>
+          <text x="305" y="190" text-anchor="middle" font-size="10" fill="var(--gold)">變數與呼叫堆疊</text>
+
+          <path d="M 305 205 L 305 220" stroke="var(--text-muted)" stroke-width="1.5" marker-end="url(#arr23)"/>
+          <text x="305" y="240" text-anchor="middle" font-size="10.5" fill="var(--gold)">⑤找到參數的計算邏輯</text>
+
+          <defs><marker id="arr23" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/></marker></defs>
+        </svg>
+        <figcaption>從一個可疑參數追到計算邏輯的完整流程：Network分頁的Initiator指出發起請求的程式碼位置，中斷點讓你暫停下來檢查當下的變數與呼叫堆疊。</figcaption>
+      </div>
+
+      <h2>3. 第三步：往上追呼叫堆疊（Call Stack）</h2>
+      <p>
+        程式暫停時，Sources分頁右側會顯示<strong>呼叫
+        堆疊（Call Stack）</strong>——列出「這行程式碼
+        是被誰呼叫的、那個呼叫者又是被誰呼叫的」，
+        一路往上追溯。如果發起請求的那一行，本身只是
+        呼叫了<code>generateToken()</code>之類的函式
+        再把結果塞進網址，你需要點進呼叫堆疊，
+        跳到<code>generateToken</code>函式定義的地方，
+        繼續往下追（甚至可以在那個函式內部也設中斷點），
+        直到看到真正的運算邏輯為止。
+      </p>
+
+      <h2>4. 認出常見的參數樣式</h2>
+      <p>
+        找到計算邏輯之前，先用「這個參數長什麼樣子」
+        做初步判斷，能節省不少追蹤時間：
+      </p>
+      <div class="ref-table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr><th>樣式範例</th><th>可能類型</th><th>備註</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1719280456123</td><td>時間戳</td><td>13位數字，通常是毫秒級Date.now()</td></tr>
+            <tr><td>a1b2c3d4-...-e5f6</td><td>UUID</td><td>固定格式，8-4-4-4-12位十六進位</td></tr>
+            <tr><td>9f86d0818...</td><td>雜湊值</td><td>固定長度十六進位，常見32/40/64字元(MD5/SHA1/SHA256)</td></tr>
+            <tr><td>eyJhbGciOiJIUzI1...</td><td>JWT token</td><td>固定以eyJ開頭，可用線上工具直接解碼查看內容</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        判斷出大致類型後，追蹤時可以有方向性地搜尋——
+        例如懷疑是時間戳，就在程式碼裡搜尋
+        <code>Date.now()</code>；懷疑是雜湊值，
+        搜尋<code>crypto</code>、<code>sha256</code>、
+        <code>md5</code>這類關鍵字，通常能更快縮小
+        範圍，而不是漫無目的地讀完整個檔案。
+      </p>
+
+      <h2>5. 誠實面對：有些情況真的很難追</h2>
+      <div class="callout">
+        <h3>混淆程式碼的現實限制</h3>
+        <p>
+          需要誠實提醒（回顧第 10 課結尾也提過）：
+          正式上線的網站，JS程式碼經常經過壓縮、
+          變數名稱改成無意義的短字母，甚至刻意用
+          額外的技術手法讓人難以閱讀（混淆）。
+          遇到特別複雜的情況，追蹤的時間成本可能很高，
+          這時候「不要硬追邏輯」也是一個合理選項——
+          第 27 課會介紹的Selenium／Playwright，
+          本質上就是讓真正的瀏覽器引擎去跑那段JS
+          （不管多複雜都由瀏覽器自己算好），
+          再抓執行後的結果，直接繞過「看懂邏輯」這個
+          需求。是否值得投入時間追蹤，需要衡量這段
+          邏輯的複雜度，跟改用瀏覽器自動化的成本。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明Initiator欄位的作用</li>
+          <li>能操作設定中斷點、暫停執行的基本流程</li>
+          <li>能說明呼叫堆疊（Call Stack）怎麼幫助往上追蹤邏輯來源</li>
+          <li>能認出時間戳、UUID、雜湊值、JWT四種常見參數樣式</li>
+          <li>能說明什麼情況下「不追蹤邏輯、改用瀏覽器自動化」是合理選擇</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 24 課：退一步想想這整件事對爬蟲策略的
+        意義——為什麼直接呼叫API，通常比爬渲染後的
+        HTML更簡單、更有效率。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：用DevTools找到隱藏的API</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：這對爬蟲的意義 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

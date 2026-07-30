@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：常見反爬蟲機制與應對思路：User-Agent、速率限制、驗證碼 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="認識常見的反爬蟲機制與它們存在的理由：速率限制、IP封鎖、驗證碼，以及負責任、有分寸的應對思路">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 31 課</div>
+      <h1>常見反爬蟲機制與應對思路：User-Agent、速率限制、驗證碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>認識網站常見的反爬蟲機制，理解它們存在的正當理由</li>
+          <li>學會用速率限制、合理間隔等方式，寫出「有禮貌」的爬蟲</li>
+          <li>建立正確心態：遇到驗證碼等強機制時該怎麼看待</li>
+        </ul>
+      </div>
+
+      <p>
+        網站設置反爬蟲機制，通常不是針對個人惡意刁難，
+        而是為了保護伺服器資源、防止資料被大量濫用、
+        或維護服務品質。這一課的重點，不是教你怎麼
+        「繞過」這些機制，而是幫助你認識它們、
+        理解存在的理由，並用負責任的方式應對。
+      </p>
+
+      <h2>1. 為什麼網站要防範爬蟲</h2>
+      <div class="callout">
+        <ul>
+          <li><strong>保護伺服器資源</strong>——大量、
+            高頻的自動化請求，會消耗原本要服務真實
+            使用者的運算與頻寬資源。</li>
+          <li><strong>防止資料被大量複製</strong>——
+            許多網站的內容資料本身有商業價值，
+            希望控制被大量、系統性複製的程度。</li>
+          <li><strong>維持服務公平性</strong>——
+            確保少數自動化程式不會擠占原本該分配給
+            真實使用者的服務容量。</li>
+        </ul>
+      </div>
+
+      <h2>2. 速率限制（Rate Limiting）：最常見也最合理的機制</h2>
+      <p>
+        伺服器限制「同一個來源，在一段時間內最多能
+        發送幾次請求」，超過限制通常回傳狀態碼
+        <strong>429（Too Many Requests）</strong>。
+        這是最普遍、也最合理的機制——面對它，
+        負責任的做法很直接：<strong>放慢速度</strong>。
+      </p>
+      <div class="code-block">import time
+import requests
+
+for page in range(1, 11):
+    response = requests.get(url, params={"page": page}, headers=headers)
+    if response.status_code == 429:
+        # 有些伺服器會告訴你要等多久才能再試
+        wait = int(response.headers.get("Retry-After", 5))
+        time.sleep(wait)
+        continue
+    # 正常處理...
+    time.sleep(1)  # 主動放慢速度，禮貌地間隔請求，即使沒被限速也養成習慣</div>
+      <p>
+        主動在每次請求之間加入延遲（<code>time.sleep()</code>），
+        是負責任爬蟲最基本的禮貌——即使目標網站
+        沒有明確要求，也應該視為預設的良好習慣，
+        而不是把伺服器容忍度當成挑戰的上限。
+      </p>
+
+      <h2>3. IP封鎖：更嚴格的手段</h2>
+      <p>
+        持續違反速率限制、或行為模式明顯異於正常
+        使用者，網站可能會直接封鎖來源IP位址一段
+        時間，甚至永久封鎖。遇到IP被封鎖，最負責任
+        的反應是把它當成明確的訊號：<strong>這個網站
+        不歡迎目前這種存取方式</strong>——應該重新
+        檢視自己的爬取頻率是否過高，而不是尋求繞過
+        封鎖的方式。如果有正當的資料需求，更好的做法
+        是查詢該網站是否提供官方API，或直接聯繫網站
+        方說明需求。
+      </p>
+
+      <h2>4. 驗證碼（CAPTCHA）：一個需要尊重的邊界</h2>
+      <div class="callout">
+        <h3>遇到驗證碼，代表什麼</h3>
+        <p>
+          驗證碼是網站用來區分真人與自動化程式最直接
+          的工具。<strong>這門課不會教怎麼繞過或破解
+          驗證碼</strong>——遇到驗證碼，應該把它理解為
+          網站明確表達「這個操作希望由真人完成」的
+          訊號，合理的回應是尊重這個邊界：如果是
+          你自己需要存取的資料，手動完成驗證碼、
+          改用官方提供的API或資料下載功能，或聯繫
+          網站方詢問是否有合作或授權存取的管道，
+          而不是尋求技術手段自動突破它。
+        </p>
+      </div>
+
+      <h2>5. 其他常見機制：認識即可</h2>
+      <div class="callout">
+        <ul>
+          <li><strong>檢查User-Agent與其他headers是否合理</strong>——
+            第 26、30 課提過，設定合理的headers是
+            基本禮貌，跟惡意偽裝是兩回事。</li>
+          <li><strong>蜜罐連結（Honeypot）</strong>——
+            頁面裡藏著肉眼看不到、只有自動化程式才會
+            誤觸的連結，誤觸會被判定為機器人。
+            這提醒我們：只選取畫面上真正看得到的內容
+            （呼應第 3 課挑選穩定屬性的原則），
+            不要無差別地爬取頁面裡的所有連結。</li>
+          <li><strong>需要JS挑戰驗證（例如某些防護服務
+            要求瀏覽器先執行一段JS運算才放行）</strong>——
+            這類機制通常代表網站對自動化存取的防護
+            意願很強，遇到時應該優先考慮：這個網站
+            是否真的希望被大量爬取？是否有更正當的
+            資料取得管道？</li>
+        </ul>
+      </div>
+
+      <h2>6. 整體原則：把這些機制當成溝通訊號</h2>
+      <p>
+        這一課想建立的核心心態是：反爬蟲機制不是
+        單純的技術障礙，而是網站方在跟你溝通「這裡的
+        存取規則是什麼」。負責任的爬蟲行為，是根據
+        這些訊號調整自己的行為（放慢速度、降低頻率、
+        尊重明確的拒絕），而不是把每一個機制都當成
+        必須突破的關卡。下一課會更完整地談這個原則
+        背後的法律與道德邊界。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出網站設置反爬蟲機制的正當理由</li>
+          <li>能寫出處理429狀態碼、主動放慢速度的程式碼</li>
+          <li>能說明遇到IP封鎖時，負責任的反應是什麼</li>
+          <li>能說明遇到驗證碼時，這門課建議的正確心態</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 32 課：更完整地談爬蟲的合法與道德邊界——
+        robots.txt、服務條款、資料使用的分寸。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：模仿瀏覽器發送請求</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：爬蟲的合法與道德邊界 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

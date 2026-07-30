@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：靜態頁面策略：requests + BeautifulSoup 什麼時候就夠用 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="完整的requests+BeautifulSoup爬蟲範例，搭配前面課程學到的CSS選擇器語法，以及常見的編碼與請求標頭陷阱">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 26 課</div>
+      <h1>靜態頁面策略：requests + BeautifulSoup 什麼時候就夠用</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>寫出一個完整、能實際運作的requests+BeautifulSoup爬蟲</li>
+          <li>知道什麼情況下這組簡單工具就足以應付</li>
+          <li>認識常見的編碼與請求標頭陷阱</li>
+        </ul>
+      </div>
+
+      <p>
+        模組E要把前面二十五課學到的瀏覽器知識，
+        接回你最熟悉的Python工具。這一課從最簡單、
+        最常用的組合開始：requests負責發送請求，
+        BeautifulSoup負責解析、選取資料。
+      </p>
+
+      <h2>1. 什麼情況適合用這組簡單工具</h2>
+      <p>
+        回顧第 17 課的判斷技巧：如果診斷結果顯示
+        目標網站是SSR（停用JS內容還在、View Source
+        找得到資料），那麼<code>requests</code>+
+        BeautifulSoup幾乎肯定就夠用——不需要瀏覽器
+        引擎，也不需要處理JS執行的問題。
+      </p>
+
+      <h2>2. 完整範例：把前面課學到的選擇器直接用上</h2>
+      <div class="code-block">import requests
+from bs4 import BeautifulSoup
+
+url = "https://example.com/products"
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/124.0.0.0 Safari/537.36"
+}
+
+response = requests.get(url, headers=headers, timeout=10)
+response.raise_for_status()  # 狀態碼不是2xx就丟出例外
+
+soup = BeautifulSoup(response.text, "html.parser")
+
+# 直接沿用第4課學過的CSS選擇器語法
+products = soup.select(".product-card")
+
+for p in products:
+    title = p.select_one(".product-title").get_text(strip=True)
+    price = p.get("data-price")  # 第3課提過：優先找data-*屬性
+    print(title, price)</div>
+
+      <h2>3. 陷阱一：忘記設定 User-Agent</h2>
+      <p>
+        <code>requests</code>預設送出的User-Agent會直接
+        表明自己是Python程式（類似
+        <code>python-requests/2.31.0</code>），
+        不少網站會直接拒絕這種明顯的自動化請求。
+        設定一個看起來像正常瀏覽器的User-Agent
+        （像上面範例），是最基本、也是業界普遍認可的
+        禮貌做法，不算規避安全機制，比較接近
+        「讓請求誠實地表明自己是個網頁瀏覽請求」。
+      </p>
+
+      <h2>4. 陷阱二：編碼問題</h2>
+      <p>
+        中文網站偶爾會遇到亂碼，通常是編碼判斷錯誤——
+        <code>response.text</code>會嘗試自動判斷編碼，
+        但不一定每次都正確。遇到亂碼，先檢查
+        <code>response.encoding</code>目前的值，
+        跟網頁實際使用的編碼（通常寫在HTML的
+        <code>&lt;meta charset="..."&gt;</code>裡，
+        呼應第 2 課的DOM結構知識——這個資訊本身就在
+        head區塊的一個節點裡）是否一致，不一致的話
+        手動指定：<code>response.encoding = "utf-8"</code>。
+      </p>
+
+      <h2>5. 陷阱三：忘記檢查狀態碼</h2>
+      <p>
+        沒有檢查回應狀態碼，直接解析內容，是新手
+        很常犯的錯——如果網站回傳403（拒絕存取）或
+        404（找不到），response.text可能是一頁錯誤
+        訊息的HTML，硬解析下去只會得到一堆無意義的
+        結果，甚至讓程式默默地「爬到」錯的東西卻沒有
+        報錯。範例裡的<code>response.raise_for_status()</code>
+        會在狀態碼不對時直接丟出例外，逼你正視問題，
+        是值得養成的好習慣。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能寫出一個完整、可運作的requests+BeautifulSoup爬蟲</li>
+          <li>能說明什麼情況下這組簡單工具就足夠應付</li>
+          <li>能說明為什麼要設定User-Agent</li>
+          <li>能說出編碼問題與狀態碼檢查這兩個常見陷阱</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 27 課：換成動態頁面的策略——Selenium跟
+        Playwright這兩個瀏覽器自動化工具，概念上在
+        做什麼，以及該在什麼時機選擇它們。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：模組總結（網路請求）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：動態頁面策略 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

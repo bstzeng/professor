@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：網頁「動態渲染」的原理：為什麼有些資料要等JS跑完才出現 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="完整解釋動態渲染的運作原理：從骨架HTML到JS執行、資料請求、DOM更新的完整時間軸，以及CSR跟SSR的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜JavaScript 與網頁互動：DOM 操作與事件 · 第 16 課</div>
+      <h1>網頁「動態渲染」的原理：為什麼有些資料要等JS跑完才出現</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>完整理解一個網頁從請求到畫面完成的時間軸</li>
+          <li>認識CSR（客戶端渲染）跟SSR（伺服端渲染）的差異</li>
+          <li>知道為什麼有些網站的資料要等好幾秒才出現</li>
+        </ul>
+      </div>
+
+      <p>
+        第 1 課提過「View Source跟DOM不一樣」，
+        第 14、15 課學了JS怎麼操作DOM、怎麼被事件
+        觸發——這一課要把這些拼圖組成一張完整的
+        時間軸，正式講清楚「動態渲染」到底是什麼。
+      </p>
+
+      <h2>1. 一個網頁從請求到完成的完整時間軸</h2>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">網頁載入的完整時間軸</text>
+          <line x1="40" y1="130" x2="560" y2="130" stroke="var(--border)" stroke-width="2"/>
+
+          <circle cx="70" cy="130" r="6" fill="var(--gold)"/>
+          <text x="70" y="115" text-anchor="middle" font-size="9.5" fill="var(--gold)">①</text>
+          <text x="70" y="155" text-anchor="middle" font-size="9" fill="var(--text-muted)">瀏覽器發送</text>
+          <text x="70" y="168" text-anchor="middle" font-size="9" fill="var(--text-muted)">請求給伺服器</text>
+
+          <circle cx="180" cy="130" r="6" fill="var(--accent)"/>
+          <text x="180" y="115" text-anchor="middle" font-size="9.5" fill="var(--accent)">②</text>
+          <text x="180" y="155" text-anchor="middle" font-size="9" fill="var(--text-muted)">收到骨架HTML</text>
+          <text x="180" y="168" text-anchor="middle" font-size="9" fill="var(--text-muted)">（View Source看到的）</text>
+
+          <circle cx="300" cy="130" r="6" fill="#ff8a65"/>
+          <text x="300" y="115" text-anchor="middle" font-size="9.5" fill="#ff8a65">③</text>
+          <text x="300" y="155" text-anchor="middle" font-size="9" fill="var(--text-muted)">下載並執行</text>
+          <text x="300" y="168" text-anchor="middle" font-size="9" fill="var(--text-muted)">JavaScript</text>
+
+          <circle cx="420" cy="130" r="6" fill="#ff8a65"/>
+          <text x="420" y="115" text-anchor="middle" font-size="9.5" fill="#ff8a65">④</text>
+          <text x="420" y="155" text-anchor="middle" font-size="9" fill="var(--text-muted)">JS發送請求</text>
+          <text x="420" y="168" text-anchor="middle" font-size="9" fill="var(--text-muted)">要真正的資料（模組D）</text>
+
+          <circle cx="540" cy="130" r="6" fill="var(--gold)"/>
+          <text x="540" y="115" text-anchor="middle" font-size="9.5" fill="var(--gold)">⑤</text>
+          <text x="540" y="155" text-anchor="middle" font-size="9" fill="var(--text-muted)">用第14課的方法</text>
+          <text x="540" y="168" text-anchor="middle" font-size="9" fill="var(--text-muted)">把資料插入DOM</text>
+
+          <text x="300" y="210" text-anchor="middle" font-size="10.5" fill="var(--gold)">「動態渲染」＝③④⑤這整段過程</text>
+          <text x="300" y="230" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">requests只拿得到②的內容，肉眼看到的是⑤完成後的結果</text>
+        </svg>
+        <figcaption>網頁載入的完整時間軸：requests抓到的是步驟②的骨架HTML，肉眼在瀏覽器裡看到的是步驟⑤完成後、JS動態插入資料之後的最終結果。</figcaption>
+      </div>
+
+      <h2>2. CSR vs. SSR：兩種組裝網頁內容的策略</h2>
+      <div class="callout">
+        <ul>
+          <li><strong>CSR（Client-Side Rendering，客戶端渲染）</strong>——
+            伺服器只送出接近空白的骨架HTML，內容完全
+            由瀏覽器執行JS之後才組裝出來（上面時間軸
+            描述的就是這種模式）。許多用React、Vue、
+            Angular等框架開發的現代網站屬於這一類。
+            對爬蟲來說，這類網站直接用<code>requests</code>
+            幾乎抓不到任何有意義的內容。</li>
+          <li><strong>SSR（Server-Side Rendering，伺服端渲染）</strong>——
+            伺服器直接把組裝好、含有完整資料的HTML
+            送出來，JS通常只負責後續的互動效果（不負責
+            從無到有生出內容）。這類網站對爬蟲最友善，
+            <code>requests</code>+BeautifulSoup通常就
+            直接夠用。</li>
+        </ul>
+      </div>
+      <p>
+        需要注意的是，很多真實網站是<strong>混合</strong>
+        模式：初次載入用SSR送出主要內容（讓搜尋引擎
+        抓得到，這稱為SEO考量），但後續的互動、分頁
+        （模組E第 28 課）則改用CSR的方式動態載入——
+        同一個網站，不同區塊可能屬於不同模式，
+        需要逐一測試判斷。
+      </p>
+
+      <h2>3. 為什麼有些網站資料要等好幾秒才出現</h2>
+      <p>
+        對照時間軸：步驟③下載並執行JS、步驟④JS發送
+        請求等待伺服器回應，這兩步都需要時間——
+        JS檔案愈大、需要的資料愈複雜，這段等待時間
+        就愈長。這也是為什麼有些網站打開後，
+        會先看到「載入中」的轉圈動畫，過幾秒才顯示
+        真正內容——那個轉圈動畫本身，就是CSR模式下
+        步驟③④進行中的視覺提示。
+      </p>
+
+      <h2>4. 這對爬蟲策略的直接影響</h2>
+      <p>
+        判斷一個網站是CSR還是SSR（或混合），
+        直接決定了該用哪種爬蟲策略——這正是模組E要
+        完整處理的問題：SSR或HTML裡本來就有資料的
+        情況，<code>requests</code>+BeautifulSoup就夠
+        （第 26 課）；CSR的情況，可以選擇直接找出
+        步驟④背後在打的API（模組D，通常效率最高），
+        或是用Selenium／Playwright真的跑一次完整的
+        步驟③④⑤再抓結果（第 27 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能複述網頁載入從①到⑤的完整時間軸</li>
+          <li>能說明CSR跟SSR的差異，並各舉一個對爬蟲的影響</li>
+          <li>能說明為什麼同一個網站可能同時混用CSR跟SSR</li>
+          <li>能說明「載入中」動畫對應時間軸的哪個階段</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 17 課：把這一課的理論，變成實際可操作的
+        判斷技巧——拿到一個新網站，怎麼快速測出它是
+        CSR還是SSR。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：事件是什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：辨認靜態 vs 動態渲染 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

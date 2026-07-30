@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：分頁與動態載入完整攻略：頁碼連結、Load More、無限捲動、API分頁參數 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="四種分頁樣貌的完整處理攻略：傳統頁碼連結、Load More按鈕、無限捲動、API的page/offset/cursor分頁參數">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 28 課</div>
+      <h1>分頁與動態載入完整攻略：頁碼連結、Load More、無限捲動、API分頁參數</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>能分辨四種常見的分頁／動態載入樣貌</li>
+          <li>學會每一種樣貌對應的Python處理策略</li>
+          <li>認識三種常見的API分頁參數模式</li>
+        </ul>
+      </div>
+
+      <p>
+        分頁是實戰爬蟲最常遇到的挑戰之一，而且它的
+        技術樣貌其實分成好幾種完全不同的類型——
+        這一課把它們一次講透，並各自給出對應的
+        Python處理方式。
+      </p>
+
+      <h2>1. 傳統頁碼連結：最簡單的情況</h2>
+      <p>
+        網址會隨頁碼改變（例如
+        <code>?page=2</code>、<code>/page/3</code>），
+        代表這是SSR式的傳統分頁（第 16 課的概念）。
+        直接用第 4 課的CSS選擇器找出「下一頁」連結，
+        或乾脆自己組出網址範本，寫迴圈跑完：
+      </p>
+      <div class="code-block">import requests
+from bs4 import BeautifulSoup
+
+all_items = []
+for page in range(1, 11):  # 假設共10頁
+    url = f"https://example.com/products?page={page}"
+    resp = requests.get(url, headers=headers)
+    soup = BeautifulSoup(resp.text, "html.parser")
+    items = soup.select(".product-card")
+    if not items:
+        break  # 沒有更多資料，提前結束
+    all_items.extend(items)</div>
+
+      <h2>2. Load More 按鈕：JS觸發，網址不變</h2>
+      <p>
+        點擊後用JS動態載入新內容（第 15 課的事件機制），
+        網址通常不會改變。第一選擇是回顧模組D：
+        打開Network分頁、點擊按鈕、觀察多出了哪個
+        Fetch/XHR請求（第 22 課），通常會發現這就是
+        一個乾淨的API，直接用<code>requests</code>
+        模擬呼叫它、帶對的分頁參數即可，比模擬點擊
+        按鈕快得多。如果背後的請求需要處理複雜的
+        神秘參數（第 23 課），或評估後不划算
+        （第 24 課），才退而用Selenium／Playwright
+        真的模擬點擊。
+      </p>
+
+      <h2>3. 無限捲動：原理跟Load More相同，觸發方式不同</h2>
+      <p>
+        捲到底自動載入更多，背後原理跟Load More完全
+        一樣（都是JS監聽事件、發送請求、插入DOM），
+        只是觸發事件從<code>click</code>換成
+        <code>scroll</code>（第 15 課）。處理策略也
+        一樣：優先找背後的API直接呼叫；如果一定要用
+        瀏覽器自動化，Playwright／Selenium都有
+        「捲動到頁面底部」的指令可以模擬這個動作，
+        搭配等待新內容出現的邏輯，重複執行直到不再有
+        新內容為止。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">四種分頁樣貌與對應策略</text>
+          <g font-size="9.5">
+            <rect x="30" y="40" width="540" height="34" fill="var(--accent-soft)"/>
+            <text x="45" y="62" fill="var(--text)">傳統頁碼連結 → 網址帶page參數 → requests+迴圈</text>
+
+            <rect x="30" y="74" width="540" height="34" fill="var(--surface)"/>
+            <text x="45" y="96" fill="var(--text)">Load More按鈕 → click事件觸發 → 找背後API優先，其次模擬點擊</text>
+
+            <rect x="30" y="108" width="540" height="34" fill="var(--accent-soft)"/>
+            <text x="45" y="130" fill="var(--text)">無限捲動 → scroll事件觸發 → 找背後API優先，其次模擬捲動</text>
+
+            <rect x="30" y="142" width="540" height="34" fill="var(--surface)"/>
+            <text x="45" y="164" fill="var(--text)">API本身的分頁參數 → page/offset/cursor → 讀懂欄位意義後直接迭代</text>
+          </g>
+        </svg>
+        <figcaption>四種分頁樣貌對應的策略：前三種著重「怎麼觸發下一批資料」，第四種著重「讀懂API回傳的分頁欄位該怎麼組出下一次請求」。</figcaption>
+      </div>
+
+      <h2>4. API本身的分頁參數：三種常見模式</h2>
+      <div class="callout">
+        <ul>
+          <li><strong>page / limit</strong>——最直覺的模式，
+            <code>?page=2&amp;limit=20</code>，
+            直接迭代頁碼即可，跟傳統頁碼連結處理方式
+            相同。</li>
+          <li><strong>offset / limit</strong>——用位移量
+            表示，<code>?offset=40&amp;limit=20</code>
+            代表跳過前40筆、取接下來20筆，迭代時把
+            offset依序加上limit即可。</li>
+          <li><strong>cursor / next_token</strong>——
+            游標式分頁，API回應本身會附帶一個
+            「下一批資料的游標」欄位（例如
+            <code>{"data": [...], "next_cursor":
+            "eyJpZCI6MTAwfQ"}</code>），下一次請求要
+            把這個值當作參數帶入，直到欄位變成null
+            或不存在為止。這種模式常見於需要處理
+            大量資料、或資料會即時變動的API
+            （例如社群媒體動態消息），因為游標式分頁
+            比單純數字頁碼更能正確處理「翻頁過程中
+            資料又新增了」的情況。</li>
+        </ul>
+      </div>
+
+      <div class="code-block"># 游標式分頁的處理範例
+next_cursor = None
+all_items = []
+
+while True:
+    params = {"cursor": next_cursor} if next_cursor else {}
+    resp = requests.get(api_url, params=params, headers=headers).json()
+    all_items.extend(resp["data"])
+    next_cursor = resp.get("next_cursor")
+    if not next_cursor:
+        break  # 沒有下一頁游標，代表已經到底了</div>
+
+      <h2>5. 通用建議：先判斷是哪一種，再套用對應策略</h2>
+      <p>
+        遇到分頁，第一件事永遠是先判斷屬於這四種的
+        哪一種——網址會不會變（第一種）、有沒有明顯的
+        按鈕（第二種）、還是捲動觸發（第三種）；
+        如果已經在用API策略（模組D），則進一步看
+        回應JSON裡的分頁欄位長什麼樣（第四種）。
+        判斷正確類型之後，套用對應策略，會比用同一套
+        方法硬套所有情況有效率得多。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能分辨四種分頁樣貌，並各自舉出辨識特徵</li>
+          <li>能寫出傳統頁碼連結跟游標式分頁的Python處理程式碼</li>
+          <li>能說明page/limit、offset/limit、cursor三種API分頁參數的差異</li>
+          <li>能說明為什麼游標式分頁比單純頁碼更適合處理即時變動的資料</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 29 課：找到了JS計算參數的邏輯之後（第 23 課），
+        該怎麼把這段運算搬進Python——直接執行JS片段，
+        還是重新用Python寫一遍，各自的優缺點。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：動態頁面策略</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：複製JS運算結果到Python →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

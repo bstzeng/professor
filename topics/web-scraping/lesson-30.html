@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：模仿瀏覽器發送請求：headers、cookies、session 的角色 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="完整說明headers、cookies、session在請求裡的角色，以及怎麼用requests.Session()正確模仿瀏覽器的完整請求">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 30 課</div>
+      <h1>模仿瀏覽器發送請求：headers、cookies、session 的角色</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>理解headers在請求裡扮演的角色，學會從DevTools複製</li>
+          <li>理解cookies怎麼讓伺服器「記得」你是誰</li>
+          <li>學會用requests.Session()維持跨請求的登入狀態</li>
+        </ul>
+      </div>
+
+      <p>
+        找到API網址、算出正確的參數（第 23、29 課）
+        之後，很多時候還差一步：<strong>把請求偽裝得
+        像瀏覽器發出的一樣</strong>，這一課要處理的
+        正是這件事。
+      </p>
+
+      <h2>1. Headers：請求的「自我介紹」</h2>
+      <p>
+        每個HTTP請求都會夾帶一組headers，向伺服器
+        說明「我是誰、我想要什麼格式的回應」。
+        除了第 26 課提過的User-Agent，還有幾個
+        常見的關鍵headers：
+      </p>
+      <div class="callout">
+        <ul>
+          <li><strong>Referer</strong>——告訴伺服器
+            「這個請求是從哪一個頁面點過來的」，
+            有些API會檢查這個欄位，拒絕Referer不是
+            自己網站的請求。</li>
+          <li><strong>Accept</strong>——告訴伺服器
+            「我想要什麼格式的回應」（例如
+            <code>application/json</code>）。</li>
+          <li><strong>Authorization</strong>——夾帶
+            身分驗證資訊（例如API金鑰、登入token），
+            第 22 課的Headers分頁裡如果看到這個欄位，
+            代表這個API需要驗證身分才能存取。</li>
+        </ul>
+      </div>
+      <p>
+        最快取得完整、正確headers組合的方式，是回顧
+        第 22 課提過的「Copy as cURL」功能——複製出來
+        的內容包含瀏覽器實際送出的所有headers，
+        可以直接參考、挑出必要的欄位加進Python的
+        請求裡。
+      </p>
+
+      <h2>2. Cookies：伺服器記住你的方式</h2>
+      <p>
+        HTTP本身是無狀態的協定——每個請求彼此獨立，
+        伺服器預設不會記得「這個請求跟上一個請求
+        是不是同一個人發的」。Cookies就是解決這個
+        問題的機制：伺服器第一次回應時，在headers裡
+        夾帶一組cookie（一小段文字資料），瀏覽器會
+        自動把這組cookie存起來，之後每次對同一個
+        網站發送請求，都自動附上這組cookie——
+        伺服器藉此辨認「這是同一個瀏覽器、同一個
+        使用者session」。登入狀態、購物車內容，
+        很多都是靠cookies維持的。
+      </p>
+
+      <h2>3. requests.Session()：讓Python自動處理cookies</h2>
+      <p>
+        如果每次請求都用<code>requests.get()</code>
+        單獨呼叫，cookies不會在請求之間自動保留——
+        需要登入狀態才能存取的頁面，會因此一直被當成
+        「新的訪客」。解法是用
+        <code>requests.Session()</code>：
+      </p>
+      <div class="code-block">import requests
+
+session = requests.Session()
+
+# 第一次請求（例如登入），伺服器回應會夾帶cookie
+session.post("https://example.com/login", data={
+    "username": "myuser",
+    "password": "mypassword"
+})
+
+# 後續用同一個session物件發送請求，cookies會自動帶上
+response = session.get("https://example.com/my-account")
+print(response.text)</div>
+      <p>
+        <code>session</code>物件會自動記住伺服器回傳的
+        所有cookies，並在後續每次請求時自動附上——
+        這正是瀏覽器本身自動在做的事，
+        <code>requests.Session()</code>幫你在Python裡
+        重現了同樣的行為。
+      </p>
+
+      <h2>4. 組合起來：完整重現一個瀏覽器請求</h2>
+      <div class="code-block">import requests
+
+session = requests.Session()
+session.headers.update({
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                  "AppleWebKit/537.36 (KHTML, like Gecko) "
+                  "Chrome/124.0.0.0 Safari/537.36",
+    "Referer": "https://example.com/products",
+    "Accept": "application/json"
+})
+
+response = session.get("https://example.com/api/products", params={"page": 1})
+data = response.json()</div>
+      <p>
+        這正是模組D到模組E一路建立的完整流程的終點：
+        從DevTools觀察到的請求（第 22 課）、追蹤出的
+        神秘參數（第 23、29 課），加上這一課的
+        headers跟cookies，組成一個Python
+        <code>requests</code>可以正確重現、伺服器
+        會正常回應的完整請求。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出Referer、Accept、Authorization三個headers的用途</li>
+          <li>能解釋為什麼HTTP需要cookies來維持登入狀態</li>
+          <li>能寫出用requests.Session()維持跨請求cookies的程式碼</li>
+          <li>能組合headers、cookies、正確參數，寫出一個完整的模擬請求</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 31 課：就算前面每一步都做對了，還是可能
+        遇到網站的反爬蟲機制——認識常見的類型，
+        以及負責任、有分寸的應對思路。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：複製JS運算結果到Python</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：常見反爬蟲機制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

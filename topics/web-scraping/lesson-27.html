@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：動態頁面策略：Selenium / Playwright 概念與選擇時機 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="Selenium與Playwright的運作原理：讓真正的瀏覽器引擎執行JS，兩者的差異比較，以及該在什麼時機選擇瀏覽器自動化">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 27 課</div>
+      <h1>動態頁面策略：Selenium / Playwright 概念與選擇時機</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>理解Selenium／Playwright的核心運作原理</li>
+          <li>認識兩者的差異，知道現在多數新專案為什麼偏好Playwright</li>
+          <li>知道什麼情況該選擇瀏覽器自動化，而不是直接呼叫API</li>
+        </ul>
+      </div>
+
+      <p>
+        第 24 課已經比較過呼叫API跟爬渲染後HTML的
+        優缺點；這一課要介紹「爬渲染後HTML」實際上
+        要用什麼工具做到——讓一個真正的瀏覽器引擎，
+        完整跑一遍第 16 課那張時間軸。
+      </p>
+
+      <h2>1. 核心原理：操控一個真正的瀏覽器</h2>
+      <p>
+        Selenium跟Playwright的共同原理是：從Python
+        程式碼，遙控一個真正安裝好的瀏覽器（Chrome、
+        Firefox等）——用程式碼下指令「打開這個網址」、
+        「點擊這個元素」、「等待這個元素出現」，
+        瀏覽器會像正常使用者操作一樣，完整執行HTML
+        解析、JS執行、DOM渲染的整個流程（第 16 課
+        的時間軸）。因為是真正的瀏覽器在運作，
+        不管網站的JS多複雜（第 23 課提過的混淆
+        程式碼），瀏覽器都會忠實地執行完，
+        你只需要在JS都跑完之後，抓取最終的DOM內容
+        即可——完全不需要自己看懂那段JS邏輯。
+      </p>
+
+      <div class="code-block"># Selenium 基本範例（示意）
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+driver = webdriver.Chrome()
+driver.get("https://example.com/products")
+driver.implicitly_wait(5)  # 等待JS執行、內容出現
+
+# 沿用第4課學過的CSS選擇器語法
+titles = driver.find_elements(By.CSS_SELECTOR, ".product-title")
+for t in titles:
+    print(t.text)
+
+driver.quit()
+
+# Playwright 基本範例（示意），語法更精簡、內建自動等待
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
+    page.goto("https://example.com/products")
+    titles = page.locator(".product-title").all_text_contents()
+    print(titles)
+    browser.close()</div>
+
+      <h2>2. Selenium vs. Playwright：怎麼選</h2>
+      <div class="ref-table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr><th>比較項目</th><th>Selenium</th><th>Playwright</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>歷史</td><td>較久，生態系成熟</td><td>較新（微軟開發）</td></tr>
+            <tr><td>等待機制</td><td>需要手動設定等待</td><td>內建自動等待，較不容易出錯</td></tr>
+            <tr><td>速度</td><td>普通</td><td>通常較快</td></tr>
+            <tr><td>多瀏覽器支援</td><td>需個別設定</td><td>內建支援多種瀏覽器引擎</td></tr>
+            <tr><td>新專案建議</td><td>維護舊專案時常見</td><td>目前多數新專案的首選</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        兩者能做的事情高度重疊，語法邏輯也相近——
+        現在多數教學資源與新專案建議優先學
+        Playwright（語法更簡潔、內建自動等待機制，
+        較不容易寫出「元素還沒出現就急著抓取」的
+        錯誤），但如果之後接觸的既有專案是用Selenium
+        寫的，概念完全可以直接遷移過去，不需要重新
+        從頭學一套心法。
+      </p>
+
+      <h2>3. 什麼情況該選瀏覽器自動化</h2>
+      <div class="callout">
+        <ul>
+          <li>第 22、23 課的偵查花了很多時間仍然找不到
+            乾淨的API，或者API背後的驗證邏輯太複雜、
+            太容易改版（第 24 課的評估原則）。</li>
+          <li>需要模擬複雜的互動流程（登入、多步驟
+            表單、需要先點擊才會出現的內容）。</li>
+          <li>目標網站的反爬蟲機制（第 31 課）特別
+            針對非瀏覽器的請求設計，用真實瀏覽器
+            執行反而更不容易被辨識出來。</li>
+        </ul>
+      </div>
+
+      <h2>4. 代價：速度與資源</h2>
+      <p>
+        回顧第 24 課提過的權衡：瀏覽器自動化要真的
+        啟動一個瀏覽器程式、跑完整套渲染流程，
+        比起直接呼叫API慢上許多、也更消耗記憶體與
+        運算資源。大量、高頻的爬取需求，如果能找到
+        乾淨的API，通常還是優先選API；瀏覽器自動化
+        比較適合用在資料量不算太大、或前面方法都
+        行不通的情況。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明Selenium／Playwright的核心運作原理</li>
+          <li>能說出Playwright相對Selenium的主要優勢</li>
+          <li>能列舉至少兩種適合選擇瀏覽器自動化的情況</li>
+          <li>能說明瀏覽器自動化相對呼叫API的代價</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 28 課：分頁與動態載入完整攻略——頁碼連結、
+        Load More按鈕、無限捲動、API分頁參數，
+        四種常見情況分別怎麼處理。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：靜態頁面策略</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：分頁與動態載入完整攻略 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

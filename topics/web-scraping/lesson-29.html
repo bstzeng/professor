@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：複製JS運算結果到Python：直接執行JS片段（Node.js／PyExecJS）vs. 重寫成Python邏輯 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="找到JS計算參數的邏輯後，兩條實作路線：直接用Node.js或PyExecJS執行JS片段，或重新用Python實作同一套邏輯，完整比較優缺點">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜爬蟲實戰橋接：從瀏覽器知識到 Python 工具 · 第 29 課</div>
+      <h1>複製JS運算結果到Python：直接執行JS片段（Node.js／PyExecJS）vs. 重寫成Python邏輯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>認識兩條實作路線：直接執行JS片段、或重寫成Python</li>
+          <li>學會用subprocess呼叫Node.js執行JS程式碼</li>
+          <li>知道怎麼判斷該選哪一條路線</li>
+        </ul>
+      </div>
+
+      <p>
+        第 23 課教會你用中斷點追出計算某個參數的JS
+        邏輯，這一課要處理下一步：找到邏輯之後，
+        怎麼讓Python爬蟲程式也能算出同樣的值。
+      </p>
+
+      <h2>1. 路線一：直接執行原本的JS片段</h2>
+      <p>
+        如果你的電腦有安裝Node.js（JS的伺服器端執行
+        環境），可以把追到的那段JS函式，原封不動存成
+        一個<code>.js</code>檔案，用Python的
+        <code>subprocess</code>模組呼叫Node.js執行它、
+        取得結果：
+      </p>
+      <div class="code-block"># token_gen.js —— 把DevTools追到的原始JS邏輯貼在這裡
+function generateToken(secretKey, count) {
+  return secretKey + "-" + count + "-" + Date.now();
+}
+
+// 從命令列參數讀取輸入，把結果印出來，讓Python讀取
+const [secretKey, count] = process.argv.slice(2);
+console.log(generateToken(secretKey, parseInt(count)));</div>
+      <div class="code-block"># Python 端呼叫
+import subprocess
+
+result = subprocess.run(
+    ["node", "token_gen.js", "my-secret-key-123", "1"],
+    capture_output=True, text=True
+)
+token = result.stdout.strip()
+print(token)</div>
+      <p>
+        這個方法的優點是<strong>絕對正確</strong>——因為
+        你直接執行的就是網站原本的邏輯，不需要自己
+        重新理解、翻譯每一個運算步驟，尤其適合邏輯
+        複雜、涉及你不熟悉的加密演算法細節時。
+      </p>
+
+      <h2>2. 路線一的另一種做法：PyExecJS套件</h2>
+      <p>
+        <code>PyExecJS</code>（或類似的<code>js2py</code>）
+        是Python的第三方套件，可以直接在Python程式碼
+        裡執行JS字串，不需要另外開一個子行程呼叫
+        Node.js：
+      </p>
+      <div class="code-block">import execjs
+
+js_code = """
+function generateToken(secretKey, count) {
+  return secretKey + "-" + count + "-" + Date.now();
+}
+"""
+
+ctx = execjs.compile(js_code)
+token = ctx.call("generateToken", "my-secret-key-123", 1)
+print(token)</div>
+      <p>
+        寫法上比呼叫subprocess更簡潔，但底層通常還是
+        依賴系統上有安裝Node.js（或其他JS執行環境）
+        才能運作，功能上跟路線一本質相同，只是
+        Python端的呼叫方式更直接。
+      </p>
+
+      <h2>3. 路線二：讀懂邏輯後，用Python重寫</h2>
+      <p>
+        如果那段JS邏輯不複雜（例如上面的範例：
+        字串拼接＋時間戳），與其依賴額外安裝Node.js，
+        不如直接用Python重寫一遍：
+      </p>
+      <div class="code-block">import time
+
+def generate_token(secret_key, count):
+    timestamp_ms = int(time.time() * 1000)  # 對照JS的 Date.now()
+    return f"{secret_key}-{count}-{timestamp_ms}"</div>
+      <p>
+        這個方法的優點是<strong>不需要額外環境依賴</strong>
+        （不用裝Node.js），執行速度通常也更快
+        （不需要啟動額外的行程或JS引擎）。缺點是
+        如果邏輯裡用到JS特有的函式庫或行為細節
+        （尤其是密碼學相關的雜湊、加密函式，
+        不同語言的實作細節可能有微妙差異），
+        重寫時稍有不慎就會產生跟原始邏輯不一致的
+        結果，且不容易察覺。
+      </p>
+
+      <h2>4. 該選哪一條路線：判斷原則</h2>
+      <div class="ref-table-wrap">
+        <table class="ref-table">
+          <thead>
+            <tr><th>情況</th><th>建議路線</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>邏輯簡單（字串組合、簡單數學運算）</td><td>路線二：重寫成Python</td></tr>
+            <tr><td>邏輯複雜或用到特殊的JS函式庫</td><td>路線一：直接執行JS</td></tr>
+            <tr><td>邏輯經常隨網站改版變動</td><td>路線一：改版時只要更新JS檔案</td></tr>
+            <tr><td>需要長期、大量、追求效能的爬取</td><td>路線二：效能較好，但需要花更多時間驗證正確性</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        不管選哪一條路線，<strong>驗證</strong>都是必要步驟：
+        用同一組輸入，同時跑一次瀏覽器裡的原始JS
+        （在主控台手動呼叫）跟你的Python實作，
+        比對兩者輸出是否完全一致，才能確認你的複製
+        真的正確，而不是恰好在某幾筆測試資料上湊巧
+        對得上。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出用subprocess呼叫Node.js執行JS片段的基本做法</li>
+          <li>能說明PyExecJS這類套件的用途</li>
+          <li>能列出決定該重寫還是直接執行JS的判斷原則</li>
+          <li>能說明為什麼驗證兩種實作的輸出一致性是必要步驟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 30 課：除了計算出來的參數，request本身還有
+        headers、cookies、session這幾個容易被忽略、
+        但同樣重要的部分——怎麼在Python裡正確模仿
+        瀏覽器發送的完整請求。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：分頁與動態載入完整攻略</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：模仿瀏覽器發送請求 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

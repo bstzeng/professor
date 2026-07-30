@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：同步與非同步：為什麼JS常寫「等一下再做」 ｜ HTML／JavaScript 網頁解剖學 ｜ 博雅書院</title>
+<meta name="description" content="JS非同步執行模型完整解釋：單執行緒加事件迴圈，為什麼網路請求不會卡住整個頁面，對照Python的同步requests">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">HTML／JavaScript 網頁解剖學</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜非同步與網路請求：現代網頁資料流動的核心 · 第 19 課</div>
+      <h1>同步與非同步：為什麼JS常寫「等一下再做」</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>學習目標</h3>
+        <ul>
+          <li>理解JS「單執行緒＋事件迴圈」的執行模型</li>
+          <li>理解為什麼網路請求不能用「同步等待」的方式寫</li>
+          <li>對照Python的requests，理解爬蟲工具跟瀏覽器JS的本質差異</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D是整門課的核心目的地——資料真正從遠端
+        伺服器被抓下來的地方。但要看懂這部分JS程式碼，
+        得先建立一個Python裡不太需要特別去想的概念：
+        同步與非同步的差別。
+      </p>
+
+      <h2>1. Python的requests：同步、會等待</h2>
+      <p>
+        你已經很熟悉這樣寫Python：
+      </p>
+      <div class="code-block">import requests
+
+response = requests.get("https://example.com/api/data")
+print(response.json())   # 這一行，一定是在上一行執行完之後才會跑</div>
+      <p>
+        這是<strong>同步（synchronous）</strong>執行：
+        程式碼由上而下依序執行，<code>requests.get()</code>
+        會讓程式<strong>停在原地等待</strong>，直到伺服器
+        回應為止，才會往下執行下一行。這很直覺，
+        但也代表：如果請求要花5秒鐘，你的整個程式
+        就會被卡住5秒鐘，什麼事都做不了。
+      </p>
+
+      <h2>2. 瀏覽器不能被卡住：JS是單執行緒</h2>
+      <p>
+        瀏覽器裡的JS有一個限制：它是<strong>單執行緒
+        （single-threaded）</strong>——同一時間只能做
+        一件事。如果JS發送網路請求時，也採用Python
+        那種「原地等待」的寫法，代表整個瀏覽器分頁
+        在等待回應的這幾秒鐘，會完全<strong>卡住不能動</strong>——
+        使用者連捲動頁面、點擊按鈕都做不到，
+        體驗會非常糟糕。
+      </p>
+
+      <h2>3. 解法：非同步，先「登記」，等結果出來再處理</h2>
+      <div class="callout">
+        <h3>非同步的核心概念</h3>
+        <p>
+          JS採用<strong>非同步（asynchronous）</strong>的
+          做法解決這個問題：發送網路請求時，不會原地
+          等待，而是立刻把控制權交還給瀏覽器，讓使用者
+          可以繼續操作頁面；同時「登記」一段
+          「等結果真的回來以後，要執行的程式碼」——
+          瀏覽器背景持續等待伺服器回應，一旦回應到達，
+          才回頭執行你登記的那段程式碼。這整套背景
+          運作機制稱為<strong>事件迴圈（event loop）</strong>。
+        </p>
+      </div>
+
+      <div class="code-playground">
+        <div class="code-playground-bar">
+          <span class="code-playground-label">setTimeout 是體驗非同步概念最簡單的方式</span>
+          <button type="button" class="code-playground-run">▶ 執行</button>
+        </div>
+        <textarea class="code-playground-input" spellcheck="false">console.log("1. 這行最先印出");
+
+setTimeout(function () {
+  console.log("3. 這行是「登記」的程式碼，1秒後才執行");
+}, 1000);
+
+console.log("2. 這行緊接著第1行印出，不會等setTimeout");</textarea>
+        <pre class="code-playground-output" hidden></pre>
+      </div>
+
+      <p>
+        注意執行順序：印出來的是「1」「2」，
+        然後（如果你在瀏覽器主控台實際執行，會等1秒）
+        才印出「3」——雖然程式碼裡「3」寫在「2」的
+        <strong>上面</strong>，但因為它被包在
+        <code>setTimeout</code>裡（非同步登記），
+        JS不會原地等待這1秒，而是先把下面的程式碼
+        （印出「2」）跑完，之後才回頭處理登記好的
+        那段程式碼。這個「程式碼撰寫順序」跟「實際
+        執行順序」不一致的現象，正是非同步最違反直覺、
+        也最需要花時間適應的地方。
+      </p>
+
+      <h2>4. 網路請求正是最典型的非同步操作</h2>
+      <p>
+        「發送網路請求，等伺服器回應」跟
+        <code>setTimeout</code>「等一段時間」，
+        本質上是同一種模式：都是「現在做不完，
+        要等外部的事情發生，才能繼續」。JS處理網路
+        請求（下一課的Fetch API）用的正是跟
+        <code>setTimeout</code>同一套非同步機制，
+        只是等待的不是固定時間，而是「等伺服器
+        回應」這件不確定要多久的事。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明Python的requests跟JS處理網路請求，在「等待方式」上的差異</li>
+          <li>能解釋為什麼JS的單執行緒特性，逼得它必須用非同步處理網路請求</li>
+          <li>能預測setTimeout範例的實際執行順序，並解釋原因</li>
+          <li>能說明為什麼網路請求是典型的非同步操作</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 20 課：Promise跟async/await——JS用來
+        管理非同步操作的兩種寫法，讓「等一下再做」
+        的程式碼變得更容易讀懂、更容易寫。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：模組總結（DOM與事件）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：Promise 與 async/await →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script src="../../js/code-playground.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
