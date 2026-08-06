@@ -923,6 +923,77 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "final-cut-pro",
+      title: "Final Cut Pro 剪輯進階：磁性時間軸、複合片段、關鍵影格與效率工具",
+      description:
+        "為已經會剪Vlog、簡單轉場、字幕、基本關鍵影格的人設計的進階課程。從磁性時間軸的底層邏輯開始，把「已經會用」變成「懂得為什麼這樣用」，再深入複合片段、關鍵影格（含怎麼快速找到片段上已有的關鍵影格）、快捷鍵，最後補上一批投報率很高的效率工具。概念類搭配示意圖，實際操作類搭配真實截圖。",
+      icon: "🎬",
+      url: "topics/final-cut-pro/index.html",
+      modules: [
+        {
+          title: "模組 A｜FCP 的剪輯邏輯：重新理解你已經在用的東西",
+          courses: [
+            { title: "磁性時間軸：FCP 最大特色，跟傳統多軌剪輯的差異", url: "topics/final-cut-pro/lesson-01.html" },
+            { title: "主要故事線 vs. 連接片段：B-roll、音樂為什麼不用手動對齊時間", url: "topics/final-cut-pro/lesson-02.html" },
+            { title: "連接、覆蓋、插入：幾種基本剪輯動作在磁性時間軸裡的行為差異", url: "topics/final-cut-pro/lesson-03.html" },
+            { title: "Roles（角色）系統：用類型管理音軌與素材，取代死板的軌道編號", url: "topics/final-cut-pro/lesson-04.html" },
+            { title: "模組總結：理解這套邏輯之後，剪輯效率會差在哪裡", url: "topics/final-cut-pro/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜複合片段（Compound Clip）完整操作",
+          courses: [
+            { title: "複合片段是什麼：把多個片段包成一個可管理的單位", url: "topics/final-cut-pro/lesson-06.html" },
+            { title: "建立複合片段：操作示範", url: "topics/final-cut-pro/lesson-07.html" },
+            { title: "進入與離開複合片段：巢狀編輯與路徑列（breadcrumb）", url: "topics/final-cut-pro/lesson-08.html" },
+            { title: "修改複合片段內部後，外部時間軸會發生什麼事", url: "topics/final-cut-pro/lesson-09.html" },
+            { title: "複合片段 vs. 多機位剪輯：什麼時候該用哪一種", url: "topics/final-cut-pro/lesson-10.html" },
+            { title: "實戰應用：用複合片段整理Vlog裡常重複的片段（片頭、Logo動畫等）", url: "topics/final-cut-pro/lesson-11.html" },
+            { title: "模組總結：複合片段的整理心法", url: "topics/final-cut-pro/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 C｜關鍵影格（Keyframe）完整攻略",
+          courses: [
+            { title: "關鍵影格是什麼：讓參數隨時間變化的機制複習" },
+            { title: "怎麼幫一個參數加上關鍵影格：位置、縮放、透明度" },
+            { title: "【核心】怎麼快速找到片段上已經有的關鍵影格：動畫編輯器完整教學" },
+            { title: "在時間軸上跳轉到上一個／下一個關鍵影格" },
+            { title: "修改、刪除、複製貼上關鍵影格" },
+            { title: "常見應用：運鏡模擬（Ken Burns 效果）、音量淡入淡出、文字動畫" },
+            { title: "疑難排解：動畫跑掉了，怎麼快速抓出是哪個影格出錯" }
+          ]
+        },
+        {
+          title: "模組 D｜快捷鍵完整攻略：加速你的剪輯流程",
+          courses: [
+            { title: "播放與瀏覽快捷鍵：JKL、空白鍵、逐格移動" },
+            { title: "標記與選取快捷鍵：入點/出點、Marker、精準選取片段" },
+            { title: "剪輯動作快捷鍵：連接（Q）、覆蓋（D）、插入（W）、附加（E）" },
+            { title: "修剪快捷鍵：刀片工具、漣漪修剪、卷動剪輯、位置微調" },
+            { title: "複合片段與關鍵影格相關快捷鍵總複習" },
+            { title: "自訂快捷鍵：Command Editor，設定符合自己習慣的按鍵組合" },
+            { title: "模組總結：一張完整的快捷鍵速查表" }
+          ]
+        },
+        {
+          title: "模組 E｜更多好用功能：讓剪輯更快更輕鬆",
+          courses: [
+            { title: "略讀（Skimming）：不用播放就能快速瀏覽素材" },
+            { title: "關鍵字收藏與智慧收藏：管理大量Vlog素材的整理方法" },
+            { title: "Markers 標記：邊剪邊記筆記，之後系統性處理" },
+            { title: "穩定化（Stabilization）：一鍵修正手持拍攝的手震" },
+            { title: "Match Color：不同鏡頭、不同光線的畫面一鍵配色統一" },
+            { title: "Enhance Audio：一鍵降噪、齊平音量，解決Vlog收音品質問題" },
+            { title: "精確剪輯器（Precision Editor）：微調剪接點的隱藏神器" },
+            { title: "速度變更與速度坡度（Retiming）：慢動作、加速效果，銜接關鍵影格" },
+            { title: "代理媒體與背景轉譯：4K素材剪輯更順暢的效能技巧" },
+            { title: "課程總結：把這些功能整合進你的剪輯工作流程" }
+          ]
+        }
+      ]
     }
   ]
 };
