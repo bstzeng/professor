@@ -928,7 +928,7 @@ window.SITE_DATA = {
       id: "final-cut-pro",
       title: "Final Cut Pro 剪輯進階：磁性時間軸、複合片段、關鍵影格與效率工具",
       description:
-        "為已經會剪Vlog、簡單轉場、字幕、基本關鍵影格的人設計的進階課程。從磁性時間軸的底層邏輯開始，把「已經會用」變成「懂得為什麼這樣用」，再深入複合片段、關鍵影格（含怎麼快速找到片段上已有的關鍵影格）、快捷鍵，最後補上一批投報率很高的效率工具。概念類搭配示意圖，實際操作類搭配真實截圖。",
+        "為已經會剪Vlog、簡單轉場、字幕、基本關鍵影格的人設計的進階課程。從磁性時間軸的底層邏輯開始，把「已經會用」變成「懂得為什麼這樣用」，再深入複合片段、關鍵影格（含怎麼快速找到片段上已有的關鍵影格）、快捷鍵，最後補上一批投報率很高的效率工具。概念類搭配示意圖，實際操作類搭配依真實介面樣式繪製的高擬真示意圖。",
       icon: "🎬",
       url: "topics/final-cut-pro/index.html",
       modules: [
@@ -957,40 +957,40 @@ window.SITE_DATA = {
         {
           title: "模組 C｜關鍵影格（Keyframe）完整攻略",
           courses: [
-            { title: "關鍵影格是什麼：讓參數隨時間變化的機制複習" },
-            { title: "怎麼幫一個參數加上關鍵影格：位置、縮放、透明度" },
-            { title: "【核心】怎麼快速找到片段上已經有的關鍵影格：動畫編輯器完整教學" },
-            { title: "在時間軸上跳轉到上一個／下一個關鍵影格" },
-            { title: "修改、刪除、複製貼上關鍵影格" },
-            { title: "常見應用：運鏡模擬（Ken Burns 效果）、音量淡入淡出、文字動畫" },
-            { title: "疑難排解：動畫跑掉了，怎麼快速抓出是哪個影格出錯" }
+            { title: "關鍵影格是什麼：讓參數隨時間變化的機制複習", url: "topics/final-cut-pro/lesson-13.html" },
+            { title: "怎麼幫一個參數加上關鍵影格：位置、縮放、透明度", url: "topics/final-cut-pro/lesson-14.html" },
+            { title: "【核心】怎麼快速找到片段上已經有的關鍵影格：動畫編輯器完整教學", url: "topics/final-cut-pro/lesson-15.html" },
+            { title: "在時間軸上跳轉到上一個／下一個關鍵影格", url: "topics/final-cut-pro/lesson-16.html" },
+            { title: "修改、刪除、複製貼上關鍵影格", url: "topics/final-cut-pro/lesson-17.html" },
+            { title: "常見應用：運鏡模擬（Ken Burns 效果）、音量淡入淡出、文字動畫", url: "topics/final-cut-pro/lesson-18.html" },
+            { title: "疑難排解：動畫跑掉了，怎麼快速抓出是哪個影格出錯", url: "topics/final-cut-pro/lesson-19.html" }
           ]
         },
         {
           title: "模組 D｜快捷鍵完整攻略：加速你的剪輯流程",
           courses: [
-            { title: "播放與瀏覽快捷鍵：JKL、空白鍵、逐格移動" },
-            { title: "標記與選取快捷鍵：入點/出點、Marker、精準選取片段" },
-            { title: "剪輯動作快捷鍵：連接（Q）、覆蓋（D）、插入（W）、附加（E）" },
-            { title: "修剪快捷鍵：刀片工具、漣漪修剪、卷動剪輯、位置微調" },
-            { title: "複合片段與關鍵影格相關快捷鍵總複習" },
-            { title: "自訂快捷鍵：Command Editor，設定符合自己習慣的按鍵組合" },
-            { title: "模組總結：一張完整的快捷鍵速查表" }
+            { title: "播放與瀏覽快捷鍵：JKL、空白鍵、逐格移動", url: "topics/final-cut-pro/lesson-20.html" },
+            { title: "標記與選取快捷鍵：入點/出點、Marker、精準選取片段", url: "topics/final-cut-pro/lesson-21.html" },
+            { title: "剪輯動作快捷鍵：連接（Q）、覆蓋（D）、插入（W）、附加（E）", url: "topics/final-cut-pro/lesson-22.html" },
+            { title: "修剪快捷鍵：刀片工具、漣漪修剪、卷動剪輯、位置微調", url: "topics/final-cut-pro/lesson-23.html" },
+            { title: "複合片段與關鍵影格相關快捷鍵總複習", url: "topics/final-cut-pro/lesson-24.html" },
+            { title: "自訂快捷鍵：Command Editor，設定符合自己習慣的按鍵組合", url: "topics/final-cut-pro/lesson-25.html" },
+            { title: "模組總結：一張完整的快捷鍵速查表", url: "topics/final-cut-pro/lesson-26.html" }
           ]
         },
         {
           title: "模組 E｜更多好用功能：讓剪輯更快更輕鬆",
           courses: [
-            { title: "略讀（Skimming）：不用播放就能快速瀏覽素材" },
-            { title: "關鍵字收藏與智慧收藏：管理大量Vlog素材的整理方法" },
-            { title: "Markers 標記：邊剪邊記筆記，之後系統性處理" },
-            { title: "穩定化（Stabilization）：一鍵修正手持拍攝的手震" },
-            { title: "Match Color：不同鏡頭、不同光線的畫面一鍵配色統一" },
-            { title: "Enhance Audio：一鍵降噪、齊平音量，解決Vlog收音品質問題" },
-            { title: "精確剪輯器（Precision Editor）：微調剪接點的隱藏神器" },
-            { title: "速度變更與速度坡度（Retiming）：慢動作、加速效果，銜接關鍵影格" },
-            { title: "代理媒體與背景轉譯：4K素材剪輯更順暢的效能技巧" },
-            { title: "課程總結：把這些功能整合進你的剪輯工作流程" }
+            { title: "略讀（Skimming）：不用播放就能快速瀏覽素材", url: "topics/final-cut-pro/lesson-27.html" },
+            { title: "關鍵字收藏與智慧收藏：管理大量Vlog素材的整理方法", url: "topics/final-cut-pro/lesson-28.html" },
+            { title: "Markers 標記：邊剪邊記筆記，之後系統性處理", url: "topics/final-cut-pro/lesson-29.html" },
+            { title: "穩定化（Stabilization）：一鍵修正手持拍攝的手震", url: "topics/final-cut-pro/lesson-30.html" },
+            { title: "Match Color：不同鏡頭、不同光線的畫面一鍵配色統一", url: "topics/final-cut-pro/lesson-31.html" },
+            { title: "Enhance Audio：一鍵降噪、齊平音量，解決Vlog收音品質問題", url: "topics/final-cut-pro/lesson-32.html" },
+            { title: "精確剪輯器（Precision Editor）：微調剪接點的隱藏神器", url: "topics/final-cut-pro/lesson-33.html" },
+            { title: "速度變更與速度坡度（Retiming）：慢動作、加速效果，銜接關鍵影格", url: "topics/final-cut-pro/lesson-34.html" },
+            { title: "代理媒體與背景轉譯：4K素材剪輯更順暢的效能技巧", url: "topics/final-cut-pro/lesson-35.html" },
+            { title: "課程總結：把這些功能整合進你的剪輯工作流程", url: "topics/final-cut-pro/lesson-36.html" }
           ]
         }
       ]
