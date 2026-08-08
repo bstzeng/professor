@@ -994,6 +994,103 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "chinese-medicine",
+      title: "中醫完整知識課程：從陰陽五行到把脈、辨證、開方",
+      description:
+        "系統性的中醫理論入門課。從陰陽五行、臟腑經絡的世界觀開始，深入四診合參（把脈完整攻略）、辨證論治的推理邏輯，再到中藥學、方劑學怎麼決定用藥與劑量，最後以案例演練與現代反思收尾。這是理論與歷史脈絡的完整介紹，不是自我診斷或用藥指南——實際身體狀況請諮詢合格中醫師。",
+      icon: "☯",
+      url: "topics/chinese-medicine/index.html",
+      modules: [
+        {
+          title: "模組 A｜中醫的世界觀：陰陽五行與氣血津液",
+          courses: [
+            { title: "中醫是什麼：跟西醫思維方式的根本差異", url: "topics/chinese-medicine/lesson-01.html" },
+            { title: "陰陽：中醫理解一切變化的基本框架", url: "topics/chinese-medicine/lesson-02.html" },
+            { title: "五行：木火土金水，一套關聯性思維系統", url: "topics/chinese-medicine/lesson-03.html" },
+            { title: "氣、血、津液：中醫理解的身體「物質基礎」", url: "topics/chinese-medicine/lesson-04.html" },
+            { title: "模組總結：這套世界觀怎麼指導後面所有的診斷跟治療", url: "topics/chinese-medicine/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜臟腑經絡：中醫如何理解人體結構",
+          courses: [
+            { title: "臟腑學說：中醫的「五臟六腑」跟解剖學臟器的差異", url: "topics/chinese-medicine/lesson-06.html" },
+            { title: "心、肝：功能與相關症狀", url: "topics/chinese-medicine/lesson-07.html" },
+            { title: "脾、肺：功能與相關症狀", url: "topics/chinese-medicine/lesson-08.html" },
+            { title: "腎：先天之本，中醫特別重視的臟腑", url: "topics/chinese-medicine/lesson-09.html" },
+            { title: "經絡系統：氣血運行的路徑，跟針灸的關係", url: "topics/chinese-medicine/lesson-10.html" },
+            { title: "模組總結：臟腑經絡怎麼串成一張完整的人體地圖", url: "topics/chinese-medicine/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜四診合參：望聞問切完整攻略",
+          courses: [
+            { title: "四診總覽：望聞問切分別在收集什麼資訊", url: "topics/chinese-medicine/lesson-12.html" },
+            { title: "望診：觀察氣色、舌診（舌頭是中醫的重要「儀表板」）", url: "topics/chinese-medicine/lesson-13.html" },
+            { title: "聞診與問診：聲音氣味，以及問診要問哪些關鍵問題", url: "topics/chinese-medicine/lesson-14.html" },
+            { title: "切診入門：把脈的基本原理，為什麼手腕的脈能反映全身", url: "topics/chinese-medicine/lesson-15.html" },
+            { title: "把脈實務：寸關尺三部，怎麼定位、怎麼下指", url: "topics/chinese-medicine/lesson-16.html" },
+            { title: "脈象大全：常見脈象的分類與意義（浮沉遲數等）", url: "topics/chinese-medicine/lesson-17.html" },
+            { title: "把脈的難處：為什麼這是最難學的一診，常見誤區", url: "topics/chinese-medicine/lesson-18.html" },
+            { title: "模組總結：四診合參——單一診法都不夠，怎麼綜合判斷", url: "topics/chinese-medicine/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 D｜辨證論治：從症狀到證型的推理邏輯",
+          courses: [
+            { title: "辨證論治是什麼：中醫診斷的核心方法論", url: "topics/chinese-medicine/lesson-20.html" },
+            { title: "八綱辨證：陰陽表裡寒熱虛實，最基礎的分類框架", url: "topics/chinese-medicine/lesson-21.html" },
+            { title: "臟腑辨證：症狀怎麼對應到特定臟腑的問題", url: "topics/chinese-medicine/lesson-22.html" },
+            { title: "六經辨證與衛氣營血辨證：外感疾病的階段性判斷", url: "topics/chinese-medicine/lesson-23.html" },
+            { title: "同病異治、異病同治：中醫獨特的診斷邏輯", url: "topics/chinese-medicine/lesson-24.html" },
+            { title: "模組總結：從一堆症狀，怎麼一步步推理出證型", url: "topics/chinese-medicine/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 E｜中藥學基礎：性味歸經與怎麼認識一味藥",
+          courses: [
+            { title: "中藥的四氣五味：怎麼描述一味藥的基本性質", url: "topics/chinese-medicine/lesson-26.html" },
+            { title: "歸經：一味藥主要作用在哪個臟腑經絡", url: "topics/chinese-medicine/lesson-27.html" },
+            { title: "升降浮沉：藥性的作用方向", url: "topics/chinese-medicine/lesson-28.html" },
+            { title: "中藥分類：解表藥、補益藥、清熱藥等主要類別", url: "topics/chinese-medicine/lesson-29.html" },
+            { title: "常用中藥實例解析：從性味歸經看懂藥效邏輯", url: "topics/chinese-medicine/lesson-30.html" },
+            { title: "模組總結：怎麼「讀懂」一味藥的完整檔案", url: "topics/chinese-medicine/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 F｜方劑學：君臣佐使，怎麼把藥組成一帖方子",
+          courses: [
+            { title: "方劑學是什麼：為什麼中藥很少單味使用", url: "topics/chinese-medicine/lesson-32.html" },
+            { title: "君臣佐使：一帖方子裡每味藥的角色分工", url: "topics/chinese-medicine/lesson-33.html" },
+            { title: "經典方劑解析：從結構看懂一帖名方怎麼設計的", url: "topics/chinese-medicine/lesson-34.html" },
+            { title: "藥物配伍：七情——藥物之間的加強、抵銷、拮抗關係", url: "topics/chinese-medicine/lesson-35.html" },
+            { title: "加減變化：同一個基礎方，怎麼依證型調整", url: "topics/chinese-medicine/lesson-36.html" },
+            { title: "模組總結：怎麼「決定藥品」——從證型走到一帖方子的完整邏輯", url: "topics/chinese-medicine/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劑量的決定：影響用量的所有因素",
+          courses: [
+            { title: "劑量怎麼決定：藥性強弱、產地、炮製方式的影響", url: "topics/chinese-medicine/lesson-38.html" },
+            { title: "個體差異：體質、年齡、體重怎麼影響劑量", url: "topics/chinese-medicine/lesson-39.html" },
+            { title: "病情差異：病程輕重緩急、季節怎麼影響劑量", url: "topics/chinese-medicine/lesson-40.html" },
+            { title: "煎煮法與服藥法：劑量之外，煎煮方式也會影響藥效", url: "topics/chinese-medicine/lesson-41.html" },
+            { title: "模組總結：劑量決定是一套多因素綜合判斷，不是查表照抄", url: "topics/chinese-medicine/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 H｜整合實戰與現代反思",
+          courses: [
+            { title: "案例演練一：一個常見證型的完整診斷到開方過程", url: "topics/chinese-medicine/lesson-43.html" },
+            { title: "案例演練二：另一個證型的對照分析", url: "topics/chinese-medicine/lesson-44.html" },
+            { title: "中西醫比較：中醫理論框架跟現代醫學實證方法的差異", url: "topics/chinese-medicine/lesson-45.html" },
+            { title: "誠實看待中醫：哪些部分有現代研究支持、哪些仍有爭議", url: "topics/chinese-medicine/lesson-46.html" },
+            { title: "課程總結：把整套中醫知識體系串起來回顧", url: "topics/chinese-medicine/lesson-47.html" }
+          ]
+        }
+      ]
     }
   ]
 };
