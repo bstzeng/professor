@@ -1091,6 +1091,127 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "electronics",
+      title: "電子電路完整課程：從電壓電流到麵包板實作",
+      description:
+        "從基礎數學出發的電子電路自學課程。從電壓電流的物理直覺開始，建立直流電路分析、微分方程（RC/RL）、複數與相量（交流電路）這些必要的數學工具箱，再深入濾波器、半導體元件、運算放大器、數位邏輯，最後用一系列麵包板實作專案（LED、交替閃爍電路、感測器、穩壓電源、音訊放大、馬達控制、警報電路）把理論變成動手做的能力。",
+      icon: "⚡",
+      url: "topics/electronics/index.html",
+      modules: [
+        {
+          title: "模組 A｜電路的基本語言：電壓、電流、電阻的物理直覺",
+          courses: [
+            { title: "電荷是什麼：從原子裡的電子講起", url: "topics/electronics/lesson-01.html" },
+            { title: "電流：電荷的流動，跟水流的類比與差異", url: "topics/electronics/lesson-02.html" },
+            { title: "電壓：為什麼電荷會流動，位能差的概念", url: "topics/electronics/lesson-03.html" },
+            { title: "電阻與歐姆定律：V=IR 背後的物理意義", url: "topics/electronics/lesson-04.html" },
+            { title: "電功率：電路裡能量轉換的速度", url: "topics/electronics/lesson-05.html" },
+            { title: "模組總結：用電池、電阻、燈泡搭出你的第一個心智模型", url: "topics/electronics/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 B｜直流電路分析：基爾荷夫定律與化簡技巧",
+          courses: [
+            { title: "串聯與並聯：電阻怎麼合併化簡", url: "topics/electronics/lesson-07.html" },
+            { title: "基爾荷夫電流定律（KCL）：節點上的電荷守恆", url: "topics/electronics/lesson-08.html" },
+            { title: "基爾荷夫電壓定律（KVL）：迴路上的能量守恆", url: "topics/electronics/lesson-09.html" },
+            { title: "節點分析法：系統化解複雜電路的第一套方法", url: "topics/electronics/lesson-10.html" },
+            { title: "迴路分析法：另一套系統化解法，跟節點分析法的取捨", url: "topics/electronics/lesson-11.html" },
+            { title: "疊加定理：多電源電路的分而治之", url: "topics/electronics/lesson-12.html" },
+            { title: "戴維寧與諾頓等效電路：把複雜電路簡化成一顆電池", url: "topics/electronics/lesson-13.html" },
+            { title: "模組總結：面對一張複雜電路圖，你的解題流程", url: "topics/electronics/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 C｜電容與電感：儲能元件與微分方程入門",
+          courses: [
+            { title: "電容是什麼：儲存電荷的元件，跟電池的差異", url: "topics/electronics/lesson-15.html" },
+            { title: "電感是什麼：儲存磁場能量的元件", url: "topics/electronics/lesson-16.html" },
+            { title: "【數學工具箱】為什麼需要微分方程：電容電感的電流電壓關係", url: "topics/electronics/lesson-17.html" },
+            { title: "RC電路：充放電的指數曲線，時間常數的意義", url: "topics/electronics/lesson-18.html" },
+            { title: "RL電路：跟RC對照著學，加深理解", url: "topics/electronics/lesson-19.html" },
+            { title: "一階電路的完整解法：從物理情境列方程到解出答案", url: "topics/electronics/lesson-20.html" },
+            { title: "模組總結：儲能元件怎麼讓電路有了「記憶」", url: "topics/electronics/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 D｜交流電路：相量法與複數工具箱",
+          courses: [
+            { title: "為什麼要研究交流：從家用電談起", url: "topics/electronics/lesson-22.html" },
+            { title: "【數學工具箱】複數與相量：把正弦波變成好算的東西", url: "topics/electronics/lesson-23.html" },
+            { title: "阻抗：電阻概念在交流世界的推廣", url: "topics/electronics/lesson-24.html" },
+            { title: "RLC 串聯電路的相量分析", url: "topics/electronics/lesson-25.html" },
+            { title: "RLC 並聯電路的相量分析", url: "topics/electronics/lesson-26.html" },
+            { title: "諧振：電路對特定頻率的特殊反應", url: "topics/electronics/lesson-27.html" },
+            { title: "交流功率：實功、虛功、功率因數", url: "topics/electronics/lesson-28.html" },
+            { title: "模組總結：直流思維怎麼無縫轉換成交流思維", url: "topics/electronics/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 E｜濾波器與頻率響應",
+          courses: [
+            { title: "頻率響應是什麼：電路對不同頻率訊號的不同反應", url: "topics/electronics/lesson-30.html" },
+            { title: "低通濾波器：為什麼能濾掉高頻雜訊", url: "topics/electronics/lesson-31.html" },
+            { title: "高通與帶通濾波器", url: "topics/electronics/lesson-32.html" },
+            { title: "波德圖（Bode Plot）：用圖形讀懂一個電路的個性", url: "topics/electronics/lesson-33.html" },
+            { title: "模組總結：濾波器在真實產品裡的應用", url: "topics/electronics/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 F｜半導體元件：二極體與電晶體",
+          courses: [
+            { title: "半導體是什麼：導體與絕緣體之間的材料", url: "topics/electronics/lesson-35.html" },
+            { title: "PN接面與二極體：電流只能單向通過的原理", url: "topics/electronics/lesson-36.html" },
+            { title: "二極體電路應用：整流、限幅、保護電路", url: "topics/electronics/lesson-37.html" },
+            { title: "電晶體是什麼：從二極體到三端元件", url: "topics/electronics/lesson-38.html" },
+            { title: "BJT：電流控制電流的放大器", url: "topics/electronics/lesson-39.html" },
+            { title: "MOSFET：電壓控制電流，現代晶片的基礎", url: "topics/electronics/lesson-40.html" },
+            { title: "電晶體當開關用：數位電路的元件基礎", url: "topics/electronics/lesson-41.html" },
+            { title: "模組總結：從一顆電晶體到一整片晶片的距離", url: "topics/electronics/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 G｜運算放大器",
+          courses: [
+            { title: "理想運算放大器模型：先別管內部，把它當黑盒子", url: "topics/electronics/lesson-43.html" },
+            { title: "負回授：運放電路穩定運作的關鍵原理", url: "topics/electronics/lesson-44.html" },
+            { title: "反相與非反相放大電路", url: "topics/electronics/lesson-45.html" },
+            { title: "加法器、差動放大器：組合出更複雜的功能", url: "topics/electronics/lesson-46.html" },
+            { title: "比較器：運放的另一種用法，類比通往數位的橋樑", url: "topics/electronics/lesson-47.html" },
+            { title: "模組總結：運放是類比電路的萬用積木", url: "topics/electronics/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 H｜數位邏輯基礎",
+          courses: [
+            { title: "二進位與邏輯準位：0與1怎麼對應到電壓", url: "topics/electronics/lesson-49.html" },
+            { title: "基本邏輯閘：AND、OR、NOT、XOR", url: "topics/electronics/lesson-50.html" },
+            { title: "真值表與布林代數：邏輯電路的數學語言", url: "topics/electronics/lesson-51.html" },
+            { title: "組合邏輯電路：用邏輯閘搭出實際功能", url: "topics/electronics/lesson-52.html" },
+            { title: "正反器與時脈：電路怎麼有了「記憶」與「節奏」", url: "topics/electronics/lesson-53.html" },
+            { title: "模組總結：從邏輯閘到微處理器的一線之隔", url: "topics/electronics/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 I｜實作應用：從電路圖到麵包板",
+          courses: [
+            { title: "怎麼讀懂一張真實的電路圖（電路符號總複習）", url: "topics/electronics/lesson-55.html" },
+            { title: "麵包板實作入門：怎麼搭建、怎麼除錯", url: "topics/electronics/lesson-56.html" },
+            { title: "實戰一：LED驅動電路", url: "topics/electronics/lesson-57.html" },
+            { title: "實戰二：交替閃爍LED電路——兩顆電晶體搭出的無穩態震盪器", url: "topics/electronics/lesson-58.html" },
+            { title: "實戰三：用555計時器IC重做交替閃爍——從分立元件到積體電路", url: "topics/electronics/lesson-59.html" },
+            { title: "實戰四：光敏／溫度感測電路", url: "topics/electronics/lesson-60.html" },
+            { title: "實戰五：直流穩壓電源供應器", url: "topics/electronics/lesson-61.html" },
+            { title: "實戰六：簡單音訊放大電路", url: "topics/electronics/lesson-62.html" },
+            { title: "實戰七：直流馬達控制電路", url: "topics/electronics/lesson-63.html" },
+            { title: "實戰八：簡易警報／感應電路", url: "topics/electronics/lesson-64.html" },
+            { title: "銜接微控制器：什麼時候該從純硬體電路，轉向Arduino這類可程式化控制", url: "topics/electronics/lesson-65.html" },
+            { title: "課程總結：把整套電路知識整合成實作能力", url: "topics/electronics/lesson-66.html" }
+          ]
+        }
+      ]
     }
   ]
 };
