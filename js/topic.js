@@ -62,7 +62,6 @@ function renderTopicPage() {
                 <a class="lesson-row is-published" href="${basePath}${course.url}">
                   <span class="lesson-num">${num}</span>
                   <span class="lesson-title">${course.title}</span>
-                  <span class="lesson-status">已發布</span>
                 </a>
               </li>
             `;
@@ -73,7 +72,7 @@ function renderTopicPage() {
               <div class="lesson-row is-pending">
                 <span class="lesson-num">${num}</span>
                 <span class="lesson-title">${course.title}</span>
-                <span class="lesson-status">敬請期待</span>
+                <span class="lesson-status">未完成</span>
               </div>
             </li>
           `;
