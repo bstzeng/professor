@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：管線危障：資料危障、控制危障與結構危障 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="用TOY-CPU的LOAD接ADD這段程式，具體說明資料危障的成因，並介紹控制危障、結構危障，以及forwarding、stall兩種基本解法">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 63 課</div>
+      <h1>管線危障：資料危障、控制危障與結構危障</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能用TOY-CPU的LOAD接ADD這段程式，具體說明資料危障（load-use hazard）怎麼發生</li>
+          <li>能簡要區分資料危障、控制危障、結構危障三種管線危障</li>
+          <li>理解forwarding（前送）與stall（暫停）是處理資料危障的兩個基本手段</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課看到管線化的理想情況：多條指令重疊在不同階段
+        同時處理，吞吐量大幅提升。但這個理想情況有一個隱藏
+        前提——每條指令都能「順順地」往下一階段推進，不需要
+        等任何人。一旦指令之間出現依賴關係，管線就可能被迫
+        <strong>暫停（stall）</strong>，這種情況統稱為<strong>管線
+        危障（hazard）</strong>。這一課用TOY-CPU LOOP程式裡最
+        關鍵的一段，具體看危障是怎麼發生的。
+      </p>
+
+      <h2>1. 資料危障：後面的指令等不到前面算好的資料</h2>
+      <p>
+        回顧TOY-CPU LOOP的迴圈本體，第一、二行是：
+      </p>
+      <div class="callout">
+        <p>
+          <code>3: LOAD R3, [R2]</code>　　；從R2指向的位址讀出陣列元素，存進R3<br>
+          <code>4: ADD  R0, R0, R3</code>　；把R3累加進R0
+        </p>
+      </div>
+      <p>
+        ADD這條指令需要用到R3的值——但R3的值，要等LOAD指令
+        真正完成「MEM」階段（實際去記憶體把資料讀出來），
+        才會確定。問題是：在管線化之下，ADD緊跟在LOAD後面
+        一個週期進入管線，當ADD走到「EX」階段（開始做加法）
+        的時候，LOAD可能才剛走到「MEM」階段，記憶體裡的資料
+        都還沒讀出來——ADD要用的R3，根本還不存在。這種「後面
+        的指令需要前面指令還沒算出來的結果」，就叫做<strong>
+        資料危障（data hazard）</strong>，而LOAD後面緊接著用到
+        該結果的這種特定情況，稱為<strong>load-use危障</strong>，
+        是最常見、也最典型的一種資料危障。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">LOAD → ADD 的load-use資料危障</text>
+
+          <text x="20" y="55" font-size="9" fill="var(--text-muted)">情境一：不做任何處理</text>
+          <g font-size="8.5" fill="var(--text)">
+            <text x="20" y="80">I3 LOAD R3,[R2]</text>
+            <text x="20" y="112">I4 ADD R0,R0,R3</text>
+          </g>
+          <g stroke="var(--border)" stroke-width="1" fill="var(--surface)">
+            <rect x="160" y="66" width="46" height="24"/><rect x="208" y="66" width="46" height="24"/><rect x="256" y="66" width="46" height="24"/><rect x="304" y="66" width="46" height="24"/><rect x="352" y="66" width="46" height="24"/>
+            <rect x="208" y="98" width="46" height="24"/><rect x="256" y="98" width="46" height="24" stroke="#ff8a65" stroke-width="1.6"/><rect x="304" y="98" width="46" height="24"/><rect x="352" y="98" width="46" height="24"/><rect x="400" y="98" width="46" height="24"/>
+          </g>
+          <g font-size="7.8" text-anchor="middle" fill="var(--accent)">
+            <text x="183" y="82">IF</text><text x="231" y="82">ID</text><text x="279" y="82">EX</text><text x="327" y="82">MEM</text><text x="375" y="82">WB</text>
+            <text x="231" y="114">IF</text><text x="279" y="114" fill="#ff8a65">EX？</text><text x="327" y="114">MEM</text><text x="375" y="114">WB</text><text x="423" y="114"></text>
+          </g>
+          <text x="279" y="140" text-anchor="middle" font-size="8" fill="#ff8a65">ADD在此週期進EX，但R3的值LOAD才正要去讀，資料還沒到——結果錯誤</text>
+
+          <text x="20" y="180" font-size="9" fill="var(--text-muted)">情境二：插入一個bubble並用forwarding前送</text>
+          <g font-size="8.5" fill="var(--text)">
+            <text x="20" y="205">I3 LOAD R3,[R2]</text>
+            <text x="20" y="237">I4 ADD R0,R0,R3</text>
+          </g>
+          <g stroke="var(--border)" stroke-width="1" fill="var(--surface)">
+            <rect x="160" y="191" width="46" height="24"/><rect x="208" y="191" width="46" height="24"/><rect x="256" y="191" width="46" height="24"/><rect x="304" y="191" width="46" height="24"/><rect x="352" y="191" width="46" height="24"/>
+            <rect x="208" y="223" width="46" height="24"/><rect x="256" y="223" width="46" height="24" fill="var(--surface)" stroke="var(--gold)" stroke-dasharray="2,2"/><rect x="304" y="223" width="46" height="24" stroke="var(--gold)" stroke-width="1.6"/><rect x="352" y="223" width="46" height="24"/><rect x="400" y="223" width="46" height="24"/>
+          </g>
+          <g font-size="7.8" text-anchor="middle" fill="var(--accent)">
+            <text x="183" y="207">IF</text><text x="231" y="207">ID</text><text x="279" y="207">EX</text><text x="327" y="207">MEM</text><text x="375" y="207">WB</text>
+            <text x="231" y="239">IF</text><text x="279" y="239" fill="var(--gold)">bubble</text><text x="327" y="239" fill="var(--gold)">EX</text><text x="375" y="239">MEM</text><text x="423" y="239">WB</text>
+          </g>
+          <path d="M 327,191 C 300,170 300,215 327,223" fill="none" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow63)"/>
+          <defs><marker id="arrow63" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/></marker></defs>
+          <text x="310" y="270" text-anchor="middle" font-size="8" fill="var(--gold)">插入一個週期的bubble，讓LOAD的MEM結果直接「前送」給ADD的EX，不必等到WB</text>
+        </svg>
+        <figcaption>如果什麼都不做，ADD會在資料還沒讀出來時就搶先進入EX，得到錯誤結果；實務上CPU會插入一個bubble（暫停一拍），並透過forwarding電路把LOAD剛讀出的資料直接接到ADD的EX輸入端，不必繞道先寫回暫存器再讀出來，這樣只需要犧牲一個週期，而不是兩個。</figcaption>
+      </div>
+
+      <h2>2. 控制危障：分支指令還沒定案，不知道下一步抓哪裡</h2>
+      <p>
+        TOY-CPU LOOP裡的<code>BEQ END</code>，要等它真正執行完
+        （比較R1跟R7的結果），才會知道程式接下來要跳到
+        <code>END</code>，還是照順序抓下一行。但管線化要求IF
+        階段每個週期都要抓下一條指令——問題是，在BEQ的結果
+        還沒確定之前，IF根本不知道該抓哪裡的指令。這種「因為
+        分支結果未定，不知道下一條指令在哪」的情況，稱為
+        <strong>控制危障（control hazard）</strong>。這是一個很
+        麻煩的問題，嚴重時甚至會讓管線頻繁清空重來——第65課的
+        分支預測，正是為了緩解這個問題而生。
+      </p>
+
+      <h2>3. 結構危障：兩個階段同時搶同一份硬體資源</h2>
+      <p>
+        <strong>結構危障（structural hazard）</strong>發生在兩個
+        不同階段，在同一個週期需要用到同一份硬體資源，卻只有
+        一份可用的時候。例如：如果指令跟資料共用同一條記憶體
+        存取電路，那麼某個週期裡，IF階段要抓新指令、MEM階段
+        要讀寫資料，兩邊同時搶同一條記憶體通道，就會產生衝突。
+        現代CPU通常會用分離的指令快取與資料快取（呼應第13課
+        提到的快取設計）來緩解這類衝突，但完全消除結構危障
+        並不容易，設計上往往需要在成本與效能之間取捨。
+      </p>
+
+      <table>
+        <thead><tr><th>危障類型</th><th>成因</th><th>基本解法</th></tr></thead>
+        <tbody>
+          <tr><td>資料危障</td><td>後面指令需要前面指令還沒算出的結果</td><td>forwarding（前送）、必要時stall</td></tr>
+          <tr><td>控制危障</td><td>分支結果未定，不知道下一條指令在哪</td><td>分支預測（第65課）、投機執行（第66課）</td></tr>
+          <tr><td>結構危障</td><td>兩個階段同時搶同一份硬體資源</td><td>資源複製（如分離指令／資料快取）、排程避讓</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          三種危障有一個共通點：管線化的效能提升，前提是指令
+          之間「互不干擾」；一旦出現依賴關係，就必須暫停或
+          用更聰明的技巧繞過去。接下來三課要看的超純量、亂序
+          執行、分支預測、投機執行，本質上都是在想辦法「盡量
+          不要因為危障而讓管線停下來」。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能指出TOY-CPU程式裡哪一對相鄰指令會產生資料危障，並說明原因</li>
+          <li>能簡要區分資料危障、控制危障、結構危障三者的成因</li>
+          <li>能說明forwarding跟stall分別是怎麼處理資料危障的</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 64 課：超純量與亂序執行——如果一條指令因為資料危障
+        卡住，CPU能不能先去做後面不相關的指令，等資料準備好
+        了再回頭補上？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：管線化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：超純量與亂序執行 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 70 課：SIMD與向量運算：一個指令處理多筆資料 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="用陣列元素乘以2的例子，比較傳統SISD指令與SIMD指令的差異，說明SIMD如何用一條指令同時處理多筆資料，並埋下GPU架構的伏筆">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 70 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜現代電腦架構（二）平行運算與系統極限 · 第 70 課</div>
+      <h1>SIMD與向量運算：一個指令處理多筆資料</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能區分傳統SISD指令跟SIMD指令的差異</li>
+          <li>能用陣列元素乘以2的例子，說明SIMD一條指令怎麼同時處理多筆資料</li>
+          <li>理解SIMD特別適合什麼樣的計算場景</li>
+        </ul>
+      </div>
+
+      <p>
+        模組J、模組K前兩課討論的平行化，都是圍繞著「同時執行
+        更多條指令」打轉——管線化重疊多條指令、超純量同時
+        發射多條指令、多核心同時執行多個執行緒。這一課要介紹
+        另一種思路：如果同一條指令，能一次對<strong>好幾筆
+        資料</strong>做同樣的運算，會怎麼樣？
+      </p>
+
+      <h2>1. SISD：傳統指令一次只處理一筆資料</h2>
+      <p>
+        傳統的指令設計是<strong>SISD（Single Instruction,
+        Single Data，單一指令、單一資料）</strong>：一條指令，
+        對一筆資料做一次運算。回顧第31、35課反覆用到的陣列
+        例子——如果要把一個陣列裡的每個元素都乘以2，用SISD
+        風格的指令，得寫一個迴圈，一次處理一個元素，跑n次
+        迴圈才能處理完n個元素。
+      </p>
+
+      <h2>2. SIMD：一條指令，同時處理多筆資料</h2>
+      <p>
+        <strong>SIMD（Single Instruction, Multiple Data，單一
+        指令、多筆資料）</strong>的設計不同：CPU提供特殊指令，
+        一次把好幾筆資料（例如4筆、8筆）一起載入到寬一點的
+        暫存器裡，然後<strong>一條指令</strong>同時對這幾筆資料
+        做同樣的運算。還是拿「陣列每個元素乘以2」當例子：如果
+        SIMD一次能處理4筆資料，原本需要n次迴圈的工作，理論上
+        只要n/4次指令就能做完——因為每一條乘法指令，同時處理
+        掉4個元素，而不是1個。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">陣列每個元素乘以2：SISD vs. SIMD</text>
+
+          <text x="140" y="42" text-anchor="middle" font-size="9.5" fill="var(--accent)">SISD：一次一筆，跑4次迴圈</text>
+          <g font-size="8.5" text-anchor="middle" fill="var(--text)">
+            <rect x="50" y="52" width="60" height="30" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/><text x="80" y="71">3→6</text>
+            <rect x="120" y="52" width="60" height="30" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/><text x="150" y="71">7→14</text>
+            <rect x="190" y="52" width="60" height="30" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/><text x="220" y="71">2→4</text>
+            <rect x="260" y="52" width="60" height="30" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/><text x="290" y="71">9→18</text>
+          </g>
+          <g font-size="7.5" fill="var(--text-muted)" text-anchor="middle">
+            <text x="80" y="96">指令1</text><text x="150" y="96">指令2</text><text x="220" y="96">指令3</text><text x="290" y="96">指令4</text>
+          </g>
+          <text x="170" y="120" text-anchor="middle" font-size="8" fill="var(--text-muted)">4筆資料，需要4條「乘以2」指令</text>
+
+          <text x="460" y="42" text-anchor="middle" font-size="9.5" fill="var(--gold)">SIMD：一次4筆，1條指令做完</text>
+          <rect x="370" y="52" width="180" height="30" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="460" y="71" text-anchor="middle" font-size="8.5" fill="var(--text)">[3,7,2,9] → [6,14,4,18]</text>
+          <text x="460" y="96" text-anchor="middle" font-size="7.5" fill="var(--gold)">1條SIMD乘法指令</text>
+          <text x="460" y="120" text-anchor="middle" font-size="8" fill="var(--gold)">4筆資料，只需要1條指令</text>
+
+          <line x1="30" y1="150" x2="570" y2="150" stroke="var(--border)" stroke-width="1"/>
+          <text x="300" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">SIMD把「同一個運算，套用在很多筆資料上」這件事，直接內建進硬體指令裡</text>
+        </svg>
+        <figcaption>SISD必須靠迴圈，一筆一筆地重複發出相同的運算指令；SIMD則把「同一運算、套用到多筆資料」直接做成一條指令——只要工作本質上是「對大量資料重複做同一件事」，SIMD就能用更少的指令數，換得更高的處理效率。</figcaption>
+      </div>
+
+      <h2>3. SIMD最適合什麼場景</h2>
+      <p>
+        SIMD特別適合<strong>需要對大量資料反覆套用同一種運算
+        </strong>的場景：影像處理（例如把每個像素的亮度都調整
+        一個固定比例）、音訊處理、科學計算裡的向量與矩陣運算，
+        都是典型例子。這些場景有一個共同特徵：資料量龐大，
+        但每一筆資料要做的運算完全一樣——這正是SIMD設計理念
+        最能發揮效果的地方。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見：這正是GPU設計哲學的起點</h3>
+        <p>
+          SIMD的精神——「同一個運算，同時套用在大量資料上」——
+          不只出現在CPU的特殊指令集裡，它其實正是下一課要介紹
+          的<strong>GPU（繪圖處理器）</strong>整體架構設計的核心
+          哲學，只是被推到了極致：GPU不是「一條指令處理4、8筆
+          資料」，而是設計成能同時處理數千筆資料的規模。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明SIMD跟傳統SISD指令的差異</li>
+          <li>能用陣列乘以2的例子，具體說明SIMD怎麼用更少指令完成同樣工作</li>
+          <li>能說出SIMD特別適合處理哪一類計算場景</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 71 課：GPU架構——SIMD的精神被推到極致會是什麼樣子？
+        順便回頭把第17課VRAM的伏筆完整接上。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-69.html">← 上一課：多核心與多執行緒</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-71.html">下一課：GPU架構 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

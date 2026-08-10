@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 66 課：投機執行：先做了再說，錯了就丟掉重來 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明投機執行如何讓CPU沿著預測的分支方向提前執行指令，猜對省下等待時間、猜錯則整批丟棄重來，並點出誤判代價與管線深度的關係">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 66 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 66 課</div>
+      <h1>投機執行：先做了再說，錯了就丟掉重來</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解投機執行如何把分支預測的猜測結果，真正轉換成提前執行的行動</li>
+          <li>能用TOY-CPU迴圈的例子，說明投機執行猜對時如何省下等待時間</li>
+          <li>理解猜錯時的代價：誤判懲罰，以及它跟管線深度的關係</li>
+        </ul>
+      </div>
+
+      <p>
+        第65課的分支預測，只是「猜」出一個方向——猜完之後，
+        CPU還有兩種選擇：可以繼續按兵不動，等分支真正執行完
+        再確認要不要照這個方向走；也可以更積極一點，直接
+        <strong>照著猜測的方向，提前把後續指令實際抓進來執行
+        </strong>。現代CPU幾乎都選擇後者，這就是<strong>投機執行
+        （speculative execution）</strong>。
+      </p>
+
+      <h2>1. 投機執行怎麼運作：先做了再說</h2>
+      <p>
+        以TOY-CPU迴圈為例：<code>BEQ END</code>還沒真正執行完、
+        還不知道R1是否等於0的時候，分支預測器已經根據過去的
+        歷史（第65課看到的「連續四次不跳」）猜測這次「不跳」，
+        也就是迴圈會繼續。CPU不會傻傻等BEQ的結果出爐，而是
+        直接開始抓取、執行LOOP本體下一輪的指令——
+        <code>LOAD R3,[R2]</code>、<code>ADD R0,R0,R3</code>……
+        提前把工作做下去。如果最後BEQ真的證實「不跳」，
+        這些提前做好的結果就直接採用，等於完全沒有浪費任何
+        等待時間；如果猜錯了，就等下一節看會發生什麼事。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">投機執行時序：猜對沿用 vs. 猜錯作廢重來</text>
+
+          <text x="120" y="45" font-size="9" fill="var(--text-muted)">BEQ尚未確認結果 → 預測「不跳」，提前執行LOOP本體</text>
+          <g stroke="var(--gold)" stroke-width="1.2" fill="var(--surface)">
+            <rect x="60" y="54" width="110" height="26"/>
+            <rect x="180" y="54" width="110" height="26"/>
+            <rect x="300" y="54" width="110" height="26"/>
+          </g>
+          <g font-size="8.2" text-anchor="middle" fill="var(--gold)">
+            <text x="115" y="71">BEQ（執行中）</text>
+            <text x="235" y="71">投機：LOAD R3,[R2]</text>
+            <text x="355" y="71">投機：ADD R0,R0,R3</text>
+          </g>
+          <line x1="420" y1="67" x2="440" y2="67" stroke="var(--text-muted)" stroke-width="1"/>
+          <polygon points="440,67 432,62 432,72" fill="var(--text-muted)"/>
+
+          <text x="140" y="115" font-size="9.5" fill="var(--accent)">情境一：猜對了（實際確實不跳）</text>
+          <g stroke="var(--accent)" stroke-width="1.2" fill="var(--surface)">
+            <rect x="60" y="125" width="110" height="26"/><rect x="180" y="125" width="110" height="26"/>
+          </g>
+          <g font-size="8.2" text-anchor="middle" fill="var(--accent)">
+            <text x="115" y="142">投機結果直接採用</text><text x="235" y="142">完全沒有浪費時間</text>
+          </g>
+
+          <text x="140" y="185" font-size="9.5" fill="#ff8a65">情境二：猜錯了（第5次，R1歸零，其實該跳到END）</text>
+          <g stroke="#ff8a65" stroke-width="1.2" stroke-dasharray="3,2" fill="var(--surface)">
+            <rect x="60" y="195" width="110" height="26"/><rect x="180" y="195" width="110" height="26"/>
+          </g>
+          <g font-size="8.2" text-anchor="middle" fill="#ff8a65">
+            <text x="115" y="212">整批作廢（squash）</text><text x="235" y="212">整批作廢（squash）</text>
+          </g>
+          <line x1="60" y1="195" x2="290" y2="221" stroke="#ff8a65" stroke-width="1.3"/>
+          <line x1="290" y1="195" x2="60" y2="221" stroke="#ff8a65" stroke-width="1.3"/>
+
+          <g stroke="#ff8a65" stroke-width="1.2" fill="var(--surface)">
+            <rect x="320" y="195" width="110" height="26"/>
+          </g>
+          <text x="375" y="212" text-anchor="middle" font-size="8.2" fill="#ff8a65">重新抓正確路徑：STORE R0,205</text>
+
+          <text x="320" y="255" text-anchor="middle" font-size="9" fill="var(--text-muted)">猜錯的代價：白做的週期＋重新抓取指令的延遲，稱為「誤判懲罰」</text>
+        </svg>
+        <figcaption>投機執行讓CPU「先斬後奏」：猜對了，提前做的工作直接生效，等於把原本要空等的時間完全省下來；猜錯了，這些投機做出來的結果必須整批丟棄（squash），管線回頭重新抓取正確路徑的指令——這正是第65課提到「猜錯」時真正付出的代價。</figcaption>
+      </div>
+
+      <h2>2. 猜錯的代價：誤判懲罰</h2>
+      <p>
+        當投機執行的猜測被證實錯誤，所有沿著錯誤路徑提前做的
+        工作都必須作廢——不只浪費了原本可以拿來做別的事的
+        運算資源與電力，還要額外花時間重新抓取正確路徑的
+        指令、重新走一次管線，這段損失稱為<strong>誤判懲罰
+        （misprediction penalty）</strong>。管線切得越深（階段
+        越多），一旦誤判，需要作廢、重做的工作量就越大，代價
+        也就越高——這正是為什麼第65課的分支預測準確率如此
+        重要：預測準確率每提高一點，付出誤判懲罰的機率就
+        跟著降低一點。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          投機執行是一種「用機率換效能」的設計：只要猜對的
+          比例夠高，整體平均下來絕對是划算的——即使偶爾猜錯
+          要付出代價，也遠遠比每次都空等來得快。但這裡先埋下
+          一個伏筆：投機執行「提前做了、後來又作廢」的這些
+          運算過程，會不會在CPU內部留下一些「痕跡」，被有心人
+          拿來做壞事？這正是第72課要揭露的Spectre與Meltdown
+          漏洞的起點。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明投機執行跟分支預測之間的關係：先猜方向，再沿著猜測的方向提前執行</li>
+          <li>能用TOY-CPU迴圈的例子，說明投機執行猜對時省下的是什麼時間</li>
+          <li>能說出投機執行猜錯時要付出的代價是什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 67 課：模組總結——把管線化、危障、超純量、亂序
+        執行、分支預測、投機執行整合成一張完整的圖像，看看
+        現代CPU執行一段簡單程式碼時，究竟藏了多少「看不見的
+        忙碌」。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-65.html">← 上一課：分支預測</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-67.html">下一課：模組總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

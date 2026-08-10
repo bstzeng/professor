@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：模組總結：資料在系統裡的完整旅程 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="模組C總結：把記憶體階層、局部性原理、快取、SRAM/DRAM、VRAM、虛擬記憶體、分頁與TLB、硬碟、SSD、ECC與RAID整合成一筆資料從儲存裝置到CPU暫存器的完整旅程，銜接模組D作業系統">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 23 課</div>
+      <h1>模組總結：資料在系統裡的完整旅程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模組C十一堂課整合成一個完整的資料旅程故事</li>
+          <li>能完整描述一筆資料從儲存裝置被讀取，一路到CPU暫存器可以被運算的全過程</li>
+          <li>銜接模組D：這些共享資源需要一個「管理者」——作業系統</li>
+        </ul>
+      </div>
+
+      <p>
+        模組C十一堂課，從「為什麼不能全部都用最快的記憶體」
+        這個問題出發，一路建立了記憶體階層、局部性原理、
+        快取機制、SRAM／DRAM、VRAM、虛擬記憶體、分頁與TLB、
+        硬碟、SSD、以及ECC／RAID這一整套知識。這一課用一個
+        完整的故事，把它們全部串起來：當一個程式想要「讀取
+        這筆資料」，它到底怎麼從最底層的儲存裝置，一路走到
+        CPU能真正動手運算的地方？
+      </p>
+
+      <h2>完整旅程總覽</h2>
+      <p>
+        假設第9、11課TOY-CPU那個陣列加總程式，它要處理的
+        陣列[3,7,2,9,5]目前是一個還沒被開啟過的檔案，靜靜
+        躺在SSD上。程式執行<code>LOAD R3,[R2]</code>要讀取
+        第一個元素時，背後其實發生了一連串環環相扣的步驟：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">一筆資料的完整旅程：從儲存裝置到CPU暫存器</text>
+
+          <rect x="10" y="90" width="70" height="50" rx="5" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.3"/>
+          <text x="45" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">SSD／</text>
+          <text x="45" y="124" text-anchor="middle" font-size="8" fill="var(--text-muted)">硬碟</text>
+          <text x="45" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">µs～ms</text>
+
+          <line x1="80" y1="115" x2="112" y2="115" stroke="var(--border)" stroke-width="1.3"/>
+          <polygon points="112,115 105,111 105,119" fill="var(--border)"/>
+
+          <rect x="115" y="90" width="70" height="50" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.4"/>
+          <text x="150" y="118" text-anchor="middle" font-size="9" fill="#ff8a65">RAM</text>
+          <text x="150" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">～100 ns</text>
+
+          <line x1="185" y1="115" x2="217" y2="115" stroke="var(--border)" stroke-width="1.3"/>
+          <polygon points="217,115 210,111 210,119" fill="var(--border)"/>
+
+          <rect x="220" y="90" width="70" height="50" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="255" y="118" text-anchor="middle" font-size="9" fill="var(--accent)">L3</text>
+          <text x="255" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">10～20 ns</text>
+
+          <line x1="290" y1="115" x2="322" y2="115" stroke="var(--border)" stroke-width="1.3"/>
+          <polygon points="322,115 315,111 315,119" fill="var(--border)"/>
+
+          <rect x="325" y="90" width="65" height="50" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="357" y="118" text-anchor="middle" font-size="9" fill="var(--accent)">L2</text>
+          <text x="357" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">3～10 ns</text>
+
+          <line x1="390" y1="115" x2="422" y2="115" stroke="var(--border)" stroke-width="1.3"/>
+          <polygon points="422,115 415,111 415,119" fill="var(--border)"/>
+
+          <rect x="425" y="90" width="65" height="50" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="457" y="118" text-anchor="middle" font-size="9" fill="var(--gold)">L1</text>
+          <text x="457" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">～1 ns</text>
+
+          <line x1="490" y1="115" x2="522" y2="115" stroke="var(--border)" stroke-width="1.3"/>
+          <polygon points="522,115 515,111 515,119" fill="var(--border)"/>
+
+          <rect x="525" y="90" width="85" height="50" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.6"/>
+          <text x="567" y="112" text-anchor="middle" font-size="9" fill="var(--gold)">暫存器</text>
+          <text x="567" y="124" text-anchor="middle" font-size="8" fill="var(--gold)">R3 → ALU</text>
+          <text x="567" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">&lt; 1 ns</text>
+
+          <text x="150" y="185" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">分頁／TLB轉換虛擬→實體位址</text>
+          <text x="357" y="185" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">局部性原理讓快取命中率變高</text>
+          <text x="567" y="185" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">ALU真正動手運算</text>
+
+          <text x="310" y="215" text-anchor="middle" font-size="8" fill="var(--text-muted)">越往右走，容量越小、速度越快——這正是整個記憶體階層金字塔的縮影</text>
+        </svg>
+        <figcaption>資料從速度最慢、容量最大的儲存裝置出發，一路往速度最快、容量最小的暫存器移動，途中經過位址轉換與一層層快取——每一步都比前一步快上好幾個數量級，直到抵達CPU真正能運算的地方。</figcaption>
+      </div>
+
+      <h2>逐步拆解：每一步分別對應哪一課</h2>
+      <p>
+        第一步，資料原本躺在SSD或硬碟上（第20、21課）——
+        非揮發性，斷電也不會消失，但存取速度是整趟旅程裡
+        最慢的一段。作業系統透過檔案系統（模組D會再詳細
+        介紹）發出讀取請求，把資料從儲存裝置搬進主記憶體
+        RAM——這裡用的是DRAM技術（第16課），容量大、成本
+        相對低，代價是需要持續刷新才能維持資料。
+      </p>
+      <p>
+        第二步，程式看到的其實不是實體位址，而是虛擬位址
+        （第18課）——它以為自己獨佔整個記憶體。要真正找到
+        資料在RAM裡的實際位置，必須先查TLB或走一趟頁表
+        （第19課）完成分頁轉換，才能拿到真正的實體位址。
+      </p>
+      <p>
+        第三步，CPU真正要用這筆資料時，不會直接跑去問RAM，
+        而是先依序問快取：L3、L2、L1（第15課）。如果先前
+        已經存取過鄰近的資料——例如TOY-CPU的陣列走訪本身就
+        是空間局部性（第14課）的教科書範例——這筆資料很可能
+        早就因為整塊搬移（cache line）而已經在快取裡，幾
+        奈秒內就能命中拿到。
+      </p>
+      <p>
+        第四步，資料最終被放進暫存器（第13課），CPU的ALU
+        （第9課）才能真正對它動手做加法、比較這些運算。
+        全程資料也不是百分之百可靠——ECC默默在記憶體層級
+        偵測並修正單一位元錯誤，RAID則在磁碟層級提供備援
+        （第22課），確保這趟旅程盡量不出差錯。
+      </p>
+
+      <h2>用TOY-CPU的陣列加總程式重新看一次</h2>
+      <p>
+        回顧第11課的TOY-CPU陣列加總程式：LOOP主體依序執行
+        <code>LOAD R3,[R2]</code>、<code>ADD R0,R0,R3</code>、
+        <code>ADDI R2,R2,1</code>。當R2第一次等於100，若這
+        是陣列第一次被存取，很可能發生一次快取未命中，資料
+        從RAM被整塊搬進快取——由於陣列元素在記憶體裡是連續
+        排列，搬進來的這一塊快取列很可能同時涵蓋了位址100
+        到104。等到迴圈跑到R2等於101、102、103、104時，這些
+        位址其實早就因為第一次的搬移而「順便」進了快取，
+        全部都是命中——這正是空間局部性帶來的具體效益。而
+        R0（累加總和）從頭到尾都活在暫存器裡，甚至不需要
+        每次都真的碰到記憶體階層——這正是時間局部性最極致
+        的體現。短短6行迴圈，完整示範了模組C想教的核心觀念。
+      </p>
+
+      <table>
+        <thead><tr><th>課次</th><th>主題</th><th>在這趟旅程中的角色</th></tr></thead>
+        <tbody>
+          <tr><td>第13課</td><td>記憶體階層</td><td>建立「速度／容量／成本」分層的整體架構</td></tr>
+          <tr><td>第14課</td><td>局部性原理</td><td>解釋為什麼快取的「猜測」有根據</td></tr>
+          <tr><td>第15課</td><td>快取記憶體基礎</td><td>資料在L3→L2→L1之間如何被找到、被置換</td></tr>
+          <tr><td>第16課</td><td>SRAM／DRAM</td><td>暫存器／快取用SRAM，主記憶體用DRAM</td></tr>
+          <tr><td>第17課</td><td>VRAM</td><td>GPU專用記憶體的頻寬優先設計（旅程外的分支）</td></tr>
+          <tr><td>第18課</td><td>虛擬記憶體</td><td>程式看到的是虛擬位址，而非實體位址</td></tr>
+          <tr><td>第19課</td><td>分頁與TLB</td><td>把虛擬位址轉換成實體位址的具體機制</td></tr>
+          <tr><td>第20課</td><td>硬碟</td><td>旅程的起點之一，機械式的非揮發性儲存</td></tr>
+          <tr><td>第21課</td><td>SSD</td><td>旅程的起點之一，電子式的非揮發性儲存</td></tr>
+          <tr><td>第22課</td><td>ECC與RAID</td><td>全程資料正確性與備援的最後一道防線</td></tr>
+        </tbody>
+      </table>
+
+      <h2>接下來：誰在管理這些資源</h2>
+      <p>
+        這趟旅程裡出現的每一種資源——記憶體階層的每一層、
+        虛擬位址空間、儲存裝置——都不是單一程式獨享的，而是
+        必須在瀏覽器、文字編輯器、音樂播放器這些同時執行的
+        程式之間公平、安全地分配。要協調誰能用多少記憶體、
+        誰的虛擬位址空間對映到哪一塊實體空間、誰的檔案存放
+        在儲存裝置的哪個位置，需要一個站在硬體與所有程式
+        之間的協調者——這正是模組D的主題：作業系統。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能不看筆記，完整描述一筆資料從儲存裝置到CPU暫存器的完整旅程，並指出局部性原理在哪些環節發揮作用</li>
+          <li>能用TOY-CPU的陣列加總程式，具體說明空間局部性如何讓後續的LOAD指令變成快取命中</li>
+          <li>能說明為什麼記憶體與儲存資源需要作業系統來管理</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組D開場（第24課）：作業系統是什麼——這個「管理硬體
+        資源的軟體」，到底在管什麼、怎麼管。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：記憶體可靠性：ECC與RAID</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：作業系統是什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

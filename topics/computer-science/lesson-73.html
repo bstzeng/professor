@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 73 課：模組總結：從指令平行到資料平行的完整圖像 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="模組K總結：整合快取一致性、多核心、SIMD、GPU、Spectre與Meltdown，並串聯模組J與K，呈現從指令層級平行到資料層級平行的完整光譜">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 73 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜現代電腦架構（二）平行運算與系統極限 · 第 73 課</div>
+      <h1>模組總結：從指令平行到資料平行的完整圖像</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把快取一致性、多核心、SIMD、GPU、Spectre／Meltdown整合成一張完整圖像</li>
+          <li>能說明模組J到模組K，平行化的顆粒度是怎麼一路放大的</li>
+          <li>理解效能與安全之間的持續張力，銜接模組L的歷史回顧與課程總結</li>
+        </ul>
+      </div>
+
+      <p>
+        模組K五堂課，從多核心衍生出的快取一致性問題出發，
+        一路走到SIMD、GPU，最後停在Spectre與Meltdown這個
+        效能與安全交鋒的案例。這一課把整個模組K收攏起來，
+        同時也回頭跟模組J接上，畫出這門課「平行運算」主題
+        完整的光譜。
+      </p>
+
+      <h2>平行化的顆粒度：從一條指令內部，到數千個核心</h2>
+      <p>
+        模組J討論的技巧，全部發生在<strong>單一指令流內部</strong>
+        ：管線化重疊處理指令的不同階段，超純量同時發射多條
+        指令，分支預測與投機執行讓CPU在不確定的路口提前
+        行動——這些技巧的平行化顆粒度非常細，作用範圍侷限在
+        一顆核心裡。模組K則把顆粒度一路放大：多核心是「整個
+        指令流」層級的平行（第69課），需要快取一致性協定
+        （第68課）協調不同核心手上的資料副本；SIMD是「同一
+        指令、多筆資料」層級的平行（第70課）；GPU則把這個
+        精神推到數千個核心的規模（第71課）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">平行化顆粒度光譜：從指令內部到數千核心</text>
+
+          <line x1="50" y1="150" x2="590" y2="150" stroke="var(--border)" stroke-width="1.5"/>
+          <polygon points="590,150 580,145 580,155" fill="var(--border)"/>
+          <text x="320" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">平行化顆粒度：越往右，同時處理的規模越大</text>
+
+          <g text-anchor="middle">
+            <circle cx="90" cy="150" r="5" fill="var(--gold)"/>
+            <text x="90" y="110" font-size="8.5" fill="var(--gold)">管線化</text>
+            <text x="90" y="124" font-size="7.5" fill="var(--text-muted)">第62課</text>
+
+            <circle cx="210" cy="150" r="5" fill="var(--gold)"/>
+            <text x="210" y="110" font-size="8.5" fill="var(--gold)">超純量／亂序</text>
+            <text x="210" y="124" font-size="7.5" fill="var(--text-muted)">第64課</text>
+
+            <circle cx="330" cy="150" r="5" fill="var(--accent)"/>
+            <text x="330" y="110" font-size="8.5" fill="var(--accent)">多核心</text>
+            <text x="330" y="124" font-size="7.5" fill="var(--text-muted)">第68、69課</text>
+
+            <circle cx="450" cy="150" r="5" fill="#ff8a65"/>
+            <text x="450" y="110" font-size="8.5" fill="#ff8a65">SIMD</text>
+            <text x="450" y="124" font-size="7.5" fill="var(--text-muted)">第70課</text>
+
+            <circle cx="560" cy="150" r="6" fill="#ff8a65"/>
+            <text x="560" y="105" font-size="8.5" fill="#ff8a65">GPU（數千核心）</text>
+            <text x="560" y="119" font-size="7.5" fill="var(--text-muted)">第71課</text>
+          </g>
+
+          <text x="90" y="195" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">同一核心內</text>
+          <text x="330" y="195" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">同一晶片內多核心</text>
+          <text x="560" y="195" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">整片GPU數千執行單元</text>
+
+          <text x="320" y="230" text-anchor="middle" font-size="9" fill="var(--text)">同一件事的不同尺度：想辦法讓更多運算資源在同一時刻真正忙碌起來</text>
+        </svg>
+        <figcaption>從管線化在單一核心內部重疊指令，到多核心讓整條指令流平行，再到SIMD／GPU讓同一運算同時套用在大量資料上——模組J、K其實是同一個問題在不同尺度下的答案：怎麼讓更多運算資源，在同一時刻真正動起來。</figcaption>
+      </div>
+
+      <h2>效能與安全的持續張力</h2>
+      <p>
+        第72課的Spectre與Meltdown不是一個孤立的意外——它提醒
+        我們：模組J、K介紹的幾乎每一項效能突破（投機執行、
+        快取、分支預測），都同時在系統裡創造出新的複雜度、
+        新的潛在攻擊面。這不代表這些技術設計得不好，而是
+        說明了一個更根本的事實：<strong>效能與安全之間的權衡，
+        是一個持續演進、沒有終點的過程</strong>，而不是一次性
+        解決就能永遠高枕無憂的問題。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          模組J回答的問題是「一條指令流，能不能塞得更滿」；
+          模組K回答的問題是「能不能同時處理更多指令流、更多
+          資料」。合起來看，這兩個模組完整回答了這門課最初
+          在第62課提出的問題：現代CPU效能持續進步，靠的不是
+          單一一招，而是一整套從指令層級到資料層級、環環相扣
+          的平行化工程。
+        </p>
+      </div>
+
+      <h2>接下來：這一切是怎麼走到今天的</h2>
+      <p>
+        模組J、K介紹的所有技巧，都是建立在數十年硬體演進的
+        基礎上——如果沒有電晶體、積體電路技術的持續進步，
+        管線化、超純量、多核心、GPU這些設計根本沒有足夠的
+        電晶體預算可以實現。模組L要回頭看看電腦硬體是怎麼
+        一路演進到今天這個規模，並且比較CISC與RISC這兩種
+        指令集設計哲學——這正好呼應第10課曾經埋下的伏筆。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能完整說出模組K五個主題，並各用一句話說明它的核心概念</li>
+          <li>能說明模組J與模組K的平行化顆粒度差異：指令流內部 vs. 跨指令流／跨資料</li>
+          <li>能用Spectre／Meltdown為例，說明效能與安全之間的持續張力</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組L開場：電腦發展簡史——從真空管到積體電路，硬體
+        規模是怎麼一路擴張，讓模組J、K的這些技術有機會被
+        實現出來的。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-72.html">← 上一課：Spectre與Meltdown</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-74.html">下一課：電腦發展簡史 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

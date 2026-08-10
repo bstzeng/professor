@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：提取－解碼－執行：一行程式碼的完整旅程 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="用TOY-CPU執行陣列加總程式為例，完整走一遍提取、解碼、執行、寫回這四個階段，理解for迴圈底層真正發生的事">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜從程式碼到執行：CPU如何運作 · 第 11 課</div>
+      <h1>提取－解碼－執行：一行程式碼的完整旅程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能依序說出提取、解碼、執行、寫回這四個階段各自的工作</li>
+          <li>能用TOY-CPU的陣列加總程式，完整追蹤一條指令的執行過程</li>
+          <li>理解「for迴圈」在硬體層次，其實就是這個循環一遍又一遍地重複</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課分別認識了CPU的內部部件（暫存器、ALU、控制
+        單元），以及TOY-CPU的完整指令集。這一課要把這些拼圖
+        全部組裝起來，完整回答這門課從第7課就開始鋪陳的問題：
+        一行程式碼，究竟是怎麼被CPU「執行」的？
+      </p>
+
+      <h2>1. 範例程式：用TOY-CPU加總一個陣列</h2>
+      <p>
+        假設要用TOY-CPU計算陣列<code>[3, 7, 2, 9, 5]</code>
+        的總和——這相當於你熟悉的<code>for i in arr: sum +=
+        i</code>。陣列存放在記憶體位址100～104，位址200預先
+        存放初始總和0，位址201存放迴圈次數5，位址205用來存放
+        最終結果。完整的TOY-CPU組合語言程式如下：
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>位址</th><th>指令</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>LOAD R0, 200</td><td>R0 = 0，初始化總和</td></tr>
+          <tr><td>1</td><td>LOAD R1, 201</td><td>R1 = 5，迴圈次數</td></tr>
+          <tr><td>2</td><td>ADDI R2, R2, 100</td><td>R2 = 100，指向陣列開頭</td></tr>
+          <tr><td>3（LOOP）</td><td>LOAD R3, [R2]</td><td>讀取目前指到的陣列元素</td></tr>
+          <tr><td>4</td><td>ADD R0, R0, R3</td><td>累加進總和</td></tr>
+          <tr><td>5</td><td>ADDI R2, R2, 1</td><td>指標前進一格</td></tr>
+          <tr><td>6</td><td>ADDI R1, R1, −1</td><td>次數減1</td></tr>
+          <tr><td>7</td><td>CMP R1, R7</td><td>比較R1與R7（R7恆為0）</td></tr>
+          <tr><td>8</td><td>BEQ END</td><td>若次數歸零，跳到END</td></tr>
+          <tr><td>9</td><td>JMP LOOP</td><td>否則跳回LOOP繼續</td></tr>
+          <tr><td>10（END）</td><td>STORE R0, 205</td><td>把總和寫回記憶體</td></tr>
+          <tr><td>11</td><td>HALT</td><td>停止執行</td></tr>
+        </tbody>
+      </table>
+      <p>
+        位址3到9正是這個「迴圈」的本體：只要R1還沒歸零，
+        程式就會不斷繞回位址3重新執行，每繞一圈，累加一個
+        陣列元素——這跟你寫的<code>for</code>迴圈邏輯完全對應，
+        只是這裡用CMP＋BEQ＋JMP這幾條指令，明確地表達了「跳回
+        去」跟「跳出去」的動作。
+      </p>
+
+      <h2>2. 四個階段：提取、解碼、執行、寫回</h2>
+      <p>
+        CPU執行「每一條」指令，都會經過同樣的四個階段，稱為
+        <strong>提取－解碼－執行循環（fetch-decode-execute
+        cycle）</strong>：
+      </p>
+      <div class="callout">
+        <ol>
+          <li><strong>提取（Fetch）</strong>——控制單元根據PC目前指向的位址，從記憶體把那條指令讀出來</li>
+          <li><strong>解碼（Decode）</strong>——控制單元判讀這條指令的opcode是什麼、運算元是哪些暫存器或位址，決定要啟動哪些部件</li>
+          <li><strong>執行（Execute）</strong>——ALU進行實際運算，或記憶體介面進行實際的讀寫</li>
+          <li><strong>寫回與PC更新</strong>——把執行結果寫回目的暫存器，並把PC移到下一條指令的位址（除非這條指令本身就是跳躍指令，直接把PC設成新的目標位址）</li>
+        </ol>
+      </div>
+
+      <h2>3. 逐步追蹤：LOAD R3, [R2] 的完整旅程</h2>
+      <p>
+        以第一輪迴圈執行到位址3的<code>LOAD R3, [R2]</code>
+        為例（此時R2＝100，指向陣列第一個元素）：
+      </p>
+      <div class="callout">
+        <ul>
+          <li><strong>提取</strong>——PC＝3，控制單元向記憶體要求位址3的內容，取回代表「LOAD R3, [R2]」的那串機器碼</li>
+          <li><strong>解碼</strong>——控制單元判讀出opcode是LOAD、目的暫存器是R3、定址模式是間接定址、位址暫存器是R2</li>
+          <li><strong>執行</strong>——控制單元先讀出R2目前的值（100），再指示記憶體介面讀取位址100的內容，也就是陣列的第一個元素3</li>
+          <li><strong>寫回與PC更新</strong>——把讀到的3寫進R3，PC從3更新為4，準備提取下一條指令</li>
+        </ul>
+      </div>
+      <p>
+        緊接著的<code>ADD R0, R0, R3</code>（位址4）也走過同樣
+        四個階段：提取這條指令、解碼出opcode是ADD、運算元是
+        R0、R0、R3，執行階段由ALU算出R0＋R3的結果，寫回階段
+        把結果存回R0，PC更新為5。這正是「累加」動作在硬體
+        層次的真實面貌——沒有任何魔法，就是一次次提取、解碼、
+        執行、寫回的重複。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 420 400" xmlns="http://www.w3.org/2000/svg">
+          <text x="210" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">提取－解碼－執行循環</text>
+
+          <circle cx="210" cy="210" r="140" fill="none" stroke="var(--border)" stroke-width="1.3"/>
+
+          <circle cx="210" cy="80" r="46" fill="none" stroke="var(--gold)" stroke-width="1.6"/>
+          <text x="210" y="76" text-anchor="middle" font-size="10" fill="var(--gold)">提取 Fetch</text>
+          <text x="210" y="92" text-anchor="middle" font-size="8" fill="var(--text-muted)">控制單元讀取指令</text>
+
+          <circle cx="340" cy="210" r="46" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+          <text x="340" y="206" text-anchor="middle" font-size="10" fill="var(--accent)">解碼 Decode</text>
+          <text x="340" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">控制單元判讀opcode</text>
+
+          <circle cx="210" cy="340" r="46" fill="none" stroke="#ff8a65" stroke-width="1.6"/>
+          <text x="210" y="336" text-anchor="middle" font-size="10" fill="#ff8a65">執行 Execute</text>
+          <text x="210" y="352" text-anchor="middle" font-size="8" fill="var(--text-muted)">ALU／記憶體介面動作</text>
+
+          <circle cx="80" cy="210" r="46" fill="none" stroke="var(--gold)" stroke-width="1.6"/>
+          <text x="80" y="206" text-anchor="middle" font-size="10" fill="var(--gold)">寫回＋PC更新</text>
+          <text x="80" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">結果存回暫存器</text>
+
+          <path d="M 245,105 A 140,140 0 0,1 305,175" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow1)"/>
+          <path d="M 305,245 A 140,140 0 0,1 245,315" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow1)"/>
+          <path d="M 175,315 A 140,140 0 0,1 115,245" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow1)"/>
+          <path d="M 115,175 A 140,140 0 0,1 175,105" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow1)"/>
+
+          <defs>
+            <marker id="arrow1" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 Z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>四個階段周而復始，直到遇到HALT——每一圈的「提取」都由控制單元向記憶體要新指令，這也是為什麼PC的值必須在每一圈結束前正確更新：PC錯了，整個循環就會抓錯指令。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          你寫的<code>for i in arr: sum += i</code>，看起來是
+          一個整體的動作，但在CPU裡，它其實被拆解成十幾條
+          TOY-CPU指令，而每一條指令，又都要完整走一遍提取－
+          解碼－執行－寫回的循環。CPU並不「理解」迴圈這個
+          概念——它只是不斷提取PC指向的下一條指令、執行、
+          更新PC，如此而已。迴圈之所以成立，純粹是因為BEQ跟
+          JMP這類指令，能夠讓PC「跳回」較早的位址，讓同一段
+          指令被重新提取、重新執行。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能依序說出提取、解碼、執行、寫回這四個階段，以及各自由CPU哪個部件負責</li>
+          <li>能挑一條TOY-CPU指令，完整描述它經過這四個階段的細節</li>
+          <li>能解釋「迴圈」在硬體層次是靠PC的跳躍來實現，而不是CPU真的「理解」迴圈這個概念</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 12 課是模組B的總結：我們會把高階語言、組合語言、
+        機器碼、CPU內部結構、提取－解碼－執行循環，全部串成
+        對照同一個for迴圈範例的完整地圖，並銜接模組C即將
+        探討的記憶體階層問題。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：指令集架構（ISA）：CPU看得懂的「詞彙表」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：模組總結：從for迴圈到電路訊號的完整對照 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

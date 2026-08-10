@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 69 課：多核心與多執行緒：從單核到多核的轉變 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明CPU從追求時脈頻率轉向增加核心數量的歷史背景，多核心如何讓多執行緒真正同時執行，並用Amdahl定律的直覺解釋多核心效能提升為何有極限">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 69 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜現代電腦架構（二）平行運算與系統極限 · 第 69 課</div>
+      <h1>多核心與多執行緒：從單核到多核的轉變</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解CPU設計為什麼從「拚時脈頻率」轉向「增加核心數量」</li>
+          <li>能說明多核心跟第25、26課的程序／執行緒概念之間的關係</li>
+          <li>理解Amdahl定律的直覺：程式裡不能平行化的部分，限制了整體能提升的效能</li>
+        </ul>
+      </div>
+
+      <p>
+        1990年代到2000年代初，CPU效能成長主要靠一件事：
+        <strong>拉高時脈頻率</strong>——同樣的電路，讓它每秒鐘
+        「跳」得更快，運算自然更快。但這條路後來撞上了物理
+        極限：時脈頻率越高，晶片消耗的電力跟產生的熱量會
+        急遽增加，散熱與供電成本很快變得難以負擔。業界因此
+        轉向另一條路：<strong>與其讓一顆核心跑得更快，不如
+        在同一顆晶片上放進更多顆核心</strong>，讓它們一起工作。
+      </p>
+
+      <h2>1. 多核心：真正同時執行，不再只是輪流的假象</h2>
+      <p>
+        回顧第25課的程序與執行緒、第26課的CPU排程：在單核心
+        時代，作業系統靠「快速切換」製造出多工同時進行的
+        <strong>假象</strong>——同一時刻，單核心實際上只能執行
+        一個執行緒，其他執行緒都在排隊等待。多核心徹底改變
+        了這件事：如果CPU有4顆核心，就能<strong>真正同時</strong>
+        執行4個不同的執行緒，不需要靠切換製造假象。多執行緒
+        程式在多核心硬體上，才真正發揮「平行」的實質效果。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">單核心的輪流假象 vs. 多核心的真正同時執行</text>
+
+          <text x="140" y="42" text-anchor="middle" font-size="9.5" fill="var(--accent)">單核心：靠排程輪流切換</text>
+          <rect x="50" y="52" width="180" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="140" y="73" text-anchor="middle" font-size="9" fill="var(--text)">核心 0</text>
+          <g font-size="7.5" fill="var(--text-muted)" text-anchor="middle">
+            <text x="80" y="100">執行緒A</text><text x="140" y="100">執行緒B</text><text x="200" y="100">執行緒A</text>
+          </g>
+          <text x="140" y="122" text-anchor="middle" font-size="8" fill="var(--text-muted)">時間軸上快速切換，看起來像同時，實際上輪流</text>
+
+          <text x="440" y="42" text-anchor="middle" font-size="9.5" fill="var(--gold)">多核心：真正平行執行</text>
+          <rect x="350" y="52" width="80" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="390" y="73" text-anchor="middle" font-size="9" fill="var(--text)">核心 0</text>
+          <rect x="440" y="52" width="80" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="480" y="73" text-anchor="middle" font-size="9" fill="var(--text)">核心 1</text>
+          <text x="390" y="100" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">執行緒A（持續執行）</text>
+          <text x="480" y="100" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">執行緒B（持續執行）</text>
+          <text x="435" y="122" text-anchor="middle" font-size="8" fill="var(--gold)">同一時刻，兩個執行緒各自在不同核心上真正同時運作</text>
+
+          <line x1="40" y1="150" x2="560" y2="150" stroke="var(--border)" stroke-width="1"/>
+          <text x="300" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">但多核心的效能提升，取決於工作本身能不能被拆成多份、平行完成</text>
+        </svg>
+        <figcaption>多核心把第26課「快速切換造成的多工假象」，升級成「真正同時運作」——但這個升級要真正發揮效果，前提是軟體本身要能被拆解成可以分頭進行的多個部分，這正是下方Amdahl定律要處理的問題。</figcaption>
+      </div>
+
+      <h2>2. 多核心的效能提升不是「免費」的：Amdahl定律的直覺</h2>
+      <p>
+        多加幾顆核心，並不會讓所有程式自動變快。設想一個
+        任務裡，有一部分工作本質上就是<strong>不能拆分、必須
+        照順序完成</strong>的（例如TOY-CPU迴圈裡累加總和的
+        那個R0，每一步都依賴前一步的結果），另一部分工作則
+        可以分給多顆核心平行處理。不管你加多少顆核心，那段
+        「不能平行化」的部分，花費的時間永遠不會縮短——這段
+        時間會變成整個任務效能提升的天花板。這正是<strong>
+        Amdahl定律</strong>想表達的核心直覺：<strong>一個程式
+        裡無法平行化的比例，決定了加再多核心也無法突破的
+        效能上限</strong>。這裡不需要記憶完整的數學公式，重要
+        的是這個直覺：核心數量不是越多、效能就等比例越好，
+        平行化的「天花板」由程式本身可平行的比例決定。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          多核心是解方，不是萬靈丹——它能加速的，只有那些
+          真正能被拆開、分頭進行的工作。這也是為什麼實務上
+          「把程式改寫成能平行執行」本身是一門專門的學問，
+          而不是單純多開幾個執行緒就能自動獲得倍數的效能提升。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明CPU設計從追求時脈頻率轉向增加核心數量的原因</li>
+          <li>能解釋多核心跟單核心排程之間的差異：真正同時執行 vs. 輪流切換的假象</li>
+          <li>能用Amdahl定律的直覺，說明為什麼多核心的效能提升不是無限的</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 70 課：SIMD與向量運算——除了多核心之外，還有另一種
+        平行化的思路：一條指令同時處理很多筆資料。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-68.html">← 上一課：快取階層與快取一致性</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-70.html">下一課：SIMD與向量運算 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

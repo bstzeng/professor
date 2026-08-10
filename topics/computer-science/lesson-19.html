@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：分頁機制：頁表與TLB怎麼加速位址轉換 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明分頁如何把虛擬與實體位址空間切成固定大小的頁，頁表如何記錄對映關係，以及TLB作為位址轉換的專用快取如何避免拖慢每一次記憶體存取">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 19 課</div>
+      <h1>分頁機制：頁表與TLB怎麼加速位址轉換</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能說出分頁機制的基本概念（固定大小的頁、頁表的角色）</li>
+          <li>能解釋TLB的目的：加速位址轉換，避免每次都要查完整頁表</li>
+          <li>能看出TLB其實是第15課快取概念的另一個應用</li>
+        </ul>
+      </div>
+
+      <p>
+        第18課說虛擬位址要被「轉換」成實體位址，但轉換具體
+        是怎麼做的？這一課看最主流的實作方式：分頁機制。
+      </p>
+
+      <h2>1. 分頁：把位址空間切成固定大小的頁</h2>
+      <p>
+        <strong>分頁（paging）</strong>把虛擬位址空間跟實體
+        位址空間，都切成一格一格固定大小的區塊，稱為<strong>
+        頁（page）</strong>，常見大小是4KB。一個虛擬頁對應到
+        一個大小相同的實體<strong>頁框（page frame）</strong>，
+        但這個實體頁框實際落在記憶體裡的哪個位置，可以完全
+        跟其他頁不連續、東一塊西一塊——這種散落對程式來說
+        完全不可見，正是第18課虛擬記憶體那層幻覺的具體實作
+        方式。
+      </p>
+
+      <h2>2. 頁表：紀錄對映關係的查表</h2>
+      <p>
+        每個程式都有自己的<strong>頁表（page table）</strong>，
+        由作業系統維護，記錄「這個程式的第幾個虛擬頁，現在
+        對應到哪一個實體頁框」。CPU要存取虛擬位址X時，硬體
+        會把X拆成「屬於哪一個虛擬頁」加「在頁內的偏移量」
+        兩部分，先查頁表拿到對應的實體頁框編號，再跟偏移量
+        組合起來，湊出真正的實體位址。
+      </p>
+
+      <h2>3. 問題：查頁表本身也要存取記憶體</h2>
+      <p>
+        頁表本身也存放在記憶體裡。如果每一次程式存取記憶體，
+        都要先花一次額外的記憶體存取去查頁表，等於每次存取
+        的延遲直接翻倍——這在第13課的數量級對照下是不能接受
+        的拖累。
+      </p>
+
+      <h2>4. 解法：TLB（位址轉換的專用快取）</h2>
+      <p>
+        <strong>TLB（Translation Lookaside Buffer，轉譯後備
+        緩衝器）</strong>是一塊很小、非常快、緊貼在CPU旁邊的
+        專用硬體，裡面存放「最近用過的虛擬頁到實體頁框對應
+        關係」。CPU要轉換位址時，先查TLB：如果<strong>TLB
+        命中</strong>，幾乎立刻就能拿到轉換結果，完全不需要
+        真的去記憶體裡查頁表；如果<strong>TLB未命中</strong>，
+        才需要真的去走一趟完整的頁表查詢（較慢），並把結果
+        存進TLB，方便下一次使用。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">位址轉換流程</text>
+
+          <rect x="180" y="35" width="100" height="34" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="230" y="57" text-anchor="middle" font-size="9" fill="var(--text)">虛擬位址</text>
+
+          <line x1="230" y1="69" x2="230" y2="90" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <rect x="160" y="90" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="230" y="112" text-anchor="middle" font-size="9" fill="var(--gold)">先查TLB</text>
+
+          <line x1="180" y1="124" x2="110" y2="160" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="150" font-size="8" fill="var(--gold)">命中（快）</text>
+          <rect x="30" y="160" width="130" height="34" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="95" y="182" text-anchor="middle" font-size="8.5" fill="var(--gold)">直接取得實體頁框</text>
+
+          <line x1="280" y1="124" x2="360" y2="160" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="335" y="150" font-size="8" fill="var(--accent)">未命中（慢）</text>
+          <rect x="300" y="160" width="140" height="34" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.4"/>
+          <text x="370" y="182" text-anchor="middle" font-size="8.5" fill="var(--accent)">走一趟完整頁表查詢</text>
+
+          <line x1="95" y1="194" x2="200" y2="222" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="370" y1="194" x2="260" y2="222" stroke="var(--text-muted)" stroke-width="1"/>
+          <rect x="150" y="222" width="160" height="30" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="230" y="242" text-anchor="middle" font-size="9" fill="var(--text)">實體位址（繼續存取記憶體）</text>
+        </svg>
+        <figcaption>TLB命中時，位址轉換幾乎不花額外時間；未命中時才需要真的查頁表，並把結果存進TLB備用——真實程式的TLB命中率通常非常高，這不是巧合。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>關鍵洞見：TLB其實就是快取概念的又一次應用</h3>
+        <p>
+          TLB做的事情，跟第15課的快取幾乎一模一樣——只是快取
+          存的是「資料」，TLB存的是「位址轉換結果」。它能有
+          效運作的原因，也正是第14課的局部性原理：程式在短
+          時間內，通常只會反覆用到少數幾個頁（時間局部性），
+          相鄰的虛擬位址常常落在同一頁裡（空間局部性），所以
+          一個很小的TLB就能涵蓋絕大多數的存取，命中率非常高。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋分頁機制的基本概念：位址空間怎麼被切成固定大小的頁，頁表扮演什麼角色</li>
+          <li>能解釋TLB存在的目的，以及它為什麼能加速位址轉換</li>
+          <li>能說明TLB的運作邏輯跟第15課的快取概念有什麼共通之處</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第20課會離開「執行中」的記憶體世界，轉向長期儲存——
+        第一種儲存裝置：硬碟的機械原理。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：虛擬記憶體</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：儲存裝置（一）：硬碟 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

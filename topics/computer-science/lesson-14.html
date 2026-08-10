@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：局部性原理：快取為什麼有效的理論基礎 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="介紹時間局部性與空間局部性兩種現象，並用第11課TOY-CPU的陣列加總程式具體說明，解釋記憶體階層的猜測策略為什麼不是碰運氣">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 14 課</div>
+      <h1>局部性原理：快取為什麼有效的理論基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能定義並區分時間局部性與空間局部性</li>
+          <li>能用TOY-CPU的陣列加總程式舉出兩種局部性各一個具體例子</li>
+          <li>理解局部性原理是記憶體階層策略能夠有效運作的前提假設</li>
+        </ul>
+      </div>
+
+      <p>
+        第13課留下一個問題：記憶體階層賭「CPU接下來要用的
+        資料，很有機會已經在快取這種又小又快的上層」——這
+        個賭注聽起來合理，但它到底是不是有根據的猜測，還是
+        單純碰運氣？答案是：真實程式的記憶體存取模式，確實
+        存在強烈而穩定的規律，這個規律稱為<strong>局部性原理
+        （principle of locality）</strong>，分成時間局部性與
+        空間局部性兩種。
+      </p>
+
+      <h2>1. 時間局部性：最近用過的，很快還會再用</h2>
+      <p>
+        <strong>時間局部性（temporal locality）</strong>指的是：
+        如果一個資料最近被存取過，它在不久之後很可能會再被
+        存取一次。回顧第11課TOY-CPU的陣列加總程式，LOOP
+        主體是這樣：
+      </p>
+
+      <div class="callout">
+        <p>
+          <strong>LOAD R3,[R2]</strong> → 從記憶體取出元素<br>
+          <strong>ADD R0,R0,R3</strong> → 累加到總和<br>
+          <strong>ADDI R2,R2,1</strong> → 指標往後移一格<br>
+          <strong>ADDI R1,R1,-1</strong> → 計數器遞減<br>
+          <strong>CMP／BEQ</strong> → 判斷是否跑完迴圈<br>
+          <strong>JMP LOOP</strong> → 回到迴圈開頭
+        </p>
+      </div>
+
+      <p>
+        注意R0（累加總和）、R1（計數器）、R2（指標）這三個
+        暫存器，<strong>每一輪迴圈都會被重複讀取跟寫入</strong>——
+        這就是時間局部性最直接的例子：同一個儲存位置，在
+        極短的時間內被反覆存取很多次。你寫程式時常見的迴圈
+        變數、累加器、函式呼叫中反覆使用的區域變數，本質上
+        都是同一種現象。
+      </p>
+
+      <h2>2. 空間局部性：用到某個位址，附近的位址也快被用到</h2>
+      <p>
+        <strong>空間局部性（spatial locality）</strong>指的是：
+        如果一個位址剛被存取過，跟它相鄰的位址，很可能在
+        不久之後也會被存取。同樣看TOY-CPU的例子：陣列
+        [3,7,2,9,5]存放在記憶體位址100–104，R2從100開始，
+        每輪迴圈透過<code>ADDI R2,R2,1</code>往後移一格——
+        依序走過100、101、102、103、104，完全是<strong>連續
+        相鄰的位址</strong>。你在程式裡用<code>for</code>迴圈
+        走訪陣列，本質上就是在製造這種空間局部性。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">時間局部性 vs. 空間局部性</text>
+
+          <text x="20" y="55" font-size="9" fill="var(--gold)">時間局部性</text>
+          <line x1="20" y1="70" x2="420" y2="70" stroke="var(--border)" stroke-width="1"/>
+          <polygon points="420,70 412,66 412,74" fill="var(--border)"/>
+          <text x="425" y="73" font-size="8" fill="var(--text-muted)">時間</text>
+          <circle cx="60" cy="70" r="5" fill="var(--gold)"/>
+          <circle cx="130" cy="70" r="5" fill="var(--gold)"/>
+          <circle cx="200" cy="70" r="5" fill="var(--gold)"/>
+          <circle cx="270" cy="70" r="5" fill="var(--gold)"/>
+          <circle cx="340" cy="70" r="5" fill="var(--gold)"/>
+          <text x="60" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">R0</text>
+          <text x="130" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">R0</text>
+          <text x="200" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">R0</text>
+          <text x="270" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">R0</text>
+          <text x="340" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">R0</text>
+          <text x="230" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">同一個位置，反覆被存取</text>
+
+          <text x="20" y="160" font-size="9" fill="var(--accent)">空間局部性</text>
+          <line x1="20" y1="175" x2="420" y2="175" stroke="var(--border)" stroke-width="1"/>
+          <polygon points="420,175 412,171 412,179" fill="var(--border)"/>
+          <text x="425" y="178" font-size="8" fill="var(--text-muted)">位址</text>
+          <circle cx="60" cy="175" r="5" fill="var(--accent)"/>
+          <circle cx="130" cy="175" r="5" fill="var(--accent)"/>
+          <circle cx="200" cy="175" r="5" fill="var(--accent)"/>
+          <circle cx="270" cy="175" r="5" fill="var(--accent)"/>
+          <circle cx="340" cy="175" r="5" fill="var(--accent)"/>
+          <text x="60" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">100</text>
+          <text x="130" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">101</text>
+          <text x="200" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">102</text>
+          <text x="270" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">103</text>
+          <text x="340" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">104</text>
+          <text x="230" y="217" text-anchor="middle" font-size="8" fill="var(--text-muted)">相鄰位置，依序陸續被存取</text>
+        </svg>
+        <figcaption>時間局部性：R0這個位置在每輪迴圈都被重複讀寫。空間局部性：R2指向的位址100、101、102……依序相鄰移動。TOY-CPU這段短短6行的迴圈，同時展示了兩種局部性各自最乾淨的例子。</figcaption>
+      </div>
+
+      <h2>3. 為什麼真實程式幾乎都有局部性</h2>
+      <p>
+        這不是巧合，而是程式的寫法本身造成的：迴圈會重複執行
+        同一段指令、重複使用同一批變數（時間局部性）；陣列、
+        字串這類循序資料結構，天生就是連續記憶體位址的排列，
+        走訪它們就會依序碰觸相鄰位址（空間局部性）；就連CPU
+        提取指令本身，通常也是依序往下一個位址走（除非遇到
+        跳躍指令）。只要程式裡有迴圈、有陣列，局部性幾乎必然
+        存在——而你在寫程式時，幾乎不可能完全不用這兩樣東西。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見：局部性讓「猜測」變成有根據的策略</h3>
+        <p>
+          時間局部性告訴硬體：「把最近用過的資料留在快取裡，
+          之後很可能還會再被要」——這正是快取置換策略（第15課
+          會談的LRU）的理論基礎。空間局部性告訴硬體：「拿到
+          某個位址的資料時，順便把附近的資料也一起搬進快取」——
+          這正是快取以「區塊」為單位搬移資料的理論基礎。第13課
+          記憶體階層的整套設計，正是建立在這兩個假設通常成立
+          的前提上。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>給定一個存取模式（例如迴圈裡重複讀寫同一個累加器、或走訪陣列讀取連續元素），能判斷屬於時間局部性還是空間局部性</li>
+          <li>能用TOY-CPU的陣列加總程式，分別指出一個時間局部性、一個空間局部性的具體例子</li>
+          <li>能解釋為什麼局部性原理是快取機制能夠有效運作的前提</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第15課會把局部性原理落地成具體的快取硬體設計——直接
+        對映、集合關聯、置換策略，看看「猜測」實際上是怎麼被
+        電路實作出來的。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：記憶體階層</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：快取記憶體基礎 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

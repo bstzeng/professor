@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 64 課：超純量與亂序執行：一次做不只一件事 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="介紹超純量架構如何用多組執行單元一次處理多條指令，以及亂序執行如何繞過資料危障造成的停頓，同時仍保持對外的循序假象">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 64 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 64 課</div>
+      <h1>超純量與亂序執行：一次做不只一件事</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解超純量架構如何靠多組執行單元，讓CPU一個週期完成不只一條指令</li>
+          <li>理解亂序執行如何繞過資料危障造成的停頓，讓不相關的指令先做</li>
+          <li>理解「內部亂序、對外循序」的設計哲學，以及reorder buffer扮演的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        第63課看到，資料危障會逼管線暫停——ADD得乖乖等LOAD把
+        資料讀出來才能繼續。但如果ADD後面剛好還有一條完全不
+        相關的指令呢？例如TOY-CPU LOOP裡，ADD之後的
+        <code>ADDI R2,R2,1</code>（把指標往前移一格）並不需要
+        等R3的值——與其讓整條管線閒著，CPU能不能先做這條不
+        相關的指令？這就是這一課要談的兩個技巧：超純量與
+        亂序執行。
+      </p>
+
+      <h2>1. 超純量：多組執行單元，一次做不只一件事</h2>
+      <p>
+        第62課的管線化，一個週期最多完成一條指令的某個階段。
+        <strong>超純量（superscalar）</strong>架構更進一步：CPU
+        內部準備<strong>不只一組</strong>執行單元（例如兩組甚至
+        更多ALU、獨立的載入／儲存單元），只要指令彼此不衝突，
+        就可以在同一個週期裡，同時把兩條、甚至更多條指令送進
+        不同的執行單元平行處理。這跟管線化提升吞吐量的邏輯
+        是同一個方向的延伸：管線化讓「同時有多條指令在處理」，
+        超純量則讓「同一週期能真正完成不只一條指令」。
+      </p>
+
+      <h2>2. 亂序執行：不相關的先做，卡住的晚點補</h2>
+      <p>
+        程式碼寫出來的順序，是給人看的邏輯順序；但CPU內部
+        不見得要完全按照這個順序執行。<strong>亂序執行
+        （out-of-order execution）</strong>的想法是：如果某條
+        指令正在等資料（例如第63課的ADD在等LOAD的結果），
+        而它後面剛好有一條不依賴這個結果的指令，CPU可以先
+        執行後面這一條，等前面卡住的指令資料準備好了，再回頭
+        補做——避免整條管線因為一個「卡點」而全部停擺。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">循序單發射 vs. 超純量＋亂序執行</text>
+
+          <text x="150" y="42" text-anchor="middle" font-size="9.5" fill="var(--accent)">循序、單一執行單元</text>
+          <g font-size="8.5" fill="var(--text)">
+            <rect x="50" y="52" width="200" height="26" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+            <text x="150" y="69" text-anchor="middle">週期1：LOAD R3,[R2]</text>
+            <rect x="50" y="82" width="200" height="26" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+            <text x="150" y="99" text-anchor="middle">週期2：（等待資料，閒置）</text>
+            <rect x="50" y="112" width="200" height="26" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+            <text x="150" y="129" text-anchor="middle">週期3：ADD R0,R0,R3</text>
+            <rect x="50" y="142" width="200" height="26" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+            <text x="150" y="159" text-anchor="middle">週期4：ADDI R2,R2,1</text>
+          </g>
+          <text x="150" y="185" text-anchor="middle" font-size="8" fill="var(--text-muted)">卡住就整條線等，4個週期做3件事</text>
+
+          <text x="460" y="42" text-anchor="middle" font-size="9.5" fill="var(--gold)">超純量＋亂序，兩組執行單元</text>
+          <g font-size="8.5" fill="var(--text)">
+            <rect x="350" y="52" width="220" height="26" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+            <text x="460" y="69" text-anchor="middle">週期1：LOAD R3,[R2]　（另一單元閒置）</text>
+            <rect x="350" y="82" width="220" height="26" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+            <text x="460" y="99" text-anchor="middle">週期2：ADDI R2,R2,1（先做，不需等R3）</text>
+            <rect x="350" y="112" width="220" height="26" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+            <text x="460" y="129" text-anchor="middle">週期3：ADD R0,R0,R3（R3已就緒，回頭補上）</text>
+          </g>
+          <text x="460" y="150" text-anchor="middle" font-size="8" fill="var(--gold)">不相關的指令提前做，3個週期做完3件事</text>
+
+          <line x1="300" y1="50" x2="300" y2="200" stroke="var(--border)" stroke-width="1" stroke-dasharray="3,3"/>
+        </svg>
+        <figcaption>循序執行遇到ADD在等資料時，只能讓整條線閒置一拍；亂序執行則讓CPU先處理後面不相關的ADDI，等ADD需要的R3準備好了再補做——同樣三條指令，亂序執行少花了一個週期，關鍵在於「不讓不相關的工作被卡點拖累」。</figcaption>
+      </div>
+
+      <h2>3. 內部亂序、對外循序：reorder buffer的角色</h2>
+      <p>
+        但這裡有個微妙的問題：如果ADDI真的搶在ADD前面完成，
+        程式最終看到的結果，會不會因此跟寫程式的人預期的
+        順序不一樣？答案是不會——CPU會用一個稱為<strong>
+        重排序緩衝區（reorder buffer, ROB）</strong>的機制，
+        把亂序完成的結果暫存起來，最後仍然依照<strong>程式
+        原本撰寫的順序</strong>，依序把結果正式寫回暫存器、
+        對外生效。這裡不需要深入實作細節，只需要抓住這句
+        設計哲學：<strong>CPU內部可以自由亂序，但對外呈現出來
+        的行為，永遠必須跟循序執行完全一致</strong>——寫程式的
+        人完全不需要知道、也不需要在意CPU內部到底用了什麼
+        順序完成運算。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          超純量解決的是「能不能同時做更多事」，亂序執行解決
+          的是「卡住的時候能不能先做別的事」——兩者合起來，
+          讓現代CPU即使面對第63課的資料危障，也能盡量維持
+          管線的高效運轉，而不需要真的把整條管線凍結等待。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明超純量架構如何靠多組執行單元增加平行度</li>
+          <li>能用ADD等待R3、ADDI先做的例子，說明亂序執行怎麼避免閒置</li>
+          <li>能解釋為什麼亂序執行仍然需要對外表現得「像是循序執行」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 65 課：分支預測——回到第63課提到的控制危障，CPU
+        遇到BEQ這種分支指令時，是怎麼「先猜一個方向」來避免
+        管線空等的？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-63.html">← 上一課：管線危障</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-65.html">下一課：分支預測 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

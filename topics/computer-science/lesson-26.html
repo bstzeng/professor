@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：CPU排程：誰先誰後，多工是怎麼做到的 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明CPU排程如何透過時間切片在有限核心數下製造多工錯覺，並介紹FCFS、SJF、Round Robin、優先權排程等基本策略">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜作業系統概論 · 第 26 課</div>
+      <h1>CPU排程：誰先誰後，多工是怎麼做到的</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼需要CPU排程：實體核心數量有限，但就緒程序可能很多</li>
+          <li>理解「時間切片」如何在單核心／少核心上製造出多工同時執行的錯覺</li>
+          <li>認識幾種基本排程策略，特別是Round Robin的規則</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課畫出程序的生命週期時，留了一個問題沒回答：程序從「就緒」變成「執行中」，
+        是誰、依照什麼規則做這個決定的？答案是作業系統裡的<strong>排程器
+        （Scheduler）</strong>，這一課就是它的故事。
+      </p>
+
+      <h2>1. 問題：核心數量有限，程序卻可能有幾十個</h2>
+      <p>
+        你的電腦可能有4個、8個CPU核心，但工作管理員（或活動監視器）裡列出來的程序，
+        常常有幾十個甚至上百個——瀏覽器分頁、系統背景服務、聊天軟體全部算進去。核心
+        數量遠遠不夠讓每個程序都「一直」在執行，勢必有程序得排隊等待。
+      </p>
+
+      <h2>2. 時間切片：多工「同時」執行的錯覺從哪來</h2>
+      <p>
+        排程器解決這個問題的方式是<strong>時間切片（Time Slicing）</strong>：讓每個
+        就緒程序輪流使用CPU，每次只給一小段時間（稱為時間量子，time quantum，常常是
+        幾毫秒到幾十毫秒），時間一到就強制換下一個程序上場。因為切換的速度遠遠快過
+        人類能感知的反應時間，你會覺得好幾個程式在「同時」執行，但實際上同一時刻、
+        同一個核心，通常只有一個程序真正在執行——這就是「多工」這個詞背後的真相：
+        不是真的同時做很多事，而是快到你分不出先後。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞察：多工是被製造出來的錯覺，不是硬體奇蹟</h3>
+        <p>
+          「電腦可以同時做很多事」聽起來像是硬體很強大，但核心原因其實是排程器切換
+          得夠快、夠公平。這跟你去便利商店結帳時，店員在兩個收銀台之間快速跑來跑去
+          服務兩排客人是同一個道理——只要跑得夠快，兩排客人都會覺得自己被「持續」
+          服務著。
+        </p>
+      </div>
+
+      <h2>3. 常見的排程策略</h2>
+      <p>
+        排程器要決定「下一個換誰上場」，有幾種常見的基本策略：
+      </p>
+      <table>
+        <thead>
+          <tr><th>策略</th><th>規則</th><th>特性</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>先來先服務（FCFS）</td><td>依照進入就緒佇列的順序執行，做完才換下一個</td><td>公平但簡單，長工作會讓後面的人等很久</td></tr>
+          <tr><td>最短工作優先（SJF）</td><td>優先執行預估所需時間最短的程序</td><td>平均等待時間較短，但需要預先知道工作長度，且長工作可能一直被插隊</td></tr>
+          <tr><td>輪詢（Round Robin）</td><td>每個程序輪流拿到固定長度的時間量子，時間到就換下一個</td><td>現代系統常用的基礎策略，兼顧公平與回應速度</td></tr>
+          <tr><td>優先權排程</td><td>依照程序被指派的優先權高低決定順序</td><td>能讓重要工作優先執行，但要小心低優先權工作被「餓死」</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 想像一下：好幾份「陣列加總」程式排隊等CPU</h2>
+      <p>
+        回顧第11課的TOY-CPU：一段對陣列[3, 7, 2, 9, 5]做加總的LOOP程式，一步步執行
+        提取－解碼－執行。現在想像你同時啟動了三份一模一樣的加總程式（也許各自加總
+        不同的陣列），它們就是三個獨立的程序，各自有自己的暫存器狀態與程式計數器
+        位置。如果排程器採用Round Robin，CPU會先執行程序A一小段時間（可能剛好跑完
+        LOOP裡的一兩次迭代），時間一到，把A目前的暫存器狀態存起來，換B上場執行一小段，
+        再換C，然後回到A，從剛才停下的地方繼續——對這三個程序來說，感覺起來就像
+        「同時」在跑，儘管實際上CPU核心一次只服務一個。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 520 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="260" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">Round Robin排程：三個程序輪流使用CPU</text>
+
+          <text x="40" y="60" font-size="9" fill="var(--text-muted)">時間軸</text>
+          <line x1="60" y1="60" x2="500" y2="60" stroke="var(--border)" stroke-width="1"/>
+
+          <rect x="60" y="90" width="70" height="34" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="95" y="111" text-anchor="middle" font-size="9" fill="var(--gold)">程序A</text>
+
+          <rect x="130" y="90" width="70" height="34" fill="var(--accent)" opacity="0.3" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="165" y="111" text-anchor="middle" font-size="9" fill="var(--accent)">程序B</text>
+
+          <rect x="200" y="90" width="70" height="34" fill="#ff8a65" opacity="0.3" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="235" y="111" text-anchor="middle" font-size="9" fill="#ff8a65">程序C</text>
+
+          <rect x="270" y="90" width="70" height="34" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="305" y="111" text-anchor="middle" font-size="9" fill="var(--gold)">程序A</text>
+
+          <rect x="340" y="90" width="70" height="34" fill="var(--accent)" opacity="0.3" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="375" y="111" text-anchor="middle" font-size="9" fill="var(--accent)">程序B</text>
+
+          <rect x="410" y="90" width="70" height="34" fill="#ff8a65" opacity="0.3" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="445" y="111" text-anchor="middle" font-size="9" fill="#ff8a65">程序C</text>
+
+          <text x="95" y="150" text-anchor="middle" font-size="8" fill="var(--text-muted)">一個時間量子</text>
+          <line x1="60" y1="140" x2="130" y2="140" stroke="var(--text-muted)" stroke-width="1"/>
+
+          <text x="260" y="180" text-anchor="middle" font-size="9" fill="var(--text-muted)">每個程序輪到就執行固定長度的時間量子，時間一到強制換下一個，繞一圈後再回來</text>
+        </svg>
+        <figcaption>每一格代表一個固定長度的時間量子；三個程序被切成小段輪流執行，只要切換速度夠快，使用者感受到的就是三個程式同時在跑——這正是第25課「就緒→執行中→就緒」狀態反覆切換的具體畫面。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋為什麼CPU核心數量有限時，仍然需要排程機制</li>
+          <li>能說出Round Robin排程的基本規則</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第27課：記憶體管理——排程器決定「誰能用CPU」，那「誰能用哪一塊記憶體」又是誰
+        在管？這一課會回顧第18、19課的虛擬記憶體與分頁機制，從作業系統的角度重新
+        理解一次。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：程序與執行緒</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：記憶體管理：分頁與分段 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

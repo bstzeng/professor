@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 67 課：模組總結：現代CPU的「看不見的忙碌」 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="模組J總結：整合管線化、管線危障、超純量、亂序執行、分支預測、投機執行，說明現代CPU執行簡單程式碼背後藏了多少平行機制，並銜接模組K的平行運算">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 67 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 67 課</div>
+      <h1>模組總結：現代CPU的「看不見的忙碌」</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把管線化、管線危障、超純量與亂序執行、分支預測、投機執行整合成一張完整圖像</li>
+          <li>能完整說出TOY-CPU迴圈這段簡單程式碼，在現代CPU內部經歷了哪些層次的平行處理</li>
+          <li>銜接模組K：從「單一指令流內部挖掘平行性」，進一步問「多個指令流、多份資料能不能一起平行處理」</li>
+        </ul>
+      </div>
+
+      <p>
+        模組J五堂課，用同一段TOY-CPU迴圈程式，從五個不同角度
+        反覆檢視「CPU怎麼讓一條指令流跑得更快」。這一課把
+        這五個角度收攏成一個完整故事。
+      </p>
+
+      <h2>表面循序，內部沸騰</h2>
+      <p>
+        對寫程式的人來說，TOY-CPU迴圈就是一行接一行、照順序
+        執行的簡單邏輯——LOAD、ADD、ADDI、CMP、BEQ，一目瞭然。
+        但模組J一路拆開之後會發現，現代CPU執行這段程式碼時，
+        表面上看起來循序，內部其實同時有好幾件事在發生：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">同一時刻，CPU內部同時運作的多層機制</text>
+
+          <rect x="40" y="40" width="560" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="60" y="60" font-size="9.5" fill="var(--gold)" font-weight="700">管線化（第62課）</text>
+          <text x="60" y="78" font-size="8.5" fill="var(--text)">多條指令重疊在IF/ID/EX/MEM/WB五個階段，同時處理不同批次</text>
+
+          <rect x="40" y="98" width="560" height="50" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="60" y="118" font-size="9.5" fill="var(--accent)" font-weight="700">危障處理：forwarding／stall（第63課）</text>
+          <text x="60" y="136" font-size="8.5" fill="var(--text)">LOAD接ADD這類資料危障，靠前送與必要的暫停化解</text>
+
+          <rect x="40" y="156" width="560" height="50" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="60" y="176" font-size="9.5" fill="#ff8a65" font-weight="700">超純量＋亂序執行（第64課）</text>
+          <text x="60" y="194" font-size="8.5" fill="var(--text)">多組執行單元同時運作，卡住的指令不拖累不相關的指令</text>
+
+          <rect x="40" y="214" width="560" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="60" y="234" font-size="9.5" fill="var(--gold)" font-weight="700">分支預測（第65課）</text>
+          <text x="60" y="252" font-size="8.5" fill="var(--text)">根據BEQ過去的歷史，猜測「跳／不跳」，避免控制危障空等</text>
+
+          <rect x="40" y="272" width="560" height="50" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="60" y="292" font-size="9.5" fill="var(--accent)" font-weight="700">投機執行（第66課）</text>
+          <text x="60" y="310" font-size="8.5" fill="var(--text)">沿著預測方向提前執行，猜對零損耗、猜錯整批作廢重來</text>
+        </svg>
+        <figcaption>這五層機制不是各自獨立運作，而是同時交織在一起：管線化提供舞台，危障處理維持正確性，超純量與亂序執行填補空檔，分支預測與投機執行則負責在不確定的分支路口盡量不讓CPU閒著——這正是為什麼現代CPU即使時脈成長趨緩，效能仍能持續進步的核心原因。</figcaption>
+      </div>
+
+      <h2>回到TOY-CPU：一段簡單程式碼的深層旅程</h2>
+      <p>
+        第9課定義TOY-CPU、第11課走過提取－解碼－執行的單步
+        流程時，這段陣列加總程式看起來就是一段平鋪直敘的
+        邏輯。但走完模組J，你已經知道：<code>LOAD R3,[R2]</code>
+        接<code>ADD R0,R0,R3</code>之間藏著資料危障；
+        <code>BEQ END</code>執行之前，CPU早就根據過去的歷史
+        猜好了方向，甚至已經提前把下一輪迴圈的指令做掉一部分；
+        而這一切，都跟後面完全不相關的<code>ADDI R2,R2,1</code>
+        可能同時在別的執行單元裡默默完成。同一段十幾行的
+        簡單程式碼，放到現代CPU裡執行，背後其實是一整套精密
+        協調的平行機制在運轉——這就是這一課標題所說的「看不見
+        的忙碌」。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          模組J真正想傳達的訊息是：程式設計師寫的是循序邏輯，
+          但CPU執行的從來不是「一次一件事」——所有這些機制，
+          最終目的都是在「維持循序邏輯的正確結果」跟「盡量
+          塞滿每一個週期、每一組電路」之間，找到最好的平衡。
+        </p>
+      </div>
+
+      <h2>下一步：從一條指令流，到多條指令流</h2>
+      <p>
+        模組J討論的所有技巧，本質上都是在<strong>單一指令流
+        內部</strong>挖掘平行性——同一段程式碼，怎麼被拆解、
+        重疊、預測、投機執行。但如果我們願意用不只一顆核心、
+        甚至一整張擁有數千個執行單元的繪圖卡呢？模組K要把
+        平行運算的尺度，從「一條指令流內部」拉大到「多核心、
+        多執行緒、甚至整片GPU」——看看平行運算到底能推進到
+        什麼程度，以及這背後又會遇到什麼新的極限與代價。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能完整列出模組J五個技巧的名稱，並各用一句話說明它解決了什麼問題</li>
+          <li>能用TOY-CPU迴圈程式，說明同一段程式碼裡，這五個技巧分別對應到哪一部分</li>
+          <li>能說明模組J到模組K的轉折：從「單一指令流內部平行化」到「多指令流、多資料平行化」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組K開場：快取階層與快取一致性——當一顆晶片上有
+        多個核心，各自擁有私有快取，會冒出什麼新問題？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-66.html">← 上一課：投機執行</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-68.html">下一課：快取階層與快取一致性 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

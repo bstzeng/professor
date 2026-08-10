@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：記憶體管理：分頁與分段 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="從作業系統角度重新理解虛擬記憶體與分頁機制，介紹頁面置換策略與分段的基本概念">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜作業系統概論 · 第 27 課</div>
+      <h1>記憶體管理：分頁與分段</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>從作業系統的角度，重新理解第18、19課的虛擬記憶體與分頁機制——這次的主角是「誰在維護頁表」</li>
+          <li>理解實體記憶體不足時，作業系統如何決定該把哪些頁面換出去（頁面置換策略）</li>
+          <li>能區分「分頁」與「分段」這兩種劃分記憶體的方式</li>
+        </ul>
+      </div>
+
+      <p>
+        第18課建立了一個重要概念：每個程式都「以為」自己獨佔了一整片記憶體位址空間，
+        這其實是一種被小心維持的幻覺，靠的是虛擬位址到實體位址的對應機制。第19課接著
+        講了分頁怎麼用頁表跟TLB加速這個對應過程。這一課要把視角換一下：這一切機制，
+        究竟是「誰」在背後維護與決策？答案正是這一課的主角——作業系統的記憶體管理
+        職責。
+      </p>
+
+      <h2>1. 複習：虛擬記憶體與分頁，誰在維護對應關係</h2>
+      <p>
+        回顧一下：分頁機制把虛擬位址空間跟實體記憶體都切成固定大小的「頁」，透過
+        頁表記錄虛擬頁對應到哪個實體頁框。第19課聚焦在「這個對應查詢怎麼被硬體
+        （TLB）加速」；這一課要補上：<strong>頁表本身是誰建立、誰維護的？</strong>
+        答案是作業系統。每個程序都有自己獨立的一份頁表，由作業系統在程序建立時
+        初始化，並且在程序執行過程中持續更新。
+      </p>
+
+      <h2>2. 作業系統的角色：在多個程序之間分配同一份實體記憶體</h2>
+      <p>
+        關鍵在於：所有程序共用同一份實體記憶體，但每個程序的虛擬位址空間卻「看起來」
+        都是獨立、完整的一片。作業系統要做的，就是決定每個程序的虛擬頁該對應到實體
+        記憶體的哪一塊，並且確保不同程序的頁面不會被分配到同一塊實體記憶體（否則就會
+        像上一課提到的執行緒共享記憶體那樣，程序之間互相踩到彼此的資料——但程序之間
+        本來就該是互相隔離的，這正是虛擬記憶體機制存在的原因之一）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 520 280" xmlns="http://www.w3.org/2000/svg">
+          <text x="260" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">作業系統維護多個程序的頁表，共同對應到同一份實體記憶體</text>
+
+          <text x="110" y="50" text-anchor="middle" font-size="10" fill="var(--gold)">程序A的頁表</text>
+          <rect x="50" y="60" width="120" height="70" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="110" y="80" text-anchor="middle" font-size="8" fill="var(--text)">頁0 → 框5</text>
+          <text x="110" y="98" text-anchor="middle" font-size="8" fill="var(--text)">頁1 → 框2</text>
+          <text x="110" y="116" text-anchor="middle" font-size="8" fill="var(--text)">頁2 → 框9</text>
+
+          <text x="410" y="50" text-anchor="middle" font-size="10" fill="var(--accent)">程序B的頁表</text>
+          <rect x="350" y="60" width="120" height="70" fill="none" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="410" y="80" text-anchor="middle" font-size="8" fill="var(--text)">頁0 → 框3</text>
+          <text x="410" y="98" text-anchor="middle" font-size="8" fill="var(--text)">頁1 → 框7</text>
+          <text x="410" y="116" text-anchor="middle" font-size="8" fill="var(--text)">頁2 → 框1</text>
+
+          <text x="260" y="180" text-anchor="middle" font-size="10" fill="var(--text-muted)">共用的實體記憶體（框0～框9）</text>
+          <rect x="100" y="190" width="320" height="40" fill="none" stroke="var(--border)" stroke-width="1.3"/>
+          <line x1="132" y1="190" x2="132" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="164" y1="190" x2="164" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="196" y1="190" x2="196" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="228" y1="190" x2="228" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="260" y1="190" x2="260" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="292" y1="190" x2="292" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="324" y1="190" x2="324" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="356" y1="190" x2="356" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+          <line x1="388" y1="190" x2="388" y2="230" stroke="var(--border)" stroke-width="0.8"/>
+
+          <line x1="110" y1="130" x2="196" y2="190" stroke="var(--gold)" stroke-width="1" stroke-dasharray="2,2"/>
+          <line x1="410" y1="130" x2="324" y2="190" stroke="var(--accent)" stroke-width="1" stroke-dasharray="2,2"/>
+        </svg>
+        <figcaption>程序A、程序B各自的頁表都是獨立的一份，指向的實體框卻共用同一塊實體記憶體——作業系統負責確保兩份頁表不會把不同程序指到同一個實體框，這是程序間記憶體隔離的根本保證。</figcaption>
+      </div>
+
+      <h2>3. 實體記憶體不夠用時：頁面置換策略</h2>
+      <p>
+        實體記憶體是有限資源，當太多程序同時要求記憶體、實體記憶體不夠分配時，作業
+        系統得把一些暫時用不到的頁面換出到硬碟或SSD（回顧第20、21課），把空出來的
+        實體框讓給更需要的頁面——這個決策過程稱為<strong>頁面置換（Page
+        Replacement）</strong>。
+      </p>
+      <p>
+        決定「換誰出去」的邏輯，其實跟第15課討論快取置換策略時的概念完全相通：
+        <strong>LRU（最近最少使用）</strong>同樣是頁面置換裡最常被參考的基礎策略——
+        優先把最久沒被存取的頁面換出去，因為根據局部性原理（第14課），最近用過的
+        頁面比較可能很快又被用到。差別只在於，快取置換發生在「記憶體 vs. 更快的
+        快取」之間，頁面置換發生在「實體記憶體 vs. 更慢的硬碟／SSD」之間，但背後的
+        直覺是同一套。
+      </p>
+
+      <h2>4. 分段：從程式邏輯結構出發的另一種劃分方式</h2>
+      <p>
+        分頁把記憶體切成固定大小、跟程式邏輯無關的一塊塊。<strong>分段
+        （Segmentation）</strong>則是另一種思路：依照程式的邏輯結構來劃分記憶體，
+        例如把程式碼、全域資料、堆疊各自劃成一個「段」，每個段的大小可以不同、依
+        實際需求而定。分段的好處是更貼近程式設計師理解程式的方式（「這是我的程式
+        碼」「這是我的堆疊」），缺點是段的大小不固定，容易在實體記憶體裡產生大小
+        不一的空隙，管理起來比固定大小的分頁複雜。現代作業系統大多以分頁為主要
+        機制，有些架構會把分段與分頁結合使用，取兩者的優點。
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>比較項目</th><th>分頁（Paging）</th><th>分段（Segmentation）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>劃分依據</td><td>固定大小的區塊，跟程式邏輯無關</td><td>依程式邏輯結構（程式碼、資料、堆疊）</td></tr>
+          <tr><td>大小</td><td>每頁大小固定</td><td>每段大小可以不同</td></tr>
+          <tr><td>管理複雜度</td><td>較低，配置與置換都很規律</td><td>較高，容易產生大小不一的空隙</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋作業系統在虛擬記憶體機制裡扮演的角色：維護頁表、在程序間分配實體記憶體</li>
+          <li>能區分分頁與分段的基本差異</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第28課：檔案系統——記憶體管理處理的是「執行中」的資料，那存放在硬碟裡「不
+        執行的時候」的資料，又是怎麼被組織成一個個檔案跟資料夾的？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：CPU排程</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：檔案系統 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

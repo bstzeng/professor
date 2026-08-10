@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：並行問題：死結與互斥鎖 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="介紹多執行緒共享資料時的競態條件、互斥鎖的解法，以及死結發生的四個必要條件">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜作業系統概論 · 第 29 課</div>
+      <h1>並行問題：死結與互斥鎖</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「競態條件」怎麼發生：多個執行緒同時存取共享資料時，結果可能不可預期</li>
+          <li>理解互斥鎖如何保護關鍵區段，避免競態條件</li>
+          <li>認識死結：多個程序互相等待對方持有的資源，永遠卡住的情況</li>
+        </ul>
+      </div>
+
+      <p>
+        第25課提過，同一個程序內的多個執行緒共享同一份記憶體——這帶來效率，但也帶來
+        新的麻煩。這一課要看兩個因為「共享」而產生的經典問題：競態條件，跟更棘手的
+        死結。
+      </p>
+
+      <h2>1. 競態條件：兩個執行緒同時做一件「看似簡單」的事</h2>
+      <p>
+        假設有一個共享變數<code>count = 0</code>，兩個執行緒都要各自把它加1，你可能
+        直覺覺得結果應該是<code>count = 2</code>。但「加1」這個看似單一的動作，實際
+        上在硬體層次會拆成三個步驟：讀取count目前的值、把值加1、把新值寫回count。
+        如果兩個執行緒的這三個步驟交錯執行，就可能出問題：
+      </p>
+      <ul>
+        <li>執行緒A讀取count（讀到0）</li>
+        <li>執行緒B讀取count（也讀到0，因為A還沒寫回去）</li>
+        <li>執行緒A把0加1，寫回count＝1</li>
+        <li>執行緒B把0加1，寫回count＝1</li>
+      </ul>
+      <p>
+        兩個執行緒都執行了一次「加1」，結果count卻只變成1，不是預期的2——這種因為
+        多個執行緒交錯存取共享資料，導致結果依賴「誰先誰後執行」而不可預期的現象，
+        就叫做<strong>競態條件（Race Condition）</strong>。它的麻煩之處在於：這種
+        錯誤不是每次都會發生，可能一百次裡才出現一次，非常難以重現與除錯。
+      </p>
+
+      <h2>2. 解法：互斥鎖，保護關鍵區段</h2>
+      <p>
+        解決競態條件的基本工具是<strong>互斥鎖（Mutex, Mutual Exclusion
+        Lock）</strong>：把「讀取－修改－寫回」這段容易出問題的程式碼標記成
+        <strong>關鍵區段（Critical Section）</strong>，執行緒進入關鍵區段前，必須
+        先取得鎖；如果鎖已經被別的執行緒持有，就得等待，直到鎖被釋放。這樣一來，
+        任何時刻最多只有一個執行緒能真正執行關鍵區段裡的程式碼，count的讀取－修改
+        －寫回就不會再被打斷交錯，競態條件也就不會發生。
+      </p>
+
+      <h2>3. 新問題：鎖用多了，可能卡死彼此</h2>
+      <p>
+        互斥鎖解決了競態條件，卻可能帶來另一個問題：如果兩個程序各自持有一把鎖，
+        同時又在等待對方手上的那把鎖，兩邊就會永遠卡住，誰都無法繼續——這種情況
+        稱為<strong>死結（Deadlock）</strong>。經典的比喻是「哲學家吃飯問題」：
+        幾位哲學家圍著圓桌，每人左右各有一支叉子，吃飯需要同時拿到左右兩支叉子；
+        如果每個人都先拿起自己左手邊的叉子，然後等右手邊的叉子被放下，所有人就會
+        永遠等下去，沒有人能吃到飯。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">兩個程序互相等待對方持有的鎖：死結</text>
+
+          <circle cx="130" cy="120" r="45" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.5"/>
+          <text x="130" y="115" text-anchor="middle" font-size="10" fill="var(--gold)">程序A</text>
+          <text x="130" y="132" text-anchor="middle" font-size="8" fill="var(--text-muted)">持有鎖1</text>
+
+          <circle cx="330" cy="120" r="45" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="330" y="115" text-anchor="middle" font-size="10" fill="var(--accent)">程序B</text>
+          <text x="330" y="132" text-anchor="middle" font-size="8" fill="var(--text-muted)">持有鎖2</text>
+
+          <path d="M 175,105 Q 230,70 285,105" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a29)"/>
+          <text x="230" y="70" text-anchor="middle" font-size="8" fill="var(--text-muted)">A 等待鎖2</text>
+
+          <path d="M 285,140 Q 230,178 175,140" fill="none" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a29)"/>
+          <text x="230" y="190" text-anchor="middle" font-size="8" fill="var(--text-muted)">B 等待鎖1</text>
+
+          <defs>
+            <marker id="a29" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>程序A持有鎖1、等待鎖2；程序B持有鎖2、等待鎖1——形成一個環狀的等待關係，兩邊都不會主動放手，於是永遠卡住，這正是「循環等待」這個死結條件的具體畫面。</figcaption>
+      </div>
+
+      <h2>4. 死結成立的四個必要條件</h2>
+      <p>
+        死結不是隨便就會發生，學界歸納出必須同時滿足以下四個條件，死結才可能出現
+        （只要打破其中一個，就能避免死結）：
+      </p>
+      <ul>
+        <li><strong>互斥</strong>：資源一次只能被一個程序持有</li>
+        <li><strong>持有並等待</strong>：程序持有至少一項資源，同時在等待取得其他資源</li>
+        <li><strong>不可搶奪</strong>：資源不能被強制從持有者手中搶走，只能由持有者自願釋放</li>
+        <li><strong>循環等待</strong>：存在一個程序等待的環狀鏈，例如A等B、B等A（或更多程序形成的環）</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能舉例說明競態條件是怎麼發生的（例如兩個執行緒同時對同一個變數加1）</li>
+          <li>能描述一個基本的死結情境，並指出裡面的循環等待關係</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第30課是模組D的總結：把作業系統是什麼、程序與執行緒、CPU排程、記憶體管理、
+        檔案系統、並行問題這六課串成一個完整的故事——「打開電腦、同時跑好幾個
+        程式」這句話背後，其實藏著這麼多層機制。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：檔案系統</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：模組總結：作業系統的全貌 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

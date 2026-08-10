@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：VRAM：繪圖記憶體的特殊設計 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="介紹GPU專用的VRAM如何儲存畫面緩衝區與材質資料，說明頻寬優先的設計哲學，比較GDDR與HBM兩種技術，以及獨立顯卡與內顯共用記憶體的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 17 課</div>
+      <h1>VRAM：繪圖記憶體的特殊設計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能說出VRAM跟一般系統RAM在設計目標上的差異（頻寬優先 vs. 延遲優先）</li>
+          <li>能大致區分GDDR與HBM兩種VRAM技術</li>
+          <li>能說明獨立顯卡的專用VRAM跟內顯「共用記憶體」的差異</li>
+        </ul>
+      </div>
+
+      <p>
+        第16課看的SRAM、DRAM是CPU世界通用的主記憶體技術。
+        但你電腦裡的顯示卡（GPU），用的是另一種特化過的
+        記憶體——VRAM。這一課要問：GPU為什麼需要不一樣的
+        記憶體設計？
+      </p>
+
+      <h2>1. VRAM是什麼</h2>
+      <p>
+        <strong>VRAM（Video RAM，繪圖記憶體）</strong>是GPU
+        專用的記憶體，存放<strong>畫面緩衝區（frame buffer，
+        目前或即將顯示到螢幕上那一整張畫面的每個像素顏色
+        資料）</strong>，以及材質（texture）、頂點資料等GPU
+        運算需要的素材。骨子裡它跟RAM一樣是DRAM系的技術，
+        但針對GPU的工作模式做了不同方向的優化。
+      </p>
+
+      <h2>2. 為什麼GPU需要不一樣特性的記憶體</h2>
+      <p>
+        CPU的單一執行緒，工作模式是「一次處理少量資料，但
+        要求極低延遲」——盡快把這一筆資料的結果算出來。GPU
+        則完全相反：它同時平行處理數以百萬計的像素、頂點
+        （這件事會在模組K第71課「GPU架構」深入解釋），單一
+        筆資料晚個幾奈秒送達不是重點，<strong>重點是每一秒
+        能搬運多少總資料量</strong>。這種設計目標上的根本
+        差異，用一句話概括就是：CPU記憶體<strong>延遲優先
+        （latency-first）</strong>，VRAM<strong>頻寬優先
+        （bandwidth-first）</strong>。
+      </p>
+
+      <h2>3. 具體設計差異：更寬的匯流排</h2>
+      <p>
+        要提高頻寬，最直接的方法之一是把<strong>匯流排
+        （bus）</strong>做寬——匯流排可以想成資料傳輸的「車道
+        數」，車道越多，同一時間能並行通過的資料量就越大，
+        即使車速（時脈）沒有特別誇張，總運量依然可以很驚人。
+        一般系統RAM常見是64位元的通道寬度；中高階GDDR繪圖
+        卡常見用到256位元甚至384位元；高階的HBM（High
+        Bandwidth Memory，高頻寬記憶體）匯流排寬度甚至可以
+        超過1024位元。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">匯流排寬度＝管線粗細，粗管線同時運送更多資料</text>
+
+          <text x="40" y="55" font-size="9" fill="var(--text)">系統RAM</text>
+          <rect x="120" y="47" width="280" height="10" fill="var(--surface)" stroke="var(--text)" stroke-width="1"/>
+          <text x="410" y="55" font-size="8" fill="var(--text-muted)">64位元</text>
+
+          <text x="40" y="120" font-size="9" fill="var(--gold)">GDDR繪圖卡</text>
+          <rect x="120" y="100" width="280" height="42" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="410" y="125" font-size="8" fill="var(--text-muted)">256～384位元</text>
+
+          <text x="40" y="210" font-size="9" fill="#ff8a65">HBM高階/資料中心</text>
+          <rect x="120" y="165" width="280" height="80" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.6"/>
+          <text x="410" y="205" font-size="8" fill="var(--text-muted)">1024位元以上</text>
+        </svg>
+        <figcaption>匯流排越寬，每個時脈週期能並行搬運的資料量就越大——VRAM不靠拉高時脈取勝，而是靠拉寬「車道數」堆出總頻寬，這正是頻寬優先設計哲學最具體的體現。</figcaption>
+      </div>
+
+      <h2>4. 兩種主流VRAM技術：GDDR vs. HBM</h2>
+      <p>
+        <strong>GDDR（Graphics DDR）</strong>是專為繪圖用途
+        調校過的DRAM變體，目前常見世代包括GDDR5、GDDR6、
+        GDDR6X，通常是獨立的晶片，直接焊在顯示卡電路板上、
+        圍繞在GPU晶片周圍。<strong>HBM（High Bandwidth
+        Memory）</strong>則是把多層記憶體晶粒垂直堆疊起來，
+        透過矽中介層（silicon interposer）跟GPU晶片封裝在
+        一起，彼此距離極短——用於高階顯示卡、資料中心GPU，
+        以及部分整合式晶片。
+      </p>
+
+      <h2>5. 獨立顯卡 vs. 內顯：專用VRAM vs. 共用記憶體</h2>
+      <p>
+        獨立顯卡（discrete GPU）擁有自己專屬的VRAM晶片，跟
+        系統RAM完全分開。內顯（integrated GPU，內建在CPU
+        封裝裡的GPU）通常沒有專屬VRAM，而是向系統RAM<strong>
+        借用一部分空間</strong>，常稱為「共用記憶體
+        （shared memory）」——因為內顯的工作負載通常規模較小，
+        對頻寬與容量的需求也相對較低，不需要專屬記憶體帶來
+        的額外成本。
+      </p>
+
+      <div class="callout">
+        <h3>這一課只打好記憶體這一側的地基</h3>
+        <p>
+          VRAM為什麼要犧牲延遲、換取頻寬，真正完整的答案在
+          於GPU本身「大規模平行運算」的工作模式——這件事要
+          等到模組K第71課「GPU架構」深入GPU內部結構時才會
+          完全說清楚。這一課的任務，只是先從記憶體技術的
+          角度，建立「VRAM長這樣是有道理的」這個直覺。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出VRAM跟一般系統RAM在設計目標上的差異（頻寬優先 vs. 延遲優先）</li>
+          <li>能概略區分GDDR跟HBM兩種VRAM技術的差異</li>
+          <li>能解釋獨立顯卡的專用VRAM跟內顯「共用記憶體」的差異</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第18課換一個角度看記憶體——虛擬記憶體，程式在多工
+        環境下，如何「以為自己獨佔整個記憶體」。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：RAM的種類與基本運作</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：虛擬記憶體 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

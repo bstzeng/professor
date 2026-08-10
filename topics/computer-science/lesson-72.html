@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 72 課：Spectre與Meltdown：投機執行留下的安全漏洞 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明Spectre與Meltdown如何利用投機執行在快取裡留下的痕跡，透過側通道攻擊間接推測出本不該被存取的機密資料，揭露效能與安全之間的根本取捨">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 72 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜現代電腦架構（二）平行運算與系統極限 · 第 72 課</div>
+      <h1>Spectre與Meltdown：投機執行留下的安全漏洞</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解Spectre與Meltdown為什麼屬於「架構層級」而非單純的軟體漏洞</li>
+          <li>能說明側通道攻擊的基本原理：透過可觀察的間接線索，推測本不該取得的資訊</li>
+          <li>理解這個漏洞揭露的效能與安全之間的根本取捨</li>
+        </ul>
+      </div>
+
+      <p>
+        第66課提到投機執行猜錯時，結果會被整批作廢（squash）
+        ——但「作廢」真的等於「完全沒發生過」嗎？2018年公開
+        揭露、震驚整個資訊安全界的<strong>Spectre</strong>與
+        <strong>Meltdown</strong>漏洞，答案是否定的：作廢的只是
+        「最終寫回暫存器的結果」，但投機執行過程中<strong>
+        曾經被存取過的資料，可能已經在快取裡留下痕跡</strong>
+        ——而這個痕跡，本身就洩漏了資訊。
+      </p>
+
+      <h2>1. 痕跡從哪裡來：投機執行「順手」摸過的資料</h2>
+      <p>
+        設想CPU投機執行了一段程式碼，這段程式碼原本邏輯上
+        「不應該」被執行到（因為分支預測猜錯了），過程中卻
+        讀取了一筆原本受保護、不該被目前這段程式碼存取的
+        機密資料，並且把這筆資料位址對應的內容載入了快取。
+        等到CPU發現猜錯、把這段投機執行的「結果」整批作廢時
+        ——結果被丟棄了沒錯，但<strong>被存取過的資料，早已經
+        被放進快取（回顧第13到15課的快取機制）</strong>，而
+        「某筆資料現在在不在快取裡」，可以透過另一種方式被
+        間接偵測出來。
+      </p>
+
+      <h2>2. 側通道攻擊：用「快不快」推測「有沒有」</h2>
+      <p>
+        攻擊者沒辦法直接讀出投機執行「作廢的結果」，但可以
+        利用一個簡單的物理事實：<strong>存取已經在快取裡的
+        資料，比存取不在快取裡的資料快得多</strong>（第14課
+        局部性原理與快取命中率的核心邏輯）。攻擊者可以設計
+        一系列存取測試，逐一測量存取不同記憶體位址所花的
+        時間——如果某個位址的存取速度特別快，代表它剛剛被
+        放進了快取，間接暗示了投機執行「摸過」哪筆資料，
+        進而一位元、一位元地拼湊出本不該被讀取的機密內容。
+        這種<strong>不直接讀取目標資料本身，而是透過可觀察的
+        間接線索（例如時間差異）推測出資訊</strong>的手法，
+        稱為<strong>側通道攻擊（side-channel attack）</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">Spectre／Meltdown的核心機制：結果被丟棄，痕跡卻留下了</text>
+
+          <rect x="30" y="40" width="220" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="140" y="62" text-anchor="middle" font-size="9" fill="var(--gold)">投機執行猜錯路徑</text>
+          <text x="140" y="80" text-anchor="middle" font-size="8" fill="var(--text)">過程中讀取了機密資料</text>
+
+          <line x1="250" y1="70" x2="290" y2="70" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <polygon points="290,70 282,65 282,75" fill="var(--text-muted)"/>
+
+          <rect x="300" y="40" width="130" height="60" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="365" y="62" text-anchor="middle" font-size="9" fill="#ff8a65">最終結果作廢</text>
+          <text x="365" y="80" text-anchor="middle" font-size="8" fill="var(--text)">（squash）</text>
+
+          <line x1="140" y1="100" x2="140" y2="130" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <polygon points="140,130 135,120 145,120" fill="var(--text-muted)"/>
+
+          <rect x="60" y="130" width="200" height="50" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="160" y="152" text-anchor="middle" font-size="9" fill="var(--accent)">但該筆資料已進入快取</text>
+          <text x="160" y="168" text-anchor="middle" font-size="8" fill="var(--text)">痕跡沒有被清除</text>
+
+          <line x1="260" y1="155" x2="330" y2="155" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <polygon points="330,155 322,150 322,160" fill="var(--text-muted)"/>
+
+          <rect x="340" y="130" width="240" height="50" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/>
+          <text x="460" y="150" text-anchor="middle" font-size="9" fill="#ff8a65">攻擊者測量存取時間差異</text>
+          <text x="460" y="167" text-anchor="middle" font-size="8" fill="var(--text)">（側通道攻擊）間接還原機密資料</text>
+
+          <text x="310" y="215" text-anchor="middle" font-size="9" fill="var(--text-muted)">結果本身被丟棄，但「存取行為造成的物理痕跡」洩漏了不該被知道的資訊</text>
+        </svg>
+        <figcaption>投機執行的「結果作廢」只發生在暫存器與程式邏輯的層次；快取這類硬體狀態的改變，並不會跟著一起復原——這個落差，正是Spectre與Meltdown得以成立的根本原因。</figcaption>
+      </div>
+
+      <h2>3. 為什麼這是「架構層級」的漏洞，而不只是軟體臭蟲</h2>
+      <p>
+        傳統的軟體漏洞，通常來自程式邏輯寫錯——例如忘記檢查
+        輸入邊界。但Spectre與Meltdown不同：投機執行、分支
+        預測、快取，全部都是CPU為了效能而刻意設計的機制，
+        每一項單獨拿出來看都運作正常、完全按照設計初衷執行。
+        問題出在這些機制<strong>組合在一起</strong>之後，產生了
+        設計者當初沒有預料到的副作用——這正是它被稱為
+        「架構層級」漏洞的原因：修補它，往往不能只靠改幾行
+        程式碼，而需要調整CPU處理投機執行的方式本身。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見：效能與安全的根本取捨</h3>
+        <p>
+          修補Spectre、Meltdown這類漏洞的做法，通常需要限制
+          投機執行的範圍（例如避免投機執行讀取某些可能敏感
+          的資料、或是在特定情境下延後投機執行的時機）——這
+          等於某種程度上放棄第66課投機執行帶來的效能好處。
+          這件事說明了一個重要的道理：模組I建立的資安思維
+          （CIA三角、加密、攻擊手法）跟模組J、K建立的效能
+          架構，並不是兩個互不相干的主題，而是經常互相拉扯、
+          需要權衡的一體兩面——追求極致效能的設計，往往也
+          同時在擴大潛在的攻擊面。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明為什麼Spectre、Meltdown屬於架構層級漏洞，而不是單純的程式錯誤</li>
+          <li>能用自己的話解釋側通道攻擊的基本原理：透過間接線索（例如時間差異）推測不該取得的資訊</li>
+          <li>能說明修補這類漏洞為什麼往往需要犧牲一部分投機執行帶來的效能</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 73 課：模組總結——把模組K的快取一致性、多核心、
+        SIMD、GPU、Spectre／Meltdown整合起來，並回顧模組J
+        與模組K合起來構成的完整平行化圖像。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-71.html">← 上一課：GPU架構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-73.html">下一課：模組總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

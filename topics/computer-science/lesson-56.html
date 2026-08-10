@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 56 課：正規化：如何設計不會互相矛盾的資料表 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="解釋資料重複可能造成的異常現象，介紹正規化的核心精神與1NF、2NF、3NF的直覺，並討論反正規化的取捨">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 56 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜資料庫基礎 · 第 56 課</div>
+      <h1>正規化：如何設計不會互相矛盾的資料表</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解資料重複可能造成的「異常」問題</li>
+          <li>掌握正規化的核心精神：拆表以降低重複與矛盾風險</li>
+          <li>認識反正規化的取捨：有時為了效能，會刻意保留一些重複</li>
+        </ul>
+      </div>
+
+      <p>
+        第54課一開始就把書店資料拆成books跟authors兩張表，當時
+        只解釋了外鍵怎麼運作，卻沒有細講「為什麼要拆」。這一課
+        就要回頭補上這一塊：如果不拆表，會發生什麼問題？
+      </p>
+
+      <h2>1. 不拆表會發生什麼問題：一張大表的困境</h2>
+      <p>
+        設想一個「偷懶」的設計：不建立authors表，而是把作者名、
+        作者生日都直接寫進books表的每一列裡。一本書一列，等於
+        每次某位作者的書出現，作者名跟生日就要重複寫一次。
+      </p>
+      <table>
+        <thead>
+          <tr><th>書籍id</th><th>書名</th><th>作者名</th><th>作者生日</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>三體</td><td>劉慈欣</td><td>1963-06-23</td></tr>
+          <tr><td>2</td><td>流浪地球</td><td>劉慈欣</td><td>1963-06-23</td></tr>
+          <tr><td>3</td><td>紅樓夢</td><td>曹雪芹</td><td>1715-01-04</td></tr>
+        </tbody>
+      </table>
+      <p>
+        劉慈欣的生日在這張表裡重複出現了兩次。這種重複本身還不
+        是最大的問題，真正麻煩的是：如果日後要修正劉慈欣的生日
+        （例如原本輸入錯誤），該去改哪一列？如果只改了「三體」
+        那一列，「流浪地球」那一列還留著舊資料，這張表裡就同時
+        存在兩個「劉慈欣的生日」，彼此矛盾——這種因為資料重複
+        而導致更新後產生矛盾的現象，稱為<strong>更新異常</strong>
+        （update anomaly）。類似的問題還有：如果劉慈欣還沒有任何
+        書上架，這張表就沒有地方能記錄他的生日（新增異常）；如果
+        「三體」這筆記錄被刪除，劉慈欣的生日資訊也會一併消失
+        （刪除異常）。
+      </p>
+
+      <div class="callout">
+        <h3>異常的根源：同一件事實被存了不只一份</h3>
+        <p>
+          三種異常的共同根源都一樣：「劉慈欣的生日是哪一天」這個
+          事實，理論上只該有一個答案，卻因為資料表設計不當，被
+          重複存放在多個地方。只要同一個事實有機會存在兩份不同
+          的副本，就有機會出現矛盾。
+        </p>
+      </div>
+
+      <h2>2. 正規化：系統化地拆表以消除重複</h2>
+      <p>
+        <strong>正規化</strong>（normalization）就是一套系統化的
+        原則，指導你該怎麼拆表，才能讓每個事實只存放在一個地方。
+        正規化理論上定義了好幾個層級（正規形式，Normal Form），
+        這裡不需要記死板的形式定義，只要建立三層遞進的直覺：
+      </p>
+      <ul>
+        <li><strong>第一正規化（1NF）</strong>：每個欄位只能放
+          「單一值」，不能放一個清單。例如「作者名」欄位不該
+          塞「劉慈欣, 王小美」這種用逗號隔開的多個名字——這種
+          設計會讓查詢跟修改都變得很麻煩。</li>
+        <li><strong>第二正規化（2NF）</strong>：在1NF基礎上，確保
+          表裡每個非主鍵欄位，都完整依賴整個主鍵，而不是只依賴
+          主鍵的一部分。</li>
+        <li><strong>第三正規化（3NF）</strong>：在2NF基礎上，確保
+          非主鍵欄位之間彼此不互相依賴——例如作者生日只該依賴
+          作者本人，不該被塞在跟書籍相關的表裡。</li>
+      </ul>
+      <p>
+        這三層的共同精神都是：<strong>把「不同主題的事實」拆到
+        不同的表裡</strong>。書籍的事實（書名、出版年）歸books表
+        管，作者的事實（姓名、生日）歸authors表管，兩者只透過
+        外鍵連結，不重複儲存彼此的資訊。
+      </p>
+
+      <p>
+        回頭看第54課的設計：把authors獨立成一張表，books只存
+        作者id這個外鍵——這正是正規化原則的具體實踐。作者生日
+        這個事實只會出現在authors表裡的一列，不管有多少本書
+        連結到這位作者，生日永遠只有一份，修改一次就全部更新
+        完畢，不會出現矛盾。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 480 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="240" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">未正規化的大表 vs. 正規化後的兩張表</text>
+
+          <rect x="20" y="35" width="190" height="120" rx="4" fill="none" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="115" y="53" text-anchor="middle" font-size="9" fill="#ff8a65">未正規化：一張大表</text>
+          <line x1="20" y1="63" x2="210" y2="63" stroke="var(--border)" stroke-width="1"/>
+          <text x="30" y="80" font-size="8" fill="var(--text)">三體　劉慈欣　1963-06-23</text>
+          <text x="30" y="96" font-size="8" fill="var(--text)">流浪地球　劉慈欣　1963-06-23</text>
+          <text x="30" y="112" font-size="8" fill="var(--text)">紅樓夢　曹雪芹　1715-01-04</text>
+          <text x="115" y="140" text-anchor="middle" font-size="7.5" fill="#ff8a65">生日重複兩次，修改易矛盾</text>
+
+          <text x="240" y="100" text-anchor="middle" font-size="16" fill="var(--text-muted)">→</text>
+
+          <rect x="270" y="35" width="90" height="70" rx="4" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="315" y="53" text-anchor="middle" font-size="8.5" fill="var(--gold)">books</text>
+          <text x="278" y="70" font-size="7.5" fill="var(--text)">三體　作者id1</text>
+          <text x="278" y="85" font-size="7.5" fill="var(--text)">流浪地球　作者id1</text>
+
+          <rect x="380" y="55" width="95" height="55" rx="4" fill="none" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="427" y="72" text-anchor="middle" font-size="8.5" fill="var(--gold)">authors</text>
+          <text x="388" y="90" font-size="7.5" fill="var(--text)">id1 劉慈欣 生日x1份</text>
+
+          <path d="M 360,75 C 370,75 370,80 380,80" fill="none" stroke="var(--accent)" stroke-width="1.2" marker-end="url(#arrow56)"/>
+          <defs>
+            <marker id="arrow56" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto">
+              <path d="M0,0 L5,2.5 L0,5 Z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <text x="370" y="140" text-anchor="middle" font-size="7.5" fill="var(--accent)">生日只存一份，改一次全部生效</text>
+        </svg>
+        <figcaption>正規化不是把資料「變少」，而是把重複的事實收斂到唯一的存放位置——查詢時再用JOIN把拆開的表接回來，用一次查詢的成本，換取資料永遠一致的保證。</figcaption>
+      </div>
+
+      <h2>3. 正規化不是「越正規越好」：反正規化的取捨</h2>
+      <p>
+        正規化能有效降低重複跟矛盾風險，但代價是查詢時常常需要
+        JOIN多張表，這在資料量龐大、查詢頻繁的系統裡可能會拖慢
+        速度。因此實務上有時會刻意反其道而行，稱為
+        <strong>反正規化</strong>（denormalization）：容忍一些
+        資料重複（例如在books表裡順便多存一份作者名），換取
+        查詢時不必JOIN、直接讀取就能拿到結果，速度更快。
+      </p>
+      <div class="callout">
+        <p>
+          這是一個典型的工程取捨：正規化換取一致性與節省儲存
+          空間，反正規化換取查詢效能。沒有哪一種是「永遠正確」
+          的答案，要看系統實際的讀寫模式——讀多寫少、對速度
+          要求極高的場景，反正規化可能更划算；資料經常被修改、
+          一致性要求高的場景，正規化通常是更安全的預設選擇。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋資料重複可能造成哪些具體問題（更新／新增／刪除異常）</li>
+          <li>能說出正規化的基本目標</li>
+          <li>能說明反正規化在什麼情況下可能是合理的取捨</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第57課是模組H的總結：把資料表、SQL、正規化整合起來，
+        接回第53課「瀏覽器輸入網址之後發生的事」，看資料庫在
+        一個真實網站的請求處理過程裡，究竟扮演什麼角色。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-55.html">← 上一課：SQL基礎：用查詢語言操作資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-57.html">下一課：模組總結：資料庫在真實系統中的角色 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

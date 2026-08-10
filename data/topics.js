@@ -1212,6 +1212,152 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "computer-science",
+      title: "計算機概論：從資訊表示到現代電腦架構",
+      description:
+        "從二進位與資訊表示法出發，完整建立CPU運作、記憶體階層、作業系統、資料結構與演算法、網路、資料庫、資訊安全的知識地圖，最後深入管線化、分支預測、多核心、GPU、Spectre/Meltdown等現代電腦架構理論——不只是傳統計概，更補上「為什麼現代CPU這麼快」的完整解釋。",
+      icon: "💻",
+      url: "topics/computer-science/index.html",
+      modules: [
+        {
+          title: "模組 A｜電腦系統與資訊表示法基礎",
+          courses: [
+            { title: "電腦是什麼：硬體、軟體與von Neumann架構", url: "topics/computer-science/lesson-01.html" },
+            { title: "二進位、八進位、十六進位：數字系統與轉換", url: "topics/computer-science/lesson-02.html" },
+            { title: "負數的表示法：二補數", url: "topics/computer-science/lesson-03.html" },
+            { title: "浮點數：IEEE 754怎麼表示小數", url: "topics/computer-science/lesson-04.html" },
+            { title: "字元編碼：從ASCII到Unicode／UTF-8", url: "topics/computer-science/lesson-05.html" },
+            { title: "模組總結：資訊在電腦裡的「共同語言」", url: "topics/computer-science/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 B｜從程式碼到執行：CPU如何運作",
+          courses: [
+            { title: "高階語言、組合語言、機器碼：三個層次", url: "topics/computer-science/lesson-07.html" },
+            { title: "編譯與直譯：程式碼怎麼變成能執行的東西", url: "topics/computer-science/lesson-08.html" },
+            { title: "CPU的基本結構：暫存器、ALU、控制單元", url: "topics/computer-science/lesson-09.html" },
+            { title: "指令集架構（ISA）：CPU看得懂的「詞彙表」", url: "topics/computer-science/lesson-10.html" },
+            { title: "提取－解碼－執行：一行程式碼的完整旅程", url: "topics/computer-science/lesson-11.html" },
+            { title: "模組總結：從for迴圈到電路訊號的完整對照", url: "topics/computer-science/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 C｜記憶體階層與儲存系統",
+          courses: [
+            { title: "記憶體階層：為什麼不能全部都用最快的記憶體", url: "topics/computer-science/lesson-13.html" },
+            { title: "局部性原理：快取為什麼有效的理論基礎", url: "topics/computer-science/lesson-14.html" },
+            { title: "快取記憶體基礎：直接對映、集合關聯、置換策略", url: "topics/computer-science/lesson-15.html" },
+            { title: "RAM的種類與基本運作：SRAM vs. DRAM", url: "topics/computer-science/lesson-16.html" },
+            { title: "VRAM：繪圖記憶體的特殊設計", url: "topics/computer-science/lesson-17.html" },
+            { title: "虛擬記憶體：程式以為自己獨佔記憶體的幻覺", url: "topics/computer-science/lesson-18.html" },
+            { title: "分頁機制：頁表與TLB怎麼加速位址轉換", url: "topics/computer-science/lesson-19.html" },
+            { title: "儲存裝置（一）：硬碟的機械原理", url: "topics/computer-science/lesson-20.html" },
+            { title: "儲存裝置（二）：SSD與快閃記憶體原理", url: "topics/computer-science/lesson-21.html" },
+            { title: "記憶體可靠性：ECC與RAID基礎", url: "topics/computer-science/lesson-22.html" },
+            { title: "模組總結：資料在系統裡的完整旅程", url: "topics/computer-science/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 D｜作業系統概論",
+          courses: [
+            { title: "作業系統是什麼：管理硬體資源的軟體", url: "topics/computer-science/lesson-24.html" },
+            { title: "程序與執行緒：程式執行的基本單位", url: "topics/computer-science/lesson-25.html" },
+            { title: "CPU排程：誰先誰後，多工是怎麼做到的", url: "topics/computer-science/lesson-26.html" },
+            { title: "記憶體管理：分頁與分段", url: "topics/computer-science/lesson-27.html" },
+            { title: "檔案系統：資料怎麼被組織與存取", url: "topics/computer-science/lesson-28.html" },
+            { title: "並行問題：死結與互斥鎖", url: "topics/computer-science/lesson-29.html" },
+            { title: "模組總結：作業系統的全貌", url: "topics/computer-science/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 E｜資料結構與演算法基礎",
+          courses: [
+            { title: "陣列與鏈結串列：兩種基本資料組織方式", url: "topics/computer-science/lesson-31.html" },
+            { title: "堆疊與佇列：後進先出與先進先出", url: "topics/computer-science/lesson-32.html" },
+            { title: "樹狀結構：階層式資料的表示法", url: "topics/computer-science/lesson-33.html" },
+            { title: "圖形結構與走訪演算法：BFS與DFS", url: "topics/computer-science/lesson-34.html" },
+            { title: "排序演算法：從氣泡排序到快速排序", url: "topics/computer-science/lesson-35.html" },
+            { title: "演算法複雜度：大O記號", url: "topics/computer-science/lesson-36.html" },
+            { title: "模組總結：資料結構與演算法的實務意義", url: "topics/computer-science/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 F｜程式語言與軟體工程概論",
+          courses: [
+            { title: "程式語言典範：指令式、物件導向、函數式", url: "topics/computer-science/lesson-38.html" },
+            { title: "版本控制：Git的基本概念", url: "topics/computer-science/lesson-39.html" },
+            { title: "軟體開發生命週期：從需求到維護", url: "topics/computer-science/lesson-40.html" },
+            { title: "測試的基本概念：單元測試、整合測試", url: "topics/computer-science/lesson-41.html" },
+            { title: "模組總結：寫程式之外，軟體工程還在乎什麼", url: "topics/computer-science/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 G｜電腦網路基礎",
+          courses: [
+            { title: "網路的分層模型：OSI與TCP/IP", url: "topics/computer-science/lesson-43.html" },
+            { title: "實體層與資料鏈結層：訊號、MAC位址與乙太網路", url: "topics/computer-science/lesson-44.html" },
+            { title: "網路設備：集線器、交換器、路由器的差異", url: "topics/computer-science/lesson-45.html" },
+            { title: "IP位址與子網路：CIDR怎麼劃分網路", url: "topics/computer-science/lesson-46.html" },
+            { title: "路由與NAT：封包怎麼找到路、私有位址怎麼連上網路", url: "topics/computer-science/lesson-47.html" },
+            { title: "傳輸層：TCP的可靠傳輸機制 vs. UDP的簡單快速", url: "topics/computer-science/lesson-48.html" },
+            { title: "DNS：網域名稱怎麼變成IP位址", url: "topics/computer-science/lesson-49.html" },
+            { title: "HTTP：網頁背後的協定", url: "topics/computer-science/lesson-50.html" },
+            { title: "HTTPS與TLS：幫網路連線加密", url: "topics/computer-science/lesson-51.html" },
+            { title: "Wi-Fi與無線網路基礎", url: "topics/computer-science/lesson-52.html" },
+            { title: "模組總結：打開瀏覽器輸入網址之後發生的事", url: "topics/computer-science/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 H｜資料庫基礎",
+          courses: [
+            { title: "關聯式資料庫：資料表、主鍵與外鍵", url: "topics/computer-science/lesson-54.html" },
+            { title: "SQL基礎：用查詢語言操作資料", url: "topics/computer-science/lesson-55.html" },
+            { title: "正規化：如何設計不會互相矛盾的資料表", url: "topics/computer-science/lesson-56.html" },
+            { title: "模組總結：資料庫在真實系統中的角色", url: "topics/computer-science/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 I｜資訊安全基礎",
+          courses: [
+            { title: "資訊安全的核心目標：CIA三角", url: "topics/computer-science/lesson-58.html" },
+            { title: "加密基礎：對稱式加密與非對稱式加密", url: "topics/computer-science/lesson-59.html" },
+            { title: "常見攻擊手法概覽：釣魚、SQL注入、DDoS", url: "topics/computer-science/lesson-60.html" },
+            { title: "模組總結：資安思維的日常應用", url: "topics/computer-science/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 J｜現代電腦架構（一）指令層級平行化",
+          courses: [
+            { title: "管線化：把一條指令拆成好幾個階段同時做", url: "topics/computer-science/lesson-62.html" },
+            { title: "管線危障：資料危障、控制危障與結構危障", url: "topics/computer-science/lesson-63.html" },
+            { title: "超純量與亂序執行：一次做不只一件事", url: "topics/computer-science/lesson-64.html" },
+            { title: "分支預測：CPU怎麼「猜」程式接下來要走哪條路", url: "topics/computer-science/lesson-65.html" },
+            { title: "投機執行：先做了再說，錯了就丟掉重來", url: "topics/computer-science/lesson-66.html" },
+            { title: "模組總結：現代CPU的「看不見的忙碌」", url: "topics/computer-science/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 K｜現代電腦架構（二）平行運算與系統極限",
+          courses: [
+            { title: "快取階層與快取一致性：多核心時代的新問題", url: "topics/computer-science/lesson-68.html" },
+            { title: "多核心與多執行緒：從單核到多核的轉變", url: "topics/computer-science/lesson-69.html" },
+            { title: "SIMD與向量運算：一個指令處理多筆資料", url: "topics/computer-science/lesson-70.html" },
+            { title: "GPU架構：為什麼繪圖卡特別適合平行運算", url: "topics/computer-science/lesson-71.html" },
+            { title: "Spectre與Meltdown：投機執行留下的安全漏洞", url: "topics/computer-science/lesson-72.html" },
+            { title: "模組總結：從指令平行到資料平行的完整圖像", url: "topics/computer-science/lesson-73.html" }
+          ]
+        },
+        {
+          title: "模組 L｜電腦發展史與課程總結",
+          courses: [
+            { title: "電腦發展簡史：從真空管到積體電路", url: "topics/computer-science/lesson-74.html" },
+            { title: "RISC vs. CISC：兩種指令集設計哲學", url: "topics/computer-science/lesson-75.html" },
+            { title: "課程總結：從二進位到GPU平行運算的完整旅程", url: "topics/computer-science/lesson-76.html" }
+          ]
+        }
+      ]
     }
   ]
 };

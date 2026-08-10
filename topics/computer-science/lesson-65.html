@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 65 課：分支預測：CPU怎麼「猜」程式接下來要走哪條路 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="用TOY-CPU迴圈裡BEQ連續四次不跳、第五次才跳的規律模式，說明分支預測器如何根據歷史記錄猜測分支走向，準確率為何能超過九成五">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 65 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 65 課</div>
+      <h1>分支預測：CPU怎麼「猜」程式接下來要走哪條路</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解分支預測想解決的問題：與其空等分支結果，不如先猜一個方向</li>
+          <li>能用TOY-CPU迴圈裡BEQ的執行模式，說明分支預測器怎麼從歷史記錄中學習</li>
+          <li>理解為什麼迴圈這種重複性高的分支模式特別容易被準確預測</li>
+        </ul>
+      </div>
+
+      <p>
+        第63課提到控制危障：CPU的IF階段每個週期都要抓新指令，
+        但遇到<code>BEQ</code>這種分支指令時，要等它真正執行完，
+        才會知道下一步該抓哪裡的指令。如果每次都乖乖等待，
+        管線化辛苦建立的效能優勢會被大量侵蝕。<strong>分支
+        預測（branch prediction）</strong>的核心想法很直接：
+        與其空等，不如「先猜一個方向，猜錯了再回頭重來」。
+      </p>
+
+      <h2>1. TOY-CPU迴圈：一個高度規律的分支模式</h2>
+      <p>
+        回顧TOY-CPU LOOP程式：R1從5開始，每跑一次迴圈就減1，
+        <code>CMP R1,R7</code>接<code>BEQ END</code>負責判斷
+        R1是否已經歸零。陣列有5個元素，所以這個迴圈總共執行
+        5次——前4次，R1分別是4、3、2、1，都不等於0，
+        <strong>BEQ不跳（not taken，繼續留在迴圈裡）</strong>；
+        只有第5次，R1減到0，<strong>BEQ才跳（taken，離開迴圈）
+        </strong>。這是一個極度規律的模式：連續好幾次都是同一
+        個方向，只有最後一次不一樣。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">TOY-CPU迴圈BEQ五次執行的實際結果與預測器學習過程</text>
+
+          <g font-size="8.5" text-anchor="middle">
+            <text x="70" y="45" fill="var(--text-muted)">第1次</text>
+            <text x="190" y="45" fill="var(--text-muted)">第2次</text>
+            <text x="310" y="45" fill="var(--text-muted)">第3次</text>
+            <text x="430" y="45" fill="var(--text-muted)">第4次</text>
+            <text x="550" y="45" fill="var(--text-muted)">第5次</text>
+          </g>
+
+          <g font-size="8" text-anchor="middle" fill="var(--text)">
+            <text x="70" y="62">R1=4</text><text x="190" y="62">R1=3</text><text x="310" y="62">R1=2</text><text x="430" y="62">R1=1</text><text x="550" y="62">R1=0</text>
+          </g>
+
+          <g stroke="var(--accent)" stroke-width="1.2" fill="var(--surface)">
+            <rect x="30" y="72" width="80" height="26"/><rect x="150" y="72" width="80" height="26"/><rect x="270" y="72" width="80" height="26"/><rect x="390" y="72" width="80" height="26"/>
+          </g>
+          <g stroke="#ff8a65" stroke-width="1.5" fill="var(--surface)">
+            <rect x="510" y="72" width="80" height="26"/>
+          </g>
+          <g font-size="8.5" text-anchor="middle">
+            <text x="70" y="89" fill="var(--accent)">不跳</text><text x="190" y="89" fill="var(--accent)">不跳</text><text x="310" y="89" fill="var(--accent)">不跳</text><text x="430" y="89" fill="var(--accent)">不跳</text><text x="550" y="89" fill="#ff8a65">跳！</text>
+          </g>
+          <text x="310" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">實際執行結果</text>
+
+          <g font-size="8" text-anchor="middle" fill="var(--gold)">
+            <text x="70" y="140">預測：不跳（初始猜測）</text>
+            <text x="190" y="160">預測：不跳（信心提升）</text>
+            <text x="310" y="140">預測：不跳（信心更高）</text>
+            <text x="430" y="160">預測：不跳（高度確信）</text>
+            <text x="550" y="140" fill="#ff8a65">預測：不跳（仍沿用歷史）→ 猜錯！</text>
+          </g>
+
+          <line x1="30" y1="180" x2="590" y2="180" stroke="var(--border)" stroke-width="1"/>
+          <text x="310" y="205" text-anchor="middle" font-size="9" fill="var(--text)">前4次每次都猜對，第5次因為預測器只根據「過去一直不跳」的歷史猜測，猜錯了</text>
+          <text x="310" y="228" text-anchor="middle" font-size="9" fill="var(--gold)">準確率：4／5＝80%——但陣列若有1000個元素，準確率會逼近99.9%</text>
+        </svg>
+        <figcaption>分支預測器根據BEQ過去的執行歷史猜測下一次的走向：迴圈重複執行的次數越多，「一直不跳」這個模式被學習得越透徹，預測準確率就越高；真正會猜錯的，往往只有迴圈最後一次的「出口」——這正是為什麼迴圈類分支特別容易被準確預測。</figcaption>
+      </div>
+
+      <h2>2. 分支預測器怎麼運作：記錄歷史、簡單統計</h2>
+      <p>
+        分支預測器不需要「理解」程式邏輯，它只是持續記錄每個
+        分支指令過去的執行結果（跳／不跳），再用簡單的統計或
+        狀態機邏輯，猜測下一次最可能的結果。最基本的想法就是
+        「這次大概率會跟上一次一樣」；更精細的設計會用類似
+        計數器的機制，累積連續同方向的「信心」，讓預測更穩定
+        （不會因為單一次例外就立刻翻轉判斷）。此外，對於像
+        迴圈這種「跳回較早位址」的反向分支，預測器通常會傾向
+        預設猜測「會跳」（因為迴圈通常會重複執行），進一步
+        提高命中率。現代CPU的分支預測準確率，在一般程式上
+        經常能超過95%。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見</h3>
+        <p>
+          分支預測準確率之所以能做到這麼高，關鍵在於真實世界
+          的程式，分支走向往往不是隨機的，而是高度規律——迴圈
+          反覆執行同一個方向、條件判斷經常受相似的輸入影響。
+          預測器要做的，不是猜中每一次隨機事件，而是抓住這些
+          「統計上的規律」。
+        </p>
+      </div>
+
+      <h2>3. 猜對之後呢：光是預測方向還不夠</h2>
+      <p>
+        分支預測只解決了「該往哪個方向猜」的問題——猜完之後，
+        CPU要怎麼利用這個猜測結果，才能真正避免管線空等？
+        答案是下一課要談的投機執行：CPU會直接照著猜測的方向，
+        提前開始抓取、執行後續指令。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明分支預測想解決的問題：分支結果未定時管線化會遇到什麼困境</li>
+          <li>能用TOY-CPU迴圈BEQ的例子，說明為什麼迴圈的重複跳轉模式特別容易被準確預測</li>
+          <li>能說出分支預測器的基本運作方式：根據歷史記錄做統計猜測</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 66 課：投機執行——猜完方向之後，CPU會直接沿著猜測
+        的路徑提前把指令做下去，猜對了賺到時間，猜錯了呢？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-64.html">← 上一課：超純量與亂序執行</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-66.html">下一課：投機執行 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

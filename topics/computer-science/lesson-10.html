@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：指令集架構（ISA）：CPU看得懂的「詞彙表」 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="定義ISA是硬體與軟體之間的契約，完整列出TOY-CPU的指令集，並示範指令如何編碼成機器碼的opcode與運算元欄位">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜從程式碼到執行：CPU如何運作 · 第 10 課</div>
+      <h1>指令集架構（ISA）：CPU看得懂的「詞彙表」</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解ISA是硬體與軟體之間的「契約」，規定CPU能執行哪些指令、格式是什麼</li>
+          <li>能完整說出TOY-CPU指令集裡每條指令的語法與意義</li>
+          <li>理解指令如何被拆解編碼成opcode與運算元欄位，銜接模組A的位元編碼概念</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課認識了CPU內部的暫存器、ALU、控制單元，也知道
+        控制單元的工作是解碼指令。但「解碼」的前提是：CPU跟
+        寫程式的人，得先對「有哪些指令、每條指令長什麼樣子」
+        達成共識。這份共識，就叫做指令集架構。
+      </p>
+
+      <h2>1. ISA：硬體與軟體之間的契約</h2>
+      <p>
+        <strong>指令集架構（Instruction Set Architecture,
+        ISA）</strong>是一份完整的規格書，定義了某款CPU能夠
+        執行哪些指令、每條指令的語法格式與確切意義。你可以把
+        ISA想成是CPU硬體對外公開的「詞彙表」——軟體（不論是
+        編譯器產生的機器碼，還是你手寫的組合語言）只要遵守
+        這份詞彙表，CPU就保證看得懂、能正確執行。這正是為什麼
+        ISA常被稱為<strong>硬體與軟體之間的契約</strong>：只要
+        契約不變，底層硬體實作方式可以持續進化（更快的電路、
+        更省電的設計），但寫給這顆CPU的程式碼不需要跟著改寫。
+      </p>
+
+      <h2>2. TOY-CPU的完整指令集</h2>
+      <p>
+        延續上一課定義的TOY-CPU（8個通用暫存器R0-R7、256位元組
+        記憶體），完整指令集如下：
+      </p>
+      <table>
+        <thead>
+          <tr><th>指令</th><th>語法</th><th>意義</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LOAD</td><td>LOAD Rd, addr</td><td>把記憶體位址addr的值，讀進暫存器Rd</td></tr>
+          <tr><td>STORE</td><td>STORE Rs, addr</td><td>把暫存器Rs的值，寫進記憶體位址addr</td></tr>
+          <tr><td>ADD</td><td>ADD Rd, Ra, Rb</td><td>Rd = Ra + Rb</td></tr>
+          <tr><td>SUB</td><td>SUB Rd, Ra, Rb</td><td>Rd = Ra − Rb</td></tr>
+          <tr><td>ADDI</td><td>ADDI Rd, Rs, imm</td><td>Rd = Rs + imm（imm是直接寫在指令裡的立即數）</td></tr>
+          <tr><td>CMP</td><td>CMP Ra, Rb</td><td>比較Ra與Rb，結果記錄在CPU內部的旗標（flag）裡</td></tr>
+          <tr><td>BEQ</td><td>BEQ addr</td><td>若前一次CMP的結果是「相等」，跳到addr繼續執行（分支）</td></tr>
+          <tr><td>JMP</td><td>JMP addr</td><td>無條件跳到addr繼續執行</td></tr>
+          <tr><td>HALT</td><td>HALT</td><td>停止執行</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這九條指令雖然簡單，但已經足以表達「循序執行、算術
+        運算、條件判斷、迴圈」這些程式設計的基本邏輯——第11課
+        會用這套指令集，完整走一遍陣列加總的範例程式。
+      </p>
+
+      <div class="callout">
+        <h3>補充：兩種定址模式</h3>
+        <p>
+          LOAD／STORE的addr運算元，其實可以用兩種方式提供：
+          <strong>直接定址</strong>——像<code>LOAD R0, 200</code>
+          這樣，位址200直接寫在指令裡；<strong>暫存器間接定址
+          </strong>——寫成<code>LOAD R3, [R2]</code>，中括號代表
+          「不要把R2的值當成資料，而是把R2裡存的數字當成
+          位址，去讀取那個位址上的值」。間接定址在處理陣列時
+          特別重要：只要不斷讓R2的值加1，就能用同一條
+          <code>LOAD R3, [R2]</code>依序走訪陣列裡的每一個
+          元素，這正是第11課範例程式會用到的技巧。
+        </p>
+      </div>
+
+      <h2>3. 指令格式：opcode ＋ 運算元</h2>
+      <p>
+        每條指令在機器碼裡，大致可拆成兩部分：<strong>opcode
+        （操作碼）</strong>——告訴CPU「要做什麼動作」，例如是
+        加法還是載入記憶體；以及<strong>運算元（operand）
+        </strong>——告訴CPU「動作要套用在誰身上」，例如是哪個
+        暫存器、哪個記憶體位址。這呼應了模組A學過的觀念：ADD
+        這個動作本身，會被編碼成一組固定的位元（opcode），
+        R0、R3這些暫存器編號，也會被編碼成位元（運算元）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 170" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">ADD R0, R0, R3 的機器碼欄位編碼示意</text>
+
+          <rect x="40" y="45" width="110" height="42" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+          <text x="95" y="70" text-anchor="middle" font-size="10" fill="var(--gold)">0010</text>
+          <text x="95" y="100" text-anchor="middle" font-size="8" fill="var(--gold)">opcode（4位元）</text>
+          <text x="95" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">代表ADD</text>
+
+          <rect x="150" y="45" width="100" height="42" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="200" y="70" text-anchor="middle" font-size="10" fill="var(--accent)">000</text>
+          <text x="200" y="100" text-anchor="middle" font-size="8" fill="var(--accent)">Rd（3位元）</text>
+          <text x="200" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">代表R0</text>
+
+          <rect x="250" y="45" width="100" height="42" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="300" y="70" text-anchor="middle" font-size="10" fill="var(--accent)">000</text>
+          <text x="300" y="100" text-anchor="middle" font-size="8" fill="var(--accent)">Ra（3位元）</text>
+          <text x="300" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">代表R0</text>
+
+          <rect x="350" y="45" width="100" height="42" fill="none" stroke="#ff8a65" stroke-width="1.5"/>
+          <text x="400" y="70" text-anchor="middle" font-size="10" fill="#ff8a65">011</text>
+          <text x="400" y="100" text-anchor="middle" font-size="8" fill="#ff8a65">Rb（3位元）</text>
+          <text x="400" y="112" text-anchor="middle" font-size="8" fill="var(--text-muted)">代表R3</text>
+        </svg>
+        <figcaption>opcode欄位（4位元，最多能編碼16種不同指令）決定「做什麼」，其餘欄位決定「對誰做」——像LOAD這類需要記憶體位址的指令，運算元欄位會換成8位元的位址（因為TOY-CPU記憶體剛好是256位元組），欄位寬度依指令需求而不同，這只是示意其中一種指令格式。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>放大視野：真實世界的ISA</h3>
+        <p>
+          TOY-CPU是簡化過的教學版本，但它的設計精神跟真實世界
+          的ISA是一致的。你可能聽過<strong>x86</strong>
+          （常見於個人電腦與伺服器）、<strong>ARM</strong>
+          （常見於手機與近年的筆電）、<strong>RISC-V</strong>
+          （近年興起的開源ISA）——這些都是真實存在、被廣泛
+          使用的指令集架構，指令數量、格式複雜得多，但核心
+          概念完全相同：都是opcode加運算元的組合，都是硬體與
+          軟體之間的契約。這幾個ISA之間的設計哲學差異
+          （例如RISC與CISC的分野），模組L會再深入討論。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋為什麼ISA被稱為「硬體與軟體之間的契約」</li>
+          <li>能默寫出TOY-CPU九條指令中至少五條的語法與意義</li>
+          <li>能說出一條指令的機器碼大致上包含哪兩類欄位</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 11 課：把ISA、暫存器、ALU、控制單元全部串起來——
+        用TOY-CPU執行陣列加總程式為例，完整走一遍提取－解碼－
+        執行的循環，看清楚一行程式碼真正的執行旅程。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：CPU的基本結構：暫存器、ALU、控制單元</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：提取－解碼－執行：一行程式碼的完整旅程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

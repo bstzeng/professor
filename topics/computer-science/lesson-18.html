@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：虛擬記憶體：程式以為自己獨佔記憶體的幻覺 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明多工環境下直接使用實體位址的問題，介紹虛擬記憶體如何讓每個程式擁有獨立的位址空間，並由硬體與作業系統協作轉換為實體位址">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 18 課</div>
+      <h1>虛擬記憶體：程式以為自己獨佔記憶體的幻覺</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能說出虛擬記憶體要解決的核心問題（直接使用實體位址的麻煩）</li>
+          <li>能區分虛擬位址與實體位址，知道誰看到什麼、誰負責轉換</li>
+          <li>能說出虛擬記憶體帶來的主要好處</li>
+        </ul>
+      </div>
+
+      <p>
+        第13課到第17課，都在講記憶體階層跟各種記憶體技術本身
+        的物理特性。這一課切換角度：你的電腦同時開著瀏覽器、
+        文字編輯器、音樂播放器——這麼多程式同時搶用同一塊
+        實體記憶體，要怎麼安全、有秩序地共用？
+      </p>
+
+      <h2>1. 問題：如果每個程式都直接用實體位址</h2>
+      <p>
+        想像每個程式都直接指定「我要用記憶體的第0到第1000
+        個位址」這種實體位址，會出現至少三個麻煩：第一，
+        <strong>位址衝突</strong>——兩個程式都想用同一段實體
+        位址，該讓誰用？第二，<strong>管理困難</strong>——
+        隨著程式不斷開關，實體記憶體會變得零零散散，很難找
+        到一整塊連續空間分配給新程式。第三，也是最嚴重的，
+        <strong>沒有保護</strong>——任何程式都能直接讀寫其他
+        程式（甚至作業系統自己）所在的實體記憶體，一個有
+        bug的程式可能就這樣毀掉另一個完全無關的程式的資料。
+      </p>
+
+      <h2>2. 解法：每個程式擁有自己的「假」位址空間</h2>
+      <p>
+        <strong>虛擬記憶體（virtual memory）</strong>的做法是：
+        作業系統（模組D會詳細介紹）搭配硬體，給每一個執行中
+        的程式一份專屬的<strong>虛擬位址空間</strong>——程式
+        感覺自己從位址0開始，獨佔一整塊完整的記憶體，完全不
+        知道其他程式的存在。而在背後，硬體上有一個專門負責
+        轉換的元件（MMU，記憶體管理單元）跟作業系統合作，
+        動態把程式用的每一個虛擬位址，即時轉換成它實際存放
+        的那個實體位址。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">兩個程式各自的虛擬位址空間，轉換到同一塊實體記憶體</text>
+
+          <rect x="20" y="40" width="150" height="80" fill="none" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="95" y="58" text-anchor="middle" font-size="9" fill="var(--gold)">程式A的虛擬空間</text>
+          <text x="95" y="78" text-anchor="middle" font-size="8" fill="var(--text-muted)">從位址0開始</text>
+          <text x="95" y="95" text-anchor="middle" font-size="8" fill="var(--text-muted)">以為自己獨佔全部</text>
+
+          <rect x="290" y="40" width="150" height="80" fill="none" stroke="var(--accent)" stroke-width="1.4"/>
+          <text x="365" y="58" text-anchor="middle" font-size="9" fill="var(--accent)">程式B的虛擬空間</text>
+          <text x="365" y="78" text-anchor="middle" font-size="8" fill="var(--text-muted)">從位址0開始</text>
+          <text x="365" y="95" text-anchor="middle" font-size="8" fill="var(--text-muted)">以為自己獨佔全部</text>
+
+          <text x="230" y="150" text-anchor="middle" font-size="9" fill="var(--text-muted)">位址轉換（MMU＋作業系統）</text>
+          <line x1="95" y1="120" x2="150" y2="175" stroke="var(--gold)" stroke-width="1" stroke-dasharray="3,2"/>
+          <line x1="365" y1="120" x2="310" y2="175" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3,2"/>
+
+          <rect x="90" y="180" width="280" height="60" fill="none" stroke="var(--text)" stroke-width="1.4"/>
+          <text x="230" y="198" text-anchor="middle" font-size="9" fill="var(--text)">同一塊實體記憶體</text>
+          <rect x="110" y="208" width="70" height="24" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="145" y="223" text-anchor="middle" font-size="7.5" fill="var(--gold)">A的資料</text>
+          <rect x="280" y="208" width="70" height="24" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="315" y="223" text-anchor="middle" font-size="7.5" fill="var(--accent)">B的資料</text>
+        </svg>
+        <figcaption>程式A跟程式B看到的都是從0開始、彷彿獨佔的虛擬位址空間，但實際上被轉換到同一塊實體記憶體裡完全不重疊的區域——程式本身完全不需要知道對方的存在。</figcaption>
+      </div>
+
+      <h2>3. 虛擬記憶體帶來的好處</h2>
+      <p>
+        <strong>隔離（isolation）</strong>：程式只能用自己的
+        虛擬位址「說話」，這些位址只會被轉換到分配給它的實體
+        區域，天生就無法直接碰到其他程式的資料，大幅降低
+        互相干擾或惡意入侵的風險。<strong>可以用比實際RAM
+        還大的空間</strong>：所有程式的虛擬空間加總，可以
+        超過實際安裝的實體RAM容量，暫時不用的部分能被搬到
+        儲存裝置裡（這個機制稱為swapping，第20、21課會先
+        建立儲存裝置的基礎，模組D會再詳細討論）。<strong>
+        簡化程式設計</strong>：寫程式或編譯器安排記憶體時，
+        不需要顧慮「這個位址會不會撞到另一個正在跑的程式」，
+        每個程式可以假設自己面對一片乾淨、獨立的空間。
+      </p>
+
+      <div class="callout">
+        <h3>關鍵洞見：這是另一層「幻覺」</h3>
+        <p>
+          寫程式時，你用陣列<code>arr[i]</code>存取資料，
+          完全不需要知道它實際落在哪一塊實體記憶體晶片、
+          哪一個位置——這是程式語言給你的抽象幻覺。虛擬記憶體
+          做的是同一件事，只是把這層幻覺往下推到作業系統跟
+          硬體的邊界：程式以為自己獨佔記憶體，實際上是被
+          小心翼翼安排、共用同一批實體資源。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出直接使用實體位址至少兩個具體的麻煩</li>
+          <li>能區分虛擬位址與實體位址：程式看到的是哪一種？誰負責轉換？</li>
+          <li>能說出虛擬記憶體帶來的至少兩個好處</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第19課會講虛擬記憶體最主流的具體實作方式——分頁機制，
+        以及頁表與TLB怎麼讓位址轉換不會拖慢每一次記憶體存取。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：VRAM</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：分頁機制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

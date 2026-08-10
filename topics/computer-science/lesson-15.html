@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：快取記憶體基礎：直接對映、集合關聯、置換策略 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="說明快取的命中與未命中機制、直接對映、全關聯、集合關聯三種對映策略的取捨，以及LRU置換策略如何呼應時間局部性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜記憶體階層與儲存系統 · 第 15 課</div>
+      <h1>快取記憶體基礎：直接對映、集合關聯、置換策略</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能解釋快取的命中與未命中是什麼，以及未命中時系統會做什麼</li>
+          <li>能說出直接對映、全關聯、集合關聯三種對映策略的基本差異</li>
+          <li>理解LRU置換策略背後的假設，以及它跟時間局部性的關係</li>
+        </ul>
+      </div>
+
+      <p>
+        第14課證明了局部性原理不是空話，是真實程式的規律。
+        這一課把這個規律真正落地成硬體：快取（cache）到底是
+        怎麼運作的，滿了又該怎麼辦。
+      </p>
+
+      <h2>1. 命中與未命中：快取的基本動作</h2>
+      <p>
+        CPU要讀某個記憶體位址時，會<strong>先檢查這筆資料在
+        不在快取裡</strong>。如果在，稱為<strong>命中（hit）</strong>，
+        幾奈秒內就能拿到資料；如果不在，稱為<strong>未命中
+        （miss）</strong>，就必須往下一層（例如主記憶體）去
+        拿。未命中的時候，硬體不會只拿「剛好需要的那一個
+        位元組」，而是順便把它<strong>整個相鄰的一小塊區域
+        （稱為cache line，快取列，常見大小64位元組）</strong>
+        一起搬進快取——這正是在賭第14課的空間局部性：既然
+        附近的位址很可能馬上也會被用到，不如一次搬過來。
+      </p>
+
+      <h2>2. 三種對映策略：位址要放進快取的哪個位置</h2>
+      <p>
+        快取的容量遠比主記憶體小，所以每個記憶體位址勢必要
+        對應到快取裡的某個（或某幾個）固定位置，才不會找不到
+        自己該住哪裡。有三種常見的做法：
+      </p>
+
+      <p>
+        <strong>直接對映（direct-mapped）</strong>：每個記憶體
+        位址，透過簡單的「除以快取大小取餘數」運算，被固定
+        分配到快取裡<strong>唯一的一個位置</strong>。硬體實作
+        簡單、判斷速度快，但缺點是：兩個剛好對應到同一個位置
+        的位址，即使快取裡還有其他空位，也只能輪流佔用同一個
+        格子，互相把對方擠出去——稱為衝突未命中（conflict
+        miss）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 460 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="230" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">直接對映：位址 mod 快取格數</text>
+
+          <text x="70" y="40" text-anchor="middle" font-size="9" fill="var(--text-muted)">記憶體位址</text>
+          <g font-size="8.5" fill="var(--text)">
+            <rect x="30" y="50" width="80" height="20" fill="none" stroke="var(--border)"/><text x="70" y="64" text-anchor="middle">0</text>
+            <rect x="30" y="75" width="80" height="20" fill="none" stroke="var(--border)"/><text x="70" y="89" text-anchor="middle">4</text>
+            <rect x="30" y="100" width="80" height="20" fill="none" stroke="var(--border)"/><text x="70" y="114" text-anchor="middle">8</text>
+            <rect x="30" y="125" width="80" height="20" fill="none" stroke="var(--border)"/><text x="70" y="139" text-anchor="middle">12</text>
+          </g>
+
+          <text x="330" y="40" text-anchor="middle" font-size="9" fill="var(--gold)">快取（4格）</text>
+          <g font-size="8.5" fill="var(--gold)">
+            <rect x="290" y="60" width="80" height="20" fill="none" stroke="var(--gold)"/><text x="330" y="74" text-anchor="middle">格 0</text>
+            <rect x="290" y="85" width="80" height="20" fill="none" stroke="var(--gold)"/><text x="330" y="99" text-anchor="middle">格 1</text>
+            <rect x="290" y="110" width="80" height="20" fill="none" stroke="var(--gold)"/><text x="330" y="124" text-anchor="middle">格 2</text>
+            <rect x="290" y="135" width="80" height="20" fill="none" stroke="var(--gold)"/><text x="330" y="149" text-anchor="middle">格 3</text>
+          </g>
+
+          <line x1="110" y1="60" x2="290" y2="70" stroke="var(--accent)" stroke-width="1"/>
+          <line x1="110" y1="85" x2="290" y2="95" stroke="var(--accent)" stroke-width="1"/>
+          <line x1="110" y1="110" x2="290" y2="120" stroke="var(--accent)" stroke-width="1"/>
+          <line x1="110" y1="135" x2="290" y2="145" stroke="var(--accent)" stroke-width="1"/>
+
+          <text x="230" y="185" text-anchor="middle" font-size="8" fill="var(--text-muted)">位址0、位址16、位址32……全部除以4取餘數都對應到「格0」，會互相衝突</text>
+        </svg>
+        <figcaption>直接對映用簡單的餘數運算決定位址該放進哪一格，硬體判斷快速，但代價是不同位址若對應到同一格，即使快取還有空位也無法互相借用，這是它命中率天花板較低的原因。</figcaption>
+      </div>
+
+      <p>
+        <strong>全關聯（fully associative）</strong>：一個位址
+        可以放進快取裡<strong>任何一個位置</strong>，完全不受
+        固定分配限制。彈性最大、理論命中率最高，但代價是：
+        每次要判斷資料在不在快取裡，都必須跟快取裡所有格子
+        逐一比對——快取越大，比對電路越貴、越慢，實務上很難
+        大規模使用。
+      </p>
+
+      <p>
+        <strong>集合關聯（set-associative）</strong>：現實中最
+        常見的折衷方案。快取先被切成好幾個「集合（set）」，
+        一個位址固定對應到某一個集合（像直接對映），但在那個
+        集合裡，可以放進集合內任何一個位置（像小範圍的全
+        關聯，例如4-way、8-way，代表一個集合裡有4或8個可用
+        位置）。這樣既保留了直接對映的簡單判斷速度，也緩解了
+        大部分的衝突問題，是目前幾乎所有真實CPU快取採用的
+        方式。
+      </p>
+
+      <table>
+        <thead><tr><th>對映方式</th><th>命中率潛力</th><th>硬體複雜度</th><th>實務常見程度</th></tr></thead>
+        <tbody>
+          <tr><td>直接對映</td><td>較低（容易衝突）</td><td>低，判斷極快</td><td>少數簡單場合</td></tr>
+          <tr><td>全關聯</td><td>最高</td><td>高，比對電路昂貴</td><td>僅用於很小的快取</td></tr>
+          <tr><td>集合關聯</td><td>接近全關聯</td><td>中等，可調整way數</td><td>絕大多數CPU快取採用</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 置換策略：滿了該丟掉誰</h2>
+      <p>
+        快取（或集合關聯裡的某個集合）滿了，又要放進新資料
+        時，必須先把某個舊資料請出去，稱為<strong>置換
+        （replacement）</strong>。最常見的策略是<strong>LRU
+        （Least Recently Used，最近最少使用）</strong>：丟掉
+        「最久沒有被使用過」的那一筆資料。
+      </p>
+
+      <div class="callout">
+        <h3>LRU背後的假設，就是第14課的時間局部性</h3>
+        <p>
+          時間局部性說：「最近用過的資料，很可能馬上還會再
+          被用到」。LRU反過來用同一個假設：「最久沒被用到的
+          資料，很可能接下來也最不需要」——這不是新的想法，
+          是同一個賭注的反面應用。也因為這個假設在真實程式裡
+          通常成立，LRU才會成為主流的置換策略（實務上完整
+          追蹤「精確的使用順序」成本不小，很多硬體會用近似
+          LRU的簡化做法，但核心精神完全一樣）。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋快取的命中與未命中分別代表什麼，未命中時系統會做的事（含「順便搬一整塊」的概念）</li>
+          <li>能說出直接對映、全關聯、集合關聯三者在命中率與硬體複雜度之間的取捨</li>
+          <li>能解釋LRU置換策略背後假設的是哪一種局部性，為什麼這個假設合理</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第16課會回到RAM本身——SRAM跟DRAM兩種主記憶體技術的
+        基本運作原理，解釋為什麼快取用SRAM、主記憶體用DRAM。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：局部性原理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：RAM的種類與基本運作 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

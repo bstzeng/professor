@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 62 課：管線化：把一條指令拆成好幾個階段同時做 ｜ 計算機概論 ｜ 博雅書院</title>
+<meta name="description" content="從單一指令的提取-解碼-執行流程出發，介紹管線化如何讓CPU像工廠生產線一樣同時處理多條指令，大幅提升整體吞吐量">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機概論</a>
+      <span class="sep">/</span>
+      <span>第 62 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜現代電腦架構（一）指令層級平行化 · 第 62 課</div>
+      <h1>管線化：把一條指令拆成好幾個階段同時做</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解管線化想解決的問題：CPU部件在單一指令執行過程中大部分時間都在閒置</li>
+          <li>能用TOY-CPU的LOOP程式，畫出多條指令重疊在五個管線階段裡執行的時序圖</li>
+          <li>理解管線化提升的是「吞吐量」，而不是單一指令的完成速度</li>
+        </ul>
+      </div>
+
+      <p>
+        回顧第11課，我們把TOY-CPU執行一行指令的完整旅程拆成
+        「提取－解碼－執行」幾個步驟，並且用逐拍走過的方式，
+        看它怎麼一步一步把一行指令做完。但那樣的描述隱藏了
+        一個效率問題：如果CPU真的乖乖等一條指令徹底做完，
+        才開始處理下一條，那負責「提取」的電路，在指令進入
+        「解碼」「執行」階段的整段時間裡，其實完全閒著沒事做。
+        模組J要打開的，正是現代CPU如何榨乾這些「閒置時間」的
+        核心技巧——第一個，就是<strong>管線化（pipelining）</strong>。
+      </p>
+
+      <h2>1. 問題：CPU部件大部分時間在「等」</h2>
+      <p>
+        把指令執行拆成幾個階段，例如：<strong>IF（提取，抓
+        指令）→ ID（解碼，看懂指令要做什麼）→ EX（執行，
+        ALU真正做運算）→ MEM（存取記憶體，讀寫資料）→ WB
+        （寫回，把結果存進暫存器）</strong>。如果CPU一次只處理
+        一條指令——指令A走完全部五個階段，指令B才開始走第
+        一階段——那麼在指令A做ID、EX、MEM、WB的這段期間，
+        負責IF的電路完全沒事做；在指令A做EX、MEM、WB期間，
+        負責ID的電路也沒事做。五套各司其職的電路，任何時刻
+        真正在運作的只有一套，其餘四套都在閒置——這是一種
+        明顯的浪費。
+      </p>
+
+      <h2>2. 管線化的核心想法：像工廠生產線一樣重疊處理</h2>
+      <p>
+        管線化的想法很直覺：既然IF、ID、EX、MEM、WB是不同的
+        電路，那麼<strong>指令A進入ID階段的同時，指令B就可以
+        開始進入IF階段</strong>——不需要等指令A完全做完。這正是
+        工廠生產線的邏輯：一輛車在噴漆站噴漆的同時，下一輛車
+        已經在焊接站被組裝，再下一輛車已經在最前端的鋼板
+        沖壓站開始加工。生產線上每一個工作站，任何時刻都在
+        處理「不同批次」的產品，而不是等一輛車完全組裝好、
+        開出工廠，才讓下一輛車進場。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">TOY-CPU LOOP程式前五條指令的管線時序圖</text>
+
+          <text x="30" y="45" font-size="9" fill="var(--text-muted)">週期</text>
+          <text x="65" y="66" font-size="9" fill="var(--text-muted)">指令</text>
+
+          <g font-size="9" fill="var(--text-muted)">
+            <text x="150" y="45" text-anchor="middle">1</text>
+            <text x="204" y="45" text-anchor="middle">2</text>
+            <text x="258" y="45" text-anchor="middle">3</text>
+            <text x="312" y="45" text-anchor="middle">4</text>
+            <text x="366" y="45" text-anchor="middle">5</text>
+            <text x="420" y="45" text-anchor="middle">6</text>
+            <text x="474" y="45" text-anchor="middle">7</text>
+            <text x="528" y="45" text-anchor="middle">8</text>
+            <text x="582" y="45" text-anchor="middle">9</text>
+          </g>
+
+          <line x1="126" y1="52" x2="608" y2="52" stroke="var(--border)" stroke-width="1"/>
+          <line x1="366" y1="52" x2="366" y2="266" stroke="var(--gold)" stroke-width="1" stroke-dasharray="3,3"/>
+
+          <g font-size="8.5" fill="var(--text)">
+            <text x="30" y="76">I0 LOAD R0,200</text>
+            <text x="30" y="110">I1 LOAD R1,201</text>
+            <text x="30" y="144">I2 ADDI R2,R2,100</text>
+            <text x="30" y="178">I3 LOAD R3,[R2]</text>
+            <text x="30" y="212">I4 ADD R0,R0,R3</text>
+          </g>
+
+          <g stroke="var(--gold)" stroke-width="1" fill="var(--surface)">
+            <rect x="126" y="58" width="48" height="24"/>
+            <rect x="180" y="58" width="48" height="24"/>
+            <rect x="234" y="58" width="48" height="24"/>
+            <rect x="288" y="58" width="48" height="24"/>
+            <rect x="342" y="58" width="48" height="24"/>
+
+            <rect x="180" y="92" width="48" height="24"/>
+            <rect x="234" y="92" width="48" height="24"/>
+            <rect x="288" y="92" width="48" height="24"/>
+            <rect x="342" y="92" width="48" height="24"/>
+            <rect x="396" y="92" width="48" height="24"/>
+
+            <rect x="234" y="126" width="48" height="24"/>
+            <rect x="288" y="126" width="48" height="24"/>
+            <rect x="342" y="126" width="48" height="24"/>
+            <rect x="396" y="126" width="48" height="24"/>
+            <rect x="450" y="126" width="48" height="24"/>
+
+            <rect x="288" y="160" width="48" height="24"/>
+            <rect x="342" y="160" width="48" height="24"/>
+            <rect x="396" y="160" width="48" height="24"/>
+            <rect x="450" y="160" width="48" height="24"/>
+            <rect x="504" y="160" width="48" height="24"/>
+
+            <rect x="342" y="194" width="48" height="24"/>
+            <rect x="396" y="194" width="48" height="24"/>
+            <rect x="450" y="194" width="48" height="24"/>
+            <rect x="504" y="194" width="48" height="24"/>
+            <rect x="558" y="194" width="48" height="24"/>
+          </g>
+
+          <g font-size="8" fill="var(--accent)" text-anchor="middle">
+            <text x="150" y="74">IF</text><text x="204" y="74">ID</text><text x="258" y="74">EX</text><text x="312" y="74">MEM</text><text x="366" y="74">WB</text>
+            <text x="204" y="108">IF</text><text x="258" y="108">ID</text><text x="312" y="108">EX</text><text x="366" y="108">MEM</text><text x="420" y="108">WB</text>
+            <text x="258" y="142">IF</text><text x="312" y="142">ID</text><text x="366" y="142">EX</text><text x="420" y="142">MEM</text><text x="474" y="142">WB</text>
+            <text x="312" y="176">IF</text><text x="366" y="176">ID</text><text x="420" y="176">EX</text><text x="474" y="176">MEM</text><text x="528" y="176">WB</text>
+            <text x="366" y="210">IF</text><text x="420" y="210">ID</text><text x="474" y="210">EX</text><text x="528" y="210">MEM</text><text x="582" y="210">WB</text>
+          </g>
+
+          <text x="366" y="284" text-anchor="middle" font-size="9" fill="var(--gold)">週期5：五條指令同時佔用五個不同階段，五套電路全部在運作</text>
+        </svg>
+        <figcaption>沒有管線化的話，完成I0到I4這五條指令要5×5＝25個週期；管線化之後，只要9個週期就能完成——單一指令從進入到寫回仍然要5個週期（延遲不變），但每個週期都有一條新指令完成，整體吞吐量大幅提升。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>關鍵區別：延遲（latency）vs. 吞吐量（throughput）</h3>
+        <p>
+          管線化<strong>不會</strong>讓單一一條指令跑得更快——I0
+          從進入IF到WB結束，一樣要經過5個週期，這叫做
+          <strong>延遲</strong>。管線化真正改善的是<strong>吞吐量
+          </strong>：單位時間內完成的指令數量。從上圖可以看到，
+          從週期5開始，每一個週期都有一條指令完成WB——這正是
+          「生產線全速運轉」的狀態：雖然每輛車走完整條生產線
+          一樣要花固定時間，但生產線源源不絕地在「出貨」。
+        </p>
+      </div>
+
+      <h2>3. 為什麼這件事沒有想像中簡單</h2>
+      <p>
+        如果所有指令都彼此獨立、互不相關，管線化幾乎是「免費」
+        的效能提升——多加幾套獨立的電路，讓它們平行運作即可。
+        但實際程式裡，指令之間經常互相依賴：後面的指令要用到
+        前面指令算出來的結果，或者程式的走向本身要等某條指令
+        執行完才能確定。這些依賴關係，會讓管線化的理想情況
+        遇到阻礙——這正是下一課要處理的「管線危障」。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明管線化想解決的問題：單一指令執行時，CPU的哪些部件在閒置</li>
+          <li>能用TOY-CPU的指令，畫出至少三條指令重疊在管線階段裡的時序圖</li>
+          <li>能解釋管線化改善的是「吞吐量」而不是單一指令的「延遲」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 63 課：管線危障——當指令之間互相依賴，管線化的理想
+        情況會被打斷，我們用TOY-CPU裡「LOAD接著ADD」這一段
+        程式，具體看資料危障是怎麼發生的。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-61.html">← 上一課：模組總結：資安思維的日常應用</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-63.html">下一課：管線危障 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
