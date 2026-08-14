@@ -1358,6 +1358,89 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "zodiac",
+      title: "星座學：起源、十二星座個性與相性",
+      description:
+        "從巴比倫星空觀測與希臘化占星學的起源出發，依火土風水四元素完整解析十二星座的個性特質，深入星座相性與三方四正的配對邏輯，進一步認識本命盤、十大行星與十二宮位的完整占星系統，最後誠實檢視科學怎麼看占星（巴納姆效應、雙盲實驗）。這是文化與歷史脈絡的完整介紹，不是命運預測或人生決策指南。",
+      icon: "♈",
+      url: "topics/zodiac/index.html",
+      modules: [
+        {
+          title: "模組 A｜星座的起源與基礎架構",
+          courses: [
+            { title: "星座的起源：從巴比倫的星空觀測開始", url: "topics/zodiac/lesson-01.html" },
+            { title: "黃道十二宮：太陽在天空中的年度軌跡", url: "topics/zodiac/lesson-02.html" },
+            { title: "希臘化時期的占星學：托勒密與《占星四書》", url: "topics/zodiac/lesson-03.html" },
+            { title: "「星座」不是「星座」：歲差現象與現代天文對照的落差", url: "topics/zodiac/lesson-04.html" },
+            { title: "四元素與三模式：認識星座的分類架構", url: "topics/zodiac/lesson-05.html" },
+            { title: "太陽星座 vs. 本命盤：為什麼「你是什麼星座」只是冰山一角", url: "topics/zodiac/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 B｜火象星座：熱情與行動力",
+          courses: [
+            { title: "牡羊座：開創者的衝勁與坦率", url: "topics/zodiac/lesson-07.html" },
+            { title: "獅子座：舞台中央的自信與慷慨", url: "topics/zodiac/lesson-08.html" },
+            { title: "射手座：追求自由的探險家靈魂", url: "topics/zodiac/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜土象星座：務實與穩定",
+          courses: [
+            { title: "金牛座：追求安穩的感官享受者", url: "topics/zodiac/lesson-10.html" },
+            { title: "處女座：追求完美的分析者", url: "topics/zodiac/lesson-11.html" },
+            { title: "摩羯座：目標導向的現實主義者", url: "topics/zodiac/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜風象星座：思考與溝通",
+          courses: [
+            { title: "雙子座：好奇多變的溝通者", url: "topics/zodiac/lesson-13.html" },
+            { title: "天秤座：追求和諧的協調者", url: "topics/zodiac/lesson-14.html" },
+            { title: "水瓶座：獨立不群的理想主義者", url: "topics/zodiac/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 E｜水象星座與十二星座回顧",
+          courses: [
+            { title: "巨蟹座：重視家庭的情感守護者", url: "topics/zodiac/lesson-16.html" },
+            { title: "天蠍座：深刻強烈的洞察者", url: "topics/zodiac/lesson-17.html" },
+            { title: "雙魚座：浪漫富同理心的夢想家", url: "topics/zodiac/lesson-18.html" },
+            { title: "模組總結：十二星座全貌總覽", url: "topics/zodiac/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 F｜星座之間的關係學",
+          courses: [
+            { title: "相性基礎：四元素之間怎麼「合得來」", url: "topics/zodiac/lesson-20.html" },
+            { title: "三方四正：星座關係圖上的幾何學（三合、六合、四正、對分）", url: "topics/zodiac/lesson-21.html" },
+            { title: "常見配對怎麼解讀：以牡羊座為例走一遍完整邏輯", url: "topics/zodiac/lesson-22.html" },
+            { title: "相性不只看太陽星座：金星、火星在感情關係中的角色", url: "topics/zodiac/lesson-23.html" },
+            { title: "模組總結：星座配對，該怎麼理性看待", url: "topics/zodiac/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 G｜星座之外：本命盤的完整樣貌",
+          courses: [
+            { title: "本命盤是什麼：出生那一刻的天空快照", url: "topics/zodiac/lesson-25.html" },
+            { title: "十大行星在占星中的意義：太陽、月亮、水金火...", url: "topics/zodiac/lesson-26.html" },
+            { title: "十二宮位：本命盤裡的十二個生活領域", url: "topics/zodiac/lesson-27.html" },
+            { title: "上升星座：為什麼「第一印象」跟「太陽星座」常常對不上", url: "topics/zodiac/lesson-28.html" },
+            { title: "模組總結：一張本命盤怎麼被「讀」出來", url: "topics/zodiac/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 H｜現代反思：科學怎麼看占星",
+          courses: [
+            { title: "占星與天文的分家：一門學科怎麼一分為二", url: "topics/zodiac/lesson-30.html" },
+            { title: "巴納姆效應：為什麼星座描述「感覺都很準」", url: "topics/zodiac/lesson-31.html" },
+            { title: "科學驗證：卡爾森1985年雙盲實驗與其他研究", url: "topics/zodiac/lesson-32.html" },
+            { title: "課程總結：怎麼誠實地享受星座這套文化知識", url: "topics/zodiac/lesson-33.html" }
+          ]
+        }
+      ]
     }
   ]
 };
