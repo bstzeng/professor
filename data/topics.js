@@ -1441,6 +1441,106 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "music-production",
+      title: "電子音樂製作：從合成器到完整編曲",
+      description:
+        "承接《創作樂理》的和聲與曲式基礎，這門課專注在電子音樂製作本身的技術知識：減法合成器怎麼從零打造聲音、取樣與節奏編程、主流流行／EDM編曲的段落語言（Intro/Build-up/Drop/Breakdown）、貝斯與側鏈壓縮、混音與母帶基礎，最後完成一趟從聲音設計到完整編曲的製作旅程。軟體無關，概念為主，並與《電子電路》課的濾波器、頻率響應知識互相銜接。",
+      icon: "🎛️",
+      url: "topics/music-production/index.html",
+      modules: [
+        {
+          title: "模組 A｜電子音樂製作的基礎概念",
+          courses: [
+            { title: "電子音樂 vs. 傳統錄音：製作邏輯的根本差異", url: "topics/music-production/lesson-01.html" },
+            { title: "聲音的物理基礎：頻率、振幅、音色", url: "topics/music-production/lesson-02.html" },
+            { title: "DAW是什麼：音軌、MIDI vs. 音訊、鋼琴捲軸的共通邏輯", url: "topics/music-production/lesson-03.html" },
+            { title: "取樣率與位元深度：數位音訊的基本規格", url: "topics/music-production/lesson-04.html" },
+            { title: "模組總結：從樂理到製作，你需要換一套思維", url: "topics/music-production/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜合成器：從零打造聲音",
+          courses: [
+            { title: "減法合成：電子音樂最核心的造音邏輯", url: "topics/music-production/lesson-06.html" },
+            { title: "振盪器：波形決定的音色個性", url: "topics/music-production/lesson-07.html" },
+            { title: "濾波器：從泛音裡雕出聲音的形狀", url: "topics/music-production/lesson-08.html" },
+            { title: "包絡（ADSR）：聲音怎麼隨時間變化", url: "topics/music-production/lesson-09.html" },
+            { title: "LFO：讓聲音「動起來」的週期性調變", url: "topics/music-production/lesson-10.html" },
+            { title: "其他合成方式概覽：FM合成與疊加合成（Wavetable）", url: "topics/music-production/lesson-11.html" },
+            { title: "模組總結：一個完整合成音色的誕生", url: "topics/music-production/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 C｜取樣與節奏編程",
+          courses: [
+            { title: "取樣是什麼：從真實聲音到可編輯的素材", url: "topics/music-production/lesson-13.html" },
+            { title: "鼓組取樣：電子音樂節奏的骨架", url: "topics/music-production/lesson-14.html" },
+            { title: "切片與變調：取樣素材的常見處理手法", url: "topics/music-production/lesson-15.html" },
+            { title: "節奏編程：MIDI節奏型態與四大基本律動", url: "topics/music-production/lesson-16.html" },
+            { title: "Quantize與Swing：機械精準跟人性搖擺的取捨", url: "topics/music-production/lesson-17.html" },
+            { title: "模組總結：合成 vs. 取樣，什麼時候該用哪個", url: "topics/music-production/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 D｜流行/EDM編曲：從段落到能量曲線",
+          courses: [
+            { title: "電子舞曲的段落語言：Intro、Verse、Pre-chorus、Chorus/Hook", url: "topics/music-production/lesson-19.html" },
+            { title: "Build-up與Drop：電子舞曲特有的張力結構", url: "topics/music-production/lesson-20.html" },
+            { title: "Breakdown：把能量拉下來，才有下一次拉高的空間", url: "topics/music-production/lesson-21.html" },
+            { title: "編曲即能量管理：一首歌的密度曲線怎麼設計", url: "topics/music-production/lesson-22.html" },
+            { title: "和聲進行在編曲裡的角色：銜接《創作樂理》的和弦知識", url: "topics/music-production/lesson-23.html" },
+            { title: "模組總結：完整拆解一首Future Bass的段落結構", url: "topics/music-production/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 E｜貝斯與低頻設計",
+          courses: [
+            { title: "Sub-bass vs. Bass：兩種低頻角色的分工", url: "topics/music-production/lesson-25.html" },
+            { title: "Kick與Bass的頻率打架問題：為什麼要「讓位」", url: "topics/music-production/lesson-26.html" },
+            { title: "側鏈壓縮（Sidechain）：電子舞曲招牌的「呼吸感」", url: "topics/music-production/lesson-27.html" },
+            { title: "模組總結：打造扎實不糊的低頻基礎", url: "topics/music-production/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 F｜混音基礎：讓聲音各就各位",
+          courses: [
+            { title: "EQ：頻率空間的分配邏輯", url: "topics/music-production/lesson-29.html" },
+            { title: "壓縮器：動態控制的基本原理", url: "topics/music-production/lesson-30.html" },
+            { title: "空間效果：Reverb與Delay怎麼營造距離感", url: "topics/music-production/lesson-31.html" },
+            { title: "立體聲寬度與聲像：讓混音有「寬度」", url: "topics/music-production/lesson-32.html" },
+            { title: "模組總結：一條混音鏈的基本框架", url: "topics/music-production/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 G｜自動化與聲音設計",
+          courses: [
+            { title: "自動化是什麼：讓參數隨時間變化", url: "topics/music-production/lesson-34.html" },
+            { title: "Riser與Impact：電子舞曲轉場的標準配備", url: "topics/music-production/lesson-35.html" },
+            { title: "White Noise掃頻：從安靜到爆發的張力製造機", url: "topics/music-production/lesson-36.html" },
+            { title: "模組總結：把Build-up的張力具體做出來", url: "topics/music-production/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 H｜人聲處理與流行製作技巧",
+          courses: [
+            { title: "人聲在電子/流行製作裡的角色", url: "topics/music-production/lesson-38.html" },
+            { title: "音準修正的基本概念", url: "topics/music-production/lesson-39.html" },
+            { title: "Vocal Chop：把人聲變成樂器的招牌技巧", url: "topics/music-production/lesson-40.html" },
+            { title: "模組總結：人聲怎麼融進電子編曲", url: "topics/music-production/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 I｜完成一首歌：母帶與整合實戰",
+          courses: [
+            { title: "母帶處理（Mastering）是什麼：混音與母帶的分工", url: "topics/music-production/lesson-42.html" },
+            { title: "響度戰爭：LUFS是什麼，為什麼串流時代要在乎它", url: "topics/music-production/lesson-43.html" },
+            { title: "主流EDM子類型巡禮：House、Future Bass、Progressive House、Trap的製作差異", url: "topics/music-production/lesson-44.html" },
+            { title: "課程總結：從零到一首完整電子流行歌的製作旅程", url: "topics/music-production/lesson-45.html" }
+          ]
+        }
+      ]
     }
   ]
 };
