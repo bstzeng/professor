@@ -1541,6 +1541,114 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "architecture",
+      title: "建築工程：房子怎麼蓋出來的",
+      description:
+        "從台灣住宅最常見的RC/SRC構造出發，完整解析一棟房子怎麼從地基蓋到交屋：結構載重與地震設計的基本邏輯、模板鋼筋灌漿的施工流程、水電消防管線怎麼埋進房子裡、室內裝修收尾，最後到建築設計與法規的基本概念。概念為主，輔以少量基礎力學計算，並與《電子電路》課的電學知識互相銜接。",
+      icon: "🏗️",
+      url: "topics/architecture/index.html",
+      modules: [
+        {
+          title: "模組 A｜建築基礎概念與怎麼看懂一棟房子",
+          courses: [
+            { title: "一棟房子是怎麼「生」出來的：從買地到入住的完整流程地圖", url: "topics/architecture/lesson-01.html" },
+            { title: "建築師、結構技師、營造廠：誰負責蓋房子的哪個部分", url: "topics/architecture/lesson-02.html" },
+            { title: "讀懂建築圖：平面圖、立面圖、剖面圖是什麼", url: "topics/architecture/lesson-03.html" },
+            { title: "建築的骨架與皮膚：結構、外殼、管線、裝修的四層邏輯", url: "topics/architecture/lesson-04.html" },
+            { title: "模組總結：建立看懂一棟房子的完整框架", url: "topics/architecture/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜結構系統：RC、SRC與台灣常見構造",
+          courses: [
+            { title: "RC鋼筋混凝土：台灣住宅最主流的構造方式", url: "topics/architecture/lesson-06.html" },
+            { title: "鋼筋與混凝土的分工：為什麼要兩種材料一起用", url: "topics/architecture/lesson-07.html" },
+            { title: "SRC與鋼構造：比RC更強的另一種選擇", url: "topics/architecture/lesson-08.html" },
+            { title: "磚造與其他構造方式：為什麼現在較少見", url: "topics/architecture/lesson-09.html" },
+            { title: "模組總結：不同構造方式的優缺點比較", url: "topics/architecture/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜載重與結構力學基礎",
+          courses: [
+            { title: "房子要扛住什麼：重力荷重、活載重、風力、地震力", url: "topics/architecture/lesson-11.html" },
+            { title: "力怎麼流動：從屋頂到地基的載重傳遞路徑", url: "topics/architecture/lesson-12.html" },
+            { title: "柱、梁、板：結構三兄弟各自的角色", url: "topics/architecture/lesson-13.html" },
+            { title: "【基礎數學】簡單樑的受力：為什麼梁中間比較容易彎", url: "topics/architecture/lesson-14.html" },
+            { title: "台灣的地震課題：耐震設計的基本邏輯", url: "topics/architecture/lesson-15.html" },
+            { title: "模組總結：一棟房子怎麼「站得住」", url: "topics/architecture/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 D｜地基與基礎工程",
+          courses: [
+            { title: "地質調查：蓋房子前為什麼要先鑽探土壤", url: "topics/architecture/lesson-17.html" },
+            { title: "基礎的種類：獨立基腳、筏式基礎、樁基礎", url: "topics/architecture/lesson-18.html" },
+            { title: "開挖與擋土：地下室怎麼挖得出來又不會塌", url: "topics/architecture/lesson-19.html" },
+            { title: "模組總結：看不見的地下工程，卻是最關鍵的一步", url: "topics/architecture/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 E｜結構體施工：從綁鋼筋到灌漿",
+          courses: [
+            { title: "模板工程：混凝土還沒硬之前，靠什麼撐住形狀", url: "topics/architecture/lesson-21.html" },
+            { title: "綁鋼筋：結構的「骨頭」怎麼被組裝起來", url: "topics/architecture/lesson-22.html" },
+            { title: "灌漿與養護：混凝土怎麼從液體變成堅固的石頭", url: "topics/architecture/lesson-23.html" },
+            { title: "一層一層往上蓋：樓層施工的標準循環", url: "topics/architecture/lesson-24.html" },
+            { title: "模組總結：結構體完工，房子的骨架站起來了", url: "topics/architecture/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 F｜外殼工程：牆體、防水、門窗",
+          courses: [
+            { title: "隔間牆：RC構造裡「不是結構」的牆怎麼砌", url: "topics/architecture/lesson-26.html" },
+            { title: "防水工程：為什麼漏水是房子最常見的毛病", url: "topics/architecture/lesson-27.html" },
+            { title: "外牆與立面：磁磚、塗料、帷幕牆的選擇", url: "topics/architecture/lesson-28.html" },
+            { title: "門窗工程：氣密、水密、隔音怎麼一次顧到", url: "topics/architecture/lesson-29.html" },
+            { title: "模組總結：讓房子真正擋風遮雨的最後一層", url: "topics/architecture/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 G｜管線工程：水電消防怎麼埋進房子裡",
+          courses: [
+            { title: "管線配置的大原則：為什麼要在結構體裡預埋", url: "topics/architecture/lesson-31.html" },
+            { title: "給水系統：自來水怎麼送到每一層每一戶", url: "topics/architecture/lesson-32.html" },
+            { title: "排水與污水系統：用過的水怎麼安全排走", url: "topics/architecture/lesson-33.html" },
+            { title: "電力系統：從總開關到每個插座的配電邏輯", url: "topics/architecture/lesson-34.html" },
+            { title: "消防與弱電系統：火警、對講機、網路線", url: "topics/architecture/lesson-35.html" },
+            { title: "模組總結：一套完整管線系統的全貌", url: "topics/architecture/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 H｜室內裝修與收尾",
+          courses: [
+            { title: "地板、天花板、牆面：室內三大表面工程", url: "topics/architecture/lesson-37.html" },
+            { title: "廚房與衛浴：管線密度最高的兩個空間", url: "topics/architecture/lesson-38.html" },
+            { title: "油漆、木作與最後驗收", url: "topics/architecture/lesson-39.html" },
+            { title: "模組總結：從毛胚屋到能住人的家", url: "topics/architecture/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 I｜建築設計：從法規到平面配置",
+          courses: [
+            { title: "建蔽率與容積率：法規怎麼決定一塊地能蓋多大", url: "topics/architecture/lesson-41.html" },
+            { title: "日照、通風、動線：好的平面配置在解決什麼問題", url: "topics/architecture/lesson-42.html" },
+            { title: "結構限制怎麼影響設計：為什麼有些牆不能打掉", url: "topics/architecture/lesson-43.html" },
+            { title: "綠建築與節能設計基本概念", url: "topics/architecture/lesson-44.html" },
+            { title: "模組總結：設計是在多少限制條件下找答案", url: "topics/architecture/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 J｜整合實戰：一棟房子從買地到入住的完整旅程",
+          courses: [
+            { title: "完整案例：一棟透天厝從畫圖到交屋的時間軸", url: "topics/architecture/lesson-46.html" },
+            { title: "常見驗屋問題與怎麼看懂缺失", url: "topics/architecture/lesson-47.html" },
+            { title: "課程總結：從一堆磚頭鋼筋，到一個家", url: "topics/architecture/lesson-48.html" }
+          ]
+        }
+      ]
     }
   ]
 };
