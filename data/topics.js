@@ -1649,6 +1649,207 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "jin-yong",
+      title: "金庸武俠：十五部作品完整導讀",
+      description:
+        "從查良鏞的生平與武俠世界觀出發，依發表順序逐一深度導讀金庸十五部作品——射鵰三部曲、天龍八部、笑傲江湖、鹿鼎記等重量級長篇逐一拆解故事線、人物與武學設定，短篇精簡收錄，最後以人物群像比較、主題思想演變、版本流變與金學文化影響收尾。完整涵蓋十五部作品的內容，是全套精讀而非入門書單推薦。",
+      icon: "🗡️",
+      url: "topics/jin-yong/index.html",
+      modules: [
+        {
+          title: "模組 A｜認識金庸：生平與創作背景",
+          courses: [
+            { title: "金庸是誰：從查良鏞到武俠小說第一人", url: "topics/jin-yong/lesson-01.html" },
+            { title: "報業與武俠：金庸小說誕生的時代背景", url: "topics/jin-yong/lesson-02.html" },
+            { title: "十五部作品全覽：一張地圖看懂所有故事的年代與關聯", url: "topics/jin-yong/lesson-03.html" },
+            { title: "「飛雪連天射白鹿，笑書神俠倚碧鴛」：十五部作品的暗語與創作年表", url: "topics/jin-yong/lesson-04.html" },
+            { title: "模組總結：在開始讀之前，你需要知道的事", url: "topics/jin-yong/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜武俠世界觀：門派、武功與內力體系",
+          courses: [
+            { title: "江湖是什麼：金庸筆下的武俠世界基本規則", url: "topics/jin-yong/lesson-06.html" },
+            { title: "內功與輕功：金庸武學系統的底層邏輯", url: "topics/jin-yong/lesson-07.html" },
+            { title: "名門正派：少林、武當、丐幫、峨嵋等門派巡禮", url: "topics/jin-yong/lesson-08.html" },
+            { title: "邪魔外道：明教、日月神教等「反派」門派的複雜性", url: "topics/jin-yong/lesson-09.html" },
+            { title: "兵器與武功秘笈：從屠龍刀倚天劍到九陰真經", url: "topics/jin-yong/lesson-10.html" },
+            { title: "模組總結：讀懂武功招式，才能讀懂江湖", url: "topics/jin-yong/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜《書劍恩仇錄》：金庸的第一部武俠小說",
+          courses: [
+            { title: "故事背景：乾隆身世之謎與紅花會", url: "topics/jin-yong/lesson-12.html" },
+            { title: "陳家洛與乾隆：兄弟還是宿敵", url: "topics/jin-yong/lesson-13.html" },
+            { title: "香香公主與早期金庸的悲劇美學", url: "topics/jin-yong/lesson-14.html" },
+            { title: "模組總結：初試啼聲，卻已見雛形", url: "topics/jin-yong/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜《碧血劍》：袁崇煥之子的復仇與抉擇",
+          courses: [
+            { title: "故事背景：明末亂世與闖王李自成", url: "topics/jin-yong/lesson-16.html" },
+            { title: "袁承志的江湖與朝堂兩難", url: "topics/jin-yong/lesson-17.html" },
+            { title: "模組總結：一部常被低估的過渡之作", url: "topics/jin-yong/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 E｜《雪山飛狐》與《飛狐外傳》：胡斐的故事",
+          courses: [
+            { title: "《雪山飛狐》：一個羅生門式的敘事實驗", url: "topics/jin-yong/lesson-19.html" },
+            { title: "苗人鳳與胡一刀：恩怨糾葛的上一代", url: "topics/jin-yong/lesson-20.html" },
+            { title: "《飛狐外傳》：胡斐的成長與程靈素的犧牲", url: "topics/jin-yong/lesson-21.html" },
+            { title: "模組總結：金庸最特別的敘事手法", url: "topics/jin-yong/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜《射鵰英雄傳》：射鵰三部曲首部曲",
+          courses: [
+            { title: "故事背景：南宋偏安與蒙古崛起", url: "topics/jin-yong/lesson-23.html" },
+            { title: "郭靖：資質平庸卻成為大俠的成長典範", url: "topics/jin-yong/lesson-24.html" },
+            { title: "黃蓉：金庸筆下最聰慧靈動的女主角", url: "topics/jin-yong/lesson-25.html" },
+            { title: "東邪西毒南帝北丐：五絕的武學與人格", url: "topics/jin-yong/lesson-26.html" },
+            { title: "江南七怪與丘處機：師恩與承諾", url: "topics/jin-yong/lesson-27.html" },
+            { title: "降龍十八掌與九陰真經：武學脈絡的建立", url: "topics/jin-yong/lesson-28.html" },
+            { title: "華箏與黃蓉：兩種愛情的抉擇", url: "topics/jin-yong/lesson-29.html" },
+            { title: "模組總結：俠之大者，為國為民", url: "topics/jin-yong/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 G｜《神鵰俠侶》：射鵰三部曲二部曲",
+          courses: [
+            { title: "故事背景：郭靖楊過的兩代恩怨", url: "topics/jin-yong/lesson-31.html" },
+            { title: "楊過：叛逆的成長與被拋棄的傷痕", url: "topics/jin-yong/lesson-32.html" },
+            { title: "小龍女：金庸筆下最特殊的女主角原型", url: "topics/jin-yong/lesson-33.html" },
+            { title: "師徒戀的爭議與時代意義", url: "topics/jin-yong/lesson-34.html" },
+            { title: "郭襄：一見楊過誤終身", url: "topics/jin-yong/lesson-35.html" },
+            { title: "絕情谷與情花：情與毒的隱喻", url: "topics/jin-yong/lesson-36.html" },
+            { title: "獨孤求敗與武學的哲學化", url: "topics/jin-yong/lesson-37.html" },
+            { title: "模組總結：問世間，情是何物", url: "topics/jin-yong/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 H｜《倚天屠龍記》：射鵰三部曲三部曲",
+          courses: [
+            { title: "故事背景：元末群雄並起", url: "topics/jin-yong/lesson-39.html" },
+            { title: "張無忌：金庸筆下最「軟弱」的男主角", url: "topics/jin-yong/lesson-40.html" },
+            { title: "趙敏、周芷若、小昭、殷離：四女奪愛的敘事結構", url: "topics/jin-yong/lesson-41.html" },
+            { title: "明教與武林正道的對立與反轉", url: "topics/jin-yong/lesson-42.html" },
+            { title: "九陽神功與乾坤大挪移：張無忌的武學奇遇", url: "topics/jin-yong/lesson-43.html" },
+            { title: "張三丰與武當派：金庸筆下最理想的師父", url: "topics/jin-yong/lesson-44.html" },
+            { title: "模組總結：三部曲的完成與武俠史觀的建立", url: "topics/jin-yong/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 I｜《連城訣》：金庸最黑暗的一部作品",
+          courses: [
+            { title: "故事背景：一部沒有廟堂只有人性的小說", url: "topics/jin-yong/lesson-46.html" },
+            { title: "狄雲的悲劇與江湖的險惡", url: "topics/jin-yong/lesson-47.html" },
+            { title: "模組總結：金庸筆下最不留情面的人性描寫", url: "topics/jin-yong/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 J｜《天龍八部》：金庸武俠的巔峰之作",
+          courses: [
+            { title: "故事背景：北宋、大理、遼國的三國演義", url: "topics/jin-yong/lesson-49.html" },
+            { title: "喬峰：金庸筆下最悲壯的英雄", url: "topics/jin-yong/lesson-50.html" },
+            { title: "段譽：癡情與武學奇遇的喜劇色彩", url: "topics/jin-yong/lesson-51.html" },
+            { title: "虛竹：小人物的意外際遇", url: "topics/jin-yong/lesson-52.html" },
+            { title: "三兄弟結義：一部關於身分認同的史詩", url: "topics/jin-yong/lesson-53.html" },
+            { title: "王語嫣與慕容復：執念的兩種面貌", url: "topics/jin-yong/lesson-54.html" },
+            { title: "降龍十八掌、六脈神劍、北冥神功：三大絕學的對照", url: "topics/jin-yong/lesson-55.html" },
+            { title: "「天龍八部」佛教意象與眾生皆苦的主題", url: "topics/jin-yong/lesson-56.html" },
+            { title: "模組總結：無人不冤，有情皆孽", url: "topics/jin-yong/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 K｜《俠客行》：一部關於身分與頓悟的寓言",
+          courses: [
+            { title: "故事背景：石破天的雙重身分之謎", url: "topics/jin-yong/lesson-58.html" },
+            { title: "俠客島與武學頓悟的哲學隱喻", url: "topics/jin-yong/lesson-59.html" },
+            { title: "模組總結：不識字的主角，讀懂了最難的武功秘笈", url: "topics/jin-yong/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 L｜《笑傲江湖》：政治寓言與武俠的極致",
+          courses: [
+            { title: "故事背景：一部刻意抹去朝代背景的小說", url: "topics/jin-yong/lesson-61.html" },
+            { title: "令狐沖：金庸筆下最灑脫的浪子俠客", url: "topics/jin-yong/lesson-62.html" },
+            { title: "任盈盈與東方不敗：日月神教的權力鬥爭", url: "topics/jin-yong/lesson-63.html" },
+            { title: "岳不群與「君子劍」：偽善的極致刻畫", url: "topics/jin-yong/lesson-64.html" },
+            { title: "獨孤九劍與辟邪劍法：兩種武學哲學的對決", url: "topics/jin-yong/lesson-65.html" },
+            { title: "「笑傲江湖」曲：一部小說裡的音樂敘事", url: "topics/jin-yong/lesson-66.html" },
+            { title: "模組總結：政治權力鬥爭的武俠寓言", url: "topics/jin-yong/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 M｜《鹿鼎記》：金庸封筆之作與武俠的解構",
+          courses: [
+            { title: "故事背景：康熙年間的政治與江湖", url: "topics/jin-yong/lesson-68.html" },
+            { title: "韋小寶：金庸筆下最「反英雄」的主角", url: "topics/jin-yong/lesson-69.html" },
+            { title: "七位夫人：一部顛覆武俠愛情敘事的作品", url: "topics/jin-yong/lesson-70.html" },
+            { title: "天地會與康熙：忠誠的分裂與抉擇", url: "topics/jin-yong/lesson-71.html" },
+            { title: "神龍教與通吃島：韋小寶的江湖歷險", url: "topics/jin-yong/lesson-72.html" },
+            { title: "不會武功的主角：金庸對武俠類型的自我解構", url: "topics/jin-yong/lesson-73.html" },
+            { title: "鰲拜、陳近南、康熙：韋小寶身邊的三種權威", url: "topics/jin-yong/lesson-74.html" },
+            { title: "模組總結：從俠之大者到反英雄，金庸的創作終點", url: "topics/jin-yong/lesson-75.html" }
+          ]
+        },
+        {
+          title: "模組 N｜《白馬嘯西風》、《鴛鴦刀》、《越女劍》：三則短篇的餘韻",
+          courses: [
+            { title: "《白馬嘯西風》：一部關於文化隔閡的悲劇", url: "topics/jin-yong/lesson-76.html" },
+            { title: "《鴛鴦刀》：金庸最輕鬆詼諧的短篇", url: "topics/jin-yong/lesson-77.html" },
+            { title: "《越女劍》：金庸最後的作品與最早的江湖", url: "topics/jin-yong/lesson-78.html" },
+            { title: "模組總結：三則短篇裡的金庸餘韻", url: "topics/jin-yong/lesson-79.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物群像與角色比較",
+          courses: [
+            { title: "金庸男主角的成長光譜：從郭靖到韋小寶", url: "topics/jin-yong/lesson-80.html" },
+            { title: "金庸女主角的類型學：俠女、才女、癡女、毒女", url: "topics/jin-yong/lesson-81.html" },
+            { title: "亦正亦邪的複雜角色：喬峰、楊過、令狐沖的共同性", url: "topics/jin-yong/lesson-82.html" },
+            { title: "金庸筆下的反派：從單純的惡到人性的灰階", url: "topics/jin-yong/lesson-83.html" },
+            { title: "模組總結：金庸角色塑造的演化軌跡", url: "topics/jin-yong/lesson-84.html" }
+          ]
+        },
+        {
+          title: "模組 P｜主題思想的演變",
+          courses: [
+            { title: "早期作品的民族主義色彩：從《書劍恩仇錄》到《射鵰英雄傳》", url: "topics/jin-yong/lesson-85.html" },
+            { title: "中期作品的人性複雜化：從單純正邪到灰色地帶", url: "topics/jin-yong/lesson-86.html" },
+            { title: "晚期作品的解構與反思：《笑傲江湖》與《鹿鼎記》的政治寓言", url: "topics/jin-yong/lesson-87.html" },
+            { title: "模組總結：金庸思想的三十年旅程", url: "topics/jin-yong/lesson-88.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜版本流變：三個版本的金庸",
+          courses: [
+            { title: "舊版、修訂版、新修版：金庸為什麼要一改再改", url: "topics/jin-yong/lesson-89.html" },
+            { title: "著名修改案例：康敏之死、王語嫣的結局等版本差異", url: "topics/jin-yong/lesson-90.html" },
+            { title: "模組總結：沒有「唯一正確」的金庸文本", url: "topics/jin-yong/lesson-91.html" }
+          ]
+        },
+        {
+          title: "模組 R｜金庸的文化影響與金學",
+          courses: [
+            { title: "從報紙連載到全球現象：金庸小說的傳播史", url: "topics/jin-yong/lesson-92.html" },
+            { title: "影視改編的百花齊放：從邵氏電影到現代劇集", url: "topics/jin-yong/lesson-93.html" },
+            { title: "「金學」研究：金庸小說的學術地位爭議", url: "topics/jin-yong/lesson-94.html" },
+            { title: "模組總結：一個華人文化共同記憶的形成", url: "topics/jin-yong/lesson-95.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "課程總結：讀完金庸，你讀懂了什麼", url: "topics/jin-yong/lesson-96.html" }
+          ]
+        }
+      ]
     }
   ]
 };
