@@ -1850,6 +1850,155 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "gu-long",
+      title: "古龍武俠：經典代表作完整導讀",
+      description:
+        "古龍一生寫了六七十部武俠小說，其中不少代筆、續完、真偽存疑，這門課不做窮盡式收錄，而是深度導讀十部左右公認的代表作與系列——絕代雙驕、小李飛刀、楚留香、陸小鳳、蕭十一郎、流星蝴蝶劍、七種武器、天涯明月刀等，並專闢模組談古龍求新求變的敘事革命，以及他跟金庸美學的根本差異。",
+      icon: "🔪",
+      url: "topics/gu-long/index.html",
+      modules: [
+        {
+          title: "模組 A｜認識古龍：生平與創作背景",
+          courses: [
+            { title: "古龍是誰：從熊耀華到武俠奇才", url: "topics/gu-long/lesson-01.html" },
+            { title: "台灣武俠與香港武俠：兩種武俠傳統的分道揚鑣", url: "topics/gu-long/lesson-02.html" },
+            { title: "混亂的創作生涯：代筆、續完與作品真偽之謎", url: "topics/gu-long/lesson-03.html" },
+            { title: "古龍作品全覽：一張地圖看懂主要系列與代表作", url: "topics/gu-long/lesson-04.html" },
+            { title: "模組總結：在開始讀之前，你需要知道的事", url: "topics/gu-long/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜古龍的武俠革命：敘事風格與哲學",
+          courses: [
+            { title: "「求新求變求突破」：古龍為什麼要打破金庸建立的傳統", url: "topics/gu-long/lesson-06.html" },
+            { title: "短句、留白與電影感：古龍獨特的文字風格", url: "topics/gu-long/lesson-07.html" },
+            { title: "推理與懸疑：把偵探小說的敘事邏輯帶進江湖", url: "topics/gu-long/lesson-08.html" },
+            { title: "存在主義的孤獨英雄：古龍筆下主角的共同底色", url: "topics/gu-long/lesson-09.html" },
+            { title: "古龍 vs. 金庸：兩種武俠美學的根本差異", url: "topics/gu-long/lesson-10.html" },
+            { title: "模組總結：不寫歷史的武俠，寫的是人性", url: "topics/gu-long/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜《絕代雙驕》：古龍成名的轉捩點",
+          courses: [
+            { title: "故事背景：一對雙生兄弟的宿命對決", url: "topics/gu-long/lesson-12.html" },
+            { title: "小魚兒：古龍筆下第一個「非典型主角」", url: "topics/gu-long/lesson-13.html" },
+            { title: "花無缺：完美養成的悲劇", url: "topics/gu-long/lesson-14.html" },
+            { title: "十大惡人：古龍筆下最有趣的反派群像", url: "topics/gu-long/lesson-15.html" },
+            { title: "移花宮與江別鶴：兩種扭曲的教養", url: "topics/gu-long/lesson-16.html" },
+            { title: "燕南天：尋子復仇的悲劇英雄", url: "topics/gu-long/lesson-17.html" },
+            { title: "鐵心蘭與蘇櫻：小魚兒的兩位紅顏", url: "topics/gu-long/lesson-18.html" },
+            { title: "本性與教養的對決：雙生兄弟最終的和解", url: "topics/gu-long/lesson-19.html" },
+            { title: "模組總結：從傳統武俠邁向古龍風格的過渡之作", url: "topics/gu-long/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 D｜《多情劍客無情劍》：小李飛刀系列",
+          courses: [
+            { title: "故事背景：一個關於放棄與救贖的故事", url: "topics/gu-long/lesson-21.html" },
+            { title: "李尋歡：古龍筆下最悲情的主角原型", url: "topics/gu-long/lesson-22.html" },
+            { title: "小李飛刀：「例不虛發」背後的哲學", url: "topics/gu-long/lesson-23.html" },
+            { title: "林詩音與龍嘯雲：一段成全與犧牲的三角關係", url: "topics/gu-long/lesson-24.html" },
+            { title: "阿飛與荊無命：兩種極端的孤獨", url: "topics/gu-long/lesson-25.html" },
+            { title: "模組總結：無情的是刀，多情的是人", url: "topics/gu-long/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 E｜楚留香系列：盜帥的傳奇",
+          courses: [
+            { title: "楚留香是誰：盜亦有道的風流浪子", url: "topics/gu-long/lesson-27.html" },
+            { title: "《血海飄香》、《大沙漠》、《畫眉鳥》：系列開端三部曲", url: "topics/gu-long/lesson-28.html" },
+            { title: "胡鐵花與姬冰雁：楚留香身邊的江湖", url: "topics/gu-long/lesson-29.html" },
+            { title: "水母陰姬與中原一點紅：系列裡的經典反派", url: "topics/gu-long/lesson-30.html" },
+            { title: "《蝙蝠傳奇》：石觀音與系列中期的轉折", url: "topics/gu-long/lesson-31.html" },
+            { title: "《桃花傳奇》與《新月傳奇》：系列後期的江湖冒險", url: "topics/gu-long/lesson-32.html" },
+            { title: "《午夜蘭花》：系列最沉重蒼涼的告別", url: "topics/gu-long/lesson-33.html" },
+            { title: "楚留香的推理辦案模式：武俠與偵探小說的融合", url: "topics/gu-long/lesson-34.html" },
+            { title: "模組總結：一個「盜賊」如何成為古龍最受歡迎的主角", url: "topics/gu-long/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 F｜陸小鳳傳奇系列：另一種瀟灑",
+          courses: [
+            { title: "陸小鳳是誰：四條眉毛的傳奇", url: "topics/gu-long/lesson-36.html" },
+            { title: "花滿樓：一個盲眼卻看得比誰都清楚的角色", url: "topics/gu-long/lesson-37.html" },
+            { title: "西門吹雪：劍神的孤高與寂寞", url: "topics/gu-long/lesson-38.html" },
+            { title: "《繡花大盜》與系列的推理色彩", url: "topics/gu-long/lesson-39.html" },
+            { title: "模組總結：楚留香與陸小鳳，兩種浪子的異同", url: "topics/gu-long/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 G｜《蕭十一郎》：為電影而生的武俠小說",
+          courses: [
+            { title: "故事背景：一部先有劇本後有小說的特殊創作", url: "topics/gu-long/lesson-41.html" },
+            { title: "蕭十一郎與沈璧君：被誤解的浪子與被困住的女人", url: "topics/gu-long/lesson-42.html" },
+            { title: "《火併蕭十一郎》：續集裡的江湖險惡", url: "topics/gu-long/lesson-43.html" },
+            { title: "模組總結：武俠小說與電影敘事的跨界實驗", url: "topics/gu-long/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 H｜《流星‧蝴蝶‧劍》：教父式的江湖政治",
+          courses: [
+            { title: "故事背景：從《教父》得到的靈感", url: "topics/gu-long/lesson-45.html" },
+            { title: "孟星魂：一個殺手的自我覺醒", url: "topics/gu-long/lesson-46.html" },
+            { title: "模組總結：權力鬥爭底下的江湖黑幫史詩", url: "topics/gu-long/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 I｜七種武器系列：兵器與人性的寓言",
+          courses: [
+            { title: "系列設計：每一種武器，都是一種人性的隱喻", url: "topics/gu-long/lesson-48.html" },
+            { title: "《長生劍》與《孔雀翎》：自信與武器的關係", url: "topics/gu-long/lesson-49.html" },
+            { title: "《碧玉刀》與《多情環》：溫柔與背叛的兩面", url: "topics/gu-long/lesson-50.html" },
+            { title: "《霸王槍》與《離別鉤》：系列的遺憾收尾", url: "topics/gu-long/lesson-51.html" },
+            { title: "模組總結：兵器之外，古龍真正想寫的是什麼", url: "topics/gu-long/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 J｜《天涯‧明月‧刀》與《三少爺的劍》：孤獨的極致",
+          courses: [
+            { title: "傅紅雪：古龍筆下最沉重壓抑的主角", url: "topics/gu-long/lesson-53.html" },
+            { title: "《天涯明月刀》的實驗性文體", url: "topics/gu-long/lesson-54.html" },
+            { title: "謝曉峰：從天下第一到隱姓埋名", url: "topics/gu-long/lesson-55.html" },
+            { title: "模組總結：放下武功，才是真正的強大", url: "topics/gu-long/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 K｜其他重要作品巡禮",
+          courses: [
+            { title: "《邊城浪子》與《歡樂英雄》：浪子與友情的兩種寫法", url: "topics/gu-long/lesson-57.html" },
+            { title: "《英雄無淚》：晚期作品的虛無與蒼涼", url: "topics/gu-long/lesson-58.html" },
+            { title: "《大人物》與古龍的黑色幽默", url: "topics/gu-long/lesson-59.html" },
+            { title: "模組總結：古龍創作光譜的其他面向", url: "topics/gu-long/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 L｜人物群像與主題比較",
+          courses: [
+            { title: "古龍主角的共同原型：浪子、殺手、酒鬼、棄兒", url: "topics/gu-long/lesson-61.html" },
+            { title: "古龍女性角色的類型與侷限", url: "topics/gu-long/lesson-62.html" },
+            { title: "友情：古龍筆下比愛情更重要的主題", url: "topics/gu-long/lesson-63.html" },
+            { title: "古龍 vs. 金庸：人物塑造的根本差異總整理", url: "topics/gu-long/lesson-64.html" },
+            { title: "模組總結：古龍的江湖，是一群孤獨者的江湖", url: "topics/gu-long/lesson-65.html" }
+          ]
+        },
+        {
+          title: "模組 M｜古龍的文化影響",
+          courses: [
+            { title: "影視改編熱潮：從邵氏電影到楚留香陸小鳳劇集", url: "topics/gu-long/lesson-66.html" },
+            { title: "古龍文字風格對後世創作者的影響", url: "topics/gu-long/lesson-67.html" },
+            { title: "模組總結：一個影響華語通俗文化的奇才", url: "topics/gu-long/lesson-68.html" }
+          ]
+        },
+        {
+          title: "模組 N｜課程總結",
+          courses: [
+            { title: "課程總結：讀懂古龍，讀懂江湖裡的孤獨", url: "topics/gu-long/lesson-69.html" }
+          ]
+        }
+      ]
     }
   ]
 };
