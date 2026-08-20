@@ -2165,6 +2165,143 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "big-bang",
+      title: "大霹靂起源論：宇宙如何開始的完整解析",
+      description:
+        "完整獨立、自成一套的宇宙學課程：從歷史發展與觀測現象出發，自建廣義相對論工具箱（等效原理、張量、愛因斯坦場方程式），完整推導弗里德曼方程式，深入大霹靂核合成、宇宙微波背景輻射、標準模型早期宇宙時間線（含奈秒尺度的夸克膠子電漿）、暴脹理論的完整推導與證據、暗物質暗能量，最後誠實面對「大爆炸之前發生什麼」這個科學前沿的開放問題。全程完整推導，不省略證明過程。",
+      icon: "💥",
+      url: "topics/big-bang/index.html",
+      modules: [
+        {
+          title: "模組 A｜歷史發展與現象學基礎",
+          courses: [
+            { title: "奧伯斯悖論：為什麼夜晚的天空是黑的", url: "topics/big-bang/lesson-01.html" },
+            { title: "哈伯的發現：星系正在遠離我們", url: "topics/big-bang/lesson-02.html" },
+            { title: "勒梅特與伽莫夫：大霹靂理論的誕生", url: "topics/big-bang/lesson-03.html" },
+            { title: "穩態宇宙論之爭：霍伊爾與對手陣營", url: "topics/big-bang/lesson-04.html" },
+            { title: "1965年的意外發現：噪音、鴿子糞便與宇宙微波背景輻射", url: "topics/big-bang/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜廣義相對論工具箱：從等效原理到愛因斯坦場方程式",
+          courses: [
+            { title: "為什麼描述宇宙需要廣義相對論：牛頓重力的極限", url: "topics/big-bang/lesson-06.html" },
+            { title: "等效原理：重力與加速度的等價性", url: "topics/big-bang/lesson-07.html" },
+            { title: "彎曲時空的直覺：從二維曲面到四維時空", url: "topics/big-bang/lesson-08.html" },
+            { title: "度規張量：怎麼測量彎曲時空裡的距離", url: "topics/big-bang/lesson-09.html" },
+            { title: "【數學工具箱】張量與指標記號的基本語言", url: "topics/big-bang/lesson-10.html" },
+            { title: "曲率、測地線與重力的幾何本質", url: "topics/big-bang/lesson-11.html" },
+            { title: "應力-能量張量：物質怎麼告訴時空要怎麼彎曲", url: "topics/big-bang/lesson-12.html" },
+            { title: "愛因斯坦場方程式：完整的物理意義與各項解讀", url: "topics/big-bang/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 C｜FRW度規與弗里德曼方程式完整推導",
+          courses: [
+            { title: "宇宙學原理：均勻與均向性的假設", url: "topics/big-bang/lesson-14.html" },
+            { title: "FRW度規：描述膨脹宇宙的時空幾何", url: "topics/big-bang/lesson-15.html" },
+            { title: "完整推導弗里德曼方程式（一）：把FRW度規代入場方程式", url: "topics/big-bang/lesson-16.html" },
+            { title: "完整推導弗里德曼方程式（二）：加速度方程式與流體方程式", url: "topics/big-bang/lesson-17.html" },
+            { title: "紅移與尺度因子：怎麼從光的波長推算宇宙膨脹了多少", url: "topics/big-bang/lesson-18.html" },
+            { title: "模組總結：從愛因斯坦方程式到宇宙膨脹的完整數學鏈", url: "topics/big-bang/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 D｜宇宙的成分與弗里德曼方程式的解",
+          courses: [
+            { title: "物態方程式：輻射、物質、暗能量的不同行為", url: "topics/big-bang/lesson-20.html" },
+            { title: "完整推導輻射主導期的尺度因子解", url: "topics/big-bang/lesson-21.html" },
+            { title: "完整推導物質主導期的尺度因子解", url: "topics/big-bang/lesson-22.html" },
+            { title: "密度參數與宇宙的幾何：開放、封閉還是平坦", url: "topics/big-bang/lesson-23.html" },
+            { title: "模組總結：一張圖看懂宇宙膨脹史", url: "topics/big-bang/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 E｜大霹靂核合成：早期宇宙的核子物理",
+          courses: [
+            { title: "早期宇宙的熱力學：溫度與時間的關係", url: "topics/big-bang/lesson-25.html" },
+            { title: "中子質子比與弱交互作用凍結", url: "topics/big-bang/lesson-26.html" },
+            { title: "完整推導氘瓶頸：為什麼核合成要等到特定溫度才開始", url: "topics/big-bang/lesson-27.html" },
+            { title: "氦、鋰的豐度預測與觀測驗證", url: "topics/big-bang/lesson-28.html" },
+            { title: "模組總結：核合成如何成為大霹靂理論最有力的證據之一", url: "topics/big-bang/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 F｜宇宙微波背景輻射：宇宙的第一道光",
+          courses: [
+            { title: "復合時期：宇宙從電漿變透明的關鍵時刻", url: "topics/big-bang/lesson-30.html" },
+            { title: "完整推導黑體輻射譜：為什麼CMB是完美的黑體", url: "topics/big-bang/lesson-31.html" },
+            { title: "溫度各向異性：CMB圖上的微小起伏", url: "topics/big-bang/lesson-32.html" },
+            { title: "聲學震盪：早期宇宙的「聲波」如何烙印在CMB上", url: "topics/big-bang/lesson-33.html" },
+            { title: "功率頻譜：從COBE到普朗克衛星的精密測量", url: "topics/big-bang/lesson-34.html" },
+            { title: "模組總結：讀懂宇宙的嬰兒照", url: "topics/big-bang/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 G｜標準模型時間線：從普朗克時間到重子生成",
+          courses: [
+            { title: "普朗克時期：物理定律失效的邊界", url: "topics/big-bang/lesson-36.html" },
+            { title: "大一統時期：強力與電弱力分道揚鑣", url: "topics/big-bang/lesson-37.html" },
+            { title: "電弱對稱破缺：希格斯機制賦予質量的瞬間", url: "topics/big-bang/lesson-38.html" },
+            { title: "夸克時期：奈秒尺度的夸克膠子電漿", url: "topics/big-bang/lesson-39.html" },
+            { title: "夸克-強子相變：從自由夸克到質子中子的禁閉", url: "topics/big-bang/lesson-40.html" },
+            { title: "輕子時期與微中子退耦", url: "topics/big-bang/lesson-41.html" },
+            { title: "重子生成之謎：沙卡洛夫條件與正反物質不對稱", url: "topics/big-bang/lesson-42.html" },
+            { title: "模組總結：完整時間線，從10⁻⁴³秒到38萬年", url: "topics/big-bang/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 H｜宇宙暴脹理論：解決視界、平坦性與磁單極問題",
+          courses: [
+            { title: "視界問題：為什麼遙遠兩端的宇宙溫度會一樣", url: "topics/big-bang/lesson-44.html" },
+            { title: "平坦性問題：為什麼宇宙的密度這麼接近臨界值", url: "topics/big-bang/lesson-45.html" },
+            { title: "磁單極問題：大一統理論的副作用與觀測缺席", url: "topics/big-bang/lesson-46.html" },
+            { title: "暴脹子場：一個純量場如何驅動指數膨脹", url: "topics/big-bang/lesson-47.html" },
+            { title: "完整推導慢滾近似：暴脹子場的運動方程式", url: "topics/big-bang/lesson-48.html" },
+            { title: "e-folding數：暴脹要持續多久才能解決三大問題", url: "topics/big-bang/lesson-49.html" },
+            { title: "模組總結：暴脹理論如何一次解決三個謎題", url: "topics/big-bang/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 I｜暴脹的證據與觀測驗證",
+          courses: [
+            { title: "量子漲落：暴脹如何播下星系形成的種子", url: "topics/big-bang/lesson-51.html" },
+            { title: "純量微擾與張量微擾：CMB功率頻譜的預測", url: "topics/big-bang/lesson-52.html" },
+            { title: "B模偏振：尋找原初重力波的證據", url: "topics/big-bang/lesson-53.html" },
+            { title: "模組總結：暴脹理論目前的證據與尚未解決的爭議", url: "topics/big-bang/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 J｜暗物質與暗能量：宇宙加速膨脹的推手",
+          courses: [
+            { title: "星系旋轉曲線：暗物質最早的證據", url: "topics/big-bang/lesson-55.html" },
+            { title: "重力透鏡與子彈星系團：暗物質存在的多重證據", url: "topics/big-bang/lesson-56.html" },
+            { title: "暗物質候選者：從WIMP到軸子", url: "topics/big-bang/lesson-57.html" },
+            { title: "第Ia型超新星：發現宇宙加速膨脹", url: "topics/big-bang/lesson-58.html" },
+            { title: "宇宙常數與狀態方程式：暗能量的兩種理解方式", url: "topics/big-bang/lesson-59.html" },
+            { title: "模組總結：ΛCDM模型，一個由95%未知成分主導的宇宙", url: "topics/big-bang/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 K｜大霹靂之前：量子宇宙學與開放問題",
+          courses: [
+            { title: "奇異點定理：彭羅斯與霍金證明了什麼", url: "topics/big-bang/lesson-61.html" },
+            { title: "為什麼奇異點意味著廣義相對論的失效", url: "topics/big-bang/lesson-62.html" },
+            { title: "哈妥-霍金無邊界假說：宇宙沒有「開始」的邊界？", url: "topics/big-bang/lesson-63.html" },
+            { title: "永恆暴脹與多重宇宙：一個推測性但嚴肅的理論", url: "topics/big-bang/lesson-64.html" },
+            { title: "迴圈量子宇宙學：用大反彈取代大霹靂奇異點", url: "topics/big-bang/lesson-65.html" },
+            { title: "模組總結：誠實面對「大爆炸之前」這個問題的科學現狀", url: "topics/big-bang/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 L｜課程總結",
+          courses: [
+            { title: "課程總結：從奧伯斯悖論到量子宇宙學的完整旅程", url: "topics/big-bang/lesson-67.html" }
+          ]
+        }
+      ]
     }
   ]
 };
