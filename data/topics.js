@@ -1999,6 +1999,172 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "harry-potter",
+      title: "哈利波特深度解析：七部曲完整導讀",
+      description:
+        "從J.K.羅琳的創作背景與魔法世界觀出發，逐部深度解析七部曲的劇情、伏筆與主題演變，再跳出單一故事線，橫向剖析角色心理、死亡與愛等核心主題、羅琳精密的伏筆佈局，最後誠實面對文本本身與作者本人的公眾爭議，並總覽這個系列的文化影響。",
+      icon: "🪄",
+      url: "topics/harry-potter/index.html",
+      modules: [
+        {
+          title: "模組 A｜認識哈利波特：作者與創作背景",
+          courses: [
+            { title: "J.K.羅琳是誰：從單親媽媽到最暢銷小說家", url: "topics/harry-potter/lesson-01.html" },
+            { title: "創作起源：一列從曼徹斯特開往倫敦的火車", url: "topics/harry-potter/lesson-02.html" },
+            { title: "出版史：從十二次退稿到全球現象", url: "topics/harry-potter/lesson-03.html" },
+            { title: "七部曲全覽：一張地圖看懂七年的霍格華茲歲月", url: "topics/harry-potter/lesson-04.html" },
+            { title: "模組總結：在開始深讀之前，你需要知道的事", url: "topics/harry-potter/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜魔法世界觀：霍格華茲與巫師社會",
+          courses: [
+            { title: "霍格華茲：四大學院的分類邏輯與象徵意義", url: "topics/harry-potter/lesson-06.html" },
+            { title: "魔法系統：咒語、魔杖與魔藥的運作邏輯", url: "topics/harry-potter/lesson-07.html" },
+            { title: "巫師社會結構：魔法部、對角巷與巫師媒體", url: "topics/harry-potter/lesson-08.html" },
+            { title: "血統制度：純血、麻瓜出身與混血的社會階級", url: "topics/harry-potter/lesson-09.html" },
+            { title: "魔法生物與奇獸：從家庭小精靈到龍", url: "topics/harry-potter/lesson-10.html" },
+            { title: "死神的聖物傳說：貫穿全系列的古老寓言", url: "topics/harry-potter/lesson-11.html" },
+            { title: "模組總結：建立一套完整的魔法世界字典", url: "topics/harry-potter/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 C｜《神秘的魔法石》：一切的開端",
+          courses: [
+            { title: "德思禮一家與被忽視的童年", url: "topics/harry-potter/lesson-13.html" },
+            { title: "麻瓜世界到魔法世界：一個孤兒的身分覺醒", url: "topics/harry-potter/lesson-14.html" },
+            { title: "對角巷與奧利凡德的魔杖店：命運的第一個伏筆", url: "topics/harry-potter/lesson-15.html" },
+            { title: "三巨頭的相遇：哈利、榮恩、妙麗的友誼起點", url: "topics/harry-potter/lesson-16.html" },
+            { title: "分類帽的抉擇與史萊哲林的伏筆", url: "topics/harry-potter/lesson-17.html" },
+            { title: "海格、跩哥與意若思鏡：引路人、宿敵與慾望的隱喻", url: "topics/harry-potter/lesson-18.html" },
+            { title: "三顆頭犬與層層試煉：魔法石與奇洛教授，第一次面對伏地魔的殘影", url: "topics/harry-potter/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 D｜《消失的密室》：血統與偏見的初登場",
+          courses: [
+            { title: "多比的警告與衛斯理家的溫暖", url: "topics/harry-potter/lesson-20.html" },
+            { title: "湯姆瑞斗的日記：伏地魔身分的第一條線索", url: "topics/harry-potter/lesson-21.html" },
+            { title: "蜘蛛、蛇與爆竹一家：純血與麻種的偏見主題正式浮現", url: "topics/harry-potter/lesson-22.html" },
+            { title: "洛哈教授的虛榮與騙局：名聲與吹噓的諷刺", url: "topics/harry-potter/lesson-23.html" },
+            { title: "密室的真相：蛇妖、預言與哈利的分類帽疑雲", url: "topics/harry-potter/lesson-24.html" },
+            { title: "多比重獲自由：家庭小精靈議題的初次觸及", url: "topics/harry-potter/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 E｜《阿茲卡班的逃犯》：時間、記憶與親情",
+          courses: [
+            { title: "天狼星布萊克：一個被誤解的「逃犯」", url: "topics/harry-potter/lesson-26.html" },
+            { title: "路平教授與催狂魔：恐懼與絕望的具象化", url: "topics/harry-potter/lesson-27.html" },
+            { title: "巴克比克與海格的第一堂課：偏見與正義的隱喻", url: "topics/harry-potter/lesson-28.html" },
+            { title: "護法咒與快樂記憶：這本書的情感核心", url: "topics/harry-potter/lesson-29.html" },
+            { title: "蟲尾與背叛的真相：上一代友誼的裂痕", url: "topics/harry-potter/lesson-30.html" },
+            { title: "時光器與時間迴圈：敘事結構上的巧思", url: "topics/harry-potter/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 F｜《火盃的考驗》：競賽、成長與伏地魔的回歸",
+          courses: [
+            { title: "魁地奇世界盃與黑魔標記的重現", url: "topics/harry-potter/lesson-32.html" },
+            { title: "三巫鬥法大賽：競賽結構與角色成長的舞台", url: "topics/harry-potter/lesson-33.html" },
+            { title: "波巴洞與德姆蘭：國際巫師教育體系的擴展", url: "topics/harry-potter/lesson-34.html" },
+            { title: "麗塔史譏、SPEW與妙麗的社會意識覺醒", url: "topics/harry-potter/lesson-35.html" },
+            { title: "神秘的舞會：青春期社交焦慮的第一次描寫", url: "topics/harry-potter/lesson-36.html" },
+            { title: "瘋眼穆敵：偽裝與信任危機", url: "topics/harry-potter/lesson-37.html" },
+            { title: "墓園的重生：伏地魔正式回歸，系列轉向黑暗史詩", url: "topics/harry-potter/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 G｜《鳳凰會的密令》：反抗、創傷與青春期的憤怒",
+          courses: [
+            { title: "夏天的沉默與哈利的孤立感", url: "topics/harry-potter/lesson-39.html" },
+            { title: "恩不里居與魔法部的政治操作", url: "topics/harry-potter/lesson-40.html" },
+            { title: "鳳凰會：上一代的反抗組織重新集結", url: "topics/harry-potter/lesson-41.html" },
+            { title: "鄧不利多的軍隊：DA的成立與哈利的教學相長", url: "topics/harry-potter/lesson-42.html" },
+            { title: "天狼星之死與哈利的憤怒", url: "topics/harry-potter/lesson-43.html" },
+            { title: "石內卜的記憶：儲思盆事件與詹姆的另一面", url: "topics/harry-potter/lesson-44.html" },
+            { title: "預言的內容：選擇者與被選擇者的辯證", url: "topics/harry-potter/lesson-45.html" },
+            { title: "為什麼這本書是系列裡青少年心理最真實的一部", url: "topics/harry-potter/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 H｜《混血王子的背叛》：石內卜的秘密與鄧不利多的計畫",
+          courses: [
+            { title: "新任首相與魔法部的戰時狀態", url: "topics/harry-potter/lesson-47.html" },
+            { title: "鄧不利多的私人課程：伏地魔的成長史", url: "topics/harry-potter/lesson-48.html" },
+            { title: "孤兒院的湯姆瑞斗：惡的起源追溯", url: "topics/harry-potter/lesson-49.html" },
+            { title: "分靈體：靈魂分裂的黑魔法與代價", url: "topics/harry-potter/lesson-50.html" },
+            { title: "混血王子的真實身分：一本魔藥課本的秘密", url: "topics/harry-potter/lesson-51.html" },
+            { title: "跩哥馬份的任務：反派視角的人性化", url: "topics/harry-potter/lesson-52.html" },
+            { title: "鄧不利多之死：系列最震撼的轉折", url: "topics/harry-potter/lesson-53.html" },
+            { title: "石內卜殺死鄧不利多：忠誠與背叛的表象", url: "topics/harry-potter/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 I｜《死神的聖物》：終局、犧牲與選擇",
+          courses: [
+            { title: "出發前的告別：七個哈利與魔法部陷落", url: "topics/harry-potter/lesson-55.html" },
+            { title: "三兄弟的傳說：死神聖物的象徵意義", url: "topics/harry-potter/lesson-56.html" },
+            { title: "分靈體大搜索：一場公路電影式的逃亡", url: "topics/harry-potter/lesson-57.html" },
+            { title: "妙麗的魔法小提包：魔法的日常智慧", url: "topics/harry-potter/lesson-58.html" },
+            { title: "家庭小精靈多比之死：犧牲主題的延續", url: "topics/harry-potter/lesson-59.html" },
+            { title: "葛林戴華德與鄧不利多的過去：老年鄧不利多的秘密", url: "topics/harry-potter/lesson-60.html" },
+            { title: "石內卜的記憶：忠誠的真相與莉莉的秘密", url: "topics/harry-potter/lesson-61.html" },
+            { title: "禁忌森林：哈利選擇赴死的那一刻", url: "topics/harry-potter/lesson-62.html" },
+            { title: "國王十字車站與最終戰役：生死之間的對話", url: "topics/harry-potter/lesson-63.html" }
+          ]
+        },
+        {
+          title: "模組 J｜角色深度剖析",
+          courses: [
+            { title: "哈利波特：一個「英雄」的養成與代價", url: "topics/harry-potter/lesson-64.html" },
+            { title: "妙麗與榮恩：智慧與忠誠的兩種友誼典範", url: "topics/harry-potter/lesson-65.html" },
+            { title: "石內卜：文學史上最複雜的角色之一", url: "topics/harry-potter/lesson-66.html" },
+            { title: "鄧不利多：智慧長者形象的陰影面", url: "topics/harry-potter/lesson-67.html" },
+            { title: "伏地魔：純粹之惡的心理成因", url: "topics/harry-potter/lesson-68.html" },
+            { title: "天狼星、路平與上一代的鳳凰會", url: "topics/harry-potter/lesson-69.html" },
+            { title: "模組總結：羅琳筆下角色塑造的共同手法", url: "topics/harry-potter/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 K｜主題與文學技藝",
+          courses: [
+            { title: "死亡：貫穿七部曲的核心命題", url: "topics/harry-potter/lesson-71.html" },
+            { title: "愛：最重要也最被低估的魔法", url: "topics/harry-potter/lesson-72.html" },
+            { title: "選擇 vs. 宿命：分類帽與預言的辯證", url: "topics/harry-potter/lesson-73.html" },
+            { title: "偏見與純血主義：種族隱喻的文學手法", url: "topics/harry-potter/lesson-74.html" },
+            { title: "羅琳的伏筆藝術：從魔法石到死神聖物的細節佈局", url: "topics/harry-potter/lesson-75.html" },
+            { title: "姓名學：角色命名背後的典故與隱喻", url: "topics/harry-potter/lesson-76.html" },
+            { title: "模組總結：一部兒童文學如何承載這麼多重的主題", url: "topics/harry-potter/lesson-77.html" }
+          ]
+        },
+        {
+          title: "模組 L｜爭議與反思",
+          courses: [
+            { title: "文本本身的爭議：家庭小精靈、妖精與種族刻板印象的批評", url: "topics/harry-potter/lesson-78.html" },
+            { title: "J.K.羅琳的公眾爭議：跨性別議題與粉絲社群的分裂", url: "topics/harry-potter/lesson-79.html" },
+            { title: "讀者如何在作品與作者之間劃界：藝術與創作者的分離難題", url: "topics/harry-potter/lesson-80.html" },
+            { title: "模組總結：複雜的評價，不妨礙誠實地面對", url: "topics/harry-potter/lesson-81.html" }
+          ]
+        },
+        {
+          title: "模組 M｜文化影響",
+          courses: [
+            { title: "電影改編：從新人演員到影史級系列", url: "topics/harry-potter/lesson-82.html" },
+            { title: "主題樂園、周邊產業與魔法世界的商業帝國", url: "topics/harry-potter/lesson-83.html" },
+            { title: "對後續奇幻/YA文學的影響", url: "topics/harry-potter/lesson-84.html" },
+            { title: "模組總結：一個定義了一整個世代童年的故事", url: "topics/harry-potter/lesson-85.html" }
+          ]
+        },
+        {
+          title: "模組 N｜課程總結",
+          courses: [
+            { title: "課程總結：從麻瓜世界到國王十字車站的完整旅程", url: "topics/harry-potter/lesson-86.html" }
+          ]
+        }
+      ]
     }
   ]
 };
