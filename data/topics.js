@@ -2302,6 +2302,215 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "lord-of-the-rings",
+      title: "魔戒與中土世界：從創世神話到王者歸來的完整解析",
+      description:
+        "從托爾金的創世神話《精靈寶鑽》出發，完整解析中土世界的宇宙觀、種族與第一、二紀元的英雄傳說，逐章深度導讀《哈比人》與《魔戒》三部曲全部劇情，橫向剖析死亡、權力、友誼等核心主題與托爾金的寫作技藝，最後收束於第四紀元的尾聲與文化影響——這是中土世界從創世到終章的完整旅程。",
+      icon: "💍",
+      url: "topics/lord-of-the-rings/index.html",
+      modules: [
+        {
+          title: "模組 A｜托爾金與中土世界的誕生",
+          courses: [
+            { title: "托爾金生平：語言學家與戰爭倖存者", url: "topics/lord-of-the-rings/lesson-01.html" },
+            { title: "造世先於造史：語言學如何催生一整個世界", url: "topics/lord-of-the-rings/lesson-02.html" },
+            { title: "《哈比人》到《魔戒》：中土世界的出版史", url: "topics/lord-of-the-rings/lesson-03.html" },
+            { title: "中土世界文本體系導覽：精靈寶鑽、未完成的故事與附錄", url: "topics/lord-of-the-rings/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜創世神話：埃努林達列與眾神降臨",
+          courses: [
+            { title: "一如：埃努大樂章與世界的創造", url: "topics/lord-of-the-rings/lesson-05.html" },
+            { title: "維拉：亞爾達的守護神", url: "topics/lord-of-the-rings/lesson-06.html" },
+            { title: "麥雅與伊斯塔力：五巫師的起源", url: "topics/lord-of-the-rings/lesson-07.html" },
+            { title: "米爾寇的不協和音：第一個惡的起源", url: "topics/lord-of-the-rings/lesson-08.html" },
+            { title: "模組總結：中土世界的宇宙觀全圖", url: "topics/lord-of-the-rings/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜精靈紀元的黃金時代與費艾諾的墮落",
+          courses: [
+            { title: "精靈的甦醒：庫維因恩湖畔的第一批子民", url: "topics/lord-of-the-rings/lesson-10.html" },
+            { title: "維林諾的黃金時代與精靈寶鑽的鑄造", url: "topics/lord-of-the-rings/lesson-11.html" },
+            { title: "費艾諾：最偉大也最危險的精靈", url: "topics/lord-of-the-rings/lesson-12.html" },
+            { title: "兩聖樹之死與米爾寇對精靈寶鑽的竊取", url: "topics/lord-of-the-rings/lesson-13.html" },
+            { title: "費艾諾的誓言：諾多族的放逐與冰灣屠殺", url: "topics/lord-of-the-rings/lesson-14.html" },
+            { title: "模組總結：驕傲與誓言如何啟動一整個紀元的悲劇", url: "topics/lord-of-the-rings/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜貝爾蘭的戰爭與英雄悲劇",
+          courses: [
+            { title: "貝爾蘭地理與精靈諸王國", url: "topics/lord-of-the-rings/lesson-16.html" },
+            { title: "眾星之戰與聯合軍勢之戰", url: "topics/lord-of-the-rings/lesson-17.html" },
+            { title: "貝倫與露西恩：跨越生死的愛情傳說", url: "topics/lord-of-the-rings/lesson-18.html" },
+            { title: "胡林之子圖林（一）：詛咒下的少年英雄", url: "topics/lord-of-the-rings/lesson-19.html" },
+            { title: "胡林之子圖林（二）：尼奴爾的悲劇終局", url: "topics/lord-of-the-rings/lesson-20.html" },
+            { title: "剛多林的陷落與圖爾的逃亡", url: "topics/lord-of-the-rings/lesson-21.html" },
+            { title: "埃雅仁迪爾的航行與憤怒之戰", url: "topics/lord-of-the-rings/lesson-22.html" },
+            { title: "模組總結：貝爾蘭的沉沒與第一紀元的終結", url: "topics/lord-of-the-rings/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 E｜第二紀元：努曼諾爾與力量之戒",
+          courses: [
+            { title: "努曼諾爾的建立：人類的黃金時代", url: "topics/lord-of-the-rings/lesson-24.html" },
+            { title: "精靈的力量之戒與凱勒布理鵬的工藝", url: "topics/lord-of-the-rings/lesson-25.html" },
+            { title: "安納塔爾：索倫的偽裝與至尊魔戒的鑄造", url: "topics/lord-of-the-rings/lesson-26.html" },
+            { title: "精靈與索倫之戰、瑞文戴爾的建立", url: "topics/lord-of-the-rings/lesson-27.html" },
+            { title: "努曼諾爾的驕傲、阿爾-法拉聯與世界的變形", url: "topics/lord-of-the-rings/lesson-28.html" },
+            { title: "最後聯盟：吉爾加拉德與埃蘭迪爾對索倫之戰", url: "topics/lord-of-the-rings/lesson-29.html" },
+            { title: "模組總結：第二紀元如何埋下魔戒的伏筆", url: "topics/lord-of-the-rings/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 F｜第三紀元前傳：通往魔戒的路",
+          courses: [
+            { title: "剛鐸與亞爾諾：埃蘭迪爾之子的雙王國", url: "topics/lord-of-the-rings/lesson-31.html" },
+            { title: "安格瑪巫王與北方王國的滅亡", url: "topics/lord-of-the-rings/lesson-32.html" },
+            { title: "白色議會、戒靈的甦醒與多爾哥多的陰影", url: "topics/lord-of-the-rings/lesson-33.html" },
+            { title: "咕嚕與史麥戈：至尊魔戒五百年的下落", url: "topics/lord-of-the-rings/lesson-34.html" },
+            { title: "索倫重返魔多、五巫師的角色分野", url: "topics/lord-of-the-rings/lesson-35.html" },
+            { title: "模組總結：第三紀元的舞台如何搭建完成", url: "topics/lord-of-the-rings/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 G｜中土世界的種族與文化深度解析",
+          courses: [
+            { title: "精靈：不朽者的分支、命運與海之思念", url: "topics/lord-of-the-rings/lesson-37.html" },
+            { title: "矮人：七祖、王國與都靈一族的興衰", url: "topics/lord-of-the-rings/lesson-38.html" },
+            { title: "哈比人：夏爾的日常與被忽視的堅韌", url: "topics/lord-of-the-rings/lesson-39.html" },
+            { title: "人類：努曼諾爾人、洛汗人與野人的分野", url: "topics/lord-of-the-rings/lesson-40.html" },
+            { title: "半獸人、食人妖：魔苟斯與索倫的造物", url: "topics/lord-of-the-rings/lesson-41.html" },
+            { title: "樹人與中土的自然力量、伊斯塔力的使命", url: "topics/lord-of-the-rings/lesson-42.html" },
+            { title: "模組總結：自由民族聯盟的意義", url: "topics/lord-of-the-rings/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 H｜《哈比人》全書深度導讀",
+          courses: [
+            { title: "意外的聚會：比爾博與十三矮人", url: "topics/lord-of-the-rings/lesson-44.html" },
+            { title: "巨怪、瑞文戴爾與迷霧山脈的險境", url: "topics/lord-of-the-rings/lesson-45.html" },
+            { title: "咕嚕與魔戒：黑暗中的謎語遊戲", url: "topics/lord-of-the-rings/lesson-46.html" },
+            { title: "比爾博的轉變：從竊賊到英雄", url: "topics/lord-of-the-rings/lesson-47.html" },
+            { title: "幽暗密林、荒山與史矛革之死", url: "topics/lord-of-the-rings/lesson-48.html" },
+            { title: "五軍之戰與比爾博的返鄉", url: "topics/lord-of-the-rings/lesson-49.html" },
+            { title: "模組總結：《哈比人》如何為《魔戒》鋪路", url: "topics/lord-of-the-rings/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 I｜《魔戒現身》上部：夏爾到瑞文戴爾",
+          courses: [
+            { title: "夏爾的寧靜與比爾博的告別派對", url: "topics/lord-of-the-rings/lesson-51.html" },
+            { title: "佛羅多啟程：黑騎士的追逐", url: "topics/lord-of-the-rings/lesson-52.html" },
+            { title: "老林、湯姆·龐巴迪與墳丘岡的古墓屍妖", url: "topics/lord-of-the-rings/lesson-53.html" },
+            { title: "躍馬旅店與神秘的行者", url: "topics/lord-of-the-rings/lesson-54.html" },
+            { title: "風雲頂之夜：佛羅多負傷", url: "topics/lord-of-the-rings/lesson-55.html" },
+            { title: "模組總結：瑞文戴爾與埃爾隆德會議的前奏", url: "topics/lord-of-the-rings/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 J｜《魔戒現身》下部：遠征隊與凱薩督姆",
+          courses: [
+            { title: "埃爾隆德會議：魔戒的真相與同盟的形成", url: "topics/lord-of-the-rings/lesson-57.html" },
+            { title: "魔戒遠征隊的組成", url: "topics/lord-of-the-rings/lesson-58.html" },
+            { title: "卡蘭拉斯山與抉擇：進入摩瑞亞", url: "topics/lord-of-the-rings/lesson-59.html" },
+            { title: "凱薩督姆之橋：甘道夫與炎魔的對決", url: "topics/lord-of-the-rings/lesson-60.html" },
+            { title: "羅斯洛立安：凱蘭崔爾的贈禮與魔鏡", url: "topics/lord-of-the-rings/lesson-61.html" },
+            { title: "模組總結：遠征隊的裂解與波羅莫之死", url: "topics/lord-of-the-rings/lesson-62.html" }
+          ]
+        },
+        {
+          title: "模組 K｜《雙城奇謀》上部：分裂的遠征隊與洛汗",
+          courses: [
+            { title: "波羅莫之死與遠征隊的分裂", url: "topics/lord-of-the-rings/lesson-63.html" },
+            { title: "梅里與皮聘：半獸人的俘虜與法貢森林", url: "topics/lord-of-the-rings/lesson-64.html" },
+            { title: "樹鬍與樹人的甦醒", url: "topics/lord-of-the-rings/lesson-65.html" },
+            { title: "亞拉岡、金靂與勒苟拉斯：追蹤與重逢甘道夫", url: "topics/lord-of-the-rings/lesson-66.html" },
+            { title: "洛汗的黃金大廳：巫毒之舌與希優頓王的甦醒", url: "topics/lord-of-the-rings/lesson-67.html" },
+            { title: "模組總結：聖盔谷之戰前夕", url: "topics/lord-of-the-rings/lesson-68.html" }
+          ]
+        },
+        {
+          title: "模組 L｜《雙城奇謀》下部：山姆佛羅多、咕嚕與艾辛格",
+          courses: [
+            { title: "聖盔谷之戰", url: "topics/lord-of-the-rings/lesson-69.html" },
+            { title: "艾辛格的陷落與薩魯曼的末路", url: "topics/lord-of-the-rings/lesson-70.html" },
+            { title: "佛羅多、山姆與咕嚕：死亡沼澤的旅程", url: "topics/lord-of-the-rings/lesson-71.html" },
+            { title: "咕嚕的馴服與雙重人格", url: "topics/lord-of-the-rings/lesson-72.html" },
+            { title: "西力斯昂哥爾與屍羅的巢穴", url: "topics/lord-of-the-rings/lesson-73.html" },
+            { title: "模組總結：山姆的抉擇與佛羅多被俘", url: "topics/lord-of-the-rings/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 M｜《王者再臨》上部：剛鐸圍城與帕蘭諾平原之戰",
+          courses: [
+            { title: "山姆營救佛羅多：奧克塔之塔", url: "topics/lord-of-the-rings/lesson-75.html" },
+            { title: "剛鐸的召喚：烽火傳訊與皮聘的效忠", url: "topics/lord-of-the-rings/lesson-76.html" },
+            { title: "米那斯提力斯的圍城", url: "topics/lord-of-the-rings/lesson-77.html" },
+            { title: "死者之路：亞拉岡與死靈大軍", url: "topics/lord-of-the-rings/lesson-78.html" },
+            { title: "帕蘭諾平原之戰：洛汗騎兵的到來與希優頓之死", url: "topics/lord-of-the-rings/lesson-79.html" },
+            { title: "模組總結：伊歐玟與梅里對戒靈王的一擊", url: "topics/lord-of-the-rings/lesson-80.html" }
+          ]
+        },
+        {
+          title: "模組 N｜《王者再臨》下部：末日火山與王者歸來",
+          courses: [
+            { title: "剛鐸的抉擇：黑門之役的佯攻", url: "topics/lord-of-the-rings/lesson-81.html" },
+            { title: "佛羅多與山姆：末日山的最後路程", url: "topics/lord-of-the-rings/lesson-82.html" },
+            { title: "咕嚕的最後掙扎與魔戒的毀滅", url: "topics/lord-of-the-rings/lesson-83.html" },
+            { title: "索倫的崩潰與中土世界的解放", url: "topics/lord-of-the-rings/lesson-84.html" },
+            { title: "亞拉岡加冕：王者歸來", url: "topics/lord-of-the-rings/lesson-85.html" },
+            { title: "模組總結：從夏爾之子到中土之王的完整旅程", url: "topics/lord-of-the-rings/lesson-86.html" }
+          ]
+        },
+        {
+          title: "模組 O｜主題深度剖析",
+          courses: [
+            { title: "死亡與永生：精靈與人類的贈禮", url: "topics/lord-of-the-rings/lesson-87.html" },
+            { title: "權力與腐化：魔戒作為文學象徵", url: "topics/lord-of-the-rings/lesson-88.html" },
+            { title: "小人物的偉大：哈比人與英雄主義的重新定義", url: "topics/lord-of-the-rings/lesson-89.html" },
+            { title: "友誼與犧牲：夥伴情誼的力量", url: "topics/lord-of-the-rings/lesson-90.html" },
+            { title: "環境與工業：夏爾、艾辛格與托爾金的生態關懷", url: "topics/lord-of-the-rings/lesson-91.html" },
+            { title: "模組總結：貫穿中土世界的核心命題", url: "topics/lord-of-the-rings/lesson-92.html" }
+          ]
+        },
+        {
+          title: "模組 P｜托爾金的寫作技藝",
+          courses: [
+            { title: "發明語言與地名學：精靈語背後的邏輯", url: "topics/lord-of-the-rings/lesson-93.html" },
+            { title: "附錄的秘密：時間線與被忽略的細節", url: "topics/lord-of-the-rings/lesson-94.html" },
+            { title: "伏筆與呼應：從《哈比人》到《王者再臨》", url: "topics/lord-of-the-rings/lesson-95.html" },
+            { title: "模組總結：托爾金如何建構一個「真實」的世界", url: "topics/lord-of-the-rings/lesson-96.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜第四紀元與尾聲",
+          courses: [
+            { title: "夏爾的整肅：哈比人的成長與家鄉之戰", url: "topics/lord-of-the-rings/lesson-97.html" },
+            { title: "灰港岸：精靈的離去與魔戒使者的贈禮", url: "topics/lord-of-the-rings/lesson-98.html" },
+            { title: "第四紀元：人類世界的開始", url: "topics/lord-of-the-rings/lesson-99.html" },
+            { title: "模組總結：中土世界故事的終章", url: "topics/lord-of-the-rings/lesson-100.html" }
+          ]
+        },
+        {
+          title: "模組 R｜文化影響與現代改編",
+          courses: [
+            { title: "托爾金的文學遺產：現代奇幻文學的奠基者", url: "topics/lord-of-the-rings/lesson-101.html" },
+            { title: "彼得傑克森電影三部曲：忠實與取捨", url: "topics/lord-of-the-rings/lesson-102.html" },
+            { title: "模組總結：托爾金學術與粉絲文化", url: "topics/lord-of-the-rings/lesson-103.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "課程總結：從埃努大樂章到王者歸來的完整旅程", url: "topics/lord-of-the-rings/lesson-104.html" }
+          ]
+        }
+      ]
     }
   ]
 };
