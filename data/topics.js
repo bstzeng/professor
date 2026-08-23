@@ -2511,6 +2511,200 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "warcraft",
+      title: "魔獸世界：從創世神話到巫妖王殞落的完整編年史",
+      description:
+        "從艾澤拉斯的泰坦創世神話、古神的甦醒、太古之戰與大分裂講起，完整梳理獸人與人類的三次大戰（《魔獸爭霸》I、II、III 戰役），深入阿薩斯王子墮落成巫妖王的核心悲劇，一路走到《魔獸世界》經典、燃燒的遠征、巫妖王之怒——直到艾薩斯在冰冠堡壘殞落的完整編年史。",
+      icon: "⚔️",
+      url: "topics/warcraft/index.html",
+      modules: [
+        {
+          title: "模組 A｜魔獸系列導覽與創作背景",
+          courses: [
+            { title: "暴雪娛樂與魔獸系列的誕生", url: "topics/warcraft/lesson-01.html" },
+            { title: "從RTS到MMO：三個時代的敘事轉變", url: "topics/warcraft/lesson-02.html" },
+            { title: "艾澤拉斯的宇宙觀導覽", url: "topics/warcraft/lesson-03.html" },
+            { title: "時間線與紀元劃分", url: "topics/warcraft/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜泰坦創世神話：宇宙與艾澤拉斯的誕生",
+          courses: [
+            { title: "虛空與偉大的黑暗之外", url: "topics/warcraft/lesson-05.html" },
+            { title: "泰坦的甦醒與艾澤拉斯世界靈魂", url: "topics/warcraft/lesson-06.html" },
+            { title: "泰坦守護者的誕生與艾澤拉斯的整備", url: "topics/warcraft/lesson-07.html" },
+            { title: "五大巨龍聖盟的授權", url: "topics/warcraft/lesson-08.html" },
+            { title: "模組總結：泰坦神話的完整圖景", url: "topics/warcraft/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜古神的甦醒與泰坦守護者的征服",
+          courses: [
+            { title: "古神：克蘇恩與夥伴們的黑暗低語", url: "topics/warcraft/lesson-10.html" },
+            { title: "永恆之戰：泰坦對古神的鎮壓", url: "topics/warcraft/lesson-11.html" },
+            { title: "巨魔帝國的興起", url: "topics/warcraft/lesson-12.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜永恆之井與暗夜精靈的黃金時代",
+          courses: [
+            { title: "永恆之井的魔法起源", url: "topics/warcraft/lesson-14.html" },
+            { title: "卡多雷帝國與艾薩拉女王", url: "topics/warcraft/lesson-15.html" },
+            { title: "神秘法師議會的成立", url: "topics/warcraft/lesson-16.html" },
+            { title: "瑪法里恩與泰蘭德：德魯伊教義的起源", url: "topics/warcraft/lesson-17.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 E｜燃燒軍團首次入侵：太古之戰",
+          courses: [
+            { title: "薩格拉斯與燃燒軍團的野心", url: "topics/warcraft/lesson-19.html" },
+            { title: "艾薩拉女王的野心與入侵之門", url: "topics/warcraft/lesson-20.html" },
+            { title: "伊利丹的雙生：瑪法里恩之弟的抉擇", url: "topics/warcraft/lesson-21.html" },
+            { title: "諸神一戰：薩格拉斯的封印", url: "topics/warcraft/lesson-22.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 F｜大分裂：艾澤拉斯大陸的破碎",
+          courses: [
+            { title: "永恆之井的崩潰與大分裂", url: "topics/warcraft/lesson-24.html" },
+            { title: "瑪爾斯特隆的誕生與暗夜精靈的凡人化", url: "topics/warcraft/lesson-25.html" },
+            { title: "上層精靈流亡與那伽的誕生", url: "topics/warcraft/lesson-26.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 G｜德拉諾的獸人：薩滿信仰與惡魔血液的墮落",
+          courses: [
+            { title: "德拉諾的獸人氏族與元素信仰", url: "topics/warcraft/lesson-28.html" },
+            { title: "德萊尼的抵達與衝突", url: "topics/warcraft/lesson-29.html" },
+            { title: "古爾丹與基爾加丹的操縱", url: "topics/warcraft/lesson-30.html" },
+            { title: "惡魔之血：獸人的墮落", url: "topics/warcraft/lesson-31.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 H｜第一次戰爭：黑暗之門開啟",
+          courses: [
+            { title: "黑暗之門的開啟與獸人的入侵", url: "topics/warcraft/lesson-33.html" },
+            { title: "萊恩國王之死與暴風城的陷落", url: "topics/warcraft/lesson-34.html" },
+            { title: "洛薩的撤退：倖存者的長征", url: "topics/warcraft/lesson-35.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 I｜第二次戰爭：部落與聯盟的全面對抗",
+          courses: [
+            { title: "聯盟的成立與獸人的擴張", url: "topics/warcraft/lesson-37.html" },
+            { title: "卡格拉爾與制海權之戰", url: "topics/warcraft/lesson-38.html" },
+            { title: "杜隆坦之死與奧格瑞姆接掌部落", url: "topics/warcraft/lesson-39.html" },
+            { title: "模組總結：獸人的敗亡與集中營", url: "topics/warcraft/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 J｜第三次戰爭：薩爾與新部落的誕生",
+          courses: [
+            { title: "薩爾的覺醒與逃離集中營", url: "topics/warcraft/lesson-41.html" },
+            { title: "先知梅迪夫的指引", url: "topics/warcraft/lesson-42.html" },
+            { title: "卡加斯的抉擇：燃燒之刃氏族的清算", url: "topics/warcraft/lesson-43.html" },
+            { title: "新家園：杜隆塔爾的建立", url: "topics/warcraft/lesson-44.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 K｜第三次戰爭：阿薩斯的墮落",
+          courses: [
+            { title: "瘟疫的初現與斯坦索姆的抉擇", url: "topics/warcraft/lesson-46.html" },
+            { title: "霜之哀傷：阿薩斯與冰霜寶劍的契約", url: "topics/warcraft/lesson-47.html" },
+            { title: "弒父：洛丹倫的陷落", url: "topics/warcraft/lesson-48.html" },
+            { title: "阿薩斯與吉安娜的訣別", url: "topics/warcraft/lesson-49.html" },
+            { title: "死亡騎士的誕生", url: "topics/warcraft/lesson-50.html" },
+            { title: "模組總結：一個王子如何成為怪物", url: "topics/warcraft/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 L｜第三次戰爭：暗夜精靈與海加爾山之戰",
+          courses: [
+            { title: "瑪法里恩的甦醒與伊利丹的釋放", url: "topics/warcraft/lesson-52.html" },
+            { title: "燃燒軍團的登陸", url: "topics/warcraft/lesson-53.html" },
+            { title: "海加爾山防衛戰：三大種族首次聯手", url: "topics/warcraft/lesson-54.html" },
+            { title: "阿克蒙德之死", url: "topics/warcraft/lesson-55.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 M｜冰封王座：伊利丹的放逐與復仇",
+          courses: [
+            { title: "背叛的代價：伊利丹被放逐外域", url: "topics/warcraft/lesson-57.html" },
+            { title: "瓦許姬與納迦的結盟", url: "topics/warcraft/lesson-58.html" },
+            { title: "凱爾薩斯與血精靈的墮落", url: "topics/warcraft/lesson-59.html" },
+            { title: "黑暗神殿的建立", url: "topics/warcraft/lesson-60.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 N｜冰封王座：阿薩斯與新任巫妖王",
+          courses: [
+            { title: "阿薩斯與奈奧祖：兩個怨靈的合而為一", url: "topics/warcraft/lesson-62.html" },
+            { title: "冰封王座的鎔鑄", url: "topics/warcraft/lesson-63.html" },
+            { title: "巫妖王對抗伊利丹", url: "topics/warcraft/lesson-64.html" },
+            { title: "克爾蘇加德的復活", url: "topics/warcraft/lesson-65.html" },
+            { title: "模組總結：巫妖王的統治開始", url: "topics/warcraft/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 O｜大災變前夕：部落聯盟格局底定",
+          courses: [
+            { title: "瓦里安烏瑞恩失蹤與暴風城的重建", url: "topics/warcraft/lesson-67.html" },
+            { title: "薩爾成為部落大酋長", url: "topics/warcraft/lesson-68.html" },
+            { title: "模組總結：邁向世界之戰的舞台", url: "topics/warcraft/lesson-69.html" }
+          ]
+        },
+        {
+          title: "模組 P｜魔獸世界經典：奧妮克希亞、安其拉與納克薩瑪斯",
+          courses: [
+            { title: "黑龍公主的陰謀：奧妮克希亞的偽裝", url: "topics/warcraft/lesson-70.html" },
+            { title: "灰谷之戰：部落聯盟正式開戰", url: "topics/warcraft/lesson-71.html" },
+            { title: "安其拉之門：克蘇恩的威脅", url: "topics/warcraft/lesson-72.html" },
+            { title: "納克薩瑪斯與克爾蘇加德的巫妖王棋局", url: "topics/warcraft/lesson-73.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜燃燒的遠征：外域與黑暗神殿",
+          courses: [
+            { title: "黑暗之門重啟：遠征外域", url: "topics/warcraft/lesson-75.html" },
+            { title: "伊利丹的統治與黑暗神殿的攻略", url: "topics/warcraft/lesson-76.html" },
+            { title: "凱爾薩斯的背叛與太陽井的爭奪", url: "topics/warcraft/lesson-77.html" },
+            { title: "光輝之願號：伊利丹的最終戰", url: "topics/warcraft/lesson-78.html" },
+            { title: "太陽井的淨化", url: "topics/warcraft/lesson-79.html" },
+            { title: "模組總結", url: "topics/warcraft/lesson-80.html" }
+          ]
+        },
+        {
+          title: "模組 R｜巫妖王之怒：北裂境遠征與阿薩斯的終局",
+          courses: [
+            { title: "天災入侵：死亡騎士的覺醒", url: "topics/warcraft/lesson-81.html" },
+            { title: "北裂境登陸與部落聯盟的競逐", url: "topics/warcraft/lesson-82.html" },
+            { title: "血色十字軍與遺忘者的復仇", url: "topics/warcraft/lesson-83.html" },
+            { title: "風暴峭壁：亡靈天災的核心", url: "topics/warcraft/lesson-84.html" },
+            { title: "冰冠堡壘的圍攻", url: "topics/warcraft/lesson-85.html" },
+            { title: "巫妖王的最終戰：泰瑞納斯之魂的低語", url: "topics/warcraft/lesson-86.html" },
+            { title: "博瓦爾弗塔根成為新任巫妖王", url: "topics/warcraft/lesson-87.html" },
+            { title: "模組總結：一個時代的終結", url: "topics/warcraft/lesson-88.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "課程總結：從泰坦創世到巫妖王殞落的完整旅程", url: "topics/warcraft/lesson-89.html" }
+          ]
+        }
+      ]
     }
   ]
 };
