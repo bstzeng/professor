@@ -2705,6 +2705,167 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "starcraft",
+      title: "星海爭霸：從星靈起源到虛空之遺的完整戰史",
+      description:
+        "從最古老的星靈宇宙觀與艾蒙的墮落講起，完整梳理《星海爭霸》原版三大種族戰役、《母巢之戰》資料片，一路走到《星海爭霸II》三部曲——自由之翼、蟲群之心、虛空之遺——的完整劇情，並收錄《新星秘密行動》等外傳故事，橫向剖析三個種族的敘事風格與凱瑞甘的角色弧光。",
+      icon: "🛸",
+      url: "topics/starcraft/index.html",
+      modules: [
+        {
+          title: "模組 A｜星海爭霸系列導覽與創作背景",
+          courses: [
+            { title: "暴雪娛樂與星海爭霸的誕生", url: "topics/starcraft/lesson-01.html" },
+            { title: "三個種族的敘事結構：為何獨特", url: "topics/starcraft/lesson-02.html" },
+            { title: "系列時間線與版本沿革", url: "topics/starcraft/lesson-03.html" },
+            { title: "文本體系導覽", url: "topics/starcraft/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜宇宙觀：星靈、艾蒙的墮落與蟲群的起源",
+          courses: [
+            { title: "星靈：宇宙中最古老的種族", url: "topics/starcraft/lesson-05.html" },
+            { title: "純化與吞噬：星靈對待凡種的兩種道路", url: "topics/starcraft/lesson-06.html" },
+            { title: "艾蒙的墮落：黑暗之聲的誕生", url: "topics/starcraft/lesson-07.html" },
+            { title: "大群體意識與蟲群的創造", url: "topics/starcraft/lesson-08.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜人類：聯邦到殖民地的建立背景",
+          courses: [
+            { title: "地球的過度擁擠與流放船隊", url: "topics/starcraft/lesson-10.html" },
+            { title: "科普魯魯星區的殖民與聯邦的建立", url: "topics/starcraft/lesson-11.html" },
+            { title: "高壓統治：聯邦的暗面", url: "topics/starcraft/lesson-12.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜星海爭霸原版：人類戰役",
+          courses: [
+            { title: "邊陲叛軍：吉姆·雷諾與馬薩拉星", url: "topics/starcraft/lesson-14.html" },
+            { title: "蟲族入侵與聯邦的崩潰", url: "topics/starcraft/lesson-15.html" },
+            { title: "阿克圖魯斯·孟斯克與科拉爾之子", url: "topics/starcraft/lesson-16.html" },
+            { title: "莎拉·凱瑞甘的犧牲", url: "topics/starcraft/lesson-17.html" },
+            { title: "新任皇帝的誕生：孟斯克的背叛", url: "topics/starcraft/lesson-18.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 E｜星海爭霸原版：蟲族戰役",
+          courses: [
+            { title: "大群體意識：統治者的低語", url: "topics/starcraft/lesson-20.html" },
+            { title: "凱瑞甘的感染與蛻變", url: "topics/starcraft/lesson-21.html" },
+            { title: "首席執行官與腦蟲的階層", url: "topics/starcraft/lesson-22.html" },
+            { title: "神族聖地艾爾的淪陷", url: "topics/starcraft/lesson-23.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜星海爭霸原版：神族戰役",
+          courses: [
+            { title: "神族社會：階級、議會與黑暗聖堂", url: "topics/starcraft/lesson-25.html" },
+            { title: "塔薩達爾與長老議會的決裂", url: "topics/starcraft/lesson-26.html" },
+            { title: "淨化艾爾：絕望的抉擇", url: "topics/starcraft/lesson-27.html" },
+            { title: "澤拉圖與黑暗聖堂武士的復仇", url: "topics/starcraft/lesson-28.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 G｜母巢之戰：聯合地球指揮部的入侵",
+          courses: [
+            { title: "雷諾遊擊隊與新聯邦", url: "topics/starcraft/lesson-30.html" },
+            { title: "聯合地球指揮部：地球的鐵腕統治", url: "topics/starcraft/lesson-31.html" },
+            { title: "杜加爾上將的野心與地球艦隊的征服", url: "topics/starcraft/lesson-32.html" },
+            { title: "三方角力下的脆弱聯盟", url: "topics/starcraft/lesson-33.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 H｜母巢之戰：蟲群女王的復仇",
+          courses: [
+            { title: "凱瑞甘的背叛與蟲后的誕生", url: "topics/starcraft/lesson-35.html" },
+            { title: "大群體意識的毀滅", url: "topics/starcraft/lesson-36.html" },
+            { title: "三方混戰：地球、蟲群與神族", url: "topics/starcraft/lesson-37.html" },
+            { title: "凱瑞甘一統蟲群", url: "topics/starcraft/lesson-38.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 I｜母巢之戰：神族的流亡與重生",
+          courses: [
+            { title: "艾爾的最終淪陷", url: "topics/starcraft/lesson-40.html" },
+            { title: "大遷徙：逃向沙拉克絲", url: "topics/starcraft/lesson-41.html" },
+            { title: "塔薩達爾的犧牲", url: "topics/starcraft/lesson-42.html" },
+            { title: "澤拉圖與黑暗聖堂武士的復仇", url: "topics/starcraft/lesson-43.html" },
+            { title: "模組總結：星海爭霸原版的完整落幕", url: "topics/starcraft/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 J｜自由之翼：雷諾遊擊隊與凱瑞甘的救贖",
+          courses: [
+            { title: "四年後：雷諾的沉淪", url: "topics/starcraft/lesson-45.html" },
+            { title: "莫比斯基金會與異種神器的線索", url: "topics/starcraft/lesson-46.html" },
+            { title: "海伯利安號的旅程", url: "topics/starcraft/lesson-47.html" },
+            { title: "淨化蟲群：莫比斯基金會的真正計畫", url: "topics/starcraft/lesson-48.html" },
+            { title: "去感染凱瑞甘的抉擇", url: "topics/starcraft/lesson-49.html" },
+            { title: "尾聲：新的威脅浮現", url: "topics/starcraft/lesson-50.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 K｜蟲群之心：凱瑞甘的回歸與復仇",
+          courses: [
+            { title: "凱瑞甘的囚禁與逃亡", url: "topics/starcraft/lesson-52.html" },
+            { title: "重新奪回蟲群：進化的力量", url: "topics/starcraft/lesson-53.html" },
+            { title: "對孟斯克的復仇", url: "topics/starcraft/lesson-54.html" },
+            { title: "戰場上的盟友與犧牲", url: "topics/starcraft/lesson-55.html" },
+            { title: "混合體的初次現身", url: "topics/starcraft/lesson-56.html" },
+            { title: "凱瑞甘重新蛻變為蟲后", url: "topics/starcraft/lesson-57.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-58.html" }
+          ]
+        },
+        {
+          title: "模組 L｜虛空之遺：神族的最終聖戰",
+          courses: [
+            { title: "亞塔尼斯與神族的分裂", url: "topics/starcraft/lesson-59.html" },
+            { title: "卡拉的重建與神族大團結", url: "topics/starcraft/lesson-60.html" },
+            { title: "艾丹之矛：奪回艾爾", url: "topics/starcraft/lesson-61.html" },
+            { title: "深入虛空：艾蒙的真面目", url: "topics/starcraft/lesson-62.html" },
+            { title: "三大種族的最終聯盟", url: "topics/starcraft/lesson-63.html" },
+            { title: "艾蒙的殞落", url: "topics/starcraft/lesson-64.html" },
+            { title: "尾聲：新紀元的開端", url: "topics/starcraft/lesson-65.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 M｜外傳：新星秘密行動與其他故事",
+          courses: [
+            { title: "新星：幽靈計畫的道德灰色地帶", url: "topics/starcraft/lesson-67.html" },
+            { title: "秘密行動三部曲摘要", url: "topics/starcraft/lesson-68.html" },
+            { title: "其他外傳小說與短篇概覽", url: "topics/starcraft/lesson-69.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 N｜主題與寫作技藝深度剖析",
+          courses: [
+            { title: "三個種族，三種敘事風格", url: "topics/starcraft/lesson-71.html" },
+            { title: "凱瑞甘的角色弧光：從人類到蟲后到救贖", url: "topics/starcraft/lesson-72.html" },
+            { title: "家人、犧牲與忠誠：貫穿全系列的情感核心", url: "topics/starcraft/lesson-73.html" },
+            { title: "電子競技與星海爭霸的文化地位", url: "topics/starcraft/lesson-74.html" },
+            { title: "模組總結", url: "topics/starcraft/lesson-75.html" }
+          ]
+        },
+        {
+          title: "模組 O｜課程總結",
+          courses: [
+            { title: "課程總結：從星靈創世到虛空之遺的完整旅程", url: "topics/starcraft/lesson-76.html" }
+          ]
+        }
+      ]
     }
   ]
 };
