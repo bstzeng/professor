@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 52 課：容器 vs 虛擬機的本質差異 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="解析容器技術與虛擬機在架構上的根本差異：VM虛擬化硬體、每台各跑一套完整作業系統，容器則共用同一個作業系統核心，靠namespace與cgroup做出隔離的假象，因此更輕量、啟動更快">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 52 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜虛擬化與容器技術：Docker基礎 · 第 52 課</div>
+      <h1>容器 vs 虛擬機的本質差異</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解虛擬機在效能與資源上的隱藏成本，作為引入容器技術的動機</li>
+          <li>理解namespace與cgroup這兩個Linux核心機制，如何讓容器在不啟動獨立作業系統的情況下做出隔離</li>
+          <li>能清楚說出「VM虛擬化硬體」與「容器虛擬化作業系統」這個核心架構差異，以及背後的取捨</li>
+        </ul>
+      </div>
+
+      <p>
+        第51課建立了虛擬機的圖像：Hypervisor在一台實體機上
+        分身出好幾台虛擬機，每一台都有自己完整、獨立的作業
+        系統。這個做法確實比「一台實體機一個服務」更有效率，
+        但它其實還留著一個沒被解決的成本——而這正是容器技術
+        想要進一步優化的地方。
+      </p>
+
+      <h2>1. 虛擬機的隱藏成本：每一台都要背一整套作業系統</h2>
+      <p>
+        回顧第51課的圖：VM 1、VM 2、VM 3各自都跑著一套完整、
+        獨立的Guest OS——每一套作業系統本身就要占用數GB的
+        磁碟空間、數百MB以上的記憶體，開機也需要跟一台真正
+        的電腦差不多的時間（數十秒到數分鐘）。如果你只是想
+        隔離、部署一個小小的網頁應用程式，卻要為它背負一整套
+        完整作業系統的開銷，其實是有點浪費的——這正是容器
+        技術要解決的問題。
+      </p>
+
+      <h2>2. 容器的想法：共用同一個核心，只隔離出「看起來獨立」的環境</h2>
+      <p>
+        <strong>容器（Container）</strong>採取一個根本不同的做法：
+        不讓每個隔離單位都跑自己的作業系統核心（kernel），而是
+        讓所有容器<strong>共用同一台主機、同一個作業系統核心</strong>，
+        再利用作業系統本身提供的隔離機制，讓每個容器「感覺」
+        自己擁有獨立的檔案系統、獨立的行程（process）空間、
+        獨立的網路環境——但實際上，底層真正在運作的，永遠只有
+        主機那唯一一份作業系統核心。少了「每個隔離單位都要
+        重新啟動一套完整作業系統」這個負擔，容器自然比虛擬機
+        輕量得多。
+      </p>
+
+      <h2>3. 讓隔離成真的兩個機制：namespace 與 cgroup</h2>
+      <p>
+        容器之所以能在共用同一個核心的前提下，還能讓每個容器
+        感覺彼此獨立，背後靠的是Linux核心提供的兩個機制：
+      </p>
+      <ul>
+        <li><strong>Namespace（命名空間）</strong>——讓每個容器
+          看到的是系統資源的一份「局部視角」，而不是整台主機
+          的全貌。例如行程ID namespace讓容器裡的主行程以為
+          自己是PID 1（就像一台獨立機器開機後的第一個行程），
+          網路namespace讓容器以為自己擁有一組獨立的網路介面，
+          檔案系統namespace則讓容器只看得到屬於自己的目錄樹，
+          看不到主機上其他容器的檔案。namespace負責的是「讓你
+          看不到別人」。</li>
+        <li><strong>Cgroup（control group，控制群組）</strong>——
+          負責限制、記錄每個容器實際能用掉多少CPU、記憶體等
+          硬體資源，避免某一個容器把主機資源全部吃光，害同一
+          台主機上其他容器被拖垮。cgroup負責的是「限制你能用
+          多少」。</li>
+      </ul>
+      <p>
+        兩者合起來：namespace提供「隔離的視角」，cgroup提供
+        「資源的邊界」——容器不需要真的擁有自己的一套核心，
+        就能同時做到「看起來獨立」與「用量有限制」，這正是
+        容器輕量化的技術基礎。
+      </p>
+
+      <h2>4. 核心差異一句話：VM虛擬化硬體，容器虛擬化作業系統</h2>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">虛擬機 vs 容器：架構層次的差異</text>
+
+          <text x="150" y="45" text-anchor="middle" font-size="10" fill="var(--gold)">虛擬機（VM）</text>
+          <rect x="40" y="55" width="220" height="30" fill="none" stroke="var(--border)" stroke-width="1.2" rx="4"/>
+          <text x="150" y="74" text-anchor="middle" font-size="8.5" fill="var(--text)">實體硬體</text>
+          <rect x="40" y="90" width="220" height="30" fill="var(--gold)" opacity="0.16" stroke="var(--gold)" stroke-width="1.2" rx="4"/>
+          <text x="150" y="109" text-anchor="middle" font-size="8.5" fill="var(--gold)">Hypervisor</text>
+          <rect x="45" y="128" width="65" height="70" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="77" y="150" text-anchor="middle" font-size="7.5" fill="var(--text)">Guest OS</text>
+          <text x="77" y="163" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <rect x="118" y="128" width="65" height="70" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="150" y="150" text-anchor="middle" font-size="7.5" fill="var(--text)">Guest OS</text>
+          <text x="150" y="163" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <rect x="191" y="128" width="65" height="70" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="223" y="150" text-anchor="middle" font-size="7.5" fill="var(--text)">Guest OS</text>
+          <text x="223" y="163" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <text x="150" y="215" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">每台VM各自一份完整核心</text>
+
+          <text x="490" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">容器（Container）</text>
+          <rect x="380" y="55" width="220" height="30" fill="none" stroke="var(--border)" stroke-width="1.2" rx="4"/>
+          <text x="490" y="74" text-anchor="middle" font-size="8.5" fill="var(--text)">實體硬體</text>
+          <rect x="380" y="90" width="220" height="30" fill="var(--accent)" opacity="0.16" stroke="var(--accent)" stroke-width="1.2" rx="4"/>
+          <text x="490" y="109" text-anchor="middle" font-size="8.5" fill="var(--accent)">主機作業系統（單一核心）</text>
+          <rect x="380" y="122" width="220" height="22" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="490" y="137" text-anchor="middle" font-size="8" fill="var(--text-muted)">容器執行環境（Container Runtime）</text>
+          <rect x="385" y="150" width="65" height="48" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="417" y="178" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <rect x="458" y="150" width="65" height="48" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="490" y="178" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <rect x="531" y="150" width="65" height="48" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="563" y="178" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">App</text>
+          <text x="490" y="215" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">所有容器共用同一份核心</text>
+
+          <rect x="30" y="250" width="580" height="70" fill="none" stroke="var(--border)" stroke-width="1" rx="6"/>
+          <text x="320" y="273" text-anchor="middle" font-size="9" fill="var(--text)">VM虛擬化「硬體」——每台VM都拿到一份虛擬CPU、記憶體、磁碟，再各自跑一套完整OS</text>
+          <text x="320" y="293" text-anchor="middle" font-size="9" fill="var(--text)">容器虛擬化「作業系統」——共用同一份核心，靠namespace＋cgroup做出隔離的使用者空間</text>
+        </svg>
+        <figcaption>兩種架構最本質的差異：虛擬機在「硬體」這一層做虛擬化，容器則是在「作業系統」這一層做虛擬化——這正是容器遠比虛擬機輕量的根本原因。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>比較項目</th><th>虛擬機（VM）</th><th>容器（Container）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>啟動時間</td><td>數十秒至數分鐘（要開機一套完整OS）</td><td>通常在1秒以內（只是啟動一個行程）</td></tr>
+          <tr><td>資源開銷</td><td>每台數百MB至數GB（含完整Guest OS）</td><td>通常只有數MB至數十MB</td></tr>
+          <tr><td>隔離強度</td><td>非常強，各VM有獨立核心，安全邊界清楚</td><td>較弱，所有容器共用同一個核心，核心層級的漏洞可能影響所有容器</td></tr>
+          <tr><td>作業系統彈性</td><td>同一台實體機上可混跑不同OS（Linux、Windows並存）</td><td>同一台主機上的容器必須跟host共用同一種核心</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 代價：容器離不開host的核心</h2>
+      <p>
+        容器輕量化的代價，正好對應到上面表格最後一項：因為
+        容器與host共用同一個核心，一台Linux主機上的容器，
+        骨子裡也必須是為Linux核心設計的環境（即使容器映像檔
+        標榜著跑Ubuntu、Alpine等不同的Linux發行版，那也只是
+        使用者空間的差異，核心仍然是host的那一份）。這跟虛擬
+        機可以在同一台實體機上，讓Linux VM與Windows VM並存
+        是不一樣的——這也是為什麼容器與虛擬機並不是互相取代
+        的關係，而是分別適合不同場景的兩種技術：許多實務上的
+        雲端環境，其實是先用VM把不同租戶（或不同核心需求）的
+        環境隔開，再於VM裡面跑容器，兼顧兩種技術各自的優勢。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出VM與容器分別是在哪一層（硬體 vs 作業系統）做虛擬化</li>
+          <li>能解釋namespace與cgroup分別負責容器隔離的哪一部分</li>
+          <li>能說出容器比VM輕量的原因，以及容器因此付出的代價是什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 53 課：Docker核心概念——理解了容器的架構原理之後，
+        接下來要認識目前最主流的容器實作工具Docker，從映像檔、
+        容器、Dockerfile這三個核心概念開始建立實作圖像。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-51.html">← 上一課：為什麼需要虛擬化：從實體機到虛擬機</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-53.html">下一課：Docker核心概念：映像檔、容器、Dockerfile →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

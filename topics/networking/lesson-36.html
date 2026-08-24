@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：HTTP方法、狀態碼與標頭 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="模組H開場：深入HTTP方法（GET、POST、PUT、DELETE、PATCH等）的語義與冪等性、依開頭數字分類的狀態碼體系，以及Content-Type、Authorization等進階標頭">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜HTTP協定深度解析 · 第 36 課</div>
+      <h1>HTTP方法、狀態碼與標頭</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解常見HTTP方法的語義，以及「安全」與「冪等」這兩個重要性質</li>
+          <li>掌握狀態碼依開頭數字分類的體系，並記住每類最重要的幾個代表碼</li>
+          <li>認識Content-Type、Authorization這兩個進階標頭的用途</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G走完整個請求生命週期時，只碰到了最基本的GET請求跟
+        200 OK這樣的回應。模組H要回頭把HTTP這個協定本身講得更
+        深入、更完整——這一課先從方法、狀態碼、標頭這三個HTTP
+        訊息裡最核心的元素開始。
+      </p>
+
+      <h2>1. HTTP方法：對資源要做什麼</h2>
+      <p>
+        HTTP方法（也常被稱為「動詞」）表達的是這次請求打算對
+        目標資源做什麼操作。理解每個方法的語義，有兩個重要
+        性質特別關鍵：<strong>安全（safe）</strong>——這個方法
+        理論上不應該對伺服器上的資料造成任何改變；以及
+        <strong>冪等（idempotent）</strong>——同一個請求不論
+        重複送出幾次，最終造成的結果都跟只送一次一樣。
+      </p>
+      <table>
+        <thead>
+          <tr><th>方法</th><th>語義</th><th>安全？</th><th>冪等？</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GET</td><td>讀取資源</td><td>是</td><td>是</td></tr>
+          <tr><td>HEAD</td><td>跟GET一樣，但只要標頭、不要主體——常用來檢查資源是否存在或取得中繼資料，不用真的下載內容</td><td>是</td><td>是</td></tr>
+          <tr><td>POST</td><td>提交資料以建立新資源或觸發某個動作</td><td>否</td><td>否</td></tr>
+          <tr><td>PUT</td><td>在指定位置建立或完整取代一個資源</td><td>否</td><td>是</td></tr>
+          <tr><td>PATCH</td><td>對資源做部分更新</td><td>否</td><td>視情況而定</td></tr>
+          <tr><td>DELETE</td><td>刪除指定資源</td><td>否</td><td>是</td></tr>
+          <tr><td>OPTIONS</td><td>查詢伺服器對某個資源支援哪些方法／能力</td><td>是</td><td>是</td></tr>
+        </tbody>
+      </table>
+      <p>
+        POST之所以不是冪等的，是因為每次POST常常代表「再建立一筆
+        新的」，重複送出兩次POST，通常會建立出兩筆資料；PUT則是
+        因為它是「完整取代成某個指定內容」，重複送出同一個PUT，
+        結果永遠是同一份內容，跟只送一次沒有差別，因此是冪等的。
+        這種區分在實務上很重要：瀏覽器、快取伺服器、重試機制，
+        都可以放心地重複送出安全或冪等的請求，而不用擔心造成
+        非預期的副作用。
+      </p>
+
+      <h2>2. 狀態碼：依開頭數字分類</h2>
+      <p>
+        伺服器在回應的狀態列裡，會用一個三位數的<strong>狀態碼
+        （status code）</strong>表達這次請求的處理結果。狀態碼
+        的第一位數字，決定了它屬於哪一大類：
+      </p>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">HTTP狀態碼分類一覽</text>
+
+          <rect x="30" y="35" width="640" height="52" fill="var(--text-muted)" opacity="0.08" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="45" y="55" font-size="10" fill="var(--text)">1xx 資訊性（少見）</text>
+          <text x="45" y="72" font-size="8.5" fill="var(--text-muted)">100 Continue——伺服器已收到請求的初始部分，客戶端可以繼續送出剩下的內容</text>
+
+          <rect x="30" y="95" width="640" height="66" fill="var(--gold)" opacity="0.1" stroke="var(--gold)" stroke-width="1.1" rx="4"/>
+          <text x="45" y="115" font-size="10" fill="var(--gold)">2xx 成功</text>
+          <text x="45" y="132" font-size="8.5" fill="var(--text-muted)">200 OK——最經典的成功回應</text>
+          <text x="45" y="147" font-size="8.5" fill="var(--text-muted)">201 Created——請求成功且新建了一個資源；204 No Content——成功但沒有主體內容要回傳</text>
+
+          <rect x="30" y="169" width="640" height="66" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="1.1" rx="4"/>
+          <text x="45" y="189" font-size="10" fill="var(--accent)">3xx 重新導向</text>
+          <text x="45" y="206" font-size="8.5" fill="var(--text-muted)">301 Moved Permanently——資源永久搬到新位置；302 Found——暫時性的重新導向</text>
+          <text x="45" y="221" font-size="8.5" fill="var(--text-muted)">304 Not Modified——快取的內容仍然有效，不需要重新傳送（第39課詳述）</text>
+
+          <rect x="30" y="243" width="640" height="66" fill="#ff8a65" opacity="0.12" stroke="#ff8a65" stroke-width="1.1" rx="4"/>
+          <text x="45" y="263" font-size="10" fill="#ff8a65">4xx 客戶端錯誤</text>
+          <text x="45" y="280" font-size="8.5" fill="var(--text-muted)">400 Bad Request——請求格式有問題；401 Unauthorized——缺乏或未通過身分驗證</text>
+          <text x="45" y="295" font-size="8.5" fill="var(--text-muted)">403 Forbidden——已知道你是誰但不允許存取；404 Not Found——最有名的狀態碼，資源不存在</text>
+
+          <rect x="30" y="317" width="640" height="52" fill="var(--text)" opacity="0.08" stroke="var(--border)" stroke-width="1.1" rx="4"/>
+          <text x="45" y="337" font-size="10" fill="var(--text)">5xx 伺服器錯誤</text>
+          <text x="45" y="354" font-size="8.5" fill="var(--text-muted)">500 Internal Server Error——伺服器內部發生未預期的錯誤；502 Bad Gateway——中介伺服器從上游收到無效回應；503 Service Unavailable——伺服器暫時無法處理請求</text>
+        </svg>
+        <figcaption>狀態碼的第一位數字，就是判斷這次請求結果最快的方法：1開頭是資訊性、2開頭代表成功、3開頭代表要再導向到別處、4開頭是客戶端這邊出了問題、5開頭是伺服器那邊出了問題。</figcaption>
+      </div>
+
+      <h2>3. 更多重要的請求／回應標頭</h2>
+      <p>
+        模組G第32課已經介紹過Host、User-Agent、Accept、Cookie這幾個
+        常見標頭，這裡再補充兩個實務上非常重要的標頭：
+      </p>
+      <ul>
+        <li><strong>Content-Type</strong>——說明主體內容的格式，
+          例如「text/html」代表HTML文字、「application/json」
+          代表JSON資料。不論是請求還是回應，只要帶有主體，通常
+          都會標明這個標頭，讓對方知道該怎麼解讀這段內容。</li>
+        <li><strong>Authorization</strong>——用來在請求裡攜帶
+          身分驗證用的憑證或權杖，讓伺服器判斷這次請求是不是
+          來自一個已通過驗證的使用者。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>安全與冪等，不是伺服器強制保證的</h3>
+        <p>
+          需要留意的是，「GET是安全的」「PUT是冪等的」這些性質，
+          是HTTP規格對這些方法語義上的<strong>期待與約定</strong>，
+          並不是伺服器在技術上被強迫遵守的規則——實務上如果一個
+          API的實作方式違反了這些約定（例如用GET請求去刪除資料），
+          會讓瀏覽器快取、重試機制、爬蟲等各種依賴這些約定的工具
+          做出錯誤的假設，是公認的不良設計。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋GET和POST在「有沒有副作用」與「冪等性」上的差異</li>
+          <li>能各舉出2xx、3xx、4xx、5xx中至少一個狀態碼，並說明它代表的意思</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 37 課：HTTP/1.1、HTTP/2、HTTP/3的演進——認識HTTP協定
+        本身怎麼隨著版本演進，一步步解決效能瓶頸。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：模組總結：整合時間軸全覽</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：HTTP/1.1、HTTP/2、HTTP/3的演進 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

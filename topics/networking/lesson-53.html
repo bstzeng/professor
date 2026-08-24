@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：Docker核心概念：映像檔、容器、Dockerfile ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="認識Docker三個核心概念：唯讀分層的映像檔（Image）、由映像檔啟動的執行實例容器（Container）、描述如何建置映像檔的Dockerfile，並拆解一份完整的Dockerfile範例">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜虛擬化與容器技術：Docker基礎 · 第 53 課</div>
+      <h1>Docker核心概念：映像檔、容器、Dockerfile</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解映像檔（Image）是唯讀、分層的應用程式範本，容器（Container）是由映像檔啟動的執行實例</li>
+          <li>理解Dockerfile是描述「如何建置出一個映像檔」的純文字腳本</li>
+          <li>能讀懂並解釋一份簡單Dockerfile裡FROM、COPY、RUN、WORKDIR、EXPOSE、CMD等指令的作用</li>
+        </ul>
+      </div>
+
+      <p>
+        第52課建立了容器的技術原理：namespace做隔離、cgroup
+        做資源限制，讓容器不必背著一整套作業系統核心，也能
+        做到「感覺獨立」的執行環境。而<strong>Docker</strong>正是
+        目前最主流、採用率最高的容器技術實作——它把上一課
+        的底層機制包裝成一套好用的工具鏈，讓開發者不需要直接
+        操作namespace、cgroup這些底層細節，就能建立、執行、
+        分享容器。這一課要建立Docker最核心的三個概念：映像檔、
+        容器、Dockerfile。
+      </p>
+
+      <h2>1. 映像檔（Image）：唯讀、分層的應用程式範本</h2>
+      <p>
+        <strong>映像檔（Image）</strong>是一份唯讀的範本，裡面
+        打包了執行一個應用程式所需要的所有東西：應用程式的
+        程式碼本身、需要的執行環境（例如Node.js或Python的
+        直譯器）、程式依賴的系統函式庫，以及相關的設定檔。
+        映像檔在建置時，會由一連串的<strong>層（layer）</strong>
+        堆疊而成——建置過程中的每一個步驟，通常會對應到一層，
+        而Docker會聰明地快取每一層的結果：如果重新建置時，
+        某一層的內容跟上次完全沒變（例如安裝依賴套件那一層），
+        就能直接重複使用快取，不必重跑一次；不同映像檔之間，
+        如果共用相同的底層（例如都是從同一個基礎映像檔開始），
+        也能共用、重複利用同一份層，節省磁碟空間與建置時間。
+      </p>
+
+      <h2>2. 容器（Container）：從映像檔啟動的執行實例</h2>
+      <p>
+        <strong>容器（Container）</strong>則是映像檔實際被啟動、
+        執行起來之後的實例（可能正在執行中，也可能已經停止）。
+        這個關係很像程式設計裡「類別」與「物件實例」的關係，
+        或是更貼近直覺地說——像是一個程式檔案跟它被執行起來
+        之後、變成一個個行程（process）的關係：<strong>同一份
+        映像檔，可以同時啟動出好幾個各自獨立、互不干擾的
+        容器</strong>，每個容器都有自己的檔案系統、行程空間、
+        網路環境（正是第52課namespace提供的隔離視角），但它們
+        用的都是同一份底層映像檔的內容，不需要重複複製一整份。
+      </p>
+
+      <h2>3. Dockerfile：描述「怎麼建置出映像檔」的腳本</h2>
+      <p>
+        映像檔不是憑空出現的，通常是根據一份<strong>Dockerfile
+        </strong>建置出來的——Dockerfile是一份純文字的腳本，
+        用一系列固定的關鍵字指令，一步一步描述要怎麼組裝出
+        這個映像檔。最基本、最常用到的幾個指令：
+      </p>
+      <table>
+        <thead>
+          <tr><th>指令</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>FROM</code></td><td>指定要以哪一個既有映像檔作為基礎起點，例如 <code>FROM node:20</code> 表示從官方的Node.js映像檔開始建置</td></tr>
+          <tr><td><code>WORKDIR</code></td><td>設定接下來指令執行時所在的工作目錄，如果目錄不存在會自動建立</td></tr>
+          <tr><td><code>COPY</code></td><td>把建置情境（build context，通常是專案資料夾）裡的檔案，複製進映像檔裡</td></tr>
+          <tr><td><code>RUN</code></td><td>在建置映像檔的過程中執行一段指令，最常見的用途是安裝套件、依賴</td></tr>
+          <tr><td><code>EXPOSE</code></td><td>用文件性質標註這個容器預期會監聽哪個連接埠，本身不會真的開放連線（實際對外開放靠 <code>docker run -p</code>）</td></tr>
+          <tr><td><code>CMD</code></td><td>指定容器啟動時，預設要執行的指令</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 完整範例：一個簡單的Node.js網頁應用程式</h2>
+      <p>
+        以下是一份完整、可運作的Dockerfile範例，用來建置一個
+        簡單的Node.js網頁應用程式的映像檔：
+      </p>
+      <div class="code-block">FROM node:20-alpine
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm install
+COPY . .
+EXPOSE 3000
+CMD ["node", "server.js"]</div>
+      <p>
+        逐行拆解：<code>FROM node:20-alpine</code>選擇一個已經
+        內建Node.js 20版本、且體積精簡的Alpine Linux作為基礎
+        映像檔；<code>WORKDIR /app</code>把後續指令的工作目錄
+        設在容器裡的<code>/app</code>；接著先只複製
+        <code>package.json</code>與<code>package-lock.json</code>
+        這兩個描述依賴套件清單的檔案，並執行<code>RUN npm
+        install</code>安裝依賴——刻意把這一步拆開、放在複製
+        全部程式碼之前，是為了讓Docker的層快取發揮作用：只要
+        依賴套件清單沒有變動，重新建置時就能直接沿用快取，
+        跳過重新安裝套件這個通常最花時間的步驟；然後
+        <code>COPY . .</code>把專案剩下的程式碼複製進映像檔；
+        <code>EXPOSE 3000</code>標註這個應用程式預期監聽3000
+        埠；最後<code>CMD ["node", "server.js"]</code>指定容器
+        啟動時，預設要執行<code>node server.js</code>這個指令
+        來啟動應用程式。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從Dockerfile到多個執行中的容器</text>
+
+          <rect x="20" y="50" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="85" y="75" text-anchor="middle" font-size="9" fill="var(--text)">Dockerfile</text>
+          <text x="85" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">建置指令腳本</text>
+
+          <line x1="150" y1="80" x2="215" y2="80" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow53a)"/>
+          <text x="182" y="70" text-anchor="middle" font-size="7.5" fill="var(--gold)">docker build</text>
+
+          <rect x="220" y="40" width="150" height="90" rx="6" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="295" y="58" text-anchor="middle" font-size="9" fill="var(--gold)">映像檔（Image）</text>
+          <rect x="235" y="66" width="120" height="14" fill="var(--surface)" stroke="var(--border)" stroke-width="0.8"/>
+          <text x="295" y="76" text-anchor="middle" font-size="6.5" fill="var(--text-muted)">層：CMD</text>
+          <rect x="235" y="82" width="120" height="14" fill="var(--surface)" stroke="var(--border)" stroke-width="0.8"/>
+          <text x="295" y="92" text-anchor="middle" font-size="6.5" fill="var(--text-muted)">層：COPY . .</text>
+          <rect x="235" y="98" width="120" height="14" fill="var(--surface)" stroke="var(--border)" stroke-width="0.8"/>
+          <text x="295" y="108" text-anchor="middle" font-size="6.5" fill="var(--text-muted)">層：npm install</text>
+          <rect x="235" y="114" width="120" height="12" fill="var(--surface)" stroke="var(--border)" stroke-width="0.8"/>
+          <text x="295" y="123" text-anchor="middle" font-size="6.5" fill="var(--text-muted)">層：node:20-alpine</text>
+
+          <line x1="370" y1="85" x2="435" y2="85" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arrow53b)"/>
+          <text x="402" y="75" text-anchor="middle" font-size="7.5" fill="var(--accent)">docker run</text>
+
+          <rect x="440" y="30" width="90" height="45" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="485" y="56" text-anchor="middle" font-size="8" fill="var(--accent)">容器 A</text>
+          <rect x="440" y="90" width="90" height="45" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="485" y="116" text-anchor="middle" font-size="8" fill="var(--accent)">容器 B</text>
+          <rect x="440" y="150" width="90" height="45" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="485" y="176" text-anchor="middle" font-size="8" fill="var(--accent)">容器 C</text>
+
+          <text x="485" y="215" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">同一份映像檔可啟動多個獨立容器</text>
+
+          <defs>
+            <marker id="arrow53a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+            </marker>
+            <marker id="arrow53b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>Dockerfile經過<code>docker build</code>建置成分層的映像檔，映像檔再經過<code>docker run</code>啟動成一個個各自獨立的容器——同一份映像檔可以同時啟動出多個容器。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出Dockerfile、映像檔、容器三者之間的關係</li>
+          <li>能舉出至少四個Dockerfile指令，並說明各自的作用</li>
+          <li>能解釋為什麼把「複製依賴清單並安裝依賴」放在「複製全部程式碼」之前，有助於善用層快取</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 54 課：Docker指令與常用工作流程——認識了映像檔跟
+        容器的概念之後，接下來要實際動手，走過build、run、
+        查看日誌、進入容器內部除錯、停止與清除這一整套最常用
+        的Docker指令流程。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：容器 vs 虛擬機的本質差異</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：Docker指令與常用工作流程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

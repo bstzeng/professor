@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：HTTP請求的組成與發送 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拆解一個HTTP請求實際的組成：請求列、標頭、選擇性的主體，並逐行標註一個真實GET請求的完整原始文字，銜接TCP如何可靠地把這段文字送到伺服器手中">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜從輸入網址到畫面出現：完整請求生命週期 · 第 32 課</div>
+      <h1>HTTP請求的組成與發送</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>拆解HTTP請求的三個組成部分：請求列、標頭、主體</li>
+          <li>認識Host、User-Agent、Accept、Cookie這幾個常見標頭的作用</li>
+          <li>理解這段請求文字如何被交給TCP連線可靠地送出</li>
+        </ul>
+      </div>
+
+      <p>
+        第31課結束時，瀏覽器與伺服器之間已經有了一條加密、且經過
+        身分驗證的安全通道。這一課要看的，是瀏覽器接下來真正
+        「說」了什麼——也就是組裝並送出的那份HTTP請求，本質上
+        它只是一段結構固定的純文字。
+      </p>
+
+      <h2>1. HTTP請求的三個組成部分</h2>
+      <p>
+        一個HTTP請求，不論內容多複雜，永遠由三個部分組成：
+      </p>
+      <ul>
+        <li><strong>請求列（request line）</strong>——固定寫在
+          第一行，包含三個元素：<strong>方法</strong>（要對資源
+          做什麼，例如GET）、<strong>路徑</strong>（要哪個資源，
+          例如/index.html）、<strong>HTTP版本</strong>（例如
+          HTTP/1.1）。</li>
+        <li><strong>請求標頭（headers）</strong>——一連串「鍵：
+          值」的中繼資料，每行一個，用來描述這個請求的各種屬性，
+          例如要跟誰要資料、瀏覽器是什麼軟體、能接受什麼格式的
+          回應等等。</li>
+        <li><strong>請求主體（body）</strong>——選擇性的部分，
+          只有像POST這種要「提交資料」的請求才會用到；單純
+          讀取資源的GET請求，通常沒有主體。</li>
+      </ul>
+
+      <h2>2. 一個真實GET請求長什麼樣子</h2>
+      <p>
+        假設瀏覽器要跟www.example.com要首頁的內容，實際在連線上
+        傳送的原始文字，大致會長成這樣：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個真實HTTP GET請求的原始文字</text>
+
+          <rect x="30" y="30" width="560" height="230" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+
+          <text x="45" y="55" font-family="monospace" font-size="11" fill="var(--gold)">GET /index.html HTTP/1.1</text>
+          <text x="580" y="55" text-anchor="end" font-size="8" fill="var(--gold)">① 請求列</text>
+
+          <text x="45" y="80" font-family="monospace" font-size="11" fill="var(--text)">Host: www.example.com</text>
+          <text x="580" y="80" text-anchor="end" font-size="8" fill="var(--accent)">Host標頭</text>
+
+          <text x="45" y="102" font-family="monospace" font-size="11" fill="var(--text)">User-Agent: Mozilla/5.0 (...)</text>
+          <text x="580" y="102" text-anchor="end" font-size="8" fill="var(--accent)">User-Agent標頭</text>
+
+          <text x="45" y="124" font-family="monospace" font-size="11" fill="var(--text)">Accept: text/html,image/*</text>
+          <text x="580" y="124" text-anchor="end" font-size="8" fill="var(--accent)">Accept標頭</text>
+
+          <text x="45" y="146" font-family="monospace" font-size="11" fill="var(--text)">Cookie: session_id=a92f...</text>
+          <text x="580" y="146" text-anchor="end" font-size="8" fill="var(--accent)">Cookie標頭（若有）</text>
+
+          <rect x="35" y="160" width="550" height="14" fill="var(--border)" opacity="0.3"/>
+          <text x="45" y="170" font-family="monospace" font-size="10" fill="var(--text-muted)">（空白行）</text>
+          <text x="580" y="170" text-anchor="end" font-size="8" fill="var(--text-muted)">② 標頭與主體的分隔線</text>
+
+          <text x="45" y="196" font-family="monospace" font-size="10" fill="var(--text-muted)">（GET請求通常沒有主體）</text>
+          <text x="580" y="196" text-anchor="end" font-size="8" fill="var(--text-muted)">③ 主體（此例為空）</text>
+
+          <text x="45" y="230" font-size="9" fill="var(--text-muted)">這整段文字，就是TCP連線裡實際傳送的「資料」——</text>
+          <text x="45" y="248" font-size="9" fill="var(--text-muted)">交給模組E介紹過的TCP機制，切成區段、依序可靠送達。</text>
+        </svg>
+        <figcaption>一個HTTP請求就是這麼直白的一段結構化純文字：第一行是請求列，接著是一行一個的標頭，一個空白行做分隔，最後（如果有的話）才是主體——這正是第31課建立的安全通道裡，實際被加密傳送的內容。</figcaption>
+      </div>
+
+      <h2>3. 常見標頭逐一拆解</h2>
+      <table>
+        <thead>
+          <tr><th>標頭</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Host</td><td>指定這個請求要找的是哪一個網域。因為同一個伺服器IP常常同時代管好幾個不同的網域，伺服器需要靠這個標頭才知道這次請求究竟是要哪一個網站的內容</td></tr>
+          <tr><td>User-Agent</td><td>告訴伺服器發出請求的是什麼瀏覽器、什麼作業系統，伺服器有時會依此調整回應內容</td></tr>
+          <tr><td>Accept</td><td>告訴伺服器客戶端能接受哪些內容格式，例如願意接受HTML、圖片等等</td></tr>
+          <tr><td>Cookie</td><td>如果瀏覽器先前存過這個網域的Cookie，會自動附在這裡送回去——第38課會完整說明它如何讓網站「記得」使用者</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <h3>為什麼一定要有Host標頭</h3>
+        <p>
+          TCP連線本身只知道目的地的IP位址跟連接埠，並不知道使用者
+          「想要哪個網站」。一台伺服器的IP位址，可能同時代管
+          example.com、another-site.com等好幾個完全不同的網站，
+          伺服器要靠請求裡的Host標頭才能分辨這次連線究竟是衝著
+          哪一個網域來的，進而回傳正確的內容。少了Host標頭，
+          伺服器就無從得知該回應哪個網站的資料。
+        </p>
+      </div>
+
+      <h2>4. 這段文字怎麼被送出去：銜接TCP</h2>
+      <p>
+        整段請求文字組好之後，並不是被當成一個獨立的「訊息」整包
+        射出去，而是被交給第31課建立好的TCP連線，當成一般的資料
+        流來處理。模組E介紹過，TCP會把要傳送的資料切成一個個
+        區段（segment），賦予序號，依序送出，並透過確認與重傳
+        機制保證每個區段最終都完整、依序地送達對方——HTTP完全
+        不需要自己操心資料會不會遺失或亂序，這些可靠性問題，
+        全部由底下的TCP層負責處理。這正是分層設計（模組A第3課）
+        的具體體現：HTTP只管把訊息組好，怎麼可靠送達是傳輸層
+        的責任。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出HTTP請求的三個組成部分，並描述各自的作用</li>
+          <li>能解釋Host標頭為什麼是必要的，尤其是在一台伺服器代管多個網域的情況下</li>
+          <li>能說明HTTP請求文字跟底下TCP連線之間的關係</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 33 課：伺服器端處理請求的完整流程——請求送達之後，
+        伺服器內部究竟做了什麼，才組出一份回應送回來，這一課
+        會從伺服器的視角拆解整個流程。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：建立TCP連線與TLS交握</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：伺服器端處理請求的完整流程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

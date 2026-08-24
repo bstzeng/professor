@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：連接埠：同一台機器怎麼同時處理多個服務 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="介紹連接埠的角色與三種埠號範圍：知名埠、已註冊埠、動態埠，以及IP位址、埠號、協定組成的通訊端點，如何用四元組讓一台伺服器同時處理成千上萬個連線">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜傳輸層：TCP與UDP的可靠與快速之爭 · 第 20 課</div>
+      <h1>連接埠：同一台機器怎麼同時處理多個服務</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼光靠IP位址不夠，還需要連接埠才能定位到機器上的特定服務</li>
+          <li>認識三種埠號範圍：知名埠、已註冊埠、動態／臨時埠，以及各自的用途</li>
+          <li>能說明「四元組」是哪四個欄位，以及它如何讓伺服器同時處理大量連線</li>
+        </ul>
+      </div>
+
+      <p>
+        前面四個模組，這門課從實體層的位元訊號開始，一路往上走到
+        資料鏈結層的MAC位址、網路層的IP位址與路由——IP位址讓
+        封包知道該送到「哪一台機器」。但實際上，一台機器上常常
+        同時跑著好幾個網路服務：網頁伺服器、電子郵件伺服器、
+        SSH遠端登入服務……封包送達機器之後，要怎麼知道該交給
+        哪一個服務處理？這正是傳輸層要解決的第一個問題，答案
+        就是這一課的主角：<strong>連接埠（port）</strong>。
+      </p>
+
+      <h2>1. 光有IP位址還不夠：同一台機器上的多個服務</h2>
+      <p>
+        可以把IP位址想像成一整棟大樓的地址——郵差靠這個地址
+        能把信送到正確的大樓，但這棟樓裡可能住了幾十戶人家，
+        光憑大樓地址，郵差沒辦法知道信該投進哪一戶的信箱。真正
+        決定信送到誰手上的，是地址後面那個「門牌號碼」。
+      </p>
+      <p>
+        連接埠扮演的正是這個「門牌號碼」的角色。它是一個
+        <strong>16位元的數字</strong>，範圍從0到65535，跟IP位址
+        搭配在一起，就能唯一定位到「某一台機器上的某一個特定
+        服務」。這也正是為什麼同一台伺服器、同一個IP位址，
+        可以同時提供網頁瀏覽、電子郵件收發、遠端登入等好幾種
+        完全不同的服務——因為每一個服務都在自己專屬的埠號上
+        「監聽」（listen），彼此互不干擾。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">一個IP位址，同時提供多個服務</text>
+
+          <rect x="30" y="100" width="150" height="60" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="105" y="126" text-anchor="middle" font-size="10" fill="var(--gold)">伺服器</text>
+          <text x="105" y="144" text-anchor="middle" font-size="9" fill="var(--text-muted)">203.0.113.10</text>
+
+          <line x1="180" y1="130" x2="240" y2="58" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="180" y1="130" x2="240" y2="106" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="180" y1="130" x2="240" y2="154" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="180" y1="130" x2="240" y2="202" stroke="var(--text-muted)" stroke-width="1"/>
+
+          <rect x="240" y="40" width="330" height="36" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="255" y="63" font-size="9.5" fill="var(--accent)">埠 80　→　網頁伺服器（HTTP）</text>
+
+          <rect x="240" y="88" width="330" height="36" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="255" y="111" font-size="9.5" fill="var(--accent)">埠 443　→　網頁伺服器（HTTPS）</text>
+
+          <rect x="240" y="136" width="330" height="36" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="255" y="159" font-size="9.5" fill="var(--accent)">埠 22　→　SSH遠端登入服務</text>
+
+          <rect x="240" y="184" width="330" height="36" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="255" y="207" font-size="9.5" fill="var(--accent)">埠 53　→　DNS名稱解析服務</text>
+        </svg>
+        <figcaption>同一個IP位址底下，不同的服務各自監聽在自己專屬的埠號上——封包抵達這台機器之後，作業系統會依照封包標頭裡標示的目的埠號，把資料交給對應的服務程式處理。</figcaption>
+      </div>
+
+      <h2>2. 三種埠號範圍：知名埠、已註冊埠、動態埠</h2>
+      <p>
+        0到65535這6萬多個埠號並不是隨便使用的，網際網路號碼
+        分配機構（IANA）把整個範圍劃分成三個區段，各自有不同
+        的用途與管理方式。
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>範圍</th>
+            <th>名稱</th>
+            <th>用途</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0–1023</td>
+            <td>知名埠（well-known ports）</td>
+            <td>保留給標準、常見的網路服務，例如HTTP=80、HTTPS=443、SSH=22、DNS=53</td>
+          </tr>
+          <tr>
+            <td>1024–49151</td>
+            <td>已註冊埠（registered ports）</td>
+            <td>特定應用程式向IANA登記使用的埠號，例如資料庫、遊戲伺服器等軟體</td>
+          </tr>
+          <tr>
+            <td>49152–65535</td>
+            <td>動態／臨時埠（dynamic / ephemeral ports）</td>
+            <td>作業系統在連線期間，臨時分配給連線發起端（通常是客戶端）使用</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        <strong>知名埠</strong>是這三個區段裡最重要、也最值得先記住
+        的一組：HTTP=80、HTTPS=443、SSH=22、DNS=53——這幾個
+        數字會在接下來的課程裡反覆出現，值得現在就先熟悉。
+        <strong>已註冊埠</strong>則留給各式各樣具名的應用程式使用，
+        通常會在IANA留下登記紀錄，避免不同軟體互相搶用同一個
+        埠號造成衝突。
+      </p>
+      <p>
+        <strong>動態／臨時埠</strong>的用法跟前兩者不太一樣：它不是
+        給「服務」長期監聽用的，而是作業系統在每次發起連線時，
+        臨時從這個範圍裡挑一個目前沒被占用的埠號，分配給連線的
+        客戶端那一側使用，連線結束後這個埠號就會被回收，留給
+        下一次連線再使用。也就是說，當你的瀏覽器連上某個網站時，
+        對方的網頁伺服器用的是固定的知名埠80，但你這一端的
+        瀏覽器用的，正是作業系統臨時指派的一個動態埠。
+      </p>
+
+      <h2>3. 通訊端點（Socket）：IP位址＋埠號＋協定</h2>
+      <p>
+        把IP位址跟埠號組合在一起，再加上使用的協定（TCP或
+        UDP），就構成了網路程式設計裡一個核心概念：<strong>通訊
+        端點（socket）</strong>。一個socket精確描述了「哪一台機器、
+        哪一個埠號、用哪一種協定」這三件事，是應用程式跟作業系統
+        網路堆疊溝通時，用來收送資料的基本單位。
+      </p>
+      <p>
+        值得特別注意的是，TCP的埠80跟UDP的埠80是兩個完全獨立、
+        互不衝突的通訊端點——因為協定本身也是socket定義的一部分。
+        實務上，大多數服務會固定使用其中一種協定（例如網頁伺服器
+        通常只用TCP），但這說明了「埠號」本身並不足以唯一定位
+        一個通訊端點，協定同樣是不可或缺的一環。
+      </p>
+
+      <h2>4. 連線的身分證：四元組如何區分成千上萬個連線</h2>
+      <p>
+        既然網頁伺服器固定監聽在埠80，那當成千上萬個不同的使用者
+        同時連上同一個網站時，伺服器要怎麼區分「這是哪一個使用者
+        傳來的資料」？答案在於：一個完整的TCP連線，並不是只靠
+        目的埠號辨識，而是由<strong>四元組（4-tuple）</strong>——
+        來源IP、來源埠、目的IP、目的埠——這四個欄位共同組成的
+        完整身分。
+      </p>
+      <p>
+        伺服器這一端的「目的IP、目的埠」對所有使用者來說都是
+        一樣的（同一台伺服器、同一個埠80），但每個使用者的
+        「來源IP」通常不同，就算剛好來自同一個來源IP（例如同一個
+        辦公室、同一個NAT出口），作業系統也會替每一次連線分配
+        不同的來源臨時埠——只要四個欄位裡有任何一個不一樣，
+        整組四元組就不同，伺服器就能把它們當成完全獨立、互不
+        干擾的連線來分別追蹤與處理。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">相同的目的埠，靠四元組區分不同連線</text>
+
+          <rect x="20" y="20" width="220" height="42" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="32" y="38" font-size="9" fill="var(--accent)">用戶端A</text>
+          <text x="32" y="53" font-size="8.5" fill="var(--text-muted)">來源 198.51.100.5:51000</text>
+
+          <rect x="20" y="90" width="220" height="42" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="32" y="108" font-size="9" fill="var(--accent)">用戶端B</text>
+          <text x="32" y="123" font-size="8.5" fill="var(--text-muted)">來源 198.51.100.9:52311</text>
+
+          <rect x="20" y="160" width="220" height="42" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="32" y="178" font-size="9" fill="var(--accent)">用戶端C</text>
+          <text x="32" y="193" font-size="8.5" fill="var(--text-muted)">來源 203.0.113.55:49500</text>
+
+          <line x1="240" y1="41" x2="380" y2="110" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="240" y1="111" x2="380" y2="112" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="240" y1="181" x2="380" y2="114" stroke="var(--text-muted)" stroke-width="1"/>
+
+          <rect x="380" y="85" width="200" height="55" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="480" y="108" text-anchor="middle" font-size="9.5" fill="var(--gold)">伺服器</text>
+          <text x="480" y="124" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">目的 203.0.113.10:80</text>
+        </svg>
+        <figcaption>三個用戶端連往同一台伺服器的同一個埠80，目的IP與目的埠完全相同，但來源IP或來源埠各不相同——四個欄位組成的四元組，讓伺服器能把這三條連線當成獨立、互不干擾的個體來處理。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>小結：IP定位機器，埠號定位服務，四元組定位連線</h3>
+        <p>
+          這一課建立的三層概念，值得牢記：<strong>IP位址</strong>
+          負責把封包送到正確的機器；<strong>連接埠</strong>負責在
+          那台機器上，找到正確的服務；<strong>四元組</strong>則讓
+          同一個服務、同一個埠號，能夠同時服務無數個獨立的
+          使用者連線。下一課要開始深入TCP這個協定本身，看看
+          「連線」在TCP的世界裡究竟是怎麼一回事。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出三種埠號範圍的名稱、大致範圍與各自的用途，並舉出至少兩個知名埠的例子</li>
+          <li>能用生活中的類比，解釋IP位址與連接埠各自扮演的角色有什麼不同</li>
+          <li>能說明「四元組」是哪四個欄位，以及為什麼它能讓伺服器同時處理大量連線</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 21 課會正式進入TCP這個協定：TCP是一種「連線導向」的
+        協定，在雙方真正開始交換資料之前，必須先透過三個步驟的
+        「三向交握」建立起一條連線——下一課會逐步拆解這個過程
+        裡每一個步驟的確切作用。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：模組總結：IPv4耗盡與IPv6</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：TCP三向交握 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

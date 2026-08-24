@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：憑證與憑證頒發機構(CA)：如何信任一個網站 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拆解PKI信任模型：憑證頒發機構(CA)如何驗證網站身分並簽發憑證、瀏覽器內建的信任庫與根憑證、憑證鏈如何一路驗證到根CA，以及Let's Encrypt讓憑證申請自動化的意義">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜HTTPS與網路安全基礎 · 第 44 課</div>
+      <h1>憑證與憑證頒發機構(CA)：如何信任一個網站</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解憑證頒發機構（CA）在PKI信任模型裡扮演的角色：驗證身分、簽發憑證</li>
+          <li>理解瀏覽器如何透過內建的信任庫、沿著信任鏈驗證一張憑證是否可信</li>
+          <li>認識Let's Encrypt做為自動化、免費憑證核發服務的意義</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課的TLS交握留下一個關鍵問題：伺服器在ServerHello
+        階段送出自己的憑證，裡面附上公鑰跟身分資訊——但客戶端
+        憑什麼相信這張憑證真的屬於它想連線的那個網站，而不是
+        中間人（第41課）偽造出來、企圖冒充的假憑證？如果沒有
+        辦法驗證這一點，整個TLS交握再怎麼精密，都可能只是在
+        跟一個冒牌貨安全地通訊而已。這一課要補上這塊信任機制
+        的拼圖。
+      </p>
+
+      <h2>1. 信任問題：誰來替一個網站的身分做擔保</h2>
+      <p>
+        解決這個問題的整體架構叫做<strong>公開金鑰基礎建設
+        （Public Key Infrastructure, PKI）</strong>，核心角色是
+        <strong>憑證頒發機構（Certificate Authority, CA）</strong>
+        ——一個受到廣泛信任的第三方組織。網站的擁有者向CA申請
+        憑證時，CA會先用某種方式確認申請者確實擁有、控制著
+        那個網域（例如透過DNS紀錄或網站上的特定檔案來驗證，
+        第60課實作時會看到具體流程），確認無誤後，CA才會核發
+        一張憑證給這個網站，並且用<strong>CA自己的私鑰</strong>
+        對這張憑證做<strong>數位簽章</strong>，等於是CA用自己的
+        信譽替這個「網域名稱對應到這把公鑰」的宣稱背書。
+      </p>
+
+      <h2>2. 瀏覽器怎麼驗證：信任庫與信任鏈</h2>
+      <p>
+        瀏覽器與作業系統會預先內建一份<strong>信任庫（trust
+        store）</strong>，裡面存放著一批業界公認、可信賴的
+        <strong>根憑證機構（root CA）</strong>的公鑰。當客戶端
+        在TLS交握中收到伺服器的憑證時，會檢查這張憑證是不是
+        被信任庫裡的某個CA（有時是透過一個或多個<strong>中間CA
+        （intermediate CA）</strong>層層簽署，形成一條從伺服器
+        憑證一路往上追溯到根CA的<strong>信任鏈（chain of
+        trust）</strong>）所簽署。只要這條鏈能夠一路驗證到某個
+        瀏覽器已經信任的根CA、憑證上記載的網域名稱跟目前造訪
+        的網站相符、而且憑證還沒過期或被撤銷，瀏覽器就會認定
+        這條連線可信，通常會在網址列顯示鎖頭圖示；只要任何一個
+        條件不成立，瀏覽器就會顯示明確的安全警告，阻擋使用者
+        在不知情的狀況下繼續使用這條連線。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">信任鏈：從伺服器憑證一路驗證到根CA</text>
+
+          <rect x="270" y="45" width="160" height="45" rx="4" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="350" y="65" text-anchor="middle" font-size="9.5" fill="var(--gold)">伺服器憑證</text>
+          <text x="350" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">www.example.com＋公鑰</text>
+
+          <line x1="350" y1="90" x2="350" y2="130" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a44)"/>
+          <text x="400" y="112" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">由中間CA簽署</text>
+
+          <rect x="270" y="130" width="160" height="45" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="350" y="150" text-anchor="middle" font-size="9.5" fill="var(--accent)">中間CA憑證</text>
+          <text x="350" y="165" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Intermediate CA</text>
+
+          <line x1="350" y1="175" x2="350" y2="215" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a44)"/>
+          <text x="400" y="197" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">由根CA簽署</text>
+
+          <rect x="270" y="215" width="160" height="45" rx="4" fill="var(--text)" opacity="0.08" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="350" y="235" text-anchor="middle" font-size="9.5" fill="var(--text)">根CA憑證</text>
+          <text x="350" y="250" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Root CA</text>
+
+          <line x1="350" y1="260" x2="350" y2="285" stroke="var(--text-muted)" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+          <rect x="230" y="285" width="240" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="350" y="302" text-anchor="middle" font-size="8.5" fill="var(--text)">瀏覽器／作業系統內建信任庫</text>
+          <text x="350" y="316" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">預先存放根CA的公鑰，做為信任的起點</text>
+
+          <defs>
+            <marker id="a44" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>伺服器憑證由中間CA簽署，中間CA憑證再由根CA簽署，根CA的公鑰早已預先安裝在瀏覽器的信任庫裡——只要這條鏈一路驗證得通，瀏覽器就信任這張伺服器憑證。</figcaption>
+      </div>
+
+      <h2>3. 憑證要檢查的三件事</h2>
+      <table>
+        <thead>
+          <tr><th>檢查項目</th><th>目的</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>信任鏈是否驗證到已知的根CA</td><td>確認這張憑證確實是由值得信賴的機構所簽發</td></tr>
+          <tr><td>憑證上的網域名稱是否相符</td><td>防止拿一張為A網站簽發的合法憑證，冒充成B網站</td></tr>
+          <tr><td>憑證是否仍在有效期限內、未被撤銷</td><td>過期或已知外洩的憑證不應繼續被信任</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這也回應了第41課的問題：中間人攻擊者即使能夠攔截、
+        轉發流量，也無法偽造出一張能通過上述檢查的合法憑證
+        ——除非他真的能取得某個受信任CA的私鑰，或是想辦法讓
+        受害者的裝置錯誤地信任一張偽造的憑證，這正是為什麼
+        瀏覽器對憑證驗證失敗會顯示如此醒目、難以忽略的警告。
+      </p>
+
+      <div class="callout">
+        <h3>Let's Encrypt：讓憑證申請自動化、免費化</h3>
+        <p>
+          憑證的申請、核發過去往往需要人工審核、付費，是不少
+          網站遲遲不上HTTPS的門檻之一。<strong>Let's Encrypt</strong>
+          是現代廣泛使用的一個CA，它把身分驗證與憑證核發流程
+          自動化，並且免費提供——第60課會實際動手申請並設定
+          Let's Encrypt憑證，把這一課學到的信任鏈理論，真正
+          落地成自己架設網站時可以操作的步驟。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋憑證頒發機構（CA）在TLS信任模型裡扮演的角色</li>
+          <li>能描述瀏覽器如何驗證一張憑證的信任鏈，以及驗證失敗時會發生什麼事</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 45 課：模組總結：常見網路攻擊手法概覽——把模組I
+        從中間人攻擊、加密、TLS交握到憑證信任鏈的完整故事
+        串起來，並簡短認識SQL注入、XSS、DDoS這幾種常見的
+        網路攻擊類型，做為安全意識的延伸。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：TLS交握完整流程</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：模組總結：常見網路攻擊手法概覽 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

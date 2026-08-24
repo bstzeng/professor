@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：建立TCP連線與TLS交握 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拿到IP位址之後，瀏覽器要跟伺服器建立實際連線：銜接模組E的TCP三向交握，並初步認識TLS交握如何在連線上建立起加密通道，為之後傳送HTTP請求做準備">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜從輸入網址到畫面出現：完整請求生命週期 · 第 31 課</div>
+      <h1>建立TCP連線與TLS交握</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>銜接模組E，理解TCP三向交握在這個完整旅程中扮演的角色</li>
+          <li>知道HTTPS與HTTP分別使用哪個連接埠、原因是什麼</li>
+          <li>建立TLS交握的高層次概念：協商加密參數、驗證身分、建立共享金鑰</li>
+        </ul>
+      </div>
+
+      <p>
+        第30課結束時，瀏覽器已經拿到了www.example.com對應的IP
+        位址。但光有IP位址還不夠——就像知道一個人家的地址，不代表
+        已經跟他通上話。瀏覽器接下來要做的，是真正跟這個IP位址
+        建立起一條可靠的連線，然後（在現代網路裡幾乎必然）在這條
+        連線上再包一層加密。這一課要走過的，正是這兩個步驟：TCP
+        三向交握，以及TLS交握。
+      </p>
+
+      <h2>1. TCP三向交握：連線建立的複習</h2>
+      <p>
+        模組E第21課已經完整拆解過TCP三向交握的細節，這裡不重複
+        推導，只做銜接性的複習：瀏覽器（客戶端）先送出一個帶有
+        SYN旗標的封包，表示「我想跟你建立連線」；伺服器回應一個
+        同時帶有SYN與ACK旗標的封包，表示「收到，我也準備好了」；
+        瀏覽器再送出最後一個ACK封包，確認雙方都準備完成。三個
+        封包交換完畢後，一條可靠的TCP連線就正式建立了，雙方都
+        已經同步好初始的序號，接下來可以開始傳送真正的資料，並
+        享有模組E第22課介紹過的確認、重傳、視窗控制等可靠傳輸
+        機制。
+      </p>
+      <p>
+        這條連線要連到伺服器的哪一個連接埠，取決於這是不是加密
+        連線：如果是HTTPS（這門課接下來會預設的情境，因為模組I
+        會完整介紹HTTPS），目的埠是<strong>443</strong>；如果是
+        沒有加密的一般HTTP，目的埠則是<strong>80</strong>。這正是
+        模組E第20課「連接埠：同一台機器怎麼同時處理多個服務」的
+        具體應用——同一台伺服器可能同時在80埠跑著一個HTTP服務、
+        在443埠跑著HTTPS服務，甚至還有其他埠跑著別的服務，全部
+        並存不衝突。
+      </p>
+
+      <h2>2. 為什麼TCP連線之後還要再握一次手：TLS</h2>
+      <p>
+        TCP三向交握只解決了「雙方能不能可靠地互相傳資料」這個
+        問題，完全沒有處理「這些資料會不會被路上的第三者偷看或
+        竄改」。今天絕大多數的網站使用HTTPS，也就是在TCP連線
+        之上，再進行一次<strong>TLS交握（TLS handshake）</strong>，
+        在雙方之間建立一條加密過的安全通道。TLS交握牽涉到的密碼學
+        細節相當豐富，模組I第43課會完整拆解每一個步驟；這一課
+        先建立高層次的概念，知道TLS交握大致完成三件事：
+      </p>
+      <ul>
+        <li><strong>協商加密參數</strong>——瀏覽器與伺服器互相
+          確認雙方都支援、且要採用的加密演算法組合。</li>
+        <li><strong>驗證伺服器身分</strong>——伺服器出示自己的
+          數位憑證，證明「我確實是www.example.com，不是冒充的」。</li>
+        <li><strong>建立共享的加密金鑰</strong>——雙方透過交換
+          過的資訊，各自算出同一把只有彼此知道的金鑰，之後這條
+          連線上傳送的所有資料，都會用這把金鑰加密。</li>
+      </ul>
+      <p>
+        這三件事一旦完成，瀏覽器與伺服器之間就有了一條加密、且
+        經過身分驗證的「隧道」——外界即使攔截到這條連線上的封包，
+        看到的也只是加密過的亂碼，看不出裡面實際傳的是什麼內容。
+        接下來要送出的HTTP請求，就會透過這條隧道傳送。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從DNS解析到安全通道建立：接續第30課的旅程</text>
+
+          <text x="90" y="45" text-anchor="middle" font-size="10" fill="var(--text)">瀏覽器</text>
+          <line x1="90" y1="55" x2="90" y2="300" stroke="var(--border)" stroke-width="1"/>
+          <text x="560" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">伺服器 93.184.216.34:443</text>
+          <line x1="560" y1="55" x2="560" y2="300" stroke="var(--border)" stroke-width="1"/>
+
+          <rect x="60" y="70" width="60" height="26" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="90" y="87" text-anchor="middle" font-size="8" fill="var(--gold)">第30課</text>
+          <text x="200" y="87" text-anchor="middle" font-size="9" fill="var(--text-muted)">已取得IP位址 93.184.216.34</text>
+
+          <text x="325" y="118" text-anchor="middle" font-size="8" fill="var(--text-muted)">— TCP三向交握（模組E第21課）—</text>
+          <line x1="90" y1="130" x2="560" y2="130" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="123" text-anchor="middle" font-size="8" fill="var(--text)">SYN</text>
+          <line x1="560" y1="150" x2="90" y2="150" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="144" text-anchor="middle" font-size="8" fill="var(--text)">SYN-ACK</text>
+          <line x1="90" y1="170" x2="560" y2="170" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="164" text-anchor="middle" font-size="8" fill="var(--text)">ACK →連線建立</text>
+
+          <text x="325" y="200" text-anchor="middle" font-size="8" fill="var(--text-muted)">— TLS交握（高層次，細節見模組I第43課）—</text>
+          <line x1="90" y1="212" x2="560" y2="212" stroke="var(--gold)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="206" text-anchor="middle" font-size="8" fill="var(--gold)">協商加密參數 + 索取憑證</text>
+          <line x1="560" y1="234" x2="90" y2="234" stroke="var(--gold)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="228" text-anchor="middle" font-size="8" fill="var(--gold)">出示憑證 + 交換金鑰材料</text>
+          <line x1="90" y1="256" x2="560" y2="256" stroke="var(--gold)" stroke-width="1.2" marker-end="url(#arr31)"/>
+          <text x="325" y="250" text-anchor="middle" font-size="8" fill="var(--gold)">確認完成，切換為加密通訊</text>
+
+          <rect x="60" y="270" width="500" height="24" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" rx="4"/>
+          <text x="310" y="286" text-anchor="middle" font-size="9" fill="var(--accent)">安全通道建立完成——接下來可以傳送HTTP請求了（第32課）</text>
+
+          <defs>
+            <marker id="arr31" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>TCP三向交握先建立起可靠的資料傳輸連線，TLS交握再於這條連線之上額外協商出一層加密與身分驗證——兩層交握都完成之後，才輪到HTTP請求真正上場。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>兩層交握，兩個不同的問題</h3>
+        <p>
+          容易搞混的地方在於：TCP交握與TLS交握解決的是完全不同層次
+          的問題。TCP三向交握（傳輸層）確保「封包能不能可靠送達、
+          順序對不對」；TLS交握（運作在傳輸層之上）確保「送達的
+          內容會不會被偷看或竄改、對方是不是真的是它自稱的那個
+          網站」。兩者缺一不可，而且順序固定：一定要先有可靠的
+          TCP連線，才能在上面談加密。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出HTTPS連線通常使用哪個連接埠、HTTP又是哪個，並說明原因</li>
+          <li>能用高層次的話描述TLS交握大致完成哪三件事（不需要密碼學細節）</li>
+          <li>能解釋為什麼一定要先完成TCP三向交握，才能開始TLS交握</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 32 課：HTTP請求的組成與發送——安全通道建立完成後，
+        瀏覽器終於要組裝出真正的HTTP請求，這一課會逐行拆解一個
+        實際的請求長什麼樣子。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：DNS解析</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：HTTP請求的組成與發送 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

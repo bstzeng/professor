@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：CSMA/CD與碰撞網域 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="解析共享媒介乙太網路的碰撞問題，CSMA/CD載波感測多重存取與碰撞偵測的運作步驟，碰撞網域的定義，以及現代交換式全雙工網路為什麼讓CSMA/CD大多成為歷史">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜資料鏈結層：MAC位址與區域網路交換 · 第 12 課</div>
+      <h1>CSMA/CD與碰撞網域</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解共享媒介乙太網路為什麼會發生「碰撞」</li>
+          <li>理解CSMA/CD（載波感測多重存取／碰撞偵測）的完整運作步驟</li>
+          <li>理解碰撞網域的定義，以及為什麼現代交換式網路讓CSMA/CD大多成為歷史</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課提到，集線器讓所有連接的裝置共用同一份電子訊號，
+        而模組B第8課也提過乙太網路最早其實是接在一整條共用的
+        同軸電纜匯流排上。不管是哪一種，只要多台裝置共用同一條
+        實體媒介，就會遇到一個實際的物理問題：如果兩台裝置剛好
+        同時開始傳送，會發生什麼事？這一課要講的CSMA/CD，正是
+        早期乙太網路用來處理這個問題的機制。
+      </p>
+
+      <h2>1. 共享媒介的問題：訊號碰撞</h2>
+      <p>
+        電子訊號本質上是電壓的變化。如果兩台裝置在同一條共用線路
+        上同時傳送，兩組電壓訊號會在線路上疊加、互相干擾，變成
+        一團誰都無法正確解讀的雜訊——這就是<strong>碰撞
+        （collision）</strong>。碰撞發生時，牽涉在內的每一份
+        傳輸都會損毀，沒有任何一方能收到完整、正確的訊框，雙方
+        都得重新傳送一次。
+      </p>
+
+      <h2>2. CSMA/CD：載波感測多重存取／碰撞偵測</h2>
+      <p>
+        為了盡量避免、並且在碰撞真的發生時妥善處理，共享媒介
+        乙太網路採用了<strong>CSMA/CD（Carrier Sense Multiple
+        Access with Collision Detection）</strong>機制，這個
+        名字其實就是完整流程的濃縮：
+      </p>
+      <ul>
+        <li><strong>Carrier Sense（載波感測）</strong>——裝置想
+          傳送資料之前，會先「聽」一下線路上有沒有其他訊號正在
+          傳輸，只有偵測到線路是閒置的，才會開始傳送。</li>
+        <li><strong>Multiple Access（多重存取）</strong>——線路是
+          由多台裝置共用的，任何一台裝置只要偵測到線路閒置，
+          原則上都有權開始傳送。</li>
+        <li><strong>Collision Detection（碰撞偵測）</strong>——就算
+          已經開始傳送，裝置也會持續監聽線路：如果偵測到線路上
+          的訊號跟自己送出去的不一樣（代表有其他裝置的訊號疊了
+          上來），就代表發生了碰撞。</li>
+      </ul>
+      <p>
+        一旦偵測到碰撞，裝置會立刻停止傳送資料，改為送出一段短短
+        的<strong>阻塞信號（jam signal）</strong>，確保線路上所有
+        裝置都能明確知道「剛剛發生碰撞了」，把收到一半的訊框
+        丟棄。接著，每一個牽涉在碰撞裡的裝置，都會各自等待一段
+        <strong>隨機的時間</strong>之後才重新嘗試傳送——而且如果
+        同一個訊框連續碰撞好幾次，這段隨機等待的時間範圍會以倍數
+        成長（稱為<strong>二進位指數退避，binary exponential
+        backoff</strong>），降低下一次重試又立刻撞在一起的機率；
+        如果重試次數超過上限，這個訊框就會被放棄，並回報上層發生
+        了傳輸錯誤。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">CSMA/CD 流程</text>
+
+          <g font-size="10" fill="var(--text)">
+            <rect x="20" y="45" width="110" height="42" rx="4" fill="var(--surface)" stroke="var(--border)"/>
+            <text x="75" y="70" text-anchor="middle">線路閒置？</text>
+
+            <rect x="165" y="45" width="110" height="42" rx="4" fill="var(--surface)" stroke="var(--gold)"/>
+            <text x="220" y="70" text-anchor="middle" fill="var(--gold)">開始傳送</text>
+
+            <rect x="310" y="45" width="110" height="42" rx="4" fill="var(--surface)" stroke="var(--border)"/>
+            <text x="365" y="63" text-anchor="middle">持續監聽</text>
+            <text x="365" y="77" text-anchor="middle">有碰撞？</text>
+
+            <rect x="455" y="45" width="130" height="42" rx="4" fill="var(--surface)" stroke="#ff8a65"/>
+            <text x="520" y="70" text-anchor="middle" fill="#ff8a65">送出阻塞信號</text>
+          </g>
+
+          <path d="M 130,66 L 165,66" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#ar1)"/>
+          <path d="M 275,66 L 310,66" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#ar1)"/>
+          <path d="M 420,66 L 455,66" stroke="#ff8a65" stroke-width="1.3" marker-end="url(#ar2)"/>
+
+          <path d="M 520,87 L 520,150 L 220,150" stroke="#ff8a65" stroke-width="1.3" fill="none" marker-end="url(#ar2)"/>
+          <rect x="120" y="130" width="150" height="42" rx="4" fill="var(--surface)" stroke="#ff8a65"/>
+          <text x="195" y="149" text-anchor="middle" font-size="10" fill="#ff8a65">隨機等待</text>
+          <text x="195" y="163" text-anchor="middle" font-size="9" fill="var(--text-muted)">（每次碰撞範圍加倍）</text>
+
+          <path d="M 195,172 L 195,66" stroke="var(--text-muted)" stroke-width="1.3" stroke-dasharray="3 3" fill="none" marker-end="url(#ar1)"/>
+          <text x="230" y="200" font-size="9" fill="var(--text-muted)">等待結束後，回到「線路閒置？」重新嘗試</text>
+
+          <path d="M 365,87 L 365,120" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="365" y="115" text-anchor="middle" font-size="8" fill="var(--text-muted)">無碰撞→傳送完成</text>
+
+          <defs>
+            <marker id="ar1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/></marker>
+            <marker id="ar2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#ff8a65"/></marker>
+          </defs>
+        </svg>
+        <figcaption>CSMA/CD的完整循環：先聽線路是否閒置，閒置才傳送；傳送中持續監聽是否碰撞；一旦碰撞就送出阻塞信號、隨機等待後再重試，且等待範圍隨連續碰撞次數倍增。</figcaption>
+      </div>
+
+      <h2>3. 碰撞網域（Collision Domain）</h2>
+      <p>
+        <strong>碰撞網域</strong>指的是「一群裝置之中，任兩台如果
+        同時傳送就有可能發生碰撞」的範圍——本質上就是共用同一段
+        實體媒介的裝置集合。這個定義直接決定了集線器與交換器在
+        碰撞問題上的巨大差異：
+      </p>
+      <ul>
+        <li><strong>集線器</strong>：因為所有埠在電子層面上其實是
+          同一條共用線路，接在同一台集線器（或由集線器串接起來的
+          整個範圍）上的<strong>所有裝置，都算在同一個碰撞
+          網域裡</strong>。</li>
+        <li><strong>交換器</strong>：因為交換器會把訊框判讀之後，
+          只送到目的地實際所在的那個埠（上一課的內容），任兩台
+          裝置的電子訊號並不會真的同時出現在同一條線上——所以
+          <strong>交換器上的每一個埠，都是自己獨立的碰撞
+          網域</strong>。</li>
+      </ul>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="155" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">集線器：一整個共用碰撞網域</text>
+          <ellipse cx="155" cy="120" rx="130" ry="80" fill="var(--gold)" opacity="0.12" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <rect x="120" y="105" width="70" height="30" rx="4" fill="var(--surface)" stroke="var(--text-muted)"/>
+          <text x="155" y="124" text-anchor="middle" font-size="9">集線器</text>
+          <circle cx="70" cy="60" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="240" cy="60" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="70" cy="180" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="240" cy="180" r="13" fill="none" stroke="var(--border)"/>
+          <text x="155" y="212" text-anchor="middle" font-size="9" fill="var(--gold)">一個碰撞網域，涵蓋全部4台裝置</text>
+
+          <text x="465" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">交換器：每個埠各自獨立</text>
+          <rect x="430" y="105" width="70" height="30" rx="4" fill="var(--surface)" stroke="var(--accent)"/>
+          <text x="465" y="124" text-anchor="middle" font-size="9">交換器</text>
+          <ellipse cx="380" cy="60" rx="26" ry="18" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+          <ellipse cx="550" cy="60" rx="26" ry="18" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+          <ellipse cx="380" cy="180" rx="26" ry="18" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+          <ellipse cx="550" cy="180" rx="26" ry="18" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="380" cy="60" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="550" cy="60" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="380" cy="180" r="13" fill="none" stroke="var(--border)"/>
+          <circle cx="550" cy="180" r="13" fill="none" stroke="var(--border)"/>
+          <text x="465" y="212" text-anchor="middle" font-size="9" fill="var(--accent)">4個獨立碰撞網域，各只有一台裝置</text>
+        </svg>
+        <figcaption>集線器上所有裝置共用一個碰撞網域；交換器則讓每個埠各自成為獨立的碰撞網域，兩台裝置之間的訊號不會真正共用同一條線。</figcaption>
+      </div>
+
+      <h2>4. 為什麼CSMA/CD現在大多是歷史</h2>
+      <p>
+        現代網路幾乎全面採用交換式、<strong>全雙工（full-duplex）
+        </strong>的乙太網路——所謂全雙工，是指每台裝置跟交換器之間
+        都有各自獨立、可以同時傳送與接收的線路，不必再輪流搶用
+        同一條共用媒介。既然每個埠本來就是獨立的碰撞網域，
+        又是收送分離的全雙工連線，結構上就不會再發生碰撞——CSMA/CD
+        原本要解決的問題，在這種拓樸下根本不存在了。
+      </p>
+      <p>
+        也因此，CSMA/CD在今天大多已經是<strong>歷史性的知識</strong>：
+        理解它，能幫助你搞懂集線器、匯流排式乙太網路等早期共享
+        媒介網路的運作方式，也是理解Wi-Fi所採用、原理相關但細節
+        不同的<strong>CSMA/CA（碰撞避免）</strong>機制的重要背景——
+        無線環境裡裝置很難一邊傳送一邊可靠地偵測碰撞，所以Wi-Fi
+        改採取事前盡量「避免」碰撞發生的策略，而不是CSMA/CD這種
+        「碰撞了再處理」的做法，這部分細節不在這門課的討論範圍內。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋CSMA/CD在共享媒介乙太網路上要解決的問題，以及其運作步驟</li>
+          <li>能定義碰撞網域，並比較集線器與交換器在碰撞網域劃分上的差異</li>
+          <li>能說明為什麼現代交換式全雙工網路讓CSMA/CD大多不再必要</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 13 課：VLAN——交換器除了能精確轉送訊框，還能在同一台
+        實體設備上，邏輯劃分出多個互相隔離的群組，下一課要介紹
+        這個實務上非常常見的技術。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：集線器 vs 交換器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：VLAN →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

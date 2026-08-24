@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：DNS解析：網域名稱怎麼變成IP位址 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="模組G開場：拆解在瀏覽器網址列輸入網域名稱、按下Enter之後的第一件事——DNS遞迴解析如何一路查詢根伺服器、頂層網域伺服器、權威伺服器，把人看得懂的名字變成路由器看得懂的IP位址">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜從輸入網址到畫面出現：完整請求生命週期 · 第 30 課</div>
+      <h1>DNS解析：網域名稱怎麼變成IP位址</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解DNS遞迴解析的完整查詢鏈：客戶端、解析器、根伺服器、TLD伺服器、權威伺服器</li>
+          <li>理解快取與TTL在DNS體系裡如何避免重複查詢</li>
+          <li>認識A、AAAA、CNAME、NS這幾種常見的DNS紀錄類型</li>
+        </ul>
+      </div>
+
+      <p>
+        模組A到模組F，我們由下而上把整個協定堆疊建起來了：實體層的
+        訊號、鏈結層的MAC定址與交換、網路層的IP定址與路由、傳輸層
+        的連接埠與TCP/UDP、以及資料中心這個承載一切的實體骨幹。
+        從這一課開始，模組G要把這些拼圖全部組裝起來，講一個完整
+        的故事：當使用者在瀏覽器網址列輸入
+        <strong>https://www.example.com</strong>、按下Enter，到畫面
+        上出現網頁內容為止，究竟依序發生了什麼事。這是整門課的
+        壓軸整合模組，也是最值得反覆回味的一課。
+      </p>
+
+      <h2>1. 第一個問題：瀏覽器只知道名字，不知道位址</h2>
+      <p>
+        模組D說過，網路層要把封包送到目的地，靠的是<strong>IP
+        位址</strong>，路由器完全不理解「www.example.com」這種
+        人類看得懂的名字。所以在任何一個位元組被送出去之前，
+        瀏覽器必須先解決一個問題：這個網域名稱，對應到哪一個
+        IP位址？負責回答這個問題的系統，叫做<strong>網域名稱
+        系統（Domain Name System, DNS）</strong>。可以把DNS想成
+        整個網際網路的電話簿：你知道一個人的名字，DNS幫你查出
+        他的電話號碼（IP位址）。
+      </p>
+
+      <h2>2. 先查快取：多數情況下根本不用問別人</h2>
+      <p>
+        瀏覽器不會每次都大費周章地去問。它會先檢查自己內部的
+        DNS快取，看看最近是不是才查詢過這個名字；如果瀏覽器沒有，
+        接著會檢查作業系統層級的DNS快取。只要任何一層快取裡有
+        還沒過期的答案，直接拿來用，完全不需要送出任何網路查詢
+        ——這是最快的路徑，也是DNS系統效率的關鍵。
+      </p>
+
+      <h2>3. 沒有快取時：遞迴解析器代勞的完整旅程</h2>
+      <p>
+        如果本機完全沒有快取的答案，瀏覽器（更精確地說是作業系統
+        的解析程式庫）會把問題丟給一台事先設定好的<strong>DNS
+        解析器（resolver）</strong>——通常是使用者的ISP自動指派的
+        伺服器，或是使用者主動設定的公開解析器（例如許多人熟悉
+        的8.8.8.8）。這台解析器接下來要做的事，稱為<strong>遞迴
+        解析（recursive resolution）</strong>：它會代替客戶端，
+        一步一步問下去，直到查到答案為止，客戶端本身完全不用
+        參與這個多層查詢的過程，只需要等最終答案。
+      </p>
+      <p>
+        遞迴解析大致依序經過三個層級的伺服器：
+      </p>
+      <ul>
+        <li><strong>根伺服器（root server）</strong>——整個DNS
+          階層的最頂端。解析器問根伺服器：「www.example.com這個
+          名字，誰負責.com這個頂層網域？」根伺服器不知道
+          www.example.com實際的IP，但它知道應該去問哪一群伺服器
+          管理.com。</li>
+        <li><strong>頂層網域伺服器（TLD server）</strong>——負責
+          .com、.net、.org這類頂層網域的伺服器。解析器接著問它：
+          「example.com這個網域，誰是它的權威伺服器？」TLD伺服器
+          回答出負責example.com這個網域的權威伺服器位址。</li>
+        <li><strong>權威伺服器（authoritative server）</strong>
+          ——真正掌握example.com這個網域所有紀錄的伺服器，通常
+          由網域的擁有者或其代管服務商維運。解析器最後問它：
+          「www.example.com的IP位址是多少？」這一次，得到的
+          就是真正的答案。</li>
+      </ul>
+      <p>
+        解析器拿到答案之後，把這個IP位址回傳給一開始發問的
+        瀏覽器／作業系統，整條查詢鏈就完成了。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 430" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">遞迴DNS解析的完整查詢鏈</text>
+
+          <!-- lifelines -->
+          <text x="60" y="45" text-anchor="middle" font-size="10" fill="var(--text)">瀏覽器</text>
+          <line x1="60" y1="55" x2="60" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <text x="220" y="45" text-anchor="middle" font-size="10" fill="var(--gold)">DNS解析器</text>
+          <line x1="220" y1="55" x2="220" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <text x="380" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">根伺服器</text>
+          <line x1="380" y1="55" x2="380" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <text x="520" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">.com TLD伺服器</text>
+          <line x1="520" y1="55" x2="520" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <text x="650" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">權威伺服器</text>
+          <line x1="650" y1="55" x2="650" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <!-- 1: browser to resolver -->
+          <line x1="60" y1="80" x2="220" y2="80" stroke="var(--text)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="140" y="72" text-anchor="middle" font-size="8" fill="var(--text)">① www.example.com 的IP？</text>
+
+          <!-- 2: resolver to root -->
+          <line x1="220" y1="115" x2="380" y2="115" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="300" y="107" text-anchor="middle" font-size="8" fill="var(--gold)">② 誰管 .com？</text>
+          <line x1="380" y1="145" x2="220" y2="145" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="300" y="137" text-anchor="middle" font-size="8" fill="var(--accent)">③ 問這台TLD伺服器</text>
+
+          <!-- 3: resolver to tld -->
+          <line x1="220" y1="180" x2="520" y2="180" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="370" y="172" text-anchor="middle" font-size="8" fill="var(--gold)">④ 誰管 example.com？</text>
+          <line x1="520" y1="210" x2="220" y2="210" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="370" y="202" text-anchor="middle" font-size="8" fill="var(--accent)">⑤ 問這台權威伺服器</text>
+
+          <!-- 4: resolver to authoritative -->
+          <line x1="220" y1="245" x2="650" y2="245" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="435" y="237" text-anchor="middle" font-size="8" fill="var(--gold)">⑥ www 的IP是多少？</text>
+          <line x1="650" y1="275" x2="220" y2="275" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="435" y="267" text-anchor="middle" font-size="8" fill="var(--accent)">⑦ 93.184.216.34（含TTL）</text>
+
+          <!-- 5: resolver back to browser -->
+          <line x1="220" y1="310" x2="60" y2="310" stroke="var(--text)" stroke-width="1.3" marker-end="url(#arr30)"/>
+          <text x="140" y="302" text-anchor="middle" font-size="8" fill="var(--text)">⑧ 答案：93.184.216.34</text>
+
+          <rect x="20" y="345" width="660" height="55" fill="none" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="350" y="365" text-anchor="middle" font-size="8" fill="var(--text-muted)">解析器與客戶端都會依答案附帶的TTL快取這個結果，</text>
+          <text x="350" y="382" text-anchor="middle" font-size="8" fill="var(--text-muted)">TTL過期之前，同一個名字的查詢不需要再重新走一次這條鏈</text>
+
+          <defs>
+            <marker id="arr30" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>解析器像一個不辭辛勞的跑腿：從根伺服器問到TLD伺服器、再問到權威伺服器，一路把範圍縮小，直到問到真正握有答案的那台伺服器為止——客戶端本身完全不需要知道這條查詢鏈是怎麼走的。</figcaption>
+      </div>
+
+      <h2>4. 快取與TTL：為什麼不用每次都重新查一遍</h2>
+      <p>
+        如果每一次網頁請求都要重新走完根伺服器、TLD伺服器、
+        權威伺服器這一整條鏈，DNS會變成整個網際網路的效能瓶頸。
+        因此每一筆DNS紀錄在回傳時都會附帶一個
+        <strong>存活時間（Time-To-Live, TTL）</strong>，單位是秒，
+        代表這個答案可以被快取多久。在TTL過期之前，解析器與客戶端
+        都可以直接使用快取的答案，完全不用再重新查詢；TTL過期後，
+        下一次查詢才會重新觸發完整的解析流程。這也是模組F提到的
+        CDN能夠運作的重要前提之一：透過調整TTL，服務商可以控制
+        使用者多快能看到DNS紀錄的變更。
+      </p>
+
+      <h2>5. 常見的DNS紀錄類型</h2>
+      <p>
+        權威伺服器實際存放的資料，是一筆一筆的<strong>DNS紀錄
+        （record）</strong>，依用途分成不同類型：
+      </p>
+      <table>
+        <thead>
+          <tr><th>紀錄類型</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>A</td><td>把一個名字對應到一個IPv4位址</td></tr>
+          <tr><td>AAAA</td><td>把一個名字對應到一個IPv6位址</td></tr>
+          <tr><td>CNAME</td><td>把一個名字對應到「另一個名字」（別名），最終仍要再解析那個名字的A/AAAA紀錄</td></tr>
+          <tr><td>NS</td><td>指出某個網域是由哪些權威伺服器負責管理</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <h3>CNAME：名字指向另一個名字</h3>
+        <p>
+          A、AAAA紀錄直接給IP位址，CNAME則是給「另一個名字」。
+          例如www.example.com可能設定成CNAME指向
+          example.cdn-provider.net，解析器就要再多解析一次
+          example.cdn-provider.net，才能拿到最終的IP位址。這種
+          間接層很常用在把流量導向CDN或雲端服務供應商的情境，
+          呼應模組F講到CDN如何把使用者導向最近的邊緣節點。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能依序描述遞迴DNS解析的完整過程：從瀏覽器查詢、解析器，到根伺服器、TLD伺服器、權威伺服器</li>
+          <li>能說出A、AAAA、CNAME這三種紀錄類型分別代表什麼意思</li>
+          <li>能解釋TTL在DNS系統裡扮演的角色，以及它為什麼重要</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 31 課：建立TCP連線與TLS交握——拿到IP位址之後，瀏覽器
+        接下來要做的，是真正跟這個位址建立起一條連線，這一課會
+        銜接模組E的TCP三向交握，並初步認識TLS加密交握。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：模組總結</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：建立TCP連線與TLS交握 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

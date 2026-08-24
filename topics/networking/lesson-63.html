@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：BGP與網際網路的骨幹路由：ISP之間怎麼互聯 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="介紹自治系統與BGP邊界閘道協定如何讓全世界獨立網路互相交換路由資訊，串連模組F的IXP概念，並誠實說明BGP建立在互信之上的脆弱性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜進階主題：現代網路與雲端架構 · 第 63 課</div>
+      <h1>BGP與網際網路的骨幹路由：ISP之間怎麼互聯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解自治系統（AS）是什麼，以及它是網際網路路由拓撲的基本單位</li>
+          <li>理解BGP做為「路徑向量」協定的基本運作方式：宣告可到達的位址範圍，以及經過的AS路徑</li>
+          <li>誠實認識BGP建立在業者互信之上的脆弱性，以及這種脆弱性帶來的實際風險</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D第17課介紹過路由器怎麼查路由表、決定封包的下一步，
+        但那時候的例子都發生在一個相對單純的網路裡。真實的
+        網際網路，其實是由全世界成千上萬個各自獨立營運的網路
+        拼湊而成——沒有任何一個中央機構，握有整張網際網路的
+        完整路由表。這一課要解答一個問題：這些互不隸屬的網路，
+        究竟是怎麼互相交換路由資訊，讓一個封包能夠跨越好幾個
+        不同業者的地盤，找到正確的目的地。
+      </p>
+
+      <h2>1. 自治系統：網際網路真正的組成單位</h2>
+      <p>
+        網際網路並不是一整張由單一組織管理的網路，而是由許多
+        獨立運作、各自擁有自己一套路由政策的網路拼接而成——
+        每一個這樣的網路，稱為<strong>自治系統（Autonomous
+        System，AS）</strong>。一家大型電信業者、一家雲端服務
+        商、一所大學的校園網路，都可能各自是一個AS，每個AS
+        都被分配到一組全球唯一的<strong>AS編號</strong>做為
+        識別。你可以把每個AS想成一個各自為政的「國家」，各自
+        管理自己境內的路由規則，同時也需要跟其他「國家」談判、
+        互通有無。
+      </p>
+
+      <h2>2. BGP：AS之間交換路由資訊的協定</h2>
+      <p>
+        <strong>BGP（Border Gateway Protocol，邊界閘道協定）</strong>
+        正是AS彼此之間用來交換路由資訊的協定，也是讓整個網際
+        網路得以運作的核心機制之一。BGP屬於一種<strong>「路徑
+        向量」（path vector）協定</strong>：每個AS會向鄰居宣告
+        「我可以到達這些位址範圍（前綴）」，同時附上這個宣告
+        經過的完整<strong>AS路徑</strong>——也就是這個路由資訊
+        一路是從哪些AS依序傳遞過來的。鄰居的AS收到這則宣告後，
+        除了考量路徑長短，還會依照自己的<strong>商業政策</strong>
+        （對等互連協議、付費轉送合約等，而不只是單純技術上的
+        最短路徑）決定要不要採用、要不要繼續往下一個鄰居轉發。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">BGP路徑向量宣告如何跨越多個自治系統傳遞</text>
+
+          <rect x="30" y="90" width="110" height="55" rx="6" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="85" y="112" text-anchor="middle" font-size="9" fill="var(--gold)">AS 100</text>
+          <text x="85" y="127" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">目的地網路</text>
+
+          <line x1="140" y1="117" x2="200" y2="117" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow63)"/>
+          <text x="170" y="107" text-anchor="middle" font-size="7">宣告：100</text>
+
+          <rect x="200" y="90" width="110" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="255" y="112" text-anchor="middle" font-size="9" fill="var(--text)">AS 200</text>
+          <text x="255" y="127" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">中繼業者</text>
+
+          <line x1="310" y1="117" x2="370" y2="117" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow63)"/>
+          <text x="340" y="107" text-anchor="middle" font-size="7">宣告：200 100</text>
+
+          <rect x="370" y="90" width="110" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="425" y="112" text-anchor="middle" font-size="9" fill="var(--text)">AS 300</text>
+          <text x="425" y="127" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">中繼業者</text>
+
+          <line x1="480" y1="117" x2="540" y2="117" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow63)"/>
+          <text x="510" y="107" text-anchor="middle" font-size="7">宣告：300 200 100</text>
+
+          <rect x="540" y="90" width="130" height="55" rx="6" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="605" y="112" text-anchor="middle" font-size="9" fill="var(--accent)">AS 400</text>
+          <text x="605" y="127" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">你的網路</text>
+
+          <text x="350" y="195" text-anchor="middle" font-size="8" fill="var(--text-muted)">AS400收到的AS路徑「300 200 100」，代表這條路由依序經過了AS300、AS200，最終抵達AS100</text>
+          <text x="350" y="212" text-anchor="middle" font-size="8" fill="var(--text-muted)">AS400再依自己的商業政策（不只是路徑長短），決定要不要採用這條路由</text>
+
+          <defs>
+            <marker id="arrow63" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>AS100宣告自己能到達某個位址範圍，這則宣告逐步經過AS200、AS300傳遞，每次轉發都會把自己的AS編號加進路徑裡，讓收到宣告的一方，能看到完整的傳遞路徑。</figcaption>
+      </div>
+
+      <h2>3. IXP：AS之間實際交換BGP宣告與流量的地方</h2>
+      <p>
+        模組F第26課介紹過IXP（網際網路交換中心）：許多AS的
+        路由器，實際上就是在IXP這樣的實體地點互相連接，直接
+        交換BGP路由宣告，並讓對應的實際流量直接互通，而不需要
+        繞道透過付費的上游業者。換句話說，IXP是BGP這套邏輯上
+        的協定，在實體世界裡真正落地的地方——AS之間的路由
+        關係、與它們在IXP的實體互連，是同一件事的兩個面向。
+      </p>
+
+      <div class="callout">
+        <h3>誠實的角落：BGP建立在互信之上，而非強加密驗證</h3>
+        <p>
+          BGP設計於網際網路發展的早期，核心假設是「每個AS都會
+          誠實宣告自己真正能到達的位址範圍」——它並不像後續
+          課程會談到的TLS那樣，具備強加密的驗證機制來確保
+          每一則宣告的真實性。這代表只要有一個AS不小心設定
+          錯誤（甚至惡意），錯誤宣告自己能到達某個其實不屬於
+          它的位址範圍，就可能造成大範圍的<strong>路由洩漏
+          （route leak）</strong>——真實世界確實發生過因為單一
+          AS的組態失誤，導致大量網際網路流量被錯誤導向，造成
+          明顯的服務中斷事件。這是一個值得誠實面對的現實：
+          今天整個網際網路的骨幹路由，仍然高度仰賴業者之間的
+          互信與人工把關，而非單靠技術本身就能杜絕的機制。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明什麼是自治系統（AS），以及BGP的基本功能</li>
+          <li>能描述BGP做為路徑向量協定，如何透過AS路徑決定路由</li>
+          <li>能說明BGP建立在互信之上的核心脆弱性，以及這種脆弱性可能造成什麼實際風險</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 64 課：現代資料中心網路拓撲：Spine-Leaf架構——把視野
+        從網際網路的骨幹，拉回到單一資料中心內部，看看現代
+        大型資料中心，為什麼大多改用一種叫做Spine-Leaf的網路
+        拓撲，取代傳統的階層式設計。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：雲端運算的服務模式：IaaS、PaaS、SaaS</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：現代資料中心網路拓撲：Spine-Leaf架構 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 61 課：模組總結：上線後的監控與維運基礎 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="模組L總結：回顧選擇伺服器、用Docker部署、設定DNS、套用HTTPS憑證的完整上線旅程，並介紹網站上線後該養成的基本監控與維運習慣，銜接模組M的現代雲端網路架構">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 61 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜動手架站：從零到上線 · 第 61 課</div>
+      <h1>模組總結：上線後的監控與維運基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把選擇伺服器、Docker部署、DNS設定、HTTPS憑證整合成一條完整的「從零到上線」旅程</li>
+          <li>認識網站上線後該養成的基本監控與維運習慣：日誌、可用性監控、更新、資源監控</li>
+          <li>誠實理解這只是維運責任的起點，正式的維運工程本身是一個更深的獨立領域</li>
+        </ul>
+      </div>
+
+      <p>
+        模組L四堂課，把模組K建立的Docker知識，實際用在把一個
+        網站從零架設到公開上線。這一課先把整趟旅程串起來，
+        再往前多走一步：網站上線之後，接下來要注意什麼。
+      </p>
+
+      <h2>從零到上線：完整旅程回顧</h2>
+      <p>
+        第57課先做出一個實際的決定：選擇VPS作為新手友善的
+        起點，權衡了它跟雲端主機、家用主機在成本、控制權、
+        可靠性上的差異。第58課動手把靜態網站包成Docker映像檔，
+        用<code>docker build</code>建置、<code>docker run -p
+        80:80</code>啟動，讓網站透過伺服器的公網IP公開可連線。
+        第59課接上一個好記的網址：註冊網域名稱、建立A記錄
+        指向伺服器IP，並理解DNS變更為什麼需要時間傳播（呼應
+        模組G第30課的快取與TTL概念）。第60課則是最後一塊
+        拼圖：用Let's Encrypt透過ACME協定的HTTP-01挑戰，自動
+        驗證網域控制權並取得免費憑證，把網站從HTTP升級成
+        HTTPS，並設定自動續期，因應憑證刻意設計的90天短效期。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">模組L：從零到上線的完整旅程</text>
+
+          <rect x="10" y="50" width="125" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="72" y="72" text-anchor="middle" font-size="8" fill="var(--text)">選擇伺服器</text>
+          <text x="72" y="87" text-anchor="middle" font-size="7" fill="var(--text-muted)">第57課・VPS</text>
+
+          <line x1="135" y1="77" x2="155" y2="77" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow61)"/>
+
+          <rect x="160" y="50" width="125" height="55" rx="6" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="222" y="72" text-anchor="middle" font-size="8" fill="var(--gold)">Docker部署</text>
+          <text x="222" y="87" text-anchor="middle" font-size="7" fill="var(--text-muted)">第58課</text>
+
+          <line x1="285" y1="77" x2="305" y2="77" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow61)"/>
+
+          <rect x="310" y="50" width="125" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="372" y="72" text-anchor="middle" font-size="8" fill="var(--accent)">DNS設定</text>
+          <text x="372" y="87" text-anchor="middle" font-size="7" fill="var(--text-muted)">第59課・A記錄</text>
+
+          <line x1="435" y1="77" x2="455" y2="77" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow61)"/>
+
+          <rect x="460" y="50" width="125" height="55" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="522" y="72" text-anchor="middle" font-size="8" fill="#ff8a65">HTTPS憑證</text>
+          <text x="522" y="87" text-anchor="middle" font-size="7" fill="var(--text-muted)">第60課・Let's Encrypt</text>
+
+          <line x1="522" y1="105" x2="522" y2="130" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow61)"/>
+
+          <rect x="380" y="135" width="285" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <text x="522" y="158" text-anchor="middle" font-size="8" fill="var(--text)">持續監控與維運</text>
+          <text x="522" y="173" text-anchor="middle" font-size="7" fill="var(--text-muted)">第61課・日誌、可用性、更新</text>
+          <defs>
+            <marker id="arrow61" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/></marker>
+          </defs>
+        </svg>
+        <figcaption>模組L走過選擇伺服器、Docker部署、DNS設定、HTTPS憑證這四個步驟，最後一站不是終點，而是接手一份持續的維運責任。</figcaption>
+      </div>
+
+      <h2>上線之後：日常維運的基本功</h2>
+      <p>
+        網站正式公開上線，代表責任也正式開始——一個沒有人
+        照看的網站，遲早會出問題。以下幾件事，是網站上線後
+        值得養成的基本習慣：
+      </p>
+      <ul>
+        <li><strong>定期查看日誌</strong>——延續第54課介紹的
+          <code>docker logs</code>，養成定期查看容器日誌的
+          習慣，能更早發現異常錯誤，而不是等到使用者反映
+          網站壞了才知道</li>
+        <li><strong>基本的可用性監控</strong>——可以使用外部
+          的簡易監控服務，定期自動檢查網站是否有回應，或至少
+          養成手動定期檢查的習慣，才能在網站真的掛掉時盡快
+          知道，而不是完全靠運氣</li>
+        <li><strong>保持映像檔與主機系統更新</strong>——不論是
+          Docker映像檔所使用的基礎映像（例如nginx、資料庫的
+          官方映像檔），或是主機作業系統本身，都會持續釋出
+          安全性更新，長期不更新會累積資安風險</li>
+        <li><strong>留意基本的資源使用狀況</strong>——磁碟空間
+          （日誌檔案、資料庫資料可能隨時間不斷增長）、記憶體
+          使用量，都值得偶爾檢查，避免伺服器在毫無預警的情況
+          下把資源耗盡，導致服務中斷</li>
+      </ul>
+
+      <div class="callout">
+        <h3>誠實的定位：這只是維運責任的起點</h3>
+        <p>
+          以上這些，只是最基本、最起碼該做到的事，目的是建立
+          「網站上線之後仍然需要持續照看」這個心態，而不是
+          正式生產環境維運（DevOps／SRE）該有的完整實務——
+          真正嚴謹的監控告警系統、日誌集中化分析、自動化備援
+          與復原機制，本身就是一個值得投入大量時間深入的獨立
+          領域，超出這門課的範圍。這一課的用意，是讓你知道
+          「上線」不是終點，而是一份需要持續投入的責任的開始。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能不看筆記，完整說出從選擇伺服器到套用HTTPS憑證的整條部署流程</li>
+          <li>能列出網站上線後，日常維運至少該做到的四件基本事項</li>
+          <li>能說明為什麼這一課介紹的維運習慣，還不等於完整的生產環境維運</li>
+        </ol>
+      </div>
+
+      <div class="callout">
+        <h3>銜接模組M</h3>
+        <p>
+          你現在已經有能力把一個真實的網站從零架設上線——這門
+          課接下來要把視野拉遠，介紹更大規模的服務怎麼被設計、
+          部署與維運：從雲端服務模式，到微服務、Kubernetes等
+          現代網路架構的核心概念。
+        </p>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組M開場，第 62 課：雲端運算的服務模式：IaaS、PaaS、
+        SaaS——把第57課提過的雲端主機再往下挖深一層，認識
+        雲端服務依照「代管程度」劃分的三種主要模式，以及它們
+        各自幫你接手了哪些維運責任。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-60.html">← 上一課：申請並設定HTTPS憑證(Let's Encrypt)</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-62.html">下一課：雲端運算的服務模式：IaaS、PaaS、SaaS →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

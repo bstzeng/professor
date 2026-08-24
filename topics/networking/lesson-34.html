@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：瀏覽器接收回應、渲染網頁 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="回應送回瀏覽器之後發生的事：解析HTML成DOM、觸發額外資源的平行請求、結合CSS計算版面配置，最後把像素畫到螢幕上——一次網頁載入為什麼牽涉遠不止一個HTTP請求">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜從輸入網址到畫面出現：完整請求生命週期 · 第 34 課</div>
+      <h1>瀏覽器接收回應、渲染網頁</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解瀏覽器如何把HTML回應解析成DOM樹</li>
+          <li>理解為什麼載入一個網頁，往往會觸發遠不止一個HTTP請求</li>
+          <li>建立瀏覽器渲染管線的概念：DOM、CSSOM、渲染樹、版面配置、繪製</li>
+        </ul>
+      </div>
+
+      <p>
+        第33課伺服器組好的HTTP回應，沿著同一條TCP連線送回瀏覽器。
+        這一課要完成這趟旅程的最後一段：從回應抵達瀏覽器，到使用者
+        眼睛真正看到網頁內容，中間還要發生什麼事。
+      </p>
+
+      <h2>1. 先看狀態碼，再決定怎麼處理內容</h2>
+      <p>
+        瀏覽器收到回應後，第一件事是檢查狀態列裡的狀態碼，判斷
+        這次請求究竟成功了沒有——第36課會完整介紹狀態碼的分類
+        體系。這一課先假設請求順利成功，狀態碼是類似200 OK這樣
+        的結果，接著瀏覽器就會開始解析回應主體的內容。
+      </p>
+
+      <h2>2. 解析HTML：建構DOM樹</h2>
+      <p>
+        如果回應主體是HTML，瀏覽器會把這段文字解析成一個
+        <strong>文件物件模型（Document Object Model, DOM）</strong>
+        樹——把HTML裡一層層巢狀的標籤，轉換成一個對應的樹狀
+        資料結構，每個標籤變成樹上的一個節點，父子、手足關係
+        對應到HTML原本的巢狀結構。DOM樹是瀏覽器內部用來表示
+        「這個頁面上有什麼內容、彼此的結構關係是什麼」的核心
+        資料結構，之後CSS的套用與JavaScript的操作，都是作用在
+        這棵樹上。
+      </p>
+
+      <h2>3. 一個頁面，遠不止一個請求</h2>
+      <p>
+        瀏覽器解析HTML的過程中，常常會遇到像
+        <strong>&lt;link&gt;</strong>（引用CSS樣式表）、
+        <strong>&lt;script&gt;</strong>（引用JavaScript檔案）、
+        <strong>&lt;img&gt;</strong>（引用圖片）這樣的標籤——每一個
+        這樣的標籤，都指向另一個需要另外下載的資源，也就意味著
+        瀏覽器要再發出一個HTTP請求去把它抓回來。這些額外的請求，
+        走的完全是同一套流程：如果資源在不同網域上，可能還要
+        重新做一次第30課的DNS解析；如果是同一個網域，通常可以
+        重複使用第31課已經建立好的TCP／TLS連線，省去重新交握的
+        開銷。為了加快載入速度，瀏覽器通常會<strong>平行</strong>
+        送出這些額外請求，而不是一個個排隊等待。這正是為什麼
+        載入一個看起來單純的網頁，實際觀察網路流量時，往往會
+        看到十幾個甚至上百個HTTP請求同時發生。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 660 320" xmlns="http://www.w3.org/2000/svg">
+          <text x="330" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一份HTML回應，觸發出一整批平行的後續請求</text>
+
+          <rect x="270" y="35" width="120" height="36" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3" rx="4"/>
+          <text x="330" y="58" text-anchor="middle" font-size="9" fill="var(--gold)">index.html 回應</text>
+
+          <line x1="300" y1="71" x2="120" y2="115" stroke="var(--text)" stroke-width="1.1" marker-end="url(#arr34)"/>
+          <line x1="330" y1="71" x2="330" y2="115" stroke="var(--text)" stroke-width="1.1" marker-end="url(#arr34)"/>
+          <line x1="360" y1="71" x2="540" y2="115" stroke="var(--text)" stroke-width="1.1" marker-end="url(#arr34)"/>
+
+          <rect x="60" y="115" width="120" height="30" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" rx="4"/>
+          <text x="120" y="134" text-anchor="middle" font-size="8" fill="var(--accent)">style.css</text>
+
+          <rect x="270" y="115" width="120" height="30" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" rx="4"/>
+          <text x="330" y="134" text-anchor="middle" font-size="8" fill="var(--accent)">app.js</text>
+
+          <rect x="480" y="115" width="120" height="30" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1" rx="4"/>
+          <text x="540" y="134" text-anchor="middle" font-size="8" fill="var(--accent)">banner.png 等圖片</text>
+
+          <text x="330" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">平行發出的後續請求（各自走一遍第30～33課的流程）</text>
+
+          <line x1="120" y1="145" x2="330" y2="185" stroke="var(--text)" stroke-width="1"/>
+          <line x1="330" y1="145" x2="330" y2="185" stroke="var(--text)" stroke-width="1"/>
+          <line x1="540" y1="145" x2="330" y2="185" stroke="var(--text)" stroke-width="1"/>
+
+          <rect x="180" y="185" width="300" height="34" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="330" y="206" text-anchor="middle" font-size="9" fill="var(--text)">DOM ＋ CSSOM</text>
+
+          <line x1="330" y1="219" x2="330" y2="245" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr34)"/>
+          <rect x="180" y="245" width="300" height="30" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="330" y="264" text-anchor="middle" font-size="9" fill="var(--text)">渲染樹 → 版面配置 → 繪製</text>
+
+          <defs>
+            <marker id="arr34" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>一份HTML回應本身通常只是骨架，真正的樣式、互動邏輯、圖片，都要靠HTML裡引用的資源另外下載——這些後續請求盡量平行處理，最終匯集成DOM與CSSOM，再往下推進到渲染管線。</figcaption>
+      </div>
+
+      <h2>4. 渲染管線：從DOM與CSS到螢幕上的像素</h2>
+      <p>
+        當CSS樣式表載入完成，瀏覽器會把它解析成另一棵樹，通常
+        稱為<strong>CSSOM</strong>，描述每個元素該套用什麼樣式。
+        接著瀏覽器把DOM樹跟CSSOM結合，產生一棵<strong>渲染樹
+        （render tree）</strong>，這棵樹只包含真正要顯示出來的
+        內容與它們對應的視覺樣式。有了渲染樹之後，瀏覽器進行
+        <strong>版面配置（layout）</strong>：計算頁面上每個元素
+        實際的位置與大小；最後是<strong>繪製（paint）</strong>：
+        把計算好的結果真正畫成螢幕上的像素。至此，使用者才終於
+        看到網頁的畫面。
+      </p>
+      <p>
+        如果頁面裡有JavaScript，它在執行的過程中還可以動態修改
+        DOM——增加、刪除、修改元素——這可能觸發部分甚至全部的
+        渲染管線重新跑一遍，也可能因為程式邏輯，主動再發出新的
+        HTTP請求（例如向伺服器要更多資料），讓整個第30課到這裡
+        介紹的流程，再度被觸發一次。
+      </p>
+
+      <div class="callout">
+        <h3>從Enter鍵到畫面：旅程告一段落</h3>
+        <p>
+          走到這裡，從使用者按下Enter鍵開始的完整旅程，已經完整
+          跑過一遍：DNS解析、TCP／TLS連線建立、HTTP請求發送、
+          伺服器端處理、回應回傳、瀏覽器解析與渲染。下一課會把
+          這整條時間軸攤開成一張完整的整合圖，並明確標出每一步
+          分別對應到這門課前面哪一個模組介紹過的機制。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋為什麼載入一個網頁，實際發出的HTTP請求數量常常遠多於一個</li>
+          <li>能依序描述瀏覽器渲染管線：從解析好的HTML／CSS，到螢幕上出現像素</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 35 課：模組總結：整合時間軸全覽——把DNS解析到畫面渲染
+        的每一步，跟這門課前面所有模組串成一張完整的時間軸，是
+        整門課到目前為止最重要的一張參考圖。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：伺服器端處理請求的完整流程</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：模組總結：整合時間軸全覽 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

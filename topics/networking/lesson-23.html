@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：UDP：犧牲可靠換取速度 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="介紹UDP無連線、不可靠、不保證順序的特性，拆解它精簡的8位元組標頭，並說明DNS查詢、即時語音視訊、線上遊戲為什麼刻意選擇UDP而非TCP">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜傳輸層：TCP與UDP的可靠與快速之爭 · 第 23 課</div>
+      <h1>UDP：犧牲可靠換取速度</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解UDP作為無連線、不可靠協定的特性：無交握、無確認重傳、無排序保證</li>
+          <li>認識UDP精簡的8位元組標頭，並理解它跟這個協定的設計哲學直接相關</li>
+          <li>能舉出實際案例，說明為什麼有些應用程式會刻意選擇UDP而非TCP</li>
+        </ul>
+      </div>
+
+      <p>
+        前三課花了不少篇幅講TCP：連接埠與連線的身分（第20課）、
+        三向交握（第21課）、序號確認與重傳（第22課）——TCP為了
+        換取「可靠、依序」的傳輸品質，付出了不少額外的複雜度
+        跟延遲。這一課要介紹傳輸層另一個同樣重要的協定：UDP
+        （User Datagram Protocol，使用者資料包協定）——它幾乎
+        把TCP的這些機制全部拿掉，換來的是極致的簡單與速度。
+      </p>
+
+      <h2>1. UDP：無連線、不可靠、不保證順序</h2>
+      <p>
+        跟TCP相比，UDP的設計哲學可以用「什麼都不做」來形容。
+        它是<strong>無連線（connectionless）</strong>的：不需要
+        像第21課那樣先完成三向交握，想傳資料就直接傳，沒有
+        任何建立連線的前置手續。它是<strong>不可靠（unreliable）
+        </strong>的：完全沒有第22課介紹的確認號跟重傳機制，
+        如果一個UDP封包在半路上遺失了，UDP本身不會知道、也
+        不會做任何補救——遺失了就是遺失了。它也<strong>不保證
+        順序</strong>：封包可能會用跟送出時不同的順序抵達接收端，
+        UDP不會自動幫忙重新排序。
+      </p>
+
+      <h2>2. 精簡到極致的標頭：只有8位元組</h2>
+      <p>
+        這種「什麼都不做」的哲學，直接反映在UDP的標頭設計上。
+        UDP的標頭只有短短<strong>8位元組</strong>，只包含四個
+        欄位：來源埠、目的埠、封包長度、以及檢查碼（用來驗證
+        資料在傳輸過程中有沒有被損壞）——就這樣，沒有序號、
+        沒有確認號、沒有視窗大小、也沒有任何用來標示連線狀態
+        的旗標。相較之下，TCP的標頭至少要20位元組，裡面塞滿了
+        序號、確認號、視窗大小、各種控制旗標等等——這些欄位，
+        正是TCP用來實現上兩課介紹的可靠傳輸機制所必須付出的
+        額外負擔。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">UDP標頭 vs TCP標頭（同一比例尺）</text>
+
+          <text x="30" y="55" font-size="9.5" fill="var(--text)">UDP（8位元組）</text>
+          <rect x="30" y="62" width="40" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="50" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">來源埠</text>
+          <rect x="70" y="62" width="40" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="90" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">目的埠</text>
+          <rect x="110" y="62" width="40" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="130" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">長度</text>
+          <rect x="150" y="62" width="40" height="34" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="170" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">檢查碼</text>
+
+          <text x="30" y="128" font-size="9.5" fill="var(--text)">TCP（至少20位元組）</text>
+          <rect x="30" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="50" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">來源埠</text>
+          <rect x="70" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="90" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">目的埠</text>
+          <rect x="110" y="135" width="80" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="150" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">序號</text>
+          <rect x="190" y="135" width="80" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="230" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">確認號</text>
+          <rect x="270" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="290" y="151" text-anchor="middle" font-size="6.5" fill="var(--accent)">標頭長度</text>
+          <text x="290" y="161" text-anchor="middle" font-size="6.5" fill="var(--accent)">／旗標</text>
+          <rect x="310" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="330" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">視窗大小</text>
+          <rect x="350" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="370" y="155" text-anchor="middle" font-size="7" fill="var(--accent)">檢查碼</text>
+          <rect x="390" y="135" width="40" height="34" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="410" y="151" text-anchor="middle" font-size="6.5" fill="var(--accent)">緊急</text>
+          <text x="410" y="161" text-anchor="middle" font-size="6.5" fill="var(--accent)">指標</text>
+
+          <text x="300" y="195" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">同樣的寬度比例下，TCP標頭裡塞滿了序號、確認號、視窗大小等欄位，UDP只留下最基本的四個欄位</text>
+        </svg>
+        <figcaption>UDP標頭只有4個欄位、共8位元組；TCP標頭至少20位元組，多出的序號、確認號、視窗大小等欄位，正是第21、22課介紹的連線建立與可靠傳輸機制所需要的額外資訊。</figcaption>
+      </div>
+
+      <h2>3. 為什麼有些應用程式甘願不可靠：實際案例</h2>
+      <p>
+        既然UDP這麼「陽春」，為什麼還有應用程式願意使用它？
+        關鍵在於：對某些應用程式來說，<strong>速度跟低延遲</strong>
+        遠比「保證每一筆資料都送達」更重要，而UDP省下的交握
+        延遲、確認等待、重傳開銷，正好換來了這份速度。
+      </p>
+      <ul>
+        <li>
+          <strong>DNS查詢</strong>：一次典型的DNS查詢，只是「問
+          一句、答一句」的極短交換，如果每次查詢都要先花時間
+          完成TCP的三向交握，相對開銷會顯得很不划算；用UDP
+          直接送出查詢，萬一真的沒收到回應，應用程式自己重新
+          問一次就好，通常比TCP的連線建立過程還要快。
+        </li>
+        <li>
+          <strong>即時視訊、語音通話</strong>：通話當下，一格
+          畫面或一小段語音如果遺失了，與其花時間等待重傳、
+          再把資料補回來，還不如乾脆跳過——因為等到重傳的資料
+          真正抵達時，那個時間點早就過去了，硬要補回來反而
+          會造成更明顯的延遲或卡頓，直接跳過、繼續播放最新的
+          內容，體驗通常反而更好。
+        </li>
+        <li>
+          <strong>線上遊戲</strong>：道理跟即時視訊類似，遊戲
+          裡角色的最新位置遠比「過時但保證完整」的舊位置更有
+          價值——與其為了等一筆遺失的舊資料重傳而延遲整個畫面，
+          多數連線導向較弱的即時對戰資料，寧可直接接受偶爾漏
+          一兩筆、換取畫面盡量跟上最新狀態。
+        </li>
+      </ul>
+
+      <h2>4. TCP vs UDP：一張表整理關鍵差異</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>比較項目</th>
+            <th>TCP</th>
+            <th>UDP</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>連線方式</td>
+            <td>連線導向，需先完成三向交握</td>
+            <td>無連線，直接傳送</td>
+          </tr>
+          <tr>
+            <td>可靠性</td>
+            <td>確認、重傳，保證資料送達</td>
+            <td>不保證送達，遺失了就是遺失了</td>
+          </tr>
+          <tr>
+            <td>順序</td>
+            <td>保證依序送達應用層</td>
+            <td>不保證順序</td>
+          </tr>
+          <tr>
+            <td>標頭大小</td>
+            <td>至少20位元組</td>
+            <td>固定8位元組</td>
+          </tr>
+          <tr>
+            <td>速度與額外負擔</td>
+            <td>較慢，額外負擔較高</td>
+            <td>較快，額外負擔極低</td>
+          </tr>
+          <tr>
+            <td>典型應用</td>
+            <td>網頁瀏覽、檔案傳輸、電子郵件</td>
+            <td>DNS查詢、視訊語音通話、線上遊戲</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能列出UDP區別於TCP的關鍵特性：無連線、不可靠、不保證順序、標頭精簡</li>
+          <li>能說明UDP標頭裡包含哪四個欄位，以及為什麼它能做到只有8位元組</li>
+          <li>能舉例解釋為什麼視訊通話、線上遊戲這類即時應用程式，即使犧牲可靠性也常常偏好UDP</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 24 課是模組E的總結：除了整合連接埠、三向交握、可靠
+        傳輸與UDP之外，還會補上最後一塊重要拼圖——TCP的壅塞
+        控制，看看TCP如何在完全沒有中央調度的情況下，自己判斷
+        該傳快一點還是慢一點。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：TCP的可靠傳輸機制</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：模組總結：壅塞控制與協定選擇 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

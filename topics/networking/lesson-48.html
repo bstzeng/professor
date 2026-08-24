@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：反向代理與負載平衡 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="區分反向代理與正向代理的本質差異，理解反向代理如何提供統一的TLS入口與負載平衡能力，並認識輪詢、最少連線數、IP雜湊這幾種常見的負載平衡演算法各自的適用情境">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜網頁伺服器架構 · 第 48 課</div>
+      <h1>反向代理與負載平衡</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能區分反向代理跟正向代理的本質差異</li>
+          <li>理解反向代理如何做為統一入口，並串接多台後端伺服器</li>
+          <li>認識輪詢、最少連線數、IP雜湊這幾種負載平衡演算法各自的邏輯與適用情境</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課提到，Web伺服器判斷一個請求需要動態處理時，會把
+        它轉交給別的程序——但如果背後不只一台伺服器在運作呢？
+        當一個服務的流量大到需要好幾台伺服器一起分擔，或是
+        基於容錯考量而準備了多套一模一樣的伺服器（呼應模組F
+        第28課的備援設計），就需要一個站在最前面、決定「這個
+        請求該送去哪一台」的角色——這正是<strong>反向代理
+        （reverse proxy）</strong>的工作。
+      </p>
+
+      <h2>1. 反向代理：替伺服器擋在最前面</h2>
+      <p>
+        反向代理是一台位於<strong>多台後端伺服器前方</strong>的
+        伺服器：它接收所有進來的客戶端請求，再依照某種規則
+        轉交給其中一台合適的後端伺服器去實際處理，客戶端自始
+        至終只跟這台反向代理打交道，完全不需要、也不會知道
+        背後實際上有幾台伺服器在運作。
+      </p>
+      <p>
+        這跟<strong>正向代理（forward proxy）</strong>是鏡像
+        相反的角色，這裡簡單對比一下方便區分：正向代理站在
+        <strong>客戶端</strong>前方，代替客戶端向外發出請求
+        （常見於企業內部網路，統一管理員工對外部網際網路的
+        存取）；反向代理則站在<strong>伺服器</strong>前方，代替
+        伺服器接收外部請求。兩者的差別不在技術本身，而在於
+        「它替誰擋在前面、替誰服務」。
+      </p>
+
+      <h2>2. 反向代理帶來的好處：統一入口與負載平衡</h2>
+      <p>
+        除了單純轉發請求，反向代理還能帶來幾個好處。它可以
+        做為<strong>統一的TLS終止入口</strong>（呼應第47課）
+        ——即使背後的服務被拆成好幾個不同的後端，對外仍然只
+        需要在反向代理這一層維護憑證與加密設定。而它最重要的
+        用途，是實現<strong>負載平衡（load balancing）</strong>
+        ：當背後有多台跑著完全相同應用程式的伺服器時（既能
+        撐起更大的流量、也能提供備援），反向代理會依照某種
+        演算法，把進來的請求分散到這些伺服器上。
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>演算法</th><th>邏輯</th><th>適合情境</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>輪詢（Round Robin）</td><td>依序把請求一台接一台地輪流分派下去</td><td>後端伺服器規格相近、負載大致平均的情境，設計簡單直覺</td></tr>
+          <tr><td>最少連線數（Least Connections）</td><td>優先把新請求分派給目前活躍連線數最少的那台伺服器</td><td>各請求處理時間長短差異較大，避免把新請求硬塞給正忙碌的伺服器</td></tr>
+          <tr><td>IP雜湊（IP Hash）</td><td>依照客戶端來源IP計算雜湊值，同一個IP的請求固定分派到同一台伺服器</td><td>後端需要在本地記住該客戶端的狀態時，確保同一使用者持續連到同一台</td></tr>
+        </tbody>
+      </table>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">反向代理以輪詢方式分派請求</text>
+
+          <rect x="20" y="100" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="65" y="121" text-anchor="middle" font-size="9" fill="var(--text)">客戶端</text>
+
+          <line x1="110" y1="117" x2="180" y2="117" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a48)"/>
+
+          <rect x="180" y="90" width="130" height="55" rx="4" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="245" y="113" text-anchor="middle" font-size="9.5" fill="var(--gold)">反向代理／</text>
+          <text x="245" y="128" text-anchor="middle" font-size="9.5" fill="var(--gold)">負載平衡器</text>
+
+          <line x1="310" y1="100" x2="380" y2="55" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a48a)"/>
+          <line x1="310" y1="117" x2="380" y2="117" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a48a)"/>
+          <line x1="310" y1="134" x2="380" y2="180" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a48a)"/>
+
+          <rect x="380" y="35" width="130" height="34" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="445" y="56" text-anchor="middle" font-size="8.5" fill="var(--text)">後端伺服器①</text>
+          <rect x="380" y="100" width="130" height="34" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="445" y="121" text-anchor="middle" font-size="8.5" fill="var(--text)">後端伺服器②</text>
+          <rect x="380" y="165" width="130" height="34" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="445" y="186" text-anchor="middle" font-size="8.5" fill="var(--text)">後端伺服器③</text>
+
+          <text x="550" y="52" text-anchor="middle" font-size="8" fill="var(--text-muted)">第1、4、7…request</text>
+          <text x="550" y="117" text-anchor="middle" font-size="8" fill="var(--text-muted)">第2、5、8…request</text>
+          <text x="550" y="182" text-anchor="middle" font-size="8" fill="var(--text-muted)">第3、6、9…request</text>
+
+          <rect x="20" y="220" width="620" height="30" fill="none" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="330" y="240" text-anchor="middle" font-size="8" fill="var(--text-muted)">輪詢：依序循環分派——三台後端伺服器彼此運行完全相同的應用程式</text>
+
+          <defs>
+            <marker id="a48" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+            <marker id="a48a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>客戶端只跟反向代理打交道，完全不知道背後有幾台伺服器；負載平衡器依照選定的演算法（此圖為輪詢）把請求依序分派給不同的後端伺服器。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>負載平衡不只是「分散流量」，也是備援的基礎</h3>
+        <p>
+          當某一台後端伺服器故障或需要維護時，負載平衡器通常
+          能偵測到並暫時停止把請求分派給它，讓其餘伺服器繼續
+          扛住流量——這正是模組F第28課提過的高可用性設計，
+          在網頁伺服器架構這一層具體落地的方式。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出反向代理跟正向代理的本質差異：各自站在誰的前面、替誰服務</li>
+          <li>能描述至少兩種負載平衡演算法，以及各自比較適合什麼情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 49 課：應用程式伺服器與資料庫的分工——請求被分派到
+        某一台後端伺服器之後，這一課要拆解「後端」內部，實際
+        執行業務邏輯的應用程式伺服器，跟負責存放資料的資料庫，
+        彼此之間是怎麼分工的。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：Web伺服器(nginx/Apache)的角色</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：應用程式伺服器與資料庫的分工 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

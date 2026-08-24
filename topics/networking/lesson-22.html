@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：TCP的可靠傳輸機制：確認、重傳、視窗控制 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拆解TCP如何靠序號與確認號、逾時重傳、滑動視窗流量控制，在不可靠的網路上實現可靠、依序的資料傳輸，並用具體數字例子走一遍遺失與重傳的過程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜傳輸層：TCP與UDP的可靠與快速之爭 · 第 22 課</div>
+      <h1>TCP的可靠傳輸機制：確認、重傳、視窗控制</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解TCP如何靠序號與確認號，掌握資料是否成功送達對方</li>
+          <li>理解逾時重傳機制，是TCP面對封包遺失時的核心應對方式</li>
+          <li>理解滑動視窗流量控制的目的，並能與「傳一個等一個」的做法做對比</li>
+        </ul>
+      </div>
+
+      <p>
+        第21課看到TCP如何透過三向交握建立連線，但連線建立好之後，
+        真正困難的問題才開始：底層的網路其實一點也不可靠——
+        封包可能遺失、可能重複、也可能不按照原本送出的順序到達
+        接收端。TCP最核心的價值，正是在這樣一個不可靠的網路上，
+        提供一個對應用程式而言「可靠、依序」的資料傳輸服務。
+        這一課要拆解TCP具體是怎麼做到的。
+      </p>
+
+      <h2>1. 序號與確認：每一個位元組都有編號</h2>
+      <p>
+        延續上一課的概念，TCP連線裡傳送的每一個位元組資料，都
+        依照三向交握時協商好的初始序號，被連續編號。每當接收端
+        收到資料，就會回覆一個<strong>ACK（確認）</strong>封包，
+        裡面的確認號代表「接下來期望收到的下一個位元組序號」
+        ——也就是說，確認號其實隱含了「在這個號碼之前的所有
+        位元組，我都已經收到了」的意思，這種做法稱為累積確認
+        （cumulative acknowledgment）。發送端只要看確認號往前
+        推進到哪裡，就能準確知道對方目前為止實際收到了多少
+        資料。
+      </p>
+
+      <h2>2. 逾時重傳：資料遺失時的救援機制</h2>
+      <p>
+        如果發送端送出一段資料後，遲遲沒有等到對應的ACK，會
+        發生什麼事？TCP替每一段送出的資料都設有一個<strong>
+        逾時計時器</strong>：如果在計時器時間內沒有收到確認，
+        發送端就會假設這段資料（或它的ACK）在半路上遺失了，
+        於是主動<strong>重傳（retransmission）</strong>這段資料。
+        除了逾時，TCP也會利用「重複ACK」作為遺失的早期訊號——
+        當接收端收到序號不連續的資料（代表中間有一段還沒到），
+        會針對同一個確認號重複發送ACK，發送端看到一連串重複
+        的ACK，往往能比等待逾時計時器結束更快地判斷出遺失並
+        提前重傳。無論是靠逾時還是靠重複ACK觸發，重傳正是
+        TCP用來對抗封包遺失、實現可靠傳輸的核心機制。
+      </p>
+
+      <h2>3. 滑動視窗流量控制：不必一個一個等</h2>
+      <p>
+        如果TCP的做法是「送一段、等ACK、再送下一段」，效率會
+        非常差——尤其在往返時間（RTT）較長的連線上，大部分時間
+        都會耗在乾等確認上。TCP實際採用的是<strong>滑動視窗
+        （sliding window）</strong>機制：發送端可以一次讓好幾段
+        資料處於「已送出但尚未收到ACK」的狀態（稱為在途／
+        in-flight），不需要每送一段就停下來等待，視窗會隨著
+        ACK陸續回來而往前「滑動」，讓後面新的資料可以接著送出。
+      </p>
+      <p>
+        這個視窗的大小，是由<strong>接收端</strong>在ACK封包裡
+        主動回報的——代表接收端目前的緩衝區還能再接收多少
+        尚未處理的資料。這個機制同時達成了兩個目的：一方面
+        大幅提升了傳輸效率（不必為了等ACK而閒置頻寬）；另一方面
+        也保護了接收端，避免發送端傳送速度遠遠超過接收端處理
+        資料的速度，導致接收端的緩衝區被塞爆——這種「保護接收端」
+        的機制，稱為<strong>流量控制（flow control）</strong>，
+        跟保護「網路本身」不被過多流量壓垮的<strong>壅塞控制
+        （congestion control）</strong>是兩件不同的事，壅塞控制
+        會是第24課的主題。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">滑動視窗：多段資料同時在途，不必一個一個等</text>
+
+          <rect x="30" y="60" width="70" height="40" fill="var(--text-muted)" opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+          <text x="65" y="84" text-anchor="middle" font-size="9" fill="var(--text)">①已ACK</text>
+
+          <rect x="100" y="60" width="70" height="40" fill="var(--gold)" opacity="0.35" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="135" y="84" text-anchor="middle" font-size="9" fill="var(--gold)">②在途</text>
+
+          <rect x="170" y="60" width="70" height="40" fill="var(--gold)" opacity="0.35" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="205" y="84" text-anchor="middle" font-size="9" fill="var(--gold)">③在途</text>
+
+          <rect x="240" y="60" width="70" height="40" fill="var(--gold)" opacity="0.35" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="275" y="84" text-anchor="middle" font-size="9" fill="var(--gold)">④在途</text>
+
+          <rect x="310" y="60" width="70" height="40" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="345" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">⑤未送出</text>
+
+          <rect x="380" y="60" width="70" height="40" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="415" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">⑥未送出</text>
+
+          <line x1="100" y1="112" x2="310" y2="112" stroke="var(--accent)" stroke-width="1.5"/>
+          <line x1="100" y1="106" x2="100" y2="118" stroke="var(--accent)" stroke-width="1.5"/>
+          <line x1="310" y1="106" x2="310" y2="118" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="205" y="132" text-anchor="middle" font-size="9" fill="var(--accent)">目前視窗大小（接收端回報還能接受多少資料）</text>
+
+          <text x="205" y="160" text-anchor="middle" font-size="9" fill="var(--text-muted)">當①收到ACK後，視窗整個往右滑動，⑤得以送出</text>
+        </svg>
+        <figcaption>灰色代表已被確認的資料，金色代表已送出但還在等ACK的資料，虛線框代表還沒送出的資料——視窗大小決定了同一時間最多能有多少資料處於「在途」狀態，隨著ACK陸續回來，整個視窗持續往右滑動。</figcaption>
+      </div>
+
+      <h2>4. 用一個簡化數字例子走一遍遺失與重傳</h2>
+      <p>
+        假設發送端要送出三段資料，每段500位元組，序號分別從
+        1000、1500、2000開始。以下用簡化的步驟，示範中間一段
+        遺失時，TCP如何偵測並重傳：
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>步驟</th>
+            <th>事件</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>發送端送出區段A（seq=1000–1499）、區段B（seq=1500–1999）、區段C（seq=2000–2499）</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>接收端收到區段A，回覆ACK=1500（代表「A已收到，接下來期望1500」）</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>區段B在網路上遺失，接收端沒有收到；但收到了序號較後面的區段C</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>由於1500到1999之間有缺口，接收端針對區段C，仍然回覆重複的ACK=1500</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>發送端察覺逾時（或看到重複ACK），判斷區段B遺失，重傳區段B</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>接收端收到重傳的區段B，缺口補上，回覆ACK=2500（涵蓋B與先前已收到的C）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">區段遺失後，逾時觸發重傳</text>
+
+          <text x="90" y="36" text-anchor="middle" font-size="10" fill="var(--text)">發送端</text>
+          <text x="510" y="36" text-anchor="middle" font-size="10" fill="var(--text)">接收端</text>
+          <line x1="90" y1="44" x2="90" y2="200" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+          <line x1="510" y1="44" x2="510" y2="200" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+
+          <line x1="90" y1="60" x2="490" y2="60" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="490,60 478,55 478,65" fill="var(--gold)"/>
+          <text x="290" y="52" text-anchor="middle" font-size="8.5" fill="var(--gold)">區段A　seq=1000</text>
+
+          <line x1="90" y1="88" x2="380" y2="88" stroke="#ff8a65" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="230" y="80" text-anchor="middle" font-size="8.5" fill="#ff8a65">區段B　seq=1500　（在網路上遺失 ✕）</text>
+          <text x="380" y="93" font-size="12" fill="#ff8a65">✕</text>
+
+          <line x1="90" y1="112" x2="490" y2="112" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="490,112 478,107 478,117" fill="var(--gold)"/>
+          <text x="290" y="104" text-anchor="middle" font-size="8.5" fill="var(--gold)">區段C　seq=2000</text>
+
+          <line x1="510" y1="128" x2="110" y2="128" stroke="var(--accent)" stroke-width="1.3"/>
+          <polygon points="110,128 122,123 122,133" fill="var(--accent)"/>
+          <text x="300" y="122" text-anchor="middle" font-size="8.5" fill="var(--accent)">重複 ACK=1500（缺口尚未補上）</text>
+
+          <text x="290" y="150" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">發送端逾時／看到重複ACK，判斷B遺失</text>
+
+          <line x1="90" y1="164" x2="490" y2="164" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="490,164 478,159 478,169" fill="var(--gold)"/>
+          <text x="290" y="176" text-anchor="middle" font-size="8.5" fill="var(--gold)">重傳區段B　seq=1500</text>
+
+          <line x1="510" y1="192" x2="110" y2="192" stroke="var(--accent)" stroke-width="1.3"/>
+          <polygon points="110,192 122,187 122,197" fill="var(--accent)"/>
+          <text x="300" y="205" text-anchor="middle" font-size="8.5" fill="var(--accent)">ACK=2500（B與C都已收到）</text>
+        </svg>
+        <figcaption>區段B遺失後，接收端持續針對缺口回覆重複的ACK=1500；發送端偵測到遺失後重傳區段B，缺口補上後，接收端才把確認號一次推進到2500，代表B與C都已成功收到。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋TCP如何知道資料遺失、需要重傳（逾時與重複ACK兩種訊號）</li>
+          <li>能描述滑動視窗機制的目的，並說明它跟「送一段、等ACK、再送下一段」的簡單做法有何不同</li>
+          <li>能解釋接收端在ACK裡回報的「視窗大小」，防止的是哪一種問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 23 課要換個角度，看看TCP的對照組：UDP完全捨棄了這一課
+        介紹的所有可靠性機制，換來的是更低的延遲與更少的額外
+        負擔——下一課會說明為什麼有些應用程式反而偏好這種「不
+        保證送達」的協定。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：TCP三向交握</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：UDP：犧牲可靠換取速度 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

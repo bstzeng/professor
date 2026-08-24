@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 67 課：API閘道與服務網格(Service Mesh) ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="區分API閘道處理外部流量入口與服務網格處理內部服務間通訊的不同角色，介紹邊車代理如何在不修改應用程式碼的前提下提供服務發現、負載平衡與可觀測性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 67 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜進階主題：現代網路與雲端架構 · 第 67 課</div>
+      <h1>API閘道與服務網格(Service Mesh)</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能區分API閘道與服務網格的角色：分別處理外部流量入口與內部服務間通訊</li>
+          <li>理解API閘道如何統一處理身分驗證、流量限制等跨服務共通的需求</li>
+          <li>理解服務網格透過邊車代理，在不修改應用程式碼的前提下提供服務發現、負載平衡與可觀測性</li>
+        </ul>
+      </div>
+
+      <p>
+        第66課看到，拆成微服務之後，原本單一應用程式內部的
+        函式呼叫，變成了一堆散落在網路上、彼此獨立的服務呼叫
+        ——這種複雜度如果放任每個服務自己各自處理，會非常
+        難以維護。這一課要介紹兩個專門解決這個問題的架構模式：
+        API閘道，處理「外面進來的流量」；服務網格，處理「服務
+        彼此之間的流量」。
+      </p>
+
+      <h2>1. API閘道：所有外部請求的統一入口</h2>
+      <p>
+        <strong>API閘道（API Gateway）</strong>是所有從外部
+        進來的客戶端請求，唯一會經過的單一入口，再由它負責
+        轉發到正確的內部微服務——這個角色，其實延伸了模組J
+        第48課介紹過的反向代理概念，只是專門為微服務架構
+        設計。除了單純轉發，API閘道還會統一處理一些每個微服務
+        都會需要、卻不該各自重複實作的<strong>跨切面關注點
+        （cross-cutting concerns）</strong>：例如驗證使用者
+        身分、限制請求頻率（rate limiting）、把請求路由到
+        正確的後端服務。有了API閘道集中處理這些共通邏輯，
+        個別微服務就能專心處理自己的核心業務邏輯，不必每個
+        服務都重複寫一套身分驗證。
+      </p>
+
+      <h2>2. 服務網格：處理服務彼此之間的內部通訊</h2>
+      <p>
+        API閘道處理的是「外部進來」的流量，但微服務彼此之間
+        還有大量「內部互相呼叫」的流量——這正是<strong>服務
+        網格（Service Mesh，例如知名的Istio）</strong>要解決
+        的問題。服務網格是一層專門的基礎設施，通常透過在每個
+        微服務實例旁邊，部署一個輕量的<strong>邊車代理
+        （sidecar proxy）</strong>來實現：所有進出這個微服務
+        的網路流量，都會先經過緊鄰它的邊車代理。
+      </p>
+
+      <p>
+        邊車代理能透明地提供好幾項重要功能，而完全不需要修改
+        微服務本身的應用程式碼：<strong>服務發現</strong>（延伸
+        模組K第55課Docker Compose用服務名稱互相連線的概念，
+        只是規模更大、服務實例的位置更動態）、<strong>負載
+        平衡</strong>（在同一個服務的多個實例之間分散請求）、
+        <strong>重試與斷路</strong>（當某個服務暫時失敗時自動
+        重試，或在它持續失敗時暫停呼叫、避免故障擴散）、以及
+        <strong>詳細的可觀測性</strong>（記錄服務之間每一次
+        呼叫的延遲與結果，方便追蹤問題）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">API閘道（外部入口）vs 服務網格（內部通訊）</text>
+
+          <rect x="20" y="60" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="65" y="81" text-anchor="middle" font-size="8.5" fill="var(--text)">外部客戶端</text>
+
+          <line x1="110" y1="77" x2="170" y2="77" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#a67)"/>
+
+          <rect x="170" y="55" width="140" height="45" rx="6" fill="var(--gold)" opacity="0.16" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="240" y="73" text-anchor="middle" font-size="8.5" fill="var(--gold)">API閘道</text>
+          <text x="240" y="88" text-anchor="middle" font-size="7" fill="var(--text-muted)">身分驗證・流量限制</text>
+
+          <line x1="310" y1="77" x2="370" y2="77" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#a67)"/>
+
+          <rect x="370" y="130" width="290" height="150" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <text x="515" y="150" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">服務網格（內部）</text>
+
+          <rect x="390" y="165" width="100" height="30" rx="4" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="1.1"/>
+          <text x="440" y="184" text-anchor="middle" font-size="7.5" fill="var(--accent)">服務A</text>
+          <rect x="390" y="200" width="100" height="18" rx="3" fill="#ff8a65" opacity="0.25" stroke="#ff8a65" stroke-width="1"/>
+          <text x="440" y="213" text-anchor="middle" font-size="6.5" fill="var(--text)">邊車代理</text>
+
+          <rect x="530" y="165" width="100" height="30" rx="4" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="1.1"/>
+          <text x="580" y="184" text-anchor="middle" font-size="7.5" fill="var(--accent)">服務B</text>
+          <rect x="530" y="200" width="100" height="18" rx="3" fill="#ff8a65" opacity="0.25" stroke="#ff8a65" stroke-width="1"/>
+          <text x="580" y="213" text-anchor="middle" font-size="6.5" fill="var(--text)">邊車代理</text>
+
+          <line x1="440" y1="218" x2="440" y2="235" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="440" y1="235" x2="580" y2="235" stroke="var(--text-muted)" stroke-width="1"/>
+          <line x1="580" y1="235" x2="580" y2="218" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#a67)"/>
+          <text x="510" y="250" text-anchor="middle" font-size="7">服務間呼叫實際經過各自的邊車代理</text>
+
+          <line x1="440" y1="200" x2="240" y2="100" stroke="var(--border)" stroke-width="0.9" stroke-dasharray="2 2"/>
+          <text x="330" y="120" text-anchor="middle" font-size="7" fill="var(--text-muted)">閘道把請求轉入網格</text>
+
+          <defs>
+            <marker id="a67" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>API閘道統一處理外部客戶端進來的流量與共通關注點；進入內部後，服務彼此之間的呼叫，則由服務網格裡緊鄰每個服務的邊車代理透明地處理服務發現、負載平衡與可觀測性。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>面向</th><th>API閘道</th><th>服務網格</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>處理的流量</td><td>外部客戶端進入系統的流量</td><td>內部服務彼此之間的流量</td></tr>
+          <tr><td>典型職責</td><td>身分驗證、流量限制、路由到正確服務</td><td>服務發現、負載平衡、重試斷路、可觀測性</td></tr>
+          <tr><td>實作方式</td><td>單一集中的閘道節點</td><td>分散在每個服務旁的邊車代理</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能區分API閘道跟服務網格各自處理的流量範圍：外部入口 vs 內部服務間通訊</li>
+          <li>能說出API閘道統一處理的至少兩項跨切面關注點</li>
+          <li>能解釋服務網格裡「邊車代理」扮演的角色，以及它如何做到不修改應用程式碼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 68 課：容器編排：Kubernetes核心概念——微服務架構下，
+        動輒有幾十甚至上百個容器要同時運作，這一課要介紹業界
+        最主流的容器編排平台Kubernetes，如何自動管理這一切。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-66.html">← 上一課：微服務架構：從單體應用到服務拆分</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-68.html">下一課：容器編排：Kubernetes核心概念 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

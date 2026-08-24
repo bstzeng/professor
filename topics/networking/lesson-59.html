@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 59 課：網域名稱與DNS設定 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="從發布者的角度重新認識DNS：註冊網域名稱、建立A記錄指向伺服器公網IP、處理www子網域、理解NS記錄與名稱伺服器的角色，以及DNS變更為什麼不會瞬間全球生效">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 59 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜動手架站：從零到上線 · 第 59 課</div>
+      <h1>網域名稱與DNS設定</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道網域名稱是向網域註冊商租用而來，以及它跟DNS記錄之間的關係</li>
+          <li>能說出要讓網域指向伺服器IP，需要建立哪一種DNS記錄，以及www子網域怎麼處理</li>
+          <li>理解DNS變更為什麼不會瞬間在全世界生效，能解釋TTL與快取扮演的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        第58課讓網站可以透過伺服器的公網IP連線了，但沒有人會
+        想背一長串數字才能造訪你的網站。模組G第30課從「使用者
+        輸入網址、瀏覽器怎麼解析出IP」的角度講過DNS，這一課
+        要換個角度——從「網站經營者要怎麼設定，才能讓DNS解析
+        到自己的伺服器」出發，把DNS的另一面講清楚。
+      </p>
+
+      <h2>1. 註冊網域名稱：向網域註冊商租用一個名字</h2>
+      <p>
+        網域名稱（例如<code>example.com</code>）並不是憑空
+        擁有的，而是向<strong>網域註冊商（domain registrar）
+        </strong>租用而來——常見的註冊商包括Namecheap、GoDaddy、
+        Cloudflare Registrar等，實際上有非常多選擇，這裡不特別
+        推薦特定業者。註冊時通常是逐年付費續租，一旦網域到期
+        沒有續約，就有可能被其他人搶註。
+      </p>
+
+      <h2>2. 建立A記錄：讓網域指向伺服器的IP</h2>
+      <p>
+        光是註冊到一個名字還不夠，還要告訴DNS系統這個名字
+        對應到哪一個IP位址——這就是模組G第30課介紹過的記錄
+        類型登場的地方。最關鍵的一步，是在網域的DNS設定裡
+        新增一筆<strong>A記錄</strong>，把網域名稱的值設定成
+        第58課部署好的伺服器公網IP：
+      </p>
+      <table>
+        <thead>
+          <tr><th>主機名稱</th><th>記錄類型</th><th>值</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>example.com（裸網域）</td><td>A</td><td>203.0.113.10（伺服器公網IP）</td></tr>
+          <tr><td>www.example.com</td><td>A 或 CNAME</td><td>同樣指向203.0.113.10，或用CNAME指回example.com</td></tr>
+        </tbody>
+      </table>
+      <p>
+        一旦這筆A記錄設定好並生效，訪客在瀏覽器輸入
+        <code>example.com</code>時，DNS解析就會回傳這個IP
+        位址，瀏覽器接著直接連往你的伺服器——這正是模組G
+        第30課描述的解析流程，只是這一課是站在「設定值的
+        人」這一端。
+      </p>
+
+      <h2>3. www子網域：多一筆記錄的小細節</h2>
+      <p>
+        很多人習慣在網址前面加上<code>www.</code>，因此通常也
+        會順手替<code>www.example.com</code>設定對應——可以
+        再建一筆A記錄直接指向同一個IP，或者用<strong>CNAME
+        記錄</strong>讓<code>www.example.com</code>指回裸網域
+        <code>example.com</code>，讓兩者永遠保持一致，之後只要
+        更新裸網域的A記錄，www子網域就會自動跟著生效。
+      </p>
+
+      <h2>4. 名稱伺服器（NS記錄）：誰負責管理這個網域的DNS</h2>
+      <p>
+        除了A記錄，網域註冊商還需要知道：這個網域的DNS記錄，
+        究竟由「誰」來管理、回答查詢——這就是<strong>NS記錄
+        （Name Server，名稱伺服器）</strong>負責的事。有些情況
+        下，直接使用註冊商內建的DNS管理介面就足夠；也有不少
+        人會把NS指向另一個獨立的DNS服務供應商（例如
+        Cloudflare），換取更快的解析速度或更多進階功能（例如
+        後續第60課會用到的、透過DNS驗證憑證的能力）。不論
+        DNS實際上由誰管理，A記錄最終都是設定在「NS指向的那個
+        DNS服務」裡，而不一定是註冊商自己的介面。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 660 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="330" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從網域註冊到訪客連上你的伺服器</text>
+
+          <rect x="15" y="45" width="140" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="85" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">向註冊商</text>
+          <text x="85" y="83" text-anchor="middle" font-size="8.5" fill="var(--text)">註冊網域名稱</text>
+
+          <line x1="155" y1="72" x2="180" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="185" y="45" width="140" height="55" rx="6" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="255" y="68" text-anchor="middle" font-size="8.5" fill="var(--gold)">建立A記錄</text>
+          <text x="255" y="83" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">指向伺服器公網IP</text>
+
+          <line x1="325" y1="72" x2="350" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="355" y="45" width="140" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="425" y="68" text-anchor="middle" font-size="8.5" fill="var(--accent)">DNS記錄</text>
+          <text x="425" y="83" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">逐步傳播、被快取</text>
+
+          <line x1="495" y1="72" x2="520" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="525" y="45" width="120" height="55" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="585" y="68" text-anchor="middle" font-size="8.5" fill="#ff8a65">訪客輸入網址</text>
+          <text x="585" y="83" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">解析到你的伺服器</text>
+
+          <rect x="15" y="125" width="630" height="90" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="330" y="150" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">呼應模組G第30課：全球各地的DNS解析器，會依照A記錄的TTL設定各自快取一段時間</text>
+          <text x="330" y="168" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">在快取還沒過期之前，不同地方的使用者可能暫時看到新舊不一致的結果</text>
+          <text x="330" y="186" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">這正是DNS變更常說「傳播」需要時間、而非瞬間全球生效的原因</text>
+        </svg>
+        <figcaption>從註冊網域、設定A記錄，到DNS記錄逐漸在全球快取層傳播開來，最後訪客的瀏覽器才會解析到你的伺服器IP——中間的快取層正是傳播需要時間的關鍵。</figcaption>
+      </div>
+
+      <h2>5. 為什麼DNS變更不會瞬間全世界生效</h2>
+      <p>
+        修改完A記錄後，往往不會立刻在全世界都生效，可能要
+        等幾分鐘、甚至最長到48小時——這正是呼應模組G第30課
+        提過的DNS快取機制：世界各地的DNS解析器，會依照記錄
+        設定的<strong>TTL（Time To Live，存活時間）</strong>，
+        把查詢結果快取一段時間，在這段時間內即使原始記錄已經
+        更新，快取過的解析器仍然會回傳舊的結果，直到快取過期
+        才會重新查詢、拿到新值。這也是為什麼在做重大DNS變更
+        之前，有經驗的做法是提早把TTL調低，讓變更能更快地
+        在全世界傳播開來。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說出要讓網域指向伺服器IP，需要設定哪一種DNS記錄類型</li>
+          <li>能解釋NS記錄的作用，以及它跟A記錄之間的關係</li>
+          <li>能用TTL與快取解釋為什麼DNS變更不會瞬間在全世界生效</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 60 課：申請並設定HTTPS憑證(Let's Encrypt)——網域已經
+        能指向伺服器了，但目前還是明文HTTP。這一課要用免費的
+        Let's Encrypt憑證，把網站升級成HTTPS，呼應模組I建立的
+        整套加密知識。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-58.html">← 上一課：用Docker部署一個簡單網站</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-60.html">下一課：申請並設定HTTPS憑證(Let's Encrypt) →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

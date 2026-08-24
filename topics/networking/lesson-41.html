@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：為什麼需要加密：中間人攻擊的風險 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="模組I開場：純文字HTTP傳輸為什麼危險——資料會經過哪些中間節點、中間人攻擊(MITM)如何竊聽與竄改通訊，以及HTTPS想提供的機密性、完整性、身分驗證三個安全目標">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜HTTPS與網路安全基礎 · 第 41 課</div>
+      <h1>為什麼需要加密：中間人攻擊的風險</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解純文字HTTP傳輸時，資料會經過哪些中間節點，以及為什麼這些節點原則上都能讀到內容</li>
+          <li>認識「中間人攻擊」（Man-in-the-Middle, MITM）的攻擊模型：竊聽與竄改</li>
+          <li>認識HTTPS要提供的三個安全目標：機密性、完整性、身分驗證，作為整個模組I的路線圖</li>
+        </ul>
+      </div>
+
+      <p>
+        模組H把HTTP協定本身講得很細——方法、狀態碼、標頭、
+        Cookie、快取——但整個過程有意無意地跳過了一個問題：
+        這些資料在網路上傳輸的時候，到底安不安全？模組G第31課
+        提過，一次連線建立時會經過TCP三向交握、接著是TLS交握，
+        但當時只是點到為止。這一課開始，模組I要把這件事講清楚：
+        先講清楚「不加密」到底有多危險，再一路建立起HTTPS怎麼
+        解決這個問題的完整技術圖像。
+      </p>
+
+      <h2>1. 明文HTTP：資料其實是「攤開來」送出去的</h2>
+      <p>
+        回想模組D、模組E建立的圖像：一個HTTP請求要從你的裝置
+        送到伺服器，中間會經過家用路由器或公司/咖啡廳的WiFi
+        基地台、可能經過好幾層區域網路交換器、再進到ISP的
+        設備，然後在骨幹網路上經過一台又一台路由器（模組F），
+        最後才抵達目的地伺服器。如果這個HTTP請求是純文字、
+        沒有加密的，那麼<strong>沿路上的每一個中間節點，原則上
+        都有能力讀到封包裡實際承載的內容</strong>——包括你在
+        登入表單裡輸入的帳號密碼、瀏覽的頁面內容、甚至是模組H
+        第38課提到、用來辨識你身分的Session Cookie。
+      </p>
+      <p>
+        這不代表每一個路由器都「主動在做」這件事——絕大多數
+        設備只是單純轉發封包，不會刻意窺探內容。但問題在於
+        <strong>「原則上做不做得到」跟「實際上有沒有人在做」是
+        兩回事</strong>：只要傳輸是明文的，任何一個能接觸到這條
+        路徑的人（惡意的網路管理員、被入侵的設備、共享WiFi上的
+        其他使用者）都有機會讀取，而使用者完全無從得知、也無法
+        阻止。這正是純文字HTTP在設計上的根本弱點。
+      </p>
+
+      <h2>2. 中間人攻擊（MITM）：不只是被偷看，還可能被竄改</h2>
+      <p>
+        把這個弱點具體化成一個攻擊模型，就是<strong>中間人攻擊
+        （Man-in-the-Middle, MITM）</strong>：攻擊者想辦法讓自己
+        的位置介於客戶端與伺服器之間的網路路徑上，於是所有本來
+        應該直接往返於兩端的資料，都會先經過攻擊者。客戶端與
+        伺服器雙方都以為自己在跟對方直接通訊，渾然不知中間多了
+        一個「聽得到、甚至改得動」的第三者。
+      </p>
+      <p>
+        常見的實際場景包括：攻擊者架設一個偽裝成公共WiFi的
+        惡意熱點（名稱可能刻意取得跟真正的熱點很像），只要有人
+        連上，之後所有流量都會先經過攻擊者的設備；或者攻擊者
+        入侵、控制了路徑上某一台既有的網路設備。一旦攻擊者
+        取得這個「中間」的位置，就同時具備兩種能力：
+      </p>
+      <ul>
+        <li><strong>竊聽（eavesdrop）</strong>——被動地讀取經過的
+          明文內容，例如記錄下使用者輸入的密碼、竊取Session
+          Cookie藉以冒充該使用者的身分（呼應模組H第38課）</li>
+        <li><strong>竄改（tamper）</strong>——主動修改經過的內容，
+          例如把伺服器回傳的網頁內容偷偷插入惡意的程式碼、或是
+          把使用者導向一個假冒的釣魚網站</li>
+      </ul>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">明文HTTP vs HTTPS：中間人攻擊者看到的差異</text>
+
+          <text x="80" y="50" text-anchor="middle" font-size="10" fill="var(--text)">客戶端</text>
+          <text x="620" y="50" text-anchor="middle" font-size="10" fill="var(--text)">伺服器</text>
+
+          <!-- top scenario: plain HTTP -->
+          <text x="350" y="80" text-anchor="middle" font-size="10" fill="#ff8a65">情境一：純文字HTTP</text>
+          <rect x="20" y="95" width="120" height="30" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="80" y="114" text-anchor="middle" font-size="9" fill="var(--text)">瀏覽器</text>
+          <rect x="560" y="95" width="120" height="30" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="620" y="114" text-anchor="middle" font-size="9" fill="var(--text)">網站伺服器</text>
+
+          <rect x="290" y="90" width="120" height="40" rx="4" fill="#ff8a65" opacity="0.18" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="350" y="107" text-anchor="middle" font-size="9" fill="#ff8a65">中間人攻擊者</text>
+          <text x="350" y="121" text-anchor="middle" font-size="7.5" fill="#ff8a65">可讀取＋可竄改明文</text>
+
+          <line x1="140" y1="110" x2="288" y2="110" stroke="#ff8a65" stroke-width="1.3" marker-end="url(#arrow41)"/>
+          <line x1="412" y1="110" x2="558" y2="110" stroke="#ff8a65" stroke-width="1.3" marker-end="url(#arrow41)"/>
+          <text x="215" y="145" text-anchor="middle" font-size="7.5" fill="#ff8a65">帳密、Cookie…全部一覽無遺</text>
+
+          <!-- bottom scenario: HTTPS -->
+          <text x="350" y="195" text-anchor="middle" font-size="10" fill="var(--gold)">情境二：HTTPS（TLS加密）</text>
+          <rect x="20" y="210" width="120" height="30" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="80" y="229" text-anchor="middle" font-size="9" fill="var(--text)">瀏覽器</text>
+          <rect x="560" y="210" width="120" height="30" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="620" y="229" text-anchor="middle" font-size="9" fill="var(--text)">網站伺服器</text>
+
+          <rect x="290" y="205" width="120" height="40" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="350" y="222" text-anchor="middle" font-size="9" fill="var(--text-muted)">中間人攻擊者</text>
+          <text x="350" y="236" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">只看到無法解讀的亂碼</text>
+
+          <line x1="140" y1="225" x2="288" y2="225" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow41g)"/>
+          <line x1="412" y1="225" x2="558" y2="225" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow41g)"/>
+          <text x="215" y="260" text-anchor="middle" font-size="7.5" fill="var(--gold)">內容經TLS加密，攻擊者無法讀取或有效竄改</text>
+
+          <rect x="20" y="285" width="660" height="40" fill="none" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="350" y="302" text-anchor="middle" font-size="8" fill="var(--text-muted)">攻擊者的網路位置沒有改變——差別在於他能不能理解、能不能有效更動經過的資料</text>
+          <text x="350" y="316" text-anchor="middle" font-size="8" fill="var(--text-muted)">這正是HTTPS這一整個模組要建立的防護</text>
+
+          <defs>
+            <marker id="arrow41" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="#ff8a65"/>
+            </marker>
+            <marker id="arrow41g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>攻擊者所在的「網路位置」在兩種情境裡完全一樣——真正的差別在於明文HTTP讓他能直接讀懂、任意竄改內容，而HTTPS加密後他只看得到無法解讀的亂碼，也難以在不被發現的情況下竄改。</figcaption>
+      </div>
+
+      <h2>3. HTTPS的三個安全目標：這個模組的路線圖</h2>
+      <p>
+        <strong>HTTPS（HTTP Secure）</strong>正是為了對抗上述威脅
+        模型而存在：它在HTTP協定底下加了一層<strong>TLS
+        （Transport Layer Security，傳輸層安全協定）</strong>加密，
+        讓應用層之上跑的仍然是我們熟悉的HTTP，但底層的傳輸
+        內容變成中間人看不懂、也難以竄改的密文。具體來說，
+        HTTPS想提供三個安全保證，也正好對應接下來三課的內容：
+      </p>
+      <table>
+        <thead>
+          <tr><th>安全目標</th><th>要解決的問題</th><th>對應課程</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>機密性（confidentiality）</td><td>竊聽者即使攔截到資料，也讀不出實際內容</td><td>第42課：對稱加密與非對稱加密</td></tr>
+          <tr><td>完整性（integrity）</td><td>資料在傳輸途中若遭竄改，接收端能夠察覺</td><td>第43課：TLS交握（做為協定設計的一部分）</td></tr>
+          <tr><td>身分驗證（authentication）</td><td>客戶端能確認自己真的在跟合法的伺服器通訊，而不是冒充者</td><td>第44課：憑證與憑證頒發機構</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout">
+        <h3>先建立心態：加密不是「錦上添花」</h3>
+        <p>
+          很容易誤以為「反正我又沒有輸入密碼，不加密應該沒差」
+          ——但只要頁面裡包含Session Cookie、個人資料、或任何
+          不希望被第三方看到的內容，明文傳輸就有風險。這也是
+          為什麼現代網際網路的趨勢是「預設全面HTTPS」：把加密
+          當成傳輸的基本盤，而不是只在「敏感頁面」才啟用。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能描述中間人攻擊的攻擊模型：攻擊者如何取得「中間」的網路位置，以及取得之後能做到哪兩件事</li>
+          <li>能說出HTTPS想提供的三個安全保證分別是什麼，以及各自對應接下來哪一課的內容</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 42 課：對稱加密與非對稱加密——要達成機密性，第一步
+        得先搞懂加密演算法的兩大類型：用同一把鑰匙加解密的
+        對稱加密，跟用一對公私鑰的非對稱加密，以及TLS為什麼
+        兩種都要用上。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：模組總結</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：對稱加密與非對稱加密 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

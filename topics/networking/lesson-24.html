@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：模組總結：壅塞控制與協定選擇 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="整合模組E：連接埠、三向交握、TCP可靠傳輸與UDP，並介紹TCP壅塞控制的緩啟動與AIMD機制，最後給出TCP與UDP的協定選擇決策框架">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜傳輸層：TCP與UDP的可靠與快速之爭 · 第 24 課</div>
+      <h1>模組總結：壅塞控制與協定選擇</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把連接埠、三向交握、TCP可靠傳輸、UDP整合成一個完整的傳輸層故事</li>
+          <li>理解壅塞控制與流量控制的差異，以及緩啟動、AIMD的基本運作方式</li>
+          <li>能依據應用程式的實際需求，在TCP與UDP之間做出合理的選擇</li>
+        </ul>
+      </div>
+
+      <p>
+        模組E這四課，從「一台機器怎麼同時處理多個服務」出發，
+        一路深入TCP如何建立連線、如何保證資料可靠送達，再對照
+        UDP捨棄可靠性換取速度的設計。這一課要把這些拼圖整合
+        起來，並補上最後一塊重要的內容——TCP的壅塞控制，然後
+        用一個實用的決策框架，替模組E畫下句點。
+      </p>
+
+      <h2>傳輸層完整地圖：從連接埠到可靠傳輸</h2>
+      <div class="callout">
+        <ol>
+          <li><strong>連接埠與四元組（第20課）</strong>——IP位址
+            定位機器，連接埠定位機器上的服務，來源IP、來源埠、
+            目的IP、目的埠組成的四元組，讓伺服器能同時分辨大量
+            獨立連線</li>
+          <li><strong>三向交握（第21課）</strong>——TCP在傳送資料
+            前，先透過SYN、SYN-ACK、ACK三個步驟，讓雙方各自
+            提出並確認隨機的初始序號，正式建立連線</li>
+          <li><strong>可靠傳輸機制（第22課）</strong>——序號與確認
+            號讓TCP掌握資料送達狀況，逾時或重複ACK觸發重傳，
+            滑動視窗則讓多段資料能同時在途，兼顧效率與流量控制</li>
+          <li><strong>UDP的取捨（第23課）</strong>——拿掉交握、
+            確認、重傳、排序，換來極簡的8位元組標頭與更低的
+            延遲，適合DNS查詢、即時視訊語音、線上遊戲這類場景</li>
+        </ol>
+      </div>
+
+      <h2>流量控制之外：壅塞控制保護的是整個網路</h2>
+      <p>
+        第22課介紹的滑動視窗，本質上是<strong>流量控制（flow
+        control）</strong>——它保護的是「接收端」，避免發送端的
+        速度超過接收端緩衝區能處理的極限。但還有另一個同樣重要、
+        卻經常被混為一談的機制：<strong>壅塞控制（congestion
+        control）</strong>，它保護的對象不是接收端，而是<strong>
+        整條路徑上的網路本身</strong>——避免太多連線同時把資料
+        灌進網路，導致中間的路由器、鏈路被壓垮，造成大量封包
+        延遲甚至遺失。
+      </p>
+      <p>
+        TCP判斷網路是否壅塞的方式相當間接：它沒有辦法直接
+        「詢問」網路目前有多壅塞，只能把封包遺失，解讀成
+        「網路可能正在壅塞」的訊號，並據此調整自己的發送速度。
+        這個調整過程分成兩個階段：一開始，TCP會採取<strong>
+        緩啟動（slow start）</strong>——用一個很小的壅塞窗口
+        開始傳送，每經過一次成功的往返（RTT），窗口大小大致
+        倍增，呈現指數成長，讓TCP能快速找到網路目前大概能承受
+        的傳輸量。一旦偵測到封包遺失，TCP會判斷網路正在壅塞，
+        於是<strong>大幅、乘法式地縮小</strong>壅塞窗口（例如
+        直接砍半），接著改用更保守的線性成長方式，一點一點地
+        再把窗口加大，這個階段稱為<strong>壅塞避免（congestion
+        avoidance）</strong>。這種「線性增加、遇到遺失就乘法式
+        減少」的整體模式，業界稱之為<strong>AIMD（Additive
+        Increase, Multiplicative Decrease）</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">壅塞窗口隨時間變化：緩啟動 + AIMD鋸齒模式</text>
+
+          <line x1="50" y1="220" x2="560" y2="220" stroke="var(--border)" stroke-width="1"/>
+          <line x1="50" y1="220" x2="50" y2="30" stroke="var(--border)" stroke-width="1"/>
+          <text x="300" y="245" text-anchor="middle" font-size="9" fill="var(--text-muted)">時間（每個往返RTT）</text>
+          <text x="25" y="125" text-anchor="middle" font-size="9" fill="var(--text-muted)" transform="rotate(-90 25 125)">壅塞窗口大小</text>
+
+          <polyline points="50,210 80,195 110,165 140,110 165,60 280,30 280,125 400,45 400,140 520,60"
+                     fill="none" stroke="var(--gold)" stroke-width="1.8"/>
+
+          <text x="90" y="185" font-size="8" fill="var(--gold)">①緩啟動（指數成長）</text>
+          <text x="210" y="42" font-size="8" fill="var(--accent)">②壅塞避免（線性成長）</text>
+          <text x="285" y="80" font-size="8" fill="#ff8a65">③偵測到遺失</text>
+          <text x="285" y="92" font-size="8" fill="#ff8a65">→窗口乘法式縮小</text>
+        </svg>
+        <figcaption>TCP先用緩啟動快速摸索網路容量（指數成長），接近某個門檻後改用線性成長的壅塞避免；每次偵測到封包遺失，就把窗口乘法式縮小，之後再重新線性成長——整體形成典型的鋸齒狀曲線，這就是AIMD。</figcaption>
+      </div>
+
+      <p>
+        這套機制背後的哲學值得特別強調：整個網際網路上並<strong>
+        沒有一個中央調度單位</strong>在分配頻寬，每一條TCP連線
+        都只能依靠自己觀察到的封包遺失，各自獨立地判斷、調整
+        發送速度。TCP的設計目標，是讓每一條連線都表現得像一個
+        「好網路公民」——遇到壅塞訊號就主動退讓，情況好轉就
+        逐步試探性地加快。正是因為千千萬萬條連線都遵守這同一套
+        自我節制的規則，整個網際網路才能在沒有中央控管的情況下，
+        大致公平地共享有限的頻寬資源。
+      </p>
+
+      <h2>該選TCP還是UDP：一張決策表</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>應用情境</th>
+            <th>建議協定</th>
+            <th>理由</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>網頁瀏覽、API請求</td>
+            <td>TCP</td>
+            <td>內容必須完整、正確送達，順序也不能錯亂</td>
+          </tr>
+          <tr>
+            <td>檔案傳輸、電子郵件</td>
+            <td>TCP</td>
+            <td>任何一個位元組遺失都可能導致檔案損壞，可靠性優先</td>
+          </tr>
+          <tr>
+            <td>DNS查詢</td>
+            <td>UDP</td>
+            <td>單次請求—回應非常短小，應用層自行重試比等待TCP交握更快</td>
+          </tr>
+          <tr>
+            <td>即時視訊、語音通話</td>
+            <td>UDP</td>
+            <td>過時的重傳資料沒有價值，寧可跳過遺失、維持即時性</td>
+          </tr>
+          <tr>
+            <td>線上遊戲即時對戰資料</td>
+            <td>UDP</td>
+            <td>最新狀態遠比「保證送達的舊狀態」重要，延遲敏感</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能清楚分辨流量控制與壅塞控制各自保護的對象，以及兩者的差異</li>
+          <li>能描述緩啟動與壅塞避免兩個階段的成長方式，以及AIMD這個名稱的含意</li>
+          <li>能依據一個新應用程式的需求特性，合理判斷該選擇TCP還是UDP，並說明理由</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        傳輸層完成了主機之間端對端的可靠（或快速）資料傳遞——
+        但這些資料實際上究竟是從哪裡送出的？下一個模組要暫時
+        離開協定的世界，實際走進資料中心，看看網際網路背後
+        那些真實存在的機房與硬體，從第25課開始，一步步認識
+        機櫃、電力、散熱，以及把全世界資料中心連在一起的骨幹
+        網路。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：UDP：犧牲可靠換取速度</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：資料中心裡面到底有什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：對稱加密與非對稱加密 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拆解TLS背後的兩大加密類型：用同一把鑰匙加解密、速度快但難以安全交換金鑰的對稱加密；用公私鑰對解決金鑰交換問題、但運算較慢的非對稱加密；以及TLS為什麼把兩者混合使用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜HTTPS與網路安全基礎 · 第 42 課</div>
+      <h1>對稱加密與非對稱加密</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解對稱加密的運作方式，以及它「金鑰怎麼安全交換」的根本難題</li>
+          <li>理解非對稱加密的公鑰／私鑰配對機制，以及它為何能解決金鑰交換問題</li>
+          <li>理解TLS為什麼把兩者混合使用，而不是只選其中一種</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課說到，HTTPS想提供的第一個安全目標是機密性
+        ——竊聽者攔到資料也讀不出內容。要做到這件事，核心工具
+        就是<strong>加密（encryption）</strong>：把原始的明文
+        （plaintext）透過某種數學運算轉換成密文（ciphertext），
+        沒有正確金鑰的人看到的只會是一串沒有意義的亂碼。這一課
+        要介紹加密演算法的兩大類別，以及它們各自的優缺點如何
+        促成TLS「兩種都用」的設計。
+      </p>
+
+      <h2>1. 對稱加密：一把鑰匙，兩邊共用</h2>
+      <p>
+        <strong>對稱加密（symmetric encryption）</strong>的邏輯
+        很直覺：加密跟解密用的是<strong>同一把金鑰</strong>。
+        發送方用這把金鑰把明文加密成密文送出去，接收方必須
+        擁有一模一樣的這把金鑰，才能把密文還原回明文。常見的
+        對稱加密演算法例如<strong>AES（Advanced Encryption
+        Standard，進階加密標準）</strong>，運算設計得相對簡單、
+        高效，所以速度非常快，很適合用來加密大量的實際資料
+        （例如整個HTTP回應的內容）。
+      </p>
+      <p>
+        但對稱加密有一個結構性的難題：<strong>雙方必須先擁有
+        同一把金鑰，才能開始安全通訊</strong>。問題是，這把金鑰
+        本身要怎麼從一方安全地送到另一方？如果直接把金鑰用
+        明文送過網路，等於還沒開始加密，金鑰本身就先被竊聽者
+        看光了——這正是「先有雞還是先有蛋」的困境：要安全地
+        通訊，得先安全地交換金鑰；但要安全地交換金鑰，本身
+        又需要一個安全的通道。這正是對稱加密自己解決不了、
+        需要靠下一種加密方式來補上的缺口。
+      </p>
+
+      <h2>2. 非對稱加密：一對鑰匙，公開一半</h2>
+      <p>
+        <strong>非對稱加密（asymmetric encryption，又稱公開金鑰
+        加密）</strong>用完全不同的思路解決了金鑰交換的難題。
+        它不是一把鑰匙，而是數學上互相關聯的<strong>一對金鑰</strong>：
+        一把是<strong>公鑰（public key）</strong>，可以毫無保留地
+        公開給任何人；另一把是<strong>私鑰（private key）</strong>，
+        必須自己妥善保管、絕不外流。這對金鑰有一個關鍵的數學
+        性質：用公鑰加密的資料，只有對應的私鑰才能解開（依用途
+        不同，也可以反過來用私鑰簽署、公鑰驗證，這是後續數位
+        簽章與憑證機制的基礎，第44課會再展開）。常見的非對稱
+        演算法包括<strong>RSA</strong>，以及現代TLS更常用的橢圓
+        曲線類演算法（例如ECDHE，第43課會詳細介紹它在金鑰交換
+        裡的角色）。
+      </p>
+      <p>
+        因為公鑰本來就設計成可以公開，金鑰交換的難題就這樣被
+        優雅地繞過了：任何人都可以拿到你的公鑰，用它加密要
+        傳給你的資料，而只有握有私鑰的你才解得開——即使公鑰
+        在傳輸過程中被竊聽者看光，也完全不影響安全性，因為
+        竊聽者手上沒有私鑰。但非對稱加密的代價是<strong>運算
+        複雜度高出許多，速度遠比對稱加密慢</strong>，如果拿它
+        來加密整個網頁的所有內容，效能會非常糟糕。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">對稱加密 vs 非對稱加密</text>
+
+          <!-- symmetric -->
+          <text x="170" y="45" text-anchor="middle" font-size="10" fill="var(--gold)">對稱加密</text>
+          <rect x="30" y="60" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="75" y="81" text-anchor="middle" font-size="9" fill="var(--text)">甲方</text>
+          <rect x="220" y="60" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="265" y="81" text-anchor="middle" font-size="9" fill="var(--text)">乙方</text>
+          <line x1="120" y1="77" x2="218" y2="77" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#a42a)" marker-start="url(#a42a)"/>
+          <text x="170" y="70" text-anchor="middle" font-size="8" fill="var(--gold)">同一把金鑰🔑</text>
+          <text x="170" y="115" text-anchor="middle" font-size="8" fill="var(--text-muted)">加密／解密都用它</text>
+          <text x="170" y="130" text-anchor="middle" font-size="8" fill="var(--text-muted)">速度快，但金鑰要先安全共享</text>
+
+          <!-- asymmetric -->
+          <text x="530" y="45" text-anchor="middle" font-size="10" fill="var(--accent)">非對稱加密</text>
+          <rect x="400" y="60" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="445" y="81" text-anchor="middle" font-size="9" fill="var(--text)">甲方</text>
+          <rect x="580" y="60" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="625" y="81" text-anchor="middle" font-size="9" fill="var(--text)">乙方</text>
+          <line x1="490" y1="72" x2="578" y2="72" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a42b)"/>
+          <text x="534" y="65" text-anchor="middle" font-size="7.5" fill="var(--accent)">用乙方公鑰加密</text>
+          <text x="534" y="115" text-anchor="middle" font-size="8" fill="var(--text-muted)">公鑰可公開，私鑰乙方自留</text>
+          <text x="534" y="130" text-anchor="middle" font-size="8" fill="var(--text-muted)">解決金鑰交換，但運算慢</text>
+
+          <rect x="30" y="165" width="640" height="75" fill="none" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="350" y="185" text-anchor="middle" font-size="9" fill="var(--gold)">TLS的混合做法（下一課詳解）</text>
+          <text x="350" y="205" text-anchor="middle" font-size="8" fill="var(--text-muted)">連線一開始，先用非對稱加密安全地建立出一把「共享的對稱金鑰」</text>
+          <text x="350" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">之後整個連線的大量資料，改用速度快的對稱加密來處理</text>
+        </svg>
+        <defs>
+          <marker id="a42a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+          </marker>
+          <marker id="a42b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"/>
+          </marker>
+        </defs>
+        <figcaption>對稱加密快但要先解決金鑰共享的難題；非對稱加密天生解決了金鑰交換，卻慢得不適合拿來加密大量資料——TLS的做法是各取所長，兩種都用。</figcaption>
+      </div>
+
+      <h2>3. 混合策略：TLS為什麼兩種都要用</h2>
+      <p>
+        把兩種加密方式的特性擺在一起看，答案就很清楚了：
+        非對稱加密最大的價值在於「不需要事先共享任何秘密，
+        就能安全地建立起一個秘密」，但代價是速度慢；對稱加密
+        最大的價值在於速度快，但前提是雙方要先有辦法安全地
+        共享同一把金鑰。這兩者剛好可以互補。
+      </p>
+      <p>
+        因此TLS採用的是<strong>混合式（hybrid）</strong>做法：
+        在連線剛建立的短暫交握階段（第43課會逐步拆解），先用
+        非對稱加密相關的機制，安全地在雙方之間協商出一把
+        <strong>共享的對稱金鑰</strong>；一旦這把對稱金鑰確立，
+        接下來整個連線裡實際承載的HTTP資料（模組H所談的一切），
+        就全部改用速度快得多的對稱加密來處理。也就是說，非對稱
+        加密只需要在連線一開始短暫地「登場」一次，負責解決最
+        棘手的金鑰交換問題；真正大量、持續的資料加解密工作，
+        則交給對稱加密去扛。這個設計思路，正是理解下一課TLS
+        交握流程的關鍵前提。
+      </p>
+
+      <div class="callout">
+        <h3>一句話記住兩者的差別</h3>
+        <p>
+          對稱加密：<strong>一把鑰匙、兩邊都要有、速度快</strong>；
+          非對稱加密：<strong>一對鑰匙、公鑰可以公開、私鑰只有
+          自己有、速度慢但解決了金鑰怎麼安全交換的問題</strong>。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋對稱加密跟非對稱加密最關鍵的差異是什麼</li>
+          <li>能說出對稱加密的金鑰交換難題，以及非對稱加密怎麼解決它</li>
+          <li>能解釋TLS為什麼要把兩者混合使用，而不是只選其中一種</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 43 課：TLS交握完整流程——把這一課的兩種加密方式，
+        放進實際的TLS 1.3交握步驟裡，看客戶端跟伺服器究竟怎麼
+        在完全公開的網路上，協商出一把只有彼此知道的對稱金鑰。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：為什麼需要加密：中間人攻擊的風險</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：TLS交握完整流程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

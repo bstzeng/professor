@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：Cookie與Session：網站如何記住你 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="HTTP本身是無狀態協定，這一課解析Cookie與伺服器端session如何協作，讓網站能記住登入狀態、購物車內容，並認識Secure、HttpOnly、SameSite等Cookie安全屬性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜HTTP協定深度解析 · 第 38 課</div>
+      <h1>Cookie與Session：網站如何記住你</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解HTTP「無狀態」的本質，以及它為什麼會造成「記住使用者」的困難</li>
+          <li>理解Cookie搭配伺服器端session，怎麼共同解出這個問題</li>
+          <li>認識Secure、HttpOnly、SameSite這幾個Cookie安全屬性的用途</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G第32課提過Cookie標頭，這一課要把它完整攤開來講：
+        為什麼網站需要Cookie？它跟伺服器端的session如何配合，
+        一起做出「這個網站記得我」的效果？
+      </p>
+
+      <h2>1. HTTP是無狀態的：每個請求都是一張新面孔</h2>
+      <p>
+        HTTP協定本身被設計成<strong>無狀態（stateless）</strong>
+        ——預設情況下，每一個HTTP請求都被當成完全獨立的事件來
+        處理，伺服器不會自動記得「這個請求跟前一個請求，是不是
+        同一個使用者發出的」。這帶來一個明顯的落差：真實世界的
+        網站，明明表現得像記得你是誰——你登入後重新整理頁面，
+        還是保持登入狀態；把商品加進購物車，切到別的頁面商品
+        還在——但HTTP本身完全沒有內建任何機制去支援這種「記憶」。
+        這一課要解決的，正是這個落差：既然協定本身不記得，
+        網站是怎麼做到看起來記得的？
+      </p>
+
+      <h2>2. Cookie：讓客戶端替伺服器帶著一張小紙條</h2>
+      <p>
+        解法是<strong>Cookie</strong>：伺服器在回應裡加上一個
+        <strong>Set-Cookie</strong>標頭，裡面通常放著一段隨機
+        產生的識別碼；瀏覽器收到這個標頭後，會把這段資料儲存
+        起來，並且在之後每一次送給<strong>同一個網域</strong>的
+        請求裡，自動附上一個<strong>Cookie</strong>標頭，把剛才
+        存的內容原封不動地帶回去。這個機制的巧妙之處在於：狀態
+        資料其實是由<strong>客戶端</strong>攜帶著的，伺服器本身
+        依然不需要記住任何東西，只要每次看到附帶的Cookie，就能
+        知道「這個請求，是先前那個我發過Set-Cookie的同一個人
+        傳回來的」——用一個小紙條，製造出「被記得」的效果。
+      </p>
+
+      <h2>3. Session：Cookie通常只帶一把鑰匙，不帶整個保險箱</h2>
+      <p>
+        實務上，Cookie裡通常不會直接放使用者的完整資料，而只放
+        一個不具意義的<strong>session ID</strong>（session識別碼）
+        ——真正的資料，例如使用者是誰、購物車裡有什麼，儲存在
+        <strong>伺服器端</strong>（可能在記憶體、資料庫，或
+        快取系統裡），用session ID當索引去查。這種設計有兩個
+        明顯的好處：一是敏感資料完全不會離開伺服器，就算Cookie
+        在傳輸中被看到，攻擊者拿到的也只是一個無意義的識別碼；
+        二是伺服器可以隨時主動讓某個session失效（例如使用者
+        登出、或偵測到異常行為），不需要仰賴客戶端配合。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 680 320" xmlns="http://www.w3.org/2000/svg">
+          <text x="340" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Cookie與伺服器端session協作的完整流程</text>
+
+          <text x="80" y="42" text-anchor="middle" font-size="10" fill="var(--text)">瀏覽器</text>
+          <line x1="80" y1="52" x2="80" y2="290" stroke="var(--border)" stroke-width="1"/>
+          <text x="600" y="42" text-anchor="middle" font-size="10" fill="var(--accent)">伺服器</text>
+          <line x1="600" y1="52" x2="600" y2="290" stroke="var(--border)" stroke-width="1"/>
+
+          <line x1="80" y1="75" x2="600" y2="75" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr38)"/>
+          <text x="340" y="68" text-anchor="middle" font-size="8" fill="var(--text)">① 登入請求（帳號密碼）</text>
+
+          <rect x="500" y="85" width="180" height="30" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="3"/>
+          <text x="590" y="103" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">驗證成功，建立</text>
+          <text x="590" y="112" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">session並存於伺服器端</text>
+
+          <line x1="600" y1="130" x2="80" y2="130" stroke="var(--gold)" stroke-width="1.2" marker-end="url(#arr38)"/>
+          <text x="340" y="123" text-anchor="middle" font-size="8" fill="var(--gold)">② Set-Cookie: session_id=a92f...</text>
+
+          <rect x="20" y="140" width="120" height="26" fill="var(--gold)" opacity="0.12" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="80" y="157" text-anchor="middle" font-size="7.5" fill="var(--gold)">瀏覽器儲存Cookie</text>
+
+          <line x1="80" y1="185" x2="600" y2="185" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr38)"/>
+          <text x="340" y="178" text-anchor="middle" font-size="8" fill="var(--text)">③ 之後任何請求：自動附上 Cookie: session_id=a92f...</text>
+
+          <rect x="500" y="195" width="180" height="30" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="3"/>
+          <text x="590" y="213" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">用session_id查出</text>
+          <text x="590" y="222" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">這是哪位已登入使用者</text>
+
+          <line x1="600" y1="240" x2="80" y2="240" stroke="var(--text)" stroke-width="1.2" marker-end="url(#arr38)"/>
+          <text x="340" y="233" text-anchor="middle" font-size="8" fill="var(--text)">④ 回傳這位使用者專屬的內容</text>
+
+          <text x="340" y="270" text-anchor="middle" font-size="8" fill="var(--text-muted)">每個獨立的HTTP請求，其實依然無狀態——</text>
+          <text x="340" y="284" text-anchor="middle" font-size="8" fill="var(--text-muted)">「被記得」的感覺，是靠這張小紙條反覆自動遞交製造出來的</text>
+
+          <defs>
+            <marker id="arr38" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>登入成功後，伺服器發一張只有session ID的「號碼牌」給瀏覽器；瀏覽器往後每次請求都自動出示這張號碼牌，伺服器則靠它去查出真正的使用者資料——真實的狀態資料，自始至終都留在伺服器這一端。</figcaption>
+      </div>
+
+      <h2>4. Cookie的安全屬性：預設就該小心一點</h2>
+      <p>
+        因為Cookie掌握著辨識使用者身分的關鍵資訊，設定時通常會
+        搭配幾個安全相關屬性，作為有安全意識的預設值：
+      </p>
+      <ul>
+        <li><strong>Secure</strong>——這個Cookie只會在HTTPS
+          加密連線上被傳送，避免在未加密的連線裡外洩。</li>
+        <li><strong>HttpOnly</strong>——這個Cookie不能被頁面上
+          的JavaScript讀取，只能透過HTTP請求自動傳遞，降低被
+          某些攻擊手法竊取的風險。</li>
+        <li><strong>SameSite</strong>——限制這個Cookie在什麼情況
+          下會被跨網站的請求一併帶上，降低某些跨站偽造請求類型
+          攻擊的風險。</li>
+      </ul>
+      <p>
+        這些屬性背後對應的具體攻擊情境，模組I會有更完整的網路
+        安全介紹；這一課先建立「它們是為了讓Cookie更安全而存在
+        的預設保護措施」這個概念即可。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋HTTP「無狀態」這個特性，為什麼會讓「保持登入」這種需求變成一個問題</li>
+          <li>能描述Cookie跟伺服器端session如何協作，共同解決這個問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 39 課：快取機制：瀏覽器與伺服器怎麼省流量——認識
+        Cache-Control、ETag這些機制，怎麼讓瀏覽器避免重複下載
+        沒有變化過的內容。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：HTTP/1.1、HTTP/2、HTTP/3的演進</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：快取機制：瀏覽器與伺服器怎麼省流量 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

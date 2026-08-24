@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 65 課：軟體定義網路(SDN)：控制平面與資料平面的分離 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="解析SDN如何把傳統網路設備裡的控制平面與資料平面拆開，交由集中式SDN控制器統一決策，並說明OpenFlow與SDN在大型資料中心自動化管理上的價值">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 65 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜進階主題：現代網路與雲端架構 · 第 65 課</div>
+      <h1>軟體定義網路(SDN)：控制平面與資料平面的分離</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能區分控制平面與資料平面：分別負責「決定路徑」跟「實際轉送封包」</li>
+          <li>理解SDN如何把控制平面集中到獨立的SDN控制器，讓交換器變成單純執行指令的角色</li>
+          <li>能說明SDN集中式、可程式化控制模型，帶來的實際好處</li>
+        </ul>
+      </div>
+
+      <p>
+        第64課看到Spine-Leaf架構，用更扁平的實體拓撲解決了
+        資料中心規模擴大的問題。但光是拓撲改變還不夠——管理
+        成千上萬台交換器的方式，如果還停留在傳統「一台一台
+        個別設定」的模式，維運起來會非常吃力。這一課要介紹
+        軟體定義網路（SDN）這個概念上的轉變，它從根本改變了
+        網路設備被管理的方式。
+      </p>
+
+      <h2>1. 傳統網路設備：控制平面與資料平面綁在一起</h2>
+      <p>
+        每一台路由器或交換器內部，其實同時做著兩件不同的工作。
+        <strong>控制平面（control plane）</strong>負責「思考」：
+        跑路由協定（例如模組D提過的路由表建立邏輯、第63課的
+        BGP）、計算封包該往哪個方向送，並把這些決策寫成一份
+        轉送規則。<strong>資料平面（data plane）</strong>則負責
+        「動手」：依照控制平面算好的規則，實際把一個個封包從
+        對的連接埠送出去。傳統網路設備裡，這兩個平面是綁在
+        同一台實體設備裡的——每一台交換器都各自獨立思考、
+        各自獨立執行，彼此之間只透過協定訊息間接協調。
+      </p>
+
+      <h2>2. SDN的核心構想：把控制平面拉出來，集中管理</h2>
+      <p>
+        <strong>SDN（Software-Defined Networking，軟體定義
+        網路）</strong>的核心構想，是把控制平面從每一台設備裡
+        抽出來，集中交給一個獨立的<strong>SDN控制器</strong>
+        負責——這個控制器掌握整個網路的全局視角，統一決定
+        所有的路由與轉送邏輯，再把具體的轉送規則下發給網路
+        裡每一台交換器。交換器本身則變成相對單純的角色，只
+        負責依照控制器下發的指令執行資料平面的轉送工作，不再
+        需要自己獨立運算複雜的路由決策。<strong>OpenFlow</strong>
+        是實現這種控制器與交換器之間溝通的知名開放協定，值得
+        認識這個名字。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">傳統網路 vs SDN：控制平面集中與否</text>
+
+          <text x="160" y="45" text-anchor="middle" font-size="10" fill="var(--text)">傳統網路</text>
+          <rect x="70" y="60" width="90" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="115" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">控制平面</text>
+          <text x="115" y="96" text-anchor="middle" font-size="7.5" fill="var(--accent)">資料平面</text>
+          <text x="115" y="110" text-anchor="middle" font-size="7" fill="var(--text-muted)">交換器A</text>
+
+          <rect x="190" y="60" width="90" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="235" y="82" text-anchor="middle" font-size="7.5" fill="var(--gold)">控制平面</text>
+          <text x="235" y="96" text-anchor="middle" font-size="7.5" fill="var(--accent)">資料平面</text>
+          <text x="235" y="110" text-anchor="middle" font-size="7" fill="var(--text-muted)">交換器B</text>
+
+          <text x="175" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">每台設備各自獨立思考與執行，彼此間接協調</text>
+
+          <line x1="345" y1="100" x2="345" y2="220" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3"/>
+
+          <text x="530" y="45" text-anchor="middle" font-size="10" fill="var(--text)">SDN</text>
+          <rect x="450" y="55" width="160" height="42" rx="6" fill="var(--gold)" opacity="0.16" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="530" y="80" text-anchor="middle" font-size="9" fill="var(--gold)">集中式SDN控制器</text>
+
+          <line x1="500" y1="97" x2="500" y2="130" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#a65)"/>
+          <line x1="560" y1="97" x2="560" y2="130" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#a65)"/>
+
+          <rect x="450" y="130" width="70" height="45" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="485" y="150" text-anchor="middle" font-size="7.5" fill="var(--accent)">資料平面</text>
+          <text x="485" y="163" text-anchor="middle" font-size="7" fill="var(--text-muted)">交換器C</text>
+
+          <rect x="540" y="130" width="70" height="45" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="575" y="150" text-anchor="middle" font-size="7.5" fill="var(--accent)">資料平面</text>
+          <text x="575" y="163" text-anchor="middle" font-size="7" fill="var(--text-muted)">交換器D</text>
+
+          <text x="530" y="200" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">交換器只負責執行，決策全部集中在控制器</text>
+
+          <defs>
+            <marker id="a65" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>傳統網路裡，每台設備各自把控制平面跟資料平面綁在一起獨立運作；SDN把控制平面集中到單一控制器，交換器只保留資料平面，單純依控制器指令執行轉送。</figcaption>
+      </div>
+
+      <h2>3. 集中控制帶來的實際好處</h2>
+      <p>
+        把控制邏輯集中到單一控制器，帶來幾個實務上很有價值
+        的好處。首先是<strong>全局視角的統一決策</strong>——
+        控制器能一次看到整個網路的狀態，制定出更全面、更一致
+        的轉送政策，不必依賴每台設備各自局部的判斷。其次是
+        <strong>可程式化</strong>：網路管理者能透過軟體，直接
+        對整個網路下達複雜的流量工程或負載平衡策略，而不需要
+        逐台設備手動設定。最後是<strong>自動化與快速調整</strong>
+        ——網路行為的改變，變成修改控制器上的程式邏輯，而不是
+        一台台設備人工介入，這在網路規模龐大、變動頻繁時，
+        差異格外明顯。
+      </p>
+
+      <div class="callout">
+        <h3>銜接第64課：為什麼SDN在資料中心特別重要</h3>
+        <p>
+          Spine-Leaf架構解決的是資料中心「實體怎麼連」的問題，
+          而SDN解決的是「怎麼管理」的問題——大型雲端資料中心
+          動輒有數千台交換器、流量型態也隨著租戶需求不斷變化，
+          若每一次調整都要工程師逐台手動設定，幾乎不可能維持
+          效率。SDN讓網路組態能像軟體一樣，被自動化、被程式
+          動態調整，這正是它成為現代大型資料中心標準做法的
+          核心原因。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能說明控制平面與資料平面的差異：分別負責什麼工作</li>
+          <li>能描述SDN如何把控制平面集中到SDN控制器，交換器又扮演什麼角色</li>
+          <li>能說明SDN集中式控制模型，為什麼特別適合大型資料中心的自動化管理需求</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 66 課：微服務架構：從單體應用到服務拆分——把視角
+        從網路基礎設施本身，轉向這些基礎設施上運行的應用程式，
+        看看現代應用怎麼從一個龐大單一的程式，拆分成許多各自
+        獨立部署的小型服務。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-64.html">← 上一課：現代資料中心網路拓撲：Spine-Leaf架構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-66.html">下一課：微服務架構：從單體應用到服務拆分 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

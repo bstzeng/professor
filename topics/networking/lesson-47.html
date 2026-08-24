@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 47 課：Web伺服器(nginx/Apache)的角色 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="認識Web伺服器軟體(nginx、Apache)在網頁伺服器架構裡的核心工作：監聽連接埠、處理TLS終止、直接服務靜態檔案，並把動態請求轉交給應用程式伺服器，以及兩者在並行連線架構上的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 47 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜網頁伺服器架構 · 第 47 課</div>
+      <h1>Web伺服器(nginx/Apache)的角色</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解Web伺服器軟體在整個伺服器架構裡的核心職責</li>
+          <li>理解為什麼動態內容通常不是Web伺服器自己執行，而是轉交給其他程序</li>
+          <li>認識nginx與Apache在處理並行連線上的架構差異</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課建立了靜態內容跟動態內容的區分。這一課要介紹
+        實際負責接住每一個HTTP請求的第一線軟體——<strong>Web
+        伺服器軟體（web server software）</strong>，最廣為使用
+        的兩套實作是<strong>nginx</strong>跟<strong>Apache HTTP
+        Server</strong>。它們是真正跑在伺服器上、在網路埠口
+        （模組E第20課提過的80、443）持續監聽的程序，負責用
+        HTTP協定（模組H）跟外界對話。
+      </p>
+
+      <h2>1. Web伺服器的核心職責</h2>
+      <p>
+        Web伺服器軟體在架構裡扮演「前門」的角色，主要負責三
+        件事：第一，<strong>高效率地直接服務靜態檔案</strong>
+        （上一課談到的靜態內容case）——這是它們原生就很擅長
+        的工作；第二，<strong>負責HTTPS連線的TLS終止（TLS
+        termination）</strong>——也就是把模組I建立的加密連線
+        在這裡解密，讓後端的應用程式邏輯可以直接處理明文的
+        HTTP請求，不需要自己再處理一次加解密；第三，也是對
+        動態內容最關鍵的一點：<strong>判斷這個請求該不該交給
+        別的程序去處理</strong>——如果請求需要執行應用程式邏輯，
+        Web伺服器本身通常<strong>不會自己執行這段邏輯</strong>，
+        而是把請求轉交給一個獨立的應用程式伺服器程序（第48課
+        的反向代理概念、第49課詳細介紹的應用程式伺服器）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">Web伺服器：站在最前面的守門員</text>
+
+          <rect x="20" y="55" width="90" height="34" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="65" y="76" text-anchor="middle" font-size="9" fill="var(--text)">客戶端</text>
+
+          <line x1="110" y1="72" x2="180" y2="72" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a47)"/>
+          <text x="145" y="64" text-anchor="middle" font-size="7.5" fill="var(--text)">HTTPS請求</text>
+
+          <rect x="180" y="45" width="160" height="70" rx="4" fill="var(--gold)" opacity="0.12" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="260" y="66" text-anchor="middle" font-size="9.5" fill="var(--gold)">Web伺服器</text>
+          <text x="260" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">nginx／Apache</text>
+          <text x="260" y="94" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">TLS終止＋路由判斷</text>
+
+          <line x1="340" y1="65" x2="400" y2="45" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#a47g)"/>
+          <text x="400" y="35" text-anchor="middle" font-size="7.5" fill="var(--gold)">靜態內容→直接讀檔回應</text>
+          <rect x="400" y="45" width="120" height="30" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="460" y="64" text-anchor="middle" font-size="8" fill="var(--text)">硬碟上的檔案</text>
+
+          <line x1="340" y1="95" x2="400" y2="115" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a47a)"/>
+          <text x="410" y="140" text-anchor="middle" font-size="7.5" fill="var(--accent)">動態內容→轉交</text>
+          <rect x="400" y="100" width="140" height="34" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="470" y="121" text-anchor="middle" font-size="8" fill="var(--text)">應用程式伺服器（第49課）</text>
+
+          <rect x="20" y="170" width="660" height="70" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="350" y="192" text-anchor="middle" font-size="9" fill="var(--text)">nginx：事件驅動、非同步架構</text>
+          <text x="350" y="208" text-anchor="middle" font-size="8" fill="var(--text-muted)">單一程序可高效處理數千個並行連線，資源使用量相對精簡</text>
+          <text x="350" y="228" text-anchor="middle" font-size="9" fill="var(--text)">Apache：傳統上以程序／執行緒對應每個連線為主，搭配.htaccess提供彈性的逐目錄設定</text>
+
+          <defs>
+            <marker id="a47" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+            <marker id="a47g" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+            </marker>
+            <marker id="a47a" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>Web伺服器站在最前面：解密TLS連線之後，靜態檔案直接讀取回應，動態請求則轉交給後端的應用程式伺服器處理。</figcaption>
+      </div>
+
+      <h2>2. nginx與Apache：兩種並行連線的架構取捨</h2>
+      <p>
+        nginx跟Apache都能完成上述職責，但兩者處理「同時有大量
+        連線湧入」這件事的底層架構思路不太一樣。<strong>nginx
+        </strong>採用<strong>事件驅動、非同步（event-driven,
+        asynchronous）</strong>的架構：用相對少量的工作程序，
+        透過事件通知機制同時處理大量連線，不需要替每個連線
+        都配置獨立的作業系統程序或執行緒，因此在需要同時服務
+        非常大量並行連線的情境下，往往能用比較精簡的資源
+        使用量撐起很高的吞吐量。<strong>Apache</strong>則傳統上
+        較常採用<strong>每個連線對應一個程序或執行緒</strong>的
+        模型，這種方式設計上直覺、搭配<strong>.htaccess</strong>
+        這類逐目錄的設定檔，讓不同目錄可以有各自獨立、彈性的
+        規則設定，在組態管理上相對簡單；但在極高並行連線數的
+        場景下，程序／執行緒本身的資源開銷會比事件驅動架構
+        更明顯。
+      </p>
+      <p>
+        這兩種取捨沒有絕對的優劣之分：nginx在高並行、高效率
+        的靜態內容服務與反向代理場景特別出色；Apache長年累積
+        的模組生態與逐目錄設定的彈性，在某些傳統部署情境裡
+        仍然有其價值。實務上，這通常是依照具體的部署需求跟
+        既有的維運習慣來選擇，而不是單純哪個「比較好」。
+      </p>
+
+      <div class="callout">
+        <h3>Web伺服器不等於整個網站的全部</h3>
+        <p>
+          很容易誤以為「架站」就是把Web伺服器裝起來、把檔案
+          放進去就結束了——但這一課反覆強調的是：Web伺服器
+          只負責「前門」的工作，動態內容真正的業務邏輯，是
+          交給另一層去處理的。這個分工正是接下來兩課要展開的
+          主題。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能描述Web伺服器像nginx、Apache的核心職責有哪些</li>
+          <li>能簡短對比nginx跟Apache在處理並行連線上的架構差異</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 48 課：反向代理與負載平衡——當有多台伺服器一起分擔
+        流量時，需要一個站在最前面、決定每個請求該送去哪裡
+        的角色，這一課會介紹反向代理跟幾種常見的負載平衡演算法。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-46.html">← 上一課：靜態內容 vs 動態內容</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-48.html">下一課：反向代理與負載平衡 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

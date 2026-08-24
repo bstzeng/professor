@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：TCP三向交握：連線建立的完整過程 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="逐步拆解TCP三向交握的SYN、SYN-ACK、ACK三個步驟，說明序號與確認號的意義、為什麼序號要隨機選擇，以及為什麼交握恰好需要三個步驟">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜傳輸層：TCP與UDP的可靠與快速之爭 · 第 21 課</div>
+      <h1>TCP三向交握：連線建立的完整過程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解TCP作為「連線導向」協定，為什麼要在傳資料前先建立連線</li>
+          <li>能依序說出三向交握的三個步驟，以及每個步驟裡序號、確認號的意義</li>
+          <li>理解為什麼序號要隨機選擇，以及為什麼交握恰好需要三個步驟</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課看到連接埠與四元組，讓一台伺服器能同時區分成千
+        上萬個獨立連線——但這些連線究竟是怎麼「建立」起來的？
+        這一課要聚焦在TCP最具代表性的特徵：在雙方真正開始交換
+        任何應用層資料之前，必須先完成一套固定的握手程序，這
+        就是俗稱的<strong>三向交握（three-way handshake）</strong>。
+      </p>
+
+      <h2>1. TCP是「連線導向」的協定</h2>
+      <p>
+        TCP（Transmission Control Protocol，傳輸控制協定）被稱為
+        <strong>連線導向（connection-oriented）</strong>協定，意思是
+        雙方在傳送任何實際資料之前，必須先明確地建立起一條
+        連線，確認彼此都準備好、也都同意要開始通訊。這跟後面
+        第23課會介紹的UDP形成鮮明對比——UDP完全沒有這道
+        建立連線的手續，想傳就直接傳。TCP選擇多花這一道手續，
+        換來的是後續資料傳輸的可靠性，這會是下一課的主題；這
+        一課先把焦點放在「連線是怎麼建立的」這件事本身。
+      </p>
+
+      <h2>2. 三向交握逐步拆解</h2>
+      <p>
+        三向交握顧名思義，由三個步驟組成，分別由客戶端與伺服器
+        輪流送出一個TCP區段（segment）：
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>步驟</th>
+            <th>方向</th>
+            <th>封包內容</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>① SYN</td>
+            <td>客戶端 → 伺服器</td>
+            <td>客戶端隨機選定一個初始序號（ISN），標記為SYN封包送出</td>
+          </tr>
+          <tr>
+            <td>② SYN-ACK</td>
+            <td>伺服器 → 客戶端</td>
+            <td>伺服器確認收到客戶端的SYN（ack=客戶端ISN+1），同時附上伺服器自己隨機選定的ISN，一併標記為SYN封包送出</td>
+          </tr>
+          <tr>
+            <td>③ ACK</td>
+            <td>客戶端 → 伺服器</td>
+            <td>客戶端確認收到伺服器的SYN（ack=伺服器ISN+1），連線進入ESTABLISHED狀態</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>
+        第一步，客戶端送出一個標記為<strong>SYN</strong>
+        （synchronize）的封包，裡面帶著一個客戶端<strong>隨機
+        選定</strong>的初始序號，稱為ISN（Initial Sequence Number）
+        ——之後客戶端傳送的每一個位元組資料，都會依序接在這個
+        ISN後面編號。第二步，伺服器收到SYN後，回覆一個同時
+        帶有SYN跟ACK標記的封包（習慣稱為SYN-ACK）：ACK的部分
+        是確認收到客戶端的SYN，確認號會設成「客戶端ISN加1」；
+        SYN的部分，則是伺服器<strong>另外自己隨機選定</strong>一個
+        全新的ISN，準備開始編號自己這一端接下來要送出的資料
+        ——注意這裡有兩組獨立的序號：客戶端的ISN跟伺服器的ISN
+        完全無關，是各自隨機決定的。第三步，客戶端收到SYN-ACK
+        後，送出最後一個ACK封包，確認號設成「伺服器ISN加1」
+        ——到這一步，雙方都已經確認過對方的初始序號，連線正式
+        進入<strong>ESTABLISHED（已建立）</strong>狀態，可以開始
+        交換應用層的實際資料。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">TCP三向交握時序圖</text>
+
+          <text x="100" y="36" text-anchor="middle" font-size="10" fill="var(--text)">用戶端</text>
+          <text x="500" y="36" text-anchor="middle" font-size="10" fill="var(--text)">伺服器</text>
+          <line x1="100" y1="44" x2="100" y2="270" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+          <line x1="500" y1="44" x2="500" y2="270" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 2"/>
+
+          <line x1="100" y1="80" x2="480" y2="118" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="480,118 466,113 469,124" fill="var(--gold)"/>
+          <text x="290" y="92" text-anchor="middle" font-size="9" fill="var(--gold)">① SYN　seq = x（客戶端ISN）</text>
+
+          <line x1="500" y1="150" x2="120" y2="188" stroke="var(--accent)" stroke-width="1.5"/>
+          <polygon points="120,188 134,183 131,194" fill="var(--accent)"/>
+          <text x="310" y="162" text-anchor="middle" font-size="9" fill="var(--accent)">② SYN, ACK　seq = y（伺服器ISN）, ack = x+1</text>
+
+          <line x1="100" y1="220" x2="480" y2="248" stroke="var(--gold)" stroke-width="1.5"/>
+          <polygon points="480,248 466,243 469,254" fill="var(--gold)"/>
+          <text x="290" y="232" text-anchor="middle" font-size="9" fill="var(--gold)">③ ACK　ack = y+1</text>
+
+          <text x="300" y="266" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">連線進入 ESTABLISHED，雙方開始交換應用層資料</text>
+        </svg>
+        <figcaption>三向交握的核心，是雙方各自提出一個隨機ISN，並互相確認對方的ISN——完成第三步之後，雙方都掌握了對方序號的起始點，接下來的每一段資料都能依序被正確追蹤與確認。</figcaption>
+      </div>
+
+      <h2>3. 為什麼序號要隨機選擇：安全考量</h2>
+      <p>
+        細心的話會注意到，兩邊的初始序號都不是從0開始，而是
+        <strong>隨機選定</strong>的一個數字。這個設計並不是為了
+        方便，而是出於安全考量：如果序號永遠固定從0開始，攻擊者
+        就能輕易猜出一條連線目前的序號，進而偽造出看起來合法的
+        封包，插入偽造資料、甚至劫持一條原本屬於別人的連線。把
+        初始序號隨機化，等於大幅提高了攻擊者要「猜對」序號的
+        難度，是TCP設計裡一個看似不起眼、實則重要的安全機制。
+      </p>
+
+      <h2>4. 為什麼恰好是三步：雙方都要「送出」也要「收到」確認</h2>
+      <p>
+        交握為什麼不是兩步就好，而是一定要三步？關鍵在於：建立
+        連線這件事，需要雙方都同時確認「對方願意通訊」<strong>
+        而且</strong>「對方已經知道我願意通訊」。第一步，客戶端
+        表達了通訊意願（SYN），但伺服器還不知道客戶端有沒有收到
+        自己的回應；第二步，伺服器確認並且也表達了自己的通訊
+        意願（SYN-ACK），但這時輪到伺服器不確定客戶端有沒有收到
+        這個回應；如果交握就此停在兩步，伺服器將永遠無法確認
+        自己的SYN-ACK有沒有送達，只能單方面假設連線已經建立。
+        第三步的ACK正是補上這最後一塊拼圖：讓伺服器也能明確
+        知道「客戶端已經收到我的確認」，至此雙方才真正地、
+        對等地確認了彼此的準備狀態。
+      </p>
+
+      <div class="callout">
+        <h3>連線的告別：結束時是四個步驟</h3>
+        <p>
+          連線建立需要三步，但結束一條連線時，走的其實是另一套
+          獨立的流程，通常需要四個步驟（雙方各自送出FIN，並各自
+          收到對方的ACK）。這是因為TCP連線是<strong>全雙工</strong>
+          （full-duplex）的——資料可以同時雙向傳送，所以「關閉」
+          也必須分別針對兩個方向各自進行，不能像建立連線時那樣
+          三步就一次搞定兩個方向。這一課先建立「交握」的完整
+          概念即可，關於連線終止的細節不在這門課的討論重點。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能依序描述TCP三向交握的三個步驟，以及每一步分別確認了什麼事情</li>
+          <li>能解釋為什麼TCP的初始序號要隨機選擇，而不是固定從0開始</li>
+          <li>能說明為什麼交握需要恰好三個步驟，而不是兩個步驟就足夠</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 22 課：連線建立好了之後，TCP要怎麼保證資料確實、
+        完整、按照順序送達對方？下一課會拆解序號與確認、逾時
+        重傳、滑動視窗這幾個構成TCP可靠傳輸的核心機制。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：連接埠</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：TCP的可靠傳輸機制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

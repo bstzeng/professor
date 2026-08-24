@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：TLS交握完整流程 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="逐步拆解TLS 1.3交握的完整流程：ClientHello、ServerHello與憑證、雙方各自算出共享對稱金鑰的金鑰交換機制、Finished訊息，以及前向保密(Forward Secrecy)為什麼重要">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜HTTPS與網路安全基礎 · 第 43 課</div>
+      <h1>TLS交握完整流程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能依序說出TLS 1.3交握的主要步驟：ClientHello、ServerHello與憑證、金鑰交換、Finished</li>
+          <li>理解金鑰交換演算法（如ECDHE）如何讓雙方在不傳送秘密本身的情況下，算出同一把共享金鑰</li>
+          <li>理解「前向保密」（Forward Secrecy）的意義，以及暫時性金鑰交換為什麼能提供這個保證</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G第31課提過，TCP三向交握完成、建立起可靠的連線
+        之後，如果目標是HTTPS，緊接著會發生一次TLS交握，之後
+        才開始傳送真正的HTTP請求。當時只是先點出「有這回事」；
+        這一課要把上一課學到的對稱／非對稱加密工具，實際套進
+        目前主流的<strong>TLS 1.3</strong>交握流程裡，看客戶端跟
+        伺服器究竟怎麼在完全公開、可能被竊聽的網路上，安全地
+        協商出一把只有彼此知道的對稱金鑰。
+      </p>
+
+      <h2>1. ClientHello：客戶端亮出自己的底牌</h2>
+      <p>
+        交握由客戶端發起，送出一則<strong>ClientHello</strong>
+        訊息，裡面包含：客戶端支援的TLS版本、支援的加密套件
+        （cipher suite，也就是要用哪些對稱加密、金鑰交換演算法
+        的組合）清單、一個亂數值（稍後會用在金鑰推導裡增加
+        隨機性），以及在TLS 1.3最佳化過的流程中，客戶端會直接
+        附上自己這一輪金鑰交換要用的初始參數（不用等伺服器
+        先確認演算法才傳，省下一次往返，是TLS 1.3相較舊版本
+        更快的原因之一）。
+      </p>
+
+      <h2>2. ServerHello與憑證：伺服器回應並亮出身分</h2>
+      <p>
+        伺服器收到後回覆<strong>ServerHello</strong>：從客戶端
+        提供的清單裡，選定這次連線實際要用的加密套件，附上
+        伺服器自己的亂數值，以及伺服器這一輪金鑰交換的參數。
+        同時，伺服器會送出自己的<strong>數位憑證（certificate）</strong>
+        ——裡面包含伺服器的公鑰跟身分資訊。這份憑證要怎麼被
+        信任，是下一課的主題；這一課先記住：憑證在這個階段被
+        送出，客戶端接下來要先驗證它是否可信，才會繼續往下走。
+      </p>
+
+      <h2>3. 金鑰交換：雙方各自算出同一把共享金鑰</h2>
+      <p>
+        確認憑證可信之後（第44課詳細說明如何驗證），雙方各自
+        用<strong>金鑰交換演算法</strong>算出一把共享的對稱金鑰
+        ——這是整個交握中最精妙的一步。TLS 1.3常用的做法是
+        <strong>ECDHE（Elliptic-curve Diffie-Hellman Ephemeral，
+        橢圓曲線迪菲－赫爾曼暫時金鑰交換）</strong>，概念上是這樣
+        運作的：雙方各自產生一個屬於自己、只在這次連線使用的
+        私有亂數值，並各自對外送出根據這個私有值算出的一個
+        公開交換參數（就是ClientHello、ServerHello裡附帶的那
+        個參數）。接著，客戶端把「自己的私有值」跟「收到的
+        伺服器公開參數」代入一個特定的數學運算，伺服器則把
+        「自己的私有值」跟「收到的客戶端公開參數」代入同一種
+        運算——這個數學運算的巧妙之處在於：<strong>雙方各自算出
+        的結果會是同一個值</strong>，但這個最終的共享值本身
+        <strong>從頭到尾都沒有直接在網路上傳輸過</strong>。竊聽者
+        即使把整個交握過程的封包全部截下來，手上只有雙方公開
+        交換的那兩個參數，缺少任何一方的私有值就無法重建出
+        這把共享金鑰。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 430" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">TLS 1.3交握完整流程</text>
+
+          <text x="130" y="45" text-anchor="middle" font-size="10" fill="var(--text)">客戶端</text>
+          <line x1="130" y1="55" x2="130" y2="400" stroke="var(--border)" stroke-width="1"/>
+          <text x="570" y="45" text-anchor="middle" font-size="10" fill="var(--text)">伺服器</text>
+          <line x1="570" y1="55" x2="570" y2="400" stroke="var(--border)" stroke-width="1"/>
+
+          <line x1="130" y1="80" x2="570" y2="80" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#a43)"/>
+          <text x="350" y="72" text-anchor="middle" font-size="8.5" fill="var(--gold)">① ClientHello：支援的版本／加密套件／亂數／金鑰交換參數</text>
+
+          <line x1="570" y1="115" x2="130" y2="115" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#a43)"/>
+          <text x="350" y="107" text-anchor="middle" font-size="8.5" fill="var(--accent)">② ServerHello：選定加密套件／亂數／金鑰交換參數＋憑證</text>
+
+          <rect x="30" y="135" width="200" height="30" fill="none" stroke="var(--border)" stroke-width="1" rx="3"/>
+          <text x="130" y="154" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">③ 驗證伺服器憑證（第44課）</text>
+
+          <rect x="55" y="180" width="150" height="55" fill="none" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="130" y="198" text-anchor="middle" font-size="7.5" fill="var(--gold)">④ 用自己的私有值＋</text>
+          <text x="130" y="211" text-anchor="middle" font-size="7.5" fill="var(--gold)">對方的公開參數</text>
+          <text x="130" y="224" text-anchor="middle" font-size="7.5" fill="var(--gold)">算出共享對稱金鑰</text>
+
+          <rect x="495" y="180" width="150" height="55" fill="none" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="570" y="198" text-anchor="middle" font-size="7.5" fill="var(--gold)">④ 用自己的私有值＋</text>
+          <text x="570" y="211" text-anchor="middle" font-size="7.5" fill="var(--gold)">對方的公開參數</text>
+          <text x="570" y="224" text-anchor="middle" font-size="7.5" fill="var(--gold)">算出共享對稱金鑰</text>
+
+          <text x="350" y="212" text-anchor="middle" font-size="14" fill="var(--gold)">＝</text>
+          <text x="350" y="250" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">雙方獨立算出同一把金鑰，金鑰本身從未在網路上傳輸過</text>
+
+          <line x1="130" y1="275" x2="570" y2="275" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a43t)"/>
+          <text x="350" y="267" text-anchor="middle" font-size="8.5" fill="var(--text)">⑤ Finished（客戶端，已用共享金鑰加密）</text>
+          <line x1="570" y1="305" x2="130" y2="305" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a43t)"/>
+          <text x="350" y="297" text-anchor="middle" font-size="8.5" fill="var(--text)">⑥ Finished（伺服器，已用共享金鑰加密）</text>
+
+          <rect x="80" y="325" width="540" height="55" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="350" y="345" text-anchor="middle" font-size="9" fill="var(--text)">TLS交握完成——之後的HTTP請求／回應（模組H）</text>
+          <text x="350" y="362" text-anchor="middle" font-size="9" fill="var(--text)">全部改用共享對稱金鑰＋快速的對稱加密演算法保護</text>
+
+          <defs>
+            <marker id="a43" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+            </marker>
+            <marker id="a43t" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>ClientHello、ServerHello（含憑證）之後，雙方各自用自己的私有值與對方的公開參數，獨立算出同一把共享對稱金鑰——這把金鑰本身從未真正在網路上傳輸過，最後互換加密過的Finished訊息確認交握完整無誤。</figcaption>
+      </div>
+
+      <h2>4. Finished訊息：確認交握本身沒有被竄改</h2>
+      <p>
+        算出共享金鑰後，雙方各自送出一則<strong>Finished</strong>
+        訊息——這則訊息已經用剛剛推導出的共享金鑰加密，內容
+        則是根據整個交握過程所有已交換訊息計算出的一個驗證值。
+        如果任何一方收到的Finished訊息對不上自己這邊獨立算出
+        的預期結果，代表交握過程中的某些訊息可能在傳輸途中被
+        竄改過，連線會被中止。雙方都確認Finished訊息正確之後，
+        TLS交握才算真正完成，緊接著就會用這把共享的對稱金鑰，
+        開始加密實際的HTTP應用層資料。
+      </p>
+
+      <h2>5. 前向保密：為什麼金鑰要「暫時」產生</h2>
+      <p>
+        注意到ECDHE名稱裡的「E」代表<strong>Ephemeral（暫時性）</strong>
+        ——意思是每一次連線，雙方都重新產生一組全新的私有值／
+        公開參數，用完即丟，不會重複使用固定不變的長期金鑰。
+        這個設計提供了一個重要的安全性質，稱為<strong>前向保密
+        （Forward Secrecy）</strong>：即使伺服器的長期私鑰（用在
+        憑證上、第44課會談到的那把）未來某一天被駭客竊取，過去
+        被記錄下來的加密流量<strong>依然無法回頭被解密</strong>
+        ——因為解密那些過去的對話所需要的，其實是當時那次連線
+        暫時產生、早已用完即丟的共享金鑰，而不是伺服器的長期
+        私鑰。長期私鑰外洩只會危及「未來」的連線安全，不會讓
+        過去所有被攔截、儲存下來的歷史流量瞬間全部曝光。
+      </p>
+
+      <div class="callout">
+        <h3>把整個交握濃縮成一句話</h3>
+        <p>
+          客戶端跟伺服器先互相打招呼、交換各自支援的能力與一組
+          金鑰交換參數；伺服器同時亮出憑證證明身分；雙方各自用
+          數學方法獨立算出同一把共享的對稱金鑰（金鑰本身從未
+          真正被傳輸）；最後互相確認交握沒有被竄改，正式切換到
+          用這把共享金鑰加密的通訊模式。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能依序描述TLS 1.3交握的主要步驟：ClientHello、ServerHello與憑證、金鑰交換、Finished</li>
+          <li>能解釋金鑰交換演算法為什麼能讓雙方算出同一把金鑰，卻不需要把金鑰本身傳過網路</li>
+          <li>能解釋前向保密的意義，以及暫時性金鑰交換為什麼能提供這個保證</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 44 課：憑證與憑證頒發機構(CA)：如何信任一個網站
+        ——這一課留下一個沒解決的問題：客戶端怎麼知道伺服器
+        送來的憑證是真的、而不是中間人偽造的？下一課要補上
+        這塊信任機制的拼圖。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：對稱加密與非對稱加密</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：憑證與憑證頒發機構(CA)：如何信任一個網站 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

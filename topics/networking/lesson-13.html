@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：VLAN：如何在同一台交換器上隔離不同群組 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="介紹VLAN虛擬區域網路如何在一台實體交換器上邏輯劃分出多個獨立的廣播網域，802.1Q標籤與trunk連結如何跨交換器維持隔離，以及VLAN間溝通為何需要第三層裝置">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜資料鏈結層：MAC位址與區域網路交換 · 第 13 課</div>
+      <h1>VLAN：如何在同一台交換器上隔離不同群組</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解VLAN的概念：如何在一台實體交換器上邏輯劃分出多個獨立的廣播網域</li>
+          <li>理解為什麼組織會需要VLAN，以及它相對於布建多套實體網路的優勢</li>
+          <li>理解802.1Q標籤與trunk（主幹）連結在跨交換器維持VLAN隔離上的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課分別談了交換器如何用MAC位址表精確轉送訊框（第11課），
+        以及碰撞網域怎麼因為交換器而變成每個埠各自獨立（第12課）。
+        這裡要補充另一個相關但不同的概念：<strong>廣播網域</strong>
+        （broadcast domain）——也就是第10課提過的廣播位址
+        FF:FF:FF:FF:FF:FF能傳到的範圍。一般情況下，一台沒有特別
+        設定的交換器上所有埠，預設都屬於同一個廣播網域。這一課要
+        介紹的VLAN，就是用來打破這個預設、在同一台交換器上劃出
+        多個互相隔離的廣播網域。
+      </p>
+
+      <h2>1. 為什麼需要VLAN</h2>
+      <p>
+        許多組織基於安全或管理上的理由，會希望把不同群組的流量
+        隔離開來——例如公司想讓財務部門的內部流量，跟訪客Wi-Fi
+        的流量完全分開，避免訪客裝置有機會接觸到內部系統。最直接
+        的做法，是替每個群組都布建一套完全獨立的實體網路：各自的
+        交換器、各自的網路線——但這樣做既昂貴、佈線又缺乏彈性，
+        組織架構一旦調整（例如某個部門搬了辦公室），整套實體
+        佈線可能都得跟著重拉。
+      </p>
+      <p>
+        <strong>VLAN（Virtual Local Area Network，虛擬區域網路）
+        </strong>提供了另一條路：讓<strong>一台實體交換器（甚至是
+        一整組互連的交換器）</strong>，在邏輯上劃分成多個各自獨立
+        的廣播網域。屬於不同VLAN的裝置，就算實際插在同一台交換器
+        上，也<strong>無法在第二層直接互相通訊</strong>，行為上
+        就像接在完全不同、彼此無關的實體交換器一樣——而這一切
+        都只是設定的結果，不需要額外添購或佈線任何硬體。
+      </p>
+
+      <h2>2. VLAN怎麼運作：連接埠指派</h2>
+      <p>
+        最基本的做法，是由網管人員把交換器上的每一個埠，指派給
+        一個VLAN編號（例如VLAN 10代表財務部門、VLAN 20代表訪客
+        Wi-Fi）。交換器會把每個VLAN的流量與MAC位址學習過程分開
+        處理：VLAN 10裝置的訊框，只會在VLAN 10所屬的埠之間轉送
+        或洪水式傳播，絕對不會出現在VLAN 20的埠上，反之亦然。
+      </p>
+
+      <h2>3. 跨交換器維持隔離：802.1Q標籤與Trunk連結</h2>
+      <p>
+        實務上，一個組織往往不只用一台交換器，VLAN也常常需要跨越
+        好幾台互連的交換器延續下去。這時候，交換器之間會用一條
+        特殊的<strong>主幹連結（trunk link）</strong>相連——這條
+        連結線會同時承載<strong>多個VLAN</strong>的流量，而不像
+        一般連到終端裝置的埠（稱為access port）只屬於單一VLAN。
+      </p>
+      <p>
+        問題是：既然一條trunk線上混雜著好幾個VLAN的訊框，接收端的
+        交換器要怎麼知道每一個訊框原本屬於哪個VLAN？答案是
+        <strong>802.1Q標籤</strong>：訊框在經過trunk連結之前，
+        發送端交換器會在乙太網路訊框標頭裡插入一小段VLAN編號
+        標籤；訊框抵達trunk另一端的交換器後，對方讀取這個標籤，
+        就知道該把這個訊框歸到哪一個VLAN的廣播網域裡繼續處理，
+        再把標籤拿掉、以一般未標記的訊框送到目的地所在的access
+        port。透過這個機制，VLAN的隔離就能跨越多台交換器、延伸到
+        整個組織的網路裡，而不只侷限在單一台交換器上。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 320" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="20" text-anchor="middle" font-size="11" fill="var(--text-muted)">兩台交換器透過trunk連結，延續同樣的VLAN隔離</text>
+
+          <rect x="40" y="60" width="220" height="180" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="150" y="80" text-anchor="middle" font-size="10" fill="var(--text-muted)">交換器 1</text>
+          <rect x="55" y="95" width="90" height="60" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="100" y="130" text-anchor="middle" font-size="9" fill="var(--gold)">VLAN 10</text>
+          <text x="100" y="145" text-anchor="middle" font-size="8" fill="var(--gold)">財務部門</text>
+          <rect x="155" y="95" width="90" height="60" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="200" y="130" text-anchor="middle" font-size="9" fill="var(--accent)">VLAN 20</text>
+          <text x="200" y="145" text-anchor="middle" font-size="8" fill="var(--accent)">訪客Wi-Fi</text>
+          <circle cx="80" cy="185" r="11" fill="none" stroke="var(--gold)"/>
+          <circle cx="120" cy="185" r="11" fill="none" stroke="var(--gold)"/>
+          <circle cx="180" cy="185" r="11" fill="none" stroke="var(--accent)"/>
+          <circle cx="220" cy="185" r="11" fill="none" stroke="var(--accent)"/>
+
+          <rect x="360" y="60" width="220" height="180" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="470" y="80" text-anchor="middle" font-size="10" fill="var(--text-muted)">交換器 2</text>
+          <rect x="375" y="95" width="90" height="60" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="420" y="130" text-anchor="middle" font-size="9" fill="var(--gold)">VLAN 10</text>
+          <rect x="475" y="95" width="90" height="60" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="520" y="130" text-anchor="middle" font-size="9" fill="var(--accent)">VLAN 20</text>
+          <circle cx="400" cy="185" r="11" fill="none" stroke="var(--gold)"/>
+          <circle cx="440" cy="185" r="11" fill="none" stroke="var(--gold)"/>
+          <circle cx="500" cy="185" r="11" fill="none" stroke="var(--accent)"/>
+          <circle cx="540" cy="185" r="11" fill="none" stroke="var(--accent)"/>
+
+          <line x1="260" y1="150" x2="360" y2="150" stroke="var(--text)" stroke-width="2.2"/>
+          <text x="310" y="140" text-anchor="middle" font-size="9" fill="var(--text)">Trunk連結</text>
+          <text x="310" y="168" text-anchor="middle" font-size="8" fill="var(--text-muted)">（802.1Q標籤：VLAN 10 / VLAN 20）</text>
+        </svg>
+        <figcaption>Trunk連結同時承載多個VLAN的流量，靠802.1Q標籤標明每個訊框屬於哪個VLAN，讓兩台交換器上的VLAN 10、VLAN 20分別延續成同一個廣播網域。</figcaption>
+      </div>
+
+      <h2>4. VLAN間如何溝通：需要第三層裝置</h2>
+      <p>
+        VLAN本身只在<strong>第二層</strong>提供隔離——如果VLAN 10
+        跟VLAN 20之間真的有溝通需求（例如財務部門偶爾需要存取某台
+        對外服務的伺服器），這些流量沒辦法只靠交換器完成，必須
+        經過一台<strong>第三層裝置</strong>（路由器，或具備路由
+        能力的「三層交換器」）來轉送。換句話說，VLAN只負責「把
+        誰跟誰隔開」，真正決定「隔開的兩邊在什麼條件下可以互通」
+        則是網路層（第三層）路由的工作——這正好銜接到下一個模組
+        要介紹的IP位址與路由。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋VLAN達成了什麼效果，以及為什麼比替每個群組布建獨立實體網路更有效率</li>
+          <li>能描述802.1Q標籤在交換器之間的trunk連結上扮演的角色</li>
+          <li>能說明不同VLAN之間如果需要溝通，為什麼需要第三層裝置</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 14 課：模組總結——把MAC位址、交換器學習與轉送、碰撞
+        網域、VLAN這幾堂課整合成資料鏈結層的完整圖像，並點出這一層
+        的根本限制，銜接下一個模組的網路層主題。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：CSMA/CD與碰撞網域</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：模組總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

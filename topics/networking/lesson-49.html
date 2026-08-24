@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：應用程式伺服器與資料庫的分工 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="拆解應用程式伺服器的角色：執行業務邏輯、查詢資料庫、組裝回應，以及為什麼資料庫要獨立於應用程式伺服器之外，成為一個專門管理持久化資料的獨立系統">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜網頁伺服器架構 · 第 49 課</div>
+      <h1>應用程式伺服器與資料庫的分工</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解應用程式伺服器的職責，以及它跟Web伺服器職責上的差異</li>
+          <li>理解資料庫在整體架構裡扮演的角色</li>
+          <li>能解釋為什麼資料庫通常獨立於應用程式伺服器之外，而不是放在應用程式的記憶體裡</li>
+        </ul>
+      </div>
+
+      <p>
+        第47課的Web伺服器判斷出一個請求需要動態處理，第48課的
+        反向代理把這個請求分派到某一台後端伺服器——這一課要
+        拆開「後端」內部，看看真正執行業務邏輯的<strong>應用
+        程式伺服器（application server）</strong>，跟負責存放
+        資料的<strong>資料庫（database）</strong>，是怎麼分工
+        合作的，完整拼出這一整個模組的三層架構圖像。
+      </p>
+
+      <h2>1. 應用程式伺服器：真正執行業務邏輯的地方</h2>
+      <p>
+        應用程式伺服器是實際跑著這個網站或服務<strong>業務
+        邏輯</strong>的程序，可能是用Node.js、Python（搭配
+        Django、Flask這類框架）、Ruby on Rails、Java（搭配
+        Spring）、PHP等各種語言與框架寫成。這正是第47課提到、
+        Web伺服器判斷需要動態處理時所轉交的對象。它的典型
+        工作流程是：解讀請求的細節（URL路徑、查詢參數、請求
+        主體內容——呼應模組H第36課），執行對應的業務邏輯，
+        必要時向資料庫讀取或寫入資料，最後把處理結果組裝成
+        一個HTTP回應，往回送（經過反向代理／Web伺服器這條
+        原路，回到客戶端）。
+      </p>
+
+      <h2>2. 資料庫：專門負責持久化資料的獨立系統</h2>
+      <p>
+        應用程式伺服器需要讀寫的資料，並不是自己直接存放，
+        而是交給一個獨立、專門的系統——資料庫——來管理。常見
+        的資料庫分成關聯式資料庫（例如PostgreSQL、MySQL，
+        用結構化的表格與明確的資料關聯來組織資料）跟非關聯式／
+        NoSQL資料庫（例如MongoDB、Redis，用不同的資料模型來
+        換取特定場景下的效能或彈性）。這些系統經過高度優化，
+        專門處理資料的可靠儲存、查詢、更新這類需求。
+      </p>
+      <p>
+        為什麼不乾脆把資料直接放在應用程式自己的記憶體裡，
+        少一層系統、少一次網路往返？答案在於幾個記憶體內
+        儲存無法滿足的需求。第一，<strong>持久性（durability）</strong>
+        ——應用程式程序隨時可能重新啟動、當機、或被部署新版本
+        取代，記憶體裡的資料會跟著程序一起消失，但存放在資料
+        庫裡的資料能夠在應用程式程序生命週期結束後依然完整
+        保留。第二，<strong>獨立擴充的彈性</strong>——資料儲存
+        的規模與需求，往往跟應用程式邏輯的運算需求不成正比，
+        把兩者拆開，才能各自依照實際需求獨立調整。第三，也是
+        呼應第48課負載平衡設計的關鍵一點：<strong>讓多個應用
+        程式伺服器實例共享同一份一致的資料</strong>——當負載
+        平衡器把請求分散到好幾台一模一樣的應用程式伺服器上時，
+        如果每台伺服器各自把資料放在自己的記憶體裡，不同伺服器
+        看到的資料就會各自為政、彼此不同步；把資料集中放在
+        一個獨立的資料庫，所有應用程式伺服器實例才能共享同一份
+        一致的資料狀態。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">請求流經三層：Web伺服器 → 應用程式伺服器 → 資料庫</text>
+
+          <rect x="20" y="90" width="130" height="55" rx="4" fill="var(--gold)" opacity="0.12" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="85" y="112" text-anchor="middle" font-size="9" fill="var(--gold)">Web伺服器／</text>
+          <text x="85" y="127" text-anchor="middle" font-size="9" fill="var(--gold)">反向代理</text>
+
+          <line x1="150" y1="105" x2="220" y2="105" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a49)"/>
+          <text x="185" y="97" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">動態請求</text>
+          <line x1="220" y1="135" x2="150" y2="135" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a49)"/>
+          <text x="185" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">組裝好的回應</text>
+
+          <rect x="220" y="90" width="150" height="55" rx="4" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="295" y="112" text-anchor="middle" font-size="9" fill="var(--accent)">應用程式伺服器</text>
+          <text x="295" y="127" text-anchor="middle" font-size="8" fill="var(--text-muted)">業務邏輯執行</text>
+
+          <line x1="370" y1="105" x2="440" y2="105" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a49)"/>
+          <text x="405" y="97" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">查詢／寫入</text>
+          <line x1="440" y1="135" x2="370" y2="135" stroke="var(--text)" stroke-width="1.3" marker-end="url(#a49)"/>
+          <text x="405" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">資料結果</text>
+
+          <rect x="440" y="90" width="140" height="55" rx="4" fill="var(--text)" opacity="0.08" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="510" y="112" text-anchor="middle" font-size="9" fill="var(--text)">資料庫</text>
+          <text x="510" y="127" text-anchor="middle" font-size="8" fill="var(--text-muted)">持久化資料儲存</text>
+
+          <rect x="20" y="180" width="560" height="55" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="4"/>
+          <text x="300" y="202" text-anchor="middle" font-size="8.5" fill="var(--text)">資料庫獨立於應用程式伺服器之外：即使應用程式伺服器重啟、</text>
+          <text x="300" y="218" text-anchor="middle" font-size="8.5" fill="var(--text)">或有多個應用程式伺服器實例同時運作，資料仍然持久保存、彼此一致</text>
+
+          <defs>
+            <marker id="a49" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--text)"/>
+            </marker>
+          </defs>
+        </svg>
+        <figcaption>請求先經Web伺服器／反向代理，再進入應用程式伺服器執行業務邏輯，資料的實際讀寫則交給獨立的資料庫負責——三層分工，各自處理最擅長的工作。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>回應如何沿原路送回客戶端</h3>
+        <p>
+          資料庫把查詢結果交還給應用程式伺服器後，應用程式
+          伺服器組裝成完整的HTTP回應，沿著原本的路徑往回送
+          ——經過反向代理／Web伺服器，最終抵達客戶端。整個
+          過程對客戶端而言完全透明：它只看到自己送出一個
+          請求、收到一個回應，完全不需要知道背後這三層分工
+          實際上做了多少事。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能描述應用程式伺服器的職責，以及它跟Web伺服器職責上的差異</li>
+          <li>能說出至少兩個理由，解釋為什麼資料庫通常是獨立於應用程式伺服器之外的系統</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 50 課：模組總結：三層式架構全貌——把靜態／動態內容、
+        Web伺服器、反向代理與負載平衡、應用程式伺服器與資料庫
+        這四課整合成完整的三層式架構圖像，並銜接模組K的容器
+        化技術。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：反向代理與負載平衡</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：模組總結：三層式架構全貌 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

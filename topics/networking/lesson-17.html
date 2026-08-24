@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：路由器如何決定封包的下一步 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="解析路由器如何查詢路由表決定封包轉送方向，最長前綴匹配規則的運作範例，以及預設閘道概念與封包在多台路由器間逐跳前進的過程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜網路層：IP位址與路由 · 第 17 課</div>
+      <h1>路由器如何決定封包的下一步</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解路由器的基本工作：查詢路由表，決定封包該往哪個方向轉送</li>
+          <li>理解「最長前綴匹配」規則，並能用範例解釋</li>
+          <li>認識預設閘道的概念，以及封包在多台路由器之間逐跳前進的過程</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課用CIDR記法精確標出了每個網路的範圍，例如
+        192.168.1.0/24代表「這個網路涵蓋192.168.1.0到
+        192.168.1.255」。這一課要看路由器怎麼實際運用這種CIDR
+        表示的網路範圍，一步一步把封包從來源送到目的地。
+      </p>
+
+      <h2>1. 路由器的基本工作：查路由表、決定下一步</h2>
+      <p>
+        路由器運作在<strong>第三層（網路層）</strong>，每收到一個
+        封包，會讀取它的<strong>目的地IP位址</strong>，然後查詢自己
+        內部維護的<strong>路由表（routing table）</strong>——這張表
+        列出了路由器已知的各個目的地網路（用CIDR前綴表示），以及
+        對應的<strong>下一跳（next hop）</strong>：可能是「送往
+        另一台路由器」，也可能是「這個網路直接接在我自己的某個
+        介面上」。路由器根據查表的結果，把封包從對應的介面送出去，
+        朝目的地方向前進一步。這個過程會在沿途每一台路由器上重複
+        發生，直到封包抵達目的地所在的網路，最後一段再交由第二層
+        的MAC位址完成實際送達——這正好呼應了模組C：第三層負責
+        跨網路的大方向，第二層負責同一網段內的精確送達。
+      </p>
+
+      <h2>2. 最長前綴匹配：多筆路由都符合時該選誰</h2>
+      <p>
+        一張路由表裡常常同時存在好幾筆規則，其中不只一筆可能都
+        符合同一個目的地IP——例如路由表裡同時有一筆涵蓋範圍極廣的
+        <strong>0.0.0.0/0</strong>（俗稱「預設路由」，字面上涵蓋
+        所有可能的IP位址），以及一筆更具體的
+        <strong>192.168.1.0/24</strong>。如果目的地IP剛好落在
+        192.168.1.0/24的範圍裡，這兩筆規則其實都技術上「符合」。
+        這時候路由器遵循的規則是<strong>最長前綴匹配</strong>：
+        永遠優先選擇<strong>前綴位元數最多、範圍最具體</strong>的
+        那一筆——因為前綴越長、代表的網路範圍越小，也就代表路由器
+        對這個目的地掌握了越精確的資訊；反過來說，像0.0.0.0/0
+        這種極短前綴，其實只是「我沒有更明確的資訊，先往這個方向
+        送出去看看」的保底選項。
+      </p>
+
+      <div class="callout">
+        <h3>範例：目的地192.168.1.50</h3>
+        <p>
+          假設路由表裡同時有三筆規則：<strong>0.0.0.0/0</strong>
+          （下一跳A）、<strong>192.168.0.0/16</strong>（下一跳B）、
+          <strong>192.168.1.0/24</strong>（下一跳C）。目的地IP
+          192.168.1.50同時落在這三個範圍裡，全部技術上都符合。
+          路由器會比較三者的前綴長度——0、16、24——選出最長的
+          <strong>/24</strong>，也就是把封包送往<strong>下一跳
+          C</strong>，而不是範圍較廣泛的B或A。
+        </p>
+      </div>
+
+      <h2>3. 預設閘道：一般裝置怎麼把封包送出本地網路</h2>
+      <p>
+        對一般使用者的裝置（電腦、手機）來說，它不需要維護一整張
+        複雜的路由表，只需要知道兩件事：目的地是不是在自己的本地
+        網路裡（用上一課的子網路邏輯判斷），如果不是，就把封包
+        送給自己設定好的<strong>預設閘道（default gateway）</strong>
+        ——通常就是家裡或公司的路由器。剩下的旅程，就交給預設閘道
+        接手：它會用自己的路由表，繼續做同樣的「查表、選最長前綴、
+        往下一跳送」這件事，可能還要再經過好幾台中間的路由器，
+        才會真正抵達目的地所在的網路。
+      </p>
+      <p>
+        如果想親眼看看一個封包實際經過了哪些路由器，可以使用
+        <strong>traceroute</strong>這類工具——它會把沿途每一台
+        路由器（每一「跳」）都列出來，讓這個逐跳前進的過程變得
+        具體可見。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">封包逐跳前進：來源 → 預設閘道 → 中間路由器 → 目的網路</text>
+
+          <circle cx="50" cy="120" r="20" fill="none" stroke="var(--border)"/>
+          <text x="50" y="124" text-anchor="middle" font-size="8" fill="var(--text-muted)">來源</text>
+
+          <rect x="150" y="100" width="90" height="40" rx="4" fill="var(--surface)" stroke="var(--gold)"/>
+          <text x="195" y="122" text-anchor="middle" font-size="9" fill="var(--gold)">預設閘道</text>
+          <text x="195" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">查表→選最長前綴</text>
+
+          <rect x="290" y="100" width="90" height="40" rx="4" fill="var(--surface)" stroke="var(--accent)"/>
+          <text x="335" y="122" text-anchor="middle" font-size="9" fill="var(--accent)">路由器2</text>
+          <text x="335" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">查表→選最長前綴</text>
+
+          <rect x="430" y="100" width="90" height="40" rx="4" fill="var(--surface)" stroke="var(--accent)"/>
+          <text x="475" y="122" text-anchor="middle" font-size="9" fill="var(--accent)">路由器3</text>
+          <text x="475" y="155" text-anchor="middle" font-size="7" fill="var(--text-muted)">查表→選最長前綴</text>
+
+          <circle cx="580" cy="120" r="20" fill="var(--gold)" opacity="0.15" stroke="var(--gold)"/>
+          <text x="580" y="124" text-anchor="middle" font-size="8" fill="var(--gold)">目的地</text>
+
+          <path d="M 70,120 L 150,120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a1)"/>
+          <path d="M 240,120 L 290,120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a1)"/>
+          <path d="M 380,120 L 430,120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a1)"/>
+          <path d="M 520,120 L 560,120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#a1)"/>
+
+          <defs>
+            <marker id="a1" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--text-muted)"/></marker>
+          </defs>
+        </svg>
+        <figcaption>封包離開來源裝置後，先送到預設閘道，接著可能經過好幾台中間路由器——每一站都重複同樣的「查路由表、選最長前綴、往下一跳送」流程，直到抵達目的地所在的網路。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋路由器如何利用路由表決定封包的轉送方向</li>
+          <li>能用一個具體範例說明最長前綴匹配規則</li>
+          <li>能說明預設閘道的角色，以及封包如何在多個路由器之間逐跳前進</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 18 課：NAT——理解了路由器怎麼把封包一步步送到目的地
+        網路之後，下一課要處理一個非常貼近生活的問題：家裡明明
+        有好幾台裝置，為什麼在外面的伺服器看起來只有一個IP位址？
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：子網路遮罩與CIDR</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：NAT →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

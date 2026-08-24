@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：HTTP/1.1、HTTP/2、HTTP/3的演進 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="追溯HTTP協定版本的演進：HTTP/1.1的持久連線與隊頭阻塞問題、HTTP/2用多工解決應用層隊頭阻塞、HTTP/3改用QUIC/UDP解決連TCP層級都存在的隊頭阻塞">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜HTTP協定深度解析 · 第 37 課</div>
+      <h1>HTTP/1.1、HTTP/2、HTTP/3的演進</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解HTTP/1.1的持久連線設計，以及它的應用層隊頭阻塞問題</li>
+          <li>理解HTTP/2的多工機制如何解決這個問題</li>
+          <li>理解HTTP/3改用QUIC/UDP，是為了解決HTTP/2仍未解決的傳輸層隊頭阻塞</li>
+        </ul>
+      </div>
+
+      <p>
+        第36課看到的方法、狀態碼、標頭，從HTTP誕生以來大致沒有
+        劇烈變動；真正演進最劇烈的，其實是HTTP訊息「怎麼被傳輸」
+        這件事。這一課要追蹤HTTP/1.1到HTTP/2、再到HTTP/3這三代
+        協定，各自要解決的具體效能問題是什麼。
+      </p>
+
+      <h2>1. HTTP/1.1：持久連線，但有隊頭阻塞</h2>
+      <p>
+        HTTP/1.1相較於更早的版本，一個重要的改進是<strong>持久
+        連線（persistent connection，也稱keep-alive）</strong>：
+        同一條TCP連線可以重複用來傳送多個先後發出的請求，不需要
+        每要一個資源，就重新走一次模組E介紹過的三向交握——考慮
+        到每次建立TCP連線都有交握開銷，這個改進省下了大量不必要
+        的往返時間。
+      </p>
+      <p>
+        但HTTP/1.1有一個結構性的限制：在同一條連線上，請求必須
+        <strong>依照送出的順序被處理與回應</strong>——如果排在
+        前面的某個請求處理得特別慢，後面所有排在它後面、原本已經
+        準備好的回應，都得跟著等，這稱為<strong>隊頭阻塞
+        （head-of-line blocking）</strong>。瀏覽器過去常見的
+        因應方式，是同時對同一個伺服器開啟好幾條平行的TCP連線，
+        讓不同請求分散到不同連線上，藉此繞開這個限制——但這只是
+        權宜之計，每條額外連線都有自己的交握與資源開銷，並不是
+        真正解決問題。
+      </p>
+
+      <h2>2. HTTP/2：多工，讓一條連線同時處理多個請求</h2>
+      <p>
+        HTTP/2引入了<strong>多工（multiplexing）</strong>機制，
+        這個詞你在模組B第7課學過，當時是指實體層如何讓多個訊號
+        共用同一條實體線路；HTTP/2把類似的精神搬到了應用層：
+        多個請求與回應可以被拆成一個個獨立的「串流（stream）」，
+        交錯著在<strong>同一條TCP連線</strong>上傳送，不再需要
+        依照嚴格的先後順序排隊等待——一個處理得慢的請求，不會
+        再卡住排在它後面的其他請求，直接解決了HTTP/1.1的應用層
+        隊頭阻塞問題。
+      </p>
+      <p>
+        HTTP/2還引入了<strong>標頭壓縮（HPACK）</strong>：由於
+        許多標頭（例如User-Agent、Cookie）在同一個連線的多次請求
+        間常常重複出現，HPACK能有效壓縮這些重複的標頭資訊，減少
+        傳輸開銷；此外也支援<strong>伺服器推送（server push）</strong>
+        ，讓伺服器可以主動把它預期客戶端接下來會需要的資源，
+        提前送過去，不用等客戶端自己發現、再另外請求。
+      </p>
+
+      <h2>3. HTTP/3：換掉底層的TCP，改用QUIC/UDP</h2>
+      <p>
+        HTTP/2解決了應用層的隊頭阻塞，但一個更底層的問題仍然
+        存在：HTTP/2的所有串流，終究還是共用<strong>同一條TCP
+        連線</strong>，而模組E介紹過，TCP保證的是嚴格的位元組
+        依序送達——只要這條TCP連線裡有任何一個區段遺失，TCP就會
+        要求依序等待重傳完成，才能把後面已經到達的資料交給上層，
+        即使遺失的那個區段實際上只屬於眾多HTTP/2串流裡的其中
+        一個。結果就是：一個串流的封包遺失，仍然會拖累同一條
+        連線上所有其他串流，這稱為<strong>傳輸層隊頭阻塞</strong>
+        ，是HTTP/2本身無法解決的結構性問題，因為問題根源在TCP
+        這一層，不在HTTP這一層。
+      </p>
+      <p>
+        HTTP/3的解法，是把底層傳輸協定從TCP整個換成建立在
+        <strong>UDP</strong>之上的<strong>QUIC</strong>——模組E
+        第23課介紹過，UDP本身不保證可靠或有序送達，QUIC則是在
+        UDP之上自己實作一套可靠性與多工機制，但關鍵差異在於：
+        QUIC讓各個串流<strong>各自獨立</strong>處理遺失與重傳，
+        一個串流的封包遺失，只會讓那一個串流暫停等待重傳，其他
+        串流完全不受影響，繼續正常傳送資料——這正是HTTP/2受限於
+        底層TCP、始終無法徹底解決的那個問題。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 700 340" xmlns="http://www.w3.org/2000/svg">
+          <text x="350" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">三代HTTP協定的連線與串流模型比較</text>
+
+          <text x="115" y="42" text-anchor="middle" font-size="10" fill="var(--gold)">HTTP/1.1</text>
+          <rect x="30" y="55" width="170" height="24" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="115" y="71" text-anchor="middle" font-size="8" fill="var(--gold)">TCP連線A：請求依序排隊</text>
+          <rect x="30" y="83" width="170" height="24" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1" rx="3"/>
+          <text x="115" y="99" text-anchor="middle" font-size="8" fill="var(--gold)">TCP連線B：另開一條繞過阻塞</text>
+          <text x="115" y="120" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">多開連線是權宜之計，非根本解</text>
+
+          <text x="350" y="42" text-anchor="middle" font-size="10" fill="var(--accent)">HTTP/2</text>
+          <rect x="265" y="55" width="170" height="70" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="1" rx="3"/>
+          <text x="350" y="70" text-anchor="middle" font-size="8" fill="var(--accent)">單一TCP連線</text>
+          <rect x="275" y="78" width="60" height="14" fill="var(--accent)" opacity="0.3"/>
+          <rect x="340" y="78" width="60" height="14" fill="var(--accent)" opacity="0.3"/>
+          <rect x="275" y="96" width="150" height="14" fill="var(--accent)" opacity="0.3"/>
+          <text x="350" y="120" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">多個串流交錯，但共用同一條TCP</text>
+
+          <text x="580" y="42" text-anchor="middle" font-size="10" fill="#ff8a65">HTTP/3</text>
+          <rect x="495" y="55" width="170" height="70" fill="#ff8a65" opacity="0.1" stroke="#ff8a65" stroke-width="1" rx="3"/>
+          <text x="580" y="70" text-anchor="middle" font-size="8" fill="#ff8a65">QUIC（基於UDP）</text>
+          <rect x="505" y="78" width="60" height="14" fill="#ff8a65" opacity="0.35"/>
+          <rect x="570" y="78" width="60" height="14" fill="#ff8a65" opacity="0.35"/>
+          <rect x="505" y="96" width="150" height="14" fill="#ff8a65" opacity="0.35"/>
+          <text x="580" y="120" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">每個串流各自獨立處理遺失重傳</text>
+
+          <rect x="30" y="150" width="640" height="150" fill="var(--surface)" stroke="var(--border)" stroke-width="1" rx="6"/>
+          <text x="350" y="172" text-anchor="middle" font-size="9" fill="var(--text-muted)">若某個封包遺失，各版本受影響的範圍：</text>
+
+          <text x="60" y="200" font-size="8.5" fill="var(--text)">HTTP/1.1（單連線內）：整條連線上排在後面的請求全部等待</text>
+          <text x="60" y="225" font-size="8.5" fill="var(--text)">HTTP/2：整條TCP連線上「所有串流」都要等TCP重傳完成，即使遺失只影響其中一個串流</text>
+          <text x="60" y="255" font-size="8.5" fill="var(--text)">HTTP/3：只有遺失封包所屬的「那一個串流」需要等待，其他串流完全不受影響</text>
+        </svg>
+        <figcaption>HTTP/1.1靠多開連線繞過應用層排隊；HTTP/2用單一連線上的多工解決了應用層隊頭阻塞，卻仍受限於底下TCP嚴格依序送達的特性；HTTP/3把傳輸層也換成QUIC/UDP，讓各串流的可靠性互不牽連，才是真正的根本解。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋HTTP/1.1的隊頭阻塞問題是什麼，以及HTTP/2的多工機制怎麼解決它</li>
+          <li>能解釋HTTP/3改用QUIC/UDP，解決的是HTTP/2仍然無法解決的哪個問題，以及為什麼HTTP/2解決不了</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 38 課：Cookie與Session：網站如何記住你——HTTP本身是
+        無狀態的協定，這一課要看網站怎麼靠Cookie與伺服器端的
+        session，做出「記得你是誰」的效果。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：HTTP方法、狀態碼與標頭</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：Cookie與Session：網站如何記住你 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

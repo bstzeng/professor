@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：CDN：把內容送到離你最近的地方 ｜ 網路架構與原理 ｜ 博雅書院</title>
+<meta name="description" content="介紹CDN內容傳遞網路的邊緣伺服器如何降低延遲、減輕origin負載並提升韌性，說明Anycast導流機制，以及cache hit與cache miss的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">網路架構與原理</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜資料中心：網際網路的骨幹 · 第 27 課</div>
+      <h1>CDN：把內容送到離你最近的地方</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解CDN如何透過地理分散的邊緣伺服器，把內容放到離使用者更近的地方</li>
+          <li>理解物理距離如何影響延遲，並能說出CDN帶來的三個具體好處</li>
+          <li>能區分cache hit與cache miss，理解CDN邊緣伺服器的基本運作機制</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課看到骨幹網路與IXP，把全世界的資料中心跟網路業者
+        連成一張綿密的網。但就算網路本身連得再快，一個很現實
+        的物理限制仍然存在：如果一個網站的內容只放在地球某一
+        處的單一伺服器上，那全世界所有使用者的每一次請求，
+        都得長途跋涉跑這一趟——這一課要介紹的CDN，正是為了
+        解決這個問題而生。
+      </p>
+
+      <h2>1. 為什麼每個請求都長途來回，會太慢</h2>
+      <p>
+        網路上任何一次請求—回應，都需要一段來回時間（RTT），
+        而這段時間有一個物理上無法突破的下限：<strong>光速</strong>
+        ——資料在光纖裡傳輸的速度雖然接近光速，但終究不是
+        瞬間到達，再加上沿途經過的每一段路由、每一個中間節點
+        都會再增加一些額外延遲。也就是說，<strong>物理距離
+        確實重要</strong>：使用者離存放內容的伺服器越遠，這段
+        往返所需要的時間就越長，網頁載入、影片播放就會感覺
+        越慢。
+      </p>
+
+      <h2>2. CDN的解法：把內容複製到離使用者更近的地方</h2>
+      <p>
+        <strong>內容傳遞網路（CDN，Content Delivery Network）
+        </strong>的核心想法很直接：與其讓全世界的請求都跑到
+        同一台位於遠方的<strong>origin主機</strong>（原始內容所在
+        的伺服器），不如在全球各地布建大量<strong>邊緣伺服器
+        （edge server）</strong>，事先快取、複製一份網站內容
+        （圖片、影片、靜態檔案，甚至部分動態內容），放在物理上
+        <strong>離使用者更近</strong>的位置——當使用者發出請求，
+        優先由附近的邊緣伺服器回應，不必每一次都長途跑到原始
+        的origin主機。
+      </p>
+
+      <h2>3. CDN帶來的三個具體好處</h2>
+      <p>
+        使用CDN，實際上帶來三個好處：第一，<strong>降低延遲</strong>
+        ——如同前面所說，物理距離越短，來回時間就越短，鄰近的
+        邊緣伺服器能提供明顯更快的回應速度；第二，<strong>減輕
+        origin主機的負擔</strong>——大量重複、熱門內容的請求，
+        被CDN在邊緣層就先攔截、直接回應掉了，origin主機不必
+        每一次都親自處理；第三，<strong>提升韌性</strong>——當
+        某個邊緣節點出狀況時，流量可以被導向其他還在正常運作
+        的邊緣節點，不會讓單一節點的問題直接波及所有使用者。
+      </p>
+
+      <h2>4. 運作機制：怎麼找到「離你最近」的節點</h2>
+      <p>
+        使用者要怎麼被自動導向到適合的邊緣節點？常見的做法是
+        靠DNS解析（下一模組會深入介紹）或<strong>Anycast路由
+        </strong>：Anycast的概念是讓<strong>同一個IP位址</strong>，
+        同時在全球好幾個不同的實體地點對外宣告，而網際網路
+        原本的路由機制，就會自動把每個使用者的請求，導向到
+        路徑上「最近」或效能最好的那一個地點——使用者完全不需要
+        知道自己實際連上的是哪一台機器，只知道自己得到了回應。
+      </p>
+      <p>
+        請求抵達邊緣伺服器後，會出現兩種情況：如果邊緣伺服器
+        剛好已經保存了一份使用者要的內容，稱為<strong>cache
+        hit（快取命中）</strong>，可以直接把內容回傳給使用者，
+        完全不需要驚動origin主機；如果邊緣伺服器手上還沒有這份
+        內容，稱為<strong>cache miss（快取未命中）</strong>，
+        這時邊緣伺服器才會回頭向origin主機要一份，一邊把內容
+        回傳給使用者，一邊順便在本地留下一份副本——這樣一來，
+        同一個邊緣節點之後再收到相同的請求時，就會變成cache
+        hit，不需要再麻煩origin主機。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="300" y="18" text-anchor="middle" font-size="11" fill="var(--text-muted)">CDN邊緣節點 vs 直接跨海連往origin主機</text>
+
+          <rect x="20" y="40" width="560" height="210" rx="10" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="300" y="35" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">（示意：全球分布，非實際地理比例）</text>
+
+          <circle cx="500" cy="90" r="8" fill="var(--gold)"/>
+          <text x="500" y="76" text-anchor="middle" font-size="8.5" fill="var(--gold)">origin主機房（美國）</text>
+
+          <circle cx="120" cy="190" r="7" fill="var(--accent)"/>
+          <text x="120" y="216" text-anchor="middle" font-size="8.5" fill="var(--accent)">CDN邊緣節點（亞太）</text>
+
+          <circle cx="300" cy="70" r="7" fill="var(--accent)"/>
+          <text x="300" y="58" text-anchor="middle" font-size="8.5" fill="var(--accent)">CDN邊緣節點（歐洲）</text>
+
+          <circle cx="440" cy="210" r="7" fill="var(--accent)"/>
+          <text x="440" y="234" text-anchor="middle" font-size="8.5" fill="var(--accent)">CDN邊緣節點（美西）</text>
+
+          <circle cx="90" cy="150" r="6" fill="var(--text)"/>
+          <text x="90" y="138" text-anchor="middle" font-size="8.5" fill="var(--text)">使用者（亞洲）</text>
+
+          <line x1="90" y1="150" x2="120" y2="190" stroke="var(--gold)" stroke-width="2"/>
+          <text x="35" y="180" font-size="8" fill="var(--gold)">①最近的邊緣節點回應</text>
+          <text x="35" y="192" font-size="8" fill="var(--gold)">（距離短，延遲低）</text>
+
+          <line x1="90" y1="150" x2="500" y2="90" stroke="#ff8a65" stroke-width="1.3" stroke-dasharray="5 3"/>
+          <text x="270" y="115" text-anchor="middle" font-size="8" fill="#ff8a65">若無CDN：每次都要跨海直連origin（距離長，延遲高）</text>
+        </svg>
+        <figcaption>有了CDN，使用者的請求優先交給地理上最近的邊緣節點處理，只有在cache miss時才需要向遠方的origin主機取得內容；沒有CDN時，每一次請求都得跨越長距離直接連往origin主機。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>能解釋CDN的作用，以及物理距離為什麼會影響請求的延遲</li>
+          <li>能說出CDN帶來的三個好處：降低延遲、減輕origin負擔、提升韌性</li>
+          <li>能區分cache hit與cache miss，並描述cache miss發生時邊緣伺服器實際做了哪些事</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 28 課要回到資料中心內部，看看工程師怎麼透過備援設計，
+        讓服務即使在硬體故障、甚至整座資料中心出狀況時，依然
+        能維持運作——這是資料中心工程裡「高可用性」的核心課題。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：骨幹網路與網際網路交換中心(IXP)</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：資料中心的備援與高可用性設計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
