@@ -3241,6 +3241,125 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "fantastic-beasts",
+      title: "神奇動物與葛林戴華德：哈利波特前傳全紀錄",
+      description:
+        "聚焦「神奇動物」前傳三部曲（2016-2022），以紐特·斯卡曼德的冒險為主線逐部解析劇情，並深入追溯蓋勒·葛林戴華德的崛起、他與少年鄧不利多之間的禁忌情誼、血誓的由來與終結，最後銜接回哈利波特正傳裡那場傳說中的1945年決鬥，補完你所熟悉的魔法世界的另一段身世。",
+      icon: "🧳",
+      url: "topics/fantastic-beasts/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：魔法世界的另一段時空",
+          courses: [
+            { title: "為什麼哈利波特需要一部「前傳」", url: "topics/fantastic-beasts/lesson-01.html" },
+            { title: "時間軸重建：1926年到1998年之間發生了什麼", url: "topics/fantastic-beasts/lesson-02.html" },
+            { title: "J.K.羅琳的新身分：從小說家到編劇", url: "topics/fantastic-beasts/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜紐特·斯卡曼德：與神奇動物為伍的人",
+          courses: [
+            { title: "赫夫帕夫的怪咖：紐特在霍格華茲的日子", url: "topics/fantastic-beasts/lesson-04.html" },
+            { title: "那只神奇的行李箱：紐特的魔法動物保育學", url: "topics/fantastic-beasts/lesson-05.html" },
+            { title: "模組總結：一個不太像英雄的英雄", url: "topics/fantastic-beasts/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜神奇動物在哪裡：1926紐約大冒險",
+          courses: [
+            { title: "開場：一只逃脫的行李箱與一位麻雞", url: "topics/fantastic-beasts/lesson-07.html" },
+            { title: "美國魔法國會：MACUSA與它的高壓統治", url: "topics/fantastic-beasts/lesson-08.html" },
+            { title: "新塞冷慈善會：貝爾邦夫人的恐怖育幼院", url: "topics/fantastic-beasts/lesson-09.html" },
+            { title: "反常自閉症：什麼是奧不斯克瑞爾", url: "topics/fantastic-beasts/lesson-10.html" },
+            { title: "蒂娜與奎妮：戈斯坦姊妹的處境", url: "topics/fantastic-beasts/lesson-11.html" },
+            { title: "假面下的葛雷夫斯：波西瓦爾·葛雷夫斯的真實身分", url: "topics/fantastic-beasts/lesson-12.html" },
+            { title: "克雷登斯的爆發：紐約上空的黑色風暴", url: "topics/fantastic-beasts/lesson-13.html" },
+            { title: "落網：葛林戴華德首度現身與被捕", url: "topics/fantastic-beasts/lesson-14.html" },
+            { title: "模組總結：一場屠殺記憶的收尾", url: "topics/fantastic-beasts/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜蓋勒·葛林戴華德的崛起",
+          courses: [
+            { title: "都姆斯特朗的天才：葛林戴華德的少年時代", url: "topics/fantastic-beasts/lesson-16.html" },
+            { title: "高錐客洞的夏天：與年輕鄧不利多相遇", url: "topics/fantastic-beasts/lesson-17.html" },
+            { title: "為了更大的利益：兩個年輕人的危險理想", url: "topics/fantastic-beasts/lesson-18.html" },
+            { title: "尋找死神的聖物：三聖物的誘惑", url: "topics/fantastic-beasts/lesson-19.html" },
+            { title: "模組總結：一段友誼如何走向決裂的邊緣", url: "topics/fantastic-beasts/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 E｜鄧不利多家族的傷痕",
+          courses: [
+            { title: "阿蕊安娜·鄧不利多：一個被隱藏的妹妹", url: "topics/fantastic-beasts/lesson-21.html" },
+            { title: "那場三人決鬥：亞蕊安娜之死的真相與謎團", url: "topics/fantastic-beasts/lesson-22.html" },
+            { title: "血誓：阿不福思、阿不思與葛林戴華德的約定", url: "topics/fantastic-beasts/lesson-23.html" },
+            { title: "模組總結：鄧不利多終生無法擺脫的愧疚", url: "topics/fantastic-beasts/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜罪與罰：巴黎的葛林戴華德",
+          courses: [
+            { title: "越獄：從魔法部押解車上的逃亡", url: "topics/fantastic-beasts/lesson-25.html" },
+            { title: "尋找克雷登斯：一場跨海的追蹤", url: "topics/fantastic-beasts/lesson-26.html" },
+            { title: "蕾塔·萊斯壯的秘密：一樁換嬰事件", url: "topics/fantastic-beasts/lesson-27.html" },
+            { title: "紐特的抉擇：鄧不利多交付的任務", url: "topics/fantastic-beasts/lesson-28.html" },
+            { title: "奎妮與雅各：一段被禁止的戀情", url: "topics/fantastic-beasts/lesson-29.html" },
+            { title: "巴黎集會：葛林戴華德的演說與預言", url: "topics/fantastic-beasts/lesson-30.html" },
+            { title: "蕾塔的犧牲：馬廄裡的訣別", url: "topics/fantastic-beasts/lesson-31.html" },
+            { title: "模組總結：一場集會揭露的野心藍圖", url: "topics/fantastic-beasts/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 G｜血統之謎：克雷登斯是誰",
+          courses: [
+            { title: "從歐布斯坎特到血緣線索：克雷登斯的身世追查", url: "topics/fantastic-beasts/lesson-33.html" },
+            { title: "「你是我的血親」：葛林戴華德的誘惑話術", url: "topics/fantastic-beasts/lesson-34.html" },
+            { title: "模組總結：一個關於歸屬感的操弄", url: "topics/fantastic-beasts/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 H｜鄧不利多的秘密：柏林與不丹的布局",
+          courses: [
+            { title: "集結：鄧不利多召集的五人小隊", url: "topics/fantastic-beasts/lesson-36.html" },
+            { title: "麒麟誕生：不丹的魔法聖獸", url: "topics/fantastic-beasts/lesson-37.html" },
+            { title: "選舉之爭：國際巫師聯合會最高理事長之戰", url: "topics/fantastic-beasts/lesson-38.html" },
+            { title: "假麒麟：葛林戴華德的死靈法術", url: "topics/fantastic-beasts/lesson-39.html" },
+            { title: "雅各的任務：一個麻瓜的臥底工作", url: "topics/fantastic-beasts/lesson-40.html" },
+            { title: "賴利·希克斯與邦蒂：新面孔的任務分工", url: "topics/fantastic-beasts/lesson-41.html" },
+            { title: "柏林的陷阱：一場刻意設下的騙局", url: "topics/fantastic-beasts/lesson-42.html" },
+            { title: "不丹的決選：選舉現場的驚天逆轉", url: "topics/fantastic-beasts/lesson-43.html" },
+            { title: "模組總結：這一次，鄧不利多贏了嗎", url: "topics/fantastic-beasts/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 I｜麒麟與國際巫師聯合會",
+          courses: [
+            { title: "麒麟的魔法：純潔之心的試煉", url: "topics/fantastic-beasts/lesson-45.html" },
+            { title: "國際巫師聯合會：魔法世界的聯合國", url: "topics/fantastic-beasts/lesson-46.html" },
+            { title: "模組總結：一場選舉如何決定魔法世界的命運", url: "topics/fantastic-beasts/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 J｜血誓的終結",
+          courses: [
+            { title: "打破約定：那只裝著血液的墜飾", url: "topics/fantastic-beasts/lesson-48.html" },
+            { title: "直球對決：鄧不利多終於能出手了嗎", url: "topics/fantastic-beasts/lesson-49.html" },
+            { title: "紐蒙迦德的高塔：葛林戴華德的最終結局", url: "topics/fantastic-beasts/lesson-50.html" },
+            { title: "模組總結：一段仇恨如何劃下（暫時的）句點", url: "topics/fantastic-beasts/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 K｜銀幕外的故事與課程總結",
+          courses: [
+            { title: "停在第三部：為什麼「神奇動物」系列沒有拍完", url: "topics/fantastic-beasts/lesson-52.html" },
+            { title: "銜接正傳：1945年那場傳說中的決鬥", url: "topics/fantastic-beasts/lesson-53.html" },
+            { title: "全課程總結：前傳如何補完了哈利波特的世界觀", url: "topics/fantastic-beasts/lesson-54.html" }
+          ]
+        }
+      ]
     }
   ]
 };
