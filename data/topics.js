@@ -3294,7 +3294,7 @@ window.SITE_DATA = {
           title: "模組 E｜鄧不利多家族的傷痕",
           courses: [
             { title: "阿蕊安娜·鄧不利多：一個被隱藏的妹妹", url: "topics/fantastic-beasts/lesson-21.html" },
-            { title: "那場三人決鬥：亞蕊安娜之死的真相與謎團", url: "topics/fantastic-beasts/lesson-22.html" },
+            { title: "那場三人決鬥：阿蕊安娜之死的真相與謎團", url: "topics/fantastic-beasts/lesson-22.html" },
             { title: "血誓：阿不福思、阿不思與葛林戴華德的約定", url: "topics/fantastic-beasts/lesson-23.html" },
             { title: "模組總結：鄧不利多終生無法擺脫的愧疚", url: "topics/fantastic-beasts/lesson-24.html" }
           ]
@@ -3308,7 +3308,7 @@ window.SITE_DATA = {
             { title: "紐特的抉擇：鄧不利多交付的任務", url: "topics/fantastic-beasts/lesson-28.html" },
             { title: "奎妮與雅各：一段被禁止的戀情", url: "topics/fantastic-beasts/lesson-29.html" },
             { title: "巴黎集會：葛林戴華德的演說與預言", url: "topics/fantastic-beasts/lesson-30.html" },
-            { title: "蕾塔的犧牲：馬廄裡的訣別", url: "topics/fantastic-beasts/lesson-31.html" },
+            { title: "蕾塔的犧牲：地下墓穴的訣別", url: "topics/fantastic-beasts/lesson-31.html" },
             { title: "模組總結：一場集會揭露的野心藍圖", url: "topics/fantastic-beasts/lesson-32.html" }
           ]
         },
