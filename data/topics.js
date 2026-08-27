@@ -3360,6 +3360,198 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "diablo",
+      title: "暗黑破壞神全紀錄：從崔斯特瑞姆到聖休亞瑞的永恆之戰",
+      description:
+        "從聖休亞瑞的創世神話與天使惡魔的永恆戰爭出發，完整解析暗黑破壞神1、2（毀滅之王資料片）、3（奪魂之鐮資料片）、4四部曲的主線劇情：崔斯特瑞姆的惡夢、黑暗流浪者的墮落、三巨頭與四小魔的興衰、天堂水晶拱頂之戰，直到莉莉絲率領聖休亞瑞邁入嶄新的黑暗時代，最後收錄怨恨之鎧資料片的番外概覽。",
+      icon: "👹",
+      url: "topics/diablo/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：聖休亞瑞的世界觀",
+          courses: [
+            { title: "天堂與地獄：一場永恆的戰爭", url: "topics/diablo/lesson-01.html" },
+            { title: "聖休亞瑞：介於天使與惡魔之間的世界", url: "topics/diablo/lesson-02.html" },
+            { title: "七大魔王：三巨頭與四小魔的位階", url: "topics/diablo/lesson-03.html" },
+            { title: "涅法雷姆：人類為什麼讓兩方都忌憚", url: "topics/diablo/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜創世神話：伊納里斯與莉莉絲的禁忌",
+          courses: [
+            { title: "阿努與塔瑟梅特：創世神話的起源", url: "topics/diablo/lesson-05.html" },
+            { title: "伊納里斯：放逐自己的墮落天使", url: "topics/diablo/lesson-06.html" },
+            { title: "莉莉絲：墨菲斯托之女的禁忌之戀", url: "topics/diablo/lesson-07.html" },
+            { title: "模組總結：一段被隱藏的創世秘史", url: "topics/diablo/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜暗黑破壞神首部曲：崔斯特瑞姆的惡夢",
+          courses: [
+            { title: "崔斯特瑞姆小鎮：降臨在寧靜小鎮的災難", url: "topics/diablo/lesson-09.html" },
+            { title: "里奧瑞克國王的瘋狂", url: "topics/diablo/lesson-10.html" },
+            { title: "大主教拉薩魯斯的背叛", url: "topics/diablo/lesson-11.html" },
+            { title: "地下大教堂：深入地底的試煉", url: "topics/diablo/lesson-12.html" },
+            { title: "霍拉德林的封印史：三兄弟如何被鎖進靈魂石", url: "topics/diablo/lesson-13.html" },
+            { title: "屠夫、黑騎士與地牢裡的試煉者", url: "topics/diablo/lesson-14.html" },
+            { title: "大魔王戴布羅：恐懼之王的真面目", url: "topics/diablo/lesson-15.html" },
+            { title: "致命的抉擇：將靈魂石刺入自己的額頭", url: "topics/diablo/lesson-16.html" },
+            { title: "模組總結：黑暗流浪者的誕生", url: "topics/diablo/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 D｜霍拉德林教團的秘密史",
+          courses: [
+            { title: "霍拉迪姆的先知使命", url: "topics/diablo/lesson-18.html" },
+            { title: "塔爾拉夏的犧牲與瘋狂", url: "topics/diablo/lesson-19.html" },
+            { title: "模組總結：被遺忘在沙漠裡的秘密", url: "topics/diablo/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 E｜暗黑破壞神II 第一幕：盜賊營地與安達莉爾",
+          courses: [
+            { title: "二十年後：黑暗流浪者的蹤跡", url: "topics/diablo/lesson-21.html" },
+            { title: "盜賊營地：凱夏與亞卡拉", url: "topics/diablo/lesson-22.html" },
+            { title: "血鴉的悲劇：曾經的盜賊女王", url: "topics/diablo/lesson-23.html" },
+            { title: "焦土修道院與安達莉爾的巢穴", url: "topics/diablo/lesson-24.html" },
+            { title: "模組總結：痛苦之王的殞落", url: "topics/diablo/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 F｜暗黑破壞神II 第二幕：魯高因與杜瑞爾",
+          courses: [
+            { title: "沙漠中的港口：魯高因城", url: "topics/diablo/lesson-26.html" },
+            { title: "亞特瑪與凱恩的線索：霍拉德林的下落", url: "topics/diablo/lesson-27.html" },
+            { title: "圖魯斯特神殿的機關與試煉", url: "topics/diablo/lesson-28.html" },
+            { title: "塔爾拉夏之墓：杜瑞爾的甦醒", url: "topics/diablo/lesson-29.html" },
+            { title: "模組總結：被釋放的戴布羅", url: "topics/diablo/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 G｜暗黑破壞神II 第三幕：卡拉忠與墨菲斯托",
+          courses: [
+            { title: "卡拉忠叢林：庫拉斯特的衰敗", url: "topics/diablo/lesson-31.html" },
+            { title: "巫毒教與死靈法師的傳說", url: "topics/diablo/lesson-32.html" },
+            { title: "強制法球：墨菲斯托的操縱之手", url: "topics/diablo/lesson-33.html" },
+            { title: "庫拉斯特議會神殿的決戰", url: "topics/diablo/lesson-34.html" },
+            { title: "模組總結：憎恨之王的下場", url: "topics/diablo/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 H｜暗黑破壞神II 第四幕：地獄之戰與魔王本尊",
+          courses: [
+            { title: "混沌避難所：泰瑞爾的求援", url: "topics/diablo/lesson-36.html" },
+            { title: "天使議會的分裂與掙扎", url: "topics/diablo/lesson-37.html" },
+            { title: "混沌聖所：三兄弟的最終團聚", url: "topics/diablo/lesson-38.html" },
+            { title: "模組總結：暫時的勝利", url: "topics/diablo/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 I｜毀滅之王資料片 第五幕：阿瑞特山與巴爾",
+          courses: [
+            { title: "哈羅蓋特：蠻族的最後堡壘", url: "topics/diablo/lesson-40.html" },
+            { title: "巴爾的追擊：世界之石的誘惑", url: "topics/diablo/lesson-41.html" },
+            { title: "冰封王座：安雅與蠻族五英雄", url: "topics/diablo/lesson-42.html" },
+            { title: "泰瑞爾的抉擇：摧毀世界之石", url: "topics/diablo/lesson-43.html" },
+            { title: "模組總結：一個時代的終結", url: "topics/diablo/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 J｜二十年的寧靜與崩解的預兆",
+          courses: [
+            { title: "崔斯特瑞姆的重建與流言", url: "topics/diablo/lesson-45.html" },
+            { title: "天上墜落的星辰", url: "topics/diablo/lesson-46.html" },
+            { title: "模組總結：被喚醒的暗黑三部曲", url: "topics/diablo/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 K｜暗黑破壞神III 第一幕：崔斯特瑞姆的星辰",
+          courses: [
+            { title: "莉亞與凱恩：墜星之下的相遇", url: "topics/diablo/lesson-48.html" },
+            { title: "舊崔斯特瑞姆大教堂的亡魂", url: "topics/diablo/lesson-49.html" },
+            { title: "骷髏王里奧瑞克再臨", url: "topics/diablo/lesson-50.html" },
+            { title: "莉亞的秘密：亞德莉亞的真正目的", url: "topics/diablo/lesson-51.html" },
+            { title: "模組總結：憂鬱之王的甦醒", url: "topics/diablo/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 L｜暗黑破壞神III 第二幕：卡爾敦與偽裝的貝利爾",
+          courses: [
+            { title: "卡爾敦：沙漠中的黃金之城", url: "topics/diablo/lesson-53.html" },
+            { title: "哈坎皇帝的真面目", url: "topics/diablo/lesson-54.html" },
+            { title: "蛛后的巢穴與大主教的瘋狂", url: "topics/diablo/lesson-55.html" },
+            { title: "欺詐之王貝利爾的真身", url: "topics/diablo/lesson-56.html" },
+            { title: "模組總結：謊言之王的末路", url: "topics/diablo/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 M｜暗黑破壞神III 第三幕：城塞之戰與阿祖莫丹",
+          courses: [
+            { title: "巴斯堤恩要塞：對抗地獄大軍的最後防線", url: "topics/diablo/lesson-58.html" },
+            { title: "天空之橋與惡魔大軍的猛攻", url: "topics/diablo/lesson-59.html" },
+            { title: "罪孽之王阿祖莫丹的降臨", url: "topics/diablo/lesson-60.html" },
+            { title: "模組總結：地獄之門的開啟", url: "topics/diablo/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 N｜暗黑破壞神III 第四幕：天堂之戰與大魔王的回歸",
+          courses: [
+            { title: "水晶拱頂：天堂本體的危機", url: "topics/diablo/lesson-62.html" },
+            { title: "泰瑞爾的犧牲與墮落天使的覺悟", url: "topics/diablo/lesson-63.html" },
+            { title: "大魔王戴布羅：莉亞身軀裡的終極融合", url: "topics/diablo/lesson-64.html" },
+            { title: "模組總結：恐懼之王的第二次殞落", url: "topics/diablo/lesson-65.html" }
+          ]
+        },
+        {
+          title: "模組 O｜奪魂之鐮資料片：馬爾薩伊爾與死亡天使",
+          courses: [
+            { title: "智慧天使馬爾薩伊爾的失落", url: "topics/diablo/lesson-66.html" },
+            { title: "黑色靈魂石與人類靈魂的浩劫", url: "topics/diablo/lesson-67.html" },
+            { title: "韋斯馬奇的淪陷", url: "topics/diablo/lesson-68.html" },
+            { title: "潘達莫尼恩要塞的最終決戰", url: "topics/diablo/lesson-69.html" },
+            { title: "一個新守護者的誕生", url: "topics/diablo/lesson-70.html" },
+            { title: "模組總結：暗黑三部曲故事線的完結", url: "topics/diablo/lesson-71.html" }
+          ]
+        },
+        {
+          title: "模組 P｜從天堂到聖休亞瑞：莉莉絲回歸的序章",
+          courses: [
+            { title: "沉寂的世界：暗黑四部曲前的聖休亞瑞", url: "topics/diablo/lesson-72.html" },
+            { title: "光明座堂與莉莉絲信徒的暗中集結", url: "topics/diablo/lesson-73.html" },
+            { title: "模組總結：黑暗即將再臨的預兆", url: "topics/diablo/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜暗黑破壞神IV：莉莉絲的復仇",
+          courses: [
+            { title: "開場：血月下的召喚儀式", url: "topics/diablo/lesson-75.html" },
+            { title: "唐納神父與復仇者妮瑞兒", url: "topics/diablo/lesson-76.html" },
+            { title: "莉莉絲的回歸：憎恨母親的降臨", url: "topics/diablo/lesson-77.html" },
+            { title: "卡吉斯坦荒原的動盪", url: "topics/diablo/lesson-78.html" },
+            { title: "史卡斯波洛的黑暗低語", url: "topics/diablo/lesson-79.html" },
+            { title: "伊納里斯的覺醒與抉擇", url: "topics/diablo/lesson-80.html" },
+            { title: "決戰前夕：兵臨光明座堂", url: "topics/diablo/lesson-81.html" },
+            { title: "最終戰役：聖休亞瑞的命運抉擇", url: "topics/diablo/lesson-82.html" },
+            { title: "模組總結：血脈之王的落幕（暫時的）", url: "topics/diablo/lesson-83.html" }
+          ]
+        },
+        {
+          title: "模組 R｜番外：怨恨之鎧資料片與未來展望",
+          courses: [
+            { title: "納罕圖的呼喚：墨菲斯托的蹤跡", url: "topics/diablo/lesson-84.html" },
+            { title: "妮瑞兒的抉擇與憎恨石的下落", url: "topics/diablo/lesson-85.html" },
+            { title: "模組總結：暗黑破壞神的故事還沒說完", url: "topics/diablo/lesson-86.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結：從崔斯特瑞姆的一場惡夢，到席捲聖休亞瑞的永恆戰爭", url: "topics/diablo/lesson-87.html" }
+          ]
+        }
+      ]
     }
   ]
 };
