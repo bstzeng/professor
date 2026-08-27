@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：模組總結：完整的遊戲狀態機 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用enum GameState定義遊戲的五種狀態，並透過switch統一控制update邏輯、畫面顯示與輸入接受範圍，把模組F到H做的所有功能整合成一套狀態機">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實作專案③：遊戲邏輯與狀態管理 · 第 37 課</div>
+      <h1>模組總結：完整的遊戲狀態機</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識用<code>enum GameState</code>把「遊戲目前在哪個階段」變成一組清楚、有限的狀態集合</li>
+          <li>學會用<code>switch</code>對狀態分支，決定<code>update(_:)</code>該跑哪些邏輯、畫面該顯示什麼、要不要接受觸控輸入</li>
+          <li>看懂模組F到H做出來的每一塊——球拍、球、磚塊、分數、生命、勝負、暫停與重新開始——怎麼被整合進同一套狀態機裡</li>
+        </ul>
+      </div>
+
+      <p>
+        模組H一路加了分數、生命值、勝負判定、暫停與重新開始，
+        每個功能各自都能動，但彼此的關係目前散落在好幾個獨立
+        的布林值跟條件式裡——<code>isPaused</code>管暫停、
+        <code>lives &lt;= 0</code>管失敗、球是不是已經發射又
+        沒有變數記錄。這一課不新增遊戲功能，而是引入一個更
+        清楚的組織方式：用一個<code>enum</code>把「遊戲現在
+        處在哪個階段」明確定義出來，讓其餘所有邏輯，都圍繞著
+        這一個狀態值來決定該做什麼。
+      </p>
+
+      <h2>為什麼需要一個明確的狀態機</h2>
+      <p>
+        回想一下這整個專案：遊戲一開始，球應該還沒發射、
+        等待玩家點擊開始（呼應第27課的開始畫面）；玩家點擊後
+        進入正常遊玩；途中玩家可能按下暫停；最後可能磚塊清空
+        獲勝，也可能生命值歸零落敗。這五種情境，正是遊戲會
+        經歷的所有「階段」——如果沒有一個變數明確記錄目前在
+        哪個階段，很容易寫出互相矛盾的程式碼，例如遊戲明明已經
+        結束了，觸控事件卻還在移動球拍。狀態機的核心思路，就是
+        先把所有可能的階段窮舉出來，再讓其餘程式碼只根據「目前
+        是哪個階段」做決定。
+      </p>
+
+      <h2>定義GameState</h2>
+      <p>
+        用一個<code>enum</code>列出遊戲會經歷的五種狀態：
+      </p>
+      <div class="code-block">enum GameState {
+    case ready      // 等待玩家開始，球尚未發射
+    case playing    // 正常遊玩中
+    case paused     // 暫停中
+    case gameOver   // 已落敗
+    case win        // 已獲勝
+}</div>
+      <p>
+        接著在<code>GameScene</code>裡加入一個目前狀態的屬性，
+        並用<code>didSet</code>屬性觀察器，讓每次狀態改變時，
+        自動觸發對應的畫面更新：
+      </p>
+      <div class="code-block">var gameState: GameState = .ready {
+    didSet {
+        updateForState()
+    }
+}</div>
+
+      <h2>用switch控制每個狀態該做什麼</h2>
+      <p>
+        <code>updateForState()</code>用<code>switch</code>對
+        <code>gameState</code>分支，把每個狀態該有的畫面反應
+        集中寫在一個地方：
+      </p>
+      <div class="code-block">func updateForState() {
+    switch gameState {
+    case .ready:
+        isPaused = false
+        messageLabel.text = "點擊畫面開始遊戲"
+        messageLabel.isHidden = false
+
+    case .playing:
+        isPaused = false
+        messageLabel.isHidden = true
+
+    case .paused:
+        isPaused = true
+        messageLabel.text = "已暫停"
+        messageLabel.isHidden = false
+
+    case .gameOver:
+        isPaused = true
+        messageLabel.text = "遊戲結束"
+        messageLabel.isHidden = false
+
+    case .win:
+        isPaused = true
+        messageLabel.text = "遊戲勝利！"
+        messageLabel.isHidden = false
+    }
+}</div>
+      <p>
+        <code>update(_:)</code>裡原本第34課寫的球掉出底部偵測，
+        也應該只在<code>.playing</code>狀態才執行——遊戲還沒
+        開始，或已經結束時，不應該繼續判斷漏接：
+      </p>
+      <div class="code-block">override func update(_ currentTime: TimeInterval) {
+    switch gameState {
+    case .playing:
+        if ball.position.y < 0 {
+            ballLost()
+        }
+    default:
+        break
+    }
+}</div>
+
+      <h2>把之前的邏輯接進狀態機</h2>
+      <p>
+        有了<code>gameState</code>，模組G、H做的其餘邏輯只要
+        在對的時機切換狀態即可，不用再各自維護獨立的旗標：
+      </p>
+      <div class="code-block">override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+
+    switch gameState {
+    case .ready:
+        gameState = .playing
+        ball.physicsBody?.velocity = CGVector(dx: 140, dy: -220)
+
+    case .playing:
+        if pauseButton.contains(location) {
+            gameState = .paused
+        }
+        // 其餘觸控交給移動球拍的邏輯
+
+    case .paused:
+        if pauseButton.contains(location) {
+            gameState = .playing
+        }
+
+    case .gameOver, .win:
+        if restartButton.contains(location) {
+            restartGame()
+        }
+    }
+}
+
+func gameWin() {
+    gameState = .win
+}
+
+func gameOver() {
+    gameState = .gameOver
+}</div>
+      <p>
+        第35課寫的<code>gameWin()</code>、<code>gameOver()</code>
+        現在只需要一行：把<code>gameState</code>改成對應的
+        狀態，<code>didSet</code>就會自動呼叫
+        <code>updateForState()</code>處理畫面反應，不用在每個
+        觸發勝負的地方，重複寫顯示文字、暫停場景這些細節。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow37" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">GameState：五個狀態，及彼此的轉換條件</text>
+
+          <circle cx="100" cy="90" r="42" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="100" y="86" text-anchor="middle" font-size="9.5" fill="var(--text)">.ready</text>
+          <text x="100" y="100" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">等待開始</text>
+
+          <line x1="142" y1="90" x2="215" y2="90" stroke="var(--accent)" stroke-width="1.4" marker-end="url(#arrow37)"/>
+          <text x="178" y="82" text-anchor="middle" font-size="7.5" fill="var(--accent)">點擊畫面</text>
+
+          <circle cx="270" cy="90" r="46" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="1.4"/>
+          <text x="270" y="86" text-anchor="middle" font-size="9.5" fill="var(--accent)">.playing</text>
+          <text x="270" y="100" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">正常遊玩</text>
+
+          <line x1="270" y1="136" x2="270" y2="180" stroke="var(--gold)" stroke-width="1.4" marker-end="url(#arrow37)"/>
+          <text x="315" y="160" text-anchor="middle" font-size="7.5" fill="var(--gold)">按暫停</text>
+          <circle cx="270" cy="222" r="42" fill="var(--gold)" opacity="0.1" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="270" y="218" text-anchor="middle" font-size="9.5" fill="var(--gold)">.paused</text>
+          <text x="270" y="232" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">暫停中</text>
+          <line x1="240" y1="195" x2="240" y2="140" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow37)"/>
+          <text x="205" y="170" text-anchor="middle" font-size="7.5" fill="var(--gold)">再按一次</text>
+
+          <line x1="316" y1="70" x2="440" y2="55" stroke="#ff8a65" stroke-width="1.4" marker-end="url(#arrow37)"/>
+          <text x="400" y="45" text-anchor="middle" font-size="7.5" fill="#ff8a65">lives &lt;= 0</text>
+          <circle cx="500" cy="60" r="42" fill="#ff8a65" opacity="0.12" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="500" y="56" text-anchor="middle" font-size="9.5" fill="#ff8a65">.gameOver</text>
+          <text x="500" y="70" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">已落敗</text>
+
+          <line x1="316" y1="112" x2="440" y2="150" stroke="var(--text)" stroke-width="1.4" marker-end="url(#arrow37)"/>
+          <text x="400" y="145" text-anchor="middle" font-size="7.5" fill="var(--text)">bricksRemaining == 0</text>
+          <circle cx="500" cy="160" r="42" fill="var(--border)" opacity="0.35" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="500" y="156" text-anchor="middle" font-size="9.5" fill="var(--text)">.win</text>
+          <text x="500" y="170" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">已獲勝</text>
+
+          <rect x="380" y="235" width="240" height="60" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="500" y="256" text-anchor="middle" font-size="8" fill="var(--text-muted)">.gameOver / .win 按下重新開始按鈕</text>
+          <text x="500" y="272" text-anchor="middle" font-size="8" fill="var(--text-muted)">→ restartGame() 建立新場景</text>
+          <text x="500" y="288" text-anchor="middle" font-size="8" fill="var(--text-muted)">→ 新場景的gameState從.ready開始</text>
+        </svg>
+        <figcaption>五個狀態各自對應update(_:)該不該跑、畫面該顯示什麼、觸控該怎麼反應——所有轉換都集中收斂在gameState這一個變數上。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>模組F到H，串成了什麼</h3>
+        <p>
+          回頭看看整個實作專案走到這裡累積了什麼：模組F建立了
+          場景、球拍、球、磚塊排版；模組G讓它們透過physics body
+          與bitmask真正產生碰撞、反彈、消滅；模組H加上分數、
+          生命、勝負判定、暫停與重新開始。這一課的
+          <code>GameState</code>，是把前面所有分散的邏輯，收攏
+          進同一套清楚的規則裡——這正是「能動的程式碼」跟
+          「結構清楚、之後好維護、好擴充的程式碼」之間的差異。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出<code>GameState</code>定義的五種狀態，並各自說明對應的遊戲情境</li>
+          <li>說明<code>gameState</code>屬性的<code>didSet</code>觀察器，在這個設計裡扮演什麼角色</li>
+          <li>解釋為什麼把球掉出底部的偵測，限制在<code>update(_:)</code>裡只在<code>.playing</code>狀態才執行</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        遊戲邏輯現在完整了，但目前撞到磚塊、球拍、牆壁，畫面跟
+        聽覺上完全沒有回饋，玩起來還是有點乾。下一課要進入
+        模組I，從最基本的音效播放開始——讓每一次碰撞，都搭配
+        一聲對應的音效，替這款打磚塊遊戲補上手感。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：重新開始與暫停</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：音效播放 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

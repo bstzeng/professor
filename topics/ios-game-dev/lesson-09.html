@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：protocol與擴充功能基礎 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="Swift的protocol語法與型別遵循協定的寫法，說明為什麼後續碰撞偵測需要遵循SKPhysicsContactDelegate，並介紹extension如何為既有型別擴充功能">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜Swift語言快速上手 · 第 9 課</div>
+      <h1>protocol與擴充功能基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解protocol在定義什麼、以及型別怎麼「遵循」一個protocol</li>
+          <li>知道為什麼後續模組G的碰撞偵測，需要場景遵循SKPhysicsContactDelegate這個protocol</li>
+          <li>認識extension的基本語法，知道它可以幫既有型別加上新功能</li>
+        </ul>
+      </div>
+
+      <p>
+        模組B最後一個語言概念，要介紹protocol（協定）與
+        extension（擴充功能）。這兩個概念單獨看可能會覺得
+        有點抽象，但它們在SpriteKit裡有非常具體的用途——尤其
+        是protocol，後面模組G處理碰撞偵測時會直接用到，這一課
+        先把底層邏輯建立起來。
+      </p>
+
+      <h2>1. protocol：定義一份「必須做到什麼」的清單</h2>
+      <p>
+        <code>protocol</code>本身不實作任何邏輯，它只是定義一份
+        清單，列出「任何遵循這個protocol的型別，都必須提供
+        哪些屬性或方法」：
+      </p>
+      <div class="code-block">protocol Damageable {
+    var health: Int { get set }
+    func takeDamage(_ amount: Int)
+}</div>
+      <p>
+        這段程式碼定義了一個叫做<code>Damageable</code>（可被
+        造成傷害）的protocol，規定任何遵循它的型別，都必須有
+        一個<code>health</code>屬性，以及一個
+        <code>takeDamage(_:)</code>方法。protocol本身只列出
+        「要有什麼」，不寫「具體怎麼做」。
+      </p>
+
+      <h2>2. 讓一個型別遵循protocol</h2>
+      <p>
+        型別要遵循某個protocol，寫法跟繼承class很像，用冒號
+        接在型別名稱後面，接著就必須把protocol要求的內容
+        全部實作出來，否則編譯器會報錯：
+      </p>
+      <div class="code-block">class Enemy: Damageable {
+    var health: Int = 30
+
+    func takeDamage(_ amount: Int) {
+        health -= amount
+        print("敵人受到\(amount)點傷害，剩餘血量：\(health)")
+    }
+}</div>
+      <p>
+        <code>class Enemy: Damageable</code>裡的
+        <code>Damageable</code>就是<code>Enemy</code>遵循的
+        protocol——因為<code>Enemy</code>確實提供了
+        <code>health</code>屬性跟<code>takeDamage(_:)</code>
+        方法，符合<code>Damageable</code>的要求，所以能成功
+        遵循。protocol的好處是：只要一個型別遵循了某個
+        protocol，其他程式碼就可以放心地把它當成「一定具備這些
+        能力」的物件來使用，不需要知道它實際上是哪個具體的類別。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">protocol是一份清單，型別負責實作內容</text>
+
+          <rect x="200" y="40" width="220" height="70" rx="6" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="310" y="63" text-anchor="middle" font-size="9.5" fill="var(--gold)">protocol Damageable</text>
+          <text x="220" y="83" font-size="8" fill="var(--text-muted)">var health: Int { get set }</text>
+          <text x="220" y="98" font-size="8" fill="var(--text-muted)">func takeDamage(_ amount: Int)</text>
+
+          <line x1="310" y1="110" x2="310" y2="135" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <text x="330" y="128" font-size="8" fill="var(--text-muted)">遵循</text>
+
+          <rect x="200" y="140" width="220" height="45" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="310" y="167" text-anchor="middle" font-size="9.5" fill="var(--accent)">class Enemy: Damageable（實際實作）</text>
+        </svg>
+        <figcaption>protocol只規定「必須有什麼」，實際「怎麼做」由遵循它的型別自己實作——SKPhysicsContactDelegate也是同樣的機制。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>先看一眼：後面碰撞偵測會用到的SKPhysicsContactDelegate</h3>
+        <p>
+          模組G處理球撞到磚塊、球拍的碰撞偵測時，會讓
+          <code>GameScene</code>遵循SpriteKit框架提供的一個
+          protocol，叫做<code>SKPhysicsContactDelegate</code>，
+          寫法大致是<code>class GameScene: SKScene,
+          SKPhysicsContactDelegate</code>（一個class可以同時
+          繼承一個父類別、並遵循多個protocol）。這個protocol
+          要求場景實作一個「當兩個物體發生碰撞時會被呼叫」的
+          方法，SpriteKit的物理引擎偵測到碰撞後，就會自動呼叫
+          這個方法，把細節丟給我們自己實作的邏輯處理。現在只
+          需要記得：「遵循protocol」代表「答應提供某些特定的
+          方法或屬性」，屆時回頭看這一課會更清楚。
+        </p>
+      </div>
+
+      <h2>3. extension：幫既有型別加上新功能</h2>
+      <p>
+        <code>extension</code>可以在不修改原本型別定義的情況下，
+        幫一個既有型別（包括自己寫的、或是Swift／SpriteKit內建
+        的型別）加上新的方法或計算屬性：
+      </p>
+      <div class="code-block">extension Int {
+    var isEvenScore: Bool {
+        return self % 2 == 0
+    }
+}
+
+let score = 120
+print(score.isEvenScore)   // true</div>
+      <p>
+        這個例子替Swift內建的<code>Int</code>型別加上了一個新的
+        計算屬性<code>isEvenScore</code>，之後任何<code>Int</code>
+        值都能直接使用它。實務上，extension常被用來把某個型別
+        相關、但跟主要定義無關的功能（例如格式化字串、額外的
+        便利方法）獨立整理在一起，讓程式碼更有組織。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋protocol定義的是什麼，以及型別「遵循」protocol代表什麼義務</li>
+          <li>說明為什麼後面模組G的GameScene需要遵循SKPhysicsContactDelegate</li>
+          <li>用自己的話說明extension的用途，跟直接修改原本的型別定義有什麼不同</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組B最後一課要做一次完整的回顧總結，把var/let、
+        Optional、函式與閉包、流程控制、struct/class、protocol
+        這一路學過的六個概念整理成一張表，準備好正式打開Xcode。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：struct與class的差異</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：模組總結：Swift基礎回顧 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

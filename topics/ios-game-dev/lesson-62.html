@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 62 課：憑證與簽章概念 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="解釋為什麼iOS App在執行或發布前都必須經過加密簽章，分辨Development與Distribution兩種憑證的用途，並說明Xcode自動簽章如何替新手省去手動管理的麻煩">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 62 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜準備上架：Apple Developer Program · 第 62 課</div>
+      <h1>憑證與簽章概念</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼iOS App在能安裝執行或上架之前，都必須先經過加密簽章</li>
+          <li>分辨Development憑證與Distribution憑證，各自對應什麼用途</li>
+          <li>知道Xcode的自動簽章功能，讓新手不必手動管理憑證細節</li>
+        </ul>
+      </div>
+
+      <p>
+        帳號註冊好了，接下來會遇到一個很多新手第一次看到會覺得
+        神秘、甚至有點卻步的環節——憑證（Certificate）與簽章
+        （Code Signing）。這一課的目標不是要你把整套機制的每個
+        細節都背下來，而是先建立正確的概念，再說明現代Xcode
+        其實已經把大部分複雜度都自動化了。
+      </p>
+
+      <h2>1. 為什麼App需要簽章：一個信任與可追責的機制</h2>
+      <p>
+        iOS對「能執行什麼程式」的把關，比一般電腦作業系統嚴格
+        很多——這也是iOS長期以來惡意軟體相對少見的原因之一。
+        核心手段就是<strong>程式碼簽章</strong>：每一份要被安裝
+        到iPhone上執行、或送進App Store審核的App，都必須附上一
+        個由蘋果核發的加密憑證所產生的數位簽章。裝置在安裝或
+        執行App之前，會驗證這個簽章是否有效、是否來自一個蘋果
+        認可、可被追溯的開發者身份。簡單說，簽章回答的是「這個
+        App是誰做的、蘋果認不認這個人」，而不是在檢查程式碼寫
+        得好不好——這是一道身份與信任的關卡，不是品質關卡。
+      </p>
+
+      <h2>2. Development憑證：讓你能在自己的裝置上測試</h2>
+      <p>
+        <strong>Development（開發）憑證</strong>，對應的是「把
+        遊戲裝到自己（或團隊裡）已登記的實體iPhone上測試」這個
+        情境。要用這種憑證安裝App，該台裝置必須事先被登記在你
+        的開發者帳號底下（模組N後面談Provisioning Profile時會
+        再細講裝置登記這件事）。這是最貼近這門課現階段需求的
+        憑證類型——磚塊遊戲開發到一定程度，想拿自己的手機實際
+        感受一下手感、觸控反應，用的就是這一種。
+      </p>
+
+      <h2>3. Distribution憑證：讓App能送進TestFlight與App Store</h2>
+      <p>
+        <strong>Distribution（發布）憑證</strong>，對應的是要把
+        App交給「不受限於已登記裝置清單」的對象——包括透過
+        TestFlight（蘋果官方的測試發布平台）找外部使用者做
+        測試，以及最終送進App Store審核、上架給所有使用者下載。
+        這一種憑證的審核與管理相對更嚴謹一些，因為它代表的是
+        「這份App即將被公開發布」，而不只是開發者自己測試用。
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>憑證類型</th><th>用途</th><th>安裝對象範圍</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Development憑證</td><td>開發階段的真機測試</td><td>僅限已登記在帳號底下的裝置</td></tr>
+          <tr><td>Distribution憑證</td><td>TestFlight測試發布、App Store上架</td><td>TestFlight測試者、App Store全體使用者</td></tr>
+        </tbody>
+      </table>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow62" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">簽章的角色：從程式碼到裝置的信任鏈</text>
+
+          <rect x="15" y="45" width="140" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="85" y="68" text-anchor="middle" font-size="9.5" fill="var(--text)">你的App</text>
+          <text x="85" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">Xcode建置產出</text>
+
+          <line x1="155" y1="72" x2="185" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow62)"/>
+
+          <rect x="190" y="45" width="160" height="55" rx="6" fill="var(--gold)" opacity="0.13" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="270" y="68" text-anchor="middle" font-size="9.5" fill="var(--gold)">憑證＋簽章</text>
+          <text x="270" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">Development或Distribution</text>
+
+          <line x1="350" y1="72" x2="380" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow62)"/>
+
+          <rect x="385" y="45" width="230" height="55" rx="6" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="500" y="68" text-anchor="middle" font-size="9.5" fill="var(--accent)">裝置／App Store驗證簽章</text>
+          <text x="500" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">確認來源可信，才允許安裝／上架</text>
+
+          <rect x="15" y="130" width="600" height="70" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="315" y="153" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">Development憑證 → 僅限已登記裝置，用於開發階段真機測試</text>
+          <text x="315" y="171" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">Distribution憑證 → TestFlight測試者與App Store全體使用者</text>
+          <text x="315" y="189" text-anchor="middle" font-size="8" fill="var(--text-muted)">簽章驗證的是「來源身份」，不是程式碼品質</text>
+        </svg>
+        <figcaption>簽章機制確保每一份能安裝執行的App，都能被追溯回一個蘋果認可的開發者身份。</figcaption>
+      </div>
+
+      <h2>4. Xcode的自動簽章：新手不需要手動管理這些細節</h2>
+      <p>
+        在比較早期，開發者常常需要自己到開發者後台手動申請憑證、
+        下載安裝、管理到期時間，是新手一個很容易卡關的環節。
+        現在的Xcode提供了<strong>Automatically manage signing
+        （自動管理簽章）</strong>這個選項，位置在專案設定的
+        <strong>Signing &amp; Capabilities</strong>分頁——只要勾選
+        這個選項、選好你的開發者帳號（Team），Xcode會在背後自動
+        完成憑證的申請、下載、更新，以及跟App ID、裝置清單的
+        對應關係（下一課會細講這些怎麼被Provisioning Profile
+        串在一起）。對這門課這樣的獨立開發情境，<strong>幾乎
+        不需要手動介入</strong>，交給Xcode自動處理就好，真的
+        遇到簽章相關的錯誤訊息時，回到這個分頁重新確認Team與
+        自動簽章開關，通常就能解決大部分問題。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：憑證系統聽起來複雜，但實際操作很簡單</h3>
+        <p>
+          這一課花了不少篇幅解釋「為什麼」需要簽章，是因為理解
+          背後的邏輯，日後遇到簽章相關錯誤時比較不會慌。但實際
+          動手的部分，對這門課的新手讀者來說，通常就是打開
+          Signing &amp; Capabilities分頁、確認勾選自動管理、選對
+          Team——三個步驟，Xcode會處理剩下的一切。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用自己的話解釋簽章機制在驗證的是什麼，而不是在驗證什麼</li>
+          <li>說明Development憑證跟Distribution憑證分別對應哪些使用情境</li>
+          <li>說明Xcode的Automatically manage signing選項位在哪裡，替新手省去了哪些手動步驟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要接著談App ID與Provisioning Profile——把這一課的
+        憑證、你的App身分、還有測試裝置清單，實際上是怎麼被
+        串在一起的，講清楚。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-61.html">← 上一課：註冊Apple Developer Program（年費美金99元）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-63.html">下一課：App ID與Provisioning Profile →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：physics body設定 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="幫打磚塊專案的球拍、球、磚塊接上SKPhysicsBody，學會用rectangleOf與circleOfRadius建立對應形狀的physics body，並理解isDynamic與affectedByGravity這兩個關鍵屬性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作專案②：物理引擎與碰撞 · 第 28 課</div>
+      <h1>physics body設定</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解SKPhysicsBody的角色：讓SpriteKit知道一個節點在物理世界裡該被當成什麼形狀</li>
+          <li>學會用rectangleOf與circleOfRadius，幫球拍、磚塊、球建立對應形狀的physics body</li>
+          <li>理解isDynamic與affectedByGravity這兩個屬性，分別決定「誰會被物理引擎推著走」跟「誰受重力影響」</li>
+        </ul>
+      </div>
+
+      <p>
+        模組F結束時，場景裡已經有球拍、球、排列整齊的磚塊，但
+        它們目前都只是畫面上「看起來在那裡」的SKSpriteNode，
+        彼此之間沒有任何物理關係——球不會撞到磚塊，球拍也擋
+        不住球，一切都只是靜止的圖片。模組G要把SpriteKit內建
+        的物理引擎接上這些節點，讓它們開始有碰撞、反彈這些
+        遊戲該有的行為。第一步，就是幫每個需要參與物理互動
+        的節點，設定一個<code>physicsBody</code>。
+      </p>
+
+      <h2>1. SKPhysicsBody是什麼</h2>
+      <p>
+        每一個SKSpriteNode都有一個<code>physicsBody</code>
+        屬性，預設是<code>nil</code>——代表這個節點完全不參與
+        物理模擬，就只是一張畫在畫面上的圖。只要幫它指派一個
+        <code>SKPhysicsBody</code>實例，物理引擎才會開始「認得」
+        這個節點，知道它的形狀、該不該受重力影響、撞到別的
+        物體時該怎麼反應。
+      </p>
+      <p>
+        SKPhysicsBody有好幾種初始化方式，對應不同的形狀，這一課
+        會用到最常見的兩種：
+      </p>
+      <ul>
+        <li><code>SKPhysicsBody(rectangleOf: size)</code>——建立
+          一個矩形的physics body，適合球拍、磚塊這種方形的圖案</li>
+        <li><code>SKPhysicsBody(circleOfRadius: radius)</code>——
+          建立一個圓形的physics body，適合球這種圓形的圖案</li>
+      </ul>
+
+      <h2>2. 幫球拍與磚塊建立physics body（矩形）</h2>
+      <p>
+        球拍跟每一顆磚塊都是矩形的SKSpriteNode，用
+        <code>rectangleOf:</code>搭配節點本身的<code>size</code>，
+        就能讓physics body的大小跟畫面上看到的圖案完全對齊：
+      </p>
+      <div class="code-block">paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
+
+for brick in bricks {
+    brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
+}</div>
+      <p>
+        這裡沿用第26課「磚塊陣列排版」建立好的<code>bricks</code>
+        陣列，用迴圈幫每一顆磚塊都接上對應大小的physics body。
+      </p>
+
+      <h2>3. 幫球建立physics body（圓形）</h2>
+      <p>
+        球是圓形的圖案，用矩形physics body雖然也能動，但轉角
+        處的碰撞判定會不太自然，所以改用<code>circleOfRadius:</code>，
+        半徑通常取球的寬度除以2：
+      </p>
+      <div class="code-block">ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)</div>
+
+      <h2>4. isDynamic：誰該被物理引擎推著走</h2>
+      <p>
+        <code>isDynamic</code>是一個布林值，預設是<code>true</code>，
+        代表這個physics body會受到力、碰撞、重力的影響而移動、
+        旋轉——也就是「動態」的物體。但這款打磚塊遊戲裡，球拍
+        跟磚塊的位置都是由我們自己的程式碼直接控制（球拍靠
+        觸控移動、磚塊本來就該固定不動），不應該被物理引擎的
+        碰撞力道推著跑，所以要把它們的<code>isDynamic</code>
+        設成<code>false</code>：
+      </p>
+      <div class="code-block">paddle.physicsBody?.isDynamic = false
+
+for brick in bricks {
+    brick.physicsBody?.isDynamic = false
+}</div>
+      <p>
+        設成<code>false</code>之後，這些physics body會變成
+        「靜態」的——它們依然會參與碰撞判定（球撞上去還是會
+        彈開），但不會因為被撞而自己移動或旋轉，就像遊戲裡
+        一堵不會被推倒的牆。球則相反，需要真的能被彈來彈去，
+        所以維持預設的<code>true</code>即可（也可以顯式寫出來，
+        讓意圖更清楚）：
+      </p>
+      <div class="code-block">ball.physicsBody?.isDynamic = true</div>
+
+      <h2>5. affectedByGravity：這款遊戲不需要真實重力</h2>
+      <p>
+        <code>affectedByGravity</code>同樣預設是<code>true</code>，
+        代表這個physics body會被場景的重力往下拉，這對模擬
+        「真實世界物理」的遊戲（例如角色會往下掉的平台遊戲）
+        很有用。但打磚塊是一款球在畫面裡各方向彈射的遊戲，如果
+        球一直被重力往下拉，很快就會全部往螢幕底部集中，完全
+        不是想要的效果，所以要把球的<code>affectedByGravity</code>
+        關掉：
+      </p>
+      <div class="code-block">ball.physicsBody?.affectedByGravity = false</div>
+      <p>
+        球拍跟磚塊因為<code>isDynamic</code>已經設成
+        <code>false</code>，本來就不會受任何力（包含重力）
+        影響位置，所以不需要額外設定<code>affectedByGravity</code>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">三個節點，兩種physics body形狀</text>
+
+          <rect x="40" y="70" width="150" height="34" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <rect x="40" y="70" width="150" height="34" rx="4" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="115" y="120" text-anchor="middle" font-size="9" fill="var(--gold)">球拍</text>
+          <text x="115" y="134" text-anchor="middle" font-size="8" fill="var(--text-muted)">rectangleOf: size</text>
+          <text x="115" y="147" text-anchor="middle" font-size="8" fill="var(--text-muted)">isDynamic = false</text>
+
+          <circle cx="330" cy="87" r="30" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <circle cx="330" cy="87" r="30" fill="none" stroke="var(--accent)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="330" y="120" text-anchor="middle" font-size="9" fill="var(--accent)">球</text>
+          <text x="330" y="134" text-anchor="middle" font-size="8" fill="var(--text-muted)">circleOfRadius: size.width/2</text>
+          <text x="330" y="147" text-anchor="middle" font-size="8" fill="var(--text-muted)">isDynamic = true</text>
+          <text x="330" y="160" text-anchor="middle" font-size="8" fill="var(--text-muted)">affectedByGravity = false</text>
+
+          <rect x="480" y="72" width="90" height="30" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <rect x="480" y="72" width="90" height="30" rx="4" fill="none" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="4 3"/>
+          <text x="525" y="120" text-anchor="middle" font-size="9" fill="var(--gold)">磚塊</text>
+          <text x="525" y="134" text-anchor="middle" font-size="8" fill="var(--text-muted)">rectangleOf: size</text>
+          <text x="525" y="147" text-anchor="middle" font-size="8" fill="var(--text-muted)">isDynamic = false</text>
+
+          <rect x="15" y="180" width="610" height="38" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="203" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">虛線＝physics body的形狀，跟畫面上的圖案對齊，但兩者是各自獨立的資料</text>
+        </svg>
+        <figcaption>球拍與磚塊用矩形physics body並關閉isDynamic，球用圓形physics body並保留動態、關閉重力。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼球拍跟磚塊要用<code>rectangleOf:</code>，球要用<code>circleOfRadius:</code></li>
+          <li>解釋<code>isDynamic</code>設成<code>false</code>對球拍跟磚塊分別代表什麼</li>
+          <li>說明為什麼這款打磚塊遊戲要把球的<code>affectedByGravity</code>關掉</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        physics body設定好之後，下一課要處理整個物理世界的重力
+        設定，並且讓球真正「動起來」——學會用<code>velocity</code>
+        給球一個初始方向與速度，以及用<code>restitution</code>
+        讓球能維持穩定的反彈力道，不會越彈越慢。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：模組總結：場景切換與開始畫面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：重力、速度與反彈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

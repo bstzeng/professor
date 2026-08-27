@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 60 課：模組總結：使用者追蹤透明度（ATT）合規要求與上架前的廣告檢查清單 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="說明App Tracking Transparency（ATT）框架的NSUserTrackingUsageDescription設定與ATTrackingManager.requestTrackingAuthorization呼叫時機，介紹SKAdNetwork歸因設定，並整理一份上架前的廣告檢查清單">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 60 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜App內廣告整合 · 第 60 課</div>
+      <h1>模組總結：使用者追蹤透明度（ATT）合規要求與上架前的廣告檢查清單</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解App Tracking Transparency（ATT）框架的基本要求：想跨App追蹤使用者做廣告個人化，必須先跳出系統權限彈窗徵求同意</li>
+          <li>知道Info.plist要設定NSUserTrackingUsageDescription，並學會呼叫ATTrackingManager.requestTrackingAuthorization(completionHandler:)</li>
+          <li>能列出一份上架前的廣告檢查清單，確保正式送審前該做的事都做了</li>
+        </ul>
+      </div>
+
+      <p>
+        橫幅、插頁、獎勵型三種廣告格式都實作完成了，模組M收尾
+        的這一課，要處理一個技術之外、但同樣不能忽略的主題——
+        使用者追蹤透明度（App Tracking Transparency，簡稱ATT）
+        的合規要求。這不是選配功能，而是自iOS 14.5起，蘋果對
+        所有想做跨App廣告追蹤的App，明文規定的強制要求，沒做
+        對，輕則廣告效果打折，重則在App審查階段直接卡關。
+      </p>
+
+      <h2>什麼是App Tracking Transparency（ATT）</h2>
+      <p>
+        蘋果定義的「追蹤」，指的是把從你的App蒐集到的使用者或
+        裝置資料，跟其他公司的App、網站蒐集到的資料串連起來，
+        用於精準投放廣告或衡量廣告成效，或是把資料分享給資料
+        仲介商（data broker）。像AdMob這類廣告SDK，如果啟用了
+        跨App的廣告個人化功能，就落在這個定義範圍內。ATT框架的
+        規則很直接：任何App只要打算做這類追蹤，就必須先跳出
+        一個系統層級的權限彈窗，明確詢問使用者「是否允許這個
+        App追蹤你」，只有使用者點選允許，App才能繼續進行
+        追蹤相關的廣告個人化；使用者拒絕，App仍然可以正常運作、
+        照樣能顯示廣告，只是廣告聯播網會改用非個人化、不依賴
+        跨App追蹤資料的方式投放。
+      </p>
+
+      <h2>Info.plist：NSUserTrackingUsageDescription</h2>
+      <p>
+        系統彈窗裡除了固定的標題與允許／不允許兩個按鈕，還會
+        顯示一段由開發者自訂、說明「為什麼要追蹤」的文字，這段
+        文字就是在Info.plist裡設定的<code>NSUserTrackingUsageDescription</code>：
+      </p>
+      <div class="code-block">&lt;key&gt;NSUserTrackingUsageDescription&lt;/key&gt;
+&lt;string&gt;我們想使用你的資料，提供更符合你興趣的廣告內容。&lt;/string&gt;</div>
+      <p>
+        這段文字應該誠實、具體地說明追蹤的用途（例如「提供更
+        符合你興趣的廣告」），而不是含糊帶過或跟實際用途不符——
+        審查團隊跟使用者都看得到這段文字，內容不實際、或跟App
+        實際行為對不上，同樣可能成為退件的理由。
+      </p>
+
+      <h2>呼叫時機：ATTrackingManager.requestTrackingAuthorization</h2>
+      <p>
+        彈出這個系統權限請求，要在程式碼裡主動呼叫
+        <code>AppTrackingTransparency</code>框架提供的方法：
+      </p>
+      <div class="code-block">import AppTrackingTransparency
+
+func requestTrackingPermission() {
+    ATTrackingManager.requestTrackingAuthorization { status in
+        switch status {
+        case .authorized:
+            print("使用者同意追蹤")
+        case .denied, .restricted, .notDetermined:
+            print("使用者拒絕或尚未決定追蹤")
+        @unknown default:
+            break
+        }
+    }
+}</div>
+      <p>
+        這個系統彈窗對每個App只會有效地跳出一次——使用者做出
+        選擇之後，之後同一個App再呼叫這個方法，系統不會重複
+        彈窗，而是直接回傳使用者先前的選擇（除非使用者自己到
+        系統設定裡手動更改）。因此常見的做法是<strong>在App
+        剛啟動、盡早的時間點就呼叫一次</strong>，理想上要在
+        第一次發出廣告請求之前完成，這樣不管使用者選擇同意或
+        拒絕，後續載入的每一支廣告，都能以最終確定的授權狀態
+        來請求，不會出現「廣告已經開始請求，使用者才做出選擇」
+        這種時序上的落差。無論使用者選擇同意或拒絕，App都必須
+        能正常繼續運作、正常顯示廣告——不能把功能鎖住、逼迫
+        使用者一定要同意追蹤才能使用App。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow60" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">ATT授權流程：越早問，越不影響第一批廣告請求</text>
+
+          <rect x="20" y="45" width="140" height="45" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="90" y="72" text-anchor="middle" font-size="9" fill="var(--text)">App啟動</text>
+
+          <line x1="160" y1="67" x2="195" y2="67" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow60)"/>
+
+          <rect x="200" y="45" width="190" height="45" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="295" y="63" text-anchor="middle" font-size="8.5" fill="var(--gold)">requestTrackingAuthorization</text>
+          <text x="295" y="79" text-anchor="middle" font-size="8" fill="var(--text-muted)">系統彈窗（僅一次）</text>
+
+          <line x1="295" y1="90" x2="295" y2="120" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="295" y1="120" x2="170" y2="150" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow60)"/>
+          <line x1="295" y1="120" x2="420" y2="150" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow60)"/>
+
+          <rect x="70" y="155" width="200" height="50" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="170" y="176" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">拒絕／尚未決定</text>
+          <text x="170" y="192" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">照樣顯示廣告，非個人化</text>
+
+          <rect x="350" y="155" width="200" height="50" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="450" y="176" text-anchor="middle" font-size="8.5" fill="#ff8a65">同意（.authorized）</text>
+          <text x="450" y="192" text-anchor="middle" font-size="8.5" fill="#ff8a65">可用於個人化廣告投放</text>
+        </svg>
+        <figcaption>不論使用者選擇同意或拒絕，App都必須正常運作、照常顯示廣告——SKAdNetwork的歸因機制則不受這個選擇影響。</figcaption>
+      </div>
+
+      <h2>SKAdNetwork：不需要追蹤同意也能運作的歸因機制</h2>
+      <p>
+        即使使用者拒絕追蹤，廣告聯播網仍然需要知道「這支廣告
+        帶來了多少次App安裝」，才能計算成效、決定要不要繼續
+        投放——這正是蘋果另外提供的<code>SKAdNetwork</code>
+        框架要解決的問題：它用一種不需要識別個別使用者身份的
+        方式，統計廣告帶來的安裝歸因，因此完全不受ATT使用者
+        選擇的影響。要讓AdMob能透過SKAdNetwork回報歸因結果，
+        需要在Info.plist裡加入AdMob文件要求的一整組
+        <code>SKAdNetworkIdentifier</code>：
+      </p>
+      <div class="code-block">&lt;key&gt;SKAdNetworkItems&lt;/key&gt;
+&lt;array&gt;
+    &lt;dict&gt;
+        &lt;key&gt;SKAdNetworkIdentifier&lt;/key&gt;
+        &lt;string&gt;cstr6suwn9.skadnetwork&lt;/string&gt;
+    &lt;/dict&gt;
+    &lt;dict&gt;
+        &lt;key&gt;SKAdNetworkIdentifier&lt;/key&gt;
+        &lt;string&gt;4fzdc2evr5.skadnetwork&lt;/string&gt;
+    &lt;/dict&gt;
+    &lt;!-- 其餘識別碼請以Google官方文件公布的完整清單為準 --&gt;
+&lt;/array&gt;</div>
+      <p>
+        這份清單會隨著AdMob合作的廣告聯播網增減而更新，實際
+        要加入哪些識別碼，請以Google官方文件當下公布的完整
+        清單為準，而不是憑印象手動列幾組就當作完成。
+      </p>
+
+      <h2>上架前的廣告檢查清單</h2>
+      <p>
+        模組M到這裡，技術實作已經全部到位，正式送審前，值得
+        照著這份清單再確認一次：
+      </p>
+      <ol>
+        <li><strong>把所有測試廣告單元ID都換成正式Ad Unit ID</strong>
+          ——第57課提醒過，開發階段用的官方測試ID，必須在送審
+          前全部換成第55課在AdMob後台為這款遊戲建立的正式Ad
+          Unit ID，橫幅、插頁、獎勵型三種格式都要逐一確認。</li>
+        <li><strong>ATT權限彈窗已經實作且確實會正常跳出</strong>
+          ——實機測試時確認Info.plist的
+          <code>NSUserTrackingUsageDescription</code>文字正確
+          顯示、<code>requestTrackingAuthorization</code>在
+          預期的時機被呼叫，同意與拒絕兩種結果都不會讓App
+          出現異常行為。</li>
+        <li><strong>App Store Connect的隱私權「營養標籤」如實
+          反映AdMob SDK實際蒐集的資料</strong>——這份標籤要
+          填寫的內容，必須跟AdMob SDK實際蒐集、使用的資料類型
+          一致，不能少報也不能亂填，詳細怎麼填寫，模組P會
+          有完整說明。</li>
+      </ol>
+
+      <div class="callout">
+        <h3>銜接模組N</h3>
+        <p>
+          遊戲玩法做完了（模組F到L），廣告也整合完成了（模組M），
+          這款打磚塊遊戲在技術面已經是一個完整、能收廣告收益的
+          產品。從下一課開始，模組N到Q要走完真正把它送上App
+          Store所需要的整套流程，第一步就是把Xcode裡免費的
+          Apple ID，升級成具備真機測試與上架資格的Apple
+          Developer Program會員身份。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明蘋果定義的「追蹤」是指什麼，以及ATT框架要求App在做這件事之前必須先做什麼</li>
+          <li>說出NSUserTrackingUsageDescription跟ATTrackingManager.requestTrackingAuthorization分別扮演什麼角色，以及建議在什麼時間點呼叫</li>
+          <li>列出上架前廣告相關的三項檢查重點</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要正式進入模組N，說明為什麼真機測試與App Store
+        上架都需要加入Apple Developer Program，並比較Individual
+        與Organization兩種註冊身份的差異。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-59.html">← 上一課：實作獎勵型廣告（Rewarded Ad）：讓玩家自願看廣告換獎勵</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-61.html">下一課：註冊Apple Developer Program（年費美金99元） →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

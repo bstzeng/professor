@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：重新開始與暫停 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="學會用SKScene的isPaused屬性暫停整個場景，並用重新建立場景實例的方式實作重新開始，附一個簡單的暫停/重新開始按鈕實作範例">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實作專案③：遊戲邏輯與狀態管理 · 第 36 課</div>
+      <h1>重新開始與暫停</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解<code>SKScene</code>的<code>isPaused</code>屬性，怎麼暫停整個場景的物理與動作</li>
+          <li>學會用「重新建立場景」的方式實作重新開始，而不是手動一個一個重設變數</li>
+          <li>做出一個簡單的暫停／重新開始按鈕互動範例</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課讓遊戲能正確判斷勝負，但玩家看到「遊戲勝利」或
+        「遊戲結束」的文字之後，除了退出App，沒有任何方法可以
+        再玩一次。這一課要把兩件事補上：讓玩家能主動暫停遊戲，
+        以及在結束後，能重新開始一局全新的遊戲。
+      </p>
+
+      <h2>1. isPaused：暫停整個場景</h2>
+      <p>
+        <code>isPaused</code>是<code>SKScene</code>（其實是它的
+        父類別<code>SKNode</code>）內建的屬性，設成
+        <code>true</code>時，這個場景底下所有的物理模擬、
+        <code>SKAction</code>動作、<code>update(_:)</code>的
+        遊戲邏輯都會停止推進，畫面就像被按了暫停鍵一樣凍結
+        住——上一課的<code>gameWin()</code>、<code>gameOver()</code>
+        正是靠這個屬性讓球停在原地：
+      </p>
+      <div class="code-block">isPaused = true   // 暫停
+isPaused = false  // 繼續</div>
+      <p>
+        要特別注意的是，<code>isPaused</code>只會凍結物理與
+        動作系統，並不會阻止觸控事件被送進來——
+        <code>touchesBegan(_:with:)</code>這類方法在場景暫停時
+        依然會被呼叫，這其實是件好事：暫停狀態下，玩家還是
+        需要能點擊「繼續」或「重新開始」的按鈕，如果連觸控都
+        被凍結，就沒辦法跟已暫停的畫面互動了。
+      </p>
+
+      <h2>2. 重新開始：重新建立一份新的場景</h2>
+      <p>
+        遊戲玩到一半結束後，場景裡累積了許多狀態：分數、
+        生命值、剩餘磚塊數、球目前的位置與速度、哪些磚塊還在
+        場上……如果要「重新開始」，手動把每一個變數逐一重設
+        回初始值，很容易漏掉某個角落（尤其磚塊這種一開始就是
+        一大群節點的情況）。更穩健、也是SpriteKit常見的做法，
+        是乾脆整個場景重新建立一次——用一個全新的
+        <code>GameScene</code>實例，取代舊的那一個：
+      </p>
+      <div class="code-block">func restartGame() {
+    guard let view = self.view else { return }
+
+    let newScene = GameScene(size: self.size)
+    newScene.scaleMode = self.scaleMode
+    view.presentScene(newScene, transition: SKTransition.fade(withDuration: 0.5))
+}</div>
+      <p>
+        <code>self.view</code>是目前這個場景所在的<code>SKView</code>；
+        <code>GameScene(size: self.size)</code>建立一份全新的
+        場景，所有屬性（包含<code>score</code>、
+        <code>lives</code>、<code>bricksRemaining</code>）都會
+        回到宣告時的初始值，<code>didMove(to:)</code>也會重新
+        跑一次，磚塊陣列會照第26課的排版邏輯整批重新產生；
+        <code>scaleMode</code>需要跟原本的場景設成一樣，畫面
+        才不會突然跑版；<code>presentScene(_:transition:)</code>
+        則負責把畫面切換到這個新場景，這裡用了
+        <code>SKTransition.fade(withDuration:)</code>做一個淡入
+        淡出的轉場效果，呼應第27課場景切換學過的概念。
+      </p>
+
+      <h2>3. 簡單的暫停／重新開始按鈕</h2>
+      <p>
+        有了<code>isPaused</code>跟<code>restartGame()</code>，
+        接著要讓玩家能透過點擊觸發它們。延續第20課學過的觸控
+        處理，先在場景裡放兩個當按鈕用的<code>SKLabelNode</code>，
+        再於<code>touchesBegan(_:with:)</code>裡判斷觸控位置是否
+        落在按鈕範圍內：
+      </p>
+      <div class="code-block">let pauseButton = SKLabelNode(text: "暫停")
+let restartButton = SKLabelNode(text: "重新開始")
+
+override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+
+    if pauseButton.contains(location) {
+        isPaused.toggle()
+        return
+    }
+
+    if restartButton.contains(location) {
+        restartGame()
+        return
+    }
+
+    // 其餘觸控（例如移動球拍）交給原本的邏輯處理
+}</div>
+      <p>
+        <code>contains(_:)</code>是<code>SKNode</code>內建的
+        方法，會檢查傳入的座標是否落在這個節點的範圍內；
+        <code>isPaused.toggle()</code>則是Swift布林值常見的寫法，
+        直接把目前的值反轉，暫停中就繼續、播放中就暫停，不需要
+        額外寫<code>if／else</code>判斷目前狀態。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow36" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">暫停 vs 重新開始：凍結同一份場景，或整個換掉</text>
+
+          <rect x="30" y="45" width="260" height="130" rx="6" fill="var(--accent)" opacity="0.08" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="160" y="66" text-anchor="middle" font-size="9.5" fill="var(--accent)">暫停：isPaused.toggle()</text>
+          <rect x="55" y="85" width="210" height="60" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1"/>
+          <text x="160" y="110" text-anchor="middle" font-size="8" fill="var(--text-muted)">同一個GameScene實例</text>
+          <text x="160" y="127" text-anchor="middle" font-size="8" fill="var(--text-muted)">物理／動作凍結，狀態保留</text>
+          <text x="160" y="165" text-anchor="middle" font-size="8" fill="var(--text-muted)">觸控事件仍會送達</text>
+
+          <rect x="350" y="45" width="260" height="130" rx="6" fill="var(--gold)" opacity="0.1" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="480" y="66" text-anchor="middle" font-size="9.5" fill="var(--gold)">重新開始：restartGame()</text>
+          <rect x="375" y="85" width="210" height="60" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1"/>
+          <text x="480" y="105" text-anchor="middle" font-size="8" fill="var(--text-muted)">GameScene(size:) 建立新實例</text>
+          <text x="480" y="122" text-anchor="middle" font-size="8" fill="var(--text-muted)">舊實例被捨棄</text>
+          <text x="480" y="139" text-anchor="middle" font-size="8" fill="var(--text-muted)">didMove(to:) 重新跑一次</text>
+          <text x="480" y="165" text-anchor="middle" font-size="8" fill="var(--text-muted)">presentScene(_:transition:) 切換畫面</text>
+        </svg>
+        <figcaption>暫停只是凍結現有場景的推進，重新開始則直接用一個全新的場景實例取代舊的。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>isPaused = true</code>會影響哪些系統，又不會影響哪些</li>
+          <li>解釋為什麼重新開始遊戲時，建立一份全新的場景實例，比手動重設每個變數更穩健</li>
+          <li>說明<code>restartGame()</code>裡<code>scaleMode</code>為什麼要跟原本場景設成一樣</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        暫停跟重新開始都做出來了，但目前判斷「該不該接受觸控」
+        「該顯示哪個按鈕」，都是靠一個個獨立的布林值跟條件式
+        東拼西湊——下一課是模組H的總結，要引入一個
+        <code>GameState</code>列舉，把整個遊戲的狀態，收斂成
+        一套清楚的狀態機。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：勝負判定邏輯</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：模組總結：完整的遊戲狀態機 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

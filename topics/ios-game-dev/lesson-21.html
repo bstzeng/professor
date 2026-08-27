@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：手勢辨識器 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="認識UITapGestureRecognizer、UISwipeGestureRecognizer、UIPanGestureRecognizer等手勢辨識器，學會加到SKView上處理高階手勢，並比較它跟touches系列方法的適用情境">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜觸控與使用者輸入 · 第 21 課</div>
+      <h1>手勢辨識器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識UIGestureRecognizer家族：UITapGestureRecognizer、UISwipeGestureRecognizer、UIPanGestureRecognizer</li>
+          <li>知道手勢辨識器要加到SKView上，並用target-action接收辨識結果</li>
+          <li>判斷這門課的打磚塊遊戲，球拍移動該用touches系列還是手勢辨識器</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課用touchesBegan、touchesMoved、touchesEnded拿到的是
+        最原始、逐幀更新的觸控資料，什麼都要自己判斷。但很多
+        常見的手勢——點一下、往某個方向滑一下、用手指拖曳——
+        UIKit早就包裝成現成的<code>UIGestureRecognizer</code>子
+        類別，不需要自己計算方向或判斷距離，是另一種處理輸入的
+        方式。
+      </p>
+
+      <h2>1. UIGestureRecognizer家族總覽</h2>
+      <p>
+        這門課會用到的三種手勢辨識器，各自對應不同的操作情境：
+      </p>
+      <table>
+        <thead>
+          <tr><th>類別</th><th>辨識的手勢</th><th>常見用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>UITapGestureRecognizer</td><td>點一下（可設定次數、手指數）</td><td>暫停鍵、開始畫面的「點一下開始」</td></tr>
+          <tr><td>UISwipeGestureRecognizer</td><td>朝固定方向快速滑動</td><td>切換選單、翻頁</td></tr>
+          <tr><td>UIPanGestureRecognizer</td><td>手指按住並持續拖曳</td><td>拖曳式操作、鏡頭平移</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 加到SKView上，而不是SKScene</h2>
+      <p>
+        手勢辨識器是UIKit的元件，要加在<code>UIView</code>上——
+        對SpriteKit來說就是承載場景的<code>SKView</code>，而不是
+        <code>SKScene</code>本身。最自然的時機，是在場景的
+        <code>didMove(to:)</code>裡，透過拿到的<code>view</code>
+        參數加上去：
+      </p>
+      <div class="code-block">override func didMove(to view: SKView) {
+    let tapRecognizer = UITapGestureRecognizer(
+        target: self,
+        action: #selector(handlePauseTap)
+    )
+    view.addGestureRecognizer(tapRecognizer)
+}
+
+@objc private func handlePauseTap(_ recognizer: UITapGestureRecognizer) {
+    togglePause()
+}</div>
+      <p>
+        <code>target: self</code>把辨識到手勢後要通知的對象設成
+        場景自己，<code>action: #selector(handlePauseTap)</code>
+        指定要呼叫的方法。因為手勢辨識器底層用的是Objective-C
+        的selector機制，被指定的方法前面要加上<code>@objc</code>，
+        而<code>SKScene</code>本身繼承自<code>NSObject</code>，
+        所以可以直接當target，不需要額外處理。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow21" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">手勢辨識器從加入SKView到觸發action的流程</text>
+
+          <rect x="20" y="55" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.3"/>
+          <text x="95" y="80" text-anchor="middle" font-size="9.5" fill="var(--text)">SKView</text>
+          <text x="95" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">承載場景的view</text>
+
+          <line x1="170" y1="85" x2="200" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow21)"/>
+          <text x="185" y="73" text-anchor="middle" font-size="7.5" fill="var(--accent)">addGestureRecognizer</text>
+
+          <rect x="205" y="55" width="220" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="315" y="80" text-anchor="middle" font-size="9.5" fill="var(--gold)">UITapGestureRecognizer</text>
+          <text x="315" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">target: self, action: #selector(...)</text>
+
+          <line x1="425" y1="85" x2="455" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow21)"/>
+          <text x="440" y="73" text-anchor="middle" font-size="7.5" fill="var(--accent)">辨識成功</text>
+
+          <rect x="460" y="55" width="160" height="60" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="540" y="80" text-anchor="middle" font-size="9.5" fill="#ff8a65">@objc方法</text>
+          <text x="540" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">handlePauseTap(_:)</text>
+
+          <rect x="20" y="150" width="600" height="35" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">同一時間，touchesMoved仍可用來持續追蹤球拍需要的連續觸控位置</text>
+        </svg>
+        <figcaption>手勢辨識器加到SKView上之後，辨識成功時會呼叫target指定的@objc方法——跟touches系列各自處理不同層次的輸入。</figcaption>
+      </div>
+
+      <h2>3. 這門課怎麼選：touches系列還是手勢辨識器</h2>
+      <p>
+        兩種方式並不是互斥的，甚至可以在同一個場景裡並存，
+        差別在於它們各自比較適合的情境：
+      </p>
+      <ul>
+        <li><strong>需要連續、精確追蹤手指位置</strong>——例如
+          打磚塊遊戲裡球拍要跟著手指左右移動，這種每一幀都要
+          知道最新x座標的需求，上一課學的<code>touchesMoved</code>
+          反而更直接，不需要額外包一層手勢辨識器</li>
+        <li><strong>只在意「發生了什麼手勢」，不在意過程細節</strong>
+          ——例如暫停鍵只需要知道「有沒有被點一下」，
+          <code>UITapGestureRecognizer</code>幫你把整個判斷邏輯
+          都寫好了，比自己在touchesBegan／touchesEnded裡判斷
+          「是不是點在按鈕範圍內、有沒有拖出範圍」簡潔很多</li>
+      </ul>
+      <p>
+        所以這門課接下來實作球拍時，會延續上一課
+        <code>touchesMoved</code>的模式；等到模組H加入暫停功能
+        時，才會用<code>UITapGestureRecognizer</code>處理暫停鍵
+        這類單純的點擊互動。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：兩者同時使用時的注意事項</h3>
+        <p>
+          如果場景上同時有覆寫touchesBegan／touchesMoved，又替
+          同一個SKView加了手勢辨識器，某些情況下手勢辨識器可能
+          會「吃掉」原始的觸控事件，讓場景收不到完整的touches
+          序列。實務上的作法通常是分工清楚：需要連續追蹤的區域
+          （例如球拍操作區）用touches系列處理，獨立的按鈕（例如
+          暫停鍵）才用手勢辨識器，避免兩者互相干擾。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出UITapGestureRecognizer、UISwipeGestureRecognizer、UIPanGestureRecognizer分別適合處理的手勢類型</li>
+          <li>說明手勢辨識器應該加到SKView還是SKScene上</li>
+          <li>針對打磚塊遊戲的球拍移動，為什麼touches系列的持續追蹤比手勢辨識器更合適</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組E的最後一課，要把這兩課學到的東西收斂成一個具體的
+        公式：怎麼把觸控的x座標，轉換成球拍該移動到的位置，
+        並且加上邊界限制，這正是模組F動手做球拍時要用到的邏輯。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：觸控事件的基本處理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：模組總結：把觸控轉換成遊戲動作 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

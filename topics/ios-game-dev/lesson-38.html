@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：音效播放 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="學習用SKAction.playSoundFileNamed播放音效，掌握把聲音檔案加入Xcode專案的方法，並在球拍碰撞、磚塊消失、遊戲結束等時機加上音效回饋">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜音效與視覺效果 · 第 38 課</div>
+      <h1>音效播放</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解<code>SKAction.playSoundFileNamed</code>的用法，以及<code>waitForCompletion</code>參數的意義</li>
+          <li>學會把音效檔案正確加入Xcode專案，並確認target membership有勾選</li>
+          <li>找出遊戲中三個最適合加入音效的時機點，並實際寫出觸發程式碼</li>
+        </ul>
+      </div>
+
+      <p>
+        模組H結束時，打磚塊遊戲已經有一套完整能跑的狀態機——
+        球會彈、磚塊會消失、分數會累加、輸贏會判定。但整個過程
+        是全然安靜的：球打到球拍、磚塊碎裂、遊戲結束，畫面上
+        什麼都在變化，耳朵卻什麼都聽不到。模組I要開始幫遊戲
+        加上這一層「回饋」，而音效通常是成本最低、效果卻最
+        明顯的第一步。
+      </p>
+
+      <h2>1. SKAction.playSoundFileNamed：一行程式碼播放音效</h2>
+      <p>
+        SpriteKit裡任何<code>SKNode</code>都能呼叫<code>run(_:)</code>
+        方法，執行一個<code>SKAction</code>——播放音效也不例外，
+        只是這個動作本身不是移動或縮放，而是播放一段聲音檔案：
+      </p>
+      <div class="code-block">let hitSound = SKAction.playSoundFileNamed("paddleHit.wav", waitForCompletion: false)
+run(hitSound)</div>
+      <p>
+        <code>waitForCompletion</code>決定的是「這個動作在action
+        queue裡算不算佔用時間」：設成<code>false</code>，代表
+        SpriteKit會立刻觸發播放，但不會等音效播完才繼續執行
+        後面排隊的其他動作；設成<code>true</code>則會讓這個動作
+        一直到音效播放結束才視為完成。遊戲音效通常會跟其他
+        動畫、邏輯同時發生，所以絕大多數情況都會用
+        <code>false</code>，讓聲音單純疊加播放，不卡住遊戲其他
+        部分的節奏。
+      </p>
+
+      <h2>2. 把音效素材加入Xcode專案</h2>
+      <p>
+        要讓上面那行程式碼真的找得到檔案，音效檔要先進到Xcode
+        專案裡：把音效檔案從Finder拖進Project Navigator，拖曳
+        時勾選「Copy items if needed」，確保檔案實際被複製進
+        專案資料夾，並且確認對應的target有打勾（target
+        membership），這樣建置時檔案才會被打包進App裡。常見的
+        WAV、CAF、MP3等格式都能正常播放；短促的音效建議用WAV
+        或CAF這類未壓縮或輕量壓縮的格式，播放延遲比較低，比較
+        適合需要即時反應的碰撞音效。
+      </p>
+
+      <h2>3. 三個常見的觸發時機</h2>
+      <p>
+        音效不是加得越多越好，關鍵是挑對「事件真正發生的那一
+        瞬間」觸發。對這款打磚塊遊戲來說，最直覺的三個時機，
+        分別對應到模組G、H已經寫好的碰撞與狀態邏輯：
+      </p>
+      <div class="code-block">func didBegin(_ contact: SKPhysicsContact) {
+    let collision = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
+
+    if collision == PhysicsCategory.ball | PhysicsCategory.paddle {
+        run(SKAction.playSoundFileNamed("paddleHit.wav", waitForCompletion: false))
+    }
+
+    if collision == PhysicsCategory.ball | PhysicsCategory.brick {
+        run(SKAction.playSoundFileNamed("brickBreak.wav", waitForCompletion: false))
+        // 這裡接續模組G的邏輯，找出對應的磚塊節點並移除
+    }
+}
+
+func endGame() {
+    run(SKAction.playSoundFileNamed("gameOver.wav", waitForCompletion: false))
+    // 顯示遊戲結束畫面……
+}</div>
+      <p>
+        注意這段程式碼完全沒有動到<code>didBegin(_:)</code>原本
+        判斷碰撞類別、移除磚塊的邏輯——只是在正確的分支裡多加
+        一行播放音效的呼叫。這正是模組I這幾課的共同精神：在
+        既有、已經測試過的邏輯上疊加回饋，而不是重寫它。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow38" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">三個觸發時機，各自呼叫playSoundFileNamed</text>
+
+          <rect x="20" y="50" width="160" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="100" y="73" text-anchor="middle" font-size="9.5" fill="var(--gold)">球拍碰撞</text>
+          <text x="100" y="90" text-anchor="middle" font-size="8" fill="var(--text-muted)">didBegin：ball | paddle</text>
+
+          <rect x="240" y="50" width="160" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="320" y="73" text-anchor="middle" font-size="9.5" fill="var(--accent)">磚塊消失</text>
+          <text x="320" y="90" text-anchor="middle" font-size="8" fill="var(--text-muted)">didBegin：ball | brick</text>
+
+          <rect x="460" y="50" width="160" height="55" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="540" y="73" text-anchor="middle" font-size="9.5" fill="#ff8a65">遊戲結束</text>
+          <text x="540" y="90" text-anchor="middle" font-size="8" fill="var(--text-muted)">endGame()</text>
+
+          <line x1="100" y1="105" x2="100" y2="145" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow38)"/>
+          <line x1="320" y1="105" x2="320" y2="145" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow38)"/>
+          <line x1="540" y1="105" x2="540" y2="145" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow38)"/>
+
+          <rect x="20" y="150" width="600" height="55" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="9" fill="var(--text)">SKAction.playSoundFileNamed(檔名, waitForCompletion: false)</text>
+          <text x="320" y="190" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">透過run(_:)在事件發生的當下觸發，不打斷原本的碰撞與狀態邏輯</text>
+        </svg>
+        <figcaption>把音效觸發點對齊已經存在的碰撞判斷與狀態切換，而不是另外重寫一套判斷邏輯。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>觸發時機</th><th>對應程式位置</th><th>建議音效檔名示意</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>球拍碰撞</td><td>didBegin：ball | paddle分支</td><td>paddleHit.wav</td></tr>
+          <tr><td>磚塊消失</td><td>didBegin：ball | brick分支</td><td>brickBreak.wav</td></tr>
+          <tr><td>遊戲結束</td><td>endGame()／狀態機切換到結束狀態時</td><td>gameOver.wav</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>SKAction.playSoundFileNamed</code>的<code>waitForCompletion</code>參數，設成<code>false</code>跟<code>true</code>有什麼差別</li>
+          <li>說明要讓一個音效檔案能在遊戲裡實際播放，需要在Xcode做哪些設定</li>
+          <li>舉出這一課提到的三個音效觸發時機，並說明分別對應遊戲裡的哪個事件</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        音效解決了「聽覺回饋」，下一課要處理「視覺回饋」——
+        認識<code>SKEmitterNode</code>與Xcode內建的粒子特效編輯器，
+        幫磚塊消失的瞬間加上一小段粒子爆發效果。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：模組總結：完整的遊戲狀態機</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：粒子特效 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

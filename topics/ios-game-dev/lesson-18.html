@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：座標系統：SpriteKit的座標邏輯 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="搞懂SpriteKit預設座標系統原點在左下角、y軸向上遞增，跟UIKit相反，並認識anchorPoint如何影響節點position與自身範圍的對應關係">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜SpriteKit核心概念 · 第 18 課</div>
+      <h1>座標系統：SpriteKit的座標邏輯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解SpriteKit預設座標系統的原點在場景左下角，y值愈往上愈大，跟UIKit相反</li>
+          <li>認識anchorPoint屬性，理解它如何影響position跟節點自身範圍的對應關係</li>
+          <li>能正確判斷、計算一個節點目前實際顯示在畫面上的位置</li>
+        </ul>
+      </div>
+
+      <p>
+        前面兩課已經多次用到<code>position</code>屬性，這一課
+        要正式解釋，這個position裡的數字，究竟對應畫面上的
+        哪個位置——這是新手最容易搞混、也最值得花一整課釐清
+        的觀念。
+      </p>
+
+      <h2>1. 原點在左下角，y軸向上：跟UIKit相反</h2>
+      <p>
+        如果你之前接觸過UIKit（iOS傳統的介面框架），會習慣
+        「原點在畫面左上角，y值愈往下愈大」的座標邏輯。
+        <strong>SpriteKit預設的座標系統剛好相反</strong>：
+        場景的原點<code>(0, 0)</code>在左下角，x軸往右遞增，
+        <strong>y軸則是往上遞增</strong>——比較接近數學、物理
+        課本上熟悉的座標系統。
+      </p>
+      <p>
+        這件事在實務上很重要：如果想讓一個節點「往上移動」，
+        代表要<strong>增加</strong>它的y值；如果之後模組G要
+        套用物理引擎的重力或速度，正的垂直速度會讓物體往上
+        飛，負的垂直速度才會讓物體往下掉——這跟很多新手直覺
+        以為「y愈大愈往下」剛好相反，務必記住這一點。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow18a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">SpriteKit場景的座標系統</text>
+
+          <rect x="90" y="45" width="300" height="180" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+
+          <line x1="90" y1="225" x2="410" y2="225" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrow18a)"/>
+          <text x="415" y="229" font-size="9.5" fill="var(--accent)">x</text>
+
+          <line x1="90" y1="225" x2="90" y2="25" stroke="var(--accent)" stroke-width="1.6" marker-end="url(#arrow18a)"/>
+          <text x="82" y="20" font-size="9.5" fill="var(--accent)">y</text>
+
+          <circle cx="90" cy="225" r="3.5" fill="var(--gold)"/>
+          <text x="98" y="242" font-size="8.5" fill="var(--gold)">原點 (0, 0)：場景左下角</text>
+
+          <circle cx="240" cy="135" r="16" fill="#ff8a65" opacity="0.85"/>
+          <text x="240" y="139" text-anchor="middle" font-size="8" fill="var(--surface)">sprite</text>
+          <line x1="90" y1="225" x2="240" y2="135" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="250" y="118" font-size="8" fill="var(--text-muted)">position往右、往上都是正值</text>
+
+          <text x="240" y="20" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">y值愈大愈靠近畫面上方</text>
+
+          <rect x="420" y="60" width="200" height="150" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="520" y="82" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">對照UIKit：</text>
+          <text x="520" y="100" text-anchor="middle" font-size="8" fill="var(--text-muted)">原點在左上角</text>
+          <text x="520" y="116" text-anchor="middle" font-size="8" fill="var(--text-muted)">y值愈大愈往下</text>
+          <text x="520" y="140" text-anchor="middle" font-size="8" fill="var(--text-muted)">SpriteKit則是</text>
+          <text x="520" y="156" text-anchor="middle" font-size="8" fill="var(--text-muted)">原點在左下角</text>
+          <text x="520" y="172" text-anchor="middle" font-size="8" fill="var(--text-muted)">y值愈大愈往上</text>
+        </svg>
+        <figcaption>SpriteKit場景的原點在左下角，x軸向右、y軸向上遞增，跟UIKit「原點左上角、y軸向下」的邏輯相反。</figcaption>
+      </div>
+
+      <h2>2. anchorPoint：position對應的是節點的哪個點</h2>
+      <p>
+        知道了場景的座標系統之後，還有一個問題：一個節點的
+        <code>position</code>，究竟是對應這個節點自身範圍的
+        哪一點？答案由<code>anchorPoint</code>這個屬性決定。
+        <code>SKSpriteNode</code>的<code>anchorPoint</code>
+        預設值是<code>(0.5, 0.5)</code>，意思是節點自身範圍
+        的<strong>正中央</strong>會對齊到position指定的座標——
+        這也是為什麼前面幾課設定<code>position = CGPoint(x:
+        frame.midX, y: frame.midY)</code>，看到的物件會剛好
+        置中顯示。
+      </p>
+      <p>
+        <code>anchorPoint</code>的x、y分量，各自代表「節點自身
+        寬、高的哪個比例位置」會對齊到position：<code>(0, 0)</code>
+        代表節點的左下角對齊position，<code>(1, 1)</code>代表
+        節點的右上角對齊position，以此類推。
+      </p>
+      <div class="code-block">let sprite = SKSpriteNode(color: .systemBlue, size: CGSize(width: 60, height: 60))
+sprite.anchorPoint = CGPoint(x: 0, y: 0) // 預設是(0.5, 0.5)
+sprite.position = CGPoint(x: 100, y: 100)
+addChild(sprite)</div>
+      <p>
+        把<code>anchorPoint</code>改成<code>(0, 0)</code>之後，
+        <code>position = CGPoint(x: 100, y: 100)</code>代表
+        的是這個節點的<strong>左下角</strong>會落在座標
+        <code>(100, 100)</code>，整個60x60的方塊會往右、往上
+        延伸；如果保持預設的<code>(0.5, 0.5)</code>，同樣的
+        position則會讓方塊的<strong>中心點</strong>落在
+        <code>(100, 100)</code>，畫面上顯示的位置明顯不同。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：SKScene本身也有anchorPoint</h3>
+        <p>
+          除了SKSpriteNode，SKScene本身也有一個獨立的
+          anchorPoint屬性，預設是<code>(0, 0)</code>，決定的
+          是場景的原點要對齊到SKView畫面的哪個位置——這是另一
+          層次的設定，跟這一課討論的節點anchorPoint是兩回事，
+          初學階段先維持場景的預設值即可，不需要特別調整。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明SpriteKit預設座標系統的原點在哪裡，y軸方向跟UIKit有什麼不同</li>
+          <li>說明anchorPoint的預設值是什麼，把它從(0.5, 0.5)改成(0, 0)之後，position的意義有什麼變化</li>
+          <li>舉一個例子，說明理解SpriteKit座標系統為什麼對之後判斷物件上下移動、相對位置很重要</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組D的最後一課，要回到「畫面是怎麼動起來的」這個問題
+        本身——認識SKScene的update(_:)方法，跟它背後的遊戲
+        迴圈（game loop），為模組D做一個收尾。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：SKSpriteNode：讓圖片動起來</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：模組總結：update與遊戲迴圈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：分數系統 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="加入score變數並用SKLabelNode把分數顯示在畫面上方，學會在磚塊被消滅時同步更新分數數值與畫面文字">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實作專案③：遊戲邏輯與狀態管理 · 第 33 課</div>
+      <h1>分數系統</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>加入一個<code>score</code>變數，追蹤玩家目前的分數</li>
+          <li>學會用<code>SKLabelNode</code>把分數顯示在畫面上，並放在畫面上方適當的位置</li>
+          <li>讓每次磚塊被消滅時，同步更新分數與畫面上的文字</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G結束時，球已經能撞掉磚塊，但玩家看不到任何「表現
+        如何」的回饋——磚塊一顆一顆消失，卻沒有分數、沒有進度
+        感。模組H要處理的正是這種遊戲邏輯與狀態管理，第一課
+        從最直覺的分數系統開始：加一個變數記錄分數，再用畫面
+        上的文字把它顯示出來。
+      </p>
+
+      <h2>1. 宣告score變數</h2>
+      <p>
+        在<code>GameScene</code>類別裡加入一個儲存分數的屬性，
+        初始值設為0：
+      </p>
+      <div class="code-block">class GameScene: SKScene, SKPhysicsContactDelegate {
+    var score = 0
+    // ...
+}</div>
+
+      <h2>2. 用SKLabelNode顯示分數</h2>
+      <p>
+        <code>SKLabelNode</code>是SpriteKit裡專門用來顯示文字的
+        節點，跟SKSpriteNode一樣可以設定位置、大小、加入場景
+        節點樹。建立一個顯示分數的label，放在畫面上方：
+      </p>
+      <div class="code-block">let scoreLabel = SKLabelNode(fontNamed: "Helvetica-Bold")
+
+override func didMove(to view: SKView) {
+    // 其餘physics設定...
+
+    scoreLabel.text = "分數：0"
+    scoreLabel.fontSize = 24
+    scoreLabel.fontColor = .white
+    scoreLabel.position = CGPoint(x: frame.midX, y: frame.maxY - 50)
+    scoreLabel.zPosition = 10
+    addChild(scoreLabel)
+}</div>
+      <p>
+        <code>fontNamed:</code>指定字型名稱；<code>text</code>是
+        目前顯示的字串；<code>position</code>用
+        <code>frame.midX</code>取畫面水平置中，
+        <code>frame.maxY - 50</code>則是從畫面最上方往下留一點
+        邊距，讓文字不會貼在螢幕邊緣；<code>zPosition</code>
+        設得比較高（例如10），確保分數文字畫在球、磚塊這些
+        節點的上層，不會被擋住。
+      </p>
+
+      <h2>3. 磚塊被消滅時更新分數</h2>
+      <p>
+        分數該在什麼時候增加？答案就是第32課
+        <code>didBegin(_:)</code>裡磚塊被移除的那一刻——在呼叫
+        <code>removeFromParent()</code>的同時，把分數加上去、
+        並更新label的文字：
+      </p>
+      <div class="code-block">func didBegin(_ contact: SKPhysicsContact) {
+    let bodyA = contact.bodyA
+    let bodyB = contact.bodyB
+
+    let brickBody: SKPhysicsBody
+    if bodyA.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyA
+    } else if bodyB.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyB
+    } else {
+        return
+    }
+
+    brickBody.node?.removeFromParent()
+    score += 10
+    scoreLabel.text = "分數：\(score)"
+}</div>
+      <p>
+        每消滅一顆磚塊得10分，可以依照磚塊的顏色、行數等等
+        設計不同的分數（例如越上排的磚塊分數越高），但核心
+        邏輯都一樣：修改<code>score</code>之後，記得同步更新
+        <code>scoreLabel.text</code>——這兩件事沒有自動綁定，
+        漏了其中一步，畫面就不會反映真正的分數。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">scoreLabel在畫面上的位置</text>
+
+          <rect x="60" y="35" width="520" height="140" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <rect x="220" y="45" width="200" height="26" rx="4" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="320" y="63" text-anchor="middle" font-size="10" fill="var(--gold)">分數：40</text>
+          <text x="320" y="88" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">position: (frame.midX, frame.maxY - 50)</text>
+
+          <rect x="290" y="120" width="60" height="10" rx="2" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.1"/>
+          <circle cx="320" cy="150" r="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+
+          <text x="320" y="188" text-anchor="middle" font-size="8" fill="var(--text-muted)">磚塊被removeFromParent()的同時：score += 10，scoreLabel.text同步更新</text>
+        </svg>
+        <figcaption>scoreLabel固定在畫面上方水平置中，didBegin(_:)裡每消滅一顆磚塊就同步更新分數與文字。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>SKLabelNode</code>跟<code>SKSpriteNode</code>的差異，以及各自常見的用途</li>
+          <li>解釋<code>scoreLabel.position</code>為什麼用<code>frame.midX</code>跟<code>frame.maxY - 50</code></li>
+          <li>說明為什麼修改<code>score</code>之後，一定要記得同步更新<code>scoreLabel.text</code></li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        分數會即時更新了，但目前如果球漏接掉出畫面，遊戲完全
+        沒有反應——下一課要加入生命值系統，偵測球掉出畫面底部
+        的情況，扣一條命之後讓球重新回到起始位置發球。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：模組總結：球、球拍、磚塊的完整互動</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：生命值系統 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

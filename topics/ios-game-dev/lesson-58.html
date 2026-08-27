@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 58 課：實作插頁廣告（Interstitial Ad）：強制型廣告的觸發時機與頻率拿捏 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用GADInterstitialAd.load(withAdUnitID:request:completionHandler:)載入插頁廣告，在遊戲結束畫面這個自然中斷點呼叫present(fromRootViewController:)，並在委派方法裡預先載入下一支廣告、控制顯示頻率">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 58 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜App內廣告整合 · 第 58 課</div>
+      <h1>實作插頁廣告（Interstitial Ad）：強制型廣告的觸發時機與頻率拿捏</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能用GADInterstitialAd.load(withAdUnitID:request:completionHandler:)載入一支插頁廣告，並正確保存載入完成的廣告實例</li>
+          <li>能在遊戲進入game over畫面這個自然的中斷點，呼叫present(fromRootViewController:)顯示廣告</li>
+          <li>能在廣告關閉的委派方法裡預先載入下一支廣告，並理解為什麼顯示頻率要有所節制</li>
+        </ul>
+      </div>
+
+      <p>
+        橫幅廣告完成之後，這一課要實作第52課分類過的第二種格式
+        ——插頁廣告（interstitial ad）：一支蓋住整個畫面、玩家
+        必須主動關閉才能繼續的全螢幕廣告。它的視覺衝擊力最強，
+        但也最容易因為出現的時機或頻率不對，變成惹惱玩家的
+        來源，這一課會把「怎麼寫」跟「什麼時候該顯示」兩件事
+        一起講清楚。
+      </p>
+
+      <h2>1. 載入廣告：GADInterstitialAd.load(withAdUnitID:request:completionHandler:)</h2>
+      <p>
+        跟橫幅廣告不同，插頁廣告不是一個常駐畫面上的view，而是
+        先在背景載入好、之後才在恰當的時機呼叫出來顯示的一個
+        物件。先宣告一個變數保存載入完成的廣告實例：
+      </p>
+      <div class="code-block">import GoogleMobileAds
+
+var interstitialAd: GADInterstitialAd?
+
+func loadInterstitialAd() {
+    let request = GADRequest()
+    GADInterstitialAd.load(withAdUnitID: "ca-app-pub-3940256099942544/4411468910",
+                            request: request) { [weak self] ad, error in
+        if let error = error {
+            print("插頁廣告載入失敗：\(error.localizedDescription)")
+            return
+        }
+        self?.interstitialAd = ad
+        self?.interstitialAd?.fullScreenContentDelegate = self
+    }
+}</div>
+      <p>
+        這裡用的<code>ca-app-pub-3940256099942544/4411468910</code>
+        同樣是Google官方公開提供、專門給插頁廣告測試用的廣告
+        單元ID，開發階段請比照第57課的原則使用它，而不是正式
+        的Ad Unit ID。<code>load(withAdUnitID:request:completionHandler:)</code>
+        是一個類別方法（static method），載入成功會在回呼裡拿到
+        一個<code>GADInterstitialAd</code>實例，這裡把它存進
+        <code>interstitialAd</code>這個變數，並設定
+        <code>fullScreenContentDelegate</code>，讓後續顯示、
+        關閉的過程都能收到委派通知。
+      </p>
+
+      <h2>2. 顯示的時機：遊戲結束畫面，而不是遊戲進行中</h2>
+      <p>
+        插頁廣告最重要的原則，就是只在遊戲流程<strong>自然的
+        中斷點</strong>顯示——例如回顧模組H的遊戲狀態機，玩家
+        輸掉、進入game over狀態的那個時刻，正是一個現成、玩家
+        本來就會停下來的節點。把顯示廣告的邏輯接在第47課寫過的
+        <code>endGame()</code>函式裡：
+      </p>
+      <div class="code-block">func endGame() {
+    playSound("gameOver.wav")
+    updateHighScoreIfNeeded(currentScore: score)
+    showGameOverScreen()
+    presentInterstitialIfReady()
+}
+
+func presentInterstitialIfReady() {
+    guard let interstitialAd = interstitialAd,
+          let rootVC = self.view?.window?.rootViewController else { return }
+    interstitialAd.present(fromRootViewController: rootVC)
+}</div>
+      <p>
+        絕對不要把插頁廣告的顯示邏輯放進遊戲進行中的畫面——例如
+        球正在飛、玩家正專心操作球拍的當下，這種時機顯示的全螢幕
+        廣告不只打斷體驗，更常見的結果是玩家在慌亂中誤觸廣告，
+        兩者都會嚴重傷害玩家對這款遊戲的觀感。
+      </p>
+
+      <h2>3. 關閉後預先載入下一支廣告</h2>
+      <p>
+        載入一支插頁廣告需要時間，如果每次要顯示前才臨時呼叫
+        <code>load</code>，玩家很可能等不到廣告準備好。比較好
+        的做法是實作<code>GADFullScreenContentDelegate</code>，
+        在上一支廣告被關閉的當下，立刻著手載入下一支，讓它在
+        下一次game over時已經準備就緒：
+      </p>
+      <div class="code-block">extension GameScene: GADFullScreenContentDelegate {
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        interstitialAd = nil
+        loadInterstitialAd()
+    }
+
+    func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
+        print("插頁廣告顯示失敗：\(error.localizedDescription)")
+        interstitialAd = nil
+        loadInterstitialAd()
+    }
+}</div>
+      <p>
+        <code>adDidDismissFullScreenContent</code>會在玩家關閉
+        廣告、回到App時被呼叫；因為一支<code>GADInterstitialAd</code>
+        只能顯示一次，這裡先把舊的實例清成<code>nil</code>，
+        再重新呼叫<code>loadInterstitialAd()</code>載入新的一支。
+        如果顯示過程本身失敗（例如網路問題），也一併在
+        <code>didFailToPresentFullScreenContentWithError</code>
+        裡做同樣的處理，確保下一次還有機會顯示。
+      </p>
+
+      <h2>4. 頻率拿捏：不是每次game over都要跳出來</h2>
+      <p>
+        即使插頁廣告已經接到正確的時機點，也不代表每一次觸發
+        這個時機點就該顯示——太頻繁的插頁廣告，是玩家評價、
+        留存率下滑最常見的原因之一，也是Apple與Google廣告
+        聯播網政策明確不鼓勵的做法（過度、干擾性的廣告頻率，
+        在App Store審查時也可能被認定為不良使用者體驗而導致
+        退件，後面模組P會更詳細說明審查指南的相關規定）。
+        實務上常見的做法，是用一個計數器控制顯示的間隔：
+      </p>
+      <div class="code-block">var gameOverCount = 0
+
+func presentInterstitialIfReady() {
+    gameOverCount += 1
+    guard gameOverCount % 3 == 0 else { return }
+
+    guard let interstitialAd = interstitialAd,
+          let rootVC = self.view?.window?.rootViewController else { return }
+    interstitialAd.present(fromRootViewController: rootVC)
+}</div>
+      <p>
+        這段程式碼讓插頁廣告平均每三次game over才顯示一次，
+        其餘兩次玩家可以直接重新開始，不會每一局結束都被打斷。
+        實際要抓多少次顯示一次、要不要在玩家剛開始玩的前幾局
+        完全不顯示，都是可以依實際數據調整的細節，但「不是
+        每次都跳」這個原則，值得從一開始就寫進邏輯裡。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow58" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">插頁廣告的載入、顯示、預載循環</text>
+
+          <rect x="20" y="45" width="150" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="95" y="66" text-anchor="middle" font-size="9" fill="var(--gold)">loadInterstitialAd()</text>
+          <text x="95" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">背景先載入</text>
+
+          <line x1="170" y1="70" x2="205" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow58)"/>
+
+          <rect x="210" y="45" width="150" height="50" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="285" y="66" text-anchor="middle" font-size="9" fill="var(--text)">遊戲進行中</text>
+          <text x="285" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">不顯示廣告</text>
+
+          <line x1="360" y1="70" x2="395" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow58)"/>
+
+          <rect x="400" y="45" width="150" height="50" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="475" y="66" text-anchor="middle" font-size="9" fill="var(--accent)">endGame()</text>
+          <text x="475" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">自然中斷點</text>
+
+          <line x1="475" y1="95" x2="475" y2="130" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow58)"/>
+
+          <polygon points="475,130 545,155 475,180 405,155" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="475" y="152" text-anchor="middle" font-size="8" fill="#ff8a65">頻率計數器</text>
+          <text x="475" y="164" text-anchor="middle" font-size="8" fill="#ff8a65">符合條件？</text>
+
+          <line x1="405" y1="155" x2="200" y2="155" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow58)"/>
+          <text x="300" y="145" text-anchor="middle" font-size="8" fill="var(--text-muted)">是</text>
+          <rect x="30" y="130" width="170" height="50" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="115" y="151" text-anchor="middle" font-size="8.5" fill="var(--text)">present(fromRootViewController:)</text>
+          <text x="115" y="167" text-anchor="middle" font-size="8" fill="var(--text-muted)">顯示插頁廣告</text>
+
+          <line x1="115" y1="180" x2="115" y2="210" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow58)"/>
+          <text x="115" y="200" text-anchor="middle" font-size="8" fill="var(--text-muted)">玩家關閉</text>
+          <line x1="60" y1="215" x2="30" y2="70" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 2" marker-end="url(#arrow58)"/>
+          <text x="15" y="130" font-size="8" fill="var(--text-muted)" transform="rotate(-90 15 130)">adDidDismissFullScreenContent 觸發預載</text>
+        </svg>
+        <figcaption>載入跟顯示分開兩個時機：背景先載入好，只在遊戲結束、且符合頻率條件時才顯示，關閉後立刻預載下一支。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出載入一支插頁廣告、並保存到變數裡的完整程式碼</li>
+          <li>說明插頁廣告應該接在打磚塊遊戲的哪個時機點顯示，為什麼不能放在遊戲進行中</li>
+          <li>說明為什麼要在adDidDismissFullScreenContent委派方法裡重新呼叫loadInterstitialAd()，以及為什麼顯示頻率需要節制</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        插頁廣告是玩家「被迫」看到的廣告，下一課要換一個方向，
+        實作第三種廣告格式——獎勵型廣告，讓玩家自己決定要不要
+        主動看廣告，換取像是復活這樣的實際好處。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-57.html">← 上一課：實作橫幅廣告（Banner Ad）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-59.html">下一課：實作獎勵型廣告（Rewarded Ad）：讓玩家自願看廣告換獎勵 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

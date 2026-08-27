@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：Xcode除錯器與中斷點 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="學會在Xcode程式碼編輯器設定中斷點，用變數檢視器與po指令查看物件狀態，並認識print()語句這個更輕量的除錯手段，實際演練排查一個球拍不回應觸控的假設性bug">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜效能優化與除錯基礎 · 第 49 課</div>
+      <h1>Xcode除錯器與中斷點</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>學會在Xcode程式碼編輯器的行號區域點擊設定中斷點，讓程式執行到該行時暫停</li>
+          <li>能使用除錯區域的變數檢視器，以及主控台的po指令，檢查中斷當下的物件狀態</li>
+          <li>認識print()語句這個更輕量、免設定的除錯手段，知道什麼情況適合用哪一種</li>
+        </ul>
+      </div>
+
+      <p>
+        模組K完成了分數與設定的儲存，遊戲的核心玩法與資料層都已經
+        到位。從這一課開始的模組L，要補上開發過程中不可或缺的
+        兩件事——除錯與效能檢查，讓你在遇到「東西壞了但不知道
+        為什麼」或「玩起來卡卡的」時，有系統化的方法排查，而不是
+        憑感覺亂改程式碼、改到能動就算了。這一課先從最基本、
+        也最常用的除錯工具開始：中斷點。
+      </p>
+
+      <h2>1. 中斷點：讓程式暫停在指定的一行</h2>
+      <p>
+        在Xcode的程式碼編輯器裡，每一行程式碼左邊都有一條窄窄的
+        「行號區域」（gutter）。直接用滑鼠點擊某一行左邊的空白處，
+        就會出現一個藍色箭頭形狀的標記——這就是一個<strong>
+        中斷點（breakpoint）</strong>。接下來用Cmd+R在模擬器或
+        真機上執行App時，只要程式的執行流程走到設了中斷點的那
+        一行，就會自動暫停下來，畫面卡在那個當下，等你檢查。
+      </p>
+      <p>
+        中斷點可以設很多個，也可以隨時點一下藍色箭頭把它切換成
+        灰色（暫時停用、不刪除），或是直接把它拖出行號區域來
+        刪除。這讓你可以在懷疑出問題的程式碼附近，先埋幾個
+        中斷點，用「執行到這裡確實有沒有發生」來一步步縮小
+        問題範圍。
+      </p>
+
+      <h2>2. 除錯區域：變數檢視器</h2>
+      <p>
+        程式在中斷點暫停時，Xcode視窗下方會自動打開<strong>
+        除錯區域</strong>，左邊是<strong>變數檢視器</strong>，
+        會列出當下這個作用域（scope）裡所有區域變數、參數，
+        以及它們目前的值。點擊某個物件型別的變數旁邊的展開
+        箭頭，還能進一步看它內部各個屬性的值——例如中斷在
+        一個處理碰撞的函式裡，就能直接看到傳進來的節點的
+        position、physicsBody的velocity等目前的實際數值，
+        不需要另外寫程式碼把它們印出來。
+      </p>
+
+      <h2>3. 主控台的po指令</h2>
+      <p>
+        除錯區域右邊是<strong>主控台（console）</strong>，這裡
+        除了會顯示程式執行過程中print()印出的內容，暫停時還能
+        直接在提示字元（lldb）後面輸入指令，即時查詢當下的狀態。
+        最常用的就是<strong>po</strong>（print object）指令，
+        後面接一個運算式，就能把它的內容印出來：
+      </p>
+      <div class="code-block">(lldb) po paddle.position
+(lldb) po ball.physicsBody?.velocity
+(lldb) po lives</div>
+      <p>
+        po的好處是不受限於變數檢視器目前顯示的內容——只要是在
+        目前作用域裡看得到的東西，甚至是稍微組合過的運算式
+        （例如<code>po touch.location(in: self)</code>），都能
+        當場算出來、印出結果，不需要為了看一個值就修改程式碼、
+        重新編譯。
+      </p>
+
+      <h2>4. print()語句：更陽春但即時可用的除錯法</h2>
+      <p>
+        中斷點跟po指令威力強大，但有時候你只是想確認「這段
+        程式碼到底有沒有被執行到」「這個值在遊戲跑起來的過程中
+        怎麼變化」，這種情境下，直接在程式碼裡插入<code>
+        print()</code>語句往往更快、更直覺，不需要另外設定
+        中斷點、也不會讓遊戲每次都真的暫停下來：
+      </p>
+      <div class="code-block">override func touchesMoved(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    print("touchesMoved被呼叫，觸控x座標：\(location.x)")
+    paddle.position.x = location.x
+}</div>
+      <p>
+        跑起來之後盯著主控台看，如果手指在畫面上滑動時完全沒有
+        印出任何訊息，就代表<code>touchesMoved</code>這個函式
+        根本沒被呼叫到——問題出在「事件有沒有送進來」這一層，
+        而不是球拍移動的計算邏輯本身。這種「先確認程式碼有沒有
+        跑到」的排查方式，正是print()最擅長的場景。
+      </p>
+
+      <h2>5. 實戰演練：球拍不回應觸控的假設性bug</h2>
+      <p>
+        假設你回顧模組E、F做出來的打磚塊遊戲時，發現手指在畫面上
+        滑動，球拍卻完全沒有反應。可以按照以下順序排查：
+      </p>
+      <ol>
+        <li><strong>先用print()確認事件有沒有進來</strong>——在
+          <code>touchesMoved</code>第一行加上print()，跑起來
+          滑動畫面。如果主控台完全沒反應，問題通常出在球拍節點
+          的<code>isUserInteractionEnabled</code>被設成
+          false、或是這個處理觸控的節點根本沒有被加進場景的
+          節點樹裡（回顧模組D的SKNode節點樹概念）。</li>
+        <li><strong>如果事件有進來，改用中斷點深入看</strong>
+          ——在計算球拍新位置的那一行設中斷點，程式暫停時用
+          變數檢視器或po指令看<code>location.x</code>、
+          <code>paddle.position</code>目前的實際值，確認座標
+          轉換（回顧模組D第18課的座標系統）有沒有算錯。</li>
+        <li><strong>逐步縮小範圍</strong>——如果座標本身是對的，
+          但球拍畫面上就是沒動，再往下檢查球拍節點是不是被
+          其他邏輯（例如物理引擎的物理體設定）鎖住了X軸的
+          移動。</li>
+      </ol>
+      <p>
+        這個流程的重點，不是「一定要用哪個工具」，而是先用最
+        便宜的手段（print()）快速確認問題出現的大致範圍，真的
+        需要深入檢查物件內部狀態時，再動用中斷點跟po指令。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow49" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">排查一個bug的基本流程</text>
+
+          <rect x="15" y="55" width="140" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="85" y="80" text-anchor="middle" font-size="9.5" fill="var(--gold)">print()快速確認</text>
+          <text x="85" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">這段程式碼有沒有跑到</text>
+
+          <line x1="155" y1="85" x2="180" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow49)"/>
+
+          <rect x="185" y="55" width="140" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="255" y="76" text-anchor="middle" font-size="9.5" fill="var(--accent)">設中斷點</text>
+          <text x="255" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">在可疑的那一行暫停</text>
+          <text x="255" y="107" text-anchor="middle" font-size="8" fill="var(--text-muted)">執行流程</text>
+
+          <line x1="325" y1="85" x2="350" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow49)"/>
+
+          <rect x="355" y="55" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.3"/>
+          <text x="430" y="76" text-anchor="middle" font-size="9.5" fill="var(--text)">變數檢視器／po</text>
+          <text x="430" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">檢查物件當下狀態</text>
+
+          <line x1="505" y1="85" x2="530" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow49)"/>
+
+          <rect x="535" y="55" width="95" height="60" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="582" y="80" text-anchor="middle" font-size="9.5" fill="#ff8a65">縮小範圍</text>
+          <text x="582" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">找到真正原因</text>
+
+          <rect x="15" y="150" width="615" height="55" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="322" y="173" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">先用便宜的手段（print）確認大致範圍，再用強力的手段（中斷點＋po）深入檢查——</text>
+          <text x="322" y="191" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">不需要每次除錯都直接動用全部工具</text>
+        </svg>
+        <figcaption>從快速的print()排查，到深入的中斷點與po指令——兩種手段搭配使用，逐步縮小問題範圍。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明怎麼在Xcode程式碼編輯器設定與移除一個中斷點</li>
+          <li>解釋變數檢視器與po指令分別能查看什麼，兩者的差異是什麼</li>
+          <li>說明print()跟中斷點各自比較適合用在什麼樣的除錯情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        除錯解決的是「邏輯錯了」的問題，下一課要換一個角度，
+        認識Xcode的Instruments效能檢測工具——當遊戲邏輯是對的、
+        但玩起來就是卡卡的時候，該用什麼工具找出真正拖慢
+        效能的地方。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：模組總結：簡易設定畫面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：Instruments效能檢測入門 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

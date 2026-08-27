@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：碰撞分類（Collision Category） ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用PhysicsCategory結構搭配位移運算子定義categoryBitMask，並釐清categoryBitMask、collisionBitMask、contactTestBitMask這三個容易混淆的位元遮罩各自的作用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作專案②：物理引擎與碰撞 · 第 31 課</div>
+      <h1>碰撞分類（Collision Category）</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解<code>categoryBitMask</code>、<code>collisionBitMask</code>、<code>contactTestBitMask</code>這三個位元遮罩，各自在物理引擎裡扮演什麼角色</li>
+          <li>學會用一個<code>PhysicsCategory</code>結構整理每一種物件的分類旗標，避免在程式碼裡直接寫死數字</li>
+          <li>能分辨「兩個物體會不會真的物理彈開」跟「兩個物體會不會觸發<code>didBegin(_:)</code>通知」是兩件不同的事</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課讓場景能在碰撞發生時呼叫<code>didBegin(_:)</code>，
+        但目前所有physics body之間，只要距離夠近都會觸發——球
+        撞到球拍、球撞到磚塊、甚至磚塊互相貼在一起，全部都是
+        「碰撞」，程式碼卻沒有任何方法分辨誰是誰。這一課要學的
+        位元遮罩（bitmask），是新手最容易搞混的SpriteKit概念
+        之一，但只要抓到「三個遮罩各自回答一個不同問題」這個
+        原則，其實並不難。
+      </p>
+
+      <h2>1. 為什麼需要分類：不是所有碰撞都該一視同仁</h2>
+      <p>
+        以這款打磚塊遊戲為例，球需要跟球拍、螢幕邊界真正
+        「physically」彈開，才會有正確的反彈角度；但球撞到磚塊
+        時，我們真正想要的動作是「磚塊消失」，而不一定需要
+        兩者先物理彈開才能判定。如果所有物體之間的碰撞規則都
+        一樣，就沒辦法做出這種區分——這正是SpriteKit設計三種
+        獨立位元遮罩的原因：讓「物理上會不會彈開」跟「會不會
+        觸發程式碼裡的通知」，可以分開設定。
+      </p>
+
+      <h2>2. 三個關鍵屬性，各自回答一個問題</h2>
+      <p>
+        SKPhysicsBody上有三個型別都是<code>UInt32</code>的屬性，
+        每一個bit（位元）都可以代表一種分類，透過位元運算來
+        判斷兩個body之間該不該產生碰撞或通知：
+      </p>
+      <ul>
+        <li><code>categoryBitMask</code>——回答「我是誰」。這個
+          physics body屬於哪一個分類（球、球拍、磚塊、牆…），
+          預設值是<code>0xFFFFFFFF</code>（所有分類）</li>
+        <li><code>collisionBitMask</code>——回答「我會被誰物理
+          彈開」。物理引擎會拿這個body的<code>collisionBitMask</code>
+          跟對方的<code>categoryBitMask</code>做AND運算，結果不為0
+          才會產生碰撞反應，預設值同樣是<code>0xFFFFFFFF</code>
+          （代表預設跟所有東西都會物理碰撞）</li>
+        <li><code>contactTestBitMask</code>——回答「誰的接觸要
+          通知我的<code>didBegin(_:)</code>」。預設值是
+          <code>0</code>（完全不通知），必須明確指定才會收到
+          通知——而且就算<code>collisionBitMask</code>設定成
+          兩者不會物理彈開、直接穿過彼此，只要
+          <code>contactTestBitMask</code>設定正確，<code>didBegin(_:)</code>
+          一樣會被呼叫</li>
+      </ul>
+      <div class="callout">
+        <h3>容易搞混的地方</h3>
+        <p>
+          初學者最常犯的錯誤，是以為「兩個物體會不會撞在一起」
+          只由一個設定決定。實際上「彈不彈得開」跟「通不通知
+          你的程式碼」是完全獨立的兩件事：<code>collisionBitMask</code>
+          管的是物理引擎自己的反彈行為，<code>contactTestBitMask</code>
+          管的是要不要呼叫<code>didBegin(_:)</code>——兩者可以
+          任意組合，這正是這一課的重點。
+        </p>
+      </div>
+
+      <h2>3. 用PhysicsCategory整理分類旗標</h2>
+      <p>
+        與其在程式碼各處直接寫<code>1</code>、<code>2</code>、
+        <code>4</code>這種數字，慣例的做法是定義一個結構，用
+        <code>&lt;&lt;</code>位移運算子，讓每個分類各自佔一個
+        獨立的bit，這樣才能用<code>|</code>（OR）自由組合，
+        彼此又不會互相覆蓋：
+      </p>
+      <div class="code-block">struct PhysicsCategory {
+    static let none: UInt32  = 0
+    static let ball: UInt32   = 0x1 << 0   // 0001 = 1
+    static let paddle: UInt32 = 0x1 << 1   // 0010 = 2
+    static let brick: UInt32  = 0x1 << 2   // 0100 = 4
+    static let wall: UInt32   = 0x1 << 3   // 1000 = 8
+}</div>
+      <p>
+        <code>0x1 &lt;&lt; 0</code>就是1、<code>0x1 &lt;&lt; 1</code>
+        就是2、<code>0x1 &lt;&lt; 2</code>是4，每往左移一位數值
+        剛好翻倍，對應到二進位裡剛好只有一個bit是1——這樣不管
+        用<code>|</code>組合多少個分類，都不會有兩個分類疊在
+        同一個bit上，之後用<code>&amp;</code>檢查時才不會誤判。
+      </p>
+
+      <h2>4. 實際套用到球拍、磚塊、球、邊界上</h2>
+      <p>
+        有了分類定義，接著幫每個physics body設定三個遮罩。球
+        要能撞到球拍、牆壁時真的彈開，同時撞到磚塊時要收到通知：
+      </p>
+      <div class="code-block">ball.physicsBody?.categoryBitMask = PhysicsCategory.ball
+ball.physicsBody?.collisionBitMask = PhysicsCategory.paddle | PhysicsCategory.wall
+ball.physicsBody?.contactTestBitMask = PhysicsCategory.brick | PhysicsCategory.paddle</div>
+      <p>
+        球拍跟磚塊也要各自標明自己的分類，並且允許球把自己
+        物理彈開（球拍要讓球彈開；磚塊在這個設計裡，主要靠
+        <code>contactTestBitMask</code>被偵測到後就會消失，
+        不一定需要真的物理彈開）：
+      </p>
+      <div class="code-block">paddle.physicsBody?.categoryBitMask = PhysicsCategory.paddle
+paddle.physicsBody?.collisionBitMask = PhysicsCategory.ball
+
+for brick in bricks {
+    brick.physicsBody?.categoryBitMask = PhysicsCategory.brick
+    brick.physicsBody?.collisionBitMask = PhysicsCategory.none
+}</div>
+      <p>
+        這裡把磚塊的<code>collisionBitMask</code>設成
+        <code>PhysicsCategory.none</code>，代表磚塊不會把球
+        物理彈開，球會直接「穿過」磚塊的位置，但因為
+        <code>contactTestBitMask</code>已經包含
+        <code>brick</code>，<code>didBegin(_:)</code>還是會被
+        正常呼叫，下一課會在裡面把磚塊移除。
+      </p>
+      <div class="callout">
+        <h3>另一種常見做法</h3>
+        <p>
+          有些打磚塊實作，會讓磚塊的<code>collisionBitMask</code>
+          也包含球，讓球撞到磚塊那一瞬間先物理彈開一次，緊接著
+          <code>didBegin(_:)</code>才把磚塊移除——視覺上會多一個
+          短暫的反彈手感。兩種做法都合理，這一課選擇比較單純的
+          「只靠contactTestBitMask偵測」版本，方便先把觀念釐清。
+        </p>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">三種位元遮罩各自回答的問題</text>
+
+          <rect x="15" y="35" width="610" height="70" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.1"/>
+          <text x="30" y="52" font-size="8.5" fill="var(--text-muted)">PhysicsCategory（每個分類各佔一個bit）</text>
+          <text x="50" y="70" font-size="9" fill="var(--accent)">ball</text>
+          <text x="50" y="83" font-size="8" fill="var(--text-muted)">0001</text>
+          <text x="190" y="70" font-size="9" fill="var(--gold)">paddle</text>
+          <text x="190" y="83" font-size="8" fill="var(--text-muted)">0010</text>
+          <text x="330" y="70" font-size="9" fill="#ff8a65">brick</text>
+          <text x="330" y="83" font-size="8" fill="var(--text-muted)">0100</text>
+          <text x="470" y="70" font-size="9" fill="var(--text)">wall</text>
+          <text x="470" y="83" font-size="8" fill="var(--text-muted)">1000</text>
+
+          <rect x="15" y="125" width="290" height="150" rx="6" fill="var(--accent)" opacity="0.08" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="160" y="148" text-anchor="middle" font-size="9.5" fill="var(--accent)">collisionBitMask</text>
+          <text x="160" y="163" text-anchor="middle" font-size="8" fill="var(--text-muted)">「物理上會被誰彈開」</text>
+          <circle cx="90" cy="205" r="14" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="90" y="209" text-anchor="middle" font-size="8" fill="var(--accent)">球</text>
+          <line x1="104" y1="205" x2="150" y2="205" stroke="var(--accent)" stroke-width="1.4"/>
+          <rect x="155" y="196" width="60" height="18" rx="3" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="185" y="209" text-anchor="middle" font-size="8" fill="var(--gold)">球拍/牆</text>
+          <text x="160" y="250" text-anchor="middle" font-size="8" fill="var(--text-muted)">→ 真的物理反彈</text>
+          <text x="160" y="264" text-anchor="middle" font-size="8" fill="var(--text-muted)">磚塊collisionBitMask=none</text>
+
+          <rect x="335" y="125" width="290" height="150" rx="6" fill="var(--gold)" opacity="0.08" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="480" y="148" text-anchor="middle" font-size="9.5" fill="var(--gold)">contactTestBitMask</text>
+          <text x="480" y="163" text-anchor="middle" font-size="8" fill="var(--text-muted)">「誰的接觸要通知didBegin」</text>
+          <circle cx="410" cy="205" r="14" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="410" y="209" text-anchor="middle" font-size="8" fill="var(--accent)">球</text>
+          <line x1="424" y1="205" x2="470" y2="205" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 2"/>
+          <rect x="475" y="196" width="60" height="18" rx="3" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="505" y="209" text-anchor="middle" font-size="8" fill="#ff8a65">磚塊</text>
+          <text x="480" y="250" text-anchor="middle" font-size="8" fill="var(--text-muted)">→ 呼叫didBegin(_:)</text>
+          <text x="480" y="264" text-anchor="middle" font-size="8" fill="var(--text-muted)">即使沒有物理彈開</text>
+        </svg>
+        <figcaption>categoryBitMask定義身分；collisionBitMask決定物理上彈不彈開；contactTestBitMask決定要不要呼叫didBegin(_:)——三者互相獨立。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>分別說明<code>categoryBitMask</code>、<code>collisionBitMask</code>、<code>contactTestBitMask</code>各自回答什麼問題</li>
+          <li>解釋為什麼<code>PhysicsCategory</code>裡每個分類要用<code>0x1 &lt;&lt; n</code>而不是直接寫0、1、2、3</li>
+          <li>說明為什麼即使磚塊的<code>collisionBitMask</code>設成<code>none</code>，球撞到磚塊時<code>didBegin(_:)</code>還是會被呼叫</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        碰撞分類設定好了，下一課是模組G的總結——把physics body、
+        重力與速度、contactDelegate、bitmask這四個環節串起來，
+        寫出一份完整的<code>didBegin(_:)</code>，讓球真的能夠
+        撞掉磚塊。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：碰撞偵測delegate</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：模組總結：球、球拍、磚塊的完整互動 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

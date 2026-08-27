@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 59 課：實作獎勵型廣告（Rewarded Ad）：讓玩家自願看廣告換獎勵 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用GADRewardedAd.load(withAdUnitID:request:completionHandler:)載入獎勵型廣告，透過玩家自願點擊的「看廣告復活」按鈕呼叫present(fromRootViewController:userDidEarnRewardHandler:)，並確保獎勵只在使用者真正看完廣告時才發放">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 59 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜App內廣告整合 · 第 59 課</div>
+      <h1>實作獎勵型廣告（Rewarded Ad）：讓玩家自願看廣告換獎勵</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能用GADRewardedAd.load(withAdUnitID:request:completionHandler:)載入一支獎勵型廣告</li>
+          <li>能設計一個玩家自願點擊的UI（例如「看廣告復活」按鈕），只在適當時機出現</li>
+          <li>理解為什麼一定要在userDidEarnRewardHandler回呼裡才發放獎勵，不能提前發放</li>
+        </ul>
+      </div>
+
+      <p>
+        插頁廣告是遊戲流程走到某個時機點，強制顯示給玩家看的
+        廣告；這一課要實作的獎勵型廣告，方向完全相反——第52課
+        分類過，這是「使用者主動點開型」的廣告：玩家自己決定
+        要不要看，看完換到一個實際的遊戲內好處。對這款打磚塊
+        遊戲來說，最自然的應用就是「看廣告復活」。
+      </p>
+
+      <h2>1. 載入廣告：GADRewardedAd.load(withAdUnitID:request:completionHandler:)</h2>
+      <p>
+        跟插頁廣告一樣，獎勵型廣告也是先在背景載入好，等玩家
+        真的觸發時再顯示。宣告一個變數保存載入完成的廣告實例：
+      </p>
+      <div class="code-block">import GoogleMobileAds
+
+var rewardedAd: GADRewardedAd?
+
+func loadRewardedAd() {
+    let request = GADRequest()
+    GADRewardedAd.load(withAdUnitID: "ca-app-pub-3940256099942544/1712485313",
+                        request: request) { [weak self] ad, error in
+        if let error = error {
+            print("獎勵廣告載入失敗：\(error.localizedDescription)")
+            return
+        }
+        self?.rewardedAd = ad
+        self?.rewardedAd?.fullScreenContentDelegate = self
+    }
+}</div>
+      <p>
+        <code>ca-app-pub-3940256099942544/1712485313</code>是
+        Google官方公開提供、專門給獎勵型廣告測試用的廣告單元
+        ID，開發階段一樣先用它。載入完成的<code>GADRewardedAd</code>
+        實例存進<code>rewardedAd</code>，並設定
+        <code>fullScreenContentDelegate</code>接收後續的顯示、
+        關閉通知——跟第58課的插頁廣告是同一套流程結構。
+      </p>
+
+      <h2>2. UI：只在玩家失去所有生命時出現的按鈕</h2>
+      <p>
+        獎勵型廣告的按鈕不應該一直顯示在畫面上，而是只在真的
+        有意義的時機出現。以模組H的生命值系統來說，最合理的
+        時機就是玩家的<code>lives</code>歸零、原本要直接判定
+        遊戲結束的那一刻：
+      </p>
+      <div class="code-block">func showReviveButtonIfAvailable() {
+    guard lives <= 0, rewardedAd != nil else { return }
+    reviveButton.isHidden = false
+}</div>
+      <p>
+        這裡刻意多加一個<code>rewardedAd != nil</code>的判斷：
+        如果這支獎勵廣告根本還沒載入完成，就不該顯示「看廣告
+        復活」的按鈕，避免玩家點了按鈕卻什麼都沒發生。
+      </p>
+
+      <h2>3. 顯示：present(fromRootViewController:userDidEarnRewardHandler:)</h2>
+      <p>
+        玩家點擊按鈕之後，呼叫的是<code>GADRewardedAd</code>
+        專屬的顯示方法，它跟插頁廣告的<code>present</code>不同，
+        多了一個「使用者已獲得獎勵」的回呼：
+      </p>
+      <div class="code-block">func reviveButtonTapped() {
+    guard let rewardedAd = rewardedAd,
+          let rootVC = self.view?.window?.rootViewController else { return }
+
+    rewardedAd.present(fromRootViewController: rootVC) { [weak self] in
+        guard let self = self else { return }
+        self.lives += 1
+        self.resumeGame()
+    }
+}</div>
+      <p>
+        這個尾隨閉包就是<code>userDidEarnRewardHandler</code>
+        ——只有在玩家實際把廣告看到系統認定「已達成獎勵條件」
+        的那一刻，這段程式碼才會被執行。如果需要知道廣告本身
+        設定的獎勵內容（例如聯播網後台設定的獎勵數量、類型），
+        可以在同一時間讀取<code>rewardedAd.adReward</code>。
+      </p>
+
+      <h2>4. 關鍵原則：獎勵只能在回呼裡發放，絕不能提前給</h2>
+      <p>
+        這一課最重要的觀念，就是<code>self.lives += 1</code>
+        這一行，只能寫在<code>userDidEarnRewardHandler</code>
+        這個閉包裡面，<strong>絕對不能</strong>寫在按鈕被點擊的
+        當下、或是廣告畫面顯示出來的那一刻——玩家點了按鈕，
+        不代表他真的看完了廣告；如果獎勵在按下按鈕時就先給，
+        玩家只要點一下再立刻把廣告畫面關掉，就能免費拿到復活
+        機會，完全繞過了「用廣告換獎勵」這個交換前提，也會讓
+        廣告曝光數據失真。把發放獎勵的邏輯，跟廣告SDK認定「已
+        達成觀看條件」的那個時間點綁在一起，是這整套機制唯一
+        正確的做法。
+      </p>
+
+      <h2>5. 用完之後，記得預先載入下一支</h2>
+      <p>
+        一支<code>GADRewardedAd</code>也是只能顯示一次，比照
+        第58課插頁廣告的做法，在委派方法裡於廣告關閉時重新
+        載入：
+      </p>
+      <div class="code-block">extension GameScene: GADFullScreenContentDelegate {
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        rewardedAd = nil
+        loadRewardedAd()
+    }
+}</div>
+      <p>
+        這裡要注意的是，<code>adDidDismissFullScreenContent</code>
+        只負責「廣告關閉了，該準備下一支」這件事，跟要不要
+        發放獎勵完全無關——即使玩家中途把廣告關掉、沒有看完，
+        這個委派方法一樣會被呼叫，但因為
+        <code>userDidEarnRewardHandler</code>沒有被觸發，
+        <code>lives += 1</code>那段程式碼就不會執行，兩件事
+        各自獨立、互不影響。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow59" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">獎勵只能在userDidEarnRewardHandler裡發放</text>
+
+          <rect x="20" y="45" width="140" height="45" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="90" y="72" text-anchor="middle" font-size="9" fill="var(--text)">玩家點擊看廣告復活</text>
+
+          <line x1="160" y1="67" x2="195" y2="67" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="200" y="45" width="150" height="45" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="275" y="63" text-anchor="middle" font-size="8.5" fill="var(--gold)">present(fromRootViewController:</text>
+          <text x="275" y="79" text-anchor="middle" font-size="8.5" fill="var(--gold)">userDidEarnRewardHandler:)</text>
+
+          <line x1="275" y1="90" x2="275" y2="120" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="275" y1="120" x2="150" y2="150" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow59)"/>
+          <line x1="275" y1="120" x2="420" y2="150" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow59)"/>
+
+          <rect x="50" y="155" width="200" height="50" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <text x="150" y="176" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">玩家中途關閉、沒看完</text>
+          <text x="150" y="192" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">handler不會被呼叫 → 不加生命</text>
+
+          <rect x="330" y="155" width="200" height="50" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="430" y="176" text-anchor="middle" font-size="8.5" fill="#ff8a65">看完達成獎勵條件</text>
+          <text x="430" y="192" text-anchor="middle" font-size="8.5" fill="#ff8a65">handler觸發 → lives += 1</text>
+        </svg>
+        <figcaption>是否加生命，完全由SDK是否呼叫userDidEarnRewardHandler決定，跟按鈕被點擊、或廣告畫面被關閉的當下無關。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出載入一支獎勵型廣告、並保存到變數裡的完整程式碼</li>
+          <li>說明「看廣告復活」按鈕應該在遊戲的什麼狀態下才出現，為什麼還要額外檢查rewardedAd是否為nil</li>
+          <li>解釋為什麼發放獎勵的程式碼一定要寫在userDidEarnRewardHandler裡，寫在按鈕被點擊的當下會有什麼問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        三種廣告格式都實作完成後，下一課要處理一個上架前不能
+        忽略的合規議題——App Tracking Transparency（ATT）的
+        使用者同意要求，以及一份完整的上架前廣告檢查清單。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-58.html">← 上一課：實作插頁廣告（Interstitial Ad）：強制型廣告的觸發時機與頻率拿捏</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-60.html">下一課：模組總結：使用者追蹤透明度（ATT）合規要求與上架前的廣告檢查清單 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

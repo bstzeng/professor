@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：模組總結：球、球拍、磚塊的完整互動 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="把物理引擎與碰撞模組學到的physics body、重力速度、contactDelegate、bitmask整合成一份完整可動的didBegin(_:)實作，讓球能撞牆反彈、撞球拍反彈、撞磚塊消滅磚塊">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作專案②：物理引擎與碰撞 · 第 32 課</div>
+      <h1>模組總結：球、球拍、磚塊的完整互動</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模組G學到的physics body、重力／速度、contactDelegate、bitmask四個環節，串成一套完整能動的碰撞系統</li>
+          <li>讀懂一份完整的<code>didBegin(_:)</code>實作，知道怎麼判斷「這次撞到的是不是磚塊」</li>
+          <li>能自己檢查一輪：球拍擋得住球、球撞到邊界會反彈、球撞到磚塊磚塊會消失</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G花了四課，分別處理physics body的形狀與動態屬性
+        （第28課）、重力歸零與初始速度（第29課）、
+        contactDelegate的通知機制（第30課）、以及分類用的三種
+        bitmask（第31課）。這一課不引入新概念，而是把這四塊
+        接起來，寫出一份真正完整、可以執行的碰撞邏輯，讓球拍、
+        球、磚塊之間第一次有了「玩得起來」的互動。
+      </p>
+
+      <h2>完整的physicsBody設定回顧</h2>
+      <p>
+        先把整個場景初始化時該做的physics設定，整理成一個
+        清楚的<code>didMove(to:)</code>——包含物理世界本身的
+        設定，以及三種節點各自的physics body：
+      </p>
+      <div class="code-block">override func didMove(to view: SKView) {
+    physicsWorld.gravity = CGVector(dx: 0, dy: 0)
+    physicsWorld.contactDelegate = self
+
+    let border = SKPhysicsBody(edgeLoopFrom: self.frame)
+    border.categoryBitMask = PhysicsCategory.wall
+    self.physicsBody = border
+
+    paddle.physicsBody = SKPhysicsBody(rectangleOf: paddle.size)
+    paddle.physicsBody?.isDynamic = false
+    paddle.physicsBody?.categoryBitMask = PhysicsCategory.paddle
+    paddle.physicsBody?.collisionBitMask = PhysicsCategory.ball
+
+    ball.physicsBody = SKPhysicsBody(circleOfRadius: ball.size.width / 2)
+    ball.physicsBody?.isDynamic = true
+    ball.physicsBody?.affectedByGravity = false
+    ball.physicsBody?.restitution = 1.0
+    ball.physicsBody?.friction = 0
+    ball.physicsBody?.linearDamping = 0
+    ball.physicsBody?.categoryBitMask = PhysicsCategory.ball
+    ball.physicsBody?.collisionBitMask = PhysicsCategory.paddle | PhysicsCategory.wall
+    ball.physicsBody?.contactTestBitMask = PhysicsCategory.brick
+    ball.physicsBody?.velocity = CGVector(dx: 140, dy: -220)
+
+    for brick in bricks {
+        brick.physicsBody = SKPhysicsBody(rectangleOf: brick.size)
+        brick.physicsBody?.isDynamic = false
+        brick.physicsBody?.categoryBitMask = PhysicsCategory.brick
+        brick.physicsBody?.collisionBitMask = PhysicsCategory.none
+    }
+}</div>
+      <p>
+        這裡多用到一個第28、31課還沒提到的寫法：
+        <code>SKPhysicsBody(edgeLoopFrom: self.frame)</code>，
+        它會沿著場景邊界建立一圈沒有厚度、不會移動的physics
+        body，讓球撞到畫面的上、左、右邊時能自然反彈——這正是
+        第31課<code>PhysicsCategory.wall</code>對應的實體。
+        （螢幕底部通常刻意不算進反彈邊界，讓球能真的掉出畫面，
+        這件事留到模組H處理生命值時再實作。）
+      </p>
+
+      <h2>didBegin(_:)：分辨誰撞到誰</h2>
+      <p>
+        有了分類設定，<code>didBegin(_:)</code>裡就能用
+        <code>categoryBitMask</code>判斷這次撞到的兩個body裡，
+        哪一個是磚塊：
+      </p>
+      <div class="code-block">func didBegin(_ contact: SKPhysicsContact) {
+    let bodyA = contact.bodyA
+    let bodyB = contact.bodyB
+
+    let brickBody: SKPhysicsBody
+    if bodyA.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyA
+    } else if bodyB.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyB
+    } else {
+        // 這次碰撞跟磚塊無關，直接結束
+        return
+    }
+
+    brickBody.node?.removeFromParent()
+}</div>
+      <p>
+        先用<code>if／else if</code>找出兩個body裡哪一個是磚塊
+        （因為<code>didBegin(_:)</code>不保證磚塊一定放在
+        <code>bodyA</code>還是<code>bodyB</code>，兩種情況都要
+        判斷），如果兩個都不是磚塊，就直接<code>return</code>，
+        不做任何事——記得球的<code>contactTestBitMask</code>目前
+        只包含<code>brick</code>，所以理論上這個函式只會在球撞
+        磚塊時被呼叫，但寫上判斷式仍是穩健的好習慣，未來
+        擴充更多碰撞情境（例如模組I要加的撞牆音效）時也不會
+        互相干擾。
+      </p>
+
+      <h2>移除磚塊：removeFromParent()</h2>
+      <p>
+        <code>brickBody.node</code>是一個optional的
+        <code>SKNode?</code>，指回physics body所依附的那個節點
+        （也就是磚塊本身的SKSpriteNode）；呼叫它的
+        <code>removeFromParent()</code>，會把這個節點從場景的
+        節點樹上移除（回顧第16課的節點樹概念）——移除後這顆
+        磚塊就不會再被畫出來，也不再參與物理模擬，等於完成了
+        「撞到即消滅」的效果。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow32" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">模組G完成後：球在場景裡的完整互動關係</text>
+
+          <rect x="20" y="35" width="600" height="150" rx="6" fill="none" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3 2"/>
+          <text x="35" y="50" font-size="8" fill="var(--text-muted)">edgeLoopFrom: self.frame（wall）</text>
+
+          <rect x="270" y="150" width="100" height="16" rx="3" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="320" y="178" text-anchor="middle" font-size="8" fill="var(--gold)">球拍：collision彈開</text>
+
+          <circle cx="320" cy="100" r="12" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.4"/>
+          <text x="320" y="60" text-anchor="middle" font-size="8" fill="var(--accent)">球：撞牆／球拍 → 物理反彈</text>
+
+          <rect x="120" y="60" width="46" height="20" rx="3" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="143" y="74" text-anchor="middle" font-size="7.5" fill="#ff8a65">磚塊</text>
+          <line x1="200" y1="95" x2="160" y2="80" stroke="#ff8a65" stroke-width="1.3" stroke-dasharray="3 2" marker-end="url(#arrow32)"/>
+          <text x="150" y="105" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">contact →</text>
+          <text x="150" y="118" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">removeFromParent()</text>
+
+          <rect x="20" y="200" width="600" height="30" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="220" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">didBegin(_:)統一處理：判斷brickBody → removeFromParent() 消滅磚塊</text>
+        </svg>
+        <figcaption>球撞牆與球拍會物理反彈（collisionBitMask），球撞磚塊則透過didBegin(_:)偵測並移除磚塊（contactTestBitMask）。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>動手驗證：這一課該看到的效果</h3>
+        <p>
+          把這一課的程式碼接上專案後，執行遊戲應該會看到：球從
+          畫面中間往下發射，碰到左右與上方邊界會反彈、碰到球拍
+          也會反彈，而球拍可以用第20、21課學過的觸控來左右移動
+          擋球；球撞到任何一顆磚塊時，那顆磚塊會立刻從畫面上
+          消失。如果磚塊沒有消失，優先檢查
+          <code>contactTestBitMask</code>是否漏設，以及
+          <code>GameScene</code>是否確實遵循了
+          <code>SKPhysicsContactDelegate</code>。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>SKPhysicsBody(edgeLoopFrom:)</code>的用途，以及為什麼底部邊界通常刻意不列入反彈範圍</li>
+          <li>解釋<code>didBegin(_:)</code>裡為什麼要同時檢查<code>bodyA</code>跟<code>bodyB</code>的<code>categoryBitMask</code></li>
+          <li>如果球撞到磚塊卻沒有消失，列出兩個最可能該檢查的設定</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        磚塊會消失了，但玩家目前完全看不到自己的表現如何——
+        模組H要開始處理遊戲邏輯與狀態管理，第一步就是加上分數
+        系統，讓每消滅一顆磚塊，畫面上的分數就即時更新。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：碰撞分類（Collision Category）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：分數系統 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

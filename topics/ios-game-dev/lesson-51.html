@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：模組總結：SpriteKit常見效能陷阱 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="模組L總結：整理SpriteKit新手最常踩到的四個效能陷阱——過多物理體、貼圖沒有重複利用、update塞太多邏輯，以及閉包強引用self造成的記憶體洩漏，並銜接模組M的廣告callback">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜效能優化與除錯基礎 · 第 51 課</div>
+      <h1>模組總結：SpriteKit常見效能陷阱</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模組L兩堂課學到的除錯與效能檢測工具，換成「新手常踩的陷阱」清單視角整理一次</li>
+          <li>認識四個SpriteKit新手最容易犯的效能錯誤，以及各自的改善方向</li>
+          <li>理解閉包強引用self造成記憶體洩漏的原理，並知道[weak self]這個修正寫法</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課學會了怎麼用除錯器抓邏輯錯誤、用Instruments跟FPS
+        計量器找效能瓶頸。這一課把焦點轉向更直接實用的角度——
+        整理出新手最常踩到的幾個SpriteKit效能陷阱，讓你在問題
+        真的發生之前，先養成習慣避開它們。
+      </p>
+
+      <h2>陷阱一：同時存在太多物理體</h2>
+      <p>
+        模組G讓每個節點加上<code>physicsBody</code>就能參與
+        物理模擬與碰撞偵測，但每一個啟用物理體的節點，都會讓
+        物理引擎在每一幀多做一份計算與碰撞檢查工作。如果磚塊
+        被打掉之後，物理體沒有跟著節點一起被移除，或是遊戲裡
+        同時存在大量帶著physics body的粒子、殘骸節點，物理引擎
+        的負擔就會持續累積，拖慢整體效能。改善方向很單純：
+        節點一旦不再需要參與物理模擬（例如磚塊已經被打掉、
+        即將從場景移除），就確實把它的physicsBody設為nil或
+        直接把節點整個移除，純裝飾用的節點也不必畫蛇添足加上
+        physics body。
+      </p>
+
+      <h2>陷阱二：沒有重複利用SKTexture，每次都重新建立</h2>
+      <p>
+        模組J第43課介紹Sprite Sheet與紋理圖集時提過，把多張
+        小圖合併管理能減少載入負擔。同樣的道理也適用在
+        <code>SKTexture</code>物件本身——如果在頻繁執行的程式碼
+        路徑裡（例如每次觸發某個特效時）都重新呼叫一次
+        <code>SKTexture(imageNamed:)</code>建立新的紋理實體，
+        就等於一直重複做圖片解碼、載入這些昂貴的工作。更好的
+        做法是把用得到的紋理提前建立好、快取起來重複使用：
+      </p>
+      <div class="code-block">// 不好的做法：每次呼叫都重新建立紋理
+func showExplosion() {
+    let texture = SKTexture(imageNamed: "explosion")
+    // ...
+}
+
+// 較好的做法：紋理只建立一次，重複利用同一個實體
+let explosionTexture = SKTexture(imageNamed: "explosion")
+
+func showExplosion() {
+    let sprite = SKSpriteNode(texture: explosionTexture)
+    // ...
+}</div>
+      <p>
+        對於一整組動畫幀，善用第43課介紹的<code>SKTextureAtlas</code>
+        一次載入整組紋理圖集，也是同樣的原則延伸——載入的動作
+        只做一次，之後反覆使用同一批已經在記憶體裡的紋理物件。
+      </p>
+
+      <h2>陷阱三：update(_:)裡塞了太複雜的邏輯</h2>
+      <p>
+        模組D第19課介紹過，<code>update(_:)</code>是SpriteKit
+        每一幀（理想狀況下每秒約60次）都會呼叫一次的函式。
+        這代表放進這個函式裡的任何程式碼，運算成本都會被直接
+        乘上60倍。如果裡面塞了昂貴的運算——例如每一幀都用巢狀
+        迴圈掃過整個磚塊陣列、每一幀都做不必要的字串處理或
+        重複的距離計算——即使單獨看一次執行時間很短，累積下來
+        也足以把幀率拖垮。改善方向是把「不需要每一幀都重新算」
+        的邏輯移出update，改成事件觸發時才執行（例如碰撞發生
+        當下才處理一次），或是加上節流機制，每隔幾幀才執行
+        一次而不是每幀都做。
+      </p>
+
+      <h2>陷阱四：閉包強引用self造成記憶體洩漏</h2>
+      <p>
+        Swift用自動參照計數（ARC）管理記憶體：一個物件被幾個
+        地方強引用著，計數就有幾，計數歸零時才會被釋放。閉包
+        （回顧模組B第6課）預設會對它使用到的外部物件（包括
+        self）做<strong>強引用</strong>；如果這個閉包本身又被
+        某個生命週期較長的物件保留著（例如存成屬性、或是傳給
+        一個非同步的回呼），同時self又保留著這個閉包，就會形成
+        「你引用我、我引用你」的<strong>循環引用</strong>——
+        兩邊都不會被釋放，造成記憶體洩漏。修正方式是在閉包的
+        捕獲清單（capture list）裡把self標記為<code>weak</code>：
+      </p>
+      <div class="code-block">someAsyncCall { [weak self] result in
+    guard let self = self else { return }
+    self.updateScore(result)
+}</div>
+      <p>
+        <code>[weak self]</code>讓閉包對self的引用變成弱引用，
+        不會阻止self被正常釋放；閉包內部先用<code>guard let
+        self = self else { return }</code>安全地解開這個可能
+        已經變成nil的弱引用，才繼續往下執行。
+      </p>
+
+      <div class="callout">
+        <h3>銜接模組M：廣告SDK的callback幾乎都長這個樣子</h3>
+        <p>
+          之所以特別把這一點留到模組L的最後強調，是因為接下來
+          的模組M要整合廣告SDK，而廣告的載入、顯示、關閉幾乎
+          全部都是透過閉包形式的callback完成——如果不養成
+          在這些callback裡用<code>[weak self]</code>的習慣，
+          很容易在整合廣告功能之後，讓整個場景或畫面因為循環
+          引用而遲遲無法被釋放。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出這一課整理的四個SpriteKit新手常見效能陷阱</li>
+          <li>解釋為什麼重複建立SKTexture比重複利用既有的紋理物件更浪費資源</li>
+          <li>說明閉包造成循環引用的原理，以及[weak self]這個寫法怎麼解決它</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組M正式開始，要把打磚塊遊戲加上真正的廣告收入來源。
+        下一課先從最基本的分類講起：插頁廣告、獎勵型廣告、
+        橫幅廣告這三種廣告類型，各自的觸發方式與使用時機有
+        什麼不同。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：Instruments效能檢測入門</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：廣告的兩大類型：強制彈出型 vs 使用者主動點開型（以及第三種：橫幅廣告） →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

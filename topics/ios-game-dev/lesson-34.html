@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：生命值系統 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="加入lives變數，偵測球掉出畫面底部的情況並扣血，學會重設球的位置與初始速度讓玩家能重新發球">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實作專案③：遊戲邏輯與狀態管理 · 第 34 課</div>
+      <h1>生命值系統</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>加入<code>lives</code>變數，追蹤玩家剩餘的生命數</li>
+          <li>學會偵測球掉到球拍下方、掉出畫面底部的情況，判斷玩家漏接了球</li>
+          <li>學會在漏接後扣血、把球重新放回起始位置並給予新的初始速度，讓玩家能重新發球</li>
+        </ul>
+      </div>
+
+      <p>
+        第32課建立場景邊界physics body時，特別提到畫面底部通常
+        刻意不列入反彈範圍——原因就在這一課：底部不反彈，球
+        才有可能真的「掉出去」，也才需要一套生命值系統，來
+        處理玩家沒接到球之後該怎麼辦。
+      </p>
+
+      <h2>1. 宣告lives變數</h2>
+      <p>
+        跟分數一樣，先在<code>GameScene</code>加入一個追蹤生命
+        值的屬性，打磚塊常見的起始生命數是3，也可以額外加一個
+        label顯示在畫面上（作法跟第33課的<code>scoreLabel</code>
+        相同，這裡不重複列出）：
+      </p>
+      <div class="code-block">var lives = 3
+let livesLabel = SKLabelNode(fontNamed: "Helvetica-Bold")</div>
+
+      <h2>2. 偵測球掉出畫面底部</h2>
+      <p>
+        因為場景邊界的physics body刻意不包含底部，球掉出畫面
+        下緣時不會觸發任何碰撞通知，所以沒辦法靠
+        <code>didBegin(_:)</code>偵測——必須改用另一種方式：在
+        每一幀的<code>update(_:)</code>裡，主動檢查球目前的
+        <code>position.y</code>是不是已經低於畫面底部。回顧
+        第18課的座標系統，SKScene預設的<code>anchorPoint</code>
+        是<code>(0, 0)</code>，代表場景左下角就是座標
+        <code>(0, 0)</code>，所以「球掉出底部」等於球的
+        <code>position.y</code>小於0：
+      </p>
+      <div class="code-block">override func update(_ currentTime: TimeInterval) {
+    if ball.position.y < 0 {
+        ballLost()
+    }
+}</div>
+      <p>
+        這種在<code>update(_:)</code>裡每一幀主動檢查的方式，
+        稱為輪詢（polling），是判斷「某個持續變化的狀態是否
+        跨過一個邊界值」最直接的做法，很適合這種場景邊界沒有
+        physics body可以依靠的情況。
+      </p>
+
+      <h2>3. 扣血與重新發球：ballLost()</h2>
+      <p>
+        把「漏接一次球該做的事」整理成一個獨立的函式，包含
+        扣血、更新畫面文字、把球重新放回起始位置：
+      </p>
+      <div class="code-block">func ballLost() {
+    lives -= 1
+    livesLabel.text = "生命：\(lives)"
+    resetBall()
+}
+
+func resetBall() {
+    ball.position = CGPoint(x: frame.midX, y: frame.midY)
+    ball.physicsBody?.velocity = CGVector(dx: 140, dy: -220)
+}</div>
+      <p>
+        <code>resetBall()</code>把球放回畫面正中央，再重新指定
+        一次<code>velocity</code>——這一步不能省略，因為球掉出
+        底部之後，原本的velocity可能已經是朝下的方向，如果不
+        重新設定，球一移回中央就會立刻再次往下掉出畫面。
+      </p>
+
+      <h2>每失去一條命，畫面上發生了什麼</h2>
+      <p>
+        整理一下漏接一次球的完整流程：球的y座標低於0觸發
+        <code>ballLost()</code>→ <code>lives</code>減1、
+        <code>livesLabel</code>文字同步更新 → 球被瞬間移回畫面
+        中央、並重新獲得一組初始速度，讓玩家能立刻繼續遊戲。
+        目前這個版本還沒有檢查<code>lives</code>是不是已經歸
+        零——如果扣到負數，遊戲會繼續讓球一直重生，這個問題
+        留到下一課的勝負判定邏輯處理。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow34" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">球掉出底部：從偵測到重新發球</text>
+
+          <rect x="40" y="35" width="560" height="120" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <rect x="240" y="120" width="80" height="12" rx="3" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.1"/>
+          <circle cx="280" cy="105" r="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2" opacity="0.4"/>
+          <circle cx="150" cy="170" r="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <line x1="280" y1="112" x2="155" y2="163" stroke="var(--accent)" stroke-width="1.3" stroke-dasharray="3 2" marker-end="url(#arrow34)"/>
+
+          <line x1="40" y1="155" x2="600" y2="155" stroke="#ff8a65" stroke-width="1.3" stroke-dasharray="5 3"/>
+          <text x="595" y="150" text-anchor="end" font-size="7.5" fill="#ff8a65">y = 0（底部邊界，update(_:)輪詢）</text>
+
+          <rect x="40" y="180" width="560" height="30" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="200" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ballLost()：lives -= 1 → 更新livesLabel → resetBall()把球移回中央並重新給velocity</text>
+        </svg>
+        <figcaption>球的position.y低於0代表掉出底部，update(_:)每幀輪詢偵測，觸發扣血與重新發球。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼球掉出畫面底部無法靠<code>didBegin(_:)</code>偵測，需要改用<code>update(_:)</code>輪詢</li>
+          <li>解釋<code>resetBall()</code>裡為什麼一定要重新設定<code>velocity</code>，而不能只改<code>position</code></li>
+          <li>說明目前<code>ballLost()</code>的實作，還缺少哪個判斷，可能會讓<code>lives</code>一路扣成負數</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要補上這一課留下的缺口，正式處理勝負判定邏輯——
+        判斷磚塊是不是已經全部消滅（獲勝），以及
+        <code>lives</code>是不是已經歸零（落敗），並且在這兩種
+        情況發生時，讓遊戲對應地做出反應。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：分數系統</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：勝負判定邏輯 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

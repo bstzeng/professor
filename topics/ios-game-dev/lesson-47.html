@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 47 課：儲存最高分與遊戲進度 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="實作一段完整的最高分儲存邏輯：遊戲結束時讀取UserDefaults裡儲存的最高分、跟本局分數比較，只有打破紀錄時才寫回新的最高分">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 47 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜資料儲存與遊戲設定 · 第 47 課</div>
+      <h1>儲存最高分與遊戲進度</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能寫出「讀取已存最高分、跟本局分數比較、有需要才寫回」的完整程式邏輯</li>
+          <li>理解為什麼要先讀取比較，而不是每次遊戲結束都直接覆寫</li>
+          <li>能把這段邏輯正確接到遊戲結束（game over）的時機點上</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課認識了UserDefaults的基本讀寫方式，這一課把它套進
+        一個具體、幾乎每款遊戲都會用到的場景：儲存最高分。整個
+        邏輯並不複雜，但有一個容易忽略的細節——不是每次遊戲
+        結束都要寫入，只有玩家真的打破紀錄的那一次才需要。
+      </p>
+
+      <h2>1. 完整的邏輯：讀取、比較、有需要才寫回</h2>
+      <div class="code-block">func updateHighScoreIfNeeded(currentScore: Int) {
+    let savedHighScore = UserDefaults.standard.integer(forKey: "highScore")
+
+    if currentScore > savedHighScore {
+        UserDefaults.standard.set(currentScore, forKey: "highScore")
+    }
+}</div>
+      <p>
+        這段程式碼分三步：先用<code>integer(forKey:)</code>讀出
+        目前已經存好的最高分——就算App是第一次執行、根本還沒
+        存過<code>"highScore"</code>這個key，也會安全地拿到
+        <code>0</code>，不需要另外判斷key存不存在；接著比較本局
+        的<code>currentScore</code>是否大於<code>savedHighScore</code>；
+        只有在「打破紀錄」的情況下，才呼叫<code>set(_:forKey:)</code>
+        把新的分數寫回去。平常沒有破紀錄的那些局，完全不需要
+        寫入，既避免了不必要的磁碟寫入，邏輯上也更清楚地表達了
+        「只在真正需要時才更新」的意圖。
+      </p>
+
+      <h2>2. 接到遊戲結束的時機點</h2>
+      <div class="code-block">func endGame() {
+    run(SKAction.playSoundFileNamed("gameOver.wav", waitForCompletion: false))
+    updateHighScoreIfNeeded(currentScore: score)
+
+    // 顯示遊戲結束畫面……
+}</div>
+      <p>
+        這段邏輯應該在遊戲確定進入「結束」狀態的那一刻呼叫一次
+        ——也就是模組H勝負判定邏輯裡，狀態機切換到game over
+        狀態的地方。這裡也一併示範了模組I第38課的音效邏輯跟
+        這一課的最高分更新邏輯，很自然地並排放在同一個
+        <code>endGame()</code>函式裡：兩件事各自獨立，互不干擾，
+        卻都掛在同一個時機點上觸發。
+      </p>
+
+      <h2>3. 顯示目前的最高分</h2>
+      <div class="code-block">let highScore = UserDefaults.standard.integer(forKey: "highScore")
+highScoreLabel.text = "最高分：\(highScore)"</div>
+      <p>
+        存起來的最高分，當然也要有地方讀回來顯示——常見的做法
+        是在開始畫面或遊戲結束畫面，讀取這個值並更新對應的
+        <code>SKLabelNode</code>文字，讓玩家清楚看到自己目前
+        的最佳紀錄，也讓「打破紀錄」這件事有明確的參考基準。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow47" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="300" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">遊戲結束時的最高分判斷流程</text>
+
+          <rect x="220" y="35" width="160" height="40" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="300" y="60" text-anchor="middle" font-size="9.5" fill="var(--text)">遊戲結束 endGame()</text>
+
+          <line x1="300" y1="75" x2="300" y2="105" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow47)"/>
+
+          <rect x="190" y="110" width="220" height="40" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="300" y="135" text-anchor="middle" font-size="9" fill="var(--gold)">讀取savedHighScore</text>
+
+          <line x1="300" y1="150" x2="300" y2="175" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <polygon points="300,175 380,200 300,225 220,200" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="300" y="204" text-anchor="middle" font-size="8" fill="var(--accent)">currentScore &gt;</text>
+          <text x="300" y="216" text-anchor="middle" font-size="8" fill="var(--accent)">savedHighScore？</text>
+
+          <line x1="380" y1="200" x2="470" y2="200" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow47)"/>
+          <text x="475" y="185" font-size="8" fill="#ff8a65">是</text>
+          <rect x="470" y="180" width="115" height="40" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="527" y="204" text-anchor="middle" font-size="8" fill="#ff8a65">set寫入新高分</text>
+
+          <text x="290" y="245" text-anchor="middle" font-size="8" fill="var(--text-muted)">否：保留原本高分，不寫入</text>
+        </svg>
+        <figcaption>只有本局分數真正超過已存的最高分時，才呼叫set(_:forKey:)寫回，否則保持原樣。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>依序說出（或寫出）判斷是否要更新最高分的完整邏輯順序</li>
+          <li>說明為什麼不能每次遊戲結束都直接把本局分數寫進highScore</li>
+          <li>說明<code>updateHighScoreIfNeeded</code>這段邏輯應該放在遊戲流程的哪個時間點呼叫</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要把模組K整合起來，做出一個簡易的設定畫面——一個
+        音效開關，串接第38課的音效播放程式碼，並銜接下一個模組
+        的效能優化與除錯主題。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-46.html">← 上一課：UserDefaults基礎</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-48.html">下一課：模組總結：簡易設定畫面 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：Sprite Sheet基礎概念 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="認識sprite sheet（texture atlas）的概念，學會用Xcode的.atlas資料夾慣例與SKTextureAtlas載入素材，理解圖集為什麼能改善渲染效能">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜遊戲美術資源基礎 · 第 43 課</div>
+      <h1>Sprite Sheet基礎概念</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解sprite sheet／texture atlas的概念：把多張相關圖片打包成一份素材</li>
+          <li>學會用Xcode的<code>.atlas</code>資料夾慣例，讓Xcode自動幫你打包圖集</li>
+          <li>能用<code>SKTextureAtlas</code>在程式碼裡載入圖集裡的個別圖片，並理解圖集為什麼能改善效能</li>
+        </ul>
+      </div>
+
+      <p>
+        有了素材來源，下一個實際問題是：一個像磚塊爆炸這樣的
+        動畫效果，往往需要好幾張連續的圖片（一張一張畫出爆炸
+        逐漸擴散的樣子）。如果每張圖都是專案裡各自獨立的檔案，
+        管理起來既凌亂，執行時的效能也不理想。這就是sprite
+        sheet（也叫texture atlas，圖集）要解決的問題。
+      </p>
+
+      <h2>1. 什麼是Sprite Sheet（Texture Atlas）</h2>
+      <p>
+        Sprite sheet／texture atlas的概念很直接：把多張相關的
+        圖片（例如一組動畫的每一幀、或是一組UI圖示）打包成一份
+        素材，而不是各自獨立的散落檔案。這樣做除了讓專案結構
+        更整齊、相關的圖片放在一起容易管理之外，稍後會看到，
+        在渲染效能上也有實際好處。
+      </p>
+
+      <h2>2. Xcode的.atlas資料夾慣例</h2>
+      <p>
+        Xcode提供了一個很方便的慣例來建立圖集：在Project
+        Navigator裡建立一個資料夾，把資料夾命名成
+        <code>某個名稱.atlas</code>的格式（例如
+        <code>BrickBreak.atlas</code>），再把個別的圖片檔案，
+        依照順序命名放進這個資料夾裡（例如
+        <code>brickBreak_0.png</code>、<code>brickBreak_1.png</code>
+        ……）。只要資料夾名稱以<code>.atlas</code>結尾，Xcode在
+        建置時就會自動辨識、把裡面所有圖片打包成一份最佳化過的
+        合併圖集，開發者完全不需要自己動手拼接圖片，也不用手動
+        跑額外的打包工具，程式碼裡照樣用原本的檔名引用個別
+        圖片就好。
+      </p>
+
+      <h2>3. 用SKTextureAtlas載入與使用</h2>
+      <p>
+        程式碼裡透過<code>SKTextureAtlas</code>載入這個資料夾，
+        再用<code>textureNamed(_:)</code>取出個別的貼圖：
+      </p>
+      <div class="code-block">let explosionAtlas = SKTextureAtlas(named: "BrickBreak")
+
+var frames: [SKTexture] = []
+for i in 0..&lt;6 {
+    let textureName = "brickBreak_\(i)"
+    frames.append(explosionAtlas.textureNamed(textureName))
+}
+
+let animation = SKAction.animate(with: frames, timePerFrame: 0.05)
+brick.run(SKAction.sequence([animation, SKAction.removeFromParent()]))</div>
+      <p>
+        <code>SKTextureAtlas(named:)</code>用資料夾名稱（不含
+        <code>.atlas</code>副檔名）載入整個圖集；
+        <code>textureNamed(_:)</code>則用個別圖片原本的檔名（不含
+        副檔名）取出對應的<code>SKTexture</code>。這裡刻意用
+        迴圈搭配已知的命名規則（<code>brickBreak_0</code>、
+        <code>brickBreak_1</code>……）逐一組出檔名，而不是直接
+        依賴圖集的<code>textureNames</code>屬性——因為那個屬性
+        回傳的順序不保證跟原本的動畫順序一致，用固定的命名規則
+        自己組檔名，動畫幀的順序才會穩定正確。組好陣列後，交給
+        <code>SKAction.animate(with:timePerFrame:)</code>，就會
+        像播放逐格動畫一樣，依序切換這些貼圖。
+      </p>
+
+      <h2>4. 為什麼圖集能改善渲染效能</h2>
+      <p>
+        GPU在渲染畫面時，理想狀況是把使用「同一份貼圖來源」的
+        多個sprite盡量合併成一次繪製呼叫（draw call）一起處理；
+        如果場景裡的sprite各自使用不同的獨立圖片檔案，渲染器
+        往往需要在繪製之間不斷切換貼圖（texture swap），這帶來
+        額外的效能開銷。把多張小圖打包進同一份圖集之後，
+        SpriteKit能把使用同一個圖集的sprite合併批次繪製，減少
+        貼圖切換與繪製呼叫的次數——當畫面上同時有大量小型
+        sprite（例如整排的磚塊）時，這個差異會更明顯。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow43" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="310" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從散落的圖片到一份圖集</text>
+
+          <rect x="20" y="45" width="26" height="26" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1"/>
+          <rect x="55" y="45" width="26" height="26" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1"/>
+          <rect x="90" y="45" width="26" height="26" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1"/>
+          <text x="70" y="90" text-anchor="middle" font-size="8" fill="var(--text-muted)">brickBreak_0～2.png</text>
+
+          <line x1="140" y1="60" x2="180" y2="60" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow43)"/>
+
+          <rect x="185" y="35" width="160" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="265" y="58" text-anchor="middle" font-size="9" fill="var(--gold)">BrickBreak.atlas資料夾</text>
+          <text x="265" y="75" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Xcode建置時自動打包</text>
+
+          <line x1="345" y1="60" x2="385" y2="60" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow43)"/>
+
+          <rect x="390" y="35" width="150" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="465" y="58" text-anchor="middle" font-size="8.5" fill="var(--accent)">SKTextureAtlas</text>
+          <text x="465" y="75" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">(named:) 載入</text>
+
+          <line x1="465" y1="90" x2="465" y2="130" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow43)"/>
+
+          <rect x="325" y="135" width="270" height="55" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="460" y="158" text-anchor="middle" font-size="8.5" fill="#ff8a65">textureNamed(_:) 逐幀取出</text>
+          <text x="460" y="175" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">SKAction.animate(with:timePerFrame:)</text>
+
+          <rect x="20" y="135" width="270" height="55" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="155" y="158" text-anchor="middle" font-size="8.5" fill="var(--text)">同一圖集內的sprite</text>
+          <text x="155" y="175" text-anchor="middle" font-size="8.5" fill="var(--text)">可合併批次繪製，減少貼圖切換</text>
+        </svg>
+        <figcaption>Xcode把.atlas資料夾自動打包成一份圖集，程式碼再用SKTextureAtlas載入、取出個別幀組成動畫。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明sprite sheet（texture atlas）的概念，以及它想解決的問題</li>
+          <li>說明Xcode的<code>.atlas</code>資料夾慣例是怎麼運作的</li>
+          <li>說明為什麼把多張小圖片打包成一份圖集，有助於改善渲染效能</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要介紹App Icon的設計規範——需要準備什麼規格的
+        主圖示、Xcode怎麼幫你處理不同尺寸的需求，以及幾個常見
+        的設計原則。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：免費／合法素材哪裡找</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：App Icon設計規範 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

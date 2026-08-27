@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：勝負判定邏輯 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用bricksRemaining計數器判斷磚塊是否全部消滅來決定勝利，用lives歸零判斷落敗，並在勝負發生時做出對應的畫面反應">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實作專案③：遊戲邏輯與狀態管理 · 第 35 課</div>
+      <h1>勝負判定邏輯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解怎麼追蹤「磚塊是不是都被消滅了」，藉此判斷玩家獲勝</li>
+          <li>理解<code>lives</code>歸零代表遊戲失敗，需要觸發對應的處理</li>
+          <li>學會在勝利、落敗發生時，做出畫面上的對應反應</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課留了一個缺口：<code>lives</code>會一路被扣成負數，
+        遊戲也永遠不會判斷「磚塊全部消滅了」代表獲勝。這一課
+        要把這兩個判斷補齊，讓打磚塊真正變成一款有明確終點的
+        遊戲——而不是一場永遠打不完的球。
+      </p>
+
+      <h2>1. 勝利條件：磚塊清空</h2>
+      <p>
+        判斷磚塊是否清空，最直接、效能也最好的做法，是用一個
+        計數器記錄「還剩多少顆磚塊」，在場景初始化時設成磚塊
+        總數，之後每消滅一顆就減1：
+      </p>
+      <div class="code-block">var bricksRemaining = 0
+
+override func didMove(to view: SKView) {
+    // ...其餘設定
+    bricksRemaining = bricks.count
+}</div>
+      <p>
+        接著在第32、33課的<code>didBegin(_:)</code>裡，磚塊被
+        移除的同時把計數器減1，並檢查是不是已經歸零：
+      </p>
+      <div class="code-block">func didBegin(_ contact: SKPhysicsContact) {
+    let bodyA = contact.bodyA
+    let bodyB = contact.bodyB
+
+    let brickBody: SKPhysicsBody
+    if bodyA.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyA
+    } else if bodyB.categoryBitMask == PhysicsCategory.brick {
+        brickBody = bodyB
+    } else {
+        return
+    }
+
+    brickBody.node?.removeFromParent()
+    score += 10
+    scoreLabel.text = "分數：\(score)"
+
+    bricksRemaining -= 1
+    if bricksRemaining == 0 {
+        gameWin()
+    }
+}</div>
+      <p>
+        另一種比較直覺、但效能較差的替代做法，是不維護計數器，
+        而是每次都直接算場景裡目前還剩幾個名字是<code>"brick"</code>
+        的節點：<code>scene.children.filter { $0.name == "brick"
+        }.count == 0</code>。這種寫法不需要額外的變數，邏輯
+        上更好理解，但每次呼叫都要遍歷整個節點樹，磚塊數量一多
+        就會比維護一個計數器慢，所以正式專案通常還是採用
+        <code>bricksRemaining</code>計數器的寫法。
+      </p>
+
+      <h2>2. 失敗條件：生命值歸零</h2>
+      <p>
+        失敗的判斷則接在第34課的<code>ballLost()</code>之後——
+        扣血後檢查<code>lives</code>是否已經小於等於0：
+      </p>
+      <div class="code-block">func ballLost() {
+    lives -= 1
+    livesLabel.text = "生命：\(lives)"
+
+    if lives <= 0 {
+        gameOver()
+    } else {
+        resetBall()
+    }
+}</div>
+      <p>
+        這裡刻意用<code>if／else</code>分開處理：生命值歸零時
+        不再呼叫<code>resetBall()</code>——沒有意義讓一顆球在
+        遊戲已經結束的情況下繼續發射，直接進入落敗流程即可。
+      </p>
+
+      <h2>3. 觸發勝利／失敗的處理</h2>
+      <p>
+        <code>gameWin()</code>跟<code>gameOver()</code>目前先做
+        最基本的事：暫停場景、顯示一段結果文字。之後第36課的
+        暫停機制、第37課的狀態機都會讓這部分變得更完整，這一課
+        先求「能明確判斷勝負、畫面上看得出來」：
+      </p>
+      <div class="code-block">func gameWin() {
+    let label = SKLabelNode(fontNamed: "Helvetica-Bold")
+    label.text = "遊戲勝利！"
+    label.fontSize = 36
+    label.fontColor = .white
+    label.position = CGPoint(x: frame.midX, y: frame.midY)
+    label.zPosition = 20
+    addChild(label)
+
+    isPaused = true
+}
+
+func gameOver() {
+    let label = SKLabelNode(fontNamed: "Helvetica-Bold")
+    label.text = "遊戲結束"
+    label.fontSize = 36
+    label.fontColor = .white
+    label.position = CGPoint(x: frame.midX, y: frame.midY)
+    label.zPosition = 20
+    addChild(label)
+
+    isPaused = true
+}</div>
+      <p>
+        <code>isPaused = true</code>會讓整個場景的物理模擬跟
+        動作都暫停下來（下一課會詳細說明這個屬性），先讓球
+        停在原地、磚塊不再變化，把結果文字清楚地顯示給玩家看。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow35" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩條判斷路徑，各自導向遊戲結束</text>
+
+          <rect x="30" y="45" width="180" height="45" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="120" y="72" text-anchor="middle" font-size="9" fill="var(--text)">didBegin(_:) 消滅磚塊</text>
+          <line x1="120" y1="90" x2="120" y2="115" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow35)"/>
+          <rect x="30" y="120" width="180" height="40" rx="6" fill="var(--gold)" opacity="0.12" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="144" text-anchor="middle" font-size="8.5" fill="var(--gold)">bricksRemaining == 0 ?</text>
+
+          <rect x="430" y="45" width="180" height="45" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="520" y="72" text-anchor="middle" font-size="9" fill="var(--text)">ballLost() 扣血</text>
+          <line x1="520" y1="90" x2="520" y2="115" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow35)"/>
+          <rect x="430" y="120" width="180" height="40" rx="6" fill="#ff8a65" opacity="0.14" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="520" y="144" text-anchor="middle" font-size="8.5" fill="#ff8a65">lives &lt;= 0 ?</text>
+
+          <line x1="120" y1="160" x2="270" y2="185" stroke="var(--gold)" stroke-width="1.3" marker-end="url(#arrow35)"/>
+          <line x1="520" y1="160" x2="370" y2="185" stroke="#ff8a65" stroke-width="1.3" marker-end="url(#arrow35)"/>
+          <rect x="230" y="185" width="180" height="26" rx="6" fill="var(--accent)" opacity="0.1" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="320" y="202" text-anchor="middle" font-size="8.5" fill="var(--accent)">gameWin() / gameOver()：isPaused = true</text>
+        </svg>
+        <figcaption>磚塊消滅光了走向gameWin()，生命值歸零走向gameOver()，兩條路徑都先用isPaused暫停場景。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>比較用<code>bricksRemaining</code>計數器跟每次過濾節點樹算磚塊數量，這兩種判斷勝利條件的方式各有什麼優缺點</li>
+          <li>說明<code>ballLost()</code>裡為什麼要用<code>if／else</code>分開處理「還有命」跟「沒命了」這兩種情況</li>
+          <li>解釋<code>gameWin()</code>跟<code>gameOver()</code>目前用<code>isPaused = true</code>達成了什麼效果</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        遊戲現在會正確判斷勝負，但玩家除了看到結果文字，沒有
+        任何方法重新開始——下一課要學<code>isPaused</code>更
+        完整的用法，並且實作真正的重新開始機制，讓玩家可以
+        從頭再玩一局。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：生命值系統</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：重新開始與暫停 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

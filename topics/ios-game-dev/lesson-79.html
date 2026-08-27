@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 79 課：蒐集使用者回饋與初期評分策略 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="認識蘋果原生的評分邀請API，理解顯示頻率由系統節流、開發者只能請求不能強制觸發的機制，該挑什麼時機呼叫，以及回應公開評論、其他早期回饋管道的做法">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 79 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 R｜上架後：基礎行銷與版本迭代 · 第 79 課</div>
+      <h1>蒐集使用者回饋與初期評分策略</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識蘋果原生的評分邀請API，理解「請求顯示」跟「一定會顯示」的差別</li>
+          <li>知道該挑什麼樣的時機呼叫評分邀請，才比較符合玩家的實際體驗</li>
+          <li>了解回應公開評論、以及其他能蒐集早期使用者回饋的管道</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課談的是怎麼讓玩家「找到」跟「點開」遊戲，這一課
+        往後退一步，看遊戲上架之後，怎麼系統性地聽到真實玩家
+        的聲音——包含蘋果內建的評分邀請機制、怎麼回應商店頁面
+        上的公開評論，以及其他能蒐集初期回饋的管道。
+      </p>
+
+      <h2>1. 蘋果原生的評分邀請：只能請求，不能強制顯示</h2>
+      <p>
+        蘋果提供了一套內建的<strong>App內評分邀請</strong>機制，
+        讓開發者可以在程式碼裡「請求」系統彈出那個熟悉的星星
+        評分小視窗，不需要自己刻一整套「請幫我們評分」的畫面、
+        也不會把使用者導出App到App Store頁面才能留下評分。在
+        UIKit／SpriteKit的情境裡，常見的呼叫方式是透過
+        <code>SKStoreReviewController</code>；在較新版本的
+        SwiftUI裡，則有專門的<code>RequestReviewAction</code>
+        可以透過環境值取得並呼叫。
+      </p>
+
+      <div class="code-block">import StoreKit
+
+// UIKit / SpriteKit 情境：透過目前的 window scene 請求評分
+if let windowScene = view?.window?.windowScene {
+    SKStoreReviewController.requestReview(in: windowScene)
+}
+
+// SwiftUI 情境：透過環境值取得 RequestReviewAction
+import SwiftUI
+
+struct GameOverView: View {
+    @Environment(\.requestReview) private var requestReview
+
+    func onPlayerWon() {
+        requestReview()
+    }
+}</div>
+
+      <p>
+        這裡有一個常被誤解的關鍵：呼叫這個API，代表的是<strong>
+        「請求」系統顯示評分小視窗，而不是「強制」它一定會出現</strong>。
+        蘋果的審查指南對這個系統管理的評分提示，有明確的顯示
+        頻率限制——實際上多久才會真的彈出一次、要不要在這次
+        呼叫時顯示，完全由系統根據內部的節流機制決定，開發者
+        沒有辦法自己控制或查詢結果。這個設計是刻意的：如果讓
+        開發者能無限制地強制彈出評分視窗，玩家的體驗很快就會
+        被過度打擾的提示淹沒。
+      </p>
+
+      <h2>2. 挑對時機呼叫：正向體驗的當下，而不是挫折之後</h2>
+      <p>
+        雖然顯示與否由系統決定，但開發者仍然能決定<strong>什麼
+        時候呼叫這個請求</strong>——而這個時機點很重要。比較
+        理想的做法，是在玩家剛經歷一段<strong>正向體驗</strong>
+        之後呼叫，例如這門課的打磚塊遊戲裡，玩家剛過關、剛
+        打破自己的最高分紀錄的那個瞬間；應該盡量避免在玩家
+        剛輸掉遊戲、剛因為失誤而扣分的當下呼叫——這種時候玩家
+        對遊戲的觀感通常正處於低點，硬是跳出評分邀請，容易換來
+        一顆情緒化的低分評價，反而不利於整體評分。
+      </p>
+
+      <h2>3. 回應公開評論與其他早期回饋管道</h2>
+      <p>
+        除了系統評分，App Store頁面上使用者留下的<strong>公開
+        文字評論</strong>，也是一個值得認真看待的管道。開發者
+        可以在App Store Connect裡針對每一則評論公開回覆——
+        認真、有禮貌地回應玩家提出的問題或建議（尤其是負評
+        裡具體指出的問題，例如某個關卡卡關、某個廣告出現時機
+        不理想），不只可能讓原本的評論者願意修改評分，也會讓
+        後續瀏覽頁面的其他潛在玩家，看到開發者確實有在維護
+        這款遊戲。
+      </p>
+      <p>
+        另外，也可以在遊戲的設定畫面或關於頁面裡，放一個簡單
+        的<strong>意見回饋管道</strong>——可能只是一個
+        「聯絡我們」的email連結，或是一個能直接跳出郵件App、
+        帶著預先填好主旨的連結。這類管道蒐集到的回饋，通常會
+        比公開評論更具體、更願意描述細節，因為玩家知道這是
+        私下溝通，而不是公開的星級評分。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">評分邀請的呼叫時機</text>
+
+          <rect x="20" y="50" width="270" height="110" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="155" y="75" text-anchor="middle" font-size="10.5" fill="var(--gold)">合適的時機</text>
+          <text x="40" y="98" font-size="8.5" fill="var(--text)">剛過關、破紀錄的瞬間</text>
+          <text x="40" y="118" font-size="8.5" fill="var(--text)">玩家情緒正向、剛獲得成就感</text>
+          <text x="40" y="138" font-size="8.5" fill="var(--text-muted)">呼叫requestReview()請求顯示</text>
+
+          <rect x="350" y="50" width="270" height="110" rx="8" fill="#ff8a65" opacity="0.12" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="485" y="75" text-anchor="middle" font-size="10.5" fill="#ff8a65">應避免的時機</text>
+          <text x="370" y="98" font-size="8.5" fill="var(--text)">剛輸掉遊戲、剛失誤扣分</text>
+          <text x="370" y="118" font-size="8.5" fill="var(--text)">玩家情緒偏負面的當下</text>
+          <text x="370" y="138" font-size="8.5" fill="var(--text-muted)">容易換來情緒化的低分</text>
+
+          <text x="320" y="185" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">實際是否顯示，最終仍由系統的節流機制決定</text>
+        </svg>
+        <figcaption>能決定的只有「什麼時候提出請求」，系統才是決定「要不要真的顯示」的一方。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋為什麼呼叫評分邀請API，不代表評分視窗一定會出現在畫面上</li>
+          <li>說明為什麼建議在玩家剛過關的時候呼叫評分邀請，而不是剛輸掉遊戲之後</li>
+          <li>除了系統評分，還有哪些管道可以蒐集到玩家更具體的早期回饋</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        蒐集到玩家的回饋之後，下一課要談怎麼把這些意見，轉化成
+        實際的版本更新——包含版本號該怎麼編、更新內容該怎麼
+        排優先順序。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-78.html">← 上一課：ASO基礎：關鍵字優化與商店頁面轉換率</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-80.html">下一課：規劃版本更新與內容迭代 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

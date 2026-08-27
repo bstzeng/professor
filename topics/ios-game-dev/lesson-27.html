@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：模組總結：場景切換與開始畫面 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用SKTransition在開始畫面與遊戲畫面之間做出淡入淡出轉場，實作一個「點一下開始」的StartScene，並回顧模組F目前的進度：球拍、球、磚塊陣列都已就位但尚未互動">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜實作專案①：打磚塊遊戲——基礎架構 · 第 27 課</div>
+      <h1>模組總結：場景切換與開始畫面</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識SKTransition，能在不同SKScene之間做出轉場效果</li>
+          <li>理解「點一下開始」開始畫面的基本實作模式：獨立場景＋觸控後轉場</li>
+          <li>回顧模組F目前的進度，並銜接模組G要處理的物理與碰撞</li>
+        </ul>
+      </div>
+
+      <p>
+        模組F前四課依序建立了球拍、球、磚塊陣列，但目前打開
+        遊戲，會直接看到一整個排好的畫面，玩家連準備的時間都
+        沒有。這一課要補上一個常見的體驗細節——先出現一個
+        「點一下開始」的畫面，玩家點擊之後，才真正切換進遊戲
+        場景，同時也是模組F收尾、銜接模組G之前，回顧目前進度
+        的好時機。
+      </p>
+
+      <h2>SKTransition：場景之間的轉場效果</h2>
+      <p>
+        SpriteKit允許一個<code>SKView</code>隨時切換成呈現不同
+        的<code>SKScene</code>，而<code>SKTransition</code>提供
+        了一整組現成的轉場效果，讓切換不會是生硬的一刀切畫面。
+        最常用、也最不容易出錯的是淡入淡出：
+      </p>
+      <div class="code-block">let transition = SKTransition.fade(withDuration: 0.5)
+if let view = self.view {
+    let gameScene = GameScene(size: view.bounds.size)
+    gameScene.scaleMode = .aspectFill
+    view.presentScene(gameScene, transition: transition)
+}</div>
+      <p>
+        <code>SKTransition.fade(withDuration:)</code>建立一個
+        0.5秒的淡入淡出轉場；<code>view.presentScene(_:
+        transition:)</code>才是真正觸發切換的呼叫——把新場景
+        跟轉場效果一起傳進去，SpriteKit會自動處理整個轉場動畫，
+        不需要自己手動計算透明度或寫額外的動畫程式碼。
+      </p>
+
+      <h2>一個簡單的開始畫面</h2>
+      <p>
+        「點一下開始」的做法，其實就是另外準備一個獨立的
+        <code>SKScene</code>子類別，放標題文字跟提示文字，
+        並在<code>touchesBegan</code>裡觸發轉場：
+      </p>
+      <div class="code-block">class StartScene: SKScene {
+
+    override func didMove(to view: SKView) {
+        let titleLabel = SKLabelNode(text: "打磚塊")
+        titleLabel.fontSize = 40
+        titleLabel.position = CGPoint(x: frame.midX, y: frame.midY + 40)
+        addChild(titleLabel)
+
+        let promptLabel = SKLabelNode(text: "點一下開始")
+        promptLabel.fontSize = 20
+        promptLabel.position = CGPoint(x: frame.midX, y: frame.midY - 20)
+        addChild(promptLabel)
+    }
+
+    override func touchesBegan(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+        guard let view = self.view else { return }
+
+        let gameScene = GameScene(size: size)
+        gameScene.scaleMode = scaleMode
+        view.presentScene(gameScene, transition: SKTransition.fade(withDuration: 0.5))
+    }
+
+}</div>
+      <p>
+        <code>SKLabelNode(text:)</code>是SpriteKit裡專門顯示
+        文字的節點，跟第17課的<code>SKSpriteNode</code>一樣，
+        都是<code>SKNode</code>的子類別，設定<code>fontSize</code>
+        跟<code>position</code>的方式也相同。當玩家點一下畫面，
+        <code>touchesBegan</code>會建立<code>GameScene</code>的
+        實例，並用淡入淡出轉場切換過去——這裡沿用第20課學過的
+        <code>touchesBegan</code>覆寫方式，只是這次觸發的不是
+        移動節點，而是切換整個場景。
+      </p>
+
+      <h2>模組F進度回顧</h2>
+      <p>
+        整理一下模組F這五課做出來的東西：<code>GameScene</code>
+        裡已經有可以隨手指左右移動的<code>paddle</code>（第24課）、
+        定位在球拍正上方、暫時保持靜止的<code>ball</code>（第25課），
+        以及一整排整列、依規律座標排好的磚塊陣列（第26課），
+        現在還加上了一個獨立的<code>StartScene</code>負責開場。
+        但打開遊戲實際玩玩看會發現：球不會掉落、球拍撞不到球、
+        球也不會撞壞任何一塊磚塊——因為場景裡目前所有節點都還
+        沒有<code>physicsBody</code>，SpriteKit不會偵測任何
+        接觸或碰撞。這正是接下來模組G「物理引擎與碰撞」要解決
+        的問題：讓球真正動起來，並且讓球拍、球、磚塊之間開始
+        有實際的物理互動。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow27" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從開始畫面到遊戲畫面的場景切換</text>
+
+          <rect x="30" y="55" width="180" height="70" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="120" y="82" text-anchor="middle" font-size="9.5" fill="var(--gold)">StartScene</text>
+          <text x="120" y="99" text-anchor="middle" font-size="8" fill="var(--text-muted)">標題＋「點一下開始」</text>
+          <text x="120" y="114" text-anchor="middle" font-size="8" fill="var(--text-muted)">等待touchesBegan</text>
+
+          <line x1="210" y1="90" x2="250" y2="90" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow27)"/>
+          <text x="230" y="78" text-anchor="middle" font-size="8" fill="var(--accent)">點一下</text>
+
+          <rect x="255" y="55" width="150" height="70" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="330" y="90" text-anchor="middle" font-size="9.5" fill="var(--accent)">SKTransition</text>
+          <text x="330" y="106" text-anchor="middle" font-size="8" fill="var(--text-muted)">.fade(withDuration:)</text>
+
+          <line x1="405" y1="90" x2="445" y2="90" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow27)"/>
+
+          <rect x="450" y="55" width="170" height="70" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="535" y="82" text-anchor="middle" font-size="9.5" fill="#ff8a65">GameScene</text>
+          <text x="535" y="99" text-anchor="middle" font-size="8" fill="var(--text-muted)">球拍、球、磚塊陣列</text>
+          <text x="535" y="114" text-anchor="middle" font-size="8" fill="var(--text-muted)">尚未加上物理（模組G）</text>
+
+          <rect x="30" y="150" width="590" height="35" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="325" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">view.presentScene(gameScene, transition: transition) 完成實際的場景切換</text>
+        </svg>
+        <figcaption>玩家點一下StartScene，觸發SKTransition淡入淡出，切換進已經備好球拍、球、磚塊陣列的GameScene。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出用SKTransition.fade建立0.5秒淡入淡出轉場，並呼叫presentScene切換場景的程式碼</li>
+          <li>說明「點一下開始」開始畫面的基本實作模式</li>
+          <li>回顧目前GameScene裡有哪些節點，以及為什麼它們彼此還不會互動</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組G正式進入這個專案最關鍵的部分——物理引擎與碰撞。
+        下一課會替球、球拍、磚塊分別設定physicsBody，讓它們
+        第一次真正受SpriteKit的物理模擬控制。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：磚塊陣列排版</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：physics body設定 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

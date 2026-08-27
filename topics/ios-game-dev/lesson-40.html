@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：簡單動畫讓遊戲更有手感 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用SKAction的scale、fadeOut、move等動作組合出手感，讓球拍被球打到時有輕微縮放回彈，體會不改邏輯也能提升遊戲體驗的動畫技巧">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜音效與視覺效果 · 第 40 課</div>
+      <h1>簡單動畫讓遊戲更有手感</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識<code>SKAction.scale</code>、<code>fadeOut</code>、<code>move</code>等基本動作，以及<code>sequence</code>／<code>group</code>的組合方式</li>
+          <li>理解「game feel／手感」的概念：不改變底層邏輯，也能讓遊戲感覺更有回饋</li>
+          <li>實際幫球拍加上被球打到時的縮放回彈動畫</li>
+        </ul>
+      </div>
+
+      <p>
+        音效跟粒子特效都是「額外加上去」的東西，這一課要介紹
+        另一種更細膩、卻同樣重要的回饋方式——讓既有的節點本身
+        動起來。球拍被球打到的瞬間，如果只是「球彈開了」而球拍
+        本身紋風不動，感覺會比較生硬；加上一個極短暫的縮放回彈，
+        會讓整個碰撞感覺更扎實。
+      </p>
+
+      <h2>1. SKAction的幾個基本動作</h2>
+      <p>
+        除了上一課用過的<code>playSoundFileNamed</code>，
+        <code>SKAction</code>還提供了大量描述「隨時間變化」的
+        動作，其中最常用的幾個：
+      </p>
+      <div class="code-block">let grow = SKAction.scale(to: 1.2, duration: 0.1)
+let fade = SKAction.fadeOut(withDuration: 0.3)
+let shift = SKAction.move(by: CGVector(dx: 0, dy: 10), duration: 0.1)</div>
+      <p>
+        <code>scale(to:duration:)</code>把節點的縮放比例，在指定
+        時間內平滑過渡到目標值；<code>fadeOut(withDuration:)</code>
+        把節點的透明度平滑降到0；<code>move(by:duration:)</code>
+        則是相對於節點目前位置，平移指定的向量距離。這些動作
+        本身都只是「描述」，真正讓它生效的，還是要透過節點的
+        <code>run(_:)</code>來執行。
+      </p>
+
+      <h2>2. 組合動作：sequence與group</h2>
+      <p>
+        單一個動作通常不夠表現一個完整的效果，這時候可以用
+        <code>SKAction.sequence([...])</code>把多個動作接在一起
+        依序執行，或用<code>SKAction.group([...])</code>讓多個
+        動作同時開始執行。球拍被打到時的「先放大、再縮回原本
+        大小」的回彈感，就是典型的sequence用法：
+      </p>
+      <div class="code-block">let scaleUp = SKAction.scale(to: 1.15, duration: 0.06)
+let scaleDown = SKAction.scale(to: 1.0, duration: 0.10)
+let paddlePulse = SKAction.sequence([scaleUp, scaleDown])
+
+paddle.run(paddlePulse)</div>
+      <p>
+        而磚塊消失前，如果想讓它「一邊縮小、一邊淡出」同時發生，
+        而不是先縮小完才淡出，就要用<code>group</code>：
+      </p>
+      <div class="code-block">let shrink = SKAction.scale(to: 0.1, duration: 0.15)
+let fade = SKAction.fadeOut(withDuration: 0.15)
+let vanish = SKAction.group([shrink, fade])
+
+brick.run(SKAction.sequence([vanish, SKAction.removeFromParent()]))</div>
+      <p>
+        這裡外層仍然用了<code>sequence</code>：先讓
+        <code>vanish</code>（縮小+淡出同時進行）完整播完，才接著
+        執行<code>removeFromParent()</code>把節點從場景移除——
+        group跟sequence可以互相巢狀組合，描述出更複雜的動作
+        流程。
+      </p>
+
+      <h2>3. 「手感」是什麼：邏輯沒變，感覺卻不一樣</h2>
+      <p>
+        遊戲開發裡常說的「手感」或「game feel」，指的正是像這樣
+        的細節：球拍的縮放回彈、磚塊消失時的縮小淡出，完全不會
+        影響碰撞判定的結果、分數計算的方式，或是誰輸誰贏——球
+        還是照樣照著物理引擎的軌跡彈開，磚塊該消失還是會消失。
+        但玩家實際玩起來的感受，卻會因為這些看似無關緊要的動畫
+        而明顯不同：動作有延續、有預期之外的小驚喜，整個互動會
+        感覺更扎實、更「回饋得剛剛好」。這也是為什麼許多成熟的
+        遊戲，即使核心邏輯早就寫好、測試過，還是會花大量時間
+        反覆調整這些動畫的時間長短、縮放幅度——手感通常沒有
+        標準答案，比較接近「憑感覺試出來」的打磨過程。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">球拍縮放值隨時間變化：一次短促的回彈</text>
+
+          <line x1="50" y1="150" x2="590" y2="150" stroke="var(--border)" stroke-width="1"/>
+          <line x1="50" y1="150" x2="50" y2="50" stroke="var(--border)" stroke-width="1"/>
+          <text x="30" y="153" text-anchor="end" font-size="8" fill="var(--text-muted)">1.0</text>
+          <text x="30" y="95" text-anchor="end" font-size="8" fill="var(--text-muted)">1.15</text>
+          <text x="595" y="153" font-size="8" fill="var(--text-muted)">時間</text>
+
+          <path d="M 60 150 L 200 90 L 340 150 L 590 150" fill="none" stroke="var(--gold)" stroke-width="2"/>
+
+          <line x1="200" y1="150" x2="200" y2="90" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 2"/>
+          <circle cx="200" cy="90" r="3" fill="var(--gold)"/>
+          <text x="200" y="75" text-anchor="middle" font-size="8" fill="var(--gold)">scaleUp：0.06秒</text>
+
+          <line x1="340" y1="150" x2="340" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+          <text x="340" y="170" text-anchor="middle" font-size="8" fill="var(--accent)">scaleDown：0.10秒回到1.0</text>
+
+          <line x1="60" y1="150" x2="60" y2="150" stroke="var(--text-muted)" stroke-width="1"/>
+          <circle cx="60" cy="150" r="3" fill="var(--text-muted)"/>
+          <text x="60" y="170" text-anchor="middle" font-size="8" fill="var(--text-muted)">球打到球拍</text>
+        </svg>
+        <figcaption>scaleUp與scaleDown用sequence接在一起，短短0.16秒內完成一次放大再縮回的回彈，邏輯上的碰撞判定完全不受影響。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>sequence</code>跟<code>group</code>兩種組合動作的差別</li>
+          <li>說明讓球拍被打到時先放大再縮回原尺寸，可以用哪兩個<code>SKAction</code>搭配<code>sequence</code>組成</li>
+          <li>說明「手感」（game feel）這個概念，以及為什麼底層邏輯沒變，卻能讓遊戲感覺更好玩</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要把模組I這三堂課加入的音效、粒子特效、動畫手感
+        整合起來看，理解它們共同構成的「回饋層」，並銜接下一
+        個模組——遊戲美術資源的準備。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：粒子特效</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：模組總結：讓遊戲從「能玩」變成「好玩」 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

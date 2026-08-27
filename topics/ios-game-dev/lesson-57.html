@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 57 課：實作橫幅廣告（Banner Ad） ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="建立GADBannerView並設定adUnitID與rootViewController，用load(GADRequest())載入廣告，說明開發階段為什麼要用官方測試廣告單元ID，並規劃不遮擋球拍操作區的版面位置">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 57 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜App內廣告整合 · 第 57 課</div>
+      <h1>實作橫幅廣告（Banner Ad）</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能建立GADBannerView並正確設定adUnitID、rootViewController</li>
+          <li>能呼叫load(GADRequest())載入廣告，並理解開發階段為什麼要用官方測試廣告單元ID</li>
+          <li>能規劃橫幅廣告在打磚塊遊戲畫面中適當、不遮擋玩法的擺放位置</li>
+        </ul>
+      </div>
+
+      <p>
+        SDK裝好、初始化完成，這一課要實作第52課規劃的第一種
+        廣告——常駐在畫面上的橫幅廣告。橫幅廣告是三種格式裡
+        程式碼最單純的一種，很適合當作第一次串接廣告SDK的
+        練習。
+      </p>
+
+      <h2>1. 建立GADBannerView</h2>
+      <p>
+        橫幅廣告對應的類別是<code>GADBannerView</code>，本質上
+        就是一個顯示廣告內容的view。建立時要指定廣告尺寸、
+        廣告單元ID，並且告訴它目前是由哪個view controller
+        負責呈現這個廣告，最後呼叫<code>load(_:)</code>並傳入
+        一個<code>GADRequest()</code>，正式發出載入廣告的請求：
+      </p>
+      <div class="code-block">import GoogleMobileAds
+
+let bannerView = GADBannerView(adSize: GADAdSizeBanner)
+bannerView.adUnitID = "ca-app-pub-3940256099942544/2934735716"
+bannerView.rootViewController = self
+bannerView.load(GADRequest())</div>
+
+      <h2>2. 開發階段一定要用測試廣告單元ID</h2>
+      <p>
+        上面程式碼裡用的<code>ca-app-pub-3940256099942544/
+        2934735716</code>，正是Google官方文件公開提供、專門
+        給iOS開發測試用的橫幅廣告單元ID。開發、測試階段請務必
+        使用這組（或AdMob文件裡列出的其他官方測試ID），而不是
+        直接套用第55課在後台建立的正式Ad Unit ID——如果拿正式
+        ID在還沒有真實使用者的開發機上反覆測試、大量發出請求，
+        等於製造不具真實使用者意義的「無效流量」，可能違反
+        AdMob的服務條款，情節嚴重甚至可能導致帳號被停權。
+        正確做法是整個開發、除錯過程都用官方測試ID，等真正
+        要送出上架審核前，才換回自己專屬的正式Ad Unit ID
+        （第60課的檢查清單會再次提醒這一點）。
+      </p>
+
+      <h2>3. 版面配置：橫幅要放哪裡才不擋到玩法</h2>
+      <p>
+        橫幅廣告應該用一個獨立的容器，固定釘在畫面的頂部或
+        底部，而不是疊加在遊戲畫面正中央。以這款打磚塊遊戲
+        來說，球拍通常活動在畫面偏下方的區域，比較保險的做法
+        是把橫幅廣告固定在<strong>畫面最頂端</strong>，讓
+        SKView負責的整個遊戲畫面完整保留在橫幅下方，球拍的
+        操作區域完全不受影響。如果採用UIKit搭配Auto Layout，
+        典型的作法是把橫幅釘在安全區域頂端：
+      </p>
+      <div class="code-block">view.addSubview(bannerView)
+bannerView.translatesAutoresizingMaskIntoConstraints = false
+NSLayoutConstraint.activate([
+    bannerView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+    bannerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+])</div>
+      <p>
+        關鍵原則是：橫幅廣告的容器要獨立於SKView所佔的畫面
+        範圍之外，兩者不重疊——這樣即使橫幅廣告的實際內容
+        會隨著載入的廣告素材而變化，也不會有任何機率蓋住球拍
+        或飛行中的球，影響玩家操作。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 420 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="210" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">橫幅廣告的版面配置</text>
+
+          <rect x="60" y="40" width="300" height="240" rx="10" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+
+          <rect x="70" y="50" width="280" height="40" rx="4" fill="var(--accent)" opacity="0.18" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="210" y="75" text-anchor="middle" font-size="9.5" fill="var(--accent)">橫幅廣告（畫面頂端）</text>
+
+          <rect x="70" y="100" width="280" height="140" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="210" y="125" text-anchor="middle" font-size="9.5" fill="var(--gold)">SKView 遊戲畫面</text>
+          <text x="210" y="143" text-anchor="middle" font-size="8" fill="var(--text-muted)">磚塊、球體活動範圍</text>
+
+          <rect x="130" y="255" width="160" height="16" rx="4" fill="#ff8a65" opacity="0.4" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="210" y="267" text-anchor="middle" font-size="8" fill="#ff8a65">球拍操作區域</text>
+
+          <text x="210" y="292" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">橫幅廣告獨立於SKView之外，兩者不重疊</text>
+        </svg>
+        <figcaption>橫幅廣告固定在畫面頂端，SKView負責的整個遊戲區域（包含底部球拍活動範圍）維持完整、不被廣告遮擋。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出建立GADBannerView、設定adUnitID與rootViewController，並載入廣告的完整程式碼</li>
+          <li>解釋開發階段為什麼要用官方測試廣告單元ID，而不是直接用正式的Ad Unit ID</li>
+          <li>說明這款打磚塊遊戲的橫幅廣告應該放在畫面哪裡，以及為什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        橫幅廣告完成之後，下一課要實作第二種、也是視覺衝擊力
+        最強的廣告格式——插頁廣告，包含怎麼在遊戲結束畫面這個
+        自然的中斷點顯示廣告，以及顯示頻率該怎麼拿捏。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-56.html">← 上一課：在Xcode安裝並初始化Google Mobile Ads SDK</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-58.html">下一課：實作插頁廣告（Interstitial Ad）：強制型廣告的觸發時機與頻率拿捏 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

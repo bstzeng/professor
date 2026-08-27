@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：觸控事件的基本處理 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="學習SKScene如何直接覆寫touchesBegan、touchesMoved、touchesEnded處理觸控事件，並用touch.location(in:)取得觸控點在場景座標系中的位置">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜觸控與使用者輸入 · 第 20 課</div>
+      <h1>觸控事件的基本處理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解SKScene本身可以直接覆寫touchesBegan、touchesMoved、touchesEnded來接收觸控事件</li>
+          <li>能用touch.location(in:)取得觸控點在場景座標系中的正確位置</li>
+          <li>分辨touchesBegan、touchesMoved、touchesEnded／touchesCancelled各自代表的時機</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D把SpriteKit的場景、節點樹與座標系統都建立起來了，
+        但畫面上的東西目前都不會回應玩家。從這一課開始的模組E，
+        要處理遊戲最基本的輸入來源——手指觸控。SpriteKit在這
+        方面的設計其實很直接：<code>SKNode</code>（包含
+        <code>SKScene</code>本身）在iOS上繼承自<code>UIResponder</code>，
+        所以只要覆寫幾個熟悉的方法，就能拿到觸控資料，完全不需要
+        額外設定delegate或target-action。
+      </p>
+
+      <h2>1. SKScene就是一個UIResponder</h2>
+      <p>
+        <code>SKScene</code>預設<code>isUserInteractionEnabled</code>
+        就是<code>true</code>，所以只要在你的<code>GameScene: SKScene</code>
+        類別裡覆寫下面三個方法，就能立刻收到觸控事件，不需要
+        任何額外設定：
+      </p>
+      <div class="code-block">override func touchesBegan(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    // 手指剛碰到螢幕的瞬間
+}
+
+override func touchesMoved(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    // 手指在螢幕上移動時，會持續被呼叫
+}
+
+override func touchesEnded(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    // 手指離開螢幕的瞬間
+}</div>
+      <p>
+        三個方法的參數都是<code>Set&lt;UITouch&gt;</code>而不是單一
+        一個<code>UITouch</code>，因為iOS裝置支援多指觸控，一次
+        手勢動作理論上可能同時包含好幾根手指的資料。這門課的
+        打磚塊遊戲只需要處理單指操作，所以後面會用
+        <code>touches.first</code>直接取出第一個觸控點即可。
+      </p>
+
+      <h2>2. 取得觸控點在場景座標系中的位置</h2>
+      <p>
+        拿到<code>UITouch</code>之後，最常用的就是它的
+        <code>location(in:)</code>方法——把觸控在螢幕上的原始
+        座標，轉換成指定節點座標系中的位置。因為場景本身也是
+        一個<code>SKNode</code>，在<code>GameScene</code>內部
+        直接傳入<code>self</code>，取得的就是模組D lesson-18
+        介紹過的那套場景座標：
+      </p>
+      <div class="code-block">override func touchesBegan(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+    print("觸控開始於：\(location)")
+}</div>
+      <p>
+        <code>guard let touch = touches.first else { return }</code>
+        這一行是很常見的寫法：先確認集合裡真的有觸控資料再繼續，
+        沒有的話就直接return，避免處理空集合。
+      </p>
+
+      <h2>3. 完整範例：讓一個節點跟著手指移動</h2>
+      <p>
+        把三個方法組合起來，可以做一個最簡單的驗證：讓一個測試
+        用的方塊節點，在觸控開始與移動時都跟著手指跑：
+      </p>
+      <div class="code-block">class GameScene: SKScene {
+
+    private let testNode = SKSpriteNode(color: .systemTeal, size: CGSize(width: 40, height: 40))
+
+    override func didMove(to view: SKView) {
+        testNode.position = CGPoint(x: frame.midX, y: frame.midY)
+        addChild(testNode)
+    }
+
+    override func touchesBegan(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        testNode.position = touch.location(in: self)
+    }
+
+    override func touchesMoved(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        testNode.position = touch.location(in: self)
+    }
+
+    override func touchesEnded(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+        // 手指離開螢幕後想做的收尾動作，先留空
+    }
+}</div>
+      <p>
+        這個範例目前還只是驗證觸控有沒有正確接上，實際跑起來會
+        看到方塊跳到手指第一次碰到的位置，接著在拖曳過程中持續
+        跟著移動。模組F建立球拍時，會把同樣的位置資訊，改成拿來
+        更新球拍的<code>position.x</code>，而不是整個節點的位置。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow20" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">一次觸控從開始到結束，依序會呼叫的方法</text>
+
+          <rect x="15" y="55" width="170" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="100" y="80" text-anchor="middle" font-size="9.5" fill="var(--gold)">touchesBegan</text>
+          <text x="100" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">手指剛碰到螢幕</text>
+
+          <line x1="185" y1="85" x2="215" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow20)"/>
+
+          <rect x="220" y="55" width="200" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="320" y="80" text-anchor="middle" font-size="9.5" fill="var(--accent)">touchesMoved</text>
+          <text x="320" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">手指在螢幕上移動時，重複呼叫</text>
+
+          <path d="M 280 55 C 280 25, 360 25, 360 55" fill="none" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow20)"/>
+
+          <line x1="420" y1="85" x2="450" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow20)"/>
+
+          <rect x="455" y="55" width="170" height="60" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="540" y="80" text-anchor="middle" font-size="9.5" fill="#ff8a65">touchesEnded</text>
+          <text x="540" y="97" text-anchor="middle" font-size="8" fill="var(--text-muted)">手指離開螢幕</text>
+
+          <rect x="15" y="150" width="610" height="50" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">觸控中途被系統中斷（例如來電）時，呼叫的是touchesCancelled，而不是touchesEnded</text>
+          <text x="320" y="189" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">三個方法的參數都是Set&lt;UITouch&gt;，理論上可能同時包含多指觸控資料</text>
+        </svg>
+        <figcaption>一次觸控的生命週期：從touchesBegan開始，拖曳過程中反覆呼叫touchesMoved，最後以touchesEnded或touchesCancelled結束。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明touchesBegan、touchesMoved、touchesEnded三個方法各自會在什麼時機被呼叫</li>
+          <li>寫出從一組觸控事件中，取得觸控點在場景座標系中位置的程式碼</li>
+          <li>為什麼touchesBegan的參數型別是Set&lt;UITouch&gt;而不是單一一個UITouch</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要介紹另一種處理輸入的方式——UIGestureRecognizer
+        手勢辨識器家族，看看點一下、滑一下、拖曳這些常見手勢，
+        UIKit已經幫忙包裝好哪些現成的元件，以及它跟這一課學的
+        touches系列方法，分別適合什麼情境。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：模組總結：update與遊戲迴圈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：手勢辨識器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

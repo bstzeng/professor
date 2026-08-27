@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：建立球拍 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用SKSpriteNode建立打磚塊遊戲的球拍，設定顏色、大小與位置，加入場景並設定name屬性，接著串接模組E的touchesMoved邏輯讓球拍隨手指移動並限制邊界">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜實作專案①：打磚塊遊戲——基礎架構 · 第 24 課</div>
+      <h1>建立球拍</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用SKSpriteNode建立球拍，設定顏色、大小與初始位置</li>
+          <li>把球拍加入場景，並設定name屬性方便之後查找</li>
+          <li>串接模組E學到的touchesMoved邏輯，讓球拍隨手指左右移動並限制邊界</li>
+        </ul>
+      </div>
+
+      <p>
+        場景規劃底定，這一課動手做出玩家實際會操作的第一個
+        物件——球拍。回顧第17課「SKSpriteNode：讓圖片動起來」，
+        目前這個階段還沒有正式的美術素材（模組J才會處理），
+        所以先用一個純色方塊當佔位，把邏輯做對，之後隨時可以
+        換成真正的圖片。
+      </p>
+
+      <h2>1. 建立SKSpriteNode球拍</h2>
+      <p>
+        <code>SKSpriteNode(color:size:)</code>可以直接建立一個
+        不需要圖片、用純色填滿的精靈節點，很適合拿來當開發階段
+        的佔位物件：
+      </p>
+      <div class="code-block">class GameScene: SKScene {
+
+    private let paddle = SKSpriteNode(color: .white, size: CGSize(width: 100, height: 20))
+
+    override func didMove(to view: SKView) {
+        paddle.name = "paddle"
+        paddle.position = CGPoint(x: frame.midX, y: frame.minY + 80)
+        addChild(paddle)
+    }
+
+}</div>
+      <p>
+        <code>paddle.name = "paddle"</code>採用了第23課訂下的
+        命名規範，之後模組G做碰撞判斷時就能依這個名稱識別出
+        「撞到的是球拍」。位置用<code>frame.minY + 80</code>
+        設定，而不是寫死一個數字，是因為<code>frame.minY</code>
+        代表場景最底部的y座標（回顧第18課的座標系統）——用相對
+        於場景邊界的偏移量，即使之後場景尺寸調整，球拍離底部的
+        距離也還是合理的。
+      </p>
+
+      <h2>2. 加上觸控追蹤移動</h2>
+      <p>
+        接著把第22課推導出的clamp公式接上真正的<code>paddle</code>
+        節點，覆寫<code>touchesMoved</code>：
+      </p>
+      <div class="code-block">override func touchesMoved(_ touches: Set&lt;UITouch&gt;, with event: UIEvent?) {
+    guard let touch = touches.first else { return }
+    let location = touch.location(in: self)
+
+    let halfWidth = paddle.size.width / 2
+    let minX = frame.minX + halfWidth
+    let maxX = frame.maxX - halfWidth
+
+    paddle.position.x = min(max(location.x, minX), maxX)
+}</div>
+      <p>
+        這段程式碼跟第22課的版本幾乎一樣，差別只是把佔位用的
+        變數名稱，換成這一課真正建立出來的<code>paddle</code>
+        屬性。跑起來之後，手指在畫面下半部左右滑動，球拍就會
+        跟著移動，而且不管手指滑到多靠近螢幕邊緣，球拍都會
+        停在剛好貼齊邊界的位置，不會有一半跑到畫面外。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">球拍在可移動範圍內，隨touchesMoved更新position.x</text>
+
+          <line x1="40" y1="90" x2="600" y2="90" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="40" y="75" text-anchor="middle" font-size="8" fill="var(--text-muted)">frame.minX</text>
+          <text x="600" y="75" text-anchor="middle" font-size="8" fill="var(--text-muted)">frame.maxX</text>
+
+          <rect x="70" y="82" width="100" height="16" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3" opacity="0.5"/>
+          <rect x="270" y="82" width="100" height="16" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="2"/>
+          <rect x="470" y="82" width="100" height="16" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3" opacity="0.5"/>
+
+          <text x="320" y="120" text-anchor="middle" font-size="9" fill="var(--gold)">paddle（100 × 20）可以滑到左右兩個極端位置</text>
+
+          <line x1="120" y1="82" x2="120" y2="150" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+          <line x1="520" y1="82" x2="520" y2="150" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="120" y="165" text-anchor="middle" font-size="8" fill="var(--accent)">minX = frame.minX + halfWidth</text>
+          <text x="520" y="165" text-anchor="middle" font-size="8" fill="var(--accent)">maxX = frame.maxX − halfWidth</text>
+        </svg>
+        <figcaption>球拍的中心點position.x被clamp在minX與maxX之間，確保球拍的邊緣最遠也只會貼齊畫面邊界。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出用SKSpriteNode建立一個白色、寬100高20球拍的程式碼</li>
+          <li>說明為什麼球拍的y座標用frame.minY加上一個偏移量來設定，而不是寫死一個數字</li>
+          <li>解釋這一課的touchesMoved實作，跟模組E第22課教的clamp模式是什麼關係</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        有了球拍，下一課要建立這個場景的第二個核心物件——球，
+        並且明確說明這個階段的球先保持靜止，真正會彈跳的物理
+        邏輯留給模組G處理。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：專案初始化與場景規劃</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：建立球 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

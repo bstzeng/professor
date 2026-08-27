@@ -3591,6 +3591,194 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "ios-game-dev",
+      category: "tech",
+      title: "iOS遊戲開發入門到上架：用Xcode做出你的第一款App Store遊戲",
+      description:
+        "從零開始學習用Xcode、Swift與SpriteKit開發iOS遊戲，透過實作一款打磚塊風格的休閒益智遊戲，掌握場景管理、物理引擎、碰撞偵測與遊戲狀態機等核心概念，接著學會整合AdMob廣告（橫幅、插頁、獎勵型）與計算廣告收入，最後完整走過Apple Developer Program註冊、App Store Connect設定、審查指南與提交發布流程，成為能獨立把作品送上App Store的新手開發者。",
+      icon: "📱",
+      url: "topics/ios-game-dev/index.html",
+      modules: [
+        {
+          title: "模組 A｜起步：認識iOS遊戲開發的世界",
+          courses: [
+            { title: "蘋果開發生態系總覽：Apple Developer、App Store、iOS版本現況", url: "topics/ios-game-dev/lesson-01.html" },
+            { title: "Xcode、Swift、SpriteKit：三個名詞分別是什麼", url: "topics/ios-game-dev/lesson-02.html" },
+            { title: "模組總結：這門課要一起做出什麼", url: "topics/ios-game-dev/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜Swift語言快速上手",
+          courses: [
+            { title: "變數、常數與基本型別", url: "topics/ios-game-dev/lesson-04.html" },
+            { title: "Optional：處理「可能不存在的值」", url: "topics/ios-game-dev/lesson-05.html" },
+            { title: "函式與閉包", url: "topics/ios-game-dev/lesson-06.html" },
+            { title: "流程控制：條件判斷與迴圈", url: "topics/ios-game-dev/lesson-07.html" },
+            { title: "struct與class的差異", url: "topics/ios-game-dev/lesson-08.html" },
+            { title: "protocol與擴充功能基礎", url: "topics/ios-game-dev/lesson-09.html" },
+            { title: "模組總結：Swift基礎回顧", url: "topics/ios-game-dev/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜Xcode與SpriteKit環境設置",
+          courses: [
+            { title: "安裝Xcode與Apple ID登入", url: "topics/ios-game-dev/lesson-11.html" },
+            { title: "免費開發者帳號能做到哪裡，付費方案又解鎖了什麼", url: "topics/ios-game-dev/lesson-12.html" },
+            { title: "建立你的第一個SpriteKit專案", url: "topics/ios-game-dev/lesson-13.html" },
+            { title: "模組總結：Xcode專案結構導覽", url: "topics/ios-game-dev/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 D｜SpriteKit核心概念",
+          courses: [
+            { title: "SKScene：遊戲畫面的容器", url: "topics/ios-game-dev/lesson-15.html" },
+            { title: "SKNode節點樹：遊戲物件怎麼組織", url: "topics/ios-game-dev/lesson-16.html" },
+            { title: "SKSpriteNode：讓圖片動起來", url: "topics/ios-game-dev/lesson-17.html" },
+            { title: "座標系統：SpriteKit的座標邏輯", url: "topics/ios-game-dev/lesson-18.html" },
+            { title: "模組總結：update與遊戲迴圈", url: "topics/ios-game-dev/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 E｜觸控與使用者輸入",
+          courses: [
+            { title: "觸控事件的基本處理", url: "topics/ios-game-dev/lesson-20.html" },
+            { title: "手勢辨識器", url: "topics/ios-game-dev/lesson-21.html" },
+            { title: "模組總結：把觸控轉換成遊戲動作", url: "topics/ios-game-dev/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜實作專案①：打磚塊遊戲——基礎架構",
+          courses: [
+            { title: "專案初始化與場景規劃", url: "topics/ios-game-dev/lesson-23.html" },
+            { title: "建立球拍", url: "topics/ios-game-dev/lesson-24.html" },
+            { title: "建立球", url: "topics/ios-game-dev/lesson-25.html" },
+            { title: "磚塊陣列排版", url: "topics/ios-game-dev/lesson-26.html" },
+            { title: "模組總結：場景切換與開始畫面", url: "topics/ios-game-dev/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 G｜實作專案②：物理引擎與碰撞",
+          courses: [
+            { title: "physics body設定", url: "topics/ios-game-dev/lesson-28.html" },
+            { title: "重力、速度與反彈", url: "topics/ios-game-dev/lesson-29.html" },
+            { title: "碰撞偵測delegate", url: "topics/ios-game-dev/lesson-30.html" },
+            { title: "碰撞分類（Collision Category）", url: "topics/ios-game-dev/lesson-31.html" },
+            { title: "模組總結：球、球拍、磚塊的完整互動", url: "topics/ios-game-dev/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 H｜實作專案③：遊戲邏輯與狀態管理",
+          courses: [
+            { title: "分數系統", url: "topics/ios-game-dev/lesson-33.html" },
+            { title: "生命值系統", url: "topics/ios-game-dev/lesson-34.html" },
+            { title: "勝負判定邏輯", url: "topics/ios-game-dev/lesson-35.html" },
+            { title: "重新開始與暫停", url: "topics/ios-game-dev/lesson-36.html" },
+            { title: "模組總結：完整的遊戲狀態機", url: "topics/ios-game-dev/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 I｜音效與視覺效果",
+          courses: [
+            { title: "音效播放", url: "topics/ios-game-dev/lesson-38.html" },
+            { title: "粒子特效", url: "topics/ios-game-dev/lesson-39.html" },
+            { title: "簡單動畫讓遊戲更有手感", url: "topics/ios-game-dev/lesson-40.html" },
+            { title: "模組總結：讓遊戲從「能玩」變成「好玩」", url: "topics/ios-game-dev/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜遊戲美術資源基礎",
+          courses: [
+            { title: "免費／合法素材哪裡找", url: "topics/ios-game-dev/lesson-42.html" },
+            { title: "Sprite Sheet基礎概念", url: "topics/ios-game-dev/lesson-43.html" },
+            { title: "App Icon設計規範", url: "topics/ios-game-dev/lesson-44.html" },
+            { title: "模組總結：用Figma／Canva做簡易素材", url: "topics/ios-game-dev/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 K｜資料儲存與遊戲設定",
+          courses: [
+            { title: "UserDefaults基礎", url: "topics/ios-game-dev/lesson-46.html" },
+            { title: "儲存最高分與遊戲進度", url: "topics/ios-game-dev/lesson-47.html" },
+            { title: "模組總結：簡易設定畫面", url: "topics/ios-game-dev/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 L｜效能優化與除錯基礎",
+          courses: [
+            { title: "Xcode除錯器與中斷點", url: "topics/ios-game-dev/lesson-49.html" },
+            { title: "Instruments效能檢測入門", url: "topics/ios-game-dev/lesson-50.html" },
+            { title: "模組總結：SpriteKit常見效能陷阱", url: "topics/ios-game-dev/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 M｜App內廣告整合",
+          courses: [
+            { title: "廣告的兩大類型：強制彈出型 vs 使用者主動點開型（以及第三種：橫幅廣告）", url: "topics/ios-game-dev/lesson-52.html" },
+            { title: "廣告收入怎麼算：eCPM、曝光次數與填充率", url: "topics/ios-game-dev/lesson-53.html" },
+            { title: "常見廣告聯播網選擇：為什麼新手從AdMob開始最簡單", url: "topics/ios-game-dev/lesson-54.html" },
+            { title: "申請AdMob帳號與建立廣告單元", url: "topics/ios-game-dev/lesson-55.html" },
+            { title: "在Xcode安裝並初始化Google Mobile Ads SDK", url: "topics/ios-game-dev/lesson-56.html" },
+            { title: "實作橫幅廣告（Banner Ad）", url: "topics/ios-game-dev/lesson-57.html" },
+            { title: "實作插頁廣告（Interstitial Ad）：強制型廣告的觸發時機與頻率拿捏", url: "topics/ios-game-dev/lesson-58.html" },
+            { title: "實作獎勵型廣告（Rewarded Ad）：讓玩家自願看廣告換獎勵", url: "topics/ios-game-dev/lesson-59.html" },
+            { title: "模組總結：使用者追蹤透明度（ATT）合規要求與上架前的廣告檢查清單", url: "topics/ios-game-dev/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 N｜準備上架：Apple Developer Program",
+          courses: [
+            { title: "註冊Apple Developer Program（年費美金99元）", url: "topics/ios-game-dev/lesson-61.html" },
+            { title: "憑證與簽章概念", url: "topics/ios-game-dev/lesson-62.html" },
+            { title: "App ID與Provisioning Profile", url: "topics/ios-game-dev/lesson-63.html" },
+            { title: "模組總結：上架前的帳號檢查清單", url: "topics/ios-game-dev/lesson-64.html" }
+          ]
+        },
+        {
+          title: "模組 O｜App Store Connect設定",
+          courses: [
+            { title: "建立App紀錄", url: "topics/ios-game-dev/lesson-65.html" },
+            { title: "名稱、副標題與描述文案", url: "topics/ios-game-dev/lesson-66.html" },
+            { title: "螢幕截圖規範與App預覽影片", url: "topics/ios-game-dev/lesson-67.html" },
+            { title: "Icon上傳與App內購項目設定", url: "topics/ios-game-dev/lesson-68.html" },
+            { title: "模組總結：定價與上架地區設定", url: "topics/ios-game-dev/lesson-69.html" }
+          ]
+        },
+        {
+          title: "模組 P｜上架審核：App Store審查指南",
+          courses: [
+            { title: "App Store審查指南總覽", url: "topics/ios-game-dev/lesson-70.html" },
+            { title: "最常見的退件原因", url: "topics/ios-game-dev/lesson-71.html" },
+            { title: "隱私權「營養標籤」", url: "topics/ios-game-dev/lesson-72.html" },
+            { title: "模組總結：隱私權政策要求", url: "topics/ios-game-dev/lesson-73.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜提交與發布流程",
+          courses: [
+            { title: "Archive封存與上傳", url: "topics/ios-game-dev/lesson-74.html" },
+            { title: "TestFlight內測", url: "topics/ios-game-dev/lesson-75.html" },
+            { title: "送出審查", url: "topics/ios-game-dev/lesson-76.html" },
+            { title: "模組總結：發布管理與被退件怎麼辦", url: "topics/ios-game-dev/lesson-77.html" }
+          ]
+        },
+        {
+          title: "模組 R｜上架後：基礎行銷與版本迭代",
+          courses: [
+            { title: "ASO基礎：關鍵字優化與商店頁面轉換率", url: "topics/ios-game-dev/lesson-78.html" },
+            { title: "蒐集使用者回饋與初期評分策略", url: "topics/ios-game-dev/lesson-79.html" },
+            { title: "規劃版本更新與內容迭代", url: "topics/ios-game-dev/lesson-80.html" },
+            { title: "模組總結：廣告之外——App內購買與付費下載的簡介比較", url: "topics/ios-game-dev/lesson-81.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結：從新手到獨立開發者的下一步", url: "topics/ios-game-dev/lesson-82.html" }
+          ]
+        }
+      ]
     }
   ]
 };

@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：模組總結：update與遊戲迴圈 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="學習SKScene的update(_:)方法如何在遊戲迴圈裡每影格被呼叫一次，適合放哪些邏輯，並認識currentTime計算影格間時間差這項可以先擱置的進階技巧">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜SpriteKit核心概念 · 第 19 課</div>
+      <h1>模組總結：update與遊戲迴圈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解SpriteKit的遊戲迴圈，以及update(_:)方法在其中扮演的角色</li>
+          <li>知道update(_:)大約多久被呼叫一次，適合放哪一類遊戲邏輯</li>
+          <li>認識currentTime可以用來計算影格間的時間差，並知道這是可以先擱置的進階細節</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D從SKScene、SKNode、SKSpriteNode，一路講到座標
+        系統，把「畫面上有什麼」講清楚了，但還沒回答一個關鍵
+        問題：這些東西是怎麼「動起來」的？模組D的最後一課，
+        就從這個問題出發，介紹SpriteKit的遊戲迴圈。
+      </p>
+
+      <h2>什麼是遊戲迴圈</h2>
+      <p>
+        SpriteKit在背後，每一個畫面更新的瞬間（稱為一個
+        「影格」，frame），都會依序執行一輪固定的處理流程：
+        更新遊戲邏輯、套用動作（SKAction，模組I會介紹）、
+        模擬物理效果（模組G會介紹）、計算碰撞，最後才把結果
+        畫到螢幕上——這一整輪處理，會不斷重複，這就是所謂的
+        「遊戲迴圈（game loop）」。<code>update(_:)</code>正是
+        SpriteKit在這個迴圈裡，開放給開發者插入自己遊戲邏輯的
+        關鍵位置之一。
+      </p>
+
+      <h2>override func update(_ currentTime: TimeInterval)</h2>
+      <p>
+        把<code>update(_:)</code>加到你的<code>SKScene</code>
+        子類別裡，SpriteKit就會在每一影格自動呼叫它一次——在
+        大部分裝置上，大約是每秒60次。這是放「需要持續、每
+        影格都檢查一次」的邏輯最適合的地方，例如檢查勝負條件、
+        或是移動一些沒有交給物理引擎或SKAction處理的物件。
+      </p>
+      <div class="code-block">class GameScene: SKScene {
+    var score = 0
+    let winningScore = 10
+
+    override func update(_ currentTime: TimeInterval) {
+        // 每一影格都會執行一次，適合放「持續檢查」的邏輯
+        if score >= winningScore {
+            endGame(win: true)
+        }
+    }
+
+    func endGame(win: Bool) {
+        // 之後模組H會實作完整的勝負判定與畫面切換邏輯
+    }
+}</div>
+      <p>
+        這個例子裡，<code>update(_:)</code>每一影格都會檢查
+        一次<code>score</code>是否達到<code>winningScore</code>，
+        一旦符合條件就呼叫<code>endGame(win:)</code>——這種
+        「每影格持續檢查」的模式，跟只在特定事件發生時才執行
+        一次的程式碼（例如觸控事件、碰撞事件）是不同的思維，
+        模組E、G會分別介紹這些事件驅動的寫法。
+      </p>
+
+      <h2>currentTime與影格間的時間差：可以先擱置的進階細節</h2>
+      <p>
+        <code>update(_:)</code>收到的<code>currentTime</code>
+        參數，是目前這一影格對應的系統時間戳記。把這次收到的
+        <code>currentTime</code>，跟上一次呼叫時記錄下來的
+        時間相減，就能算出兩次影格之間實際經過了多久——這個
+        差值一般稱為「delta time」，常常用來讓物件的移動速度
+        跟裝置實際的更新頻率脫鉤（frame-rate independent
+        movement），確保在更新頻率較低或較高的裝置上，物件
+        移動的速度看起來是一致的。
+      </p>
+      <p>
+        這是稍微進階的技巧，牽涉到額外的狀態記錄與計算，對
+        剛學完模組D核心概念的階段來說，不需要急著搞懂或套用——
+        等到後面模組L談效能優化、或是實際遇到「同一個動作在
+        不同裝置上速度感覺不一致」的具體問題時，再回頭處理
+        delta time的計算也完全來得及。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow19" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">每一影格重複執行的遊戲迴圈（大部分裝置上約每秒60次）</text>
+
+          <rect x="10" y="55" width="130" height="55" rx="6" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="75" y="76" text-anchor="middle" font-size="9" fill="var(--gold)">update(_:)</text>
+          <text x="75" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">你的遊戲邏輯</text>
+
+          <line x1="140" y1="82" x2="166" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow19)"/>
+
+          <rect x="171" y="55" width="130" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="236" y="76" text-anchor="middle" font-size="9" fill="var(--text)">套用Actions</text>
+          <text x="236" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">模組I介紹</text>
+
+          <line x1="301" y1="82" x2="327" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow19)"/>
+
+          <rect x="332" y="55" width="130" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="397" y="76" text-anchor="middle" font-size="9" fill="var(--accent)">物理模擬與碰撞</text>
+          <text x="397" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">模組G介紹</text>
+
+          <line x1="462" y1="82" x2="488" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow19)"/>
+
+          <rect x="493" y="55" width="135" height="55" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="560" y="76" text-anchor="middle" font-size="9" fill="#ff8a65">渲染畫面</text>
+          <text x="560" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">顯示這一影格結果</text>
+
+          <path d="M 560 110 C 560 160, 75 160, 75 110" fill="none" stroke="var(--text-muted)" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arrow19)"/>
+          <text x="320" y="185" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">渲染完成後立刻進入下一影格，重新從update(_:)開始，持續反覆執行</text>
+        </svg>
+        <figcaption>每一影格SpriteKit都會依序執行這一輪流程，update(_:)是你插入自己遊戲邏輯的位置。</figcaption>
+      </div>
+
+      <p>
+        到這裡，模組D完整走完了SpriteKit最核心的四個概念：
+        SKScene是容器、SKNode是組織方式、SKSpriteNode是最常見
+        的可視節點、加上座標系統與遊戲迴圈這兩個貫穿一切的
+        基礎規則。接下來的模組E，要開始處理玩家怎麼「操作」
+        這些節點——也就是觸控輸入。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明update(_:)在SpriteKit的遊戲迴圈裡，大約多久會被呼叫一次，適合放哪一類邏輯</li>
+          <li>說明currentTime這個參數可以用來計算什麼，這個技巧解決的是什麼問題</li>
+          <li>說明為什麼delta time這類技巧，可以當作新手階段先擱置的進階細節</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組E正式開始，下一課要介紹觸控事件的基本處理——玩家
+        的手指碰到螢幕時，SpriteKit怎麼把這個動作轉告給你的
+        程式碼，讓場景裡的節點能真正回應使用者的操作。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：座標系統：SpriteKit的座標邏輯</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：觸控事件的基本處理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

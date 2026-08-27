@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：粒子特效 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="認識SKEmitterNode與Xcode內建的粒子特效編輯器，學會做出磚塊消失時的簡單粒子爆發效果，讓畫面回饋更生動">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜音效與視覺效果 · 第 39 課</div>
+      <h1>粒子特效</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解<code>SKEmitterNode</code>是什麼，以及它跟一般<code>SKSpriteNode</code>的差別</li>
+          <li>學會用Xcode內建的Particle Emitter Editor視覺化設計一個粒子特效檔案</li>
+          <li>能把設計好的<code>.sks</code>粒子檔案載入程式碼，在磚塊消失時觸發一次性的爆發效果</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課讓磚塊消失的瞬間「聽得到」，這一課要讓它「看得
+        更明顯」——用一小段粒子爆發效果，強化磚塊被擊中那一刻
+        的存在感。這在許多遊戲裡都是很常見的手法：一個關鍵事件，
+        同時觸發聲音跟畫面上的小特效，讓玩家更確定「這件事真的
+        發生了」。
+      </p>
+
+      <h2>1. SKEmitterNode：專門用來畫「一群小顆粒」的節點</h2>
+      <p>
+        <code>SKEmitterNode</code>是<code>SKNode</code>的子類別，
+        專門負責管理大量的小顆粒（particle）——每個顆粒都有各自
+        隨機化的速度、存活時間、縮放、透明度、顏色變化、旋轉角度
+        等屬性，全部交給SpriteKit自動計算與渲染，開發者不需要
+        自己手動建立、更新一大堆節點。這讓它很適合做出火花、
+        煙霧、爆炸碎片、拖尾這類「一群小東西同時噴發」的效果。
+      </p>
+
+      <h2>2. 用Xcode內建編輯器設計粒子特效</h2>
+      <p>
+        不需要手動計算這些顆粒參數，Xcode內建了視覺化的粒子
+        編輯器：選擇<strong>File &gt; New &gt; File</strong>，
+        在iOS分類裡選擇<strong>SpriteKit Particle File</strong>，
+        接著挑一個內建範本（例如Fuse、Spark、Smoke）當作起點，
+        Xcode會建立一個<code>.sks</code>檔案，並直接開啟編輯器，
+        畫布上即時預覽特效效果。右側面板可以調整Birth Rate（每秒
+        產生幾顆粒子）、Lifetime（每顆粒子存活多久）、Speed、
+        Emission Angle（噴發角度範圍）、Scale、顏色隨時間的變化
+        （Color Ramp）、使用的貼圖等參數，每次調整畫布都會
+        立即更新，不需要重新編譯就能反覆試效果。存檔後，把這個
+        檔案命名成類似<code>BrickBreak.sks</code>。
+      </p>
+
+      <h2>3. 在磚塊消失的瞬間播放一次爆發</h2>
+      <p>
+        設計好的<code>.sks</code>檔案，可以用<code>SKEmitterNode
+        (fileNamed:)</code>載入成一個節點，加到場景裡：
+      </p>
+      <div class="code-block">if let burst = SKEmitterNode(fileNamed: "BrickBreak") {
+    burst.position = brick.position
+    burst.zPosition = 5
+    addChild(burst)
+
+    let wait = SKAction.wait(forDuration: 1.0)
+    let remove = SKAction.removeFromParent()
+    burst.run(SKAction.sequence([wait, remove]))
+}</div>
+      <p>
+        <code>SKEmitterNode(fileNamed:)</code>用檔名（不含副檔名）
+        載入剛剛做好的粒子檔案，回傳的是一個Optional，因為檔案
+        萬一不存在就會是<code>nil</code>，所以用<code>if let</code>
+        安全解包。把<code>position</code>設成磚塊消失的位置，
+        <code>zPosition</code>設高一點，確保特效畫在磚塊、背景
+        之上。特別要注意最後這段<code>wait</code>加
+        <code>removeFromParent()</code>——粒子編輯器裡預設的
+        Birth Rate通常是持續噴發，就算把它調成短時間內噴完，
+        既有的顆粒也還需要時間播完各自的存活動畫，所以不能一
+        加進場景就立刻移除節點，而是等一小段時間、讓噴發與殘留
+        的顆粒都播放完畢，再把整個emitter節點清掉，避免場景裡
+        累積一堆不再需要、卻還沒被回收的節點。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow39" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">從編輯器到畫面上的一次粒子爆發</text>
+
+          <rect x="15" y="50" width="140" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="85" y="75" text-anchor="middle" font-size="9" fill="var(--gold)">Particle Emitter</text>
+          <text x="85" y="90" text-anchor="middle" font-size="9" fill="var(--gold)">Editor</text>
+          <text x="85" y="104" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">視覺化調整參數</text>
+
+          <line x1="155" y1="80" x2="185" y2="80" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+
+          <rect x="190" y="50" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="255" y="80" text-anchor="middle" font-size="9" fill="var(--accent)">BrickBreak.sks</text>
+          <text x="255" y="97" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">存成粒子檔案</text>
+
+          <line x1="320" y1="80" x2="350" y2="80" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+
+          <rect x="355" y="50" width="140" height="60" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="425" y="72" text-anchor="middle" font-size="8.5" fill="#ff8a65">SKEmitterNode</text>
+          <text x="425" y="87" text-anchor="middle" font-size="8.5" fill="#ff8a65">(fileNamed:)</text>
+          <text x="425" y="102" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">載入並加到磚塊位置</text>
+
+          <line x1="495" y1="80" x2="525" y2="80" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+
+          <rect x="530" y="50" width="95" height="60" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="577" y="80" text-anchor="middle" font-size="8.5" fill="var(--text)">畫面爆發</text>
+          <text x="577" y="97" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">一次性效果</text>
+
+          <rect x="15" y="145" width="610" height="50" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="167" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">wait(forDuration:) 讓殘留顆粒播完，再用 removeFromParent() 清掉節點</text>
+          <text x="320" y="183" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">避免場景裡累積用不到的emitter節點</text>
+        </svg>
+        <figcaption>粒子特效的完整流程：在編輯器裡設計、存成.sks檔案、程式碼載入並加到場景，最後記得安排清除節點。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>SKEmitterNode</code>與一般<code>SKSpriteNode</code>在職責上的差別</li>
+          <li>說明用Xcode內建的Particle Emitter Editor設計特效的大致流程</li>
+          <li>說明為什麼把粒子節點加入場景後，還要另外用<code>SKAction</code>安排把它移除</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        有了聲音跟粒子特效，下一課要處理另一種更細膩的回饋——
+        用<code>SKAction</code>組合出簡單的縮放、淡出動畫，讓球拍
+        被打到時有一點輕微的回彈感，體會「手感」這個概念。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：音效播放</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：簡單動畫讓遊戲更有手感 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

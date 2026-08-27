@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 56 課：在Xcode安裝並初始化Google Mobile Ads SDK ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="透過Swift Package Manager把Google Mobile Ads SDK加入Xcode專案，在Info.plist設定GADApplicationIdentifier，並在App啟動流程呼叫GADMobileAds的初始化函式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 56 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜App內廣告整合 · 第 56 課</div>
+      <h1>在Xcode安裝並初始化Google Mobile Ads SDK</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能透過Swift Package Manager把Google Mobile Ads SDK加入Xcode專案</li>
+          <li>能在Info.plist正確加入GADApplicationIdentifier，串起AdMob App ID這項必要設定</li>
+          <li>能在App啟動流程中正確呼叫SDK的初始化函式</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課拿到了App ID跟三組Ad Unit ID，這一課要把它們
+        真正接進Xcode專案——安裝SDK、設定Info.plist、呼叫
+        初始化函式，這三步做對了，後面第57～59課才能開始
+        請求跟顯示廣告。
+      </p>
+
+      <h2>1. 用Swift Package Manager加入SDK</h2>
+      <p>
+        在Xcode選單列點選<strong>File > Add Package
+        Dependencies...</strong>，在跳出的視窗貼上Google官方
+        文件提供的Google Mobile Ads SDK套件庫網址（可以在
+        AdMob官方文件的「開始使用」頁面找到目前對應的網址，
+        Google的Swift Package Manager套件路徑通常以
+        <code>googleads</code>這個組織名稱開頭）。Xcode解析
+        完套件資訊後，選擇要加入的目標（target）——也就是
+        打磚塊遊戲這個App本身，確認加入<code>GoogleMobileAds</code>
+        這個函式庫產品，等待Xcode下載並解析套件依賴關係即可。
+      </p>
+
+      <h2>2. Info.plist設定GADApplicationIdentifier</h2>
+      <p>
+        接著要讓SDK知道「現在是哪一個App在請求廣告」——這一步
+        <strong>是必要的</strong>，如果漏掉，App在真正發出廣告
+        請求時會直接當機。打開專案的Info.plist，新增一個字串
+        型別的key，名稱固定是<code>GADApplicationIdentifier</code>，
+        值就是第55課在AdMob後台建立App項目時拿到的App ID：
+      </p>
+      <div class="code-block">&lt;key&gt;GADApplicationIdentifier&lt;/key&gt;
+&lt;string&gt;ca-app-pub-3940256099942544~1458002511&lt;/string&gt;</div>
+      <p>
+        （上面這組<code>ca-app-pub-3940256099942544~1458002511</code>
+        是Google官方文件公開提供、專門給開發階段測試用的
+        App ID，實際上架前務必換成自己在AdMob後台建立的正式
+        App ID，第60課的檢查清單會再次提醒這一點。）
+      </p>
+
+      <h2>3. 初始化SDK</h2>
+      <p>
+        套件裝好、Info.plist設定完成後，最後一步是在App啟動
+        流程的早期，呼叫一次SDK的初始化函式
+        <code>GADMobileAds.sharedInstance().start(completionHandler:
+        nil)</code>。如果App是用SwiftUI的App協定架構，最自然
+        的位置是放進App結構的<code>init()</code>裡：
+      </p>
+      <div class="code-block">import SwiftUI
+import GoogleMobileAds
+
+@main
+struct BreakoutApp: App {
+    init() {
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+        }
+    }
+}</div>
+      <p>
+        如果專案還是採用傳統的AppDelegate架構，則放在
+        <code>application(_:didFinishLaunchingWithOptions:)</code>
+        裡執行：
+      </p>
+      <div class="code-block">import GoogleMobileAds
+
+func application(_ application: UIApplication,
+                  didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    GADMobileAds.sharedInstance().start(completionHandler: nil)
+    return true
+}</div>
+      <p>
+        兩種寫法的重點是一樣的：<code>start(completionHandler:)</code>
+        要在App一啟動就盡早呼叫一次，確保後面第57～59課建立
+        任何一種廣告物件、發出任何一次廣告請求之前，SDK都已經
+        完成必要的內部初始化程序。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow56" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">安裝與初始化SDK的三個步驟</text>
+
+          <rect x="15" y="50" width="185" height="65" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="107" y="75" text-anchor="middle" font-size="9.5" fill="var(--gold)">1. Swift Package Manager</text>
+          <text x="107" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">File &gt; Add Package Dependencies</text>
+
+          <line x1="200" y1="82" x2="225" y2="82" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow56)"/>
+
+          <rect x="230" y="50" width="185" height="65" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="322" y="75" text-anchor="middle" font-size="9.5" fill="var(--accent)">2. Info.plist</text>
+          <text x="322" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">GADApplicationIdentifier</text>
+
+          <line x1="415" y1="82" x2="440" y2="82" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow56)"/>
+
+          <rect x="445" y="50" width="185" height="65" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="537" y="75" text-anchor="middle" font-size="9.5" fill="#ff8a65">3. 呼叫start()</text>
+          <text x="537" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">App啟動流程早期執行</text>
+
+          <text x="320" y="150" text-anchor="middle" font-size="9" fill="var(--text-muted)">三步都完成後，第57～59課才能開始正常請求與顯示各種格式的廣告</text>
+        </svg>
+        <figcaption>安裝套件、設定App ID、呼叫初始化函式——三個步驟缺一不可，才能讓後續的廣告請求正常運作。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明用Swift Package Manager加入Google Mobile Ads SDK的步驟</li>
+          <li>解釋為什麼Info.plist一定要設定GADApplicationIdentifier，漏掉會發生什麼事</li>
+          <li>說明GADMobileAds.sharedInstance().start(completionHandler:)應該在App啟動流程的哪個時機呼叫</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        SDK裝好、初始化完成之後，下一課要動手實作打磚塊遊戲
+        的第一種廣告——常駐畫面上／下方的橫幅廣告，包含建立
+        GADBannerView、載入廣告，以及安排一個不會擋到玩法的
+        版面位置。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-55.html">← 上一課：申請AdMob帳號與建立廣告單元</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-57.html">下一課：實作橫幅廣告（Banner Ad） →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

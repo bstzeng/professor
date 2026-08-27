@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：模組總結：簡易設定畫面 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="整合模組K所學，做出一個簡易的設定畫面，用UserDefaults儲存音效開關狀態，並在播放音效前檢查這個設定，同時說明register(defaults:)如何處理第一次啟動的預設值">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜資料儲存與遊戲設定 · 第 48 課</div>
+      <h1>模組總結：簡易設定畫面</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能做出一個簡單的設定畫面，讓玩家可以自己開關音效</li>
+          <li>能用UserDefaults儲存這個開關狀態，並在每次要播放音效前先檢查它</li>
+          <li>回顧模組K兩堂課的UserDefaults基礎與最高分儲存邏輯，銜接下一模組的效能優化與除錯主題</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課分別學了UserDefaults的基本讀寫（第46課），以及一段
+        實際會用到的完整邏輯——判斷、比較、只在需要時才寫回的
+        最高分儲存（第47課）。模組K收尾的這一課，要把同一套
+        機制套進另一個幾乎每款遊戲都會有的畫面：一個能讓玩家
+        自己決定要不要聽音效的簡易設定畫面。
+      </p>
+
+      <h2>一個開關，一個key：soundEnabled</h2>
+      <p>
+        這個設定畫面的核心其實只有一件事——一個能切換的開關
+        （可以是SpriteKit場景裡一個可觸控的<code>SKLabelNode</code>，
+        也可以是UIKit的<code>UISwitch</code>），對應一個
+        UserDefaults的key。這裡沿用第46課示範過的
+        <code>"soundEnabled"</code>這個key：
+      </p>
+      <div class="code-block">func toggleSound() {
+    let current = UserDefaults.standard.bool(forKey: "soundEnabled")
+    UserDefaults.standard.set(!current, forKey: "soundEnabled")
+    updateToggleLabel()
+}
+
+func updateToggleLabel() {
+    let isOn = UserDefaults.standard.bool(forKey: "soundEnabled")
+    soundToggleLabel.text = isOn ? "音效：開" : "音效：關"
+}</div>
+      <p>
+        每次玩家點擊這個開關節點，就讀出目前值、反轉它、寫
+        回去，再更新畫面上顯示的文字，讓玩家清楚看到目前的
+        狀態——這跟第47課讀取、比較、寫回的三步驟結構其實
+        是同一種思路。
+      </p>
+
+      <h2>別忽略的細節：第一次啟動時的預設值</h2>
+      <p>
+        這裡有一個容易踩到的陷阱——第46課提過，
+        <code>bool(forKey:)</code>在key不存在時會回傳
+        <code>false</code>。如果什麼都不做，玩家第一次打開這款
+        遊戲、還沒點過設定畫面的開關，音效就會被判定成「關閉」，
+        但大多數遊戲其實希望音效預設是開著的。解法是在App一
+        啟動時，就呼叫<code>UserDefaults.standard.register(defaults:)</code>，
+        先「登記」一個預設值：
+      </p>
+      <div class="code-block">UserDefaults.standard.register(defaults: ["soundEnabled": true])</div>
+      <p>
+        <code>register(defaults:)</code>不會真的把值寫進磁碟，
+        只是告訴UserDefaults「如果這個key還沒有人明確設定過，
+        讀取時就當作是這個值」。玩家還沒碰過設定畫面時，
+        <code>bool(forKey: "soundEnabled")</code>就會讀到
+        <code>true</code>；一旦玩家自己點過開關、
+        <code>set(_:forKey:)</code>寫入過明確的值，
+        <code>register(defaults:)</code>登記的預設值就不會再
+        蓋過它。這行程式碼通常放在App啟動時只會執行一次的
+        地方，例如第一個場景的<code>didMove(to:)</code>裡。
+      </p>
+
+      <h2>播放音效前，先檢查這個設定</h2>
+      <p>
+        把第38課直接呼叫<code>SKAction.playSoundFileNamed</code>
+        的地方，改包成一個統一的輔助函式，在真正播放之前先讀
+        一次這個設定：
+      </p>
+      <div class="code-block">func playSound(_ fileName: String) {
+    guard UserDefaults.standard.bool(forKey: "soundEnabled") else { return }
+    run(SKAction.playSoundFileNamed(fileName, waitForCompletion: false))
+}</div>
+      <p>
+        遊戲裡任何原本會發出聲音的地方——球拍碰撞、磚塊消失、
+        第47課<code>endGame()</code>裡的遊戲結束音效——只要
+        統一改成呼叫這個<code>playSound(_:)</code>，就會自動
+        尊重玩家在設定畫面裡做的選擇，不需要在每一個呼叫音效
+        的地方各自重複判斷一次。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 600 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow48" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="300" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">設定畫面跟音效播放怎麼串起來</text>
+
+          <rect x="30" y="45" width="150" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="105" y="66" text-anchor="middle" font-size="9" fill="var(--gold)">玩家點擊開關</text>
+          <text x="105" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">toggleSound()</text>
+
+          <line x1="180" y1="70" x2="215" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow48)"/>
+
+          <rect x="220" y="45" width="180" height="50" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="310" y="66" text-anchor="middle" font-size="9" fill="var(--accent)">UserDefaults.standard</text>
+          <text x="310" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">set(_:forKey: "soundEnabled")</text>
+
+          <line x1="400" y1="70" x2="435" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow48)"/>
+
+          <rect x="440" y="45" width="130" height="50" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="505" y="70" text-anchor="middle" font-size="9" fill="#ff8a65">寫入磁碟</text>
+          <text x="505" y="86" text-anchor="middle" font-size="8" fill="var(--text-muted)">下次啟動仍記得</text>
+
+          <line x1="105" y1="95" x2="105" y2="140" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow48)"/>
+          <text x="130" y="120" font-size="8" fill="var(--text-muted)">之後任何時刻……</text>
+
+          <rect x="30" y="145" width="200" height="55" rx="6" fill="var(--surface)" stroke="var(--text)" stroke-width="1.3"/>
+          <text x="130" y="167" text-anchor="middle" font-size="9" fill="var(--text)">playSound(_ fileName:)</text>
+          <text x="130" y="184" text-anchor="middle" font-size="8" fill="var(--text-muted)">先讀soundEnabled</text>
+
+          <line x1="230" y1="172" x2="265" y2="172" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow48)"/>
+
+          <rect x="270" y="145" width="150" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="345" y="167" text-anchor="middle" font-size="8.5" fill="var(--text)">開：播放音效</text>
+          <text x="345" y="184" text-anchor="middle" font-size="8.5" fill="var(--text)">關：直接return</text>
+        </svg>
+        <figcaption>開關寫入UserDefaults之後，任何呼叫playSound(_:)的地方都會自動讀取這個設定，不需要各自重複判斷。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>回顧模組K，銜接模組L</h3>
+        <p>
+          模組K三堂課，從最基礎的UserDefaults讀寫（第46課），到
+          一段實際的判斷邏輯（第47課的最高分儲存），最後在這一課
+          整合出一個玩家真的看得到、摸得到的設定畫面。三堂課背後
+          其實是同一件事：讓遊戲不再是「一關掉App就全部歸零」的
+          狀態。下一個模組L要換一個角度，處理開發過程中另外兩個
+          不可或缺的主題——除錯與效能優化，教你在遊戲邏輯出錯，
+          或是玩起來卡卡的時候，該用什麼工具系統化地找出問題。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>register(defaults:)</code>的作用，以及為什麼這門課要在設定<code>soundEnabled</code>這個key時特別呼叫它</li>
+          <li>寫出（或說明）一個切換音效開關的完整邏輯：讀取、反轉、寫回</li>
+          <li>說明為什麼把播放音效的程式碼包成<code>playSound(_:)</code>這樣一個函式，會比在每個要發出聲音的地方各自檢查UserDefaults更好</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要進入模組L，從最基本、最常用的除錯工具——中斷點
+        ——開始，學會讓程式在指定的一行暫停下來，檢查當下的
+        物件狀態。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：儲存最高分與遊戲進度</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：Xcode除錯器與中斷點 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

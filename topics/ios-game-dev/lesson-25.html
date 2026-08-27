@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：建立球 ｜ iOS遊戲開發 ｜ 博雅書院</title>
+<meta name="description" content="用SKSpriteNode建立打磚塊遊戲的球，定位在球拍正上方，並說明這一課為什麼讓球先維持靜止，真正的物理反彈邏輯留給模組G用SKPhysicsBody實作">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">iOS遊戲開發</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜實作專案①：打磚塊遊戲——基礎架構 · 第 25 課</div>
+      <h1>建立球</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用SKSpriteNode建立球，並定位在球拍正上方</li>
+          <li>理解這一課刻意讓球維持靜止，真正的物理彈跳邏輯留給模組G</li>
+          <li>認清目前架構下，球、球拍、磚塊雖然都在場景裡，但彼此還沒有互動能力</li>
+        </ul>
+      </div>
+
+      <p>
+        球拍準備好了，接著建立打磚塊遊戲裡另一個核心物件——球。
+        這一課有一個刻意的設計決定，先說在前面：<strong>球在這
+        一課只負責出現在正確的位置，暫時不會動</strong>。真正
+        讓球飛起來、撞到東西會反彈的邏輯，需要
+        <code>SKPhysicsBody</code>，那是模組G「物理引擎與碰撞」
+        的主題。先把靜態的球放進場景，可以確保這一課的重點——
+        物件的建立與定位——不會被物理模擬的細節干擾。
+      </p>
+
+      <h2>1. 建立球的SKSpriteNode</h2>
+      <p>
+        延續第24課球拍的作法，球暫時也用純色方塊佔位，之後模組
+        J加入真正的美術素材時，只需要把這裡換成用圖片初始化的
+        <code>SKSpriteNode</code>，其他程式碼幾乎不用動：
+      </p>
+      <div class="code-block">class GameScene: SKScene {
+
+    private let paddle = SKSpriteNode(color: .white, size: CGSize(width: 100, height: 20))
+    private let ball = SKSpriteNode(color: .yellow, size: CGSize(width: 20, height: 20))
+
+    override func didMove(to view: SKView) {
+        paddle.name = "paddle"
+        paddle.position = CGPoint(x: frame.midX, y: frame.minY + 80)
+        addChild(paddle)
+
+        ball.name = "ball"
+        ball.position = CGPoint(x: paddle.position.x, y: paddle.position.y + 40)
+        addChild(ball)
+    }
+
+}</div>
+      <p>
+        球的初始位置用<code>paddle.position.x</code>對齊球拍
+        的水平中心，y座標則是球拍的y座標再加上一段距離，讓球
+        看起來「放在球拍上方」，符合第23課規劃的場景佈局。
+        <code>ball.name = "ball"</code>同樣依照命名規範設定，
+        模組G判斷碰撞時會用到這個名稱。
+      </p>
+
+      <h2>2. 為什麼這一課選擇讓球保持靜止</h2>
+      <p>
+        沒有物理引擎的情況下，讓球「動起來」其實也做得到——例如
+        在<code>update(_:)</code>裡每一幀手動改變
+        <code>ball.position</code>，模擬一個固定方向的速度。但
+        這種手動位移的作法，沒辦法處理「撞到球拍或牆壁該怎麼
+        反彈」這類需要角度計算的行為，寫起來要嘛過度簡化、要嘛
+        提早重造physics engine的輪子。這門課的安排是：<strong>
+        這一課先讓球完全靜止，模組G才用SKPhysicsBody一次做對
+        重力、速度與反彈</strong>，避免在還沒學物理引擎之前，
+        寫一套之後要整個打掉重寫的手動位移邏輯。
+      </p>
+
+      <h2>3. 目前的架構總覽：三種節點，但還沒有互動</h2>
+      <p>
+        跑到這裡，<code>GameScene</code>裡已經有<code>paddle</code>
+        （可以用手指移動）跟<code>ball</code>（暫時靜止）兩個
+        節點，下一課還會加入整排磚塊。但即使畫面上球跟球拍的
+        方塊重疊在一起，也<strong>不會發生任何碰撞反應</strong>
+        ——因為目前沒有任何節點被指定
+        <code>physicsBody</code>，SpriteKit根本不知道要偵測誰
+        跟誰接觸。這正是模組F要留給模組G解決的問題：先把場景
+        裡該有的物件都擺好，物理與碰撞留到下一個模組系統性地
+        處理。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="200" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">球目前定位在球拍正上方，尚未加上物理</text>
+
+          <rect x="40" y="40" width="320" height="220" rx="8" fill="none" stroke="var(--border)" stroke-width="1.5"/>
+
+          <circle cx="200" cy="150" r="12" fill="var(--gold)" opacity="0.85"/>
+          <text x="200" y="128" text-anchor="middle" font-size="9" fill="var(--gold)">ball（靜止）</text>
+
+          <line x1="200" y1="163" x2="200" y2="220" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="232" y="195" font-size="8" fill="var(--text-muted)">+40</text>
+
+          <rect x="150" y="220" width="100" height="16" rx="4" fill="#ff8a65" opacity="0.2" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="200" y="252" text-anchor="middle" font-size="9" fill="#ff8a65">paddle</text>
+
+          <rect x="55" y="270" width="290" height="20" rx="4" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="200" y="284" text-anchor="middle" font-size="8" fill="var(--accent)">模組G才加上SKPhysicsBody，讓球真正動起來</text>
+        </svg>
+        <figcaption>ball的x座標對齊paddle，y座標往上偏移40，這一課的球暫時不會移動，等模組G加上physicsBody才會有真正的物理行為。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出建立球的SKSpriteNode，並把它定位在球拍正上方的程式碼</li>
+          <li>說明這一課為什麼選擇讓球保持靜止，而不是先寫手動移動邏輯</li>
+          <li>解釋現在即使球和球拍在畫面上重疊，也不會發生任何碰撞反應的原因</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        球拍跟球都定位好了，下一課要建立場景最上方的磚塊陣列，
+        用巢狀迴圈依照列數、欄數與間距，計算出每一塊磚塊該放的
+        座標。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：建立球拍</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：磚塊陣列排版 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
