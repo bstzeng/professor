@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 55 課：什麼是工具呼叫（Tool Calling） ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識工具呼叫（Tool Calling／Function Calling）的核心機制——LLM在收到一份可用工具清單後，能在生成回應時決定呼叫哪個工具、帶什麼參數，而不是只能輸出純文字，這正是AI Agent能自主做決策的技術基礎">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 55 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜AI Agent與工具呼叫基礎 · 第 55 課</div>
+      <h1>什麼是工具呼叫（Tool Calling）</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解工具呼叫（Tool Calling，又稱Function Calling）的基本機制：LLM可以在回應裡「決定呼叫某個函式」，而不是只能輸出純文字</li>
+          <li>認識這個機制需要的三個要件：工具清單、名稱與描述、參數結構（schema）</li>
+          <li>建立「工具呼叫是AI Agent能自主決策的技術地基」這個框架，為模組N後面兩課鋪路</li>
+        </ul>
+      </div>
+
+      <p>
+        模組I（第35～38課）已經讓LLM輸出結構化的JSON，再用IF／
+        Switch節點依照這個JSON分流——但那整套流程，「要呼叫哪個
+        後續動作」始終是工作流設計者事先寫死的邏輯，LLM只負責
+        判斷內容、n8n負責決定走哪條路。這一課要介紹一個更進一步
+        的機制：讓LLM本身就能在產生回應的當下，直接「決定」要
+        呼叫某個工具、並且決定要帶什麼參數——這個機制叫做<strong>
+        工具呼叫（Tool Calling）</strong>，早期也常被稱為
+        <strong>Function Calling</strong>。它正是模組N接下來要談
+        的AI Agent，能夠自主做決策的技術基礎。
+      </p>
+
+      <h2>1. 傳統做法：LLM只能輸出文字，決策邏輯寫死在工作流裡</h2>
+      <p>
+        回顧模組I的做法：你要求LLM輸出一個像
+        <code>{"category": "urgent", "confidence": 0.9}</code>
+        這樣的JSON字串，接著n8n用Switch節點檢查
+        <code>category</code>欄位的值，決定要走「發Slack通知」
+        還是「寫進資料庫」這條路。這裡LLM做的事情，本質上仍然
+        只是「生成一段文字」——文字剛好被格式化成JSON，方便後續
+        節點解析。至於「這個分類結果該對應到哪個動作」，是設計
+        工作流的人事先用IF／Switch節點寫死的規則，LLM本身完全
+        不知道後面接的是什麼系統、也無法自己決定要不要多查一筆
+        資料再下判斷。
+      </p>
+
+      <h2>2. 工具呼叫：讓LLM自己決定要不要呼叫、呼叫哪個、帶什麼參數</h2>
+      <p>
+        工具呼叫改變的，正是這個關係。做法是：在呼叫LLM時，除了
+        平常的prompt之外，額外附上一份<strong>工具清單</strong>
+        ——每個工具都有一個<strong>名稱</strong>（例如
+        <code>lookup_sheet_row</code>）、一段<strong>描述</strong>
+        （用自然語言說明這個工具是做什麼用的，LLM會依賴這段描述
+        判斷什麼時候該用它），以及一份<strong>參數結構（schema）
+        </strong>（用JSON Schema之類的格式，定義呼叫這個工具需要
+        帶哪些參數、各自是什麼型別）。LLM生成回應時，會依據使用者
+        的任務，自行判斷「這個當下該不該呼叫某個工具」——如果要，
+        它輸出的不是一段自然語言文字，而是一個結構化的呼叫請求：
+        工具名稱＋一組符合該工具參數結構的引數。
+      </p>
+
+      <div class="code-block">// 提供給LLM的工具清單，其中一個工具的定義（示意格式）
+{
+  "name": "lookup_sheet_row",
+  "description": "依照日期查詢Google試算表裡當天的紀錄，回傳符合條件的資料列",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "date": { "type": "string", "description": "查詢日期，格式YYYY-MM-DD" }
+    },
+    "required": ["date"]
+  }
+}
+
+// LLM對某個任務的回應，不是純文字，而是一次工具呼叫請求
+{
+  "tool_call": {
+    "name": "lookup_sheet_row",
+    "arguments": { "date": "2026-08-27" }
+  }
+}</div>
+      <p>
+        要特別澄清一個常見誤解：LLM本身<strong>不會真的去執行
+        </strong>這個工具——它只負責「決定要呼叫哪個工具、帶什麼
+        參數」，並把這個決定以結構化格式輸出出來。真正執行這個
+        工具（例如真的去查Google試算表、真的發一則Slack訊息）
+        的，是LLM外部的程式（在這門課的情境裡，就是n8n）。n8n
+        收到LLM的工具呼叫請求後，實際執行對應的節點，把結果再
+        回傳給LLM，讓它可以根據這個結果，決定下一步——是繼續呼叫
+        別的工具，還是已經有足夠資訊可以直接生成最終的文字回應。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow55" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">工具呼叫的基本迴路</text>
+
+          <rect x="20" y="45" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="95" y="70" text-anchor="middle" font-size="9" fill="var(--text)">任務＋工具清單</text>
+          <text x="95" y="87" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">名稱／描述／參數結構</text>
+
+          <line x1="170" y1="75" x2="205" y2="75" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow55)"/>
+
+          <rect x="210" y="45" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="285" y="70" text-anchor="middle" font-size="9" fill="var(--gold)">LLM決策</text>
+          <text x="285" y="87" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">要不要呼叫？呼叫哪個？</text>
+
+          <line x1="360" y1="75" x2="395" y2="75" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow55)"/>
+
+          <rect x="400" y="45" width="220" height="60" rx="6" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="510" y="70" text-anchor="middle" font-size="9" fill="var(--accent)">結構化工具呼叫請求</text>
+          <text x="510" y="87" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">{ name, arguments }</text>
+
+          <line x1="510" y1="105" x2="510" y2="135" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow55)"/>
+
+          <rect x="400" y="140" width="220" height="55" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="510" y="163" text-anchor="middle" font-size="9" fill="#ff8a65">n8n實際執行工具</text>
+          <text x="510" y="180" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">查表、發訊息……LLM本身不執行</text>
+
+          <line x1="400" y1="167" x2="285" y2="167" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="285" y1="167" x2="285" y2="105" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow55)"/>
+          <text x="343" y="220" text-anchor="middle" font-size="8" fill="var(--text-muted)">把工具執行結果送回給LLM，讓它決定下一步</text>
+
+          <rect x="20" y="230" width="600" height="24" rx="5" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="246" text-anchor="middle" font-size="8" fill="var(--text-muted)">這整個「決策 → 執行 → 回饋 → 再決策」的迴路，正是AI Agent的技術基礎</text>
+        </svg>
+        <figcaption>LLM只負責「決定呼叫哪個工具、帶什麼參數」，實際執行工具的是外部系統（這門課裡是n8n）——執行結果再回饋給LLM，讓它決定下一步。</figcaption>
+      </div>
+
+      <h2>3. 為什麼這是AI Agent能自主決策的地基</h2>
+      <p>
+        有了工具呼叫這個機制，LLM第一次有能力做到「依照任務內容，
+        自己判斷該用哪個工具、要不要用、用幾次、用完之後要不要再
+        用別的工具」——而不是被工作流設計者事先寫死唯一一條路徑。
+        當這個「決策 → 執行 → 回饋 → 再決策」的迴路被包裝成一個
+        可以重複跑好幾輪、直到LLM判斷任務完成為止的機制時，就構成
+        了下一課要介紹的<strong>AI Agent</strong>。可以先建立一個
+        直覺：Agent之所以看起來像會「自己想辦法完成任務」，底層
+        靠的正是這一課介紹的工具呼叫機制，而不是什麼全新的、
+        神秘的能力。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：不是所有模型都支援工具呼叫</h3>
+        <p>
+          工具呼叫需要模型在訓練階段就特別針對這種輸出格式做過
+          調校，不是每個LLM都支援。透過Ollama執行地端模型時，
+          需要挑選有標示支援工具呼叫（tools／function calling）
+          能力的模型——這點下一課實際設定n8n的AI Agent節點時會
+          再具體說明。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明工具呼叫需要的三個要件：名稱、描述、參數結構，各自的作用是什麼</li>
+          <li>解釋為什麼「LLM決定呼叫工具」跟「LLM真的執行工具」是兩件不同的事，各自由誰負責</li>
+          <li>說明工具呼叫這個機制，為什麼是AI Agent能自主決策的技術基礎</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要動手看n8n怎麼把工具呼叫這個機制，包裝成一個可以
+        直接拖進畫布使用的節點類型——AI Agent節點，以及它跟一般
+        LLM節點在畫布上的接線方式有什麼不同。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-54.html">← 上一課：模組總結：讓你的自動化流程能查詢私有文件</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-56.html">下一課：n8n的AI Agent節點基礎 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

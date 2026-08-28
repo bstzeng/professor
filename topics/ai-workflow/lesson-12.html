@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：OpenAI相容格式：為什麼這件事很重要 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識Ollama提供的/v1/chat/completions端點如何模仿OpenAI API格式，讓大量原本為呼叫OpenAI打造的既有工具，只要換一個網址就能改呼叫地端LLM">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Ollama的API · 第 12 課</div>
+      <h1>OpenAI相容格式：為什麼這件事很重要</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識Ollama除了<code>/api/generate</code>、<code>/api/chat</code>之外，還提供一個模仿OpenAI API格式的端點：<code>/v1/chat/completions</code></li>
+          <li>理解為什麼「格式相容」這件事，會直接決定地端LLM能不能被既有工具直接串接</li>
+          <li>建立這門課後續整合n8n時會反覆用到的判斷依據：優先找「OpenAI相容」的設定欄位</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課用curl呼叫了Ollama自己的原生API格式
+        （<code>/api/generate</code>），驗證了地端LLM能被
+        外部程式呼叫。這一課要談一個更務實的問題：這個世界
+        上已經有非常多工具、函式庫、平台，當初是為了呼叫
+        OpenAI的雲端API而寫的，並不知道Ollama這個原生格式的
+        存在。如果每一個工具都要為了地端LLM重新寫一套呼叫
+        邏輯，這門課接下來要做的整合工作會困難很多。Ollama
+        用一個聰明的做法解決了這個問題。
+      </p>
+
+      <h2>1. 一個現實問題：大量工具是「為OpenAI而生」的</h2>
+      <p>
+        自從OpenAI的API普及之後，大量的SDK、框架、平台，
+        還有很多工作流平台（包括n8n內建的一些AI相關節點）
+        在設計呼叫LLM的功能時，都是直接照著OpenAI API的
+        請求／回應格式去寫的——固定的請求路徑（像
+        <code>/v1/chat/completions</code>）、固定的
+        <code>messages</code>陣列結構、固定的回應欄位命名
+        方式。這些工具原本假設「LLM」就等於「OpenAI的雲端
+        服務」。
+      </p>
+
+      <h2>2. Ollama的解法：多開一個「講同樣方言」的端點</h2>
+      <p>
+        除了原生的<code>/api/generate</code>、
+        <code>/api/chat</code>之外，Ollama額外提供了一個
+        端點：<code>/v1/chat/completions</code>，這個端點
+        刻意模仿OpenAI Chat Completions API的請求格式與回應
+        格式。也就是說，同一顆在本機跑的模型，可以同時透過
+        兩種「語言」被呼叫：Ollama自己的原生格式，或是
+        OpenAI相容格式。
+      </p>
+      <div class="code-block">curl http://localhost:11434/v1/chat/completions -d '{
+  "model": "llama3.2",
+  "messages": [
+    { "role": "user", "content": "用一句話說明什麼是HTTP" }
+  ]
+}'</div>
+      <p>
+        注意這個請求的結構——<code>messages</code>陣列、
+        <code>role</code>／<code>content</code>欄位——跟
+        OpenAI官方API文件裡的格式一模一樣，只差在網址換成
+        本機的<code>localhost:11434</code>而已。
+      </p>
+
+      <h2>3. 這件事為什麼是關鍵橋樑</h2>
+      <p>
+        因為格式相容，很多原本只認得OpenAI的工具，其實只要
+        把「要呼叫的網址（base URL）」從OpenAI的雲端網址，
+        換成本機的<code>http://localhost:11434/v1</code>，
+        其他程式碼幾乎不用改，就能改成呼叫地端的模型。這正
+        是這門課後面要串接n8n時會用到的技巧——n8n裡許多原本
+        設計給OpenAI用的AI相關節點與憑證設定，只要把base
+        URL指向本機的Ollama，就能讓整個工作流改用地端LLM
+        執行，資料完全不會離開你的電腦。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 225" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow12" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">只換一個base URL：同一套工具改叫地端模型</text>
+
+          <rect x="230" y="50" width="180" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="320" y="73" text-anchor="middle" font-size="9.5" fill="var(--text)">既有工具</text>
+          <text x="320" y="90" text-anchor="middle" font-size="8" fill="var(--text-muted)">原本設定呼叫OpenAI格式API</text>
+
+          <line x1="280" y1="105" x2="150" y2="145" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow12)"/>
+          <line x1="360" y1="105" x2="490" y2="145" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arrow12)"/>
+
+          <rect x="30" y="150" width="220" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="140" y="173" text-anchor="middle" font-size="9" fill="var(--text)">OpenAI雲端</text>
+          <text x="140" y="190" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">api.openai.com/v1/chat/completions</text>
+
+          <rect x="390" y="150" width="220" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="500" y="173" text-anchor="middle" font-size="9" fill="var(--accent)">本機Ollama</text>
+          <text x="500" y="190" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">localhost:11434/v1/chat/completions</text>
+        </svg>
+        <figcaption>同一套原本只認得OpenAI格式的工具，只要把base URL換成本機的Ollama位址，就能改成呼叫地端模型——資料不再需要送到雲端。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>小提醒：相容不等於完全相同</h3>
+        <p>
+          相容格式主要涵蓋常見的請求／回應欄位，不代表OpenAI
+          平台上的每一項進階功能（例如特定的模型專屬參數）
+          都能在Ollama上使用。實務上遇到工具串接失敗時，先
+          確認對方工具呼叫的是哪一種端點格式、以及是否有
+          支援自訂base URL的設定欄位，是最快的排查方向。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼Ollama要額外提供一個「模仿OpenAI格式」的端點</li>
+          <li>這個相容端點的路徑是什麼？跟原生的<code>/api/generate</code>差在哪裡</li>
+          <li>舉例說明「只換base URL」這件事，實務上能省下多少改動既有工具的成本</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組C的總結——回顧地端LLM從「只能在終端機
+        互動」到「能被任何外部工具透過標準HTTP API呼叫」的
+        完整轉變，並銜接到模組D要開始動手架設的工作流平台
+        n8n。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：用curl測試API：確認地端LLM真的能被呼叫</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：模組總結：地端LLM準備好被工作流呼叫了 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

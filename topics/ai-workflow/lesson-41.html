@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：串接Slack／通訊軟體：發送通知 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用n8n的Slack節點與Send Message操作，接上第37課IF節點的true分支，讓客訴且緊急的信件真正觸發一則引用AI分類結果的即時通知">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜串接外部系統 · 第 41 課</div>
+      <h1>串接Slack／通訊軟體：發送通知</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼緊急客訴需要主動推播的通知，而不能只靠被動查看的試算表</li>
+          <li>認識n8n的Slack節點與Send Message操作，能設定憑證與目標頻道</li>
+          <li>能寫出引用AI分類結果欄位的通知訊息內容，並接在正確的分支上</li>
+        </ul>
+      </div>
+
+      <p>
+        第40課讓每一封信都有了紀錄，但試算表是「被動」的——
+        沒有人會一直盯著它看。第37課設計的IF節點true分支
+        （<code>category</code>是complaint、且<code>urgent</code>
+        為true），需要的是「主動」通知：讓負責的人幾乎在信件
+        送達的同時就知道有緊急狀況。這一課要把Slack節點接上
+        那條分支。
+      </p>
+
+      <h2>1. 為什麼有些狀況不能只靠一份試算表</h2>
+      <p>
+        試算表適合事後查閱、統計趨勢，但對「現在馬上需要有人
+        處理」的情境來說反應太慢。客訴信件如果是關於出貨延遲、
+        商品瑕疵這類容易影響顧客觀感的問題，多拖一小時才被
+        發現，可能就是更嚴重的抱怨。這正是第37課把
+        <code>category</code>跟<code>urgent</code>兩個條件都
+        滿足的信件，另外拉出一條分支的原因。
+      </p>
+
+      <h2>2. Slack節點與Send Message操作</h2>
+      <p>
+        n8n的Slack節點裡，<strong>Send Message</strong>是最常
+        用的操作，作用是把一則訊息發送到指定的頻道或使用者。
+        使用前需要先建立Slack的憑證——通常是透過一個Slack App
+        授權（OAuth2），取得可以代表這個App發送訊息的權杖，
+        再把這個憑證接到n8n的Slack節點上。
+      </p>
+      <div class="code-block">Credential：Slack OAuth2（連結到一個已建立的Slack App）
+Resource：Message
+Operation：Send
+Channel：#customer-support（要發送到的頻道）
+Text：訊息內容（可用n8n表達式帶入動態欄位）</div>
+
+      <h2>3. 撰寫引用AI判斷結果的訊息內容</h2>
+      <p>
+        Slack節點的訊息內容欄位可以直接用n8n表達式，帶入前面
+        節點解析出來的<code>sender</code>、<code>summary</code>
+        等欄位，讓通知不是一句空泛的「有新客訴」，而是包含
+        關鍵資訊、看到就能判斷輕重的內容：
+      </p>
+      <div class="code-block">🚨 緊急客訴通知
+寄件者：{{ $json.from }}
+摘要：{{ $json.summary }}</div>
+      <p>
+        這則訊息裡的兩個欄位，分別來自第39課Email Trigger讀到
+        的<code>from</code>寄件者欄位，以及第36課LLM分類時
+        生成的一句話摘要——
+        負責的人不需要點開信箱，光看Slack訊息就能知道這封信
+        大致在講什麼，決定要不要立刻處理。
+      </p>
+
+      <h2>4. 只在客訴＋緊急分支觸發：接在IF節點的true輸出後面</h2>
+      <p>
+        延續第37課的分支設計，Slack節點的輸入連線，要接在IF
+        節點（判斷<code>urgent</code>是否為true）的<strong>
+        true輸出</strong>後面，而不是接在Switch節點的complaint
+        輸出上——這樣才能確保只有真正被判定為緊急的客訴，才會
+        觸發這則通知；不緊急的客訴信件雖然一樣被歸類為
+        complaint，但只會走到第40課的試算表記錄，不會額外
+        發出Slack訊息。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow41" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">只有true分支才會觸發Slack通知</text>
+
+          <rect x="20" y="45" width="200" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="120" y="66" text-anchor="middle" font-size="8.5" fill="var(--gold)">IF：category=complaint</text>
+          <text x="120" y="82" text-anchor="middle" font-size="8" fill="var(--gold)">且 urgent=true？</text>
+
+          <line x1="220" y1="60" x2="255" y2="60" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow41)"/>
+          <text x="230" y="53" font-size="7.5" fill="var(--text-muted)">true</text>
+          <rect x="260" y="35" width="200" height="45" rx="6" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="360" y="53" text-anchor="middle" font-size="8.5" fill="#ff8a65">Slack：Send Message</text>
+          <text x="360" y="69" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">🚨 帶入sender、summary</text>
+
+          <line x1="220" y1="85" x2="255" y2="120" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow41)"/>
+          <text x="228" y="105" font-size="7.5" fill="var(--text-muted)">false</text>
+          <rect x="260" y="105" width="200" height="45" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="360" y="123" text-anchor="middle" font-size="8" fill="var(--text-muted)">不觸發Slack</text>
+          <text x="360" y="139" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">已在第40課寫入試算表</text>
+        </svg>
+        <figcaption>Slack節點只接在IF節點的true輸出後面：只有客訴且緊急同時成立時才會發送通知，其餘情況已經在寫入試算表那一步完成記錄。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>小提醒：頻道與DM的選擇</h3>
+        <p>
+          Send Message的<code>Channel</code>欄位除了指定頻道
+          （如<code>#customer-support</code>），也可以指定
+          使用者，把訊息直接私訊給特定負責人。實務上常見的做法
+          是先發到一個團隊共用頻道，讓多人都能看到並認領處理，
+          而不是只私訊給單一個人，避免那個人剛好不在線上就
+          被漏掉。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼緊急客訴需要Slack這種主動推播的通知，而不能只靠試算表</li>
+          <li>寫出Slack通知訊息裡，用來帶入寄件者與摘要的兩個n8n表達式</li>
+          <li>解釋Slack節點為什麼要接在IF節點的true輸出，而不是Switch節點的complaint輸出</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        試算表跟Slack都接上了，但試算表終究有它的規模極限。
+        下一課要簡單認識另一種紀錄方式：用資料庫節點，作為
+        信件量成長之後，試算表的替代或輔助選項。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：串接Google試算表：讀寫資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：串接資料庫：寫入結構化紀錄 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

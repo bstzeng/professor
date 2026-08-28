@@ -3779,6 +3779,183 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "ai-workflow",
+      category: "tech",
+      title: "AI工作流全紀錄：用Ollama＋n8n打造你的地端自動化系統",
+      description:
+        "從安裝地端LLM執行工具Ollama開始，學會用它的API讓外部工具能夠呼叫地端模型，接著上手開源工作流平台n8n，把AI步驟串進信件、試算表、Slack、資料庫等既有系統，打造一套完整的自動化流程；並補齊RAG文件問答、AI Agent工具呼叫、排程自動化、錯誤處理、安全性與地端資源優化等關鍵主題，最終建立起一套資料全程留在自己環境裡的地端AI自動化系統。",
+      icon: "🤖",
+      url: "topics/ai-workflow/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：什麼是AI工作流，為什麼要接地端LLM",
+          courses: [
+            { title: "什麼是AI工作流：把LLM變成可重複執行的自動化系統", url: "topics/ai-workflow/lesson-01.html" },
+            { title: "為什麼要接地端LLM：隱私、成本、離線與資料主權", url: "topics/ai-workflow/lesson-02.html" },
+            { title: "這門課會用到的兩個核心工具：Ollama與n8n", url: "topics/ai-workflow/lesson-03.html" },
+            { title: "模組總結：這門課要一起做出什麼", url: "topics/ai-workflow/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜地端LLM基礎：安裝與執行Ollama",
+          courses: [
+            { title: "安裝Ollama", url: "topics/ai-workflow/lesson-05.html" },
+            { title: "拉取並執行你的第一個地端模型", url: "topics/ai-workflow/lesson-06.html" },
+            { title: "模型選擇：參數量、量化與硬體門檻的取捨", url: "topics/ai-workflow/lesson-07.html" },
+            { title: "Ollama常用CLI指令", url: "topics/ai-workflow/lesson-08.html" },
+            { title: "模組總結：地端LLM已經在你的電腦上跑起來了", url: "topics/ai-workflow/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜Ollama的API",
+          courses: [
+            { title: "Ollama的REST API：讓外部工具能呼叫地端LLM", url: "topics/ai-workflow/lesson-10.html" },
+            { title: "用curl測試API：確認地端LLM真的能被呼叫", url: "topics/ai-workflow/lesson-11.html" },
+            { title: "OpenAI相容格式：為什麼這件事很重要", url: "topics/ai-workflow/lesson-12.html" },
+            { title: "模組總結：地端LLM準備好被工作流呼叫了", url: "topics/ai-workflow/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜n8n基礎：安裝與編輯器導覽",
+          courses: [
+            { title: "安裝n8n：Docker vs npm兩種方式", url: "topics/ai-workflow/lesson-14.html" },
+            { title: "n8n編輯器導覽：節點、連線與畫布", url: "topics/ai-workflow/lesson-15.html" },
+            { title: "觸發器（Trigger）：工作流怎麼被啟動", url: "topics/ai-workflow/lesson-16.html" },
+            { title: "模組總結：建立你的第一個空白工作流", url: "topics/ai-workflow/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 E｜n8n核心概念",
+          courses: [
+            { title: "節點之間的資料傳遞：JSON結構", url: "topics/ai-workflow/lesson-18.html" },
+            { title: "n8n表達式（Expression）：動態取用前一個節點的資料", url: "topics/ai-workflow/lesson-19.html" },
+            { title: "常用節點類型：IF、Switch、Set、Merge", url: "topics/ai-workflow/lesson-20.html" },
+            { title: "模組總結：資料在工作流裡是怎麼流動的", url: "topics/ai-workflow/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 F｜讓n8n接上Ollama",
+          courses: [
+            { title: "HTTP Request節點：呼叫Ollama API的通用做法", url: "topics/ai-workflow/lesson-22.html" },
+            { title: "n8n內建的AI節點：LangChain整合與聊天模型節點", url: "topics/ai-workflow/lesson-23.html" },
+            { title: "兩種接法的比較：HTTP Request vs 內建AI節點", url: "topics/ai-workflow/lesson-24.html" },
+            { title: "模組總結：完成第一次n8n呼叫地端LLM", url: "topics/ai-workflow/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 G｜實作範例①：第一個自動化流程",
+          courses: [
+            { title: "情境設定：一個貫穿全課程的自動化範例", url: "topics/ai-workflow/lesson-26.html" },
+            { title: "建立觸發器：Webhook或排程開始", url: "topics/ai-workflow/lesson-27.html" },
+            { title: "串上LLM處理節點", url: "topics/ai-workflow/lesson-28.html" },
+            { title: "執行測試與查看結果", url: "topics/ai-workflow/lesson-29.html" },
+            { title: "模組總結：從觸發到AI回應的完整迴路", url: "topics/ai-workflow/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 H｜資料前處理與Prompt設計",
+          courses: [
+            { title: "為什麼Prompt要模板化，而不是寫死", url: "topics/ai-workflow/lesson-31.html" },
+            { title: "用n8n的Set節點整理輸入資料", url: "topics/ai-workflow/lesson-32.html" },
+            { title: "System Prompt與User Prompt的分工", url: "topics/ai-workflow/lesson-33.html" },
+            { title: "模組總結：讓Prompt能重複套用在不同輸入上", url: "topics/ai-workflow/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 I｜AI輸出的後處理與路由",
+          courses: [
+            { title: "為什麼要讓LLM輸出結構化資料（JSON）", url: "topics/ai-workflow/lesson-35.html" },
+            { title: "解析LLM回傳的JSON", url: "topics/ai-workflow/lesson-36.html" },
+            { title: "用IF/Switch節點依照AI的判斷分流", url: "topics/ai-workflow/lesson-37.html" },
+            { title: "模組總結：AI從「回答問題」變成「做決策」", url: "topics/ai-workflow/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 J｜串接外部系統",
+          courses: [
+            { title: "串接Email：讀取與寄送", url: "topics/ai-workflow/lesson-39.html" },
+            { title: "串接Google試算表：讀寫資料", url: "topics/ai-workflow/lesson-40.html" },
+            { title: "串接Slack／通訊軟體：發送通知", url: "topics/ai-workflow/lesson-41.html" },
+            { title: "串接資料庫：寫入結構化紀錄", url: "topics/ai-workflow/lesson-42.html" },
+            { title: "模組總結：完整的端到端自動化流程", url: "topics/ai-workflow/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 K｜錯誤處理與流程穩定性",
+          courses: [
+            { title: "為什麼地端LLM需要更謹慎的錯誤處理", url: "topics/ai-workflow/lesson-44.html" },
+            { title: "n8n的錯誤處理節點與重試機制", url: "topics/ai-workflow/lesson-45.html" },
+            { title: "模組總結：讓工作流在失敗時不會整個中斷", url: "topics/ai-workflow/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 L｜RAG基礎",
+          courses: [
+            { title: "為什麼要RAG：LLM不知道你的私有資料", url: "topics/ai-workflow/lesson-47.html" },
+            { title: "文件切塊（Chunking）與向量嵌入（Embedding）概念", url: "topics/ai-workflow/lesson-48.html" },
+            { title: "向量資料庫是什麼", url: "topics/ai-workflow/lesson-49.html" },
+            { title: "模組總結：RAG的完整運作流程", url: "topics/ai-workflow/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 M｜在n8n中實作簡易RAG",
+          courses: [
+            { title: "用Ollama產生嵌入向量", url: "topics/ai-workflow/lesson-51.html" },
+            { title: "在n8n中串接向量資料庫節點", url: "topics/ai-workflow/lesson-52.html" },
+            { title: "把檢索結果餵回LLM：完整RAG流程", url: "topics/ai-workflow/lesson-53.html" },
+            { title: "模組總結：讓你的自動化流程能查詢私有文件", url: "topics/ai-workflow/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 N｜AI Agent與工具呼叫基礎",
+          courses: [
+            { title: "什麼是工具呼叫（Tool Calling）", url: "topics/ai-workflow/lesson-55.html" },
+            { title: "n8n的AI Agent節點基礎", url: "topics/ai-workflow/lesson-56.html" },
+            { title: "讓Agent決定該用哪個工具", url: "topics/ai-workflow/lesson-57.html" },
+            { title: "模組總結：從固定流程到自主決策的一步之遙", url: "topics/ai-workflow/lesson-58.html" }
+          ]
+        },
+        {
+          title: "模組 O｜排程與長期自動化",
+          courses: [
+            { title: "排程觸發器：讓工作流定期自動執行", url: "topics/ai-workflow/lesson-59.html" },
+            { title: "Webhook觸發器：被動接收外部事件", url: "topics/ai-workflow/lesson-60.html" },
+            { title: "模組總結：讓自動化流程真正無人值守運作", url: "topics/ai-workflow/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 P｜監控、日誌與除錯",
+          courses: [
+            { title: "n8n的執行紀錄與除錯畫面", url: "topics/ai-workflow/lesson-62.html" },
+            { title: "監控地端LLM的資源使用狀況", url: "topics/ai-workflow/lesson-63.html" },
+            { title: "模組總結：工作流出問題時該從哪裡查起", url: "topics/ai-workflow/lesson-64.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜安全性與資料隱私考量",
+          courses: [
+            { title: "地端部署的網路隔離與存取控制", url: "topics/ai-workflow/lesson-65.html" },
+            { title: "保護暴露在外的Webhook端點", url: "topics/ai-workflow/lesson-66.html" },
+            { title: "模組總結：地端不等於自動安全", url: "topics/ai-workflow/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 R｜效能優化：地端LLM的資源管理",
+          courses: [
+            { title: "GPU／CPU資源與併發請求的取捨", url: "topics/ai-workflow/lesson-68.html" },
+            { title: "量化模型的效能與品質權衡", url: "topics/ai-workflow/lesson-69.html" },
+            { title: "模組總結：什麼時候該考慮升級到vLLM等生產環境方案", url: "topics/ai-workflow/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結：從一台電腦到一套能跑的地端AI自動化系統", url: "topics/ai-workflow/lesson-71.html" }
+          ]
+        }
+      ]
     }
   ]
 };

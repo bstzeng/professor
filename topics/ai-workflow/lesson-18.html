@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：節點之間的資料傳遞：JSON結構 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n節點之間傳遞資料的基本格式——一個由item組成的陣列，每個item底下用json欄位包著實際資料，並理解一個節點預設如何逐筆處理多個item">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜n8n核心概念 · 第 18 課</div>
+      <h1>節點之間的資料傳遞：JSON結構</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解n8n節點之間傳遞資料的基本格式：一個由item組成的陣列，每個item底下用json欄位包著實際資料</li>
+          <li>能讀懂n8n編輯器裡顯示的資料結構，找到某個欄位實際的路徑</li>
+          <li>理解一個節點在處理多筆item時，預設是怎麼逐筆執行的</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D把n8n的編輯器、觸發器、空白工作流都建立起來了，
+        但一個工作流真正有用的地方，在於節點跟節點之間能傳遞
+        資料——前一個節點處理完的結果，會變成下一個節點的輸入。
+        模組E這四堂課要把這件事講清楚：資料在n8n裡到底長什麼
+        樣子、怎麼被讀取、又怎麼被分流跟整理。這一課先從最
+        基礎的資料格式開始。
+      </p>
+
+      <h2>1. n8n的資料格式：item陣列</h2>
+      <p>
+        n8n裡的每個節點，輸入跟輸出永遠是同一種結構：一個
+        <strong>陣列</strong>，陣列裡的每一個元素叫做一個
+        <strong>item</strong>。就算只有一筆資料，它也會被包在
+        一個只有一個元素的陣列裡；如果前一個節點抓回了十筆
+        資料（例如十封信件、十筆表單紀錄），輸出就會是一個
+        有十個item的陣列。每一個item底下，實際的欄位資料放在
+        一個叫做<code>json</code>的鍵裡面：
+      </p>
+      <div class="code-block">[
+  {
+    "json": {
+      "name": "Alice",
+      "score": 90
+    }
+  },
+  {
+    "json": {
+      "name": "Bob",
+      "score": 76
+    }
+  }
+]</div>
+      <p>
+        這個例子是一個有兩筆item的陣列，第一筆item的
+        <code>json.name</code>是<code>"Alice"</code>、
+        <code>json.score</code>是<code>90</code>；第二筆
+        item則是Bob的資料。之後不管是哪一種節點——不管是從
+        資料庫抓資料、呼叫Ollama的API、還是讀一個試算表——
+        輸出到下一個節點的，都會是這種「item陣列，每個item
+        底下包一層json」的結構。
+      </p>
+
+      <h2>2. 為什麼每個item要多包一層json</h2>
+      <p>
+        剛接觸n8n的人常常會覺得奇怪：為什麼不能直接是
+        <code>[{ "name": "Alice" }, { "name": "Bob" }]</code>，
+        非要多包一層<code>json</code>？原因是item除了
+        <code>json</code>這個欄位資料的鍵之外，還可能帶著
+        另一個鍵：<code>binary</code>，用來放檔案（例如附件、
+        圖片）這類二進位資料。把「一般欄位資料」跟「二進位
+        檔案資料」分開放在<code>json</code>跟<code>binary</code>
+        這兩個獨立的鍵底下，讓n8n可以在同一個item上，同時
+        攜帶「這筆資料的欄位內容」跟「這筆資料附帶的檔案」，
+        而不會互相混在一起。這門課後面用到檔案的地方比較少，
+        但理解這個設計，能幫助你看懂n8n文件裡對item結構的
+        描述。
+      </p>
+
+      <h2>3. 一個節點預設怎麼處理多筆item</h2>
+      <p>
+        大部分節點的處理邏輯，預設是<strong>逐筆執行</strong>
+        ——輸入有幾筆item，節點的邏輯就針對每一筆item各跑一次，
+        然後把每一筆處理完的結果，各自輸出成一筆item。舉例來說，
+        如果一個節點的工作是「把每筆資料的分數乘以1.1」，輸入
+        是上面Alice跟Bob兩筆item，這個節點就會分別對Alice跟
+        Bob的<code>score</code>各做一次運算，輸出仍然是兩筆
+        item，只是<code>score</code>欄位的值變了。這個「輸入
+        幾筆、預設處理幾筆」的行為，是接下來要介紹的IF、Switch
+        這類分流節點，還有第22課要接上Ollama的AI節點，共同
+        遵守的基本規則。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow18" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">item陣列如何流過一個節點</text>
+
+          <rect x="15" y="45" width="185" height="150" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="107" y="63" text-anchor="middle" font-size="9.5" fill="var(--gold)">輸入：2筆item</text>
+          <rect x="30" y="72" width="155" height="50" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="107" y="90" text-anchor="middle" font-size="8" fill="var(--text)">json: name=Alice</text>
+          <text x="107" y="105" text-anchor="middle" font-size="8" fill="var(--text)">json: score=90</text>
+          <rect x="30" y="128" width="155" height="50" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="107" y="146" text-anchor="middle" font-size="8" fill="var(--text)">json: name=Bob</text>
+          <text x="107" y="161" text-anchor="middle" font-size="8" fill="var(--text)">json: score=76</text>
+
+          <line x1="200" y1="120" x2="238" y2="120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow18)"/>
+
+          <rect x="243" y="80" width="150" height="80" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="318" y="112" text-anchor="middle" font-size="9.5" fill="var(--accent)">節點</text>
+          <text x="318" y="130" text-anchor="middle" font-size="8" fill="var(--text-muted)">對每筆item</text>
+          <text x="318" y="144" text-anchor="middle" font-size="8" fill="var(--text-muted)">各執行一次邏輯</text>
+
+          <line x1="393" y1="120" x2="431" y2="120" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow18)"/>
+
+          <rect x="436" y="45" width="190" height="150" rx="6" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="531" y="63" text-anchor="middle" font-size="9.5" fill="#ff8a65">輸出：仍是2筆item</text>
+          <rect x="451" y="72" width="160" height="50" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="531" y="90" text-anchor="middle" font-size="8" fill="var(--text)">json: name=Alice</text>
+          <text x="531" y="105" text-anchor="middle" font-size="8" fill="var(--text)">json: score=99</text>
+          <rect x="451" y="128" width="160" height="50" rx="4" fill="none" stroke="var(--border)" stroke-width="1"/>
+          <text x="531" y="146" text-anchor="middle" font-size="8" fill="var(--text)">json: name=Bob</text>
+          <text x="531" y="161" text-anchor="middle" font-size="8" fill="var(--text)">json: score=83.6</text>
+        </svg>
+        <figcaption>每個item底下的json欄位裝著實際資料；節點預設會逐筆處理輸入的item陣列，處理完再輸出一個結構相同的item陣列。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出一個有兩筆item的陣列範例，每筆item底下的json要各帶一個自訂欄位</li>
+          <li>說明item底下除了json之外，還可能有哪個鍵，用途是什麼</li>
+          <li>解釋一個節點在輸入有五筆item時，預設會怎麼處理，輸出通常會有幾筆</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要介紹n8n表達式（Expression）的語法——怎麼用
+        <code>{{ $json.欄位名稱 }}</code>這樣的寫法，在節點的
+        參數欄位裡動態取用目前這筆item的資料，甚至指定去讀
+        更早之前某個節點的輸出。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：模組總結：建立你的第一個空白工作流</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：n8n表達式（Expression）：動態取用前一個節點的資料 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：情境設定：一個貫穿全課程的自動化範例 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="正式介紹貫穿模組G到J的旗艦專案：自動分類與轉發客服信件——用地端LLM判斷信件類型、擷取重點，再依判斷結果寫入試算表並在緊急時發出Slack通知">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作範例①：第一個自動化流程 · 第 26 課</div>
+      <h1>情境設定：一個貫穿全課程的自動化範例</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識這門課接下來會反覆使用的旗艦專案：客服信件自動分類與轉發</li>
+          <li>理解為什麼這個情境能同時練到觸發、LLM處理、結構化輸出、條件分流、外部系統串接這幾個核心能力</li>
+          <li>掌握模組G到J要一步步蓋出來的整體藍圖，知道現在在哪一步、之後還會補上什麼</li>
+        </ul>
+      </div>
+
+      <p>
+        模組A到F分別把地端LLM（Ollama）跟工作流平台（n8n）各自
+        裝好、摸熟，也在模組F讓兩者第一次真正連上線。從這一課
+        開始，接下來的模組G、H、I、J要用同一個貫穿始終的專案，
+        把前面學到的每一塊拼圖組成一套真正能用的自動化系統。
+        這一課先把這個專案的情境講清楚，之後每一課動手做的，
+        都是在替這個專案添磚加瓦。
+      </p>
+
+      <h2>1. 專案情境：客服信件自動分類與轉發</h2>
+      <p>
+        情境很貼近真實工作場景：一個信箱每天收到各式各樣的
+        客服信件，有些是<strong>詢問</strong>（question）、有些
+        是<strong>客訴</strong>（complaint）、有些是單純的
+        <strong>意見回饋</strong>（feedback）、還有一部分根本是
+        <strong>垃圾信</strong>（spam）。目前的做法是有人得一封
+        一封打開閱讀、判斷類型、決定要不要緊急處理、再手動記錄
+        到表格裡——這正是第1課說過的「對話式」處理方式，沒辦法
+        規模化。這門課要把它改造成一套工作流：新信件一進來，
+        地端LLM自動讀懂內容、判斷類型、擷取寄件人與一行重點
+        摘要，工作流再依照判斷結果，把每一筆都記錄到試算表，
+        遇到客訴類型就額外發一則Slack緊急通知。
+      </p>
+
+      <div class="callout">
+        <h3>為什麼選這個情境當旗艦專案</h3>
+        <p>
+          這個情境看似簡單，卻剛好把這門課接下來要教的每一塊
+          能力都用上了：需要一個<strong>觸發器</strong>偵測新
+          信件進來；需要一個<strong>LLM處理節點</strong>做語意
+          判斷；需要LLM輸出<strong>結構化資料</strong>，工作流
+          才能用程式邏輯讀懂判斷結果；需要<strong>條件分流</strong>
+          決定客訴要不要額外通知；還需要跟<strong>信箱、試算表、
+          Slack</strong>這些外部系統實際串接。這幾件事分別對應
+          模組G到J，也是真實世界裡絕大多數AI工作流都會用到的
+          共同骨架。
+        </p>
+      </div>
+
+      <h2>2. 整體藍圖：模組G到J要蓋出什麼</h2>
+      <p>
+        這套工作流最終會長成一條清楚的流水線。先看整體形狀，
+        之後每一課動手做的細節，都可以對照回這張圖，知道自己
+        正在補上哪一段：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow26" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">旗艦專案：客服信件自動分類與轉發（模組G–J）</text>
+
+          <rect x="15" y="45" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="80" y="70" text-anchor="middle" font-size="9.5" fill="var(--gold)">Email Trigger</text>
+          <text x="80" y="87" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">新信件進來（模組G）</text>
+
+          <line x1="145" y1="75" x2="175" y2="75" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow26)"/>
+
+          <rect x="180" y="45" width="140" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="250" y="66" text-anchor="middle" font-size="9.5" fill="var(--accent)">LLM分類與擷取</text>
+          <text x="250" y="82" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">類型、摘要</text>
+          <text x="250" y="96" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">（模組G、H）</text>
+
+          <line x1="320" y1="75" x2="350" y2="75" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow26)"/>
+
+          <rect x="355" y="45" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="420" y="66" text-anchor="middle" font-size="9.5" fill="var(--text)">結構化JSON</text>
+          <text x="420" y="82" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">可被程式讀取</text>
+          <text x="420" y="96" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">（模組I）</text>
+
+          <line x1="485" y1="75" x2="515" y2="75" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow26)"/>
+
+          <rect x="520" y="45" width="105" height="60" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="572" y="70" text-anchor="middle" font-size="9.5" fill="#ff8a65">條件分流</text>
+          <text x="572" y="87" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">（模組I）</text>
+
+          <line x1="572" y1="105" x2="572" y2="135" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow26)"/>
+
+          <rect x="345" y="140" width="150" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="420" y="163" text-anchor="middle" font-size="9" fill="var(--gold)">寫入試算表</text>
+          <text x="420" y="180" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">每一封信都記錄（模組J）</text>
+
+          <rect x="510" y="140" width="120" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="570" y="163" text-anchor="middle" font-size="9" fill="var(--accent)">Slack通知</text>
+          <text x="570" y="180" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">僅客訴類型（模組J）</text>
+
+          <line x1="490" y1="167" x2="500" y2="167" stroke="var(--text-muted)" stroke-width="1.2"/>
+
+          <rect x="15" y="230" width="610" height="70" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="253" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">模組G：先用最簡單的方式把整條迴路接通 → 模組H：讓Prompt能重複套用在任何一封信</text>
+          <text x="320" y="271" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">→ 模組I：讓LLM輸出結構化JSON並依此分流 → 模組J：接上真正的信箱、試算表、Slack</text>
+          <text x="320" y="288" text-anchor="middle" font-size="8" fill="var(--text-muted)">這一課先看藍圖，接下來每一課都是在補上其中一段</text>
+        </svg>
+        <figcaption>客服信件自動分類與轉發工作流的完整藍圖——模組G到J會依序把每一段接起來，這一課先建立整體地圖。</figcaption>
+      </div>
+
+      <p>
+        先預覽一下這條流水線最終、也就是模組I完成後，LLM處理
+        節點大致會輸出什麼樣的結構化資料——這不是這一課就要
+        實作的內容，只是先讓接下來幾課的目標更具體：
+      </p>
+      <div class="code-block">// 這套工作流最終要讓LLM輸出的資料形狀（模組I會完整實作）
+{
+  "category": "客訴",
+  "summary": "客戶反映訂單已逾期兩週未出貨，要求盡快處理",
+  "sender": "customer_lisa@example.com"
+}</div>
+      <p>
+        有了這樣的結構化資料，模組I的IF／Switch節點才能直接
+        讀取<code>category</code>欄位的值來決定分流方向，模組J
+        的試算表寫入節點也才能直接把每個欄位對應到表格的欄。
+      </p>
+
+      <h2>3. 這一課先不動手，先把邊界說清楚</h2>
+      <p>
+        在正式開始接線之前，先講清楚接下來幾課的分工，避免
+        每一課都想一次做完所有事。模組G的目標只是先把最基本的
+        迴路接通——觸發器接上LLM、跑一次、看得到回應，先不追求
+        Prompt多完整、輸出多結構化。模組H會回頭把Prompt從「寫死
+        測試用的那一封信」改造成能套用在任何一封信的模板。模組I
+        才會處理「LLM的回覆目前只是一段文字，工作流沒辦法直接
+        拿來做判斷」這個問題，讓輸出變成結構化JSON並依此分流。
+        模組J最後才接上真正的信箱、試算表、Slack這些外部系統。
+        下一課會從觸發器這一段開始動手。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用自己的話說明這個貫穿全課程的專案情境要解決什麼問題</li>
+          <li>列出這個情境分別對應到哪幾個核心能力（觸發、處理、結構化輸出、分流、外部系統串接）</li>
+          <li>說明模組G、H、I、J各自負責把整條流水線的哪一段補上</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要開始動手：先討論這個專案最適合的觸發方式，
+        以及在還沒接上真正信箱之前，怎麼用一種更快速的方式
+        先把後面的流程搭起來、測試起來。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：模組總結：完成第一次n8n呼叫地端LLM</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：建立觸發器：Webhook或排程開始 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

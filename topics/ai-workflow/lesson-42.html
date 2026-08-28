@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：串接資料庫：寫入結構化紀錄 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n連接關聯式資料庫的節點，以Postgres為例，了解什麼情境下資料庫比試算表更適合作為結構化紀錄的目的地，以及兩者其實可以並存而非互斥">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜串接外部系統 · 第 42 課</div>
+      <h1>串接資料庫：寫入結構化紀錄</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解什麼情境下資料庫會比試算表更適合當作紀錄的目的地</li>
+          <li>認識n8n連接關聯式資料庫的節點，以Postgres為例，了解其基本操作</li>
+          <li>知道把分類資料寫進資料庫時，資料表欄位設計要考量哪些基本原則</li>
+        </ul>
+      </div>
+
+      <p>
+        第40課用試算表建立了稽核紀錄，第41課讓緊急客訴多了一層
+        即時通知。這一課簡單補上第三種紀錄方式：資料庫。它不是
+        這個專案的必要條件，但當信件量成長、或有其他系統需要
+        查詢這份紀錄時，會是比試算表更合適的選項。
+      </p>
+
+      <h2>1. 試算表撐不住的時候：資料量與查詢需求</h2>
+      <p>
+        試算表在信件量不大、主要靠人回頭瀏覽的情境下很好用，
+        但有兩種情況會讓它開始不太夠用：一是資料量持續累積，
+        單一工作表存放太多列之後，開啟、篩選、計算都會變慢；
+        二是除了人以外，還有其他系統（例如一個內部儀表板、
+        另一套報表工具）需要用程式化的方式查詢這份紀錄——這種
+        「結構化查詢」的需求，正是關聯式資料庫的強項，而不是
+        試算表原本設計要處理的場景。
+      </p>
+
+      <h2>2. n8n的資料庫節點：以Postgres為例</h2>
+      <p>
+        n8n內建多種資料庫節點，包括Postgres、MySQL等常見的
+        關聯式資料庫，這裡以<strong>Postgres節點</strong>為例。
+        跟Google Sheets節點類似，Postgres節點也提供多種操作，
+        其中最常用在這個場景的是<strong>Insert</strong>
+        （新增一列資料）——概念上跟Append Row很像，差別在於
+        資料寫進的是資料庫裡的一張資料表，而不是試算表的一個
+        工作表分頁。
+      </p>
+
+      <h2>3. 設定資料庫憑證與資料表欄位對應</h2>
+      <p>
+        使用前，需要先在n8n建立Postgres的連線憑證（主機位址、
+        埠號、資料庫名稱、帳號密碼），並在資料庫裡先建好對應的
+        資料表。延續第40課的欄位設計，一張最基本的紀錄表結構
+        大致像這樣：
+      </p>
+      <div class="code-block">CREATE TABLE email_log (
+  id SERIAL PRIMARY KEY,
+  received_at TIMESTAMP,
+  sender TEXT,
+  category TEXT,
+  urgent BOOLEAN,
+  summary TEXT
+);</div>
+      <p>
+        Postgres節點的Insert操作，會把前面節點傳來的欄位，逐一
+        對應到資料表的每一個欄位——邏輯上跟第40課Google Sheets
+        欄位對應的做法一致，只是這裡的<code>received_at</code>、
+        <code>sender</code>、<code>category</code>、
+        <code>urgent</code>、<code>summary</code>對應的是資料庫
+        資料表的欄位名稱，而不是試算表表頭。多出來的
+        <code>urgent</code>欄位設成布林型別，之後如果想統計
+        「緊急客訴佔整體信件的比例」，可以直接下SQL查詢，不需要
+        額外整理。
+      </p>
+
+      <h2>4. 試算表與資料庫可以並存，不是互斥選擇</h2>
+      <p>
+        不一定要「拿掉試算表、換成資料庫」，兩者其實可以同時
+        存在：試算表保留給人快速瀏覽、篩選最近的紀錄；資料庫
+        則作為長期、大量資料的結構化儲存，供其他系統查詢或做
+        進一步分析。實務上，可以在Code解析節點之後，同時接出
+        兩條連線——一條去Google Sheets的Append Row，一條去
+        Postgres的Insert，兩邊各自累積各自用途的紀錄。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明什麼情況下，資料庫會比試算表更適合作為紀錄的目的地</li>
+          <li>寫出這個專案的紀錄資料表大致需要哪幾個欄位，以及各自的型別</li>
+          <li>解釋為什麼試算表與資料庫可以並存，而不是只能二選一</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        Email Trigger、LLM分類、解析、分流、試算表、Slack——
+        這條工作流的每一段這幾課都分別實作過了。下一課是模組J
+        的總結，要把整條流程完整走一遍、畫成一張端到端的全流程
+        圖，並點出這套流程目前還缺少的一塊：如果LLM呼叫失敗、
+        逾時、或回傳的內容連清理都救不回來，工作流該怎麼辦。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：串接Slack／通訊軟體：發送通知</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：模組總結：完整的端到端自動化流程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

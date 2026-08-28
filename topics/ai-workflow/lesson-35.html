@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：為什麼要讓LLM輸出結構化資料（JSON） ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="自由文字的LLM回覆很難被工作流其他節點可靠地處理，這一課學會透過System Prompt要求LLM輸出固定的JSON schema，讓分類結果能被IF、Switch等節點直接判讀">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜AI輸出的後處理與路由 · 第 35 課</div>
+      <h1>為什麼要讓LLM輸出結構化資料（JSON）</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解自由文字的LLM回覆為什麼很難被工作流裡的其他節點可靠地處理</li>
+          <li>學會透過System Prompt要求LLM用固定的JSON schema回覆，而不是自然語言</li>
+          <li>看懂一個具體的JSON schema範例，理解每個欄位在後續節點裡各自扮演什麼角色</li>
+        </ul>
+      </div>
+
+      <p>
+        第34課把Prompt模板化，讓同一份System Prompt跟User
+        Prompt結構，能重複套用在每一封新進的客服信件上。模板
+        解決了「怎麼問」的問題，但還有一個問題沒解決：LLM
+        「怎麼答」。如果答案是一段自然語言描述，後面的IF、
+        Switch節點該怎麼知道這封信到底該往哪條路走？這一課要
+        處理的，正是輸出格式本身。
+      </p>
+
+      <h2>1. 自由文字輸出的問題：LLM看得懂，n8n看不懂</h2>
+      <p>
+        假設沒有特別要求輸出格式，針對一封抱怨包裹延遲的信件，
+        LLM可能會回覆類似這樣的一段文字：
+      </p>
+      <div class="code-block">這封信看起來是在反應包裹延遲送達的問題，語氣帶有明顯
+不滿，屬於客訴類型，而且措辭顯示顧客希望盡快得到處理，
+建議優先跟進。</div>
+      <p>
+        這段文字對「人」來說完全看得懂，但對n8n裡的IF或Switch
+        節點來說，它只是一整串字串。要從裡面判斷「這是不是
+        客訴」「算不算緊急」，得再寫一堆關鍵字比對或正則表達式
+        去猜——猜錯的機率不低，而且每次LLM換一種措辭方式，
+        判斷邏輯就可能失效。這不是工作流該做的事：工作流節點
+        擅長處理明確的欄位與條件，不擅長理解語意模糊的自然
+        語言。
+      </p>
+
+      <h2>2. 解法：在System Prompt裡把輸出格式鎖死成JSON</h2>
+      <p>
+        既然問題出在「LLM想怎麼說就怎麼說」，解法就是在System
+        Prompt裡明確規定輸出格式——回顧第33課System Prompt
+        負責定義角色與規則的分工，這裡要再加上一條規則：只能
+        用指定的JSON結構回答，不能有任何額外文字。
+      </p>
+      <div class="code-block">你是一個客服信件分類助理。針對使用者提供的信件內容，
+你只能輸出一個JSON物件，不能包含任何JSON以外的文字、
+說明或標點。JSON物件必須包含以下欄位：
+- category：字串，只能是"question"、"complaint"、
+  "feedback"、"spam"其中一個
+- urgent：布林值，true或false，表示是否需要優先處理
+- summary：字串，一句話摘要這封信的重點，20字以內</div>
+      <p>
+        這段規則明確限制了輸出的「形狀」，不是要求LLM變聰明，
+        而是要求它把已經做出的判斷，用固定的格式交出來。
+      </p>
+
+      <h2>3. 一個具體的JSON schema：分類、緊急與否、摘要</h2>
+      <p>
+        套用上面的System Prompt後，同一封延遲包裹的客訴信，
+        理想情況下LLM會回覆：
+      </p>
+      <div class="code-block">{"category": "complaint", "urgent": true, "summary": "顧客反應包裹延遲送達"}</div>
+      <p>
+        三個欄位分別對應到後續工作流會用到的三種資訊：
+        <code>category</code>是分類結果，決定信件屬於哪一種
+        類型；<code>urgent</code>是布林旗標，決定要不要觸發
+        即時通知；<code>summary</code>是給人看的一句話摘要，
+        會被寫進第40課要建立的稽核紀錄裡。這三個欄位，就是
+        整個模組I到模組J要串起來的核心資料。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow35" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">自由文字 vs 結構化JSON</text>
+
+          <rect x="20" y="40" width="270" height="70" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="155" y="62" text-anchor="middle" font-size="9.5" fill="var(--text)">自由文字回覆</text>
+          <text x="155" y="80" text-anchor="middle" font-size="8" fill="var(--text-muted)">「這封信看起來是客訴，</text>
+          <text x="155" y="94" text-anchor="middle" font-size="8" fill="var(--text-muted)">語氣不滿，建議優先跟進」</text>
+
+          <rect x="350" y="40" width="270" height="70" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="485" y="62" text-anchor="middle" font-size="9.5" fill="var(--gold)">結構化JSON回覆</text>
+          <text x="485" y="80" text-anchor="middle" font-size="8" fill="var(--text-muted)">category, urgent,</text>
+          <text x="485" y="94" text-anchor="middle" font-size="8" fill="var(--text-muted)">summary 三個固定欄位</text>
+
+          <text x="320" y="130" text-anchor="middle" font-size="14" fill="var(--text-muted)">↓</text>
+
+          <rect x="150" y="150" width="340" height="65" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="320" y="175" text-anchor="middle" font-size="9.5" fill="var(--accent)">IF / Switch 節點可以直接判讀</text>
+          <text x="320" y="193" text-anchor="middle" font-size="8" fill="var(--text-muted)">{{ $json.category }}、{{ $json.urgent }}</text>
+          <text x="320" y="207" text-anchor="middle" font-size="8" fill="var(--text-muted)">不需要再靠關鍵字猜測</text>
+        </svg>
+        <figcaption>自由文字對人類可讀，但對節點不可靠；固定欄位的JSON讓IF、Switch節點能直接依欄位值分流，不必再用關鍵字猜測語意。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>小提醒：schema要盡量簡單、欄位要盡量少</h3>
+        <p>
+          JSON schema不是越複雜越好。欄位越多，LLM輸出時出錯
+          （漏欄位、型別不對）的機率也越高，尤其是地端跑的
+          量化模型（回顧第7課參數量與量化的取捨）。這個專案只
+          需要三個欄位就能完成分類、判斷緊急程度、生成摘要——
+          先讓最小可用的schema穩定運作，之後真的有需要再擴充。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼自由文字的LLM回覆，對n8n的IF、Switch節點來說很難處理</li>
+          <li>寫出這個專案用的JSON schema三個欄位，並各自說明用途</li>
+          <li>解釋為什麼要求LLM輸出JSON，是靠System Prompt裡的規則而不是靠模型本身變聰明</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        規定了輸出格式，不代表LLM每次都會乖乖照做。下一課要
+        面對一個很實際的問題：LLM常常會在JSON外面多包一層
+        markdown程式碼框或幾句說明文字，導致直接
+        <code>JSON.parse()</code>失敗——以及該怎麼在n8n裡把
+        這些「不乾淨」的回應清理乾淨。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：模組總結：讓Prompt能重複套用在不同輸入上</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：解析LLM回傳的JSON →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

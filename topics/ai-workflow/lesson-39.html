@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：串接Email：讀取與寄送 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用n8n的Email Trigger（IMAP）節點取代測試用的手動觸發器，設定IMAP憑證與輪詢間隔，讓工作流能對真實寄來的信件自動啟動，並認識選用的Send Email（SMTP）節點">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜串接外部系統 · 第 39 課</div>
+      <h1>串接Email：讀取與寄送</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼要從測試用的手動觸發器，換成真正輪詢收件匣的Email Trigger（IMAP）節點</li>
+          <li>能設定IMAP憑證與輪詢間隔，讓工作流對真實寄來的信件自動啟動</li>
+          <li>認識選用的Send Email（SMTP）節點，知道它適合用在什麼情境</li>
+        </ul>
+      </div>
+
+      <p>
+        模組I把分類、解析、分流的邏輯都設計好了，但整條工作流
+        目前的起點，還是第27課為了方便測試而用的手動觸發器——
+        每次都要自己按一下才會執行。這一課要把起點換成真正
+        會自動運作的觸發方式：讓n8n自己去收信匣裡看有沒有新信。
+      </p>
+
+      <h2>1. 從手動觸發，換成Email Trigger（IMAP）</h2>
+      <p>
+        第27課用手動觸發器（或Webhook配合手動呼叫）在開發階段
+        方便重複測試，不用等真的有信件寄來才能驗證邏輯對不對。
+        但正式上線後，工作流不可能靠人一直按觸發按鈕。這裡要
+        換上<strong>Email Trigger（IMAP）</strong>節點——它會
+        用IMAP協定連上指定的信箱，定期檢查有沒有新信件，一旦
+        發現新信，就自動啟動整個工作流，把那封信的內容當成
+        輸入資料往下傳。
+      </p>
+
+      <h2>2. 設定IMAP憑證</h2>
+      <p>
+        Email Trigger節點需要一組IMAP憑證才能連上信箱，通常
+        要填入以下幾項資訊：
+      </p>
+      <div class="code-block">Host：信箱服務商的IMAP伺服器位址（例如imap.gmail.com）
+Port：IMAP over SSL的常用埠號是993
+User：完整的信箱帳號（例如support@example.com）
+Password：信箱密碼，或服務商要求的應用程式密碼
+SSL/TLS：啟用（避免帳密與信件內容以明文傳輸）</div>
+      <p>
+        許多信箱服務商（例如Gmail）在啟用兩步驟驗證後，不允許
+        直接用登入密碼透過IMAP連線，這時候需要另外產生一組
+        專用的應用程式密碼，用那組密碼設定這裡的憑證，而不是
+        帳號本身的登入密碼。
+      </p>
+
+      <h2>3. 輪詢間隔（Polling Interval）</h2>
+      <p>
+        Email Trigger節點是用「輪詢」的方式運作：每隔一段固定
+        時間，就連上信箱檢查一次有沒有新信件（而不是信箱主動
+        推播）。輪詢間隔設得越短，新信件被處理的延遲就越低，
+        但也代表對信箱伺服器發出的檢查請求越頻繁；設得太長，
+        則客訴信件可能要等好一段時間才會被工作流看到、進而
+        觸發第41課的緊急通知。實務上通常會設定在一到五分鐘之間，
+        依信件的緊急程度需求調整。
+      </p>
+
+      <h2>4. 觸發後拿到的資料欄位</h2>
+      <p>
+        Email Trigger節點觸發之後，會把這封信的內容整理成JSON
+        資料往下傳，其中最常用到的欄位包含寄件者、主旨、內文
+        等。這些欄位就是第32課用Set節點整理輸入資料時的原始
+        材料——換句話說，模組H處理的「輸入資料」，從這一課
+        開始，真正變成了從信箱裡讀出來的真實信件，而不是測試
+        用的假資料。
+      </p>
+      <div class="code-block">// Email Trigger節點輸出的欄位，在後續節點裡可以這樣取用
+{{ $json.from }}      // 寄件者信箱
+{{ $json.subject }}   // 信件主旨
+{{ $json.text }}      // 純文字內文</div>
+
+      <h2>5. 選用：用Send Email（SMTP）節點自動回覆寄件者</h2>
+      <p>
+        除了讀信，n8n也有對應的<strong>Send Email（SMTP）</strong>
+        節點，可以在工作流裡寄出信件。這個專案可以選擇性地加上
+        一個自動回覆：不管信件分類結果是什麼，都先用SMTP節點
+        回一封「已收到您的來信，我們會盡快處理」給寄件者，讓
+        對方知道信件確實有被系統接收到。SMTP節點同樣需要一組
+        憑證：
+      </p>
+      <div class="code-block">Host：信箱服務商的SMTP伺服器位址（例如smtp.gmail.com）
+Port：常見為465（SSL）或587（TLS／STARTTLS）
+User／Password：與寄件信箱對應的帳密或應用程式密碼</div>
+      <p>
+        要注意的是，如果信件被分類為<code>spam</code>，通常不會
+        希望對垃圾信也自動回覆——這一點的分支設計，會在後面
+        跟Switch節點的輸出一起考慮，不是所有分類都適合套用同一種
+        自動回覆邏輯。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow39" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Email Trigger的讀與Send Email的寫</text>
+
+          <rect x="20" y="45" width="150" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="95" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">客戶的信箱</text>
+          <text x="95" y="84" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">寄出一封新信</text>
+
+          <line x1="170" y1="72" x2="205" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+
+          <rect x="210" y="45" width="220" height="55" rx="6" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="320" y="66" text-anchor="middle" font-size="8.5" fill="var(--gold)">n8n：Email Trigger (IMAP)</text>
+          <text x="320" y="83" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">定期輪詢，發現新信自動啟動</text>
+
+          <line x1="430" y1="72" x2="465" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+
+          <rect x="470" y="45" width="150" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="545" y="68" text-anchor="middle" font-size="8.5" fill="var(--accent)">後續分類與分流</text>
+          <text x="545" y="84" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">模組I的邏輯</text>
+
+          <line x1="320" y1="100" x2="320" y2="130" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow39)"/>
+          <rect x="210" y="133" width="220" height="55" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="155" text-anchor="middle" font-size="8" fill="var(--text-muted)">選用：Send Email (SMTP)</text>
+          <text x="320" y="172" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">自動回覆「已收到您的來信」</text>
+        </svg>
+        <figcaption>Email Trigger（IMAP）負責讀信並啟動工作流，Send Email（SMTP）則是選用的寫回動作，兩者用的是不同的協定與憑證。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明Email Trigger（IMAP）節點跟第27課手動觸發器之間，各自適合的使用階段</li>
+          <li>列出設定IMAP憑證需要填寫的幾項基本資訊</li>
+          <li>解釋輪詢間隔設得太長跟太短，分別會有什麼取捨</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        工作流現在能自動讀到真實信件了。下一課要把分類結果真正
+        寫進外部系統——用n8n的Google Sheets節點，把每一封信的
+        時間戳、寄件者、分類、摘要，記錄成一份完整的稽核紀錄。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：模組總結：AI從「回答問題」變成「做決策」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：串接Google試算表：讀寫資料 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

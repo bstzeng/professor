@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 68 課：GPU／CPU資源與併發請求的取捨 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="CPU-only能跑Ollama，但明顯比有GPU加速慢很多；而單一地端Ollama實例面對多個同時湧入的請求，通常是排隊而非真正平行處理，這跟雲端API能水平擴展到大量伺服器是本質上的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 68 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 R｜效能優化：地端LLM的資源管理 · 第 68 課</div>
+      <h1>GPU／CPU資源與併發請求的取捨</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解GPU加速（NVIDIA CUDA、Apple Silicon的統一記憶體與Metal）為什麼能大幅提升地端LLM的生成速度</li>
+          <li>認識CPU-only執行Ollama可行、但明顯較慢的現實</li>
+          <li>理解單一地端Ollama實例面對多個同時湧入的請求時，通常是排隊而非真正平行處理</li>
+        </ul>
+      </div>
+
+      <p>
+        第63課教過怎麼監控地端LLM的資源使用狀況，這一課要
+        進一步談「為什麼需要監控」背後的根本限制：地端執行
+        意味著你的模型，能用的運算資源就是眼前這台機器，
+        不是雲端服務背後那一整排伺服器。這一課要具體拆解
+        兩個層面：硬體本身（有沒有GPU加速）對生成速度的影響，
+        以及當多個請求同時湧入時，這台機器實際上是怎麼處理
+        的。
+      </p>
+
+      <h2>1. CPU-only可以跑，但明顯比較慢</h2>
+      <p>
+        Ollama完全可以只靠CPU執行——這也是它容易上手的原因
+        之一，不需要特殊硬體就能先跑起來（第5、6課）。但
+        LLM推論本質上是大量的矩陣運算，CPU雖然通用性高，
+        在這種高度平行的運算負載上，效率遠不如專門為這類
+        運算設計的硬體。實務上的感受會很直接：同一個模型，
+        純CPU執行時，生成文字的速度可能明顯拖慢，等待一次
+        回覆的時間，從GPU加速下的幾秒鐘，可能拉長到CPU-only
+        的數十秒甚至更久，實際落差取決於模型大小與硬體規格。
+        對這門課的旗艦專案來說，如果只是偶爾處理幾封信件，
+        CPU-only可能還可以接受；但如果信件量變大、或要接近
+        即時回應，這個速度差距就會變成很實際的體感問題。
+      </p>
+
+      <h2>2. GPU加速：NVIDIA CUDA與Apple Silicon的統一記憶體</h2>
+      <p>
+        如果機器上有一張獨立的NVIDIA顯示卡，Ollama可以透過
+        CUDA把模型的運算負載交給GPU處理，善用GPU內建的大量
+        平行運算核心，明顯縮短生成時間。在Mac上，Apple
+        Silicon（M系列晶片）走的是不同的架構：CPU與GPU共用
+        同一份「統一記憶體」（unified memory），GPU可以直接
+        透過Metal存取這份記憶體來加速運算，不需要像傳統獨立
+        顯示卡那樣，先把資料另外搬進顯示卡自己的記憶體。這也
+        是為什麼不少人在Apple Silicon的Mac上執行中大型模型時，
+        體驗會比預期中好——統一記憶體架構讓「有多少記憶體
+        可以塞下模型」跟「這份記憶體能不能被GPU拿來加速」，
+        某種程度上是同一件事。
+      </p>
+      <p>
+        用Docker搭配NVIDIA GPU執行Ollama時，通常需要明確告訴
+        容器要使用GPU：
+      </p>
+
+      <div class="code-block">docker run -d --gpus=all \
+  -v ollama:/root/.ollama \
+  -p 11434:11434 \
+  --name ollama \
+  ollama/ollama</div>
+
+      <p>
+        <code>--gpus=all</code>讓容器內的Ollama能看到並使用
+        主機上的NVIDIA GPU；如果沒有這個設定，即使機器裝著
+        獨立顯示卡，容器裡的Ollama也可能還是只用CPU執行。
+      </p>
+
+      <h2>3. 併發請求：多個信件同時湧入時發生了什麼事</h2>
+      <p>
+        這門課的旗艦專案，情境是自動分類、路由每一封新進的
+        信件。如果短時間內連續進來好幾封信，n8n本身可以同時
+        啟動多個工作流執行實例（execution）去處理它們——n8n
+        負責的「觸發、資料傳遞、動作」這幾個階段，通常能夠
+        併發運作。但這些執行實例，走到需要呼叫LLM的那個節點
+        時，最終都是在呼叫同一個地端Ollama服務，而這個服務
+        背後就是眼前這一份GPU或CPU運算資源。在一般消費級的
+        單機硬體上，這份運算資源終究是有限的：Ollama雖然
+        提供一些可以調整的設定（例如控制同時處理的請求數量、
+        同時載入的模型數量），但實際的吞吐量，仍然受限於底層
+        硬體一次能做多少運算。結果通常是：多個請求會在某種
+        程度上排隊等候，依序（或有限度地交錯）被處理，而不是
+        像雲端API那樣，背後有大量獨立伺服器可以真正水平擴展、
+        同時服務大量使用者。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">地端單機 vs 雲端API：併發請求的處理方式</text>
+
+          <text x="150" y="45" text-anchor="middle" font-size="9.5" fill="var(--accent)">地端單機（這門課的架構）</text>
+          <rect x="30" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="50" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信1</text>
+          <rect x="80" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="100" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信2</text>
+          <rect x="130" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="150" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信3</text>
+
+          <line x1="100" y1="79" x2="100" y2="100" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <rect x="60" y="100" width="180" height="30" rx="5" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="150" y="119" text-anchor="middle" font-size="8.5" fill="var(--gold)">排隊等候佇列</text>
+
+          <line x1="150" y1="130" x2="150" y2="150" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <rect x="80" y="150" width="140" height="30" rx="5" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="150" y="169" text-anchor="middle" font-size="8.5" fill="var(--accent)">單一GPU／CPU依序處理</text>
+
+          <text x="490" y="45" text-anchor="middle" font-size="9.5" fill="#ff8a65">雲端API</text>
+          <rect x="440" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="460" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信1</text>
+          <rect x="490" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="510" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信2</text>
+          <rect x="540" y="55" width="40" height="24" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="560" y="71" text-anchor="middle" font-size="8" fill="var(--text)">信3</text>
+
+          <line x1="460" y1="79" x2="460" y2="100" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="510" y1="79" x2="510" y2="100" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="560" y1="79" x2="560" y2="100" stroke="var(--text-muted)" stroke-width="1.2"/>
+
+          <rect x="430" y="100" width="50" height="30" rx="5" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="455" y="119" text-anchor="middle" font-size="7.5" fill="#ff8a65">伺服器A</text>
+          <rect x="490" y="100" width="50" height="30" rx="5" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="515" y="119" text-anchor="middle" font-size="7.5" fill="#ff8a65">伺服器B</text>
+          <rect x="550" y="100" width="50" height="30" rx="5" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="575" y="119" text-anchor="middle" font-size="7.5" fill="#ff8a65">伺服器C</text>
+
+          <text x="490" y="150" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">大量伺服器分散承接，</text>
+          <text x="490" y="165" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">近似真正同時處理</text>
+
+          <rect x="30" y="200" width="580" height="45" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="218" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">地端單機是有限的一份運算資源，多個請求終究得共用它；</text>
+          <text x="320" y="234" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">雲端API能水平擴展到大量伺服器，是本質上的規模差異</text>
+        </svg>
+        <figcaption>n8n可以同時啟動多個工作流執行實例，但它們最終呼叫的是同一個地端Ollama服務——受限於單機的GPU／CPU運算資源，多個請求通常會排隊，而不是像雲端API那樣真正平行分散處理。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋為什麼CPU-only可以執行Ollama，但生成速度通常明顯比有GPU加速慢</li>
+          <li>說明Apple Silicon的統一記憶體架構，跟傳統獨立顯示卡的運作方式有什麼不同</li>
+          <li>解釋為什麼「n8n能同時啟動多個工作流執行」不代表「多封信件的LLM處理也會真正同時完成」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要回到模組B談過的量化這個主題，深入到更實務的
+        層面：不同量化等級對速度、記憶體用量、輸出品質的
+        實際取捨，以及對這門課的旗艦專案來說，該怎麼選。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-67.html">← 上一課：模組總結：地端不等於自動安全</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-69.html">下一課：量化模型的效能與品質權衡 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

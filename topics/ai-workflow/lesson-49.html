@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：向量資料庫是什麼 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識向量資料庫：專門為儲存嵌入向量、執行快速相似度搜尋設計的資料庫，並認識Qdrant、Postgres+pgvector這類適合地端優先架構的選項">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜RAG基礎 · 第 49 課</div>
+      <h1>向量資料庫是什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解向量資料庫解決的問題：儲存大量嵌入向量，並快速找出跟查詢最相似的幾筆</li>
+          <li>理解為什麼一般的傳統資料庫不擅長做這件事</li>
+          <li>認識兩個適合搭配地端優先架構的向量資料庫選項：Qdrant與Postgres＋pgvector</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課把文件切成chunk、再把每個chunk轉換成嵌入向量。
+        這一課要問：這些向量最後存放在哪裡？當文件數量從幾份
+        變成幾千份，chunk的數量可能上看數萬筆，要在這麼多向量
+        裡即時找出「跟這次問題最相似的幾筆」，需要的是一種
+        專門為這件事設計的資料庫。
+      </p>
+
+      <h2>1. 為什麼傳統資料庫不擅長做這件事</h2>
+      <p>
+        傳統的關聯式資料庫（回顧模組J第42課串接資料庫），擅長
+        的是精確比對——某個欄位等不等於某個值、某個日期是否
+        落在某個區間。但向量相似度搜尋要問的問題完全不同：
+        「在這幾萬組向量裡，哪幾組跟這一組查詢向量的數學距離
+        最近」。這種「最近鄰搜尋」（nearest-neighbor search）
+        如果對每一筆資料都逐一計算距離再排序，資料量一大就會
+        非常慢，沒辦法做到即時查詢。
+      </p>
+
+      <h2>2. 向量資料庫：專門為相似度搜尋設計</h2>
+      <p>
+        <strong>向量資料庫（vector database）</strong>就是為了
+        解決這個效能問題而生的資料庫類型。它的核心工作是：
+        儲存大量的嵌入向量（通常還會附帶一些中繼資料，例如這
+        個向量對應到原始文件的哪一段內容），並且透過專門的
+        索引結構，讓「找出跟查詢向量最相似的N筆」這件事，即使
+        面對數萬、數十萬筆資料，也能在很短的時間內完成，而不
+        需要逐一比對。對RAG來說，向量資料庫扮演的角色，就是
+        第47課提到的「檢索」步驟實際發生的地方——查詢時，先把
+        問題轉成向量，再拿這組向量去向量資料庫裡搜尋最相似的
+        chunk。
+      </p>
+
+      <div class="code-block">// 概念示意：向量資料庫裡一筆記錄大致長這樣
+{
+  "id": "退換貨政策-chunk3",
+  "vector": [0.0213, -0.1147, 0.0892, ...],
+  "text": "退貨申請須於收到商品後七天內提出，商品需保持全新未拆封狀態。",
+  "metadata": { "source": "退換貨政策.pdf", "chunk_index": 3 }
+}</div>
+      <p>
+        除了向量本身，通常還會一併存下原始的chunk文字內容跟
+        一些中繼資料（來源文件、chunk編號），這樣查詢時找到
+        最相似的向量後，才能直接拿回對應的文字內容，交給LLM
+        參考——這也是第53課組Prompt時，實際會用到的資料。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow49" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">向量資料庫在RAG裡的角色</text>
+
+          <rect x="20" y="45" width="160" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="100" y="68" text-anchor="middle" font-size="9" fill="var(--text)">大量文件chunk</text>
+          <text x="100" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">＋各自的嵌入向量</text>
+
+          <line x1="180" y1="72" x2="215" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow49)"/>
+          <text x="197" y="65" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">存入</text>
+
+          <rect x="220" y="40" width="200" height="65" rx="6" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="320" y="63" text-anchor="middle" font-size="10" fill="var(--gold)">向量資料庫</text>
+          <text x="320" y="80" text-anchor="middle" font-size="8" fill="var(--text-muted)">建立索引，支援快速</text>
+          <text x="320" y="93" text-anchor="middle" font-size="8" fill="var(--text-muted)">相似度／最近鄰搜尋</text>
+
+          <line x1="420" y1="72" x2="455" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow49)"/>
+          <text x="437" y="65" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">查詢</text>
+
+          <rect x="460" y="45" width="160" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="540" y="68" text-anchor="middle" font-size="9" fill="var(--accent)">使用者問題的向量</text>
+          <text x="540" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">找出最相似的幾筆</text>
+
+          <rect x="20" y="130" width="600" height="60" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="153" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">向量資料庫要處理的是「數萬筆向量裡，誰離查詢向量最近」</text>
+          <text x="320" y="170" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">這跟傳統資料庫擅長的精確欄位比對，是不同性質的問題</text>
+        </svg>
+        <figcaption>文件chunk連同嵌入向量先存進向量資料庫；查詢時把問題也轉成向量，向量資料庫負責快速找出最相似的幾筆chunk。</figcaption>
+      </div>
+
+      <h2>3. 幾個適合地端優先架構的選項</h2>
+      <p>
+        向量資料庫的產品選項不少，這裡先介紹兩種在地端優先、
+        又能跟n8n這類工作流平台搭配的方向，模組M實作時會再回頭
+        挑一種具體動手：
+      </p>
+      <ul>
+        <li><strong>Qdrant</strong>——一套開源、可以自行架設在
+          自己伺服器上的向量資料庫，專門為向量相似度搜尋設計，
+          是自架（self-hosted）向量資料庫裡相當熱門的選項，跟
+          這門課「資料留在自己環境裡」的方向一致</li>
+        <li><strong>Postgres＋pgvector</strong>——如果團隊本來
+          就已經在用PostgreSQL（回顧第42課串接資料庫），可以
+          安裝<code>pgvector</code>這個擴充套件，讓既有的
+          Postgres資料庫額外具備儲存向量、執行相似度搜尋的
+          能力，不需要另外架設一套獨立的資料庫系統</li>
+      </ul>
+      <p>
+        這兩者只是眾多選項中的兩種方向性介紹；n8n目前對特定
+        向量資料庫的節點支援情況會持續演進，實際串接方式會在
+        模組M第52課具體討論，這裡先建立「向量資料庫是什麼、
+        大致有哪些類型的選項」這個概念即可。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼傳統關聯式資料庫不適合拿來做大量向量的相似度搜尋</li>
+          <li>用自己的話解釋向量資料庫在RAG流程裡扮演的角色</li>
+          <li>說出Qdrant與Postgres＋pgvector這兩個選項，各自適合什麼樣的情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 50 課：模組L總結——把切塊、嵌入、向量資料庫這幾個
+        概念，整合成一張完整的RAG運作流程圖，分成「準備階段」
+        跟「查詢階段」兩段來看。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：文件切塊（Chunking）與向量嵌入（Embedding）概念</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：模組總結：RAG的完整運作流程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

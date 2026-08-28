@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：把檢索結果餵回LLM：完整RAG流程 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="動手接完RAG的最後一步：把向量資料庫查詢到的相關chunk組進Prompt，連同使用者問題一起交給Ollama回答，走完檢索增強生成的完整迴路">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜在n8n中實作簡易RAG · 第 53 課</div>
+      <h1>把檢索結果餵回LLM：完整RAG流程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>學會把向量資料庫查詢到的chunk，組合成LLM可以參考的Prompt格式</li>
+          <li>走完一次完整的RAG查詢流程：問題→嵌入→檢索→組Prompt→LLM作答</li>
+          <li>理解Prompt裡「參考資料」與「問題」該怎麼分開標示，幫助LLM正確使用檢索到的內容</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課分別搞定了「把文字轉成嵌入向量」（第51課）跟
+        「把向量存進去、查得出來」（第52課）。這一課接上最後
+        一段：把查詢階段檢索到的chunk，實際組進Prompt，交給
+        Ollama生成最終的回答——這一步做完，RAG就從概念變成一套
+        真正能跑、能回答關於私有文件問題的流程。
+      </p>
+
+      <h2>1. 完整查詢流程回顧</h2>
+      <p>
+        以一個實際情境為例：假設要做一個「回答客戶關於產品退換
+        貨政策問題」的查詢工作流，準備階段已經把退換貨政策
+        文件切塊、轉成嵌入向量、存進了向量資料庫（第51、52課）。
+        查詢階段收到客戶的問題後，依序執行：
+      </p>
+      <ol>
+        <li>接收客戶的問題文字（例如透過Webhook觸發，回顧模組G）</li>
+        <li>呼叫Ollama的<code>/api/embeddings</code>，用跟準備
+          階段相同的嵌入模型（<code>nomic-embed-text</code>），
+          把問題轉成向量</li>
+        <li>用向量資料庫節點的查詢模式，拿這組向量去搜尋，取回
+          最相關的幾個chunk（例如前3筆）</li>
+        <li>把這幾個chunk的原始文字內容，組合進送給LLM的
+          Prompt裡，連同原本的問題一起送出</li>
+        <li>Ollama根據Prompt裡的參考內容回答，n8n把回答送到
+          該去的地方（回覆信件、Slack訊息……）</li>
+      </ol>
+
+      <h2>2. 組Prompt：把「參考資料」跟「問題」分開標示</h2>
+      <p>
+        組Prompt時一個實務上重要的細節，是清楚區分「這是提供
+        給你參考的資料」跟「這是使用者真正要問的問題」，避免
+        LLM把兩者混在一起理解。常見的做法是用明確的段落標示
+        隔開兩者：
+      </p>
+      <div class="code-block">你是客服助理，請只根據下面提供的參考資料回答問題。
+如果參考資料裡沒有相關資訊，請明確說「目前沒有找到相關資訊」，
+不要自己編造答案。
+
+【參考資料】
+1. 退貨申請須於收到商品後七天內提出，商品需保持
+   全新未拆封狀態。
+2. 退款將於收到退回商品並確認無誤後五個工作天內，
+   退回原付款方式。
+
+【使用者問題】
+請問退貨期限是幾天？我東西已經拆封了可以退嗎？</div>
+      <p>
+        這種寫法，是模組H第33課System Prompt與User Prompt分工
+        概念的延伸：<strong>指示LLM該怎麼使用參考資料</strong>
+        （只根據提供的資料回答、沒有相關資訊就明說，而不是
+        瞎猜）放在最前面，接著清楚標示【參考資料】區塊放進
+        剛才檢索到的chunk內容，最後才是【使用者問題】本身。
+        這樣的結構能大幅降低LLM把檢索到的內容跟自己既有的
+        訓練知識混在一起、生成看似合理但其實不正確答案的機率。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow53" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">完整RAG查詢迴路：從問題到回答</text>
+
+          <rect x="20" y="45" width="110" height="50" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="75" y="74" text-anchor="middle" font-size="8.5" fill="var(--text)">客戶問題</text>
+
+          <line x1="130" y1="70" x2="160" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow53)"/>
+
+          <rect x="165" y="45" width="110" height="50" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="220" y="66" text-anchor="middle" font-size="8" fill="var(--gold)">Ollama嵌入</text>
+          <text x="220" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">第51課</text>
+
+          <line x1="275" y1="70" x2="305" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow53)"/>
+
+          <rect x="310" y="45" width="130" height="50" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="375" y="66" text-anchor="middle" font-size="8" fill="var(--accent)">向量資料庫查詢</text>
+          <text x="375" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">第52課</text>
+
+          <line x1="440" y1="70" x2="470" y2="70" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow53)"/>
+
+          <rect x="475" y="45" width="140" height="50" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="545" y="66" text-anchor="middle" font-size="8" fill="#ff8a65">最相關chunk</text>
+          <text x="545" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">前N筆</text>
+
+          <line x1="545" y1="95" x2="545" y2="120" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="545" y1="120" x2="270" y2="150" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow53)"/>
+
+          <rect x="90" y="150" width="180" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="180" y="173" text-anchor="middle" font-size="8.5" fill="var(--gold)">組Prompt</text>
+          <text x="180" y="189" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">【參考資料】+【使用者問題】</text>
+
+          <line x1="270" y1="177" x2="305" y2="177" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow53)"/>
+
+          <rect x="310" y="150" width="150" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="385" y="173" text-anchor="middle" font-size="8.5" fill="var(--accent)">Ollama生成回答</text>
+          <text x="385" y="189" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">依據參考資料作答</text>
+        </svg>
+        <figcaption>從客戶提出問題，到問題被嵌入、拿去向量資料庫檢索、把檢索到的chunk跟原始問題一起組進Prompt、最後由Ollama根據這份Prompt生成回答——這就是完整的RAG查詢迴路。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>Top K不是越大越好</h3>
+        <p>
+          查詢時要取回幾筆最相似的chunk（第52課提到常見叫做
+          「Top K」的參數），不是設得越大越好。取太多筆，
+          Prompt會被大量內容塞滿，稀釋掉真正相關的部分，也更
+          容易超出LLM的上下文視窗（回顧第48課）；取太少，可能
+          漏掉真正該參考的內容。實務上通常從3到5筆左右開始
+          嘗試，再依照實際回答品質調整。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>依序寫出一次完整的RAG查詢流程，從收到問題到LLM生成回答，共有哪幾個步驟</li>
+          <li>說明為什麼組Prompt時，要把【參考資料】跟【使用者問題】清楚分開標示</li>
+          <li>解釋為什麼查詢時取回的chunk數量（Top K）不是越多越好</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 54 課：模組M總結——回顧從嵌入、向量資料庫到完整
+        查詢迴路的整套實作，並談談這套RAG能力怎麼延伸應用到
+        模組G到J的信件自動化流程上，銜接模組N的AI Agent主題。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：在n8n中串接向量資料庫節點</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：模組總結：讓你的自動化流程能查詢私有文件 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

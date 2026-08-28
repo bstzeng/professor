@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：監控地端LLM的資源使用狀況 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用ollama ps檢查目前載入記憶體的模型與佔用空間，搭配作業系統層級的資源監控工具（Activity Monitor、工作管理員、htop、nvidia-smi），辨認回應變慢、逾時、無回應這些資源吃緊的實際徵兆">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 P｜監控、日誌與除錯 · 第 63 課</div>
+      <h1>監控地端LLM的資源使用狀況</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>會用<code>ollama ps</code>檢查目前有哪些模型被載入記憶體、各佔用多少空間</li>
+          <li>認識作業系統層級可以用來監控CPU／GPU資源的工具，依平台各自對應</li>
+          <li>能辨認地端LLM資源吃緊時，實際會出現的幾種徵兆</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課的執行紀錄，能回答「n8n裡每個節點收到、送出了什麼
+        資料」，但如果問題出在AI這一步本身——回應異常慢、甚至
+        整個沒有反應——執行紀錄能看到的只是「這個節點花了很久」
+        或「逾時失敗」，真正的原因往往要回到Ollama、回到執行
+        模型的那台機器本身去查。這一課要介紹幾個檢查地端LLM
+        資源使用狀況的實際工具。
+      </p>
+
+      <h2>1. ollama ps：查看目前載入記憶體的模型</h2>
+      <p>
+        Ollama提供一個很直接的指令，列出目前有哪些模型被載入
+        記憶體、正在佔用資源：
+      </p>
+      <div class="code-block">$ ollama ps
+NAME              ID              SIZE      PROCESSOR    UNTIL
+llama3.1:8b       a1b2c3d4e5f6    5.4 GB    100% GPU     4 minutes from now</div>
+      <p>
+        輸出的每一欄各自透露不同的資訊：<code>NAME</code>是目前
+        載入的模型名稱；<code>SIZE</code>是這個模型實際佔用的
+        記憶體大小；<code>PROCESSOR</code>顯示這個模型主要是靠
+        GPU還是CPU在跑（呼應第7課提過的硬體門檻取捨——同一個
+        指令，就能直接確認模型有沒有吃到GPU加速，還是退回較慢的
+        CPU運算）；<code>UNTIL</code>則是這個模型還會在記憶體裡
+        停留多久——Ollama預設會在一段閒置時間後，自動把沒有在
+        使用的模型從記憶體釋放掉，避免長期佔用資源。如果這裡
+        完全沒有任何一行輸出，代表目前沒有任何模型被載入記憶體。
+      </p>
+
+      <h2>2. 作業系統層級的監控：CPU、記憶體、GPU用量</h2>
+      <p>
+        <code>ollama ps</code>能看到「哪個模型佔了多少」，但要
+        看整台機器當下的資源使用全貌（包括n8n本身、以及其他
+        同時在跑的程式），需要搭配作業系統提供的監控工具，依
+        平台各自不同：
+      </p>
+      <ul>
+        <li><strong>macOS</strong>——內建的<strong>活動監視器
+          （Activity Monitor）</strong>，可以看CPU、記憶體、
+          （部分機型）GPU的即時使用率</li>
+        <li><strong>Windows</strong>——內建的<strong>工作管理員
+          （Task Manager）</strong>，效能頁籤同樣能看到CPU、
+          記憶體、GPU的使用狀況</li>
+        <li><strong>Linux</strong>——終端機工具<strong>
+          <code>htop</code></strong>能看CPU與記憶體的即時使用率
+          （通常需要另外安裝）；如果是Nvidia GPU，
+          <strong><code>nvidia-smi</code></strong>能查看GPU的
+          使用率與顯示記憶體（VRAM）佔用狀況，這對確認地端LLM
+          有沒有確實吃到GPU加速特別有用</li>
+      </ul>
+      <div class="code-block"># Linux：檢查CPU／記憶體整體使用狀況
+$ htop
+
+# Linux：檢查Nvidia GPU使用率與顯示記憶體佔用
+$ nvidia-smi</div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩個層級的資源監控：Ollama本身 vs 整台機器</text>
+
+          <rect x="30" y="40" width="260" height="90" rx="6" fill="var(--gold)" opacity="0.13" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="160" y="62" text-anchor="middle" font-size="9.5" fill="var(--gold)">ollama ps</text>
+          <text x="160" y="80" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">目前載入的模型</text>
+          <text x="160" y="95" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">佔用空間、CPU／GPU、</text>
+          <text x="160" y="110" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">還會留在記憶體多久</text>
+
+          <rect x="350" y="40" width="260" height="90" rx="6" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="480" y="62" text-anchor="middle" font-size="9.5" fill="var(--accent)">作業系統層級工具</text>
+          <text x="480" y="80" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">Activity Monitor／工作管理員</text>
+          <text x="480" y="95" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">htop（CPU／記憶體）</text>
+          <text x="480" y="110" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">nvidia-smi（GPU／VRAM）</text>
+
+          <rect x="30" y="150" width="580" height="70" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ollama ps回答「Ollama自己在做什麼」；作業系統工具回答「整台機器</text>
+          <text x="320" y="190" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">目前資源全貌」——包含n8n本身與其他同時在跑的程式</text>
+          <text x="320" y="208" text-anchor="middle" font-size="8" fill="var(--text-muted)">兩者搭配，才能完整判斷資源吃緊究竟卡在哪一層</text>
+        </svg>
+        <figcaption>ollama ps聚焦在Ollama自己載入的模型狀態，作業系統層級的工具則能看到整台機器的資源全貌——兩者搭配使用，才能完整判斷問題出在哪一層。</figcaption>
+      </div>
+
+      <h2>3. 資源吃緊的實際徵兆</h2>
+      <p>
+        在真正打開監控工具細查之前，有幾個實務上常見、值得留意
+        的徵兆，通常暗示地端LLM正承受資源壓力：
+      </p>
+      <ul>
+        <li><strong>回應明顯比平常慢</strong>——同樣長度的
+          prompt，平常幾秒鐘就有回應，突然變成要等上十幾秒甚至
+          更久，可能是CPU／GPU被其他程式搶用、或是模型被迫在CPU
+          與GPU之間切換</li>
+        <li><strong>請求逾時（timeout）</strong>——n8n呼叫Ollama
+          API的HTTP Request節點（或AI節點）設定了逾時時間，
+          在資源吃緊、回應時間被拉長時，特別容易觸發逾時錯誤
+          （回顧模組K第44、45課的錯誤處理與重試機制，正是用來
+          應對這類狀況）</li>
+        <li><strong>Ollama本身失去回應</strong>——在同時有多個
+          並發請求湧入、遠超機器負荷時，Ollama服務本身可能變得
+          遲緩甚至暫時無法回應新的請求，這種狀況常發生在排程與
+          Webhook剛好同時觸發多個工作流、都需要呼叫LLM的時候</li>
+      </ul>
+
+      <div class="callout">
+        <h3>小提醒：先確認徵兆，再決定要不要深查</h3>
+        <p>
+          不是每一次變慢都值得大動作排查——先用<code>ollama
+          ps</code>跟作業系統監控工具快速確認一下當下的資源
+          狀況，如果CPU／GPU用量確實偏高、或是有多個工作流同時
+          在觸發，通常就能對應到剛才列出的徵兆，不需要懷疑是
+          n8n或prompt設計本身出了問題。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明<code>ollama ps</code>輸出裡NAME、SIZE、PROCESSOR、UNTIL各欄位代表的意義</li>
+          <li>列出Mac、Windows、Linux三個平台，各自對應可以用來監控資源的工具</li>
+          <li>列出地端LLM資源吃緊時，常見的三種實際徵兆</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組P的總結：把n8n的執行紀錄跟Ollama的資源監控
+        兩件事串成一套實際的排查順序——工作流出問題時，該先查
+        哪裡、再查哪裡。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：n8n的執行紀錄與除錯畫面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：模組總結：工作流出問題時該從哪裡查起 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：解析LLM回傳的JSON ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="就算System Prompt明確要求輸出純JSON，地端LLM還是常常在外面包一層markdown程式碼框或說明文字，這一課學會用n8n的Code節點清理並安全解析這些回應">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜AI輸出的後處理與路由 · 第 36 課</div>
+      <h1>解析LLM回傳的JSON</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼「要求LLM輸出JSON」不保證拿到的一定是乾淨的JSON</li>
+          <li>能辨識常見的輸出污染樣式，尤其是markdown程式碼框</li>
+          <li>能寫出一段n8n Code節點的JavaScript，清理污染並安全地解析成JSON</li>
+        </ul>
+      </div>
+
+      <p>
+        第35課讓System Prompt明確規定LLM只能輸出JSON，理論上
+        問題就解決了。但實際跑起來會發現，地端模型（尤其是
+        參數量較小、經過量化的模型，回顧第7課的取捨）並不會
+        百分之百乖乖照規則做。這一課要處理的，是這個「理論
+        跟實務有落差」的縫隙。
+      </p>
+
+      <h2>1. 為什麼「叫模型輸出JSON」不保證拿到乾淨的JSON</h2>
+      <p>
+        LLM的訓練資料裡有大量技術文件、程式教學，這些內容習慣
+        把程式碼片段包在markdown的三個反引號程式碼框裡。就算
+        System Prompt明確禁止額外文字，模型有時還是會「習慣性」
+        把JSON包進<code>```json ... ```</code>裡，或是在JSON
+        前後加一句「以下是分類結果：」之類的說明。模型的參數量
+        越小，這種不遵守指令的情況通常越常見。
+      </p>
+
+      <h2>2. 常見的污染樣式</h2>
+      <ul>
+        <li><strong>markdown程式碼框</strong>——回覆被包成
+          <code>```json\n{...}\n```</code>或單純
+          <code>```\n{...}\n```</code></li>
+        <li><strong>前導或結尾的說明文字</strong>——例如「這封信
+          的分類結果如下：」加在JSON前面，或「希望這對你有幫助」
+          加在JSON後面</li>
+        <li><strong>多餘的換行或空白</strong>——單獨不影響
+          <code>JSON.parse()</code>，但常常跟前兩種問題一起出現</li>
+      </ul>
+      <p>
+        如果不處理這些污染，直接對整段回應做
+        <code>JSON.parse()</code>會直接丟出例外，整個工作流
+        執行到這一步就會中斷。
+      </p>
+
+      <h2>3. 解法：用Code節點清理並安全解析</h2>
+      <p>
+        在LLM節點後面接一個<strong>Code節點</strong>，寫一小段
+        JavaScript，先把可能的markdown框跟多餘文字清掉，再嘗試
+        解析，並用<code>try/catch</code>包起來避免解析失敗直接
+        炸掉整個流程：
+      </p>
+      <div class="code-block">// Code節點：清理並解析LLM回傳的文字
+const raw = $input.first().json.response; // Ollama回傳的原始文字欄位
+
+// 去掉```json、``` 這類markdown程式碼框標記
+const cleaned = raw
+  .replace(/```json/gi, '')
+  .replace(/```/g, '')
+  .trim();
+
+let parsed;
+try {
+  parsed = JSON.parse(cleaned);
+} catch (err) {
+  // 解析失敗時，不要讓整個工作流中斷，
+  // 改成回傳一個帶有錯誤標記的固定結構
+  parsed = {
+    category: 'unknown',
+    urgent: false,
+    summary: '解析失敗，原始回應：' + raw.slice(0, 80)
+  };
+}
+
+return { json: parsed };</div>
+      <p>
+        這裡的<code>.replace()</code>用正則表達式把
+        <code>```json</code>跟<code>```</code>兩種標記都去掉，
+        不管模型是用哪一種包法；<code>.trim()</code>清掉頭尾
+        多餘的空白與換行。就算模型在JSON外面多加了幾句說明，
+        更嚴謹的做法還可以用正則表達式擷取第一個
+        <code>{</code>到最後一個<code>}</code>之間的內容，
+        再交給<code>JSON.parse()</code>。
+      </p>
+
+      <h2>4. 更輕量的做法：直接在表達式裡處理</h2>
+      <p>
+        如果污染樣式很固定（例如模型幾乎每次都只用同一種
+        markdown框），也可以不用整個Code節點，改在Set節點的
+        欄位裡直接寫n8n表達式，用JavaScript字串方法處理，例如
+        <code>{{ $json.response.replace(/```json|```/g, '').trim() }}</code>。
+        但這種寫法沒有<code>try/catch</code>，一旦格式跟預期
+        不一樣，表達式本身就會報錯。實務上只要輸出格式不是
+        百分之百穩定，用Code節點寫完整的防呆邏輯，會比塞在
+        單一表達式裡可靠得多。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：這裡先做「基本防呆」，完整的錯誤處理在模組K</h3>
+        <p>
+          這一課的<code>try/catch</code>只是先確保解析失敗時
+          流程不會直接中斷，先給一個安全的預設值。至於「解析
+          失敗之後該怎麼辦」——要不要重試、要不要通知人工介入——
+          屬於更完整的錯誤處理策略，會在模組K詳細討論。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼就算System Prompt明確要求輸出純JSON，實務上還是可能拿到不乾淨的回應</li>
+          <li>寫出用Code節點清理markdown程式碼框並安全解析JSON的基本邏輯</li>
+          <li>解釋為什麼用<code>try/catch</code>包住<code>JSON.parse()</code>，比讓它直接丟出例外更適合放進工作流</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        現在每一封信都能穩定拿到<code>category</code>跟
+        <code>urgent</code>兩個乾淨的欄位。下一課要正式用這兩個
+        欄位，在IF跟Switch節點裡建立分流邏輯——依照AI的判斷，
+        決定這封信接下來要走哪一條路。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：為什麼要讓LLM輸出結構化資料（JSON）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：用IF/Switch節點依照AI的判斷分流 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

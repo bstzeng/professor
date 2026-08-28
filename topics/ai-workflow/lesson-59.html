@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 59 課：排程觸發器：讓工作流定期自動執行 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n的Schedule Trigger節點：怎麼設定固定時間、固定間隔、或cron表達式，讓工作流不需要有人手動點擊執行；並實際設計一個每天早上自動彙整前一天信件分類結果的排程流程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 59 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 O｜排程與長期自動化 · 第 59 課</div>
+      <h1>排程觸發器：讓工作流定期自動執行</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識n8n的Schedule Trigger節點，以及它能設定的幾種時間間隔方式</li>
+          <li>能設定一個「每天固定時間執行一次」的排程，並理解cron表達式的基本結構</li>
+          <li>能設計一個實際的每日排程範例：彙整前一天的信件分類結果，發送到Slack</li>
+        </ul>
+      </div>
+
+      <p>
+        模組D第16課介紹過觸發器的概念，也提過n8n有排程這種觸發
+        方式，但當時聚焦在「觸發器決定流程什麼時候開始」這個
+        整體概念。這一課要具體動手設定n8n的<strong>Schedule
+        Trigger（排程觸發器）</strong>節點，讓一整套工作流不需要
+        任何人手動點擊「執行」，就能自己在固定時間跑起來——這是
+        模組O「排程與長期自動化」要處理的第一個問題。
+      </p>
+
+      <h2>1. Schedule Trigger節點：n8n的排程觸發方式</h2>
+      <p>
+        在n8n畫布上新增一個工作流時，如果選擇讓它由排程啟動，
+        會用到<strong>Schedule Trigger</strong>節點，放在畫布最
+        左側，作為整個工作流的起點（呼應模組D的觸發器角色）。
+        這個節點提供幾種常見的時間間隔設定方式：
+      </p>
+      <ul>
+        <li><strong>Seconds／Minutes／Hours</strong>——每隔固定
+          的秒數、分鐘數、或小時數執行一次，例如「每15分鐘執行
+          一次」</li>
+        <li><strong>Days</strong>——每隔幾天，在指定的時、分執行
+          一次，例如「每天早上8點執行一次」</li>
+        <li><strong>Weeks</strong>——在指定的星期幾、指定時間
+          執行一次</li>
+        <li><strong>Cron Expression</strong>——直接用cron表達式
+          自訂更複雜、更精確的排程規則</li>
+      </ul>
+
+      <h2>2. 用最直覺的方式設定「每天早上8點」</h2>
+      <p>
+        如果需求單純是「每天固定時間跑一次」，不需要自己動手寫
+        cron表達式——把Trigger Interval選成<strong>Days</strong>，
+        再把Trigger at Hour設成<code>8</code>、Trigger at Minute
+        設成<code>0</code>，n8n就會在畫面上直接顯示等效於每天
+        8:00執行一次，這種設定方式比記憶cron語法直覺得多，適合
+        大多數固定時間執行一次的情境。
+      </p>
+
+      <h2>3. Cron表達式：更精確、更彈性的排程規則</h2>
+      <p>
+        遇到「每個工作日的早上」「每小時的第30分」這類更複雜的
+        規則時，可以改用Cron Expression模式，直接輸入cron語法。
+        cron表達式由五個欄位組成，依序代表：分鐘、小時、每月第
+        幾天、月份、星期幾：
+      </p>
+      <div class="code-block">*    *    *    *    *
+分鐘  小時  日期  月份  星期
+
+# 每天早上8點整執行一次
+0 8 * * *
+
+# 每個工作日（週一到週五）早上8點執行一次
+0 8 * * 1-5
+
+# 每小時的第30分執行一次
+30 * * * *</div>
+      <p>
+        星號<code>*</code>代表「這個欄位不限制、每個值都符合」，
+        數字則代表精確指定的值，範圍（例如<code>1-5</code>代表
+        週一到週五）跟間隔（例如<code>*/15</code>代表每15個單位）
+        也是常見寫法。不熟悉cron語法時，優先用前面介紹的Days／
+        Hours等直覺選項就足以應付大多數情境，Cron Expression留給
+        真正需要精確控制、或是工作日限定這類規則時再用。
+      </p>
+
+      <h2>4. 實際範例：每天早上彙整前一天的信件分類紀錄</h2>
+      <p>
+        套進這門課貫穿的範例情境：模組J已經把信件分類結果，逐筆
+        寫進Google試算表作為紀錄（第40課）。這一課要加上一個新的
+        排程工作流，設計如下：
+      </p>
+      <ol>
+        <li>Schedule Trigger節點，設定每天早上8點執行一次</li>
+        <li>接上Google Sheets節點，查詢試算表裡「日期」欄位等於
+          前一天的所有紀錄列</li>
+        <li>把查到的多筆紀錄，整理成一段prompt，交給Ollama聊天
+          模型節點，請它生成一段摘要——包含前一天總共處理了幾封
+          信、各分類各有幾筆、有沒有需要特別留意的緊急案件</li>
+        <li>把生成的摘要文字，接上Slack節點，發送到內部通知頻道</li>
+      </ol>
+      <p>
+        這樣一來，客服團隊每天早上一到公司，就能在Slack上直接
+        看到前一天整體處理狀況的摘要，完全不需要有人另外登入
+        n8n手動執行、或是自己去試算表裡翻紀錄。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow59" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">每日排程：彙整前一天信件分類紀錄</text>
+
+          <rect x="15" y="45" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="80" y="68" text-anchor="middle" font-size="8.8" fill="var(--gold)">Schedule Trigger</text>
+          <text x="80" y="85" text-anchor="middle" font-size="7.4" fill="var(--text-muted)">每天08:00</text>
+
+          <line x1="145" y1="75" x2="170" y2="75" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="175" y="45" width="130" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="240" y="68" text-anchor="middle" font-size="8.8" fill="var(--text)">Google Sheets</text>
+          <text x="240" y="85" text-anchor="middle" font-size="7.4" fill="var(--text-muted)">查前一天所有紀錄</text>
+
+          <line x1="305" y1="75" x2="330" y2="75" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="335" y="45" width="130" height="60" rx="6" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="400" y="68" text-anchor="middle" font-size="8.8" fill="var(--accent)">Ollama聊天模型</text>
+          <text x="400" y="85" text-anchor="middle" font-size="7.4" fill="var(--text-muted)">生成彙整摘要</text>
+
+          <line x1="465" y1="75" x2="490" y2="75" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow59)"/>
+
+          <rect x="495" y="45" width="130" height="60" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="560" y="68" text-anchor="middle" font-size="8.8" fill="#ff8a65">Slack</text>
+          <text x="560" y="85" text-anchor="middle" font-size="7.4" fill="var(--text-muted)">發送到通知頻道</text>
+
+          <rect x="15" y="135" width="610" height="60" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="158" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">整套流程每天早上自動跑一次，完全不需要人手動點擊執行</text>
+          <text x="320" y="177" text-anchor="middle" font-size="8" fill="var(--text-muted)">團隊上班時，Slack上已經有前一天處理狀況的摘要在等著</text>
+        </svg>
+        <figcaption>Schedule Trigger每天固定時間啟動流程，依序查詢前一天的紀錄、交給LLM彙整、發送到Slack——整套流程不需要任何人手動介入。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>小提醒：排程工作流要記得啟用（Active）</h3>
+        <p>
+          用Schedule Trigger（或下一課要談的Webhook）作為起點的
+          工作流，必須把畫面上的Active開關打開，排程才會真的按
+          時執行；工作流仍在編輯、只是手動點擊測試執行的階段，
+          不需要開啟這個開關。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出Schedule Trigger節點支援的幾種時間間隔設定方式</li>
+          <li>寫出一個代表「每個工作日早上8點執行」的cron表達式，並說明五個欄位分別代表什麼</li>
+          <li>描述本課的每日彙整範例，四個節點依序做了什麼事</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要介紹另一種觸發方式——Webhook觸發器，讓外部系統
+        能主動通知n8n有新事件發生，而不是像排程那樣固定時間才
+        檢查一次。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-58.html">← 上一課：模組總結：從固定流程到自主決策的一步之遙</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-60.html">下一課：Webhook觸發器：被動接收外部事件 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

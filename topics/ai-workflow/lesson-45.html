@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 45 課：n8n的錯誤處理節點與重試機制 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n節點層級的重試設定、集中處理失敗通知的Error Trigger工作流，以及JSON解析失敗時轉人工review的備援分支設計">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 45 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜錯誤處理與流程穩定性 · 第 45 課</div>
+      <h1>n8n的錯誤處理節點與重試機制</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識n8n節點層級的「失敗後重試」設定，以及它適合解決哪一類問題</li>
+          <li>認識Error Trigger工作流的概念，理解它怎麼做到集中式的失敗通知</li>
+          <li>學會設計一個「JSON解析失敗就轉人工review」的備援分支，取代讓整個執行直接中斷</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課列出了地端LLM工作流特別容易遇到的三種失敗情境：
+        回應變慢、JSON格式不穩定、Ollama服務暫時無回應。這一課
+        具體看n8n提供了哪些機制，來讓工作流在遇到這些情況時，
+        不會就這樣整個崩潰。
+      </p>
+
+      <h2>1. 節點層級的重試：Retry On Fail</h2>
+      <p>
+        n8n的每個節點，在設定畫面裡都有一組跟錯誤處理相關的
+        選項，其中最基本的是「失敗後自動重試」——啟用之後，
+        節點執行失敗時不會立刻判定整個執行失敗，而是依照設定
+        的次數（例如重試3次），每次間隔一段等待時間，重新嘗試
+        執行同一個節點，全部重試完仍然失敗，才真正視為失敗。
+      </p>
+      <p>
+        這個機制特別適合處理<strong>暫時性</strong>的問題——例如
+        Ollama伺服器當下正忙、一次網路請求剛好逾時。重試一兩次，
+        很可能第二次就順利拿到回應了。但要注意，重試機制解決
+        不了「每次都會發生」的問題——如果LLM是因為Prompt設計
+        不良，導致每次輸出格式都不對，重試再多次，結果通常還是
+        一樣，這種情況需要的是修正Prompt（回顧模組H），而不是
+        單純重試。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow45a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">節點層級重試：適合暫時性失敗</text>
+
+          <rect x="20" y="45" width="130" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="85" y="68" text-anchor="middle" font-size="9" fill="var(--gold)">呼叫Ollama</text>
+          <text x="85" y="85" text-anchor="middle" font-size="8" fill="var(--text-muted)">HTTP Request節點</text>
+
+          <line x1="150" y1="72" x2="185" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow45a)"/>
+          <text x="167" y="65" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">失敗</text>
+
+          <rect x="190" y="45" width="150" height="55" rx="6" fill="#ff8a65" opacity="0.14" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="265" y="65" text-anchor="middle" font-size="9" fill="#ff8a65">Retry On Fail</text>
+          <text x="265" y="80" text-anchor="middle" font-size="8" fill="var(--text-muted)">等待後重試，最多N次</text>
+          <text x="265" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Max Tries / Wait Between Tries</text>
+
+          <line x1="340" y1="72" x2="375" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow45a)"/>
+          <text x="357" y="65" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">成功</text>
+
+          <rect x="380" y="45" width="150" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="455" y="72" text-anchor="middle" font-size="9" fill="var(--accent)">繼續往下執行</text>
+
+          <line x1="265" y1="100" x2="265" y2="130" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow45a)"/>
+          <text x="300" y="120" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">重試次數用盡仍失敗</text>
+
+          <rect x="190" y="135" width="150" height="45" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="265" y="162" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">觸發Error Trigger工作流</text>
+        </svg>
+        <figcaption>重試機制先嘗試自己解決暫時性問題；真的救不回來，才交給Error Trigger工作流去做集中式的失敗通知。</figcaption>
+      </div>
+
+      <h2>2. Error Trigger工作流：集中處理失敗通知</h2>
+      <p>
+        如果每個工作流都要各自寫一套「失敗了要怎麼通知」的
+        邏輯，會非常重複。n8n提供了另一個層級的機制：可以另外
+        建立一個獨立的工作流，以<strong>Error Trigger</strong>
+        節點作為觸發點，再到原本的工作流設定裡，指定這個獨立
+        工作流作為它的「錯誤處理工作流」。這樣一來，只要原本
+        的工作流執行失敗（包含重試次數用盡之後仍然失敗），
+        n8n就會自動觸發這個指定的錯誤處理工作流，並把是哪個
+        工作流、哪一次執行、失敗訊息是什麼，一併傳遞過去。
+      </p>
+      <p>
+        這種設計的好處是<strong>集中化</strong>——不管公司內部
+        有幾十個不同的自動化流程（信件分類、試算表同步、資料庫
+        寫入……），全部都可以指向同一個錯誤處理工作流，由它統一
+        負責發Slack通知、寄信給管理員，不需要在每個流程裡各自
+        重複實作一次通知邏輯。
+      </p>
+
+      <h2>3. Fallback邏輯：解析失敗就轉人工review</h2>
+      <p>
+        重試與集中通知，處理的是「讓相關的人知道流程失敗了」。
+        但有一種情況更適合用不同的方式處理：回顧第36課解析
+        LLM回傳的JSON，如果某一筆資料的LLM輸出剛好格式不對、
+        解析失敗，與其讓整個執行直接中斷、等人去後台翻執行
+        紀錄，不如把「解析失敗」本身當成一種正常會發生的分支，
+        自動把這筆資料寫進一個給人工複查用的地方，讓自動化流程
+        本身可以繼續往下處理其他正常的項目。
+      </p>
+      <p>
+        具體做法：在解析JSON的節點之後，用IF節點檢查解析是否
+        成功；成功的項目照原本的路徑繼續走（分流、寫入資料庫、
+        寄信……）；失敗的項目則走另一條分支，把原始的LLM輸出、
+        錯誤訊息、時間戳記，寫進第40課介紹過的Google試算表裡
+        另外開的一個「待人工複查」分頁，必要時再搭配第41課的
+        Slack通知，提醒有人要去看一下。
+      </p>
+
+      <div class="code-block">// Code節點：嘗試解析LLM輸出的JSON，失敗就標記起來
+try {
+  const parsed = JSON.parse($input.item.json.llmOutput);
+  return {
+    json: { ...parsed, parseOk: true }
+  };
+} catch (err) {
+  return {
+    json: {
+      raw: $input.item.json.llmOutput,
+      parseOk: false,
+      errorMessage: err.message
+    }
+  };
+}</div>
+      <p>
+        後面接一個IF節點，條件設為<code>parseOk</code>是否等於
+        <code>true</code>：符合的項目走「繼續自動化」分支，
+        不符合的項目走「寫入待複查分頁」分支。這樣即使某幾筆
+        資料的LLM輸出有問題，也只是那幾筆被攔下來，不會拖垮
+        整批資料的處理。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明節點層級的重試機制，適合解決哪一類問題，不適合解決哪一類問題</li>
+          <li>解釋Error Trigger工作流怎麼做到「集中處理多個工作流的失敗通知」</li>
+          <li>描述「JSON解析失敗就轉人工review」這個備援分支，具體是怎麼設計的</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 46 課：模組K總結——回顧這兩課加上去的錯誤處理機制，
+        整合成一套讓工作流「失敗時不會整個中斷」的完整設計，
+        並銜接模組L要開始介紹的RAG。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-44.html">← 上一課：為什麼地端LLM需要更謹慎的錯誤處理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-46.html">下一課：模組總結：讓工作流在失敗時不會整個中斷 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

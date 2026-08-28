@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 66 課：保護暴露在外的Webhook端點 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="Webhook端點常常必須暴露在公網上才能接收外部事件，網路隔離幫不上忙。這一課談驗證來源（shared secret與signature header）、為什麼「網址很難猜」不是安全機制，以及基本的rate-limiting意識">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 66 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 Q｜安全性與資料隱私考量 · 第 66 課</div>
+      <h1>保護暴露在外的Webhook端點</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼Webhook端點的處境跟n8n編輯器介面不同——它常常必須暴露在公網上才能運作</li>
+          <li>知道怎麼驗證進來的Webhook payload是否真的來自你信任的服務：shared secret與signature header</li>
+          <li>建立「網址沒被公開講出來」不等於安全的正確認知，並知道基本的rate-limiting意識</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課建議把n8n本身留在私有網路或VPN後面——但這個
+        建議沒辦法直接套用在第60課介紹過的Webhook觸發器上。
+        Webhook之所以有用，正是因為外部服務（表單系統、
+        Git平台、金流服務等等）能主動把事件送進來，而這件
+        事的前提，就是那個Webhook網址必須是外部服務連得到
+        的，也就是必須暴露在公開網際網路上。這一課要處理的，
+        是這個「必要的暴露面」該怎麼做基本防護。
+      </p>
+
+      <h2>1. Webhook端點為什麼天生必須暴露在外</h2>
+      <p>
+        n8n編輯器是你自己要用的介面，理論上可以完全鎖在私有
+        網路裡；但Webhook觸發器的角色不一樣——它是被動等著
+        外部服務呼叫的接收端。如果把它也鎖進私有網路，外部
+        服務根本連不進來，整個自動化流程就啟動不了。也因此，
+        Webhook端點沒辦法用「網路隔離」這個模組Q第一課的
+        主要防線來保護，必須靠別的方式：驗證這筆進來的請求，
+        到底是不是真的來自你信任的那個服務。
+      </p>
+
+      <h2>2. 驗證來源：shared secret與signature header</h2>
+      <p>
+        許多會主動發送Webhook的服務（例如常見的Git平台、
+        金流服務），在送出事件時，會在HTTP標頭裡附上一個
+        用雙方預先約定好的密鑰（shared secret）計算出來的
+        簽章（signature）——常見做法是用HMAC演算法，把
+        請求內容與這把密鑰一起做雜湊，結果放進類似
+        <code>X-Signature</code>這樣的標頭裡。接收端拿到
+        請求後，用同一把密鑰、同樣的方式重新算一次簽章，
+        跟標頭裡的值比對：一致才代表這筆請求真的來自持有
+        那把密鑰的服務，且內容在傳輸過程中沒有被竄改。
+      </p>
+      <p>
+        n8n的Webhook節點本身，在節點設定裡就提供了
+        Authentication選項（例如要求呼叫端附上特定標頭與
+        值），可以當成第一層、設定成本最低的防護。如果外部
+        服務支援的是更完整的HMAC簽章驗證，就需要在收到請求
+        後，額外用一個節點重新計算簽章並比對——n8n的Code
+        節點可以在允許使用內建模組的情況下（透過
+        <code>NODE_FUNCTION_ALLOW_BUILTIN</code>這類環境
+        變數開放<code>crypto</code>模組），寫這段驗證邏輯：
+      </p>
+
+      <div class="code-block">// 概念示意：在n8n的Code節點裡驗證Webhook簽章
+const crypto = require('crypto');
+
+const signature = $input.first().json.headers['x-signature-256'];
+const rawBody = JSON.stringify($input.first().json.body);
+
+const expected = 'sha256=' + crypto
+  .createHmac('sha256', $env.WEBHOOK_SECRET)
+  .update(rawBody)
+  .digest('hex');
+
+if (signature !== expected) {
+  throw new Error('簽章驗證失敗，拒絕這筆請求');
+}
+
+return $input.all();</div>
+
+      <p>
+        重點不是背下這段程式碼的每一個細節，而是理解這個
+        流程的邏輯：<strong>密鑰只有你和外部服務知道</strong>，
+        所以只有真正持有它的一方，才能算出跟標頭吻合的簽章；
+        驗證失敗就直接中斷流程（呼應第44、45課談過的錯誤
+        處理），不讓未經驗證的請求繼續往下跑。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow66" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">Webhook驗證流程</text>
+
+          <rect x="20" y="60" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="95" y="86" text-anchor="middle" font-size="9.5" fill="var(--text)">外部服務</text>
+          <text x="95" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">POST＋簽章標頭</text>
+
+          <line x1="170" y1="90" x2="210" y2="90" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow66)"/>
+
+          <rect x="215" y="60" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="290" y="86" text-anchor="middle" font-size="9.5" fill="var(--accent)">n8n Webhook</text>
+          <text x="290" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">接收原始請求</text>
+
+          <line x1="365" y1="90" x2="405" y2="90" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow66)"/>
+
+          <rect x="410" y="60" width="150" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="485" y="86" text-anchor="middle" font-size="9.5" fill="var(--gold)">驗證簽章</text>
+          <text x="485" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">重新計算並比對</text>
+
+          <line x1="485" y1="120" x2="485" y2="145" stroke="var(--text-muted)" stroke-width="1.3"/>
+
+          <rect x="330" y="150" width="120" height="45" rx="6" fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="390" y="176" text-anchor="middle" font-size="9" fill="var(--accent)">吻合：繼續流程</text>
+
+          <rect x="470" y="150" width="120" height="45" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="530" y="176" text-anchor="middle" font-size="9" fill="#ff8a65">不吻合：拒絕並記錄</text>
+        </svg>
+        <figcaption>Webhook端點沒辦法靠網路隔離保護，只能靠驗證每一筆進來的請求——用預先約定的密鑰重新計算簽章、跟標頭比對，不吻合就直接拒絕。</figcaption>
+      </div>
+
+      <h2>3. 「網址很難猜」不是一種安全機制</h2>
+      <p>
+        n8n產生的Webhook網址，通常帶有一長串隨機字元，看起來
+        像是「沒公開講出來，別人就猜不到」。這種想法有個
+        專有名詞叫「隱蔽式安全」（security through obscurity），
+        而它從來不是一種可靠的防護：這串網址可能被瀏覽器
+        歷史紀錄留下、可能不小心貼進聊天室或程式碼倉庫、
+        也可能透過Referer標頭外流到你呼叫的其他服務裡。
+        更值得注意的是，一個技術上「公開可連」但邏輯上處理
+        著敏感內部判斷的Webhook——例如直接觸發資料庫寫入、
+        或觸發會影響真實業務決策的流程——一旦網址外流，沒有
+        簽章驗證的話，任何人都能假造請求觸發它。網址的隨機性
+        只能降低被隨機掃描碰到的機率，不能取代第2小節談的
+        來源驗證。
+      </p>
+
+      <h2>4. 基本的rate-limiting意識</h2>
+      <p>
+        除了驗證「這筆請求是不是真的來自可信服務」，也值得
+        留意「短時間內湧入大量請求」這件事本身。n8n本身通常
+        不是設計來做流量控管的角色，如果Webhook端點需要基本
+        的rate-limiting（限制某個來源在一段時間內能觸發流程
+        的次數），比較常見的做法，是交給前面的反向代理（第
+        65課提到的nginx這類工具）或Cloudflare這類服務在
+        更前面的網路層先擋一輪，而不是期待n8n工作流本身去
+        承擔這個責任。這對防止端點被惡意大量觸發、或單純被
+        設定錯誤的外部系統重複打爆，都是有意義的一層保護。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋為什麼Webhook端點沒辦法直接套用「留在私有網路後面」這個防護方式</li>
+          <li>說明shared secret與signature header這套驗證機制，實際上在防止什麼樣的攻擊</li>
+          <li>解釋為什麼「Webhook網址很長、很難猜」不能取代真正的來源驗證</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組Q的總結，要把網路隔離與存取控制、
+        Webhook端點防護這兩堂課收攏成一個核心原則：地端
+        不等於自動安全，並整理成一份可以直接拿去對照自己
+        部署狀況的檢查清單。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-65.html">← 上一課：地端部署的網路隔離與存取控制</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-67.html">下一課：模組總結：地端不等於自動安全 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：用curl測試API：確認地端LLM真的能被呼叫 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="動手寫一個完整的curl指令呼叫Ollama的/api/generate端點，並讀懂回應JSON裡的response欄位與中繼資料，親眼驗證地端LLM能被外部程式呼叫">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Ollama的API · 第 11 課</div>
+      <h1>用curl測試API：確認地端LLM真的能被呼叫</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能寫出一個完整的curl指令，對Ollama的<code>/api/generate</code>端點發出請求</li>
+          <li>認識請求JSON裡<code>model</code>、<code>prompt</code>、<code>stream</code>三個欄位各自的作用</li>
+          <li>能讀懂回應JSON裡<code>response</code>欄位與其餘中繼資料欄位的意思</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課說明了Ollama背後有一個HTTP伺服器在運作，這一課
+        要用最基本的工具——curl——親手驗證這件事。選curl的
+        原因很單純：它幾乎每台電腦的終端機都內建，不需要
+        另外寫程式，是驗證任何HTTP API最快的方式。之後要接
+        n8n之前，先用curl確認地端LLM真的「聽得懂」外部送
+        進來的HTTP請求，是一個很值得養成的習慣。
+      </p>
+
+      <h2>1. 準備動作</h2>
+      <p>
+        確保Ollama伺服器正在背景執行（Mac、Windows的Ollama
+        應用程式開著，或Linux上執行過<code>ollama serve</code>），
+        並且已經用第6課教過的<code>ollama pull</code>拉取過
+        至少一個模型。可以先用第8課介紹過的指令，確認本機
+        目前有哪些可用的模型標籤：
+      </p>
+      <div class="code-block">ollama list</div>
+
+      <h2>2. 發出第一個請求</h2>
+      <p>
+        接下來對本機的<code>/api/generate</code>端點發出一個
+        POST請求，把<code>model</code>與<code>prompt</code>
+        放進請求的JSON主體裡：
+      </p>
+      <div class="code-block">curl http://localhost:11434/api/generate -d '{
+  "model": "llama3.2",
+  "prompt": "用一句話說明什麼是HTTP",
+  "stream": false
+}'</div>
+      <p>
+        <code>curl 網址 -d '...'</code>會用POST方法，把後面
+        的JSON字串當作請求主體送出去；<code>model</code>欄位
+        要填一個本機已經拉取過的模型標籤（跟<code>ollama
+        list</code>列出來的名稱一致）；<code>prompt</code>
+        欄位放你要問模型的文字；<code>stream</code>設為
+        <code>false</code>，代表要模型把整段回答生成完畢後，
+        一次回傳一個完整的JSON物件——如果不加這個欄位，
+        Ollama預設會用串流方式，每生成一小段文字就送出一行
+        JSON，這種方式很適合即時顯示逐字輸出的介面，但測試
+        階段先設為<code>false</code>比較好讀。
+      </p>
+
+      <h2>3. 讀懂回應</h2>
+      <p>
+        請求送出後，會拿到類似這樣的JSON回應：
+      </p>
+      <div class="code-block">{
+  "model": "llama3.2",
+  "created_at": "2026-08-27T09:12:03.185Z",
+  "response": "HTTP是一種讓瀏覽器與伺服器之間交換網頁內容的通訊協定。",
+  "done": true,
+  "total_duration": 3221345900,
+  "eval_count": 24
+}</div>
+      <p>
+        <code>response</code>是真正要的答案文字；
+        <code>done: true</code>代表這次生成已經完整結束；
+        其餘像<code>total_duration</code>（整個請求耗費的
+        奈秒數）、<code>eval_count</code>（生成了幾個token）
+        這類欄位屬於效能相關的中繼資料，日後要比較不同模型
+        的生成速度時會用到，現階段先知道它們存在就好。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow11" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">curl請求與Ollama回應的往返</text>
+
+          <rect x="20" y="60" width="170" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="105" y="85" text-anchor="middle" font-size="9.5" fill="var(--text)">終端機</text>
+          <text x="105" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">curl 指令</text>
+
+          <rect x="450" y="60" width="170" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="535" y="85" text-anchor="middle" font-size="9.5" fill="var(--gold)">Ollama伺服器</text>
+          <text x="535" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">localhost:11434</text>
+
+          <line x1="190" y1="75" x2="445" y2="75" stroke="var(--accent)" stroke-width="1.3" marker-end="url(#arrow11)"/>
+          <text x="320" y="68" text-anchor="middle" font-size="8" fill="var(--accent)">POST /api/generate（model、prompt、stream）</text>
+
+          <line x1="445" y1="108" x2="190" y2="108" stroke="#ff8a65" stroke-width="1.3" marker-end="url(#arrow11)"/>
+          <text x="320" y="123" text-anchor="middle" font-size="8" fill="#ff8a65">JSON回應（response欄位是生成的文字）</text>
+
+          <rect x="20" y="150" width="600" height="50" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">stream設為false時，等模型生成完畢後一次拿回完整JSON</text>
+          <text x="320" y="189" text-anchor="middle" font-size="8" fill="var(--text-muted)">同樣的請求方式，任何能發HTTP請求的程式都能重現</text>
+        </svg>
+        <figcaption>curl只是示範用的客戶端——任何能發出HTTP請求的程式，都能用一模一樣的方式呼叫這個本機的Ollama伺服器。</figcaption>
+      </div>
+
+      <h2>4. 這證明了什麼</h2>
+      <p>
+        這個結果證明了一件很關鍵的事：地端的LLM，現在能被
+        「終端機以外」的東西呼叫了。curl只是一個示範——任何
+        能發出HTTP請求的程式，都能用一模一樣的方式跟這個
+        模型對話，包括之後要介紹的n8n。這正是模組D要開始
+        動手架設工作流平台之前，必須先確認的地基。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出一個呼叫<code>/api/generate</code>、使用本機已拉取模型、並要求一次回傳完整結果的curl指令</li>
+          <li>說明請求JSON裡<code>model</code>、<code>prompt</code>、<code>stream</code>三個欄位分別的作用</li>
+          <li>在回應JSON裡，哪一個欄位才是真正要的生成文字？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要認識Ollama另一個更關鍵的端點——OpenAI相容
+        格式，這是讓大量既有工具能夠直接切換過來呼叫地端
+        LLM的關鍵橋樑。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：Ollama的REST API：讓外部工具能呼叫地端LLM</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：OpenAI相容格式：為什麼這件事很重要 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

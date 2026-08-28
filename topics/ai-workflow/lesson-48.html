@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：文件切塊（Chunking）與向量嵌入（Embedding）概念 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="為什麼長文件要先切成小塊才能被檢索，以及向量嵌入怎麼把文字的語意變成數字，讓相似意思的內容可以用相似度搜尋找到，而不是靠關鍵字比對">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜RAG基礎 · 第 48 課</div>
+      <h1>文件切塊（Chunking）與向量嵌入（Embedding）概念</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼長文件在被檢索之前，需要先切成較小的「塊」（chunk）</li>
+          <li>理解向量嵌入（embedding）在概念上是什麼：把文字的語意變成一組數字</li>
+          <li>理解為什麼向量嵌入能支援「相似度搜尋」，而不只是傳統的關鍵字比對</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課建立了RAG「檢索、增強、生成」的整體架構，這一課
+        往前一步，看檢索之前要先做哪些準備工作。要讓一份文件
+        能被有效檢索，得先回答兩個問題：這份文件要用多大的
+        單位來處理？以及，電腦要怎麼判斷「哪一段內容跟這個
+        問題相關」？答案分別是這一課的兩個主題：切塊與嵌入。
+      </p>
+
+      <h2>1. 為什麼要把文件切成小塊</h2>
+      <p>
+        假設你有一份五十頁的產品手冊，最直覺的做法可能是把
+        整份文件直接丟給LLM，讓它自己找答案。但這在實務上有
+        兩個問題。第一，LLM（以及等一下要介紹的嵌入模型）能
+        一次處理的文字長度是有限的，這個限制叫做<strong>
+        上下文視窗（context window）</strong>——一份五十頁的
+        文件很可能直接超過這個限制，根本塞不進去。第二，就算
+        塞得進去，也不代表檢索會精準：如果檢索的最小單位是
+        「整份五十頁文件」，只要文件裡任何一小段沾到邊，整份
+        文件都會被判定為相關，結果是LLM拿到大量不相關的內容，
+        真正有用的那一小段反而被稀釋掉。
+      </p>
+      <p>
+        解法是<strong>切塊（chunking）</strong>：把長文件先
+        切成一段一段較小、語意上相對完整的片段（例如幾百字
+        一塊，段落與段落之間可能保留一些重疊，避免關鍵資訊
+        剛好被切在段落邊界），檢索的最小單位從「整份文件」變成
+        「一個chunk」。這樣檢索出來的內容更聚焦、更精準，也
+        更容易塞進LLM的上下文視窗裡。
+      </p>
+
+      <h2>2. 向量嵌入：把文字的語意變成一組數字</h2>
+      <p>
+        切好塊之後，接下來的問題是：電腦要怎麼判斷「使用者的
+        問題」跟「文件裡的哪一個chunk」意思相近？如果只靠字面
+        上的關鍵字比對，遇到使用者問「怎麼申請退費」、文件裡
+        寫的是「退款流程說明」，兩句話沒有共同的關鍵字，字面
+        比對就會找不到，但這兩句話的意思其實非常接近。
+      </p>
+      <p>
+        <strong>向量嵌入（embedding）</strong>要解決的正是這個
+        問題。概念上，嵌入模型會把一段文字，轉換成一組固定
+        長度的數字（一個向量），這組數字是這段文字「語意」的
+        數學表示方式——關鍵特性是：<strong>意思相近的文字，
+        轉換出來的向量在數學上也會相近</strong>；意思差很多的
+        文字，向量也會差很多。有了這個特性，比對兩段文字是否
+        相關，就不再需要字面上出現一樣的字，而是可以直接比較
+        兩個向量在數學空間裡的距離——這就是「相似度搜尋」
+        （similarity search）的基礎，也是嵌入模型最核心的價值。
+      </p>
+
+      <div class="code-block">// 概念示意：一段文字經過嵌入模型後，變成一組固定長度的數字
+"退款流程說明：申請退費請先聯絡客服"
+
+  → [0.0213, -0.1147, 0.0892, ..., 0.0456]
+     （實際維度數量由模型決定，例如數百到上千個數字）</div>
+      <p>
+        這組數字本身沒辦法直接被人讀懂，但兩段語意相近的文字，
+        各自轉換出來的這組數字會彼此接近；語意無關的文字，轉換
+        出來的數字則會相差很大。第49課要談的向量資料庫，做的
+        正是拿這組數字去快速比對相似度。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">語意相近的文字，嵌入向量在空間中也相近</text>
+
+          <line x1="40" y1="200" x2="600" y2="200" stroke="var(--border)" stroke-width="1"/>
+          <line x1="40" y1="200" x2="40" y2="45" stroke="var(--border)" stroke-width="1"/>
+
+          <circle cx="150" cy="150" r="5" fill="var(--gold)"/>
+          <text x="150" y="135" text-anchor="middle" font-size="8.5" fill="var(--gold)">「怎麼申請退費」</text>
+
+          <circle cx="175" cy="165" r="5" fill="var(--gold)"/>
+          <text x="230" y="180" text-anchor="middle" font-size="8.5" fill="var(--gold)">「退款流程說明」</text>
+
+          <line x1="150" y1="150" x2="175" y2="165" stroke="var(--gold)" stroke-width="1" stroke-dasharray="3 2"/>
+          <text x="130" y="115" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">距離近 → 相似度高</text>
+
+          <circle cx="500" cy="70" r="5" fill="#ff8a65"/>
+          <text x="500" y="55" text-anchor="middle" font-size="8.5" fill="#ff8a65">「今天天氣如何」</text>
+
+          <line x1="175" y1="165" x2="500" y2="70" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2 3" opacity="0.5"/>
+          <text x="420" y="130" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">距離遠 → 相似度低</text>
+
+          <text x="320" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">實際的嵌入向量有數百到數千個維度，這裡用二維平面示意距離的概念</text>
+        </svg>
+        <figcaption>「怎麼申請退費」跟「退款流程說明」字面上沒有共同關鍵字，但語意相近，嵌入向量在空間中的距離就會比較近；跟語意無關的句子距離則會拉開。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>切塊大小怎麼抓：一個實務上的平衡</h3>
+        <p>
+          chunk切得太大，會稀釋掉每一塊裡的重點，檢索精準度
+          下降，也更容易超過上下文視窗；切得太小，可能把一句
+          完整的意思攔腰切斷，導致檢索到的片段語意不完整、
+          LLM難以參考。實務上通常會先抓一個大概的字數區間
+          （例如幾百字），再依照實際檢索效果慢慢調整——這是
+          後面在n8n裡動手實作RAG（模組M）時，可以實際感受到
+          的一個取捨。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼長文件在檢索之前，需要先切成較小的chunk，列出兩個理由</li>
+          <li>用自己的話解釋向量嵌入在概念上是什麼，以及它的關鍵特性是什麼</li>
+          <li>舉一個字面不同、但語意相近的例子，說明相似度搜尋為什麼能找到它</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 49 課：向量資料庫是什麼——文件被切塊、轉成嵌入向量
+        之後，這些向量要存放在哪裡、怎麼被快速搜尋到，這一課
+        介紹專門為這個用途設計的資料庫。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：為什麼要RAG：LLM不知道你的私有資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：向量資料庫是什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

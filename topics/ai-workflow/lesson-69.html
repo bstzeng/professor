@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 69 課：量化模型的效能與品質權衡 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="回到模組B的量化主題，進一步談實務取捨：較低的量化等級（如Q4）速度快、記憶體用量小，但可能明顯影響輸出品質；對簡單任務通常夠用，遇到較難的推論任務時值得實際測試幾種量化等級再決定">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 69 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 R｜效能優化：地端LLM的資源管理 · 第 69 課</div>
+      <h1>量化模型的效能與品質權衡</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>重新認識量化：從模組B的「能不能跑起來」，進階到「該用哪一個量化等級」的實務判斷</li>
+          <li>理解量化等級（如Q4對比Q8或全精度）在速度、記憶體用量、輸出品質之間的取捨</li>
+          <li>建立「先用自己的任務實測，不要假設最快的選項就夠好」的實務判斷方式</li>
+        </ul>
+      </div>
+
+      <p>
+        第7課談量化時，重點放在「量化讓比較大的模型，得以在
+        一般硬體上跑得起來」——這是量化最基本的價值。這一課
+        要把這個主題往前推一步：同一個模型，量化等級不是
+        只有「能跑」跟「不能跑」兩種狀態，而是一整條光譜，
+        而光譜上的位置，會實際影響到速度、記憶體用量，以及
+        ——容易被忽略的一點——輸出品質。
+      </p>
+
+      <h2>1. 複習：量化在做什麼</h2>
+      <p>
+        模型的權重（weight）原本通常以較高精度的數字格式
+        儲存（例如16位元浮點數）。量化做的事，是把這些權重
+        轉換成用更少位元表示的數字格式——例如常見的4位元
+        （一般標示為Q4）——藉此大幅縮小模型檔案與執行時需要
+        的記憶體用量，也因為需要搬動與運算的資料變少，通常
+        能換來更快的生成速度。Ollama使用的模型格式，量化
+        版本常會用類似<code>Q4_K_M</code>、<code>Q8_0</code>
+        這樣的標籤命名，數字愈小通常代表精度愈低、壓縮程度
+        愈高。
+      </p>
+
+      <h2>2. 量化等級對品質的實際影響</h2>
+      <p>
+        把權重從較高精度壓縮到較低精度，本質上是一種有損
+        壓縮——會在權重裡引入一定程度的誤差。對於相對簡單、
+        範圍明確的任務，這種誤差通常不太會反映在最終輸出的
+        品質上；但對於需要多步驟推論、精確遵循複雜指示、或
+        處理語意細膩的任務，較低的量化等級（例如Q4）就比較
+        可能出現一些在較高精度版本（例如Q8或接近全精度）上
+        不會發生的失誤——像是推論鏈中間某一步出錯、格式指示
+        沒有被完整遵守、或對複雜語境的理解出現偏差。這不是
+        「量化模型一定比較笨」這麼絕對的說法，而是「精度愈低，
+        在愈困難的任務上，出現品質落差的機率愈高」這樣的
+        傾向。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">量化等級的三方取捨（示意）</text>
+
+          <text x="90" y="45" text-anchor="middle" font-size="9" fill="var(--text-muted)">速度</text>
+          <text x="320" y="45" text-anchor="middle" font-size="9" fill="var(--text-muted)">記憶體用量</text>
+          <text x="550" y="45" text-anchor="middle" font-size="9" fill="var(--text-muted)">困難任務的輸出品質</text>
+
+          <text x="30" y="70" font-size="8" fill="var(--text-muted)">Q4</text>
+          <rect x="60" y="60" width="150" height="16" rx="3" fill="var(--accent)" opacity="0.6"/>
+          <text x="30" y="100" font-size="8" fill="var(--text-muted)">Q8</text>
+          <rect x="60" y="90" width="90" height="16" rx="3" fill="var(--accent)" opacity="0.6"/>
+          <text x="30" y="130" font-size="8" fill="var(--text-muted)">全精度</text>
+          <rect x="60" y="120" width="40" height="16" rx="3" fill="var(--accent)" opacity="0.6"/>
+          <text x="130" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">生成速度：愈低精度愈快</text>
+
+          <text x="260" y="70" font-size="8" fill="var(--text-muted)">Q4</text>
+          <rect x="290" y="60" width="40" height="16" rx="3" fill="var(--gold)" opacity="0.6"/>
+          <text x="260" y="100" font-size="8" fill="var(--text-muted)">Q8</text>
+          <rect x="290" y="90" width="80" height="16" rx="3" fill="var(--gold)" opacity="0.6"/>
+          <text x="260" y="130" font-size="8" fill="var(--text-muted)">全精度</text>
+          <rect x="290" y="120" width="150" height="16" rx="3" fill="var(--gold)" opacity="0.6"/>
+          <text x="365" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">記憶體用量：愈低精度愈省</text>
+
+          <text x="480" y="70" font-size="8" fill="var(--text-muted)">Q4</text>
+          <rect x="510" y="60" width="70" height="16" rx="3" fill="#ff8a65" opacity="0.6"/>
+          <text x="480" y="100" font-size="8" fill="var(--text-muted)">Q8</text>
+          <rect x="510" y="90" width="110" height="16" rx="3" fill="#ff8a65" opacity="0.6"/>
+          <text x="480" y="130" font-size="8" fill="var(--text-muted)">全精度</text>
+          <rect x="510" y="120" width="120" height="16" rx="3" fill="#ff8a65" opacity="0.6"/>
+          <text x="565" y="150" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">困難任務上，通常隨精度提升</text>
+
+          <rect x="30" y="180" width="580" height="45" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="198" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">簡單、範圍明確的任務，這三者的落差通常不明顯；</text>
+          <text x="320" y="214" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">任務愈困難，量化等級對品質的影響通常愈值得認真評估</text>
+        </svg>
+        <figcaption>量化等級愈低（如Q4），速度愈快、記憶體用量愈省，但在困難任務上，輸出品質相對較高精度版本，通常較容易出現落差——長度僅為示意，實際差異因模型與任務而異。</figcaption>
+      </div>
+
+      <h2>3. 對這門課的旗艦專案來說，該怎麼選</h2>
+      <p>
+        這門課從模組G開始建立的旗艦專案，核心任務是信件分類
+        ——判斷一封信該歸類到哪個已知類別、該路由到哪個處理
+        流程（第35到38課）。這是一個相對簡單、範圍明確的任務：
+        類別數量有限、判斷依據清楚，Prompt也已經把規則講得
+        很明確（模組H）。對這種任務，選擇一個較低量化等級、
+        速度更快的模型版本，通常已經完全夠用，而且因為要處理
+        的信件量可能不小，生成速度快帶來的整體效率提升，實際
+        上更有感。
+      </p>
+
+      <h2>4. 遇到真正的困難任務時：實測，別只憑猜測</h2>
+      <p>
+        如果之後把這套架構延伸到更需要多步驟推論、或語意
+        判斷更細膩的任務（例如模組N的AI Agent要在多個工具
+        之間做比較複雜的決策），比較穩妥的做法，是不要直接
+        假設「最快的量化版本應該也夠用」，而是針對自己實際
+        會用到的Prompt與資料，實際測試幾個量化等級的輸出，
+        再決定要用哪一個：
+      </p>
+
+      <div class="code-block">ollama pull llama3.1:8b-instruct-q4_K_M
+ollama pull llama3.1:8b-instruct-q8_0
+
+# 針對同一組實際任務用的Prompt，分別跑過兩個版本
+# 比較輸出的正確性與穩定度，而不是只比較回覆速度</div>
+
+      <p>
+        實際可用的量化版本標籤，會依模型而異，可以在該模型
+        在Ollama Library頁面列出的tag清單裡確認有哪些量化
+        版本可以選。重點是養成習慣：不要只憑「等級數字愈低
+        感覺愈陽春」這種直覺做選擇，而是拿自己真正會用到的
+        任務跑一輪比較，再決定要在速度跟品質之間，停在光譜
+        上的哪個位置。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋量化為什麼能縮小模型的記憶體用量、加快生成速度，代價又是什麼</li>
+          <li>說明為什麼「困難任務」比「簡單任務」更容易因為較低的量化等級而出現品質落差</li>
+          <li>說明為什麼這門課的旗艦專案（信件分類）通常適合用較低量化等級的模型，而不需要用全精度版本</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組R的總結，要談一個更進一步的問題：當硬體
+        資源與量化取捨都調校到極限，還是不夠用的時候，該考慮
+        的下一步是什麼——會提到vLLM這個常被拿來討論的生產
+        環境方案，以及它跟這門課選擇Ollama的定位差異。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-68.html">← 上一課：GPU／CPU資源與併發請求的取捨</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-70.html">下一課：模組總結：什麼時候該考慮升級到vLLM等生產環境方案 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：用n8n的Set節點整理輸入資料 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用n8n的Set節點，把觸發器原始輸出裡跟信件相關的欄位，整理成subject、body、sender這幾個乾淨一致的結構，讓下游的Prompt模板更簡單也更穩定">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜資料前處理與Prompt設計 · 第 32 課</div>
+      <h1>用n8n的Set節點整理輸入資料</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼要在送進LLM之前，先用Set節點整理成乾淨一致的欄位結構</li>
+          <li>實際設定一個Set節點，把觸發器輸出的原始資料轉成subject、body、sender三個標準欄位</li>
+          <li>理解這樣的中間層設計，能讓下游Prompt模板更簡單、也更能抵擋上游資料格式的變動</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課講清楚了Prompt要模板化的道理，但模板要穩定運作，
+        有一個前提：每次填進佔位符的欄位值，本身要是乾淨、
+        名稱一致的資料。這一課要動手處理這件事——用第20課
+        介紹過的Set節點，在資料送進LLM節點之前，先做一層
+        整理。
+      </p>
+
+      <h2>1. 為什麼不直接把觸發器的原始輸出送進Prompt</h2>
+      <p>
+        目前開發階段用的是Manual Trigger，輸出的欄位是自己
+        手動定義的，看起來乾淨。但正式上線後，觸發器會換成
+        Email Trigger（IMAP，第27課提過），它輸出的原始資料
+        結構是IMAP協定本身定義的，欄位可能叫<code>subject
+        </code>、<code>textPlain</code>、<code>from</code>
+        這類名稱，還會夾雜其他跟分類任務無關的中繼資料（例如
+        郵件標頭、附件資訊）。如果Prompt模板裡的表達式直接
+        寫死引用這些原始欄位名稱，一旦之後觸發器設定調整、
+        或欄位命名跟預期不同，所有引用到這些欄位的地方都要
+        跟著改。更穩健的做法，是在觸發器跟LLM節點之間，加一層
+        專門負責「翻譯」的Set節點。
+      </p>
+
+      <h2>2. 設定Set節點：只留下需要的三個欄位</h2>
+      <p>
+        在畫布上，於觸發器後面加入一個Set節點，設定它輸出三個
+        統一命名的欄位，值分別用表達式引用觸發器輸出裡對應的
+        原始欄位：
+      </p>
+      <div class="code-block">// Set節點的欄位設定
+subject = {{ $json.subject }}
+body    = {{ $json.textPlain }}
+sender  = {{ $json.from }}</div>
+      <p>
+        這裡刻意把Set節點輸出的欄位名稱（<code>subject</code>、
+        <code>body</code>、<code>sender</code>）跟原始觸發器
+        欄位名稱（<code>subject</code>、<code>textPlain</code>、
+        <code>from</code>）分開來看待，即使剛好同名也一樣視為
+        獨立的一層——重點是下游所有節點，包括Prompt模板，從此
+        只需要認得這三個固定名稱，不用關心它們背後實際來自
+        哪一種觸發器、哪一種原始欄位命名方式。
+      </p>
+
+      <div class="callout">
+        <h3>提醒：記得只留需要的欄位</h3>
+        <p>
+          n8n的Set節點通常可以選擇是否保留其他未特別設定的
+          原始欄位。這個場景建議只保留整理過的這幾個乾淨欄位，
+          捨棄用不到的郵件標頭、附件等原始中繼資料——這樣傳給
+          下游的資料結構會更精簡，Prompt模板裡也不會不小心
+          引用到不該用的欄位。
+        </p>
+      </div>
+
+      <h2>3. 這一層帶來的好處：Prompt模板更簡單、也更穩</h2>
+      <p>
+        有了這個乾淨的中間層，第31課提到的Prompt模板佔位符，
+        就可以一律用同一套簡單的欄位名稱：
+      </p>
+      <div class="code-block">// Prompt模板裡的表達式，只需要認得這三個統一欄位
+主旨：{{ $json.subject }}
+內文：{{ $json.body }}
+寄件人：{{ $json.sender }}</div>
+      <p>
+        往後不管觸發器換成哪一種（Manual Trigger測試、Email
+        Trigger正式上線），只要在Set節點這一層更新對應的原始
+        欄位引用，Prompt模板本身完全不用動。這是軟體設計裡常見
+        的「加一層間接層」的思路，在n8n工作流裡也同樣適用。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow32" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">Set節點作為「翻譯層」，隔開觸發器格式與Prompt模板</text>
+
+          <rect x="15" y="50" width="170" height="60" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.3"/>
+          <text x="100" y="72" text-anchor="middle" font-size="9" fill="var(--text)">觸發器原始輸出</text>
+          <text x="100" y="89" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">欄位名稱依觸發器而定</text>
+
+          <line x1="185" y1="80" x2="215" y2="80" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow32)"/>
+
+          <rect x="220" y="50" width="200" height="60" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="320" y="72" text-anchor="middle" font-size="9" fill="var(--gold)">Set節點（翻譯層）</text>
+          <text x="320" y="89" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">統一成subject／body／sender</text>
+
+          <line x1="420" y1="80" x2="450" y2="80" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow32)"/>
+
+          <rect x="455" y="50" width="170" height="60" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="540" y="72" text-anchor="middle" font-size="9" fill="var(--accent)">Prompt模板</text>
+          <text x="540" y="89" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">只認得統一後的三個欄位</text>
+
+          <rect x="15" y="135" width="610" height="45" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="162" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">觸發器換成Email Trigger時，只需要更新Set節點裡的引用，Prompt模板完全不用動</text>
+        </svg>
+        <figcaption>Set節點把觸發器格式的變動隔絕在外，讓下游的Prompt模板保持簡單且穩定。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼不建議讓Prompt模板直接引用觸發器的原始欄位名稱</li>
+          <li>寫出Set節點把觸發器輸出轉換成subject、body、sender三個欄位的設定方式</li>
+          <li>解釋這種「加一層Set節點」的做法，如何讓工作流更能抵擋上游資料格式的變動</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要處理Prompt設計裡更核心的一個分工：System
+        Prompt跟User Prompt分別該放什麼內容，並且針對這個
+        客服信件分類任務，寫出一份完整、可以重複使用的System
+        Prompt，以及會套用上這一課整理好欄位的User Prompt模板。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：為什麼Prompt要模板化，而不是寫死</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：System Prompt與User Prompt的分工 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

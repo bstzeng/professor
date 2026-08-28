@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 60 課：Webhook觸發器：被動接收外部事件 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n的Webhook節點：產生一組專屬URL，讓外部系統主動送HTTP請求進來觸發流程，跟排程／輪詢這種主動檢查的方式相對，並比較跟第39課Email觸發方式的差異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 60 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 O｜排程與長期自動化 · 第 60 課</div>
+      <h1>Webhook觸發器：被動接收外部事件</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識n8n的Webhook節點，以及它跟Schedule Trigger在「誰主動」這件事上的根本差異</li>
+          <li>理解Webhook怎麼產生一組專屬URL，以及外部系統怎麼透過它把事件送進n8n</li>
+          <li>能對照第39課的Email觸發方式，說明輪詢與事件推送兩種觸發模式的取捨</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課的Schedule Trigger，本質上是n8n<strong>主動</strong>
+        按時間去檢查、去執行——不管當下有沒有真的發生什麼新事件，
+        時間一到就會跑一次。這一課要介紹另一種完全相反的觸發
+        模式：讓外部系統<strong>主動</strong>通知n8n「有事情發生
+        了」，n8n則是被動等待、事件來了才反應——這就是<strong>
+        Webhook</strong>觸發器要解決的問題。
+      </p>
+
+      <h2>1. Webhook節點：產生一組專屬URL，等外部系統呼叫</h2>
+      <p>
+        把Webhook節點放進畫布作為工作流的起點，n8n會自動產生一組
+        專屬的URL（通常包含測試用與正式上線用兩種）。這組URL的
+        意義是：任何外部系統，只要對這個URL發送一個HTTP請求
+        （常見是POST，也可以設定成GET或其他方法），這個工作流就
+        會被觸發一次執行，而請求裡帶的資料（例如JSON格式的內容），
+        會成為這次執行第一個節點收到的輸入資料，後續節點就能照
+        平常的方式取用（回顧模組E第18課的JSON資料傳遞）。
+      </p>
+      <div class="code-block">POST https://your-n8n-domain.example/webhook/order-received
+Content-Type: application/json
+
+{
+  "orderId": "A10293",
+  "customer": "王小明",
+  "amount": 1580
+}</div>
+      <p>
+        外部系統（例如某個電商平台、表單服務、或是公司內部的
+        其他系統）只要照這個格式送出請求，n8n收到的當下就會立刻
+        觸發工作流開始執行，把<code>orderId</code>、
+        <code>customer</code>、<code>amount</code>這些欄位，作為
+        資料傳給後面接的節點使用。
+      </p>
+
+      <h2>2. 跟Email Trigger的比較：輪詢 vs 事件推送</h2>
+      <p>
+        回顧第39課接的Email觸發方式：n8n定期去檢查信箱（輪詢，
+        polling）有沒有新信件——本質上跟Schedule Trigger一樣，是
+        n8n主動、按固定間隔去問「有新的嗎？」，就算兩次檢查之間
+        完全沒有新信件，n8n還是會照樣去檢查一次，多少有點浪費，
+        而且新信件最慢要等到下一次檢查週期，才會真正被處理到。
+      </p>
+      <p>
+        有些外部服務除了讓你輪詢之外，本身就支援<strong>主動推送
+        事件</strong>——服務那一端一有新事件發生，就直接對你指定
+        的URL發送HTTP請求通知你，不需要你自己定期去問。這種
+        「事件推送」模式如果串上Webhook節點，會比輪詢更即時（事件
+        發生的當下幾乎立刻觸發，不需要等下一個檢查週期），也更
+        有效率（沒有事件發生時，完全不會產生多餘的請求）。是否
+        能用Webhook取代輪詢，取決於外部那個服務本身有沒有提供
+        這種主動推送的能力。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow60" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">輪詢（Schedule／Email Trigger） vs 事件推送（Webhook）</text>
+
+          <text x="160" y="42" text-anchor="middle" font-size="9.5" fill="var(--gold)">輪詢：n8n主動去問</text>
+          <rect x="30" y="52" width="90" height="42" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="75" y="77" text-anchor="middle" font-size="7.6" fill="var(--text)">n8n</text>
+          <line x1="120" y1="65" x2="200" y2="65" stroke="var(--gold)" stroke-width="1.1" marker-end="url(#arrow60)"/>
+          <text x="160" y="60" text-anchor="middle" font-size="7" fill="var(--text-muted)">有新的嗎？</text>
+          <line x1="200" y1="83" x2="120" y2="83" stroke="var(--text-muted)" stroke-width="1.1" marker-end="url(#arrow60)"/>
+          <text x="160" y="97" text-anchor="middle" font-size="7" fill="var(--text-muted)">按固定週期重複問</text>
+          <rect x="205" y="52" width="90" height="42" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="250" y="77" text-anchor="middle" font-size="7.6" fill="var(--text)">信箱／服務</text>
+
+          <line x1="320" y1="72" x2="320" y2="72" stroke="var(--border)" stroke-width="1"/>
+          <line x1="320" y1="30" x2="320" y2="200" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3"/>
+
+          <text x="480" y="42" text-anchor="middle" font-size="9.5" fill="var(--accent)">Webhook：外部主動通知</text>
+          <rect x="345" y="52" width="90" height="42" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="390" y="77" text-anchor="middle" font-size="7.6" fill="var(--text)">外部系統</text>
+          <line x1="435" y1="73" x2="515" y2="73" stroke="var(--accent)" stroke-width="1.2" marker-end="url(#arrow60)"/>
+          <text x="475" y="68" text-anchor="middle" font-size="7" fill="var(--text-muted)">事件發生時立刻POST</text>
+          <rect x="520" y="52" width="90" height="42" rx="5" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="565" y="77" text-anchor="middle" font-size="7.6" fill="var(--accent)">n8n Webhook URL</text>
+
+          <rect x="20" y="150" width="600" height="75" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="172" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">輪詢：不管有沒有新事件，都按固定週期檢查——簡單但較不即時</text>
+          <text x="320" y="192" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">Webhook：事件發生當下立刻觸發——更即時、更有效率，但需要外部服務支援推送</text>
+          <text x="320" y="210" text-anchor="middle" font-size="8" fill="var(--text-muted)">第39課Email輪詢屬於左側模式；能否改用Webhook取決於該服務有沒有推送能力</text>
+        </svg>
+        <figcaption>輪詢是n8n定時主動檢查，就算沒有新事件也照樣問；Webhook則是外部系統一有事件就主動推送，n8n被動接收——兩者各有適用情境。</figcaption>
+      </div>
+
+      <h2>3. Webhook常見的用途</h2>
+      <p>
+        延續這門課的情境，Webhook適合用在有外部系統願意主動推送
+        事件的場景，例如：表單服務在有人送出表單的當下，直接呼叫
+        n8n的Webhook URL；某些客服平台、電商平台在有新訂單、新
+        客訴時，支援設定「事件發生時通知這個URL」；或是公司內部
+        其他系統，想在特定狀況發生時，主動觸發這門課建立的AI
+        自動化流程（例如判斷內容、寫入紀錄、必要時發Slack通知），
+        都可以透過對Webhook URL發送請求來達成。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：Webhook URL先天是公開可連線的</h3>
+        <p>
+          Webhook節點產生的URL，只要知道網址，理論上任何人都能
+          對它送出請求——這跟排程觸發（完全不對外開放）在安全性
+          考量上有本質差異。這一課先聚焦在Webhook怎麼運作，
+          模組Q會再具體討論該怎麼保護暴露在外的Webhook端點。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明Webhook觸發跟Schedule Trigger，在「誰主動」這件事上的根本差異</li>
+          <li>解釋輪詢與事件推送兩種模式，各自的優缺點</li>
+          <li>對照第39課的Email觸發方式，說明什麼條件下能改用Webhook取代輪詢</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組O的總結：把排程觸發與Webhook觸發兩種方式
+        整合起來看，講清楚它們合力達成的目標——讓整套自動化流程
+        真正做到無人值守運作。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-59.html">← 上一課：排程觸發器：讓工作流定期自動執行</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-61.html">下一課：模組總結：讓自動化流程真正無人值守運作 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

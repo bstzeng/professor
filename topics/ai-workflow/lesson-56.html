@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 56 課：n8n的AI Agent節點基礎 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="認識n8n內建的AI Agent節點：怎麼接上一個聊天模型、掛上一組工具，以及它跟前面模組固定線性流程最大的不同——在執行當下自主決定要不要呼叫工具、呼叫哪個、呼叫幾次">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 56 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜AI Agent與工具呼叫基礎 · 第 56 課</div>
+      <h1>n8n的AI Agent節點基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識n8n內建的AI Agent節點，以及它跟第22～25課接過的一般聊天模型節點在畫布接線方式上的差異</li>
+          <li>理解Agent節點的三種連接類型：聊天模型、工具、（選用的）記憶</li>
+          <li>建立「Agent節點本身也只是眾多節點類型的其中一種」這個框架，為下一課的實際案例鋪路</li>
+        </ul>
+      </div>
+
+      <p>
+        第55課講清楚了工具呼叫的基本機制，這一課要看n8n怎麼把
+        這套機制，包裝成一個可以直接拖進畫布使用的節點——<strong>
+        AI Agent</strong>節點。它跟模組F（第22～25課）接過的一般
+        聊天模型節點，用起來的邏輯很不一樣：一般聊天模型節點是
+        單純「送一段prompt進去、拿一段文字回來」，Agent節點則是
+        會在執行當下，自主判斷要不要呼叫它手上有的工具、呼叫哪個、
+        要呼叫幾輪，直到判斷任務完成為止。
+      </p>
+
+      <h2>1. Agent節點在畫布上的樣子：三種不同的連接線</h2>
+      <p>
+        把AI Agent節點拖進n8n畫布後，會發現它的下方有幾個不同
+        的連接點，分別對應不同性質的連線，這跟一般節點只有單純
+        的輸入輸出連線不太一樣：
+      </p>
+      <ul>
+        <li><strong>Chat Model（聊天模型，必要）</strong>——接上
+          一個負責實際生成回應的LLM節點，這門課會接上模組F介紹
+          過的Ollama聊天模型節點，讓Agent的「大腦」是地端執行的
+          模型</li>
+        <li><strong>Tool（工具，可以掛多個）</strong>——接上一個
+          或多個工具節點，每個工具都要給一個清楚的名稱與描述
+          （對應第55課提到的工具定義要件），Agent會依據這些描述
+          判斷什麼情境該用哪個工具</li>
+        <li><strong>Memory（記憶，選用）</strong>——讓Agent記得
+          同一個對話或同一次執行過程中前面發生過的事，這門課的
+          範例場景以單次任務為主，先不深入展開</li>
+      </ul>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 620 260" xmlns="http://www.w3.org/2000/svg">
+          <text x="310" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">AI Agent節點的連接結構</text>
+
+          <rect x="220" y="35" width="180" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/>
+          <text x="310" y="58" text-anchor="middle" font-size="10" fill="var(--gold)">AI Agent節點</text>
+          <text x="310" y="75" text-anchor="middle" font-size="7.6" fill="var(--text-muted)">自主決定要不要呼叫工具</text>
+
+          <line x1="270" y1="90" x2="270" y2="130" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="310" y1="90" x2="310" y2="130" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="350" y1="90" x2="350" y2="130" stroke="var(--text-muted)" stroke-width="1.2"/>
+
+          <rect x="180" y="135" width="140" height="50" rx="5" fill="var(--accent)" opacity="0.13" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="250" y="155" text-anchor="middle" font-size="8.5" fill="var(--accent)">Chat Model（必要）</text>
+          <text x="250" y="171" text-anchor="middle" font-size="7.2" fill="var(--text-muted)">Ollama聊天模型節點</text>
+
+          <rect x="330" y="135" width="140" height="50" rx="5" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="400" y="155" text-anchor="middle" font-size="8.5" fill="#ff8a65">Tool（可多個）</text>
+          <text x="400" y="171" text-anchor="middle" font-size="7.2" fill="var(--text-muted)">名稱＋描述＋參數</text>
+
+          <rect x="55" y="135" width="115" height="50" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="3 2"/>
+          <text x="112" y="155" text-anchor="middle" font-size="8.5" fill="var(--text)">Memory（選用）</text>
+          <text x="112" y="171" text-anchor="middle" font-size="7.2" fill="var(--text-muted)">記住對話上下文</text>
+          <line x1="180" y1="160" x2="220" y2="90" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="2 2"/>
+
+          <rect x="20" y="205" width="580" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="310" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">Chat Model負責生成語言與判斷；Tool負責提供Agent能實際操作的能力；</text>
+          <text x="310" y="237" text-anchor="middle" font-size="8" fill="var(--text-muted)">三種連接線的性質不同，跟一般節點單純的輸入輸出連線不一樣</text>
+        </svg>
+        <figcaption>AI Agent節點下方有三種不同性質的連接線：Chat Model提供語言能力，Tool提供可呼叫的能力，Memory則是選用的對話記憶——這跟一般節點單一輸入輸出的接線方式明顯不同。</figcaption>
+      </div>
+
+      <h2>2. 工具從哪裡來：其他節點與子工作流都能變成工具</h2>
+      <p>
+        Agent節點的Tool連接點，並不是只能接特殊、專屬的工具節點。
+        n8n提供了兩種主要方式，把「能力」變成Agent可以呼叫的工具：
+      </p>
+      <ul>
+        <li><strong>直接使用某些節點的Tool版本</strong>——像是
+          Google Sheets、Slack、HTTP Request等常見節點，在n8n的
+          節點面板搜尋時，能找到對應的Tool版本（例如Google Sheets
+          Tool），把它接上Agent的Tool連接點，並填上名稱與描述，
+          Agent就能在判斷需要時直接呼叫這個節點動作</li>
+        <li><strong>把一整個子工作流包裝成工具</strong>——用
+          Workflow Tool節點，指定要呼叫n8n裡的哪一個既有工作流，
+          讓Agent可以呼叫的「工具」，本身是一整套多節點組成的邏輯
+          （例如模組L、M建立的RAG查詢流程），而不只是單一個動作</li>
+      </ul>
+      <p>
+        這代表這門課前面模組建立的很多能力——Google Sheets讀寫
+        （第40課）、Slack通知（第41課）、甚至RAG文件查詢（模組
+        M）——理論上都能被包裝成工具，交給Agent自己判斷什麼時候
+        該用。下一課會挑其中兩個具體示範。
+      </p>
+      <div class="code-block"># 方式一：直接使用某個節點的Tool版本
+節點面板搜尋「Google Sheets Tool」→ 拖進畫布
+→ 接上Agent節點的Tool連接點
+→ 填寫Name／Description，讓Agent判斷何時該呼叫
+
+# 方式二：把整個子工作流包裝成工具
+新增「Workflow Tool」節點 → 選擇要呼叫的目標工作流
+→ 同樣填寫Name／Description，供Agent參考</div>
+
+      <h2>3. 跟固定線性流程最大的不同：執行路徑在執行當下才決定</h2>
+      <p>
+        前面模組建立的所有工作流，不管接了多少節點，執行路徑
+        在你設計工作流的當下，基本上就已經固定了——IF節點頂多
+        是「依照條件走這條或那條」，但每一條路徑本身、路徑上會
+        經過哪些節點，都是預先畫好的。Agent節點打破了這個假設：
+        同樣一個Agent節點，這次執行可能只呼叫了一個工具就結束，
+        下一次面對稍微不同的任務，可能連續呼叫兩個工具、或是
+        完全不呼叫任何工具、直接生成文字回應。<strong>執行路徑
+        不再是設計時就寫死的，而是LLM在執行當下依照任務內容
+        即時決定的。</strong>
+      </p>
+
+      <div class="callout">
+        <h3>關鍵差異：一般聊天模型節點 vs AI Agent節點</h3>
+        <p>
+          模組F接的一般聊天模型節點，行為很單純：收到輸入、送給
+          Ollama、把回應原樣輸出，執行路徑跟其他任何節點一樣是
+          固定的一進一出。AI Agent節點則可能在內部反覆呼叫工具
+          好幾輪，才產生最終輸出——外部看起來仍然是「一個節點、
+          一次執行」，但節點內部實際上可能觸發了好幾次工具呼叫
+          與LLM推論。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出AI Agent節點的三種連接類型，並說明各自的作用</li>
+          <li>說明n8n有哪兩種方式，能把既有的節點能力包裝成Agent可以呼叫的工具</li>
+          <li>解釋「執行路徑在設計時就固定」跟「執行路徑在執行當下才決定」，這兩種工作流設計方式的核心差異</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要動手做一個具體的例子：讓Agent同時擁有查詢Google
+        試算表紀錄、與發送Slack訊息這兩個工具，看它面對一個開放式
+        的指令時，怎麼自己判斷該不該查、查完之後該不該通知。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-55.html">← 上一課：什麼是工具呼叫（Tool Calling）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-57.html">下一課：讓Agent決定該用哪個工具 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

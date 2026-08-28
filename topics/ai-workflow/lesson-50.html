@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 50 課：模組總結：RAG的完整運作流程 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="模組L總結：把RAG拆成準備階段（文件→切塊→嵌入→存入向量資料庫）與查詢階段（問題→嵌入→相似度搜尋→注入Prompt→LLM作答）兩段完整流程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 50 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜RAG基礎 · 第 50 課</div>
+      <h1>模組總結：RAG的完整運作流程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模組L三課的概念，整合成準備階段與查詢階段兩段完整的RAG流程</li>
+          <li>理解這兩個階段各自在「什麼時候」執行、執行的頻率有什麼不同</li>
+          <li>銜接模組M：把這套概念，在n8n裡實際動手做出來</li>
+        </ul>
+      </div>
+
+      <p>
+        模組L的三課，分別看了「為什麼需要RAG」（第47課）、
+        「文件怎麼被切塊與轉成嵌入向量」（第48課）、「向量存
+        在哪裡、怎麼被搜尋」（第49課）。這一課把它們串成一條
+        完整的流程，並且點出一個關鍵結構：RAG其實可以拆成
+        時間點完全不同的兩個階段。
+      </p>
+
+      <h2>兩個階段：準備一次，查詢很多次</h2>
+      <p>
+        RAG看起來是一整套流程，但拆開來看，其實是兩件發生在
+        不同時間點的事：<strong>準備階段（ingestion）</strong>
+        只需要在文件加入或更新時執行一次（或定期執行），把
+        文件轉換成向量資料庫裡可以被搜尋的形式；<strong>查詢
+        階段（query）</strong>則是每一次有人提出問題時都會
+        執行一次，直接使用準備階段已經存好的向量資料庫，不需要
+        重新處理一次所有文件。這個「準備一次、查詢很多次」的
+        結構，是RAG之所以能做到即時回答的關鍵。
+      </p>
+
+      <h2>準備階段：文件 → 切塊 → 嵌入 → 存入向量資料庫</h2>
+      <p>
+        對應第48、49課的內容：先把原始文件（產品手冊、內部
+        SOP、合約……）切成一塊一塊的chunk，每個chunk透過嵌入
+        模型轉換成向量，再連同原始文字內容，一起存進向量資料庫
+        （例如第49課提到的Qdrant，或Postgres＋pgvector）。這個
+        階段通常在文件庫有新增或更新時執行，不需要每次使用者
+        提問都重做一次。
+      </p>
+
+      <h2>查詢階段：問題 → 嵌入 → 相似度搜尋 → 注入Prompt → LLM作答</h2>
+      <p>
+        對應第47課建立的RAG基本邏輯：使用者提出問題後，先把
+        這個問題本身也轉換成嵌入向量（用跟準備階段相同的嵌入
+        模型），拿這組向量去向量資料庫裡做相似度搜尋，找出
+        最相關的幾個chunk，把這些chunk的原始文字內容組合進
+        送給LLM的Prompt裡，最後由LLM根據問題本身，加上這些
+        剛檢索到的參考內容，生成最終的回答。
+      </p>
+
+      <div class="code-block">// 兩個階段合起來，濃縮回顧
+準備階段（不常執行）：
+  文件 → 切塊（第48課） → 嵌入（第48課） → 存入向量資料庫（第49課）
+
+查詢階段（每次提問都執行）：
+  問題 → 嵌入 → 向量資料庫相似度搜尋 → 取回相關chunk
+       → 注入Prompt → LLM根據Prompt作答</div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 680 380" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow50" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="340" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">RAG完整運作流程：準備階段與查詢階段</text>
+
+          <text x="20" y="46" font-size="9.5" fill="var(--gold)">準備階段（Ingestion）── 文件新增／更新時執行</text>
+
+          <rect x="20" y="55" width="130" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="85" y="78" text-anchor="middle" font-size="8.5" fill="var(--text)">原始文件</text>
+          <text x="85" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">手冊、SOP、合約</text>
+
+          <line x1="150" y1="82" x2="180" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="185" y="55" width="120" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="245" y="78" text-anchor="middle" font-size="8.5" fill="var(--text)">切塊 Chunk</text>
+          <text x="245" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">第48課</text>
+
+          <line x1="305" y1="82" x2="335" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="340" y="55" width="120" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="400" y="78" text-anchor="middle" font-size="8.5" fill="var(--text)">嵌入 Embed</text>
+          <text x="400" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">轉成向量</text>
+
+          <line x1="460" y1="82" x2="490" y2="82" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="495" y="50" width="165" height="65" rx="6" fill="var(--gold)" opacity="0.16" stroke="var(--gold)" stroke-width="1.4"/>
+          <text x="577" y="76" text-anchor="middle" font-size="9.5" fill="var(--gold)">向量資料庫</text>
+          <text x="577" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Qdrant／pgvector（第49課）</text>
+
+          <line x1="577" y1="115" x2="577" y2="150" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 2"/>
+
+          <text x="20" y="150" font-size="9.5" fill="var(--accent)">查詢階段（Query）── 每次使用者提問時執行</text>
+
+          <rect x="20" y="160" width="130" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="85" y="183" text-anchor="middle" font-size="8.5" fill="var(--text)">使用者問題</text>
+          <text x="85" y="198" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">例如客戶詢問</text>
+
+          <line x1="150" y1="187" x2="180" y2="187" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="185" y="160" width="120" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="245" y="183" text-anchor="middle" font-size="8.5" fill="var(--text)">嵌入問題</text>
+          <text x="245" y="198" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">同一種嵌入模型</text>
+
+          <line x1="305" y1="187" x2="335" y2="187" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="340" y="160" width="120" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="400" y="183" text-anchor="middle" font-size="8.5" fill="var(--text)">相似度搜尋</text>
+          <text x="400" y="198" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">找最相關的chunk</text>
+
+          <line x1="460" y1="187" x2="490" y2="187" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+          <line x1="577" y1="150" x2="577" y2="180" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+          <text x="600" y="145" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">搜尋</text>
+
+          <rect x="495" y="230" width="165" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="577" y="253" text-anchor="middle" font-size="8.5" fill="var(--accent)">取得最相關chunk</text>
+          <text x="577" y="268" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">連同原始文字內容</text>
+
+          <line x1="577" y1="215" x2="577" y2="230" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <line x1="495" y1="257" x2="330" y2="310" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="130" y="300" width="200" height="55" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="230" y="323" text-anchor="middle" font-size="8.5" fill="#ff8a65">注入Prompt，交給LLM</text>
+          <text x="230" y="338" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">問題＋檢索到的chunk內容</text>
+
+          <line x1="330" y1="327" x2="365" y2="327" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow50)"/>
+
+          <rect x="370" y="300" width="150" height="55" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="445" y="327" text-anchor="middle" font-size="8.5" fill="#ff8a65">LLM生成回答</text>
+          <text x="445" y="342" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">Ollama（地端）</text>
+        </svg>
+        <figcaption>準備階段把文件變成可搜尋的向量，通常在文件更新時執行一次；查詢階段每次使用者提問都會執行，向下搜尋準備階段建好的向量資料庫，把檢索到的內容注入Prompt後交給LLM作答。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>同一個嵌入模型，貫穿兩個階段</h3>
+        <p>
+          有一個容易被忽略、但很重要的細節：準備階段用來把文件
+          chunk轉成向量的嵌入模型，跟查詢階段用來把使用者問題
+          轉成向量的嵌入模型，必須是<strong>同一個模型</strong>。
+          不同的嵌入模型，即使輸入同一段文字，產生出來的向量
+          空間也未必相容，拿模型A產生的問題向量，去跟模型B
+          產生的文件向量比對距離，比較出來的相似度沒有意義。
+          模組M實作時會看到，這一點在實務上要特別留意。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明RAG為什麼可以拆成準備階段跟查詢階段，這兩者在執行時機上有什麼不同</li>
+          <li>依序列出準備階段的四個步驟，以及查詢階段的五個步驟</li>
+          <li>解釋為什麼準備階段跟查詢階段，必須使用同一個嵌入模型</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 51 課：模組M開場——用Ollama產生嵌入向量。開始動手
+        實作：怎麼用Ollama下載並呼叫一個專門的嵌入模型，把
+        概念真正變成能跑的程式。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-49.html">← 上一課：向量資料庫是什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-51.html">下一課：用Ollama產生嵌入向量 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

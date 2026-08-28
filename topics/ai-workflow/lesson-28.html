@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：串上LLM處理節點 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="把上一課的範例信件資料，接進模組F建立好的聊天模型節點，寫出第一版的分類Prompt，用n8n表達式把觸發器的subject、body欄位帶進去">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作範例①：第一個自動化流程 · 第 28 課</div>
+      <h1>串上LLM處理節點</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把上一課的範例信件資料，實際接進模組F建立好的LLM處理節點</li>
+          <li>用n8n表達式把觸發器輸出的subject、body欄位動態帶入Prompt</li>
+          <li>寫出第一版（先求有、不求完美）的分類Prompt，讓LLM針對信件內容判斷類型</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課已經有了Manual Trigger加上Set節點，輸出一筆固定的
+        模擬客服信件資料。這一課要把這筆資料，接進模組F第22、23
+        課建立過的LLM處理節點，讓地端LLM第一次真正讀到信件內容，
+        並且做出「這封信屬於哪一種類型」的判斷。這一課先求整條
+        線路接通、看得到回應，Prompt寫得夠不夠嚴謹、輸出格式夠
+        不夠結構化，會是模組H、I要處理的事。
+      </p>
+
+      <h2>1. 接上模組F建立的聊天模型節點</h2>
+      <p>
+        模組F介紹過兩種讓n8n呼叫Ollama的方式：用通用的HTTP
+        Request節點直接打Ollama的REST API（第22課），或是用
+        n8n內建、基於LangChain整合的聊天模型節點（第23課），
+        並在第24課比較過兩者的取捨。這個專案接下來會延用內建
+        的聊天模型節點，因為它有現成的System Prompt／User
+        Prompt欄位分工（第33課會細講這個分工），比自己組HTTP
+        Request的請求body更適合拿來反覆調整Prompt。在畫布上把
+        這個節點接在Set節點後面，讓它成為這條流程的第三個節點。
+      </p>
+
+      <h2>2. 用表達式把觸發器的欄位帶進Prompt</h2>
+      <p>
+        第19課教過n8n的表達式語法——用<code>{{ $json.欄位名稱
+        }}</code>動態取用前一個節點輸出的資料。這一課要把它
+        實際用在Prompt裡：不是把信件內容用手打貼進節點設定，
+        而是用表達式引用Set節點輸出的<code>subject</code>和
+        <code>body</code>欄位，這樣同一個Prompt設定往後遇到
+        不同的輸入資料，也不需要改動節點本身。
+      </p>
+
+      <div class="code-block">// 聊天模型節點的User Prompt欄位（第一版，先求有）
+請幫我判斷以下這封客服信件屬於哪一種類型：
+「詢問」、「客訴」、「意見回饋」、「垃圾信」其中一種。
+
+主旨：{{ $json.subject }}
+內文：{{ $json.body }}
+
+請直接回覆分類結果。</div>
+      <p>
+        執行時，n8n會先把表達式裡的<code>{{ $json.subject }}
+        </code>和<code>{{ $json.body }}</code>換成上一個節點
+        實際輸出的值，再把整段組合好的文字送給Ollama背後執行
+        的模型。這個第一版Prompt還很粗糙——沒有明確定義每個
+        分類的判斷標準，也沒有規定LLM要用什麼格式回覆——但已經
+        足夠先讓整條線路動起來。
+      </p>
+
+      <div class="callout">
+        <h3>提醒：這裡的$json指向的是誰的輸出</h3>
+        <p>
+          表達式裡的<code>$json</code>預設指的是「直接連接到這個
+          節點的上一個節點」的輸出資料。因為畫布上的順序是
+          Manual Trigger → Set節點 → 聊天模型節點，所以這裡的
+          <code>$json.subject</code>取到的會是Set節點整理過的
+          <code>subject</code>欄位，而不是Manual Trigger最原始
+          的輸出。這也是為什麼上一課要先用Set節點把資料整理成
+          乾淨的結構，下一課會更完整地說明這樣做的好處。
+        </p>
+      </div>
+
+      <h2>3. 選擇要呼叫的模型</h2>
+      <p>
+        別忘了在聊天模型節點裡指定要呼叫的模型名稱，跟第6課
+        用<code>ollama pull</code>拉取的模型一致，例如：
+      </p>
+      <div class="code-block">model: llama3.1
+// 對應本機已經執行 ollama pull llama3.1 拉取過的模型</div>
+      <p>
+        如果節點設定的模型名稱跟本機Ollama實際擁有的模型對不
+        起來，執行時會直接失敗——第11課用curl測試API時，其實
+        就已經遇過同樣的道理：呼叫的一方跟實際跑模型的一方，
+        模型名稱必須完全對得上。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明這個專案選擇用內建聊天模型節點而不是HTTP Request節點的原因</li>
+          <li>寫出一段用n8n表達式引用上一個節點subject欄位的Prompt片段</li>
+          <li>解釋表達式裡的$json在這條流程裡實際指向哪一個節點的輸出</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要實際執行這個工作流，並且用n8n每個節點都可以
+        點開查看的輸入輸出資料，確認信件資料真的正確流進了
+        Prompt，也確認LLM真的回傳了看起來合理的分類結果。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：建立觸發器：Webhook或排程開始</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：執行測試與查看結果 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

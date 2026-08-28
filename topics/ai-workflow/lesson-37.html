@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：用IF/Switch節點依照AI的判斷分流 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用解析出來的category與urgent兩個欄位，在n8n的Switch與IF節點裡建立分流邏輯——讓客訴且緊急的信件走向Slack通知分支，其他信件走向一般記錄分支">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜AI輸出的後處理與路由 · 第 37 課</div>
+      <h1>用IF/Switch節點依照AI的判斷分流</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>回顧IF跟Switch節點的差異，判斷這個專案該用哪一個、用在哪裡</li>
+          <li>能寫出讀取<code>category</code>跟<code>urgent</code>兩個欄位的分流條件</li>
+          <li>看懂「客訴＋緊急」分支跟「其他」分支，接下來會分別接上什麼動作</li>
+        </ul>
+      </div>
+
+      <p>
+        第36課確保每一封信都能穩定拿到解析乾淨的
+        <code>category</code>跟<code>urgent</code>欄位。這一課
+        要把這兩個欄位真正用起來——回顧第20課介紹過的IF、
+        Switch節點，這一課要具體示範怎麼用它們，依照AI的判斷
+        結果，讓工作流走向不同的分支。
+      </p>
+
+      <h2>1. 回顧：IF跟Switch，這裡分別用在哪裡</h2>
+      <p>
+        <strong>IF節點</strong>只做一件事：判斷一個條件是
+        true還是false，輸出兩條分支。<strong>Switch節點</strong>
+        則可以依照一個欄位的值，一次分出多條分支，很適合這裡
+        <code>category</code>有四種可能值（question、complaint、
+        feedback、spam）的情況。這個專案會兩個一起用：先用
+        Switch依<code>category</code>分出四條路，再對其中的
+        「客訴」分支疊加一層IF，判斷是否<code>urgent</code>。
+      </p>
+
+      <h2>2. 用Switch節點依照category分流</h2>
+      <p>
+        在解析JSON的Code節點後面接一個Switch節點，用「規則」
+        模式，針對<code>{{ $json.category }}</code>設定四條輸出
+        規則：
+      </p>
+      <div class="code-block">Switch節點 - 規則模式，比對欄位：{{ $json.category }}
+
+規則1：等於 "question"   → 輸出0：一般問題分支
+規則2：等於 "complaint"  → 輸出1：客訴分支
+規則3：等於 "feedback"   → 輸出2：意見回饋分支
+規則4：等於 "spam"       → 輸出3：垃圾信分支
+（找不到符合規則時的預設輸出：視為一般問題處理）</div>
+      <p>
+        這四條分支之後可能會有不同的後續處理方式，但有一件事
+        是所有分支都共同需要的：不管信件被分到哪一類，都要被
+        寫進第40課要建立的稽核紀錄裡。因此，通往Google試算表
+        的連線，實務上會直接接在Switch節點「之前」（也就是
+        Code解析節點的輸出），而不是接在四條分支的某一條之後——
+        這樣不管信件走哪一類，都一定會被記錄。
+      </p>
+
+      <h2>3. 在客訴分支疊加一層IF：是否urgent</h2>
+      <p>
+        四條分支裡，只有「客訴」這一條需要進一步判斷是否需要
+        立即通知人工處理。在Switch節點的複訴分支輸出後面，
+        再接一個IF節點：
+      </p>
+      <div class="code-block">IF節點 - 條件：{{ $json.urgent }} 等於 true
+
+true分支  → 接往Slack節點（第41課），發送緊急通知
+false分支 → 不做額外動作，流程到此結束
+            （信件本身已經在前一步被記錄到試算表）</div>
+      <p>
+        這樣設計之後，「客訴＋緊急」會是整個工作流裡分支最深、
+        觸發動作最多的一條路——它既會被記錄進試算表，也會觸發
+        Slack通知；其他分支則只會被記錄，不會有額外動作。這正好
+        對應真實客服情境裡「所有信都要留紀錄，但只有真正緊急
+        的才需要立刻打斷人」的優先順序。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 680 280" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow37" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="340" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">依AI判斷結果分流</text>
+
+          <rect x="270" y="35" width="140" height="45" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="340" y="61" text-anchor="middle" font-size="9" fill="var(--text)">解析後的JSON</text>
+
+          <line x1="340" y1="80" x2="340" y2="105" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow37)"/>
+
+          <rect x="255" y="108" width="170" height="45" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="340" y="134" text-anchor="middle" font-size="9" fill="var(--accent)">Switch：依category</text>
+
+          <line x1="255" y1="130" x2="130" y2="150" stroke="var(--text-muted)" stroke-width="1" marker-end="url(#arrow37)"/>
+          <rect x="20" y="153" width="220" height="40" rx="5" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+          <text x="130" y="177" text-anchor="middle" font-size="8" fill="var(--text-muted)">question / feedback / spam</text>
+
+          <line x1="360" y1="153" x2="360" y2="178" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow37)"/>
+          <rect x="260" y="181" width="200" height="40" rx="5" fill="var(--gold)" opacity="0.14" stroke="var(--gold)" stroke-width="1.2"/>
+          <text x="360" y="205" text-anchor="middle" font-size="8.5" fill="var(--gold)">complaint → IF：urgent？</text>
+
+          <line x1="360" y1="221" x2="360" y2="246" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow37)"/>
+          <text x="378" y="238" font-size="7.5" fill="var(--text-muted)">true</text>
+          <rect x="260" y="249" width="200" height="26" rx="5" fill="#ff8a65" opacity="0.16" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="360" y="266" text-anchor="middle" font-size="8" fill="#ff8a65">🚨 接往Slack通知（第41課）</text>
+
+          <rect x="480" y="108" width="180" height="45" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="570" y="130" text-anchor="middle" font-size="8" fill="var(--text-muted)">所有分支之前，</text>
+          <text x="570" y="144" text-anchor="middle" font-size="8" fill="var(--text-muted)">都先接Google試算表</text>
+        </svg>
+        <figcaption>Switch節點依category分出四條路，其中complaint分支再疊加IF判斷urgent；所有信件不分分支都會先被記錄到試算表，只有客訴＋緊急才會多觸發Slack通知。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明這個專案為什麼同時用了Switch節點跟IF節點，各自負責什麼</li>
+          <li>寫出「客訴且緊急」分支需要滿足的兩個條件</li>
+          <li>解釋為什麼通往試算表的連線，要接在Switch節點之前而不是某一條分支之後</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        分流邏輯已經設計好了，但目前這些分支都還沒真正接上任何
+        外部系統——Slack通知只是畫在圖上的一個方框。下一課是
+        模組I的總結，會回顧AI在這個工作流裡角色的轉變，並銜接
+        到模組J：把這些分支真正接上信件、試算表、Slack等外部
+        系統。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：解析LLM回傳的JSON</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：模組總結：AI從「回答問題」變成「做決策」 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

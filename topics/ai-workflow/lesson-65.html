@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 65 課：地端部署的網路隔離與存取控制 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="地端部署不代表自動安全：n8n若監聽所有網路介面卻沒有驗證，同一網路上的任何人都可能打開你的工作流編輯器。這一課談啟用n8n內建的使用者驗證、把實例留在私有網路或VPN後面，以及真的需要遠端存取時如何用反向代理加HTTPS">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 65 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 Q｜安全性與資料隱私考量 · 第 65 課</div>
+      <h1>地端部署的網路隔離與存取控制</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「資料留在地端」跟「這台機器對網路是安全的」是兩件各自獨立的事</li>
+          <li>知道怎麼啟用n8n內建的使用者驗證，避免任何連得到這台機器的人都能打開你的工作流編輯器</li>
+          <li>認識網路層級的防護做法：把實例留在私有網路或VPN後面，真的需要遠端存取時用反向代理搭配HTTPS</li>
+        </ul>
+      </div>
+
+      <p>
+        第2課談過選擇地端LLM的核心理由之一，是資料不會離開
+        你自己的環境——不用把信件內容、內部文件送到第三方
+        API供應商那裡。但這門課走到這裡，也該誠實面對一件
+        容易被忽略的事：「資料留在地端」解決的是<strong>資料
+        隱私</strong>問題，完全沒有處理<strong>誰能連到這台
+        機器</strong>這個獨立的問題。一個沒有驗證機制、又監聽
+        著所有網路介面的n8n實例，就算資料從頭到尾沒有離開你的
+        區網，同一個Wi-Fi、同一個辦公網路上的任何人，理論上
+        都能打開你的工作流編輯器——看到你的憑證設定、你的
+        Prompt邏輯，甚至直接執行或修改整套流程。模組Q要補上
+        的，就是這一塊「地端」本身並不會自動幫你做好的存取
+        控制。
+      </p>
+
+      <h2>1. 「地端」解決的問題，跟它沒解決的問題</h2>
+      <p>
+        把這兩件事分開看，會清楚很多。<strong>資料隱私</strong>
+        問的是「這筆資料的內容，會不會被送到我信任範圍以外的
+        地方」——選擇Ollama而不是雲端API，答案就是不會。
+        <strong>存取控制與網路安全</strong>問的則是完全不同的
+        問題：「誰能連上這台跑著n8n與Ollama的機器，看到或
+        操作上面的東西」。這兩件事沒有因果關係——一套完全
+        地端執行的系統，如果對外開了個沒有驗證的埠，安全性
+        可能反而不如一套有妥善驗證、放在受信任網路後面的
+        雲端服務。地端只是把「資料主權」這件事握在自己手上，
+        接下來的存取控制，還是得自己動手做。
+      </p>
+
+      <h2>2. 啟用n8n內建的使用者驗證</h2>
+      <p>
+        自架的n8n第一次啟動時，通常會要求你建立一個擁有者
+        帳號（電子郵件與密碼），這套內建的使用者管理機制，
+        是自架n8n最基本、也最應該保留啟用的一道防線——沒有
+        它，任何打開這個網址的人都能直接進到編輯器裡。如果
+        用的是比較舊版本、或想在使用者管理之外再加一層驗證，
+        n8n也提供一組環境變數可以啟用HTTP基本驗證（Basic
+        Auth），在瀏覽器打開編輯器網址前，先要求輸入帳號
+        密碼：
+      </p>
+
+      <div class="code-block">services:
+  n8n:
+    image: n8nio/n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=admin
+      - N8N_BASIC_AUTH_PASSWORD=請改成你自己的高強度密碼
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:</div>
+
+      <p>
+        這裡有個容易被忽略、但同樣重要的細節：上面這份設定
+        把連接埠對應寫成<code>127.0.0.1:5678:5678</code>，
+        而不是單純的<code>5678:5678</code>。前者只讓「這台
+        主機自己」能連到n8n，後者則會讓n8n在這台機器所有
+        網路介面上都能被連到——如果這台機器同時連著區網，
+        等於直接把編輯器暴露給整個區網。驗證機制與網路層級
+        的存取範圍，是兩道應該同時存在、而不是互相替代的
+        防線。
+      </p>
+
+      <h2>3. 把實例留在私有網路，而不是直接暴露在公網</h2>
+      <p>
+        對這門課的旗艦專案來說，n8n與Ollama通常沒有理由被
+        整個公開網際網路連到——它們服務的是你自己（或你的
+        團隊），不是不特定的外部使用者。實務上的原則很簡單：
+        預設把它們留在私有網路裡，不要在路由器上做連接埠
+        轉發（port forwarding）把它們直接暴露出去。真的需要
+        在外面（例如出差、換一台裝置）連回家裡或公司這套
+        系統時，比較穩妥的做法是先透過VPN連進那個私有網路，
+        再用內部位址存取n8n——像Tailscale、WireGuard這類
+        工具，就是目前常被用來架設這種「只給自己人用」的
+        私有連線的常見選擇。這樣一來，n8n本身完全不需要直接
+        面對公開網際網路。
+      </p>
+
+      <h2>4. 真的需要遠端存取時：反向代理搭配HTTPS</h2>
+      <p>
+        如果情境上真的需要讓n8n可以被外部直接連線（例如要
+        跟需要固定回呼網址的第三方服務整合），不建議讓瀏覽器
+        直接連到n8n監聽的那個連接埠。比較穩妥的做法，是在
+        前面架一層反向代理（例如nginx、Caddy這類工具），
+        由它負責處理HTTPS憑證、終止TLS連線，再把請求轉發到
+        內部的n8n連接埠。這樣做的好處是：帳號密碼、Session
+        Cookie這些敏感內容，在離開這台機器之前就已經是加密
+        過的，不會用明文HTTP在網路上傳輸；反向代理本身也可以
+        額外加上一層存取限制（例如只允許特定IP、或額外的
+        基本驗證），變成第二道防線。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩種地端部署狀態的對比</text>
+
+          <rect x="30" y="45" width="270" height="220" rx="8" fill="#ff8a65" opacity="0.08" stroke="#ff8a65" stroke-width="1.2"/>
+          <text x="165" y="68" text-anchor="middle" font-size="10.5" fill="#ff8a65">只做到「資料留在地端」</text>
+
+          <rect x="48" y="82" width="234" height="24" rx="4" fill="var(--surface)" stroke="#ff8a65" stroke-width="1"/>
+          <text x="165" y="98" text-anchor="middle" font-size="8.5" fill="var(--text)">沒有啟用使用者驗證</text>
+
+          <rect x="48" y="112" width="234" height="24" rx="4" fill="var(--surface)" stroke="#ff8a65" stroke-width="1"/>
+          <text x="165" y="128" text-anchor="middle" font-size="8.5" fill="var(--text)">監聽所有網路介面</text>
+
+          <rect x="48" y="142" width="234" height="24" rx="4" fill="var(--surface)" stroke="#ff8a65" stroke-width="1"/>
+          <text x="165" y="158" text-anchor="middle" font-size="8.5" fill="var(--text)">直接對公網開連接埠</text>
+
+          <rect x="48" y="182" width="234" height="70" rx="4" fill="none" stroke="#ff8a65" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="165" y="204" text-anchor="middle" font-size="8.5" fill="var(--text)">同網路上的任何人</text>
+          <text x="165" y="220" text-anchor="middle" font-size="8.5" fill="var(--text)">都能打開編輯器、</text>
+          <text x="165" y="236" text-anchor="middle" font-size="8.5" fill="var(--text)">看到憑證與流程邏輯</text>
+
+          <rect x="340" y="45" width="270" height="220" rx="8" fill="var(--accent)" opacity="0.08" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="475" y="68" text-anchor="middle" font-size="10.5" fill="var(--accent)">加上存取控制</text>
+
+          <rect x="358" y="82" width="234" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="475" y="98" text-anchor="middle" font-size="8.5" fill="var(--text)">啟用使用者驗證</text>
+
+          <rect x="358" y="112" width="234" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="475" y="128" text-anchor="middle" font-size="8.5" fill="var(--text)">綁定私有網路或VPN</text>
+
+          <rect x="358" y="142" width="234" height="24" rx="4" fill="var(--surface)" stroke="var(--accent)" stroke-width="1"/>
+          <text x="475" y="158" text-anchor="middle" font-size="8.5" fill="var(--text)">遠端存取走反向代理＋HTTPS</text>
+
+          <rect x="358" y="182" width="234" height="70" rx="4" fill="none" stroke="var(--accent)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="475" y="204" text-anchor="middle" font-size="8.5" fill="var(--text)">只有被授權的人，</text>
+          <text x="475" y="220" text-anchor="middle" font-size="8.5" fill="var(--text)">能連到並打開這套</text>
+          <text x="475" y="236" text-anchor="middle" font-size="8.5" fill="var(--text)">地端自動化系統</text>
+        </svg>
+        <figcaption>「資料留在地端」只解決了隱私問題；有沒有做好使用者驗證、網路層級的存取範圍與遠端連線加密，是完全獨立、需要另外處理的存取控制問題。</figcaption>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋「資料隱私」跟「存取控制／網路安全」為什麼是兩個彼此獨立、需要分別處理的問題</li>
+          <li>說明啟用n8n的使用者驗證，跟把連接埠只綁定在127.0.0.1，這兩件事分別防護的是什麼</li>
+          <li>說明為什麼真的需要遠端存取n8n時，建議透過反向代理搭配HTTPS，而不是讓瀏覽器直接連到n8n的連接埠</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要處理一個沒辦法單純靠「留在私有網路」解決的
+        情境：Webhook端點常常必須暴露在公網上，才能接收外部
+        服務送進來的事件。下一課要談怎麼在這個必要的暴露面
+        上，做好驗證與基本防護。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-64.html">← 上一課：模組總結：工作流出問題時該從哪裡查起</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-66.html">下一課：保護暴露在外的Webhook端點 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：執行測試與查看結果 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="實際執行工作流，用n8n每個節點都可以點開查看的輸入輸出資料，逐節點確認信件內容正確流進Prompt，也確認LLM真的回傳了合理的分類結果">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜實作範例①：第一個自動化流程 · 第 29 課</div>
+      <h1>執行測試與查看結果</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>實際手動執行這個三節點工作流，並理解執行結果在畫布上是怎麼呈現的</li>
+          <li>學會點開任一節點查看它的輸入（Input）與輸出（Output）資料，而不是只看最後結果</li>
+          <li>逐節點確認信件資料正確流動、Prompt組裝正確、LLM的回應符合預期</li>
+        </ul>
+      </div>
+
+      <p>
+        前兩課把Manual Trigger、Set節點、聊天模型節點依序接好，
+        這一課要做的事很單純但很關鍵：實際按下執行，然後不要
+        只看最終有沒有跑完，而是養成逐節點檢查資料的習慣。這
+        個習慣會在往後所有課程反覆用到——當流程變複雜、節點
+        變多之後，逐節點檢查資料正是最基本、也最有效的除錯
+        手段。
+      </p>
+
+      <h2>1. 手動執行整條工作流</h2>
+      <p>
+        在n8n編輯器畫布上，點擊Manual Trigger節點本身的執行
+        按鈕（或畫布上的「Execute Workflow」按鈕），工作流會
+        依照節點之間的連線順序，從Manual Trigger開始，依序執行
+        Set節點、再執行聊天模型節點。執行完成後，每個成功執行
+        過的節點外框會顯示一個打勾的標記，代表這個節點有正常
+        產生輸出，並把資料傳給下一個節點。
+      </p>
+
+      <h2>2. 點開節點，查看它的輸入與輸出</h2>
+      <p>
+        n8n最實用的除錯功能之一，就是執行完之後可以點開任何
+        一個節點，切換查看它的<strong>Input</strong>（這個節點
+        收到的資料）跟<strong>Output</strong>（這個節點處理完
+        之後往下傳的資料），兩者都會用可展開的JSON樹狀結構
+        呈現。這一課依序點開三個節點檢查：
+      </p>
+      <ul>
+        <li><strong>Manual Trigger</strong>：Output應該看得到
+          手動填入的原始資料</li>
+        <li><strong>Set節點</strong>：Input會是Manual Trigger
+          的輸出，Output則應該是整理成<code>subject</code>、
+          <code>body</code>、<code>sender</code>這幾個乾淨欄位
+          的結構</li>
+        <li><strong>聊天模型節點</strong>：Input可以看到組裝好、
+          表達式已經被換成實際值的完整Prompt文字；Output則是
+          Ollama背後模型實際回傳的文字內容</li>
+      </ul>
+
+      <div class="code-block">// 聊天模型節點的Output範例（實際文字回應）
+"這封信件屬於「客訴」類型。客戶表示訂單已下單兩週仍未出貨，
+且客服信件未獲回覆，並提及若持續未處理將申請退款，語氣中
+帶有明顯不滿與催促意味。"</div>
+      <p>
+        這個結果符合預期——上一課手動填入的範例信件內容，語氣
+        確實比較接近客訴，LLM給出的判斷也合理。這一步驟確認了
+        兩件事：資料真的正確流過每一個節點，以及LLM真的有讀懂
+        送進去的內容並給出有意義的回應。
+      </p>
+
+      <h2>3. 如果某個節點的輸出不如預期，該怎麼查</h2>
+      <p>
+        逐節點檢查的價值，正是在結果不如預期時能快速定位問題
+        出在哪一段。幾個常見狀況：
+      </p>
+      <ul>
+        <li><strong>Set節點的Output欄位是空的</strong>——通常
+          代表欄位名稱設定打錯字，或是引用了錯誤的上游欄位</li>
+        <li><strong>聊天模型節點的Input裡，表達式沒有被換成
+          實際文字</strong>——例如Prompt裡還看得到原始的
+          <code>{{ $json.subject }}</code>而不是實際內容，
+          通常是表達式語法寫錯（例如少了大括號），或是引用了
+          不存在的欄位名稱</li>
+        <li><strong>聊天模型節點執行直接報錯</strong>——先檢查
+          Ollama服務是否還在本機執行中（第6課的
+          <code>ollama run</code>或背景服務），以及節點裡指定
+          的模型名稱是否跟本機已拉取的模型一致</li>
+      </ul>
+
+      <div class="callout">
+        <h3>養成習慣：先看Input，再看Output</h3>
+        <p>
+          遇到某個節點結果怪怪的，直覺常常是先去看它的Output，
+          但更有效的順序其實是先看它的<strong>Input</strong>——
+          確認它收到的資料本身就是對的，問題往往出在上一個節點
+          傳過來的資料就已經不對，而不是這個節點自己處理錯誤。
+          這個「往上游排查」的習慣，在流程節點變多之後會特別
+          省時間。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明在n8n裡怎麼查看某個節點執行後的Input與Output資料</li>
+          <li>列出至少兩種「聊天模型節點結果不如預期」時，可能的排查方向</li>
+          <li>解釋為什麼遇到問題時，建議先檢查Input而不是直接看Output</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課是模組G的總結：回顧從觸發到LLM回應這一整條迴路
+        現在已經打通了，也會先點出這個版本還很粗糙的地方——
+        Prompt還是寫死給單一情境用的、LLM的回應也還只是一段
+        自然語言文字，不是工作流可以直接拿來做判斷的結構化
+        資料，替接下來的模組H、I埋下伏筆。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：串上LLM處理節點</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：模組總結：從觸發到AI回應的完整迴路 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

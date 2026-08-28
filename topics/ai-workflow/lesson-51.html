@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：用Ollama產生嵌入向量 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="動手實作：用ollama pull下載nomic-embed-text這個專門的嵌入模型，並呼叫Ollama的/api/embeddings端點，把一段文字變成向量，讓RAG的嵌入步驟也留在地端">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜在n8n中實作簡易RAG · 第 51 課</div>
+      <h1>用Ollama產生嵌入向量</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道Ollama除了跑聊天／生成模型，也能提供專門的嵌入模型</li>
+          <li>學會用<code>ollama pull</code>下載嵌入模型，並呼叫嵌入相關的API端點</li>
+          <li>理解這一步為什麼讓RAG的嵌入運算也留在地端，符合這門課的隱私目標</li>
+        </ul>
+      </div>
+
+      <p>
+        模組L把RAG的概念講完了，模組M開始動手，把這套概念真正
+        在n8n跟Ollama上做出來。第一步要解決的，是準備階段跟
+        查詢階段都需要的同一個能力：把一段文字，轉換成嵌入
+        向量。這一課先確認Ollama本身就能做到這件事，不需要
+        另外接一個雲端的嵌入服務。
+      </p>
+
+      <h2>1. Ollama不只能跑聊天模型，也能跑嵌入模型</h2>
+      <p>
+        前面模組B、C介紹Ollama時，重點都放在下載並執行聊天／
+        生成用的模型（例如llama3這類模型），用來做文字理解、
+        摘要、分類。但Ollama的模型庫裡，還有一類專門設計來
+        產生嵌入向量的模型，跟聊天模型是不同用途、也通常是
+        不同架構的模型。這代表RAG需要的「文字轉向量」這一步，
+        不需要跳出Ollama去接其他工具，直接沿用同一套地端環境
+        就能完成。
+      </p>
+
+      <h2>2. 下載一個嵌入模型：nomic-embed-text</h2>
+      <p>
+        跟下載聊天模型的方式一樣（回顧模組B），嵌入模型也是用
+        <code>ollama pull</code>指令下載。<code>nomic-embed
+        -text</code>是一個專門設計來產生文字嵌入向量的模型，
+        是Ollama模型庫裡常見的嵌入模型選項之一：
+      </p>
+      <div class="code-block">$ ollama pull nomic-embed-text</div>
+      <p>
+        下載完成後，這個模型就會出現在本機Ollama已安裝的模型
+        清單裡（可以用<code>ollama list</code>確認），跟其他
+        聊天模型並列，差別只在於它的用途是產生向量，而不是
+        生成一段回應文字。
+      </p>
+
+      <h2>3. 呼叫嵌入API：/api/embeddings</h2>
+      <p>
+        模組C介紹過Ollama會在本機開一個REST API，模組F則用
+        HTTP Request節點呼叫過生成用的端點。嵌入模型有自己
+        對應的端點<code>/api/embeddings</code>，呼叫方式是
+        POST一段JSON，指定要用哪個模型、要轉換的文字內容：
+      </p>
+      <div class="code-block">$ curl http://localhost:11434/api/embeddings -d '{
+  "model": "nomic-embed-text",
+  "prompt": "退款流程說明：申請退費請先聯絡客服"
+}'</div>
+      <p>
+        回傳的內容裡會包含一個<code>embedding</code>欄位，
+        裡面是一長串浮點數——這就是第48課講的向量本身，數字
+        的個數（維度）由模型決定，同一個模型每次輸出的維度是
+        固定的。在n8n裡，這一步可以用HTTP Request節點呼叫這個
+        端點，也可以用第23課介紹過的n8n內建AI節點裡對應嵌入
+        用途的節點，把回傳的向量交給下一步（第52課要接的向量
+        資料庫節點）處理。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow51" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">嵌入這一步，同樣留在地端</text>
+
+          <rect x="30" y="45" width="160" height="55" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="110" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">一段文字</text>
+          <text x="110" y="84" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">chunk 或 使用者問題</text>
+
+          <line x1="190" y1="72" x2="225" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow51)"/>
+
+          <rect x="230" y="40" width="200" height="65" rx="6" fill="var(--gold)" opacity="0.15" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="330" y="63" text-anchor="middle" font-size="9.5" fill="var(--gold)">Ollama：nomic-embed-text</text>
+          <text x="330" y="80" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">POST /api/embeddings</text>
+          <text x="330" y="93" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">在本機執行，資料不出機器</text>
+
+          <line x1="430" y1="72" x2="465" y2="72" stroke="var(--text-muted)" stroke-width="1.2" marker-end="url(#arrow51)"/>
+
+          <rect x="470" y="45" width="150" height="55" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="545" y="68" text-anchor="middle" font-size="8.5" fill="var(--accent)">嵌入向量</text>
+          <text x="545" y="84" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">一長串浮點數</text>
+
+          <rect x="30" y="130" width="590" height="50" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="325" y="152" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">從文件內容到嵌入向量，全程都在本機的Ollama裡完成</text>
+          <text x="325" y="169" text-anchor="middle" font-size="8" fill="var(--text-muted)">連「嵌入」這一步都不需要把資料送到任何外部服務</text>
+        </svg>
+        <figcaption>不管是準備階段的文件chunk，還是查詢階段的使用者問題，都是呼叫本機Ollama的/api/embeddings端點取得向量，RAG流程裡沒有任何一步需要把私有文件內容送出這台機器。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>呼應這門課的核心目標：資料全程留在地端</h3>
+        <p>
+          第2課建立了這門課選擇地端LLM的理由：隱私、成本、
+          離線、資料主權。如果RAG的嵌入步驟改用雲端的嵌入
+          服務，就代表你的私有文件內容——即使只是拿去算成
+          一組向量——還是離開了自己的機器。用Ollama本機產生
+          嵌入向量，讓RAG這整套新能力，同樣符合「資料不出自己
+          環境」的原則，這也是這門課選擇用Ollama而不是雲端
+          嵌入API的原因。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出下載nomic-embed-text這個嵌入模型所需要的指令</li>
+          <li>說明呼叫Ollama嵌入API時，要送出哪些主要參數，回傳內容裡最關鍵的欄位是什麼</li>
+          <li>解釋為什麼用Ollama本機產生嵌入向量，比接雲端嵌入服務更符合這門課的目標</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 52 課：在n8n中串接向量資料庫節點——把上一步拿到的
+        嵌入向量，實際存進向量資料庫，並學會怎麼在n8n裡查詢它。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：模組總結：RAG的完整運作流程</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：在n8n中串接向量資料庫節點 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

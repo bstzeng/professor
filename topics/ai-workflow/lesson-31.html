@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：為什麼Prompt要模板化，而不是寫死 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="說明為什麼把信件內容直接貼進Prompt文字只能應付單一測試案例，並介紹用固定指示文字加n8n表達式佔位符組成的Prompt模板，能套用在每次執行不同的輸入資料上">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜資料前處理與Prompt設計 · 第 31 課</div>
+      <h1>為什麼Prompt要模板化，而不是寫死</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「寫死的Prompt」跟「模板化的Prompt」之間的差異，以及為什麼前者無法規模化</li>
+          <li>認識Prompt模板的組成方式：固定的指示文字，加上用表達式動態帶入的佔位符</li>
+          <li>看懂n8n表達式在Prompt模板裡扮演的角色，銜接第32、33課實際動手整理與拆分Prompt</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G收尾時點出了一個限制：目前的Prompt是針對第27課
+        那筆固定範例信件設計的一段文字，換一封完全不同的信，
+        這段文字本身也需要跟著改。模組H要解決的正是這個問題，
+        這一課先把「為什麼」講清楚，再讓第32、33課動手處理
+        「怎麼做」。
+      </p>
+
+      <h2>1. 寫死的Prompt為什麼撐不住規模化</h2>
+      <p>
+        回頭看第28課寫的那個版本：
+      </p>
+      <div class="code-block">// 第28課的第一版Prompt——已經用表達式帶入內容，但指示文字本身還很粗糙
+請幫我判斷以下這封客服信件屬於哪一種類型：
+「詢問」、「客訴」、「意見回饋」、「垃圾信」其中一種。
+
+主旨：{{ $json.subject }}
+內文：{{ $json.body }}
+
+請直接回覆分類結果。</div>
+      <p>
+        這個版本其實已經用表達式動態帶入了信件內容，這點是對的
+        方向。但「寫死」這個問題還藏在更根本的地方：這段Prompt
+        從頭到尾都是在節點設定裡用固定文字打好的，沒有經過任何
+        設計上的拆分與規劃——分類標準寫得很籠統、沒有規定LLM該
+        用什麼格式回覆、也沒有考慮到之後還要擷取寄件人跟摘要。
+        當工作流只服務一個人手動測試的一筆資料時，這樣的粗糙
+        還看不出問題；一旦要讓這個工作流真正接上Email Trigger、
+        自動處理源源不絕的真實信件（模組J的目標），這段Prompt
+        撐不住的地方就會一一浮現。
+      </p>
+
+      <h2>2. Prompt模板：固定指示 + 動態佔位符</h2>
+      <p>
+        解法是把Prompt拆成兩層來設計。<strong>固定不變的部分
+        </strong>是給LLM的角色設定、任務說明、輸出格式規定——
+        這些內容不管處理的是哪一封信，都應該保持一致，好讓
+        LLM每次執行的行為都是可預期、可重複的。<strong>會隨
+        著每次執行改變的部分</strong>是信件本身的內容——主旨、
+        內文、寄件人這些，每一封信都不一樣。第19課教過的n8n
+        表達式語法，正是用來在固定的模板文字裡，開出幾個
+        「佔位符」，讓n8n在真正執行的當下，把當前這筆資料的
+        欄位值填進去：
+      </p>
+      <div class="code-block">// Prompt模板的概念（固定文字 + 表達式佔位符）
+你是一個客服信件分類助手，任務是……（固定不變的指示）
+
+以下是這次要處理的信件：
+主旨：{{ $json.subject }}      ← 每次執行會被替換成不同的值
+內文：{{ $json.body }}         ← 每次執行會被替換成不同的值</div>
+      <p>
+        關鍵差異在於：<code>{{ $json.subject }}</code>這樣的
+        表達式寫在節點設定裡的時候，看起來像是固定文字，但
+        n8n在每一次實際執行時，都會重新計算這個表達式、抓取
+        「當下這筆資料」的值。同一份模板設定，套用在完全不同
+        的100封信上，每一次都會自動組出對應這封信內容的完整
+        Prompt——這才是真正意義上的「模板化」。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">同一份Prompt模板，套用在不同輸入上</text>
+
+          <rect x="20" y="45" width="600" height="55" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="320" y="66" text-anchor="middle" font-size="9.5" fill="var(--gold)">固定的Prompt模板（節點設定裡只寫一次）</text>
+          <text x="320" y="84" text-anchor="middle" font-size="8" fill="var(--text-muted)">角色設定＋任務說明＋輸出格式規定＋ {{ $json.subject }} ／ {{ $json.body }} 佔位符</text>
+
+          <rect x="30" y="125" width="170" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="115" y="147" text-anchor="middle" font-size="8.5" fill="var(--accent)">執行①：信件A</text>
+          <text x="115" y="164" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">佔位符填入信件A內容</text>
+
+          <rect x="235" y="125" width="170" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="320" y="147" text-anchor="middle" font-size="8.5" fill="var(--accent)">執行②：信件B</text>
+          <text x="320" y="164" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">佔位符填入信件B內容</text>
+
+          <rect x="440" y="125" width="170" height="55" rx="6" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.2"/>
+          <text x="525" y="147" text-anchor="middle" font-size="8.5" fill="var(--accent)">執行③：信件C</text>
+          <text x="525" y="164" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">佔位符填入信件C內容</text>
+
+          <text x="320" y="200" text-anchor="middle" font-size="8" fill="var(--text-muted)">模板本身完全不用改，n8n每次執行都重新計算表達式帶入當下的資料</text>
+        </svg>
+        <figcaption>Prompt模板只需要設計、撰寫一次，之後每次執行都由n8n自動把當下這筆資料的欄位值填進佔位符。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>先確保資料乾淨，模板才會可靠</h3>
+        <p>
+          Prompt模板要能穩定運作，前提是每次填進去的欄位值本身
+          是乾淨、格式一致的——如果上游節點傳來的subject有時候
+          是空的、有時候欄位名稱不一樣，模板再怎麼設計得漂亮也
+          會出錯。這正是下一課要處理的事：用Set節點在送進Prompt
+          之前，先把資料整理成穩定、一致的結構。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明「寫死的Prompt」跟「模板化的Prompt」差在哪裡</li>
+          <li>解釋Prompt模板裡，哪些內容應該固定不變、哪些應該用表達式動態帶入</li>
+          <li>說明為什麼表達式佔位符能讓同一份模板套用在不同輸入資料上</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要動手用n8n的Set節點，在資料送進Prompt模板之前
+        先做一次整理——把觸發器原始輸出的雜亂欄位，轉換成
+        subject、body、sender這幾個乾淨、一致的欄位，讓模板
+        更簡單、也更不容易因為上游資料格式改變而壞掉。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：模組總結：從觸發到AI回應的完整迴路</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：用n8n的Set節點整理輸入資料 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

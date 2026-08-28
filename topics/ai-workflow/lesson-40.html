@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：串接Google試算表：讀寫資料 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用n8n的Google Sheets節點與Append Row操作，把每一封信的時間戳、寄件者、分類、摘要，寫進一份不分分類、每封信都會留下紀錄的稽核試算表">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜串接外部系統 · 第 40 課</div>
+      <h1>串接Google試算表：讀寫資料</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識n8n的Google Sheets節點，以及Append Row這個操作在做什麼</li>
+          <li>能設定Google帳號憑證，並把節點指向正確的試算表與工作表</li>
+          <li>能把分類後的時間戳、寄件者、分類、摘要，正確對應寫進試算表欄位</li>
+        </ul>
+      </div>
+
+      <p>
+        第39課讓工作流能自動讀到真實信件，第37課也已經設計好
+        「不分分類，都要先被記錄」的連線位置。這一課要把那條
+        連線真正接上：用Google Sheets節點，把每一封處理過的信，
+        寫成試算表裡的一列紀錄。
+      </p>
+
+      <h2>1. 為什麼需要一份「每一封信都會被記錄」的稽核紀錄</h2>
+      <p>
+        就算大部分信件不是緊急客訴，也不代表這些資料不重要——
+        一般問題、意見回饋、甚至被判定為垃圾信的內容，都可能
+        是之後回頭檢視「AI分類得準不準」「哪一類信件變多了」
+        的重要依據。這也是為什麼第37課刻意把這條連線放在Switch
+        節點「之前」：不管信件最後走哪一條分支，都要先留下
+        一筆紀錄，而不是只記錄被判定為緊急的那一小部分。
+      </p>
+
+      <h2>2. Google Sheets節點與Append Row操作</h2>
+      <p>
+        n8n的Google Sheets節點支援多種操作，包括讀取列、更新
+        既有列、刪除列等，這裡要用的是<strong>Append Row</strong>
+        （新增列）——每次這個節點執行，就在指定工作表的最後面
+        新增一列資料，不會動到既有的任何一列。這正好符合稽核
+        紀錄的需求：每封信一列，資料只會累加，不會被覆蓋。
+      </p>
+
+      <h2>3. 建立OAuth憑證與試算表連線</h2>
+      <p>
+        Google Sheets節點需要透過OAuth2憑證連上一個Google帳號，
+        在n8n的憑證設定裡完成授權登入後，節點就能存取這個帳號
+        有權限的試算表。設定節點時，需要指定：
+      </p>
+      <div class="code-block">Document：目標試算表（可用試算表網址或直接從清單選取）
+Sheet：試算表裡的哪一個工作表分頁（例如"信件紀錄"）
+Operation：Append Row</div>
+
+      <h2>4. 對應欄位：時間戳、寄件者、分類、摘要</h2>
+      <p>
+        Append Row需要指定新增的這一列，每一欄要填入什麼值。
+        對應到這個專案，試算表的欄位設計跟資料來源如下：
+      </p>
+      <table>
+        <thead>
+          <tr><th>試算表欄位</th><th>對應的n8n表達式</th><th>資料來源</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>時間戳</td><td><code>{{ $now }}</code></td><td>節點執行當下的時間</td></tr>
+          <tr><td>寄件者</td><td><code>{{ $json.from }}</code></td><td>第39課Email Trigger的欄位</td></tr>
+          <tr><td>分類</td><td><code>{{ $json.category }}</code></td><td>第36課解析出的欄位</td></tr>
+          <tr><td>摘要</td><td><code>{{ $json.summary }}</code></td><td>第36課解析出的欄位</td></tr>
+        </tbody>
+      </table>
+      <p>
+        因為這個節點接在Code解析節點之後、Switch節點之前，
+        所以能同時拿到來自Email Trigger的原始欄位（寄件者），
+        以及LLM分類後解析出來的欄位（分類、摘要），一次寫進
+        同一列裡。
+      </p>
+
+      <div class="callout">
+        <h3>小提醒：欄位名稱要跟試算表表頭完全對應</h3>
+        <p>
+          n8n的Google Sheets節點通常會依照試算表第一列的表頭
+          名稱，讓你選取每一欄要填入哪個值。實務上建議先在
+          試算表裡手動建好表頭列（例如「時間戳、寄件者、分類、
+          摘要」），再回到n8n設定節點，避免欄位對應錯亂、寫錯
+          到隔壁欄位。
+        </p>
+      </div>
+
+      <h2>5. 這份試算表適合的規模</h2>
+      <p>
+        試算表的優點是設定快、每個人都看得懂、不需要額外的
+        資料庫知識，很適合信件量不算太大、主要是給人回頭查看
+        的稽核紀錄。但試算表也有極限——當資料量成長到一定
+        程度，或是有其他系統需要用程式查詢這份紀錄時，試算表
+        就不一定是最合適的選擇了，這是第42課要補上的另一種
+        選項。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明Append Row操作跟其他操作（例如更新既有列）之間的差異</li>
+          <li>列出這個專案的稽核紀錄需要對應的四個欄位，以及各自的資料來源</li>
+          <li>解釋為什麼寫入試算表的節點要接在Switch節點之前，而不是某一條分支之後</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        稽核紀錄解決了「每一封信都留底」的需求，但客訴＋緊急的
+        信件還需要更即時的提醒，不能只靠有人剛好去打開試算表
+        查看。下一課要把Slack節點接上第37課設計好的IF節點true
+        分支，讓緊急客訴真的能觸發一則即時通知。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：串接Email：讀取與寄送</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：串接Slack／通訊軟體：發送通知 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

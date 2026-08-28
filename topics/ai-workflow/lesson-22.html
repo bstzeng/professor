@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：HTTP Request節點：呼叫Ollama API的通用做法 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="用n8n最通用的HTTP Request節點，對Ollama本機API的/api/generate端點發出POST請求，設定包含model、prompt與stream:false的JSON Body，拿到地端LLM的完整回覆">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜讓n8n接上Ollama · 第 22 課</div>
+      <h1>HTTP Request節點：呼叫Ollama API的通用做法</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>能用n8n的HTTP Request節點，對Ollama本機API發出一個POST請求</li>
+          <li>能寫出正確的JSON Body，包含model、prompt（或messages）跟stream:false</li>
+          <li>理解為什麼要先關掉streaming，才能在n8n裡一次拿到完整的回覆</li>
+        </ul>
+      </div>
+
+      <p>
+        第10～13課用curl確認過，Ollama裝好之後，本機的
+        <code>11434</code>埠會提供一組REST API，可以讓外部
+        工具送出請求、拿到LLM的回覆。這一課要做的事很直接：
+        把curl換成n8n裡的<strong>HTTP Request</strong>節點——
+        一個能對任何HTTP API發出請求的通用節點，讓工作流本身
+        能直接跟Ollama對話。
+      </p>
+
+      <h2>1. 為什麼先從HTTP Request開始</h2>
+      <p>
+        n8n除了HTTP Request這種通用節點，也有專門為AI功能
+        設計的節點（第23課會介紹）。但這一課刻意先從最基本、
+        最手動的HTTP Request開始，原因是它能讓你清楚看到「n8n
+        跟Ollama之間，實際上傳送跟收到的是什麼」——這件事一旦
+        搞懂了，之後不管是用專門的AI節點，還是遇到任何目前
+        沒有專用節點支援的HTTP API，都知道底層在做什麼、卡住
+        時要去哪裡除錯。HTTP Request節點的另一個優點，是它
+        對Ollama、對任何其他REST API都是同一套用法，屬於一次
+        學會、到處都能用的技能。
+      </p>
+
+      <h2>2. 設定Method與URL</h2>
+      <p>
+        把HTTP Request節點的方法設為<code>POST</code>，網址
+        填入Ollama的生成端點：
+      </p>
+      <div class="code-block">http://localhost:11434/api/generate</div>
+      <div class="callout">
+        <h3>小提醒：n8n裝在Docker裡時，localhost可能行不通</h3>
+        <p>
+          回顧第14課安裝n8n時Docker跟npm兩種方式的差異：如果
+          n8n是用npm直接跑在主機上，<code>localhost:11434</code>
+          通常沒問題，因為n8n跟Ollama在同一台主機上。但如果
+          n8n是跑在Docker容器裡，容器內的<code>localhost</code>
+          指的是容器自己，連不到主機上的Ollama——這時候依平台
+          不同，常見的替代寫法是用<code>host.docker.internal</code>
+          取代<code>localhost</code>，或是調整容器的網路設定，
+          讓容器能連到主機的服務。
+        </p>
+      </div>
+
+      <h2>3. 設定JSON Body</h2>
+      <p>
+        把Body的格式設為JSON，內容至少要包含<code>model</code>
+        （要使用的模型名稱，回顧第6課拉取模型時用的名稱）、
+        <code>prompt</code>（要問的內容），以及很重要的一項：
+        <code>"stream": false</code>：
+      </p>
+      <div class="code-block">{
+  "model": "llama3",
+  "prompt": "用一句話解釋什麼是工作流",
+  "stream": false
+}</div>
+      <p>
+        Ollama的API預設會用串流（streaming）的方式回覆——把
+        回應拆成一段一段的JSON物件陸續送回來，這種格式對於
+        像網頁聊天視窗這種需要「邊生成邊顯示」的場景很合適，
+        但對n8n這種工作流節點來說並不方便處理。把
+        <code>stream</code>設為<code>false</code>，Ollama就會
+        等模型完整生成完畢，一次性回傳一個完整的JSON物件，
+        跟HTTP Request節點預設的處理方式相符。如果想用對話式
+        的<code>/api/chat</code>端點，Body則改用
+        <code>messages</code>陣列：
+      </p>
+      <div class="code-block">{
+  "model": "llama3",
+  "messages": [
+    { "role": "user", "content": "用一句話解釋什麼是工作流" }
+  ],
+  "stream": false
+}</div>
+
+      <h2>4. 執行並查看回應</h2>
+      <p>
+        設定完成後點選節點右上角的執行按鈕（或執行整個工作流），
+        Ollama處理完之後，<code>/api/generate</code>回傳的JSON
+        裡，實際的文字內容會放在<code>response</code>這個欄位；
+        如果用的是<code>/api/chat</code>，文字則放在
+        <code>message.content</code>裡。之後如果要在下一個
+        節點裡用到這段回覆文字，就會回到第19課學過的表達式
+        寫法，例如：
+      </p>
+      <div class="code-block">{{ $json.response }}</div>
+      <p>
+        這也是這一課最值得記住的地方：不管接的是Ollama還是
+        任何其他HTTP API，HTTP Request節點的輸出，一樣會被
+        包成模組E介紹過的item陣列，後面接的節點完全不需要
+        知道這筆資料原本是怎麼從Ollama拿回來的。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出對Ollama的/api/generate端點發出POST請求，該填入的URL跟JSON Body</li>
+          <li>說明為什麼Body裡通常要加上"stream": false</li>
+          <li>說明/api/generate跟/api/chat兩種端點回傳的文字內容，各自放在哪個欄位</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課要看n8n另一種接上Ollama的方式：內建的AI節點——
+        這組節點是以LangChain為基礎打造的，不需要自己手動組
+        JSON Body，設定方式也跟HTTP Request節點完全不同。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：模組總結：資料在工作流裡是怎麼流動的</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：n8n內建的AI節點：LangChain整合與聊天模型節點 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：模組總結：地端LLM準備好被工作流呼叫了 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="模組C總結：回顧Ollama原生API與OpenAI相容格式如何讓地端LLM從終端機互動工具，變成能被任何外部程式呼叫的標準HTTP服務，並銜接模組D的n8n安裝">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Ollama的API · 第 13 課</div>
+      <h1>模組總結：地端LLM準備好被工作流呼叫了</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>整理模組C三堂課的完整收穫：從REST API的概念，到curl的實測驗證，再到OpenAI相容格式的橋樑</li>
+          <li>確認自己具備「呼叫地端LLM」需要的最基本能力，才能進入模組D開始架設n8n</li>
+          <li>建立銜接下一模組的心理模型：LLM已就緒，接下來要架的是會去呼叫它的平台</li>
+        </ul>
+      </div>
+
+      <p>
+        模組B讓地端LLM能在你自己的電腦上執行，模組C則是把它
+        從「只能在終端機裡跟一個人對話」的狀態，往前推進了
+        一大步——變成一個能被任何外部程式呼叫的標準HTTP
+        服務。這一課把三堂課的內容收攏起來，準備進入模組D。
+      </p>
+
+      <h2>模組C做了什麼：三堂課的完整脈絡</h2>
+      <p>
+        第10課認識到<code>ollama run</code>背後其實是在呼叫
+        一個本機的HTTP伺服器（預設監聽在
+        <code>http://localhost:11434</code>），並認識了
+        <code>/api/generate</code>（單輪生成）與
+        <code>/api/chat</code>（多輪對話）這兩個核心端點。
+        第11課親手用curl對<code>/api/generate</code>發出一個
+        真實的請求，看到JSON格式的回應——親眼確認地端LLM
+        真的能被終端機以外的程式呼叫。第12課認識到Ollama還
+        提供了一個模仿OpenAI格式的端點
+        （<code>/v1/chat/completions</code>），這讓大量原本
+        只認OpenAI的既有工具，只要換一個base URL，幾乎不用
+        改程式碼就能改呼叫地端模型。
+      </p>
+
+      <h2>現在你手上有什麼</h2>
+      <p>
+        一顆能透過標準REST API呼叫的地端LLM，而且是用兩種
+        「方言」同時提供服務：Ollama自己的原生格式，以及
+        OpenAI相容格式。任何能發出HTTP請求的工具——包括之後
+        要介紹的n8n裡的HTTP Request節點，或是它內建、原本
+        設計給OpenAI用的AI相關節點——現在都能跟這顆模型
+        對話。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 195" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow13" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">地端LLM準備就緒的三個階段</text>
+
+          <rect x="15" y="50" width="180" height="70" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+          <text x="105" y="75" text-anchor="middle" font-size="9.5" fill="var(--text)">模組B</text>
+          <text x="105" y="92" text-anchor="middle" font-size="8" fill="var(--text-muted)">ollama run</text>
+          <text x="105" y="106" text-anchor="middle" font-size="8" fill="var(--text-muted)">只能在終端機互動</text>
+
+          <line x1="195" y1="85" x2="230" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow13)"/>
+
+          <rect x="235" y="50" width="220" height="70" rx="6" fill="var(--accent)" opacity="0.14" stroke="var(--accent)" stroke-width="1.3"/>
+          <text x="345" y="75" text-anchor="middle" font-size="9.5" fill="var(--accent)">模組C（本課）</text>
+          <text x="345" y="92" text-anchor="middle" font-size="8" fill="var(--text-muted)">REST API＋OpenAI相容格式</text>
+          <text x="345" y="106" text-anchor="middle" font-size="8" fill="var(--text-muted)">能被任何外部程式呼叫</text>
+
+          <line x1="455" y1="85" x2="490" y2="85" stroke="var(--text-muted)" stroke-width="1.3" marker-end="url(#arrow13)"/>
+
+          <rect x="495" y="50" width="130" height="70" rx="6" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="560" y="75" text-anchor="middle" font-size="9.5" fill="#ff8a65">模組D</text>
+          <text x="560" y="92" text-anchor="middle" font-size="8" fill="var(--text-muted)">n8n</text>
+          <text x="560" y="106" text-anchor="middle" font-size="8" fill="var(--text-muted)">即將登場</text>
+
+          <rect x="15" y="145" width="610" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="169" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">LLM已就緒，接下來要架的是負責呼叫它的工作流平台</text>
+        </svg>
+        <figcaption>模組B到模組C，地端LLM從只能在終端機互動的工具，變成能被任何外部程式透過HTTP API呼叫的服務——這是進入模組D的地基。</figcaption>
+      </div>
+
+      <h2>銜接模組D：誰來呼叫這個API</h2>
+      <p>
+        LLM已經準備好被呼叫了，但工作流缺少的另一半，是負責
+        「觸發、串連、送出這些HTTP請求、把結果接到下一步」
+        的骨架平台——這正是模組D要動手安裝、認識的n8n。模組D
+        會先把n8n裝起來、認識它的編輯器介面，然後動手做出
+        第一個能實際跑起來的空白工作流。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>複述模組C三堂課各自的核心結論</li>
+          <li>說明Ollama原生API與OpenAI相容格式，分別解決了什麼問題</li>
+          <li>解釋為什麼「LLM已就緒」還不等於「工作流已經完成」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組D開場——動手安裝n8n，比較<code>npx n8n</code>與
+        Docker兩種常見的安裝方式，並認識n8n預設的存取位址。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：OpenAI相容格式：為什麼這件事很重要</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：安裝n8n：Docker vs npm兩種方式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

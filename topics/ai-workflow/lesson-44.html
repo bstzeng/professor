@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：為什麼地端LLM需要更謹慎的錯誤處理 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="地端LLM在可靠度上跟雲端API有哪些本質差異——回應變慢、JSON格式不穩定、Ollama服務暫時無回應，為什麼工作流要為這些情境預先設計">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜錯誤處理與流程穩定性 · 第 44 課</div>
+      <h1>為什麼地端LLM需要更謹慎的錯誤處理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解地端LLM在可靠度上，跟雲端API相比有哪些本質上不同的失敗情境</li>
+          <li>具體列出三種地端LLM工作流特別容易遇到的問題：變慢、格式不穩定、服務暫時無回應</li>
+          <li>建立「這是地端優先策略的真實取捨，工作流要為此預先設計」的心態，作為模組K的起點</li>
+        </ul>
+      </div>
+
+      <p>
+        模組G到J，已經一路把觸發、LLM處理、輸出解析、外部系統
+        串接全部接了起來，做出一套完整的端到端自動化流程。但
+        到目前為止，示範的每一次執行幾乎都假設了「happy
+        path」——LLM準時回應、格式正確、每個節點都順利執行。
+        模組K要處理的，是這個假設不成立的時候該怎麼辦。這一課
+        先說清楚：為什麼地端LLM特別需要認真看待這件事。
+      </p>
+
+      <h2>1. 雲端API的高可靠度，是重兵器換來的</h2>
+      <p>
+        如果你用過OpenAI、Anthropic這類雲端LLM API，大概會有
+        印象：它們幾乎不會「連不上」，回應時間也相對穩定。這種
+        可靠度不是憑空而來的——雲端供應商背後是大規模、跨區域
+        分散的伺服器叢集，加上負載平衡與備援機制，任何一台機器
+        出問題，流量會自動轉往其他健康的節點。這整套高可用
+        基礎設施的成本，其實已經隱含在API的計費裡了，只是使用
+        端通常感覺不到。
+      </p>
+
+      <h2>2. 地端LLM要多考慮的三種失敗情境</h2>
+      <p>
+        當你把LLM從雲端API換成自己電腦上跑的Ollama（回顧第2課
+        選擇地端的理由），前面那套重兵器基礎設施就不存在了——
+        取而代之的是一台機器、一張顯卡（或甚至只有CPU）、有限
+        的記憶體。這代表工作流要多預先想到幾種情境：
+      </p>
+      <ul>
+        <li><strong>回應時間可能明顯變慢</strong>——本機運算資源
+          有限，模型較大、輸入內容較長、或機器同時在處理其他
+          工作時，一次生成可能要等上好幾秒甚至更久，容易超過
+          工作流節點設定的逾時（timeout）</li>
+        <li><strong>不一定每次都吐出合法的JSON</strong>——回顧
+          第36課解析LLM輸出的JSON，規模較小的地端模型偶爾會
+          在第一次嘗試時，輸出格式跟指示的結構有落差（多一段
+          說明文字、少一個括號），需要有處理這種情況的機制</li>
+        <li><strong>Ollama服務本身可能暫時無法連線</strong>——
+          可能是服務還沒啟動、因系統資源不足而被中止、或是
+          連接埠被其他程式佔用，這種時候整個HTTP請求會直接
+          失敗，而不是「回應比較慢」而已</li>
+      </ul>
+
+      <div class="code-block">$ curl -s http://localhost:11434/api/generate \
+  -d '{"model":"llama3","prompt":"test"}'
+curl: (7) Failed to connect to localhost port 11434: Connection refused</div>
+      <p>
+        這是Ollama服務沒有在跑（或還沒啟動完成）時，n8n裡的
+        HTTP Request節點會遇到的典型錯誤——連線在還沒拿到任何
+        回應之前就直接被拒絕，跟「LLM想比較久」是完全不同層次
+        的問題，需要不同的因應方式。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow44" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-muted)"/>
+            </marker>
+          </defs>
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">雲端API vs 地端Ollama：可靠度的來源不同</text>
+
+          <rect x="30" y="45" width="260" height="90" rx="6" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.3"/>
+          <text x="160" y="68" text-anchor="middle" font-size="10" fill="var(--gold)">雲端LLM API</text>
+          <text x="160" y="87" text-anchor="middle" font-size="8" fill="var(--text-muted)">跨區域叢集、負載平衡、備援</text>
+          <text x="160" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">高可用性內含在計費裡</text>
+          <text x="160" y="120" text-anchor="middle" font-size="8" fill="var(--text-muted)">失敗情境相對單純</text>
+
+          <rect x="350" y="45" width="260" height="90" rx="6" fill="#ff8a65" opacity="0.14" stroke="#ff8a65" stroke-width="1.3"/>
+          <text x="480" y="68" text-anchor="middle" font-size="10" fill="#ff8a65">地端Ollama</text>
+          <text x="480" y="87" text-anchor="middle" font-size="8" fill="var(--text-muted)">一台機器、有限運算資源</text>
+          <text x="480" y="102" text-anchor="middle" font-size="8" fill="var(--text-muted)">回應變慢、格式不穩定</text>
+          <text x="480" y="120" text-anchor="middle" font-size="8" fill="var(--text-muted)">服務可能暫時無回應</text>
+
+          <rect x="30" y="165" width="580" height="75" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="320" y="188" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">隱私、成本、離線、資料主權（第2課）這些地端優勢仍然真實存在</text>
+          <text x="320" y="205" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">只是原本由雲端供應商吸收的「穩定性工程」，有一部分要由工作流設計者自己補上</text>
+          <text x="320" y="222" text-anchor="middle" font-size="8" fill="var(--text-muted)">這正是模組K接下來要做的事</text>
+        </svg>
+        <figcaption>雲端API的穩定性建立在供應商的大規模基礎設施上；地端Ollama把運算搬回自己的機器，換來隱私與成本優勢的同時，也把一部分「處理失敗」的責任交還給工作流本身。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>這是取捨，不是否定地端路線</h3>
+        <p>
+          認清這幾種失敗情境，不是要否定這門課從第2課就建立的
+          地端優先策略——隱私、成本、離線能力、資料主權這些
+          好處依然真實存在。重點是：既然選擇把LLM留在地端執行，
+          穩定性工程有一部分責任就從雲端供應商，轉移到工作流
+          設計者自己身上。下一課開始，就要具體看n8n提供了哪些
+          機制，來承接這份責任。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明雲端LLM API的高可靠度，實際上是由什麼樣的基礎設施支撐出來的</li>
+          <li>列出地端LLM工作流特別容易遇到的三種失敗情境，並各舉一個實際例子</li>
+          <li>解釋為什麼「地端LLM需要更謹慎的錯誤處理」不代表地端優先策略是錯的</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        第 45 課：n8n的錯誤處理節點與重試機制——具體介紹節點
+        層級的重試設定、集中處理失敗通知的Error Trigger工作流，
+        以及怎麼設計一個「JSON解析失敗就轉人工review」的備援
+        分支。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：模組總結：完整的端到端自動化流程</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：n8n的錯誤處理節點與重試機制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 67 課：模組總結：地端不等於自動安全 ｜ AI工作流 ｜ 博雅書院</title>
+<meta name="description" content="模組Q總結：把網路隔離與存取控制、Webhook端點防護整合成一個核心原則——地端解決的是資料離開環境的隱私風險，不會自動解決存取控制與網路安全風險，兩者是需要分別刻意處理的獨立問題">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">AI工作流</a>
+      <span class="sep">/</span>
+      <span>第 67 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 Q｜安全性與資料隱私考量 · 第 67 課</div>
+      <h1>模組總結：地端不等於自動安全</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模組Q兩堂課整合成一個核心原則：地端不等於自動安全</li>
+          <li>重新釐清「資料隱私」與「存取控制／網路安全」是兩個各自獨立、都需要刻意處理的問題</li>
+          <li>把這兩堂課的重點，收攏成一份可以直接對照自己部署狀況的檢查清單</li>
+        </ul>
+      </div>
+
+      <p>
+        模組Q只有兩堂課，但處理的是這門課從第2課就埋下、
+        直到現在才正式攤開來講的一個問題：選擇讓LLM留在
+        地端執行，解決的是資料離開你環境這件事，但完全沒有
+        自動解決「誰能連到、誰能操作這套系統」這個獨立的
+        問題。第65課談了n8n編輯器本身的存取控制，第66課談了
+        Webhook這種天生必須暴露在外的端點該怎麼防護。這一課
+        要把兩者收攏成一個原則，並正式銜接到模組R要談的
+        效能與資源管理。
+      </p>
+
+      <h2>兩種風險，兩種解法</h2>
+      <p>
+        這門課從一開始就在強調的「資料主權」，回答的問題是
+        「這筆資料的內容，會不會被送到我信任範圍以外的地方」
+        ——地端LLM在這一點上有結構性的優勢，資料從頭到尾
+        不需要離開你的環境。但「誰能連到這套系統」是另一組
+        完全不同的問題，答案不會因為你選擇了地端而自動變好：
+        一個沒有驗證、對外開放的地端系統，反而可能比一套
+        妥善設定過存取控制的雲端服務更危險。第65課處理的是
+        「主動連進來看編輯器」這種風險——用n8n內建的使用者
+        驗證、把實例留在私有網路或VPN後面來擋；第66課處理的
+        是「假造事件觸發流程」這種風險——因為Webhook端點
+        沒辦法單純靠網路隔離保護，必須靠驗證來源的簽章來擋。
+      </p>
+
+      <h2>一份簡單的檢查清單</h2>
+      <table>
+        <thead>
+          <tr><th>檢查項目</th><th>對應防護</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>n8n編輯器是否啟用了使用者驗證</td><td>內建使用者管理，或Basic Auth環境變數</td></tr>
+          <tr><td>n8n是否只監聽必要的網路介面</td><td>綁定127.0.0.1或私有網段，避免對所有介面開放</td></tr>
+          <tr><td>是否有從外部網路連回這套系統的需求</td><td>透過VPN連進私有網路，而不是直接對公網開放</td></tr>
+          <tr><td>真的需要遠端存取時，連線是否加密</td><td>反向代理搭配HTTPS，終止TLS再轉發</td></tr>
+          <tr><td>Webhook端點是否驗證了請求來源</td><td>shared secret與signature header比對</td></tr>
+          <tr><td>是否只靠網址的隨機性當防護</td><td>不夠，仍需搭配上一項的來源驗證</td></tr>
+          <tr><td>端點是否有基本的流量控管意識</td><td>交給反向代理或前端服務做rate-limiting</td></tr>
+        </tbody>
+      </table>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="20" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩條各自獨立的軸線</text>
+
+          <line x1="80" y1="190" x2="80" y2="40" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <line x1="80" y1="190" x2="600" y2="190" stroke="var(--text-muted)" stroke-width="1.2"/>
+          <text x="80" y="30" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">存取控制愈完整</text>
+          <text x="610" y="195" text-anchor="start" font-size="8.5" fill="var(--text-muted)">資料主權愈完整</text>
+
+          <circle cx="180" cy="150" r="7" fill="#ff8a65"/>
+          <text x="180" y="172" text-anchor="middle" font-size="8" fill="var(--text)">地端＋沒驗證</text>
+          <text x="180" y="184" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">隱私高，安全低</text>
+
+          <circle cx="480" cy="150" r="7" fill="var(--gold)"/>
+          <text x="480" y="172" text-anchor="middle" font-size="8" fill="var(--text)">雲端＋有驗證</text>
+          <text x="480" y="184" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">隱私低，安全較高</text>
+
+          <circle cx="480" cy="70" r="7" fill="var(--accent)"/>
+          <text x="480" y="55" text-anchor="middle" font-size="8" fill="var(--accent)">這門課的目標：地端＋有驗證</text>
+          <text x="480" y="92" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">隱私高，安全也高</text>
+        </svg>
+        <figcaption>資料主權與存取控制是兩條各自獨立的軸線——選擇地端只讓你往右移，往上移（存取控制）需要另外刻意做，兩者要同時到位，才是真正安全的地端部署。</figcaption>
+      </div>
+
+      <div class="callout">
+        <h3>銜接下一個模組</h3>
+        <p>
+          安全性談完了，接下來要回到一個更貼近日常使用體感的
+          問題：這套地端系統跑起來到底夠不夠快、吃不吃得消。
+          下一個模組要談GPU與CPU資源的取捨、併發請求的限制，
+          以及量化模型在效能與品質之間的權衡。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用自己的話解釋「地端不等於自動安全」這句話的意思</li>
+          <li>說明「資料主權」與「存取控制」這兩件事，為什麼需要分別、各自處理，而不是其中一個做好了就能放心另一個</li>
+          <li>對照上面的檢查清單，說出至少三項你會優先確認自己部署狀況的項目</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課進入模組R，要談一個很現實的問題：跑在CPU上的
+        Ollama明顯比有GPU加速慢，而且單一地端實例面對多個
+        同時湧入的請求時，通常是排隊而不是真正平行處理——
+        這對這門課的旗艦專案，實際上意味著什麼。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-66.html">← 上一課：保護暴露在外的Webhook端點</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-68.html">下一課：GPU／CPU資源與併發請求的取捨 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
