@@ -3956,6 +3956,194 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "four-classics",
+      category: "wuxia",
+      title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
+      description:
+        "用「作者與成書背景、劇情詳解、人物詳解」三個角度，完整拆解中國古典文學四大名著：《三國演義》的亂世群雄與三分天下、《水滸傳》一百零八將的聚義與悲劇、《西遊記》取經團隊的九九八十一難、《紅樓夢》賈府興衰與大觀園兒女的悲歡離合，四部作品份量對稱，方便交叉比較，用現代白話一次讀懂中國古典小說的巔峰之作。",
+      icon: "📜",
+      url: "topics/four-classics/index.html",
+      modules: [
+        {
+          title: "模組 A｜序：什麼是四大名著",
+          courses: [
+            { title: "四大名著是怎麼被選出來的：一個逐漸形成的文學經典化過程", url: "topics/four-classics/lesson-01.html" },
+            { title: "成書年代與體裁：從說書到章回小說", url: "topics/four-classics/lesson-02.html" },
+            { title: "模組總結：這門課會怎麼帶你認識這四部書", url: "topics/four-classics/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜三國演義：作者與成書背景",
+          courses: [
+            { title: "羅貫中其人：一個資料稀少的作者", url: "topics/four-classics/lesson-04.html" },
+            { title: "從陳壽《三國志》到民間說書：三國故事的成形過程", url: "topics/four-classics/lesson-05.html" },
+            { title: "模組總結：「七分實三分虛」的歷史小說", url: "topics/four-classics/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜三國演義：劇情詳解（上）",
+          courses: [
+            { title: "黃巾之亂與群雄並起", url: "topics/four-classics/lesson-07.html" },
+            { title: "董卓亂政與十八路諸侯討董", url: "topics/four-classics/lesson-08.html" },
+            { title: "官渡之戰：曹操統一北方", url: "topics/four-classics/lesson-09.html" },
+            { title: "三顧茅廬與隆中對", url: "topics/four-classics/lesson-10.html" },
+            { title: "赤壁之戰：三分天下的關鍵一役", url: "topics/four-classics/lesson-11.html" },
+            { title: "模組總結：從亂世到三分天下的雛形", url: "topics/four-classics/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜三國演義：劇情詳解（下）",
+          courses: [
+            { title: "劉備入蜀與漢中之戰", url: "topics/four-classics/lesson-13.html" },
+            { title: "關羽敗走麥城", url: "topics/four-classics/lesson-14.html" },
+            { title: "夷陵之戰與劉備託孤", url: "topics/four-classics/lesson-15.html" },
+            { title: "諸葛亮北伐：六出祁山", url: "topics/four-classics/lesson-16.html" },
+            { title: "三國歸晉：一個時代的終結", url: "topics/four-classics/lesson-17.html" },
+            { title: "模組總結：三國演義的敘事弧線全貌", url: "topics/four-classics/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 E｜三國演義：人物詳解",
+          courses: [
+            { title: "曹操：奸雄還是英雄", url: "topics/four-classics/lesson-19.html" },
+            { title: "劉備：仁德之君的另一面", url: "topics/four-classics/lesson-20.html" },
+            { title: "諸葛亮：智絕的形象是怎麼被塑造出來的", url: "topics/four-classics/lesson-21.html" },
+            { title: "關羽、張飛：義絕與勇將", url: "topics/four-classics/lesson-22.html" },
+            { title: "孫權與江東文武", url: "topics/four-classics/lesson-23.html" },
+            { title: "模組總結：三國演義的人物群像", url: "topics/four-classics/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜水滸傳：作者與成書背景",
+          courses: [
+            { title: "施耐庵其人：另一個謎樣的作者", url: "topics/four-classics/lesson-25.html" },
+            { title: "從《大宋宣和遺事》到梁山好漢：水滸故事的演變", url: "topics/four-classics/lesson-26.html" },
+            { title: "模組總結：一部關於「官逼民反」的小說", url: "topics/four-classics/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 G｜水滸傳：劇情詳解（上）",
+          courses: [
+            { title: "魯智深拳打鎮關西", url: "topics/four-classics/lesson-28.html" },
+            { title: "林沖夜奔梁山", url: "topics/four-classics/lesson-29.html" },
+            { title: "武松打虎與血濺鴛鴦樓", url: "topics/four-classics/lesson-30.html" },
+            { title: "智取生辰綱", url: "topics/four-classics/lesson-31.html" },
+            { title: "宋江上山與梁山排座次", url: "topics/four-classics/lesson-32.html" },
+            { title: "模組總結：一百零八將是怎麼聚集起來的", url: "topics/four-classics/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 H｜水滸傳：劇情詳解（下）",
+          courses: [
+            { title: "兩贏童貫、三敗高俅", url: "topics/four-classics/lesson-34.html" },
+            { title: "招安：梁山的轉折點", url: "topics/four-classics/lesson-35.html" },
+            { title: "征遼與平定田虎、王慶", url: "topics/four-classics/lesson-36.html" },
+            { title: "征方臘：好漢們的悲劇結局", url: "topics/four-classics/lesson-37.html" },
+            { title: "模組總結：從聚義到悲劇收場", url: "topics/four-classics/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 I｜水滸傳：人物詳解",
+          courses: [
+            { title: "宋江：及時雨還是投降派", url: "topics/four-classics/lesson-39.html" },
+            { title: "魯智深與武松：兩種不同的江湖正義", url: "topics/four-classics/lesson-40.html" },
+            { title: "林沖：被逼上梁山的典型", url: "topics/four-classics/lesson-41.html" },
+            { title: "李逵：忠義與莽撞的矛盾體", url: "topics/four-classics/lesson-42.html" },
+            { title: "吳用與梁山的智謀團隊", url: "topics/four-classics/lesson-43.html" },
+            { title: "模組總結：一百零八將的性格光譜", url: "topics/four-classics/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 J｜西遊記：作者與成書背景",
+          courses: [
+            { title: "吳承恩其人：從落第書生到寫出神魔小說", url: "topics/four-classics/lesson-45.html" },
+            { title: "從玄奘取經到神魔演義：西遊故事的演變", url: "topics/four-classics/lesson-46.html" },
+            { title: "模組總結：一部披著取經外衣的諷刺小說", url: "topics/four-classics/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 K｜西遊記：劇情詳解（上）",
+          courses: [
+            { title: "石猴出世與大鬧天宮", url: "topics/four-classics/lesson-48.html" },
+            { title: "五行山下五百年", url: "topics/four-classics/lesson-49.html" },
+            { title: "唐僧出世與奉旨取經", url: "topics/four-classics/lesson-50.html" },
+            { title: "收伏孫悟空", url: "topics/four-classics/lesson-51.html" },
+            { title: "收伏豬八戒與沙悟淨", url: "topics/four-classics/lesson-52.html" },
+            { title: "模組總結：取經團隊的組成", url: "topics/four-classics/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 L｜西遊記：劇情詳解（下）",
+          courses: [
+            { title: "三打白骨精", url: "topics/four-classics/lesson-54.html" },
+            { title: "車遲國鬥法", url: "topics/four-classics/lesson-55.html" },
+            { title: "三借芭蕉扇", url: "topics/four-classics/lesson-56.html" },
+            { title: "天竺國與真假公主", url: "topics/four-classics/lesson-57.html" },
+            { title: "九九八十一難修成正果", url: "topics/four-classics/lesson-58.html" },
+            { title: "模組總結：西遊記的取經結構", url: "topics/four-classics/lesson-59.html" }
+          ]
+        },
+        {
+          title: "模組 M｜西遊記：人物詳解",
+          courses: [
+            { title: "孫悟空：從叛逆者到護法者", url: "topics/four-classics/lesson-60.html" },
+            { title: "豬八戒：慾望與人性的化身", url: "topics/four-classics/lesson-61.html" },
+            { title: "唐僧：軟弱還是堅定的另一種詮釋", url: "topics/four-classics/lesson-62.html" },
+            { title: "沙悟淨與各路神仙妖怪", url: "topics/four-classics/lesson-63.html" },
+            { title: "模組總結：西遊記的人物象徵意義", url: "topics/four-classics/lesson-64.html" }
+          ]
+        },
+        {
+          title: "模組 N｜紅樓夢：作者與成書背景",
+          courses: [
+            { title: "曹雪芹其人：從富貴到落魄的家族史", url: "topics/four-classics/lesson-65.html" },
+            { title: "紅樓夢的版本之謎：八十回與後四十回", url: "topics/four-classics/lesson-66.html" },
+            { title: "脂硯齋批語與紅學研究", url: "topics/four-classics/lesson-67.html" },
+            { title: "模組總結：一部「一把辛酸淚」的自傳性小說", url: "topics/four-classics/lesson-68.html" }
+          ]
+        },
+        {
+          title: "模組 O｜紅樓夢：劇情詳解（上）",
+          courses: [
+            { title: "女媧補天與絳珠仙草：神話楔子", url: "topics/four-classics/lesson-69.html" },
+            { title: "賈府的興盛與大觀園的建立", url: "topics/four-classics/lesson-70.html" },
+            { title: "黛玉進賈府", url: "topics/four-classics/lesson-71.html" },
+            { title: "寶黛初會與金玉良緣的伏筆", url: "topics/four-classics/lesson-72.html" },
+            { title: "元妃省親", url: "topics/four-classics/lesson-73.html" },
+            { title: "模組總結：賈府盛世的鋪陳", url: "topics/four-classics/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 P｜紅樓夢：劇情詳解（下）",
+          courses: [
+            { title: "大觀園的詩社與青春歲月", url: "topics/four-classics/lesson-75.html" },
+            { title: "抄檢大觀園：盛極而衰的轉折", url: "topics/four-classics/lesson-76.html" },
+            { title: "寶黛愛情的悲劇", url: "topics/four-classics/lesson-77.html" },
+            { title: "賈府的衰敗與抄家", url: "topics/four-classics/lesson-78.html" },
+            { title: "白茫茫大地真乾淨：結局的多重解讀", url: "topics/four-classics/lesson-79.html" },
+            { title: "模組總結：從烈火烹油到落了片白茫茫大地", url: "topics/four-classics/lesson-80.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜紅樓夢：人物詳解",
+          courses: [
+            { title: "賈寶玉：一個反抗禮教的貴族公子", url: "topics/four-classics/lesson-81.html" },
+            { title: "林黛玉：才情與悲劇性格", url: "topics/four-classics/lesson-82.html" },
+            { title: "薛寶釵：世故還是另一種真誠", url: "topics/four-classics/lesson-83.html" },
+            { title: "王熙鳳：精明能幹的悲劇管家", url: "topics/four-classics/lesson-84.html" },
+            { title: "賈母與賈府的女性群像", url: "topics/four-classics/lesson-85.html" },
+            { title: "模組總結：紅樓夢的人物群像與判詞", url: "topics/four-classics/lesson-86.html" }
+          ]
+        },
+        {
+          title: "模組 R｜課程總結",
+          courses: [
+            { title: "全課程總結：四大名著為什麼歷久不衰", url: "topics/four-classics/lesson-87.html" }
+          ]
+        }
+      ]
     }
   ]
 };
