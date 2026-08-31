@@ -1476,6 +1476,14 @@ window.SITE_DATA = {
         "承接《創作樂理》的和聲與曲式基礎，這門課專注在電子音樂製作本身的技術知識：減法合成器怎麼從零打造聲音、取樣與節奏編程、主流流行／EDM編曲的段落語言（Intro/Build-up/Drop/Breakdown）、貝斯與側鏈壓縮、混音與母帶基礎，最後完成一趟從聲音設計到完整編曲的製作旅程。軟體無關，概念為主，並與《電子電路》課的濾波器、頻率響應知識互相銜接。",
       icon: "🎛️",
       url: "topics/music-production/index.html",
+      resources: [
+        {
+          title: "AI音樂生成風格組合頁",
+          description: "點按鈕組合曲風、情緒、樂器、人聲、年代、結構等描述詞，即時產生可複製的AI音樂生成prompt",
+          icon: "🧩",
+          url: "topics/music-production/prompt-builder.html"
+        }
+      ],
       modules: [
         {
           title: "模組 A｜電子音樂製作的基礎概念",
@@ -1565,6 +1573,12 @@ window.SITE_DATA = {
             { title: "響度戰爭：LUFS是什麼，為什麼串流時代要在乎它", url: "topics/music-production/lesson-43.html" },
             { title: "主流EDM子類型巡禮：House、Future Bass、Progressive House、Trap的製作差異", url: "topics/music-production/lesson-44.html" },
             { title: "課程總結：從零到一首完整電子流行歌的製作旅程", url: "topics/music-production/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 J｜番外：AI音樂生成的Prompt工程",
+          courses: [
+            { title: "AI音樂生成Prompt工程：怎麼組合出你想要的風格", url: "topics/music-production/lesson-46.html" }
           ]
         }
       ]

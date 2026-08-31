@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI音樂生成風格組合頁 ｜ 電子音樂製作 ｜ 博雅書院</title>
+<meta name="description" content="點按鈕組合曲風、情緒、樂器、人聲、年代參考、結構、節奏能量與負面提示詞，即時產生可直接複製使用的AI音樂生成prompt">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電子音樂製作</a>
+      <span class="sep">/</span>
+      <span>AI音樂生成風格組合頁</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">互動工具頁</div>
+      <h1>AI音樂生成風格組合頁</h1>
+    </header>
+
+    <article class="lesson-content">
+      <p>
+        搭配<a href="lesson-46.html">第46課：AI音樂生成Prompt工程</a>使用。
+        點下面的按鈕組合出你想要的風格描述詞，畫面上方會即時組合成一句
+        完整的prompt，可以直接複製貼到Suno、Udio這類AI音樂生成工具裡。
+        每一類都可以複選，但建議每類挑一到兩個最貼近你想像的詞，避免
+        塞太滿讓風格失焦（詳見第46課「組合的邏輯」一節）。
+      </p>
+
+      <div class="prompt-builder-output">
+        <h3>你組合出的Prompt</h3>
+        <textarea id="pb-output" readonly placeholder="點下面的描述詞按鈕，這裡會即時組合出完整的prompt……"></textarea>
+        <div class="prompt-builder-actions">
+          <button type="button" class="pb-btn pb-btn-primary" id="pb-copy">複製Prompt</button>
+          <button type="button" class="pb-btn" id="pb-clear">清除全部</button>
+          <span class="pb-copy-note" id="pb-copy-note">已複製到剪貼簿</span>
+        </div>
+      </div>
+
+      <div id="pb-sections"></div>
+
+      <p>
+        <a href="index.html">← 回電子音樂製作課程大綱</a>
+      </p>
+    </article>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById("year").textContent = new Date().getFullYear();
+
+// 八大類描述詞：label 是按鈕顯示文字，value 是實際組進 prompt 的英文描述詞
+// （AI音樂生成工具多以英文prompt效果最穩定，這裡統一輸出英文標籤）
+const PB_CATEGORIES = [
+  {
+    key: "genre",
+    title: "🎼 曲風 Genre",
+    items: [
+      ["Lo-fi Hip Hop", "lo-fi hip hop"],
+      ["City Pop", "city pop"],
+      ["合成器浪潮 Synthwave", "synthwave"],
+      ["K-Pop", "k-pop"],
+      ["Future Bass", "future bass"],
+      ["House", "house"],
+      ["Trap", "trap"],
+      ["氛圍音樂 Ambient", "ambient"],
+      ["Bossa Nova", "bossa nova"],
+      ["融合爵士 Jazz Fusion", "jazz fusion"],
+      ["後搖滾 Post-Rock", "post-rock"],
+      ["電影配樂 Cinematic Orchestral", "cinematic orchestral"],
+      ["鼓打貝斯 Drum & Bass", "drum and bass"],
+      ["雷鬼動 Reggaeton", "reggaeton"],
+      ["非洲節奏 Afrobeat", "afrobeat"],
+      ["獨立民謠 Indie Folk", "indie folk"],
+      ["泛音搖滾 Shoegaze", "shoegaze"],
+      ["蒸氣波 Vaporwave", "vaporwave"],
+      ["藍草音樂 Bluegrass", "bluegrass"],
+      ["夢幻流行 Dream Pop", "dream pop"]
+    ]
+  },
+  {
+    key: "mood",
+    title: "🎭 情緒氛圍 Mood",
+    items: [
+      ["憂鬱", "melancholic"],
+      ["狂喜", "euphoric"],
+      ["懷舊", "nostalgic"],
+      ["緊張", "tense"],
+      ["夢幻", "dreamy"],
+      ["侵略性", "aggressive"],
+      ["振奮", "uplifting"],
+      ["浪漫", "romantic"],
+      ["神秘", "mysterious"],
+      ["俏皮", "playful"],
+      ["史詩感", "epic"],
+      ["親密", "intimate"],
+      ["放鬆", "chill"],
+      ["黑暗", "dark"],
+      ["充滿希望", "hopeful"],
+      ["苦樂參半", "bittersweet"],
+      ["勝利感", "triumphant"],
+      ["空靈", "ethereal"]
+    ]
+  },
+  {
+    key: "instrumentation",
+    title: "🎹 主要樂器 Instrumentation",
+    items: [
+      ["類比合成器音墊", "analog synth pads"],
+      ["木吉他", "acoustic guitar"],
+      ["深沉808貝斯", "deep 808 bass"],
+      ["弦樂團", "string orchestra"],
+      ["平台鋼琴", "grand piano"],
+      ["薩克斯風獨奏", "saxophone solo"],
+      ["黑膠雜訊質感", "vinyl crackle texture"],
+      ["人聲合唱團", "choir vocals"],
+      ["銅管樂", "brass section"],
+      ["失真電吉他", "distorted electric guitar"],
+      ["手鼓打擊樂", "hand percussion"],
+      ["豎琴", "harp"],
+      ["Rhodes電鋼琴", "warm rhodes electric piano"],
+      ["指彈吉他", "fingerpicked guitar"],
+      ["琶音合成器", "arpeggiated synth"],
+      ["次貝斯", "sub bass"],
+      ["撥弦弦樂", "plucked strings"],
+      ["律動打擊樂", "glitchy percussion"]
+    ]
+  },
+  {
+    key: "vocal",
+    title: "🎤 人聲風格 Vocal",
+    items: [
+      ["空氣感女聲", "airy female vocals"],
+      ["沙啞男聲", "raspy male vocals"],
+      ["Autotune人聲", "autotuned vocals"],
+      ["疊層和聲", "layered harmonies"],
+      ["口白", "spoken word"],
+      ["純演奏無人聲", "instrumental no vocals"],
+      ["耳語人聲", "whispered vocals"],
+      ["爆發力唱腔", "powerful belting vocals"],
+      ["男女對唱", "male and female duet"],
+      ["機器人聲", "robotic vocoder"],
+      ["假音", "falsetto"],
+      ["吟唱式人聲", "chant-like vocals"]
+    ]
+  },
+  {
+    key: "era",
+    title: "📻 年代／製作參考 Era & Production",
+    items: [
+      ["80年代合成器流行製作", "80s synth-pop production"],
+      ["90年代Boom Bap", "90s boom bap"],
+      ["千禧年龐克流行", "early 2000s pop-punk"],
+      ["卡帶Lo-fi質感", "lo-fi cassette tape warmth"],
+      ["現代高保真母帶", "modern hi-fi mastering"],
+      ["復古黑膠溫暖感", "vintage vinyl warmth"],
+      ["未來感Hyperpop", "futuristic hyperpop"],
+      ["70年代迪斯可", "70s disco"],
+      ["60年代迷幻搖滾", "60s psychedelic rock"],
+      ["Y2K千禧流行", "y2k pop"],
+      ["90年代Trip-Hop", "90s trip-hop"],
+      ["復古電玩芯片音樂", "retro arcade chiptune"],
+      ["車庫搖滾復興", "garage rock revival"],
+      ["臥室流行Lo-fi", "bedroom pop lo-fi"]
+    ]
+  },
+  {
+    key: "structure",
+    title: "🧩 結構關鍵字 Structure",
+    items: [
+      ["緩慢氛圍前奏", "slow atmospheric intro"],
+      ["洗腦重複Hook", "catchy repeated hook"],
+      ["副歌轉調", "key change in final chorus"],
+      ["器樂間奏", "instrumental breakdown"],
+      ["大堆疊後爆發", "big buildup and drop"],
+      ["淡出結尾", "fade-out ending"],
+      ["切分節奏律動", "syncopated groove"],
+      ["極簡編排", "minimalist arrangement"],
+      ["多層次複節奏", "layered polyrhythm"],
+      ["一問一答句式", "call-and-response"],
+      ["稀疏主歌堆疊至副歌", "sparse verses building to full chorus"],
+      ["突然的速度轉換", "sudden tempo shift"],
+      ["延伸器樂尾奏", "extended instrumental outro"],
+      ["四四拍舞曲節奏", "four-on-the-floor beat"]
+    ]
+  },
+  {
+    key: "tempo",
+    title: "⏱️ 節奏／能量 Tempo & Energy",
+    items: [
+      ["慢板抒情速度", "slow ballad tempo"],
+      ["中速律動", "mid-tempo groove"],
+      ["高能量快板", "high-energy uptempo"],
+      ["律動感強烈四拍", "driving four-on-the-floor beat"],
+      ["慵懶放鬆速度", "laid-back chill tempo"],
+      ["放克切分節奏", "syncopated funky rhythm"],
+      ["穩定慵懶律動", "steady chill groove"],
+      ["快速侵略性節奏", "fast aggressive tempo"],
+      ["圓舞曲節奏感", "waltz time feel"],
+      ["半拍節奏感", "half-time feel"]
+    ]
+  },
+  {
+    key: "negative",
+    title: "🚫 負面提示詞 Avoid",
+    negative: true,
+    items: [
+      ["不要人聲", "no vocals"],
+      ["不要失真", "no distortion"],
+      ["不要厚重貝斯", "no heavy bass"],
+      ["避免陳腔濫調歌詞", "avoid cliché lyrics"],
+      ["不要過度重複", "not too repetitive"],
+      ["不要Autotune", "no autotune"],
+      ["避免突兀轉場", "avoid abrupt transitions"],
+      ["不要露骨內容", "no explicit content"],
+      ["保持乾淨簡約", "keep it clean and minimal"],
+      ["避免過度密集編排", "avoid overly dense arrangement"]
+    ]
+  }
+];
+
+const pbSelected = {};
+PB_CATEGORIES.forEach(function (cat) { pbSelected[cat.key] = []; });
+
+function pbRenderSections() {
+  const container = document.getElementById("pb-sections");
+  container.innerHTML = PB_CATEGORIES.map(function (cat) {
+    const buttons = cat.items.map(function (item) {
+      return '<button type="button" class="descriptor-btn" data-cat="' + cat.key +
+        '" data-value="' + item[1].replace(/"/g, "&quot;") + '">' + item[0] + '</button>';
+    }).join("");
+    return '<section class="descriptor-section' + (cat.negative ? " negative" : "") + '">' +
+      '<h2>' + cat.title + ' <span class="count-badge">' + cat.items.length + ' 個</span></h2>' +
+      '<div class="descriptor-grid">' + buttons + '</div>' +
+      '</section>';
+  }).join("");
+
+  container.querySelectorAll(".descriptor-btn").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      const cat = btn.getAttribute("data-cat");
+      const value = btn.getAttribute("data-value");
+      const idx = pbSelected[cat].indexOf(value);
+      if (idx === -1) {
+        pbSelected[cat].push(value);
+        btn.classList.add("selected");
+      } else {
+        pbSelected[cat].splice(idx, 1);
+        btn.classList.remove("selected");
+      }
+      pbUpdateOutput();
+    });
+  });
+}
+
+function pbUpdateOutput() {
+  const positiveOrder = ["genre", "mood", "instrumentation", "vocal", "era", "structure", "tempo"];
+  const positiveParts = [];
+  positiveOrder.forEach(function (key) {
+    if (pbSelected[key] && pbSelected[key].length > 0) {
+      positiveParts.push(pbSelected[key].join(", "));
+    }
+  });
+
+  let output = positiveParts.join(", ");
+
+  if (pbSelected.negative && pbSelected.negative.length > 0) {
+    const negativeText = pbSelected.negative.join(", ");
+    output = output.length > 0 ? output + " — avoid: " + negativeText : "avoid: " + negativeText;
+  }
+
+  document.getElementById("pb-output").value = output;
+}
+
+document.getElementById("pb-copy").addEventListener("click", function () {
+  const textarea = document.getElementById("pb-output");
+  const note = document.getElementById("pb-copy-note");
+  if (!textarea.value) return;
+
+  function showNote() {
+    note.classList.add("show");
+    setTimeout(function () { note.classList.remove("show"); }, 1800);
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(textarea.value).then(showNote).catch(function () {
+      textarea.select();
+      document.execCommand("copy");
+      showNote();
+    });
+  } else {
+    textarea.select();
+    document.execCommand("copy");
+    showNote();
+  }
+});
+
+document.getElementById("pb-clear").addEventListener("click", function () {
+  PB_CATEGORIES.forEach(function (cat) { pbSelected[cat.key] = []; });
+  document.querySelectorAll(".descriptor-btn.selected").forEach(function (btn) {
+    btn.classList.remove("selected");
+  });
+  pbUpdateOutput();
+});
+
+pbRenderSections();
+</script>
+</body>
+</html>
