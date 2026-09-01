@@ -4288,6 +4288,156 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "adventure-time",
+      category: "fantasy",
+      title: "探險活寶全紀錄：Ooo大陸的故事線與人物深度剖析",
+      description:
+        "深入解析卡通《探險活寶》：從蘑菇戰爭後的Ooo大陸世界觀開始，梳理冰霸王的真實身分、馬瑟琳與冰霸王的羈絆、巫妖的威脅、芬恩尋父之旅、芬妮與凱克的平行宇宙、GOLB與大結局等主線故事弧，並用獨立模組深度剖析芬恩、傑克、泡泡糖公主、冰霸王、馬瑟琳等核心角色，最後探討這部披著兒童卡通外皮的作品，為什麼能同時打動孩子與大人。",
+      icon: "🍭",
+      url: "topics/adventure-time/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：什麼是探險活寶",
+          courses: [
+            { title: "一部披著兒童卡通外皮的深刻作品", url: "topics/adventure-time/lesson-01.html" },
+            { title: "誕生故事：潘德頓·沃德與這個世界的由來", url: "topics/adventure-time/lesson-02.html" },
+            { title: "模組總結：這門課要怎麼帶你認識這個世界", url: "topics/adventure-time/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜世界觀：蘑菇戰爭後的Ooo大陸",
+          courses: [
+            { title: "蘑菇戰爭：一場核災之後的世界", url: "topics/adventure-time/lesson-04.html" },
+            { title: "Ooo大陸各王國巡禮", url: "topics/adventure-time/lesson-05.html" },
+            { title: "魔法與科技並存的奇幻邏輯", url: "topics/adventure-time/lesson-06.html" },
+            { title: "人類的稀有：芬恩為什麼特別", url: "topics/adventure-time/lesson-07.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜芬恩與傑克：兄弟情誼的起點",
+          courses: [
+            { title: "芬恩：森林裡長大的最後人類男孩", url: "topics/adventure-time/lesson-09.html" },
+            { title: "傑克：會伸縮變形的魔法狗", url: "topics/adventure-time/lesson-10.html" },
+            { title: "兩兄弟的羈絆：領養與家人的意義", url: "topics/adventure-time/lesson-11.html" },
+            { title: "芬恩的成長弧線：從衝動少年到獨當一面", url: "topics/adventure-time/lesson-12.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜故事線①：冰霸王的真實身分",
+          courses: [
+            { title: "初登場的冰霸王：一個滑稽的反派", url: "topics/adventure-time/lesson-14.html" },
+            { title: "賽門·佩崔科夫：戴上皇冠之前的他", url: "topics/adventure-time/lesson-15.html" },
+            { title: "皇冠的詛咒：力量與瘋狂的代價", url: "topics/adventure-time/lesson-16.html" },
+            { title: "逐漸揭露的真相：冰霸王故事線裡的線索", url: "topics/adventure-time/lesson-17.html" },
+            { title: "模組總結：一個令人心碎的悲劇反派", url: "topics/adventure-time/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 E｜故事線②：馬瑟琳與冰霸王的羈絆",
+          courses: [
+            { title: "馬瑟琳：千年吸血鬼皇后的日常", url: "topics/adventure-time/lesson-19.html" },
+            { title: "蘑菇戰爭倖存的孩子：年幼的馬瑟琳", url: "topics/adventure-time/lesson-20.html" },
+            { title: "賽門與瑪西：一段被遺忘的守護關係", url: "topics/adventure-time/lesson-21.html" },
+            { title: "從父女般的情誼到彼此陌生", url: "topics/adventure-time/lesson-22.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 F｜故事線③：巫妖的威脅",
+          courses: [
+            { title: "巫妖是誰：終結一切生命的古老存在", url: "topics/adventure-time/lesson-24.html" },
+            { title: "首次交手：巫妖的初登場", url: "topics/adventure-time/lesson-25.html" },
+            { title: "巫妖與蘑菇戰爭的關聯", url: "topics/adventure-time/lesson-26.html" },
+            { title: "多次交手：貫穿全劇的終極反派", url: "topics/adventure-time/lesson-27.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 G｜故事線④：芬恩尋父之旅",
+          courses: [
+            { title: "一個關於父親的謎團", url: "topics/adventure-time/lesson-29.html" },
+            { title: "馬丁·蒙頓：芬恩找到的生父", url: "topics/adventure-time/lesson-30.html" },
+            { title: "島嶼特輯：一趟令人失望卻重要的旅程", url: "topics/adventure-time/lesson-31.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 H｜故事線⑤：芬妮與凱克的平行宇宙",
+          courses: [
+            { title: "平行宇宙的設定：如果芬恩是女生", url: "topics/adventure-time/lesson-33.html" },
+            { title: "芬妮與凱克的故事線", url: "topics/adventure-time/lesson-34.html" },
+            { title: "這條支線為什麼重要", url: "topics/adventure-time/lesson-35.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 I｜大結局：GOLB與Ooo的終章",
+          courses: [
+            { title: "GOLB：比巫妖更古老的威脅", url: "topics/adventure-time/lesson-37.html" },
+            { title: "「與我同行」：最終季的收尾", url: "topics/adventure-time/lesson-38.html" },
+            { title: "Ooo大陸的下一步", url: "topics/adventure-time/lesson-39.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 J｜人物剖析：主角團",
+          courses: [
+            { title: "芬恩深度剖析：英雄旅程與心理成長", url: "topics/adventure-time/lesson-41.html" },
+            { title: "傑克深度剖析：看似隨性背後的智慧", url: "topics/adventure-time/lesson-42.html" },
+            { title: "BMO深度剖析：一個機器人的自我認同", url: "topics/adventure-time/lesson-43.html" },
+            { title: "主角團的家庭結構", url: "topics/adventure-time/lesson-44.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 K｜人物剖析：泡泡糖公主",
+          courses: [
+            { title: "泡泡糖公主：科學家統治者的雙面性", url: "topics/adventure-time/lesson-46.html" },
+            { title: "糖果王國的統治邏輯與代價", url: "topics/adventure-time/lesson-47.html" },
+            { title: "泡泡糖公主與芬恩的複雜關係", url: "topics/adventure-time/lesson-48.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 L｜人物剖析：冰霸王與馬瑟琳",
+          courses: [
+            { title: "冰霸王：全劇最複雜的角色之一", url: "topics/adventure-time/lesson-50.html" },
+            { title: "記憶與身分：冰霸王故事線背後的隱喻", url: "topics/adventure-time/lesson-51.html" },
+            { title: "馬瑟琳：搖滾與孤獨的千年生命", url: "topics/adventure-time/lesson-52.html" },
+            { title: "馬瑟琳的音樂與情感表達", url: "topics/adventure-time/lesson-53.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物剖析：配角群像",
+          courses: [
+            { title: "火焰公主：芬恩的另一段感情線", url: "topics/adventure-time/lesson-55.html" },
+            { title: "棉花糖公主：喜劇擔當的另一面", url: "topics/adventure-time/lesson-56.html" },
+            { title: "企鵝根特：一個充滿謎團的角色", url: "topics/adventure-time/lesson-57.html" },
+            { title: "其他重要配角巡禮", url: "topics/adventure-time/lesson-58.html" },
+            { title: "模組總結", url: "topics/adventure-time/lesson-59.html" }
+          ]
+        },
+        {
+          title: "模組 N｜主題與意義",
+          courses: [
+            { title: "成長是什麼：這部劇怎麼處理「長大」這件事", url: "topics/adventure-time/lesson-60.html" },
+            { title: "死亡、失去與記憶：意外深刻的生命議題", url: "topics/adventure-time/lesson-61.html" },
+            { title: "戰爭之後：末日設定如何反思現實", url: "topics/adventure-time/lesson-62.html" },
+            { title: "模組總結：為什麼一部兒童卡通能感動大人", url: "topics/adventure-time/lesson-63.html" }
+          ]
+        },
+        {
+          title: "模組 O｜課程總結",
+          courses: [
+            { title: "全課程總結：Ooo大陸教會我們的事", url: "topics/adventure-time/lesson-64.html" }
+          ]
+        }
+      ]
     }
   ]
 };
