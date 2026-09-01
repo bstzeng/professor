@@ -4158,6 +4158,136 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "string-theory",
+      category: "science",
+      title: "超弦理論入門：一條弦，如何試圖統一宇宙的四大作用力",
+      description:
+        "用比喻與圖解取代密集推導，淺顯易懂地認識超弦理論：從廣義相對論與量子力學的衝突出發，理解為什麼物理學家把點粒子換成一條會震動的弦、重力子如何從弦的震動模式裡「自動」冒出來、額外維度與卡拉比-丘流形是什麼、五種弦論如何被M理論統一、D-膜與全息原理AdS/CFT對應，最後誠實面對這個理論至今仍未被實驗證實的爭議與挑戰。不推導方程式，但邏輯鏈完整不簡化。",
+      icon: "🎻",
+      url: "topics/string-theory/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：為什麼需要一個新的理論",
+          courses: [
+            { title: "廣義相對論與量子力學：兩個各自成功、卻互相衝突的理論", url: "topics/string-theory/lesson-01.html" },
+            { title: "黑洞中心與大霹靂瞬間：兩個理論同時失靈的地方", url: "topics/string-theory/lesson-02.html" },
+            { title: "什麼是「量子重力」：物理學最大的未解之謎", url: "topics/string-theory/lesson-03.html" },
+            { title: "弦理論登場：把點粒子換成一條會震動的弦", url: "topics/string-theory/lesson-04.html" },
+            { title: "模組總結：這門課要帶你認識什麼", url: "topics/string-theory/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜核心概念：從點粒子到弦",
+          courses: [
+            { title: "點粒子模型的極限：為什麼「無限小」在數學上會出問題", url: "topics/string-theory/lesson-06.html" },
+            { title: "弦：一維延展的基本物件", url: "topics/string-theory/lesson-07.html" },
+            { title: "開弦與閉弦：兩端固定與首尾相連", url: "topics/string-theory/lesson-08.html" },
+            { title: "弦的張力與普朗克長度：小到超乎想像的尺度", url: "topics/string-theory/lesson-09.html" },
+            { title: "模組總結：從「是什麼」到「弦在做什麼」", url: "topics/string-theory/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜弦的震動與基本粒子",
+          courses: [
+            { title: "震動模式決定一切：弦論的核心洞察", url: "topics/string-theory/lesson-11.html" },
+            { title: "質量從哪裡來：震動能量與愛因斯坦的E=mc²", url: "topics/string-theory/lesson-12.html" },
+            { title: "自旋是什麼：震動模式如何對應到粒子的量子數", url: "topics/string-theory/lesson-13.html" },
+            { title: "一條弦，無數種粒子：弦論如何統一物質與作用力", url: "topics/string-theory/lesson-14.html" },
+            { title: "模組總結：從一條弦到一整個粒子動物園", url: "topics/string-theory/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜重力子：弦論最著名的預言",
+          courses: [
+            { title: "重力子是什麼：傳遞重力的假想粒子", url: "topics/string-theory/lesson-16.html" },
+            { title: "閉弦的無質量自旋二模式：重力子為什麼「自動」出現", url: "topics/string-theory/lesson-17.html" },
+            { title: "這為什麼是件大事：弦論如何意外解決了量子重力問題", url: "topics/string-theory/lesson-18.html" },
+            { title: "模組總結：一個沒人特別去找、卻自己冒出來的粒子", url: "topics/string-theory/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 E｜額外維度：為什麼我們的世界不只三維空間",
+          courses: [
+            { title: "數學要求：弦論的方程式在幾維空間才自洽", url: "topics/string-theory/lesson-20.html" },
+            { title: "十維與十一維：不同版本弦論的維度需求", url: "topics/string-theory/lesson-21.html" },
+            { title: "捲曲的維度：為什麼我們感覺不到多出來的空間", url: "topics/string-theory/lesson-22.html" },
+            { title: "一個生活化比喻：花園水管與螞蟻的視角", url: "topics/string-theory/lesson-23.html" },
+            { title: "模組總結：維度不是抽象數字，是具體的空間結構", url: "topics/string-theory/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜卡拉比-丘流形與緊化",
+          courses: [
+            { title: "緊化是什麼：把多餘維度「捲」到看不見的尺度", url: "topics/string-theory/lesson-25.html" },
+            { title: "卡拉比-丘流形：一種特殊形狀的六維空間", url: "topics/string-theory/lesson-26.html" },
+            { title: "形狀決定物理：不同的捲曲方式，對應不同的粒子世界", url: "topics/string-theory/lesson-27.html" },
+            { title: "模組總結：弦論的「多重宇宙」問題從這裡開始", url: "topics/string-theory/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 G｜超對稱：弦論的必要夥伴",
+          courses: [
+            { title: "對稱性在物理學裡的角色", url: "topics/string-theory/lesson-29.html" },
+            { title: "超對稱是什麼：玻色子與費米子的鏡像夥伴", url: "topics/string-theory/lesson-30.html" },
+            { title: "為什麼弦論需要超對稱才能自洽", url: "topics/string-theory/lesson-31.html" },
+            { title: "模組總結：超弦理論名字裡的「超」是什麼意思", url: "topics/string-theory/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 H｜五種弦論與M理論的統一",
+          courses: [
+            { title: "一開始的困惑：物理學家發現了五種不同的弦論", url: "topics/string-theory/lesson-33.html" },
+            { title: "五種弦論分別是什麼：簡單認識它們的差異", url: "topics/string-theory/lesson-34.html" },
+            { title: "對偶性：看似不同的理論，其實是同一件事的不同面貌", url: "topics/string-theory/lesson-35.html" },
+            { title: "M理論：威滕的統一構想", url: "topics/string-theory/lesson-36.html" },
+            { title: "模組總結：從五個拼圖到一張更大的地圖", url: "topics/string-theory/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 I｜D-膜：弦論裡的延伸物體",
+          courses: [
+            { title: "不只是弦：弦論裡還有更高維度的物體", url: "topics/string-theory/lesson-38.html" },
+            { title: "D-膜是什麼：開弦端點固定的地方", url: "topics/string-theory/lesson-39.html" },
+            { title: "D-膜如何改變我們對弦論的理解", url: "topics/string-theory/lesson-40.html" },
+            { title: "模組總結：從一維的弦到多維的膜", url: "topics/string-theory/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜全息原理與AdS/CFT",
+          courses: [
+            { title: "全息原理：一個空間的資訊，可能藏在它的邊界上", url: "topics/string-theory/lesson-42.html" },
+            { title: "AdS/CFT對應：馬爾達西那的重大發現", url: "topics/string-theory/lesson-43.html" },
+            { title: "這件事為什麼重要：連接弦論與其他物理領域", url: "topics/string-theory/lesson-44.html" },
+            { title: "模組總結：弦論意外打開的一扇新窗", url: "topics/string-theory/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 K｜黑洞與弦論",
+          courses: [
+            { title: "黑洞熵：貝肯斯坦與霍金留下的謎題", url: "topics/string-theory/lesson-46.html" },
+            { title: "弦論如何計算黑洞熵：一次漂亮的驗證", url: "topics/string-theory/lesson-47.html" },
+            { title: "模組總結：弦論在黑洞物理上交出的成績單", url: "topics/string-theory/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 L｜爭議與挑戰：弦論真的是對的嗎",
+          courses: [
+            { title: "最大的問題：至今沒有直接的實驗證據", url: "topics/string-theory/lesson-49.html" },
+            { title: "弦論地景：10^500種可能的宇宙，哪一個是我們的", url: "topics/string-theory/lesson-50.html" },
+            { title: "可否證性的爭論：弦論還算是一個科學理論嗎", url: "topics/string-theory/lesson-51.html" },
+            { title: "另一條路：迴圈量子重力等競爭理論簡介", url: "topics/string-theory/lesson-52.html" },
+            { title: "模組總結：誠實面對一個尚未被證實的理論", url: "topics/string-theory/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 M｜課程總結",
+          courses: [
+            { title: "全課程總結：從一條弦，到理解宇宙最深層結構的嘗試", url: "topics/string-theory/lesson-54.html" }
+          ]
+        }
+      ]
     }
   ]
 };
