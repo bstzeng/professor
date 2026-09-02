@@ -32,7 +32,8 @@ window.SITE_DATA = {
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "wuxia", label: "武俠小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
-    { id: "games", label: "電玩遊戲世界觀", icon: "🎮" }
+    { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
+    { id: "mythology", label: "神話與傳說", icon: "🏺" }
   ],
   topics: [
     {
@@ -4435,6 +4436,137 @@ window.SITE_DATA = {
           title: "模組 O｜課程總結",
           courses: [
             { title: "全課程總結：Ooo大陸教會我們的事", url: "topics/adventure-time/lesson-64.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "mythology",
+      category: "mythology",
+      title: "神話學全紀錄：希臘·羅馬·北歐·埃及·中國·日本六大神話體系",
+      description:
+        "橫跨六大文明的神話故事與人物深度詳解：希臘神話的奧林帕斯眾神與特洛伊戰爭、羅馬神話如何借用並改造希臘神話打造自己的建國起源、北歐神話的九界宇宙觀與諸神的黃昏、埃及神話的來世信仰與法老王權、中國神話從盤古女媧到玉皇大帝八仙的完整神系、日本神話記紀文本裡的天照大神與天皇起源，最後用比較神話學的視角，看六大體系共通的洪水、創世與英雄旅程母題。",
+      icon: "🏺",
+      url: "topics/mythology/index.html",
+      modules: [
+        {
+          title: "模組 A｜神話總論",
+          courses: [
+            { title: "什麼是神話：從口傳故事到文明信仰核心", url: "topics/mythology/lesson-01.html" },
+            { title: "比較神話學：不同文明的神話為什麼常常「撞名」", url: "topics/mythology/lesson-02.html" },
+            { title: "這門課的讀法：六大神話體系怎麼安排", url: "topics/mythology/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜希臘神話（一）：創世與眾神的誕生",
+          courses: [
+            { title: "卡奧斯與蓋亞：希臘神話的創世秩序", url: "topics/mythology/lesson-04.html" },
+            { title: "泰坦與奧林帕斯：克洛諾斯弒父、宙斯推翻泰坦的權力更迭", url: "topics/mythology/lesson-05.html" },
+            { title: "十二主神總覽：奧林帕斯的神界秩序", url: "topics/mythology/lesson-06.html" },
+            { title: "宙斯：眾神之王的權柄與風流韻事", url: "topics/mythology/lesson-07.html" },
+            { title: "赫拉、波賽頓、黑帝斯：天空之外的三大權柄", url: "topics/mythology/lesson-08.html" },
+            { title: "雅典娜、阿波羅、阿提米絲：智慧、光明與野性的神", url: "topics/mythology/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜希臘神話（二）：英雄傳說與特洛伊戰爭",
+          courses: [
+            { title: "海克力士：十二項苦役與贖罪之路", url: "topics/mythology/lesson-10.html" },
+            { title: "帕修斯：蛇髮女妖美杜莎的傳說", url: "topics/mythology/lesson-11.html" },
+            { title: "忒修斯與米諾陶：克里特迷宮的英雄考驗", url: "topics/mythology/lesson-12.html" },
+            { title: "伊底帕斯：命運無法逃脫的悲劇", url: "topics/mythology/lesson-13.html" },
+            { title: "特洛伊戰爭的起源：金蘋果與帕里斯的抉擇", url: "topics/mythology/lesson-14.html" },
+            { title: "特洛伊戰爭：阿基里斯、赫克托與十年圍城", url: "topics/mythology/lesson-15.html" },
+            { title: "奧德修斯的返鄉之路：《奧德賽》十年漂流", url: "topics/mythology/lesson-16.html" },
+            { title: "希臘神話總結：命運、傲慢與人神關係的核心命題", url: "topics/mythology/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 D｜羅馬神話：希臘的繼承與羅馬的自我建構",
+          courses: [
+            { title: "羅馬神話與希臘神話的關係：借用、改名與在地化", url: "topics/mythology/lesson-18.html" },
+            { title: "羅馬眾神對照表：朱比特、朱諾、瑪爾斯與希臘諸神的異同", url: "topics/mythology/lesson-19.html" },
+            { title: "埃涅阿斯：特洛伊遺民與羅馬建國的神話起點", url: "topics/mythology/lesson-20.html" },
+            { title: "羅穆盧斯與雷穆斯：母狼哺育與羅馬城的建立", url: "topics/mythology/lesson-21.html" },
+            { title: "雅努斯與維斯塔：羅馬獨有的神祇與信仰", url: "topics/mythology/lesson-22.html" },
+            { title: "羅馬神話總結：一個帝國如何用神話打造自己的起源故事", url: "topics/mythology/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 E｜北歐神話（一）：九界宇宙觀與眾神",
+          courses: [
+            { title: "世界之樹：尤克特拉希爾與北歐神話的九個世界", url: "topics/mythology/lesson-24.html" },
+            { title: "奧丁：智慧、犧牲與盧恩符文的代價", url: "topics/mythology/lesson-25.html" },
+            { title: "索爾：雷神之槌與巨人的世仇", url: "topics/mythology/lesson-26.html" },
+            { title: "洛基：亦正亦邪的搗亂者與眾神的宿命", url: "topics/mythology/lesson-27.html" },
+            { title: "芙蕾雅與芙麗嘉：北歐神話中的女神們", url: "topics/mythology/lesson-28.html" },
+            { title: "女武神與英靈殿：戰死者的歸宿", url: "topics/mythology/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 F｜北歐神話（二）：諸神的黃昏",
+          courses: [
+            { title: "洛基之子：芬里爾狼、耶夢加得與海爾", url: "topics/mythology/lesson-30.html" },
+            { title: "巴德爾之死：洛基的陰謀與悲劇的開端", url: "topics/mythology/lesson-31.html" },
+            { title: "諸神的黃昏：拉格納洛克的預言與終局之戰", url: "topics/mythology/lesson-32.html" },
+            { title: "拉格納洛克之後：世界的重生", url: "topics/mythology/lesson-33.html" },
+            { title: "北歐神話總結：一個「知道自己會輸」的神話體系有多特別", url: "topics/mythology/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 G｜埃及神話：尼羅河畔的神祇與來世信仰",
+          courses: [
+            { title: "埃及神話的世界觀：太陽神拉與尼羅河的秩序", url: "topics/mythology/lesson-35.html" },
+            { title: "創世神話：努恩、阿圖姆與埃及的多重創世版本", url: "topics/mythology/lesson-36.html" },
+            { title: "歐西里斯、伊西斯與賽特：一場謀殺開啟的神話核心", url: "topics/mythology/lesson-37.html" },
+            { title: "荷魯斯：為父復仇與法老王權的神聖來源", url: "topics/mythology/lesson-38.html" },
+            { title: "阿努比斯與來世信仰：木乃伊、審判與正義之羽", url: "topics/mythology/lesson-39.html" },
+            { title: "拉、阿蒙與阿頓：太陽神信仰的演變與阿肯那頓的宗教改革", url: "topics/mythology/lesson-40.html" },
+            { title: "貝斯特與其他重要神祇：埃及神話裡的動物神系統", url: "topics/mythology/lesson-41.html" },
+            { title: "埃及神話總結：神話如何撐起一整套政治與宗教制度", url: "topics/mythology/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 H｜中國神話（一）：創世與早期神祇",
+          courses: [
+            { title: "盤古開天：中國神話的創世敘事", url: "topics/mythology/lesson-43.html" },
+            { title: "女媧：造人、補天與中國神話裡的母性神格", url: "topics/mythology/lesson-44.html" },
+            { title: "三皇五帝：從神話走向信史的過渡人物", url: "topics/mythology/lesson-45.html" },
+            { title: "后羿射日與嫦娥奔月：一對神話夫妻的悲劇", url: "topics/mythology/lesson-46.html" },
+            { title: "精衛填海與夸父追日：中國神話裡的意志母題", url: "topics/mythology/lesson-47.html" },
+            { title: "黃帝與蚩尤：涿鹿之戰與華夏起源神話", url: "topics/mythology/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 I｜中國神話（二）：道教神祇與民間信仰",
+          courses: [
+            { title: "西王母：從凶神到瑤池仙境之主的形象演變", url: "topics/mythology/lesson-49.html" },
+            { title: "玉皇大帝與天庭體系：中國神話的官僚化宇宙觀", url: "topics/mythology/lesson-50.html" },
+            { title: "八仙過海：八位仙人的身世與各自的法寶", url: "topics/mythology/lesson-51.html" },
+            { title: "龍王與四海信仰：中國神話裡的水神體系", url: "topics/mythology/lesson-52.html" },
+            { title: "城隍、灶神與土地公：貼近生活的民間信仰神祇", url: "topics/mythology/lesson-53.html" },
+            { title: "中國神話總結：神話如何跟儒釋道信仰交織在一起", url: "topics/mythology/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 J｜日本神話：記紀神話與天皇的起源",
+          courses: [
+            { title: "《古事記》與《日本書紀》：日本神話的兩大文本來源", url: "topics/mythology/lesson-55.html" },
+            { title: "伊邪那岐與伊邪那美：國土生成與黃泉的訣別", url: "topics/mythology/lesson-56.html" },
+            { title: "天照大神：天岩戶神話與皇室的太陽血統", url: "topics/mythology/lesson-57.html" },
+            { title: "須佐之男：八岐大蛇與草薙劍的傳說", url: "topics/mythology/lesson-58.html" },
+            { title: "大國主：國讓神話與出雲信仰", url: "topics/mythology/lesson-59.html" },
+            { title: "天孫降臨：瓊瓊杵尊與天皇家系的神話起點", url: "topics/mythology/lesson-60.html" },
+            { title: "日本神話總結：神話如何一路連結到日本的皇室與神社信仰", url: "topics/mythology/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 K｜總結與比較",
+          courses: [
+            { title: "洪水神話比較：諾亞方舟之外，還有哪些「重來一次」的故事", url: "topics/mythology/lesson-62.html" },
+            { title: "創世模式比較：從混沌到秩序的不同路徑", url: "topics/mythology/lesson-63.html" },
+            { title: "英雄旅程比較：喬瑟夫·坎伯的「英雄之旅」在六大神話中的印證", url: "topics/mythology/lesson-64.html" },
+            { title: "課程總結：神話為什麼直到今天依然重要", url: "topics/mythology/lesson-65.html" }
           ]
         }
       ]
