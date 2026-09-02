@@ -23,6 +23,7 @@ function topicCardHTML(topic) {
 
 function renderTopics() {
   const container = document.getElementById("topics-grid");
+  const toggleBtn = document.getElementById("toggle-all-btn");
   const topics = (window.SITE_DATA && window.SITE_DATA.topics) || [];
   const categories = (window.SITE_DATA && window.SITE_DATA.categories) || [];
 
@@ -32,12 +33,14 @@ function renderTopics() {
         尚未新增主題，敬請期待。
       </div>
     `;
+    if (toggleBtn) toggleBtn.hidden = true;
     return;
   }
 
   // 沒有分類資料時，退回原本的單一格狀列表。
   if (categories.length === 0) {
     container.innerHTML = `<div class="topics-grid">${topics.map(topicCardHTML).join("")}</div>`;
+    if (toggleBtn) toggleBtn.hidden = true;
     return;
   }
 
@@ -89,6 +92,18 @@ function renderTopics() {
   }
 
   container.innerHTML = sections.join("");
+
+  if (toggleBtn) {
+    toggleBtn.hidden = false;
+    toggleBtn.textContent = "全部展開";
+    toggleBtn.onclick = () => {
+      const groups = container.querySelectorAll(".category-group");
+      if (groups.length === 0) return;
+      const allOpen = Array.from(groups).every((g) => g.open);
+      groups.forEach((g) => { g.open = !allOpen; });
+      toggleBtn.textContent = allOpen ? "全部展開" : "全部收合";
+    };
+  }
 }
 
 renderTopics();
