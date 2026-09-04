@@ -1470,6 +1470,114 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "tx-futures",
+      category: "life",
+      title: "台指期操作全紀錄：做多與做空策略完整解析",
+      description:
+        "從期貨與現貨的本質差異、台指期契約規格與槓桿保證金開始，建立K線、均線、支撐壓力、RSI/MACD等技術分析基礎工具，接著分別拆解做多與做空各自的進場邏輯、訊號辨識與停損停利設計，並用十個情境案例演練完整的實戰判斷流程，最後收在資金風險管理與交易心理紀律。這是策略觀念與風險管理框架的教學課程，不是即時盤勢分析或個人化投資建議——期貨為高槓桿商品，虧損可能超過原始保證金，請務必自行評估風險。",
+      icon: "📈",
+      url: "topics/tx-futures/index.html",
+      modules: [
+        {
+          title: "模組 A｜基礎入門",
+          courses: [
+            { title: "什麼是期貨：跟股票的本質差異", url: "topics/tx-futures/lesson-01.html" },
+            { title: "台指期是什麼：追蹤標的與契約規格（大台／小台）", url: "topics/tx-futures/lesson-02.html" },
+            { title: "保證金與槓桿：期貨風險為什麼遠高於現股", url: "topics/tx-futures/lesson-03.html" },
+            { title: "結算制度：到期日、結算價、月合約與週合約", url: "topics/tx-futures/lesson-04.html" },
+            { title: "正價差與逆價差：期貨與現貨價差的意義", url: "topics/tx-futures/lesson-05.html" },
+            { title: "日盤與夜盤：為什麼夜盤特別重要", url: "topics/tx-futures/lesson-06.html" },
+            { title: "開戶與下單：期貨商、保證金帳戶怎麼運作", url: "topics/tx-futures/lesson-07.html" },
+            { title: "模組總結：操作前必須建立的基本認知", url: "topics/tx-futures/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 B｜技術分析基礎工具",
+          courses: [
+            { title: "K線基礎：紅K黑K在說什麼故事", url: "topics/tx-futures/lesson-09.html" },
+            { title: "常見K線型態：吞噬、十字星、槌子線", url: "topics/tx-futures/lesson-10.html" },
+            { title: "均線系統：排列與交叉的意義", url: "topics/tx-futures/lesson-11.html" },
+            { title: "支撐與壓力：怎麼判斷關鍵價位", url: "topics/tx-futures/lesson-12.html" },
+            { title: "成交量：價量關係的基本邏輯", url: "topics/tx-futures/lesson-13.html" },
+            { title: "趨勢線與型態學：上升、下降、盤整", url: "topics/tx-futures/lesson-14.html" },
+            { title: "RSI與MACD：動能指標的判讀", url: "topics/tx-futures/lesson-15.html" },
+            { title: "布林通道：波動率與價格通道", url: "topics/tx-futures/lesson-16.html" },
+            { title: "模組總結：技術分析是機率工具，不是水晶球", url: "topics/tx-futures/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 C｜做多策略",
+          courses: [
+            { title: "做多的基本邏輯：什麼情況該站在多方", url: "topics/tx-futures/lesson-18.html" },
+            { title: "順勢交易：均線多頭排列與突破操作", url: "topics/tx-futures/lesson-19.html" },
+            { title: "回檔找買點：順勢交易的進場時機", url: "topics/tx-futures/lesson-20.html" },
+            { title: "台積電權值效應：半導體循環對多方的意義", url: "topics/tx-futures/lesson-21.html" },
+            { title: "外資期貨籌碼：三大法人部位怎麼看", url: "topics/tx-futures/lesson-22.html" },
+            { title: "做多的停損與移動停利設計", url: "topics/tx-futures/lesson-23.html" },
+            { title: "模組總結：做多策略檢查清單", url: "topics/tx-futures/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 D｜做空策略",
+          courses: [
+            { title: "做空的基本原理：先賣後買，跟融券的差異", url: "topics/tx-futures/lesson-25.html" },
+            { title: "做空的時機：頭部型態與跌破支撐", url: "topics/tx-futures/lesson-26.html" },
+            { title: "做空的無限風險概念與軋空行情", url: "topics/tx-futures/lesson-27.html" },
+            { title: "避險型放空：用期貨對沖現貨部位", url: "topics/tx-futures/lesson-28.html" },
+            { title: "放空的停損紀律為什麼要更嚴格", url: "topics/tx-futures/lesson-29.html" },
+            { title: "外部風險事件對空方的衝擊", url: "topics/tx-futures/lesson-30.html" },
+            { title: "模組總結：做空策略檢查清單", url: "topics/tx-futures/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 E｜實戰案例演練",
+          courses: [
+            { title: "案例①：多頭排列的順勢做多——從進場到停利全紀錄", url: "topics/tx-futures/lesson-32.html" },
+            { title: "案例②：假突破陷阱——為什麼這筆多單該停損出場", url: "topics/tx-futures/lesson-33.html" },
+            { title: "案例③：頭部型態確立的做空——從訊號到出場", url: "topics/tx-futures/lesson-34.html" },
+            { title: "案例④：軋空情境模擬——一筆空單如何失控，以及正確的應對", url: "topics/tx-futures/lesson-35.html" },
+            { title: "案例⑤：盤整格局的假訊號——為什麼這段時間不該進場", url: "topics/tx-futures/lesson-36.html" },
+            { title: "案例⑥：財報／法說會前後的波動——事件驅動的多空判斷", url: "topics/tx-futures/lesson-37.html" },
+            { title: "案例⑦：美股夜盤大跌的隔日應對——外部衝擊下的部位調整", url: "topics/tx-futures/lesson-38.html" },
+            { title: "案例⑧：當沖情境——一天之內的多空轉換", url: "topics/tx-futures/lesson-39.html" },
+            { title: "案例⑨：波段留倉——抱單過夜過週的心理與部位管理", url: "topics/tx-futures/lesson-40.html" },
+            { title: "案例⑩：多空同時看錯的情境——如何認錯出場、避免凹單", url: "topics/tx-futures/lesson-41.html" },
+            { title: "綜合案例：完整一週交易日誌拆解（多空交替）", url: "topics/tx-futures/lesson-42.html" },
+            { title: "模組總結：從十個案例中萃取出的共同決策框架", url: "topics/tx-futures/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 F｜資金與風險管理",
+          courses: [
+            { title: "保證金水位管理：為什麼不能滿倉操作", url: "topics/tx-futures/lesson-44.html" },
+            { title: "部位大小計算：一口到多口的資金配置", url: "topics/tx-futures/lesson-45.html" },
+            { title: "停損與停利紀律：為什麼多數人做不到", url: "topics/tx-futures/lesson-46.html" },
+            { title: "追繳保證金與強制平倉：實際發生時怎麼處理", url: "topics/tx-futures/lesson-47.html" },
+            { title: "資金曲線管理：連續虧損後該怎麼調整", url: "topics/tx-futures/lesson-48.html" },
+            { title: "模組總結：活得夠久，才有機會等到好行情", url: "topics/tx-futures/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 G｜交易心理與紀律",
+          courses: [
+            { title: "為什麼知道方法卻做不到：交易心理的核心矛盾", url: "topics/tx-futures/lesson-50.html" },
+            { title: "損失規避與過度交易的心理陷阱", url: "topics/tx-futures/lesson-51.html" },
+            { title: "交易日誌：紀錄與檢討的實際做法", url: "topics/tx-futures/lesson-52.html" },
+            { title: "建立自己的交易系統：規則化決策", url: "topics/tx-futures/lesson-53.html" },
+            { title: "模組總結：紀律比策略本身更重要", url: "topics/tx-futures/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 H｜總體因素與總結",
+          courses: [
+            { title: "台指期與總體經濟：利率、匯率、半導體循環", url: "topics/tx-futures/lesson-55.html" },
+            { title: "常見新手錯誤總整理", url: "topics/tx-futures/lesson-56.html" },
+            { title: "課程總結：多空策略的核心原則回顧", url: "topics/tx-futures/lesson-57.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "music-production",
       category: "music",
       title: "電子音樂製作：從合成器到完整編曲",
