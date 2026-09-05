@@ -30,7 +30,7 @@ window.SITE_DATA = {
     { id: "tech", label: "科技與工程", icon: "💻" },
     { id: "science", label: "物理與宇宙學", icon: "🔭" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
-    { id: "wuxia", label: "武俠小說", icon: "🗡️" },
+    { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
     { id: "mythology", label: "神話與傳說", icon: "🏺" }
@@ -4675,6 +4675,125 @@ window.SITE_DATA = {
             { title: "創世模式比較：從混沌到秩序的不同路徑", url: "topics/mythology/lesson-63.html" },
             { title: "英雄旅程比較：喬瑟夫·坎伯的「英雄之旅」在六大神話中的印證", url: "topics/mythology/lesson-64.html" },
             { title: "課程總結：神話為什麼直到今天依然重要", url: "topics/mythology/lesson-65.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "dan-brown",
+      category: "wuxia",
+      title: "丹布朗小說全紀錄：符號、密碼與蘭登教授的世界",
+      description:
+        "從丹布朗的創作背景與寫作公式出發，逐部深度導讀《數位密碼》《天使與魔鬼》《詭恐行動》《達文西密碼》《失落的符號》《地獄》《起源》七部作品的故事設定與主題演變，再橫向剖析角色塑造、反派設計與敘事手法，誠實面對真實與虛構的爭議，最後總覽電影改編與文化影響。",
+      icon: "🗝️",
+      url: "topics/dan-brown/index.html",
+      modules: [
+        {
+          title: "模組 A｜認識丹布朗：作者與創作背景",
+          courses: [
+            { title: "丹布朗是誰：從音樂人、教師到暢銷驚悚小說家", url: "topics/dan-brown/lesson-01.html" },
+            { title: "創作起源與寫作風格：符號學、密碼與「章末鉤子」公式", url: "topics/dan-brown/lesson-02.html" },
+            { title: "蘭登系列全覽：一張地圖看懂五部曲的時間軸與場景", url: "topics/dan-brown/lesson-03.html" },
+            { title: "出版史：從《數位密碼》的沉寂到《達文西密碼》的全球爆紅", url: "topics/dan-brown/lesson-04.html" },
+            { title: "模組總結：讀懂丹布朗小說的三個關鍵字", url: "topics/dan-brown/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜《數位密碼》：解碼機器與監控爭議",
+          courses: [
+            { title: "故事背景：NSA、解碼機器TRANSLTR與監控爭議的初登場", url: "topics/dan-brown/lesson-06.html" },
+            { title: "蘇珊·佛萊契與大衛·貝克：雙線敘事的初次嘗試", url: "topics/dan-brown/lesson-07.html" },
+            { title: "模組總結：丹布朗式懸疑公式的雛形", url: "topics/dan-brown/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜《天使與魔鬼》：符號學家的初登場",
+          courses: [
+            { title: "羅柏·蘭登首度登場：符號學家的角色設定", url: "topics/dan-brown/lesson-09.html" },
+            { title: "梵蒂岡、光明會傳說與反物質危機", url: "topics/dan-brown/lesson-10.html" },
+            { title: "宗教與科學的對立主題", url: "topics/dan-brown/lesson-11.html" },
+            { title: "羅馬地標與「符號路徑」：一座城市變成解謎地圖", url: "topics/dan-brown/lesson-12.html" },
+            { title: "模組總結：蘭登系列公式正式成形", url: "topics/dan-brown/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜《詭恐行動》：獨立作品裡的科學驚悚",
+          courses: [
+            { title: "獨立作品：政治角力、NASA與科學造假疑雲", url: "topics/dan-brown/lesson-14.html" },
+            { title: "瑞秋·賽克斯頓：不靠蘭登也能撐起的女主角", url: "topics/dan-brown/lesson-15.html" },
+            { title: "模組總結：與蘭登系列風格的異同", url: "topics/dan-brown/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 E｜《達文西密碼》：引爆全球現象",
+          courses: [
+            { title: "羅浮宮命案：蘭登與蘇菲的第二次冒險", url: "topics/dan-brown/lesson-17.html" },
+            { title: "聖杯傳說與抹大拉的馬利亞：核心懸案的設定邏輯", url: "topics/dan-brown/lesson-18.html" },
+            { title: "達文西畫作與隱藏符碼：解謎章節如何推進劇情", url: "topics/dan-brown/lesson-19.html" },
+            { title: "天主教會、主業會的爭議與各地抗議聲浪", url: "topics/dan-brown/lesson-20.html" },
+            { title: "為什麼是這一本：暢銷現象背後的行銷與時機", url: "topics/dan-brown/lesson-21.html" },
+            { title: "模組總結：一本小說如何掀起全球性的宗教辯論", url: "topics/dan-brown/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜《失落的符號》：蘭登系列的美國轉向",
+          courses: [
+            { title: "場景轉向美國：共濟會與華盛頓特區的符號地圖", url: "topics/dan-brown/lesson-23.html" },
+            { title: "神秘學、意識科學與美國建國神話的交織", url: "topics/dan-brown/lesson-24.html" },
+            { title: "彼得·索羅門與馬拉克：反派動機的心理化設計", url: "topics/dan-brown/lesson-25.html" },
+            { title: "模組總結：蘭登系列的「在地化」實驗", url: "topics/dan-brown/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 G｜《地獄》：但丁神曲與人口危機",
+          courses: [
+            { title: "但丁《神曲》與人口過剩危機的結合", url: "topics/dan-brown/lesson-27.html" },
+            { title: "佛羅倫斯的藝術地景：從烏菲茲到韋奇奧宮", url: "topics/dan-brown/lesson-28.html" },
+            { title: "柏特蘭·佐布里斯特：當反派的動機開始「有道理」", url: "topics/dan-brown/lesson-29.html" },
+            { title: "模組總結：道德灰色地帶的敘事實驗", url: "topics/dan-brown/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 H｜《起源》：AI、宗教與大哉問",
+          courses: [
+            { title: "人工智慧、宗教與「我們從哪裡來」的大哉問", url: "topics/dan-brown/lesson-31.html" },
+            { title: "西班牙的建築與藝術場景：從古根漢到聖家堂", url: "topics/dan-brown/lesson-32.html" },
+            { title: "艾德蒙·基爾許與AI角色溫斯頓：科技神諭的敘事實驗", url: "topics/dan-brown/lesson-33.html" },
+            { title: "模組總結：科技與信仰衝突的當代命題", url: "topics/dan-brown/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 I｜角色與敘事手法深度剖析",
+          courses: [
+            { title: "羅柏·蘭登：學者英雄的塑造與侷限", url: "topics/dan-brown/lesson-35.html" },
+            { title: "女性角色群像：從蘇珊到安柏拉的類型演變", url: "topics/dan-brown/lesson-36.html" },
+            { title: "反派設計：從單純惡意到意識形態驅動的轉變", url: "topics/dan-brown/lesson-37.html" },
+            { title: "丹布朗的敘事公式：短章節、雙線交織與最後轉折", url: "topics/dan-brown/lesson-38.html" },
+            { title: "模組總結：符號學元素如何真正驅動情節", url: "topics/dan-brown/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 J｜真實與虛構：爭議與查證",
+          courses: [
+            { title: "歷史與藝術史細節的真實度爭議：學界與教會的反駁", url: "topics/dan-brown/lesson-40.html" },
+            { title: "各部作品引發的實際社會迴響：官方回應與觀光效應", url: "topics/dan-brown/lesson-41.html" },
+            { title: "如何區分小說的戲劇化與真實史料：讀者的查核習慣", url: "topics/dan-brown/lesson-42.html" },
+            { title: "模組總結：驚悚小說與史實查核之間的分寸", url: "topics/dan-brown/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 K｜文化影響與改編",
+          courses: [
+            { title: "電影改編：湯姆漢克斯與朗霍華的蘭登三部曲", url: "topics/dan-brown/lesson-44.html" },
+            { title: "對「符號驚悚」類型小說的開創與後續影響", url: "topics/dan-brown/lesson-45.html" },
+            { title: "全球熱潮與各地取景地的觀光效應", url: "topics/dan-brown/lesson-46.html" },
+            { title: "模組總結：一個類型小說門派的誕生", url: "topics/dan-brown/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 L｜課程總結",
+          courses: [
+            { title: "課程總結：從《數位密碼》到《起源》的完整旅程", url: "topics/dan-brown/lesson-48.html" }
           ]
         }
       ]
