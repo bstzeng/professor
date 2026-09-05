@@ -33,7 +33,8 @@ window.SITE_DATA = {
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
-    { id: "mythology", label: "神話與傳說", icon: "🏺" }
+    { id: "mythology", label: "神話與傳說", icon: "🏺" },
+    { id: "history", label: "歷史", icon: "📜" }
   ],
   topics: [
     {
@@ -4915,6 +4916,194 @@ window.SITE_DATA = {
           title: "模組 K｜課程總結",
           courses: [
             { title: "課程總結：從1977年的獨立奇蹟到跨媒體銀河帝國的完整旅程", url: "topics/star-wars/lesson-55.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "chinese-history",
+      category: "history",
+      title: "中國歷史全紀錄：從神話到當代",
+      description:
+        "從神話傳說時代出發，依序深度導讀夏商周、春秋戰國、歷代大一統與分裂王朝，一路走到近代的內憂外患、民國的動盪與中華人民共和國的建國與改革開放，並橫向比較中央集權、科舉制度、儒家思想與統一分裂週期等貫穿全史的主題。",
+      icon: "🐉",
+      url: "topics/chinese-history/index.html",
+      modules: [
+        {
+          title: "模組 A｜導論：如何研究中國歷史",
+          courses: [
+            { title: "信史與傳說：考古學、甲骨文與「證據等級」的概念", url: "topics/chinese-history/lesson-01.html" },
+            { title: "朝代循環史觀：一個好用卻也容易誤導的框架", url: "topics/chinese-history/lesson-02.html" },
+            { title: "這門課的時間軸地圖：從三皇五帝到21世紀", url: "topics/chinese-history/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜神話與傳說時代：三皇五帝",
+          courses: [
+            { title: "盤古開天、女媧補天：創世神話與早期宇宙觀", url: "topics/chinese-history/lesson-04.html" },
+            { title: "三皇傳說：燧人氏、伏羲氏、神農氏的文化英雄敘事", url: "topics/chinese-history/lesson-05.html" },
+            { title: "五帝傳說：黃帝、堯、舜與「禪讓」政治理想的建構", url: "topics/chinese-history/lesson-06.html" },
+            { title: "大禹治水與夏朝的傳說起源：神話如何過渡到信史", url: "topics/chinese-history/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜夏商：信史的開端",
+          courses: [
+            { title: "夏朝的考古爭議：二里頭文化與「最早的中國」", url: "topics/chinese-history/lesson-08.html" },
+            { title: "商朝：甲骨文、占卜與王權的宗教基礎", url: "topics/chinese-history/lesson-09.html" },
+            { title: "商朝的滅亡：牧野之戰與「天命」觀念的誕生", url: "topics/chinese-history/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 D｜西周：封建與禮樂",
+          courses: [
+            { title: "封建制度：分封諸侯與宗法制的運作邏輯", url: "topics/chinese-history/lesson-11.html" },
+            { title: "禮樂文明：周公制禮作樂與儒家日後的理想投射", url: "topics/chinese-history/lesson-12.html" },
+            { title: "西周的衰亡：烽火戲諸侯傳說與平王東遷", url: "topics/chinese-history/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 E｜春秋戰國：禮崩樂壞與百家爭鳴",
+          courses: [
+            { title: "春秋五霸：尊王攘夷與舊秩序的最後掙扎", url: "topics/chinese-history/lesson-14.html" },
+            { title: "孔子與儒家：仁與禮的思想體系", url: "topics/chinese-history/lesson-15.html" },
+            { title: "老莊與道家：無為而治的另一種政治想像", url: "topics/chinese-history/lesson-16.html" },
+            { title: "法家與變法：商鞅變法如何為秦國奠基", url: "topics/chinese-history/lesson-17.html" },
+            { title: "墨家、名家與其他諸子：百家爭鳴的思想盛況", url: "topics/chinese-history/lesson-18.html" },
+            { title: "戰國七雄：合縱連橫與統一前夜的軍事外交", url: "topics/chinese-history/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 F｜秦：一統與速亡",
+          courses: [
+            { title: "秦始皇統一六國：郡縣制取代封建制的關鍵轉折", url: "topics/chinese-history/lesson-20.html" },
+            { title: "書同文、車同軌：中央集權的制度建設", url: "topics/chinese-history/lesson-21.html" },
+            { title: "焚書坑儒與嚴刑峻法：高壓統治的代價", url: "topics/chinese-history/lesson-22.html" },
+            { title: "秦朝速亡：陳勝吳廣起義與楚漢相爭的伏筆", url: "topics/chinese-history/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 G｜漢：帝國定型",
+          courses: [
+            { title: "楚漢相爭：劉邦與項羽的性格對照", url: "topics/chinese-history/lesson-24.html" },
+            { title: "文景之治：休養生息與「無為而治」的實踐", url: "topics/chinese-history/lesson-25.html" },
+            { title: "漢武帝：獨尊儒術、開拓疆域與中央集權的強化", url: "topics/chinese-history/lesson-26.html" },
+            { title: "絲路的開通：張騫通西域與東西方交流的起點", url: "topics/chinese-history/lesson-27.html" },
+            { title: "王莽篡漢與東漢的建立：帝國中期的制度危機", url: "topics/chinese-history/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 H｜三國兩晉南北朝：分裂與融合",
+          courses: [
+            { title: "黃巾之亂與群雄並起：東漢崩壞的開端", url: "topics/chinese-history/lesson-29.html" },
+            { title: "三國鼎立：曹操、劉備、孫權的戰略格局", url: "topics/chinese-history/lesson-30.html" },
+            { title: "西晉短暫統一與八王之亂：內耗如何招致外患", url: "topics/chinese-history/lesson-31.html" },
+            { title: "五胡十六國：民族大遷徙與衝突", url: "topics/chinese-history/lesson-32.html" },
+            { title: "南北朝對峙：門閥政治與佛教的興盛", url: "topics/chinese-history/lesson-33.html" },
+            { title: "孝文帝漢化改革：民族融合的關鍵案例", url: "topics/chinese-history/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 I｜隋唐：盛世與轉折",
+          courses: [
+            { title: "隋朝統一：科舉制度與大運河的長遠影響", url: "topics/chinese-history/lesson-35.html" },
+            { title: "隋朝速亡：與秦朝的相似模式比較", url: "topics/chinese-history/lesson-36.html" },
+            { title: "貞觀之治：唐太宗與「以史為鑑」的治國理念", url: "topics/chinese-history/lesson-37.html" },
+            { title: "武則天：中國歷史上唯一的女皇帝", url: "topics/chinese-history/lesson-38.html" },
+            { title: "開元盛世：唐玄宗前期的巔峰與轉折", url: "topics/chinese-history/lesson-39.html" },
+            { title: "安史之亂：盛世崩壞的轉捩點", url: "topics/chinese-history/lesson-40.html" },
+            { title: "唐朝後期：藩鎮割據與宦官專權", url: "topics/chinese-history/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜宋（含五代）：文治巔峰與積弱",
+          courses: [
+            { title: "五代十國：唐末藩鎮割據的延續與亂局", url: "topics/chinese-history/lesson-42.html" },
+            { title: "陳橋兵變與杯酒釋兵權：宋朝重文抑武的立國基礎", url: "topics/chinese-history/lesson-43.html" },
+            { title: "宋朝的經濟與文化：商業革命與科技發展的高峰", url: "topics/chinese-history/lesson-44.html" },
+            { title: "王安石變法：改革理想與政治鬥爭", url: "topics/chinese-history/lesson-45.html" },
+            { title: "積弱的軍事：與遼、西夏、金的長期對峙", url: "topics/chinese-history/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 K｜元：蒙古治下的中國",
+          courses: [
+            { title: "蒙古帝國的崛起：成吉思汗與橫跨歐亞的征服", url: "topics/chinese-history/lesson-47.html" },
+            { title: "忽必烈建元：草原帝國如何統治中原", url: "topics/chinese-history/lesson-48.html" },
+            { title: "四等人制與元朝的統治矛盾", url: "topics/chinese-history/lesson-49.html" },
+            { title: "元朝速亡：紅巾軍起義與朱元璋的崛起", url: "topics/chinese-history/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 L｜明：集權高峰",
+          courses: [
+            { title: "朱元璋建明：廢除宰相與皇權集中的極致", url: "topics/chinese-history/lesson-51.html" },
+            { title: "靖難之役與永樂盛世：鄭和下西洋的世界視野", url: "topics/chinese-history/lesson-52.html" },
+            { title: "內閣制度與宦官政治：皇權集中後的制度變形", url: "topics/chinese-history/lesson-53.html" },
+            { title: "倭寇與海禁：明朝的海洋政策困境", url: "topics/chinese-history/lesson-54.html" },
+            { title: "明朝中後期：張居正改革與黨爭內耗", url: "topics/chinese-history/lesson-55.html" }
+          ]
+        },
+        {
+          title: "模組 M｜清：盛世到衰亡",
+          courses: [
+            { title: "滿洲崛起與清軍入關：明清易代的關鍵", url: "topics/chinese-history/lesson-56.html" },
+            { title: "康雍乾盛世：疆域擴張與文字獄的雙面", url: "topics/chinese-history/lesson-57.html" },
+            { title: "閉關鎖國：對外政策如何錯失時代轉型", url: "topics/chinese-history/lesson-58.html" },
+            { title: "人口壓力與內部危機：盛世表象下的隱憂", url: "topics/chinese-history/lesson-59.html" },
+            { title: "白蓮教、太平天國：清朝中期的內部動亂", url: "topics/chinese-history/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 N｜近代：鴉片戰爭到帝制終結",
+          courses: [
+            { title: "鴉片戰爭：中西衝突與不平等條約的開端", url: "topics/chinese-history/lesson-61.html" },
+            { title: "太平天國與洋務運動：內憂外患下的自強嘗試", url: "topics/chinese-history/lesson-62.html" },
+            { title: "甲午戰爭與戊戌變法：東亞秩序的翻轉與改革挫敗", url: "topics/chinese-history/lesson-63.html" },
+            { title: "義和團與八國聯軍：排外情緒與帝國的最後屈辱", url: "topics/chinese-history/lesson-64.html" },
+            { title: "辛亥革命：帝制終結與共和的誕生", url: "topics/chinese-history/lesson-65.html" }
+          ]
+        },
+        {
+          title: "模組 O｜民國：軍閥、抗戰與內戰",
+          courses: [
+            { title: "北洋政府與軍閥割據：共和初年的混亂", url: "topics/chinese-history/lesson-66.html" },
+            { title: "五四運動與新文化運動：思想啟蒙的浪潮", url: "topics/chinese-history/lesson-67.html" },
+            { title: "國共合作與分裂：北伐統一與清黨", url: "topics/chinese-history/lesson-68.html" },
+            { title: "抗日戰爭：從九一八到八年全面抗戰", url: "topics/chinese-history/lesson-69.html" },
+            { title: "國共內戰：1949年之前的最後對決", url: "topics/chinese-history/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 P｜中華人民共和國前期：建國到改革開放",
+          courses: [
+            { title: "1949年建國：新政權的初期建設", url: "topics/chinese-history/lesson-71.html" },
+            { title: "土地改革與計畫經濟：早期的社會改造", url: "topics/chinese-history/lesson-72.html" },
+            { title: "大躍進與三年困難時期：政策失誤的教訓", url: "topics/chinese-history/lesson-73.html" },
+            { title: "文化大革命：十年動盪的成因與影響", url: "topics/chinese-history/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜當代中國：改革開放至今",
+          courses: [
+            { title: "1978年改革開放：鄧小平與經濟轉型的起點", url: "topics/chinese-history/lesson-75.html" },
+            { title: "經濟崛起：從計畫經濟到「世界工廠」", url: "topics/chinese-history/lesson-76.html" },
+            { title: "21世紀的中國：全球化下的機遇與挑戰", url: "topics/chinese-history/lesson-77.html" }
+          ]
+        },
+        {
+          title: "模組 R｜橫向專題：制度、經濟與思想文化的貫穿觀察",
+          courses: [
+            { title: "中央集權的演變：從封建到郡縣、再到現代國家", url: "topics/chinese-history/lesson-78.html" },
+            { title: "科舉制度千年史：選才制度如何形塑社會流動", url: "topics/chinese-history/lesson-79.html" },
+            { title: "儒家思想的興衰起伏：從官方意識形態到近代反思", url: "topics/chinese-history/lesson-80.html" },
+            { title: "中國歷史上的統一與分裂週期：一個長時段的觀察", url: "topics/chinese-history/lesson-81.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "課程總結：從神話創世到當代中國的完整旅程", url: "topics/chinese-history/lesson-82.html" }
           ]
         }
       ]
