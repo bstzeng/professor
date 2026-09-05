@@ -4082,6 +4082,177 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "ai-workflow-map",
+      category: "tech",
+      title: "AI工作流全景圖：目前有哪些工具、怎麼組、怎麼選",
+      description:
+        "盤點目前檯面上所有主要的AI工作流做法——從對話式助理、無碼自動化平台、程式框架與Agent SDK、AI編碼工具，到地端自架方案、RAG知識庫、內容生成與辦公室AI；並補齊MCP等互通標準、五種可重複套用的工作流設計模式、Agent的能力邊界、評測監控與成本控制、資安與治理，最後用一張決策樹、三種標準配置與六個真實情境，帶你從「目前有哪些工具」走到「我該用哪一組」。",
+      icon: "🗺️",
+      url: "topics/ai-workflow-map/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：什麼是「AI工作流」",
+          courses: [
+            { title: "從「跟AI聊天」到「讓AI幹活」：工作流的定義", url: "topics/ai-workflow-map/lesson-01.html" },
+            { title: "這門課的地圖：工具層、模式層、治理層", url: "topics/ai-workflow-map/lesson-02.html" },
+            { title: "一組座標軸：雲端↔地端、無碼↔寫程式、固定↔自主", url: "topics/ai-workflow-map/lesson-03.html" },
+            { title: "模組總結：怎麼用這張地圖看懂任何一個新工具", url: "topics/ai-workflow-map/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜第一類：對話式AI工作台",
+          courses: [
+            { title: "ChatGPT／Claude／Gemini：三家通用助理的定位差異", url: "topics/ai-workflow-map/lesson-05.html" },
+            { title: "專案、記憶與自訂指令：把一次性對話變成可重複流程", url: "topics/ai-workflow-map/lesson-06.html" },
+            { title: "檔案、Canvas／Artifacts 與資料分析：對話框裡的小工作流", url: "topics/ai-workflow-map/lesson-07.html" },
+            { title: "連接器與外掛：讓助理讀得到信箱、行事曆與雲端硬碟", url: "topics/ai-workflow-map/lesson-08.html" },
+            { title: "模組總結：什麼情況「一個對話視窗」其實就夠了", url: "topics/ai-workflow-map/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜第二類：無碼／低碼自動化編排",
+          courses: [
+            { title: "Zapier 與 Make：把AI塞進既有SaaS流程", url: "topics/ai-workflow-map/lesson-10.html" },
+            { title: "n8n：可自架的開源編排平台", url: "topics/ai-workflow-map/lesson-11.html" },
+            { title: "Dify／Coze／Flowise／Langflow：以LLM為核心的應用建構器", url: "topics/ai-workflow-map/lesson-12.html" },
+            { title: "Power Automate 與企業內建方案", url: "topics/ai-workflow-map/lesson-13.html" },
+            { title: "怎麼挑：觸發器生態、節點數量、可自架性與計價模式", url: "topics/ai-workflow-map/lesson-14.html" },
+            { title: "模組總結：無碼平台的能力邊界在哪裡", url: "topics/ai-workflow-map/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜第三類：程式框架與 Agent SDK",
+          courses: [
+            { title: "為什麼有了平台還是有人要寫程式", url: "topics/ai-workflow-map/lesson-16.html" },
+            { title: "LangChain／LangGraph：鏈式流程與狀態圖", url: "topics/ai-workflow-map/lesson-17.html" },
+            { title: "LlamaIndex 等 RAG 導向框架", url: "topics/ai-workflow-map/lesson-18.html" },
+            { title: "Agent SDK：Claude Agent SDK、OpenAI Agents SDK", url: "topics/ai-workflow-map/lesson-19.html" },
+            { title: "多Agent框架：CrewAI、AutoGen 與角色分工的真實效益", url: "topics/ai-workflow-map/lesson-20.html" },
+            { title: "模組總結：什麼時候該從畫布走向程式碼", url: "topics/ai-workflow-map/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 E｜第四類：AI編碼工作流",
+          courses: [
+            { title: "補全 vs 對話 vs 代理：三代編碼AI", url: "topics/ai-workflow-map/lesson-22.html" },
+            { title: "IDE型：Cursor、GitHub Copilot、Windsurf", url: "topics/ai-workflow-map/lesson-23.html" },
+            { title: "終端／代理型：Claude Code、Codex、Aider、Cline", url: "topics/ai-workflow-map/lesson-24.html" },
+            { title: "非同步代理：丟一個issue，收一個PR", url: "topics/ai-workflow-map/lesson-25.html" },
+            { title: "規格、審查與測試：讓AI寫的程式碼可被信任", url: "topics/ai-workflow-map/lesson-26.html" },
+            { title: "模組總結：開發流程被改寫的部分，與沒被改寫的部分", url: "topics/ai-workflow-map/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 F｜第五類：地端與自架方案",
+          courses: [
+            { title: "Ollama、LM Studio、llama.cpp：個人電腦上的模型執行器", url: "topics/ai-workflow-map/lesson-28.html" },
+            { title: "vLLM 與生產級推論服務", url: "topics/ai-workflow-map/lesson-29.html" },
+            { title: "Open WebUI／AnythingLLM：自架的對話與知識庫前端", url: "topics/ai-workflow-map/lesson-30.html" },
+            { title: "開源模型現況：能力落差與硬體門檻", url: "topics/ai-workflow-map/lesson-31.html" },
+            { title: "模組總結：資料主權的代價與收益", url: "topics/ai-workflow-map/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 G｜知識與資料：RAG 與知識庫工作流",
+          courses: [
+            { title: "RAG 的骨架：切塊、嵌入、檢索、生成", url: "topics/ai-workflow-map/lesson-33.html" },
+            { title: "向量資料庫盤點：pgvector、Qdrant、Chroma、Weaviate", url: "topics/ai-workflow-map/lesson-34.html" },
+            { title: "現成知識庫產品：NotebookLM 與各平台內建知識庫", url: "topics/ai-workflow-map/lesson-35.html" },
+            { title: "進階檢索：混合檢索、重排序、GraphRAG 與長脈絡的擠壓", url: "topics/ai-workflow-map/lesson-36.html" },
+            { title: "模組總結：什麼時候該做RAG，什麼時候根本不用", url: "topics/ai-workflow-map/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 H｜內容生產工作流：圖像、影音與聲音",
+          courses: [
+            { title: "圖像：ComfyUI 的節點式工作流 vs 雲端生成服務", url: "topics/ai-workflow-map/lesson-38.html" },
+            { title: "影片：文生影片與AI剪輯目前真正能用的位置", url: "topics/ai-workflow-map/lesson-39.html" },
+            { title: "語音：TTS、語音轉文字與會議紀錄流程", url: "topics/ai-workflow-map/lesson-40.html" },
+            { title: "音樂與配樂生成", url: "topics/ai-workflow-map/lesson-41.html" },
+            { title: "模組總結：一條可重複的內容生產線長什麼樣", url: "topics/ai-workflow-map/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 I｜辦公與知識工作流",
+          courses: [
+            { title: "文件、簡報、試算表：Microsoft 365 Copilot 與 Google Workspace", url: "topics/ai-workflow-map/lesson-43.html" },
+            { title: "筆記與第二大腦：Notion AI、Obsidian 外掛與個人知識管理", url: "topics/ai-workflow-map/lesson-44.html" },
+            { title: "溝通協作：Slack／Teams 裡的AI", url: "topics/ai-workflow-map/lesson-45.html" },
+            { title: "模組總結：個人生產力流程的重新設計", url: "topics/ai-workflow-map/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 J｜互通標準：讓工具彼此連得起來",
+          courses: [
+            { title: "工具呼叫（Tool Calling）：AI 能動手的基本機制", url: "topics/ai-workflow-map/lesson-47.html" },
+            { title: "MCP：把資料源與工具接上模型的通用介面", url: "topics/ai-workflow-map/lesson-48.html" },
+            { title: "OpenAI 相容 API：模型可替換性的關鍵", url: "topics/ai-workflow-map/lesson-49.html" },
+            { title: "Agent 之間的協作與跨系統標準", url: "topics/ai-workflow-map/lesson-50.html" },
+            { title: "模組總結：標準化如何降低你的選型風險", url: "topics/ai-workflow-map/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 K｜工作流設計模式",
+          courses: [
+            { title: "Prompt Chaining：把大任務切成可驗證的小步", url: "topics/ai-workflow-map/lesson-52.html" },
+            { title: "Routing：先分類再處理", url: "topics/ai-workflow-map/lesson-53.html" },
+            { title: "平行化與多路投票", url: "topics/ai-workflow-map/lesson-54.html" },
+            { title: "Orchestrator–Worker：主控與子任務", url: "topics/ai-workflow-map/lesson-55.html" },
+            { title: "Evaluator–Optimizer：讓AI審自己的稿", url: "topics/ai-workflow-map/lesson-56.html" },
+            { title: "模組總結：先選模式，再選工具", url: "topics/ai-workflow-map/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 L｜Agent：從固定流程到自主決策",
+          courses: [
+            { title: "Workflow 與 Agent 的分界線", url: "topics/ai-workflow-map/lesson-58.html" },
+            { title: "Agent 迴圈：規劃、行動、觀察、修正", url: "topics/ai-workflow-map/lesson-59.html" },
+            { title: "記憶、脈絡與長任務", url: "topics/ai-workflow-map/lesson-60.html" },
+            { title: "Human-in-the-loop：把人放回關鍵節點", url: "topics/ai-workflow-map/lesson-61.html" },
+            { title: "模組總結：什麼任務適合交給Agent，什麼不適合", url: "topics/ai-workflow-map/lesson-62.html" }
+          ]
+        },
+        {
+          title: "模組 M｜評測、監控與成本",
+          courses: [
+            { title: "為什麼AI流程一定要有一組評測集", url: "topics/ai-workflow-map/lesson-63.html" },
+            { title: "可觀測性工具：LangSmith、Langfuse 等", url: "topics/ai-workflow-map/lesson-64.html" },
+            { title: "成本結構：token、快取、模型分級與路由", url: "topics/ai-workflow-map/lesson-65.html" },
+            { title: "延遲與使用者體驗", url: "topics/ai-workflow-map/lesson-66.html" },
+            { title: "模組總結：能被衡量，才能被改善", url: "topics/ai-workflow-map/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 N｜風險、安全與治理",
+          courses: [
+            { title: "幻覺與可驗證性：輸出把關的設計方式", url: "topics/ai-workflow-map/lesson-68.html" },
+            { title: "Prompt Injection 與不可信輸入", url: "topics/ai-workflow-map/lesson-69.html" },
+            { title: "權限最小化、金鑰與稽核軌跡", url: "topics/ai-workflow-map/lesson-70.html" },
+            { title: "法遵與資料落地：企業導入最常卡住的地方", url: "topics/ai-workflow-map/lesson-71.html" },
+            { title: "模組總結：治理不是煞車，是能上路的條件", url: "topics/ai-workflow-map/lesson-72.html" }
+          ]
+        },
+        {
+          title: "模組 O｜選型與落地",
+          courses: [
+            { title: "一張決策樹：從需求走到工具組合", url: "topics/ai-workflow-map/lesson-73.html" },
+            { title: "三種標準配置：個人、小團隊、企業", url: "topics/ai-workflow-map/lesson-74.html" },
+            { title: "導入節奏：先自動化哪一個流程才不會失敗", url: "topics/ai-workflow-map/lesson-75.html" },
+            { title: "六個情境拆解：從需求到完整工作流", url: "topics/ai-workflow-map/lesson-76.html" },
+            { title: "模組總結：工具會換，架構不會", url: "topics/ai-workflow-map/lesson-77.html" }
+          ]
+        },
+        {
+          title: "模組 P｜趨勢與課程總結",
+          courses: [
+            { title: "這一年變化最快的三件事", url: "topics/ai-workflow-map/lesson-78.html" },
+            { title: "什麼是短期噪音，什麼是長期結構", url: "topics/ai-workflow-map/lesson-79.html" },
+            { title: "全課程總結：把地圖折起來，開始動手", url: "topics/ai-workflow-map/lesson-80.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
