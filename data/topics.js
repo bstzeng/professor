@@ -5107,6 +5107,232 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "wwi",
+      category: "history",
+      title: "第一次世界大戰全紀錄：從火藥桶到停戰協定",
+      description:
+        "從民族主義、軍備競賽與同盟體系的戰前氛圍出發，逐一深讀薩拉熱窩事件、西線壕溝戰、東線戰事與其他戰場的關鍵戰役，接續俄國革命、美國參戰到百日攻勢的戰爭終局，並剖析戰爭對社會的衝擊，以及巴黎和會如何為二十年後的另一場戰爭埋下伏筆。",
+      icon: "🪖",
+      url: "topics/wwi/index.html",
+      modules: [
+        {
+          title: "模組 A｜戰爭的遠因：一個火藥桶是怎麼堆起來的",
+          courses: [
+            { title: "民族主義、帝國主義與社會達爾文主義：戰前歐洲的思想氣候", url: "topics/wwi/lesson-01.html" },
+            { title: "軍備競賽：無畏艦競賽與總體戰思維的成形", url: "topics/wwi/lesson-02.html" },
+            { title: "兩大陣營的形成：三國同盟與三國協約", url: "topics/wwi/lesson-03.html" },
+            { title: "「歐洲病夫」的衰落：鄂圖曼帝國與巴爾幹半島的權力真空", url: "topics/wwi/lesson-04.html" },
+            { title: "兩次巴爾幹戰爭：戰前的預演", url: "topics/wwi/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜引爆點：從薩拉熱窩到全面開戰",
+          courses: [
+            { title: "薩拉熱窩事件：斐迪南大公夫婦遇刺的經過", url: "topics/wwi/lesson-06.html" },
+            { title: "七月危機：一封最後通牒如何引發連鎖反應", url: "topics/wwi/lesson-07.html" },
+            { title: "同盟義務的骨牌效應：外交失控的深層原因", url: "topics/wwi/lesson-08.html" },
+            { title: "施里芬計畫：德國的兩線作戰賭注", url: "topics/wwi/lesson-09.html" },
+            { title: "「聖誕節前結束戰爭」：各國開戰初期的樂觀誤判", url: "topics/wwi/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜西線：壕溝裡的絞肉機",
+          courses: [
+            { title: "馬恩河戰役：施里芬計畫的破產與陣地戰的開端", url: "topics/wwi/lesson-11.html" },
+            { title: "壕溝戰的形成：鐵絲網、機槍與無人地帶", url: "topics/wwi/lesson-12.html" },
+            { title: "凡爾登戰役：「讓法國把血流盡」的消耗戰略", url: "topics/wwi/lesson-13.html" },
+            { title: "索姆河戰役：史上最血腥的一天與坦克的初登場", url: "topics/wwi/lesson-14.html" },
+            { title: "帕森達勒（第三次伊珀爾戰役）：泥沼中的僵局", url: "topics/wwi/lesson-15.html" },
+            { title: "新式武器：毒氣、飛機、坦克如何改變戰爭型態", url: "topics/wwi/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 D｜東線與其他戰場",
+          courses: [
+            { title: "坦能堡戰役：興登堡與魯登道夫的崛起", url: "topics/wwi/lesson-17.html" },
+            { title: "布魯西洛夫攻勢：俄軍最後的高光時刻", url: "topics/wwi/lesson-18.html" },
+            { title: "加里波利之戰：邱吉爾的賭注與澳紐軍團的犧牲", url: "topics/wwi/lesson-19.html" },
+            { title: "中東戰場：阿拉伯起義與鄂圖曼帝國的瓦解", url: "topics/wwi/lesson-20.html" },
+            { title: "日德蘭海戰與無限制潛艇戰：海上的角力", url: "topics/wwi/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 E｜俄國革命與東線的終結",
+          courses: [
+            { title: "沙俄的崩潰：戰爭壓力如何催化二月革命", url: "topics/wwi/lesson-22.html" },
+            { title: "十月革命與布爾什維克奪權", url: "topics/wwi/lesson-23.html" },
+            { title: "布列斯特-立陶夫斯克條約：俄國退出戰爭的代價", url: "topics/wwi/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜美國參戰與戰爭終結",
+          courses: [
+            { title: "盧西塔尼亞號事件與美國中立立場的動搖", url: "topics/wwi/lesson-25.html" },
+            { title: "齊默爾曼電報：壓垮中立的最後一根稻草", url: "topics/wwi/lesson-26.html" },
+            { title: "美國參戰對兵力與物資的實質影響", url: "topics/wwi/lesson-27.html" },
+            { title: "魯登道夫攻勢：德國的最後豪賭", url: "topics/wwi/lesson-28.html" },
+            { title: "百日攻勢：同盟國陣營的骨牌式崩潰", url: "topics/wwi/lesson-29.html" },
+            { title: "1918年11月11日：停戰協定的簽署", url: "topics/wwi/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 G｜這場戰爭如何改變了世界與人",
+          courses: [
+            { title: "壕溝士兵的日常：戰壕熱、砲彈休克與戰爭創傷", url: "topics/wwi/lesson-31.html" },
+            { title: "傷亡統計與「迷惘的一代」", url: "topics/wwi/lesson-32.html" },
+            { title: "女性角色的轉變：後方生產動員與戰後參政權", url: "topics/wwi/lesson-33.html" },
+            { title: "1918年西班牙流感：戰爭陰影下的全球大流行", url: "topics/wwi/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 H｜巴黎和會與埋下下一場戰爭的種子",
+          courses: [
+            { title: "巴黎和會：三巨頭的角力與理想主義的侷限", url: "topics/wwi/lesson-35.html" },
+            { title: "凡爾賽條約：戰爭責任條款與鉅額賠款", url: "topics/wwi/lesson-36.html" },
+            { title: "民族自決原則：新國家的誕生與遺留問題", url: "topics/wwi/lesson-37.html" },
+            { title: "國際聯盟的成立與結構性侷限", url: "topics/wwi/lesson-38.html" },
+            { title: "模組總結：一份和約如何為二十年後的戰爭埋下伏筆", url: "topics/wwi/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 I｜課程總結",
+          courses: [
+            { title: "課程總結：從火藥桶到停戰協定的完整旅程", url: "topics/wwi/lesson-40.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "wwii",
+      category: "history",
+      title: "第二次世界大戰全紀錄：從凡爾賽的裂痕到廣島的閃光",
+      description:
+        "從凡爾賽條約留下的裂痕、經濟大蕭條與法西斯崛起出發，依序深讀歐洲閃電戰、東線大戰、北非地中海戰場、太平洋戰爭與中國戰場的關鍵戰役，接續盟軍反攻、原子彈與終戰，並正視猶太人大屠殺等人道災難，最後檢視戰後清算與新秩序的誕生。",
+      icon: "💣",
+      url: "topics/wwii/index.html",
+      modules: [
+        {
+          title: "模組 A｜戰爭的遠因：從凡爾賽到法西斯崛起",
+          courses: [
+            { title: "凡爾賽條約的遺產：德國的屈辱感與經濟崩潰", url: "topics/wwii/lesson-01.html" },
+            { title: "惡性通膨與經濟大蕭條：極端主義滋長的土壤", url: "topics/wwii/lesson-02.html" },
+            { title: "義大利法西斯：墨索里尼與極權統治的原型", url: "topics/wwii/lesson-03.html" },
+            { title: "納粹的崛起：希特勒、啤酒館政變與國會縱火案", url: "topics/wwii/lesson-04.html" },
+            { title: "日本軍國主義：從大正民主到軍部專政", url: "topics/wwii/lesson-05.html" },
+            { title: "綏靖政策：英法為何一再退讓", url: "topics/wwii/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 B｜歐洲戰事的序幕",
+          courses: [
+            { title: "德國的擴張：萊茵蘭進駐、奧地利合併、蘇台德區", url: "topics/wwii/lesson-07.html" },
+            { title: "慕尼黑協定：「我們這個時代的和平」", url: "topics/wwii/lesson-08.html" },
+            { title: "德蘇互不侵犯條約：意識形態對手的權宜聯手", url: "topics/wwii/lesson-09.html" },
+            { title: "閃擊波蘭：1939年9月的開戰", url: "topics/wwii/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜閃電戰的巔峰：1939-1941年西歐",
+          courses: [
+            { title: "假戰與冬季戰爭：蘇聯入侵芬蘭", url: "topics/wwii/lesson-11.html" },
+            { title: "閃擊西歐：荷比盧與法國的迅速崩潰", url: "topics/wwii/lesson-12.html" },
+            { title: "敦克爾克大撤退", url: "topics/wwii/lesson-13.html" },
+            { title: "不列顛戰役：英國的空中防禦戰", url: "topics/wwii/lesson-14.html" },
+            { title: "大西洋海戰：狼群戰術與護航體系", url: "topics/wwii/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜東線：史上最血腥的戰場",
+          courses: [
+            { title: "巴巴羅薩行動：德國入侵蘇聯的豪賭", url: "topics/wwii/lesson-16.html" },
+            { title: "莫斯科保衛戰：閃擊戰神話的第一次破滅", url: "topics/wwii/lesson-17.html" },
+            { title: "史達林格勒戰役：轉捩點的巷戰絞肉機", url: "topics/wwii/lesson-18.html" },
+            { title: "庫斯克會戰：史上最大規模的坦克會戰", url: "topics/wwii/lesson-19.html" },
+            { title: "蘇軍反攻：從巴格拉基昂行動到柏林戰役", url: "topics/wwii/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 E｜北非與地中海戰場",
+          courses: [
+            { title: "沙漠之狐：隆美爾與北非拉鋸戰", url: "topics/wwii/lesson-21.html" },
+            { title: "阿拉曼戰役：北非戰局的轉折", url: "topics/wwii/lesson-22.html" },
+            { title: "西西里島登陸與義大利投降", url: "topics/wwii/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 F｜太平洋戰爭的爆發",
+          courses: [
+            { title: "日本的南進政策與資源封鎖", url: "topics/wwii/lesson-24.html" },
+            { title: "珍珠港事變：奇襲與美國參戰", url: "topics/wwii/lesson-25.html" },
+            { title: "日軍初期的閃電擴張：東南亞與太平洋島鏈", url: "topics/wwii/lesson-26.html" },
+            { title: "中途島海戰：太平洋戰爭的轉捩點", url: "topics/wwii/lesson-27.html" },
+            { title: "瓜達卡納爾島戰役：消耗戰的開端", url: "topics/wwii/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 G｜中國戰場與亞洲戰事",
+          courses: [
+            { title: "中日戰爭與二戰的交會：從盧溝橋到珍珠港", url: "topics/wwii/lesson-29.html" },
+            { title: "中緬印戰場與駝峰航線", url: "topics/wwii/lesson-30.html" },
+            { title: "東南亞的日軍占領與抵抗運動", url: "topics/wwii/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 H｜歐洲戰場的反攻",
+          courses: [
+            { title: "諾曼第登陸：大君主作戰的規劃與執行", url: "topics/wwii/lesson-32.html" },
+            { title: "解放法國：從諾曼第到巴黎光復", url: "topics/wwii/lesson-33.html" },
+            { title: "突出部之役：希特勒最後的西線反撲", url: "topics/wwii/lesson-34.html" },
+            { title: "雅爾達會議：戰後秩序的預先劃分", url: "topics/wwii/lesson-35.html" },
+            { title: "柏林戰役與希特勒之死：第三帝國的終結", url: "topics/wwii/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 I｜太平洋戰場的島嶼跳躍",
+          courses: [
+            { title: "跳島戰術：麥克阿瑟與尼米茲的戰略分歧", url: "topics/wwii/lesson-37.html" },
+            { title: "塞班島、關島：馬里亞納群島爭奪戰", url: "topics/wwii/lesson-38.html" },
+            { title: "雷伊泰灣海戰：史上最大規模海戰", url: "topics/wwii/lesson-39.html" },
+            { title: "硫磺島戰役：折缽山上的旗幟", url: "topics/wwii/lesson-40.html" },
+            { title: "沖繩戰役：本土決戰的預演與神風特攻", url: "topics/wwii/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜大屠殺與戰爭中的人道災難",
+          courses: [
+            { title: "猶太人大屠殺：從紐倫堡法案到最終解決方案", url: "topics/wwii/lesson-42.html" },
+            { title: "集中營體系：奧斯威辛與滅絕營的運作", url: "topics/wwii/lesson-43.html" },
+            { title: "其他受害群體：羅姆人、身心障礙者、政治犯", url: "topics/wwii/lesson-44.html" },
+            { title: "亞洲戰場的戰爭暴行與戰後究責爭議", url: "topics/wwii/lesson-45.html" },
+            { title: "戰爭中的平民苦難：轟炸、圍城與難民潮", url: "topics/wwii/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 K｜原子彈與戰爭終結",
+          courses: [
+            { title: "曼哈頓計畫：原子彈的研發競賽", url: "topics/wwii/lesson-47.html" },
+            { title: "廣島與長崎：原子彈的使用與爭議", url: "topics/wwii/lesson-48.html" },
+            { title: "日本投降：終戰詔書與麥克阿瑟受降", url: "topics/wwii/lesson-49.html" },
+            { title: "模組總結：科技如何終結了人類史上最慘烈的戰爭", url: "topics/wwii/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 L｜戰後清算與新秩序的誕生",
+          courses: [
+            { title: "紐倫堡大審與東京審判：戰爭罪責的司法清算", url: "topics/wwii/lesson-51.html" },
+            { title: "聯合國的成立：從國際聯盟的失敗中學到的教訓", url: "topics/wwii/lesson-52.html" },
+            { title: "雅爾達體系與冷戰的序幕", url: "topics/wwii/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 M｜課程總結",
+          courses: [
+            { title: "課程總結：從凡爾賽的裂痕到廣島閃光的完整旅程", url: "topics/wwii/lesson-54.html" }
+          ]
+        }
+      ]
     }
   ]
 };
