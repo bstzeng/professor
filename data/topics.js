@@ -4797,6 +4797,127 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "star-wars",
+      category: "fantasy",
+      title: "星際大戰全紀錄：從創作背景到絕地與西斯的傳承",
+      description:
+        "從喬治盧卡斯的創作背景出發，依序深度導讀原初、前傳、後傳三部曲與衍生電影劇集，再橫向剖析原力與絕地哲學、天行者家族的三代恩怨、核心角色塑造與世界觀設定，最後總覽特效革命、周邊產業與粉絲文化帶來的深遠影響。",
+      icon: "🌌",
+      url: "topics/star-wars/index.html",
+      modules: [
+        {
+          title: "模組 A｜認識星際大戰：喬治盧卡斯與創作背景",
+          courses: [
+            { title: "喬治盧卡斯是誰：從獨立電影人到打造一個銀河系", url: "topics/star-wars/lesson-01.html" },
+            { title: "創作起源：黑澤明、坎伯「英雄旅程」與太空歌劇的融合", url: "topics/star-wars/lesson-02.html" },
+            { title: "九部曲全覽：三個三部曲的拍攝順序與故事時間軸的落差", url: "topics/star-wars/lesson-03.html" },
+            { title: "出版與發行史：從1977年的獨立奇蹟到迪士尼併購後的擴張", url: "topics/star-wars/lesson-04.html" },
+            { title: "模組總結：一張地圖看懂正史、外傳與衍生作品的關係", url: "topics/star-wars/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜原初三部曲：一個傳奇的誕生（4-6集）",
+          courses: [
+            { title: "《曙光乍現》：路克·天行者的英雄旅程起點", url: "topics/star-wars/lesson-06.html" },
+            { title: "死星、原力與絕地騎士：世界觀基礎設定的建立", url: "topics/star-wars/lesson-07.html" },
+            { title: "《帝國大反擊》：黑暗降臨與那句經典的身世轉折", url: "topics/star-wars/lesson-08.html" },
+            { title: "尤達與絕地訓練：智慧導師原型的塑造", url: "topics/star-wars/lesson-09.html" },
+            { title: "《絕地大反攻》：救贖、犧牲與帝國的終結", url: "topics/star-wars/lesson-10.html" },
+            { title: "模組總結：為什麼原初三部曲奠定了現代大片的敘事典範", url: "topics/star-wars/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜前傳三部曲：英雄如何墮落成惡魔（1-3集）",
+          courses: [
+            { title: "《幽靈威脅》：貿易同盟、原力預言與安納金的出場", url: "topics/star-wars/lesson-12.html" },
+            { title: "《複製人全面進攻》：禁忌之戀與複製人軍團的伏筆", url: "topics/star-wars/lesson-13.html" },
+            { title: "《西斯大帝的復仇》：安納金如何一步步走向黑暗西斯大帝之路", url: "topics/star-wars/lesson-14.html" },
+            { title: "政治操弄與共和國的崩壞：帕爾帕丁的長期布局", url: "topics/star-wars/lesson-15.html" },
+            { title: "模組總結：一部悲劇三部曲的爭議與重新評價", url: "topics/star-wars/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 D｜後傳三部曲：新世代的傳承與爭議（7-9集）",
+          courses: [
+            { title: "《原力覺醒》：芮的身世之謎與第一軍團的崛起", url: "topics/star-wars/lesson-17.html" },
+            { title: "《最後的絕地武士》：對「英雄旅程」公式的顛覆與粉絲反彈", url: "topics/star-wars/lesson-18.html" },
+            { title: "《天行者的崛起》：三部曲收官的爭議與敘事調整", url: "topics/star-wars/lesson-19.html" },
+            { title: "為什麼後傳三部曲的評價如此兩極", url: "topics/star-wars/lesson-20.html" },
+            { title: "模組總結：一個系列如何面對創作方向不一致的挑戰", url: "topics/star-wars/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 E｜衍生電影與劇集：擴張中的銀河系",
+          courses: [
+            { title: "外傳電影：《俠盜一號》與《韓索羅》的定位與敘事實驗", url: "topics/star-wars/lesson-22.html" },
+            { title: "《曼達洛人》：如何重新贏回觀眾信任的關鍵作品", url: "topics/star-wars/lesson-23.html" },
+            { title: "《歐比王肯諾比》《安道爾》等劇集：角色前傳與政治驚悚的新嘗試", url: "topics/star-wars/lesson-24.html" },
+            { title: "動畫系列：《複製人之戰》與《叛亂》的正史地位", url: "topics/star-wars/lesson-25.html" },
+            { title: "模組總結：串流時代的星際大戰擴張策略", url: "topics/star-wars/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 F｜原力與絕地哲學",
+          courses: [
+            { title: "原力是什麼：光明面、黑暗面與平衡的概念設計", url: "topics/star-wars/lesson-27.html" },
+            { title: "絕地武士團：紀律、無執念與制度性的盲點", url: "topics/star-wars/lesson-28.html" },
+            { title: "西斯教條：兩人法則與權力慾望的哲學", url: "topics/star-wars/lesson-29.html" },
+            { title: "原力使用者的能力系統：從念力到預知的設定演變", url: "topics/star-wars/lesson-30.html" },
+            { title: "模組總結：一套融合東方哲學與西方英雄敘事的原創信仰系統", url: "topics/star-wars/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 G｜天行者家族：貫穿九部曲的血脈",
+          courses: [
+            { title: "安納金·天行者：從天選之子到黑武士的完整弧線", url: "topics/star-wars/lesson-32.html" },
+            { title: "路克·天行者：拒絕黑暗面的第二代英雄", url: "topics/star-wars/lesson-33.html" },
+            { title: "莉亞公主／歐嘉納：反抗軍領袖與被隱藏的身世", url: "topics/star-wars/lesson-34.html" },
+            { title: "韓·索羅與家族的羈絆：一個外人如何成為天行者的一部分", url: "topics/star-wars/lesson-35.html" },
+            { title: "凱羅·忍／班·索羅：第三代的墮落與救贖", url: "topics/star-wars/lesson-36.html" },
+            { title: "模組總結：三代人的宿命與選擇", url: "topics/star-wars/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 H｜其他核心角色深度剖析",
+          courses: [
+            { title: "尤達與歐比王：兩種絕地導師典型的比較", url: "topics/star-wars/lesson-38.html" },
+            { title: "帕爾帕丁：系列史上最有耐心的反派布局", url: "topics/star-wars/lesson-39.html" },
+            { title: "達斯維達：從安納金到黑武士，聲音、面具與人物形象的塑造", url: "topics/star-wars/lesson-40.html" },
+            { title: "R2-D2與C-3PO：貫穿全系列的雙人喜劇與敘事功能", url: "topics/star-wars/lesson-41.html" },
+            { title: "藍多、丘巴卡與反抗軍配角群像", url: "topics/star-wars/lesson-42.html" },
+            { title: "芮、芬恩與波·戴姆龍：後傳三部曲的新世代主角", url: "topics/star-wars/lesson-43.html" },
+            { title: "模組總結：星際大戰角色塑造的共通手法", url: "topics/star-wars/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 I｜世界觀與科技設定",
+          courses: [
+            { title: "銀河共和國到銀河帝國：政治體制的興衰", url: "topics/star-wars/lesson-45.html" },
+            { title: "星際艦隊與武器系統：死星、鈦戰機與千年鷹號", url: "topics/star-wars/lesson-46.html" },
+            { title: "克隆人軍團與風暴兵：士兵身分的設計演變", url: "topics/star-wars/lesson-47.html" },
+            { title: "外星種族圖鑑：從伍基人到赫特人的世界觀豐富度", url: "topics/star-wars/lesson-48.html" },
+            { title: "模組總結：一個橫跨政治、軍事、種族的完整銀河系統", url: "topics/star-wars/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 J｜文化影響與產業現象",
+          courses: [
+            { title: "特效革命：工業光魔如何改變電影特效產業", url: "topics/star-wars/lesson-50.html" },
+            { title: "周邊產業：玩具、主題樂園與有史以來最成功的授權模式", url: "topics/star-wars/lesson-51.html" },
+            { title: "粉絲文化：同人創作、爭議與「正史」設定的多次重編", url: "topics/star-wars/lesson-52.html" },
+            { title: "對後續科幻／太空歌劇作品的深遠影響", url: "topics/star-wars/lesson-53.html" },
+            { title: "模組總結：一個系列如何變成一種全球性的流行文化語言", url: "topics/star-wars/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 K｜課程總結",
+          courses: [
+            { title: "課程總結：從1977年的獨立奇蹟到跨媒體銀河帝國的完整旅程", url: "topics/star-wars/lesson-55.html" }
+          ]
+        }
+      ]
     }
   ]
 };
