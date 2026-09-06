@@ -4960,6 +4960,178 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "fullmetal-alchemist",
+      category: "anime",
+      title: "鋼之鍊金術士全紀錄：世界觀、劇情與人物完整解析",
+      description:
+        "以《鋼之鍊金術士 FULLMETAL ALCHEMIST》原作漫畫／Brotherhood 版本為準，完整拆解等價交換的鍊金術原理、賢者之石與人柱力、阿梅斯特里斯的地理軍事體制與伊修瓦爾戰爭的黑暗真相；再依時間線講完劇情——從人體鍊成的代價、拉魯獸重站的軍方陰謀、北方布里格斯要塞、疤痕的復仇線，到父親的真面目與伊修瓦爾終戰的完結篇；並以四個模組深入愛德華與阿爾馮斯兩兄弟、軍方群像、人造七宗罪與其他重要角色，最後整理鍊金術符號圖鑑、國家鍊金術師名冊與地圖軍區總覽，並以等價交換的人生哲學收束全課程。取材以2009年版動畫（Brotherhood）與原作漫畫的完整結局為主，2003年版動畫的不同結局僅作簡要說明，不混入主線劇情。",
+      icon: "⚗️",
+      url: "topics/fullmetal-alchemist/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：這部作品怎麼讀",
+          courses: [
+            { title: "鋼之鍊金術士是什麼：荒川弘與連載背景", url: "topics/fullmetal-alchemist/lesson-01.html" },
+            { title: "等價交換：規則與哲學的雙重身分", url: "topics/fullmetal-alchemist/lesson-02.html" }
+          ]
+        },
+        {
+          title: "模組 B｜鍊金術的原理與等價交換",
+          courses: [
+            { title: "鍊成陣的運作原理", url: "topics/fullmetal-alchemist/lesson-03.html" },
+            { title: "國家鍊金術師制度", url: "topics/fullmetal-alchemist/lesson-04.html" },
+            { title: "模組總結：從規則到禁忌", url: "topics/fullmetal-alchemist/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 C｜賢者之石與人柱力",
+          courses: [
+            { title: "賢者之石：無視等價交換的存在", url: "topics/fullmetal-alchemist/lesson-06.html" },
+            { title: "人柱力：真相與代價的轉嫁", url: "topics/fullmetal-alchemist/lesson-07.html" },
+            { title: "增幅鍊成與國家鍊成陣", url: "topics/fullmetal-alchemist/lesson-08.html" },
+            { title: "模組總結：一個關於代價的完整寓言", url: "topics/fullmetal-alchemist/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜阿梅斯特里斯的地理與軍事體制",
+          courses: [
+            { title: "阿梅斯特里斯的軍區劃分", url: "topics/fullmetal-alchemist/lesson-10.html" },
+            { title: "「人形兵器」：國家鍊金術師的實際處境", url: "topics/fullmetal-alchemist/lesson-11.html" },
+            { title: "模組總結：一個軍事化的國家", url: "topics/fullmetal-alchemist/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 E｜伊修瓦爾戰爭與國家的秘密",
+          courses: [
+            { title: "伊修瓦爾戰爭的起因與經過", url: "topics/fullmetal-alchemist/lesson-13.html" },
+            { title: "戰爭真正的目的：國家鍊成陣的用途", url: "topics/fullmetal-alchemist/lesson-14.html" },
+            { title: "模組總結：世界觀的完整版圖", url: "topics/fullmetal-alchemist/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 F｜人體鍊成的代價與踏上旅程",
+          courses: [
+            { title: "母親之死與人體鍊成的決定", url: "topics/fullmetal-alchemist/lesson-16.html" },
+            { title: "人體鍊成的失敗與代價", url: "topics/fullmetal-alchemist/lesson-17.html" },
+            { title: "洛克貝爾一家與溫麗", url: "topics/fullmetal-alchemist/lesson-18.html" },
+            { title: "模組總結：一趟贖罪與尋找的旅程", url: "topics/fullmetal-alchemist/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 G｜拉魯獸重站與軍方陰謀",
+          courses: [
+            { title: "疤痕登場：對國家鍊金術師的復仇", url: "topics/fullmetal-alchemist/lesson-20.html" },
+            { title: "拉魯獸重站的地下秘密", url: "topics/fullmetal-alchemist/lesson-21.html" },
+            { title: "與疤痕的初次交手", url: "topics/fullmetal-alchemist/lesson-22.html" },
+            { title: "模組總結：懸念的佈局", url: "topics/fullmetal-alchemist/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 H｜人造七宗罪初登場",
+          courses: [
+            { title: "拉斯特與格拉托尼", url: "topics/fullmetal-alchemist/lesson-24.html" },
+            { title: "恩維與軍方高層的關係", url: "topics/fullmetal-alchemist/lesson-25.html" },
+            { title: "模組總結：故事性質的轉變", url: "topics/fullmetal-alchemist/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 I｜北方軍與布里格斯",
+          courses: [
+            { title: "布里格斯要塞：凍土上的獨立王國", url: "topics/fullmetal-alchemist/lesson-27.html" },
+            { title: "阿姆斯特朗家族", url: "topics/fullmetal-alchemist/lesson-28.html" },
+            { title: "人造人工廠與身體秘密的追查", url: "topics/fullmetal-alchemist/lesson-29.html" },
+            { title: "模組總結：一個潛在的盟友基地", url: "topics/fullmetal-alchemist/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 J｜疤痕的過去與伊修瓦爾線",
+          courses: [
+            { title: "疤痕的真實身世", url: "topics/fullmetal-alchemist/lesson-31.html" },
+            { title: "馬爾寇兄妹與倖存者的處境", url: "topics/fullmetal-alchemist/lesson-32.html" },
+            { title: "模組總結：戰爭沒有真正的贏家", url: "topics/fullmetal-alchemist/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 K｜父親的真面目與國家鍊成陣",
+          courses: [
+            { title: "「父親」的真面目", url: "topics/fullmetal-alchemist/lesson-34.html" },
+            { title: "大總統普萊德的身分", url: "topics/fullmetal-alchemist/lesson-35.html" },
+            { title: "月蝕之日的計畫", url: "topics/fullmetal-alchemist/lesson-36.html" },
+            { title: "模組總結：一切懸念的匯聚點", url: "topics/fullmetal-alchemist/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 L｜伊修瓦爾內戰終戰與大決戰",
+          courses: [
+            { title: "舊部隊的反叛與盟友的集結", url: "topics/fullmetal-alchemist/lesson-38.html" },
+            { title: "馬斯坦的復仇與抉擇", url: "topics/fullmetal-alchemist/lesson-39.html" },
+            { title: "與父親及七宗罪的總決戰", url: "topics/fullmetal-alchemist/lesson-40.html" },
+            { title: "模組總結：一場集體的勝利", url: "topics/fullmetal-alchemist/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 M｜結局與代價的清算",
+          courses: [
+            { title: "等價交換的最終償還", url: "topics/fullmetal-alchemist/lesson-42.html" },
+            { title: "兄弟倆各自的選擇", url: "topics/fullmetal-alchemist/lesson-43.html" },
+            { title: "戰後的阿梅斯特里斯", url: "topics/fullmetal-alchemist/lesson-44.html" },
+            { title: "模組總結：劇情部分的完整回顧", url: "topics/fullmetal-alchemist/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物詳解①：愛德華與阿爾馮斯",
+          courses: [
+            { title: "愛德華·艾爾利克：義肢與心理創傷", url: "topics/fullmetal-alchemist/lesson-46.html" },
+            { title: "阿爾馮斯·艾爾利克：沒有身體的靈魂", url: "topics/fullmetal-alchemist/lesson-47.html" },
+            { title: "模組總結：一段共同承擔的旅程", url: "topics/fullmetal-alchemist/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物詳解②：軍方群像",
+          courses: [
+            { title: "洛伊·馬斯坦：野心與贖罪", url: "topics/fullmetal-alchemist/lesson-49.html" },
+            { title: "莉莎·霍克愛與亞歷克斯·阿姆斯特朗", url: "topics/fullmetal-alchemist/lesson-50.html" },
+            { title: "模組總結：體制內的多元光譜", url: "topics/fullmetal-alchemist/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物詳解③：七宗罪",
+          courses: [
+            { title: "七宗罪的血緣結構", url: "topics/fullmetal-alchemist/lesson-52.html" },
+            { title: "格里德：渴望自由的存在", url: "topics/fullmetal-alchemist/lesson-53.html" },
+            { title: "模組總結：弱點的具象化", url: "topics/fullmetal-alchemist/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物詳解④：其他重要角色",
+          courses: [
+            { title: "疤痕：復仇者的完整定位", url: "topics/fullmetal-alchemist/lesson-55.html" },
+            { title: "溫麗與馬爾寇兄妹", url: "topics/fullmetal-alchemist/lesson-56.html" },
+            { title: "模組總結：一部由角色支撐的作品", url: "topics/fullmetal-alchemist/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 R｜設定細節總整理",
+          courses: [
+            { title: "鍊金術符號與陣式圖鑑", url: "topics/fullmetal-alchemist/lesson-58.html" },
+            { title: "國家鍊金術師名冊", url: "topics/fullmetal-alchemist/lesson-59.html" },
+            { title: "地圖與軍區總覽", url: "topics/fullmetal-alchemist/lesson-60.html" },
+            { title: "人造七宗罪對照表與模組總結", url: "topics/fullmetal-alchemist/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 S｜主題論與課程總結",
+          courses: [
+            { title: "等價交換：從鍊金術法則到人生哲學", url: "topics/fullmetal-alchemist/lesson-62.html" },
+            { title: "戰爭創傷與救贖的可能", url: "topics/fullmetal-alchemist/lesson-63.html" },
+            { title: "家人、傳承與兩兄弟的成長弧線", url: "topics/fullmetal-alchemist/lesson-64.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/fullmetal-alchemist/lesson-65.html" },
+            { title: "全課程總結與重讀建議", url: "topics/fullmetal-alchemist/lesson-66.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
