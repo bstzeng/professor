@@ -4783,6 +4783,183 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "dragon-ball",
+      category: "anime",
+      title: "七龍珠全紀錄：劇情、人物與力量體系完整解析",
+      description:
+        "以鳥山明原作為準，完整拆解《七龍珠》原作、Z、超三個階段：先建立力量體系——氣與武術的基礎、七龍珠與許願規則、賽亞人與外星種族、超篇引入的破壞神與天使體系；再依篇章講完劇情——少年悟空的武道會與紅緞帶軍、賽亞人來襲、那美克星與弗利沙、人造人與沙魯、魔人布歐，到超篇的神與神、力量大會與劇場版；並以四個模組逐一深入悟空一脈、地球人夥伴、反派群像與眾神勢力，最後整理變身系統全表、招式圖鑑與主題論。取材範圍不包含GT。",
+      icon: "🐉",
+      url: "topics/dragon-ball/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與這門課怎麼讀",
+          courses: [
+            { title: "七龍珠是什麼：鳥山明與連載歷程", url: "topics/dragon-ball/lesson-01.html" },
+            { title: "武打漫畫的傳統與這部作品的定位", url: "topics/dragon-ball/lesson-02.html" }
+          ]
+        },
+        {
+          title: "模組 B｜氣與武術體系",
+          courses: [
+            { title: "氣是什麼：身體與精神合一的能量", url: "topics/dragon-ball/lesson-03.html" },
+            { title: "賽亞人的瀕死成長與戰鬥力數值", url: "topics/dragon-ball/lesson-04.html" },
+            { title: "大猿化：變身系統的起點", url: "topics/dragon-ball/lesson-05.html" },
+            { title: "模組總結：力量體系的三個基礎規則", url: "topics/dragon-ball/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜七龍珠與許願規則",
+          courses: [
+            { title: "地球龍珠與神龍", url: "topics/dragon-ball/lesson-07.html" },
+            { title: "那美克星龍珠與波爾龍", url: "topics/dragon-ball/lesson-08.html" },
+            { title: "模組總結：死亡不再是終點", url: "topics/dragon-ball/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜賽亞人與外星種族",
+          courses: [
+            { title: "賽亞人：戰鬥民族的興衰", url: "topics/dragon-ball/lesson-10.html" },
+            { title: "那美克星人與弗利沙一族", url: "topics/dragon-ball/lesson-11.html" },
+            { title: "人造人與生物兵器", url: "topics/dragon-ball/lesson-12.html" },
+            { title: "模組總結：威脅來源的三種類型", url: "topics/dragon-ball/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 E｜眾神與宇宙結構",
+          courses: [
+            { title: "界王與界王神：舊有的神明體系", url: "topics/dragon-ball/lesson-14.html" },
+            { title: "破壞神與天使：創造與毀滅的平衡", url: "topics/dragon-ball/lesson-15.html" },
+            { title: "身勝手之極意：超越變身的境界", url: "topics/dragon-ball/lesson-16.html" },
+            { title: "模組總結：世界觀的完整版圖", url: "topics/dragon-ball/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 F｜原作：少年悟空篇",
+          courses: [
+            { title: "與布爾瑪相遇：第一次集龍珠的冒險", url: "topics/dragon-ball/lesson-18.html" },
+            { title: "龜仙人與第21屆天下第一武道會", url: "topics/dragon-ball/lesson-19.html" },
+            { title: "紅緞帶軍篇", url: "topics/dragon-ball/lesson-20.html" },
+            { title: "比克大魔王篇與第22、23屆武道會", url: "topics/dragon-ball/lesson-21.html" },
+            { title: "模組總結：原作篇的敘事特徵", url: "topics/dragon-ball/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 G｜Z①：賽亞人來襲",
+          courses: [
+            { title: "拉帝茲登場：賽亞人身世的揭露", url: "topics/dragon-ball/lesson-23.html" },
+            { title: "悟空的犧牲與一年的等待", url: "topics/dragon-ball/lesson-24.html" },
+            { title: "那巴與貝吉塔的戰役", url: "topics/dragon-ball/lesson-25.html" },
+            { title: "模組總結：賽亞人篇的完整弧線", url: "topics/dragon-ball/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 H｜Z②：那美克星與弗利沙",
+          courses: [
+            { title: "尋找龍珠：抵達那美克星", url: "topics/dragon-ball/lesson-27.html" },
+            { title: "基紐特戰隊", url: "topics/dragon-ball/lesson-28.html" },
+            { title: "悟空抵達與超級賽亞人的首次覺醒", url: "topics/dragon-ball/lesson-29.html" },
+            { title: "模組總結：一個象徵的誕生", url: "topics/dragon-ball/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 I｜Z③：人造人與沙魯篇",
+          courses: [
+            { title: "特南克斯的警告與三年準備期", url: "topics/dragon-ball/lesson-31.html" },
+            { title: "人造人17號與18號登場", url: "topics/dragon-ball/lesson-32.html" },
+            { title: "沙魯的完全體之路", url: "topics/dragon-ball/lesson-33.html" },
+            { title: "孫悟飯的覺醒", url: "topics/dragon-ball/lesson-34.html" },
+            { title: "模組總結：一個關於期待的篇章", url: "topics/dragon-ball/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 J｜Z④：魔人布歐篇",
+          courses: [
+            { title: "世界大會重啟與比比迪的野心", url: "topics/dragon-ball/lesson-36.html" },
+            { title: "魔人布歐的釋放與分裂", url: "topics/dragon-ball/lesson-37.html" },
+            { title: "邪惡布歐的最終形態與元氣彈的完成", url: "topics/dragon-ball/lesson-38.html" },
+            { title: "模組總結：Z篇的完整弧線", url: "topics/dragon-ball/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 K｜超①：神與神、復活的F",
+          courses: [
+            { title: "破壞神比魯斯登場", url: "topics/dragon-ball/lesson-40.html" },
+            { title: "弗利沙的復仇：黃金形態", url: "topics/dragon-ball/lesson-41.html" },
+            { title: "模組總結：重新定義力量尺標", url: "topics/dragon-ball/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 L｜超②：力量大會",
+          courses: [
+            { title: "宇宙生存戰的規則", url: "topics/dragon-ball/lesson-43.html" },
+            { title: "各宇宙代表隊", url: "topics/dragon-ball/lesson-44.html" },
+            { title: "身勝手之極意的完成與贏家的代價", url: "topics/dragon-ball/lesson-45.html" },
+            { title: "模組總結：一次規模的極致展示", url: "topics/dragon-ball/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 M｜超③：劇場版布羅利與超級英雄",
+          courses: [
+            { title: "布羅利：賽亞人身世的補完", url: "topics/dragon-ball/lesson-47.html" },
+            { title: "超級英雄：紅緞帶軍的重組", url: "topics/dragon-ball/lesson-48.html" },
+            { title: "模組總結：劇情部分的完整回顧", url: "topics/dragon-ball/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物詳解①：悟空一脈",
+          courses: [
+            { title: "孫悟空：純粹的戰鬥之心", url: "topics/dragon-ball/lesson-50.html" },
+            { title: "貝吉塔：從征服者到守護者", url: "topics/dragon-ball/lesson-51.html" },
+            { title: "孫悟飯、悟天與特南克斯", url: "topics/dragon-ball/lesson-52.html" },
+            { title: "模組總結：一個家族的完整圖譜", url: "topics/dragon-ball/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物詳解②：地球人夥伴",
+          courses: [
+            { title: "克林：凡人的極限與意義", url: "topics/dragon-ball/lesson-54.html" },
+            { title: "天津飯與比克", url: "topics/dragon-ball/lesson-55.html" },
+            { title: "模組總結：凡人在宇宙敘事裡的位置", url: "topics/dragon-ball/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物詳解③：反派群像",
+          courses: [
+            { title: "弗利沙：優雅外表下的絕對暴力", url: "topics/dragon-ball/lesson-57.html" },
+            { title: "沙魯：對完美的病態執著", url: "topics/dragon-ball/lesson-58.html" },
+            { title: "魔人布歐：純真與兇殘的一體兩面", url: "topics/dragon-ball/lesson-59.html" },
+            { title: "模組總結：反派設計的三種邏輯", url: "topics/dragon-ball/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物詳解④：眾神與宇宙勢力",
+          courses: [
+            { title: "界王神與老界王神", url: "topics/dragon-ball/lesson-61.html" },
+            { title: "比魯斯與烏薩", url: "topics/dragon-ball/lesson-62.html" },
+            { title: "模組總結：從敵人到相處對象", url: "topics/dragon-ball/lesson-63.html" }
+          ]
+        },
+        {
+          title: "模組 R｜設定細節總整理",
+          courses: [
+            { title: "變身系統全表", url: "topics/dragon-ball/lesson-64.html" },
+            { title: "招式圖鑑", url: "topics/dragon-ball/lesson-65.html" },
+            { title: "地理與宇宙結構總覽", url: "topics/dragon-ball/lesson-66.html" },
+            { title: "模組總結：細節如何支撐長篇連載", url: "topics/dragon-ball/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 S｜主題論與課程總結",
+          courses: [
+            { title: "超越極限：貫穿全作的核心命題", url: "topics/dragon-ball/lesson-68.html" },
+            { title: "夥伴的力量與元氣彈的象徵", url: "topics/dragon-ball/lesson-69.html" },
+            { title: "成就與限制：一次誠實的評價", url: "topics/dragon-ball/lesson-70.html" },
+            { title: "全課程總結與重讀建議", url: "topics/dragon-ball/lesson-71.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
