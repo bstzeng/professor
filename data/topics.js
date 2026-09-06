@@ -5655,6 +5655,476 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "slam-dunk",
+      category: "anime",
+      title: "灌籃高手全紀錄：籃球設定、劇情與人物完整解析",
+      description:
+        "完整解析井上雄彥《灌籃高手》原作 31 卷：先建立看懂比賽所需的基礎——籃球計分與比分尺度、籃板／犯規／失誤這三項決定勝負的隱形因素、盯人與區域防守、五個位置的分工與快攻陣地戰等基本戰術，以及日本高中籃球的單敗淘汰體制與神奈川的勢力版圖；再依序講完全部劇情——櫻木入部與湘北成形、三井壽的兩年空白與回歸、翔陽戰、海南大附屬的第一次敗北、陵南戰取得全國門票，到全國大賽的豐玉戰與山王工業戰，並正面處理原作在山王戰後急促收尾的爭議；獨立整理 TV 動畫的缺口、舊劇場版、由作者親自執導的《THE FIRST SLAM DUNK》與《十日後》，四個模組深入湘北五人、安西教練與其他成員、神奈川對手、山王與全國強校，最後以球隊戰力對照表與「天才與努力」「青春的有限性」的主題論收束全課程。",
+      icon: "🏀",
+      url: "topics/slam-dunk/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與這門課怎麼讀",
+          courses: [
+            { title: "灌籃高手是什麼：井上雄彥與連載背景", url: "topics/slam-dunk/lesson-01.html" },
+            { title: "版本地圖：原作、動畫與劇場版", url: "topics/slam-dunk/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/slam-dunk/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：籃球規則基礎",
+          courses: [
+            { title: "得分方式與比賽的基本結構", url: "topics/slam-dunk/lesson-04.html" },
+            { title: "籃板、犯規與失誤", url: "topics/slam-dunk/lesson-05.html" },
+            { title: "防守體系：盯人與區域", url: "topics/slam-dunk/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：位置分工與戰術",
+          courses: [
+            { title: "五個位置的分工", url: "topics/slam-dunk/lesson-07.html" },
+            { title: "基本戰術：快攻、陣地戰與擋拆", url: "topics/slam-dunk/lesson-08.html" },
+            { title: "模組總結：規則如何成為戲劇", url: "topics/slam-dunk/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：高中籃球體制",
+          courses: [
+            { title: "賽事階梯：從縣預賽到全國大賽", url: "topics/slam-dunk/lesson-10.html" },
+            { title: "神奈川的勢力版圖", url: "topics/slam-dunk/lesson-11.html" },
+            { title: "模組總結：制度背景的敘事支撐", url: "topics/slam-dunk/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 E｜劇情①：入部與湘北的成形",
+          courses: [
+            { title: "櫻木花道的起點", url: "topics/slam-dunk/lesson-13.html" },
+            { title: "赤木剛憲與湘北的核心", url: "topics/slam-dunk/lesson-14.html" },
+            { title: "流川楓與宮城良田", url: "topics/slam-dunk/lesson-15.html" },
+            { title: "模組總結：湘北成形的結構意義", url: "topics/slam-dunk/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情②：三井的回歸與翔陽戰",
+          courses: [
+            { title: "三井壽的兩年空白", url: "topics/slam-dunk/lesson-17.html" },
+            { title: "回歸後的三井與湘北的完整化", url: "topics/slam-dunk/lesson-18.html" },
+            { title: "翔陽戰：第一場真正的硬仗", url: "topics/slam-dunk/lesson-19.html" },
+            { title: "模組總結：三井線的完整評價", url: "topics/slam-dunk/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情③：海南大附屬戰",
+          courses: [
+            { title: "海南大附屬：縣內霸主的構造", url: "topics/slam-dunk/lesson-21.html" },
+            { title: "比賽經過與赤木的受傷", url: "topics/slam-dunk/lesson-22.html" },
+            { title: "敗北的意義與湘北的重整", url: "topics/slam-dunk/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情④：陵南戰與全國門票",
+          courses: [
+            { title: "陵南：與海南並列的頂尖", url: "topics/slam-dunk/lesson-24.html" },
+            { title: "陵南戰的經過與關鍵轉折", url: "topics/slam-dunk/lesson-25.html" },
+            { title: "晉級全國的意義與賽前準備", url: "topics/slam-dunk/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情⑤：全國大賽豐玉戰",
+          courses: [
+            { title: "豐玉高中：粗暴風格的挑戰", url: "topics/slam-dunk/lesson-27.html" },
+            { title: "豐玉戰的經過與湘北的應對", url: "topics/slam-dunk/lesson-28.html" },
+            { title: "模組總結：通往山王之戰", url: "topics/slam-dunk/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情⑥：山王工業戰（上）",
+          courses: [
+            { title: "山王工業：絕對王者的構造", url: "topics/slam-dunk/lesson-30.html" },
+            { title: "開場的壓制與二十分差", url: "topics/slam-dunk/lesson-31.html" },
+            { title: "湘北的反擊與戰術調整", url: "topics/slam-dunk/lesson-32.html" },
+            { title: "模組總結：山王戰上半的結構", url: "topics/slam-dunk/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 K｜劇情⑦：山王工業戰（下）與結局",
+          courses: [
+            { title: "赤木、三井與宮城的極限", url: "topics/slam-dunk/lesson-34.html" },
+            { title: "流川對澤北與櫻木的覺悟", url: "topics/slam-dunk/lesson-35.html" },
+            { title: "決勝的最後時刻", url: "topics/slam-dunk/lesson-36.html" },
+            { title: "原作的結局與收尾爭議", url: "topics/slam-dunk/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 L｜番外：劇場版與後日談",
+          courses: [
+            { title: "TV 動畫與舊劇場版", url: "topics/slam-dunk/lesson-38.html" },
+            { title: "THE FIRST SLAM DUNK：作者的再詮釋", url: "topics/slam-dunk/lesson-39.html" },
+            { title: "十日後與角色的後續", url: "topics/slam-dunk/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物①：湘北先發五人",
+          courses: [
+            { title: "櫻木花道：從門外漢到關鍵球員", url: "topics/slam-dunk/lesson-41.html" },
+            { title: "流川楓與赤木剛憲", url: "topics/slam-dunk/lesson-42.html" },
+            { title: "三井壽與宮城良田", url: "topics/slam-dunk/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物②：安西教練與湘北其他成員",
+          courses: [
+            { title: "安西教練：教練角色的典範", url: "topics/slam-dunk/lesson-44.html" },
+            { title: "湘北的其他成員", url: "topics/slam-dunk/lesson-45.html" },
+            { title: "模組總結：湘北群像的完整結構", url: "topics/slam-dunk/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物③：神奈川的對手",
+          courses: [
+            { title: "牧紳一與海南大附屬", url: "topics/slam-dunk/lesson-47.html" },
+            { title: "仙道彰與陵南、翔陽", url: "topics/slam-dunk/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物④：全國強校",
+          courses: [
+            { title: "澤北榮治：全國第一的孤獨", url: "topics/slam-dunk/lesson-49.html" },
+            { title: "山王的其他成員與全國強校", url: "topics/slam-dunk/lesson-50.html" },
+            { title: "模組總結：對手群像的整體評價", url: "topics/slam-dunk/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜設定總表與戰力對照",
+          courses: [
+            { title: "球隊戰力對照總表", url: "topics/slam-dunk/lesson-52.html" },
+            { title: "賽事階梯與劇情對照", url: "topics/slam-dunk/lesson-53.html" },
+            { title: "模組總結：結構設計的整體評價", url: "topics/slam-dunk/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 R｜主題論",
+          courses: [
+            { title: "天才與努力：作品的核心對話", url: "topics/slam-dunk/lesson-55.html" },
+            { title: "青春的有限性：時間作為主題", url: "topics/slam-dunk/lesson-56.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/slam-dunk/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結與重讀建議", url: "topics/slam-dunk/lesson-58.html" },
+            { title: "延伸閱讀與相關課程", url: "topics/slam-dunk/lesson-59.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "death-note",
+      category: "anime",
+      title: "死亡筆記本全紀錄：規則體系、鬥智與主題完整解析",
+      description:
+        "完整解析大場鶇原作、小畑健作畫的《DEATH NOTE 死亡筆記本》全 12 卷：先建立這部作品的敘事引擎——死亡筆記的完整規則體系（臉與名字的條件、死因與行動指定、分割與所有權轉移、放棄後失憶這條最重要的佈局工具，以及被人為添加的虛假規則）、死神與死神界、死神之眼與壽命交易，還有 L 的推理方法論與這部作品的鬥智邏輯；再依序講完全部劇情——基拉的誕生與社會的分裂、L 登場與電視挑釁、月滲透搜查本部、第二基拉與彌海砂、全作最經典的失憶計謀與黃道社篇、L 之死，到尼亞與梅洛接手後的最終對決與月的結局；並整理後續短篇、小說與影視改編的差異，四個模組深入夜神月、L、繼承者與搜查本部、死神與彌海砂，最後以規則全表、事件時間線，以及「誰有資格決定正義」「權力如何腐蝕一個人」的主題論收束全課程。",
+      icon: "📓",
+      url: "topics/death-note/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與版本地圖",
+          courses: [
+            { title: "死亡筆記本是什麼：作者與連載背景", url: "topics/death-note/lesson-01.html" },
+            { title: "版本地圖：原作、動畫與改編", url: "topics/death-note/lesson-02.html" },
+            { title: "這門課怎麼讀：結構與閱讀原則", url: "topics/death-note/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：死亡筆記的規則體系",
+          courses: [
+            { title: "基本規則：筆記如何運作", url: "topics/death-note/lesson-04.html" },
+            { title: "進階規則：操控死亡的細節", url: "topics/death-note/lesson-05.html" },
+            { title: "規則的漏洞與被隱瞞的規則", url: "topics/death-note/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：死神與死神之眼",
+          courses: [
+            { title: "死神與死神界", url: "topics/death-note/lesson-07.html" },
+            { title: "死神之眼與壽命交易", url: "topics/death-note/lesson-08.html" },
+            { title: "模組總結：設定作為敘事引擎", url: "topics/death-note/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：推理框架與鬥智邏輯",
+          courses: [
+            { title: "L 的推理方法論", url: "topics/death-note/lesson-10.html" },
+            { title: "夜神月的行動邏輯", url: "topics/death-note/lesson-11.html" },
+            { title: "模組總結：鬥智作品的成立條件", url: "topics/death-note/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 E｜劇情①：基拉的誕生",
+          courses: [
+            { title: "筆記的獲得與最初的選擇", url: "topics/death-note/lesson-13.html" },
+            { title: "基拉現象與社會的反應", url: "topics/death-note/lesson-14.html" },
+            { title: "模組總結：起點階段的結構", url: "topics/death-note/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情②：L 登場與第一次交鋒",
+          courses: [
+            { title: "L 的登場與電視挑釁", url: "topics/death-note/lesson-16.html" },
+            { title: "警方的介入與月的滲透", url: "topics/death-note/lesson-17.html" },
+            { title: "模組總結：第一階段的攻防評價", url: "topics/death-note/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情③：第二基拉與彌海砂",
+          courses: [
+            { title: "第二基拉的出現", url: "topics/death-note/lesson-19.html" },
+            { title: "彌海砂：崇拜與利用", url: "topics/death-note/lesson-20.html" },
+            { title: "模組總結：第二基拉篇的結構作用", url: "topics/death-note/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情④：黃道社篇與失憶計謀",
+          courses: [
+            { title: "失憶計謀：全作最大的佈局", url: "topics/death-note/lesson-22.html" },
+            { title: "黃道社篇與局勢的推進", url: "topics/death-note/lesson-23.html" },
+            { title: "模組總結：佈局階段的評價", url: "topics/death-note/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情⑤：L 之死",
+          courses: [
+            { title: "L 的最後推理", url: "topics/death-note/lesson-25.html" },
+            { title: "L 之死與敘事意義", url: "topics/death-note/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情⑥：尼亞與梅洛",
+          courses: [
+            { title: "繼承者的登場：尼亞與梅洛", url: "topics/death-note/lesson-27.html" },
+            { title: "新局勢與基拉的體制化", url: "topics/death-note/lesson-28.html" },
+            { title: "模組總結：後半段的結構評價", url: "topics/death-note/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 K｜劇情⑦：最終對決與結局",
+          courses: [
+            { title: "最終對決的佈局", url: "topics/death-note/lesson-30.html" },
+            { title: "結局與月的最後時刻", url: "topics/death-note/lesson-31.html" },
+            { title: "模組總結：結局的整體評價", url: "topics/death-note/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 L｜番外：短篇、小說與改編",
+          courses: [
+            { title: "後續短篇與小說", url: "topics/death-note/lesson-33.html" },
+            { title: "影視改編與其差異", url: "topics/death-note/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物①：夜神月",
+          courses: [
+            { title: "夜神月的心理構造", url: "topics/death-note/lesson-35.html" },
+            { title: "月與周圍人的關係", url: "topics/death-note/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物②：L",
+          courses: [
+            { title: "L 的角色構造與方法論", url: "topics/death-note/lesson-37.html" },
+            { title: "L 的魅力來源與失敗的意義", url: "topics/death-note/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物③：尼亞、梅洛與搜查本部",
+          courses: [
+            { title: "尼亞與梅洛的角色分析", url: "topics/death-note/lesson-39.html" },
+            { title: "搜查本部與夜神總一郎", url: "topics/death-note/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物④：死神與彌海砂",
+          courses: [
+            { title: "流克與雷姆：兩種死神", url: "topics/death-note/lesson-41.html" },
+            { title: "彌海砂的完整角色分析", url: "topics/death-note/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜設定總表與時間線",
+          courses: [
+            { title: "死亡筆記規則全表與事件時間線", url: "topics/death-note/lesson-43.html" },
+            { title: "模組總結：設定完整性的評價", url: "topics/death-note/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 R｜主題論",
+          courses: [
+            { title: "正義的定義：作品的核心提問", url: "topics/death-note/lesson-45.html" },
+            { title: "權力的腐蝕與規則的敘事價值", url: "topics/death-note/lesson-46.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/death-note/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結與重讀建議", url: "topics/death-note/lesson-48.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "conan-main-plot",
+      category: "anime",
+      title: "名偵探柯南主線全解析：黑衣組織線完整整理（未完結）",
+      description:
+        "只講主線、不含日常單元案件的《名偵探柯南》黑衣組織線完整整理。先建立設定基礎——APTX4869 與幼化的機制、解藥與暫時恢復、黑衣組織的階層與酒名代號規則，以及 FBI、CIA、日本公安三方情報機關的角力與臥底設定；再依劇情揭露的順序講完主線九個階段——工藤新一被下藥的起點、灰原哀（雪莉）的叛離與登場、貝爾摩德篇與紐約的回憶、赤井秀一與 FBI 介入使衝突升級、赤井假死與緋色系列的真相揭露、基爾的 CIA 臥底身分、波本＝安室透＝降谷零與公安線、羽田浩司事件與臨終留言的解讀轉折，到 RUM＝脇田兼則的確認與烏丸蓮耶的浮現；並整理主線相關劇場版的篩選標準，三個模組深入柯南與灰原哀、組織幹部、赤井與安室的對照，最後以代號對照表、主線時間線與「身分、信任與長期追查」的主題論收束。注意：本作仍在連載中，主線內容取材截至 FILE.1150 前後，課程內會標示取材進度。",
+      icon: "🔍",
+      url: "topics/conan-main-plot/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與主線的取捨",
+          courses: [
+            { title: "名偵探柯南是什麼：青山剛昌與連載規模", url: "topics/conan-main-plot/lesson-01.html" },
+            { title: "只講主線：取捨說明與課程範圍", url: "topics/conan-main-plot/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/conan-main-plot/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：APTX4869 與幼化",
+          courses: [
+            { title: "APTX4869：作品的起點設定", url: "topics/conan-main-plot/lesson-04.html" },
+            { title: "解藥與暫時性恢復", url: "topics/conan-main-plot/lesson-05.html" },
+            { title: "模組總結：起點設定的評價", url: "topics/conan-main-plot/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：黑衣組織的架構",
+          courses: [
+            { title: "組織的性質與酒名代號規則", url: "topics/conan-main-plot/lesson-07.html" },
+            { title: "組織的階層結構與主要成員", url: "topics/conan-main-plot/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：各國情報機關",
+          courses: [
+            { title: "FBI、CIA 與日本公安的三方角力", url: "topics/conan-main-plot/lesson-09.html" },
+            { title: "臥底設定的運作與風險", url: "topics/conan-main-plot/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 E｜主線①：起點",
+          courses: [
+            { title: "工藤新一與組織的第一次接觸", url: "topics/conan-main-plot/lesson-11.html" },
+            { title: "初期的追查與資訊的匱乏", url: "topics/conan-main-plot/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 F｜主線②：灰原哀與雪莉",
+          courses: [
+            { title: "灰原哀的登場", url: "topics/conan-main-plot/lesson-13.html" },
+            { title: "組織的追查與持續的威脅", url: "topics/conan-main-plot/lesson-14.html" },
+            { title: "模組總結：資訊格局的轉變", url: "topics/conan-main-plot/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 G｜主線③：貝爾摩德篇",
+          courses: [
+            { title: "貝爾摩德：變裝與不可捉摸的立場", url: "topics/conan-main-plot/lesson-16.html" },
+            { title: "月影島與紐約的回憶", url: "topics/conan-main-plot/lesson-17.html" },
+            { title: "模組總結：貝爾摩德篇的定位", url: "topics/conan-main-plot/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 H｜主線④：赤井秀一與 FBI",
+          courses: [
+            { title: "赤井秀一與 FBI 的登場", url: "topics/conan-main-plot/lesson-19.html" },
+            { title: "衝突的升級與雙方的損耗", url: "topics/conan-main-plot/lesson-20.html" },
+            { title: "模組總結：三方格局的形成", url: "topics/conan-main-plot/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 I｜主線⑤：緋色系列",
+          courses: [
+            { title: "赤井的「死亡」與其疑點", url: "topics/conan-main-plot/lesson-22.html" },
+            { title: "緋色系列的真相揭露", url: "topics/conan-main-plot/lesson-23.html" },
+            { title: "模組總結：緋色系列的定位", url: "topics/conan-main-plot/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 J｜主線⑥：基爾與雙重間諜",
+          courses: [
+            { title: "基爾的雙重身分", url: "topics/conan-main-plot/lesson-25.html" },
+            { title: "模組總結：臥底線的展開", url: "topics/conan-main-plot/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 K｜主線⑦：波本與公安線",
+          courses: [
+            { title: "波本的多重身分", url: "topics/conan-main-plot/lesson-27.html" },
+            { title: "公安線與臥底格局的完成", url: "topics/conan-main-plot/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 L｜主線⑧：羽田浩司事件與 RUM 之謎",
+          courses: [
+            { title: "羽田浩司事件：十七年前的案件", url: "topics/conan-main-plot/lesson-29.html" },
+            { title: "臨終留言的解讀與 RUM 的線索", url: "topics/conan-main-plot/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 M｜主線⑨：RUM 的回收與最新進展",
+          courses: [
+            { title: "RUM 的身分揭曉", url: "topics/conan-main-plot/lesson-31.html" },
+            { title: "烏丸蓮耶與組織首領之謎", url: "topics/conan-main-plot/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 N｜番外：主線相關劇場版",
+          courses: [
+            { title: "主線相關劇場版的篩選", url: "topics/conan-main-plot/lesson-33.html" },
+            { title: "主線相關劇場版的個別整理", url: "topics/conan-main-plot/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物①：柯南與灰原哀",
+          courses: [
+            { title: "工藤新一／江戶川柯南", url: "topics/conan-main-plot/lesson-35.html" },
+            { title: "灰原哀的完整角色分析", url: "topics/conan-main-plot/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物②：組織幹部",
+          courses: [
+            { title: "琴酒：組織的執行者", url: "topics/conan-main-plot/lesson-37.html" },
+            { title: "貝爾摩德、RUM 與其他幹部", url: "topics/conan-main-plot/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物③：赤井秀一與安室透",
+          courses: [
+            { title: "赤井秀一與安室透的對照", url: "topics/conan-main-plot/lesson-39.html" },
+            { title: "兩人與柯南的關係", url: "topics/conan-main-plot/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 R｜設定總表與主線時間線",
+          courses: [
+            { title: "代號對照表與身分總整理", url: "topics/conan-main-plot/lesson-41.html" },
+            { title: "主線時間線總覽", url: "topics/conan-main-plot/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 S｜主題論與課程總結",
+          courses: [
+            { title: "主題論：身分、信任與長期追查", url: "topics/conan-main-plot/lesson-43.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/conan-main-plot/lesson-44.html" },
+            { title: "全課程總結與追讀建議", url: "topics/conan-main-plot/lesson-45.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
