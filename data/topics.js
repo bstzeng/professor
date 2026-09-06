@@ -6125,6 +6125,319 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "sailor-moon",
+      category: "anime",
+      title: "美少女戰士全紀錄：世界設定、五大篇章與人物完整解析",
+      description:
+        "完整解析武內直子《美少女戰士》：先用版本地圖釐清原作漫畫、九〇年代動畫、Crystal 系列與真人版四條版本線的差異，再建立世界設定——銀千年王國與前世轉生、銀水晶的力量與生命代價、變身道具的層級演進、以行星為框架的戰士體系、內部戰士與外部戰士的倫理分歧，以及 Sailor Crystal 對力量本質的重新定義；接著依原作五個篇章講完劇情——黑暗王國篇的身分確認、黑月一族篇對理想未來的質疑、無限學園篇沒有標準答案的犧牲兩難、死亡之月篇的夢想與成長，到星光戰士篇存在本身被剝奪的終極威脅；並獨立整理舊動畫的原創內容、與漫畫不同的結局及各地播映版本的改動，四個模組深入內部戰士、外部戰士、月家與反派群像，最後以戰士全表、篇章對照表，以及「溫柔作為力量」與「對魔法少女類型的重構」的主題論收束全課程。Crystal 這條線由三季電視動畫加上《Eternal》與《Cosmos》兩部劇場作品構成，已完整涵蓋原作五篇。",
+      icon: "🌙",
+      url: "topics/sailor-moon/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與四條版本線",
+          courses: [
+            { title: "美少女戰士是什麼：武內直子與作品地位", url: "topics/sailor-moon/lesson-01.html" },
+            { title: "版本地圖：四條版本線", url: "topics/sailor-moon/lesson-02.html" },
+            { title: "原作五篇章的結構總覽", url: "topics/sailor-moon/lesson-03.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/sailor-moon/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：銀千年王國與前世",
+          courses: [
+            { title: "銀千年王國：前世的設定", url: "topics/sailor-moon/lesson-05.html" },
+            { title: "轉生與記憶的覺醒", url: "topics/sailor-moon/lesson-06.html" },
+            { title: "模組總結：前世設定的整體評價", url: "topics/sailor-moon/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：銀水晶與變身道具",
+          courses: [
+            { title: "銀水晶：核心力量的設定", url: "topics/sailor-moon/lesson-08.html" },
+            { title: "變身道具的體系與層級", url: "topics/sailor-moon/lesson-09.html" },
+            { title: "變身的意義與儀式性", url: "topics/sailor-moon/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：戰士體系",
+          courses: [
+            { title: "守護星與行星力量", url: "topics/sailor-moon/lesson-11.html" },
+            { title: "內部戰士與外部戰士的分野", url: "topics/sailor-moon/lesson-12.html" },
+            { title: "Sailor Crystal 與力量的本質", url: "topics/sailor-moon/lesson-13.html" },
+            { title: "模組總結：戰士體系的整體評價", url: "topics/sailor-moon/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 E｜設定④：敵對勢力通論",
+          courses: [
+            { title: "敵對勢力的共通結構", url: "topics/sailor-moon/lesson-15.html" },
+            { title: "各篇敵人代表的主題威脅", url: "topics/sailor-moon/lesson-16.html" },
+            { title: "模組總結：設定體系的整合", url: "topics/sailor-moon/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情①：黑暗王國篇",
+          courses: [
+            { title: "覺醒與戰士的集結", url: "topics/sailor-moon/lesson-18.html" },
+            { title: "前世的揭露與地場衛", url: "topics/sailor-moon/lesson-19.html" },
+            { title: "四天王與黑暗王國的結局", url: "topics/sailor-moon/lesson-20.html" },
+            { title: "模組總結：第一篇的結構評價", url: "topics/sailor-moon/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情②：黑月一族篇",
+          courses: [
+            { title: "小小兔與未來的水晶東京", url: "topics/sailor-moon/lesson-22.html" },
+            { title: "黑月一族與被排除者的憤怒", url: "topics/sailor-moon/lesson-23.html" },
+            { title: "小小兔的成長與第二篇結局", url: "topics/sailor-moon/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情③：無限學園篇",
+          courses: [
+            { title: "外部戰士的登場與立場", url: "topics/sailor-moon/lesson-25.html" },
+            { title: "土星戰士與犧牲的兩難", url: "topics/sailor-moon/lesson-26.html" },
+            { title: "死亡巴斯達與第三篇結局", url: "topics/sailor-moon/lesson-27.html" },
+            { title: "模組總結：第三篇的倫理討論", url: "topics/sailor-moon/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情④：死亡之月篇",
+          courses: [
+            { title: "死亡之月馬戲團與夢的設定", url: "topics/sailor-moon/lesson-29.html" },
+            { title: "小小兔的成長線與這一篇的核心", url: "topics/sailor-moon/lesson-30.html" },
+            { title: "第四篇的結局與主題收束", url: "topics/sailor-moon/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情⑤：星光戰士篇與結局",
+          courses: [
+            { title: "星光戰士與銀河的規模", url: "topics/sailor-moon/lesson-32.html" },
+            { title: "Shadow Galactica 與最終的威脅", url: "topics/sailor-moon/lesson-33.html" },
+            { title: "最終決戰與原作結局", url: "topics/sailor-moon/lesson-34.html" },
+            { title: "模組總結：原作五篇的整體評價", url: "topics/sailor-moon/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 K｜舊動畫版的改編差異",
+          courses: [
+            { title: "舊動畫的整體改編方向", url: "topics/sailor-moon/lesson-36.html" },
+            { title: "各期的原創內容與結構差異", url: "topics/sailor-moon/lesson-37.html" },
+            { title: "播映版本的改動與相關討論", url: "topics/sailor-moon/lesson-38.html" },
+            { title: "模組總結：版本差異的整體判斷", url: "topics/sailor-moon/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 L｜番外：前身作品、劇場版與真人版",
+          courses: [
+            { title: "前身作品《Codename: Sailor V》", url: "topics/sailor-moon/lesson-40.html" },
+            { title: "劇場版與短篇作品", url: "topics/sailor-moon/lesson-41.html" },
+            { title: "真人版與其他改編", url: "topics/sailor-moon/lesson-42.html" },
+            { title: "模組總結：番外作品的整體定位", url: "topics/sailor-moon/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物①：月野兔與內部戰士",
+          courses: [
+            { title: "月野兔：從普通女孩到守護者", url: "topics/sailor-moon/lesson-44.html" },
+            { title: "水星與火星戰士", url: "topics/sailor-moon/lesson-45.html" },
+            { title: "木星與金星戰士", url: "topics/sailor-moon/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物②：外部戰士",
+          courses: [
+            { title: "天王星與海王星", url: "topics/sailor-moon/lesson-47.html" },
+            { title: "冥王星與土星戰士", url: "topics/sailor-moon/lesson-48.html" },
+            { title: "模組總結：外部戰士的群像評價", url: "topics/sailor-moon/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物③：地場衛、小小兔與月家",
+          courses: [
+            { title: "地場衛的角色與功能", url: "topics/sailor-moon/lesson-50.html" },
+            { title: "小小兔的完整角色線", url: "topics/sailor-moon/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物④：反派群像",
+          courses: [
+            { title: "反派設計的共通原則", url: "topics/sailor-moon/lesson-52.html" },
+            { title: "各篇反派的個別分析", url: "topics/sailor-moon/lesson-53.html" },
+            { title: "模組總結：反派群像的整體評價", url: "topics/sailor-moon/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜設定總表",
+          courses: [
+            { title: "戰士全表與能力對照", url: "topics/sailor-moon/lesson-55.html" },
+            { title: "篇章與敵人對照總表", url: "topics/sailor-moon/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 R｜主題論",
+          courses: [
+            { title: "溫柔作為力量：全作的核心命題", url: "topics/sailor-moon/lesson-57.html" },
+            { title: "對魔法少女類型的重構", url: "topics/sailor-moon/lesson-58.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/sailor-moon/lesson-59.html" }
+          ]
+        },
+        {
+          title: "模組 S｜課程總結",
+          courses: [
+            { title: "全課程總結與觀賞建議", url: "topics/sailor-moon/lesson-60.html" },
+            { title: "延伸閱讀與相關課程", url: "topics/sailor-moon/lesson-61.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "cardcaptor-sakura",
+      category: "anime",
+      title: "庫洛魔法使全紀錄：魔法設定、劇情與人物完整解析",
+      description:
+        "完整解析 CLAMP《庫洛魔法使》原作 12 卷與續篇《透明牌篇》16 卷（二〇二四年完結）：先建立設定基礎——有自己意志與個性的庫洛牌體系與屬性分類、西方魔法與東方道術的並置、太陽與月亮兩名守護者、以「失去最重要的感情」為代價的最終之審判，以及庫洛．里德的預知與傳承結構；再依序講完劇情——從主角意外釋放卡牌而必須負責的收集篇、李小狼登場後從競爭到合作的轉變、與親近之人對決的最終之審判、把庫洛牌轉化為屬於自己的小櫻牌，到原作以關係確立收尾的結局；並完整解析續篇《透明牌篇》的力量失效、透明牌之謎與「為什麼沒人告訴我」的核心命題；獨立整理兩部劇場版與動畫的差異，三個模組深入小櫻與家人、同學群像、守護者與魔法師，最後以三代牌卡總表，以及「沒有創傷的成長」與「感情的多樣性」的主題論收束。注意：《透明牌篇》漫畫已完結，但其動畫僅涵蓋前段，完整結局只在漫畫中。",
+      icon: "🌸",
+      url: "topics/cardcaptor-sakura/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與版本地圖",
+          courses: [
+            { title: "庫洛魔法使是什麼：CLAMP 與作品定位", url: "topics/cardcaptor-sakura/lesson-01.html" },
+            { title: "版本地圖：漫畫、動畫與續篇", url: "topics/cardcaptor-sakura/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/cardcaptor-sakura/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：庫洛牌體系",
+          courses: [
+            { title: "庫洛牌的基本設定", url: "topics/cardcaptor-sakura/lesson-04.html" },
+            { title: "屬性分類與牌卡體系", url: "topics/cardcaptor-sakura/lesson-05.html" },
+            { title: "收服的機制與封印之鑰", url: "topics/cardcaptor-sakura/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：魔法體系",
+          courses: [
+            { title: "西方魔法與東方道術的並置", url: "topics/cardcaptor-sakura/lesson-07.html" },
+            { title: "魔力的性質與成長", url: "topics/cardcaptor-sakura/lesson-08.html" },
+            { title: "模組總結：魔法體系的整體設計", url: "topics/cardcaptor-sakura/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：守護者與審判",
+          courses: [
+            { title: "兩名守護者的設定", url: "topics/cardcaptor-sakura/lesson-10.html" },
+            { title: "最終之審判的設定與意義", url: "topics/cardcaptor-sakura/lesson-11.html" },
+            { title: "模組總結：守護者體系的設計", url: "topics/cardcaptor-sakura/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 E｜設定④：庫洛．里德與傳承",
+          courses: [
+            { title: "庫洛．里德：創造者的設定", url: "topics/cardcaptor-sakura/lesson-13.html" },
+            { title: "傳承的結構與轉生的設定", url: "topics/cardcaptor-sakura/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情①：庫洛牌收集篇",
+          courses: [
+            { title: "開場與收集的開始", url: "topics/cardcaptor-sakura/lesson-15.html" },
+            { title: "單元結構與收集的節奏", url: "topics/cardcaptor-sakura/lesson-16.html" },
+            { title: "主角的成長與能力的建立", url: "topics/cardcaptor-sakura/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情②：李小狼與競爭關係",
+          courses: [
+            { title: "李小狼的登場與立場", url: "topics/cardcaptor-sakura/lesson-18.html" },
+            { title: "從競爭到合作的關係轉變", url: "topics/cardcaptor-sakura/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情③：最終之審判",
+          courses: [
+            { title: "審判的啟動與對決", url: "topics/cardcaptor-sakura/lesson-20.html" },
+            { title: "審判的結果與收集篇的收束", url: "topics/cardcaptor-sakura/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情④：小櫻牌篇與艾利歐",
+          courses: [
+            { title: "艾利歐的登場與新的試煉", url: "topics/cardcaptor-sakura/lesson-22.html" },
+            { title: "小櫻牌的轉化與力量的獨立", url: "topics/cardcaptor-sakura/lesson-23.html" },
+            { title: "模組總結：第二階段的意義", url: "topics/cardcaptor-sakura/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情⑤：原作結局",
+          courses: [
+            { title: "原作的收尾與感情的處理", url: "topics/cardcaptor-sakura/lesson-25.html" },
+            { title: "原作的整體評價", url: "topics/cardcaptor-sakura/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 K｜續篇：透明牌篇",
+          courses: [
+            { title: "透明牌篇的定位與開端", url: "topics/cardcaptor-sakura/lesson-27.html" },
+            { title: "透明牌的設定與新的謎團", url: "topics/cardcaptor-sakura/lesson-28.html" },
+            { title: "續篇的主題與情感重心", url: "topics/cardcaptor-sakura/lesson-29.html" },
+            { title: "續篇的結局與整體評價", url: "topics/cardcaptor-sakura/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 L｜番外：劇場版與動畫差異",
+          courses: [
+            { title: "兩部劇場版的內容與定位", url: "topics/cardcaptor-sakura/lesson-31.html" },
+            { title: "動畫與漫畫的差異整理", url: "topics/cardcaptor-sakura/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物①：木之本櫻與家人",
+          courses: [
+            { title: "木之本櫻：主角的完整分析", url: "topics/cardcaptor-sakura/lesson-33.html" },
+            { title: "木之本家與家庭描寫", url: "topics/cardcaptor-sakura/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物②：同學群像",
+          courses: [
+            { title: "李小狼與大道寺知世", url: "topics/cardcaptor-sakura/lesson-35.html" },
+            { title: "其他同學與配角群像", url: "topics/cardcaptor-sakura/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物③：守護者與魔法師",
+          courses: [
+            { title: "兩名守護者的角色分析", url: "topics/cardcaptor-sakura/lesson-37.html" },
+            { title: "庫洛．里德與艾利歐", url: "topics/cardcaptor-sakura/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 P｜設定總表：三代牌卡",
+          courses: [
+            { title: "三代牌卡的對照總表", url: "topics/cardcaptor-sakura/lesson-39.html" },
+            { title: "劇情階段與對應模組總表", url: "topics/cardcaptor-sakura/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜主題論",
+          courses: [
+            { title: "成長：沒有創傷的成長故事", url: "topics/cardcaptor-sakura/lesson-41.html" },
+            { title: "感情的多樣性與作品的立場", url: "topics/cardcaptor-sakura/lesson-42.html" },
+            { title: "CLAMP 的敘事特色", url: "topics/cardcaptor-sakura/lesson-43.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/cardcaptor-sakura/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 R｜課程總結",
+          courses: [
+            { title: "全課程總結與閱讀建議", url: "topics/cardcaptor-sakura/lesson-45.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
