@@ -4505,7 +4505,7 @@ window.SITE_DATA = {
     {
       id: "one-piece",
       category: "anime",
-      title: "海賊王全紀錄：劇情、人物與世界觀完整解析",
+      title: "海賊王全紀錄：劇情、人物與世界觀完整解析（未完結）",
       description:
         "完整拆解《ONE PIECE》的三個層次：先建立世界觀——四海與偉大航路的地理、惡魔果實三大系統與覺醒、霸氣與各家武術、世界政府與天龍人、四皇與七武海的權力平衡，以及空白的一百年、歷史正文與古代兵器；再依篇章講完劇情——東海的集結、阿拉巴斯坦、空島、司法島、頂上戰爭，到新世界的魚人島、多雷斯羅薩、全蛋糕島、和之國與最終章艾格赫德；並以四個模組逐一深入草帽一夥、四皇、海軍與世界政府、革命軍與各族群，最後整理懸賞金、時間線、未回收伏筆與主題論。作品仍在連載，課程明確標示取材範圍。",
       icon: "🏴‍☠️",
@@ -4785,7 +4785,7 @@ window.SITE_DATA = {
     {
       id: "dragon-ball",
       category: "anime",
-      title: "七龍珠全紀錄：劇情、人物與力量體系完整解析",
+      title: "七龍珠全紀錄：劇情、人物與力量體系完整解析（超篇未完結）",
       description:
         "以鳥山明原作為準，完整拆解《七龍珠》原作、Z、超三個階段：先建立力量體系——氣與武術的基礎、七龍珠與許願規則、賽亞人與外星種族、超篇引入的破壞神與天使體系；再依篇章講完劇情——少年悟空的武道會與紅緞帶軍、賽亞人來襲、那美克星與弗利沙、人造人與沙魯、魔人布歐，到超篇的神與神、力量大會與劇場版；並以四個模組逐一深入悟空一脈、地球人夥伴、反派群像與眾神勢力，最後整理變身系統全表、招式圖鑑與主題論。取材範圍不包含GT。",
       icon: "🐉",
@@ -5127,6 +5127,529 @@ window.SITE_DATA = {
             { title: "家人、傳承與兩兄弟的成長弧線", url: "topics/fullmetal-alchemist/lesson-64.html" },
             { title: "成就與限制：一次誠實的評估", url: "topics/fullmetal-alchemist/lesson-65.html" },
             { title: "全課程總結與重讀建議", url: "topics/fullmetal-alchemist/lesson-66.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "prince-of-tennis",
+      category: "anime",
+      title: "網球王子全紀錄：劇情、人物與必殺技體系完整解析",
+      description:
+        "完整解析橫跨二十七年的《網球王子》系列：先建立世界設定——網球規則基礎、必殺技的物理系與干擾系分類、無我境界與百鍊自得／才氣煥發／天衣無縫三門，以及日本中學部活體制與校際勢力版圖；再依時間線講完劇情——原作 42 卷的入部、都大會、關東大賽、全國大賽決賽對立海大，到《新網球王子》的 U-17 合宿、世界盃、決賽對西班牙，以及二〇二六年八月完結的真・大結局（越前兄弟對決與三年後的結尾）；並以獨立模組整理全部劇場版與 OVA，四個模組深入青學正選、冰帝與立海大、其他強校、U-17 與海外選手，最後以能力層級全表、校際勢力圖與「享受網球」的主題論收束全課程。",
+      icon: "🎾",
+      url: "topics/prince-of-tennis/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與這門課怎麼讀",
+          courses: [
+            { title: "網球王子是什麼：許斐剛與連載歷程", url: "topics/prince-of-tennis/lesson-01.html" },
+            { title: "版本地圖：原作、新網王與劇場版的時間線", url: "topics/prince-of-tennis/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/prince-of-tennis/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜網球規則基礎",
+          courses: [
+            { title: "計分方式與一場比賽的結構", url: "topics/prince-of-tennis/lesson-04.html" },
+            { title: "單打、雙打與團體賽的出場順序", url: "topics/prince-of-tennis/lesson-05.html" },
+            { title: "模組總結：規則如何轉化為戲劇性", url: "topics/prince-of-tennis/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜必殺技體系①：物理系技法",
+          courses: [
+            { title: "必殺技的分類原則", url: "topics/prince-of-tennis/lesson-07.html" },
+            { title: "旋轉與落點：物理系的基本原理", url: "topics/prince-of-tennis/lesson-08.html" },
+            { title: "干擾系技法：作用於對手的招式", url: "topics/prince-of-tennis/lesson-09.html" },
+            { title: "模組總結：招式體系的結構性作用", url: "topics/prince-of-tennis/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 D｜必殺技體系②：無我境界與三門",
+          courses: [
+            { title: "無我境界：概念與觸發條件", url: "topics/prince-of-tennis/lesson-11.html" },
+            { title: "三門①：百鍊自得與才氣煥發", url: "topics/prince-of-tennis/lesson-12.html" },
+            { title: "三門②：天衣無縫之極致", url: "topics/prince-of-tennis/lesson-13.html" },
+            { title: "模組總結：境界體系的整體評價", url: "topics/prince-of-tennis/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 E｜部活體制與校際版圖",
+          courses: [
+            { title: "日本中學部活體制與正選選拔", url: "topics/prince-of-tennis/lesson-15.html" },
+            { title: "賽事階梯：都大會、關東大賽與全國大賽", url: "topics/prince-of-tennis/lesson-16.html" },
+            { title: "模組總結：校際版圖與強校分布", url: "topics/prince-of-tennis/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 F｜原作①：入部與都大會",
+          courses: [
+            { title: "越前龍馬入部：天才少年的起點", url: "topics/prince-of-tennis/lesson-18.html" },
+            { title: "校內排名賽與正選的集結", url: "topics/prince-of-tennis/lesson-19.html" },
+            { title: "都大會：不動峰與初期對手", url: "topics/prince-of-tennis/lesson-20.html" },
+            { title: "模組總結：開局的結構設計", url: "topics/prince-of-tennis/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 G｜原作②：關東大賽",
+          courses: [
+            { title: "關東大賽的賽制與參賽勢力", url: "topics/prince-of-tennis/lesson-22.html" },
+            { title: "聖魯道夫與山吹：戰術型對手", url: "topics/prince-of-tennis/lesson-23.html" },
+            { title: "冰帝學園：規模與華麗的壓迫", url: "topics/prince-of-tennis/lesson-24.html" },
+            { title: "手塚的傷與隊伍的重整", url: "topics/prince-of-tennis/lesson-25.html" },
+            { title: "模組總結：關東大賽的整體評價", url: "topics/prince-of-tennis/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 H｜原作③：全國大賽前半",
+          courses: [
+            { title: "全國大賽的開場與青學的處境", url: "topics/prince-of-tennis/lesson-27.html" },
+            { title: "比嘉中：粗暴網球的衝擊", url: "topics/prince-of-tennis/lesson-28.html" },
+            { title: "四天寶寺：關西強豪的雙面性", url: "topics/prince-of-tennis/lesson-29.html" },
+            { title: "手塚的回歸與青學的完全體", url: "topics/prince-of-tennis/lesson-30.html" },
+            { title: "模組總結：全國大賽前半的結構", url: "topics/prince-of-tennis/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 I｜原作④：全國大賽決賽（原作完結）",
+          courses: [
+            { title: "立海大附屬：絕對王者的構造", url: "topics/prince-of-tennis/lesson-32.html" },
+            { title: "決賽前半：各自的最終試煉", url: "topics/prince-of-tennis/lesson-33.html" },
+            { title: "龍馬對幸村：原作的最終一戰", url: "topics/prince-of-tennis/lesson-34.html" },
+            { title: "模組總結：原作的完結與評價", url: "topics/prince-of-tennis/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 J｜新網王①：U-17 合宿",
+          courses: [
+            { title: "新網球王子的舞台轉換", url: "topics/prince-of-tennis/lesson-36.html" },
+            { title: "淘汰制度與中學生的逆襲", url: "topics/prince-of-tennis/lesson-37.html" },
+            { title: "合宿訓練體系與技術進化", url: "topics/prince-of-tennis/lesson-38.html" },
+            { title: "模組總結：合宿篇的功能定位", url: "topics/prince-of-tennis/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 K｜新網王②：世界盃前半",
+          courses: [
+            { title: "U-17 世界盃的賽制與參賽國", url: "topics/prince-of-tennis/lesson-40.html" },
+            { title: "分組賽：日本隊的初期考驗", url: "topics/prince-of-tennis/lesson-41.html" },
+            { title: "準決賽：日本對德國與手塚的對決", url: "topics/prince-of-tennis/lesson-42.html" },
+            { title: "模組總結：世界盃前半的評價", url: "topics/prince-of-tennis/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 L｜新網王③：世界盃決賽",
+          courses: [
+            { title: "西班牙隊：世界最強的構造", url: "topics/prince-of-tennis/lesson-44.html" },
+            { title: "決賽對戰：日本隊的逐場突破", url: "topics/prince-of-tennis/lesson-45.html" },
+            { title: "模組總結：決賽的敘事評價", url: "topics/prince-of-tennis/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 M｜新網王④：大結局",
+          courses: [
+            { title: "越前兄弟：龍馬與龍雅的關係線", url: "topics/prince-of-tennis/lesson-47.html" },
+            { title: "最終戰：龍馬對龍雅的決著", url: "topics/prince-of-tennis/lesson-48.html" },
+            { title: "三年後：系列的最後一頁", url: "topics/prince-of-tennis/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 N｜番外：劇場版與 OVA 總整理",
+          courses: [
+            { title: "劇場版《二人武士》與《英國式庭球城決戰》", url: "topics/prince-of-tennis/lesson-50.html" },
+            { title: "OVA《全國大賽篇》與《跡部的禮物》", url: "topics/prince-of-tennis/lesson-51.html" },
+            { title: "《Game of Future》與番外總結", url: "topics/prince-of-tennis/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物①：青學正選",
+          courses: [
+            { title: "越前龍馬：天才的成長難題", url: "topics/prince-of-tennis/lesson-53.html" },
+            { title: "手塚國光與大石秀一郎", url: "topics/prince-of-tennis/lesson-54.html" },
+            { title: "不二周助與乾貞治", url: "topics/prince-of-tennis/lesson-55.html" },
+            { title: "菊丸、河村、桃城與海堂", url: "topics/prince-of-tennis/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物②：冰帝與立海大",
+          courses: [
+            { title: "跡部景吾與冰帝學園", url: "topics/prince-of-tennis/lesson-57.html" },
+            { title: "幸村精市與真田弦一郎", url: "topics/prince-of-tennis/lesson-58.html" },
+            { title: "兩校其他重要成員", url: "topics/prince-of-tennis/lesson-59.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物③：其他強校群像",
+          courses: [
+            { title: "四天寶寺：關西的享樂主義", url: "topics/prince-of-tennis/lesson-60.html" },
+            { title: "六角、不動峰與其他學校", url: "topics/prince-of-tennis/lesson-61.html" },
+            { title: "模組總結：校際群像的整體設計", url: "topics/prince-of-tennis/lesson-62.html" }
+          ]
+        },
+        {
+          title: "模組 R｜人物④：U-17 與海外選手",
+          courses: [
+            { title: "U-17 日本代表的高中生群體", url: "topics/prince-of-tennis/lesson-63.html" },
+            { title: "世界盃的各國代表選手", url: "topics/prince-of-tennis/lesson-64.html" },
+            { title: "越前南次郎與越前龍雅", url: "topics/prince-of-tennis/lesson-65.html" }
+          ]
+        },
+        {
+          title: "模組 S｜設定細節總整理",
+          courses: [
+            { title: "境界與能力層級全表", url: "topics/prince-of-tennis/lesson-66.html" },
+            { title: "校際勢力圖與賽事階梯總覽", url: "topics/prince-of-tennis/lesson-67.html" },
+            { title: "模組總結：設定細節的整體作用", url: "topics/prince-of-tennis/lesson-68.html" }
+          ]
+        },
+        {
+          title: "模組 T｜主題論與課程總結",
+          courses: [
+            { title: "享受網球：貫穿全作的核心命題", url: "topics/prince-of-tennis/lesson-69.html" },
+            { title: "團體與個人：一個運動題材的悖論", url: "topics/prince-of-tennis/lesson-70.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/prince-of-tennis/lesson-71.html" },
+            { title: "全課程總結與重讀建議", url: "topics/prince-of-tennis/lesson-72.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "chuka-ichiban",
+      category: "anime",
+      title: "中華一番全紀錄：世界設定、劇情與人物完整解析（未完結）",
+      description:
+        "完整解析《中華一番!》系列全部五個版本：先建立世界設定——清末中國的時代背景與地域菜系、特級廚師制度、料理對決的規則與以「心意」為最高判準的評審體系、傳說廚具，以及以料理支配人心的黑暗料理界；再依時間線講完劇情——原作的拜師、特級廚師考試、各地旅程與五虎星大戰，《真・中華一番!》的最終決戰，到二〇一七年起連載至今的《中華一番!極》：十三回忌與太極料理宗、裏料理界與父親劉瑪利的過去、殉死篇，以及主角死亡後進入的冥界篇（取材截至第一九九話前後）；並獨立整理 1997 年動畫、2019 年動畫《極》與漫畫的改編差異，三個模組深入昴星與伙伴、五虎星、反派與極篇新角色，最後以設定總表與「料理為誰而做」的主題論收束。注意：《中華一番!極》漫畫仍在連載中，本課程涉及極篇的內容會標示取材進度。",
+      icon: "🥢",
+      url: "topics/chuka-ichiban/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與版本地圖",
+          courses: [
+            { title: "中華一番是什麼：小川悅司與系列全貌", url: "topics/chuka-ichiban/lesson-01.html" },
+            { title: "版本地圖：五個版本的關係與差異", url: "topics/chuka-ichiban/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構與連載進度標示", url: "topics/chuka-ichiban/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜世界設定①：清末中國與料理界",
+          courses: [
+            { title: "清末中國：時代背景與料理的地位", url: "topics/chuka-ichiban/lesson-04.html" },
+            { title: "地方菜系與料理界的地理版圖", url: "topics/chuka-ichiban/lesson-05.html" },
+            { title: "模組總結：世界觀的基本框架", url: "topics/chuka-ichiban/lesson-06.html" }
+          ]
+        },
+        {
+          title: "模組 C｜世界設定②：特級廚師制度",
+          courses: [
+            { title: "特級廚師制度的等級與權威", url: "topics/chuka-ichiban/lesson-07.html" },
+            { title: "特級廚師考試的內容與難度", url: "topics/chuka-ichiban/lesson-08.html" },
+            { title: "模組總結：制度與個人的關係", url: "topics/chuka-ichiban/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 D｜世界設定③：料理對決的規則",
+          courses: [
+            { title: "料理對決的形式與規則", url: "topics/chuka-ichiban/lesson-10.html" },
+            { title: "評審體系與美味的判準", url: "topics/chuka-ichiban/lesson-11.html" },
+            { title: "模組總結：料理對決的敘事結構", url: "topics/chuka-ichiban/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 E｜世界設定④：傳說廚具",
+          courses: [
+            { title: "傳說廚具的體系與由來", url: "topics/chuka-ichiban/lesson-13.html" },
+            { title: "廚具與使用者：資質與心境的門檻", url: "topics/chuka-ichiban/lesson-14.html" },
+            { title: "模組總結：廚具體系的整體評價", url: "topics/chuka-ichiban/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 F｜世界設定⑤：黑暗料理界",
+          courses: [
+            { title: "黑暗料理界的組織與目的", url: "topics/chuka-ichiban/lesson-16.html" },
+            { title: "黑暗料理界的手法與社會危害", url: "topics/chuka-ichiban/lesson-17.html" },
+            { title: "模組總結：世界設定的整體整合", url: "topics/chuka-ichiban/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 G｜原作①：出身與拜師",
+          courses: [
+            { title: "劉昴星的出身與母親的教誨", url: "topics/chuka-ichiban/lesson-19.html" },
+            { title: "拜師與初期的修行", url: "topics/chuka-ichiban/lesson-20.html" },
+            { title: "模組總結：起點階段的結構任務", url: "topics/chuka-ichiban/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 H｜原作②：特級廚師考試",
+          courses: [
+            { title: "考試的形式與初期關卡", url: "topics/chuka-ichiban/lesson-22.html" },
+            { title: "考試中的對手與黑暗料理界的陰影", url: "topics/chuka-ichiban/lesson-23.html" },
+            { title: "模組總結：考試篇的結構成就", url: "topics/chuka-ichiban/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 I｜原作③：各地對決與伙伴集結",
+          courses: [
+            { title: "陽泉酒家與各地的料理對決", url: "topics/chuka-ichiban/lesson-25.html" },
+            { title: "伙伴群的集結與定位", url: "topics/chuka-ichiban/lesson-26.html" },
+            { title: "模組總結：旅程階段的整體評價", url: "topics/chuka-ichiban/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 J｜原作④：五虎星與黑暗料理界大戰",
+          courses: [
+            { title: "五虎星：黑暗料理界的頂尖戰力", url: "topics/chuka-ichiban/lesson-28.html" },
+            { title: "與五虎星的逐一對決", url: "topics/chuka-ichiban/lesson-29.html" },
+            { title: "模組總結：原作階段的完結", url: "topics/chuka-ichiban/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 K｜續篇：真・中華一番!",
+          courses: [
+            { title: "真・中華一番的定位與續接方式", url: "topics/chuka-ichiban/lesson-31.html" },
+            { title: "黑暗料理界的真相與最終決戰", url: "topics/chuka-ichiban/lesson-32.html" },
+            { title: "模組總結：續篇的完結與評價", url: "topics/chuka-ichiban/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 L｜極①：十三回忌與新篇章的開端",
+          courses: [
+            { title: "極篇的起點：十三回忌與返鄉", url: "topics/chuka-ichiban/lesson-34.html" },
+            { title: "太極料理宗與新的對立結構", url: "topics/chuka-ichiban/lesson-35.html" },
+            { title: "模組總結：極篇開端的結構設計", url: "topics/chuka-ichiban/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 M｜極②：裏料理界與父親的過去",
+          courses: [
+            { title: "裏料理界的結構與重整", url: "topics/chuka-ichiban/lesson-37.html" },
+            { title: "劉瑪利的過去與宿命的糾葛", url: "topics/chuka-ichiban/lesson-38.html" },
+            { title: "模組總結：兩代人的對照", url: "topics/chuka-ichiban/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 N｜極③：殉死與犧牲",
+          courses: [
+            { title: "極篇的沉重轉折：犧牲的描寫", url: "topics/chuka-ichiban/lesson-40.html" },
+            { title: "模組總結：沉重段落的敘事功能", url: "topics/chuka-ichiban/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 O｜極④：冥界篇（連載中）",
+          courses: [
+            { title: "冥界篇的開端：主角之死", url: "topics/chuka-ichiban/lesson-42.html" },
+            { title: "冥界篇的主題與可能方向", url: "topics/chuka-ichiban/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 P｜動畫改編差異整理",
+          courses: [
+            { title: "一九九七年動畫版的改編特徵", url: "topics/chuka-ichiban/lesson-44.html" },
+            { title: "二〇一九年動畫《極》的重製方向", url: "topics/chuka-ichiban/lesson-45.html" },
+            { title: "模組總結：版本差異的整體判斷", url: "topics/chuka-ichiban/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物①：昴星與伙伴",
+          courses: [
+            { title: "劉昴星：不變的信念與成長", url: "topics/chuka-ichiban/lesson-47.html" },
+            { title: "梅麗、紹安與四郎", url: "topics/chuka-ichiban/lesson-48.html" },
+            { title: "模組總結：伙伴群的設計評價", url: "topics/chuka-ichiban/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 R｜人物②：五虎星",
+          courses: [
+            { title: "五虎星的整體結構與分工", url: "topics/chuka-ichiban/lesson-50.html" },
+            { title: "五虎星的動機與轉化", url: "topics/chuka-ichiban/lesson-51.html" },
+            { title: "模組總結：反派群像的評價", url: "topics/chuka-ichiban/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 S｜人物③：反派與極篇新角色",
+          courses: [
+            { title: "黑暗料理界的高層與核心反派", url: "topics/chuka-ichiban/lesson-53.html" },
+            { title: "極篇的新角色與新勢力", url: "topics/chuka-ichiban/lesson-54.html" },
+            { title: "模組總結：反派設計的演進", url: "topics/chuka-ichiban/lesson-55.html" }
+          ]
+        },
+        {
+          title: "模組 T｜設定總表、主題論與總結",
+          courses: [
+            { title: "設定總表：制度、廚具與勢力", url: "topics/chuka-ichiban/lesson-56.html" },
+            { title: "料理為誰而做：全作的核心命題", url: "topics/chuka-ichiban/lesson-57.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/chuka-ichiban/lesson-58.html" },
+            { title: "全課程總結與追讀建議", url: "topics/chuka-ichiban/lesson-59.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "evangelion",
+      category: "anime",
+      title: "新世紀福音戰士全紀錄：四版本、世界設定與人物完整解析",
+      description:
+        "完整解析《新世紀福音戰士》四條結局各不相同的故事線：先用版本地圖釐清電視版、舊劇場版、貞本義行漫畫版與新劇場版四部曲的分歧點，再建立世界設定——第二次衝擊與 2015 年的世界、使徒與 AT 力場、EVA 的生命體本質與插入栓／同步率／LCL、NERV 與 SEELE 與人類補完計畫；接著依序講完四條線的劇情——電視版的使徒戰、心理崩壞與爭議的第 25／26 話，舊劇場版《Air／真心為你》的外部真相，漫畫版的獨立結局，以及新劇場版《序》《破》《Q》《終》的完整收束；並整理外傳與衍生作品，四個模組深入碇真嗣與碇源堂、綾波零與明日香、NERV 成員、渚薰與 SEELE，最後以機體與使徒全表、專有名詞辭典，以及「人為什麼難以與他人相處」的主題論收束。宗教符號部分採取說明其敘事與視覺功能、不附會神學解釋的立場。",
+      icon: "🩸",
+      url: "topics/evangelion/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與四版本地圖",
+          courses: [
+            { title: "新世紀福音戰士是什麼：庵野秀明與製作背景", url: "topics/evangelion/lesson-01.html" },
+            { title: "版本地圖：四條故事線的分歧", url: "topics/evangelion/lesson-02.html" },
+            { title: "這門課怎麼讀：結構與詮釋原則", url: "topics/evangelion/lesson-03.html" },
+            { title: "模組總結：閱讀這部作品的準備", url: "topics/evangelion/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜世界設定①：第二次衝擊與 2015 年的世界",
+          courses: [
+            { title: "第二次衝擊：世界的起點事件", url: "topics/evangelion/lesson-05.html" },
+            { title: "第三新東京市與 2015 年的社會", url: "topics/evangelion/lesson-06.html" },
+            { title: "模組總結：世界背景的敘事功能", url: "topics/evangelion/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜世界設定②：使徒與 AT 力場",
+          courses: [
+            { title: "使徒的定義與共同特徵", url: "topics/evangelion/lesson-08.html" },
+            { title: "AT 力場：從物理屏障到心之壁", url: "topics/evangelion/lesson-09.html" },
+            { title: "使徒的分類與戰鬥模式", url: "topics/evangelion/lesson-10.html" },
+            { title: "模組總結：使徒設定的整體評價", url: "topics/evangelion/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 D｜世界設定③：EVA 的本質",
+          courses: [
+            { title: "EVA 的真實身分", url: "topics/evangelion/lesson-12.html" },
+            { title: "插入栓、同步率與 LCL", url: "topics/evangelion/lesson-13.html" },
+            { title: "暴走、初號機與 Dummy Plug", url: "topics/evangelion/lesson-14.html" },
+            { title: "模組總結：EVA 設定的主題承載", url: "topics/evangelion/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 E｜世界設定④：NERV、SEELE 與補完計畫",
+          courses: [
+            { title: "NERV 的組織與真實目的", url: "topics/evangelion/lesson-16.html" },
+            { title: "SEELE 與死海文書", url: "topics/evangelion/lesson-17.html" },
+            { title: "人類補完計畫：核心設計與版本差異", url: "topics/evangelion/lesson-18.html" },
+            { title: "模組總結：設定體系的完整閉環", url: "topics/evangelion/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 F｜電視版①：前半的使徒戰",
+          courses: [
+            { title: "電視版開場：被召喚的少年", url: "topics/evangelion/lesson-20.html" },
+            { title: "使徒戰與角色的逐步登場", url: "topics/evangelion/lesson-21.html" },
+            { title: "模組總結：電視版前半的結構任務", url: "topics/evangelion/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 G｜電視版②：中盤的崩壞",
+          courses: [
+            { title: "戰鬥代價的真實化", url: "topics/evangelion/lesson-23.html" },
+            { title: "角色心理的逐步瓦解", url: "topics/evangelion/lesson-24.html" },
+            { title: "模組總結：中盤轉向的評價", url: "topics/evangelion/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 H｜電視版③：終盤與第 25、26 話",
+          courses: [
+            { title: "終盤：補完計畫的發動", url: "topics/evangelion/lesson-26.html" },
+            { title: "第 25、26 話：內容、意圖與爭議", url: "topics/evangelion/lesson-27.html" },
+            { title: "模組總結：電視版的整體評價", url: "topics/evangelion/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 I｜舊劇場版：Air／真心為你",
+          courses: [
+            { title: "舊劇場版的定位與 DEATH & REBIRTH", url: "topics/evangelion/lesson-29.html" },
+            { title: "Air／真心為你：外部世界的真相", url: "topics/evangelion/lesson-30.html" },
+            { title: "模組總結：舊劇場版的評價", url: "topics/evangelion/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 J｜漫畫版：貞本義行的詮釋",
+          courses: [
+            { title: "漫畫版的定位與主要差異", url: "topics/evangelion/lesson-32.html" },
+            { title: "漫畫版的結局與詮釋", url: "topics/evangelion/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 K｜新劇場版①：序與破",
+          courses: [
+            { title: "新劇場版的定位與《序》", url: "topics/evangelion/lesson-34.html" },
+            { title: "《破》：明確的轉向", url: "topics/evangelion/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 L｜新劇場版②：Q",
+          courses: [
+            { title: "《Q》：十四年的空白", url: "topics/evangelion/lesson-36.html" },
+            { title: "模組總結：《Q》的評價與定位", url: "topics/evangelion/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 M｜新劇場版③：終",
+          courses: [
+            { title: "《終》：與過去的和解", url: "topics/evangelion/lesson-38.html" },
+            { title: "最終決戰與系列的收束", url: "topics/evangelion/lesson-39.html" },
+            { title: "模組總結：四條故事線的最終比較", url: "topics/evangelion/lesson-40.html" }
+          ]
+        },
+        {
+          title: "模組 N｜番外：外傳與衍生作品",
+          courses: [
+            { title: "遊戲改編與外傳作品", url: "topics/evangelion/lesson-41.html" },
+            { title: "學園版與其他衍生漫畫", url: "topics/evangelion/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物①：碇真嗣與碇源堂",
+          courses: [
+            { title: "碇真嗣：逃避與面對", url: "topics/evangelion/lesson-43.html" },
+            { title: "碇源堂：鏡像中的父親", url: "topics/evangelion/lesson-44.html" },
+            { title: "模組總結：父子關係作為全作核心", url: "topics/evangelion/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物②：綾波零與明日香",
+          courses: [
+            { title: "綾波零：存在的疑問", url: "topics/evangelion/lesson-46.html" },
+            { title: "明日香：驕傲背後的匱乏", url: "topics/evangelion/lesson-47.html" },
+            { title: "模組總結：三名駕駛員的鏡像結構", url: "topics/evangelion/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物③：NERV 成員",
+          courses: [
+            { title: "葛城美里：監護人與復仇者", url: "topics/evangelion/lesson-49.html" },
+            { title: "赤木律子與其他 NERV 成員", url: "topics/evangelion/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 R｜人物④：渚薰與 SEELE",
+          courses: [
+            { title: "渚薰：無條件的接納", url: "topics/evangelion/lesson-51.html" },
+            { title: "SEELE 與冬月：幕後的成年人", url: "topics/evangelion/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 S｜設定總表與名詞辭典",
+          courses: [
+            { title: "EVA 機體全表", url: "topics/evangelion/lesson-53.html" },
+            { title: "使徒對照與專有名詞辭典", url: "topics/evangelion/lesson-54.html" },
+            { title: "模組總結：設定體系的整體評價", url: "topics/evangelion/lesson-55.html" }
+          ]
+        },
+        {
+          title: "模組 T｜主題論與課程總結",
+          courses: [
+            { title: "核心命題：人為什麼難以與他人相處", url: "topics/evangelion/lesson-56.html" },
+            { title: "宗教符號的實際作用", url: "topics/evangelion/lesson-57.html" },
+            { title: "成就與限制：一次誠實的評估", url: "topics/evangelion/lesson-58.html" },
+            { title: "全課程總結與觀看建議", url: "topics/evangelion/lesson-59.html" }
           ]
         }
       ]
