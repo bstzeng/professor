@@ -4503,6 +4503,286 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "one-piece",
+      category: "anime",
+      title: "海賊王全紀錄：劇情、人物與世界觀完整解析",
+      description:
+        "完整拆解《ONE PIECE》的三個層次：先建立世界觀——四海與偉大航路的地理、惡魔果實三大系統與覺醒、霸氣與各家武術、世界政府與天龍人、四皇與七武海的權力平衡，以及空白的一百年、歷史正文與古代兵器；再依篇章講完劇情——東海的集結、阿拉巴斯坦、空島、司法島、頂上戰爭，到新世界的魚人島、多雷斯羅薩、全蛋糕島、和之國與最終章艾格赫德；並以四個模組逐一深入草帽一夥、四皇、海軍與世界政府、革命軍與各族群，最後整理懸賞金、時間線、未回收伏筆與主題論。作品仍在連載，課程明確標示取材範圍。",
+      icon: "🏴‍☠️",
+      url: "topics/one-piece/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：這部作品怎麼讀",
+          courses: [
+            { title: "海賊王是什麼：尾田榮一郎與連載結構", url: "topics/one-piece/lesson-01.html" },
+            { title: "大海賊時代的起點：羅傑的遺言", url: "topics/one-piece/lesson-02.html" },
+            { title: "伏筆式敘事：這部作品的閱讀方法", url: "topics/one-piece/lesson-03.html" },
+            { title: "取材範圍與連載進度說明", url: "topics/one-piece/lesson-04.html" },
+            { title: "模組總結：三條主線——夥伴、自由與繼承的意志", url: "topics/one-piece/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜世界觀①：地理與航海",
+          courses: [
+            { title: "四海與偉大航路：世界的基本地理", url: "topics/one-piece/lesson-06.html" },
+            { title: "記錄指針與偉大航路的航海術", url: "topics/one-piece/lesson-07.html" },
+            { title: "聖地瑪莉喬亞、魚人島與關鍵地點", url: "topics/one-piece/lesson-08.html" },
+            { title: "新世界：氣候、規則與四皇的分割", url: "topics/one-piece/lesson-09.html" },
+            { title: "模組總結：地理如何決定劇情結構", url: "topics/one-piece/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 C｜世界觀②：惡魔果實體系",
+          courses: [
+            { title: "惡魔果實是什麼：三大分類與代價", url: "topics/one-piece/lesson-11.html" },
+            { title: "超人系：想像力決定強度", url: "topics/one-piece/lesson-12.html" },
+            { title: "動物系：古代種、幻獸種與人造果實", url: "topics/one-piece/lesson-13.html" },
+            { title: "自然系與覺醒", url: "topics/one-piece/lesson-14.html" },
+            { title: "模組總結：果實體系的設計邏輯", url: "topics/one-piece/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜世界觀③：霸氣與戰鬥體系",
+          courses: [
+            { title: "霸氣是什麼：見聞色與武裝色", url: "topics/one-piece/lesson-16.html" },
+            { title: "霸王色：王的資質", url: "topics/one-piece/lesson-17.html" },
+            { title: "六式、劍術與各類武術體系", url: "topics/one-piece/lesson-18.html" },
+            { title: "模組總結：戰鬥體系的階梯", url: "topics/one-piece/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 E｜世界觀④：世界權力結構",
+          courses: [
+            { title: "世界政府與加盟國、世界會議", url: "topics/one-piece/lesson-20.html" },
+            { title: "天龍人、五老星與伊姆", url: "topics/one-piece/lesson-21.html" },
+            { title: "海軍：組織、三大將與正義的形式", url: "topics/one-piece/lesson-22.html" },
+            { title: "王下七武海與四皇：兩種平衡裝置", url: "topics/one-piece/lesson-23.html" },
+            { title: "模組總結：三大勢力的平衡與崩解", url: "topics/one-piece/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜世界觀⑤：空白的一百年",
+          courses: [
+            { title: "歷史正文與奧哈拉的悲劇", url: "topics/one-piece/lesson-25.html" },
+            { title: "空白的一百年與古代王國", url: "topics/one-piece/lesson-26.html" },
+            { title: "三大古代兵器", url: "topics/one-piece/lesson-27.html" },
+            { title: "D之一族與「神的天敵」", url: "topics/one-piece/lesson-28.html" },
+            { title: "模組總結：世界的核心矛盾", url: "topics/one-piece/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 G｜東海篇：草帽一夥的集結",
+          courses: [
+            { title: "出航：魯夫、香克斯與那頂草帽", url: "topics/one-piece/lesson-30.html" },
+            { title: "索隆：三刀流與那個約定", url: "topics/one-piece/lesson-31.html" },
+            { title: "娜美與可可亞西村：阿龍篇", url: "topics/one-piece/lesson-32.html" },
+            { title: "騙人布與西羅布村", url: "topics/one-piece/lesson-33.html" },
+            { title: "香吉士與海上餐廳巴拉蒂", url: "topics/one-piece/lesson-34.html" },
+            { title: "東海終戰與踏上偉大航路", url: "topics/one-piece/lesson-35.html" },
+            { title: "模組總結：東海篇的敘事模板", url: "topics/one-piece/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 H｜偉大航路前半：磁鼓與阿拉巴斯坦",
+          courses: [
+            { title: "偉大航路第一站：惠斯特里亞與拉普安", url: "topics/one-piece/lesson-37.html" },
+            { title: "磁鼓王國與喬巴", url: "topics/one-piece/lesson-38.html" },
+            { title: "阿拉巴斯坦：克洛克達爾與巴洛克工作社", url: "topics/one-piece/lesson-39.html" },
+            { title: "薇薇與阿拉巴斯坦的抉擇", url: "topics/one-piece/lesson-40.html" },
+            { title: "妮可·羅賓的加入與歷史正文的登場", url: "topics/one-piece/lesson-41.html" },
+            { title: "過渡篇章與空島的線索", url: "topics/one-piece/lesson-42.html" },
+            { title: "模組總結：世界規則的第一次揭露", url: "topics/one-piece/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 I｜空島篇",
+          courses: [
+            { title: "上天空：空島的世界與規則", url: "topics/one-piece/lesson-44.html" },
+            { title: "香朵拉的歷史與四百年的仇恨", url: "topics/one-piece/lesson-45.html" },
+            { title: "艾涅爾與「神」的統治", url: "topics/one-piece/lesson-46.html" },
+            { title: "黃金鐘與那段文字：全作最大的伏筆之一", url: "topics/one-piece/lesson-47.html" },
+            { title: "模組總結：空島篇的重新評價", url: "topics/one-piece/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 J｜司法島篇：水之七島與 CP9",
+          courses: [
+            { title: "水之七島：梅利號的判決", url: "topics/one-piece/lesson-49.html" },
+            { title: "佛朗基與湯姆的過去", url: "topics/one-piece/lesson-50.html" },
+            { title: "CP9 與世界政府的暗殺部隊", url: "topics/one-piece/lesson-51.html" },
+            { title: "羅賓的選擇：「我想活下去」", url: "topics/one-piece/lesson-52.html" },
+            { title: "對世界政府宣戰：燒毀那面旗", url: "topics/one-piece/lesson-53.html" },
+            { title: "梅利號的葬禮", url: "topics/one-piece/lesson-54.html" },
+            { title: "模組總結：司法島篇為什麼是高峰", url: "topics/one-piece/lesson-55.html" }
+          ]
+        },
+        {
+          title: "模組 K｜恐怖三桅船到香波地群島",
+          courses: [
+            { title: "恐怖三桅船與布魯克", url: "topics/one-piece/lesson-56.html" },
+            { title: "香波地群島：奴隸拍賣與天龍人", url: "topics/one-piece/lesson-57.html" },
+            { title: "巴索羅繆·熊：全員被打散", url: "topics/one-piece/lesson-58.html" },
+            { title: "冥王雷利與兩年之約", url: "topics/one-piece/lesson-59.html" },
+            { title: "模組總結：第一次徹底的失敗", url: "topics/one-piece/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 L｜頂上戰爭篇",
+          courses: [
+            { title: "推進城：地獄的六層", url: "topics/one-piece/lesson-61.html" },
+            { title: "艾斯的身世與白鬍子海賊團", url: "topics/one-piece/lesson-62.html" },
+            { title: "馬林福特：開戰", url: "topics/one-piece/lesson-63.html" },
+            { title: "艾斯之死與白鬍子最後的宣告", url: "topics/one-piece/lesson-64.html" },
+            { title: "戰後：黑鬍子崛起與世界重整", url: "topics/one-piece/lesson-65.html" },
+            { title: "模組總結：頂上戰爭改變了什麼", url: "topics/one-piece/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 M｜魚人島篇",
+          courses: [
+            { title: "兩年後的重聚與進入新世界", url: "topics/one-piece/lesson-67.html" },
+            { title: "魚人島的歷史：歧視、泰格與奧托哈伊", url: "topics/one-piece/lesson-68.html" },
+            { title: "新魚人海賊團與白星公主", url: "topics/one-piece/lesson-69.html" },
+            { title: "模組總結：魚人島篇的主題與伏筆", url: "topics/one-piece/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 N｜龐克哈薩德與多雷斯羅薩",
+          courses: [
+            { title: "龐克哈薩德：凱撒與人體實驗", url: "topics/one-piece/lesson-71.html" },
+            { title: "多雷斯羅薩：玩具與被遺忘的人", url: "topics/one-piece/lesson-72.html" },
+            { title: "多佛朗明哥與德雷斯羅薩的十年", url: "topics/one-piece/lesson-73.html" },
+            { title: "四檔與多雷斯羅薩決戰", url: "topics/one-piece/lesson-74.html" },
+            { title: "藤虎與七武海制度的動搖", url: "topics/one-piece/lesson-75.html" },
+            { title: "模組總結：新世界第一場國家級勝利", url: "topics/one-piece/lesson-76.html" }
+          ]
+        },
+        {
+          title: "模組 O｜卓武與全蛋糕島",
+          courses: [
+            { title: "卓武島：與凱多的第一次照面", url: "topics/one-piece/lesson-77.html" },
+            { title: "香吉士的身世：傑爾馬66", url: "topics/one-piece/lesson-78.html" },
+            { title: "全蛋糕島：大媽的靈魂王國", url: "topics/one-piece/lesson-79.html" },
+            { title: "卡塔庫栗：見聞色的極限", url: "topics/one-piece/lesson-80.html" },
+            { title: "婚禮之戰與逃離", url: "topics/one-piece/lesson-81.html" },
+            { title: "模組總結：香吉士線的收束", url: "topics/one-piece/lesson-82.html" }
+          ]
+        },
+        {
+          title: "模組 P｜和之國 上：二十年前與鬼島前夜",
+          courses: [
+            { title: "和之國：鎖國、階級與污染", url: "topics/one-piece/lesson-83.html" },
+            { title: "光月御田與二十年前", url: "topics/one-piece/lesson-84.html" },
+            { title: "赤鞘九人男與桃之助", url: "topics/one-piece/lesson-85.html" },
+            { title: "凱多與百獸海賊團", url: "topics/one-piece/lesson-86.html" },
+            { title: "鬼島襲擊：聯軍的組成", url: "topics/one-piece/lesson-87.html" },
+            { title: "模組總結：和之國上半的佈局", url: "topics/one-piece/lesson-88.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜和之國 下：鬼島決戰",
+          courses: [
+            { title: "屋頂之戰：五人對兩名四皇", url: "topics/one-piece/lesson-89.html" },
+            { title: "各戰場：大看板與飛六胞", url: "topics/one-piece/lesson-90.html" },
+            { title: "五檔：太陽神尼卡", url: "topics/one-piece/lesson-91.html" },
+            { title: "凱多敗北與大媽的結局", url: "topics/one-piece/lesson-92.html" },
+            { title: "開國與新四皇", url: "topics/one-piece/lesson-93.html" },
+            { title: "模組總結：和之國的收束", url: "topics/one-piece/lesson-94.html" }
+          ]
+        },
+        {
+          title: "模組 R｜最終章：艾格赫德",
+          courses: [
+            { title: "貝加龐克與艾格赫德", url: "topics/one-piece/lesson-95.html" },
+            { title: "五老星的真面目", url: "topics/one-piece/lesson-96.html" },
+            { title: "巴索羅繆·熊的一生", url: "topics/one-piece/lesson-97.html" },
+            { title: "廣播、古代兵器與世界政府的行動", url: "topics/one-piece/lesson-98.html" },
+            { title: "模組總結：最終章的開場", url: "topics/one-piece/lesson-99.html" }
+          ]
+        },
+        {
+          title: "模組 S｜最終章：目前的世界情勢",
+          courses: [
+            { title: "目前的世界情勢與艾爾巴夫", url: "topics/one-piece/lesson-100.html" },
+            { title: "模組總結：連載中作品的閱讀策略", url: "topics/one-piece/lesson-101.html" }
+          ]
+        },
+        {
+          title: "模組 T｜人物詳解①：草帽一夥",
+          courses: [
+            { title: "蒙其·D·魯夫：想成為最自由的人", url: "topics/one-piece/lesson-102.html" },
+            { title: "羅羅亞·索隆：從不改變目標的人", url: "topics/one-piece/lesson-103.html" },
+            { title: "娜美：不可取代的專業", url: "topics/one-piece/lesson-104.html" },
+            { title: "騙人布：會怕的英雄", url: "topics/one-piece/lesson-105.html" },
+            { title: "文斯莫克·香吉士：兩個身分之間", url: "topics/one-piece/lesson-106.html" },
+            { title: "托尼托尼·喬巴：想成為萬能藥", url: "topics/one-piece/lesson-107.html" },
+            { title: "妮可·羅賓：想知道真相的人", url: "topics/one-piece/lesson-108.html" },
+            { title: "佛朗基與布魯克", url: "topics/one-piece/lesson-109.html" },
+            { title: "模組總結：甚平與一艘船的意義", url: "topics/one-piece/lesson-110.html" }
+          ]
+        },
+        {
+          title: "模組 U｜人物詳解②：四皇與頂點的男人們",
+          courses: [
+            { title: "哥爾·D·羅傑與冥王雷利", url: "topics/one-piece/lesson-111.html" },
+            { title: "白鬍子愛德華·紐蓋特", url: "topics/one-piece/lesson-112.html" },
+            { title: "紅髮香克斯", url: "topics/one-piece/lesson-113.html" },
+            { title: "夏洛特·玲玲（BIG MOM）", url: "topics/one-piece/lesson-114.html" },
+            { title: "百獸凱多", url: "topics/one-piece/lesson-115.html" },
+            { title: "黑鬍子馬歇爾·D·汀奇", url: "topics/one-piece/lesson-116.html" },
+            { title: "模組總結：四皇體制與時代交替", url: "topics/one-piece/lesson-117.html" }
+          ]
+        },
+        {
+          title: "模組 V｜人物詳解③：海軍與世界政府",
+          courses: [
+            { title: "卡普與戰國：舊世代的海軍", url: "topics/one-piece/lesson-118.html" },
+            { title: "三大將：赤犬、青雉、黃猿", url: "topics/one-piece/lesson-119.html" },
+            { title: "新世代的海軍：藤虎、克比與斯摩格", url: "topics/one-piece/lesson-120.html" },
+            { title: "CP0、五老星與伊姆", url: "topics/one-piece/lesson-121.html" },
+            { title: "模組總結：正義的多重面貌", url: "topics/one-piece/lesson-122.html" }
+          ]
+        },
+        {
+          title: "模組 W｜人物詳解④：革命軍、七武海與各族群",
+          courses: [
+            { title: "蒙其·D·龍與革命軍", url: "topics/one-piece/lesson-123.html" },
+            { title: "薩波與艾斯：兄弟三人的約定", url: "topics/one-piece/lesson-124.html" },
+            { title: "王下七武海全解", url: "topics/one-piece/lesson-125.html" },
+            { title: "最惡世代與超新星", url: "topics/one-piece/lesson-126.html" },
+            { title: "各族群與國家", url: "topics/one-piece/lesson-127.html" },
+            { title: "模組總結：世界的群像", url: "topics/one-piece/lesson-128.html" }
+          ]
+        },
+        {
+          title: "模組 X｜設定細節總整理",
+          courses: [
+            { title: "船與航海道具", url: "topics/one-piece/lesson-129.html" },
+            { title: "懸賞金全解讀", url: "topics/one-piece/lesson-130.html" },
+            { title: "時間線年表", url: "topics/one-piece/lesson-131.html" },
+            { title: "文化、貨幣與生活設定", url: "topics/one-piece/lesson-132.html" },
+            { title: "模組總結：細節的作用", url: "topics/one-piece/lesson-133.html" }
+          ]
+        },
+        {
+          title: "模組 Y｜伏筆與主題論",
+          courses: [
+            { title: "未回收伏筆總整理", url: "topics/one-piece/lesson-134.html" },
+            { title: "主流推測與它們的依據（非官方）", url: "topics/one-piece/lesson-135.html" },
+            { title: "主題論：自由、繼承的意志與笑容", url: "topics/one-piece/lesson-136.html" },
+            { title: "模組總結：這部作品的成就與限制", url: "topics/one-piece/lesson-137.html" }
+          ]
+        },
+        {
+          title: "模組 Z｜課程總結",
+          courses: [
+            { title: "全作結構回顧", url: "topics/one-piece/lesson-138.html" },
+            { title: "全課程總結與重讀建議", url: "topics/one-piece/lesson-139.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
