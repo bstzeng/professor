@@ -32,6 +32,7 @@ window.SITE_DATA = {
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
+    { id: "anime", label: "動漫", icon: "🍥" },
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
     { id: "mythology", label: "神話與傳說", icon: "🏺" },
     { id: "history", label: "歷史", icon: "📜" }
@@ -4248,6 +4249,255 @@ window.SITE_DATA = {
             { title: "這一年變化最快的三件事", url: "topics/ai-workflow-map/lesson-78.html" },
             { title: "什麼是短期噪音，什麼是長期結構", url: "topics/ai-workflow-map/lesson-79.html" },
             { title: "全課程總結：把地圖折起來，開始動手", url: "topics/ai-workflow-map/lesson-80.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "naruto",
+      category: "anime",
+      title: "火影忍者全紀錄：劇情、人物與忍界設定完整解析",
+      description:
+        "以原作漫畫 700 話為主線，完整拆解《火影忍者》的三個層次：從查克拉、忍術體系、血繼限界與三大瞳術等世界觀設定，到六道仙人、戰國時代與九尾之夜的完整前史；再依篇章講完第一部與疾風傳的全部劇情——中忍考試、木葉崩潰、佐助脫離、曉與尾獸、佩恩襲擊、宇智波滅族真相、第四次忍界大戰到終末之谷；並以三個模組逐一深入主要角色、師長世代與反派群像，最後整理尾獸、通靈獸、地理與月之眼計畫等設定總表，以及仇恨的連鎖、忍者的定義與傳承結構等主題論。",
+      icon: "🍥",
+      url: "topics/naruto/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：作品與這個世界怎麼讀",
+          courses: [
+            { title: "火影忍者是什麼：岸本齊史、連載歷程與作品結構", url: "topics/naruto/lesson-01.html" },
+            { title: "忍者世界的地理與政治：五大國與五大忍村", url: "topics/naruto/lesson-02.html" },
+            { title: "忍者的階級與制度：從忍者學校到影", url: "topics/naruto/lesson-03.html" },
+            { title: "貫穿全作的三條線：成長、輪迴與和平", url: "topics/naruto/lesson-04.html" },
+            { title: "模組總結：閱讀路線與常見的理解陷阱", url: "topics/naruto/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜查克拉與忍術體系",
+          courses: [
+            { title: "查克拉是什麼：身體能量與精神能量的結合", url: "topics/naruto/lesson-06.html" },
+            { title: "五種性質變化：火風雷土水的相剋關係", url: "topics/naruto/lesson-07.html" },
+            { title: "形態變化與螺旋丸：查克拉的另一個維度", url: "topics/naruto/lesson-08.html" },
+            { title: "忍術、體術、幻術：三大分野與各自的破解法", url: "topics/naruto/lesson-09.html" },
+            { title: "封印術、時空間忍術與禁術", url: "topics/naruto/lesson-10.html" },
+            { title: "模組總結：力量的階梯與它的代價", url: "topics/naruto/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜血繼限界與三大瞳術",
+          courses: [
+            { title: "寫輪眼：從勾玉到萬花筒的階梯", url: "topics/naruto/lesson-12.html" },
+            { title: "萬花筒的代價與永恆萬花筒", url: "topics/naruto/lesson-13.html" },
+            { title: "輪迴眼與六道之力", url: "topics/naruto/lesson-14.html" },
+            { title: "白眼與日向一族的宗家分家", url: "topics/naruto/lesson-15.html" },
+            { title: "血繼限界與血繼淘汰：木遁、冰遁、熔遁與塵遁", url: "topics/naruto/lesson-16.html" },
+            { title: "模組總結：血統如何決定命運", url: "topics/naruto/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 D｜前史一：忍界的起源",
+          courses: [
+            { title: "大筒木輝夜與神樹：查克拉的由來", url: "topics/naruto/lesson-18.html" },
+            { title: "六道仙人：忍宗的創始與九隻尾獸的誕生", url: "topics/naruto/lesson-19.html" },
+            { title: "因陀羅與阿修羅：兄弟對立的原型", url: "topics/naruto/lesson-20.html" },
+            { title: "戰國時代：千手柱間與宇智波斑", url: "topics/naruto/lesson-21.html" },
+            { title: "模組總結：木葉的建立與火影的傳承", url: "topics/naruto/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 E｜前史二：三忍到九尾之夜",
+          courses: [
+            { title: "三次忍界大戰：忍村制度的代價", url: "topics/naruto/lesson-23.html" },
+            { title: "傳說中的三忍：自來也、綱手、大蛇丸", url: "topics/naruto/lesson-24.html" },
+            { title: "神無毘橋之戰：卡卡西、帶土與琳", url: "topics/naruto/lesson-25.html" },
+            { title: "波風水門與漩渦玖辛奈", url: "topics/naruto/lesson-26.html" },
+            { title: "模組總結：九尾之亂與鳴人出生的那一夜", url: "topics/naruto/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 F｜第一部①：第七班的起點",
+          courses: [
+            { title: "漩渦鳴人：被排斥的孩子與九尾封印", url: "topics/naruto/lesson-28.html" },
+            { title: "第七班成立：卡卡西的鈴鐺測驗", url: "topics/naruto/lesson-29.html" },
+            { title: "波之國篇：再不斬與白", url: "topics/naruto/lesson-30.html" },
+            { title: "白之死：「忍者是什麼」的第一次追問", url: "topics/naruto/lesson-31.html" },
+            { title: "鳴人、佐助與小櫻：第七班的初期關係", url: "topics/naruto/lesson-32.html" },
+            { title: "模組總結：第七班學到的第一課", url: "topics/naruto/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 G｜第一部②：中忍考試",
+          courses: [
+            { title: "第一場試驗：一場要你作弊的考試", url: "topics/naruto/lesson-34.html" },
+            { title: "死之森：大蛇丸的登場與咒印", url: "topics/naruto/lesson-35.html" },
+            { title: "預賽群像：十場對戰與各自的課題", url: "topics/naruto/lesson-36.html" },
+            { title: "寧次 vs 雛田：日向一族的宿命", url: "topics/naruto/lesson-37.html" },
+            { title: "一個月的修行：千鳥、自來也與通靈之術", url: "topics/naruto/lesson-38.html" },
+            { title: "模組總結：中忍考試的三層結構", url: "topics/naruto/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 H｜第一部③：木葉崩潰與尋找綱手",
+          courses: [
+            { title: "正式賽開幕：鳴人 vs 寧次", url: "topics/naruto/lesson-40.html" },
+            { title: "木葉崩潰作戰：砂隱與音隱的奇襲", url: "topics/naruto/lesson-41.html" },
+            { title: "三代 vs 大蛇丸：屍鬼封盡與穢土轉生", url: "topics/naruto/lesson-42.html" },
+            { title: "鳴人 vs 我愛羅：兩個人柱力的對照", url: "topics/naruto/lesson-43.html" },
+            { title: "尋找綱手：鼬與鬼鮫登場、三忍再會", url: "topics/naruto/lesson-44.html" },
+            { title: "模組總結：三代之死與木葉的重整", url: "topics/naruto/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 I｜第一部④：佐助脫離與追擊戰",
+          courses: [
+            { title: "佐助的動搖：從屋頂之戰到接受咒印", url: "topics/naruto/lesson-46.html" },
+            { title: "音之四人眾與咒印二階段", url: "topics/naruto/lesson-47.html" },
+            { title: "鹿丸的第一次帶隊：五對五追擊戰", url: "topics/naruto/lesson-48.html" },
+            { title: "追擊戰各場對戰詳解", url: "topics/naruto/lesson-49.html" },
+            { title: "終末之谷：鳴人 vs 佐助 第一戰", url: "topics/naruto/lesson-50.html" },
+            { title: "模組總結：第一部的結束與兩年半的空白", url: "topics/naruto/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 J｜疾風傳①：我愛羅救出與曉登場",
+          courses: [
+            { title: "兩年後的第七班：重逢與第二次鈴鐺測驗", url: "topics/naruto/lesson-52.html" },
+            { title: "我愛羅被擄：曉的行動開始", url: "topics/naruto/lesson-53.html" },
+            { title: "蠍與千代婆婆：傀儡對決", url: "topics/naruto/lesson-54.html" },
+            { title: "迪達拉與卡卡西：神威首次亮相", url: "topics/naruto/lesson-55.html" },
+            { title: "我愛羅之死與千代的犧牲", url: "topics/naruto/lesson-56.html" },
+            { title: "模組總結：曉的輪廓與尾獸收集計畫", url: "topics/naruto/lesson-57.html" }
+          ]
+        },
+        {
+          title: "模組 K｜疾風傳②：天地橋、佐井與大蛇丸線",
+          courses: [
+            { title: "第七班改組：佐井與大和", url: "topics/naruto/lesson-58.html" },
+            { title: "天地橋任務：與佐助重逢", url: "topics/naruto/lesson-59.html" },
+            { title: "佐井的來歷：根與志村團藏", url: "topics/naruto/lesson-60.html" },
+            { title: "佐助在音忍的兩年與大蛇丸之死", url: "topics/naruto/lesson-61.html" },
+            { title: "模組總結：三年的裂痕", url: "topics/naruto/lesson-62.html" }
+          ]
+        },
+        {
+          title: "模組 L｜疾風傳③：飛段角都與阿斯瑪之死",
+          courses: [
+            { title: "不死二人組：飛段與角都", url: "topics/naruto/lesson-63.html" },
+            { title: "阿斯瑪之死", url: "topics/naruto/lesson-64.html" },
+            { title: "鹿丸的復仇與風遁螺旋手裏劍", url: "topics/naruto/lesson-65.html" },
+            { title: "模組總結：第一次真正失去老師", url: "topics/naruto/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 M｜疾風傳④：自來也之死與佩恩襲擊木葉",
+          courses: [
+            { title: "自來也 vs 佩恩：雨隱之戰", url: "topics/naruto/lesson-67.html" },
+            { title: "密碼與線索：自來也留下的訊息", url: "topics/naruto/lesson-68.html" },
+            { title: "妙木山修行：仙人模式", url: "topics/naruto/lesson-69.html" },
+            { title: "佩恩襲擊木葉：村子被毀", url: "topics/naruto/lesson-70.html" },
+            { title: "鳴人 vs 佩恩：從復仇到理解", url: "topics/naruto/lesson-71.html" },
+            { title: "模組總結：全作的中點與主題的第一次完成", url: "topics/naruto/lesson-72.html" }
+          ]
+        },
+        {
+          title: "模組 N｜疾風傳⑤：五影會談與鼬的真相",
+          courses: [
+            { title: "團藏上位與五影會談", url: "topics/naruto/lesson-73.html" },
+            { title: "佐助 vs 鼬：最終對決", url: "topics/naruto/lesson-74.html" },
+            { title: "宇智波滅族的真相", url: "topics/naruto/lesson-75.html" },
+            { title: "佐助的轉向：從復仇者到摧毀木葉", url: "topics/naruto/lesson-76.html" },
+            { title: "佐助 vs 團藏，與鳴人的第二次相對", url: "topics/naruto/lesson-77.html" },
+            { title: "模組總結：真相如何改變一切", url: "topics/naruto/lesson-78.html" }
+          ]
+        },
+        {
+          title: "模組 O｜疾風傳⑥：第四次忍界大戰 上",
+          courses: [
+            { title: "開戰：忍者聯軍的組成與指揮", url: "topics/naruto/lesson-79.html" },
+            { title: "穢土轉生軍團：與死者作戰", url: "topics/naruto/lesson-80.html" },
+            { title: "鳴人的修行：與九喇嘛和解", url: "topics/naruto/lesson-81.html" },
+            { title: "奇拉比與八尾：另一種人柱力", url: "topics/naruto/lesson-82.html" },
+            { title: "各戰場詳解：第一階段的主要對戰", url: "topics/naruto/lesson-83.html" },
+            { title: "模組總結：戰爭第一階段的結算", url: "topics/naruto/lesson-84.html" }
+          ]
+        },
+        {
+          title: "模組 P｜疾風傳⑦：第四次忍界大戰 下",
+          courses: [
+            { title: "十尾降臨與帶土的真面目", url: "topics/naruto/lesson-85.html" },
+            { title: "四代火影歸來：歷代火影參戰", url: "topics/naruto/lesson-86.html" },
+            { title: "斑復活與六道之力", url: "topics/naruto/lesson-87.html" },
+            { title: "邁特凱的八門遁甲：死門", url: "topics/naruto/lesson-88.html" },
+            { title: "大筒木輝夜與黑絕的真相", url: "topics/naruto/lesson-89.html" },
+            { title: "模組總結：戰爭的結束與最後的未竟之事", url: "topics/naruto/lesson-90.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜終末之谷與結局",
+          courses: [
+            { title: "鳴人 vs 佐助：最終戰", url: "topics/naruto/lesson-91.html" },
+            { title: "佐助的答案與無限月讀的解除", url: "topics/naruto/lesson-92.html" },
+            { title: "戰後的忍界與各角色的結局", url: "topics/naruto/lesson-93.html" },
+            { title: "模組總結：700 話的收束", url: "topics/naruto/lesson-94.html" }
+          ]
+        },
+        {
+          title: "模組 R｜人物詳解①：第七班與木葉同期",
+          courses: [
+            { title: "漩渦鳴人：從空位到中心", url: "topics/naruto/lesson-95.html" },
+            { title: "宇智波佐助：四次轉向的軌跡", url: "topics/naruto/lesson-96.html" },
+            { title: "春野櫻：成長、限制與作品的處理問題", url: "topics/naruto/lesson-97.html" },
+            { title: "旗木卡卡西：被過去綁住的半生", url: "topics/naruto/lesson-98.html" },
+            { title: "奈良鹿丸與豬鹿蝶", url: "topics/naruto/lesson-99.html" },
+            { title: "日向雛田與日向寧次", url: "topics/naruto/lesson-100.html" },
+            { title: "洛克·李、邁特凱與砂隱三姊弟", url: "topics/naruto/lesson-101.html" }
+          ]
+        },
+        {
+          title: "模組 S｜人物詳解②：師長世代與歷代火影",
+          courses: [
+            { title: "初代千手柱間與二代千手扉間", url: "topics/naruto/lesson-102.html" },
+            { title: "三代猿飛日斬與志村團藏", url: "topics/naruto/lesson-103.html" },
+            { title: "四代波風水門與漩渦玖辛奈", url: "topics/naruto/lesson-104.html" },
+            { title: "自來也：追尋答案的人", url: "topics/naruto/lesson-105.html" },
+            { title: "綱手與大蛇丸：兩種面對死亡的方式", url: "topics/naruto/lesson-106.html" },
+            { title: "大和、佐井與上忍群像", url: "topics/naruto/lesson-107.html" }
+          ]
+        },
+        {
+          title: "模組 T｜人物詳解③：曉與反派群像",
+          courses: [
+            { title: "宇智波鼬：全作犧牲最多的人", url: "topics/naruto/lesson-108.html" },
+            { title: "長門與小南：理想如何變成災難", url: "topics/naruto/lesson-109.html" },
+            { title: "宇智波帶土：想要一個琳還活著的世界", url: "topics/naruto/lesson-110.html" },
+            { title: "宇智波斑：被歷史部分證明的悲觀主義者", url: "topics/naruto/lesson-111.html" },
+            { title: "曉其他成員：鬼鮫、蠍、迪達拉、飛段、角都與絕", url: "topics/naruto/lesson-112.html" },
+            { title: "模組總結：反派的共同結構", url: "topics/naruto/lesson-113.html" }
+          ]
+        },
+        {
+          title: "模組 U｜設定細節總整理",
+          courses: [
+            { title: "尾獸與人柱力全解", url: "topics/naruto/lesson-114.html" },
+            { title: "通靈獸、忍具與戰鬥道具", url: "topics/naruto/lesson-115.html" },
+            { title: "各村與地理總覽", url: "topics/naruto/lesson-116.html" },
+            { title: "月之眼計畫的完整邏輯", url: "topics/naruto/lesson-117.html" },
+            { title: "模組總結：設定表的使用方式", url: "topics/naruto/lesson-118.html" }
+          ]
+        },
+        {
+          title: "模組 V｜主題論",
+          courses: [
+            { title: "仇恨的連鎖與打破它的四種嘗試", url: "topics/naruto/lesson-119.html" },
+            { title: "什麼是忍者：工具、人與規則", url: "topics/naruto/lesson-120.html" },
+            { title: "傳承的結構：父子、師徒與世代", url: "topics/naruto/lesson-121.html" },
+            { title: "模組總結：作品的成就與限制", url: "topics/naruto/lesson-122.html" }
+          ]
+        },
+        {
+          title: "模組 W｜續作概述與課程總結",
+          courses: [
+            { title: "續作與外傳概述，以及全課程總結", url: "topics/naruto/lesson-123.html" }
           ]
         }
       ]
