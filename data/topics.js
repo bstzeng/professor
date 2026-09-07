@@ -6438,6 +6438,340 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "pokemon-anime",
+      category: "anime",
+      title: "寶可夢動畫全紀錄：世界設定、歷代主線與人物完整解析（未完結）",
+      description:
+        "完整梳理一九九七年開播至今的寶可夢電視動畫主線：先處理最令人混亂的系列分期問題，再建立世界設定基礎——訓練家制度、道館與聯盟的階梯、屬性相剋與對戰邏輯，以及超級進化、Z 招式、極巨化、太晶化等各世代機制；接著依地方順序講完九段主線，從關都出發、豐緣、神奧、合眾、卡洛斯、阿羅拉，到新無印的世界冠軍賽與二〇二三年小智篇的正式收束，並記錄目前以新主角群為中心、仍在連載中的新系列；另闢模組整理劇場版體系與其半獨立的正史地位；人物部分以四個模組處理小智與皮卡丘、歷代旅伴群像、火箭隊三人組，以及從小茂到真司再到丹帝的勁敵制度；最後附上地方與系列對照表、小智歷屆聯盟成績表與設定名詞速查，並以旅行母題、不變的主角與人寶關係倫理三篇主題論收束。注意：小智篇已於二〇二三年完結，但本作整體仍在連載中，取材至二〇二六年年中。",
+      icon: "⚡",
+      url: "topics/pokemon-anime/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：系列分期與主線的取捨",
+          courses: [
+            { title: "寶可夢動畫是什麼：規模與系列分期", url: "topics/pokemon-anime/lesson-01.html" },
+            { title: "只講主線：取捨的標準", url: "topics/pokemon-anime/lesson-02.html" },
+            { title: "這門課怎麼讀：模組結構說明", url: "topics/pokemon-anime/lesson-03.html" },
+            { title: "主線的整體弧線預覽", url: "topics/pokemon-anime/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：訓練家制度與聯盟",
+          courses: [
+            { title: "訓練家制度與旅程的規則", url: "topics/pokemon-anime/lesson-05.html" },
+            { title: "精靈球與夥伴關係的設定", url: "topics/pokemon-anime/lesson-06.html" },
+            { title: "道館與聯盟的賽制", url: "topics/pokemon-anime/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：屬性相剋與對戰",
+          courses: [
+            { title: "屬性相剋的基本邏輯", url: "topics/pokemon-anime/lesson-08.html" },
+            { title: "對戰的實際運作與戰術層次", url: "topics/pokemon-anime/lesson-09.html" },
+            { title: "模組總結：對戰體系的整體評價", url: "topics/pokemon-anime/lesson-10.html" }
+          ]
+        },
+        {
+          title: "模組 D｜設定③：各世代機制",
+          courses: [
+            { title: "進化與早期的力量體系", url: "topics/pokemon-anime/lesson-11.html" },
+            { title: "超級進化與 Z 招式", url: "topics/pokemon-anime/lesson-12.html" },
+            { title: "極巨化與太晶化", url: "topics/pokemon-anime/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 E｜劇情①：無印篇",
+          courses: [
+            { title: "起點：小智與皮卡丘的相遇", url: "topics/pokemon-anime/lesson-14.html" },
+            { title: "關都地方的旅程與聯盟", url: "topics/pokemon-anime/lesson-15.html" },
+            { title: "橘子群島與城都地方", url: "topics/pokemon-anime/lesson-16.html" },
+            { title: "模組總結：無印篇的整體評價", url: "topics/pokemon-anime/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情②：AG 豐緣篇",
+          courses: [
+            { title: "豐緣地方與新旅伴", url: "topics/pokemon-anime/lesson-18.html" },
+            { title: "豐緣聯盟與戰鬥開拓區", url: "topics/pokemon-anime/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情③：DP 神奧篇",
+          courses: [
+            { title: "神奧地方與最強的勁敵", url: "topics/pokemon-anime/lesson-20.html" },
+            { title: "神奧聯盟與敗北的重量", url: "topics/pokemon-anime/lesson-21.html" },
+            { title: "模組總結：DP 篇的成就", url: "topics/pokemon-anime/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情④：BW 合眾篇",
+          courses: [
+            { title: "BW 的重置與爭議的來源", url: "topics/pokemon-anime/lesson-23.html" },
+            { title: "合眾聯盟與這一期的實際內容", url: "topics/pokemon-anime/lesson-24.html" },
+            { title: "模組總結：如何評價 BW", url: "topics/pokemon-anime/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情⑤：XY 卡洛斯篇",
+          courses: [
+            { title: "XY 的修正與新的旅伴", url: "topics/pokemon-anime/lesson-26.html" },
+            { title: "卡洛斯聯盟：最接近的一次", url: "topics/pokemon-anime/lesson-27.html" },
+            { title: "模組總結：XY 的成就與遺憾", url: "topics/pokemon-anime/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情⑥：SM 阿羅拉篇",
+          courses: [
+            { title: "SM 的形式轉向", url: "topics/pokemon-anime/lesson-29.html" },
+            { title: "阿羅拉聯盟與首次奪冠", url: "topics/pokemon-anime/lesson-30.html" },
+            { title: "模組總結：SM 的重新評價", url: "topics/pokemon-anime/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 K｜劇情⑦：新無印與世界冠軍賽",
+          courses: [
+            { title: "新無印的結構改變", url: "topics/pokemon-anime/lesson-32.html" },
+            { title: "世界冠軍賽與登頂世界第一", url: "topics/pokemon-anime/lesson-33.html" },
+            { title: "模組總結：新無印的收尾功能", url: "topics/pokemon-anime/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 L｜劇情⑧：小智篇的完結",
+          courses: [
+            { title: "《目標是寶可夢大師》的性質", url: "topics/pokemon-anime/lesson-35.html" },
+            { title: "小智篇的收尾與最後的畫面", url: "topics/pokemon-anime/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 M｜新系列（連載中）",
+          courses: [
+            { title: "新系列的開始與新主角", url: "topics/pokemon-anime/lesson-37.html" },
+            { title: "新系列的進展與現況", url: "topics/pokemon-anime/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 N｜番外：劇場版體系",
+          courses: [
+            { title: "劇場版的整體體系", url: "topics/pokemon-anime/lesson-39.html" },
+            { title: "兩條劇場版線的區分", url: "topics/pokemon-anime/lesson-40.html" },
+            { title: "模組總結：劇場版的整體定位", url: "topics/pokemon-anime/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物①：小智與皮卡丘",
+          courses: [
+            { title: "小智：二十六年的角色分析", url: "topics/pokemon-anime/lesson-42.html" },
+            { title: "皮卡丘與這段關係的分析", url: "topics/pokemon-anime/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 P｜人物②：歷代旅伴",
+          courses: [
+            { title: "旅伴制度的功能與更替邏輯", url: "topics/pokemon-anime/lesson-44.html" },
+            { title: "前期旅伴：小霞、小剛與城都時期", url: "topics/pokemon-anime/lesson-45.html" },
+            { title: "中期旅伴：小遙、小光與雙主線結構", url: "topics/pokemon-anime/lesson-46.html" },
+            { title: "後期旅伴：合眾、卡洛斯、阿羅拉與新無印", url: "topics/pokemon-anime/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物③：火箭隊",
+          courses: [
+            { title: "武藏、小次郎與喵喵的角色設計", url: "topics/pokemon-anime/lesson-48.html" },
+            { title: "火箭隊的敘事功能", url: "topics/pokemon-anime/lesson-49.html" },
+            { title: "火箭隊的收尾與模組總結", url: "topics/pokemon-anime/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 R｜人物④：勁敵與各地要角",
+          courses: [
+            { title: "勁敵制度：從小茂到真司", url: "topics/pokemon-anime/lesson-51.html" },
+            { title: "後期勁敵與冠軍層級的對手", url: "topics/pokemon-anime/lesson-52.html" },
+            { title: "各地要角：博士、道館與惡役組織", url: "topics/pokemon-anime/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 S｜設定總表：地方、聯盟與系列對照",
+          courses: [
+            { title: "地方與系列對照總表", url: "topics/pokemon-anime/lesson-54.html" },
+            { title: "小智的歷屆聯盟成績表", url: "topics/pokemon-anime/lesson-55.html" },
+            { title: "世界設定名詞總表", url: "topics/pokemon-anime/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 T｜主題論與課程總結",
+          courses: [
+            { title: "主題論①：旅行作為敘事母題", url: "topics/pokemon-anime/lesson-57.html" },
+            { title: "主題論②：不變的主角", url: "topics/pokemon-anime/lesson-58.html" },
+            { title: "主題論③：人與寶可夢的關係倫理", url: "topics/pokemon-anime/lesson-59.html" },
+            { title: "課程總結：一部還在走的作品", url: "topics/pokemon-anime/lesson-60.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "doraemon",
+      category: "anime",
+      title: "哆啦A夢全紀錄：世界設定、主線劇情與「最終回」的實情",
+      description:
+        "完整整理藤子・F・不二雄《哆啦A夢》的主線：先說明學年誌同時連載制度如何決定了獨立短篇、角色不長大與三月號告別回這些結構特徵；再建立世界設定——二十二世紀的機器人社會、受管制的時間旅行、四次元口袋與依功能分為六類的道具體系及其四種限制；接著依序講完四段主線：哆啦A夢為何被派來與世修的動機、他作為量產不良品的誕生與耳朵和顏色的來歷、一九七一至一九七四年三個真實存在的告別回（含〈再見了，哆啦A夢〉與隔月將結局收回的〈哆啦A夢回來了〉），以及以〈大雄的結婚前夜〉為核心的未來線；另闢一整個模組釐清「最終回」問題——說明作品因作者一九九六年逝世而連載終止且無結局，並完整交代「電池耗盡」版最終回實為二次創作、二〇〇七年停止販售的來龍去脈，以及植物人說等都市傳說的破綻；再以兩個模組解析作者親筆十七部《大長編》的六段式結構與代表作，獨立整理三個電視動畫版本的差異與劇場版的正史分層，三個模組處理五人組、家人與周邊角色，最後附上人物、設定與主線回目三張速查表，並以捷徑的代價、依賴與自己站起來、不完美的人如何被肯定三篇主題論收束。",
+      icon: "🔔",
+      url: "topics/doraemon/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：連載形態、學年誌制度與「主線」的取法",
+          courses: [
+            { title: "這部作品到底是什麼", url: "topics/doraemon/lesson-01.html" },
+            { title: "學年誌制度如何決定了作品的形狀", url: "topics/doraemon/lesson-02.html" },
+            { title: "沒有結局的作品：作者之死與「完結」的定義", url: "topics/doraemon/lesson-03.html" },
+            { title: "本課程的主線取法與模組地圖", url: "topics/doraemon/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜設定①：二十二世紀與時間旅行",
+          courses: [
+            { title: "二十二世紀的社會樣貌", url: "topics/doraemon/lesson-05.html" },
+            { title: "時間旅行的規則與矛盾處理", url: "topics/doraemon/lesson-06.html" },
+            { title: "未來社會與現代日本的對照", url: "topics/doraemon/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜設定②：四次元口袋與道具體系",
+          courses: [
+            { title: "四次元口袋與道具的取得方式", url: "topics/doraemon/lesson-08.html" },
+            { title: "道具的功能分類", url: "topics/doraemon/lesson-09.html" },
+            { title: "代表性道具的設計巧思", url: "topics/doraemon/lesson-10.html" },
+            { title: "道具的限制與作品的倫理立場", url: "topics/doraemon/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 D｜五人關係結構",
+          courses: [
+            { title: "五人組的角色配置", url: "topics/doraemon/lesson-12.html" },
+            { title: "依賴與扶持：核心關係的張力", url: "topics/doraemon/lesson-13.html" },
+            { title: "封閉的世界與它的邊界", url: "topics/doraemon/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 E｜劇情①：哆啦A夢為什麼來",
+          courses: [
+            { title: "第一回：從未來之國千里迢迢而來", url: "topics/doraemon/lesson-15.html" },
+            { title: "世修：派遣者的動機", url: "topics/doraemon/lesson-16.html" },
+            { title: "原本的未來：大雄的人生預告", url: "topics/doraemon/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 F｜劇情②：哆啦A夢的誕生",
+          courses: [
+            { title: "出廠：一台有瑕疵的量產機", url: "topics/doraemon/lesson-18.html" },
+            { title: "耳朵與顏色：兩個外觀變化的來歷", url: "topics/doraemon/lesson-19.html" },
+            { title: "性格、弱點與哆啦美", url: "topics/doraemon/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 G｜劇情③：離別的回",
+          courses: [
+            { title: "第一次告別：哆啦A夢回到未來去", url: "topics/doraemon/lesson-21.html" },
+            { title: "第二次告別：一個關於自立的問題", url: "topics/doraemon/lesson-22.html" },
+            { title: "〈再見了，哆啦A夢〉", url: "topics/doraemon/lesson-23.html" },
+            { title: "〈哆啦A夢回來了〉與模組總結", url: "topics/doraemon/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情④：未來線與〈大雄的結婚前夜〉",
+          courses: [
+            { title: "未來線：被改變之後的人生", url: "topics/doraemon/lesson-25.html" },
+            { title: "〈大雄的結婚前夜〉", url: "topics/doraemon/lesson-26.html" },
+            { title: "靜香的選擇與感情線的處理", url: "topics/doraemon/lesson-27.html" },
+            { title: "未來的家庭與模組總結", url: "topics/doraemon/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 I｜關於「最終回」的實情",
+          courses: [
+            { title: "為什麼會有這麼多「最終回」", url: "topics/doraemon/lesson-29.html" },
+            { title: "最有名的假結局：同人誌事件的來龍去脈", url: "topics/doraemon/lesson-30.html" },
+            { title: "其他流傳的說法與它們的問題", url: "topics/doraemon/lesson-31.html" },
+            { title: "事實清單與模組總結", url: "topics/doraemon/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 J｜《大長編》①：體系與結構",
+          courses: [
+            { title: "《大長編哆啦A夢》是什麼", url: "topics/doraemon/lesson-33.html" },
+            { title: "《大長編》的固定結構", url: "topics/doraemon/lesson-34.html" },
+            { title: "角色在異境中的變化", url: "topics/doraemon/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 K｜《大長編》②：代表作解析",
+          courses: [
+            { title: "起點：《大雄的恐龍》", url: "topics/doraemon/lesson-36.html" },
+            { title: "《大雄的宇宙小戰爭》與《大雄與鐵人兵團》", url: "topics/doraemon/lesson-37.html" },
+            { title: "《大雄的日本誕生》與《大雄與雲之王國》", url: "topics/doraemon/lesson-38.html" },
+            { title: "遺作與《大長編》的收束", url: "topics/doraemon/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 L｜番外：動畫版本與劇場版體系",
+          courses: [
+            { title: "三個電視動畫版本", url: "topics/doraemon/lesson-40.html" },
+            { title: "兩個主要版本的差異", url: "topics/doraemon/lesson-41.html" },
+            { title: "劇場版體系與正史地位", url: "topics/doraemon/lesson-42.html" },
+            { title: "版本差異速查與模組總結", url: "topics/doraemon/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 M｜人物①：大雄與哆啦A夢",
+          courses: [
+            { title: "大雄：一個被誤解的主角", url: "topics/doraemon/lesson-44.html" },
+            { title: "大雄的處境與作品的立場", url: "topics/doraemon/lesson-45.html" },
+            { title: "哆啦A夢：照顧者的角色分析", url: "topics/doraemon/lesson-46.html" },
+            { title: "兩人關係的總結", url: "topics/doraemon/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 N｜人物②：靜香、胖虎與小夫",
+          courses: [
+            { title: "靜香：作品的良心", url: "topics/doraemon/lesson-48.html" },
+            { title: "胖虎：暴力與義氣的並存", url: "topics/doraemon/lesson-49.html" },
+            { title: "小夫：最貼近讀者的角色", url: "topics/doraemon/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 O｜人物③：家人與周邊角色",
+          courses: [
+            { title: "大雄的家人", url: "topics/doraemon/lesson-51.html" },
+            { title: "出木杉、老師與班上的其他人", url: "topics/doraemon/lesson-52.html" },
+            { title: "未來的角色與其他機器人", url: "topics/doraemon/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 P｜設定總表",
+          courses: [
+            { title: "人物速查表", url: "topics/doraemon/lesson-54.html" },
+            { title: "設定與道具速查表", url: "topics/doraemon/lesson-55.html" },
+            { title: "作品體系與主線回目速查表", url: "topics/doraemon/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜主題論",
+          courses: [
+            { title: "主題論①：不勞而獲的誘惑與代價", url: "topics/doraemon/lesson-57.html" },
+            { title: "主題論②：依賴與自己站起來", url: "topics/doraemon/lesson-58.html" },
+            { title: "主題論③：不完美的人如何被肯定", url: "topics/doraemon/lesson-59.html" },
+            { title: "主題論④：為什麼它能跨越半世紀", url: "topics/doraemon/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 R｜課程總結",
+          courses: [
+            { title: "課程總結：整條主線的輪廓", url: "topics/doraemon/lesson-61.html" },
+            { title: "延伸建議與取材說明", url: "topics/doraemon/lesson-62.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
