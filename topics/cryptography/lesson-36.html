@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：快速冪：怎麼算 m 的兩千位次方 ｜ 密碼學 ｜ 博雅書院</title>
+<meta name="description" content="介紹平方乘算法，說明大數乘冪為何可以快速計算。">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">密碼學</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜數論工具箱 · 第 36 課</div>
+      <h1>快速冪：怎麼算 m 的兩千位次方</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握快速冪的原理</li>
+          <li>會手動執行一次</li>
+          <li>理解它為何是實作的關鍵</li>
+        </ul>
+      </div>
+
+
+      <p>
+        RSA 要算 \( m^e \bmod n \)，其中 \( e \) 可能是好幾百位的數字。
+        <strong>直接乘那麼多次是不可能的。</strong>
+      </p>
+
+      <h2>1. 問題有多大</h2>
+      <p>
+        如果 \( e \approx 2^{2048} \)，逐次相乘要做 \( 2^{2048} \) 次乘法——
+        <strong>這比宇宙中的原子數量還多得多。</strong>
+      </p>
+      <p>
+        但實際上，你的手機做這件事只要幾毫秒。<strong>怎麼辦到的？</strong>
+      </p>
+
+      <h2>2. 核心想法：反覆平方</h2>
+      <div class="callout">
+        <p>
+          與其乘 \( e \) 次，不如<strong>反覆平方</strong>：
+        </p>
+        <p>
+          \[ m^2,\ m^4,\ m^8,\ m^{16},\ m^{32},\ \dots \]
+        </p>
+        <p>
+          <strong>每平方一次，指數就翻倍。</strong>
+          平方 \( k \) 次就得到 \( m^{2^k} \)——
+          指數呈指數成長，而工作量只是線性成長。
+        </p>
+      </div>
+
+      <h2>3. 任意指數怎麼辦</h2>
+      <p>
+        把指數寫成二進位。例如 \( 13 = 1101_2 = 8 + 4 + 1 \)，因此：
+      </p>
+      <p>
+        \[ m^{13} = m^{8} \times m^{4} \times m^{1} \]
+      </p>
+      <p>
+        而 \( m^1, m^2, m^4, m^8 \) 全部可以由反覆平方得到。
+        <strong>只要挑出二進位是 1 的那幾項相乘即可。</strong>
+      </p>
+
+      <h2>4. 完整範例</h2>
+      <p>
+        算 \( 7^{13} \bmod 11 \)。
+      </p>
+      <table>
+        <thead>
+          <tr><th>次方</th><th>計算</th><th>模 11 的值</th><th>13 的二進位有這位嗎</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>\( 7^1 \)</td><td>7</td><td>7</td><td><strong>有</strong></td></tr>
+          <tr><td>\( 7^2 \)</td><td>\( 7^2 = 49 \)</td><td>5</td><td>沒有</td></tr>
+          <tr><td>\( 7^4 \)</td><td>\( 5^2 = 25 \)</td><td>3</td><td><strong>有</strong></td></tr>
+          <tr><td>\( 7^8 \)</td><td>\( 3^2 = 9 \)</td><td>9</td><td><strong>有</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        把有標記的相乘：
+      </p>
+      <p>
+        \[ 7^{13} \equiv 9 \times 3 \times 7 = 189 \equiv 2 \pmod{11} \]
+      </p>
+      <div class="callout">
+        <p>
+          <strong>四次平方加兩次乘法，總共六步。</strong>
+          直接乘要十二步——差距在小數字上不明顯，
+          但指數愈大差距愈驚人。
+        </p>
+      </div>
+
+      <h2>5. 效率</h2>
+      <table>
+        <thead>
+          <tr><th>指數大小</th><th>逐次相乘</th><th>快速冪</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>\( 2^{10} \)</td><td>約 1,000 次</td><td>約 15 次</td></tr>
+          <tr><td>\( 2^{64} \)</td><td>\( 1.8\times10^{19} \) 次</td><td>約 96 次</td></tr>
+          <tr><td>\( 2^{2048} \)</td><td>不可能</td><td><strong>約 3,000 次</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>需要的步數大約是指數位元數的 1.5 倍。</strong>
+        </p>
+        <p>
+          兩千位元的指數只要三千次左右的模乘法。
+          <strong>這就是為什麼 RSA 在實務上跑得動。</strong>
+        </p>
+      </div>
+
+      <h2>6. 加上模運算</h2>
+      <p>
+        別忘了模組 I 第一課的規則：<strong>每一步都先取餘數</strong>。
+        這樣中間的數字永遠不會超過 \( n \)，
+        不會出現需要處理天文位數的情況。
+      </p>
+      <div class="callout">
+        <p>
+          <strong>實務提醒</strong>：真實的實作還必須是<strong>常數時間</strong>的——
+          也就是不論指數的位元是 0 還是 1，花的時間都要一樣。
+        </p>
+        <p>
+          否則攻擊者可以<strong>從執行時間的差異推出私鑰的位元</strong>。
+          這類攻擊叫做旁通道攻擊，是「不要自己實作密碼學」的主要理由之一。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>本課重點</h3>
+        <ul>
+          <li>反覆平方讓指數翻倍，工作量只線性增加</li>
+          <li>把指數寫成二進位，挑出為 1 的位次相乘</li>
+          <li>步數約為指數位元數的 1.5 倍，兩千位元只需約三千步</li>
+          <li>實作必須是常數時間，否則會被旁通道攻擊</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用快速冪計算 \( 3^{11} \bmod 13 \)</li>
+          <li>說明步數與指數位元數的關係</li>
+          <li>解釋為什麼實作必須是常數時間</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課處理最後一塊拼圖：質數與因數分解。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：費馬小定理與尤拉定理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：質數與因數分解的不對稱 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  if (typeof renderMathInElement === "function") renderMathInElement(document.body, {
+    delimiters: [
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    throwOnError: false
+  });
+</script>
+</body>
+</html>

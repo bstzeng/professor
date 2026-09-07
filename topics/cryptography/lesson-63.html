@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：不要自己實作密碼學 ｜ 密碼學 ｜ 博雅書院</title>
+<meta name="description" content="說明自行實作密碼學的具體風險，特別是旁通道攻擊。">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">密碼學</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 Q｜常見誤解與實務原則 · 第 63 課</div>
+      <h1>不要自己實作密碼學</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解自行實作的風險</li>
+          <li>掌握旁通道攻擊的原理</li>
+          <li>知道正確的做法</li>
+        </ul>
+      </div>
+
+
+      <p>
+        這是密碼學實務的第一守則。<strong>本課說明為什麼。</strong>
+      </p>
+
+      <h2>1. 問題不在數學</h2>
+      <div class="callout">
+        <p>
+          照著規格書實作 AES 或 RSA 不難。
+          <strong>你甚至可以通過所有的測試向量。</strong>
+        </p>
+        <p>
+          <strong>然後它仍然會洩漏金鑰。</strong>
+        </p>
+      </div>
+      <p>
+        原因是密碼學的攻擊面遠不只輸入與輸出。
+      </p>
+
+      <h2>2. 旁通道攻擊</h2>
+      <p>
+        攻擊者不去分析演算法，<strong>而是觀察執行過程的物理特徵</strong>：
+      </p>
+      <table>
+        <thead>
+          <tr><th>通道</th><th>洩漏什麼</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>執行時間</strong></td><td>分支與迴圈次數依金鑰而異，時間就洩漏了金鑰位元</td></tr>
+          <tr><td>耗電量</td><td>不同運算的耗電曲線不同，可直接讀出金鑰</td></tr>
+          <tr><td>電磁輻射</td><td>不需要接觸裝置就能量測</td></tr>
+          <tr><td>快取行為</td><td>依金鑰決定的記憶體存取模式會影響快取，可被同機器的其他程式觀察</td></tr>
+          <tr><td>聲音</td><td>元件的高頻振動也曾被用來還原金鑰</td></tr>
+          <tr><td>錯誤訊息</td><td>不同失敗原因給出不同回應，構成解密的預言機</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>最常見也最容易犯的是第一項與最後一項。</strong>
+        </p>
+        <p>
+          一個天真的實作可能這樣寫：比對驗證標籤時，
+          <strong>發現第一個位元組不對就立刻回傳失敗</strong>。
+        </p>
+        <p>
+          這看起來是合理的最佳化。<strong>但它讓比對時間取決於
+          有幾個位元組相符</strong>——攻擊者可以一個位元組一個位元組地
+          猜出正確的標籤。
+        </p>
+      </div>
+
+      <h2>3. 正確的實作要做什麼</h2>
+      <table>
+        <thead>
+          <tr><th>要求</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>常數時間</strong></td><td>執行時間不得依賴秘密資料</td></tr>
+          <tr><td>沒有秘密相關的分支</td><td>不能用 if 判斷秘密資料的值</td></tr>
+          <tr><td>沒有秘密相關的記憶體位址</td><td>查表的索引不能來自秘密</td></tr>
+          <tr><td>安全地清除記憶體</td><td>用完的金鑰要抹掉，且不能被編譯器最佳化掉</td></tr>
+          <tr><td>防止資料被寫入磁碟</td><td>避免金鑰進入置換空間或當機傾印</td></tr>
+          <tr><td>統一的錯誤處理</td><td>不同的失敗原因要給出無法區分的回應</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>注意這些要求全部與數學無關。</strong>
+        </p>
+        <p>
+          它們是關於<strong>編譯器、處理器、作業系統與記憶體</strong>的知識。
+          而且更麻煩的是：<strong>編譯器的最佳化可能把你精心寫的常數時間程式碼
+          改回有分支的版本。</strong>
+        </p>
+      </div>
+
+      <h2>4. 那該怎麼辦</h2>
+      <div class="callout">
+        <h3>層級由高到低</h3>
+        <ol>
+          <li><strong>最好</strong>：使用高階的密碼學函式庫，
+              它幫你決定演算法與參數，<strong>不給你選錯的機會</strong></li>
+          <li><strong>次好</strong>：使用成熟的低階函式庫，
+              但嚴格遵循文件的建議用法</li>
+          <li><strong>可接受</strong>：使用標準函式庫，並請人審查你的用法</li>
+          <li><strong>不要</strong>：自己實作演算法</li>
+          <li><strong>絕對不要</strong>：自己設計演算法</li>
+        </ol>
+      </div>
+
+      <h2>5. 什麼時候學習實作是有價值的</h2>
+      <p>
+        本課程的立場不是「不要學」，而是「不要用在正式系統上」。
+      </p>
+      <ul>
+        <li><strong>為了理解而實作是好的</strong>——自己寫過一次 RSA，
+            對它的理解會完全不同</li>
+        <li><strong>但要清楚標示那是學習用的</strong>，不要放進正式產品</li>
+        <li><strong>理解原理的價值在於「會用」與「看得懂問題」</strong>，
+            不在於取代成熟的實作</li>
+      </ul>
+      <div class="callout">
+        <p>
+          <strong>這正是本課程的目的。</strong>
+        </p>
+        <p>
+          知道 RSA 為什麼需要填充，你才不會用課本版；
+          知道初始向量不能重複，你才不會寫出那個錯誤；
+          知道亂數的重要性，你才不會用一般的亂數函式。
+        </p>
+        <p>
+          <strong>理解不是為了自己造輪子，是為了正確地開車。</strong>
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>本課重點</h3>
+        <ul>
+          <li>通過測試向量的實作仍可能洩漏金鑰</li>
+          <li>旁通道攻擊觀察時間、耗電、快取與錯誤訊息</li>
+          <li>正確實作的要求與數學無關，而是關於編譯器與硬體</li>
+          <li>學習實作有價值，但不要用在正式系統上</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出六種旁通道</li>
+          <li>說明常數時間為何必要</li>
+          <li>背出實務做法的五個層級</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課整理真實的失敗案例，並總結本模組。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：十個常見誤解</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：真實失敗案例的共同模式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  if (typeof renderMathInElement === "function") renderMathInElement(document.body, {
+    delimiters: [
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    throwOnError: false
+  });
+</script>
+</body>
+</html>

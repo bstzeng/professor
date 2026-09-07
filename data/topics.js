@@ -7046,6 +7046,181 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "cryptography",
+      category: "math",
+      title: "密碼學全解析：從恩尼格瑪的齒輪到後量子時代",
+      description:
+        "完整講解密碼學的原理與歷史，以恩尼格瑪為核心案例。先建立三個目標（保密、驗證、完整）與柯克霍夫原則，再從古典密碼與頻率分析講起；接著以四個模組、十七課完整拆解恩尼格瑪——六個部件的功能、電流經過接線板兩次與轉子組兩次的完整訊號路徑、凹口與雙重步進這個機械怪癖、轉子順序與環設定與起始位置三種金鑰的分工；親手算出約 1.59×10^20 的金鑰空間（含接線板十條線的組合數推導），並指出反射器造成的兩個結構缺陷：任何字母都不會被加密成自己，以及互反性讓可能的替換表少了十二個數量級；再說明它實際上怎麼被破——波蘭雷耶夫斯基以置換的循環結構繞過接線板、循環儀與密碼炸彈機、一九三九年華沙的移交、圖靈以已知明文與矛盾排除的炸彈機、韋爾奇曼的對角板，以及德軍那些反而降低安全性的規定。後半進入現代：夏農的完美保密與一次性密碼本、維諾那計畫、AES 與加密模式、模運算與費馬尤拉定理等數論工具、迪菲—赫爾曼、RSA 完整推導與可手算的實例、橢圓曲線、雜湊與密碼儲存、數位簽章與憑證信任鏈、隨機性與它造成的真實災難、以及秀爾演算法的威脅與二〇二四年定案的後量子標準。全課程的主線是：密碼系統的失敗幾乎從不發生在數學上。",
+      icon: "🔐",
+      url: "topics/cryptography/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：密碼學到底在解決什麼",
+          courses: [
+            { title: "三個目標：保密、驗證、完整", url: "topics/cryptography/lesson-01.html" },
+            { title: "柯克霍夫原則：安全只能靠金鑰", url: "topics/cryptography/lesson-02.html" },
+            { title: "為什麼自己發明的加密法一定會被破", url: "topics/cryptography/lesson-03.html" },
+            { title: "課程地圖與閱讀路徑", url: "topics/cryptography/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜古典密碼與它們怎麼被破",
+          courses: [
+            { title: "替換式密碼", url: "topics/cryptography/lesson-05.html" },
+            { title: "頻率分析：九世紀就有的破法", url: "topics/cryptography/lesson-06.html" },
+            { title: "維吉尼爾多表密碼", url: "topics/cryptography/lesson-07.html" },
+            { title: "古典密碼的共同弱點", url: "topics/cryptography/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜恩尼格瑪①：機器的構造",
+          courses: [
+            { title: "為什麼會有這台機器", url: "topics/cryptography/lesson-09.html" },
+            { title: "六個部件", url: "topics/cryptography/lesson-10.html" },
+            { title: "電流走一遍：完整的訊號路徑", url: "topics/cryptography/lesson-11.html" },
+            { title: "轉子怎麼進位：凹口與雙重步進", url: "topics/cryptography/lesson-12.html" },
+            { title: "三種設定：轉子順序、環設定、起始位置", url: "topics/cryptography/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜恩尼格瑪②：金鑰空間與致命缺陷",
+          courses: [
+            { title: "親手算一次金鑰空間", url: "topics/cryptography/lesson-14.html" },
+            { title: "致命缺陷：字母不會變成自己", url: "topics/cryptography/lesson-15.html" },
+            { title: "互反性：加密與解密是同一個動作", url: "topics/cryptography/lesson-16.html" },
+            { title: "操作流程與那個致命的習慣", url: "topics/cryptography/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 E｜恩尼格瑪③：怎麼被破的",
+          courses: [
+            { title: "波蘭人先破的：雷耶夫斯基的洞見", url: "topics/cryptography/lesson-18.html" },
+            { title: "循環儀、炸彈機與穿孔紙", url: "topics/cryptography/lesson-19.html" },
+            { title: "一九三九年七月：華沙的交接", url: "topics/cryptography/lesson-20.html" },
+            { title: "圖靈的炸彈機：用矛盾排除", url: "topics/cryptography/lesson-21.html" },
+            { title: "對角板、海軍與人為疏失", url: "topics/cryptography/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜恩尼格瑪④：留下的教訓",
+          courses: [
+            { title: "破的不是演算法，是使用方式", url: "topics/cryptography/lesson-23.html" },
+            { title: "現代密碼學學到的四件事", url: "topics/cryptography/lesson-24.html" },
+            { title: "常見迷思與影視誤解", url: "topics/cryptography/lesson-25.html" }
+          ]
+        },
+        {
+          title: "模組 G｜現代密碼學的起點",
+          courses: [
+            { title: "夏農與完美保密", url: "topics/cryptography/lesson-26.html" },
+            { title: "一次性密碼本", url: "topics/cryptography/lesson-27.html" },
+            { title: "維諾那計畫：重複使用的代價", url: "topics/cryptography/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 H｜對稱式加密",
+          courses: [
+            { title: "區塊加密的基本結構", url: "topics/cryptography/lesson-29.html" },
+            { title: "DES 與它的終結", url: "topics/cryptography/lesson-30.html" },
+            { title: "AES：公開競賽選出的標準", url: "topics/cryptography/lesson-31.html" },
+            { title: "加密模式：為什麼企鵝還看得見", url: "topics/cryptography/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 I｜數論工具箱",
+          courses: [
+            { title: "模運算：時鐘上的算術", url: "topics/cryptography/lesson-33.html" },
+            { title: "輾轉相除法與模反元素", url: "topics/cryptography/lesson-34.html" },
+            { title: "費馬小定理與尤拉定理", url: "topics/cryptography/lesson-35.html" },
+            { title: "快速冪：怎麼算 m 的兩千位次方", url: "topics/cryptography/lesson-36.html" },
+            { title: "質數與因數分解的不對稱", url: "topics/cryptography/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 J｜公鑰革命",
+          courses: [
+            { title: "金鑰分發：對稱式加密解決不了的事", url: "topics/cryptography/lesson-38.html" },
+            { title: "迪菲—赫爾曼金鑰交換", url: "topics/cryptography/lesson-39.html" },
+            { title: "離散對數問題", url: "topics/cryptography/lesson-40.html" },
+            { title: "誰先想到的", url: "topics/cryptography/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 K｜RSA 完整解析",
+          courses: [
+            { title: "產生金鑰的五個步驟", url: "topics/cryptography/lesson-42.html" },
+            { title: "為什麼解得回來", url: "topics/cryptography/lesson-43.html" },
+            { title: "小數字完整實例", url: "topics/cryptography/lesson-44.html" },
+            { title: "實務細節：課本版的 RSA 不安全", url: "topics/cryptography/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 L｜橢圓曲線",
+          courses: [
+            { title: "曲線上的那個奇怪加法", url: "topics/cryptography/lesson-46.html" },
+            { title: "為什麼 256 位元抵得上 3072 位元", url: "topics/cryptography/lesson-47.html" },
+            { title: "現在用在哪裡", url: "topics/cryptography/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 M｜雜湊函數",
+          courses: [
+            { title: "雜湊在做什麼", url: "topics/cryptography/lesson-49.html" },
+            { title: "MD5 與 SHA-1 的破解史", url: "topics/cryptography/lesson-50.html" },
+            { title: "密碼儲存：加鹽與慢雜湊", url: "topics/cryptography/lesson-51.html" },
+            { title: "雜湊的其他應用", url: "topics/cryptography/lesson-52.html" }
+          ]
+        },
+        {
+          title: "模組 N｜數位簽章與信任鏈",
+          courses: [
+            { title: "簽章：反過來用的公鑰", url: "topics/cryptography/lesson-53.html" },
+            { title: "憑證與信任鏈", url: "topics/cryptography/lesson-54.html" },
+            { title: "一次加密連線裡發生了什麼", url: "topics/cryptography/lesson-55.html" }
+          ]
+        },
+        {
+          title: "模組 O｜隨機性",
+          courses: [
+            { title: "為什麼亂數是整個密碼學的地基", url: "topics/cryptography/lesson-56.html" },
+            { title: "亂數怎麼來的", url: "topics/cryptography/lesson-57.html" },
+            { title: "亂數造成的真實災難", url: "topics/cryptography/lesson-58.html" }
+          ]
+        },
+        {
+          title: "模組 P｜後量子密碼",
+          courses: [
+            { title: "秀爾演算法：為什麼公開金鑰全部有危險", url: "topics/cryptography/lesson-59.html" },
+            { title: "對稱式與雜湊的處境", url: "topics/cryptography/lesson-60.html" },
+            { title: "後量子標準與先收割後解密", url: "topics/cryptography/lesson-61.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜常見誤解與實務原則",
+          courses: [
+            { title: "十個常見誤解", url: "topics/cryptography/lesson-62.html" },
+            { title: "不要自己實作密碼學", url: "topics/cryptography/lesson-63.html" },
+            { title: "真實失敗案例的共同模式", url: "topics/cryptography/lesson-64.html" }
+          ]
+        },
+        {
+          title: "模組 R｜速查總表",
+          courses: [
+            { title: "演算法對照表", url: "topics/cryptography/lesson-65.html" },
+            { title: "恩尼格瑪速查", url: "topics/cryptography/lesson-66.html" },
+            { title: "名詞與流程速查", url: "topics/cryptography/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 S｜總結",
+          courses: [
+            { title: "四千年的一條線", url: "topics/cryptography/lesson-68.html" },
+            { title: "延伸路徑與課程總結", url: "topics/cryptography/lesson-69.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",

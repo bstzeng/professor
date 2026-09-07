@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：密碼儲存：加鹽與慢雜湊 ｜ 密碼學 ｜ 博雅書院</title>
+<meta name="description" content="說明密碼儲存的正確做法與各種錯誤方式的後果。">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">密碼學</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜雜湊函數 · 第 51 課</div>
+      <h1>密碼儲存：加鹽與慢雜湊</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解密碼儲存的正確做法</li>
+          <li>掌握鹽的作用</li>
+          <li>認識慢雜湊的必要性</li>
+        </ul>
+      </div>
+
+
+      <p>
+        這是雜湊最常見的用途，<strong>也是最常做錯的地方。</strong>
+      </p>
+
+      <h2>1. 為什麼不能存明文</h2>
+      <p>
+        資料庫外洩是常態而非例外。存明文密碼的後果：
+      </p>
+      <ul>
+        <li>所有使用者的密碼立刻全部曝光</li>
+        <li>因為許多人<strong>重複使用密碼</strong>，
+            外洩會擴散到其他完全無關的服務</li>
+        <li>你的員工也看得到使用者的密碼</li>
+      </ul>
+
+      <h2>2. 錯誤做法的演進</h2>
+      <table>
+        <thead>
+          <tr><th>做法</th><th>問題</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>存明文</td><td>不用說</td></tr>
+          <tr><td>存 MD5 或 SHA-1</td><td>演算法已不安全，且<strong>速度太快</strong>（見下）</td></tr>
+          <tr><td>存 SHA-256</td><td><strong>仍然太快</strong>——現代硬體每秒可算數十億次</td></tr>
+          <tr><td>存不加鹽的雜湊</td><td>相同密碼產生相同雜湊；可用預先算好的表批次破解</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>「雜湊很快」對一般用途是優點，對密碼儲存是致命缺點。</strong>
+        </p>
+        <p>
+          攻擊者拿到雜湊之後，就開始猜密碼並比對。
+          <strong>雜湊愈快，他每秒能猜的次數就愈多。</strong>
+        </p>
+      </div>
+
+      <h2>3. 鹽</h2>
+      <div class="callout">
+        <p>
+          <strong>鹽是一段對每個使用者都不同的隨機資料</strong>，
+          與密碼一起雜湊，並<strong>以明文存在資料庫裡</strong>。
+        </p>
+      </div>
+      <table>
+        <thead>
+          <tr><th>鹽解決的問題</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>相同密碼有相同雜湊</td><td>加鹽後，兩個用同樣密碼的人雜湊值也不同</td></tr>
+          <tr><td>預先計算的表</td><td>攻擊者無法事先為所有可能的密碼建表</td></tr>
+          <tr><td>批次破解</td><td><strong>必須對每個使用者分別破解</strong>，成本乘上使用者人數</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>鹽不需要保密。</strong>它的作用不是隱藏，
+        而是<strong>讓攻擊無法攤提成本</strong>。
+      </p>
+
+      <h2>4. 慢雜湊</h2>
+      <p>
+        專門為密碼設計的雜湊函數，刻意把運算做慢，並且<strong>可調整成本</strong>：
+      </p>
+      <table>
+        <thead>
+          <tr><th>可調整的成本</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>運算次數</td><td>直接增加每次嘗試的時間</td></tr>
+          <tr><td><strong>記憶體用量</strong></td><td><strong>對抗專用硬體</strong>——見下</td></tr>
+          <tr><td>平行度</td><td>調整對多核心的利用</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>記憶體那一項特別重要。</strong>
+        </p>
+        <p>
+          攻擊者常使用大量平行的專用硬體來猜密碼。
+          這類硬體的強項是算術單元多，<strong>弱項是每個單元能配到的記憶體很少</strong>。
+        </p>
+        <p>
+          <strong>把演算法設計成需要大量記憶體，就削弱了專用硬體的優勢</strong>——
+          攻擊者的成本因此大幅上升，而正常伺服器驗證一次密碼仍然只要零點幾秒。
+        </p>
+      </div>
+
+      <h2>5. 正確的做法</h2>
+      <div class="callout">
+        <ol>
+          <li>使用<strong>專為密碼設計的雜湊函數</strong>，不要用通用雜湊</li>
+          <li>每個使用者一個<strong>隨機且唯一的鹽</strong></li>
+          <li><strong>調整成本參數</strong>，讓單次驗證約需零點一到零點五秒</li>
+          <li>定期檢視成本參數是否需要調高（硬體會愈來愈快）</li>
+          <li>比對時使用<strong>常數時間的比較</strong>，避免時間洩漏</li>
+          <li><strong>使用現成的函式庫</strong>，不要自己組合</li>
+        </ol>
+      </div>
+
+      <h2>6. 一個延伸做法</h2>
+      <p>
+        除了鹽之外，還可以加一段<strong>不存在資料庫裡</strong>的秘密值，
+        改放在應用程式的設定或專用硬體中。
+      </p>
+      <p>
+        效果是：<strong>光是拿到資料庫，攻擊者仍然無法開始破解</strong>，
+        因為他缺少那段秘密。這對資料庫外洩提供了額外一層防護。
+      </p>
+
+      <div class="callout">
+        <h3>本課重點</h3>
+        <ul>
+          <li>通用雜湊太快，不適合密碼儲存</li>
+          <li>鹽讓攻擊無法攤提成本，且不需要保密</li>
+          <li>慢雜湊可調整運算與記憶體成本，記憶體用量能削弱專用硬體</li>
+          <li>應使用現成函式庫，並定期調高成本參數</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為什麼「雜湊很快」是密碼儲存的缺點</li>
+          <li>說出鹽解決的三個問題</li>
+          <li>解釋記憶體成本為何能對抗專用硬體</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        下一課整理雜湊的其他應用。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：MD5 與 SHA-1 的破解史</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：雜湊的其他應用 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  if (typeof renderMathInElement === "function") renderMathInElement(document.body, {
+    delimiters: [
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    throwOnError: false
+  });
+</script>
+</body>
+</html>

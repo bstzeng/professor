@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 45 課：實務細節：課本版的 RSA 不安全 ｜ 密碼學 ｜ 博雅書院</title>
+<meta name="description" content="說明直接使用 RSA 的問題與實務上的正確做法。">
+<link rel="stylesheet" href="../../css/style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">密碼學</a>
+      <span class="sep">/</span>
+      <span>第 45 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜RSA 完整解析 · 第 45 課</div>
+      <h1>實務細節：課本版的 RSA 不安全</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解課本版 RSA 的問題</li>
+          <li>掌握填充的必要性</li>
+          <li>認識常見的實作錯誤</li>
+        </ul>
+      </div>
+
+
+      <p>
+        前三課講的是 RSA 的數學。<strong>但直接照那樣實作，會做出不安全的系統。</strong>
+      </p>
+
+      <h2>1. 問題一：加密是確定性的</h2>
+      <div class="callout">
+        <p>
+          同樣的訊息用同一把公鑰加密，<strong>永遠得到同樣的密文。</strong>
+        </p>
+      </div>
+      <p>
+        後果很嚴重：<strong>公鑰是公開的，所以攻擊者可以自己加密。</strong>
+      </p>
+      <ul>
+        <li>如果訊息的可能性不多（例如「是」或「否」、一個四位數的驗證碼），
+            <strong>攻擊者可以把所有可能都加密一遍，然後比對</strong></li>
+        <li>這叫做<strong>選擇明文攻擊</strong>——模組 A 第三課列過的攻擊模型</li>
+        <li>他甚至能看出「這則訊息和上一則一樣」</li>
+      </ul>
+      <p>
+        這直接違反了模組 F 提到的<strong>語意安全</strong>要求。
+      </p>
+
+      <h2>2. 問題二：可延展性</h2>
+      <p>
+        RSA 有一個危險的代數性質：
+      </p>
+      <p>
+        \[ (m_1)^e \times (m_2)^e = (m_1 m_2)^e \pmod n \]
+      </p>
+      <div class="callout">
+        <p>
+          <strong>把兩個密文相乘，等於把兩個明文相乘後加密。</strong>
+        </p>
+        <p>
+          攻擊者不需要解密，就能<strong>製造出一個有意義的新密文</strong>。
+          例如把某個密文乘上 \( 2^e \)，就等於把明文變成兩倍——
+          <strong>如果那是一筆金額，後果不難想像。</strong>
+        </p>
+      </div>
+
+      <h2>3. 解法：填充</h2>
+      <p>
+        實務上絕不直接加密訊息本身，而是先做<strong>填充</strong>：
+      </p>
+      <table>
+        <thead>
+          <tr><th>填充做的事</th><th>解決的問題</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>混入隨機資料</strong></td><td>同樣的訊息每次產生不同密文</td></tr>
+          <tr><td>加入固定的結構標記</td><td>解密時可檢查格式，偵測竄改</td></tr>
+          <tr><td>把訊息打散到整個區塊</td><td>破壞可延展性的代數結構</td></tr>
+        </tbody>
+      </table>
+      <div class="callout">
+        <p>
+          <strong>現代建議使用經過安全性證明的填充方案。</strong>
+        </p>
+        <p>
+          舊有的一種常見填充方案有已知的攻擊方式：
+          攻擊者可以<strong>反覆送出構造過的密文，
+          從伺服器回應的錯誤差異中一點一點推出明文</strong>。
+        </p>
+        <p>
+          這是一種<strong>預言機攻擊</strong>——
+          系統本身變成了幫攻擊者解密的工具。
+        </p>
+      </div>
+
+      <h2>4. 常見的實作錯誤</h2>
+      <table>
+        <thead>
+          <tr><th>錯誤</th><th>後果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>不做填充</td><td>確定性加密與可延展性，如上</td></tr>
+          <tr><td>用 RSA 直接加密大量資料</td><td>極慢；<strong>正確做法是加密一把 AES 金鑰</strong></td></tr>
+          <tr><td>金鑰太短</td><td>1024 位元已不足，最低應為 2048</td></tr>
+          <tr><td>質數品質不佳</td><td>見下一點</td></tr>
+          <tr><td>加密與簽章共用同一把金鑰</td><td>兩種用途的攻擊可能互相利用</td></tr>
+          <tr><td>錯誤訊息太詳細</td><td>洩漏資訊給預言機攻擊</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 一個真實的災難</h2>
+      <div class="callout">
+        <p>
+          研究者曾大規模收集網際網路上的公開 RSA 憑證，
+          發現<strong>不少金鑰共用了相同的質數因數</strong>。
+        </p>
+        <p>
+          原因是某些嵌入式裝置在開機初期產生金鑰，
+          <strong>當時的亂數來源熵不足</strong>，
+          於是不同裝置產生出重複的質數。
+        </p>
+        <p>
+          後果是：只要把任兩把公鑰拿來算最大公因數，
+          <strong>若不等於 1，兩把金鑰就同時被破解了</strong>——
+          而輾轉相除法快得驚人。
+        </p>
+      </div>
+      <p>
+        <strong>注意這件事的性質</strong>：RSA 沒有問題、
+        因數分解仍然困難、實作也沒寫錯。
+        <strong>失敗發生在亂數上</strong>——這正是模組 O 的主題。
+      </p>
+
+      <h2>6. 混合加密：實務上的標準做法</h2>
+      <div class="callout">
+        <ol>
+          <li>產生一把<strong>隨機的對稱式金鑰</strong></li>
+          <li>用<strong>對稱式加密</strong>加密真正的資料（快）</li>
+          <li>用<strong>對方的公鑰</strong>加密那把對稱金鑰（只有幾十位元組）</li>
+          <li>把兩者一起送出</li>
+        </ol>
+        <p>
+          <strong>兼得公開金鑰的便利與對稱式加密的速度。</strong>
+          今天所有的加密通訊協定都是這樣做的。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>模組 K 重點回顧</h3>
+        <ul>
+          <li>金鑰產生五步驟，安全性建立在因數分解的困難度</li>
+          <li>正確性是尤拉定理的直接應用，且指數可交換故也能簽章</li>
+          <li>課本版 RSA 是確定性且可延展的，必須使用安全的填充</li>
+          <li>實務採混合加密：公鑰加密對稱金鑰，對稱式加密資料</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明確定性加密與可延展性各造成什麼問題</li>
+          <li>說出填充解決的三件事</li>
+          <li>描述混合加密的四個步驟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>
+        模組 L 看一個更有效率的替代方案。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-44.html">← 上一課：小數字完整實例</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-46.html">下一課：曲線上的那個奇怪加法 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script>
+  if (typeof renderMathInElement === "function") renderMathInElement(document.body, {
+    delimiters: [
+      { left: "\\[", right: "\\]", display: true },
+      { left: "\\(", right: "\\)", display: false }
+    ],
+    throwOnError: false
+  });
+</script>
+</body>
+</html>
