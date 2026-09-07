@@ -28,6 +28,7 @@ window.SITE_DATA = {
   categories: [
     { id: "music", label: "音樂", icon: "🎵" },
     { id: "tech", label: "科技與工程", icon: "💻" },
+    { id: "math", label: "數學", icon: "📐" },
     { id: "science", label: "物理與宇宙學", icon: "🔭" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
@@ -6767,6 +6768,279 @@ window.SITE_DATA = {
           courses: [
             { title: "課程總結：整條主線的輪廓", url: "topics/doraemon/lesson-61.html" },
             { title: "延伸建議與取材說明", url: "topics/doraemon/lesson-62.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "complex-numbers",
+      category: "math",
+      title: "複數到底在做什麼：從三次方程式到旋轉、訊號與量子",
+      description:
+        "專為「會算但想像不出來」的人設計的複數課程：不從 i² = -1 的定義出發，而是從它被什麼問題硬逼出來講起——十六世紀的三次方程式明明有三個實數解，唯一的公式卻非得繞道負數開根號，邦貝利以 x³ = 15x + 4 證明照規則算下去不會出錯；接著給出關鍵的那張圖：複數住在平面上，加法是平移，而乘法是旋轉加縮放——乘 -1 是轉半圈，於是「有沒有轉九十度的數」這個問題自然生出 i，i² = -1 不是規定而是「轉兩次九十度」的結果；再由極座標推出棣美弗定理與尤拉公式，說明 e^(iθ) 不是「e 的虛數次方」而是等速旋轉；然後用四個模組展示它真正的用途：交流電的相量與阻抗如何把微分方程變成除法、任何訊號如何拆成旋轉的疊加、量子力學中複數為何寫在基本方程式裡且干涉必須靠相位、以及控制系統中極點落在左半或右半平面如何決定機器會不會失控；最後以代數基本定理、常見誤解的逐一破解、可執行的 Python 驗證程式，與運算、公式、應用三張速查表收束。",
+      icon: "🌀",
+      url: "topics/complex-numbers/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：為什麼你想像不出來",
+          courses: [
+            { title: "問題出在「虛數」這個名字", url: "topics/complex-numbers/lesson-01.html" },
+            { title: "你其實已經在用它了", url: "topics/complex-numbers/lesson-02.html" },
+            { title: "本課程的策略：從問題出發，不從定義出發", url: "topics/complex-numbers/lesson-03.html" },
+            { title: "課程地圖與閱讀路徑", url: "topics/complex-numbers/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜複數不是憑空發明的",
+          courses: [
+            { title: "起點的誤會：不是為了解 x² + 1 = 0", url: "topics/complex-numbers/lesson-05.html" },
+            { title: "三次方程式與那個繞不過去的路口", url: "topics/complex-numbers/lesson-06.html" },
+            { title: "邦貝利的決定：先算下去再說", url: "topics/complex-numbers/lesson-07.html" },
+            { title: "從中間值到真正的數", url: "topics/complex-numbers/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜幾何轉向：複數是平面上的動作",
+          courses: [
+            { title: "把複數畫在平面上", url: "topics/complex-numbers/lesson-09.html" },
+            { title: "加法就是平移", url: "topics/complex-numbers/lesson-10.html" },
+            { title: "乘法就是旋轉加縮放", url: "topics/complex-numbers/lesson-11.html" },
+            { title: "i 的四次循環與旋轉的證據", url: "topics/complex-numbers/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜極座標與尤拉公式",
+          courses: [
+            { title: "模與輻角：複數的另一種寫法", url: "topics/complex-numbers/lesson-13.html" },
+            { title: "極座標下的乘法與棣美弗定理", url: "topics/complex-numbers/lesson-14.html" },
+            { title: "尤拉公式：e^(iθ) 到底是什麼", url: "topics/complex-numbers/lesson-15.html" },
+            { title: "e^(iπ) + 1 = 0 的真正意思", url: "topics/complex-numbers/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 E｜為什麼「旋轉」這麼重要",
+          courses: [
+            { title: "波，就是旋轉的影子", url: "topics/complex-numbers/lesson-17.html" },
+            { title: "世界上有多少東西在振盪", url: "topics/complex-numbers/lesson-18.html" },
+            { title: "為什麼複數是描述振盪的最佳語言", url: "topics/complex-numbers/lesson-19.html" }
+          ]
+        },
+        {
+          title: "模組 F｜應用①：交流電與相量",
+          courses: [
+            { title: "交流電的麻煩：不同步", url: "topics/complex-numbers/lesson-20.html" },
+            { title: "相量：把一條波壓成一個複數", url: "topics/complex-numbers/lesson-21.html" },
+            { title: "阻抗：把三種元件統一成一個數", url: "topics/complex-numbers/lesson-22.html" },
+            { title: "完整例題：RC 電路從頭算到尾", url: "topics/complex-numbers/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 G｜應用②：訊號、頻率與傅立葉的入口",
+          courses: [
+            { title: "任何訊號，都是一堆旋轉疊起來的", url: "topics/complex-numbers/lesson-24.html" },
+            { title: "為什麼用複數指數而不用 sin 和 cos", url: "topics/complex-numbers/lesson-25.html" },
+            { title: "頻域是什麼，以及往下走的路", url: "topics/complex-numbers/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 H｜應用③：量子力學——複數不可取代之處",
+          courses: [
+            { title: "在量子力學裡，複數不是選項", url: "topics/complex-numbers/lesson-27.html" },
+            { title: "相位：看不見卻決定一切的東西", url: "topics/complex-numbers/lesson-28.html" },
+            { title: "這個案例告訴我們什麼", url: "topics/complex-numbers/lesson-29.html" }
+          ]
+        },
+        {
+          title: "模組 I｜應用④：控制、電腦繪圖與碎形",
+          courses: [
+            { title: "控制系統：一個點的位置決定機器會不會失控", url: "topics/complex-numbers/lesson-30.html" },
+            { title: "電腦繪圖：旋轉不必用矩陣", url: "topics/complex-numbers/lesson-31.html" },
+            { title: "碎形：一條簡單規則造出的無限複雜", url: "topics/complex-numbers/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 J｜代數的完整性",
+          courses: [
+            { title: "代數基本定理：所有方程式都有解", url: "topics/complex-numbers/lesson-33.html" },
+            { title: "「一定有解」在實務上的價值", url: "topics/complex-numbers/lesson-34.html" },
+            { title: "為什麼不繼續擴充下去", url: "topics/complex-numbers/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 K｜常見誤解與心理障礙",
+          courses: [
+            { title: "五個常見誤解", url: "topics/complex-numbers/lesson-36.html" },
+            { title: "為什麼中學教法讓人想不出來", url: "topics/complex-numbers/lesson-37.html" },
+            { title: "複數、向量與矩陣的關係", url: "topics/complex-numbers/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 L｜動手驗證",
+          courses: [
+            { title: "動手一：看複數乘法在轉什麼", url: "topics/complex-numbers/lesson-39.html" },
+            { title: "動手二：用旋轉疊出一個方波", url: "topics/complex-numbers/lesson-40.html" },
+            { title: "動手三：畫出曼德博集合", url: "topics/complex-numbers/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 M｜速查總表",
+          courses: [
+            { title: "運算速查：代數與幾何對照", url: "topics/complex-numbers/lesson-42.html" },
+            { title: "公式速查：極座標與指數形式", url: "topics/complex-numbers/lesson-43.html" },
+            { title: "應用速查：各領域的對照表", url: "topics/complex-numbers/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 N｜總結",
+          courses: [
+            { title: "一句話回答：複數到底在做什麼", url: "topics/complex-numbers/lesson-45.html" },
+            { title: "延伸路徑與課程總結", url: "topics/complex-numbers/lesson-46.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "laplace-transform",
+      category: "math",
+      title: "拉普拉斯轉換：從傅立葉出發，把微分方程變成看圖",
+      description:
+        "完整講解拉普拉斯轉換是什麼、為什麼長那樣、以及實際怎麼用。本課程刻意不從定義式出發，而是先講傅立葉——把訊號拆成頻率、正交性為何讓係數公式成立、頻域與卷積定理，再指出傅立葉的致命限制：因為 e^(-iωt) 的大小恆為一，它處理不了會發散的訊號，也沒有納入初始條件的機制；接著只改一個地方——先乘上 e^(-σt) 把訊號壓下來再做傅立葉，合併兩個指數令 s = σ + iω，拉普拉斯轉換就自己長出來了，多出來的負擔只有收斂區域。然後建立完整工具：以微分性質為引擎（微分變成乘 s，且初始條件在第一步就自動納入）、常用轉換表與只記三條就能推出其餘的方法、部分分式法處理相異實根、重根與複數根；再以五個模組走完應用——五步驟解常微分方程並走完 RC 與二階系統的完整例題、轉移函數與極點零點、由極點位置直接判斷穩定性與反應速度、迴旋積分與脈衝階躍響應、含初始儲能的電路分析、以及開閉迴路、PID 與根軌跡波德圖的控制入門；最後對照傅立葉與 Z 轉換（z = e^(sT) 把左半平面彎成單位圓內），釐清「s 不是頻率」等常見混淆與方法的非線性邊界，並附上轉換表、性質表與四類問題的解題流程。前置知識為複數，建議搭配本站的《複數到底在做什麼》。",
+      icon: "📐",
+      url: "topics/laplace-transform/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：這東西在解決什麼問題",
+          courses: [
+            { title: "問題起點：微分方程很難解", url: "topics/laplace-transform/lesson-01.html" },
+            { title: "轉換法的核心想法", url: "topics/laplace-transform/lesson-02.html" },
+            { title: "三個轉換的關係地圖", url: "topics/laplace-transform/lesson-03.html" },
+            { title: "課程地圖與前置知識", url: "topics/laplace-transform/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜前置：複數指數與本徵函數",
+          courses: [
+            { title: "e^(st) 是什麼：衰減乘上旋轉", url: "topics/laplace-transform/lesson-05.html" },
+            { title: "本徵函數：為什麼偏偏是指數", url: "topics/laplace-transform/lesson-06.html" },
+            { title: "線性非時變：這套方法成立的前提", url: "topics/laplace-transform/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜先講傅立葉：把訊號拆成頻率",
+          courses: [
+            { title: "傅立葉級數：週期訊號的拆解", url: "topics/laplace-transform/lesson-08.html" },
+            { title: "正交性：為什麼可以這樣拆", url: "topics/laplace-transform/lesson-09.html" },
+            { title: "傅立葉轉換：非週期訊號怎麼辦", url: "topics/laplace-transform/lesson-10.html" },
+            { title: "頻域怎麼用", url: "topics/laplace-transform/lesson-11.html" },
+            { title: "傅立葉的限制：它處理不了什麼", url: "topics/laplace-transform/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜從傅立葉到拉普拉斯",
+          courses: [
+            { title: "補救的想法：先把它壓下來", url: "topics/laplace-transform/lesson-13.html" },
+            { title: "公式自己長出來", url: "topics/laplace-transform/lesson-14.html" },
+            { title: "收斂區域", url: "topics/laplace-transform/lesson-15.html" },
+            { title: "兩個轉換的關係總結", url: "topics/laplace-transform/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 E｜定義與基本性質",
+          courses: [
+            { title: "定義式逐項拆解", url: "topics/laplace-transform/lesson-17.html" },
+            { title: "微分性質：整套方法的引擎", url: "topics/laplace-transform/lesson-18.html" },
+            { title: "線性、積分與尺度", url: "topics/laplace-transform/lesson-19.html" },
+            { title: "兩個位移性質", url: "topics/laplace-transform/lesson-20.html" },
+            { title: "初值與終值定理", url: "topics/laplace-transform/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 F｜常用轉換表與怎麼記",
+          courses: [
+            { title: "基本轉換表", url: "topics/laplace-transform/lesson-22.html" },
+            { title: "怎麼從三條推出整張表", url: "topics/laplace-transform/lesson-23.html" },
+            { title: "速查表與典型分母的辨識", url: "topics/laplace-transform/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 G｜反轉換：部分分式法",
+          courses: [
+            { title: "反轉換為什麼可以查表", url: "topics/laplace-transform/lesson-25.html" },
+            { title: "相異實根的拆解", url: "topics/laplace-transform/lesson-26.html" },
+            { title: "重根與複數根", url: "topics/laplace-transform/lesson-27.html" },
+            { title: "完整流程與錯誤清單", url: "topics/laplace-transform/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 H｜怎麼用①：解常微分方程",
+          courses: [
+            { title: "標準流程五步驟", url: "topics/laplace-transform/lesson-29.html" },
+            { title: "例題一：RC 電路的充電", url: "topics/laplace-transform/lesson-30.html" },
+            { title: "例題二：二階系統與三種阻尼", url: "topics/laplace-transform/lesson-31.html" },
+            { title: "帶輸入的情況與零狀態分離", url: "topics/laplace-transform/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 I｜怎麼用②：轉移函數與系統行為",
+          courses: [
+            { title: "轉移函數 H(s)", url: "topics/laplace-transform/lesson-33.html" },
+            { title: "極點與零點", url: "topics/laplace-transform/lesson-34.html" },
+            { title: "穩定性判準", url: "topics/laplace-transform/lesson-35.html" },
+            { title: "由極點圖讀出系統行為", url: "topics/laplace-transform/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 J｜怎麼用③：迴旋積分與系統響應",
+          courses: [
+            { title: "迴旋積分與卷積定理", url: "topics/laplace-transform/lesson-37.html" },
+            { title: "脈衝響應與階躍響應", url: "topics/laplace-transform/lesson-38.html" },
+            { title: "為什麼工程師都在 s 域工作", url: "topics/laplace-transform/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 K｜怎麼用④：電路分析實戰",
+          courses: [
+            { title: "元件的 s 域模型", url: "topics/laplace-transform/lesson-40.html" },
+            { title: "完整例題：RLC 串聯電路", url: "topics/laplace-transform/lesson-41.html" },
+            { title: "帶初始儲能的電路與模組總結", url: "topics/laplace-transform/lesson-42.html" }
+          ]
+        },
+        {
+          title: "模組 L｜控制系統入門",
+          courses: [
+            { title: "開迴路與閉迴路", url: "topics/laplace-transform/lesson-43.html" },
+            { title: "PID 控制器", url: "topics/laplace-transform/lesson-44.html" },
+            { title: "根軌跡與波德圖的概念", url: "topics/laplace-transform/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 M｜三個轉換的完整對照",
+          courses: [
+            { title: "傅立葉 vs 拉普拉斯：何時用哪個", url: "topics/laplace-transform/lesson-46.html" },
+            { title: "Z 轉換：離散版的拉普拉斯", url: "topics/laplace-transform/lesson-47.html" },
+            { title: "三個轉換總對照表", url: "topics/laplace-transform/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 N｜常見混淆與陷阱",
+          courses: [
+            { title: "s 到底是什麼（它不是頻率）", url: "topics/laplace-transform/lesson-49.html" },
+            { title: "計算上的十個陷阱", url: "topics/laplace-transform/lesson-50.html" },
+            { title: "什麼時候拉普拉斯不能用", url: "topics/laplace-transform/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 O｜速查總表",
+          courses: [
+            { title: "轉換對照速查表", url: "topics/laplace-transform/lesson-52.html" },
+            { title: "解題流程圖", url: "topics/laplace-transform/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 P｜總結",
+          courses: [
+            { title: "整門課的一條線", url: "topics/laplace-transform/lesson-54.html" },
+            { title: "延伸路徑與課程總結", url: "topics/laplace-transform/lesson-55.html" }
           ]
         }
       ]
