@@ -30,6 +30,7 @@ window.SITE_DATA = {
     { id: "tech", label: "科技與工程", icon: "💻" },
     { id: "math", label: "數學", icon: "📐" },
     { id: "science", label: "物理與宇宙學", icon: "🔭" },
+    { id: "nobel", label: "諾貝爾獎", icon: "🏅" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
@@ -7216,6 +7217,340 @@ window.SITE_DATA = {
           courses: [
             { title: "四千年的一條線", url: "topics/cryptography/lesson-68.html" },
             { title: "延伸路徑與課程總結", url: "topics/cryptography/lesson-69.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "quantum-computing",
+      category: "tech",
+      title: "量子電腦：原理、演算法與應用的誠實評估",
+      description:
+        "完整講解量子電腦的原理與應用，並提供判讀相關宣稱的方法。先破除三個最常見的誤解：它不是「同時嘗試所有答案」（測量只會得到一個隨機結果）、不是更快的一般電腦、也不會取代古典電腦；再建立必要的量子力學——疊加不是「同時是兩個值」也不是「我們不知道」、機率幅是複數因此相加會互相抵銷、測量只給一個位元且摧毀疊加、糾纏無法傳遞訊息。接著處理量子位元與布洛赫球、n 個位元佔 2^n 維空間這個希望與脆弱的共同來源、量子閘與電路圖的讀法；演算法部分從最小的例子出發，說明相位反衝這個核心技巧與「鋪開、標記、干涉、測量」的共同骨架，再完整拆解秀爾演算法（分解如何變成找週期、量子傅立葉轉換在做什麼、破 RSA 需要多大的機器）、格羅弗演算法的振幅放大與平方根上限、以及費曼的原始動機——量子模擬，並誠實評估化學、最佳化與量子機器學習的證據強度。硬體部分比較超導（其科學基礎是二〇二五年諾貝爾物理獎）、離子阱、光子、中性原子與拓樸五條路線，並完整處理退相干與量子錯誤更正的三個特殊困難與容錯門檻定理。最後說明對密碼學的衝擊、量子金鑰分發的真實限制、不可複製定理、隱形傳態與貝爾不等式，並附上判讀新聞的七個問題與遷移決策的優先順序。前置知識為複數，建議搭配本站的《複數到底在做什麼》。",
+      icon: "⚛️",
+      url: "topics/quantum-computing/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：它是什麼，更重要的是不是什麼",
+          courses: [
+            { title: "三個必須先破除的誤解", url: "topics/quantum-computing/lesson-01.html" },
+            { title: "優勢從哪裡來，以及為什麼那麼窄", url: "topics/quantum-computing/lesson-02.html" },
+            { title: "現在到哪了", url: "topics/quantum-computing/lesson-03.html" },
+            { title: "課程地圖與前置知識", url: "topics/quantum-computing/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜前置：你需要的量子力學",
+          courses: [
+            { title: "疊加：不是「同時在兩個地方」", url: "topics/quantum-computing/lesson-05.html" },
+            { title: "機率幅與干涉：全部的關鍵", url: "topics/quantum-computing/lesson-06.html" },
+            { title: "測量：為什麼只能讀一次", url: "topics/quantum-computing/lesson-07.html" },
+            { title: "糾纏：不是超距傳訊", url: "topics/quantum-computing/lesson-08.html" }
+          ]
+        },
+        {
+          title: "模組 C｜量子位元",
+          courses: [
+            { title: "位元與量子位元", url: "topics/quantum-computing/lesson-09.html" },
+            { title: "布洛赫球：把量子位元畫出來", url: "topics/quantum-computing/lesson-10.html" },
+            { title: "多量子位元：那個指數", url: "topics/quantum-computing/lesson-11.html" },
+            { title: "指數成長常被誤用的地方", url: "topics/quantum-computing/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜量子閘與電路",
+          courses: [
+            { title: "單量子位元閘", url: "topics/quantum-computing/lesson-13.html" },
+            { title: "兩量子位元閘與糾纏的製造", url: "topics/quantum-computing/lesson-14.html" },
+            { title: "量子電路圖怎麼讀", url: "topics/quantum-computing/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 E｜演算法①：干涉是唯一的武器",
+          courses: [
+            { title: "最小的量子加速", url: "topics/quantum-computing/lesson-16.html" },
+            { title: "相位反衝：核心技巧", url: "topics/quantum-computing/lesson-17.html" },
+            { title: "所有量子演算法的共同骨架", url: "topics/quantum-computing/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 F｜演算法②：秀爾",
+          courses: [
+            { title: "因數分解怎麼變成找週期", url: "topics/quantum-computing/lesson-19.html" },
+            { title: "量子傅立葉轉換在做什麼", url: "topics/quantum-computing/lesson-20.html" },
+            { title: "秀爾演算法完整流程", url: "topics/quantum-computing/lesson-21.html" },
+            { title: "破 RSA 需要多大的量子電腦", url: "topics/quantum-computing/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 G｜演算法③：格羅弗",
+          courses: [
+            { title: "振幅放大的幾何圖像", url: "topics/quantum-computing/lesson-23.html" },
+            { title: "為什麼只有平方根，以及它夠不夠用", url: "topics/quantum-computing/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 H｜演算法④：量子模擬與其他",
+          courses: [
+            { title: "費曼的原始動機", url: "topics/quantum-computing/lesson-25.html" },
+            { title: "化學與材料：現實的進展", url: "topics/quantum-computing/lesson-26.html" },
+            { title: "最佳化與量子退火", url: "topics/quantum-computing/lesson-27.html" },
+            { title: "量子機器學習的現實評估", url: "topics/quantum-computing/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 I｜硬體①：五條技術路線",
+          courses: [
+            { title: "超導電路：目前的主流", url: "topics/quantum-computing/lesson-29.html" },
+            { title: "離子阱與其他路線", url: "topics/quantum-computing/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 J｜硬體②：退相干與錯誤更正",
+          courses: [
+            { title: "退相干：最根本的敵人", url: "topics/quantum-computing/lesson-31.html" },
+            { title: "量子錯誤更正為什麼那麼難", url: "topics/quantum-computing/lesson-32.html" },
+            { title: "距離容錯還有多遠", url: "topics/quantum-computing/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 K｜現況、優越性爭議與時程",
+          courses: [
+            { title: "「量子優越性」到底宣稱了什麼", url: "topics/quantum-computing/lesson-34.html" },
+            { title: "怎麼判讀一則量子電腦新聞", url: "topics/quantum-computing/lesson-35.html" },
+            { title: "為什麼要現在就關心", url: "topics/quantum-computing/lesson-36.html" }
+          ]
+        },
+        {
+          title: "模組 L｜應用：對密碼學的衝擊",
+          courses: [
+            { title: "哪些密碼會倒，哪些不會", url: "topics/quantum-computing/lesson-37.html" },
+            { title: "量子金鑰分發：它是什麼，不是什麼", url: "topics/quantum-computing/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 M｜量子資訊的其他成果",
+          courses: [
+            { title: "不可複製定理", url: "topics/quantum-computing/lesson-39.html" },
+            { title: "量子隱形傳態：不是瞬間移動", url: "topics/quantum-computing/lesson-40.html" },
+            { title: "貝爾不等式與 2022 年諾貝爾物理獎", url: "topics/quantum-computing/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 N｜速查總表",
+          courses: [
+            { title: "概念與名詞速查", url: "topics/quantum-computing/lesson-42.html" },
+            { title: "判讀與決策速查", url: "topics/quantum-computing/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 O｜總結",
+          courses: [
+            { title: "整門課的一條線", url: "topics/quantum-computing/lesson-44.html" },
+            { title: "延伸路徑與課程總結", url: "topics/quantum-computing/lesson-45.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "nobel-physics",
+      category: "nobel",
+      title: "諾貝爾物理獎：一百二十五年的完整地圖",
+      description:
+        "從一九〇一年到最新年度的諾貝爾物理獎完整整理，並設計成每年十月可以自行擴充的形式。先講清楚規則本身——最多三人、不追授、不頒給機構、提名保密五十年——因為大部分爭議與遺珠都是這些規則直接造成的。一九〇一至二〇〇五年以四張大表呈現，每張表後附一課分析該時期的形勢：早期為何實驗壓倒理論、量子力學如何被逐步認證、物理學怎麼裂成粒子與凝態兩半、標準模型的驗證時間軸與量子技術的伏筆。二〇〇六年之後每一年獨立一課，固定六段格式：得獎者與官方獎項理由、那到底是什麼的白話解釋、在此之前卡在哪裡、從發現到獲獎的時間差、今天的影響、站上延伸連結。最後橫向分析時間差的規律、遺珠的三種成因、女性得主的實際數字與斷層、物理學重心的六個時期，並整理出「獎項沿技術線成串出現」這個最有效的預測線索，附上公布當天的十分鐘判讀法與新增年度的三個步驟。",
+      icon: "🏅",
+      url: "topics/nobel-physics/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：獎項制度與課程結構",
+          courses: [
+            { title: "諾貝爾獎的規則", url: "topics/nobel-physics/lesson-01.html" },
+            { title: "物理獎的領域分布與趨勢", url: "topics/nobel-physics/lesson-02.html" },
+            { title: "課程結構與怎麼新增新年度", url: "topics/nobel-physics/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜大表：一九〇一至一九二五",
+          courses: [
+            { title: "一九〇一至一九二五年物理獎總表", url: "topics/nobel-physics/lesson-04.html" },
+            { title: "第一個二十五年的形勢：實驗壓倒理論", url: "topics/nobel-physics/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 C｜大表：一九二六至一九五〇",
+          courses: [
+            { title: "一九二六至一九五〇年物理獎總表", url: "topics/nobel-physics/lesson-06.html" },
+            { title: "黃金年代的兩條主線", url: "topics/nobel-physics/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 D｜大表：一九五一至一九七五",
+          courses: [
+            { title: "一九五一至一九七五年物理獎總表", url: "topics/nobel-physics/lesson-08.html" },
+            { title: "分裂的物理學：粒子與凝態", url: "topics/nobel-physics/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 E｜大表：一九七六至二〇〇五",
+          courses: [
+            { title: "一九七六至二〇〇五年物理獎總表", url: "topics/nobel-physics/lesson-10.html" },
+            { title: "三十年的三個趨勢與大表的收尾", url: "topics/nobel-physics/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 F｜逐年精讀：二〇〇六至二〇一〇",
+          courses: [
+            { title: "二〇〇六年：宇宙微波背景的精密量測", url: "topics/nobel-physics/lesson-12.html" },
+            { title: "二〇〇七年：巨磁阻與硬碟革命", url: "topics/nobel-physics/lesson-13.html" },
+            { title: "二〇〇八年：對稱性破缺", url: "topics/nobel-physics/lesson-14.html" },
+            { title: "二〇〇九年：光纖與影像感測器", url: "topics/nobel-physics/lesson-15.html" },
+            { title: "二〇一〇年：石墨烯", url: "topics/nobel-physics/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 G｜逐年精讀：二〇一一至二〇一五",
+          courses: [
+            { title: "二〇一一年：宇宙正在加速膨脹", url: "topics/nobel-physics/lesson-17.html" },
+            { title: "二〇一二年：操控單一量子系統", url: "topics/nobel-physics/lesson-18.html" },
+            { title: "二〇一三年：希格斯機制", url: "topics/nobel-physics/lesson-19.html" },
+            { title: "二〇一四年：藍光發光二極體", url: "topics/nobel-physics/lesson-20.html" },
+            { title: "二〇一五年：微中子有質量", url: "topics/nobel-physics/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 H｜逐年精讀：二〇一六至二〇二〇",
+          courses: [
+            { title: "二〇一六年：物質的拓撲相", url: "topics/nobel-physics/lesson-22.html" },
+            { title: "二〇一七年：重力波", url: "topics/nobel-physics/lesson-23.html" },
+            { title: "二〇一八年：光鑷與超短脈衝雷射", url: "topics/nobel-physics/lesson-24.html" },
+            { title: "二〇一九年：宇宙學理論與系外行星", url: "topics/nobel-physics/lesson-25.html" },
+            { title: "二〇二〇年：黑洞", url: "topics/nobel-physics/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 I｜逐年精讀：二〇二一至二〇二五",
+          courses: [
+            { title: "二〇二一年：複雜系統與氣候模型", url: "topics/nobel-physics/lesson-27.html" },
+            { title: "二〇二二年：糾纏與貝爾不等式", url: "topics/nobel-physics/lesson-28.html" },
+            { title: "二〇二三年：阿秒脈衝", url: "topics/nobel-physics/lesson-29.html" },
+            { title: "二〇二四年：人工神經網路的物理基礎", url: "topics/nobel-physics/lesson-30.html" },
+            { title: "二〇二五年：電路中的巨觀量子行為", url: "topics/nobel-physics/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 J｜橫向主題分析",
+          courses: [
+            { title: "時間差：從發現到獲獎要等多久", url: "topics/nobel-physics/lesson-32.html" },
+            { title: "遺珠、規則與代表性", url: "topics/nobel-physics/lesson-33.html" },
+            { title: "重心遷移：物理學的關注點怎麼變的", url: "topics/nobel-physics/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 K｜總結與持續追蹤",
+          courses: [
+            { title: "每年十月：怎麼追蹤與判讀", url: "topics/nobel-physics/lesson-35.html" },
+            { title: "總結：一百二十五年的物理學", url: "topics/nobel-physics/lesson-36.html" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "nobel-chemistry",
+      category: "nobel",
+      title: "諾貝爾化學獎：一百二十五年的完整地圖",
+      description:
+        "從一九〇一年到最新年度的諾貝爾化學獎完整整理，與物理獎課程採用相同結構，設計成每年十月可自行擴充。先講清楚規則，以及化學獎獨有的邊界爭議——為什麼越來越多化學獎的得主是生物學家，並建立「做出新東西、看見舊東西、看懂機制」這個貫穿全課的分類法。一九〇一至二〇〇五年以四張大表呈現，每張表後附一課分析：早期如何把化學從配方變成規律、一九一八年哈伯獎的倫理難題、大分子觀念二十年的爭論如何被超離心機終結、化學如何從描述走向預測、以及生物化學與計算化學的接手。二〇〇六年之後每年獨立一課，固定六段格式：得獎者與官方獎項理由、白話解釋、在此之前卡在哪裡、從發現到獲獎的時間差、今天的影響（誠實評估，包含還沒做到的部分）、站上延伸連結。涵蓋螢光蛋白、核糖體、交叉偶聯、準晶、多尺度模型、超解析顯微術、DNA 修復、分子機器、低溫電子顯微術、定向演化、鋰離子電池、基因編輯、有機催化、點擊化學、量子點、蛋白質結構預測與設計、金屬有機骨架。最後橫向分析三種類型各自的典型時間差、領域邊界爭議的雙方論點、遺珠與女性得主的實際數字、科學貢獻與專利發明權的差別，並附上公布當天的判讀流程與新增年度的步驟。",
+      icon: "🧪",
+      url: "topics/nobel-chemistry/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：化學獎的性格與課程結構",
+          courses: [
+            { title: "化學獎的規則與它獨有的難題", url: "topics/nobel-chemistry/lesson-01.html" },
+            { title: "化學獎的領域分布與趨勢", url: "topics/nobel-chemistry/lesson-02.html" },
+            { title: "課程結構與怎麼新增新年度", url: "topics/nobel-chemistry/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜大表：一九〇一至一九二五",
+          courses: [
+            { title: "一九〇一至一九二五年化學獎總表", url: "topics/nobel-chemistry/lesson-04.html" },
+            { title: "哈伯與化學的雙面性", url: "topics/nobel-chemistry/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 C｜大表：一九二六至一九五〇",
+          courses: [
+            { title: "一九二六至一九五〇年化學獎總表", url: "topics/nobel-chemistry/lesson-06.html" },
+            { title: "大分子觀念的建立", url: "topics/nobel-chemistry/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 D｜大表：一九五一至一九七五",
+          courses: [
+            { title: "一九五一至一九七五年化學獎總表", url: "topics/nobel-chemistry/lesson-08.html" },
+            { title: "從描述到預測：化學變成一門理論科學", url: "topics/nobel-chemistry/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 E｜大表：一九七六至二〇〇五",
+          courses: [
+            { title: "一九七六至二〇〇五年化學獎總表", url: "topics/nobel-chemistry/lesson-10.html" },
+            { title: "三十年的三個趨勢與大表的收尾", url: "topics/nobel-chemistry/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 F｜逐年精讀：二〇〇六至二〇一〇",
+          courses: [
+            { title: "二〇〇六年：真核轉錄的分子機制", url: "topics/nobel-chemistry/lesson-12.html" },
+            { title: "二〇〇七年：固體表面的化學", url: "topics/nobel-chemistry/lesson-13.html" },
+            { title: "二〇〇八年：綠色螢光蛋白", url: "topics/nobel-chemistry/lesson-14.html" },
+            { title: "二〇〇九年：核糖體的結構", url: "topics/nobel-chemistry/lesson-15.html" },
+            { title: "二〇一〇年：鈀催化交叉偶聯", url: "topics/nobel-chemistry/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 G｜逐年精讀：二〇一一至二〇一五",
+          courses: [
+            { title: "二〇一一年：準晶", url: "topics/nobel-chemistry/lesson-17.html" },
+            { title: "二〇一二年：G 蛋白偶聯受體", url: "topics/nobel-chemistry/lesson-18.html" },
+            { title: "二〇一三年：複雜化學系統的多尺度模型", url: "topics/nobel-chemistry/lesson-19.html" },
+            { title: "二〇一四年：超解析螢光顯微術", url: "topics/nobel-chemistry/lesson-20.html" },
+            { title: "二〇一五年：DNA 修復機制", url: "topics/nobel-chemistry/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 H｜逐年精讀：二〇一六至二〇二〇",
+          courses: [
+            { title: "二〇一六年：分子機器", url: "topics/nobel-chemistry/lesson-22.html" },
+            { title: "二〇一七年：低溫電子顯微術", url: "topics/nobel-chemistry/lesson-23.html" },
+            { title: "二〇一八年：定向演化與噬菌體展示", url: "topics/nobel-chemistry/lesson-24.html" },
+            { title: "二〇一九年：鋰離子電池", url: "topics/nobel-chemistry/lesson-25.html" },
+            { title: "二〇二〇年：基因編輯剪刀", url: "topics/nobel-chemistry/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 I｜逐年精讀：二〇二一至二〇二五",
+          courses: [
+            { title: "二〇二一年：不對稱有機催化", url: "topics/nobel-chemistry/lesson-27.html" },
+            { title: "二〇二二年：點擊化學與生物正交化學", url: "topics/nobel-chemistry/lesson-28.html" },
+            { title: "二〇二三年：量子點", url: "topics/nobel-chemistry/lesson-29.html" },
+            { title: "二〇二四年：蛋白質設計與結構預測", url: "topics/nobel-chemistry/lesson-30.html" },
+            { title: "二〇二五年：金屬有機骨架", url: "topics/nobel-chemistry/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 J｜橫向主題分析",
+          courses: [
+            { title: "化學獎的三種類型與時間差", url: "topics/nobel-chemistry/lesson-32.html" },
+            { title: "邊界、遺珠與代表性", url: "topics/nobel-chemistry/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 K｜總結與持續追蹤",
+          courses: [
+            { title: "每年十月：怎麼追蹤與擴充", url: "topics/nobel-chemistry/lesson-34.html" },
+            { title: "總結：一百二十五年的化學", url: "topics/nobel-chemistry/lesson-35.html" }
           ]
         }
       ]
