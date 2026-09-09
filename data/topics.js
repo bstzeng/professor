@@ -7556,6 +7556,206 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "statistics-doe",
+      category: "math",
+      title: "統計學、假設檢定與實驗設計：完整推導",
+      description:
+        "從機率公理一路推導到實驗設計的完整課程，每一個公式都推出來而不是背下來。前置知識為微積分（偏微分、重積分、變數變換的 Jacobian）與線性代數（矩陣乘法、反矩陣、特徵值）。第一部分建立機率、隨機變數與動差生成函數（它就是機率密度的拉普拉斯轉換），並推導卜瓦松如何從二項的極限浮現、用極座標證明高斯積分、用 MGF 給出中央極限定理的證明骨架。第二部分是全課的技術核心：完整推導卡方、t、F 三大抽樣分布，證明樣本變異數為何除以 n−1，並用 Helmert 正交變換證明 (n−1)S²/σ² 服從卡方且與樣本平均獨立。第三部分處理假設檢定：完整證明奈曼—皮爾森引理（為什麼拒絕域必須按概似比排序）、廣義似然比與 Wilks 定理，並證明 t 檢定就是常態模型的似然比檢定；逐一推導合併變異數、Welch–Satterthwaite 自由度、Wilson 區間、卡方與費雪精確檢定、無母數方法；再誠實面對 p 值的誤用、多重比較（用布爾不等式推出 Bonferroni）、偽發現率與 BH 程序、p-hacking 與複製危機。第四部分建立線性模型：最小平方的微分法與投影法兩種推導、高斯—馬可夫定理的完整證明（它完全不需要常態假設）、帽子矩陣與自由度的統一解釋、變異數分析中 E[MSB] 與 E[MSW] 的推導。第五部分是實驗設計：費雪三原則、女士品茶的超幾何精確計算、區集化的相對效率、拉丁方、巢狀設計與變異成分；二水準因子設計的正交性與 Var(效果)=4σ²/N、Yates 演算法、無重複時的常態機率圖與 Lenth 法；分數因子設計的定義關係與別名結構推導、解析度、摺疊設計；反應曲面法的最陡上升路徑、曲率檢定、中央合成設計與旋轉性條件 α=n_F^(1/4)、以及用特徵值分解做標準點分析；最後處理裂區設計的兩個誤差項、田口方法的貢獻與爭議、最適設計，並以一個六週把不良率從 8% 降到 0.6% 的完整案例收尾。",
+      icon: "📊",
+      url: "topics/statistics-doe/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：為什麼需要統計學",
+          courses: [
+            { title: "變異是常態，不是雜訊", url: "topics/statistics-doe/lesson-01.html" },
+            { title: "母體、樣本、參數、統計量", url: "topics/statistics-doe/lesson-02.html" },
+            { title: "課程地圖：從抽樣分布到實驗設計", url: "topics/statistics-doe/lesson-03.html" }
+          ]
+        },
+        {
+          title: "模組 B｜機率的骨架",
+          courses: [
+            { title: "三條公理與機率的基本性質", url: "topics/statistics-doe/lesson-04.html" },
+            { title: "條件機率、貝氏定理與偽陽性悖論", url: "topics/statistics-doe/lesson-05.html" },
+            { title: "獨立性與辛普森悖論", url: "topics/statistics-doe/lesson-06.html" },
+            { title: "計數：排列、組合與超幾何", url: "topics/statistics-doe/lesson-07.html" }
+          ]
+        },
+        {
+          title: "模組 C｜隨機變數、期望值與動差生成函數",
+          courses: [
+            { title: "隨機變數、分布函數與變數變換", url: "topics/statistics-doe/lesson-08.html" },
+            { title: "期望值與它的線性性質", url: "topics/statistics-doe/lesson-09.html" },
+            { title: "變異數：定義、性質與加法公式", url: "topics/statistics-doe/lesson-10.html" },
+            { title: "相關係數與柯西—施瓦茲不等式", url: "topics/statistics-doe/lesson-11.html" },
+            { title: "動差生成函數：整門課的主力工具", url: "topics/statistics-doe/lesson-12.html" }
+          ]
+        },
+        {
+          title: "模組 D｜重要分布及其推導",
+          courses: [
+            { title: "離散分布家族：從白努利到負二項", url: "topics/statistics-doe/lesson-13.html" },
+            { title: "卜瓦松分布：二項的極限", url: "topics/statistics-doe/lesson-14.html" },
+            { title: "常態分布與高斯積分", url: "topics/statistics-doe/lesson-15.html" },
+            { title: "指數與 Gamma 分布", url: "topics/statistics-doe/lesson-16.html" },
+            { title: "中央極限定理及其限制", url: "topics/statistics-doe/lesson-17.html" }
+          ]
+        },
+        {
+          title: "模組 E｜抽樣分布：三大分布的完整推導",
+          courses: [
+            { title: "抽樣分布：統計量自己的分布", url: "topics/statistics-doe/lesson-18.html" },
+            { title: "卡方分布的推導", url: "topics/statistics-doe/lesson-19.html" },
+            { title: "為什麼除以 n−1：不偏性與 Helmert 變換", url: "topics/statistics-doe/lesson-20.html" },
+            { title: "t 分布的密度推導", url: "topics/statistics-doe/lesson-21.html" },
+            { title: "F 分布的密度推導", url: "topics/statistics-doe/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜估計理論",
+          courses: [
+            { title: "點估計、不偏性與均方誤差分解", url: "topics/statistics-doe/lesson-23.html" },
+            { title: "動差法與最大概似估計", url: "topics/statistics-doe/lesson-24.html" },
+            { title: "分數函數與 Fisher 資訊量", url: "topics/statistics-doe/lesson-25.html" },
+            { title: "Cramér–Rao 下界", url: "topics/statistics-doe/lesson-26.html" },
+            { title: "信賴區間與樞紐量", url: "topics/statistics-doe/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 G｜假設檢定的邏輯與結構",
+          courses: [
+            { title: "檢定的邏輯：為什麼只能拒絕", url: "topics/statistics-doe/lesson-28.html" },
+            { title: "兩種錯誤、顯著水準與檢定力", url: "topics/statistics-doe/lesson-29.html" },
+            { title: "p 值的精確定義", url: "topics/statistics-doe/lesson-30.html" },
+            { title: "檢定力函數與樣本數規劃", url: "topics/statistics-doe/lesson-31.html" }
+          ]
+        },
+        {
+          title: "模組 H｜奈曼—皮爾森與似然比",
+          courses: [
+            { title: "奈曼—皮爾森引理", url: "topics/statistics-doe/lesson-32.html" },
+            { title: "一致最強檢定與單調概似比", url: "topics/statistics-doe/lesson-33.html" },
+            { title: "廣義似然比檢定與 Wilks 定理", url: "topics/statistics-doe/lesson-34.html" },
+            { title: "證明 t 檢定就是似然比檢定", url: "topics/statistics-doe/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 I｜常見檢定的逐一推導",
+          courses: [
+            { title: "單樣本 z 檢定與 t 檢定", url: "topics/statistics-doe/lesson-36.html" },
+            { title: "兩樣本 t 檢定與合併變異數", url: "topics/statistics-doe/lesson-37.html" },
+            { title: "Welch 檢定與 Satterthwaite 自由度", url: "topics/statistics-doe/lesson-38.html" },
+            { title: "成對 t 檢定與配對的價值", url: "topics/statistics-doe/lesson-39.html" },
+            { title: "比例的檢定與區間", url: "topics/statistics-doe/lesson-40.html" },
+            { title: "變異數的檢定與它的脆弱性", url: "topics/statistics-doe/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜卡方檢定與無母數方法",
+          courses: [
+            { title: "適合度檢定：為什麼是 Σ(O−E)²/E", url: "topics/statistics-doe/lesson-42.html" },
+            { title: "獨立性檢定與費雪精確檢定", url: "topics/statistics-doe/lesson-43.html" },
+            { title: "符號檢定與 Wilcoxon 符號秩檢定", url: "topics/statistics-doe/lesson-44.html" },
+            { title: "Mann–Whitney 與 Kruskal–Wallis", url: "topics/statistics-doe/lesson-45.html" }
+          ]
+        },
+        {
+          title: "模組 K｜p 值的誤用、多重比較與複製危機",
+          courses: [
+            { title: "顯著結果有多可信：把貝氏定理用回來", url: "topics/statistics-doe/lesson-46.html" },
+            { title: "多重比較與族群錯誤率", url: "topics/statistics-doe/lesson-47.html" },
+            { title: "偽發現率與 Benjamini–Hochberg 程序", url: "topics/statistics-doe/lesson-48.html" },
+            { title: "p-hacking、分岔小徑與複製危機", url: "topics/statistics-doe/lesson-49.html" },
+            { title: "效果量、區間與貝氏因子", url: "topics/statistics-doe/lesson-50.html" }
+          ]
+        },
+        {
+          title: "模組 L｜簡單線性迴歸",
+          courses: [
+            { title: "最小平方法：正規方程式的推導", url: "topics/statistics-doe/lesson-51.html" },
+            { title: "估計量的性質與誤差變異數", url: "topics/statistics-doe/lesson-52.html" },
+            { title: "平方和分解與 R²", url: "topics/statistics-doe/lesson-53.html" },
+            { title: "係數檢定、信賴帶與預測區間", url: "topics/statistics-doe/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 M｜多元迴歸的矩陣形式",
+          courses: [
+            { title: "矩陣形式與正規方程式", url: "topics/statistics-doe/lesson-55.html" },
+            { title: "帽子矩陣與槓桿值", url: "topics/statistics-doe/lesson-56.html" },
+            { title: "高斯—馬可夫定理", url: "topics/statistics-doe/lesson-57.html" },
+            { title: "共線性、部分 F 檢定與模型診斷", url: "topics/statistics-doe/lesson-58.html" }
+          ]
+        },
+        {
+          title: "模組 N｜變異數分析",
+          courses: [
+            { title: "為什麼需要變異數分析", url: "topics/statistics-doe/lesson-59.html" },
+            { title: "平方和的分解", url: "topics/statistics-doe/lesson-60.html" },
+            { title: "均方的期望值：F 檢定為何成立", url: "topics/statistics-doe/lesson-61.html" },
+            { title: "事後比較：Tukey 與 Scheffé", url: "topics/statistics-doe/lesson-62.html" },
+            { title: "雙因子變異數分析與交互作用", url: "topics/statistics-doe/lesson-63.html" }
+          ]
+        },
+        {
+          title: "模組 O｜實驗設計的三原則",
+          courses: [
+            { title: "觀察與實驗：因果從哪裡來", url: "topics/statistics-doe/lesson-64.html" },
+            { title: "費雪的三原則", url: "topics/statistics-doe/lesson-65.html" },
+            { title: "女士品茶：隨機化檢定的原型", url: "topics/statistics-doe/lesson-66.html" },
+            { title: "區集化的效益與實驗規劃", url: "topics/statistics-doe/lesson-67.html" }
+          ]
+        },
+        {
+          title: "模組 P｜基本實驗設計",
+          courses: [
+            { title: "完全隨機設計", url: "topics/statistics-doe/lesson-68.html" },
+            { title: "隨機完全區集設計", url: "topics/statistics-doe/lesson-69.html" },
+            { title: "拉丁方與希臘拉丁方", url: "topics/statistics-doe/lesson-70.html" },
+            { title: "巢狀設計與變異成分", url: "topics/statistics-doe/lesson-71.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜二水準因子設計",
+          courses: [
+            { title: "為什麼一次改一個因子是錯的", url: "topics/statistics-doe/lesson-72.html" },
+            { title: "2^k 的編碼與正交性", url: "topics/statistics-doe/lesson-73.html" },
+            { title: "效果的估計與變異數", url: "topics/statistics-doe/lesson-74.html" },
+            { title: "Yates 演算法與模型的建立", url: "topics/statistics-doe/lesson-75.html" },
+            { title: "無重複設計：常態機率圖與 Lenth 法", url: "topics/statistics-doe/lesson-76.html" }
+          ]
+        },
+        {
+          title: "模組 R｜分數因子設計",
+          courses: [
+            { title: "半分數設計與產生元", url: "topics/statistics-doe/lesson-77.html" },
+            { title: "定義關係與別名結構的推導", url: "topics/statistics-doe/lesson-78.html" },
+            { title: "解析度與設計的選擇", url: "topics/statistics-doe/lesson-79.html" },
+            { title: "篩選設計與摺疊", url: "topics/statistics-doe/lesson-80.html" }
+          ]
+        },
+        {
+          title: "模組 S｜反應曲面法",
+          courses: [
+            { title: "一階模型與最陡上升路徑", url: "topics/statistics-doe/lesson-81.html" },
+            { title: "中心點與曲率檢定", url: "topics/statistics-doe/lesson-82.html" },
+            { title: "二階模型與中央合成設計", url: "topics/statistics-doe/lesson-83.html" },
+            { title: "標準點分析與曲面的判讀", url: "topics/statistics-doe/lesson-84.html" }
+          ]
+        },
+        {
+          title: "模組 T｜進階主題與實務總結",
+          courses: [
+            { title: "因子設計的區集化與混淆", url: "topics/statistics-doe/lesson-85.html" },
+            { title: "裂區設計：兩個誤差項", url: "topics/statistics-doe/lesson-86.html" },
+            { title: "穩健設計與田口方法的爭議", url: "topics/statistics-doe/lesson-87.html" },
+            { title: "最適設計與設計的評價", url: "topics/statistics-doe/lesson-88.html" },
+            { title: "完整案例與批判性閱讀清單", url: "topics/statistics-doe/lesson-89.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
