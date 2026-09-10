@@ -7756,6 +7756,238 @@ window.SITE_DATA = {
       ]
     },
     {
+      id: "dc-universe",
+      category: "fantasy",
+      title: "DC 宇宙全解：從一九三八年到多重宇宙的神話工程",
+      description:
+        "以漫畫為主體、影視為分支，完整梳理 DC 八十七年的歷史、角色與設計原理：黃金到青銅時代的演變、危機與重啟的循環、黑暗時代的解構浪潮、四條互不相通的電影路線、電視與動畫為何常勝於電影，以及三巨頭、綠燈軍團、閃電俠家族、魔法層、青少年團隊與大反派陣容的逐一深入，最後收束到多重宇宙結構、宇宙論與必讀經典清單。",
+      icon: "🦇",
+      url: "topics/dc-universe/index.html",
+      modules: [
+        {
+          title: "模組 A｜DC 導覽：超級英雄類型的發源地",
+          courses: [
+            { title: "一九三八年的那一格", url: "topics/dc-universe/lesson-01.html" },
+            { title: "DC 的五個時代", url: "topics/dc-universe/lesson-02.html" },
+            { title: "為什麼 DC 這麼難改編", url: "topics/dc-universe/lesson-03.html" },
+            { title: "課程地圖：四軌並行", url: "topics/dc-universe/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜黃金時代與白銀時代",
+          courses: [
+            { title: "三巨頭的誕生與早期樣貌", url: "topics/dc-universe/lesson-05.html" },
+            { title: "審查法典：一本書如何幾乎殺死一個產業", url: "topics/dc-universe/lesson-06.html" },
+            { title: "白銀時代的復興：重做一切", url: "topics/dc-universe/lesson-07.html" },
+            { title: "多重宇宙的發明", url: "topics/dc-universe/lesson-08.html" },
+            { title: "白銀時代的怪異：那些荒謬故事的邏輯", url: "topics/dc-universe/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜青銅時代：漫畫長大了",
+          courses: [
+            { title: "綠燈俠與綠箭俠：社會議題進入漫畫", url: "topics/dc-universe/lesson-10.html" },
+            { title: "蝙蝠俠回歸黑暗", url: "topics/dc-universe/lesson-11.html" },
+            { title: "第四世界：DC 的神話層", url: "topics/dc-universe/lesson-12.html" },
+            { title: "後果開始存在：青銅時代的死亡與代價", url: "topics/dc-universe/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜危機與重啟的循環",
+          courses: [
+            { title: "為什麼要親手毀掉多重宇宙", url: "topics/dc-universe/lesson-14.html" },
+            { title: "無限地球危機：完整解析", url: "topics/dc-universe/lesson-15.html" },
+            { title: "危機之後：三巨頭的重新設定", url: "topics/dc-universe/lesson-16.html" },
+            { title: "零時、無限危機、最終危機", url: "topics/dc-universe/lesson-17.html" },
+            { title: "閃點、新52、重生與無限邊疆", url: "topics/dc-universe/lesson-18.html" }
+          ]
+        },
+        {
+          title: "模組 E｜黑暗時代：解構的年代",
+          courses: [
+            { title: "《守護者》：把超級英雄放進現實檢驗", url: "topics/dc-universe/lesson-19.html" },
+            { title: "《黑暗騎士歸來》：老去的蝙蝠俠", url: "topics/dc-universe/lesson-20.html" },
+            { title: "《致命玩笑》與敘事的代價", url: "topics/dc-universe/lesson-21.html" },
+            { title: "黑暗時代的後果：模仿的代價", url: "topics/dc-universe/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 F｜前 DCEU：三個經典系列",
+          courses: [
+            { title: "一九七八年《超人》：讓觀眾相信人能飛", url: "topics/dc-universe/lesson-23.html" },
+            { title: "提姆波頓的《蝙蝠俠》：哥德式哥譚", url: "topics/dc-universe/lesson-24.html" },
+            { title: "《蝙蝠俠與羅賓》：一個系列如何崩壞", url: "topics/dc-universe/lesson-25.html" },
+            { title: "諾蘭三部曲（上）：開戰時刻與黑暗騎士", url: "topics/dc-universe/lesson-26.html" },
+            { title: "諾蘭三部曲（下）：黎明昇起與遺產", url: "topics/dc-universe/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 G｜DCEU 完整解析（上）",
+          courses: [
+            { title: "《鋼鐵英雄》：查克史奈德的超人", url: "topics/dc-universe/lesson-28.html" },
+            { title: "《蝙蝠俠對超人：正義曙光》", url: "topics/dc-universe/lesson-29.html" },
+            { title: "《自殺突擊隊》（2016）：後製的災難", url: "topics/dc-universe/lesson-30.html" },
+            { title: "《神力女超人》：DCEU 的高峰", url: "topics/dc-universe/lesson-31.html" },
+            { title: "《正義聯盟》：兩個版本的故事", url: "topics/dc-universe/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 H｜DCEU 完整解析（下）",
+          courses: [
+            { title: "《水行俠》與《沙贊》：轉向明亮", url: "topics/dc-universe/lesson-33.html" },
+            { title: "《猛禽小隊》與《神力女超人 1984》", url: "topics/dc-universe/lesson-34.html" },
+            { title: "《自殺突擊隊：集結》與《和平使者》", url: "topics/dc-universe/lesson-35.html" },
+            { title: "《黑亞當》與《沙贊2》", url: "topics/dc-universe/lesson-36.html" },
+            { title: "《閃電俠》與《水行俠2》：DCEU 的收場", url: "topics/dc-universe/lesson-37.html" }
+          ]
+        },
+        {
+          title: "模組 I｜Elseworlds 與新 DCU",
+          courses: [
+            { title: "《小丑》：一部不屬於任何宇宙的電影", url: "topics/dc-universe/lesson-38.html" },
+            { title: "《蝙蝠俠》（2022）：偵探路線的回歸", url: "topics/dc-universe/lesson-39.html" },
+            { title: "新 DCU 的第一章：《超人》（2025）", url: "topics/dc-universe/lesson-40.html" },
+            { title: "版本地圖：哪個是哪個", url: "topics/dc-universe/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 J｜真人影集宇宙",
+          courses: [
+            { title: "《超人前傳》：十年的成長故事", url: "topics/dc-universe/lesson-42.html" },
+            { title: "《綠箭俠》與 Arrowverse 的建立", url: "topics/dc-universe/lesson-43.html" },
+            { title: "《閃電俠》《超女》《明日傳奇》與跨界事件", url: "topics/dc-universe/lesson-44.html" },
+            { title: "影集版《無限地球危機》：電視完成了電影做不到的事", url: "topics/dc-universe/lesson-45.html" },
+            { title: "《泰坦》《末日巡邏隊》《高譚》《潘尼沃斯》：其他路線", url: "topics/dc-universe/lesson-46.html" }
+          ]
+        },
+        {
+          title: "模組 K｜DC 動畫宇宙",
+          courses: [
+            { title: "《蝙蝠俠動畫系列》：為什麼它是標準答案", url: "topics/dc-universe/lesson-47.html" },
+            { title: "《超人動畫影集》與 DCAU 的擴張", url: "topics/dc-universe/lesson-48.html" },
+            { title: "《正義聯盟》與《正義聯盟無限》", url: "topics/dc-universe/lesson-49.html" },
+            { title: "《少年悍將》與《少年正義》：兩種青少年英雄敘事", url: "topics/dc-universe/lesson-50.html" },
+            { title: "DC 動畫電影：改編漫畫的主要管道", url: "topics/dc-universe/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 L｜超人與超人家族",
+          courses: [
+            { title: "克拉克肯特：三個身分的真正結構", url: "topics/dc-universe/lesson-52.html" },
+            { title: "能力、極限與氪石的分類學", url: "topics/dc-universe/lesson-53.html" },
+            { title: "露薏絲蓮恩與星球日報", url: "topics/dc-universe/lesson-54.html" },
+            { title: "超級女孩、超少年與超人家族", url: "topics/dc-universe/lesson-55.html" },
+            { title: "超人的哲學：為何不殺，為何不統治", url: "topics/dc-universe/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 M｜蝙蝠俠與蝙蝠家族",
+          courses: [
+            { title: "布魯斯韋恩：哪一個才是面具", url: "topics/dc-universe/lesson-57.html" },
+            { title: "不殺原則與高譚的旋轉門", url: "topics/dc-universe/lesson-58.html" },
+            { title: "羅賓的傳承：四個人與一個位置", url: "topics/dc-universe/lesson-59.html" },
+            { title: "蝙蝠女與神諭：從失去到重新定義", url: "topics/dc-universe/lesson-60.html" },
+            { title: "阿福：唯一有資格說不的人", url: "topics/dc-universe/lesson-61.html" },
+            { title: "高譚市作為角色：一座不能被治好的城市", url: "topics/dc-universe/lesson-62.html" }
+          ]
+        },
+        {
+          title: "模組 N｜神力女超人與亞馬遜",
+          courses: [
+            { title: "黛安娜：使者而非戰士", url: "topics/dc-universe/lesson-63.html" },
+            { title: "創作起源：一個心理學家的設計", url: "topics/dc-universe/lesson-64.html" },
+            { title: "亞馬遜、天堂島與希臘諸神", url: "topics/dc-universe/lesson-65.html" },
+            { title: "能力、神器與戰鬥風格", url: "topics/dc-universe/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 O｜綠燈俠軍團與情緒光譜",
+          courses: [
+            { title: "情緒光譜：把情緒寫成物理定律", url: "topics/dc-universe/lesson-67.html" },
+            { title: "地球的綠燈俠們：四種意志", url: "topics/dc-universe/lesson-68.html" },
+            { title: "守護者、歐亞星與軍團的制度問題", url: "topics/dc-universe/lesson-69.html" },
+            { title: "辛尼斯托：一個有道理的反派", url: "topics/dc-universe/lesson-70.html" },
+            { title: "《最黑暗之夜》與白燈：死亡作為主題", url: "topics/dc-universe/lesson-71.html" }
+          ]
+        },
+        {
+          title: "模組 P｜閃電俠家族與神速力",
+          courses: [
+            { title: "四代閃電俠：DC 最成功的傳承", url: "topics/dc-universe/lesson-72.html" },
+            { title: "神速力：把速度寫成宇宙的基礎結構", url: "topics/dc-universe/lesson-73.html" },
+            { title: "逆閃電：以恨為動力的鏡像", url: "topics/dc-universe/lesson-74.html" },
+            { title: "《閃點》：一次善意的災難", url: "topics/dc-universe/lesson-75.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜正義聯盟的其他核心",
+          courses: [
+            { title: "亞瑟庫瑞：一個被嘲笑了五十年的角色", url: "topics/dc-universe/lesson-76.html" },
+            { title: "亞特蘭提斯與七海王國", url: "topics/dc-universe/lesson-77.html" },
+            { title: "火星獵人：聯盟真正的核心", url: "topics/dc-universe/lesson-78.html" },
+            { title: "綠箭俠與街頭層級的英雄", url: "topics/dc-universe/lesson-79.html" },
+            { title: "鋼骨、沙贊、原子俠與聯盟名單的變化", url: "topics/dc-universe/lesson-80.html" }
+          ]
+        },
+        {
+          title: "模組 R｜正義聯盟黑暗與 Vertigo",
+          courses: [
+            { title: "康斯坦丁：一個會讓朋友死掉的主角", url: "topics/dc-universe/lesson-81.html" },
+            { title: "沼澤異形與「綠色」：一次徹底的重新定義", url: "topics/dc-universe/lesson-82.html" },
+            { title: "死亡俠、扎坦娜與正義聯盟黑暗", url: "topics/dc-universe/lesson-83.html" },
+            { title: "《睡魔》與無盡家族", url: "topics/dc-universe/lesson-84.html" },
+            { title: "Vertigo：成人漫畫廠牌的興衰", url: "topics/dc-universe/lesson-85.html" }
+          ]
+        },
+        {
+          title: "模組 S｜青少年英雄與其他團隊",
+          courses: [
+            { title: "少年悍將的三個世代", url: "topics/dc-universe/lesson-86.html" },
+            { title: "自殺突擊隊：被強迫的英雄主義", url: "topics/dc-universe/lesson-87.html" },
+            { title: "超級英雄軍團：一千年後的遺產", url: "topics/dc-universe/lesson-88.html" },
+            { title: "末日巡邏隊：把超能力寫成創傷", url: "topics/dc-universe/lesson-89.html" }
+          ]
+        },
+        {
+          title: "模組 T｜大反派全覽",
+          courses: [
+            { title: "小丑：一個沒有起源的角色", url: "topics/dc-universe/lesson-90.html" },
+            { title: "雷克斯路瑟：人類最好的論點", url: "topics/dc-universe/lesson-91.html" },
+            { title: "達克賽德與反生命方程式", url: "topics/dc-universe/lesson-92.html" },
+            { title: "布萊尼亞克與佐德將軍", url: "topics/dc-universe/lesson-93.html" },
+            { title: "拉斯奧古與影武者聯盟", url: "topics/dc-universe/lesson-94.html" },
+            { title: "黑亞當、末日與貓女：三種灰色地帶", url: "topics/dc-universe/lesson-95.html" }
+          ]
+        },
+        {
+          title: "模組 U｜多重宇宙與宇宙論",
+          courses: [
+            { title: "五十二個地球：多重宇宙的當代結構", url: "topics/dc-universe/lesson-96.html" },
+            { title: "源頭之牆、造物主與宇宙的邊界", url: "topics/dc-universe/lesson-97.html" },
+            { title: "新神族與第四世界", url: "topics/dc-universe/lesson-98.html" },
+            { title: "監視者與更高存在", url: "topics/dc-universe/lesson-99.html" },
+            { title: "《末日鐘聲》：DC 對自己的檢討", url: "topics/dc-universe/lesson-100.html" }
+          ]
+        },
+        {
+          title: "模組 V｜必讀經典與遊戲改編",
+          courses: [
+            { title: "《王國降臨》：關於世代與退場的作品", url: "topics/dc-universe/lesson-101.html" },
+            { title: "《全明星超人》：如果只剩一年", url: "topics/dc-universe/lesson-102.html" },
+            { title: "《漫長的萬聖節》與《元年》", url: "topics/dc-universe/lesson-103.html" },
+            { title: "《黑暗之夜：金屬》與當代大事件", url: "topics/dc-universe/lesson-104.html" },
+            { title: "阿卡漢系列與《不義聯盟》：遊戲改編", url: "topics/dc-universe/lesson-105.html" }
+          ]
+        },
+        {
+          title: "模組 W｜課程總結",
+          courses: [
+            { title: "八十七年的神話工程", url: "topics/dc-universe/lesson-106.html" }
+          ]
+        }
+      ]
+    },
+    {
       id: "four-classics",
       category: "wuxia",
       title: "四大名著懶人包：三國演義·水滸傳·西遊記·紅樓夢全解析",
