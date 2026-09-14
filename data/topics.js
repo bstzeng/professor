@@ -9239,6 +9239,197 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "attack-on-titan",
+      category: "anime",
+      title: "進擊的巨人全解：從高牆到地鳴的一百三十九話",
+      description:
+        "以漫畫 139 話為主體，逐層拆解《進擊的巨人》：三道牆的規格與階級設計、純潔巨人與九大巨人的完整設定、道路與始祖尤米爾的兩千年、艾爾迪亞與馬萊的互為加害史、立體機動裝置與雷槍的技術演進，並依篇章走完全部劇情，最後收束到人物剖析、自由與循環的主題論、動畫改編與結局爭議。全程劇透，採東立譯名。",
+      icon: "🧱",
+      url: "topics/attack-on-titan/index.html",
+      modules: [
+        {
+          title: "模組 A｜導論：兩個世界",
+          courses: [
+            { title: "兩個世界：牆內與牆外", url: "topics/attack-on-titan/lesson-01.html" },
+            { title: "連載史：2009–2021", url: "topics/attack-on-titan/lesson-02.html" },
+            { title: "這門課怎麼讀：四條軸線與名詞速查", url: "topics/attack-on-titan/lesson-03.html" },
+            { title: "完整年表：從兩千年前到第 139 話", url: "topics/attack-on-titan/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜地理與政治",
+          courses: [
+            { title: "帕拉迪島與三道牆", url: "topics/attack-on-titan/lesson-05.html" },
+            { title: "牆內地理：五個區與地下街", url: "topics/attack-on-titan/lesson-06.html" },
+            { title: "牆內政體：王政、貴族、壁教", url: "topics/attack-on-titan/lesson-07.html" },
+            { title: "牆外世界：馬萊、中東聯合、希茲爾國", url: "topics/attack-on-titan/lesson-08.html" },
+            { title: "全球情勢：巨人為何開始過期", url: "topics/attack-on-titan/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜巨人學（一）：純潔巨人",
+          courses: [
+            { title: "生理總論：陽光、後頸、不需進食", url: "topics/attack-on-titan/lesson-10.html" },
+            { title: "分類：普通種、奇行種、無垢巨人", url: "topics/attack-on-titan/lesson-11.html" },
+            { title: "巨人怎麼被製造：脊髓液與注射", url: "topics/attack-on-titan/lesson-12.html" },
+            { title: "巨人化的物理：閃電、蒸氣、再生、硬化", url: "topics/attack-on-titan/lesson-13.html" }
+          ]
+        },
+        {
+          title: "模組 D｜巨人學（二）：九大巨人",
+          courses: [
+            { title: "總論：十三年之咒與繼承規則", url: "topics/attack-on-titan/lesson-14.html" },
+            { title: "始祖巨人：座標、道路、記憶改寫", url: "topics/attack-on-titan/lesson-15.html" },
+            { title: "進擊的巨人：看見未來的繼承者", url: "topics/attack-on-titan/lesson-16.html" },
+            { title: "超大型巨人與鎧之巨人", url: "topics/attack-on-titan/lesson-17.html" },
+            { title: "女巨人與顎之巨人", url: "topics/attack-on-titan/lesson-18.html" },
+            { title: "獸之巨人與車力巨人", url: "topics/attack-on-titan/lesson-19.html" },
+            { title: "戰鎚巨人與九大總表", url: "topics/attack-on-titan/lesson-20.html" }
+          ]
+        },
+        {
+          title: "模組 E｜道路、尤米爾與座標",
+          courses: [
+            { title: "道路（Paths）的機制", url: "topics/attack-on-titan/lesson-21.html" },
+            { title: "始祖尤米爾：兩千年的奴隸", url: "topics/attack-on-titan/lesson-22.html" },
+            { title: "王家血統與不戰之約", url: "topics/attack-on-titan/lesson-23.html" },
+            { title: "座標的三次啟動", url: "topics/attack-on-titan/lesson-24.html" }
+          ]
+        },
+        {
+          title: "模組 F｜歷史：艾爾迪亞與馬萊",
+          courses: [
+            { title: "尤米爾．弗利茲與那條生物", url: "topics/attack-on-titan/lesson-25.html" },
+            { title: "艾爾迪亞帝國的一千七百年", url: "topics/attack-on-titan/lesson-26.html" },
+            { title: "巨人大戰與馬萊崛起", url: "topics/attack-on-titan/lesson-27.html" },
+            { title: "卡爾．弗利茲王與樂園的高牆", url: "topics/attack-on-titan/lesson-28.html" },
+            { title: "收容區、臂章與戰士制度", url: "topics/attack-on-titan/lesson-29.html" },
+            { title: "復權派、雷斯家與 845 年的起點", url: "topics/attack-on-titan/lesson-30.html" }
+          ]
+        },
+        {
+          title: "模組 G｜科技與軍事",
+          courses: [
+            { title: "立體機動裝置：完整原理", url: "topics/attack-on-titan/lesson-31.html" },
+            { title: "四大兵團與長距離索敵陣形", url: "topics/attack-on-titan/lesson-32.html" },
+            { title: "對巨人武器演進：雷槍與對人立體機動", url: "topics/attack-on-titan/lesson-33.html" },
+            { title: "馬萊軍事科技：飛船、鐵道砲、艦隊", url: "topics/attack-on-titan/lesson-34.html" }
+          ]
+        },
+        {
+          title: "模組 H｜劇情（1）：序幕與托洛斯特",
+          courses: [
+            { title: "845 年：瑪利亞之牆陷落", url: "topics/attack-on-titan/lesson-35.html" },
+            { title: "難民與奪還作戰：二十五萬人", url: "topics/attack-on-titan/lesson-36.html" },
+            { title: "104 期訓練兵團", url: "topics/attack-on-titan/lesson-37.html" },
+            { title: "托洛斯特攻防戰（上）", url: "topics/attack-on-titan/lesson-38.html" },
+            { title: "托洛斯特攻防戰（下）與軍法會議", url: "topics/attack-on-titan/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 I｜劇情（2）：女巨人",
+          courses: [
+            { title: "第 57 次壁外調查", url: "topics/attack-on-titan/lesson-40.html" },
+            { title: "女巨人與里維班的覆滅", url: "topics/attack-on-titan/lesson-41.html" },
+            { title: "斯托黑斯區攻防：亞妮的正體", url: "topics/attack-on-titan/lesson-42.html" },
+            { title: "牆中的巨人", url: "topics/attack-on-titan/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 J｜劇情（3）：巨人中的巨人",
+          courses: [
+            { title: "烏托匹亞區與尤米爾的秘密", url: "topics/attack-on-titan/lesson-44.html" },
+            { title: "鎧與超大型的正體", url: "topics/attack-on-titan/lesson-45.html" },
+            { title: "希斯特莉亞的身世與座標覺醒", url: "topics/attack-on-titan/lesson-46.html" },
+            { title: "尤米爾的選擇與離去", url: "topics/attack-on-titan/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 K｜劇情（4）：王政篇",
+          courses: [
+            { title: "中央憲兵與肯尼．阿卡曼", url: "topics/attack-on-titan/lesson-48.html" },
+            { title: "王政真相：雷斯家與第一之王", url: "topics/attack-on-titan/lesson-49.html" },
+            { title: "洞窟裡的禮拜堂", url: "topics/attack-on-titan/lesson-50.html" },
+            { title: "女王希斯特莉亞與改革之後", url: "topics/attack-on-titan/lesson-51.html" }
+          ]
+        },
+        {
+          title: "模組 L｜劇情（5）：希干希納決戰",
+          courses: [
+            { title: "出發：瑪利亞之牆奪還作戰", url: "topics/attack-on-titan/lesson-52.html" },
+            { title: "獸之巨人的投石", url: "topics/attack-on-titan/lesson-53.html" },
+            { title: "艾爾文的最後衝鋒", url: "topics/attack-on-titan/lesson-54.html" },
+            { title: "那個選擇：阿爾敏與艾爾文", url: "topics/attack-on-titan/lesson-55.html" },
+            { title: "地下室的三本日記", url: "topics/attack-on-titan/lesson-56.html" }
+          ]
+        },
+        {
+          title: "模組 M｜格里沙與復權派",
+          courses: [
+            { title: "費依之死與復權派", url: "topics/attack-on-titan/lesson-57.html" },
+            { title: "送往樂園與雷斯家的那一夜", url: "topics/attack-on-titan/lesson-58.html" },
+            { title: "一個父親看見的未來", url: "topics/attack-on-titan/lesson-59.html" }
+          ]
+        },
+        {
+          title: "模組 N｜劇情（6）：馬萊篇",
+          courses: [
+            { title: "四年後：馬萊中東戰爭", url: "topics/attack-on-titan/lesson-60.html" },
+            { title: "賈碧與法爾可：另一邊的孩子", url: "topics/attack-on-titan/lesson-61.html" },
+            { title: "戰士隊的日常：萊納的地獄", url: "topics/attack-on-titan/lesson-62.html" },
+            { title: "戰鎚巨人與泰巴家的演說", url: "topics/attack-on-titan/lesson-63.html" },
+            { title: "宣戰佈告與莎夏之死", url: "topics/attack-on-titan/lesson-64.html" }
+          ]
+        },
+        {
+          title: "模組 O｜劇情（7）：帕拉迪島之戰",
+          courses: [
+            { title: "耶格爾派與義勇兵", url: "topics/attack-on-titan/lesson-65.html" },
+            { title: "安樂死計劃", url: "topics/attack-on-titan/lesson-66.html" },
+            { title: "艾連被捕與軍事政變", url: "topics/attack-on-titan/lesson-67.html" },
+            { title: "吉克與艾連在道路中的對峙", url: "topics/attack-on-titan/lesson-68.html" },
+            { title: "地鳴發動：始祖尤米爾的選擇", url: "topics/attack-on-titan/lesson-69.html" }
+          ]
+        },
+        {
+          title: "模組 P｜劇情（8）：地鳴與結局",
+          courses: [
+            { title: "超大型巨人群踏平世界", url: "topics/attack-on-titan/lesson-70.html" },
+            { title: "反抗軍：昨日的敵人", url: "topics/attack-on-titan/lesson-71.html" },
+            { title: "飛空艇與天空之戰", url: "topics/attack-on-titan/lesson-72.html" },
+            { title: "最終決戰：巨人的骨骸與九大再臨", url: "topics/attack-on-titan/lesson-73.html" },
+            { title: "第 139 話逐格細讀", url: "topics/attack-on-titan/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜人物",
+          courses: [
+            { title: "艾連．葉卡", url: "topics/attack-on-titan/lesson-75.html" },
+            { title: "三笠．阿卡曼與阿卡曼一族", url: "topics/attack-on-titan/lesson-76.html" },
+            { title: "阿爾敏．亞魯雷特", url: "topics/attack-on-titan/lesson-77.html" },
+            { title: "里維．阿卡曼", url: "topics/attack-on-titan/lesson-78.html" },
+            { title: "艾爾文．史密斯與韓吉．佐耶", url: "topics/attack-on-titan/lesson-79.html" },
+            { title: "104 期群像", url: "topics/attack-on-titan/lesson-80.html" },
+            { title: "萊納．布朗", url: "topics/attack-on-titan/lesson-81.html" },
+            { title: "吉克．葉卡與亞妮．雷恩哈特", url: "topics/attack-on-titan/lesson-82.html" },
+            { title: "馬萊戰士隊與軍政人物", url: "topics/attack-on-titan/lesson-83.html" }
+          ]
+        },
+        {
+          title: "模組 R｜主題、改編與收束",
+          courses: [
+            { title: "「自由」的四種意思", url: "topics/attack-on-titan/lesson-84.html" },
+            { title: "循環的暴力與森林的比喻", url: "topics/attack-on-titan/lesson-85.html" },
+            { title: "加害者與被害者的互換", url: "topics/attack-on-titan/lesson-86.html" },
+            { title: "動畫四季：WIT 到 MAPPA", url: "topics/attack-on-titan/lesson-87.html" },
+            { title: "外傳、劇場版與周邊", url: "topics/attack-on-titan/lesson-88.html" },
+            { title: "結局爭議：兩派論點", url: "topics/attack-on-titan/lesson-89.html" },
+            { title: "伏筆總表、常見誤解與重看指南", url: "topics/attack-on-titan/lesson-90.html" }
+          ]
+        }
+      ]
     }
   ]
 };
