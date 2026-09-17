@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：FFN／MLP：大部分參數其實在這裡 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="前饋層的兩段式結構、擴張比例，以及它為何佔掉三分之二的參數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 12 課</div>
+      <h1>FFN／MLP：大部分參數其實在這裡</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 FFN 的結構與作用</li>
+          <li>算出它的參數量</li>
+          <li>知道為何它佔掉三分之二的參數</li>
+        </ul>
+      </div>
+
+      <h2>1. 結構</h2>
+      <p>
+        每層 Transformer block 有兩個部分：注意力負責<strong>在 token 之間交換資訊</strong>，
+        FFN 負責<strong>在每個 token 內部做處理</strong>。
+        FFN 是逐 token 獨立的——它不看別的位置。
+      </p>
+      <p>傳統 FFN 是兩層：</p>
+      <div class="code-block">h = X · W_up        [d_model → d_ff]
+h = GELU(h)
+y = h · W_down      [d_ff → d_model]
+
+參數 = 2 × d_model × d_ff</div>
+      <p>現代模型（Llama、Qwen、Mistral 等）用 SwiGLU，變成三個矩陣：</p>
+      <div class="code-block">gate = X · W_gate    [d_model → d_ff]
+up   = X · W_up      [d_model → d_ff]
+h    = SiLU(gate) ⊙ up        ⊙ 是逐元素相乘
+y    = h · W_down    [d_ff → d_model]
+
+參數 = 3 × d_model × d_ff</div>
+
+      <h2>2. 參數量</h2>
+      <p><strong>Llama 2 7B</strong>：d_model=4096、d_ff=11008</p>
+      <div class="code-block">3 × 4096 × 11008 = 135,266,304</div>
+      <p><strong>Llama 3 8B</strong>：d_model=4096、d_ff=14336</p>
+      <div class="code-block">3 × 4096 × 14336 = 176,160,768</div>
+      <p>和上一課的注意力層比較：</p>
+      <table>
+        <thead><tr><th>模型</th><th>注意力</th><th>FFN</th><th>FFN 佔比</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 2 7B</td><td>67.1 M</td><td>135.3 M</td><td>66.8%</td></tr>
+          <tr><td>Llama 3 8B</td><td>41.9 M</td><td>176.2 M</td><td>80.8%</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以「Transformer 的參數大部分在注意力」是個常見的錯誤印象。
+        實際上<strong>三分之二以上在 FFN</strong>，
+        用了 GQA 的模型甚至到八成。
+      </p>
+
+      <h2>3. 擴張比例</h2>
+      <p>
+        <code>d_ff / d_model</code> 這個比例叫擴張比（expansion ratio）。
+      </p>
+      <table>
+        <thead><tr><th>年代／類型</th><th>比例</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>原始 Transformer</td><td>4.0</td><td>兩矩陣 GELU</td></tr>
+          <tr><td>SwiGLU 慣例</td><td>約 2.67（= 4 × 2/3）</td><td>多一個矩陣，所以把寬度縮小以維持總參數</td></tr>
+          <tr><td>Llama 2 7B</td><td>11008/4096 = 2.69</td><td>再對齊到 256 的倍數</td></tr>
+          <tr><td>Llama 3 8B</td><td>14336/4096 = 3.5</td><td>刻意加寬</td></tr>
+        </tbody>
+      </table>
+      <p>
+        那個 <strong>2/3</strong> 的由來很直白：SwiGLU 從兩個矩陣變三個，
+        為了讓參數量與原本的 4 倍擴張持平，就把寬度乘 2/3。
+        這也是為什麼你會看到 11008 這種怪數字——
+        它是 4096 × 8/3 再向上對齊到 256 的倍數。
+      </p>
+
+      <h2>4. FFN 在做什麼</h2>
+      <p>
+        一個廣為接受的解釋是：FFN 是<strong>鍵值記憶體</strong>。
+        W_up 的每一列可以看成一個「偵測器」，
+        當輸入向量與它方向接近時被啟動；
+        W_down 的對應列則是「被啟動時要寫回什麼」。
+      </p>
+      <p>
+        所以模型記住的事實知識（巴黎是法國首都），
+        大多存在 FFN 層而不是注意力層。
+        這也是知識編輯（model editing）研究會去改 FFN 權重的原因。
+      </p>
+
+      <h2>5. 對量化的意義</h2>
+      <p>
+        既然 FFN 佔了七八成參數，量化策略自然會針對它：
+      </p>
+      <ul>
+        <li>GGUF 的 K-quant 會把 <code>ffn_down</code> 保留在較高位元，因為它對誤差最敏感</li>
+        <li>MoE 把 FFN 換成多個專家，所以 MoE 的參數幾乎全在專家層（第 46 課）</li>
+        <li>要壓縮模型，動 FFN 的效益最大</li>
+      </ul>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>FFN 逐 token 獨立處理，不跨位置</li>
+          <li>SwiGLU 有三個矩陣，參數 = 3 × d_model × d_ff</li>
+          <li>FFN 佔一層參數的 67%–81%，比注意力多得多</li>
+          <li>擴張比的 2/3 是為了補償 SwiGLU 多出來的矩陣</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 d_model=8192、d_ff=28672 的 SwiGLU FFN 參數量</li>
+          <li>解釋 11008 這個數字怎麼來的</li>
+          <li>說明為何量化要特別保護 ffn_down</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課補完剩下的零件：殘差、RMSNorm 與 SwiGLU。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：Multi-head attention 與它的參數帳</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：殘差、RMSNorm 與 SwiGLU →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

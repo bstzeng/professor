@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：DPO 家族：ORPO、KTO、SimPO ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="DPO 為何能跳過獎勵模型，以及幾個變體各自簡化了什麼。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 36 課</div>
+      <h1>DPO 家族：ORPO、KTO、SimPO</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 DPO 為何能跳過 reward model</li>
+          <li>認識幾個主要變體的差異</li>
+          <li>知道在 model card 上看到這些後綴代表什麼</li>
+        </ul>
+      </div>
+
+      <h2>1. DPO 的核心洞見</h2>
+      <p>
+        RLHF 的流程是：偏好資料 → 訓練 RM → 用 RL 最大化 RM。
+        DPO 的論文證明了一件事：<strong>這兩步可以合併成一個監督式損失函數</strong>。
+      </p>
+      <div class="code-block">DPO loss = − log σ( β·[ log π(chosen)/π_ref(chosen)
+                       − log π(rejected)/π_ref(rejected) ] )
+
+π     = 正在訓練的模型
+π_ref = 凍結的參考模型（通常就是 SFT 模型）
+β     = 控制偏離參考模型的強度</div>
+      <p>
+        直覺是：<strong>提高好回答的相對機率，降低壞回答的相對機率</strong>，
+        而「相對」是相對於參考模型。
+        這隱含地做了 RLHF 在做的事，但不需要 RM，也不需要 RL 迴圈。
+      </p>
+
+      <h2>2. 對照</h2>
+      <table>
+        <thead><tr><th></th><th>RLHF (PPO)</th><th>DPO</th></tr></thead>
+        <tbody>
+          <tr><td>需要載入的模型</td><td>4 個</td><td>2 個</td></tr>
+          <tr><td>訓練形式</td><td>線上 RL，要一邊生成</td><td>離線監督學習</td></tr>
+          <tr><td>穩定度</td><td>難調，容易崩</td><td>穩定，像一般微調</td></tr>
+          <tr><td>算力</td><td>高</td><td>約為 SFT 的 1–2 倍</td></tr>
+          <tr><td>上限</td><td>調得好時仍較高</td><td>略低，但差距不大</td></tr>
+        </tbody>
+      </table>
+      <p>
+        DPO 出現後，開源社群的偏好優化幾乎全面倒向它——
+        因為它把一個「需要 RL 專家」的工作，變成「會跑微調就會做」。
+      </p>
+
+      <h2>3. 幾個變體</h2>
+      <table>
+        <thead><tr><th>方法</th><th>改了什麼</th><th>好處</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ORPO</strong></td><td>把 SFT 與偏好優化合成一步，不需要參考模型</td><td>只載入一個模型，最省</td></tr>
+          <tr><td><strong>KTO</strong></td><td>不需要成對資料，單則「好／壞」標註就能用</td><td>資料收集容易得多</td></tr>
+          <tr><td><strong>SimPO</strong></td><td>去掉參考模型，改用長度正規化的機率</td><td>省記憶體，緩解長度偏誤</td></tr>
+          <tr><td><strong>IPO</strong></td><td>修改損失以避免過度擬合偏好</td><td>減少過擬合</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這些差異在實務上不大。挑選原則很簡單：
+      </p>
+      <ul>
+        <li>有成對資料、記憶體夠 → DPO</li>
+        <li>記憶體很緊 → ORPO 或 SimPO</li>
+        <li>只有單則標註（讚／倒讚） → KTO</li>
+      </ul>
+
+      <h2>4. 在 model card 上看到它們</h2>
+      <p>
+        你會看到 <code>Xxx-7B-DPO</code>、<code>Xxx-7B-ORPO</code> 這種名字。
+        它們的意思是「在某個 SFT 模型上做過偏好優化」。
+        實務上的判讀：
+      </p>
+      <table>
+        <thead><tr><th>看到</th><th>推測</th></tr></thead>
+        <tbody>
+          <tr><td>官方模型沒標，只寫 Instruct</td><td>通常做過完整的 SFT + 偏好優化，只是不細分</td></tr>
+          <tr><td>社群模型標 <code>-DPO</code></td><td>在別人的 SFT 模型上，用公開偏好資料集再調過</td></tr>
+          <tr><td>標 <code>-SFT</code> 但沒有 DPO</td><td>半成品，語氣可能生硬</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. DPO 的已知缺點</h2>
+      <ul>
+        <li><strong>離線資料的侷限</strong>：偏好資料是對「某個模型的輸出」標的，
+            訓練中模型已經改變，資料就漸漸不匹配</li>
+        <li><strong>容易降低多樣性</strong>：模型會收斂到少數安全句式</li>
+        <li><strong>長度偏誤仍在</strong>：偏好資料裡長回答較受歡迎，這個偏誤會被學走</li>
+        <li><strong>對資料品質極度敏感</strong>：偏好標註不一致時，效果會直接崩</li>
+      </ul>
+      <p>
+        所以近年又出現「迭代式 DPO」：訓練幾輪就重新生成資料、重新標註，
+        某種程度上把線上 RL 的好處補回來。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 DPO 相對 RLHF 省掉了什麼</li>
+          <li>比較 ORPO、KTO、SimPO 各自的改動</li>
+          <li>說出 DPO 的兩個已知缺點</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：推理模型那種「會先想一想」的能力是怎麼練的。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：RLHF：reward model 與 PPO</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：GRPO 與可驗證獎勵：推理模型怎麼練出來的 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：一次預訓練要花多少錢、多少卡、多少天 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="用 6ND 與 GPU 實際吞吐量，估算幾個真實模型的訓練成本。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預訓練：資料與過程 · 第 32 課</div>
+      <h1>一次預訓練要花多少錢、多少卡、多少天</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 MFU 這個指標</li>
+          <li>完成一次完整的成本估算</li>
+          <li>建立對「訓練很貴」的量化直覺</li>
+        </ul>
+      </div>
+
+      <h2>1. MFU：算力利用率</h2>
+      <div class="code-block">MFU = 實際達成的 FLOPs / 硬體理論峰值 FLOPs</div>
+      <table>
+        <thead><tr><th>情境</th><th>典型 MFU</th></tr></thead>
+        <tbody>
+          <tr><td>單卡、小模型、理想批次</td><td>50–60%</td></tr>
+          <tr><td>大規模叢集、優化良好</td><td>35–50%</td></tr>
+          <tr><td>大規模叢集、一般水準</td><td>20–35%</td></tr>
+          <tr><td>包含失敗重跑的實際平均</td><td>15–25%</td></tr>
+        </tbody>
+      </table>
+      <p>
+        損失來自：通訊等待、管線氣泡、記憶體頻寬瓶頸、
+        資料載入、檢查點寫入、以及硬體故障重跑。
+        千卡等級的叢集，每天都會有卡壞掉。
+      </p>
+
+      <h2>2. 完整估算範例</h2>
+      <p><strong>題目：</strong>訓練一個 8B 模型，15T tokens，用 H100。</p>
+      <div class="code-block">步驟 1：總計算量
+  C = 6 × 8e9 × 15e12 = 7.2e23 FLOPs
+
+步驟 2：單卡有效算力
+  H100 BF16 峰值 ≈ 989e12 FLOP/s
+  取 MFU = 0.35
+  有效 = 3.46e14 FLOP/s
+
+步驟 3：GPU 秒數
+  7.2e23 / 3.46e14 = 2.08e9 GPU 秒
+  = 578,000 GPU 小時
+
+步驟 4：牆鐘時間
+  用 1000 張卡：578 小時 ≈ 24 天
+
+步驟 5：成本
+  租用價以每張卡每小時 2–4 美元計
+  578,000 × 3 ≈ 1,730,000 美元</div>
+      <p>
+        對照：Meta 公布 Llama 3 8B 用了約 130 萬 H100 小時。
+        我們的估算是 57.8 萬——差距約 2.2 倍，
+        對應到實際 MFU 約 16%。這符合第 1 節表格最後一列。
+      </p>
+      <p>
+        <strong>所以實務的估算口訣是：用 MFU=0.35 算完之後乘以 2。</strong>
+      </p>
+
+      <h2>3. 不同尺寸的量級</h2>
+      <table>
+        <thead><tr><th>模型</th><th>tokens</th><th>C (FLOPs)</th><th>H100 小時（含 2× 修正）</th></tr></thead>
+        <tbody>
+          <tr><td>1B</td><td>2 T</td><td>1.2e22</td><td>約 19,000</td></tr>
+          <tr><td>8B</td><td>15 T</td><td>7.2e23</td><td>約 1,160,000</td></tr>
+          <tr><td>70B</td><td>15 T</td><td>6.3e24</td><td>約 10,100,000</td></tr>
+          <tr><td>400B</td><td>15 T</td><td>3.6e25</td><td>約 58,000,000</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列換算成錢是<strong>一億美元以上</strong>，
+        而且要數萬張卡跑數個月。
+        這就是前沿模型只有少數幾家公司做得起的原因。
+      </p>
+
+      <h2>4. 除了 GPU 還有什麼成本</h2>
+      <ul>
+        <li><strong>資料處理</strong>：清洗數十 TB 資料需要大量 CPU 叢集，可能佔總成本 5–15%</li>
+        <li><strong>失敗的實驗</strong>：正式訓練前的小規模消融實驗，累積起來可能與正式訓練同量級</li>
+        <li><strong>人力</strong>：能把千卡叢集跑穩的團隊，本身就是稀缺資源</li>
+        <li><strong>電力與冷卻</strong>：自建叢集時這是持續成本</li>
+        <li><strong>後訓練</strong>：偏好資料的人工標註，可能數十萬至數百萬美元</li>
+      </ul>
+
+      <h2>5. 模組 F 總結</h2>
+      <ul>
+        <li>資料是最大的差異來源，架構反而大同小異</li>
+        <li>清洗管線會把原始資料砍到只剩百分之幾</li>
+        <li>配方與退火階段對最終品質影響很大</li>
+        <li>訓練成本：8B 級約百萬美元，前沿模型上億美元</li>
+        <li>估算口訣：<code>C=6ND</code>，除以 <code>峰值×0.35</code>，再乘 2</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>估算 32B 模型用 8T tokens 訓練的 GPU 小時數</li>
+          <li>說出 MFU 損失的四個來源</li>
+          <li>列出 GPU 以外的三項成本</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 G 開始：練好的 base model 為什麼還不能用。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：分散式訓練：DP、TP、PP、FSDP 與 ZeRO</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：Base model 為什麼不能直接用 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

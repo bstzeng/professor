@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：vocab 大小如何吃掉參數 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="詞表從 32K 漲到 256K 時，小模型的參數比例會怎麼被扭曲。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜文字怎麼變成數字 · 第 9 課</div>
+      <h1>vocab 大小如何吃掉參數</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出詞表在不同尺寸模型中的參數佔比</li>
+          <li>理解「有效參數」這個概念</li>
+          <li>知道大詞表的取捨</li>
+        </ul>
+      </div>
+
+      <h2>1. 同樣的詞表，不同的代價</h2>
+      <p>
+        假設詞表 128,256、不綁定權重，計算嵌入層加 lm_head 的參數：
+      </p>
+      <table>
+        <thead><tr><th>模型尺寸</th><th>d_model</th><th>詞表相關參數</th><th>佔總參數</th></tr></thead>
+        <tbody>
+          <tr><td>0.5B</td><td>896</td><td>2.30 億</td><td><strong>約 46%</strong></td></tr>
+          <tr><td>1.5B</td><td>1,536</td><td>3.94 億</td><td>約 26%</td></tr>
+          <tr><td>8B</td><td>4,096</td><td>10.5 億</td><td>約 13%</td></tr>
+          <tr><td>70B</td><td>8,192</td><td>21.0 億</td><td>約 3%</td></tr>
+        </tbody>
+      </table>
+      <p>
+        看最上面那一列：一個 0.5B 的模型，將近一半的參數
+        拿去存詞表的查找表了。真正用來「思考」的 Transformer 層
+        只剩不到 3 億參數。
+      </p>
+
+      <h2>2.「有效參數」</h2>
+      <p>
+        因此比較小模型時，光看總參數量會失真。比較有意義的是
+        <strong>非嵌入參數（non-embedding parameters）</strong>：
+      </p>
+      <div class="code-block">有效參數 = 總參數 − 嵌入層 − lm_head</div>
+      <p>
+        兩個都叫 1.5B 的模型，一個詞表 32K、一個詞表 152K，
+        後者的有效參數可能少了兩成。這解釋了為什麼有些小模型
+        「參數量看起來一樣但明顯比較笨」。
+      </p>
+      <p>
+        Scaling law 的論文（模組 E）也是用非嵌入參數在算的——
+        這一點常被忽略，導致自己套公式時算出奇怪的結果。
+      </p>
+
+      <h2>3. 為什麼還是要用大詞表</h2>
+      <table>
+        <thead><tr><th>好處</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>序列變短</td><td>同一段文字 token 數變少，計算量與 KV cache 都下降</td></tr>
+          <tr><td>多語言可用</td><td>中日韓、程式碼、數學符號都能有獨立 token</td></tr>
+          <tr><td>語意更集中</td><td>常用詞是單一 token，模型不必從碎片重組</td></tr>
+          <tr><td>context 更划算</td><td>同樣 8K token 能裝更多實際內容</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意力的計算量與序列長度成平方關係，
+        所以詞表變大帶來的序列縮短，在長文本上是很划算的交換。
+      </p>
+
+      <h2>4. 兩種應對策略</h2>
+      <ul>
+        <li><strong>小模型綁定權重</strong>：<code>tie_word_embeddings: true</code>，一次省下一半詞表參數。
+            這是 3B 以下模型幾乎清一色的做法。</li>
+        <li><strong>大模型放手用</strong>：70B 模型的詞表只佔 3%，沒必要省。</li>
+      </ul>
+
+      <h2>5. 模組 B 總結</h2>
+      <table>
+        <thead><tr><th>環節</th><th>決定了什麼</th></tr></thead>
+        <tbody>
+          <tr><td>Tokenizer 演算法</td><td>文字怎麼切、有沒有未知字元</td></tr>
+          <tr><td>詞表大小</td><td>序列長度、多語言能力、嵌入參數量</td></tr>
+          <tr><td>詞表語言分布</td><td>中文效率，進而影響成本與 context</td></tr>
+          <tr><td>位置編碼</td><td>能處理多長的輸入</td></tr>
+          <tr><td>權重綁定</td><td>小模型的有效參數比例</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這五件事在模型訓練前就決定了，事後幾乎不能改。
+        它們是 <code>config.json</code> 前幾行的意義。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 d_model=2048、vocab=151936、不綁定時的詞表參數量</li>
+          <li>說明為何比較小模型要看非嵌入參數</li>
+          <li>列出大詞表的四個好處</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 C 開始：進到 Transformer 內部，先看注意力。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：位置編碼：從絕對位置到 RoPE</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：注意力機制：Q、K、V 在算什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：算力預算：C ≈ 6ND 這個公式 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="為什麼是 6 倍，以及如何用它估算一次訓練需要多少 GPU 小時。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Scaling Law：該練多大、餵多少 · 第 22 課</div>
+      <h1>算力預算：C ≈ 6ND 這個公式</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 C ≈ 6ND 的由來</li>
+          <li>能用它估算訓練所需的算力</li>
+          <li>知道推論的成本公式是 2N</li>
+        </ul>
+      </div>
+
+      <h2>1. 公式</h2>
+      <div class="code-block">C ≈ 6 × N × D
+
+C = 訓練總計算量（FLOPs）
+N = 參數量（通常指非嵌入參數）
+D = 訓練 token 數</div>
+
+      <h2>2. 那個 6 是怎麼來的</h2>
+      <p>
+        每個參數在處理每個 token 時會被用到幾次乘加運算：
+      </p>
+      <table>
+        <thead><tr><th>階段</th><th>倍數</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>前向傳播</td><td>2</td><td>一次乘、一次加（矩陣乘法的 MAC）</td></tr>
+          <tr><td>反向：對輸入求梯度</td><td>2</td><td>同樣規模的矩陣運算</td></tr>
+          <tr><td>反向：對權重求梯度</td><td>2</td><td>同上</td></tr>
+          <tr><td><strong>合計</strong></td><td><strong>6</strong></td><td></td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以推論時只有前向，成本是 <strong>2N FLOPs 每 token</strong>；
+        訓練是它的三倍，<strong>6N</strong>。
+        這是整個領域最常用的估算式。
+      </p>
+
+      <h2>3. 它忽略了什麼</h2>
+      <ul>
+        <li><strong>注意力的平方項</strong>：seq×seq 的計算沒有計入。序列短時可忽略，
+            但 context 很長時會變顯著（大致是 <code>12·L·d·seq²</code> 這一項）</li>
+        <li><strong>啟動函數與正規化</strong>：相對矩陣乘法小很多</li>
+        <li><strong>重算（activation checkpointing）</strong>：省記憶體的代價是多一次前向，
+            會把 6 推到 8</li>
+      </ul>
+      <p>
+        所以 6ND 是<strong>下界估計</strong>。實務估算常用 6–8 之間。
+      </p>
+
+      <h2>4. 實際估算：Llama 3 8B</h2>
+      <div class="code-block">N = 8.0e9，D = 15e12 tokens
+
+C = 6 × 8.0e9 × 15e12 = 7.2e23 FLOPs</div>
+      <p>換算成 GPU 時間。H100 的 BF16 密集算力約 989 TFLOPS，但實際利用率（MFU）只有三到四成：</p>
+      <div class="code-block">有效算力 = 989e12 × 0.35 ≈ 3.46e14 FLOP/s
+
+時間 = 7.2e23 / 3.46e14 = 2.08e9 秒 = 578,000 GPU 小時
+     ≈ 1,000 張 H100 跑 24 天</div>
+      <p>
+        Meta 公布 Llama 3 8B 的訓練用了約 130 萬 H100 小時，
+        比這個估算高一倍多。差距來自：實際 MFU 更低、失敗重跑、
+        資料載入與檢查點的額外開銷。
+        <strong>把估算值乘以 2 當作現實值，是合理的做法。</strong>
+      </p>
+
+      <h2>5. 反過來用：預算換模型</h2>
+      <p>
+        如果你有固定的 GPU 預算，可以反推能練多大的模型：
+      </p>
+      <div class="code-block">已知：100 張 H100 跑 30 天，MFU 0.35
+
+C = 100 × 30 × 24 × 3600 × 3.46e14 = 8.97e22 FLOPs
+
+若照 Chinchilla 的 D = 20N：
+C = 6 × N × 20N = 120 N²
+N = √(8.97e22 / 120) ≈ 2.7e10  →  約 27 B
+
+但這是物理下界。算入失敗重跑與實際 MFU，把 C 打對折：
+N = √(4.49e22 / 120) ≈ 1.9e10  →  約 19 B</div>
+      <p>
+        這種「先算再打折」的習慣很重要。
+        公式給的是物理下界，現實永遠更貴。
+      </p>
+
+      <h2>6. 推論端</h2>
+      <div class="code-block">每個輸出 token 的計算量 ≈ 2N FLOPs
+
+8B 模型：2 × 8e9 = 1.6e10 FLOPs／token
+
+但實際瓶頸通常不是算力，而是記憶體頻寬：
+每產生一個 token 要把「全部權重」從顯存讀一遍。
+  8B 模型 Q4 量化 ≈ 4.5 GB
+  顯卡頻寬 1 TB/s  →  上限約 220 tokens/秒</div>
+      <p>
+        這是單次推論（batch=1）速度的估算法，
+        實測值通常落在理論值的 60–80%。第 70 課會再用到。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>訓練 C ≈ 6ND，推論每 token ≈ 2N</li>
+          <li>6 = 前向 2 + 反向 4</li>
+          <li>公式是下界，現實成本約為估算的兩倍</li>
+          <li>單次推論的瓶頸是記憶體頻寬不是算力</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導 6 這個係數</li>
+          <li>估算 70B 模型用 15T tokens 訓練需要多少 FLOPs</li>
+          <li>用頻寬法估算 32B 模型 Q4 在 1 TB/s 顯卡上的生成速度上限</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：那個著名的 20 tokens/param 是怎麼算出來的。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：實作：從 config.json 反推任何模型的參數量</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：Kaplan 2020 與 Chinchilla 2022 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：FP32、FP16、BF16、FP8：位元怎麼分配 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="符號、指數、尾數的切法，以及各格式的動態範圍與精度。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 49 課</div>
+      <h1>FP32、FP16、BF16、FP8：位元怎麼分配</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂浮點數的位元分配</li>
+          <li>比較四種主要格式</li>
+          <li>建立「範圍 vs 精度」的取捨概念</li>
+        </ul>
+      </div>
+
+      <h2>1. 浮點數的三段結構</h2>
+      <div class="code-block">符號 (S) │ 指數 (E) │ 尾數 (M)
+
+數值 = (−1)^S × 1.M × 2^(E − bias)
+
+指數決定「範圍」：能表示多大到多小
+尾數決定「精度」：同一個量級內能分辨多細</div>
+
+      <h2>2. 四種格式</h2>
+      <table>
+        <thead><tr><th>格式</th><th>總位元</th><th>符號</th><th>指數</th><th>尾數</th><th>最大值</th><th>有效位數</th></tr></thead>
+        <tbody>
+          <tr><td>FP32</td><td>32</td><td>1</td><td>8</td><td>23</td><td>約 3.4e38</td><td>約 7 位十進位</td></tr>
+          <tr><td>FP16</td><td>16</td><td>1</td><td><strong>5</strong></td><td><strong>10</strong></td><td>約 65,504</td><td>約 3 位</td></tr>
+          <tr><td>BF16</td><td>16</td><td>1</td><td><strong>8</strong></td><td><strong>7</strong></td><td>約 3.4e38</td><td>約 2 位</td></tr>
+          <tr><td>FP8 (E4M3)</td><td>8</td><td>1</td><td>4</td><td>3</td><td>448</td><td>約 1 位</td></tr>
+          <tr><td>FP8 (E5M2)</td><td>8</td><td>1</td><td>5</td><td>2</td><td>約 57,344</td><td>不到 1 位</td></tr>
+        </tbody>
+      </table>
+      <p>
+        重點在 FP16 與 BF16 那兩列：<strong>同樣 16 位元，切法完全不同</strong>。
+        FP16 把位元給了尾數（精度高、範圍窄），
+        BF16 給了指數（範圍與 FP32 相同、精度低）。
+      </p>
+
+      <h2>3. 為什麼範圍比精度重要</h2>
+      <p>
+        FP16 的最大值只有 65,504。訓練時很容易超過：
+      </p>
+      <ul>
+        <li>梯度累積時的中間值</li>
+        <li>注意力分數在 softmax 之前</li>
+        <li>某些層的啟動值</li>
+      </ul>
+      <p>
+        一旦超過就變成 <code>inf</code>，接著整個 loss 變成 <code>NaN</code>，
+        訓練直接報廢。
+        用 FP16 訓練必須額外做 <strong>loss scaling</strong>——
+        把 loss 乘上一個大數，讓梯度落在可表示範圍內，反向後再除回來。
+        這是額外的工程複雜度，而且要動態調整。
+      </p>
+      <p>
+        BF16 因為指數位元與 FP32 相同，<strong>範圍完全一樣</strong>，
+        不會溢位，也就不需要 loss scaling。精度低一點，
+        但神經網路對權重精度的容忍度很高。
+      </p>
+
+      <h2>4. FP8</h2>
+      <p>
+        近年的硬體開始原生支援 FP8，有兩種變體：
+      </p>
+      <ul>
+        <li><strong>E4M3</strong>：範圍小、精度高，用於<strong>前向</strong>（權重與啟動值）</li>
+        <li><strong>E5M2</strong>：範圍大、精度低，用於<strong>反向</strong>（梯度，動態範圍需求大）</li>
+      </ul>
+      <p>
+        FP8 訓練需要細緻的縮放策略（per-tensor 或 per-block 的 scale），
+        但能讓吞吐量接近翻倍。這是目前大規模訓練的前沿。
+      </p>
+
+      <h2>5. 實際檔案大小</h2>
+      <table>
+        <thead><tr><th>格式</th><th>每參數</th><th>8B 模型</th><th>70B 模型</th></tr></thead>
+        <tbody>
+          <tr><td>FP32</td><td>4 bytes</td><td>32 GB</td><td>280 GB</td></tr>
+          <tr><td>BF16／FP16</td><td>2 bytes</td><td>16 GB</td><td>140 GB</td></tr>
+          <tr><td>FP8</td><td>1 byte</td><td>8 GB</td><td>70 GB</td></tr>
+          <tr><td>INT4</td><td>0.5 byte</td><td>4 GB</td><td>35 GB</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <code>config.json</code> 裡的 <code>torch_dtype</code> 告訴你官方權重是什麼格式。
+        現在幾乎都是 <code>bfloat16</code>。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明指數與尾數各決定什麼</li>
+          <li>解釋 FP16 訓練為何需要 loss scaling</li>
+          <li>說出 E4M3 與 E5M2 各用在哪</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把 BF16 勝出的原因講透。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：MoE 的代價：VRAM 全載、通訊開銷、負載不均</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：為什麼 BF16 打敗 FP16 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

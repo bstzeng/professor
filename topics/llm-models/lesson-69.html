@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 69 課：Context length、RoPE scaling 與 YaRN ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="宣稱的 context 與可用的 context，以及外推技術的代價。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 69 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜跑起來：硬體與記憶體帳 · 第 69 課</div>
+      <h1>Context length、RoPE scaling 與 YaRN</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>區分宣稱 context 與可用 context</li>
+          <li>理解 RoPE scaling 與 YaRN</li>
+          <li>學會判斷長 context 的真假</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題</h2>
+      <p>
+        一個模型用 8K context 訓練，能不能處理 32K 的輸入？
+        技術上可以（RoPE 沒有長度上限），
+        但<strong>模型沒看過那麼遠的位置關係</strong>，
+        表現會急遽劣化——通常是開始語無倫次或忽略遠處的內容。
+      </p>
+
+      <h2>2. RoPE scaling</h2>
+      <p>
+        解法的基本想法是：<strong>把位置壓縮到模型熟悉的範圍</strong>。
+      </p>
+      <table>
+        <thead><tr><th>方法</th><th>做法</th><th>問題</th></tr></thead>
+        <tbody>
+          <tr><td>位置內插（PI）</td><td>把位置 m 除以 s，32K 壓成 8K 的尺度</td><td>近距離的解析度被犧牲</td></tr>
+          <tr><td>NTK-aware</td><td>改 rope_theta 而非直接壓位置</td><td>不需微調，但效果有限</td></tr>
+          <tr><td><strong>YaRN</strong></td><td>不同頻率的維度用不同策略：高頻不動、低頻內插</td><td>需要少量微調，但效果最好</td></tr>
+        </tbody>
+      </table>
+      <p>
+        YaRN 的洞見是：RoPE 的不同維度負責不同尺度的距離（第 8 課）。
+        <strong>管短距離的高頻維度不該被壓縮</strong>（否則相鄰字的關係會糊掉），
+        只有管長距離的低頻維度需要調整。
+      </p>
+
+      <h2>3. 怎麼看出模型用了 scaling</h2>
+      <div class="code-block">// config.json
+"max_position_embeddings": 131072,
+"rope_scaling": {
+    "type": "yarn",
+    "factor": 4.0,
+    "original_max_position_embeddings": 32768
+}</div>
+      <p>這段話的意思是：</p>
+      <ul>
+        <li>原本訓練到 32K</li>
+        <li>用 YaRN 外推 4 倍到 128K</li>
+        <li><strong>32K 以內是「原生」的，之後是外推的</strong></li>
+      </ul>
+      <p>
+        如果 <code>rope_scaling</code> 是 <code>null</code> 而
+        <code>max_position_embeddings</code> 很大，那才是真正原生訓練的長度。
+      </p>
+
+      <h2>4. 宣稱 vs 可用</h2>
+      <table>
+        <thead><tr><th>宣稱</th><th>通常的實際可用範圍</th></tr></thead>
+        <tbody>
+          <tr><td>原生訓練長度</td><td>100% 可用</td></tr>
+          <tr><td>YaRN 外推 2 倍</td><td>大致可用，長文件檢索略降</td></tr>
+          <tr><td>YaRN 外推 4 倍以上</td><td>能讀進去，但深處的資訊容易被忽略</td></tr>
+          <tr><td>無微調的純內插</td><td>品質下降明顯</td></tr>
+        </tbody>
+      </table>
+      <p>
+        一個實用的檢驗是<strong>「大海撈針」測試</strong>：
+        在很長的文本中間藏一句特定資訊，
+        然後問模型那句話是什麼。
+        很多宣稱 128K 的模型，在 64K 位置就開始撈不到了。
+      </p>
+
+      <h2>5. 自己啟用 scaling</h2>
+      <div class="code-block"># llama.cpp：直接指定更長的 context，引擎會自動處理
+./llama-server -m model.gguf -c 32768 --rope-scaling yarn --rope-scale 4
+
+# transformers：改 config
+config.rope_scaling = {"type": "yarn", "factor": 4.0}</div>
+      <p>
+        但要記得：<strong>硬開 scaling 而模型沒有對應微調，品質會掉。</strong>
+        而且 KV cache 會按照你設定的長度線性增加（第 68 課），
+        開 128K 卻只用 4K 是純粹的浪費。
+      </p>
+
+      <h2>6. 實務建議</h2>
+      <ol>
+        <li><strong>設定實際需要的長度</strong>，不要一律開最大</li>
+        <li>優先選<strong>原生長 context</strong>的模型，而非靠外推的</li>
+        <li>真的需要處理超長文件時，考慮 RAG 而非硬塞 context——
+            檢索出相關片段，比讓模型讀一百萬字便宜也準確得多</li>
+        <li>用大海撈針測試驗證你實際需要的長度是否可靠</li>
+      </ol>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 YaRN 相對於單純內插的改進</li>
+          <li>從 config 判斷一個模型的原生 context 長度</li>
+          <li>解釋為何開最大 context 是浪費</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課比較五種推理引擎，看你該用哪一個。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-68.html">← 上一課：KV cache 怎麼算，為什麼長 context 這麼貴</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-70.html">下一課：推理引擎：llama.cpp、Ollama、LM Studio、vLLM、SGLang →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

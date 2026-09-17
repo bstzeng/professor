@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 66 課：誰做的量化：發佈者的差異 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="同一個模型被不同人量化，品質與命名會差在哪裡。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 66 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜讀懂一張 Model Card · 第 66 課</div>
+      <h1>誰做的量化：發佈者的差異</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道同一個模型的不同量化版差在哪</li>
+          <li>建立挑選發佈者的判準</li>
+          <li>學會看量化版的 model card</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼會有很多版本</h2>
+      <p>
+        官方發 BF16 權重之後，社群會在幾小時內產出各種量化版。
+        同一個模型可能有十幾個人各發一套。它們的差異來自：
+      </p>
+      <table>
+        <thead><tr><th>變數</th><th>影響</th></tr></thead>
+        <tbody>
+          <tr><td>有沒有用 imatrix</td><td>低位元品質差很多（第 54 課）</td></tr>
+          <tr><td>校準資料是什麼</td><td>影響特定語言與領域的表現</td></tr>
+          <tr><td>llama.cpp 的版本</td><td>新版可能修了該架構的轉換 bug</td></tr>
+          <tr><td>提供的等級</td><td>有人只發 Q4_K_M，有人發十幾種</td></tr>
+          <tr><td>chat template 有無正確帶入</td><td>直接影響能不能正常對話</td></tr>
+          <tr><td>是否處理了特殊架構</td><td>MoE、多模態容易轉錯</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 判斷發佈者的五個指標</h2>
+      <ol>
+        <li><strong>有沒有寫明 llama.cpp 版本或 commit</strong>——代表他知道版本會影響結果</li>
+        <li><strong>有沒有說明校準資料</strong>——imatrix 量化尤其重要</li>
+        <li><strong>有沒有完整的等級表</strong>——附檔案大小與簡短建議的最好</li>
+        <li><strong>更新頻率</strong>——架構有 bug 修正時會不會重發</li>
+        <li><strong>Community 頁有沒有互動</strong>——有人回報問題並得到回應</li>
+      </ol>
+
+      <h2>3. 常見的標記慣例</h2>
+      <table>
+        <thead><tr><th>標記</th><th>意思</th></tr></thead>
+        <tbody>
+          <tr><td><code>i1-</code></td><td>用 imatrix 量化（相對於同一人發的靜態量化版）</td></tr>
+          <tr><td><code>-imat</code> / <code>-imatrix</code></td><td>同上，不同人的寫法</td></tr>
+          <tr><td><code>-static</code></td><td>沒有用 imatrix</td></tr>
+          <tr><td><code>-GGUF</code> 無其他標記</td><td>要看 model card 才知道有沒有 imatrix</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 一個典型的好 model card 會有什麼</h2>
+      <div class="code-block">## Llamacpp imatrix Quantizations of SomeModel-7B
+
+Using llama.cpp release b4500 for quantization.
+Original model: https://huggingface.co/org/SomeModel-7B
+All quants made using imatrix option with dataset from [連結]
+
+| Filename          | Quant   | Size   | Description                    |
+|-------------------|---------|--------|--------------------------------|
+| ...-Q8_0.gguf     | Q8_0    | 8.1GB  | Extremely high quality         |
+| ...-Q6_K.gguf     | Q6_K    | 6.3GB  | Very high quality, recommended |
+| ...-Q4_K_M.gguf   | Q4_K_M  | 4.7GB  | Good quality, default          |
+| ...-IQ4_XS.gguf   | IQ4_XS  | 4.2GB  | Decent, smaller than Q4_K_S    |
+
+## Which file should I choose?
+[依 RAM/VRAM 給的選擇建議]</div>
+      <p>
+        看到這種結構化的 card，通常品質可以信任。
+        反過來，只有一行「quantized version of X」的，
+        你完全不知道它用了什麼方法。
+      </p>
+
+      <h2>5. 官方量化版</h2>
+      <p>
+        越來越多官方會自己發 GGUF 或官方 QAT 版本。優先順序建議：
+      </p>
+      <ol>
+        <li><strong>官方 QAT 量化版</strong>（第 52 課）——品質最好</li>
+        <li><strong>官方 GGUF</strong>——保證架構與 template 正確</li>
+        <li><strong>知名社群發佈者的 imatrix 版</strong></li>
+        <li><strong>其他社群版</strong></li>
+      </ol>
+
+      <h2>6. 模組 L 總結</h2>
+      <ul>
+        <li>模型名可拆成：發佈者／家族－尺寸－能力－變體－再製－量化</li>
+        <li>官方後綴 Instruct／Chat／it 是同一件事；Embedding／Reranker 不能對話</li>
+        <li>社群標記中 abliterated 與 merge 的風險最高</li>
+        <li>GGUF repo 只要下載一個檔案</li>
+        <li>授權要看原模型，不是量化版 repo</li>
+        <li>挑量化版要看有沒有 imatrix 與說明是否完整</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出同一模型不同量化版差異的四個來源</li>
+          <li>解釋 <code>i1-</code> 標記的意思</li>
+          <li>列出挑選量化版的優先順序</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 M 開始：算出你到底需要多少記憶體。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-65.html">← 上一課：授權與 gated repo</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-67.html">下一課：VRAM 公式：權重、KV cache、啟動值、開銷 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

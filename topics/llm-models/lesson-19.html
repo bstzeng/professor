@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：GQA 與 MQA：KV head 怎麼省記憶體 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從 MHA 到 GQA 的演變，省下的不是參數而是 KV cache。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜參數量是怎麼決定的 · 第 19 課</div>
+      <h1>GQA 與 MQA：KV head 怎麼省記憶體</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 MHA、GQA、MQA 的差別</li>
+          <li>算出 GQA 對 KV cache 的節省</li>
+          <li>知道為何幾乎所有新模型都用 GQA</li>
+        </ul>
+      </div>
+
+      <h2>1. 三種配置</h2>
+      <div class="code-block">MHA（多頭）  : 32 個 Q 頭，32 組 K/V   ← 每個 Q 頭有自己的 K/V
+GQA（分組）  : 32 個 Q 頭， 8 組 K/V   ← 每 4 個 Q 頭共用一組
+MQA（多查詢）: 32 個 Q 頭， 1 組 K/V   ← 全部共用一組</div>
+      <p>
+        <code>config.json</code> 裡就是 <code>num_attention_heads</code> 與
+        <code>num_key_value_heads</code> 這兩個欄位的比值。
+        相等就是 MHA，後者為 1 就是 MQA，介於中間就是 GQA。
+      </p>
+
+      <h2>2. 真正的動機：KV cache</h2>
+      <p>
+        參數上的節省只是附帶效果（第 11 課算過，約省 37%）。
+        真正的動機是<strong>推論時的記憶體</strong>。
+      </p>
+      <div class="code-block">KV cache 大小 = 2 × layers × n_kv × head_dim × seq_len × bytes
+
+2       : K 和 V 各一份
+layers  : 每層都要存
+n_kv    : 只跟 KV 頭數有關，跟 Q 頭數無關</div>
+      <p>
+        關鍵在最後一行：<strong>KV cache 與 n_kv 成正比</strong>。
+        把 32 降到 8，cache 直接變成四分之一。
+      </p>
+
+      <h2>3. 實際數字</h2>
+      <p>以 8B 模型、32 層、head_dim=128、8K context、FP16 為例：</p>
+      <table>
+        <thead><tr><th>配置</th><th>n_kv</th><th>KV cache（8K token）</th></tr></thead>
+        <tbody>
+          <tr><td>MHA</td><td>32</td><td>4.0 GiB</td></tr>
+          <tr><td>GQA</td><td>8</td><td><strong>1.0 GiB</strong></td></tr>
+          <tr><td>MQA</td><td>1</td><td>0.125 GiB</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">驗算（GQA）:
+2 × 32 × 8 × 128 × 8192 × 2 bytes
+= 2 × 32 × 8 × 128 = 65,536
+× 8192 = 536,870,912
+× 2 bytes = 1,073,741,824 bytes = 1 GiB</div>
+      <p>
+        把 context 拉到 128K，MHA 需要 64 GiB 的 KV cache，
+        GQA 只要 16 GiB。這已經是「能不能跑」的差別，不是「快不快」。
+      </p>
+
+      <h2>4. 品質代價</h2>
+      <p>
+        共用 K/V 當然會損失一些表達能力。實測結論大致是：
+      </p>
+      <ul>
+        <li><strong>MQA</strong>：品質下降明顯，且訓練容易不穩</li>
+        <li><strong>GQA（4 或 8 組）</strong>：品質幾乎與 MHA 持平</li>
+        <li>分組數是可調的旋鈕，大模型常用 8，小模型用 2 或 4</li>
+      </ul>
+      <p>
+        這就是 GQA 成為標準的原因：<strong>它幾乎白拿</strong>——
+        省下四分之三的 KV cache，品質卻沒明顯損失。
+      </p>
+
+      <h2>5. 怎麼看出一個模型用了什麼</h2>
+      <div class="code-block">curl -s https://huggingface.co/meta-llama/Llama-3.1-8B/raw/main/config.json \
+  | python3 -c "import sys,json; c=json.load(sys.stdin); \
+print('heads', c['num_attention_heads'], 'kv', c['num_key_value_heads'])"
+
+# heads 32 kv 8   →  GQA，分 4 組</div>
+      <p>
+        評估一個模型能不能跑長 context 時，
+        這兩個數字比宣稱的 context 長度更有參考價值。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>GQA 讓多個 Q 頭共用一組 K/V</li>
+          <li>KV cache 與 n_kv 成正比，32→8 直接省四分之三</li>
+          <li>參數節省是附帶的，記憶體節省才是重點</li>
+          <li>GQA 品質幾乎無損，MQA 則有明顯代價</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 80 層、n_kv=8、head_dim=128、32K context、FP16 的 KV cache</li>
+          <li>說明為何 KV cache 與 Q 頭數無關</li>
+          <li>解釋 GQA 為何被稱為「幾乎白拿」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課回答一個很多人好奇的問題：為什麼永遠是 7B、13B、70B。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：寬 vs 深：同參數量下的取捨</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：為什麼永遠是 7B、8B、13B、70B →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

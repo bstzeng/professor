@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：實作：從 config.json 反推任何模型的參數量 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="寫一段可執行的計算，驗證任意 Hugging Face 模型的參數量。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜參數量是怎麼決定的 · 第 21 課</div>
+      <h1>實作：從 config.json 反推任何模型的參數量</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出一段可執行的參數量計算</li>
+          <li>用它驗證真實模型</li>
+          <li>學會處理各種架構例外</li>
+        </ul>
+      </div>
+
+      <h2>1. 完整腳本</h2>
+      <p>
+        把第 14 課的公式寫成程式。這段程式在本課實際跑過，
+        對 Llama 2 7B 與 Llama 3 8B 的結果與官方公布數字完全一致。
+      </p>
+      <div class="code-block">def count_params(c):
+    d  = c["hidden_size"]
+    L  = c["num_hidden_layers"]
+    h  = c["num_attention_heads"]
+    kv = c.get("num_key_value_heads", h)          # 沒寫就是 MHA
+    hd = c.get("head_dim") or d // h              # 沒寫就用 d/h
+    ff = c["intermediate_size"]
+    V  = c["vocab_size"]
+    tied = c.get("tie_word_embeddings", False)
+
+    attn = d * hd * (2*h + 2*kv)                  # Wq Wk Wv Wo
+    mlp  = 3 * d * ff                             # SwiGLU 三矩陣
+    per_layer = attn + mlp + 2*d                  # 加兩個 RMSNorm
+
+    total  = L * per_layer
+    total += V * d                                # 嵌入層
+    total += d                                    # final norm
+    if not tied:
+        total += V * d                            # lm_head
+    return total</div>
+
+      <h2>2. 執行結果</h2>
+      <div class="code-block">Llama-2-7B: total=6,738,415,616 (6.74B)
+            attn=67,108,864  mlp=135,266,304  per_layer=202,383,360
+
+Llama-3-8B: total=8,030,261,248 (8.03B)
+            attn=41,943,040  mlp=176,160,768  per_layer=218,112,000</div>
+      <p>官方數字分別是 6.74B 與 8.03B。誤差為零。</p>
+
+      <h2>3. 直接抓線上 config</h2>
+      <div class="code-block">import json, urllib.request
+
+def fetch_config(repo):
+    url = f"https://huggingface.co/{repo}/raw/main/config.json"
+    with urllib.request.urlopen(url) as r:
+        return json.load(r)
+
+c = fetch_config("Qwen/Qwen2.5-7B")
+print(f"{count_params(c)/1e9:.2f} B")</div>
+      <p>
+        gated repo（需要同意授權的，例如 Llama 系列）會回 401，
+        這時改用 <code>huggingface_hub</code> 帶 token，或直接在網頁上看 config.json。
+      </p>
+
+      <h2>4. 需要處理的例外</h2>
+      <table>
+        <thead><tr><th>例外</th><th>徵兆</th><th>怎麼改</th></tr></thead>
+        <tbody>
+          <tr><td>有 bias</td><td><code>attention_bias: true</code></td><td>加上 <code>hd*(h+2*kv) + d</code></td></tr>
+          <tr><td>傳統 FFN（非 SwiGLU）</td><td><code>hidden_act</code> 是 gelu 且沒有 gate_proj</td><td><code>mlp = 2*d*ff</code></td></tr>
+          <tr><td>LayerNorm 而非 RMSNorm</td><td><code>architectures</code> 是 GPT 系</td><td>norm 參數 ×2</td></tr>
+          <tr><td>MoE</td><td>有 <code>num_experts</code></td><td>見第 46 課</td></tr>
+          <tr><td>學習式位置編碼</td><td>有 <code>wpe</code> 權重</td><td>加 <code>max_pos × d</code></td></tr>
+          <tr><td>多模態</td><td>有 <code>vision_config</code></td><td>視覺塔要另外算</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 更省事的做法</h2>
+      <p>如果只是想知道數字，不必自己算：</p>
+      <div class="code-block"># 方法一：看 HF 網頁右側的 "Model size" 欄位（由 safetensors 標頭自動統計）
+
+# 方法二：讀 safetensors index，不下載權重
+import json, urllib.request
+url = "https://huggingface.co/Qwen/Qwen2.5-7B/raw/main/model.safetensors.index.json"
+idx = json.load(urllib.request.urlopen(url))
+print(idx["metadata"]["total_size"] / 2 / 1e9, "B params (BF16)")
+
+# 方法三：本機已下載時
+from safetensors import safe_open
+# 逐一累加每個張量的元素數</div>
+      <p>
+        但自己算一次有意義：它會逼你看懂 config 的每個欄位，
+        而那些欄位正是後面判斷記憶體需求、KV cache、量化行為的依據。
+      </p>
+
+      <h2>6. 模組 D 總結</h2>
+      <ul>
+        <li>參數量是四個旋鈕的結果，不是可以直接指定的數字</li>
+        <li>公式：<code>L × (d·hd·(2h+2kv) + 3·d·ff + 2d) + V·d × (1 或 2) + d</code></li>
+        <li>d_model 平方成長，是最強的槓桿</li>
+        <li>尺寸慣例主要由顯卡容量決定</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>把腳本跑在一個你感興趣的模型上</li>
+          <li>說明 tie_word_embeddings 為何必須處理</li>
+          <li>列出三個會讓公式失準的架構例外</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 E 開始：決定了架構之後，該餵多少資料。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：為什麼永遠是 7B、8B、13B、70B</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：算力預算：C ≈ 6ND 這個公式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

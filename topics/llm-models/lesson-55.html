@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 55 課：GGUF：它是容器格式，不是演算法 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="GGUF 檔案裡有什麼、它與 GGML 的關係，以及單檔設計的好處。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 55 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 55 課</div>
+      <h1>GGUF：它是容器格式，不是演算法</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 GGUF 是格式不是演算法</li>
+          <li>知道檔案裡有什麼</li>
+          <li>掌握它的生態定位</li>
+        </ul>
+      </div>
+
+      <h2>1. 最重要的一件事</h2>
+      <p>
+        <strong>GGUF 是一種檔案格式（容器），不是量化演算法。</strong>
+      </p>
+      <table>
+        <thead><tr><th></th><th>是什麼</th><th>類比</th></tr></thead>
+        <tbody>
+          <tr><td>GGUF</td><td>容器格式</td><td>像 <code>.zip</code> 或 <code>.mkv</code></td></tr>
+          <tr><td>Q4_K_M</td><td>裝在裡面的量化方式</td><td>像 zip 裡的壓縮演算法</td></tr>
+          <tr><td>GPTQ／AWQ</td><td>量化演算法</td><td>另一套演算法，存在 safetensors 裡</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以 GGUF 檔案也可以裝<strong>沒有量化</strong>的 F16 或 F32 權重。
+        你在 HF 上看到的 <code>model-F16.gguf</code> 就是這種——
+        它是量化的中間產物，也是自己做量化時的來源檔。
+      </p>
+
+      <h2>2. 單檔設計</h2>
+      <p>GGUF 把一個模型需要的所有東西打包成一個檔案：</p>
+      <div class="code-block">model-Q4_K_M.gguf
+├── 標頭（magic number、版本）
+├── Metadata（鍵值對）
+│   ├── general.architecture      = "llama"
+│   ├── llama.block_count         = 32
+│   ├── llama.embedding_length    = 4096
+│   ├── llama.attention.head_count = 32
+│   ├── tokenizer.ggml.tokens     = [...]     ← 整個詞表
+│   ├── tokenizer.chat_template   = "..."     ← chat template
+│   └── ...
+└── 張量資料（量化後的權重）</div>
+      <p>這帶來幾個實際好處：</p>
+      <ul>
+        <li>下載一個檔案就能跑，不用管 config、tokenizer 有沒有配齊</li>
+        <li>不會有版本錯配的問題</li>
+        <li>支援 mmap——不必全部讀進記憶體就能開始推論</li>
+        <li>metadata 可讀，用工具就能查模型規格</li>
+      </ul>
+
+      <h2>3. 歷史</h2>
+      <table>
+        <thead><tr><th>格式</th><th>時期</th><th>問題</th></tr></thead>
+        <tbody>
+          <tr><td>GGML</td><td>早期</td><td>沒有版本管理，改一次格式就全部失效</td></tr>
+          <tr><td>GGJT 等中間版本</td><td>過渡</td><td>同上</td></tr>
+          <tr><td><strong>GGUF</strong></td><td>現行</td><td>可擴充的 metadata，向前相容</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以看到 <code>.ggml</code> 或 <code>.bin</code> 結尾的舊量化檔，
+        新版 llama.cpp 已經不支援了，要找 GGUF 版。
+      </p>
+
+      <h2>4. 生態</h2>
+      <table>
+        <thead><tr><th>工具</th><th>與 GGUF 的關係</th></tr></thead>
+        <tbody>
+          <tr><td>llama.cpp</td><td>GGUF 的發源地與參考實作</td></tr>
+          <tr><td>Ollama</td><td>底層用 llama.cpp，模型庫都是 GGUF</td></tr>
+          <tr><td>LM Studio</td><td>圖形介面，直接讀 GGUF</td></tr>
+          <tr><td>text-generation-webui</td><td>支援 GGUF 與其他格式</td></tr>
+          <tr><td>llama-cpp-python</td><td>Python 綁定</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>GGUF 最大的優勢是硬體覆蓋範圍</strong>：
+        它是唯一有成熟 CPU 推論與 Apple Silicon 支援的格式。
+        GPTQ、AWQ、EXL2 基本上都要 NVIDIA CUDA。
+      </p>
+
+      <h2>5. 自己做一個</h2>
+      <div class="code-block">git clone https://github.com/ggml-org/llama.cpp
+cd llama.cpp && cmake -B build && cmake --build build -j
+
+# 1. HF 格式 → GGUF（F16）
+python convert_hf_to_gguf.py /path/to/hf-model --outfile model-F16.gguf
+
+# 2. F16 → 量化
+./build/bin/llama-quantize model-F16.gguf model-Q4_K_M.gguf Q4_K_M
+
+# 3. 跑起來
+./build/bin/llama-cli -m model-Q4_K_M.gguf -p "你好"</div>
+      <p>
+        轉換時要注意架構支援：新架構的模型要等 llama.cpp 更新才轉得動。
+        MoE 模型與多模態模型的支援通常比較晚。
+      </p>
+
+      <h2>6. 查看 metadata</h2>
+      <div class="code-block">./build/bin/llama-cli --model model-Q4_K_M.gguf --verbose 2>&1 | head -40
+# 或用 Python
+pip install gguf
+python -c "
+from gguf import GGUFReader
+r = GGUFReader('model-Q4_K_M.gguf')
+for f in r.fields.values(): print(f.name)
+"</div>
+      <p>
+        遇到「模型講不停」「輸出格式怪怪的」，
+        第一件事就是查 metadata 裡的 <code>tokenizer.chat_template</code>
+        與 EOS token 有沒有正確帶過來。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 GGUF 與 Q4_K_M 的關係</li>
+          <li>列出單檔設計的三個好處</li>
+          <li>說出 GGUF 相對其他格式最大的優勢</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把 Q4_K_M 這串代號完整拆開。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-54.html">← 上一課：校準資料與 imatrix 在做什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-56.html">下一課：讀懂 Q4_K_M：K-quant 命名規則全表 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

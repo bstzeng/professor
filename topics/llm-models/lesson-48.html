@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：MoE 的代價：VRAM 全載、通訊開銷、負載不均 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="為什麼 MoE 省算力卻不省記憶體，以及它適合誰不適合誰。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜MoE：AxB 到底什麼意思 · 第 48 課</div>
+      <h1>MoE 的代價：VRAM 全載、通訊開銷、負載不均</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 MoE 的三個主要代價</li>
+          <li>知道它適合誰、不適合誰</li>
+          <li>理解為何它成為前沿的預設架構</li>
+        </ul>
+      </div>
+
+      <h2>1. 代價一：記憶體不會省</h2>
+      <p>
+        這是最常被誤解的一點。所有專家都必須常駐記憶體，
+        因為路由是逐 token 決定的，你無法預先知道下一個 token 要用誰。
+      </p>
+      <table>
+        <thead><tr><th></th><th>13B dense</th><th>47B MoE（12.9B 活躍）</th></tr></thead>
+        <tbody>
+          <tr><td>Q4 記憶體</td><td>約 8 GB</td><td>約 28 GB</td></tr>
+          <tr><td>速度</td><td>基準</td><td>相當</td></tr>
+          <tr><td>能力</td><td>基準</td><td>明顯較好</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以 MoE 對<strong>顯存受限</strong>的使用者幫助有限——
+        它把問題從「算力不夠」換成「記憶體不夠」。
+      </p>
+
+      <h2>2. 代價二：通訊開銷</h2>
+      <p>
+        在多卡部署時，專家通常被分散到不同的 GPU 上（專家平行）。
+        每一層都要把 token 送到對應專家所在的卡，算完再收回來——
+        這叫 all-to-all 通訊，是 MoE 訓練與推論的主要瓶頸。
+      </p>
+      <ul>
+        <li>單卡放得下時：沒有這個問題</li>
+        <li>多卡但有 NVLink：可接受</li>
+        <li>跨機器：通訊可能比計算還久</li>
+      </ul>
+
+      <h2>3. 代價三：負載不均與訓練難度</h2>
+      <ul>
+        <li>需要額外的均衡機制（第 45 課），調不好會浪費容量</li>
+        <li>訓練的批次間變異大，收斂曲線比 dense 抖</li>
+        <li>微調較麻煩：LoRA 要掛在哪些專家上沒有定論</li>
+        <li>量化較麻煩：專家之間的數值分布差異大，
+            某些量化方法在 MoE 上的品質損失比 dense 明顯</li>
+      </ul>
+
+      <h2>4. 適合誰</h2>
+      <table>
+        <thead><tr><th>情境</th><th>MoE 是否適合</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>雲端服務、高吞吐</td><td>✓ 非常適合</td><td>記憶體便宜，算力貴，還能批次攤提</td></tr>
+          <tr><td>大顯存但嫌 dense 慢</td><td>✓ 適合</td><td>正好填這個位置</td></tr>
+          <tr><td>統一記憶體的機器</td><td>✓ 適合</td><td>記憶體大，頻寬有限，活躍參數少反而有利</td></tr>
+          <tr><td>8–16 GB 顯卡</td><td>✗ 不適合</td><td>總參數放不下</td></tr>
+          <tr><td>要做完整微調</td><td>△ 較麻煩</td><td>工具鏈支援不如 dense 成熟</td></tr>
+          <tr><td>邊緣裝置</td><td>✗ 不適合</td><td>記憶體是硬限制</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 為何前沿模型都轉向 MoE</h2>
+      <p>
+        對訓練與服務大模型的公司來說，三個條件同時成立：
+      </p>
+      <ol>
+        <li><strong>訓練算力是瓶頸</strong>：MoE 用同樣算力能練出更大的總容量</li>
+        <li><strong>推論要服務海量請求</strong>：活躍參數少 = 每個請求便宜</li>
+        <li><strong>記憶體他們買得起</strong>：資料中心的 HBM 雖貴，但相對算力便宜</li>
+      </ol>
+      <p>
+        對個人使用者則正好相反——記憶體才是最貴的。
+        所以「前沿都用 MoE」與「你該用 MoE」是兩件事。
+      </p>
+
+      <h2>6. 模組 I 總結</h2>
+      <ul>
+        <li>MoE 把 FFN 換成多個專家，每次只啟動 top-k 個</li>
+        <li><code>8x7B</code> 記號要自己算共享層，<code>30B-A3B</code> 直接寫明兩個數字</li>
+        <li>Mixtral 8x7B = 46.7B 總 / 12.9B 活躍，兩者都在本課程精確驗算過</li>
+        <li>記憶體看總參數、速度看活躍參數</li>
+        <li>本質是用記憶體換算力，適合服務端不適合小顯卡</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何 MoE 不省記憶體</li>
+          <li>列出 MoE 的三個代價</li>
+          <li>判斷一台 16 GB 顯卡的機器該不該選 MoE</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 J 開始：進到數值精度與量化的原理。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：讀懂 A3B：總參數與活躍參數的命名</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：FP32、FP16、BF16、FP8：位元怎麼分配 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：資料配方與課程式訓練 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="不同來源的混合比例怎麼決定，以及訓練後期換配方的做法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預訓練：資料與過程 · 第 29 課</div>
+      <h1>資料配方與課程式訓練</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解資料配方的概念</li>
+          <li>知道各來源的典型比例</li>
+          <li>掌握課程式訓練與退火階段</li>
+        </ul>
+      </div>
+
+      <h2>1. 什麼是配方</h2>
+      <p>
+        預訓練不是把所有資料倒在一起隨機抽。
+        每種來源有不同的採樣權重，這組權重就是<strong>資料配方（data mixture）</strong>。
+      </p>
+      <div class="code-block">典型配方（示意，各家差異很大）
+
+  網頁（清洗過）        60–75%
+  程式碼                 5–15%
+  書籍                   5–10%
+  學術／論文             2–5%
+  百科                   1–3%
+  數學                   1–5%
+  多語言                 5–15%</div>
+      <p>
+        權重可以大於資料的實際佔比——
+        例如維基百科只佔原始資料的 0.1%，
+        但可以用 3 個 epoch 重複，讓它在訓練中佔 1–3%。
+        這叫<strong>上採樣（upsampling）</strong>。
+      </p>
+
+      <h2>2. 配方怎麼決定</h2>
+      <p>
+        主要靠<strong>小規模代理實驗</strong>：
+      </p>
+      <ol>
+        <li>訓練一批 1B 以下的小模型，每個用不同配方</li>
+        <li>在目標評測上比較</li>
+        <li>把最好的配方外推到大模型</li>
+      </ol>
+      <p>
+        這個做法的風險是：小模型的最適配方不一定適用於大模型。
+        但完整跑一次大模型要數百萬美元，沒有人能做 A/B test。
+        所以配方在很大程度上是<strong>經驗與信念的混合物</strong>。
+      </p>
+
+      <h2>3. 課程式訓練</h2>
+      <p>
+        配方不必從頭到尾固定。近年常見的做法是分階段：
+      </p>
+      <table>
+        <thead><tr><th>階段</th><th>佔比</th><th>配方特徵</th></tr></thead>
+        <tbody>
+          <tr><td>主訓練</td><td>約 90%</td><td>大量一般網頁，量取勝</td></tr>
+          <tr><td>退火（annealing）</td><td>最後 5–10%</td><td>高品質資料大幅加權，learning rate 降到接近零</td></tr>
+        </tbody>
+      </table>
+      <p>
+        退火階段是近年最有效的技巧之一：
+        在學習率快歸零時餵入最好的資料（教科書、精選程式碼、
+        高品質指令資料），模型會把這些內容「記得特別牢」。
+        用很小的算力就能換到明顯的評測提升。
+      </p>
+
+      <h2>4. 中期訓練</h2>
+      <p>
+        預訓練與後訓練之間，現在常插入一個<strong>中期訓練（mid-training）</strong>階段：
+      </p>
+      <ul>
+        <li><strong>延長 context</strong>：把 8K 訓練的模型用長文件續訓到 128K</li>
+        <li><strong>補強領域</strong>：加入大量特定領域資料（醫療、法律、某語言）</li>
+        <li><strong>加入推理資料</strong>：長思考鏈的範例</li>
+      </ul>
+      <p>
+        中期訓練的成本比預訓練低一兩個數量級，
+        是小團隊唯一有機會參與的「訓練」階段。
+        很多「XX 語言強化版」的模型就是這樣做出來的。
+      </p>
+
+      <h2>5. 配方對使用者的意義</h2>
+      <p>
+        你選模型時，其實是在選一個配方的結果：
+      </p>
+      <table>
+        <thead><tr><th>模型特徵</th><th>對應的配方線索</th></tr></thead>
+        <tbody>
+          <tr><td>程式特別強</td><td>程式碼比例高，或做過程式碼中期訓練</td></tr>
+          <tr><td>中文特別好</td><td>中文語料比例高，且 tokenizer 有收中文</td></tr>
+          <tr><td>數學特別強</td><td>數學資料上採樣 + 推理後訓練</td></tr>
+          <tr><td>通用但不突出</td><td>均衡配方</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以同尺寸的模型之間，差異主要不是架構（架構大同小異），
+        而是<strong>資料配方與後訓練</strong>。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明上採樣是什麼</li>
+          <li>解釋退火階段為何有效</li>
+          <li>說出中期訓練的三個用途</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看訓練迴圈本身：loss 曲線該長什麼樣。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：資料清洗：去重、品質分類、過濾</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：訓練迴圈：loss、learning rate schedule、warmup →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 58 課：GPTQ：逐層最小化誤差 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="GPTQ 的演算法想法、group size 與 act-order 參數的意義。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 58 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 58 課</div>
+      <h1>GPTQ：逐層最小化誤差</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 GPTQ 的誤差補償想法</li>
+          <li>掌握 group size 與 act-order 的意義</li>
+          <li>知道它的適用場景</li>
+        </ul>
+      </div>
+
+      <h2>1. 核心想法：補償</h2>
+      <p>
+        一般量化是逐個權重獨立處理，誤差就這樣留著。
+        GPTQ 多做一件事：<strong>量化完一個權重後，
+        調整同一層還沒處理的權重，把誤差補回來。</strong>
+      </p>
+      <div class="code-block">for 每一欄權重 w_i:
+    q_i = quantize(w_i)              量化
+    err = w_i − dequantize(q_i)      算出誤差
+    調整剩下的欄位 w_{i+1:} 以補償 err</div>
+      <p>
+        怎麼知道該調多少？用<strong>二階資訊（Hessian）</strong>：
+        它描述「改動某個權重會讓輸出誤差變多少」。
+        Hessian 由校準資料的啟動值統計算出來。
+      </p>
+
+      <h2>2. 為什麼有效</h2>
+      <p>
+        單一權重的量化誤差無法避免，但一層的<strong>輸出</strong>誤差可以減小——
+        用其他權重的微調來抵消。
+        這就像四捨五入一串數字時，把每次的捨去誤差累加到下一個數字上，
+        總和的誤差會小很多。
+      </p>
+      <p>
+        GPTQ 的貢獻是把這個想法做到能在幾十分鐘內處理完一個大模型
+        （原始的最優解法計算量太大）。
+      </p>
+
+      <h2>3. 主要參數</h2>
+      <table>
+        <thead><tr><th>參數</th><th>意義</th><th>典型值</th></tr></thead>
+        <tbody>
+          <tr><td><code>bits</code></td><td>目標位元數</td><td>4（也有 3、8）</td></tr>
+          <tr><td><code>group_size</code></td><td>幾個權重共用一組 scale</td><td>128（或 32、64）</td></tr>
+          <tr><td><code>desc_act</code> / act-order</td><td>是否依啟動值重要性排序後再量化</td><td>建議開啟</td></tr>
+          <tr><td><code>damp_percent</code></td><td>Hessian 的阻尼，避免數值不穩</td><td>0.01</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>act-order</strong> 值得多說：開啟後會先處理最重要的權重欄，
+        讓它們的誤差最小，剩下的誤差推給不重要的欄位。
+        品質明顯提升，代價是推論時的記憶體存取變得不規則，速度略降。
+        現在多數發佈者都會開。
+      </p>
+      <p>
+        <strong>group_size</strong> 越小品質越好但檔案越大。
+        128 是預設；32 在小模型上值得考慮。
+      </p>
+
+      <h2>4. 檔案樣貌</h2>
+      <p>
+        GPTQ 不是獨立的容器格式，它<strong>存在標準的 HF 結構裡</strong>：
+      </p>
+      <div class="code-block">model-GPTQ/
+├── config.json              # 多了 quantization_config 區塊
+├── model.safetensors        # 量化後的權重（qweight、qzeros、scales）
+├── tokenizer.json
+└── ...
+
+config.json 裡：
+"quantization_config": {
+  "bits": 4,
+  "group_size": 128,
+  "desc_act": true,
+  "quant_method": "gptq"
+}</div>
+
+      <h2>5. 怎麼用</h2>
+      <div class="code-block"># 推論（transformers 會自動偵測 quantization_config）
+from transformers import AutoModelForCausalLM, AutoTokenizer
+m = AutoModelForCausalLM.from_pretrained("someone/Model-GPTQ", device_map="auto")
+
+# 或用 vLLM 服務
+vllm serve someone/Model-GPTQ --quantization gptq</div>
+
+      <h2>6. 適用場景</h2>
+      <table>
+        <thead><tr><th>情境</th><th>GPTQ 是否合適</th></tr></thead>
+        <tbody>
+          <tr><td>NVIDIA GPU 上的批次服務</td><td>✓ 合適</td></tr>
+          <tr><td>與 vLLM／TGI 搭配</td><td>✓ 支援良好</td></tr>
+          <tr><td>CPU 推論</td><td>✗ 不支援</td></tr>
+          <tr><td>Apple Silicon</td><td>✗ 不支援</td></tr>
+          <tr><td>單人本機使用</td><td>△ GGUF 通常更方便</td></tr>
+        </tbody>
+      </table>
+      <p>
+        簡單的判斷：<strong>你在跑 NVIDIA 伺服器就考慮 GPTQ／AWQ，
+        你在自己電腦上玩就用 GGUF。</strong>
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 GPTQ 的誤差補償機制</li>
+          <li>解釋 act-order 的作用與代價</li>
+          <li>說出 GPTQ 不適用的兩種硬體</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：AWQ 的不同思路。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-57.html">← 上一課：IQ 系列與 imatrix 量化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-59.html">下一課：AWQ：保護最重要的那些權重 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

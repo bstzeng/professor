@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：寬 vs 深：同參數量下的取捨 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="增加層數與加寬維度的差別，以及為什麼現在偏好一定的深寬比。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜參數量是怎麼決定的 · 第 18 課</div>
+      <h1>寬 vs 深：同參數量下的取捨</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解深寬比的取捨</li>
+          <li>知道太深或太寬各自的問題</li>
+          <li>掌握深度對推論延遲的影響</li>
+        </ul>
+      </div>
+
+      <h2>1. 兩種做法</h2>
+      <p>
+        要達到同樣的參數量，可以選擇「少層但很寬」或「多層但較窄」。
+        以 7B 為例：
+      </p>
+      <table>
+        <thead><tr><th>方案</th><th>d_model</th><th>layers</th><th>特徵</th></tr></thead>
+        <tbody>
+          <tr><td>寬而淺</td><td>6,144</td><td>16</td><td>每層很肥，路徑短</td></tr>
+          <tr><td>標準</td><td>4,096</td><td>32</td><td>業界慣例</td></tr>
+          <tr><td>窄而深</td><td>2,560</td><td>80</td><td>路徑長，每層瘦</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 深度帶來什麼</h2>
+      <p>
+        深度對應「<strong>連續推理的步數</strong>」。
+        每一層只能做有限的變換，多步推理需要多層來串接。
+        實證上，需要組合多個事實的任務（多跳問答、數學）
+        對深度比對寬度敏感。
+      </p>
+      <p>
+        代價是：<strong>層是序列的，不能平行</strong>。
+        產生一個 token 必須依序通過全部層。
+        80 層模型的單 token 延遲，天生就比 32 層高。
+      </p>
+
+      <h2>3. 寬度帶來什麼</h2>
+      <p>
+        寬度對應「<strong>每一步能處理多少資訊</strong>」，
+        也直接決定知識容量（FFN 寬度與 d_model 成正比）。
+      </p>
+      <p>
+        寬度的好處是<strong>硬體友善</strong>：
+        大矩陣乘法能把 GPU 餵飽，小矩陣則會卡在記憶體頻寬上。
+        同樣參數量，寬模型的實際吞吐量通常比深模型高。
+      </p>
+
+      <h2>4. 為何收斂到 100–150</h2>
+      <p>
+        d_model / n_layers 這個比值，現代模型大致落在 100–150 之間：
+      </p>
+      <table>
+        <thead><tr><th>模型量級</th><th>d_model</th><th>layers</th><th>比值</th></tr></thead>
+        <tbody>
+          <tr><td>1.5B</td><td>1,536</td><td>28</td><td>55</td></tr>
+          <tr><td>8B</td><td>4,096</td><td>32</td><td>128</td></tr>
+          <tr><td>14B</td><td>5,120</td><td>48</td><td>107</td></tr>
+          <tr><td>32B</td><td>5,120</td><td>64</td><td>80</td></tr>
+          <tr><td>70B</td><td>8,192</td><td>80</td><td>102</td></tr>
+        </tbody>
+      </table>
+      <p>
+        兩端的問題都很實際：
+      </p>
+      <ul>
+        <li><strong>太深</strong>：訓練不穩（殘差流的尺度累積）、推論延遲高、張量平行難切</li>
+        <li><strong>太寬</strong>：參數浪費在寬度上，推理深度不足；而且 d_model 平方成長，很快就超預算</li>
+      </ul>
+
+      <h2>5. 一個實務觀察</h2>
+      <p>
+        小模型傾向做得相對<strong>深</strong>（比值低），
+        因為它們的 d_model 已經小到不能再小，
+        只能靠層數補推理能力。
+        大模型則可以兩邊一起長。
+      </p>
+      <p>
+        另外要注意：<strong>推論延遲與層數成正比，與寬度成正比但可被平行化。</strong>
+        所以做端側部署（手機、邊緣裝置）時，
+        寧可選寬一點淺一點的配置。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>深度 ≈ 推理步數，寬度 ≈ 每步的資訊量與知識容量</li>
+          <li>層是序列的，深模型單 token 延遲天生較高</li>
+          <li>d_model / layers 慣例落在 100–150</li>
+          <li>小模型偏深，端側部署偏寬</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何深度影響延遲而寬度影響較小</li>
+          <li>解釋小模型為何傾向做得比較深</li>
+          <li>說出太深與太寬各自的兩個問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理 GQA：它省的其實不是參數。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：參數量公式：手算一個 7B 模型</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：GQA 與 MQA：KV head 怎麼省記憶體 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

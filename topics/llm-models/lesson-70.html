@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 70 課：推理引擎：llama.cpp、Ollama、LM Studio、vLLM、SGLang ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="五種引擎的定位、適合的場景與各自吃哪種格式。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 70 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜跑起來：硬體與記憶體帳 · 第 70 課</div>
+      <h1>推理引擎：llama.cpp、Ollama、LM Studio、vLLM、SGLang</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握五種主要推理引擎的定位</li>
+          <li>知道各自吃什麼格式</li>
+          <li>理解單人與多人場景的差異</li>
+        </ul>
+      </div>
+
+      <h2>1. 兩種完全不同的目標</h2>
+      <table>
+        <thead><tr><th></th><th>單人推論（batch=1）</th><th>批次服務</th></tr></thead>
+        <tbody>
+          <tr><td>瓶頸</td><td>記憶體頻寬</td><td>算力與 KV cache</td></tr>
+          <tr><td>指標</td><td>單次 tokens/秒、首 token 延遲</td><td>總吞吐量、併發數</td></tr>
+          <tr><td>最佳化重點</td><td>量化、減少權重讀取</td><td>批次排程、KV cache 管理</td></tr>
+          <tr><td>代表引擎</td><td>llama.cpp、ExLlama、MLX</td><td>vLLM、SGLang、TensorRT-LLM</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這個區分很重要：<strong>為批次服務設計的引擎，在單人使用時未必快。</strong>
+        反之亦然。
+      </p>
+
+      <h2>2. 五種引擎</h2>
+      <table>
+        <thead><tr><th>引擎</th><th>格式</th><th>硬體</th><th>定位</th></tr></thead>
+        <tbody>
+          <tr><td><strong>llama.cpp</strong></td><td>GGUF</td><td>CPU / CUDA / Metal / ROCm / Vulkan</td><td>最通用，硬體覆蓋最廣</td></tr>
+          <tr><td><strong>Ollama</strong></td><td>GGUF</td><td>同上</td><td>llama.cpp 的易用封裝，有模型庫與 API</td></tr>
+          <tr><td><strong>LM Studio</strong></td><td>GGUF / MLX</td><td>同上</td><td>圖形介面，適合不想碰指令列的人</td></tr>
+          <tr><td><strong>vLLM</strong></td><td>safetensors / AWQ / GPTQ / FP8</td><td>NVIDIA（AMD 部分支援）</td><td>生產級服務，高吞吐</td></tr>
+          <tr><td><strong>SGLang</strong></td><td>同 vLLM</td><td>NVIDIA</td><td>同類，在複雜工作流與結構化輸出上有優勢</td></tr>
+        </tbody>
+      </table>
+      <p>另外還有 ExLlamaV2/V3（EXL2 格式，單人速度極快）與 MLX（Mac 專用）。</p>
+
+      <h2>3. 選擇決策</h2>
+      <div class="code-block">你的情況？
+├── 自己用，Windows/Linux/Mac
+│   ├── 不想碰指令列        → LM Studio
+│   ├── 想要簡單的本機 API  → Ollama
+│   └── 想要最大控制權      → llama.cpp
+├── Mac 且追求速度          → MLX 或 LM Studio 的 MLX 後端
+├── NVIDIA 顯卡，只有自己用  → ExLlamaV2 或 llama.cpp
+└── 要服務多人／做產品
+    ├── 標準需求            → vLLM
+    └── 複雜工作流／結構化   → SGLang</div>
+
+      <h2>4. 速度估算</h2>
+      <p>
+        單人推論的速度上限由<strong>記憶體頻寬</strong>決定（第 22 課）：
+      </p>
+      <div class="code-block">上限 tokens/秒 ≈ 記憶體頻寬 / 模型檔案大小
+
+例：
+  RTX 4090（約 1008 GB/s），8B Q4_K_M（4.85 GB）
+  → 1008 / 4.85 ≈ 208 tokens/秒（理論上限）
+  → 實測通常落在 100–150
+
+  RTX 4090，32B Q4_K_M（19.4 GB）
+  → 1008 / 19.4 ≈ 52 tokens/秒（理論）
+  → 實測約 30–40</div>
+      <p>
+        這個公式非常實用：<strong>換一張頻寬兩倍的卡，速度就約兩倍</strong>；
+        <strong>模型檔案小一半，速度就約兩倍</strong>。
+        算力（TFLOPS）在單人推論時幾乎不重要。
+      </p>
+
+      <h2>5. 兩個延遲指標</h2>
+      <table>
+        <thead><tr><th>指標</th><th>意思</th><th>受什麼影響</th></tr></thead>
+        <tbody>
+          <tr><td><strong>TTFT</strong>（首 token 延遲）</td><td>送出請求到看到第一個字</td><td>prompt 長度、算力（這階段是算力密集）</td></tr>
+          <tr><td><strong>TPS</strong>（每秒 token）</td><td>之後的生成速度</td><td>記憶體頻寬</td></tr>
+        </tbody>
+      </table>
+      <p>
+        長 prompt 會讓 TTFT 明顯變長——因為要先把整個 prompt
+        跑一遍（prefill 階段）。這階段是算力密集的，
+        與生成階段的瓶頸完全不同。
+      </p>
+
+      <h2>6. 常用啟動指令</h2>
+      <div class="code-block"># llama.cpp：開一個 OpenAI 相容的 server
+./llama-server -m model-Q4_K_M.gguf -c 8192 -ngl 99 --host 0.0.0.0 --port 8080
+
+# Ollama
+ollama run qwen2.5:7b
+
+# vLLM
+vllm serve Qwen/Qwen2.5-7B-Instruct --max-model-len 8192 --gpu-memory-utilization 0.9</div>
+      <p>
+        <code>-ngl 99</code> 代表「盡量把所有層放 GPU」。
+        顯存不夠時調低這個數字，讓部分層留在 CPU（第 71 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明單人推論與批次服務的瓶頸差異</li>
+          <li>用頻寬公式估算 14B Q4 在 600 GB/s 顯卡上的速度</li>
+          <li>解釋 TTFT 與 TPS 受什麼影響</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：模型塞不進顯存時的各種手段。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-69.html">← 上一課：Context length、RoPE scaling 與 YaRN</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-71.html">下一課：塞不下時的手段：offload、mmap、量化 KV cache →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

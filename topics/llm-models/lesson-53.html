@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：每權重位元數（bpw）與品質的關係 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從 8 bit 降到 2 bit 的品質曲線，以及拐點在哪裡。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 53 課</div>
+      <h1>每權重位元數（bpw）與品質的關係</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 bpw 與品質的關係曲線</li>
+          <li>知道拐點在哪裡</li>
+          <li>學會用 perplexity 判斷量化品質</li>
+        </ul>
+      </div>
+
+      <h2>1. bpw 是什麼</h2>
+      <p>
+        bits per weight——把量化檔案的總位元數除以參數量，
+        得到「平均每個權重花幾個位元」。
+        它包含了 scale、zero 等額外開銷，所以<strong>永遠大於名義位元數</strong>。
+      </p>
+      <div class="code-block">bpw = 檔案大小(bits) / 參數量
+
+例：7B 模型的 Q4_K_M 檔案約 4.1 GB
+    4.1e9 × 8 / 6.74e9 ≈ 4.87 bpw</div>
+
+      <h2>2. 品質曲線</h2>
+      <p>
+        用 perplexity 相對於 FP16 的增幅來衡量品質損失，
+        典型的形狀是：
+      </p>
+      <div class="code-block">ppl 增幅
+   │
+ 大│ ●  2-bit：明顯劣化，常有語無倫次
+   │
+   │   ●  3-bit：可用但可感知變差
+   │
+   │      ●  4-bit：拐點，損失小
+ 小│          ●     ●     ●  5/6/8-bit：幾乎無差別
+   └──┴──┴──┴──┴──┴──┴──▶ bpw
+      2  3  4  5  6  8</div>
+      <table>
+        <thead><tr><th>bpw</th><th>典型 ppl 增幅</th><th>主觀感受</th></tr></thead>
+        <tbody>
+          <tr><td>8（Q8_0）</td><td>&lt; 0.5%</td><td>與原始無法區分</td></tr>
+          <tr><td>6（Q6_K）</td><td>約 0.5%</td><td>無法區分</td></tr>
+          <tr><td>5（Q5_K_M）</td><td>約 1%</td><td>幾乎無法區分</td></tr>
+          <tr><td><strong>4.8（Q4_K_M）</strong></td><td><strong>約 1.5–2%</strong></td><td><strong>偶爾可感知，推薦起點</strong></td></tr>
+          <tr><td>3.9（Q3_K_M）</td><td>約 4–6%</td><td>明顯較笨，長文易離題</td></tr>
+          <tr><td>2.6（Q2_K）</td><td>&gt; 15%</td><td>常出錯，不建議</td></tr>
+        </tbody>
+      </table>
+      <p>
+        （數值會因模型而異，小模型對量化更敏感。這張表請當量級參考。）
+      </p>
+
+      <h2>3. 兩個關鍵判斷</h2>
+      <p><strong>判斷一：4-bit 是拐點。</strong></p>
+      <p>
+        從 8 降到 4，檔案小一半、品質幾乎不變。
+        從 4 再往下，每降一格品質損失快速放大。
+        所以 <strong>Q4_K_M 是社群的預設起點</strong>。
+      </p>
+
+      <p><strong>判斷二：大模型低量化 &gt; 小模型高量化。</strong></p>
+      <table>
+        <thead><tr><th>選項</th><th>檔案大小</th><th>通常表現</th></tr></thead>
+        <tbody>
+          <tr><td>32B @ Q4_K_M</td><td>約 19 GB</td><td>較好</td></tr>
+          <tr><td>14B @ Q8_0</td><td>約 15 GB</td><td>較差</td></tr>
+          <tr><td>8B @ FP16</td><td>16 GB</td><td>最差</td></tr>
+        </tbody>
+      </table>
+      <p>
+        同樣的記憶體預算下，參數量帶來的好處遠大於精度。
+        但這條規則在 <strong>Q3 以下就失效</strong>——
+        別為了塞進 70B 而用 Q2。
+      </p>
+
+      <h2>4. 小模型更敏感</h2>
+      <p>
+        同樣 Q4，7B 模型的損失可能是 2%，
+        而 1.5B 模型可能是 5% 以上。
+        原因是小模型的參數冗餘度低，每個權重都比較「重要」。
+      </p>
+      <p>
+        實務建議：<strong>3B 以下的模型建議用 Q6 或 Q8</strong>，
+        反正檔案本來就小，沒必要省。
+      </p>
+
+      <h2>5. 怎麼自己測</h2>
+      <div class="code-block"># llama.cpp 內建的 perplexity 工具
+./llama-perplexity -m model-Q4_K_M.gguf -f wiki.test.raw -c 2048
+
+# 與 FP16 版本比較
+./llama-perplexity -m model-F16.gguf    -f wiki.test.raw -c 2048</div>
+      <p>
+        <strong>注意事項</strong>：ppl 只能在同一份測試文本、
+        同一個 context 長度、同一個 tokenizer 下比較。
+        跨模型比 ppl 是沒有意義的。
+      </p>
+      <p>
+        而且 ppl 低不代表實際好用——它測的是「預測下一個字的準確度」，
+        與指令遵循、推理能力只有間接關係。
+        最終還是要用你自己的任務測（第 76 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 13B 模型 5.5 GB 檔案的 bpw</li>
+          <li>說明為何 4-bit 是拐點</li>
+          <li>在 12 GB 預算下，選 14B@Q6 還是 32B@Q3？說明理由</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：校準資料與 imatrix 到底在做什麼。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：PTQ 與 QAT：事後量化與訓練中量化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：校準資料與 imatrix 在做什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

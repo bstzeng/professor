@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：全參數微調 vs PEFT ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="兩者的記憶體需求差多少，以及什麼情況下必須全參數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調：你自己做得到的部分 · 第 39 課</div>
+      <h1>全參數微調 vs PEFT</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出全參數微調的記憶體需求</li>
+          <li>理解 PEFT 為何能省這麼多</li>
+          <li>知道什麼情況必須全參數</li>
+        </ul>
+      </div>
+
+      <h2>1. 全參數微調的記憶體帳</h2>
+      <p>以 AdamW、混合精度訓練一個 7B 模型為例：</p>
+      <table>
+        <thead><tr><th>項目</th><th>每參數位元組</th><th>7B 模型</th></tr></thead>
+        <tbody>
+          <tr><td>權重（BF16）</td><td>2</td><td>14 GB</td></tr>
+          <tr><td>梯度（BF16）</td><td>2</td><td>14 GB</td></tr>
+          <tr><td>AdamW 一階動量（FP32）</td><td>4</td><td>28 GB</td></tr>
+          <tr><td>AdamW 二階動量（FP32）</td><td>4</td><td>28 GB</td></tr>
+          <tr><td>FP32 主權重</td><td>4</td><td>28 GB</td></tr>
+          <tr><td><strong>小計</strong></td><td><strong>16</strong></td><td><strong>112 GB</strong></td></tr>
+          <tr><td>啟動值</td><td>視 batch 與序列長度</td><td>再加數 GB 至數十 GB</td></tr>
+        </tbody>
+      </table>
+      <p>
+        口訣：<strong>全參數微調約需參數量的 16 倍位元組</strong>。
+        7B 要 112 GB，一張 80 GB 的 H100 都放不下。
+      </p>
+
+      <h2>2. PEFT 的想法</h2>
+      <p>
+        既然瓶頸是「每個參數都要存梯度與優化器狀態」，
+        那就<strong>只訓練一小部分參數</strong>。
+        凍結的參數不需要梯度，也不需要優化器狀態。
+      </p>
+      <div class="code-block">全參數：7e9 個可訓練參數 × 16 bytes = 112 GB
+LoRA  ：4e7 個可訓練參數 × 16 bytes = 0.64 GB
+        + 凍結權重 14 GB（只要 2 bytes/參數）
+        ≈ 15 GB 就夠</div>
+      <p>
+        從 112 GB 降到 15 GB，<strong>省了 87%</strong>。
+        再配合 4-bit 量化基底（QLoRA），可以再降到 6 GB 以下。
+      </p>
+
+      <h2>3. 幾種 PEFT</h2>
+      <table>
+        <thead><tr><th>方法</th><th>做法</th><th>現況</th></tr></thead>
+        <tbody>
+          <tr><td><strong>LoRA</strong></td><td>在權重旁邊加低秩的旁路矩陣</td><td>絕對主流</td></tr>
+          <tr><td>Prefix／Prompt tuning</td><td>在輸入前面加可訓練的虛擬 token</td><td>效果較弱，少用</td></tr>
+          <tr><td>Adapter（串接式）</td><td>在層之間插入小模組</td><td>會增加推論延遲，被 LoRA 取代</td></tr>
+          <tr><td>BitFit</td><td>只訓練 bias</td><td>極省但能力有限</td></tr>
+          <tr><td>DoRA／rsLoRA</td><td>LoRA 的改良版</td><td>小幅提升，逐漸普及</td></tr>
+        </tbody>
+      </table>
+      <p>實務上你只需要知道 LoRA 與 QLoRA，其餘是研究性質。</p>
+
+      <h2>4. 什麼時候必須全參數</h2>
+      <table>
+        <thead><tr><th>情境</th><th>為什麼 LoRA 不夠</th></tr></thead>
+        <tbody>
+          <tr><td>灌入大量新知識</td><td>LoRA 的容量太小，裝不下新的事實</td></tr>
+          <tr><td>學習新語言</td><td>需要改動的表示範圍太廣</td></tr>
+          <tr><td>大幅改變模型行為</td><td>例如把 base 變成 instruct，改動幅度大</td></tr>
+          <tr><td>擴充詞表</td><td>嵌入層要重新訓練</td></tr>
+        </tbody>
+      </table>
+      <p>
+        反過來說，<strong>調整風格、格式、語氣、特定任務的輸出模式</strong>，
+        LoRA 幾乎都能做到，而且效果與全參數微調相當。
+        這涵蓋了絕大多數實際需求。
+      </p>
+
+      <h2>5. 一個實用的判斷</h2>
+      <p>
+        問自己：「我要的東西，模型<strong>本來就會但不常做</strong>，
+        還是<strong>根本不會</strong>？」
+      </p>
+      <ul>
+        <li>本來就會（換個語氣、固定輸出 JSON、模仿特定寫作風格）→ LoRA</li>
+        <li>根本不會（一門它沒學過的語言、你公司獨有的技術細節）→ 全參數續訓，或改用 RAG</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出全參數微調 14B 模型的記憶體需求</li>
+          <li>說明 PEFT 省下記憶體的原理</li>
+          <li>判斷「讓模型用台灣用語回答」該用哪種方法</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課拆開 LoRA：那兩個小矩陣在做什麼。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：蒸餾：R1-Distill-Qwen-7B 這種名字是什麼意思</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：LoRA：低秩分解在做什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

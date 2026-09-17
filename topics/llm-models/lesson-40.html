@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：LoRA：低秩分解在做什麼 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="ΔW = BA 的想法、rank 與 alpha 的意義，以及該掛在哪些層。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調：你自己做得到的部分 · 第 40 課</div>
+      <h1>LoRA：低秩分解在做什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解低秩分解的想法</li>
+          <li>掌握 rank 與 alpha 的意義</li>
+          <li>知道該掛在哪些層</li>
+        </ul>
+      </div>
+
+      <h2>1. 核心想法</h2>
+      <p>
+        微調做的事是把權重 W 改成 W + ΔW。
+        LoRA 的假設是：<strong>這個 ΔW 的「本質維度」很低</strong>，
+        可以用兩個瘦長矩陣的乘積表示。
+      </p>
+      <div class="code-block">原本：W          形狀 [d, k]，凍結不動
+新增：ΔW = B·A   其中 A 是 [r, k]，B 是 [d, r]，r ≪ min(d,k)
+
+前向：y = xW + (α/r)·x·A·B</div>
+      <p>參數量對照（以 d=k=4096 為例）：</p>
+      <table>
+        <thead><tr><th></th><th>參數量</th><th>相對</th></tr></thead>
+        <tbody>
+          <tr><td>原始 W</td><td>16,777,216</td><td>100%</td></tr>
+          <tr><td>LoRA r=8</td><td>2 × 4096 × 8 = 65,536</td><td>0.39%</td></tr>
+          <tr><td>LoRA r=64</td><td>2 × 4096 × 64 = 524,288</td><td>3.1%</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 初始化的巧思</h2>
+      <div class="code-block">A ~ 隨機高斯初始化
+B = 全零</div>
+      <p>
+        因為 B 是零，訓練開始的瞬間 <code>ΔW = B·A = 0</code>，
+        模型的行為與原始模型<strong>完全相同</strong>。
+        這保證了訓練起點是穩定的，不會一開始就把模型打壞。
+      </p>
+
+      <h2>3. rank 與 alpha</h2>
+      <table>
+        <thead><tr><th>參數</th><th>意義</th><th>典型值</th></tr></thead>
+        <tbody>
+          <tr><td>r（rank）</td><td>旁路的容量，決定能學多複雜的改動</td><td>8–64，常用 16 或 32</td></tr>
+          <tr><td>α（alpha）</td><td>縮放係數，實際倍率是 α/r</td><td>常設為 r 或 2r</td></tr>
+          <tr><td>dropout</td><td>LoRA 層的 dropout</td><td>0–0.1</td></tr>
+        </tbody>
+      </table>
+      <p>
+        α/r 這個設計的用意是：<strong>改變 r 時不用重調學習率</strong>。
+        社群慣例是 α = 2r（例如 r=16, α=32），
+        這樣有效倍率固定為 2。
+      </p>
+      <p>rank 怎麼選：</p>
+      <ul>
+        <li><strong>r=8–16</strong>：風格、格式、語氣調整，資料量小（幾百到幾千筆）</li>
+        <li><strong>r=32–64</strong>：任務能力訓練，資料量中等（上萬筆）</li>
+        <li><strong>r=128+</strong>：接近全參數微調的效果，但也接近它的成本，多半不划算</li>
+      </ul>
+      <p>
+        常見錯誤是把 r 開得很大以為效果會更好。
+        實際上 r 過大容易過擬合，而且失去了 LoRA 的意義。
+        <strong>資料量不夠時，加大 r 只會學到雜訊。</strong>
+      </p>
+
+      <h2>4. 掛在哪些層</h2>
+      <table>
+        <thead><tr><th>目標模組</th><th>效果</th><th>成本</th></tr></thead>
+        <tbody>
+          <tr><td>只有 q_proj, v_proj</td><td>原始論文的設定，夠用</td><td>最省</td></tr>
+          <tr><td>全部注意力（q,k,v,o）</td><td>略好</td><td>中等</td></tr>
+          <tr><td><strong>注意力 + FFN（gate,up,down）</strong></td><td>明顯較好，現在的主流</td><td>較高</td></tr>
+          <tr><td>再加 embed 與 lm_head</td><td>擴充詞表時才需要</td><td>高</td></tr>
+        </tbody>
+      </table>
+      <p>
+        現在的共識是<strong>掛全部線性層</strong>。理由回到第 12 課：
+        七成以上的參數在 FFN，只調注意力等於放棄大部分容量。
+      </p>
+
+      <h2>5. 實際設定範例</h2>
+      <div class="code-block">from peft import LoraConfig
+
+config = LoraConfig(
+    r=32,
+    lora_alpha=64,
+    lora_dropout=0.05,
+    target_modules=["q_proj","k_proj","v_proj","o_proj",
+                    "gate_proj","up_proj","down_proj"],
+    task_type="CAUSAL_LM",
+)</div>
+      <p>
+        訓練完只會產出一個幾十 MB 的 adapter 檔案（<code>adapter_model.safetensors</code>），
+        而不是完整的模型。這是 LoRA 另一個大優點：
+        <strong>一個基座模型可以掛很多個 adapter</strong>（第 42 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 d=5120、r=16 的 LoRA 在單一矩陣上的參數量</li>
+          <li>說明 B 初始化為零的理由</li>
+          <li>解釋為何現在建議掛全部線性層</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：把基底壓成 4-bit，讓消費級顯卡也能微調。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：全參數微調 vs PEFT</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：QLoRA：4-bit 基底加 LoRA →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：QLoRA：4-bit 基底加 LoRA ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="NF4、雙重量化與分頁優化器，讓 24GB 顯卡微調 70B 的技術。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調：你自己做得到的部分 · 第 41 課</div>
+      <h1>QLoRA：4-bit 基底加 LoRA</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 QLoRA 的三項技術</li>
+          <li>知道 NF4 為何比一般 INT4 好</li>
+          <li>算出實際的記憶體需求</li>
+        </ul>
+      </div>
+
+      <h2>1. 想法</h2>
+      <p>
+        LoRA 已經把可訓練參數降到 1% 以下，
+        但<strong>凍結的基底權重還是要放進顯存</strong>——
+        70B 模型的 BF16 權重就是 140 GB。
+      </p>
+      <p>
+        QLoRA 的答案：既然基底是凍結的，不需要精確梯度，
+        那就<strong>把它壓成 4-bit</strong>，只有 LoRA 那一小部分保持高精度。
+      </p>
+
+      <h2>2. 三項技術</h2>
+      <table>
+        <thead><tr><th>技術</th><th>做什麼</th><th>省下什麼</th></tr></thead>
+        <tbody>
+          <tr><td><strong>NF4</strong></td><td>4-bit NormalFloat 資料型別</td><td>權重從 16-bit 降到 4-bit</td></tr>
+          <tr><td><strong>雙重量化</strong></td><td>把量化用的縮放常數本身也量化</td><td>每參數再省約 0.37 bit</td></tr>
+          <tr><td><strong>分頁優化器</strong></td><td>顯存不足時把優化器狀態暫存到主記憶體</td><td>避免長序列時的 OOM 崩潰</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. NF4 為何比 INT4 好</h2>
+      <p>
+        一般的 INT4 量化把數值範圍<strong>均勻</strong>切成 16 格。
+        但神經網路的權重不是均勻分布的——它們大致呈常態分布，
+        集中在零附近。
+      </p>
+      <div class="code-block">INT4（均勻）  : |---|---|---|---|---|---|---|---|
+                 每格一樣寬，但兩端幾乎沒有權重落在那裡
+
+NF4（依常態） : |-|-|--|---|----|----|---|--|-|-|
+                 零附近切得細，兩端切得粗</div>
+      <p>
+        NF4 讓每一格<strong>包含大致相同數量的權重</strong>（資訊理論上最優）。
+        同樣 4 bit，量化誤差明顯較小。
+      </p>
+
+      <h2>4. 記憶體帳</h2>
+      <p>微調一個 7B 模型：</p>
+      <table>
+        <thead><tr><th>方法</th><th>基底權重</th><th>可訓練部分</th><th>合計（不含啟動值）</th></tr></thead>
+        <tbody>
+          <tr><td>全參數</td><td>14 GB</td><td>98 GB</td><td>112 GB</td></tr>
+          <tr><td>LoRA（BF16 基底）</td><td>14 GB</td><td>約 0.6 GB</td><td>約 15 GB</td></tr>
+          <tr><td><strong>QLoRA（NF4 基底）</strong></td><td><strong>約 3.8 GB</strong></td><td>約 0.6 GB</td><td><strong>約 4.5 GB</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        加上啟動值與 KV，實務上 7B 的 QLoRA 微調在
+        <strong>8–12 GB 顯卡上可行</strong>。
+        這就是 QLoRA 論文標題說「在單張消費級顯卡上微調」的意思。
+      </p>
+
+      <h2>5. 代價</h2>
+      <ul>
+        <li><strong>速度較慢</strong>：每次前向都要把 4-bit 權重解量化回 BF16 計算，約慢 20–40%</li>
+        <li><strong>品質略降</strong>：論文宣稱與 16-bit LoRA 相當，但在困難任務上仍有可測量的差距</li>
+        <li><strong>合併時要小心</strong>：把 LoRA 合併回 4-bit 基底會有額外誤差，
+            正確做法是合併到<strong>原始的 16-bit 基底</strong></li>
+      </ul>
+
+      <h2>6. 實際指令</h2>
+      <div class="code-block">from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+import torch
+
+bnb = BitsAndBytesConfig(
+    load_in_4bit=True,
+    bnb_4bit_quant_type="nf4",
+    bnb_4bit_use_double_quant=True,
+    bnb_4bit_compute_dtype=torch.bfloat16,
+)
+
+model = AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen2.5-7B-Instruct",
+    quantization_config=bnb,
+    device_map="auto",
+)
+# 接著套用第 40 課的 LoraConfig 即可</div>
+      <p>
+        <code>bnb_4bit_compute_dtype</code> 要特別注意：
+        它指的是<strong>計算時解量化成什麼精度</strong>，設 BF16 才不會有溢位問題。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 NF4 與 INT4 的差異</li>
+          <li>算出 QLoRA 微調 14B 模型的大致記憶體需求</li>
+          <li>說出 QLoRA 的三個代價</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：adapter 檔案怎麼用、要不要合併回去。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：LoRA：低秩分解在做什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：adapter、merged 與多 LoRA 切換 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

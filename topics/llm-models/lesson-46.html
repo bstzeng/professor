@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：讀懂 8x7B：Mixtral 為何是 47B 而不是 56B ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="共享層與專家層的拆解，逐項算出總參數與活躍參數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜MoE：AxB 到底什麼意思 · 第 46 課</div>
+      <h1>讀懂 8x7B：Mixtral 為何是 47B 而不是 56B</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>完整拆解 8x7B 這個記號</li>
+          <li>算出 Mixtral 的總參數與活躍參數</li>
+          <li>知道為何它既不是 56B 也不是 7B</li>
+        </ul>
+      </div>
+
+      <h2>1. 這個記號的意思</h2>
+      <div class="code-block">8 x 7B
+│   └── 每個「專家分支」大約對應一個 7B 模型的規模
+└────── 8 個專家</div>
+      <p>
+        直覺會算成 8 × 7 = 56B。<strong>錯的。</strong>
+        實際是 <strong>46.7B</strong>。差了 9B 左右，
+        原因是<strong>注意力層與嵌入層是共享的，不會複製八份</strong>。
+      </p>
+
+      <h2>2. Mixtral 8x7B 的規格</h2>
+      <table>
+        <tbody>
+          <tr><td>d_model</td><td>4,096</td></tr>
+          <tr><td>層數</td><td>32</td></tr>
+          <tr><td>注意力頭 / KV 頭</td><td>32 / 8（GQA）</td></tr>
+          <tr><td>專家 FFN 中間層</td><td>14,336</td></tr>
+          <tr><td>專家數 / top-k</td><td>8 / 2</td></tr>
+          <tr><td>詞表</td><td>32,000</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 逐項計算</h2>
+      <div class="code-block">【每層】
+注意力  = 4096 × 128 × (2×32 + 2×8)  =    41,943,040   ← 共享，只有一份
+單一專家 = 3 × 4096 × 14336           =   176,160,768
+八個專家 = 8 × 176,160,768            = 1,409,286,144
+路由器   = 4096 × 8                   =        32,768
+兩個 norm                             =         8,192
+────────────────────────────────────────────────────
+每層總計                              = 1,451,270,144
+
+【全模型】
+32 層     = 32 × 1,451,270,144        = 46,440,644,608
+嵌入層    = 32000 × 4096              =    131,072,000
+lm_head   = 32000 × 4096              =    131,072,000
+final norm                            =          4,096
+────────────────────────────────────────────────────
+總參數                                = 46,702,792,704  ≈ 46.70 B</div>
+      <p>官方數字：<strong>46.7 B</strong>。吻合。</p>
+
+      <h2>4. 活躍參數</h2>
+      <p>處理一個 token 時，只有 2 個專家被啟動：</p>
+      <div class="code-block">【每層（活躍）】
+注意力                                =    41,943,040
+兩個專家 = 2 × 176,160,768            =   352,321,536
+路由器 + norm                         =        40,960
+────────────────────────────────────────────────────
+每層                                  =   394,305,536
+
+【全模型（活躍）】
+32 層                                 = 12,617,777,152
+嵌入 + lm_head + norm                 =    262,148,096
+────────────────────────────────────────────────────
+活躍參數                              = 12,879,925,248  ≈ 12.88 B</div>
+      <p>官方數字：<strong>12.9 B</strong>。吻合。</p>
+
+      <h2>5. 這代表什麼</h2>
+      <table>
+        <thead><tr><th>指標</th><th>Mixtral 8x7B</th><th>相當於</th></tr></thead>
+        <tbody>
+          <tr><td>記憶體需求</td><td>46.7 B</td><td>一個 47B dense 模型</td></tr>
+          <tr><td>推論速度</td><td>12.9 B 活躍</td><td>一個 13B dense 模型</td></tr>
+          <tr><td>實際能力</td><td>—</td><td>介於兩者之間，接近 30–40B dense</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">BF16 檔案大小 ≈ 46.7e9 × 2 bytes = 93 GB
+Q4_K_M 量化後 ≈ 46.7e9 × 4.85 / 8 = 28 GB</div>
+      <p>
+        所以想在家跑 Mixtral 8x7B，
+        你需要的是<strong>接近 30 GB 的記憶體</strong>（不是 8 GB），
+        但跑起來的速度<strong>像 13B</strong>（不是像 47B）。
+        這就是 MoE 對個人使用者的真實意義。
+      </p>
+
+      <h2>6. 通用公式</h2>
+      <div class="code-block">總參數   = L × [ 注意力 + E × 單一專家 + 路由器 + norm ] + 詞表
+活躍參數 = L × [ 注意力 + k × 單一專家 + 路由器 + norm ] + 詞表
+
+其中 E = 專家總數，k = top-k</div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 8x7B 為何不是 56B</li>
+          <li>用通用公式算一個 E=64、k=8 的 MoE</li>
+          <li>說出 Mixtral 在「記憶體」與「速度」上各相當於哪種 dense 模型</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理另一種記號：A3B。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：Router 與 expert：一次選幾個</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：讀懂 A3B：總參數與活躍參數的命名 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

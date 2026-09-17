@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 57 課：IQ 系列與 imatrix 量化 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="i-quant 與 k-quant 的差異、什麼時候該用 IQ，以及它的速度代價。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 57 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 57 課</div>
+      <h1>IQ 系列與 imatrix 量化</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 i-quant 與 k-quant 的差異</li>
+          <li>知道 IQ 的速度代價</li>
+          <li>判斷什麼時候該用 IQ</li>
+        </ul>
+      </div>
+
+      <h2>1. 核心差異</h2>
+      <table>
+        <thead><tr><th></th><th>K-quant（Q*_K）</th><th>i-quant（IQ*）</th></tr></thead>
+        <tbody>
+          <tr><td>基本方法</td><td>分塊量化 + 混合精度</td><td>基於碼書（codebook）的向量量化</td></tr>
+          <tr><td>需要 imatrix</td><td>可選，有更好</td><td><strong>幾乎必須</strong></td></tr>
+          <tr><td>同位元品質</td><td>基準</td><td>較好，尤其在低位元</td></tr>
+          <tr><td>解碼速度</td><td>快</td><td>較慢（要查表）</td></tr>
+          <tr><td>CPU 推論</td><td>好</td><td>明顯較慢</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 碼書量化的想法</h2>
+      <p>
+        K-quant 是把每個權重<strong>獨立</strong>映射到一個整數。
+        i-quant 則是把<strong>一組權重</strong>當成一個向量，
+        在預先定義的碼書中找最接近的那一個，只存索引。
+      </p>
+      <div class="code-block">K-quant:  每個權重 → 4 bit 整數 + 共用 scale
+
+i-quant:  每 8 個權重 → 查碼書 → 存一個 16 bit 索引
+          平均 2 bit/權重，但因為碼書設計得好，誤差比 2-bit 整數小很多</div>
+      <p>
+        這個做法在<strong>極低位元時優勢明顯</strong>：
+        2-bit 的整數量化只有 4 個可能值，幾乎不可用；
+        而碼書可以讓 8 個權重的組合有數萬種可能，
+        分布貼合得多。
+      </p>
+
+      <h2>3. 速度代價</h2>
+      <p>
+        查表是隨機記憶體存取，對 GPU 與 CPU 的快取都不友善。
+        實測上：
+      </p>
+      <ul>
+        <li><strong>GPU</strong>：IQ 比同 bpw 的 K-quant 慢約 10–30%</li>
+        <li><strong>CPU</strong>：慢更多，有時超過 50%</li>
+        <li><strong>Apple Silicon</strong>：介於兩者之間</li>
+      </ul>
+      <p>
+        所以在記憶體夠的情況下，
+        <strong>K-quant 是比較好的選擇</strong>——品質相當但更快。
+      </p>
+
+      <h2>4. 什麼時候該用 IQ</h2>
+      <table>
+        <thead><tr><th>情境</th><th>建議</th></tr></thead>
+        <tbody>
+          <tr><td>記憶體剛好差一點點</td><td>IQ4_XS 通常能救（比 Q4_K_S 小但品質相當）</td></tr>
+          <tr><td>要跑 3-bit 以下</td><td>一定用 IQ，K-quant 在這個區間很差</td></tr>
+          <tr><td>純 CPU 推論</td><td>避免 IQ，速度損失太大</td></tr>
+          <tr><td>記憶體充裕</td><td>用 Q5_K_M 或 Q6_K，不要用 IQ</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. IQ 的完整系列</h2>
+      <table>
+        <thead><tr><th>代號</th><th>約 bpw</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>IQ4_NL</td><td>4.5</td><td>非線性 4-bit，品質好</td></tr>
+          <tr><td>IQ4_XS</td><td>4.3</td><td>最常用的 IQ，Q4_K_S 的更小替代</td></tr>
+          <tr><td>IQ3_M / IQ3_S / IQ3_XS / IQ3_XXS</td><td>3.1–3.7</td><td>3-bit 區間的首選</td></tr>
+          <tr><td>IQ2_M / IQ2_S / IQ2_XS / IQ2_XXS</td><td>2.1–2.8</td><td>極端壓縮</td></tr>
+          <tr><td>IQ1_S / IQ1_M</td><td>1.6–1.8</td><td>實驗性質，品質很差</td></tr>
+        </tbody>
+      </table>
+      <p>
+        XXS &lt; XS &lt; S &lt; M &lt; NL，字母越多越小。
+        這套命名與 K-quant 的 _S/_M/_L 不同，別搞混。
+      </p>
+
+      <h2>6. 一個實用組合</h2>
+      <p>
+        很多量化發佈者會同時提供兩套，並在 model card 上放對照表。
+        挑選流程：
+      </p>
+      <ol>
+        <li>先看你的記憶體能吃多大的檔案</li>
+        <li>在能吃下的檔案裡，挑 bpw 最高的那個</li>
+        <li>如果 K-quant 與 IQ 檔案大小相近，<strong>優先選 K-quant</strong>（比較快）</li>
+        <li>只有在 K-quant 塞不下、IQ 剛好塞得下時，才選 IQ</li>
+      </ol>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明碼書量化與整數量化的差異</li>
+          <li>解釋 IQ 為何比較慢</li>
+          <li>說出 IQ 命名中 XXS 到 M 的大小順序</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課換到 GPU 陣營：GPTQ。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-56.html">← 上一課：讀懂 Q4_K_M：K-quant 命名規則全表</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-58.html">下一課：GPTQ：逐層最小化誤差 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

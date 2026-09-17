@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：SFT：指令微調與 chat template ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="指令資料長什麼樣、chat template 是什麼，以及套錯模板的後果。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 34 課</div>
+      <h1>SFT：指令微調與 chat template</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SFT 的資料形式與訓練方式</li>
+          <li>看懂 chat template</li>
+          <li>知道套錯模板的後果</li>
+        </ul>
+      </div>
+
+      <h2>1. SFT 的資料</h2>
+      <p>
+        監督式微調的資料是「指令－回應」對，通常還加上 system prompt：
+      </p>
+      <div class="code-block">{
+  "messages": [
+    {"role": "system",    "content": "你是一個有幫助的助理。"},
+    {"role": "user",      "content": "用一句話解釋光合作用"},
+    {"role": "assistant", "content": "植物利用陽光把二氧化碳與水轉成醣類與氧氣。"}
+  ]
+}</div>
+      <p>
+        訓練方式與預訓練完全相同——還是預測下一個 token。
+        唯一的差別是<strong>只對 assistant 的內容計算 loss</strong>，
+        user 與 system 的部分被遮掉。
+        模型因此學會「看到這種格式時，該產出什麼」。
+      </p>
+
+      <h2>2. 資料量與品質</h2>
+      <table>
+        <thead><tr><th>做法</th><th>資料量</th><th>備註</th></tr></thead>
+        <tbody>
+          <tr><td>早期（Alpaca 時代）</td><td>約 5 萬筆</td><td>多為 GPT 生成，品質參差</td></tr>
+          <tr><td>LIMA 論文</td><td><strong>1,000 筆</strong></td><td>證明少量高品質就夠</td></tr>
+          <tr><td>現代開源模型</td><td>數十萬至數百萬筆</td><td>涵蓋多語言、程式、工具呼叫</td></tr>
+        </tbody>
+      </table>
+      <p>
+        LIMA 的結論影響深遠：<strong>知識在預訓練時就學完了，
+        SFT 只是在教「怎麼表達」</strong>。
+        所以 SFT 資料的品質遠比數量重要，
+        一千筆精心撰寫的樣本可能勝過十萬筆機器生成的。
+      </p>
+
+      <h2>3. Chat template</h2>
+      <p>
+        訊息列表要變成一串 token 才能餵給模型。
+        怎麼變？由 chat template 決定，它寫在
+        <code>tokenizer_config.json</code> 裡（Jinja2 格式）。
+      </p>
+      <p><strong>ChatML 風格</strong>（Qwen 等）：</p>
+      <div class="code-block">&lt;|im_start|&gt;system
+你是一個有幫助的助理。&lt;|im_end|&gt;
+&lt;|im_start|&gt;user
+用一句話解釋光合作用&lt;|im_end|&gt;
+&lt;|im_start|&gt;assistant
+植物利用陽光...&lt;|im_end|&gt;</div>
+      <p><strong>Llama 3 風格</strong>：</p>
+      <div class="code-block">&lt;|begin_of_text|&gt;&lt;|start_header_id|&gt;system&lt;|end_header_id|&gt;
+
+你是一個有幫助的助理。&lt;|eot_id|&gt;&lt;|start_header_id|&gt;user&lt;|end_header_id|&gt;
+
+用一句話解釋光合作用&lt;|eot_id|&gt;&lt;|start_header_id|&gt;assistant&lt;|end_header_id|&gt;</div>
+      <p>
+        兩者完全不相容。同一段對話，用錯模板就是用錯語言。
+      </p>
+
+      <h2>4. 套錯模板的症狀</h2>
+      <table>
+        <thead><tr><th>症狀</th><th>可能原因</th></tr></thead>
+        <tbody>
+          <tr><td>模型不停講話，不會結束</td><td>結束 token 不對，模型沒看到熟悉的 EOS</td></tr>
+          <tr><td>模型自問自答，模擬整段對話</td><td>沒有正確標示 assistant 的起點</td></tr>
+          <tr><td>輸出裡混進 <code>&lt;|im_end|&gt;</code> 這類字串</td><td>特殊 token 被當成普通文字編碼</td></tr>
+          <tr><td>忽略 system prompt</td><td>模板沒有 system 區塊，或位置錯誤</td></tr>
+          <tr><td>品質明顯低於預期</td><td>模板細節（換行、空格）與訓練時不一致</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 正確做法</h2>
+      <div class="code-block">from transformers import AutoTokenizer
+tok = AutoTokenizer.from_pretrained("Qwen/Qwen2.5-7B-Instruct")
+
+msgs = [{"role": "user", "content": "你好"}]
+text = tok.apply_chat_template(msgs, tokenize=False,
+                               add_generation_prompt=True)
+print(repr(text))</div>
+      <p>
+        <strong>永遠用 <code>apply_chat_template</code>，不要自己拼字串。</strong>
+        連換行與空格都要完全一致。
+      </p>
+      <p>
+        用 llama.cpp／Ollama 時，模板通常已經內嵌在 GGUF 檔案的 metadata 裡，
+        引擎會自動套用。但如果是自己轉換的 GGUF，就要確認模板有沒有被正確帶過去——
+        這是本機部署最常見的問題之一。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 SFT 與預訓練在訓練方式上的唯一差別</li>
+          <li>解釋 LIMA 論文的結論及其意義</li>
+          <li>說出三個套錯 chat template 的症狀</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：用人類偏好進一步調校模型。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：Base model 為什麼不能直接用</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：RLHF：reward model 與 PPO →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

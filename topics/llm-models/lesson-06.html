@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 6 課：Embedding：把 token 變成向量 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="嵌入矩陣的形狀、它佔多少參數，以及 tied embedding 的取捨。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 6 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜文字怎麼變成數字 · 第 6 課</div>
+      <h1>Embedding：把 token 變成向量</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 embedding 矩陣的形狀與作用</li>
+          <li>算出它佔多少參數</li>
+          <li>知道 tied embedding 的取捨</li>
+        </ul>
+      </div>
+
+      <h2>1. 查表，就這樣</h2>
+      <p>
+        Tokenizer 把文字變成一串整數，例如 <code>[128000, 9906, 1917]</code>。
+        Embedding 層做的事只有一件：<strong>拿這個整數去查一張表</strong>，
+        取出對應的那一列向量。
+      </p>
+      <div class="code-block">嵌入矩陣 E 的形狀 = [vocab_size, d_model]
+
+Llama 3 8B:  [128256, 4096]
+
+token 9906  →  E[9906]  →  一個 4096 維的向量</div>
+      <p>
+        沒有乘法、沒有啟動函數，純粹是索引。
+        但這張表本身是<strong>學出來的</strong>——訓練過程中，
+        每個 token 的向量會被調整到能反映它的語意與用法。
+      </p>
+
+      <h2>2. 它佔多少參數</h2>
+      <p>參數量就是矩陣元素個數：</p>
+      <div class="code-block">嵌入層參數 = vocab_size × d_model
+
+Llama 3 8B  : 128,256 × 4,096 = 525,336,576   ≈ 5.25 億
+Llama 2 7B  :  32,000 × 4,096 = 131,072,000   ≈ 1.31 億</div>
+      <p>
+        同樣是 4096 維，Llama 3 因為詞表大了四倍，
+        嵌入層就多了近四億參數。這還只是輸入端。
+      </p>
+
+      <h2>3. 輸出端：lm_head</h2>
+      <p>
+        模型算完最後一層之後，要把 4096 維向量變回「詞表上每個 token 的分數」，
+        這需要另一個 <code>[d_model, vocab_size]</code> 的矩陣，叫 <strong>lm_head</strong>
+        （也叫 unembedding、output projection）。
+      </p>
+      <p>
+        所以詞表相關的參數其實要算兩次：
+      </p>
+      <table>
+        <thead><tr><th>模型</th><th>嵌入層</th><th>lm_head</th><th>合計</th><th>佔總參數</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 3 8B</td><td>5.25 億</td><td>5.25 億</td><td>10.5 億</td><td>約 13%</td></tr>
+          <tr><td>Llama 2 7B</td><td>1.31 億</td><td>1.31 億</td><td>2.62 億</td><td>約 3.9%</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. Tied embedding</h2>
+      <p>
+        既然兩個矩陣形狀互為轉置，能不能共用同一份權重？可以，這叫
+        <strong>權重綁定（weight tying）</strong>，<code>config.json</code> 裡的欄位是
+        <code>tie_word_embeddings</code>。
+      </p>
+      <table>
+        <thead><tr><th></th><th>綁定</th><th>不綁定</th></tr></thead>
+        <tbody>
+          <tr><td>參數量</td><td>省下一份（8B 模型可省 5 億）</td><td>多一份</td></tr>
+          <tr><td>效果</td><td>小模型影響不大，甚至更好</td><td>大模型通常略優</td></tr>
+          <tr><td>典型用例</td><td>Gemma、Qwen 的小尺寸、多數 3B 以下模型</td><td>Llama 系列、多數 7B 以上</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這個欄位很重要：算參數量時如果忽略它，
+        小模型會算多一大截。第 21 課的計算會把它考慮進去。
+      </p>
+
+      <h2>5. 一個常見誤解</h2>
+      <p>
+        很多人以為 embedding 就是「詞向量」，像 word2vec 那樣有固定語意。
+        在 Transformer 裡不是這樣：
+      </p>
+      <ul>
+        <li>嵌入層給的是<strong>沒有上下文的初始向量</strong></li>
+        <li>真正有意義的表示，是經過 32 層 attention 之後的中間狀態</li>
+        <li>同一個 token 在不同句子裡，經過網路後的向量完全不同</li>
+      </ul>
+      <p>
+        所以「bank」這個 token 的嵌入向量只有一個，
+        但「河岸的 bank」與「銀行的 bank」在第 20 層的表示會差很遠。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>Embedding 是查表，矩陣形狀 [vocab, d_model]</li>
+          <li>輸入端與輸出端各一份，除非 tie_word_embeddings 為真</li>
+          <li>詞表大的小模型，嵌入層會吃掉異常高比例的參數</li>
+          <li>嵌入向量沒有上下文，真正的語意在深層才形成</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 vocab=151,936、d_model=1,536 的模型嵌入層參數量</li>
+          <li>說明 tie_word_embeddings 對參數量的影響</li>
+          <li>解釋為何嵌入向量不等於「詞義」</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理一個很實際的問題：為什麼中文比英文貴。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-05.html">← 上一課：Token 與 tokenizer：BPE 與 SentencePiece</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-07.html">下一課：為什麼中文比英文吃 token →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

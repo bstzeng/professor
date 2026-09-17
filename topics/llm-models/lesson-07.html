@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：為什麼中文比英文吃 token ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="同一段話中英文 token 數的實測差距，以及它對成本與 context 的影響。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜文字怎麼變成數字 · 第 7 課</div>
+      <h1>為什麼中文比英文吃 token</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道中英文 token 效率的實際差距</li>
+          <li>理解這個差距從哪裡來</li>
+          <li>算出它對成本與 context 的影響</li>
+        </ul>
+      </div>
+
+      <h2>1. 實測差距</h2>
+      <p>
+        同一段話，用同一個 tokenizer 切，中文需要的 token 數通常明顯多於英文。
+        大致的經驗值是：
+      </p>
+      <table>
+        <thead><tr><th>語言</th><th>每 token 平均涵蓋</th><th>1000 字需要</th></tr></thead>
+        <tbody>
+          <tr><td>英文</td><td>約 4 個字元（約 0.75 個單詞）</td><td>約 1,300 tokens</td></tr>
+          <tr><td>中文（新式 tokenizer）</td><td>約 1–1.5 個漢字</td><td>約 700–1,000 tokens</td></tr>
+          <tr><td>中文（舊式小詞表）</td><td>約 0.5 個漢字（一字拆多 token）</td><td>約 2,000+ tokens</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵變數是<strong>詞表裡有沒有收中文</strong>。
+        Llama 2 的 32K 詞表幾乎沒收漢字，一個字常被拆成兩三個位元組 token；
+        Llama 3 的 128K 詞表與 Qwen 的 151K 詞表收了大量中文詞，效率好很多。
+      </p>
+
+      <h2>2. 為什麼會這樣</h2>
+      <p>
+        原因在 BPE 的訓練語料。合併規則是統計出來的，
+        語料裡中文佔比低，中文字串就不會被合併成獨立 token，
+        於是退回位元組層級——而一個漢字在 UTF-8 裡是 <strong>3 個位元組</strong>。
+      </p>
+      <div class="code-block">漢字「模」的 UTF-8 編碼 = E6 A8 A1（3 bytes）
+
+詞表沒收「模」  →  3 個 token
+詞表收了「模」  →  1 個 token
+詞表收了「模型」→  1 個 token（兩個字一起）</div>
+
+      <h2>3. 這件事花你多少錢</h2>
+      <p>
+        以 API 計價為例，假設每百萬 token 收 1 美元，
+        同一份 10 萬字的中文文件：
+      </p>
+      <table>
+        <thead><tr><th>Tokenizer</th><th>token 數</th><th>成本</th><th>倍數</th></tr></thead>
+        <tbody>
+          <tr><td>中文友善（1.2 字/token）</td><td>約 83,000</td><td>$0.083</td><td>1.0×</td></tr>
+          <tr><td>中文不友善（0.5 字/token）</td><td>約 200,000</td><td>$0.20</td><td>2.4×</td></tr>
+        </tbody>
+      </table>
+      <p>
+        更嚴重的是 <strong>context 上限</strong>。
+        同樣宣稱 32K context 的兩個模型，
+        中文友善的那個能吃進兩倍以上的中文內容。
+        「context 長度」這個數字要換算成字數才有意義。
+      </p>
+
+      <h2>4. 對生成速度的影響</h2>
+      <p>
+        推理速度通常以 tokens/秒 計。同樣 30 tokens/秒：
+      </p>
+      <ul>
+        <li>英文：約 22 個單詞／秒，讀起來很快</li>
+        <li>中文（1.2 字/token）：約 36 個字／秒，也還行</li>
+        <li>中文（0.5 字/token）：約 15 個字／秒，明顯卡</li>
+      </ul>
+      <p>
+        所以比較模型速度時，如果你的用途是中文，
+        單看 tokens/秒 會誤導——要看<strong>字/秒</strong>。
+      </p>
+
+      <h2>5. 怎麼自己測</h2>
+      <div class="code-block">python - &lt;&lt;'PY'
+from transformers import AutoTokenizer
+text = "這是一段用來測試中文斷詞效率的範例文字，總共大約三十個字。"
+for name in ["meta-llama/Llama-3.1-8B", "Qwen/Qwen2.5-7B"]:
+    tok = AutoTokenizer.from_pretrained(name)
+    n = len(tok.encode(text))
+    print(f"{name}: {n} tokens, {len(text)/n:.2f} 字/token")
+PY</div>
+      <p>
+        挑模型時，如果主要處理中文，這個數字值得先測一下——
+        它同時影響成本、context 與速度三件事。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>中文 token 效率取決於詞表有沒有收中文</li>
+          <li>沒收的話退回位元組，一個漢字吃 3 個 token</li>
+          <li>影響三件事：成本、可用 context、實際閱讀速度</li>
+          <li>比較模型速度時，中文用途要看字/秒而非 token/秒</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋一個漢字為何可能變成三個 token</li>
+          <li>算出 0.8 字/token 的模型，32K context 能放多少中文字</li>
+          <li>說明為何 tokens/秒 對中文使用者是誤導性指標</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：模型怎麼知道字的先後順序。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：Embedding：把 token 變成向量</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：位置編碼：從絕對位置到 RoPE →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

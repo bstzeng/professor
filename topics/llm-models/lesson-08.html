@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：位置編碼：從絕對位置到 RoPE ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="模型怎麼知道字的順序，以及 RoPE 為何成為現在的標準。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜文字怎麼變成數字 · 第 8 課</div>
+      <h1>位置編碼：從絕對位置到 RoPE</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼 Transformer 需要位置編碼</li>
+          <li>掌握 RoPE 的基本想法</li>
+          <li>知道 rope_theta 這個欄位在控制什麼</li>
+        </ul>
+      </div>
+
+      <h2>1. 注意力本身看不到順序</h2>
+      <p>
+        注意力機制是對所有 token 做加權平均。
+        如果不做任何處理，「狗咬人」與「人咬狗」算出來會一模一樣——
+        因為集合沒有順序。所以必須額外把位置資訊注入進去。
+      </p>
+
+      <h2>2. 三代做法</h2>
+      <table>
+        <thead><tr><th>做法</th><th>怎麼做</th><th>問題</th></tr></thead>
+        <tbody>
+          <tr><td>學習式絕對位置</td><td>每個位置學一個向量，加到嵌入上</td><td>超過訓練長度就沒有向量可用</td></tr>
+          <tr><td>正弦絕對位置</td><td>用 sin/cos 算出位置向量</td><td>可外推但效果差，模型難以掌握相對距離</td></tr>
+          <tr><td><strong>RoPE</strong>（現行標準）</td><td>把 Q 與 K 向量依位置<strong>旋轉</strong>一個角度</td><td>外推仍有限，但可用 scaling 緩解</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. RoPE 的想法</h2>
+      <p>
+        把向量的維度兩兩配成一組，每組當成平面上的一個二維向量，
+        然後依照 token 的位置 <em>m</em> 把它旋轉 <em>mθ</em> 度。
+      </p>
+      <div class="code-block">位置 m 的向量 q，維度 (2i, 2i+1) 這一對：
+
+  [ q_2i   ]      [ cos(mθ_i)  -sin(mθ_i) ] [ q_2i   ]
+  [ q_2i+1 ]  →   [ sin(mθ_i)   cos(mθ_i) ] [ q_2i+1 ]
+
+  其中 θ_i = base^(-2i/d)，base 就是 config 裡的 rope_theta</div>
+      <p>
+        精妙之處在於：兩個旋轉過的向量做內積時，
+        結果<strong>只跟它們的位置差有關</strong>，跟絕對位置無關。
+        於是模型自動獲得「相對位置」的感知，而且不需要額外參數——
+        <strong>RoPE 的參數量是零</strong>，它是純粹的數學變換。
+      </p>
+
+      <h2>4. rope_theta 在控制什麼</h2>
+      <p>
+        不同維度用不同的旋轉頻率 θ_i：低維度轉得快（管短距離），
+        高維度轉得慢（管長距離）。base 越大，整體轉得越慢，
+        能區分的距離範圍就越長。
+      </p>
+      <table>
+        <thead><tr><th>模型</th><th>rope_theta</th><th>訓練 context</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 2</td><td>10,000</td><td>4K</td></tr>
+          <tr><td>Llama 3</td><td>500,000</td><td>8K</td></tr>
+          <tr><td>長 context 模型</td><td>常見 1,000,000 以上</td><td>128K 以上</td></tr>
+        </tbody>
+      </table>
+      <p>
+        看到一個模型宣稱支援很長的 context，
+        第一件事就是去 <code>config.json</code> 看 <code>rope_theta</code>——
+        如果它還停在 10,000，那個長 context 多半是靠推論時的 scaling 硬撐的，
+        品質會打折。第 69 課會處理這件事。
+      </p>
+
+      <h2>5. 為什麼 RoPE 贏了</h2>
+      <ul>
+        <li><strong>零參數</strong>：不佔模型容量</li>
+        <li><strong>相對位置</strong>：內積只依賴距離差，符合語言的直覺</li>
+        <li><strong>可調</strong>：改 base 就能改變有效範圍，方便事後延長 context</li>
+        <li><strong>與 KV cache 相容</strong>：旋轉可以在寫入 cache 前做完</li>
+      </ul>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>注意力本身無序，位置資訊必須另外注入</li>
+          <li>RoPE 用旋轉把位置編進 Q 與 K，內積只依賴相對距離</li>
+          <li>RoPE 不佔任何參數</li>
+          <li>rope_theta 決定可區分的距離範圍，是判斷長 context 真偽的線索</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋為何不加位置編碼時「狗咬人」等於「人咬狗」</li>
+          <li>說明 RoPE 為何能表達相對位置</li>
+          <li>說出看到 rope_theta=10000 卻宣稱 128K context 時該怎麼判斷</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 B：詞表大小如何扭曲小模型的參數結構。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：為什麼中文比英文吃 token</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：vocab 大小如何吃掉參數 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

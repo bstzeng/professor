@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：Multi-head attention 與它的參數帳 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="多頭是怎麼切的、四個投影矩陣各佔多少參數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 11 課</div>
+      <h1>Multi-head attention 與它的參數帳</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解多頭注意力的切法</li>
+          <li>算出注意力層的精確參數量</li>
+          <li>知道 head_dim 是怎麼決定的</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼要多頭</h2>
+      <p>
+        單一注意力只能學一種關聯模式。多頭的做法是：
+        把 d_model 維切成 h 份，每份獨立做一次注意力，最後接起來。
+      </p>
+      <div class="code-block">d_model = 4096, num_heads = 32
+head_dim = 4096 / 32 = 128
+
+每個頭：獨立的 Q/K/V 投影到 128 維，各自算注意力
+最後：32 個頭的輸出串接回 4096 維，再過一個 W_o</div>
+      <p>
+        實際觀察發現不同的頭會分工：有的專門追前一個字，
+        有的追句法上的主詞，有的追引號配對。
+        這是免費的——參數量與單頭 4096 維完全相同，只是計算被分組了。
+      </p>
+
+      <h2>2. 參數量計算</h2>
+      <p>注意力層有四個投影矩陣。在標準 MHA 下：</p>
+      <div class="code-block">W_q : [d_model, num_heads    × head_dim]
+W_k : [d_model, num_kv_heads × head_dim]
+W_v : [d_model, num_kv_heads × head_dim]
+W_o : [num_heads × head_dim, d_model]</div>
+      <p><strong>例：Llama 2 7B</strong>（d_model=4096, heads=32, kv_heads=32, head_dim=128）</p>
+      <table>
+        <thead><tr><th>矩陣</th><th>形狀</th><th>參數量</th></tr></thead>
+        <tbody>
+          <tr><td>W_q</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td>W_k</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td>W_v</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td>W_o</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td><strong>合計</strong></td><td></td><td><strong>67,108,864</strong></td></tr>
+        </tbody>
+      </table>
+      <p>也就是 <code>4 × d_model²</code>。記住這個式子。</p>
+
+      <p><strong>例：Llama 3 8B</strong>（同樣 d_model=4096，但 kv_heads=8）</p>
+      <table>
+        <thead><tr><th>矩陣</th><th>形狀</th><th>參數量</th></tr></thead>
+        <tbody>
+          <tr><td>W_q</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td>W_k</td><td>4096 × 1024</td><td>4,194,304</td></tr>
+          <tr><td>W_v</td><td>4096 × 1024</td><td>4,194,304</td></tr>
+          <tr><td>W_o</td><td>4096 × 4096</td><td>16,777,216</td></tr>
+          <tr><td><strong>合計</strong></td><td></td><td><strong>41,943,040</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        GQA 讓注意力層的參數少了 37%。
+        但參數只是附帶好處，真正的目的是省 KV cache——第 19 課詳述。
+      </p>
+
+      <h2>3. head_dim 是怎麼定的</h2>
+      <p>
+        慣例是 <code>head_dim = d_model / num_heads</code>，
+        而 head_dim 幾乎固定在 <strong>64 或 128</strong>。理由：
+      </p>
+      <ul>
+        <li>太小（&lt;32）：每個頭能表達的東西太少</li>
+        <li>太大（&gt;256）：頭數太少，失去多視角的好處</li>
+        <li>128 對 GPU 的矩陣乘法尺寸友善</li>
+      </ul>
+      <p>
+        所以實務上是先定 head_dim=128，再決定要幾個頭，
+        d_model 就被這兩者的乘積定下來了。
+      </p>
+      <table>
+        <thead><tr><th>模型</th><th>d_model</th><th>heads</th><th>head_dim</th></tr></thead>
+        <tbody>
+          <tr><td>1.5B 級</td><td>1,536</td><td>12</td><td>128</td></tr>
+          <tr><td>7–8B 級</td><td>4,096</td><td>32</td><td>128</td></tr>
+          <tr><td>70B 級</td><td>8,192</td><td>64</td><td>128</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意有些模型的 head_dim 不等於 d_model/heads（例如刻意設成 128 但 d_model 不整除），
+        這時 <code>config.json</code> 會有獨立的 <code>head_dim</code> 欄位，計算時要以它為準。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>多頭是把維度切分，總參數量與單頭相同</li>
+          <li>MHA 的注意力參數 = 4 × d_model²</li>
+          <li>GQA 只縮小 W_k 與 W_v，省下約三分之一參數</li>
+          <li>head_dim 幾乎固定為 128，是設計的起點而非結果</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 d_model=8192、heads=64、kv_heads=8 的注意力層參數量</li>
+          <li>說明為何多頭不增加參數</li>
+          <li>解釋 head_dim 為何固定在 128</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理真正的參數大戶：FFN 層。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：注意力機制：Q、K、V 在算什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：FFN／MLP：大部分參數其實在這裡 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

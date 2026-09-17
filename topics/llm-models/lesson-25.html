@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：推理成本進入公式：訓練一次、跑一億次 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="當推理量夠大時，最適模型會比 Chinchilla 更小、資料更多。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Scaling Law：該練多大、餵多少 · 第 25 課</div>
+      <h1>推理成本進入公式：訓練一次、跑一億次</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把推論成本納入 scaling 決策</li>
+          <li>理解「訓練一次、跑一億次」的量級</li>
+          <li>知道什麼情況下該選大模型</li>
+        </ul>
+      </div>
+
+      <h2>1. 總成本模型</h2>
+      <div class="code-block">總成本 ∝ 6ND + 2N·R
+
+第一項：訓練，一次性
+第二項：推論，R 是預期的總輸出 token 數</div>
+      <p>
+        在固定的目標品質下，N 與 D 可以互換（over-train 讓小 N 追上）。
+        於是問題變成：<strong>R 多大時，該犧牲訓練成本去換更小的 N？</strong>
+      </p>
+
+      <h2>2. 量級感</h2>
+      <table>
+        <thead><tr><th>情境</th><th>R（總輸出 token）</th><th>推論成本佔比</th></tr></thead>
+        <tbody>
+          <tr><td>研究實驗，跑幾千次評測</td><td>約 1e8</td><td>可忽略</td></tr>
+          <tr><td>企業內部工具，百人使用一年</td><td>約 1e10</td><td>與訓練同量級</td></tr>
+          <tr><td>消費級產品，千萬用戶</td><td>1e13 以上</td><td>完全主導</td></tr>
+        </tbody>
+      </table>
+      <p>用 8B 模型算一下第三種情境：</p>
+      <div class="code-block">訓練：6 × 8e9 × 15e12 = 7.2e23 FLOPs
+推論：2 × 8e9 × 1e13  = 1.6e23 FLOPs
+
+比值約 4.5 : 1</div>
+      <p>
+        即使是 15T tokens 的重度 over-train，
+        當推論量到達 1e13 token 時，推論已經是同一個量級。
+        再往上，推論就完全壓過訓練。
+      </p>
+
+      <h2>3. 這解釋了幾個現象</h2>
+      <ul>
+        <li><strong>為何小模型被瘋狂 over-train</strong>：推論便宜是可以攤提幾十億次的優勢</li>
+        <li><strong>為何 MoE 流行</strong>：推論成本只跟活躍參數有關，於是可以「訓練時很大、推論時很小」（模組 I）</li>
+        <li><strong>為何蒸餾這麼常見</strong>：用大模型的品質，換小模型的推論成本</li>
+        <li><strong>為何推理模型很貴</strong>：長思考鏈讓 R 暴增，一題可能輸出上萬 token</li>
+      </ul>
+
+      <h2>4. 什麼時候該選大模型</h2>
+      <table>
+        <thead><tr><th>情境</th><th>建議</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>一次性的大批次分析</td><td>大模型</td><td>推論量固定且不大，品質優先</td></tr>
+          <tr><td>高價值低頻任務（合約審查、研究）</td><td>大模型</td><td>每次的價值遠高於運算成本</td></tr>
+          <tr><td>高頻低價值（分類、抽取、改寫）</td><td>小模型</td><td>推論成本主導</td></tr>
+          <tr><td>端側、離線</td><td>小模型</td><td>硬體是硬限制</td></tr>
+          <tr><td>需要極低延遲</td><td>小模型</td><td>延遲與參數量正相關</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 一個常被忽略的變數</h2>
+      <p>
+        推論成本不只跟 N 有關，也跟<strong>輸出長度</strong>有關。
+        推理模型（會先輸出思考過程）的實際成本可能是同尺寸一般模型的五到二十倍，
+        因為它為了回答一題會先產出幾千個思考 token。
+      </p>
+      <p>
+        所以選型時要問的不是「幾 B」，而是
+        <strong>「這個任務每次要燒多少 token」</strong>。
+        一個 32B 的非推理模型，總成本可能低於 8B 的推理模型。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>總成本 = 6ND + 2N·R，R 夠大時推論主導</li>
+          <li>消費級產品的 R 讓推論成本壓過訓練</li>
+          <li>這是 over-train、MoE、蒸餾三件事共同的動機</li>
+          <li>推理模型的輸出長度會讓實際成本翻好幾倍</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 R=1e12 時，8B 模型的訓練與推論成本比</li>
+          <li>說明 MoE 為何特別適合高推論量的場景</li>
+          <li>舉出兩個應該選大模型的情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把模組 E 收束成一張可查的決策表。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：為什麼現在大家都 over-train</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：決策表：給定預算怎麼選 N 與 D →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

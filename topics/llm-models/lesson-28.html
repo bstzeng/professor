@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：資料清洗：去重、品質分類、過濾 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從原始網頁到可用 token 的處理管線，以及去重為何這麼重要。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預訓練：資料與過程 · 第 28 課</div>
+      <h1>資料清洗：去重、品質分類、過濾</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握資料清洗的完整管線</li>
+          <li>理解去重為何是最重要的一步</li>
+          <li>知道過度過濾的風險</li>
+        </ul>
+      </div>
+
+      <h2>1. 管線</h2>
+      <table>
+        <thead><tr><th>步驟</th><th>做什麼</th><th>剩下比例</th></tr></thead>
+        <tbody>
+          <tr><td>1. 抽取正文</td><td>從 HTML 拿掉導覽列、廣告、頁尾</td><td>—</td></tr>
+          <tr><td>2. 語言辨識</td><td>依目標語言篩選</td><td>依配方而定</td></tr>
+          <tr><td>3. 規則過濾</td><td>去掉太短、符號比例太高、重複行太多的文件</td><td>約 30–50%</td></tr>
+          <tr><td>4. 去重</td><td>精確去重 + 近似去重</td><td>約 10–30%</td></tr>
+          <tr><td>5. 品質分類</td><td>用小模型評分，留高分的</td><td>約 5–20%</td></tr>
+          <tr><td>6. 安全過濾</td><td>去掉個資、極端內容</td><td>略減</td></tr>
+          <tr><td>7. 評測去污染</td><td>移除與評測集重疊的內容</td><td>略減</td></tr>
+        </tbody>
+      </table>
+      <p>
+        整條管線下來，原始資料通常只剩<strong>百分之幾</strong>。
+        所謂「數十 TB 的 Common Crawl」，能用的可能只有幾 TB。
+      </p>
+
+      <h2>2. 去重為何最重要</h2>
+      <p>
+        網路上充滿重複：轉載、鏡像站、模板頁、法律聲明。
+        不去重的後果非常實際：
+      </p>
+      <ul>
+        <li><strong>記憶而非泛化</strong>：重複幾百次的內容會被逐字背下來，
+            包括別人的個資與版權內容</li>
+        <li><strong>算力浪費</strong>：重複的 token 貢獻的學習訊號趨近於零</li>
+        <li><strong>評測污染</strong>：評測題目常散布在多個網站，不去重就會洩題</li>
+      </ul>
+      <p>兩層做法：</p>
+      <table>
+        <thead><tr><th>層次</th><th>方法</th><th>抓到什麼</th></tr></thead>
+        <tbody>
+          <tr><td>精確去重</td><td>整份文件雜湊比對</td><td>完全相同的複本</td></tr>
+          <tr><td>近似去重</td><td>MinHash + LSH，比對 n-gram 集合的重疊度</td><td>改了標題、加了幾句話的轉載</td></tr>
+          <tr><td>子字串去重</td><td>後綴陣列找長重複片段</td><td>文件不同但段落相同</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 品質分類</h2>
+      <p>
+        近年最有效的一招是：用一個小型分類器（例如 fastText 或小 BERT）
+        替每份文件打分，判斷它「像不像維基百科／教科書」，只留高分的。
+      </p>
+      <p>
+        訓練這個分類器的方式很取巧：把維基百科當正例、
+        隨機網頁當負例，訓一個二元分類器就好。
+        FineWeb-Edu 這類資料集就是這樣做出來的，
+        實證顯示<strong>用更少但更乾淨的資料，反而訓出更好的模型</strong>。
+      </p>
+
+      <h2>4. 過度過濾的風險</h2>
+      <p>
+        過濾太狠會有三個問題：
+      </p>
+      <ul>
+        <li><strong>多樣性喪失</strong>：全部留下教科書式文本，模型會不懂口語、俚語、對話</li>
+        <li><strong>偏見放大</strong>：品質分類器本身有偏好，可能系統性排除某些方言、地區、族群的內容</li>
+        <li><strong>資料不夠</strong>：過濾到只剩 1%，就湊不到需要的 token 數</li>
+      </ul>
+      <p>
+        所以實務上是分級的：高品質資料在訓練後期加重權重，
+        一般資料在前期用量取勝。這就是下一課的「資料配方」。
+      </p>
+
+      <h2>5. 評測去污染</h2>
+      <p>
+        這一步關係到你能不能相信 benchmark 分數（第 74 課）。
+        標準做法是把所有評測集的題目做成 n-gram 指紋，
+        在訓練資料中搜尋並移除命中的文件。
+      </p>
+      <p>
+        問題是：<strong>沒有人能保證做乾淨</strong>。
+        題目的改寫版本、翻譯版本、討論串裡的片段都很難完全清掉。
+        這是所有 benchmark 分數都要打折看待的根本原因。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>清洗管線七步，原始資料通常只剩百分之幾</li>
+          <li>去重是最重要的一步，影響記憶、算力與評測可信度</li>
+          <li>品質分類器用維基百科當正例訓練，效果顯著</li>
+          <li>過度過濾會損失多樣性並放大偏見</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出清洗管線的七個步驟</li>
+          <li>解釋近似去重與精確去重各抓到什麼</li>
+          <li>說明過度過濾的三個風險</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：不同來源的資料該用什麼比例混。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：資料從哪來：Common Crawl、FineWeb、The Pile</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：資料配方與課程式訓練 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

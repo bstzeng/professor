@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 76 課：自己建 eval set ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="用自己的任務做三十題評測集的完整做法，含評分方式。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 76 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜評測與選型 · 第 76 課</div>
+      <h1>自己建 eval set</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>建立自己的評測集</li>
+          <li>選擇合適的評分方式</li>
+          <li>知道要多少題才夠</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼要自己做</h2>
+      <p>
+        公開 benchmark 測的是「一般能力」，你在乎的是
+        <strong>「在我的任務上好不好用」</strong>。這兩者的相關性沒有想像中高。
+      </p>
+      <p>
+        而且你自己的評測集<strong>沒有污染問題</strong>——
+        沒有模型看過它。這是它最大的價值。
+      </p>
+
+      <h2>2. 三十題就夠開始</h2>
+      <table>
+        <thead><tr><th>題數</th><th>能分辨的差距</th><th>適合</th></tr></thead>
+        <tbody>
+          <tr><td>10</td><td>很大的差距（30% 以上）</td><td>快速篩掉明顯不行的</td></tr>
+          <tr><td>30</td><td>中等差距（15–20%）</td><td>候選模型的初步比較</td></tr>
+          <tr><td>100</td><td>較小差距（8–10%）</td><td>正式選型</td></tr>
+          <tr><td>300+</td><td>細微差距</td><td>持續迭代、回歸測試</td></tr>
+        </tbody>
+      </table>
+      <p>
+        不要因為「只有三十題不夠科學」就不做。
+        <strong>三十題的自製評測，比任何公開榜單都更能預測你的實際體驗。</strong>
+      </p>
+
+      <h2>3. 題目從哪來</h2>
+      <ol>
+        <li><strong>真實記錄</strong>：從你實際用過的 prompt 裡挑，這是最好的來源</li>
+        <li><strong>涵蓋邊緣情況</strong>：刻意放幾題你知道很難的</li>
+        <li><strong>包含失敗案例</strong>：之前哪個模型答錯過，就放進去</li>
+        <li><strong>分類平衡</strong>：如果你有五種任務類型，每種各六題</li>
+      </ol>
+      <p>
+        一個常見錯誤是<strong>只放簡單題</strong>——
+        結果所有模型都滿分，評測沒有區分力。
+        好的評測集應該讓最好的模型也只拿到七八成。
+      </p>
+
+      <h2>4. 評分方式</h2>
+      <table>
+        <thead><tr><th>方式</th><th>適合</th><th>成本</th><th>可靠度</th></tr></thead>
+        <tbody>
+          <tr><td>精確比對</td><td>有標準答案（分類、抽取）</td><td>零</td><td>高</td></tr>
+          <tr><td>程式驗證</td><td>格式、JSON schema、可執行的程式碼</td><td>低</td><td>高</td></tr>
+          <tr><td>關鍵字檢查</td><td>回答必須提到某些要點</td><td>低</td><td>中</td></tr>
+          <tr><td>模型評分</td><td>開放式回答</td><td>中</td><td>中</td></tr>
+          <tr><td>人工評分</td><td>最終確認</td><td>高</td><td>最高</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>優先用可程式化的評分</strong>。
+        能用精確比對就不要用模型評分——
+        前者可以每次改動都重跑，後者要花錢且有雜訊。
+      </p>
+
+      <h2>5. 模型評分的注意事項</h2>
+      <ul>
+        <li>用<strong>比你要評測的模型更強</strong>的模型當評審</li>
+        <li>給明確的評分準則（rubric），不要只說「打 1 到 10 分」</li>
+        <li>注意位置偏誤：兩兩比較時，把順序對調再跑一次</li>
+        <li>注意自我偏好：模型傾向給自己家族的輸出較高分</li>
+      </ul>
+
+      <h2>6. 一個最小可行的做法</h2>
+      <div class="code-block"># eval.jsonl
+{"id": 1, "prompt": "...", "expect_contains": ["關鍵字A", "關鍵字B"]}
+{"id": 2, "prompt": "...", "expect_json_keys": ["name", "date"]}
+{"id": 3, "prompt": "...", "expect_exact": "分類C"}
+
+# 跑法（虛擬碼）
+for model in candidates:
+    score = 0
+    for case in load("eval.jsonl"):
+        out = generate(model, case["prompt"])
+        score += check(out, case)
+    print(model, score / total)</div>
+      <p>
+        把它存成腳本，每次要換模型、換量化等級、改 prompt，
+        就重跑一次。這比任何榜單都有用。
+      </p>
+
+      <h2>7. 別忘了測這些</h2>
+      <ul>
+        <li><strong>速度</strong>：記錄每題的 tokens/秒 與總時間</li>
+        <li><strong>輸出長度</strong>：推理模型的成本差異在這裡</li>
+        <li><strong>穩定性</strong>：同一題跑三次，答案會不會飄</li>
+        <li><strong>格式遵循率</strong>：要求 JSON 時，有幾成真的給出合法 JSON</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明自製評測最大的價值</li>
+          <li>說出為何評測集不該全是簡單題</li>
+          <li>列出模型評分的三個注意事項</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把整門課收束成一條選型決策樹。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-75.html">← 上一課：人類偏好評測與競技場</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-77.html">下一課：選型決策樹：從需求走到模型與量化等級 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

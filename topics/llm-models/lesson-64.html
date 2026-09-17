@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 64 課：檔案清單：safetensors、config.json、tokenizer、shard ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="repo 裡每個檔案的用途，以及 index.json 與分片的關係。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 64 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜讀懂一張 Model Card · 第 64 課</div>
+      <h1>檔案清單：safetensors、config.json、tokenizer、shard</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 repo 裡每個檔案的用途</li>
+          <li>理解分片與 index 的關係</li>
+          <li>知道只下載需要的部分</li>
+        </ul>
+      </div>
+
+      <h2>1. 標準 HF repo</h2>
+      <div class="code-block">Qwen2.5-7B-Instruct/
+├── config.json                        架構規格
+├── generation_config.json             預設生成參數
+├── model-00001-of-00004.safetensors   權重分片 1
+├── model-00002-of-00004.safetensors   權重分片 2
+├── model-00003-of-00004.safetensors   權重分片 3
+├── model-00004-of-00004.safetensors   權重分片 4
+├── model.safetensors.index.json       哪個張量在哪一片
+├── tokenizer.json                     詞表與合併規則
+├── tokenizer_config.json              特殊 token 與 chat template
+├── vocab.json / merges.txt            舊式 tokenizer 檔（有些模型有）
+├── special_tokens_map.json            特殊 token 對照
+├── README.md                          Model card
+└── LICENSE</div>
+
+      <h2>2. 分片與 index</h2>
+      <p>
+        權重被切成每片約 4–5 GB，原因是：
+      </p>
+      <ul>
+        <li>方便斷點續傳（下載中斷不用重來）</li>
+        <li>某些檔案系統對單檔大小有限制</li>
+        <li>可以平行下載</li>
+      </ul>
+      <p><code>index.json</code> 長這樣：</p>
+      <div class="code-block">{
+  "metadata": { "total_size": 15231233024 },
+  "weight_map": {
+    "model.embed_tokens.weight": "model-00001-of-00004.safetensors",
+    "model.layers.0.self_attn.q_proj.weight": "model-00001-of-00004.safetensors",
+    ...
+    "lm_head.weight": "model-00004-of-00004.safetensors"
+  }
+}</div>
+      <p>
+        <code>total_size</code> 很實用：除以 2 就是 BF16 模型的參數量（第 21 課）。
+      </p>
+
+      <h2>3. GGUF repo 的樣子</h2>
+      <div class="code-block">Qwen2.5-7B-Instruct-GGUF/
+├── Qwen2.5-7B-Instruct-Q2_K.gguf         2.8 GB
+├── Qwen2.5-7B-Instruct-Q3_K_M.gguf       3.8 GB
+├── Qwen2.5-7B-Instruct-Q4_K_M.gguf       4.7 GB   ← 通常選這個
+├── Qwen2.5-7B-Instruct-Q5_K_M.gguf       5.4 GB
+├── Qwen2.5-7B-Instruct-Q6_K.gguf         6.3 GB
+├── Qwen2.5-7B-Instruct-Q8_0.gguf         8.1 GB
+├── Qwen2.5-7B-Instruct-f16.gguf         15.2 GB
+└── README.md</div>
+      <p>
+        <strong>只要下載一個檔案</strong>。這是 GGUF repo 與標準 repo
+        最大的操作差異——標準 repo 要下載全部，GGUF repo 只挑一個。
+      </p>
+      <p>
+        超過 50 GB 的 GGUF 有時會被切成多片
+        （<code>-00001-of-00003.gguf</code>），
+        這種就要全部下載，llama.cpp 會自動合併。
+      </p>
+
+      <h2>4. 只下載需要的檔案</h2>
+      <div class="code-block">pip install huggingface_hub
+
+# 只抓一個 GGUF 檔
+huggingface-cli download bartowski/Qwen2.5-7B-Instruct-GGUF \
+  Qwen2.5-7B-Instruct-Q4_K_M.gguf --local-dir ./models
+
+# 標準 repo 排除不需要的
+huggingface-cli download Qwen/Qwen2.5-7B-Instruct \
+  --exclude "*.pth" "*.bin" --local-dir ./models/qwen
+
+# 只看 config，不下載權重
+huggingface-cli download Qwen/Qwen2.5-7B-Instruct config.json --local-dir .</div>
+      <p>
+        很多 repo 同時放 <code>.safetensors</code> 與舊的 <code>.bin</code>，
+        不排除的話會下載兩倍的量。
+      </p>
+
+      <h2>5. 幾個容易忽略的檔案</h2>
+      <table>
+        <thead><tr><th>檔案</th><th>為何重要</th></tr></thead>
+        <tbody>
+          <tr><td><code>generation_config.json</code></td><td>裡面的 <code>eos_token_id</code> 可能是個陣列（多個結束 token），
+              設錯模型會停不下來</td></tr>
+          <tr><td><code>tokenizer_config.json</code></td><td>chat template 在這裡，第 34 課的所有問題都源自它</td></tr>
+          <tr><td><code>config.json</code> 的 <code>rope_scaling</code></td><td>有這個欄位代表 context 是靠外推撐出來的（第 69 課）</td></tr>
+          <tr><td><code>*.py</code>（自訂程式碼）</td><td>需要 <code>trust_remote_code=True</code>，
+              等於執行陌生程式碼，要先看過內容</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項是安全問題：<code>trust_remote_code=True</code>
+        會執行 repo 裡的 Python 檔案。新架構的模型常常需要它，
+        但務必先看一眼那些檔案在做什麼。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 index.json 的作用</li>
+          <li>比較標準 repo 與 GGUF repo 的下載方式差異</li>
+          <li>說出 trust_remote_code 的風險</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：授權條款，以及什麼叫 gated repo。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-63.html">← 上一課：社群後綴：distill、abliterated、uncensored、merge</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-65.html">下一課：授權與 gated repo →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

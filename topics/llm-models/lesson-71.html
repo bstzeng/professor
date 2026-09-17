@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 71 課：塞不下時的手段：offload、mmap、量化 KV cache ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="把模型擠進不夠的顯存，以及每種手段的速度代價。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 71 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜跑起來：硬體與記憶體帳 · 第 71 課</div>
+      <h1>塞不下時的手段：offload、mmap、量化 KV cache</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握記憶體不足時的所有手段</li>
+          <li>知道各自的速度代價</li>
+          <li>建立處理順序</li>
+        </ul>
+      </div>
+
+      <h2>1. 手段清單（依代價由小到大）</h2>
+      <table>
+        <thead><tr><th>手段</th><th>省多少</th><th>速度代價</th></tr></thead>
+        <tbody>
+          <tr><td>縮短 context</td><td>KV cache 線性下降</td><td>無</td></tr>
+          <tr><td>量化 KV cache 到 q8_0</td><td>KV 減半</td><td>幾乎無</td></tr>
+          <tr><td>降一級量化（Q5→Q4）</td><td>權重約 15%</td><td>略快（檔案更小）</td></tr>
+          <tr><td>關閉其他佔用顯存的程式</td><td>0.5–2 GB</td><td>無</td></tr>
+          <tr><td>用 mmap 而非全部載入</td><td>視系統而定</td><td>首次較慢</td></tr>
+          <tr><td><strong>部分層 offload 到 CPU</strong></td><td>任意</td><td><strong>大</strong></td></tr>
+          <tr><td>換更小的模型</td><td>任意</td><td>能力下降</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. Offload 的代價有多大</h2>
+      <p>
+        這是最需要理解的一點。假設一個 32B Q4 模型有 64 層，
+        顯存只夠放 48 層：
+      </p>
+      <div class="code-block">GPU 頻寬約 1000 GB/s
+CPU 記憶體頻寬約 50 GB/s（DDR5 雙通道）
+兩者相差 20 倍
+
+48/64 層在 GPU：這部分很快
+16/64 層在 CPU：這部分慢 20 倍
+
+整體速度會被慢的那部分拖垮，
+即使只有 25% 的層在 CPU，速度可能掉到原本的 30%。</div>
+      <p>
+        <strong>經驗法則：只要有任何一層在 CPU，速度就會顯著下降。</strong>
+        offload 是「能跑」與「不能跑」的差別，
+        不是「快」與「稍慢」的差別。
+      </p>
+
+      <h2>3. 調整 offload</h2>
+      <div class="code-block"># llama.cpp：-ngl 指定放 GPU 的層數
+./llama-server -m model.gguf -ngl 48      # 48 層在 GPU
+./llama-server -m model.gguf -ngl 99      # 全部（層數不夠就是全部）
+./llama-server -m model.gguf -ngl 0       # 純 CPU
+
+# 找出最大可用值的方法：從 99 開始往下試，直到不再 OOM</div>
+      <p>
+        另一個技巧是<strong>優先把 KV cache 留在 GPU</strong>：
+        某些引擎允許把部分權重 offload 但 KV 全留 GPU，
+        因為 KV 的存取比權重更頻繁。
+      </p>
+
+      <h2>4. MoE 的特殊技巧</h2>
+      <p>
+        MoE 模型有一個 dense 模型沒有的選項：
+        <strong>把專家層放 CPU，其餘放 GPU</strong>。
+      </p>
+      <p>
+        因為每個 token 只會用到少數幾個專家，
+        從 CPU 讀取的資料量遠小於 dense 模型。
+        llama.cpp 有針對這個情境的選項，
+        讓大型 MoE 在小顯存上跑出可接受的速度。
+      </p>
+
+      <h2>5. mmap</h2>
+      <p>
+        llama.cpp 預設用 mmap 載入 GGUF：
+        檔案不會一次讀進記憶體，而是讓作業系統按需分頁載入。
+      </p>
+      <ul>
+        <li><strong>好處</strong>：啟動快、多個程序可共用同一份、系統會自動快取</li>
+        <li><strong>壞處</strong>：首次執行時會有磁碟讀取的延遲</li>
+        <li><strong>注意</strong>：如果模型比實體記憶體大，會一直在讀磁碟，慢到不可用</li>
+      </ul>
+
+      <h2>6. 處理順序</h2>
+      <ol>
+        <li>先把 context 設成實際需要的長度（最常見的浪費）</li>
+        <li>量化 KV cache 到 q8_0</li>
+        <li>關掉瀏覽器等佔顯存的程式</li>
+        <li>降一級量化等級</li>
+        <li>還不夠 → <strong>換小一號的模型</strong>，不要 offload</li>
+        <li>真的非要跑這個模型不可 → offload，接受速度損失</li>
+      </ol>
+      <p>
+        第 5 步值得強調：<strong>14B 全在 GPU，通常比 32B offload 好用得多。</strong>
+        速度差 5 倍換來的一點能力提升，多數情況下不划算。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 offload 為何代價這麼大</li>
+          <li>解釋 MoE 為何比 dense 適合部分 offload</li>
+          <li>說出處理記憶體不足的前三個步驟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課給一張硬體對照表，收束模組 M。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-70.html">← 上一課：推理引擎：llama.cpp、Ollama、LM Studio、vLLM、SGLang</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-72.html">下一課：對照表：你的硬體能跑哪些模型 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

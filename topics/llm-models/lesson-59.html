@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 59 課：AWQ：保護最重要的那些權重 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="啟動值感知的想法、為何同位元下品質常優於 GPTQ。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 59 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 59 課</div>
+      <h1>AWQ：保護最重要的那些權重</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 AWQ 的「保護重要通道」想法</li>
+          <li>比較 AWQ 與 GPTQ</li>
+          <li>知道該選哪一個</li>
+        </ul>
+      </div>
+
+      <h2>1. 觀察：不是所有權重一樣重要</h2>
+      <p>
+        AWQ 的論文指出一個實驗結果：
+        如果把模型裡<strong>約 1% 的權重</strong>保持在 FP16 不量化，
+        其餘全部量化到 4-bit，品質幾乎不會掉。
+      </p>
+      <p>
+        關鍵是怎麼挑那 1%。AWQ 的答案是：
+        <strong>不要看權重本身的大小，要看它對應的啟動值大小。</strong>
+        這與第 54 課的 imatrix 是同一個洞見。
+      </p>
+
+      <h2>2. 問題：混合精度很難實作</h2>
+      <p>
+        真的把 1% 的權重存成 FP16、其餘存成 INT4，
+        會讓記憶體布局變得破碎，GPU kernel 難寫、速度也差。
+      </p>
+      <p>
+        AWQ 的巧思是<strong>改用縮放取代混合精度</strong>：
+      </p>
+      <div class="code-block">對重要通道 i：
+    W[:, i] × s      把權重放大 s 倍再量化（相對誤差變小）
+    X[:, i] / s      對應的輸入縮小 s 倍
+
+因為 (W·s)·(X/s) = W·X，數學上完全等價，
+但量化誤差變小了，而且全部權重仍是統一的 INT4。</div>
+      <p>
+        放大後的權重在量化時佔據更多有效位元，
+        相對誤差就降低了。而輸入的縮放可以事先融進上一層，
+        推論時零成本。
+      </p>
+
+      <h2>3. 與 GPTQ 的比較</h2>
+      <table>
+        <thead><tr><th></th><th>GPTQ</th><th>AWQ</th></tr></thead>
+        <tbody>
+          <tr><td>核心想法</td><td>量化後補償剩餘權重</td><td>量化前縮放重要通道</td></tr>
+          <tr><td>用到的資訊</td><td>Hessian（二階）</td><td>啟動值幅度（一階）</td></tr>
+          <tr><td>校準需求</td><td>需要，較多</td><td>需要，較少</td></tr>
+          <tr><td>量化速度</td><td>較慢</td><td>較快</td></tr>
+          <tr><td>同位元品質</td><td>好</td><td>通常略優</td></tr>
+          <tr><td>推論速度</td><td>act-order 開啟時略慢</td><td>較快（記憶體存取規則）</td></tr>
+          <tr><td>對校準資料的敏感度</td><td>較高</td><td>較低（作者主張泛化較好）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 實務結論</h2>
+      <ul>
+        <li><strong>要在 vLLM／SGLang 上做高吞吐服務</strong> → AWQ 通常是較好的預設，
+            推論 kernel 成熟且快</li>
+        <li><strong>已經有現成的 GPTQ 權重</strong> → 直接用，差距不足以讓你重做</li>
+        <li><strong>要壓到 3-bit 以下</strong> → 兩者都不理想，考慮 GGUF 的 IQ 系列</li>
+        <li><strong>本機單人使用</strong> → GGUF 更方便</li>
+      </ul>
+
+      <h2>5. 使用方式</h2>
+      <div class="code-block"># 推論
+from transformers import AutoModelForCausalLM
+m = AutoModelForCausalLM.from_pretrained("someone/Model-AWQ", device_map="auto")
+
+# vLLM
+vllm serve someone/Model-AWQ --quantization awq
+
+# 自己量化（autoawq）
+from awq import AutoAWQForCausalLM
+model = AutoAWQForCausalLM.from_pretrained("原始模型")
+model.quantize(tokenizer, quant_config={
+    "w_bit": 4, "q_group_size": 128, "zero_point": True, "version": "GEMM"
+})
+model.save_quantized("./out-awq")</div>
+      <p>
+        <code>version</code> 有 GEMM 與 GEMV 兩種 kernel：
+        GEMM 適合批次大的服務，GEMV 適合 batch=1 的單人推論。
+      </p>
+
+      <h2>6. 一句話總結三個主流</h2>
+      <table>
+        <thead><tr><th>格式</th><th>一句話</th></tr></thead>
+        <tbody>
+          <tr><td>GGUF</td><td>跨平台、單檔、CPU 也能跑，本機首選</td></tr>
+          <tr><td>GPTQ</td><td>老牌 GPU 量化，生態廣，權重多</td></tr>
+          <tr><td>AWQ</td><td>GPU 服務的現代預設，快且品質好</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋 AWQ 的縮放技巧為何數學上等價</li>
+          <li>比較 GPTQ 與 AWQ 的核心想法差異</li>
+          <li>替一個 vLLM 服務選擇量化格式並說明理由</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課掃完剩下的格式，並給一張選擇決策表。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-58.html">← 上一課：GPTQ：逐層最小化誤差</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-60.html">下一課：EXL2、bitsandbytes、MLX、FP8：其餘格式與該選誰 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

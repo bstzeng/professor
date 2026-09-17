@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：Token 與 tokenizer：BPE 與 SentencePiece ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="文字如何被切成 token，BPE 的合併演算法，以及 vocab 是怎麼訓練出來的。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜文字怎麼變成數字 · 第 5 課</div>
+      <h1>Token 與 tokenizer：BPE 與 SentencePiece</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 token 不是字也不是詞</li>
+          <li>掌握 BPE 的合併演算法</li>
+          <li>知道 vocab 是怎麼訓練出來的</li>
+        </ul>
+      </div>
+
+      <h2>1. 模型看不到文字</h2>
+      <p>
+        神經網路只能處理數字。所以在任何運算之前，
+        必須先把字串切成一個個單位，再把每個單位換成一個整數編號。
+        這個單位叫 <strong>token</strong>，做這件事的元件叫 <strong>tokenizer</strong>。
+      </p>
+      <p>
+        Token 不是字元，也不是單詞。它是統計上劃算的切法：
+        常見的字串給一個獨立編號，罕見的字串拆成幾段。
+      </p>
+      <div class="code-block">"unbelievable"  →  ["un", "bel", "iev", "able"]   4 tokens
+"the"           →  ["the"]                        1 token
+"Hugging Face"  →  ["Hug", "ging", " Face"]       3 tokens</div>
+      <p>
+        注意第三個例子裡的 <code>" Face"</code> 前面有空格——
+        現代 tokenizer 把空格併進 token，所以「字首有沒有空格」是兩個不同的 token。
+        這是很多 prompt 行為異常的隱藏原因。
+      </p>
+
+      <h2>2. BPE：合併最常出現的一對</h2>
+      <p>
+        Byte-Pair Encoding 的訓練流程非常單純：
+      </p>
+      <ol>
+        <li>初始詞表 = 所有單一位元組（256 個），任何文字都切得開</li>
+        <li>統計整個語料中，相鄰兩個 token 出現最多次的組合</li>
+        <li>把這一對合併成新 token，加進詞表</li>
+        <li>重複 2–3，直到詞表達到目標大小（例如 128,256）</li>
+      </ol>
+      <p>手算一個小例子。語料是 <code>low low lower lowest</code>：</p>
+      <table>
+        <thead><tr><th>回合</th><th>最高頻的一對</th><th>新 token</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>l</code>+<code>o</code>（4 次）</td><td><code>lo</code></td></tr>
+          <tr><td>2</td><td><code>lo</code>+<code>w</code>（4 次）</td><td><code>low</code></td></tr>
+          <tr><td>3</td><td><code>e</code>+<code>r</code> 或 <code>e</code>+<code>s</code></td><td><code>er</code></td></tr>
+        </tbody>
+      </table>
+      <p>
+        幾萬回合之後，常用詞會變成單一 token，
+        罕見詞仍會被拆開，而<strong>任何位元組序列都保證切得開</strong>——
+        這是 byte-level BPE 的重要保證：不會有「未知字元」。
+      </p>
+
+      <h2>3. BPE 與 SentencePiece</h2>
+      <table>
+        <thead><tr><th></th><th>Byte-level BPE</th><th>SentencePiece（Unigram）</th></tr></thead>
+        <tbody>
+          <tr><td>用的人</td><td>GPT 系列、Llama 3、Qwen</td><td>Llama 1/2、Gemma、T5</td></tr>
+          <tr><td>基本單位</td><td>位元組</td><td>Unicode 字元</td></tr>
+          <tr><td>空格處理</td><td>併進 token（<code>Ġ</code> 或空白字元）</td><td>用 <code>▁</code> 標記</td></tr>
+          <tr><td>建構方式</td><td>由下往上合併</td><td>由上往下裁剪（機率模型）</td></tr>
+          <tr><td>檔案</td><td><code>tokenizer.json</code></td><td><code>tokenizer.model</code></td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 特殊 token</h2>
+      <p>
+        除了一般文字，詞表裡還保留一批控制用的編號：
+      </p>
+      <table>
+        <thead><tr><th>類型</th><th>例子</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>序列邊界</td><td><code>&lt;s&gt;</code>、<code>&lt;/s&gt;</code>、<code>&lt;|endoftext|&gt;</code></td><td>標示開始與結束</td></tr>
+          <tr><td>對話角色</td><td><code>&lt;|im_start|&gt;</code>、<code>&lt;|start_header_id|&gt;</code></td><td>區隔 system／user／assistant</td></tr>
+          <tr><td>填充</td><td><code>&lt;pad&gt;</code></td><td>批次對齊</td></tr>
+          <tr><td>工具呼叫</td><td><code>&lt;tool_call&gt;</code></td><td>結構化輸出</td></tr>
+          <tr><td>思考標記</td><td><code>&lt;think&gt;</code></td><td>推理模型的思考段落</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這些 token 在 <code>tokenizer_config.json</code> 裡定義。
+        用錯特殊 token 是本機部署最常見的問題之一——
+        模型會不知道什麼時候該停，一直講下去。
+      </p>
+
+      <h2>5. 動手看</h2>
+      <div class="code-block">pip install transformers
+python - &lt;&lt;'PY'
+from transformers import AutoTokenizer
+tok = AutoTokenizer.from_pretrained("meta-llama/Llama-3.1-8B")
+s = "Hugging Face 是一個模型平台"
+ids = tok.encode(s)
+print(len(ids), ids)
+print([tok.decode([i]) for i in ids])
+PY</div>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>Token 是統計上劃算的切法，不是字也不是詞</li>
+          <li>BPE 靠反覆合併最高頻的相鄰配對建出詞表</li>
+          <li>空格通常併進 token，前導空格會改變 token</li>
+          <li>特殊 token 控制對話格式，用錯會導致模型停不下來</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 byte-level BPE 為何不會有未知字元</li>
+          <li>用 <code>aaabdaaabac</code> 手動跑兩回合 BPE</li>
+          <li>說出三種特殊 token 與各自用途</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：token 編號變成向量的那一步，以及它佔掉多少參數。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：名詞速查表：六十個縮寫一次列完</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：Embedding：把 token 變成向量 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

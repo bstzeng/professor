@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 67 課：VRAM 公式：權重、KV cache、啟動值、開銷 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="把四塊記憶體逐項加起來，算出實際需要多少顯存。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 67 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜跑起來：硬體與記憶體帳 · 第 67 課</div>
+      <h1>VRAM 公式：權重、KV cache、啟動值、開銷</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握完整的 VRAM 計算公式</li>
+          <li>算出四個組成部分</li>
+          <li>建立可靠的估算習慣</li>
+        </ul>
+      </div>
+
+      <h2>1. 四個部分</h2>
+      <div class="code-block">總需求 = 權重 + KV cache + 啟動值 + 框架開銷</div>
+      <table>
+        <thead><tr><th>部分</th><th>大小</th><th>與什麼相關</th></tr></thead>
+        <tbody>
+          <tr><td>權重</td><td>參數量 × bpw ÷ 8</td><td>模型大小與量化等級</td></tr>
+          <tr><td>KV cache</td><td>見第 68 課</td><td>context 長度、batch、架構</td></tr>
+          <tr><td>啟動值</td><td>單人推論時很小（幾百 MB）</td><td>batch 大小與序列長度</td></tr>
+          <tr><td>框架開銷</td><td>0.5–1.5 GB</td><td>CUDA context、引擎本身</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 權重</h2>
+      <div class="code-block">權重 (GB) = 參數量(B) × bpw / 8
+
+例：
+  8B  @ Q4_K_M (4.85 bpw) = 8 × 4.85 / 8  = 4.85 GB
+  32B @ Q4_K_M            = 32 × 4.85 / 8 = 19.4 GB
+  70B @ Q4_K_M            = 70 × 4.85 / 8 = 42.4 GB
+  8B  @ BF16 (16 bpw)     = 8 × 16 / 8    = 16 GB</div>
+      <p>
+        更簡單的做法：<strong>直接看檔案大小</strong>。
+        GGUF 檔案多大，權重就佔多少記憶體（因為是直接 mmap 進去的）。
+      </p>
+
+      <h2>3. 完整範例</h2>
+      <p><strong>題目：</strong>8B 模型（32 層、8 KV 頭、head_dim 128），Q4_K_M，8K context，單人使用。</p>
+      <div class="code-block">權重      = 8 × 4.85 / 8                              = 4.85 GB
+KV cache  = 2 × 32 × 8 × 128 × 8192 × 2 bytes         = 1.07 GB
+啟動值    ≈                                             0.3 GB
+框架開銷  ≈                                             0.8 GB
+────────────────────────────────────────────────────────────
+合計                                                  ≈ 7.0 GB</div>
+      <p>
+        所以 8 GB 顯卡剛好能跑，但幾乎沒有餘裕——
+        context 拉到 16K 就會爆。這就是為什麼很多人
+        「照理說放得下卻 OOM」。
+      </p>
+
+      <h2>4. 快速估算口訣</h2>
+      <div class="code-block">短 context（≤4K）：   檔案大小 × 1.2
+中 context（8–16K）： 檔案大小 × 1.4
+長 context（32K+）：  要認真算 KV cache，可能超過權重本身</div>
+      <p>
+        對 70B 模型跑 128K context，KV cache 會到 40 GB——
+        跟權重一樣大。長 context 的成本常常被嚴重低估。
+      </p>
+
+      <h2>5. 多卡與 offload</h2>
+      <table>
+        <thead><tr><th>情況</th><th>怎麼算</th></tr></thead>
+        <tbody>
+          <tr><td>多張同款顯卡</td><td>總量可加，但每張要留自己的框架開銷</td></tr>
+          <tr><td>部分 offload 到 CPU</td><td>留在 GPU 的層數 × 每層大小</td></tr>
+          <tr><td>Apple 統一記憶體</td><td>與系統共用，通常可用約 70% 的總記憶體</td></tr>
+        </tbody>
+      </table>
+      <p>
+        llama.cpp 的 <code>-ngl</code>（n-gpu-layers）參數就是控制
+        「幾層放 GPU」。放不下時從這裡調。
+      </p>
+
+      <h2>6. 一段可用的估算程式</h2>
+      <div class="code-block">def vram_gb(params_b, bpw, layers, n_kv, head_dim,
+            ctx, batch=1, kv_bytes=2):
+    weights = params_b * 1e9 * bpw / 8
+    kv = 2 * layers * n_kv * head_dim * ctx * batch * kv_bytes
+    overhead = 1.0e9
+    activation = 0.3e9 * batch
+    return (weights + kv + overhead + activation) / 1e9
+
+# 8B Q4_K_M, 8K context
+print(vram_gb(8, 4.85, 32, 8, 128, 8192))   # 約 7.0
+
+# 32B Q4_K_M, 32K context（64 層）
+print(vram_gb(32, 4.85, 64, 8, 128, 32768)) # 約 29</div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 14B @ Q5_K_M、16K context 的記憶體需求（48 層、8 KV 頭）</li>
+          <li>說明為何「照理放得下卻 OOM」</li>
+          <li>說出快速估算的三個倍數</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課專門處理 KV cache：長 context 為何這麼貴。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-66.html">← 上一課：誰做的量化：發佈者的差異</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-68.html">下一課：KV cache 怎麼算，為什麼長 context 這麼貴 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

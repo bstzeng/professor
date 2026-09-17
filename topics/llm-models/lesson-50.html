@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 50 課：為什麼 BF16 打敗 FP16 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="訓練時的溢位問題，以及 BF16 用精度換範圍的取捨。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 50 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 50 課</div>
+      <h1>為什麼 BF16 打敗 FP16</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解神經網路為何能容忍低精度</li>
+          <li>知道哪些地方不能降精度</li>
+          <li>掌握混合精度訓練的做法</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼精度可以這麼低</h2>
+      <p>
+        BF16 只有 7 個尾數位元，有效精度不到三位十進位數。
+        一個權重是 0.123456 還是 0.1235，模型完全不在乎。原因有三：
+      </p>
+      <ul>
+        <li><strong>大量平均</strong>：每個輸出是幾千個乘積的和，
+            個別誤差互相抵消（統計上以 √n 而非 n 累積）</li>
+        <li><strong>冗餘表示</strong>：資訊分散在大量權重上，沒有哪一個是關鍵</li>
+        <li><strong>訓練本身有雜訊</strong>：SGD 的隨機性遠大於數值誤差，
+            模型在訓練時就已經適應了雜訊</li>
+      </ul>
+
+      <h2>2. 不能降的地方</h2>
+      <table>
+        <thead><tr><th>位置</th><th>為什麼</th><th>通常用</th></tr></thead>
+        <tbody>
+          <tr><td>權重累加（優化器）</td><td>每步的更新量極小，低精度會直接被捨去</td><td>FP32</td></tr>
+          <tr><td>Softmax 與 LayerNorm</td><td>涉及指數與除法，容易放大誤差</td><td>FP32</td></tr>
+          <tr><td>Loss 計算</td><td>需要精確的數值</td><td>FP32</td></tr>
+          <tr><td>殘差累加</td><td>誤差會沿著 32 層累積</td><td>至少 BF16</td></tr>
+        </tbody>
+      </table>
+      <p>
+        第一項特別重要。假設權重是 1.0，更新量是 0.00001。
+        在 BF16 下，1.0 + 0.00001 = 1.0——<strong>更新完全消失</strong>。
+        所以優化器必須保留一份 FP32 主權重。
+      </p>
+
+      <h2>3. 混合精度訓練</h2>
+      <div class="code-block">FP32 主權重  ──轉換──►  BF16 權重
+                              │
+                              ▼
+                     BF16 前向與反向
+                              │
+                              ▼
+                        BF16 梯度
+                              │
+                     ──轉換──► FP32
+                              ▼
+                    FP32 優化器更新主權重</div>
+      <p>
+        計算走 BF16（快、省記憶體），
+        累積走 FP32（精確）。這就是第 39 課記憶體表裡
+        「FP32 主權重」那一列的來源。
+      </p>
+
+      <h2>4. BF16 vs FP16 的實務結論</h2>
+      <table>
+        <thead><tr><th></th><th>BF16</th><th>FP16</th></tr></thead>
+        <tbody>
+          <tr><td>訓練</td><td>首選，不需 loss scaling</td><td>需要 loss scaling，容易 NaN</td></tr>
+          <tr><td>推論</td><td>安全</td><td>通常也可以，因為沒有梯度</td></tr>
+          <tr><td>硬體支援</td><td>需要較新的 GPU</td><td>較老的 GPU 也支援</td></tr>
+          <tr><td>與 FP32 轉換</td><td>直接截斷後 16 位元即可</td><td>要重新計算指數</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列是個實用細節：BF16 與 FP32 的指數位元相同，
+        所以轉換就是<strong>直接砍掉後面 16 個位元</strong>，
+        極快且不會溢位。這也是它好用的原因之一。
+      </p>
+      <p>
+        對只做推論的人：如果你的顯卡比較舊（不支援 BF16），
+        用 FP16 通常沒問題；但如果模型是用 BF16 訓練的，
+        某些層的數值可能超出 FP16 範圍而產生 inf，
+        遇到輸出異常時可以試著改用 FP32 跑那幾層。
+      </p>
+
+      <h2>5. 連到量化</h2>
+      <p>
+        從 FP32 到 BF16 是「降精度但仍是浮點」。
+        接下來的量化更激進：<strong>改用整數表示</strong>，
+        再配一個縮放因子換算回浮點。
+        這就是下一課的主題。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>網路能容忍低精度，因為誤差互相抵消且表示冗餘</li>
+          <li>優化器累加、softmax、loss 必須保持高精度</li>
+          <li>混合精度：計算走 BF16，累積走 FP32</li>
+          <li>BF16 與 FP32 指數相同，轉換只需截斷</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何優化器需要 FP32 主權重</li>
+          <li>列出三個不能降精度的位置</li>
+          <li>解釋 BF16 轉換為何比 FP16 快</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課進入量化本身：把浮點數變成 4-bit 整數。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-49.html">← 上一課：FP32、FP16、BF16、FP8：位元怎麼分配</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-51.html">下一課：量化的本質：壓到 4 bit 失去了什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

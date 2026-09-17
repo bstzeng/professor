@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：Decoder-only 為什麼贏了 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="與 encoder-decoder、encoder-only 的比較，以及因果遮罩的作用。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 15 課</div>
+      <h1>Decoder-only 為什麼贏了</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較三種 Transformer 架構</li>
+          <li>理解 decoder-only 勝出的原因</li>
+          <li>知道 encoder 模型今天還用在哪</li>
+        </ul>
+      </div>
+
+      <h2>1. 三種架構</h2>
+      <table>
+        <thead><tr><th>類型</th><th>代表</th><th>注意力</th><th>擅長</th></tr></thead>
+        <tbody>
+          <tr><td>Encoder-only</td><td>BERT</td><td>雙向，看得到全文</td><td>分類、抽取、嵌入</td></tr>
+          <tr><td>Encoder-decoder</td><td>T5、BART</td><td>編碼端雙向，解碼端因果</td><td>翻譯、摘要</td></tr>
+          <tr><td><strong>Decoder-only</strong></td><td>GPT、Llama、Qwen</td><td>全程因果</td><td>生成，以及幾乎所有事</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. Decoder-only 為何勝出</h2>
+      <ul>
+        <li><strong>訓練訊號最密</strong>：每個位置都在預測下一個 token，一段 1000 token 的文字提供 1000 個學習訊號。
+            BERT 的遮罩式訓練只遮掉 15%，訊號密度差了六倍多。</li>
+        <li><strong>任務統一</strong>：翻譯、摘要、問答、分類，全部可以寫成「續寫」。
+            不需要為每個任務設計不同的頭。</li>
+        <li><strong>推論可快取</strong>：因果遮罩讓前面的 K、V 永遠不變，
+            於是有了 KV cache。雙向注意力做不到——新增一個 token 會改變所有位置的表示。</li>
+        <li><strong>Scaling 表現好</strong>：實證上同樣算力下，decoder-only 的 loss 下降得最漂亮。</li>
+      </ul>
+
+      <h2>3. 代價</h2>
+      <p>
+        因果遮罩意味著每個 token 只看得到左邊。
+        對「理解整句再判斷」的任務，這在理論上是劣勢。
+        但實務上被兩件事補償掉了：
+      </p>
+      <ol>
+        <li>模型夠大時，從左到右的表示已經足夠好</li>
+        <li>可以把問題放在前面、答案放在後面，用 prompt 繞過</li>
+      </ol>
+
+      <h2>4. Encoder 模型今天在哪</h2>
+      <p>
+        BERT 系列沒有消失，只是換了位置——它們現在是<strong>基礎設施</strong>：
+      </p>
+      <table>
+        <thead><tr><th>用途</th><th>為何用 encoder</th></tr></thead>
+        <tbody>
+          <tr><td>向量檢索（RAG 的 embedding）</td><td>雙向表示品質好，模型小、跑得快</td></tr>
+          <tr><td>重排序（reranker）</td><td>同上，而且一次只要輸出一個分數</td></tr>
+          <tr><td>內容分類與過濾</td><td>0.1B 的模型就夠，成本是 LLM 的千分之一</td></tr>
+          <tr><td>預訓練資料品質評分</td><td>要處理數兆 token，只能用小模型</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以一套完整的 RAG 系統裡，通常同時有 decoder-only 的生成模型
+        與 encoder-only 的嵌入模型。它們不是競爭關係。
+      </p>
+
+      <h2>5. 模組 C 總結</h2>
+      <p>現在你應該能看懂任何一個 Llama 系架構的完整資料流：</p>
+      <div class="code-block">token ids
+   │ 嵌入查表                       [seq, d_model]
+   ▼
+ ┌─ 重複 n_layers 次 ────────────────────────────┐
+ │  x = x + Attention(RMSNorm(x))   RoPE 在此作用 │
+ │  x = x + SwiGLU_FFN(RMSNorm(x))                │
+ └────────────────────────────────────────────────┘
+   │ final RMSNorm
+   ▼
+ lm_head                            [seq, vocab]
+   │ 取最後一個位置 + softmax + 取樣
+   ▼
+ 下一個 token</div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出 decoder-only 勝出的四個理由</li>
+          <li>解釋為何雙向注意力無法使用 KV cache</li>
+          <li>舉出 encoder 模型今天的兩個實際用途</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 D 開始，正面回答那個問題：參數量是怎麼決定的。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：一層 block 的完整參數計算</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：四個旋鈕：d_model、n_layers、n_heads、FFN 比例 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

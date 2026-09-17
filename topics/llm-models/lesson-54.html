@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 54 課：校準資料與 imatrix 在做什麼 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="為什麼量化需要餵資料，importance matrix 如何決定保留哪些權重。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 54 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 54 課</div>
+      <h1>校準資料與 imatrix 在做什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解校準資料的作用</li>
+          <li>掌握 imatrix 的原理</li>
+          <li>知道校準資料的選擇會影響什麼</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼量化需要資料</h2>
+      <p>
+        第 51 課的量化只看權重本身的分布。
+        但有個更重要的問題沒被考慮：<strong>哪些權重比較重要？</strong>
+      </p>
+      <p>
+        一個權重的重要性，不只取決於它的大小，
+        還取決於它<strong>乘上的輸入通常有多大</strong>。
+        如果某個輸入維度的啟動值總是很大，
+        那麼對應權重的一點點誤差就會被放大。
+      </p>
+      <div class="code-block">輸出誤差 ≈ Σ (權重誤差 × 輸入啟動值)
+
+權重誤差小但啟動值大  →  輸出誤差大
+權重誤差大但啟動值≈0  →  輸出誤差可忽略</div>
+      <p>
+        要知道啟動值的分布，就必須<strong>真的餵資料跑一遍</strong>。
+        這就是校準資料的用途。
+      </p>
+
+      <h2>2. imatrix</h2>
+      <p>
+        llama.cpp 的 importance matrix 做法很直接：
+      </p>
+      <ol>
+        <li>拿一份校準文本，用 FP16 模型跑一遍</li>
+        <li>記錄每一層每個輸入維度的啟動值平方和</li>
+        <li>存成一個 <code>.imatrix</code> 檔案</li>
+        <li>量化時用它加權——重要的維度分配更多位元或更細的 scale</li>
+      </ol>
+      <div class="code-block"># 產生 imatrix
+./llama-imatrix -m model-F16.gguf -f calibration.txt -o model.imatrix
+
+# 用它量化
+./llama-quantize --imatrix model.imatrix model-F16.gguf out-IQ4_XS.gguf IQ4_XS</div>
+
+      <h2>3. 效果</h2>
+      <table>
+        <thead><tr><th>量化等級</th><th>無 imatrix</th><th>有 imatrix</th></tr></thead>
+        <tbody>
+          <tr><td>Q6_K 以上</td><td>幾乎無差</td><td>幾乎無差</td></tr>
+          <tr><td>Q4_K_M</td><td>可用</td><td>略好</td></tr>
+          <tr><td>Q3_K_M</td><td>明顯劣化</td><td>改善明顯</td></tr>
+          <tr><td>IQ 系列（2–4 bit）</td><td><strong>不可用</strong></td><td>可用</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵結論：<strong>位元數越低，imatrix 越重要</strong>。
+        IQ 系列的設計本身就假設有 imatrix，沒有它品質會很差。
+      </p>
+
+      <h2>4. 校準資料怎麼選</h2>
+      <p>這是有爭議的部分。兩派做法：</p>
+      <table>
+        <thead><tr><th>做法</th><th>主張</th><th>風險</th></tr></thead>
+        <tbody>
+          <tr><td>用通用文本（維基、隨機語料）</td><td>不偏向任何用途，保持通用能力</td><td>特定領域表現未最佳化</td></tr>
+          <tr><td>用多樣化混合（含程式碼、多語言、對話）</td><td>涵蓋各種啟動模式</td><td>需要精心設計</td></tr>
+          <tr><td>用目標領域資料</td><td>該領域表現最好</td><td>其他領域可能退步</td></tr>
+        </tbody>
+      </table>
+      <p>
+        社群的主流是第二種。知名量化發佈者通常會在 model card 上
+        寫明用了什麼校準資料——<strong>這是判斷量化品質的重要線索</strong>。
+        沒寫的通常是用預設值，品質未必差，但你無從得知。
+      </p>
+
+      <h2>5. 一個實際的注意事項</h2>
+      <p>
+        如果你主要用中文，而 imatrix 是用純英文語料產生的，
+        理論上中文的表現會略差——因為中文 token 對應的啟動模式
+        沒有被校準資料涵蓋到。
+      </p>
+      <p>
+        實測上這個差異通常不大（1% 量級），但在低位元量化時會放大。
+        如果你很在意，可以：
+      </p>
+      <ul>
+        <li>選用校準資料含多語言的量化版本</li>
+        <li>或自己用中文語料產生 imatrix 再量化</li>
+      </ul>
+
+      <h2>6. 其他方法的校準</h2>
+      <p>
+        不只 GGUF。GPTQ 與 AWQ 也都需要校準資料：
+      </p>
+      <ul>
+        <li><strong>GPTQ</strong>：用校準資料計算 Hessian，決定誤差補償方向</li>
+        <li><strong>AWQ</strong>：用校準資料找出「重要通道」加以保護</li>
+        <li><strong>bitsandbytes</strong>：不需要，它是即時量化（品質也因此較差）</li>
+      </ul>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>權重的重要性取決於它乘上的啟動值大小</li>
+          <li>imatrix 記錄啟動值統計，指導量化分配</li>
+          <li>位元數越低，imatrix 越關鍵；IQ 系列沒它不能用</li>
+          <li>校準資料的語言與領域會影響結果</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何權重大小不等於重要性</li>
+          <li>解釋 imatrix 的產生流程</li>
+          <li>說出哪些量化方法需要校準資料</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 K 開始：終於進到 GGUF、GPTQ、AWQ 的正面對決。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-53.html">← 上一課：每權重位元數（bpw）與品質的關係</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-55.html">下一課：GGUF：它是容器格式，不是演算法 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
