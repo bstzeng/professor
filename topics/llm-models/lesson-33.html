@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：Base model 為什麼不能直接用 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="基座模型的實際行為、它為何會一直接下去，以及 few-shot 的來由。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 33 課</div>
+      <h1>Base model 為什麼不能直接用</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 base model 的實際行為</li>
+          <li>知道什麼時候該用 base 版</li>
+          <li>掌握 few-shot 提示的由來</li>
+        </ul>
+      </div>
+
+      <h2>1. Base model 在做什麼</h2>
+      <p>
+        它只學過一件事：<strong>續寫</strong>。給它一段文字，
+        它輸出統計上最像接下來會出現的內容。
+        它沒有「回答問題」的概念，也沒有「對話」的概念。
+      </p>
+      <div class="code-block">輸入：法國的首都是哪裡？
+
+Base 模型可能輸出：
+  德國的首都是哪裡？
+  義大利的首都是哪裡？
+  請在下方作答。
+  ──────────
+  第二題（5 分）...
+
+因為在網路語料裡，一個問句後面常常接的是更多問句。</div>
+
+      <h2>2. 它也沒有「停止」的概念</h2>
+      <p>
+        Base model 會一直寫下去，直到你設的長度上限。
+        它不知道什麼時候該閉嘴，因為訓練資料裡沒有「回答結束」這個訊號。
+        Instruct 模型則被教會在適當時機輸出 EOS token。
+      </p>
+
+      <h2>3. Few-shot：用格式誘導</h2>
+      <p>
+        既然它只會續寫，那就給它一個明顯的模式讓它接下去：
+      </p>
+      <div class="code-block">Q: 法國的首都是哪裡？
+A: 巴黎
+
+Q: 日本的首都是哪裡？
+A: 東京
+
+Q: 澳洲的首都是哪裡？
+A:</div>
+      <p>
+        這就是 GPT-3 論文展示的 few-shot learning。
+        它不是「學習」，而是<strong>用格式把續寫引導到你要的方向</strong>。
+        在 base model 上，這幾乎是唯一可行的用法。
+      </p>
+
+      <h2>4. 那為什麼還要發 base 版</h2>
+      <table>
+        <thead><tr><th>用途</th><th>為何要 base</th></tr></thead>
+        <tbody>
+          <tr><td>自己做微調</td><td>Instruct 版已經被調成特定風格，從 base 開始才乾淨</td></tr>
+          <tr><td>領域續訓</td><td>要灌入新知識時，base 沒有對話格式的包袱</td></tr>
+          <tr><td>研究</td><td>研究預訓練本身的性質，不能被後訓練污染</td></tr>
+          <tr><td>文字補全類應用</td><td>程式碼補全、寫作接龍，續寫本來就是需求</td></tr>
+          <tr><td>評測基線</td><td>測預訓練品質，不受後訓練影響</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 常見的誤用</h2>
+      <ul>
+        <li><strong>下載 base 版當聊天機器人</strong>：會得到一堆不知所云的續寫，
+            然後以為模型很爛</li>
+        <li><strong>對 base 版套用 chat template</strong>：它沒學過那些特殊 token，行為會很奇怪</li>
+        <li><strong>拿 base 版跑對話評測</strong>：分數當然低，但那不是它的用途</li>
+      </ul>
+      <p>
+        辨識方法很簡單：<strong>名字裡沒有 Instruct／Chat／it 的就是 base 版</strong>。
+        <code>Qwen2.5-7B</code> 是 base，<code>Qwen2.5-7B-Instruct</code> 才是能聊天的那個。
+      </p>
+
+      <h2>6. 中間地帶</h2>
+      <p>
+        近年出現一些「半成品」：只做了 SFT 沒做偏好優化的版本，
+        或是官方明確標示 <code>-SFT</code>、<code>-Base-Chat</code> 的模型。
+        它們會聽指令，但語氣生硬、拒答邏輯不完整。
+        通常是給人繼續做 DPO 用的中繼站。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>Base model 只會續寫，沒有回答與停止的概念</li>
+          <li>Few-shot 是用格式誘導續寫，不是真的學習</li>
+          <li>Base 版的用途是微調、續訓、研究與補全</li>
+          <li>名字裡沒有 Instruct／Chat／it 的就是 base</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋 base model 為何會一直寫下去</li>
+          <li>說明 few-shot 的運作原理</li>
+          <li>列出三個應該選 base 版的情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：SFT 與那個很容易搞錯的 chat template。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：一次預訓練要花多少錢、多少卡、多少天</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：SFT：指令微調與 chat template →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

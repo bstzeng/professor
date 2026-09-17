@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 74 課：為什麼 benchmark 分數會騙人 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="資料污染、飽和、過擬合榜單，以及如何辨識可疑的宣稱。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 74 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜評測與選型 · 第 74 課</div>
+      <h1>為什麼 benchmark 分數會騙人</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解資料污染的機制</li>
+          <li>認識榜單過擬合</li>
+          <li>學會辨識可疑的宣稱</li>
+        </ul>
+      </div>
+
+      <h2>1. 資料污染</h2>
+      <p>
+        評測題目散布在網路上——論文、GitHub、教學文章、討論串。
+        預訓練抓取網頁時，這些內容<strong>必然會進去</strong>。
+        於是模型不是在推理，而是在回憶。
+      </p>
+      <table>
+        <thead><tr><th>污染形式</th><th>難度</th></tr></thead>
+        <tbody>
+          <tr><td>原題直接出現</td><td>可用 n-gram 比對清除</td></tr>
+          <tr><td>改寫版本</td><td>難清</td></tr>
+          <tr><td>翻譯版本</td><td>很難清</td></tr>
+          <tr><td>討論串裡的片段解說</td><td>幾乎清不掉</td></tr>
+          <tr><td>刻意加進訓練集</td><td>清不掉，且是作弊</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以「我們做了去污染」這句話，
+        頂多代表第一種被清掉了。
+      </p>
+
+      <h2>2. 榜單過擬合</h2>
+      <p>
+        即使沒有直接污染，只要團隊反覆用某個榜單當開發指標
+        （調配方、選 checkpoint、挑超參數），
+        模型就會慢慢往那個榜單的分布靠攏。
+      </p>
+      <p>
+        這在統計上叫<strong>多重比較問題</strong>：
+        測試集被當成驗證集用了幾百次之後，它就不再是測試集。
+      </p>
+
+      <h2>3. 飽和</h2>
+      <p>
+        當前沿模型都拿到 90% 以上，剩下的 10% 多半是
+        題目本身的錯誤、標註爭議、或極端邊緣案例。
+        此時分數的差異<strong>沒有統計意義</strong>。
+      </p>
+      <ul>
+        <li>MMLU 早已飽和，MMLU-Pro 也在逼近</li>
+        <li>HumanEval 對前沿模型已無區分力</li>
+        <li>GPQA Diamond 對最強的模型也開始飽和</li>
+      </ul>
+      <p>
+        看到「90.1% vs 89.8%」這種比較，可以直接忽略——
+        誤差範圍比差距大。
+      </p>
+
+      <h2>4. 辨識可疑宣稱</h2>
+      <table>
+        <thead><tr><th>紅旗</th><th>為什麼可疑</th></tr></thead>
+        <tbody>
+          <tr><td>小模型宣稱勝過大它十倍的模型</td><td>通常是針對榜單優化</td></tr>
+          <tr><td>只貼一兩個 benchmark</td><td>可能只有那個好</td></tr>
+          <tr><td>沒說計分方式</td><td>可能是 pass@k 或用了工具</td></tr>
+          <tr><td>合併模型（merge）刷榜</td><td>典型的榜單過擬合（第 63 課）</td></tr>
+          <tr><td>分數與實際體驗落差大</td><td>相信你的體驗</td></tr>
+          <tr><td>沒有與基座模型對比</td><td>無法判斷微調到底有沒有幫助</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 比較可信的指標</h2>
+      <ol>
+        <li><strong>持續更新的動態評測</strong>：題目定期換新，模型來不及污染</li>
+        <li><strong>人類偏好競技場</strong>：真人盲測，難以直接優化（第 75 課）</li>
+        <li><strong>真實任務評測</strong>：SWE-bench 這類建立在真實 repo 上的</li>
+        <li><strong>三角驗證</strong>：靜態學術評測 + 人類偏好 + agent 任務，
+            三者一致才可信</li>
+        <li><strong>你自己的評測集</strong>：最可信，因為只有你有（第 76 課）</li>
+      </ol>
+
+      <h2>6. 一個實際做法</h2>
+      <p>
+        不要問「哪個模型分數最高」，改問
+        <strong>「哪幾個模型在我在乎的指標上都排在前面」</strong>，
+        取出三到五個候選，然後用自己的任務實測。
+      </p>
+      <p>
+        榜單的正確用途是<strong>縮小候選範圍</strong>，
+        不是做最終決定。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>污染幾乎不可能完全清除</li>
+          <li>反覆用同一榜單開發會造成過擬合</li>
+          <li>飽和的榜單上，小數點的差距沒有意義</li>
+          <li>榜單用來縮小候選，不用來做決定</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出四種資料污染形式</li>
+          <li>說明榜單過擬合的統計原因</li>
+          <li>說出三個可疑宣稱的紅旗</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看人類偏好評測：它解決了什麼、又有什麼問題。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-73.html">← 上一課：常見 benchmark 各測什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-75.html">下一課：人類偏好評測與競技場 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

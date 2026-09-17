@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：蒸餾：R1-Distill-Qwen-7B 這種名字是什麼意思 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="教師模型與學生模型、蒸餾資料的產生方式，以及命名慣例。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 38 課</div>
+      <h1>蒸餾：R1-Distill-Qwen-7B 這種名字是什麼意思</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解蒸餾的兩種做法</li>
+          <li>看懂 R1-Distill-Qwen-7B 這種命名</li>
+          <li>知道蒸餾模型的限制</li>
+        </ul>
+      </div>
+
+      <h2>1. 兩種蒸餾</h2>
+      <table>
+        <thead><tr><th>類型</th><th>做法</th><th>需要什麼</th></tr></thead>
+        <tbody>
+          <tr><td><strong>logit 蒸餾</strong>（白盒）</td><td>讓學生模型匹配教師模型的完整機率分布</td><td>教師模型的權重</td></tr>
+          <tr><td><strong>資料蒸餾</strong>（黑盒）</td><td>用教師模型生成大量輸出，當成 SFT 資料訓練學生</td><td>只要能呼叫教師模型</td></tr>
+        </tbody>
+      </table>
+      <p>
+        開源社群看到的幾乎都是第二種——因為第一種需要教師模型的權重，
+        而最強的模型通常不開放。
+      </p>
+
+      <h2>2. 為什麼有效</h2>
+      <p>
+        關鍵不在「壓縮參數」，而在<strong>資料品質</strong>。
+        教師模型生成的回答，比網路上抓來的資料乾淨、一致、格式統一，
+        而且可以針對特定能力大量生成。
+      </p>
+      <p>
+        對推理能力尤其有效：教師模型的思考鏈是
+        <strong>展示了完整推導過程的高品質資料</strong>，
+        這種資料在自然語料裡幾乎不存在。
+        讓小模型模仿這些思考鏈，它就學會了推理的形式。
+      </p>
+
+      <h2>3. 讀懂命名</h2>
+      <div class="code-block">DeepSeek-R1-Distill-Qwen-7B
+└──── 教師 ────┘ │  └─ 學生基座 ─┘
+                 蒸餾</div>
+      <table>
+        <thead><tr><th>部分</th><th>意義</th></tr></thead>
+        <tbody>
+          <tr><td>DeepSeek-R1</td><td>提供訓練資料的教師模型</td></tr>
+          <tr><td>Distill</td><td>用教師的輸出做 SFT</td></tr>
+          <tr><td>Qwen-7B</td><td><strong>學生的基座</strong>——架構、tokenizer、預訓練知識都來自這裡</td></tr>
+        </tbody>
+      </table>
+      <p>
+        再強調一次第 3 課的重點：
+        這是一個 <strong>Qwen 模型</strong>，不是 DeepSeek 模型。
+        它的 <code>config.json</code> 是 Qwen 架構、詞表是 Qwen 詞表、
+        底層知識是 Qwen 預訓練來的。DeepSeek 只提供了訓練資料。
+      </p>
+
+      <h2>4. 蒸餾模型的限制</h2>
+      <ul>
+        <li><strong>學形式不學能力</strong>：模型會模仿思考鏈的樣子，
+            但如果基座本身缺乏相關知識，思考過程會「看起來對但結論錯」</li>
+        <li><strong>上限受基座限制</strong>：7B 的基座不會因為蒸餾就變成 70B</li>
+        <li><strong>繼承教師的錯誤</strong>：教師答錯的題目，學生會學到錯誤答案</li>
+        <li><strong>領域外表現差</strong>：蒸餾資料集中在數學與程式，其他領域可能沒有提升甚至退步</li>
+        <li><strong>授權問題</strong>：用某些商用 API 的輸出訓練競爭模型，多半違反其服務條款</li>
+      </ul>
+
+      <h2>5. 怎麼判斷一個蒸餾模型好不好</h2>
+      <ol>
+        <li>看基座是什麼——基座決定天花板</li>
+        <li>看蒸餾資料的規模與領域——model card 有寫的通常比較可信</li>
+        <li>用你自己的任務測，不要只看它宣稱的數學分數</li>
+        <li>注意輸出長度——蒸餾出來的推理模型很會寫，成本要先算</li>
+      </ol>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>開源看到的蒸餾幾乎都是「用教師輸出當 SFT 資料」</li>
+          <li>有效的原因是資料品質，不是參數壓縮</li>
+          <li>命名中最後的家族才是真正的架構與基座</li>
+          <li>上限受基座限制，且會繼承教師的錯誤</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>區分 logit 蒸餾與資料蒸餾</li>
+          <li>說明 <code>R1-Distill-Llama-8B</code> 的架構是誰的</li>
+          <li>列出蒸餾模型的三個限制</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 H 開始：你自己的顯卡能做的那些事。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：GRPO 與可驗證獎勵：推理模型怎麼練出來的</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：全參數微調 vs PEFT →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

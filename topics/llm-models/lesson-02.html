@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 課：訓練四階段全景：從一張顯卡到一個 checkpoint ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="預訓練、中期訓練、後訓練、量化四個階段各自在做什麼、花多少錢。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 2 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜導論：一個模型從無到有 · 第 2 課</div>
+      <h1>訓練四階段全景：從一張顯卡到一個 checkpoint</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握模型誕生的四個階段</li>
+          <li>知道每個階段的成本量級差多少</li>
+          <li>理解為什麼你看到的模型幾乎都是別人第二手加工的</li>
+        </ul>
+      </div>
+
+      <h2>1. 四個階段</h2>
+      <table>
+        <thead><tr><th>階段</th><th>做什麼</th><th>資料量</th><th>成本量級</th><th>誰做得起</th></tr></thead>
+        <tbody>
+          <tr><td>預訓練</td><td>在數兆 token 上學「下一個字是什麼」</td><td>1–20T tokens</td><td>百萬至數千萬美元</td><td>大公司／國家級實驗室</td></tr>
+          <tr><td>中期訓練</td><td>延長 context、補強特定領域、續訓</td><td>百億至千億 tokens</td><td>數萬至數十萬美元</td><td>中型團隊</td></tr>
+          <tr><td>後訓練</td><td>SFT、RLHF／DPO、推理能力訓練</td><td>數萬至數百萬筆樣本</td><td>數千至數十萬美元</td><td>小團隊可做</td></tr>
+          <tr><td>量化／再製</td><td>壓成 4-bit、合併、做 LoRA</td><td>校準資料數百筆</td><td>幾美元至數百美元</td><td>個人</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意這個成本階梯：每往下一階，便宜大約<strong>兩個數量級</strong>。
+        這就是為什麼 Hugging Face 上有幾十萬個模型，
+        但真正從零預訓練出來的基座模型只有幾十個。
+      </p>
+
+      <h2>2. 預訓練產出什麼</h2>
+      <p>
+        預訓練的目標函數極其單純：<strong>給定前面的 token，預測下一個 token</strong>。
+        沒有人工標註，語料本身就是答案（self-supervised）。
+        訓練幾兆個 token 之後，模型學會的是語言的統計結構——
+        文法、事實、程式語法、推理模式，全部隱含在權重裡。
+      </p>
+      <p>
+        產出叫做 <strong>base model</strong>（基座模型）。
+        它會接話，但不會聽指令。你問它「法國的首都是哪裡？」，
+        它可能回你「法國的首都是哪裡？德國的首都是哪裡？義大利的……」——
+        因為在網路語料裡，問題後面接的常常是更多問題。
+      </p>
+
+      <h2>3. 後訓練把它變成助理</h2>
+      <p>
+        後訓練是一連串手術：
+      </p>
+      <ol>
+        <li><strong>SFT</strong>：餵幾萬到幾十萬筆「指令－回應」對，教它回答的格式</li>
+        <li><strong>偏好優化</strong>：用 RLHF 或 DPO，教它「哪種回答比較好」</li>
+        <li><strong>推理訓練</strong>（近幾年）：用可驗證的任務（數學、程式）做強化學習，練出長思考鏈</li>
+      </ol>
+      <p>
+        產出就是你看到的 <code>-Instruct</code>、<code>-Chat</code>、<code>-Thinking</code> 版本。
+        模組 G 會逐一拆解。
+      </p>
+
+      <h2>4. 量化與再製：社群的那一層</h2>
+      <p>
+        官方發的通常是 BF16 權重，一個 70B 模型 140 GB，一般人跑不動。
+        於是社群做兩件事：
+      </p>
+      <ul>
+        <li><strong>量化</strong>：壓成 4-bit，140 GB 變成約 40 GB，消費級硬體跑得動</li>
+        <li><strong>再製</strong>：微調、合併、移除拒答行為，產生各種衍生版本</li>
+      </ul>
+      <p>
+        所以你在 HF 上搜一個模型，會看到官方一個 repo、
+        底下掛著幾十個 <code>-GGUF</code>、<code>-AWQ</code>、<code>-abliterated</code> 的社群 repo。
+        這不是混亂，是這個生態的正常結構。
+      </p>
+
+      <h2>5. 一張圖式的總結</h2>
+      <div class="code-block">網路文字 (15T tokens)
+      │  預訓練：數千張 GPU × 數週，數百萬美元
+      ▼
+  Base Model  ────────────────► 學術研究、續訓的起點
+      │  SFT + 偏好優化 + 推理訓練
+      ▼
+ Instruct Model ──────────────► 官方發佈的可用版本（BF16）
+      │  社群量化 / 微調 / 合併
+      ▼
+  GGUF Q4_K_M / AWQ / LoRA ──► 你實際下載的那個檔案</div>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>四階段：預訓練 → 中期訓練 → 後訓練 → 量化再製，成本每階差兩個數量級</li>
+          <li>預訓練只做一件事：預測下一個 token</li>
+          <li>Base model 會接話不會聽話，後訓練才讓它變成助理</li>
+          <li>你下載的多半是第三手：官方權重經過社群量化</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出四個階段與各自的成本量級</li>
+          <li>解釋 base model 為何不能直接當助理用</li>
+          <li>說明為什麼 HF 上同一個模型會有幾十個 repo</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課直接面對你的問題：那些名字為什麼這麼難讀。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-01.html">← 上一課：什麼是「一個模型」：權重、架構、tokenizer 三件套</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-03.html">下一課：為什麼 Hugging Face 上的名字這麼亂 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

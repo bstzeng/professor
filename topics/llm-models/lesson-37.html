@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：GRPO 與可驗證獎勵：推理模型怎麼練出來的 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="RLVR 的想法、GRPO 的群組相對優勢，以及長思考鏈的由來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 37 課</div>
+      <h1>GRPO 與可驗證獎勵：推理模型怎麼練出來的</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解可驗證獎勵（RLVR）的想法</li>
+          <li>掌握 GRPO 的機制</li>
+          <li>知道推理模型的代價</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題：獎勵從哪來</h2>
+      <p>
+        RLHF 的獎勵來自人類偏好，而人類偏好是主觀的、昂貴的、
+        而且對「這個數學解法對不對」這種問題並不可靠。
+      </p>
+      <p>
+        但有些任務的答案<strong>可以自動驗證</strong>：
+      </p>
+      <table>
+        <thead><tr><th>任務</th><th>驗證方式</th></tr></thead>
+        <tbody>
+          <tr><td>數學題</td><td>比對最終答案</td></tr>
+          <tr><td>程式題</td><td>跑單元測試</td></tr>
+          <tr><td>邏輯謎題</td><td>檢查約束是否滿足</td></tr>
+          <tr><td>格式要求</td><td>用規則檢查</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這類任務不需要 reward model——<strong>驗證器就是獎勵函數</strong>，
+        而且它不會被駭客攻擊（答案對就是對）。
+        這條路線叫 <strong>RLVR</strong>（Reinforcement Learning with Verifiable Rewards）。
+      </p>
+
+      <h2>2. GRPO</h2>
+      <p>
+        PPO 需要一個 critic 模型來估計「這個狀態有多好」，
+        那是額外的一整個模型。GRPO 的做法是<strong>用同組樣本的平均值取代 critic</strong>：
+      </p>
+      <div class="code-block">對同一個問題，取樣 G 個答案（例如 G=8）
+分別驗證，得到獎勵 r_1 ... r_G
+
+優勢 A_i = (r_i − mean(r)) / std(r)
+
+然後照這個優勢更新策略，加上 KL 懲罰綁住參考模型。</div>
+      <p>
+        直覺是：<strong>比同一題的其他嘗試好，就強化；比較差，就抑制。</strong>
+        不需要絕對的價值估計，只需要組內相對比較。
+        省下一整個 critic 模型，記憶體與工程複雜度都大幅下降。
+      </p>
+
+      <h2>3. 長思考鏈是怎麼「長出來」的</h2>
+      <p>
+        這是最反直覺的部分：<strong>沒有人教模型要想很久</strong>。
+      </p>
+      <p>
+        訓練時只獎勵「答案正確」。模型在探索過程中發現：
+        多寫一些推導步驟、檢查一下、換個方法再試，
+        答對的機率比較高。於是它自己把回答越寫越長。
+      </p>
+      <p>
+        訓練曲線上會看到平均輸出長度隨訓練步數持續上升，
+        同時準確率也上升。「先想再答」是<strong>湧現出來的策略</strong>，
+        不是被指定的格式。
+      </p>
+
+      <h2>4. 代價</h2>
+      <table>
+        <thead><tr><th>代價</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>輸出 token 暴增</td><td>一題可能先產出數千 token 的思考，成本翻好幾倍</td></tr>
+          <tr><td>延遲高</td><td>使用者要等思考跑完才看到答案</td></tr>
+          <tr><td>過度思考</td><td>簡單問題也要想半天</td></tr>
+          <tr><td>只在可驗證領域有效</td><td>寫作、對話這類任務沒有自動驗證器</td></tr>
+          <tr><td>可讀性</td><td>純 RL 訓出來的思考鏈可能語言混雜、難以閱讀</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項是實務上的重要發現：
+        純粹靠 RL 訓練會產出「能用但人看不懂」的思考過程，
+        所以正式版通常會先用一批人工整理過的思考鏈做冷啟動 SFT，
+        再進 RL。
+      </p>
+
+      <h2>5. 在 model card 上的樣子</h2>
+      <ul>
+        <li><code>-Thinking</code>、<code>-Reasoning</code>、<code>R1</code> 之類的標記</li>
+        <li>輸出裡會有 <code>&lt;think&gt;...&lt;/think&gt;</code> 包起來的段落</li>
+        <li>有些模型提供「開關」，可以在 prompt 或參數中關掉思考</li>
+        <li>評測分數在數學與程式上明顯高，在一般對話上未必</li>
+      </ul>
+      <p>
+        選型提醒：如果你的任務是摘要、改寫、分類，
+        <strong>推理模型通常是浪費</strong>——你會付五倍的 token 成本買一個不需要的能力。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 RLVR 為何不需要 reward model</li>
+          <li>解釋 GRPO 如何取代 critic</li>
+          <li>說出推理模型的三個代價</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：把大模型的能力搬到小模型上。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：DPO 家族：ORPO、KTO、SimPO</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：蒸餾：R1-Distill-Qwen-7B 這種名字是什麼意思 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

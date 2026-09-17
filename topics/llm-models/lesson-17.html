@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：參數量公式：手算一個 7B 模型 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="用完整公式手算 Llama 架構的 7B 模型，並與官方數字對照誤差。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜參數量是怎麼決定的 · 第 17 課</div>
+      <h1>參數量公式：手算一個 7B 模型</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>從目標參數量反推架構配置</li>
+          <li>完成一次完整的設計計算</li>
+          <li>理解設計時的取捨</li>
+        </ul>
+      </div>
+
+      <h2>1. 題目</h2>
+      <p>
+        要設計一個<strong>約 70 億參數</strong>的模型，
+        詞表 128,000、不綁定權重、使用 GQA（8 個 KV 頭）、SwiGLU。
+        請決定 d_model、layers、d_ff。
+      </p>
+
+      <h2>2. 步驟一：扣掉詞表</h2>
+      <div class="code-block">詞表相關 = 2 × 128,000 × d_model
+
+先猜 d_model = 4096:
+  詞表相關 = 2 × 128,000 × 4,096 = 1,048,576,000 ≈ 1.05 B
+
+Transformer 層可用預算 = 7.0 B − 1.05 B ≈ 5.95 B</div>
+
+      <h2>3. 步驟二：定深寬比</h2>
+      <p>
+        依第 16 課的慣例，<code>d_model / n_layers ≈ 128</code>，
+        取 d_model=4096 則 layers ≈ 32。
+      </p>
+      <div class="code-block">每層預算 = 5,950,000,000 / 32 ≈ 185,900,000</div>
+
+      <h2>4. 步驟三：拆成注意力與 FFN</h2>
+      <div class="code-block">注意力（head_dim=128, heads=32, kv=8）:
+  = 4096 × 128 × (2×32 + 2×8)
+  = 4096 × 128 × 80
+  = 41,943,040
+
+FFN 可用 = 185,900,000 − 41,943,040 − 8,192 ≈ 143,948,768
+
+d_ff = 143,948,768 / (3 × 4096) ≈ 11,715</div>
+
+      <h2>5. 步驟四：對齊</h2>
+      <p>
+        11,715 要對齊到 256 的倍數。11,715 / 256 = 45.76，
+        取 45 → 11,520，或取 46 → 11,776。選 11,776 試算：
+      </p>
+      <div class="code-block">FFN   = 3 × 4096 × 11,776 = 144,703,488
+注意力 =                      41,943,040
+norms =                            8,192
+每層  =                     186,654,720
+× 32  =                   5,972,951,040
+
+嵌入  = 128,000 × 4,096 =   524,288,000
+lm_head =                   524,288,000
+final norm =                      4,096
+──────────────────────────────────────
+總計  =                   7,021,531,136  ≈ 7.02 B</div>
+      <p>
+        目標 7.0 B，結果 7.02 B，誤差 <strong>0.3%</strong>。設計完成。
+      </p>
+
+      <h2>6. 如果要調整</h2>
+      <table>
+        <thead><tr><th>想要</th><th>怎麼改</th><th>後果</th></tr></thead>
+        <tbody>
+          <tr><td>推論更快</td><td>層數 32 → 28，d_ff 補寬</td><td>延遲下降，但深度不足可能影響推理能力</td></tr>
+          <tr><td>長 context 更省</td><td>kv 頭 8 → 4</td><td>KV cache 減半，品質略降</td></tr>
+          <tr><td>知識容量更大</td><td>d_ff 加寬</td><td>參數上升，但推論成本也上升</td></tr>
+          <tr><td>小裝置可跑</td><td>綁定權重</td><td>省 0.52 B，小模型划算</td></tr>
+        </tbody>
+      </table>
+
+      <h2>7. 一個現實提醒</h2>
+      <p>
+        以上是<strong>架構設計</strong>。真正決定模型好壞的是
+        資料、訓練 token 數與後訓練品質。
+        同樣 7B 的架構，用 1T tokens 練與用 15T tokens 練，
+        差距遠大於架構上的任何微調。模組 E 與 F 處理這件事。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>照本課步驟設計一個 3B 模型（詞表 152,000、綁定權重）</li>
+          <li>說明為何要先扣掉詞表再分配層預算</li>
+          <li>解釋 d_ff 對齊 256 的理由</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：同樣的參數量，該做得寬還是做得深。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：四個旋鈕：d_model、n_layers、n_heads、FFN 比例</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：寬 vs 深：同參數量下的取捨 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

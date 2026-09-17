@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 77 課：選型決策樹：從需求走到模型與量化等級 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="把前面所有模組收束成一條可執行的選型流程。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 77 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜評測與選型 · 第 77 課</div>
+      <h1>選型決策樹：從需求走到模型與量化等級</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>建立完整的選型流程</li>
+          <li>把前面所有模組的結論串起來</li>
+          <li>產出一個可執行的決定</li>
+        </ul>
+      </div>
+
+      <h2>1. 決策樹</h2>
+      <div class="code-block">步驟 1：硬體限制
+   顯存／記憶體有多少？扣掉 2 GB 系統與 KV cache
+        │
+步驟 2：任務類型
+   ├── 需要推理（數學、程式、複雜分析）→ 考慮推理模型，但算好 token 成本
+   ├── 需要長 context → 檢查 rope_scaling 是不是原生
+   ├── 中文為主 → 檢查 tokenizer 與中文評測
+   └── 一般對話／改寫／分類 → 一般 Instruct 模型即可
+        │
+步驟 3：尺寸與量化
+   在記憶體預算內，選「參數量最大 × Q4_K_M」的組合
+   記憶體很充裕才往 Q5/Q6 走
+        │
+步驟 4：格式
+   本機自用 → GGUF ／ Mac → GGUF 或 MLX ／ 服務端 → AWQ 或 FP8
+        │
+步驟 5：候選清單
+   挑 3–5 個模型，不要只挑一個
+        │
+步驟 6：實測
+   用你自己的三十題評測集跑一遍（第 76 課）
+        │
+步驟 7：決定
+   同分時選：檔案小的、社群活躍的、授權寬鬆的</div>
+
+      <h2>2. 記憶體預算速算</h2>
+      <table>
+        <thead><tr><th>你的記憶體</th><th>Q4_K_M 可跑</th><th>MoE 可考慮</th></tr></thead>
+        <tbody>
+          <tr><td>8 GB</td><td>7–8B</td><td>不建議</td></tr>
+          <tr><td>12 GB</td><td>12–14B</td><td>不建議</td></tr>
+          <tr><td>16 GB</td><td>14–22B</td><td>小型 MoE</td></tr>
+          <tr><td>24 GB</td><td>27–32B</td><td>30B-A3B 級</td></tr>
+          <tr><td>48 GB</td><td>70B</td><td>中型 MoE</td></tr>
+          <tr><td>128 GB（統一記憶體）</td><td>70B 以上</td><td>大型 MoE 最適合</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 三個典型情境的完整答案</h2>
+      <p><strong>情境一：8 GB 顯卡的筆電，想做中文摘要與改寫</strong></p>
+      <ul>
+        <li>記憶體預算：約 6 GB 給模型</li>
+        <li>尺寸：7–8B</li>
+        <li>量化：Q4_K_M（約 4.9 GB）</li>
+        <li>模型：挑中文能力好的 7–8B Instruct（看 tokenizer 的中文效率，第 7 課）</li>
+        <li>格式：GGUF，引擎用 Ollama 或 LM Studio</li>
+        <li>不要：推理模型（輸出太長）、MoE（記憶體不夠）</li>
+      </ul>
+
+      <p><strong>情境二：24 GB 顯卡，想用來寫程式</strong></p>
+      <ul>
+        <li>記憶體預算：約 22 GB</li>
+        <li>選項 A：32B dense @ Q4_K_M（約 19 GB）——品質高，速度約 30 tok/s</li>
+        <li>選項 B：30B-A3B MoE @ Q4_K_M（約 18 GB）——速度快很多，品質略低</li>
+        <li>建議：兩個都下載，用你自己的程式任務實測（第 76 課）</li>
+        <li>格式：GGUF 或 EXL2（後者可精確填滿顯存）</li>
+      </ul>
+
+      <p><strong>情境三：要服務公司內部一百人</strong></p>
+      <ul>
+        <li>這是批次服務場景，與單人完全不同（第 70 課）</li>
+        <li>引擎：vLLM 或 SGLang</li>
+        <li>格式：AWQ 或 FP8</li>
+        <li>關鍵瓶頸是 KV cache 不是權重——一百人同時用，KV 可能要幾十 GB（第 68 課）</li>
+        <li>MoE 在這裡很划算：活躍參數少，吞吐量高</li>
+        <li>要先算清楚併發數與 context 長度</li>
+      </ul>
+
+      <h2>4. 同分時的加分項</h2>
+      <table>
+        <thead><tr><th>加分項</th><th>為什麼</th></tr></thead>
+        <tbody>
+          <tr><td>Apache 2.0 或 MIT 授權</td><td>商用無虞（第 65 課）</td></tr>
+          <tr><td>官方有發 GGUF 或 QAT 版</td><td>品質有保障（第 66 課）</td></tr>
+          <tr><td>社群活躍</td><td>有問題找得到解法</td></tr>
+          <tr><td>有多個尺寸的同系列</td><td>之後可以無痛換大或換小</td></tr>
+          <tr><td>原生長 context</td><td>不靠外推（第 69 課）</td></tr>
+          <tr><td>tokenizer 中文效率好</td><td>省成本與 context（第 7 課）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 模組 N 總結</h2>
+      <ul>
+        <li>公開 benchmark 用來縮小候選，不用來做決定</li>
+        <li>污染與過擬合讓分數普遍高估</li>
+        <li>競技場較難作弊，但有長度與格式偏誤</li>
+        <li>自製三十題評測集是最可信的依據</li>
+        <li>選型流程：硬體 → 任務 → 尺寸量化 → 格式 → 候選 → 實測</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>照決策樹替你自己的機器選一個模型</li>
+          <li>說明服務端場景與單人場景的關鍵差異</li>
+          <li>列出三個同分時的加分項</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 O 開始：開源權重與商用 API 之間怎麼選。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-76.html">← 上一課：自己建 eval set</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-78.html">下一課：開源權重與商用 API：什麼時候用哪邊 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

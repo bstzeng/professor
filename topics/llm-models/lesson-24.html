@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：為什麼現在大家都 over-train ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="Llama 3 的 8B 餵了 15T tokens，遠超 Chinchilla 最適點的原因。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Scaling Law：該練多大、餵多少 · 第 24 課</div>
+      <h1>為什麼現在大家都 over-train</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為何現代模型遠超 Chinchilla 比例</li>
+          <li>知道 over-train 的代價與好處</li>
+          <li>掌握「訓練最適」與「部署最適」的差別</li>
+        </ul>
+      </div>
+
+      <h2>1. 現況</h2>
+      <table>
+        <thead><tr><th>模型</th><th>參數</th><th>訓練 tokens</th><th>比值</th><th>Chinchilla 建議</th></tr></thead>
+        <tbody>
+          <tr><td>Chinchilla</td><td>70 B</td><td>1.4 T</td><td>20</td><td>20 ✓</td></tr>
+          <tr><td>Llama 1 7B</td><td>7 B</td><td>1.0 T</td><td>143</td><td>7× 超標</td></tr>
+          <tr><td>Llama 2 7B</td><td>7 B</td><td>2.0 T</td><td>286</td><td>14× 超標</td></tr>
+          <tr><td>Llama 3 8B</td><td>8 B</td><td>15 T</td><td><strong>1,875</strong></td><td>94× 超標</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Llama 3 8B 餵的資料量是 Chinchilla 建議的<strong>九十幾倍</strong>。
+        照 Chinchilla 的邏輯，這筆算力拿去訓練一個更大的模型會得到更低的 loss。
+        那為什麼還要這樣做？
+      </p>
+
+      <h2>2. 因為 Chinchilla 算錯了成本</h2>
+      <p>
+        Chinchilla 最適化的是<strong>訓練算力</strong>。
+        但一個模型訓練一次，之後要被呼叫幾十億次。
+        對模型的擁有者來說，真正的總成本是：
+      </p>
+      <div class="code-block">總成本 = 訓練成本 + 推論次數 × 每次推論成本
+       = 6ND      + R × 2N
+
+推論成本與 N 成正比。R 夠大時，第二項完全主導。</div>
+      <p>
+        於是最適解會往「<strong>更小的 N、更大的 D</strong>」移動：
+        多花訓練成本，換一個永遠更便宜、更快的模型。
+      </p>
+
+      <h2>3. 這個交換有多划算</h2>
+      <p>
+        假設一個 8B 模型與一個 30B 模型表現相當（前者靠 over-train 追上）：
+      </p>
+      <table>
+        <thead><tr><th></th><th>8B（over-trained）</th><th>30B（Chinchilla 最適）</th></tr></thead>
+        <tbody>
+          <tr><td>訓練成本</td><td>高（15T tokens）</td><td>低（0.6T tokens）</td></tr>
+          <tr><td>每 token 推論成本</td><td>1×</td><td>3.75×</td></tr>
+          <tr><td>顯存需求（Q4）</td><td>約 5 GB</td><td>約 18 GB</td></tr>
+          <tr><td>能跑的裝置</td><td>筆電、手機</td><td>需要好顯卡</td></tr>
+          <tr><td>一億次推論後的總成本</td><td>低很多</td><td>高</td></tr>
+        </tbody>
+      </table>
+      <p>
+        對要把模型發給幾億人用的公司來說，這個選擇非常明確。
+      </p>
+
+      <h2>4. Over-train 的極限在哪</h2>
+      <p>
+        不是無限的。實證上會遇到三堵牆：
+      </p>
+      <ul>
+        <li><strong>報酬遞減</strong>：loss 對 D 是對數關係，token 加倍帶來的改善越來越小</li>
+        <li><strong>資料耗盡</strong>：高品質的公開文字是有限的，重複餵同樣資料超過約 4 個 epoch 後，效益明顯衰減</li>
+        <li><strong>訓練時間</strong>：15T tokens 已經要跑好幾週，再往上工程風險大幅上升</li>
+      </ul>
+      <p>
+        這也是合成資料、多模態資料、以及「中期訓練」
+        這些做法出現的原因——真實文字不夠用了。
+      </p>
+
+      <h2>5. 兩個「最適」要分清楚</h2>
+      <table>
+        <thead><tr><th></th><th>訓練最適（Chinchilla）</th><th>部署最適（現代做法）</th></tr></thead>
+        <tbody>
+          <tr><td>最小化什麼</td><td>固定算力下的 loss</td><td>總擁有成本</td></tr>
+          <tr><td>tokens/param</td><td>約 20</td><td>數百至數千</td></tr>
+          <tr><td>適用情境</td><td>研究、一次性實驗</td><td>要大量部署的產品</td></tr>
+          <tr><td>結果</td><td>大模型少資料</td><td>小模型海量資料</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以下次看到「這個模型只有 8B 但表現像 30B」，
+        答案通常不是什麼架構魔法，而是<strong>它被餵了非常多資料</strong>。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 Llama 3 8B 的 tokens/param 比值</li>
+          <li>說明為何推論成本會讓最適解偏向小模型</li>
+          <li>列出 over-train 的三個極限</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把推論成本正式寫進公式。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：Kaplan 2020 與 Chinchilla 2022</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：推理成本進入公式：訓練一次、跑一億次 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

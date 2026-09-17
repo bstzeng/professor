@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 52 課：PTQ 與 QAT：事後量化與訓練中量化 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="兩條路線的成本與效果差異，以及為何社群幾乎只用 PTQ。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 52 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 52 課</div>
+      <h1>PTQ 與 QAT：事後量化與訓練中量化</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>區分 PTQ 與 QAT</li>
+          <li>知道各自的成本與效果</li>
+          <li>理解為何社群幾乎只用 PTQ</li>
+        </ul>
+      </div>
+
+      <h2>1. 兩條路線</h2>
+      <table>
+        <thead><tr><th></th><th>PTQ（事後量化）</th><th>QAT（訓練中量化）</th></tr></thead>
+        <tbody>
+          <tr><td>時機</td><td>模型訓練完成後</td><td>訓練過程中</td></tr>
+          <tr><td>需要</td><td>幾百筆校準資料</td><td>完整訓練資料與算力</td></tr>
+          <tr><td>時間</td><td>幾分鐘到幾小時</td><td>與訓練同量級</td></tr>
+          <tr><td>誰能做</td><td>任何人，一張消費級顯卡</td><td>只有模型擁有者</td></tr>
+          <tr><td>低位元效果</td><td>4-bit 可，3-bit 以下吃力</td><td>2-bit 也可行</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. PTQ 的流程</h2>
+      <ol>
+        <li>載入 FP16 模型</li>
+        <li>餵入幾百筆校準資料，記錄每層的啟動值分布</li>
+        <li>依分布決定每組權重的 scale 與 zero</li>
+        <li>逐層量化，有些方法會補償誤差（第 58 課）</li>
+        <li>存成量化格式</li>
+      </ol>
+      <p>
+        整個過程<strong>不更新權重本身</strong>（除了誤差補償），
+        所以很快，一個 7B 模型在消費級顯卡上幾十分鐘就能做完。
+        這就是為什麼社群量化者能在官方發布後幾小時內就發出所有格式。
+      </p>
+
+      <h2>3. QAT 的想法</h2>
+      <p>
+        在訓練時就模擬量化的效果，讓模型「學會」在低精度下工作：
+      </p>
+      <div class="code-block">前向：w_fake = dequant(quant(w))     模擬量化誤差
+      用 w_fake 計算
+
+反向：梯度直接穿過量化操作（straight-through estimator）
+      更新原本的 FP32 權重</div>
+      <p>
+        模型因此會把權重調整到「量化後仍然好用」的位置。
+        效果明顯優於 PTQ，尤其在 3-bit 以下。
+      </p>
+
+      <h2>4. 為何社群不用 QAT</h2>
+      <ul>
+        <li><strong>要有訓練資料</strong>：官方的預訓練資料不公開</li>
+        <li><strong>要有算力</strong>：等於重跑一次微調甚至訓練</li>
+        <li><strong>每個位元數要各做一次</strong>：想要 Q4、Q5、Q6 三種就要做三次</li>
+        <li><strong>PTQ 已經夠好</strong>：在 4-bit 以上，兩者差距不大</li>
+      </ul>
+      <p>
+        所以 QAT 主要出現在<strong>官方發布的量化版本</strong>——
+        有些模型會同時發 BF16 與官方 QAT 的 4-bit 版，
+        後者品質通常優於社群的 PTQ 版。看到官方 QAT 版可以優先選。
+      </p>
+
+      <h2>5. 中間路線</h2>
+      <table>
+        <thead><tr><th>方法</th><th>做法</th><th>成本</th></tr></thead>
+        <tbody>
+          <tr><td>校準式 PTQ</td><td>用少量資料統計分布</td><td>極低</td></tr>
+          <tr><td>誤差補償 PTQ（GPTQ）</td><td>逐層調整剩餘權重補償誤差</td><td>低</td></tr>
+          <tr><td>逐層蒸餾</td><td>讓量化層的輸出匹配原始層</td><td>中</td></tr>
+          <tr><td>QAT 微調</td><td>在少量資料上做 QAT 微調</td><td>中高</td></tr>
+          <tr><td>完整 QAT</td><td>從頭訓練</td><td>極高</td></tr>
+        </tbody>
+      </table>
+      <p>
+        實務上你會遇到的幾乎都是前三種。
+        GPTQ 就是「誤差補償 PTQ」的代表，第 58 課詳述。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出 PTQ 與 QAT 的四項差異</li>
+          <li>解釋 straight-through estimator 的作用</li>
+          <li>說明為何看到官方 QAT 版可以優先選</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：位元數降低時，品質到底掉多少。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-51.html">← 上一課：量化的本質：壓到 4 bit 失去了什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-53.html">下一課：每權重位元數（bpw）與品質的關係 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

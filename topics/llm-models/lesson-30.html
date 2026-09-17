@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：訓練迴圈：loss、learning rate schedule、warmup ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="交叉熵損失、餘弦衰減、warmup，以及 loss 曲線該長什麼樣。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預訓練：資料與過程 · 第 30 課</div>
+      <h1>訓練迴圈：loss、learning rate schedule、warmup</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解交叉熵損失與 perplexity 的關係</li>
+          <li>掌握 learning rate schedule 的形狀與理由</li>
+          <li>知道正常的 loss 曲線該長什麼樣</li>
+        </ul>
+      </div>
+
+      <h2>1. 損失函數</h2>
+      <p>
+        預訓練的目標是最大化正確 token 的機率，等價於最小化交叉熵：
+      </p>
+      <div class="code-block">loss = − (1/T) Σ log P(正確的下一個 token | 前面的內容)</div>
+      <p>
+        <strong>Perplexity</strong>（困惑度）就是它的指數：
+        <code>ppl = e^loss</code>。
+        直覺意義是「模型在每一步大概在幾個選項之間猶豫」。
+      </p>
+      <table>
+        <thead><tr><th>loss</th><th>ppl</th><th>意義</th></tr></thead>
+        <tbody>
+          <tr><td>11.5</td><td>約 100,000</td><td>隨機亂猜（詞表大小）</td></tr>
+          <tr><td>4.0</td><td>約 55</td><td>學到基本文法</td></tr>
+          <tr><td>2.5</td><td>約 12</td><td>一般小模型的水準</td></tr>
+          <tr><td>1.8</td><td>約 6</td><td>大模型在乾淨語料上的水準</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意 ppl 只能在<strong>同一份測試資料、同一個 tokenizer</strong> 下比較。
+        不同 tokenizer 的 ppl 完全不可比——這是第 53 課評估量化品質時的重要前提。
+      </p>
+
+      <h2>2. Learning rate schedule</h2>
+      <div class="code-block">   lr
+    │      ╱▔▔▔╲___
+    │     ╱         ╲___
+    │    ╱               ╲___
+    │   ╱                     ╲__
+    └──┴────────────────────────────▶ steps
+       warmup        cosine decay</div>
+      <table>
+        <thead><tr><th>階段</th><th>做什麼</th><th>為什麼</th></tr></thead>
+        <tbody>
+          <tr><td>Warmup</td><td>從 0 線性升到最大 lr，佔總步數 0.1–2%</td><td>初期梯度方向很亂，直接用大 lr 會炸掉</td></tr>
+          <tr><td>主階段</td><td>餘弦衰減到最大值的 10% 或更低</td><td>前期大步探索，後期小步收斂</td></tr>
+          <tr><td>退火</td><td>降到接近零，配合高品質資料</td><td>第 29 課提到的技巧</td></tr>
+        </tbody>
+      </table>
+      <p>
+        近年也流行 WSD（warmup-stable-decay）：中間維持固定 lr，
+        最後才快速衰減。好處是可以<strong>隨時決定停在哪</strong>——
+        不必像餘弦那樣一開始就得決定總步數。
+      </p>
+
+      <h2>3. 正常的 loss 曲線</h2>
+      <ul>
+        <li><strong>前幾百步</strong>：從 11 附近急速下降到 4–5（學會詞頻分布）</li>
+        <li><strong>接下來</strong>：緩慢下降，在對數座標上接近直線</li>
+        <li><strong>整體形狀</strong>：冪次律，token 加倍帶來固定的 loss 減量</li>
+        <li><strong>沒有平台期</strong>：如果卡住不動，通常是 lr 設錯或資料有問題</li>
+      </ul>
+
+      <h2>4. 幾種異常</h2>
+      <table>
+        <thead><tr><th>現象</th><th>可能原因</th><th>處理</th></tr></thead>
+        <tbody>
+          <tr><td>loss 突然衝到 NaN</td><td>FP16 溢位、lr 太大</td><td>換 BF16、降 lr、回到上一個 checkpoint</td></tr>
+          <tr><td>loss spike 後自己恢復</td><td>遇到異常資料批次</td><td>通常可忽略，或跳過該批次</td></tr>
+          <tr><td>loss 下降但評測沒進步</td><td>資料重複導致記憶</td><td>檢查去重</td></tr>
+          <tr><td>loss 異常低</td><td>評測資料混進訓練集</td><td>檢查去污染</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項特別值得警惕：<strong>loss 太好看通常是壞消息</strong>。
+      </p>
+
+      <h2>5. 其他關鍵超參數</h2>
+      <table>
+        <thead><tr><th>參數</th><th>典型值</th><th>作用</th></tr></thead>
+        <tbody>
+          <tr><td>batch size（token 數）</td><td>百萬至千萬 token</td><td>越大梯度越穩，但報酬遞減</td></tr>
+          <tr><td>最大 lr</td><td>1e-4 至 3e-4（大模型更小）</td><td>與 batch size 相關</td></tr>
+          <tr><td>優化器</td><td>AdamW</td><td>每個參數要存兩個動量，是記憶體大戶</td></tr>
+          <tr><td>weight decay</td><td>0.1</td><td>正則化</td></tr>
+          <tr><td>gradient clipping</td><td>1.0</td><td>防止單次異常梯度炸掉訓練</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意 AdamW 的記憶體代價：每個參數除了權重本身，
+        還要存一階動量與二階動量。以 BF16 權重 + FP32 優化器狀態計算，
+        每個參數約需 <strong>12–16 bytes</strong>——
+        這是全參數微調記憶體需求的主因（第 39 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>把 loss=2.3 換算成 perplexity</li>
+          <li>說明 warmup 存在的理由</li>
+          <li>解釋為何 loss 異常低反而是警訊</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：一個模型放不進一張顯卡時，怎麼切。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：資料配方與課程式訓練</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：分散式訓練：DP、TP、PP、FSDP 與 ZeRO →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

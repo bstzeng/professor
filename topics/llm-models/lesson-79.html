@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 79 課：從零到一：把一個模型跑起來的完整清單 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從挑模型、選量化、下載到跑起來的逐步檢查表。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 79 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 O｜總結 · 第 79 課</div>
+      <h1>從零到一：把一個模型跑起來的完整清單</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>提供一份可照做的完整清單</li>
+          <li>把整門課的知識變成操作步驟</li>
+          <li>知道每一步出錯時該查哪一課</li>
+        </ul>
+      </div>
+
+      <h2>步驟 1：確認硬體</h2>
+      <div class="code-block"># NVIDIA
+nvidia-smi --query-gpu=name,memory.total --format=csv
+
+# Apple Silicon
+system_profiler SPHardwareDataType | grep Memory
+
+# 一般記憶體
+free -h        # Linux</div>
+      <p>記下可用顯存／記憶體，扣掉 2 GB。→ 第 67、72 課</p>
+
+      <h2>步驟 2：選模型</h2>
+      <ol>
+        <li>依記憶體決定尺寸上限（第 72 課的對照表）</li>
+        <li>依任務類型篩選（推理／程式／中文／一般）</li>
+        <li>挑 3–5 個候選</li>
+        <li>確認授權（第 65 課）</li>
+      </ol>
+
+      <h2>步驟 3：選量化等級</h2>
+      <p>從 Q4_K_M 開始。檔案大小 × 1.2 要小於可用記憶體。→ 第 56 課</p>
+
+      <h2>步驟 4：安裝引擎</h2>
+      <div class="code-block"># 最簡單：Ollama
+curl -fsSL https://ollama.com/install.sh | sh
+ollama run qwen2.5:7b
+
+# 圖形介面：下載 LM Studio
+
+# 最大控制權：llama.cpp
+git clone https://github.com/ggml-org/llama.cpp
+cd llama.cpp && cmake -B build && cmake --build build -j
+</div>
+      <p>→ 第 70 課</p>
+
+      <h2>步驟 5：下載模型</h2>
+      <div class="code-block">pip install huggingface_hub
+
+huggingface-cli download bartowski/SomeModel-7B-Instruct-GGUF \
+  SomeModel-7B-Instruct-Q4_K_M.gguf \
+  --local-dir ./models</div>
+      <p>GGUF repo 只要下載一個檔案。→ 第 64 課</p>
+
+      <h2>步驟 6：跑起來</h2>
+      <div class="code-block"># llama.cpp：開一個 OpenAI 相容 server
+./build/bin/llama-server \
+  -m ./models/SomeModel-7B-Instruct-Q4_K_M.gguf \
+  -c 8192 \
+  -ngl 99 \
+  --port 8080
+
+# 測試
+curl http://localhost:8080/v1/chat/completions \
+  -H "Content-Type: application/json" \
+  -d '{"messages":[{"role":"user","content":"你好"}]}'</div>
+
+      <h2>步驟 7：驗證與調整</h2>
+      <table>
+        <thead><tr><th>症狀</th><th>處理</th><th>參考</th></tr></thead>
+        <tbody>
+          <tr><td>OOM</td><td>降 <code>-c</code>、降 <code>-ngl</code>、換小模型</td><td>第 71 課</td></tr>
+          <tr><td>講不停</td><td>檢查 chat template 與 EOS token</td><td>第 34、55 課</td></tr>
+          <tr><td>輸出亂碼</td><td>tokenizer 不匹配，或量化檔案損毀</td><td>第 1 課</td></tr>
+          <tr><td>速度太慢</td><td>確認是否全部在 GPU（看啟動日誌的層數）</td><td>第 71 課</td></tr>
+          <tr><td>長對話後變笨</td><td>超過原生 context，檢查 rope_scaling</td><td>第 69 課</td></tr>
+          <tr><td>品質不如預期</td><td>先確認不是 base 版；再試高一級量化</td><td>第 33、53 課</td></tr>
+        </tbody>
+      </table>
+
+      <h2>步驟 8：建立評測</h2>
+      <p>
+        寫三十題你自己的任務，跑過所有候選模型，選出最好的。
+        這一步不能跳。→ 第 76 課
+      </p>
+
+      <h2>步驟 9：長期維護</h2>
+      <ul>
+        <li>llama.cpp 定期更新（新架構支援與 bug 修正）</li>
+        <li>有新模型時用同一份評測集重測，換不換一目瞭然</li>
+        <li>把評測腳本與模型設定放進版本控制</li>
+        <li>記錄每個模型的速度與品質，累積成自己的對照表</li>
+      </ul>
+
+      <h2>一頁式速查</h2>
+      <div class="code-block">記憶體 → 尺寸 → Q4_K_M → GGUF → llama.cpp/Ollama → 測三十題 → 決定
+
+常用檢查：
+  檔案大小 × 1.2 < 可用記憶體
+  KV cache = 2 × 層 × n_kv × head_dim × ctx × 2 bytes
+  速度上限 ≈ 記憶體頻寬 ÷ 檔案大小
+  參數量 = L×(d·hd·(2h+2kv) + 3·d·ff + 2d) + V·d×(1或2) + d</div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>照這份清單實際跑起來一個模型</li>
+          <li>說出遇到 OOM 時的三個處理順序</li>
+          <li>寫出速度上限的估算公式</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課清掉十五個常見誤解。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-78.html">← 上一課：開源權重與商用 API：什麼時候用哪邊</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-80.html">下一課：常見誤解十五條 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

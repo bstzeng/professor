@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：量化的本質：壓到 4 bit 失去了什麼 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="縮放因子、零點、分組量化，以及誤差從哪裡來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜數值精度與量化原理 · 第 51 課</div>
+      <h1>量化的本質：壓到 4 bit 失去了什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握量化的基本數學</li>
+          <li>理解分組量化與縮放因子</li>
+          <li>知道誤差從哪裡來</li>
+        </ul>
+      </div>
+
+      <h2>1. 基本做法</h2>
+      <p>
+        量化就是把一組浮點數映射到有限個整數，再記住換算方式。
+      </p>
+      <div class="code-block">【對稱量化】
+scale = max(|w|) / (2^(bits−1) − 1)
+q     = round(w / scale)              整數，範圍 [−7, 7]（4-bit）
+w'    = q × scale                     還原
+
+【非對稱量化】
+scale = (max − min) / (2^bits − 1)
+zero  = round(−min / scale)
+q     = round(w / scale) + zero       範圍 [0, 15]
+w'    = (q − zero) × scale</div>
+      <p>
+        非對稱多存一個零點，但能更貼合不對稱的分布。
+        4-bit 量化幾乎都用非對稱。
+      </p>
+
+      <h2>2. 手算一個例子</h2>
+      <p>假設一組權重：<code>[0.12, −0.45, 0.88, −0.03, 0.31]</code>，量化到 4-bit 對稱。</p>
+      <div class="code-block">max(|w|) = 0.88
+scale    = 0.88 / 7 = 0.1257
+
+w      →  w/scale  →  round  →  還原      →  誤差
+ 0.12  →   0.955   →    1    →  0.1257   →  +0.0057
+−0.45  →  −3.580   →   −4    → −0.5029   →  −0.0529
+ 0.88  →   7.000   →    7    →  0.8800   →   0.0000
+−0.03  →  −0.239   →    0    →  0.0000   →  +0.0300
+ 0.31  →   2.466   →    2    →  0.2514   →  −0.0586</div>
+      <p>
+        觀察兩件事：<strong>最大值沒有誤差</strong>（它定義了 scale），
+        而<strong>小數值的相對誤差很大</strong>（−0.03 直接被歸零）。
+      </p>
+
+      <h2>3. 離群值的災難</h2>
+      <p>
+        如果這組裡有一個 <code>8.0</code>：
+      </p>
+      <div class="code-block">scale = 8.0 / 7 = 1.143
+
+原本的 0.12、−0.45、0.31 全部 round 成 0
+→ 整組除了離群值以外全部歸零</div>
+      <p>
+        這是量化最大的敵人。而 LLM 的啟動值裡
+        <strong>確實存在少數維度的數值遠大於其他</strong>（離群特徵）。
+        AWQ、GPTQ、imatrix 這些方法要解的，本質上都是這個問題。
+      </p>
+
+      <h2>4. 分組量化</h2>
+      <p>解法是：不要整個矩陣共用一個 scale，而是<strong>切成小組</strong>。</p>
+      <table>
+        <thead><tr><th>group size</th><th>每組權重數</th><th>額外開銷</th><th>品質</th></tr></thead>
+        <tbody>
+          <tr><td>per-tensor</td><td>整個矩陣</td><td>幾乎為零</td><td>差</td></tr>
+          <tr><td>per-channel</td><td>一整列／行</td><td>低</td><td>中</td></tr>
+          <tr><td>128</td><td>128</td><td>中</td><td>好（常用預設）</td></tr>
+          <tr><td>32</td><td>32</td><td>高</td><td>最好</td></tr>
+        </tbody>
+      </table>
+      <p>
+        開銷是實際的。以 group size 128、每組存一個 FP16 scale 與一個 zero 為例：
+      </p>
+      <div class="code-block">每 128 個權重：
+  128 × 4 bit = 512 bit  （權重本身）
+  + 16 bit（scale）+ 16 bit（zero）= 32 bit
+
+實際 bpw = (512 + 32) / 128 = 4.25 bit</div>
+      <p>
+        所以「4-bit 量化」實際上是 4.25 bpw 或更多。
+        這解釋了為什麼 Q4_K_M 的實際 bpw 是 4.8 而不是 4.0——
+        還有其他保護機制（第 56 課）。
+      </p>
+
+      <h2>5. 權重量化 vs 啟動值量化</h2>
+      <table>
+        <thead><tr><th></th><th>只量化權重（W4A16）</th><th>權重與啟動值都量化（W8A8）</th></tr></thead>
+        <tbody>
+          <tr><td>省記憶體</td><td>✓</td><td>✓</td></tr>
+          <tr><td>省計算</td><td>✗（要解回 FP16 計算）</td><td>✓（整數乘法）</td></tr>
+          <tr><td>難度</td><td>低</td><td>高（啟動值離群更嚴重）</td></tr>
+          <tr><td>本機常見</td><td>GGUF、GPTQ、AWQ 都是</td><td>較少見</td></tr>
+        </tbody>
+      </table>
+      <p>
+        你在 HF 上看到的量化模型幾乎都是<strong>只量化權重</strong>。
+        因為單次推論的瓶頸是記憶體頻寬不是算力（第 22 課），
+        省記憶體就等於加速。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>手算 <code>[0.5, −1.2, 0.1, 2.0]</code> 的 4-bit 對稱量化</li>
+          <li>解釋離群值為何是災難</li>
+          <li>算出 group size 32、FP16 scale+zero 的實際 bpw</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：事後量化與訓練中量化的差別。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：為什麼 BF16 打敗 FP16</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：PTQ 與 QAT：事後量化與訓練中量化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

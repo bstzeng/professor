@@ -9430,6 +9430,173 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "llm-models",
+      category: "tech",
+      title: "LLM 模型全解：從訓練到讀懂一張 Model Card",
+      description:
+        "完整拆解大型語言模型：一個模型由哪三件套組成、Transformer 的參數量如何精確計算、scaling law 怎麼決定該練多大餵多少資料、預訓練與後訓練各做了什麼、LoRA 與 QLoRA 的原理，以及 Hugging Face 上那些看不懂的名詞——GGUF、GPTQ、AWQ、Q4_K_M、imatrix、8x7B 與 A3B 全部逐一解釋，最後收束到 VRAM 與 KV cache 的實際計算、推理引擎選擇、評測的陷阱與一條完整的選型決策樹。",
+      icon: "🧠",
+      url: "topics/llm-models/index.html",
+      modules: [
+        {
+          title: "模組 A｜導論：一個模型從無到有",
+          courses: [
+            { title: "什麼是「一個模型」：權重、架構、tokenizer 三件套", url: "topics/llm-models/lesson-01.html" },
+            { title: "訓練四階段全景：從一張顯卡到一個 checkpoint", url: "topics/llm-models/lesson-02.html" },
+            { title: "為什麼 Hugging Face 上的名字這麼亂", url: "topics/llm-models/lesson-03.html" },
+            { title: "名詞速查表：六十個縮寫一次列完", url: "topics/llm-models/lesson-04.html" }
+          ]
+        },
+        {
+          title: "模組 B｜文字怎麼變成數字",
+          courses: [
+            { title: "Token 與 tokenizer：BPE 與 SentencePiece", url: "topics/llm-models/lesson-05.html" },
+            { title: "Embedding：把 token 變成向量", url: "topics/llm-models/lesson-06.html" },
+            { title: "為什麼中文比英文吃 token", url: "topics/llm-models/lesson-07.html" },
+            { title: "位置編碼：從絕對位置到 RoPE", url: "topics/llm-models/lesson-08.html" },
+            { title: "vocab 大小如何吃掉參數", url: "topics/llm-models/lesson-09.html" }
+          ]
+        },
+        {
+          title: "模組 C｜Transformer 骨架",
+          courses: [
+            { title: "注意力機制：Q、K、V 在算什麼", url: "topics/llm-models/lesson-10.html" },
+            { title: "Multi-head attention 與它的參數帳", url: "topics/llm-models/lesson-11.html" },
+            { title: "FFN／MLP：大部分參數其實在這裡", url: "topics/llm-models/lesson-12.html" },
+            { title: "殘差、RMSNorm 與 SwiGLU", url: "topics/llm-models/lesson-13.html" },
+            { title: "一層 block 的完整參數計算", url: "topics/llm-models/lesson-14.html" },
+            { title: "Decoder-only 為什麼贏了", url: "topics/llm-models/lesson-15.html" }
+          ]
+        },
+        {
+          title: "模組 D｜參數量是怎麼決定的",
+          courses: [
+            { title: "四個旋鈕：d_model、n_layers、n_heads、FFN 比例", url: "topics/llm-models/lesson-16.html" },
+            { title: "參數量公式：手算一個 7B 模型", url: "topics/llm-models/lesson-17.html" },
+            { title: "寬 vs 深：同參數量下的取捨", url: "topics/llm-models/lesson-18.html" },
+            { title: "GQA 與 MQA：KV head 怎麼省記憶體", url: "topics/llm-models/lesson-19.html" },
+            { title: "為什麼永遠是 7B、8B、13B、70B", url: "topics/llm-models/lesson-20.html" },
+            { title: "實作：從 config.json 反推任何模型的參數量", url: "topics/llm-models/lesson-21.html" }
+          ]
+        },
+        {
+          title: "模組 E｜Scaling Law：該練多大、餵多少",
+          courses: [
+            { title: "算力預算：C ≈ 6ND 這個公式", url: "topics/llm-models/lesson-22.html" },
+            { title: "Kaplan 2020 與 Chinchilla 2022", url: "topics/llm-models/lesson-23.html" },
+            { title: "為什麼現在大家都 over-train", url: "topics/llm-models/lesson-24.html" },
+            { title: "推理成本進入公式：訓練一次、跑一億次", url: "topics/llm-models/lesson-25.html" },
+            { title: "決策表：給定預算怎麼選 N 與 D", url: "topics/llm-models/lesson-26.html" }
+          ]
+        },
+        {
+          title: "模組 F｜預訓練：資料與過程",
+          courses: [
+            { title: "資料從哪來：Common Crawl、FineWeb、The Pile", url: "topics/llm-models/lesson-27.html" },
+            { title: "資料清洗：去重、品質分類、過濾", url: "topics/llm-models/lesson-28.html" },
+            { title: "資料配方與課程式訓練", url: "topics/llm-models/lesson-29.html" },
+            { title: "訓練迴圈：loss、learning rate schedule、warmup", url: "topics/llm-models/lesson-30.html" },
+            { title: "分散式訓練：DP、TP、PP、FSDP 與 ZeRO", url: "topics/llm-models/lesson-31.html" },
+            { title: "一次預訓練要花多少錢、多少卡、多少天", url: "topics/llm-models/lesson-32.html" }
+          ]
+        },
+        {
+          title: "模組 G｜後訓練：從會接話到會做事",
+          courses: [
+            { title: "Base model 為什麼不能直接用", url: "topics/llm-models/lesson-33.html" },
+            { title: "SFT：指令微調與 chat template", url: "topics/llm-models/lesson-34.html" },
+            { title: "RLHF：reward model 與 PPO", url: "topics/llm-models/lesson-35.html" },
+            { title: "DPO 家族：ORPO、KTO、SimPO", url: "topics/llm-models/lesson-36.html" },
+            { title: "GRPO 與可驗證獎勵：推理模型怎麼練出來的", url: "topics/llm-models/lesson-37.html" },
+            { title: "蒸餾：R1-Distill-Qwen-7B 這種名字是什麼意思", url: "topics/llm-models/lesson-38.html" }
+          ]
+        },
+        {
+          title: "模組 H｜微調：你自己做得到的部分",
+          courses: [
+            { title: "全參數微調 vs PEFT", url: "topics/llm-models/lesson-39.html" },
+            { title: "LoRA：低秩分解在做什麼", url: "topics/llm-models/lesson-40.html" },
+            { title: "QLoRA：4-bit 基底加 LoRA", url: "topics/llm-models/lesson-41.html" },
+            { title: "adapter、merged 與多 LoRA 切換", url: "topics/llm-models/lesson-42.html" },
+            { title: "該微調、該 RAG、還是該改 prompt", url: "topics/llm-models/lesson-43.html" }
+          ]
+        },
+        {
+          title: "模組 I｜MoE：AxB 到底什麼意思",
+          courses: [
+            { title: "稀疏模型的想法：不是每個 token 都要全部參數", url: "topics/llm-models/lesson-44.html" },
+            { title: "Router 與 expert：一次選幾個", url: "topics/llm-models/lesson-45.html" },
+            { title: "讀懂 8x7B：Mixtral 為何是 47B 而不是 56B", url: "topics/llm-models/lesson-46.html" },
+            { title: "讀懂 A3B：總參數與活躍參數的命名", url: "topics/llm-models/lesson-47.html" },
+            { title: "MoE 的代價：VRAM 全載、通訊開銷、負載不均", url: "topics/llm-models/lesson-48.html" }
+          ]
+        },
+        {
+          title: "模組 J｜數值精度與量化原理",
+          courses: [
+            { title: "FP32、FP16、BF16、FP8：位元怎麼分配", url: "topics/llm-models/lesson-49.html" },
+            { title: "為什麼 BF16 打敗 FP16", url: "topics/llm-models/lesson-50.html" },
+            { title: "量化的本質：壓到 4 bit 失去了什麼", url: "topics/llm-models/lesson-51.html" },
+            { title: "PTQ 與 QAT：事後量化與訓練中量化", url: "topics/llm-models/lesson-52.html" },
+            { title: "每權重位元數（bpw）與品質的關係", url: "topics/llm-models/lesson-53.html" },
+            { title: "校準資料與 imatrix 在做什麼", url: "topics/llm-models/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 K｜量化格式全解",
+          courses: [
+            { title: "GGUF：它是容器格式，不是演算法", url: "topics/llm-models/lesson-55.html" },
+            { title: "讀懂 Q4_K_M：K-quant 命名規則全表", url: "topics/llm-models/lesson-56.html" },
+            { title: "IQ 系列與 imatrix 量化", url: "topics/llm-models/lesson-57.html" },
+            { title: "GPTQ：逐層最小化誤差", url: "topics/llm-models/lesson-58.html" },
+            { title: "AWQ：保護最重要的那些權重", url: "topics/llm-models/lesson-59.html" },
+            { title: "EXL2、bitsandbytes、MLX、FP8：其餘格式與該選誰", url: "topics/llm-models/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 L｜讀懂一張 Model Card",
+          courses: [
+            { title: "命名結構拆解：組織／家族－尺寸－變體－量化", url: "topics/llm-models/lesson-61.html" },
+            { title: "變體後綴全表：Base、Instruct、Chat、it、Thinking", url: "topics/llm-models/lesson-62.html" },
+            { title: "社群後綴：distill、abliterated、uncensored、merge", url: "topics/llm-models/lesson-63.html" },
+            { title: "檔案清單：safetensors、config.json、tokenizer、shard", url: "topics/llm-models/lesson-64.html" },
+            { title: "授權與 gated repo", url: "topics/llm-models/lesson-65.html" },
+            { title: "誰做的量化：發佈者的差異", url: "topics/llm-models/lesson-66.html" }
+          ]
+        },
+        {
+          title: "模組 M｜跑起來：硬體與記憶體帳",
+          courses: [
+            { title: "VRAM 公式：權重、KV cache、啟動值、開銷", url: "topics/llm-models/lesson-67.html" },
+            { title: "KV cache 怎麼算，為什麼長 context 這麼貴", url: "topics/llm-models/lesson-68.html" },
+            { title: "Context length、RoPE scaling 與 YaRN", url: "topics/llm-models/lesson-69.html" },
+            { title: "推理引擎：llama.cpp、Ollama、LM Studio、vLLM、SGLang", url: "topics/llm-models/lesson-70.html" },
+            { title: "塞不下時的手段：offload、mmap、量化 KV cache", url: "topics/llm-models/lesson-71.html" },
+            { title: "對照表：你的硬體能跑哪些模型", url: "topics/llm-models/lesson-72.html" }
+          ]
+        },
+        {
+          title: "模組 N｜評測與選型",
+          courses: [
+            { title: "常見 benchmark 各測什麼", url: "topics/llm-models/lesson-73.html" },
+            { title: "為什麼 benchmark 分數會騙人", url: "topics/llm-models/lesson-74.html" },
+            { title: "人類偏好評測與競技場", url: "topics/llm-models/lesson-75.html" },
+            { title: "自己建 eval set", url: "topics/llm-models/lesson-76.html" },
+            { title: "選型決策樹：從需求走到模型與量化等級", url: "topics/llm-models/lesson-77.html" }
+          ]
+        },
+        {
+          title: "模組 O｜總結",
+          courses: [
+            { title: "開源權重與商用 API：什麼時候用哪邊", url: "topics/llm-models/lesson-78.html" },
+            { title: "從零到一：把一個模型跑起來的完整清單", url: "topics/llm-models/lesson-79.html" },
+            { title: "常見誤解十五條", url: "topics/llm-models/lesson-80.html" },
+            { title: "名詞總表與延伸閱讀", url: "topics/llm-models/lesson-81.html" }
+          ]
+        }
+      ]
     }
   ]
 };

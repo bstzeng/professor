@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：注意力機制：Q、K、V 在算什麼 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從「查字典」的比喻到 softmax(QK^T/√d)V 的實際計算。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 10 課</div>
+      <h1>注意力機制：Q、K、V 在算什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Q、K、V 各自代表什麼</li>
+          <li>看懂注意力的完整計算式</li>
+          <li>知道因果遮罩在做什麼</li>
+        </ul>
+      </div>
+
+      <h2>1. 一個比喻</h2>
+      <p>
+        把注意力想成查資料庫：
+      </p>
+      <table>
+        <thead><tr><th>符號</th><th>名稱</th><th>比喻</th></tr></thead>
+        <tbody>
+          <tr><td>Q</td><td>Query，查詢</td><td>我想找什麼</td></tr>
+          <tr><td>K</td><td>Key，鍵</td><td>每筆資料的標籤</td></tr>
+          <tr><td>V</td><td>Value，值</td><td>每筆資料的內容</td></tr>
+        </tbody>
+      </table>
+      <p>
+        差別在於：資料庫是精確比對，取出一筆；
+        注意力是<strong>模糊比對，取出所有筆的加權平均</strong>。
+        權重由 Q 與 K 的相似度決定。
+      </p>
+
+      <h2>2. 完整計算</h2>
+      <div class="code-block">輸入 X 形狀 [seq_len, d_model]
+
+Q = X · W_q        [seq, d_head]
+K = X · W_k        [seq, d_head]
+V = X · W_v        [seq, d_head]
+
+scores    = Q · Kᵀ / √d_head       [seq, seq]
+scores   += causal_mask             上三角設為 -∞
+weights   = softmax(scores)         每列加總為 1
+output    = weights · V             [seq, d_head]</div>
+      <p>逐行說明：</p>
+      <ul>
+        <li><strong>Q·Kᵀ</strong>：每個 token 對每個 token 算一個分數，得到 seq×seq 的方陣。這就是注意力計算量隨長度平方成長的原因。</li>
+        <li><strong>÷√d_head</strong>：維度越高內積越大，除以 √d 讓 softmax 不會過度尖銳（梯度消失）。</li>
+        <li><strong>causal_mask</strong>：把「看未來」的位置設成 -∞，softmax 之後變成 0。</li>
+        <li><strong>weights·V</strong>：按權重把各 token 的內容混合起來。</li>
+      </ul>
+
+      <h2>3. 因果遮罩</h2>
+      <p>
+        語言模型訓練時，一次餵進整個序列，同時預測每一個位置的下一個字。
+        如果不遮，第 3 個位置就能看到第 5 個字的答案——等於作弊。
+      </p>
+      <div class="code-block">        看得到 →  t1  t2  t3  t4
+預測 t2 時         ✓   ✗   ✗   ✗
+預測 t3 時         ✓   ✓   ✗   ✗
+預測 t4 時         ✓   ✓   ✓   ✗
+預測 t5 時         ✓   ✓   ✓   ✓</div>
+      <p>
+        這個下三角結構也是 KV cache 能成立的原因：
+        既然每個位置只看得到自己與前面，
+        那前面算過的 K 與 V 就永遠不會變，可以存起來重用（第 68 課）。
+      </p>
+
+      <h2>4. 為什麼這個設計有效</h2>
+      <ul>
+        <li><strong>任意距離一步到位</strong>：第 1 個字與第 1000 個字之間只隔一次矩陣乘法，不像 RNN 要傳 999 步</li>
+        <li><strong>完全平行</strong>：訓練時所有位置同時算，GPU 吃得飽</li>
+        <li><strong>權重由內容決定</strong>：不是固定的連接，而是每次依輸入動態算出來的</li>
+      </ul>
+      <p>
+        代價就是那個 seq×seq 的矩陣：序列翻倍，注意力計算量變四倍。
+        這是長 context 昂貴的根本原因。
+      </p>
+
+      <h2>5. FlashAttention 在解什麼</h2>
+      <p>
+        seq×seq 的分數矩陣如果真的整個寫進顯存，
+        32K 序列就是 10 億個數字。FlashAttention 的做法是
+        <strong>分塊計算、不落地</strong>——把中間矩陣留在 GPU 的高速 SRAM 裡分批處理。
+        它不改變數學結果，只改變記憶體存取方式，但實際效果是
+        長 context 從跑不動變成跑得動。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>注意力 = 用 Q 與 K 的相似度，對 V 做加權平均</li>
+          <li>÷√d_head 是為了穩定 softmax 的梯度</li>
+          <li>因果遮罩讓模型看不到未來，也讓 KV cache 成立</li>
+          <li>計算量與序列長度成平方，FlashAttention 解的是記憶體不是數學</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出 Q、K、V 各自的角色</li>
+          <li>解釋為何要除以 √d_head</li>
+          <li>說明因果遮罩與 KV cache 的關係</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：多頭是怎麼切的，以及它佔多少參數。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：vocab 大小如何吃掉參數</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：Multi-head attention 與它的參數帳 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：殘差、RMSNorm 與 SwiGLU ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="讓深層網路訓得起來的三個零件，以及 SwiGLU 為何要多一個矩陣。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 13 課</div>
+      <h1>殘差、RMSNorm 與 SwiGLU</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解殘差連接為何是深層網路的前提</li>
+          <li>知道 RMSNorm 相對 LayerNorm 省了什麼</li>
+          <li>掌握 pre-norm 與 post-norm 的差別</li>
+        </ul>
+      </div>
+
+      <h2>1. 殘差連接</h2>
+      <p>
+        每個子層的輸出不是直接往下傳，而是加回輸入：
+      </p>
+      <div class="code-block">x = x + Attention(Norm(x))
+x = x + FFN(Norm(x))</div>
+      <p>
+        那個 <code>x +</code> 就是殘差（residual）。它解決的是梯度消失：
+        反向傳播時，梯度有一條「直達車」可以不經過任何權重矩陣
+        直接回到前面的層。沒有它，超過十幾層的網路根本訓不起來。
+      </p>
+      <p>
+        另一個視角是<strong>殘差流（residual stream）</strong>：
+        把 x 看成一條貫穿所有層的匯流排，每一層讀取它、算出一點東西、寫回去。
+        這是目前理解 Transformer 內部運作最有用的心智模型。
+      </p>
+
+      <h2>2. LayerNorm 與 RMSNorm</h2>
+      <p>正規化的目的是讓每層的輸入分布穩定，避免數值飄掉。</p>
+      <div class="code-block">LayerNorm:  y = (x − μ) / σ × γ + β      需要算平均與標準差，有兩組參數
+RMSNorm:    y = x / RMS(x) × γ          只算均方根，只有一組參數
+
+RMS(x) = √( Σxᵢ² / n )</div>
+      <table>
+        <thead><tr><th></th><th>LayerNorm</th><th>RMSNorm</th></tr></thead>
+        <tbody>
+          <tr><td>參數</td><td>γ 與 β，共 2×d_model</td><td>只有 γ，d_model</td></tr>
+          <tr><td>運算</td><td>要先算平均再減</td><td>不需要減平均</td></tr>
+          <tr><td>速度</td><td>基準</td><td>快約 10–20%</td></tr>
+          <tr><td>效果</td><td>基準</td><td>實測幾乎相同</td></tr>
+        </tbody>
+      </table>
+      <p>
+        結論很簡單：去掉平均項不影響效果，卻省時間，
+        所以現在的模型幾乎全用 RMSNorm。
+        參數上它微不足道——8B 模型的所有 norm 加起來不到 30 萬參數。
+      </p>
+
+      <h2>3. Pre-norm 與 post-norm</h2>
+      <div class="code-block">Post-norm（原始 Transformer）:  x = Norm(x + Sublayer(x))
+Pre-norm（現代標準）        :  x = x + Sublayer(Norm(x))</div>
+      <p>
+        差別看起來很小，影響很大。Pre-norm 保留了一條<strong>完全沒有被正規化干擾的殘差通道</strong>，
+        訓練穩定得多，不需要複雜的 warmup 調參。
+        代價是最終輸出的尺度會隨層數累積，所以模型最後還要再接一個 final norm。
+      </p>
+
+      <h2>4. SwiGLU</h2>
+      <p>啟動函數的演進：</p>
+      <table>
+        <thead><tr><th>函數</th><th>形式</th><th>特點</th></tr></thead>
+        <tbody>
+          <tr><td>ReLU</td><td>max(0, x)</td><td>簡單，但負區間梯度為零</td></tr>
+          <tr><td>GELU</td><td>x · Φ(x)</td><td>平滑，GPT 系列常用</td></tr>
+          <tr><td>SiLU／Swish</td><td>x · sigmoid(x)</td><td>平滑且負區間不全死</td></tr>
+          <tr><td><strong>SwiGLU</strong></td><td>SiLU(xW_gate) ⊙ (xW_up)</td><td>閘控機制，效果最好</td></tr>
+        </tbody>
+      </table>
+      <p>
+        SwiGLU 的關鍵是那個「閘」：一條路徑決定<strong>要不要讓資訊通過</strong>，
+        另一條路徑決定<strong>通過的是什麼內容</strong>，兩者相乘。
+        這讓網路能做出條件式的判斷，而不只是固定的非線性壓縮。
+      </p>
+      <p>
+        代價就是第 12 課提到的：多一個矩陣，所以要把 d_ff 乘 2/3 來補。
+        論文的結論是即使參數持平，SwiGLU 仍然勝出。
+      </p>
+
+      <h2>5. 完整的一層長這樣</h2>
+      <div class="code-block">def block(x):
+    x = x + attention(rmsnorm(x))    # 跨 token 交換資訊
+    x = x + swiglu_ffn(rmsnorm(x))   # 逐 token 處理
+    return x
+
+# 疊 32 次，最後再一個 rmsnorm + lm_head</div>
+      <p>
+        整個 Llama 架構就這麼多。剩下的差異都在超參數：
+        幾層、多寬、幾個頭。下一課我們把它的參數精確算出來。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明殘差連接解決了什麼問題</li>
+          <li>比較 LayerNorm 與 RMSNorm 的差異</li>
+          <li>解釋 SwiGLU 的「閘」在做什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把一層的參數逐項加總，得到可以套用的公式。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：FFN／MLP：大部分參數其實在這裡</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：一層 block 的完整參數計算 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

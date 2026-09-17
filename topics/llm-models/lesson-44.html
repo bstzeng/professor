@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：稀疏模型的想法：不是每個 token 都要全部參數 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從 dense 到 sparse 的動機，以及條件計算的基本概念。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜MoE：AxB 到底什麼意思 · 第 44 課</div>
+      <h1>稀疏模型的想法：不是每個 token 都要全部參數</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解稀疏模型的基本動機</li>
+          <li>知道條件計算是什麼</li>
+          <li>建立總參數與活躍參數的區分</li>
+        </ul>
+      </div>
+
+      <h2>1. Dense 模型的浪費</h2>
+      <p>
+        一般（dense）模型處理每個 token 時，<strong>所有參數都會被用到</strong>。
+        不管你問的是「1+1 等於幾」還是「解釋量子糾纏」，
+        都要把全部 70B 參數算過一遍。
+      </p>
+      <p>
+        但直覺上，回答不同問題應該用到不同的知識。
+        如果能<strong>只啟動相關的那部分參數</strong>，
+        就能在不增加計算量的前提下擴大模型的知識容量。
+      </p>
+
+      <h2>2. 條件計算</h2>
+      <p>
+        MoE 的做法是把 FFN 層換成<strong>多個並列的 FFN</strong>（稱為專家），
+        再加一個小小的路由器決定這次要用哪幾個。
+      </p>
+      <div class="code-block">Dense 的一層：
+    x ──► Attention ──► FFN ──► y
+
+MoE 的一層：
+                      ┌─► Expert 1 ─┐
+    x ──► Attention ──┼─► Expert 2 ─┼─► 加權合併 ──► y
+                      ├─► Expert 3 ─┤
+                      └─► ...    ───┘
+                      ▲
+                   Router（決定啟動哪 2 個）</div>
+      <p>
+        注意力層通常<strong>不做 MoE</strong>，維持共享。
+        因為注意力的參數佔比小（第 12 課），而且它的功能是通用的。
+      </p>
+
+      <h2>3. 兩個參數量</h2>
+      <table>
+        <thead><tr><th>名詞</th><th>意義</th><th>決定什麼</th></tr></thead>
+        <tbody>
+          <tr><td><strong>總參數</strong>（total）</td><td>模型裡所有的參數</td><td>記憶體需求、檔案大小、知識容量</td></tr>
+          <tr><td><strong>活躍參數</strong>（active）</td><td>處理一個 token 實際用到的參數</td><td>計算量、推論速度</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Dense 模型的這兩個數字相同。MoE 則可以差很多倍。
+        這就是為什麼 MoE 的命名需要兩個數字——<strong>一個數字不足以描述它</strong>。
+      </p>
+
+      <h2>4. 為什麼這是好交易</h2>
+      <p>
+        回到第 25 課的成本模型：
+      </p>
+      <ul>
+        <li><strong>訓練算力</strong>與活躍參數成正比 → MoE 便宜</li>
+        <li><strong>推論算力</strong>與活躍參數成正比 → MoE 便宜</li>
+        <li><strong>記憶體</strong>與總參數成正比 → MoE 昂貴</li>
+        <li><strong>知識容量</strong>與總參數相關 → MoE 划算</li>
+      </ul>
+      <p>
+        所以 MoE 的本質是：<strong>用記憶體換算力</strong>。
+        對有大顯存但算力吃緊的服務端來說非常划算；
+        對顯存不足的個人使用者則不一定。
+      </p>
+
+      <h2>5. 一個常見誤解</h2>
+      <p>
+        <strong>「專家會分別負責不同的領域，例如一個管數學、一個管程式。」</strong>
+      </p>
+      <p>
+        這是錯的。實際觀察到的分工非常零碎且難以解釋——
+        可能某個專家對標點符號反應強烈，某個對特定語法結構反應強烈。
+        路由是在 <strong>token 層級</strong>做的，不是在「問題領域」層級。
+        同一個句子裡，不同的 token 可能被送到完全不同的專家。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>MoE 把 FFN 換成多個專家，每次只啟動幾個</li>
+          <li>注意力層通常保持共享</li>
+          <li>總參數決定記憶體，活躍參數決定速度</li>
+          <li>MoE 的本質是用記憶體換算力</li>
+          <li>專家不對應人類可理解的領域分工</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>區分總參數與活躍參數各自決定什麼</li>
+          <li>說明為何注意力層通常不做 MoE</li>
+          <li>解釋「用記憶體換算力」的意思</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看路由器怎麼運作，以及它的麻煩。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：該微調、該 RAG、還是該改 prompt</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：Router 與 expert：一次選幾個 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

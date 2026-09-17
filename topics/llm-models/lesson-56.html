@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 56 課：讀懂 Q4_K_M：K-quant 命名規則全表 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="Q／IQ、位元數、_K、_S/_M/_L 各代表什麼，附完整對照表。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 56 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 56 課</div>
+      <h1>讀懂 Q4_K_M：K-quant 命名規則全表</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>逐字拆解 GGUF 量化代號</li>
+          <li>建立完整的選擇對照表</li>
+          <li>知道 K-quant 的混合精度策略</li>
+        </ul>
+      </div>
+
+      <h2>1. 代號結構</h2>
+      <div class="code-block">Q  4  _K  _M
+│  │   │   └── 尺寸變體：S(小) / M(中) / L(大)
+│  │   └────── 使用 K-quant 方法
+│  └────────── 名義位元數
+└───────────── Quantized（IQ 則代表 i-quant）</div>
+
+      <h2>2. 三個世代</h2>
+      <table>
+        <thead><tr><th>世代</th><th>代號樣式</th><th>特徵</th></tr></thead>
+        <tbody>
+          <tr><td>Legacy</td><td>Q4_0、Q4_1、Q5_0、Q5_1、Q8_0</td><td>最早的簡單分塊量化，除 Q8_0 外已少用</td></tr>
+          <tr><td><strong>K-quant</strong></td><td>Q2_K ～ Q6_K，帶 _S/_M/_L</td><td>混合精度，目前主流</td></tr>
+          <tr><td><strong>i-quant</strong></td><td>IQ1_S ～ IQ4_XS</td><td>依賴 imatrix，極低位元的最佳選擇</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. K-quant 的混合精度</h2>
+      <p>
+        K-quant 的核心想法：<strong>不是所有層都用同一個位元數</strong>。
+        敏感的層保留更高精度。
+      </p>
+      <div class="code-block">以 Q4_K_M 為例（概念示意）：
+
+  attention.wv     →  Q6_K   ← 對品質影響大，給高位元
+  ffn_down         →  Q6_K   ← 同上
+  其餘注意力與 FFN  →  Q4_K
+  embedding / output → 通常 Q6_K 或更高</div>
+      <p>
+        所以 <code>_S</code>、<code>_M</code>、<code>_L</code> 的差別就是
+        「有多少層被提升到高位元」：
+      </p>
+      <table>
+        <thead><tr><th>後綴</th><th>意思</th><th>相對品質</th><th>相對大小</th></tr></thead>
+        <tbody>
+          <tr><td>_S（Small）</td><td>提升的層最少</td><td>較低</td><td>最小</td></tr>
+          <tr><td>_M（Medium）</td><td>中等</td><td>平衡</td><td>中</td></tr>
+          <tr><td>_L（Large）</td><td>提升的層最多</td><td>較高</td><td>最大</td></tr>
+        </tbody>
+      </table>
+      <p>這也解釋了為什麼 Q4_K_M 的實際 bpw 是 4.8 而不是 4.0。</p>
+
+      <h2>4. 完整對照表</h2>
+      <table>
+        <thead><tr><th>代號</th><th>約略 bpw</th><th>7B 檔案</th><th>建議</th></tr></thead>
+        <tbody>
+          <tr><td>Q8_0</td><td>8.5</td><td>約 7.2 GB</td><td>幾乎無損，小模型可用</td></tr>
+          <tr><td>Q6_K</td><td>6.6</td><td>約 5.5 GB</td><td>高品質，記憶體夠就用這個</td></tr>
+          <tr><td>Q5_K_M</td><td>5.7</td><td>約 4.8 GB</td><td>很好的平衡</td></tr>
+          <tr><td>Q5_K_S</td><td>5.5</td><td>約 4.6 GB</td><td>—</td></tr>
+          <tr><td><strong>Q4_K_M</strong></td><td><strong>4.8–4.9</strong></td><td><strong>約 4.1 GB</strong></td><td><strong>預設推薦</strong></td></tr>
+          <tr><td>Q4_K_S</td><td>4.6</td><td>約 3.9 GB</td><td>再省一點</td></tr>
+          <tr><td>IQ4_XS</td><td>4.3–4.5</td><td>約 3.7 GB</td><td>需 imatrix，品質接近 Q4_K_M</td></tr>
+          <tr><td>Q3_K_M</td><td>3.9</td><td>約 3.3 GB</td><td>開始明顯劣化</td></tr>
+          <tr><td>IQ3_M</td><td>3.7</td><td>約 3.2 GB</td><td>同位元下較好</td></tr>
+          <tr><td>Q2_K</td><td>2.6–3.4</td><td>約 2.6 GB</td><td>不建議</td></tr>
+          <tr><td>IQ2_XXS</td><td>2.1</td><td>約 1.9 GB</td><td>只在塞不下時的最後手段</td></tr>
+        </tbody>
+      </table>
+      <p>
+        （bpw 與檔案大小會因模型架構而異，尤其詞表大小影響明顯。
+        這張表以 7B 級模型為基準，請當量級參考。）
+      </p>
+
+      <h2>5. 選擇流程</h2>
+      <ol>
+        <li>算出可用記憶體（顯存 − 2 GB 給 KV cache 與系統）</li>
+        <li>從 <strong>Q4_K_M</strong> 開始試</li>
+        <li>還有餘裕 → 往上到 Q5_K_M 或 Q6_K</li>
+        <li>不夠 → 往下到 Q4_K_S，再不夠考慮 IQ4_XS</li>
+        <li>要到 Q3 以下 → 先考慮換小一號的模型</li>
+      </ol>
+      <p>
+        再重複一次第 53 課的原則：
+        <strong>同樣記憶體下，大模型的 Q4 通常優於小模型的 Q8。</strong>
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>拆解 <code>Q5_K_S</code> 每個部分的意思</li>
+          <li>說明 _S／_M／_L 的差別</li>
+          <li>在 8 GB 顯卡上替 14B 模型選一個量化等級</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理 IQ 系列：極低位元的那條路線。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-55.html">← 上一課：GGUF：它是容器格式，不是演算法</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-57.html">下一課：IQ 系列與 imatrix 量化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 60 課：EXL2、bitsandbytes、MLX、FP8：其餘格式與該選誰 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="剩下的主要格式各自綁定什麼硬體與推理引擎，附選擇決策表。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 60 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜量化格式全解 · 第 60 課</div>
+      <h1>EXL2、bitsandbytes、MLX、FP8：其餘格式與該選誰</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識其餘主要量化格式</li>
+          <li>知道各自綁定什麼硬體與引擎</li>
+          <li>用一張決策表完成選擇</li>
+        </ul>
+      </div>
+
+      <h2>1. EXL2 / EXL3</h2>
+      <table>
+        <tbody>
+          <tr><td>引擎</td><td>ExLlamaV2 / V3</td></tr>
+          <tr><td>硬體</td><td>NVIDIA CUDA only</td></tr>
+          <tr><td>特色</td><td>可指定任意平均 bpw（例如 4.65），逐層自動分配精度</td></tr>
+          <tr><td>優勢</td><td>單人推論速度極快；能精確填滿顯存</td></tr>
+          <tr><td>劣勢</td><td>生態小、權重少，通常要自己量化</td></tr>
+        </tbody>
+      </table>
+      <p>
+        EXL 的賣點是<strong>精細的尺寸控制</strong>：
+        你有 24 GB 顯卡想跑 32B 模型，可以直接指定 bpw=4.65
+        讓它剛好塞滿，而不是在 Q4_K_M（太小）與 Q5_K_M（太大）之間二選一。
+      </p>
+
+      <h2>2. bitsandbytes（bnb）</h2>
+      <table>
+        <tbody>
+          <tr><td>形式</td><td>PyTorch 的即時量化，不是預量化檔案</td></tr>
+          <tr><td>用法</td><td><code>load_in_4bit=True</code> 或 <code>load_in_8bit=True</code></td></tr>
+          <tr><td>優勢</td><td>零準備成本，任何 HF 模型都能直接用；<strong>支援訓練</strong></td></tr>
+          <tr><td>劣勢</td><td>品質與速度都不如專用量化格式</td></tr>
+        </tbody>
+      </table>
+      <p>
+        bnb 的定位很明確：<strong>它是給微調用的，不是給部署用的</strong>。
+        QLoRA（第 41 課）就是建立在它之上。
+        你看到的 <code>-bnb-4bit</code> 模型通常是為了讓人省下量化時間，
+        直接開始微調。
+      </p>
+
+      <h2>3. MLX</h2>
+      <table>
+        <tbody>
+          <tr><td>平台</td><td>Apple Silicon 專用</td></tr>
+          <tr><td>特色</td><td>針對統一記憶體架構最佳化</td></tr>
+          <tr><td>量化</td><td>支援 4-bit、8-bit，命名如 <code>-mlx-4bit</code></td></tr>
+          <tr><td>優勢</td><td>在 Mac 上通常比 llama.cpp 快；支援微調</td></tr>
+          <tr><td>劣勢</td><td>只能在 Mac 上跑</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. FP8 與其他</h2>
+      <ul>
+        <li><strong>FP8</strong>：需要較新的 NVIDIA GPU 原生支援。
+            品質幾乎無損、速度快，是資料中心部署的新選擇。8 bit 所以省一半記憶體。</li>
+        <li><strong>INT8（W8A8）</strong>：權重與啟動值都量化，能用整數運算加速。
+            需要更謹慎的校準。</li>
+        <li><strong>AQLM／QuIP#</strong>：極低位元（2-bit）的研究型方法，品質好但量化成本極高。</li>
+        <li><strong>HQQ</strong>：不需校準資料的快速量化，方便但品質略遜。</li>
+      </ul>
+
+      <h2>5. 決策表</h2>
+      <table>
+        <thead><tr><th>你的情況</th><th>選</th><th>為什麼</th></tr></thead>
+        <tbody>
+          <tr><td>Windows／Linux 消費級顯卡，自己用</td><td><strong>GGUF</strong></td><td>單檔、好找、工具多</td></tr>
+          <tr><td>Mac</td><td><strong>GGUF 或 MLX</strong></td><td>GGUF 通用，MLX 更快</td></tr>
+          <tr><td>純 CPU 或記憶體不足要 offload</td><td><strong>GGUF</strong></td><td>唯一成熟的 CPU 方案</td></tr>
+          <tr><td>NVIDIA 伺服器，多人服務</td><td><strong>AWQ 或 FP8</strong></td><td>vLLM 支援最好，吞吐高</td></tr>
+          <tr><td>已有 GPTQ 權重</td><td><strong>GPTQ</strong></td><td>能用就用，不必重做</td></tr>
+          <tr><td>要精確填滿顯存、追求單人速度</td><td><strong>EXL2/EXL3</strong></td><td>bpw 可微調</td></tr>
+          <tr><td>要做 LoRA 微調</td><td><strong>bnb 4-bit</strong></td><td>唯一支援訓練的</td></tr>
+          <tr><td>要壓到 3-bit 以下</td><td><strong>GGUF 的 IQ 系列</strong></td><td>低位元品質最好</td></tr>
+        </tbody>
+      </table>
+
+      <h2>6. 模組 K 總結</h2>
+      <ul>
+        <li>GGUF 是容器，Q4_K_M 是裡面的量化方式，GPTQ／AWQ 是演算法</li>
+        <li>K-quant 用混合精度，_S/_M/_L 代表提升精度的層數多寡</li>
+        <li>IQ 系列品質好但慢，且必須有 imatrix</li>
+        <li>GPTQ 補償誤差，AWQ 縮放重要通道</li>
+        <li>硬體決定格式：CPU/Mac → GGUF，NVIDIA 服務 → AWQ/FP8，微調 → bnb</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 EXL2 的 bpw 可調有什麼實際好處</li>
+          <li>解釋 bnb 的定位為何是「微調用」而非「部署用」</li>
+          <li>替三種不同硬體各選一個格式</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 L 開始：把一整張 model card 從頭讀到尾。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-59.html">← 上一課：AWQ：保護最重要的那些權重</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-61.html">下一課：命名結構拆解：組織／家族－尺寸－變體－量化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

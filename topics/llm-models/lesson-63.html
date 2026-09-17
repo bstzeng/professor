@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：社群後綴：distill、abliterated、uncensored、merge ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="社群再製模型的常見標記，以及它們實際做了什麼修改。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜讀懂一張 Model Card · 第 63 課</div>
+      <h1>社群後綴：distill、abliterated、uncensored、merge</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識社群再製模型的常見標記</li>
+          <li>知道每種加工實際做了什麼</li>
+          <li>建立判斷品質的方法</li>
+        </ul>
+      </div>
+
+      <h2>1. 常見標記一覽</h2>
+      <table>
+        <thead><tr><th>標記</th><th>做了什麼</th><th>風險</th></tr></thead>
+        <tbody>
+          <tr><td><code>-Distill</code></td><td>用大模型輸出做 SFT（第 38 課）</td><td>能力受基座限制</td></tr>
+          <tr><td><code>-abliterated</code></td><td>用權重編輯移除拒答方向</td><td>可能傷及一般能力</td></tr>
+          <tr><td><code>-uncensored</code></td><td>用去除拒答的資料重新微調</td><td>同上，且可能引入偏誤</td></tr>
+          <tr><td><code>-merge</code> / 各種怪名</td><td>合併多個模型的權重</td><td>結果不可預測</td></tr>
+          <tr><td><code>-RP</code> / <code>-Roleplay</code></td><td>角色扮演特化微調</td><td>通用能力常下降</td></tr>
+          <tr><td><code>-DPO</code> / <code>-ORPO</code></td><td>做過偏好優化（第 36 課）</td><td>視資料品質</td></tr>
+          <tr><td><code>-128k</code> / <code>-1M</code></td><td>延長 context</td><td>宣稱長度未必可用（第 69 課）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. abliteration 是什麼</h2>
+      <p>
+        這個技術的想法是：模型的「拒絕」行為，
+        在殘差流裡對應一個<strong>特定方向的向量</strong>。
+      </p>
+      <ol>
+        <li>準備兩組提示：會被拒絕的、不會被拒絕的</li>
+        <li>各跑一遍，記錄中間層的啟動值</li>
+        <li>兩組的平均差，就是「拒絕方向」</li>
+        <li>把這個方向從權重中投影掉</li>
+      </ol>
+      <p>
+        它不需要重新訓練，只是線性代數操作，幾分鐘就能做完。
+        <strong>代價是：那個方向可能也承載了其他資訊</strong>，
+        移除後模型在某些任務上會變笨，
+        而且會失去對真正危險請求的判斷力。
+      </p>
+
+      <h2>3. 模型合併</h2>
+      <p>
+        用 mergekit 之類的工具，把多個模型的權重混在一起。主要方法：
+      </p>
+      <table>
+        <thead><tr><th>方法</th><th>做法</th></tr></thead>
+        <tbody>
+          <tr><td>線性平均</td><td>直接加權平均權重</td></tr>
+          <tr><td>SLERP</td><td>球面線性插值，在兩個模型之間平滑過渡</td></tr>
+          <tr><td>TIES</td><td>解決參數衝突：只保留變化量大的，符號衝突的取多數</td></tr>
+          <tr><td>DARE</td><td>隨機丟棄大部分差異再放大剩下的</td></tr>
+          <tr><td>passthrough / frankenmerge</td><td>把不同模型的層串起來，做出更深的模型</td></tr>
+        </tbody>
+      </table>
+      <p>
+        合併的前提是<strong>兩個模型來自同一個基座</strong>——
+        權重才在同一個空間裡。合併不同家族的模型不會有意義。
+      </p>
+      <p>
+        合併模型在榜單上曾經很風光，因為它常常能刷高 benchmark 分數。
+        但這通常是<strong>過擬合榜單</strong>而非真的變強，
+        實際使用時常有不穩定、重複、語言混雜的問題。
+      </p>
+
+      <h2>4. 怎麼判斷一個社群模型值不值得用</h2>
+      <table>
+        <thead><tr><th>檢查項</th><th>好的徵兆</th><th>壞的徵兆</th></tr></thead>
+        <tbody>
+          <tr><td>Model card</td><td>寫明基座、方法、資料、參數</td><td>只有一句話或全是自動生成</td></tr>
+          <tr><td>訓練細節</td><td>有 loss 曲線、超參數</td><td>沒有</td></tr>
+          <tr><td>評測</td><td>有在多個 benchmark 上的結果，且與基座對比</td><td>只貼一個分數</td></tr>
+          <tr><td>已知限制</td><td>誠實說明退步的地方</td><td>宣稱全面超越</td></tr>
+          <tr><td>下載量與討論</td><td>有人在 Community 頁討論實際體驗</td><td>零討論</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 一個務實的建議</h2>
+      <p>
+        社群再製模型的品質分布非常廣。
+        除非你有特定需求（例如角色扮演、特定語言強化），
+        <strong>官方的 Instruct 版通常是最安全的選擇</strong>。
+      </p>
+      <p>
+        要用社群模型時，至少做一件事：
+        拿你自己的十個真實任務跑一遍，
+        跟官方版本並排比較。花十分鐘，能避免很多後悔。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 abliteration 的原理與代價</li>
+          <li>解釋為何只能合併同基座的模型</li>
+          <li>列出判斷社群模型品質的三個檢查項</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看 repo 裡的檔案清單，每個檔案是幹嘛的。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：變體後綴全表：Base、Instruct、Chat、it、Thinking</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：檔案清單：safetensors、config.json、tokenizer、shard →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

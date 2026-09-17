@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 68 課：KV cache 怎麼算，為什麼長 context 這麼貴 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="KV cache 的精確公式，以及 GQA 與量化 KV 的節省效果。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 68 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 M｜跑起來：硬體與記憶體帳 · 第 68 課</div>
+      <h1>KV cache 怎麼算，為什麼長 context 這麼貴</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 KV cache 的精確公式</li>
+          <li>理解它為何隨 context 線性成長</li>
+          <li>知道壓縮 KV cache 的手段</li>
+        </ul>
+      </div>
+
+      <h2>1. 它為什麼存在</h2>
+      <p>
+        生成第 N 個 token 時，需要對前面 N−1 個 token 做注意力。
+        而那些 token 的 K 與 V<strong>永遠不會改變</strong>（因果遮罩，第 10 課）。
+        所以算過就存起來，下次直接用。
+      </p>
+      <table>
+        <thead><tr><th></th><th>沒有 KV cache</th><th>有 KV cache</th></tr></thead>
+        <tbody>
+          <tr><td>每個新 token 的計算</td><td>重算全部 N 個位置</td><td>只算 1 個位置</td></tr>
+          <tr><td>生成 N 個 token 的總計算</td><td>O(N²)</td><td>O(N)</td></tr>
+          <tr><td>記憶體</td><td>不需要額外</td><td>需要存 2×N×… 的張量</td></tr>
+        </tbody>
+      </table>
+      <p>這是典型的空間換時間，而且換得非常划算——沒有它，長對話會慢到不能用。</p>
+
+      <h2>2. 公式</h2>
+      <div class="code-block">KV cache bytes = 2 × layers × n_kv_heads × head_dim × seq_len × batch × bytes_per_element
+
+2               : K 與 V 各一份
+layers          : 每層都要存
+n_kv_heads      : 注意是 KV 頭數，不是 Q 頭數（第 19 課）
+bytes_per_element: FP16 = 2, FP8 = 1, INT4 = 0.5</div>
+
+      <h2>3. 每 token 的成本</h2>
+      <p>把 seq_len 設為 1，得到「每個 token 要多少記憶體」：</p>
+      <table>
+        <thead><tr><th>模型</th><th>層</th><th>n_kv</th><th>每 token（FP16）</th><th>32K context</th></tr></thead>
+        <tbody>
+          <tr><td>8B 級</td><td>32</td><td>8</td><td>128 KiB</td><td>4.0 GiB</td></tr>
+          <tr><td>14B 級</td><td>48</td><td>8</td><td>192 KiB</td><td>6.0 GiB</td></tr>
+          <tr><td>32B 級</td><td>64</td><td>8</td><td>256 KiB</td><td>8.0 GiB</td></tr>
+          <tr><td>70B 級</td><td>80</td><td>8</td><td>320 KiB</td><td>10.0 GiB</td></tr>
+          <tr><td>8B 若用 MHA</td><td>32</td><td>32</td><td>512 KiB</td><td>16.0 GiB</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">驗算（8B）: 2 × 32 × 8 × 128 × 2 bytes = 131,072 bytes = 128 KiB ✓</div>
+      <p>
+        最後一列說明了 GQA 的價值：同樣的模型，
+        沒有 GQA 的話 KV cache 是四倍。
+      </p>
+
+      <h2>4. 批次服務的爆炸</h2>
+      <p>
+        單人使用時 KV cache 還好，但服務多人時它乘上 batch：
+      </p>
+      <div class="code-block">8B 模型，每人 8K context，同時服務 32 人：
+  128 KiB × 8192 × 32 = 32 GiB
+
+權重只要 4.85 GB，KV cache 卻要 32 GB。</div>
+      <p>
+        這就是為什麼 vLLM 這類服務引擎的核心技術是
+        <strong>PagedAttention</strong>——像作業系統管理記憶體分頁一樣管理 KV cache，
+        避免為每個請求預留最大長度造成的浪費。
+      </p>
+
+      <h2>5. 壓縮手段</h2>
+      <table>
+        <thead><tr><th>手段</th><th>節省</th><th>代價</th></tr></thead>
+        <tbody>
+          <tr><td>GQA／MQA</td><td>4–32 倍</td><td>模型架構決定，你改不了</td></tr>
+          <tr><td>量化 KV cache 到 FP8</td><td>2 倍</td><td>品質輕微下降</td></tr>
+          <tr><td>量化到 INT4</td><td>4 倍</td><td>長對話品質明顯下降</td></tr>
+          <tr><td>縮短 context</td><td>線性</td><td>能處理的內容變少</td></tr>
+          <tr><td>滑動視窗注意力</td><td>固定上限</td><td>看不到太久以前的內容</td></tr>
+          <tr><td>PagedAttention</td><td>減少浪費</td><td>需要支援的引擎</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block"># llama.cpp 量化 KV cache
+./llama-server -m model.gguf -c 32768 \
+    --cache-type-k q8_0 --cache-type-v q8_0
+
+# vLLM
+vllm serve model --kv-cache-dtype fp8</div>
+      <p>
+        實務建議：<strong>K 用 q8_0、V 也用 q8_0</strong> 是安全的組合，
+        能省一半而幾乎無感。再往下壓（q4）就要實測了。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>KV cache 把生成的計算從 O(N²) 降到 O(N)</li>
+          <li>大小 = 2 × 層 × n_kv × head_dim × seq × batch × bytes</li>
+          <li>與 KV 頭數相關，與 Q 頭數無關</li>
+          <li>批次服務時 KV cache 常常超過權重本身</li>
+          <li>量化 KV 到 FP8/q8_0 能省一半且幾乎無感</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 70B 模型 128K context 的 KV cache（FP16）</li>
+          <li>說明為何批次服務時 KV cache 會爆炸</li>
+          <li>說出兩個安全的 KV 壓縮手段</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：宣稱的 context 與可用的 context 是兩回事。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-67.html">← 上一課：VRAM 公式：權重、KV cache、啟動值、開銷</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-69.html">下一課：Context length、RoPE scaling 與 YaRN →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：分散式訓練：DP、TP、PP、FSDP 與 ZeRO ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="四種平行化策略各自切什麼，以及為何必須混用。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預訓練：資料與過程 · 第 31 課</div>
+      <h1>分散式訓練：DP、TP、PP、FSDP 與 ZeRO</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握四種平行化策略各自切什麼</li>
+          <li>理解 ZeRO 與 FSDP 的想法</li>
+          <li>知道為何實務上必須混用</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題規模</h2>
+      <p>
+        訓練一個 70B 模型，用 AdamW，記憶體需求大約是：
+      </p>
+      <div class="code-block">權重      (BF16)        70e9 × 2  = 140 GB
+梯度      (BF16)        70e9 × 2  = 140 GB
+優化器狀態 (FP32 × 2)    70e9 × 8  = 560 GB
+FP32 主權重             70e9 × 4  = 280 GB
+──────────────────────────────────────────
+合計                              ≈ 1.1 TB（還沒算啟動值）</div>
+      <p>
+        一張 H100 只有 80 GB。所以必須切，而且要切得很有技巧。
+      </p>
+
+      <h2>2. 四種切法</h2>
+      <table>
+        <thead><tr><th>策略</th><th>切什麼</th><th>通訊量</th><th>問題</th></tr></thead>
+        <tbody>
+          <tr><td><strong>DP</strong> 資料平行</td><td>切資料批次，每卡一份完整模型</td><td>每步同步梯度</td><td>模型必須放得進單卡</td></tr>
+          <tr><td><strong>TP</strong> 張量平行</td><td>切單一矩陣（例如把 W 按列切）</td><td>每層都要 all-reduce，極頻繁</td><td>只能在同一台機器內（需 NVLink）</td></tr>
+          <tr><td><strong>PP</strong> 管線平行</td><td>切層（1–20 層給卡 A，21–40 給卡 B）</td><td>只在切點傳遞啟動值</td><td>有氣泡（bubble），卡會閒置</td></tr>
+          <tr><td><strong>SP／CP</strong> 序列平行</td><td>切序列長度</td><td>注意力時要交換</td><td>長 context 才需要</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. ZeRO 與 FSDP</h2>
+      <p>
+        純 DP 的浪費在於：每張卡都存一份完整的梯度與優化器狀態，
+        但它們其實是相同的。ZeRO 的想法是<strong>把這些也切開</strong>：
+      </p>
+      <table>
+        <thead><tr><th>階段</th><th>切開什麼</th><th>記憶體節省</th></tr></thead>
+        <tbody>
+          <tr><td>ZeRO-1</td><td>優化器狀態</td><td>約 4×</td></tr>
+          <tr><td>ZeRO-2</td><td>＋梯度</td><td>約 8×</td></tr>
+          <tr><td>ZeRO-3</td><td>＋權重</td><td>與卡數成正比</td></tr>
+        </tbody>
+      </table>
+      <p>
+        ZeRO-3 的運作方式是：平常每張卡只存自己那一份權重，
+        要用到某一層時才即時向其他卡索取完整權重，用完就丟。
+        代價是通訊量大增。PyTorch 內建的 <strong>FSDP</strong>
+        本質上就是 ZeRO-3 的實作。
+      </p>
+
+      <h2>4. 實務組合：3D 平行</h2>
+      <div class="code-block">例：1024 張 GPU 訓練 70B 模型
+
+  TP = 8    → 機器內 8 張卡切張量（走 NVLink，頻寬夠）
+  PP = 4    → 跨機器切層
+  DP = 32   → 剩下的維度做資料平行
+
+  8 × 4 × 32 = 1024 ✓</div>
+      <p>
+        排列順序不是隨意的：<strong>通訊最頻繁的放在頻寬最高的連結上</strong>。
+        TP 每層都要通訊，所以必須在機器內；
+        PP 只在切點通訊，可以跨機器；
+        DP 每步只同步一次，最能容忍慢速網路。
+      </p>
+
+      <h2>5. Activation checkpointing</h2>
+      <p>
+        還有一塊沒算：<strong>啟動值</strong>。反向傳播需要前向的中間結果，
+        長序列時這可能比權重還大。
+      </p>
+      <p>
+        解法是「重算」：只存每層的輸入，反向傳播時再前向算一次。
+        記憶體從 O(層數) 降到 O(√層數) 甚至 O(1)，
+        代價是多一次前向——這就是第 22 課提到的，
+        會把 6ND 推到 8ND 的原因。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>70B 訓練的記憶體需求超過 1 TB，必須切</li>
+          <li>DP 切資料、TP 切矩陣、PP 切層、SP 切序列</li>
+          <li>ZeRO／FSDP 把梯度與優化器狀態也切開</li>
+          <li>組合原則：通訊最頻繁的放在頻寬最高的連結</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 8B 模型用 AdamW 訓練的記憶體需求</li>
+          <li>說明為何 TP 只能在機器內</li>
+          <li>解釋 activation checkpointing 的取捨</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把前面的公式兜起來，估算真實的訓練成本。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：訓練迴圈：loss、learning rate schedule、warmup</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：一次預訓練要花多少錢、多少卡、多少天 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

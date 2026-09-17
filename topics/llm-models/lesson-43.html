@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：該微調、該 RAG、還是該改 prompt ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="三種手段各自解決什麼問題的判斷表，以及最常見的誤用。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調：你自己做得到的部分 · 第 43 課</div>
+      <h1>該微調、該 RAG、還是該改 prompt</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>建立三種手段的判斷準則</li>
+          <li>認識最常見的誤用</li>
+          <li>知道正確的嘗試順序</li>
+        </ul>
+      </div>
+
+      <h2>1. 三者各自解決什麼</h2>
+      <table>
+        <thead><tr><th>手段</th><th>解決</th><th>不解決</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Prompt 工程</strong></td><td>指令不清、格式不對、缺少範例</td><td>模型不會的能力</td></tr>
+          <tr><td><strong>RAG</strong></td><td>模型不知道的<strong>事實</strong>（你的文件、最新資訊）</td><td>模型不會的<strong>行為</strong></td></tr>
+          <tr><td><strong>微調</strong></td><td>模型不擅長的<strong>行為</strong>（風格、格式、任務模式）</td><td>灌入大量新事實（效率極差）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        一句話記住這個區分：
+        <strong>RAG 給知識，微調給技能，prompt 給指示。</strong>
+      </p>
+
+      <h2>2. 判斷表</h2>
+      <table>
+        <thead><tr><th>你的需求</th><th>該用</th></tr></thead>
+        <tbody>
+          <tr><td>回答要根據我公司的內部文件</td><td>RAG</td></tr>
+          <tr><td>回答要引用最新的資料</td><td>RAG</td></tr>
+          <tr><td>輸出永遠要是特定 JSON 結構</td><td>Prompt（＋結構化輸出約束）；量大時微調</td></tr>
+          <tr><td>語氣要符合公司品牌</td><td>微調（LoRA 就夠）</td></tr>
+          <tr><td>要處理一種模型沒學過的內部標記語言</td><td>微調</td></tr>
+          <tr><td>要在特定領域做分類，準確率要很高</td><td>微調（小模型即可）</td></tr>
+          <tr><td>回答不夠詳細</td><td>Prompt</td></tr>
+          <tr><td>模型不知道我們產品的規格</td><td>RAG（不是微調）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 最常見的誤用</h2>
+      <p>
+        <strong>「我要讓模型學會我們公司的知識，所以我要微調。」</strong>
+      </p>
+      <p>這幾乎總是錯的，理由有四：</p>
+      <ol>
+        <li><strong>效率極差</strong>：讓模型可靠記住一份文件，需要把它重複很多次，
+            而且還是會記錯細節</li>
+        <li><strong>無法更新</strong>：文件改了就要重新訓練</li>
+        <li><strong>無法追溯</strong>：模型說出來的東西無法附上出處</li>
+        <li><strong>會產生幻覺</strong>：模型學會「這類問題該用這種語氣回答」，
+            然後自信地編造細節</li>
+      </ol>
+      <p>
+        RAG 在這四點上全部勝出：即時更新、可附出處、
+        不會因為沒學過就亂編（檢索不到可以說不知道）。
+      </p>
+
+      <h2>4. 正確的嘗試順序</h2>
+      <ol>
+        <li><strong>先調 prompt</strong>：最便宜，常常就夠了。加 few-shot 範例、
+            明確的輸出格式、拆步驟</li>
+        <li><strong>換模型</strong>：換大一號或換一個更適合該任務的模型，
+            比微調便宜得多</li>
+        <li><strong>加 RAG</strong>：如果問題是知識不足</li>
+        <li><strong>最後才微調</strong>：而且先從 LoRA 開始</li>
+      </ol>
+      <p>
+        很多人跳過前三步直接去微調，
+        結果花了幾天訓練，效果還不如把 prompt 寫清楚。
+      </p>
+
+      <h2>5. 微調真正划算的三種情況</h2>
+      <table>
+        <thead><tr><th>情況</th><th>為什麼划算</th></tr></thead>
+        <tbody>
+          <tr><td>用小模型取代大模型</td><td>把 70B 的某個特定能力蒸餾到 7B，推論成本降十倍</td></tr>
+          <tr><td>穩定的輸出格式</td><td>微調後不需要在 prompt 裡塞大量範例，省 token 也更可靠</td></tr>
+          <tr><td>prompt 已經塞不下</td><td>當 few-shot 範例超過幾十個，把它們變成訓練資料更有效</td></tr>
+        </tbody>
+      </table>
+
+      <h2>6. 模組 H 總結</h2>
+      <ul>
+        <li>全參數微調需要參數量 16 倍的記憶體，LoRA 省 87%，QLoRA 再省更多</li>
+        <li>LoRA 的 rank 依資料量選，掛全部線性層</li>
+        <li>要轉 GGUF 就必須合併，且要合併回 16-bit 基座</li>
+        <li>RAG 給知識、微調給技能、prompt 給指示</li>
+        <li>嘗試順序：prompt → 換模型 → RAG → 微調</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用一句話區分 RAG 與微調的分工</li>
+          <li>說出「用微調灌知識」的四個問題</li>
+          <li>列出微調真正划算的三種情況</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 I 開始：終於要處理那個 8x7B 與 A3B 了。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：adapter、merged 與多 LoRA 切換</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：稀疏模型的想法：不是每個 token 都要全部參數 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

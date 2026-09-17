@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：一層 block 的完整參數計算 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="把 attention 與 FFN 的參數逐項加起來，得到每層的精確公式。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜Transformer 骨架 · 第 14 課</div>
+      <h1>一層 block 的完整參數計算</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>導出一層 Transformer block 的完整參數公式</li>
+          <li>驗證它在兩個真實模型上的正確性</li>
+          <li>建立後續所有計算的基礎</li>
+        </ul>
+      </div>
+
+      <h2>1. 逐項列出</h2>
+      <table>
+        <thead><tr><th>元件</th><th>參數量</th></tr></thead>
+        <tbody>
+          <tr><td>W_q</td><td>d_model × (n_heads × head_dim)</td></tr>
+          <tr><td>W_k</td><td>d_model × (n_kv × head_dim)</td></tr>
+          <tr><td>W_v</td><td>d_model × (n_kv × head_dim)</td></tr>
+          <tr><td>W_o</td><td>(n_heads × head_dim) × d_model</td></tr>
+          <tr><td>W_gate</td><td>d_model × d_ff</td></tr>
+          <tr><td>W_up</td><td>d_model × d_ff</td></tr>
+          <tr><td>W_down</td><td>d_ff × d_model</td></tr>
+          <tr><td>兩個 RMSNorm</td><td>2 × d_model</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 公式</h2>
+      <div class="code-block">每層參數 = d_model × head_dim × (2 × n_heads + 2 × n_kv)
+         + 3 × d_model × d_ff
+         + 2 × d_model
+
+全模型   = n_layers × 每層參數
+         + vocab × d_model            (嵌入層)
+         + vocab × d_model            (lm_head，若未綁定)
+         + d_model                    (final norm)</div>
+      <p>
+        沒有偏置項（bias），因為現代 LLM 幾乎都關掉了——
+        實驗顯示去掉 bias 不影響效果，還省一點參數與記憶體。
+        少數模型（例如某些 Qwen 版本）在 QKV 上保留 bias，
+        計算時要看 <code>config.json</code> 的 <code>attention_bias</code>。
+      </p>
+
+      <h2>3. 驗證一：Llama 2 7B</h2>
+      <p>d_model=4096, layers=32, heads=32, kv=32, head_dim=128, d_ff=11008, vocab=32000, 未綁定</p>
+      <div class="code-block">注意力 = 4096 × 128 × (2×32 + 2×32) = 4096 × 128 × 128 =  67,108,864
+FFN    = 3 × 4096 × 11008                              = 135,266,304
+norms  = 2 × 4096                                      =       8,192
+每層                                                    = 202,383,360
+× 32 層                                                 = 6,476,267,520
+
+嵌入   = 32000 × 4096 = 131,072,000
+lm_head= 32000 × 4096 = 131,072,000
+final norm                              =       4,096
+─────────────────────────────────────────────────────
+總計                                    = 6,738,415,616  ≈ 6.74 B</div>
+      <p>
+        官方數字：<strong>6.74 B</strong>。完全吻合。
+        （順帶一提，這也解釋了為什麼「7B」模型其實是 6.74B——
+        7B 是四捨五入後的行銷數字。）
+      </p>
+
+      <h2>4. 驗證二：Llama 3 8B</h2>
+      <p>d_model=4096, layers=32, heads=32, kv=8, head_dim=128, d_ff=14336, vocab=128256, 未綁定</p>
+      <div class="code-block">注意力 = 4096 × 128 × (2×32 + 2×8) = 4096 × 128 × 80 =  41,943,040
+FFN    = 3 × 4096 × 14336                            = 176,160,768
+norms                                                =       8,192
+每層                                                  = 218,112,000
+× 32 層                                               = 6,979,584,000
+
+嵌入   = 128256 × 4096 = 525,336,576
+lm_head= 128256 × 4096 = 525,336,576
+final norm                              =       4,096
+─────────────────────────────────────────────────────
+總計                                    = 8,030,261,248  ≈ 8.03 B</div>
+      <p>官方數字：<strong>8.03 B</strong>。也完全吻合。</p>
+
+      <h2>5. 兩個模型的對照</h2>
+      <table>
+        <thead><tr><th></th><th>Llama 2 7B</th><th>Llama 3 8B</th><th>差異來源</th></tr></thead>
+        <tbody>
+          <tr><td>Transformer 層</td><td>6.48 B</td><td>6.98 B</td><td>FFN 加寬，但 GQA 省回一些</td></tr>
+          <tr><td>詞表相關</td><td>0.26 B</td><td>1.05 B</td><td>詞表 32K → 128K</td></tr>
+          <tr><td>總計</td><td>6.74 B</td><td>8.03 B</td><td></td></tr>
+        </tbody>
+      </table>
+      <p>
+        看清楚了：Llama 3 多出來的 1.3B 參數，
+        有<strong>六成是詞表變大造成的</strong>，不是模型本身變強。
+        這就是第 9 課說的「非嵌入參數」為何重要。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>每層參數 = 注意力 + FFN + norms，公式已在本課導出</li>
+          <li>公式在 Llama 2 7B 與 Llama 3 8B 上都精確吻合</li>
+          <li>7B 其實是 6.74B，行銷數字會四捨五入</li>
+          <li>Llama 3 多出的參數大半來自詞表</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>不看講義寫出每層參數的公式</li>
+          <li>用公式算 d_model=5120、layers=40、kv=8、d_ff=13824、vocab=32000 的模型</li>
+          <li>說明為何比較 7B 與 8B 要先扣掉詞表</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 C：為什麼 decoder-only 打敗了其他架構。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：殘差、RMSNorm 與 SwiGLU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：Decoder-only 為什麼贏了 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

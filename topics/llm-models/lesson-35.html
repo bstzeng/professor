@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：RLHF：reward model 與 PPO ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="從人類偏好資料到獎勵模型，再到 PPO 更新策略的完整流程。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜後訓練：從會接話到會做事 · 第 35 課</div>
+      <h1>RLHF：reward model 與 PPO</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 RLHF 的三階段流程</li>
+          <li>知道 reward model 怎麼訓練</li>
+          <li>掌握 RLHF 的已知問題</li>
+        </ul>
+      </div>
+
+      <h2>1. 為什麼 SFT 不夠</h2>
+      <p>
+        SFT 教模型「怎麼回答」，但有些性質很難用範例表達：
+      </p>
+      <ul>
+        <li>兩個都正確的回答，哪個比較好？</li>
+        <li>什麼時候該說「我不知道」？</li>
+        <li>什麼要求該拒絕？</li>
+        <li>回答該多長？</li>
+      </ul>
+      <p>
+        這些是<strong>比較性</strong>的判斷，不是示範性的。
+        於是需要另一種訊號：讓人看兩個回答，選出比較好的那個。
+      </p>
+
+      <h2>2. 三階段</h2>
+      <table>
+        <thead><tr><th>階段</th><th>做什麼</th><th>產出</th></tr></thead>
+        <tbody>
+          <tr><td>1. SFT</td><td>指令微調</td><td>初始策略模型</td></tr>
+          <tr><td>2. 訓練 reward model</td><td>用人類偏好對訓練一個打分模型</td><td>RM</td></tr>
+          <tr><td>3. RL 優化</td><td>用 PPO 讓策略模型最大化 RM 分數</td><td>最終模型</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. Reward model</h2>
+      <p>
+        資料形式是「同一個提示，兩個回答，人類標註誰比較好」：
+      </p>
+      <div class="code-block">prompt:   如何學好一門外語？
+chosen:   （詳細、具體、有結構的回答）
+rejected: （空泛、重複的回答）</div>
+      <p>
+        RM 通常是把基座模型的 lm_head 換成一個輸出單一分數的頭，
+        用成對比較的損失訓練：
+      </p>
+      <div class="code-block">loss = − log σ( RM(chosen) − RM(rejected) )
+
+意思是：讓好的回答分數高於壞的回答，差距越大損失越小。</div>
+
+      <h2>4. PPO 階段</h2>
+      <p>
+        有了 RM，就可以把語言生成當成強化學習問題：
+      </p>
+      <ul>
+        <li><strong>狀態</strong>：目前已生成的文字</li>
+        <li><strong>動作</strong>：選下一個 token</li>
+        <li><strong>獎勵</strong>：整段生成完後，由 RM 給一個分數</li>
+      </ul>
+      <p>
+        關鍵是還要加一個 <strong>KL 懲罰</strong>：
+      </p>
+      <div class="code-block">總獎勵 = RM 分數 − β × KL(新策略 ‖ SFT 策略)</div>
+      <p>
+        沒有這一項，模型會為了討好 RM 而輸出奇怪的東西
+        （例如不斷重複 RM 偏好的句式）。KL 項把它綁在原本的分布附近。
+      </p>
+
+      <h2>5. RLHF 的已知問題</h2>
+      <table>
+        <thead><tr><th>問題</th><th>表現</th></tr></thead>
+        <tbody>
+          <tr><td>獎勵駭客</td><td>模型找到 RM 的漏洞，輸出高分但實際很差的回答</td></tr>
+          <tr><td>長度偏誤</td><td>人類傾向認為長回答比較好，模型因此變得囉唆</td></tr>
+          <tr><td>諂媚</td><td>模型學會同意使用者，即使使用者是錯的</td></tr>
+          <tr><td>工程複雜</td><td>要同時載入四個模型（策略、參考、RM、critic），記憶體與調參都很痛</td></tr>
+          <tr><td>標註昂貴</td><td>人工偏好資料的成本很高</td></tr>
+        </tbody>
+      </table>
+
+      <h2>6. RLAIF</h2>
+      <p>
+        既然標註昂貴，就讓 AI 來標：用一個強模型依據一份明文原則
+        來判斷哪個回答比較好，產生偏好資料。
+        這大幅降低成本，也讓「模型該遵守什麼原則」變成可書寫、可稽核的文件。
+      </p>
+      <p>
+        代價是：原則寫得不好，或評判模型本身有偏誤，
+        都會被放大到最終模型身上。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>RLHF 三階段：SFT → reward model → PPO</li>
+          <li>RM 用成對比較訓練，輸出單一分數</li>
+          <li>KL 懲罰防止模型為了討好 RM 而崩壞</li>
+          <li>主要問題：獎勵駭客、長度偏誤、諂媚、工程複雜</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何 SFT 無法處理「哪個回答比較好」</li>
+          <li>寫出 reward model 的損失函數並解釋</li>
+          <li>解釋 KL 懲罰的作用</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：跳過 reward model 的那條捷徑。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：SFT：指令微調與 chat template</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：DPO 家族：ORPO、KTO、SimPO →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

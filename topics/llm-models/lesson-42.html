@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：adapter、merged 與多 LoRA 切換 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="adapter 檔案長什麼樣、合併回基底模型的時機與代價。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調：你自己做得到的部分 · 第 42 課</div>
+      <h1>adapter、merged 與多 LoRA 切換</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道 adapter 檔案裡有什麼</li>
+          <li>理解合併與不合併的取捨</li>
+          <li>掌握多 LoRA 切換的用法</li>
+        </ul>
+      </div>
+
+      <h2>1. Adapter 檔案</h2>
+      <p>訓練完 LoRA，產出的資料夾長這樣：</p>
+      <div class="code-block">my-lora/
+├── adapter_config.json          # r、alpha、target_modules、基座模型名稱
+├── adapter_model.safetensors    # 只有 A 與 B 矩陣，通常 10–500 MB
+└── README.md</div>
+      <p>
+        關鍵是 <code>adapter_config.json</code> 裡的 <code>base_model_name_or_path</code>——
+        adapter 只對<strong>那一個特定基座</strong>有效。
+        把 Llama 的 adapter 掛到 Qwen 上不會報錯，但輸出會是垃圾。
+      </p>
+
+      <h2>2. 兩種使用方式</h2>
+      <table>
+        <thead><tr><th></th><th>不合併（動態掛載）</th><th>合併（merge）</th></tr></thead>
+        <tbody>
+          <tr><td>做法</td><td>載入基座 + 載入 adapter</td><td>W ← W + (α/r)·B·A，存成新模型</td></tr>
+          <tr><td>檔案</td><td>基座 + 小檔案</td><td>完整的新模型（GB 級）</td></tr>
+          <tr><td>推論速度</td><td>略慢（多一次小矩陣乘法）</td><td>與原模型相同</td></tr>
+          <tr><td>可切換</td><td>可以，隨時換</td><td>不行，固定了</td></tr>
+          <tr><td>可量化成 GGUF</td><td>不行</td><td>可以</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 什麼時候該合併</h2>
+      <ul>
+        <li>要轉成 GGUF 給 llama.cpp／Ollama 用 → <strong>必須合併</strong></li>
+        <li>要部署到 vLLM 當單一模型 → 合併比較單純</li>
+        <li>要發佈到 HF 給別人下載 → 合併版比較好用</li>
+        <li>要在同一個服務裡支援多個客戶的客製模型 → <strong>不要合併</strong></li>
+      </ul>
+
+      <h2>4. 合併的正確做法</h2>
+      <div class="code-block">from transformers import AutoModelForCausalLM
+from peft import PeftModel
+
+# 注意：載入原始 16-bit 基座，不是 4-bit
+base = AutoModelForCausalLM.from_pretrained(
+    "Qwen/Qwen2.5-7B-Instruct", torch_dtype="bfloat16", device_map="cpu")
+
+model = PeftModel.from_pretrained(base, "./my-lora")
+model = model.merge_and_unload()
+model.save_pretrained("./merged-model")
+
+# tokenizer 也要一起複製過去
+from transformers import AutoTokenizer
+AutoTokenizer.from_pretrained("Qwen/Qwen2.5-7B-Instruct").save_pretrained("./merged-model")</div>
+      <p>
+        <strong>最常見的錯誤</strong>：用 QLoRA 訓練後，
+        把 adapter 合併回 4-bit 的基座。
+        這會疊加量化誤差。正確做法是像上面那樣載入原始 BF16 基座再合併。
+      </p>
+
+      <h2>5. 多 LoRA 切換</h2>
+      <p>
+        一個基座掛多個 adapter，是 LoRA 在生產環境最有價值的用法：
+      </p>
+      <div class="code-block">顯存中只有一份 7B 基座（14 GB）
+  ├── adapter-客戶A （50 MB）
+  ├── adapter-客戶B （50 MB）
+  ├── adapter-摘要任務（50 MB）
+  └── adapter-分類任務（50 MB）
+
+依請求動態選用，總成本 ≈ 14.2 GB</div>
+      <p>
+        如果每個都合併成獨立模型，就要 4 × 14 = 56 GB。
+        vLLM 與 TGI 都內建這種多 adapter 的服務能力。
+      </p>
+
+      <h2>6. LoRA 的加減運算</h2>
+      <p>
+        因為 ΔW 是加上去的，adapter 之間可以做算術：
+      </p>
+      <ul>
+        <li><strong>相加</strong>：合併兩個能力（風格 + 領域知識）</li>
+        <li><strong>加權</strong>：<code>W + 0.7·ΔW₁ + 0.3·ΔW₂</code></li>
+        <li><strong>相減</strong>：移除某種行為（效果不穩定）</li>
+      </ul>
+      <p>
+        效果不保證——兩個 adapter 可能互相干擾。
+        但它便宜到值得試，這也是模型合併（第 63 課）的基礎之一。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 adapter 檔案裡有什麼、不能亂換基座的原因</li>
+          <li>列出三個必須合併的情境</li>
+          <li>解釋 QLoRA 合併時最常見的錯誤</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 H：微調、RAG、prompt 三選一的判斷。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：QLoRA：4-bit 基底加 LoRA</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：該微調、該 RAG、還是該改 prompt →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

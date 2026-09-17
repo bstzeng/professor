@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 45 課：Router 與 expert：一次選幾個 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="路由器如何挑選專家、top-k 的意義，以及負載均衡損失。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 45 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜MoE：AxB 到底什麼意思 · 第 45 課</div>
+      <h1>Router 與 expert：一次選幾個</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解路由器的運作</li>
+          <li>知道 top-k 的意義</li>
+          <li>掌握負載均衡這個核心難題</li>
+        </ul>
+      </div>
+
+      <h2>1. 路由器</h2>
+      <p>
+        路由器就是一個很小的線性層，把每個 token 的向量映射到「每個專家的分數」：
+      </p>
+      <div class="code-block">logits  = x · W_router          W_router 形狀 [d_model, num_experts]
+probs   = softmax(logits)
+選出 top-k 個專家，用它們的機率當權重
+
+輸出 = Σ (機率_i × Expert_i(x))   對選中的 k 個求和</div>
+      <p>
+        路由器的參數量微不足道：d_model × num_experts。
+        以 4096 × 8 為例只有 32,768 個參數，
+        相較單一專家的 1.76 億，完全可以忽略。
+      </p>
+
+      <h2>2. top-k 怎麼選</h2>
+      <table>
+        <thead><tr><th>k</th><th>特性</th><th>問題</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>最省算力</td><td>梯度不連續，訓練不穩</td></tr>
+          <tr><td><strong>2</strong></td><td>經典選擇</td><td>算力翻倍，但訓練穩定很多</td></tr>
+          <tr><td>4–8</td><td>細粒度 MoE 常用</td><td>算力上升，但每個專家更小</td></tr>
+        </tbody>
+      </table>
+      <p>
+        k=2 之所以是經典，是因為它讓路由器有「比較」的訊號：
+        兩個專家的權重是相對的，梯度才能告訴路由器
+        「應該多用哪一個」。k=1 時沒有這個比較基準。
+      </p>
+
+      <h2>3. 細粒度 MoE</h2>
+      <p>
+        近年的趨勢是<strong>更多、更小的專家</strong>：
+        從 8 個大專家，變成 64 個或 128 個小專家，每次選 8 個。
+      </p>
+      <table>
+        <thead><tr><th></th><th>粗粒度</th><th>細粒度</th></tr></thead>
+        <tbody>
+          <tr><td>專家數</td><td>8</td><td>64–256</td></tr>
+          <tr><td>每個專家大小</td><td>完整 FFN</td><td>FFN 的 1/8 或更小</td></tr>
+          <tr><td>top-k</td><td>2</td><td>6–8</td></tr>
+          <tr><td>組合數</td><td>28 種</td><td>數十億種</td></tr>
+        </tbody>
+      </table>
+      <p>
+        組合數是關鍵：細粒度讓模型能組出更多樣的「專家組合」，
+        表達力更強。很多現代 MoE 還會加上<strong>共享專家</strong>——
+        一個永遠啟動的專家，負責通用知識，
+        讓其他專家專心處理特化內容。
+      </p>
+
+      <h2>4. 負載均衡：最麻煩的問題</h2>
+      <p>
+        訓練初期路由器是隨機的。假設專家 3 偶然被多選了幾次，
+        它就被多訓練，變得更好用，路由器就更常選它——
+        <strong>正回饋迴圈</strong>。最後可能只有兩三個專家在工作，
+        其餘形同虛設。
+      </p>
+      <p>解法是加一個輔助損失：</p>
+      <div class="code-block">aux_loss = α × num_experts × Σ (f_i × P_i)
+
+f_i = 分配到專家 i 的 token 比例
+P_i = 路由器給專家 i 的平均機率
+
+當分配不均時這個值會變大，訓練會把它壓下去。</div>
+      <p>
+        另一種做法是<strong>無輔助損失的均衡</strong>：
+        給每個專家一個可調的偏置，動態調整它被選中的傾向，
+        不干擾主要的損失函數。
+      </p>
+
+      <h2>5. 容量因子與丟棄</h2>
+      <p>
+        訓練時為了平行化，每個專家會有固定的容量上限。
+        超過的 token 會被<strong>丟棄</strong>（直接走殘差通過）。
+      </p>
+      <div class="code-block">capacity = capacity_factor × (總 token 數 / 專家數)
+
+capacity_factor = 1.0  →  嚴格平均，丟棄多
+capacity_factor = 1.25 →  留 25% 餘裕，常用值</div>
+      <p>
+        推論時通常不丟棄，所以訓練與推論的行為會有細微差異。
+        這是 MoE 工程上的一個常見坑。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 k=1 為何訓練不穩</li>
+          <li>解釋負載不均的正回饋迴圈</li>
+          <li>說出細粒度 MoE 的優勢</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課動手算 Mixtral 8x7B，看看 47B 是怎麼來的。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-44.html">← 上一課：稀疏模型的想法：不是每個 token 都要全部參數</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-46.html">下一課：讀懂 8x7B：Mixtral 為何是 47B 而不是 56B →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：四個旋鈕：d_model、n_layers、n_heads、FFN 比例 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="設計一個模型時實際能調的參數有哪些，以及它們之間的慣例比例。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜參數量是怎麼決定的 · 第 16 課</div>
+      <h1>四個旋鈕：d_model、n_layers、n_heads、FFN 比例</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道設計模型時實際可調的旋鈕</li>
+          <li>掌握各旋鈕之間的慣例比例</li>
+          <li>理解「決定參數量」實際上是在決定什麼</li>
+        </ul>
+      </div>
+
+      <h2>1. 一個誤解先澄清</h2>
+      <p>
+        很多人以為訓練時有個欄位叫「參數量」，填 7B 就練出 7B 模型。
+        <strong>沒有這種欄位。</strong>
+        參數量是架構超參數的<strong>結果</strong>，不是輸入。
+      </p>
+      <p>
+        真正的流程是反過來的：先根據算力預算決定「我想要大約多少參數」，
+        然後調整幾個旋鈕，把參數量湊到那個目標附近。
+      </p>
+
+      <h2>2. 四個旋鈕</h2>
+      <table>
+        <thead><tr><th>旋鈕</th><th>config 欄位</th><th>影響</th></tr></thead>
+        <tbody>
+          <tr><td>寬度</td><td><code>hidden_size</code></td><td>參數量約與平方成長，影響最大</td></tr>
+          <tr><td>深度</td><td><code>num_hidden_layers</code></td><td>參數量線性成長</td></tr>
+          <tr><td>FFN 寬度</td><td><code>intermediate_size</code></td><td>線性，佔七成參數</td></tr>
+          <tr><td>KV 頭數</td><td><code>num_key_value_heads</code></td><td>小幅影響參數，大幅影響 KV cache</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意 <code>num_attention_heads</code> 幾乎<strong>不影響參數量</strong>——
+        頭數只是把同樣的維度切得更細（第 11 課）。
+        它影響的是表達能力與 head_dim。
+      </p>
+
+      <h2>3. 慣例比例</h2>
+      <p>
+        這些比例不是規定，是社群在大量實驗後收斂出來的：
+      </p>
+      <table>
+        <thead><tr><th>比例</th><th>慣例值</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>head_dim</td><td>128（少數 64）</td><td>GPU 友善、表達力足夠</td></tr>
+          <tr><td>d_ff / d_model</td><td>2.67–4.0</td><td>SwiGLU 下的等效擴張</td></tr>
+          <tr><td>d_model / n_layers</td><td>約 100–150</td><td>深寬比的甜蜜點</td></tr>
+          <tr><td>n_heads / n_kv</td><td>4 或 8</td><td>GQA 的分組數</td></tr>
+          <tr><td>d_ff</td><td>128 或 256 的倍數</td><td>對齊 GPU 的 tensor core</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 實際的配置表</h2>
+      <p>把幾個常見尺寸的配置放在一起看，規律很明顯：</p>
+      <table>
+        <thead><tr><th>目標</th><th>d_model</th><th>layers</th><th>heads</th><th>kv</th><th>d_ff</th></tr></thead>
+        <tbody>
+          <tr><td>約 0.5B</td><td>896</td><td>24</td><td>14</td><td>2</td><td>4,864</td></tr>
+          <tr><td>約 1.5B</td><td>1,536</td><td>28</td><td>12</td><td>2</td><td>8,960</td></tr>
+          <tr><td>約 3B</td><td>2,048</td><td>36</td><td>16</td><td>2</td><td>11,008</td></tr>
+          <tr><td>約 7–8B</td><td>4,096</td><td>32</td><td>32</td><td>8</td><td>14,336</td></tr>
+          <tr><td>約 14B</td><td>5,120</td><td>48</td><td>40</td><td>8</td><td>13,824</td></tr>
+          <tr><td>約 32B</td><td>5,120</td><td>64</td><td>40</td><td>8</td><td>27,648</td></tr>
+          <tr><td>約 70B</td><td>8,192</td><td>80</td><td>64</td><td>8</td><td>28,672</td></tr>
+        </tbody>
+      </table>
+      <p>
+        （數值取自常見開源模型的量級，各家會有出入，
+        重點是看趨勢：d_model 與 layers 大致同步成長。）
+      </p>
+
+      <h2>5. 調哪一個？</h2>
+      <p>
+        假設你算出參數多了 10%，要往下調。優先順序通常是：
+      </p>
+      <ol>
+        <li><strong>先動 d_ff</strong>：影響線性、佔比最大、對品質影響最小</li>
+        <li><strong>再動 layers</strong>：也是線性，但會影響推論延遲（層數越多越慢）</li>
+        <li><strong>最後才動 d_model</strong>：平方效應，牽一髮動全身，還要連帶改 heads</li>
+      </ol>
+      <p>
+        這就是為什麼你會看到 <code>intermediate_size</code> 是 11008、13824、27648
+        這種奇怪數字——它們是<strong>被湊出來的</strong>，
+        用來把總參數量壓到目標值，同時保持 256 的倍數。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>參數量是結果不是輸入，由四個旋鈕湊出來</li>
+          <li>d_model 是平方效應，其餘是線性</li>
+          <li>head 數幾乎不影響參數量</li>
+          <li>d_ff 的怪數字就是湊參數量的痕跡</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何頭數不影響參數量</li>
+          <li>列出調整參數量時的三個旋鈕優先順序</li>
+          <li>解釋 intermediate_size 為何常是奇怪的數字</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課動手：從零設計一個 7B 模型，算到誤差 1% 以內。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：Decoder-only 為什麼贏了</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：參數量公式：手算一個 7B 模型 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

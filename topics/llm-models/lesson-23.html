@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：Kaplan 2020 與 Chinchilla 2022 ｜ LLM 模型全解 ｜ 博雅書院</title>
+<meta name="description" content="兩篇論文的結論差在哪，以及 20 tokens/param 是怎麼算出來的。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 模型全解</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Scaling Law：該練多大、餵多少 · 第 23 課</div>
+      <h1>Kaplan 2020 與 Chinchilla 2022</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Kaplan 與 Chinchilla 兩篇論文的差異</li>
+          <li>掌握 20 tokens/param 的來源</li>
+          <li>知道這個結論的適用範圍</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題設定</h2>
+      <p>
+        假設你有固定的算力預算 C。既然 <code>C ≈ 6ND</code>，
+        那麼 N 與 D 就是一組此消彼長的選擇：
+      </p>
+      <ul>
+        <li>大模型 + 少資料</li>
+        <li>小模型 + 多資料</li>
+      </ul>
+      <p>哪一種的最終 loss 比較低？這就是 scaling law 要回答的問題。</p>
+
+      <h2>2. Kaplan 2020：偏大模型</h2>
+      <p>
+        OpenAI 的研究結論是：算力增加時，<strong>大部分應該投在模型尺寸上</strong>。
+        大致的建議是 N 隨 C 的 0.73 次方成長、D 只隨 0.27 次方成長。
+      </p>
+      <p>
+        GPT-3 就是照這個結論做的：175B 參數，只餵了約 300B tokens，
+        比值不到 <strong>2 tokens/param</strong>。
+      </p>
+
+      <h2>3. Chinchilla 2022：兩者同步</h2>
+      <p>
+        DeepMind 重做了這個實驗，訓練超過 400 個不同配置的模型，
+        得到相反的結論：<strong>N 與 D 應該以相同速率成長</strong>，
+        各自隨 C 的 0.5 次方。
+      </p>
+      <table>
+        <thead><tr><th>模型</th><th>參數</th><th>訓練 tokens</th><th>比值</th></tr></thead>
+        <tbody>
+          <tr><td>Gopher</td><td>280 B</td><td>300 B</td><td>1.1</td></tr>
+          <tr><td>GPT-3</td><td>175 B</td><td>300 B</td><td>1.7</td></tr>
+          <tr><td><strong>Chinchilla</strong></td><td>70 B</td><td>1.4 T</td><td><strong>20</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵結果是：<strong>Chinchilla 用了和 Gopher 相同的算力，
+        模型小了四倍，但表現全面勝出。</strong>
+        這意味著在此之前的大模型全部「訓練不足」——
+        它們的參數沒有被餵飽。
+      </p>
+
+      <h2>4. 為什麼 Kaplan 會錯</h2>
+      <p>
+        後續分析指出幾個原因：
+      </p>
+      <ul>
+        <li>Kaplan 的實驗中，learning rate schedule 沒有隨訓練長度調整，
+            使長訓練的效果被低估</li>
+        <li>實驗的模型尺寸範圍較窄，外推誤差大</li>
+        <li>沒有把嵌入參數與非嵌入參數分開處理</li>
+      </ul>
+      <p>
+        這是一個值得記住的案例：<strong>scaling law 是經驗擬合，不是物理定律</strong>。
+        它會隨著訓練技術改進而移動。
+      </p>
+
+      <h2>5. 怎麼用這個結論</h2>
+      <div class="code-block">給定算力 C，Chinchilla 最適配置：
+
+  C = 6 × N × D 且 D = 20N
+  C = 120 N²
+  N = √(C / 120)
+  D = 20N
+
+例：C = 1e23 FLOPs
+  N = √(1e23/120) ≈ 2.9e10 = 29 B
+  D = 5.8e11 = 580 B tokens</div>
+
+      <h2>6. 適用範圍與限制</h2>
+      <table>
+        <thead><tr><th>限制</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>只管訓練成本</td><td>完全沒考慮推論成本，而那才是長期的大宗（第 25 課）</td></tr>
+          <tr><td>假設資料無限</td><td>高品質資料其實有限，重複使用效果會遞減</td></tr>
+          <tr><td>只看預訓練 loss</td><td>不等於下游任務表現，更不等於後訓練後的可用性</td></tr>
+          <tr><td>不含 MoE</td><td>稀疏模型有自己的 scaling 行為</td></tr>
+          <tr><td>擬合有爭議</td><td>後續有研究重做並指出原論文部分參數估計有誤</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以 20 這個數字要當成<strong>參考點</strong>，不是目標。
+        現在業界的實際做法遠遠超過它——下一課處理。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出 Kaplan 與 Chinchilla 結論的差異</li>
+          <li>用 C=120N² 算出 C=5e23 時的最適配置</li>
+          <li>列出 Chinchilla 結論的三個限制</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：為什麼現在的模型都遠遠超過 20 tokens/param。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：算力預算：C ≈ 6ND 這個公式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：為什麼現在大家都 over-train →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
