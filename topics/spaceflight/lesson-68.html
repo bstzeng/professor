@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 68 課：1202 警報：那台電腦到底發生什麼事 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="週期排程超載的真正原因與它為何沒有造成中止。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 68 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜下降與著陸 · 第 68 課</div>
+      <h1>1202 警報：那台電腦到底發生什麼事</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 1202 警報的真正成因</li>
+          <li>看懂重啟保護機制如何救了這次登月</li>
+          <li>認識「優雅降級」這個設計原則</li>
+        </ul>
+      </div>
+
+      <h2>1. 事件經過</h2>
+      <div class="code-block">阿波羅 11 號，動力下降中
+
+  PDI + 5:16   高度 9,700 m
+    DSKY 顯示：PROGRAM ALARM
+    代碼：1202
+
+    Armstrong：「Program alarm.」
+    「It's a 1202.」
+    「Give us a reading on the 1202 program alarm.」
+
+  任務控制中心，約 15 秒後
+    導引官 Steve Bales：「We're GO on that alarm.」
+    CAPCOM Charlie Duke：「Roger, we're GO. We're GO on that alarm.」
+
+  之後又出現四次（1202 三次、1201 兩次），
+  最後一次在高度 600 公尺左右。
+
+  每一次都回答 GO。</div>
+      <p>
+        <strong>那 15 秒是整個計畫最緊繃的 15 秒之一。</strong>
+      </p>
+
+      <h2>2. 代碼的意思</h2>
+      <table>
+        <thead><tr><th>代碼</th><th>意思</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1201</strong></td><td>NO VAC AREAS（沒有可用的向量累加區）</td></tr>
+          <tr><td><strong>1202</strong></td><td>EXECUTIVE OVERFLOW — NO CORE SETS（執行緒表滿了）</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">兩者都是「記憶體不夠」的警報
+
+  AGC 的 EXEC（第 40 課）用一組固定數量的
+  「core set」（每個約 12 個字）來記錄正在執行的工作。
+
+  可用的 core set 數量：7 個
+  可用的 VAC area（向量暫存區）：5 個
+
+  當有新工作要排程，但沒有空的 core set 時
+  → 觸發 1202
+
+  這不是當機，是一個「我過載了」的通知。</div>
+
+      <h2>3. 為什麼會過載</h2>
+      <p>
+        真正的原因在 1969 年花了幾天才查清楚。
+      </p>
+      <div class="code-block">直接原因：會合雷達持續送出中斷請求
+
+  登月艙上有兩具雷達
+    著陸雷達（LR）—— 下降時必須用
+    會合雷達（RR）—— 上升會合時才用
+
+  檢查清單要求在下降時把 RR 的開關
+  設在「AUTO TRACK」位置，
+  目的是：如果需要中止，RR 已經在追蹤 CSM，
+         可以立刻開始會合。
+
+  問題出在電源相位
+
+  RR 的角度編碼器（CDU）用 800 Hz 交流電驅動。
+  LM 有兩個 800 Hz 電源：一個給 RR，一個給 AGC。
+
+  兩者的相位沒有被鎖定（設計上認為不需要）。
+
+  當兩者相位差很大時，
+  角度編碼器會不斷回報「角度在變化」——
+  即使天線根本沒有動。
+
+  每一次「變化」都觸發一次中斷，
+  要求 AGC 執行一小段程式來更新角度。</div>
+      <div class="code-block">量化
+
+  正常情況：RR 的 CDU 中斷佔用約 0% 的 CPU
+  異常情況：每秒約 12,800 次中斷
+            每次約 45 微秒
+            → 佔用約 13% 的 CPU 時間
+
+  而動力下降本身已經用掉約 85% 的 CPU。
+
+  85% + 13% = 98% ... 還不到 100%？
+
+  問題在於：不只是 CPU 時間，還有 core set。
+  中斷處理程式需要佔用一個 core set，
+  而在尖峰時所有 7 個都被占滿。
+
+  → 1202</div>
+      <p>
+        <strong>為什麼相位會不對？</strong>
+        因為 LM 的兩個 800 Hz 電源
+        本來是設計成同一個來源，
+        但在某個設計修改中變成了兩個獨立的來源，
+        而<strong>沒有人追蹤到這個改變對 AGC 的影響</strong>。
+      </p>
+      <p>
+        更巧的是：這個問題在阿波羅 5 號（無人）與 10 號的測試中
+        都沒有出現，因為那些飛行的 RR 開關位置不同。
+      </p>
+
+      <h2>4. 為什麼可以回答 GO</h2>
+      <p>
+        關鍵在 Margaret Hamilton 團隊寫進 EXEC 的
+        <strong>重啟保護機制</strong>（第 40 課）。
+      </p>
+      <div class="code-block">機制
+
+  1. 偵測到 core set 用盡
+  2. 立刻執行「軟體重啟」（software restart）
+  3. 重啟不是關機重開 —— 它：
+       清空所有 core set
+       從每個工作登記的「重啟點」恢復
+       依優先權重新排程
+
+  4. 高優先權工作（導引、姿態控制、節流）
+     在幾十毫秒內恢復
+  5. 低優先權工作（顯示更新、非必要的計算）
+     被放棄
+
+  整個過程約 0.3 秒。
+
+  對太空人來說：DSKY 閃了一下，
+  導引與引擎控制從未中斷。</div>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="50" y1="180" x2="600" y2="180" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="325" y="204" fill="var(--text-muted)" font-size="11" text-anchor="middle">時間</text>
+          <rect x="60" y="40" width="180" height="22" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <text x="150" y="56" fill="var(--accent)" font-size="10" text-anchor="middle">導引（高優先權）</text>
+          <rect x="270" y="40" width="320" height="22" rx="3" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <text x="430" y="56" fill="var(--accent)" font-size="10" text-anchor="middle">導引 —— 從重啟點恢復，未中斷</text>
+          <rect x="60" y="76" width="180" height="22" rx="3" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="150" y="92" fill="var(--gold)" font-size="10" text-anchor="middle">姿態控制</text>
+          <rect x="270" y="76" width="320" height="22" rx="3" fill="none" stroke="var(--gold)" stroke-width="2"/>
+          <text x="430" y="92" fill="var(--gold)" font-size="10" text-anchor="middle">姿態控制 —— 恢復</text>
+          <rect x="60" y="112" width="180" height="22" rx="3" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+          <text x="150" y="128" fill="var(--text-muted)" font-size="10" text-anchor="middle">顯示更新（低優先權）</text>
+          <rect x="270" y="112" width="130" height="22" rx="3" fill="none" stroke="#ff8a65" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="335" y="128" fill="#ff8a65" font-size="10" text-anchor="middle">被放棄</text>
+          <rect x="60" y="148" width="180" height="22" rx="3" fill="none" stroke="#ff8a65" stroke-width="1.5"/>
+          <text x="150" y="164" fill="#ff8a65" font-size="10" text-anchor="middle">RR 中斷（佔用資源）</text>
+          <line x1="255" y1="20" x2="255" y2="180" stroke="#ff8a65" stroke-width="2.5"/>
+          <text x="258" y="18" fill="#ff8a65" font-size="10">1202 + 重啟（0.3 s）</text>
+        </svg>
+      </div>
+
+      <h2>5. 那 15 秒裡發生了什麼</h2>
+      <div class="code-block">Steve Bales（導引官，當時 26 歲）
+  他身後的後援室裡是 Jack Garman（24 歲），
+  MIT 軟體團隊的聯絡人。
+
+  幾週前的一次模擬中，
+  出現過一個不同的程式警報，
+  Bales 錯誤地下令中止 —— 事後檢討認為那是不必要的。
+
+  之後 Garman 手寫了一張清單：
+  每一個可能的程式警報代碼，
+  以及「什麼情況下可以繼續」。
+
+  1202 在那張清單上，標註是：
+  「只要它不是連續不斷地出現，而且導引資料看起來正常，就可以繼續。」
+
+  當警報出現時，Garman 看了一眼遙測：
+    高度、速度、推力都正常
+    導引資料在更新
+  → 對 Bales 說「GO」
+
+  Bales 對飛航主任 Gene Kranz 說「GO」。</div>
+      <p>
+        <strong>整個判斷建立在兩件事上：</strong>
+        一份因為先前一次模擬失誤而製作的清單，
+        以及「遙測資料顯示導引仍在正常運作」這個獨立證據。
+      </p>
+
+      <h2>6. 後續的修正</h2>
+      <table>
+        <thead><tr><th>改變</th><th>內容</th></tr></thead>
+        <tbody>
+          <tr><td>檢查清單</td><td>阿波羅 12 號起，下降時 RR 開關改到不同位置</td></tr>
+          <tr><td>硬體</td><td>後續的 LM 修改了 800 Hz 電源的配置</td></tr>
+          <tr><td>軟體</td><td>改進 EXEC 對中斷洪水的處理</td></tr>
+          <tr><td>程序</td><td>把程式警報的判斷準則正式寫進飛行規則</td></tr>
+        </tbody>
+      </table>
+
+      <h2>7. 這件事真正的教訓</h2>
+      <p>
+        流行的說法是「太空人靠冷靜救了任務」，
+        或「電腦差點毀了登月」。
+        <strong>兩者都不準確。</strong>
+      </p>
+      <div class="code-block">真正發生的是：一個被設計來「優雅降級」的系統，
+                  在過載時正確地降級了。
+
+  它沒有當機
+  它沒有停止導引
+  它沒有把控制權交給一個不知所措的人
+  它丟掉了最不重要的工作，保住了最重要的
+
+  而它會這樣做，是因為
+  Margaret Hamilton 的團隊堅持要寫這些
+  「反正不會用到」的錯誤處理程式碼 ——
+  儘管當時有人認為那是浪費寶貴的記憶體。
+
+三個獨立的防線同時發揮作用
+  1. 軟體的重啟保護（技術）
+  2. Garman 的警報清單（知識管理）
+  3. 遙測可以獨立驗證導引是否正常（可觀測性）
+
+  任何一個缺席，那 15 秒的答案可能就是「ABORT」。</div>
+      <p>
+        <strong>這是一個關於「為不會發生的事做準備」的故事。</strong>
+        而它的價值只有在那件事真的發生時才會顯現。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 1201 與 1202 各自代表什麼</li>
+          <li>解釋 800 Hz 電源相位問題如何造成中斷洪水</li>
+          <li>說明重啟保護機制的三個步驟</li>
+          <li>列出讓「GO」這個判斷成立的三條獨立防線</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：最後 150 公尺與那個著名的燃料倒數。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-67.html">← 上一課：重力轉向導引：P63/P64/P66 的數學</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-69.html">下一課：最後 150 公尺：人工接手與燃料餘裕 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

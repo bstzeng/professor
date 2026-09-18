@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：數值積分：RK4、步長與能量漂移 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="當攝動讓解析解失效時，怎麼把軌道算出來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜軌道力學（二）：改變軌道與求解 · 第 23 課</div>
+      <h1>數值積分：RK4、步長與能量漂移</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道什麼時候必須放棄解析解</li>
+          <li>理解 RK4 的原理與精度</li>
+          <li>看懂能量漂移這個診斷指標</li>
+        </ul>
+      </div>
+
+      <h2>1. 什麼時候解析解失效</h2>
+      <p>
+        第 19 課的傳播方法要求純二體。
+        一旦加入任何攝動，軌道方程就不再有封閉解。
+      </p>
+      <div class="code-block">完整的運動方程（地月轉移途中）
+
+  r̈ = −μ_E·r/|r|³                        地球主項
+     − μ_M·[(r−r_M)/|r−r_M|³ + r_M/|r_M|³]   月球（含間接項）
+     − μ_S·[(r−r_S)/|r−r_S|³ + r_S/|r_S|³]   太陽
+     + a_J2(r)                              地球扁率
+     + a_SRP                                太陽輻射壓
+
+  其中 r_M(t) 與 r_S(t) 本身要從星曆查表。
+
+  → 沒有解析解，只能數值積分。</div>
+      <p>
+        那些「間接項」（+ r_M/|r_M|³）是因為我們用<strong>地心座標系</strong>，
+        而地心本身也被月球拉著加速——
+        這個座標系不是慣性系，所以要扣掉它的加速度。
+        <strong>這是初學者寫攝動程式時最常漏掉的一項。</strong>
+      </p>
+
+      <h2>2. 把二階方程改寫成一階系統</h2>
+      <p>
+        數值積分器只處理一階方程，
+        所以先把狀態擴充：
+      </p>
+      <div class="code-block">令 s = [x, y, z, vx, vy, vz]
+
+  ds/dt = f(s, t) = [vx, vy, vz, ax, ay, az]
+
+  其中 (ax, ay, az) 由上面的加速度公式算出。
+
+  這樣就變成標準形式 ṡ = f(s,t)，可以套用任何 ODE 求解器。</div>
+
+      <h2>3. 最簡單的方法：Euler 法</h2>
+      <div class="code-block">s_{n+1} = s_n + h·f(s_n, t_n)
+
+  局部誤差 O(h²)，全域誤差 O(h)
+  「一階方法」</div>
+      <p>
+        簡單，但對軌道問題<strong>非常糟</strong>。
+        下面會用數字說明糟到什麼程度。
+      </p>
+
+      <h2>4. 實務標準：四階 Runge–Kutta</h2>
+      <div class="code-block">k₁ = f(s_n, t_n)
+k₂ = f(s_n + h·k₁/2, t_n + h/2)
+k₃ = f(s_n + h·k₂/2, t_n + h/2)
+k₄ = f(s_n + h·k₃,   t_n + h)
+
+s_{n+1} = s_n + (h/6)(k₁ + 2k₂ + 2k₃ + k₄)
+
+  局部誤差 O(h⁵)，全域誤差 O(h⁴)
+  每步要算四次 f</div>
+      <p>
+        <strong>直覺：</strong>Euler 只用起點的斜率，
+        RK4 則在區間內取四個樣本
+        （起點、中點兩次、終點），加權平均。
+        中點被加權兩倍，因為它最能代表整個區間。
+      </p>
+
+      <h2>5. 實測：積分十圈 ISS 軌道</h2>
+      <div class="code-block">初始條件：r = 6,778 km 圓軌道，v = 7.669 km/s
+週期 5,553.5 秒，積分 10 圈（55,535 秒）
+初始比能量 ε₀ = −29.403987 km²/s²
+
+步長    方法     相對能量誤差     位置誤差
+────────────────────────────────────────────────
+ 60 s   Euler    6.70e-01         12,330 km
+ 60 s   RK4      2.52e-06            196 km
+ 10 s   Euler    4.25e-01          5,879 km
+ 10 s   RK4      3.24e-10             35 km
+  1 s   Euler    1.12e-01          5,115 km
+  1 s   RK4      1.38e-14            3.4 km</div>
+      <p>
+        <strong>三個必須注意的地方：</strong>
+      </p>
+      <ul>
+        <li><strong>Euler 完全不可用。</strong>60 秒步長下，十圈之後能量錯了 67%——那已經不是同一條軌道了。即使降到 1 秒，誤差仍有 11%。</li>
+        <li><strong>RK4 的能量誤差隨 h⁴ 下降。</strong>60→10 秒（6 倍）讓誤差降了約 7,800 倍（6⁴ = 1,296，加上常數項的變化）。</li>
+        <li><strong>位置誤差下降得比能量誤差慢很多。</strong>這一點最重要，下面解釋。</li>
+      </ul>
+
+      <h2>6. 為什麼位置誤差降得慢：相位誤差</h2>
+      <div class="code-block">能量誤差 → 半長軸誤差 → 週期誤差 → 相位誤差
+
+  週期 T = 2π√(a³/μ)
+  dT/T = (3/2)·da/a
+  而 da/a = −dε/ε
+
+  RK4, h = 10 s：dε/ε = 3.24e-10
+  → da/a = 3.24e-10
+  → dT/T = 4.9e-10
+  → 十圈後累積時間誤差 = 55535 × 4.9e-10 = 2.7e-5 秒
+
+  太空船一秒走 7.67 km
+  → 位置誤差 = 2.7e-5 × 7.67 = 0.0002 km
+
+  但實測是 35 km ——差了五個數量級。</div>
+      <p>
+        差距來自<strong>局部截斷誤差的直接累積</strong>，
+        而不是能量誤差。
+        RK4 每一步都會在<strong>沿軌道方向</strong>引入小偏差，
+        這些偏差不影響能量（因為它只是「提早或延後到達」），
+        但會線性累積成相位誤差。
+      </p>
+      <p>
+        <strong>這是一個重要的教訓：
+        能量守恆得很好，不代表位置準確。</strong>
+        兩者要分開檢查。
+      </p>
+
+      <h2>7. 能量漂移：一個好用的診斷</h2>
+      <p>
+        雖然能量誤差不能完全代表精度，
+        但它是<strong>最容易檢查的健康指標</strong>：
+      </p>
+      <table>
+        <thead><tr><th>觀察到的能量行為</th><th>可能原因</th></tr></thead>
+        <tbody>
+          <tr><td>單調下降</td><td>Euler 類方法的系統性耗散，或步長太大</td></tr>
+          <tr><td>單調上升</td><td>積分不穩定，即將發散</td></tr>
+          <tr><td>週期性振盪但不漂移</td><td><strong>辛積分器的正常行為，健康</strong></td></tr>
+          <tr><td>隨機遊走</td><td>浮點誤差主導，步長已經太小</td></tr>
+          <tr><td>突然跳變</td><td>程式 bug，或近拱點通過時步長不夠</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">最後一列很常見：
+  高離心率軌道在近拱點附近速度變化極快，
+  固定步長會在那裡嚴重失準。
+
+解法：自適應步長
+  RK45（Runge–Kutta–Fehlberg）同時算出四階與五階解，
+  用兩者的差當作誤差估計，自動調整 h。
+
+  近拱點：h 自動縮小到幾秒
+  遠拱點：h 自動放大到幾百秒</div>
+
+      <h2>8. 辛積分器：長期積分的正確工具</h2>
+      <p>
+        RK4 雖然精度高，但它<strong>不保辛</strong>
+        （non-symplectic），
+        長期積分會出現系統性的能量漂移。
+      </p>
+      <div class="code-block">辛積分器（symplectic integrator）
+  保持哈密頓系統的相空間體積
+  → 能量誤差有界振盪，不會單調漂移
+
+最簡單的例子：Leapfrog（蛙跳法，二階）
+  v_{n+1/2} = v_n + (h/2)·a(r_n)
+  r_{n+1}   = r_n + h·v_{n+1/2}
+  v_{n+1}   = v_{n+1/2} + (h/2)·a(r_{n+1})
+
+  精度只有二階，但積分一百萬年後能量仍然有界。</div>
+      <table>
+        <thead><tr><th>任務</th><th>推薦方法</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>幾天的任務規劃</td><td>RK4 或 RK45</td><td>精度優先，時間短不怕漂移</td></tr>
+          <tr><td>衛星編目、幾個月</td><td>RK45 或 Gauss–Jackson</td><td>兼顧精度與效率</td></tr>
+          <tr><td>行星際任務（幾年）</td><td>高階多步法 + 高精度星曆</td><td>需要極高精度</td></tr>
+          <tr><td><strong>太陽系長期演化（億年）</strong></td><td><strong>辛積分器</strong></td><td>能量有界是唯一重要的事</td></tr>
+        </tbody>
+      </table>
+
+      <h2>9. 阿波羅時代實際怎麼做</h2>
+      <div class="code-block">地面（任務控制中心的 IBM System/360）
+  完整數值積分
+  含地球非球形重力、月球、太陽
+  用來算點火參數、預報軌跡、規劃中止方案
+
+太空船上（AGC，第 40 課）
+  純二體解析（Encke 法的簡化版）
+  用「與參考軌道的偏差」來積分，而非絕對位置
+  → 誤差小很多，計算量也小很多
+
+  這個技巧叫 Encke 法：
+    r = r_參考（解析解）+ δr（數值積分的小修正）
+    因為 δr 很小，用低精度積分也夠準</div>
+      <p>
+        <strong>Encke 法是那個時代的關鍵工程妥協。</strong>
+        它讓一台 72 KB 的電腦能做出足以導航到月球的計算，
+        代價是必須有一條事先算好的參考軌道
+        （由地面提供並定期更新）。
+      </p>
+
+      <h2>10. 一個實作檢查清單</h2>
+      <ul>
+        <li><strong>單位一致。</strong>km 還是 m？秒還是天？這是最常見的錯誤來源（火星氣候軌道器就是因為單位不一致而失聯）。</li>
+        <li><strong>檢查能量。</strong>每 N 步算一次 ε，畫出來看。</li>
+        <li><strong>檢查角動量。</strong>純二體下 h 也該守恆。</li>
+        <li><strong>與解析解對照。</strong>關掉所有攝動，結果應該與第 19 課的克卜勒傳播一致到機器精度。</li>
+        <li><strong>檢查間接項。</strong>第三體攝動忘了間接項的話，短期看不出來，長期會系統性偏移。</li>
+        <li><strong>步長減半測試。</strong>把 h 減半，結果變化應該符合方法的階數。不符合就是有 bug。</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何第三體攝動要加上「間接項」</li>
+          <li>寫出 RK4 的四個 k 值與加權方式</li>
+          <li>解釋為何能量誤差很小但位置誤差可能很大</li>
+          <li>說明辛積分器的優勢與它適用的場合</li>
+          <li>說明 Encke 法為何能讓小電腦做出高精度導航</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 D 開始。下一課推導火箭方程，把 Δv 換算成質量。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：改變軌道面有多貴</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：齊奧爾科夫斯基方程式的推導 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

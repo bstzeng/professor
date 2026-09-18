@@ -9760,6 +9760,202 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "spaceflight",
+      category: "science",
+      title: "飛向太空：阿波羅登月的每一步與飛向火星的軌道計算",
+      description:
+        "從牛頓的兩條定律推導出軌道力學，再用它把阿波羅登月的每一腳點火算出來：TLI 3.14、LOI 0.92、下降 2.0、上升 1.86、TEI 1.0 km/s，全部附完整算式並與實測對照。涵蓋二體運動方程與 vis-viva 的推導、克卜勒方程的數值解、Lambert 問題、RK4 積分、火箭方程與分節、土星五號與登月艙的硬體全解、發射窗口、自由返回、動力下降導引與 1202 警報、會合的 CW 方程、再入走廊與 Allen–Eggers 解，最後延伸到行星際：霍曼轉移、porkchop plot、重力助推、火星 EDL 那七分鐘，以及月球與火星的 Δv 總表。",
+      icon: "🚀",
+      url: "topics/spaceflight/index.html",
+      modules: [
+        {
+          title: "模組 A｜先建立規模感",
+          courses: [
+            { title: "上太空難在哪：不是「高」，是「快」", url: "topics/spaceflight/lesson-01.html" },
+            { title: "三個必須記住的數字：7.8、11.2、9.8", url: "topics/spaceflight/lesson-02.html" },
+            { title: "從地表到月球的完整能量帳", url: "topics/spaceflight/lesson-03.html" },
+            { title: "阿波羅計畫的量級：人、錢、時間", url: "topics/spaceflight/lesson-04.html" },
+            { title: "這門課會算出哪些數字、用什麼工具", url: "topics/spaceflight/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜軌道力學（一）：從牛頓到圓錐曲線",
+          courses: [
+            { title: "牛頓的大砲：軌道是一直往下掉卻掉不到地面", url: "topics/spaceflight/lesson-06.html" },
+            { title: "二體問題：從 F = ma 寫出運動方程", url: "topics/spaceflight/lesson-07.html" },
+            { title: "化簡成相對運動：重力參數 μ 的由來", url: "topics/spaceflight/lesson-08.html" },
+            { title: "角動量守恆：為什麼軌道是平面的", url: "topics/spaceflight/lesson-09.html" },
+            { title: "能量守恆與 vis-viva 的推導", url: "topics/spaceflight/lesson-10.html" },
+            { title: "解微分方程：軌道方程與圓錐曲線", url: "topics/spaceflight/lesson-11.html" },
+            { title: "克卜勒三定律：從推導結果反讀回去", url: "topics/spaceflight/lesson-12.html" },
+            { title: "圓、橢圓、拋物線、雙曲線：四種軌道與判別", url: "topics/spaceflight/lesson-13.html" },
+            { title: "軌道六要素：用六個數字描述一條軌道", url: "topics/spaceflight/lesson-14.html" }
+          ]
+        },
+        {
+          title: "模組 C｜軌道力學（二）：改變軌道與求解",
+          courses: [
+            { title: "Δv 是太空旅行的貨幣", url: "topics/spaceflight/lesson-15.html" },
+            { title: "霍曼轉移：兩圈之間最省的走法", url: "topics/spaceflight/lesson-16.html" },
+            { title: "動手算：LEO 到 GEO 要多少 Δv", url: "topics/spaceflight/lesson-17.html" },
+            { title: "克卜勒方程：偏近點角與牛頓法求根", url: "topics/spaceflight/lesson-18.html" },
+            { title: "從時間反推位置：軌道傳播", url: "topics/spaceflight/lesson-19.html" },
+            { title: "Lambert 問題：給兩點與飛行時間，求那條軌道", url: "topics/spaceflight/lesson-20.html" },
+            { title: "Oberth 效應：為什麼在近地點加速最划算", url: "topics/spaceflight/lesson-21.html" },
+            { title: "改變軌道面有多貴", url: "topics/spaceflight/lesson-22.html" },
+            { title: "數值積分：RK4、步長與能量漂移", url: "topics/spaceflight/lesson-23.html" }
+          ]
+        },
+        {
+          title: "模組 D｜火箭方程：質量比的殘酷",
+          courses: [
+            { title: "齊奧爾科夫斯基方程式的推導", url: "topics/spaceflight/lesson-24.html" },
+            { title: "比衝（Isp）到底是什麼", url: "topics/spaceflight/lesson-25.html" },
+            { title: "質量比的殘酷：為什麼 90% 都是燃料", url: "topics/spaceflight/lesson-26.html" },
+            { title: "為什麼一定要分節：多節火箭的最佳化", url: "topics/spaceflight/lesson-27.html" },
+            { title: "動手算：把 45 噸送上月球轉移軌道要多大的火箭", url: "topics/spaceflight/lesson-28.html" }
+          ]
+        },
+        {
+          title: "模組 E｜土星五號與阿波羅載具全解",
+          courses: [
+            { title: "全疊構型：110 公尺裡裝了什麼", url: "topics/spaceflight/lesson-29.html" },
+            { title: "S-IC 第一節：五具 F-1 與那 168 秒", url: "topics/spaceflight/lesson-30.html" },
+            { title: "S-II 第二節：液氫的工程難題", url: "topics/spaceflight/lesson-31.html" },
+            { title: "S-IVB 第三節：唯一能二次點火的那一節", url: "topics/spaceflight/lesson-32.html" },
+            { title: "指揮艙 CM：三個人住的那個錐體", url: "topics/spaceflight/lesson-33.html" },
+            { title: "服務艙 SM：推進、電力、氧氣", url: "topics/spaceflight/lesson-34.html" },
+            { title: "登月艙 LM：唯一在真空中設計的載人載具", url: "topics/spaceflight/lesson-35.html" }
+          ]
+        },
+        {
+          title: "模組 F｜帶了什麼上去",
+          courses: [
+            { title: "生命維持：氧氣、二氧化碳、水、熱", url: "topics/spaceflight/lesson-36.html" },
+            { title: "電力：燃料電池與電池", url: "topics/spaceflight/lesson-37.html" },
+            { title: "食物與水：八天份怎麼算", url: "topics/spaceflight/lesson-38.html" },
+            { title: "A7L 太空衣：一件衣服就是一艘太空船", url: "topics/spaceflight/lesson-39.html" },
+            { title: "導航電腦 AGC 的 72 KB", url: "topics/spaceflight/lesson-40.html" },
+            { title: "科學儀器、工具與帶回來的東西", url: "topics/spaceflight/lesson-41.html" }
+          ]
+        },
+        {
+          title: "模組 G｜發射：從點火到地球停泊軌道",
+          courses: [
+            { title: "為什麼在佛羅里達往東射", url: "topics/spaceflight/lesson-42.html" },
+            { title: "發射窗口怎麼決定", url: "topics/spaceflight/lesson-43.html" },
+            { title: "T-0 到 T+12 分鐘：逐秒時序", url: "topics/spaceflight/lesson-44.html" },
+            { title: "重力轉彎與 Max Q：上升軌跡的最佳化", url: "topics/spaceflight/lesson-45.html" },
+            { title: "分節與拋罩：每一次丟東西都是為了質量比", url: "topics/spaceflight/lesson-46.html" },
+            { title: "停泊軌道：為什麼要先繞地球兩圈", url: "topics/spaceflight/lesson-47.html" }
+          ]
+        },
+        {
+          title: "模組 H｜TLI：算出飛向月球的那一腳",
+          courses: [
+            { title: "問題的形式：要多快才能到月球", url: "topics/spaceflight/lesson-48.html" },
+            { title: "逃逸速度與「差一點逃逸」的軌道", url: "topics/spaceflight/lesson-49.html" },
+            { title: "動手算：TLI 需要多少 Δv", url: "topics/spaceflight/lesson-50.html" },
+            { title: "為什麼要瞄準月球未來的位置：Lambert 的實際應用", url: "topics/spaceflight/lesson-51.html" },
+            { title: "自由返回軌道：一個救命的設計", url: "topics/spaceflight/lesson-52.html" },
+            { title: "轉位、抽出與對接", url: "topics/spaceflight/lesson-53.html" }
+          ]
+        },
+        {
+          title: "模組 I｜地月轉移途中的四天",
+          courses: [
+            { title: "中途修正：為什麼四次就夠", url: "topics/spaceflight/lesson-54.html" },
+            { title: "導航：三種定位方法與誤差橢球", url: "topics/spaceflight/lesson-55.html" },
+            { title: "被動熱控：那個每小時三圈的翻滾", url: "topics/spaceflight/lesson-56.html" },
+            { title: "影響球：什麼時候「歸月球管」", url: "topics/spaceflight/lesson-57.html" },
+            { title: "途中的日常：睡覺、吃飯、上廁所", url: "topics/spaceflight/lesson-58.html" }
+          ]
+        },
+        {
+          title: "模組 J｜LOI：進入月球軌道",
+          courses: [
+            { title: "到了月球為什麼不會自己被抓住", url: "topics/spaceflight/lesson-59.html" },
+            { title: "動手算：LOI 需要多少 Δv", url: "topics/spaceflight/lesson-60.html" },
+            { title: "為什麼在月球背面點火", url: "topics/spaceflight/lesson-61.html" },
+            { title: "從橢圓到圓：LOI-2 與降軌", url: "topics/spaceflight/lesson-62.html" },
+            { title: "月球重力異常（mascon）與軌道衰減", url: "topics/spaceflight/lesson-63.html" }
+          ]
+        },
+        {
+          title: "模組 K｜下降與著陸",
+          courses: [
+            { title: "分離與 DOI：降到 15 公里", url: "topics/spaceflight/lesson-64.html" },
+            { title: "動力下降 PDI 的三個階段", url: "topics/spaceflight/lesson-65.html" },
+            { title: "為什麼不能用霍曼轉移直接落地", url: "topics/spaceflight/lesson-66.html" },
+            { title: "重力轉向導引：P63/P64/P66 的數學", url: "topics/spaceflight/lesson-67.html" },
+            { title: "1202 警報：那台電腦到底發生什麼事", url: "topics/spaceflight/lesson-68.html" },
+            { title: "最後 150 公尺：人工接手與燃料餘裕", url: "topics/spaceflight/lesson-69.html" }
+          ]
+        },
+        {
+          title: "模組 L｜月面",
+          courses: [
+            { title: "著陸後第一件事：待命起飛檢查", url: "topics/spaceflight/lesson-70.html" },
+            { title: "出艙：減壓、下梯、第一步", url: "topics/spaceflight/lesson-71.html" },
+            { title: "月面活動：採樣、儀器、月球車", url: "topics/spaceflight/lesson-72.html" },
+            { title: "待多久由什麼決定", url: "topics/spaceflight/lesson-73.html" }
+          ]
+        },
+        {
+          title: "模組 M｜上升、會合與對接",
+          courses: [
+            { title: "上升節：一具沒有備份的引擎", url: "topics/spaceflight/lesson-74.html" },
+            { title: "動手算：從月面到月球軌道要多少 Δv", url: "topics/spaceflight/lesson-75.html" },
+            { title: "會合的幾何：追趕、相位與 CW 方程", url: "topics/spaceflight/lesson-76.html" },
+            { title: "共橢圓會合（CDH / TPI）", url: "topics/spaceflight/lesson-77.html" },
+            { title: "對接與轉移", url: "topics/spaceflight/lesson-78.html" },
+            { title: "拋棄上升節：撞月球的科學用途", url: "topics/spaceflight/lesson-79.html" }
+          ]
+        },
+        {
+          title: "模組 N｜TEI、返航與再入",
+          courses: [
+            { title: "TEI：回家那一腳要多少 Δv", url: "topics/spaceflight/lesson-80.html" },
+            { title: "返程中途修正與精度要求", url: "topics/spaceflight/lesson-81.html" },
+            { title: "再入走廊：那 2 度的窗口怎麼算出來", url: "topics/spaceflight/lesson-82.html" },
+            { title: "再入的物理：11 km/s 的熱與 Allen–Eggers 解", url: "topics/spaceflight/lesson-83.html" },
+            { title: "燒蝕熱盾與黑障", url: "topics/spaceflight/lesson-84.html" },
+            { title: "降落傘、濺落與回收", url: "topics/spaceflight/lesson-85.html" }
+          ]
+        },
+        {
+          title: "模組 O｜逐次任務與失敗案例",
+          courses: [
+            { title: "阿波羅 1 號到 10 號：每一次解決了什麼", url: "topics/spaceflight/lesson-86.html" },
+            { title: "阿波羅 11 號：逐時間軸重走一次", url: "topics/spaceflight/lesson-87.html" },
+            { title: "阿波羅 13 號：故障樹與那些手算", url: "topics/spaceflight/lesson-88.html" },
+            { title: "阿波羅 14–17 號與 J 型任務", url: "topics/spaceflight/lesson-89.html" }
+          ]
+        },
+        {
+          title: "模組 P｜飛向火星",
+          courses: [
+            { title: "從繞地球到繞太陽：參考系換了", url: "topics/spaceflight/lesson-90.html" },
+            { title: "地火霍曼轉移：為什麼是 259 天", url: "topics/spaceflight/lesson-91.html" },
+            { title: "發射窗口：26 個月一次與 porkchop plot", url: "topics/spaceflight/lesson-92.html" },
+            { title: "動手算：去火星要多少 C3 與 Δv", url: "topics/spaceflight/lesson-93.html" },
+            { title: "重力助推：免費的 Δv 從哪來", url: "topics/spaceflight/lesson-94.html" },
+            { title: "抵達火星的三種方式：飛掠、環繞、著陸", url: "topics/spaceflight/lesson-95.html" },
+            { title: "EDL 那七分鐘：從 5.6 km/s 到 0", url: "topics/spaceflight/lesson-96.html" },
+            { title: "通訊、電力與火星探測器帶了什麼", url: "topics/spaceflight/lesson-97.html" }
+          ]
+        },
+        {
+          title: "模組 Q｜總結",
+          courses: [
+            { title: "月球 vs 火星：兩張 Δv 總表", url: "topics/spaceflight/lesson-98.html" },
+            { title: "公式總表與名詞索引", url: "topics/spaceflight/lesson-99.html" },
+            { title: "如果今天重做一次：Artemis 與現代方案", url: "topics/spaceflight/lesson-100.html" }
+          ]
+        }
+      ]
     }
   ]
 };

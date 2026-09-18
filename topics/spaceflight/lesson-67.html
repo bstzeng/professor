@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 67 課：重力轉向導引：P63/P64/P66 的數學 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="四次多項式導引律如何同時滿足位置、速度與加速度。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 67 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜下降與著陸 · 第 67 課</div>
+      <h1>重力轉向導引：P63/P64/P66 的數學</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導動力下降的導引律</li>
+          <li>理解為何是四次多項式</li>
+          <li>看懂 P63/P64/P66 的差別在哪</li>
+        </ul>
+      </div>
+
+      <h2>1. 導引問題的形式</h2>
+      <div class="code-block">已知
+  現在的位置 r、速度 v、質量 m
+  引擎推力範圍 [F_min, F_max]
+  重力 g
+
+要求
+  在某個時刻 t_go 之後
+    位置 = 目標位置
+    速度 = 目標速度（通常接近 0）
+    加速度 = 目標加速度（垂直向上，抵銷重力）
+
+求
+  每一瞬間的推力大小與方向</div>
+      <p>
+        這是一個<strong>最佳控制問題</strong>。
+        完整的解（用 Pontryagin 最大原理）
+        需要迭代求解兩點邊值問題——
+        <strong>AGC 做不到</strong>（第 40 課）。
+      </p>
+
+      <h2>2. 阿波羅的解法：假設加速度是時間的多項式</h2>
+      <div class="code-block">關鍵簡化
+  不去求「最佳」解，而是假設加速度剖面的形式，
+  再解出係數。
+
+  設「剩餘時間」為 τ = t_go（從現在到目標的時間）
+
+  假設推力加速度是 τ 的二次多項式
+    a_T(t) = c₀ + c₁·t + c₂·t²
+
+  對它積分兩次可得速度與位置：
+    v(t) = v₀ + ∫a dt  → t 的三次式
+    r(t) = r₀ + ∫v dt  → t 的四次式
+
+  ┌─────────────────────────────────────┐
+  │  位置是時間的四次多項式             │
+  │  → 這就是「四次多項式導引」的由來   │
+  └─────────────────────────────────────┘</div>
+
+      <h2>3. 解出係數</h2>
+      <div class="code-block">邊界條件（每個軸各有三個）
+
+  在 t = 0（現在）
+    位置 r₀、速度 v₀ 已知（由導航給出）
+
+  在 t = τ（目標）
+    位置 r_T、速度 v_T、加速度 a_T 指定
+
+  未知數：c₀, c₁, c₂（三個）
+  可用的方程：終端的位置、速度、加速度（三個）
+  → 剛好可解
+
+結果（每個軸獨立求解）
+
+  c₂ = 6(r_T − r₀)/τ⁴ ... （完整式子較長，這裡給結構）
+
+  更常見的寫法是把它整理成
+
+    a_command = a_T + 6·(v_T + v₀)/τ + 12·(r₀ − r_T + v₀τ)/τ²  ... 
+
+  重點在於結構：
+    第一項：終端要求的加速度
+    第二項：速度誤差的修正，權重 ∝ 1/τ
+    第三項：位置誤差的修正，權重 ∝ 1/τ²
+
+  τ 越小（越接近目標），修正的增益越大。</div>
+      <p>
+        <strong>這個 1/τ 與 1/τ² 的結構是所有終端導引律的共同特徵。</strong>
+        它的物理意義很直覺：
+        時間快用完了，就要更用力地修正。
+      </p>
+
+      <h2>4. t_go 怎麼決定</h2>
+      <div class="code-block">τ 不是外部給定的，它本身也要算。
+
+  阿波羅的做法：由推進劑消耗率的約束反推
+
+  已知目標的加速度剖面，可以算出總的 Δv 需求，
+  進而算出需要多少時間。
+
+  實作上用一個迭代：
+    1. 猜一個 τ
+    2. 用上面的公式算出 a_command
+    3. 檢查 a_command 是否在 [F_min/m, F_max/m] 範圍內
+    4. 若超出範圍，調整 τ 並重複
+
+  AGC 每兩秒重新算一次，
+  每次只做一到兩步迭代 —— 因為 τ 變化很慢，
+  上一次的解就是很好的初始猜測。
+
+這是「即時最佳化」的一個早期實例。</div>
+
+      <h2>5. 三個程式的差別</h2>
+      <table>
+        <thead><tr><th>程式</th><th>目標</th><th>特點</th></tr></thead>
+        <tbody>
+          <tr><td><strong>P63</strong></td><td>飛到「高門」的狀態</td><td>目標是一個虛擬的中間點，不是月面</td></tr>
+          <tr><td><strong>P64</strong></td><td>飛到「低門」的狀態</td><td>同樣的導引律，但目標改變；加上 LPD 讓人重新指定</td></tr>
+          <tr><td><strong>P66</strong></td><td>維持指定的下降率</td><td><strong>不再是多項式導引</strong>，改成簡單的回授控制</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">為什麼 P63 的目標不是月面
+
+  如果直接瞄準月面，導引律會選出「最快到達」的軌跡，
+  那條軌跡在最後會非常陡、速度很大 ——
+  沒有觀察與修正的餘地。
+
+  瞄準一個「虛擬的高門狀態」
+    高度 2,300 m
+    水平速度 160 m/s
+    下降率約 45 m/s
+    路徑角約 16 度
+
+  這個狀態是人為設計的，目的是：
+    讓接下來的接近段有一個平緩、可觀察的下滑道
+
+  這是一個典型的「分段瞄準」（waypoint）設計：
+  把一個難以直接求解的問題，
+  切成幾段各自簡單的問題。</div>
+      <div class="code-block">為什麼 P66 不用多項式導引
+
+  在 180 公尺以下，太空人會隨時改變想去的地方。
+  「目標位置」不再是固定的 →
+  多項式導引失去意義。
+
+  P66 的控制律極簡：
+    垂直：維持太空人用手控器設定的下降率
+          誤差 → 節流調整
+    水平：完全由太空人用姿態手控器控制
+
+  這是「把問題交給人」的正確做法 ——
+  電腦只負責它擅長的（精確維持下降率），
+  人負責它擅長的（決定去哪裡）。</div>
+
+      <h2>6. 導引律的一個實際特性：它會「忘記」過去</h2>
+      <div class="code-block">每兩秒，AGC 用當前的 r、v 重新解一次係數。
+
+  這意味著：它完全不在乎之前的軌跡。
+  不管之前偏離多少，它只問「從現在這裡，怎麼到目標」。
+
+好處
+  對擾動有天然的韌性 —— 不會累積積分誤差
+  導航修正（如著陸雷達的更新）可以直接注入
+  太空人改變目標（LPD）可以立刻生效
+
+代價
+  不保證全域最佳
+  在某些初始條件下可能要求超出推力範圍的加速度
+  → 需要 τ 的迭代來避免
+
+這種「每一步都重新解一次」的架構，
+現在叫 model predictive control（模型預測控制），
+是現代控制理論的主流之一。
+
+阿波羅在 1965 年就實作了它的一個特例。</div>
+
+      <h2>7. 一個現代的對照：SpaceX 的著陸</h2>
+      <table>
+        <thead><tr><th></th><th>阿波羅 LM</th><th>現代火箭回收</th></tr></thead>
+        <tbody>
+          <tr><td>導引律</td><td>四次多項式（解析）</td><td><strong>凸最佳化（數值）</strong></td></tr>
+          <tr><td>每次計算</td><td>兩秒一次，幾毫秒</td><td>每秒數次，完整求解</td></tr>
+          <tr><td>約束處理</td><td>用 τ 迭代間接處理</td><td><strong>直接放進最佳化問題</strong></td></tr>
+          <tr><td>最後階段</td><td>交給人</td><td>全自主</td></tr>
+          <tr><td>燃料餘裕</td><td>幾十秒</td><td>類似（都很緊）</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">關鍵進展：「無損凸化」（lossless convexification）
+
+  2000 年代的研究證明：
+  動力下降的最佳控制問題，
+  在適當的變數變換下，可以轉化成一個「凸」問題。
+
+  凸問題有兩個關鍵性質：
+    1. 局部最佳解就是全域最佳解
+    2. 可以在「有界的時間內」保證求出解
+
+  第 2 點對飛行軟體至關重要 ——
+  你不能讓一個可能不收斂的演算法
+  控制一枚正在著陸的火箭。
+
+  這個理論突破，加上算力的提升，
+  讓「全自主精確著陸」在 2010 年代成為現實。</div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何位置是時間的四次多項式</li>
+          <li>解釋導引律中 1/τ 與 1/τ² 項的物理意義</li>
+          <li>說明為何 P63 瞄準的是「高門」而非月面</li>
+          <li>說明每兩秒重解一次的好處與代價</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課：那個差點中止登月的 1202 警報。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-66.html">← 上一課：為什麼不能用霍曼轉移直接落地</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-68.html">下一課：1202 警報：那台電腦到底發生什麼事 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

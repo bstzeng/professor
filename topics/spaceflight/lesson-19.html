@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：從時間反推位置：軌道傳播 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="給定初始狀態與時間，算出太空船在哪裡。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜軌道力學（二）：改變軌道與求解 · 第 19 課</div>
+      <h1>從時間反推位置：軌道傳播</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把前面的零件組成完整的軌道傳播器</li>
+          <li>認識 Lagrange f 與 g 函數</li>
+          <li>知道解析傳播與數值積分各自的適用範圍</li>
+        </ul>
+      </div>
+
+      <h2>1. 傳播問題的完整敘述</h2>
+      <div class="code-block">輸入
+  t₀ 時刻的狀態向量 r₀, v₀
+  時間增量 Δt
+
+輸出
+  t₀ + Δt 時刻的狀態向量 r, v</div>
+      <p>
+        這是軌道力學最基本的計算。
+        導航、會合、任務規劃、碰撞預警——全部建立在它上面。
+      </p>
+
+      <h2>2. 標準流程（經由六要素）</h2>
+      <div class="code-block">1. 由 r₀, v₀ 算出 a, e, i, Ω, ω, ν₀     （第 14 課）
+2. 由 ν₀ 算 E₀：
+     tan(E₀/2) = √((1−e)/(1+e)) · tan(ν₀/2)
+3. 由 E₀ 算 M₀ = E₀ − e·sin E₀          （克卜勒方程，正向）
+4. M = M₀ + n·Δt，其中 n = √(μ/a³)
+5. 解克卜勒方程得 E                      （牛頓法，第 18 課）
+6. 由 E 算 ν 與 r
+7. 由 (a,e,i,Ω,ω,ν) 組回 r, v            （第 14 課）</div>
+      <p>
+        <strong>七個步驟，中間只有第 5 步需要迭代。</strong>
+      </p>
+      <p>
+        但這個流程有兩個缺點：
+        要做兩次座標轉換（很多三角函數），
+        而且在退化軌道（e≈0 或 i≈0）會出問題（第 14 課）。
+      </p>
+
+      <h2>3. 更好的方法：Lagrange f 與 g 函數</h2>
+      <p>
+        關鍵洞見：<strong>新的位置向量一定落在軌道平面上，
+        所以它必定是 r₀ 與 v₀ 的線性組合。</strong>
+      </p>
+      <div class="code-block">  ┌──────────────────────┐
+  │  r = f·r₀ + g·v₀     │
+  │  v = ḟ·r₀ + ġ·v₀     │
+  └──────────────────────┘
+
+f、g、ḟ、ġ 是四個純量函數。
+它們完全繞過了六要素與座標轉換。</div>
+      <p>
+        用偏近點角的改變量 ΔE = E − E₀ 表示：
+      </p>
+      <div class="code-block">f  = 1 − (a/r₀)(1 − cos ΔE)
+g  = Δt − √(a³/μ)(ΔE − sin ΔE)
+ḟ  = −√(μa)·sin ΔE / (r·r₀)
+ġ  = 1 − (a/r)(1 − cos ΔE)
+
+一個有用的檢查：f·ġ − ḟ·g = 1 恆成立
+（這是 Wronskian 行列式，來自狀態轉移矩陣的保辛性質）</div>
+      <p>
+        <strong>那個恆等式在實作時極有價值。</strong>
+        寫完程式後算一次 f·ġ − ḟ·g，
+        如果不等於 1（誤差在 10⁻¹² 以內），就是有 bug。
+      </p>
+
+      <h2>4. 通用變數：一個程式處理所有軌道型態</h2>
+      <p>
+        上面的公式只對橢圓成立。
+        雙曲線要換成 cosh、sinh，拋物線又是另一套。
+        寫三套程式很容易出錯。
+      </p>
+      <p>
+        Sundman 與 Battin 發展出的<strong>通用變數</strong>
+        （universal variable）解決了這個問題。
+      </p>
+      <div class="code-block">引入變數 χ，滿足
+  dχ/dt = √μ / r
+
+以及 Stumpff 函數
+  C(z) = (1 − cos√z)/z            若 z > 0
+       = (cosh√(−z) − 1)/(−z)     若 z < 0
+       = 1/2                       若 z = 0
+
+  S(z) = (√z − sin√z)/√z³         若 z > 0
+       = (sinh√(−z) − √(−z))/√(−z)³  若 z < 0
+       = 1/6                       若 z = 0
+
+其中 z = χ²/a （橢圓時正，雙曲線時負，拋物線時零）
+
+通用克卜勒方程
+  √μ·Δt = (r₀·v₀/√μ)χ²C(z) + (1 − r₀/a)χ³S(z) + r₀χ
+
+同樣用牛頓法對 χ 求解。</div>
+      <p>
+        <strong>Stumpff 函數在 z = 0 附近要用級數展開</strong>，
+        因為公式裡有 0/0。實作時這是最容易出錯的地方。
+      </p>
+      <div class="code-block">C(z) = 1/2 − z/24 + z²/720 − z³/40320 + ...
+S(z) = 1/6 − z/120 + z²/5040 − z³/362880 + ...
+
+當 |z| < 0.1 時改用級數。</div>
+
+      <h2>5. 解析傳播的極限</h2>
+      <p>
+        上面的方法有一個共同前提：<strong>純二體</strong>。
+        真實世界不是。
+      </p>
+      <table>
+        <thead><tr><th>攝動</th><th>相對主要重力的量級</th><th>累積效應</th></tr></thead>
+        <tbody>
+          <tr><td>地球 J2（扁率）</td><td>約 10<sup>-3</sup></td><td><strong>LEO 每天進動數度</strong></td></tr>
+          <tr><td>更高階重力項</td><td>10<sup>-6</sup></td><td>公里級／天</td></tr>
+          <tr><td>月球引力（對 LEO）</td><td>10<sup>-7</sup></td><td>GEO 上顯著</td></tr>
+          <tr><td>太陽引力（對 LEO）</td><td>10<sup>-7</sup></td><td>GEO 上顯著</td></tr>
+          <tr><td>大氣阻力（400 km）</td><td>10<sup>-7</sup>–10<sup>-5</sup></td><td><strong>高度持續下降</strong></td></tr>
+          <tr><td>太陽輻射壓</td><td>10<sup>-8</sup></td><td>高面質比衛星顯著</td></tr>
+          <tr><td>廣義相對論</td><td>10<sup>-9</sup></td><td>GPS 授時必須修正</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">J2 造成的一階長期變化（可以解析算出）
+
+  dΩ/dt = −(3/2)·J2·(R/p)²·n·cos i
+  dω/dt =  (3/4)·J2·(R/p)²·n·(5cos²i − 1)
+
+  J2 = 1.08263e-3（地球）
+
+範例：ISS（a = 6778 km, e ≈ 0, i = 51.6°）
+  n = √(398600/6778³) = 1.1314e-3 rad/s
+  (R/p)² = (6378/6778)² = 0.8857
+
+  dΩ/dt = −1.5 × 1.08263e-3 × 0.8857 × 1.1314e-3 × cos(51.6°)
+        = −1.0128e-6 rad/s
+        = −5.01 度/天
+
+  實際觀測值約 −5.0 度/天 ✔</div>
+      <p>
+        <strong>J2 的效應大到可以用解析公式處理</strong>，
+        所以有一整類「半解析」方法：
+        用二體解當主體，再疊加攝動的解析修正。
+        這對衛星編目與長期預報很實用。
+      </p>
+
+      <h2>6. 什麼時候必須改用數值積分</h2>
+      <table>
+        <thead><tr><th>情況</th><th>方法</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>快速估算、教學</td><td>純二體解析</td><td>一行公式</td></tr>
+          <tr><td>衛星編目、幾天預報</td><td>半解析（二體 + J2）</td><td>夠準、夠快</td></tr>
+          <tr><td><strong>地月轉移</strong></td><td><strong>數值積分</strong></td><td>兩個天體同時作用，patched conic 不夠準</td></tr>
+          <tr><td><strong>行星際任務</strong></td><td><strong>數值積分 + 高精度星曆</strong></td><td>誤差累積數億公里</td></tr>
+          <tr><td>低推力軌道</td><td>數值積分</td><td>推力持續作用，沒有「脈衝」可言</td></tr>
+          <tr><td>碰撞預警</td><td>數值積分 + 協方差傳播</td><td>需要不確定度，不只是位置</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>阿波羅實際使用的是混合方式。</strong>
+        地面的任務控制中心用大型電腦做完整的數值積分，
+        算出精確的點火參數再上傳；
+        太空船上的 AGC 只做二體解析計算，
+        用來在失去通訊時維持基本導航能力
+        （這個備援能力在阿波羅 13 號派上了用場，第 88 課）。
+      </p>
+
+      <h2>7. 一個實際的誤差示範</h2>
+      <div class="code-block">若用純二體傳播 ISS 軌道七天，只更新 M
+
+  七天後 Ω 實際已經退行 35 度
+  → 位置誤差約 6778 × sin(35°) = 3,887 km
+
+  用二體 + J2 一階修正
+  → 誤差降到約 10 公里量級
+
+  用完整數值積分（含大氣模型）
+  → 誤差降到百公尺量級，但取決於大氣密度預報的品質</div>
+      <p>
+        最後一句很重要。
+        <strong>LEO 軌道預報的精度上限不是數學，是大氣密度。</strong>
+        太陽活動會讓熱層密度變化好幾倍，
+        而太陽活動本身無法精確預報。
+        這就是為什麼 LEO 衛星的長期軌道預報
+        永遠有不可消除的不確定性。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出經由六要素傳播軌道的七個步驟</li>
+          <li>說明 f 與 g 函數的想法，以及 f·ġ − ḟ·g = 1 的用途</li>
+          <li>算出 ISS 因 J2 造成的升交點退行速率</li>
+          <li>說明什麼情況下必須改用數值積分</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理 Lambert 問題：給兩個點與飛行時間，求那條軌道。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：克卜勒方程：偏近點角與牛頓法求根</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：Lambert 問題：給兩點與飛行時間，求那條軌道 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
