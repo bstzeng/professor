@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：首幀時間與卡頓率：使用者真正在意的指標 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="TTFF、rebuffer ratio 與畫質之間的取捨。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜串流怎麼送 · 第 15 課</div>
+      <h1>首幀時間與卡頓率：使用者真正在意的指標</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識影音服務的核心體驗指標</li>
+          <li>理解三者之間的取捨</li>
+          <li>知道哪一個最不能妥協</li>
+        </ul>
+      </div>
+
+      <h2>1. 三個指標</h2>
+      <table>
+        <thead><tr><th>指標</th><th>定義</th><th>典型目標</th></tr></thead>
+        <tbody>
+          <tr><td><strong>TTFF</strong>（首幀時間）</td><td>按下播放到看到第一幀</td><td>&lt; 1 秒</td></tr>
+          <tr><td><strong>卡頓率</strong>（rebuffer ratio）</td><td>卡頓時間佔總播放時間的比例</td><td>&lt; 0.5%</td></tr>
+          <tr><td><strong>平均畫質</strong></td><td>實際播放的加權平均位元率</td><td>越高越好</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 三者互相衝突</h2>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="16" text-anchor="middle" font-size="12" fill="var(--text-muted)">三個指標的取捨三角</text>
+          <polygon points="320,42 200,160 440,160" fill="var(--accent)" opacity="0.07" stroke="var(--border)" stroke-width="1"/>
+          <circle cx="320" cy="42" r="5" fill="var(--accent)"/>
+          <text x="320" y="34" text-anchor="middle" font-size="9.5" fill="var(--accent)">高畫質</text>
+          <circle cx="200" cy="160" r="5" fill="var(--gold)"/>
+          <text x="186" y="176" text-anchor="middle" font-size="9.5" fill="var(--gold)">低 TTFF</text>
+          <circle cx="440" cy="160" r="5" fill="#ff8a65"/>
+          <text x="456" y="176" text-anchor="middle" font-size="9.5" fill="#ff8a65">低卡頓</text>
+          <text x="258" y="106" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">開播就給高畫質</text>
+          <text x="258" y="118" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">→ 要等更久</text>
+          <text x="384" y="106" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">畫質拉高</text>
+          <text x="384" y="118" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">→ 容易卡</text>
+          <text x="320" y="152" text-anchor="middle" font-size="7.5" fill="var(--text-muted)">快開播＋不卡 → 畫質要讓步</text>
+          <text x="320" y="200" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">三者無法同時最佳化，必須排優先序</text>
+        </svg>
+      </div>
+
+      <h2>3. 優先序：卡頓 &gt; TTFF &gt; 畫質</h2>
+      <p>
+        業界的使用者研究結論相當一致：
+      </p>
+      <ul>
+        <li><strong>卡頓最傷</strong>。一次卡頓對觀看時長的負面影響，
+            遠大於整支影片畫質低一階。</li>
+        <li><strong>TTFF 次之</strong>。開播每多等一秒，放棄率明顯上升，
+            而且對短影片的影響遠大於長影片。</li>
+        <li><strong>畫質最能妥協</strong>。多數人分不出 720p 與 1080p，
+            尤其在手機上。</li>
+      </ul>
+      <p>
+        這解釋了很多看似奇怪的產品決定：
+        <strong>平台寧可預設給你較低的畫質，也不要冒卡頓的風險。</strong>
+        「為什麼自動畫質總是不夠高」的答案就在這裡。
+      </p>
+
+      <h2>4. TTFF 由什麼組成</h2>
+      <div class="code-block">TTFF = DNS 查詢
+     + TCP／QUIC 連線建立
+     + TLS 握手
+     + 取得 manifest
+     + 下載第一段
+     + 解碼並顯示第一幀
+
+在跨洲情境下，前三項就可能花掉 300–500 ms
+（每一項都是一到兩次來回，而跨洋 RTT 約 130 ms）</div>
+      <p>
+        所以降低 TTFF 最有效的手段<strong>不是加頻寬，是縮短距離</strong>——
+        這是模組 E 與 F 的核心論點。
+        把節點放到使用者附近，RTT 從 130 ms 降到 10 ms，
+        前三項就從 400 ms 降到 30 ms。
+      </p>
+
+      <h2>5. 這些指標怎麼影響基礎設施決策</h2>
+      <table>
+        <thead><tr><th>指標</th><th>改善手段</th><th>基礎設施影響</th></tr></thead>
+        <tbody>
+          <tr><td>TTFF</td><td>節點靠近使用者、QUIC 0-RTT、第一段變短</td><td>需要大量邊緣節點</td></tr>
+          <tr><td>卡頓率</td><td>加大緩衝、保守的畫質策略、穩定的邊緣頻寬</td><td>邊緣要有足夠餘裕</td></tr>
+          <tr><td>平均畫質</td><td>更好的編碼器、更充足的頻寬</td><td>轉碼算力與頻寬成本</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以這三個體驗指標，最終全部翻譯成
+        <strong>「要在多少地方放多少機器」</strong>。
+        這就是接下來幾個模組要回答的事。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出三個指標的優先序與理由</li>
+          <li>拆解 TTFF 的六個組成</li>
+          <li>解釋為何降低 TTFF 要靠縮短距離而非加頻寬</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 C：直播為什麼在每個環節都更難。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：TCP、QUIC 與影片：為什麼影片走 HTTP</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：直播與點播的根本差異 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

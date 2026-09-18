@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：冷熱分層：99% 的影片沒人看 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="依存取頻率分層，以及各層的成本差距。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜儲存（一）：到底存了什麼 · 第 38 課</div>
+      <h1>冷熱分層：99% 的影片沒人看</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解儲存分層的邏輯</li>
+          <li>知道各層的成本差距</li>
+          <li>認識資料在層間的搬移</li>
+        </ul>
+      </div>
+
+      <h2>1. 存取頻率極度不均</h2>
+      <p>
+        第 25 課講的長尾，在儲存端的意義是：
+        <strong>大部分資料躺在那裡從來沒被讀過。</strong>
+      </p>
+      <table>
+        <thead><tr><th>分類</th><th>佔資料量</th><th>佔讀取次數</th><th>典型存取頻率</th></tr></thead>
+        <tbody>
+          <tr><td>熱</td><td>1%</td><td>80%</td><td>每秒多次</td></tr>
+          <tr><td>溫</td><td>9%</td><td>15%</td><td>每天數次</td></tr>
+          <tr><td>冷</td><td>40%</td><td>4%</td><td>每月數次</td></tr>
+          <tr><td>冰</td><td>50%</td><td>1%</td><td>每年數次或從未</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 分層</h2>
+      <table>
+        <thead><tr><th>層</th><th>媒介</th><th>相對成本</th><th>存取延遲</th><th>放什麼</th></tr></thead>
+        <tbody>
+          <tr><td>邊緣快取</td><td>NVMe SSD</td><td>最高</td><td>&lt; 1 ms</td><td>最熱門</td></tr>
+          <tr><td>線上</td><td>HDD（常轉）</td><td>基準 1×</td><td>10–50 ms</td><td>熱與溫</td></tr>
+          <tr><td>近線</td><td>HDD（可休眠）</td><td>0.5×</td><td>數秒（要喚醒）</td><td>冷</td></tr>
+          <tr><td>離線</td><td>磁帶或光碟庫</td><td>0.1–0.3×</td><td>數分鐘</td><td>冰、備份、原檔</td></tr>
+        </tbody>
+      </table>
+      <p>
+        「可休眠」的做法在業界有專門的名詞
+        （例如把整個機櫃的硬碟大部分時間斷電），
+        能省下大量電力——因為對冰層資料來說，
+        <strong>電費比硬碟本身還貴</strong>。
+      </p>
+
+      <h2>3. 成本試算</h2>
+      <div class="code-block">假設 30 EB 資料，每 TB 每月的全成本（含電、機櫃、折舊）：
+
+全部放線上 HDD @ 0.01 美元／GB／月：
+  30e9 GB × 0.01 = 3 億美元／月  ← 不可能
+
+分層之後：
+  熱  1% =  0.3 EB @ 0.03（SSD）= 900 萬
+  溫  9% =  2.7 EB @ 0.010      = 2,700 萬
+  冷 40% = 12.0 EB @ 0.005      = 6,000 萬
+  冰 50% = 15.0 EB @ 0.002      = 3,000 萬
+  ────────────────────────────────────
+  合計約 1.26 億美元／月
+
+（單價為示意值，實際依自建規模會低得多）</div>
+      <p>
+        分層讓成本降到不分層的四成左右。
+        而且這還是保守估計——自建的大規模儲存，
+        單位成本會比上面的數字低一個級距。
+      </p>
+
+      <h2>4. 資料怎麼在層間移動</h2>
+      <ul>
+        <li><strong>降級</strong>：一段時間沒被存取就自動往下層搬。
+            例如 30 天沒讀 → 移到冷層；365 天沒讀 → 移到冰層</li>
+        <li><strong>升級</strong>：被存取時判斷要不要拉回熱層。
+            偶爾一次不用拉，短期內多次才拉</li>
+        <li><strong>預測性搬移</strong>：知道某內容即將熱門時提前拉上來
+            （例如節慶歌曲在十二月前搬回熱層）</li>
+      </ul>
+      <p>
+        搬移本身有成本（頻寬與 I/O），
+        所以策略要避免<strong>抖動</strong>——
+        資料在兩層之間反覆搬來搬去。
+        常見做法是升級的門檻比降級嚴格得多。
+      </p>
+
+      <h2>5. 冷層的體驗代價</h2>
+      <p>
+        一支放在冰層的影片被點播時會怎樣？
+      </p>
+      <div class="code-block">使用者點播 → 邊緣未命中 → 區域未命中 → 來源查詢
+→ 發現在冰層 → 喚醒／取回（數秒至數分鐘）
+→ 開始播放
+
+對使用者：TTFF 從 1 秒變成 5–30 秒</div>
+      <p>
+        這聽起來很糟，但要記得：
+        <strong>這只發生在「一年沒人看過的影片」上</strong>。
+        而且取回之後會被快取，之後的觀看就正常了。
+        用 0.1% 的觀看體驗換 50% 的儲存成本，是很划算的交易。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出四個儲存層的媒介與相對成本</li>
+          <li>解釋為何冰層資料的電費比硬碟本身還重要</li>
+          <li>說明為何升級門檻要比降級嚴格</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 G：資料只增不減，十年後怎麼辦。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：動手算：每天長出多少資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：十年後怎麼辦：資料只增不減 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

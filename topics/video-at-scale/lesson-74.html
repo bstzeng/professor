@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 74 課：社群平台的影片：自動播放的代價 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="在動態牆上播影片會讓成本結構變成什麼樣。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 74 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜別人怎麼做 · 第 74 課</div>
+      <h1>社群平台的影片：自動播放的代價</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出自動播放帶來的額外流量</li>
+          <li>理解「影片不是產品主體」時的取捨</li>
+          <li>看懂靜音自動播放這個設計背後的工程理由</li>
+        </ul>
+      </div>
+
+      <h2>1. 一個根本差異：使用者沒有要求看影片</h2>
+      <p>
+        前面三課的平台都有一個共同前提：<strong>使用者是為了看影片而來的</strong>。
+        社群平台不是。使用者是來看朋友動態、新聞、討論串的，
+        影片只是其中一種貼文型態。
+      </p>
+      <p>
+        這一個差異推出三個後果：
+      </p>
+      <ul>
+        <li>影片必須<strong>自動播放</strong>，否則沒人會點。</li>
+        <li>影片必須<strong>靜音起播</strong>，否則滑動態牆會變成噪音災難。</li>
+        <li>影片的<strong>完看率極低</strong>，多數人看兩秒就滑過去。</li>
+      </ul>
+      <p>
+        每一項都直接改變成本結構。
+      </p>
+
+      <h2>2. 自動播放的流量代價</h2>
+      <div class="code-block">情境：使用者滑過 50 則貼文，其中 12 則是影片
+  自動播放每則播 2–3 秒後滑走
+  只有 2 則真的被看完
+
+無自動播放（點擊才播）
+  傳輸 = 2 則 × 完整影片
+  假設每則 60 秒 × 3 Mbps = 22.5 MB
+  合計 45 MB
+
+有自動播放
+  12 則 × 3 秒預覽 × 3 Mbps = 13.5 MB（其中 10 則是白費的）
+  + 2 則完整 = 45 MB
+  合計 58.5 MB
+
+  多出 30%，而且其中大部分沒有產生任何觀看價值。</div>
+      <p>
+        但這個算法還太樂觀，因為它假設預覽只拉 3 秒。
+        實際上要讓「滑到就播」不卡，播放器必須<strong>提前預載</strong>
+        （第 73 課同樣的問題），而動態牆的預載對象是<strong>還在螢幕外的貼文</strong>。
+      </p>
+      <div class="code-block">加上螢幕外預載
+  動態牆通常預載視窗外 2–5 則
+  使用者可能在看到第 8 則時就關掉 App
+  → 第 9–13 則的預載全部白費
+
+實務量測的浪費率：自動播放動態牆的無效傳輸可達 40–60%</div>
+      <p>
+        <strong>這是所有影音形式裡浪費率最高的。</strong>
+        點播接近 0%，短影音 20–40%，動態牆自動播放 40–60%。
+      </p>
+
+      <h2>3. 靜音起播：一個省錢的副作用</h2>
+      <p>
+        靜音自動播放最初是為了使用者體驗（沒人想在捷運上突然放出聲音），
+        但它同時是一個重要的成本設計。
+      </p>
+      <table>
+        <thead><tr><th>做法</th><th>省下的東西</th></tr></thead>
+        <tbody>
+          <tr><td>預覽階段不拉音軌</td><td>音訊約佔總位元率的 3–8%</td></tr>
+          <tr><td>預覽階段給低畫質版本</td><td>動態牆上的影片框很小，360p 就夠</td></tr>
+          <tr><td>使用者點擊取消靜音才升級</td><td>此時才拉高畫質 + 音軌</td></tr>
+          <tr><td>預覽用極短的獨立檔案</td><td>不走完整 HLS manifest 流程</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">分層策略的效果
+  預覽層：360p 無音軌，約 0.5 Mbps
+  完整層：1080p 含音軌，約 3.2 Mbps
+
+  倍數差距 6.4×
+
+  即使浪費率 50%，只要浪費的都是預覽層
+  實際成本 = 12 × 3 秒 × 0.5 Mbps + 2 × 60 秒 × 3.2 Mbps
+          = 2.25 MB + 48 MB = 50.25 MB
+
+  對照無自動播放的 45 MB，只多了 12%。</div>
+      <p>
+        <strong>整個設計的精髓是：讓浪費的那部分盡可能便宜。</strong>
+        浪費率高沒關係，只要浪費掉的是最低成本的那一層。
+        這跟第 48 課的分級轉碼是同一個思路的不同應用。
+      </p>
+
+      <h2>4. 一個新出現的儲存問題</h2>
+      <p>
+        預覽層是一個額外的版本。
+        第 10 課講過一支影片會變成十幾個檔案；
+        社群平台要再多一組：
+      </p>
+      <table>
+        <thead><tr><th>版本</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>完整階梯（360p–1080p，含音軌）</td><td>點開全螢幕觀看</td></tr>
+          <tr><td><strong>預覽版（低畫質、無音軌、前 6 秒）</strong></td><td>動態牆自動播放</td></tr>
+          <tr><td><strong>動圖／縮圖序列</strong></td><td>更低階裝置或省流量模式</td></tr>
+          <tr><td>靜態封面</td><td>完全不播放的情境</td></tr>
+        </tbody>
+      </table>
+      <p>
+        預覽版很小（幾百 KB），所以儲存成本增加有限。
+        但它是<strong>每一支影片都必須產生的</strong>，
+        而社群平台的影片數量極大且長尾極長——
+        絕大多數影片只會被幾十個人看到。
+      </p>
+      <div class="code-block">分級轉碼在這裡的形式
+  所有影片：一定產生預覽版 + 360p（成本低，且一定會被自動播放用到）
+  有一定觀看量才產生：720p
+  熱門才產生：1080p 以上、AV1 版本
+
+  這個分級比 UGC 長影片平台更激進，
+  因為社群影片的觀看量分布更極端。</div>
+
+      <h2>5. 快取：小物件、極長尾</h2>
+      <p>
+        社群平台的內容分布跟前面幾種都不一樣。
+      </p>
+      <table>
+        <thead><tr><th>平台類型</th><th>內容分布</th><th>快取難度</th></tr></thead>
+        <tbody>
+          <tr><td>片庫（Netflix）</td><td>極集中，可全量預填</td><td><strong>最低</strong></td></tr>
+          <tr><td>UGC 長影片</td><td>Zipf，1% 佔 90%</td><td>低</td></tr>
+          <tr><td>短影音</td><td>Zipf 但輪替快、個人化</td><td>中</td></tr>
+          <tr><td>社群動態</td><td><strong>社交圖譜決定，地域性強</strong></td><td>中（但性質不同）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        社群平台有一個其他平台沒有的特性：
+        <strong>內容的擴散範圍跟社交圖譜高度相關，而社交圖譜有地理集中性。</strong>
+        一個台中某高中生發的影片，觀眾九成在台灣，
+        而且多半在發布後幾小時內看完。
+      </p>
+      <p>
+        這對快取其實是好消息：
+      </p>
+      <ul>
+        <li>可以做<strong>地域性預填</strong>：新貼文只推到作者所在地區的邊緣。</li>
+        <li>可以用<strong>社交訊號預測</strong>：粉絲數多的帳號發文，直接推到更多 POP。</li>
+        <li>可以做<strong>時間窗管理</strong>：發布後 24 小時是熱期，之後直接從邊緣淘汰。</li>
+      </ul>
+      <p>
+        這是第 25 課長尾分布之外的另一個維度：
+        <strong>除了「多少人看」，還有「誰會看、在哪裡看、什麼時候看」。</strong>
+        社群平台能拿到這些訊號，所以它的快取決策可以比純 LRU 聰明很多。
+      </p>
+
+      <h2>6. 省流量模式：一個被低估的設計</h2>
+      <p>
+        在行動網路資費高昂的市場，自動播放是使用者的大敵。
+        主流社群平台都提供設定：
+      </p>
+      <table>
+        <thead><tr><th>設定</th><th>行為</th><th>對平台的意義</th></tr></thead>
+        <tbody>
+          <tr><td>永遠自動播放</td><td>行動網路也播</td><td>流量最高，互動最高</td></tr>
+          <tr><td>僅 Wi-Fi 自動播放</td><td>行動網路顯示封面</td><td><strong>預設值，平衡點</strong></td></tr>
+          <tr><td>從不自動播放</td><td>一律點擊才播</td><td>流量最低</td></tr>
+          <tr><td>資料節省模式</td><td>降低畫質上限</td><td>整體位元率下降 40–60%</td></tr>
+        </tbody>
+      </table>
+      <p>
+        「僅 Wi-Fi 自動播放」作為預設值，同時服務了使用者利益與平台利益：
+        使用者不會被吃掉行動數據，
+        平台則<strong>把最貴的那段流量（行動網路的尖峰時段）自動關掉了</strong>。
+      </p>
+      <p>
+        更進一步，某些平台會根據即時偵測到的網路狀況動態調整——
+        偵測到是慢速行動網路，就降低預載數量與畫質。
+        這跟第 13 課的 ABR 是同一個邏輯，
+        只是決策的對象從「畫質」擴大到「要不要傳」。
+      </p>
+
+      <h2>7. 四種平台的總對照</h2>
+      <table>
+        <thead><tr><th>指標</th><th>片庫</th><th>UGC 長影片</th><th>短影音</th><th>社群動態</th></tr></thead>
+        <tbody>
+          <tr><td>浪費率</td><td>&lt; 2%</td><td>約 5%</td><td>20–40%</td><td><strong>40–60%</strong></td></tr>
+          <tr><td>平均位元率</td><td>4–6 Mbps</td><td>1.5 Mbps</td><td>3–6 Mbps</td><td><strong>0.5–3 Mbps（分層）</strong></td></tr>
+          <tr><td>每小時請求數</td><td>低</td><td>低</td><td>極高</td><td>高</td></tr>
+          <tr><td>快取命中率</td><td>≈ 100%</td><td>95–99%</td><td>85–95%</td><td>90–96%</td></tr>
+          <tr><td>轉碼成本／小時內容</td><td>最高（極致編碼）</td><td>中</td><td>低（短）</td><td>低（分級激進）</td></tr>
+          <tr><td>主要成本瓶頸</td><td>頻寬</td><td>儲存 + 頻寬</td><td><strong>控制平面</strong></td><td><strong>浪費的流量</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列是這四課的重點：
+        <strong>同樣是「送影片」，瓶頸落在完全不同的地方。</strong>
+        任何一個「影音平台該怎麼設計」的答案，
+        如果沒有先問清楚是哪一種平台，都不會是對的答案。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出自動播放動態牆的浪費率，並說明螢幕外預載為何讓它更高</li>
+          <li>說明靜音起播如何同時改善體驗與降低成本</li>
+          <li>解釋社交圖譜為何讓快取決策可以比 LRU 更聰明</li>
+          <li>說出四種平台各自的主要成本瓶頸</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課進入總結：一個平台從一萬人成長到一億人，每個階段該做什麼。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-73.html">← 上一課：短影音：為什麼比長影片更難</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-75.html">下一課：從一萬人到一億人的演進路線 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：複本 vs 糾刪碼 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="三複本與糾刪碼的空間、重建與可靠度取捨。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜儲存（二）：怎麼存才不會壞 · 第 41 課</div>
+      <h1>複本 vs 糾刪碼</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較複本與糾刪碼</li>
+          <li>算出各自的空間開銷與可靠度</li>
+          <li>知道什麼資料適合用哪一種</li>
+        </ul>
+      </div>
+
+      <h2>1. 三複本</h2>
+      <div class="code-block">把每份資料存三份，放在三個不同的故障域。
+
+空間開銷：3 倍
+可承受故障：同時壞 2 個
+讀取：任一份都能讀（可就近讀，效能好）
+寫入：要寫三份
+重建：從剩下的副本直接複製</div>
+      <p>
+        優點是<strong>簡單、快、重建成本低</strong>。
+        缺點是要花三倍的錢。
+        在 30 EB 的量級，三倍意味著多出 60 EB 的硬碟。
+      </p>
+
+      <h2>2. 糾刪碼</h2>
+      <p>
+        把資料切成 k 個資料塊，算出 m 個校驗塊，
+        總共 k+m 塊分散存放。任意 k 塊就能還原全部資料。
+      </p>
+      <div class="code-block">常見設定 RS(6,3)：
+  6 個資料塊 + 3 個校驗塊 = 9 塊
+  空間開銷 = 9/6 = 1.5 倍
+  可承受故障 = 3 個
+
+常見設定 RS(10,4)：
+  空間開銷 = 14/10 = 1.4 倍
+  可承受故障 = 4 個
+
+常見設定 RS(12,4)：
+  空間開銷 = 16/12 = 1.33 倍
+  可承受故障 = 4 個</div>
+      <p>
+        <strong>用 1.33–1.5 倍的空間，換到比三複本更高的容錯能力。</strong>
+        這就是為什麼大規模儲存幾乎都用糾刪碼。
+      </p>
+
+      <h2>3. 代價在哪</h2>
+      <table>
+        <thead><tr><th>面向</th><th>三複本</th><th>糾刪碼</th></tr></thead>
+        <tbody>
+          <tr><td>空間</td><td>3×</td><td>1.33–1.5×</td></tr>
+          <tr><td>正常讀取</td><td>讀一份即可</td><td>讀一份即可（資料塊未壞時）</td></tr>
+          <tr><td>降級讀取</td><td>讀另一份</td><td><strong>要讀 k 塊並計算還原</strong></td></tr>
+          <tr><td>重建流量</td><td>複製 1 份</td><td><strong>要讀 k 份才能重建 1 份</strong></td></tr>
+          <tr><td>CPU</td><td>幾乎為零</td><td>編碼與解碼要算</td></tr>
+          <tr><td>小檔案</td><td>沒問題</td><td>不划算（切不出足夠的塊）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        第四列是關鍵痛點：<strong>糾刪碼的重建成本是複本的 k 倍</strong>。
+        重建一個 RS(6,3) 的區塊，要從 6 台不同的機器各讀一份。
+        在第 40 課算出的「同時上百顆硬碟在重建」的情境下，
+        這個放大效應會產生可觀的內部流量。
+      </p>
+
+      <h2>4. 實務上的組合</h2>
+      <table>
+        <thead><tr><th>資料類型</th><th>策略</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>熱門影片</td><td>多份複本 + 廣泛快取</td><td>讀取量大，要就近讀</td></tr>
+          <tr><td>一般影片</td><td>糾刪碼 RS(6,3) 或類似</td><td>空間效率優先</td></tr>
+          <tr><td>冷資料與原檔</td><td>更寬的糾刪碼，跨機房</td><td>幾乎不讀，極致省空間</td></tr>
+          <tr><td>metadata</td><td>複本 + 共識協定</td><td>要一致性與低延遲</td></tr>
+          <tr><td>小物件</td><td>打包後再糾刪碼</td><td>單獨編碼不划算</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 跨機房的糾刪碼</h2>
+      <p>
+        更進階的做法是把糾刪碼的塊<strong>分散到不同的資料中心</strong>：
+      </p>
+      <div class="code-block">傳統：每個機房各存一份完整資料 → 3 個機房 = 3 倍空間
+
+跨機房糾刪碼：
+  資料切成 9 塊分散在 3 個機房（每機房 3 塊）
+  任一機房整個消失，剩下 6 塊仍能還原
+  空間開銷只有 1.5 倍</div>
+      <p>
+        代價是讀取時可能要跨機房取塊，延遲較高。
+        所以這通常用在冷資料上——
+        <strong>對一年沒人看的影片，多花幾十毫秒完全可以接受。</strong>
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 RS(8,3) 的空間開銷與容錯數</li>
+          <li>說明糾刪碼的重建成本為何比複本高</li>
+          <li>解釋為何小檔案不適合直接用糾刪碼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課回答一個常見疑問：為什麼還在用機械硬碟。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：硬碟會壞：年故障率乘上規模</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：為什麼還在用機械硬碟 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

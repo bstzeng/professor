@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 72 課：直播平台：不能快取的那個難題 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="直播為何在每個環節都比點播貴。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 72 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜別人怎麼做 · 第 72 課</div>
+      <h1>直播平台：不能快取的那個難題</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>列出直播比點播貴的每一個環節</li>
+          <li>理解延遲與成本之間的取捨</li>
+          <li>看懂「同時在線」為何是直播唯一重要的數字</li>
+        </ul>
+      </div>
+
+      <h2>1. 點播的三個前提，直播全部沒有</h2>
+      <table>
+        <thead><tr><th>前提</th><th>點播</th><th>直播</th></tr></thead>
+        <tbody>
+          <tr><td>內容事先存在</td><td>✔ 可以慢慢轉碼</td><td>✘ <strong>邊產生邊處理</strong></td></tr>
+          <tr><td>可以預先快取</td><td>✔ 熱門的先推到邊緣</td><td>✘ <strong>片段一產生就要送出</strong></td></tr>
+          <tr><td>觀看時間分散</td><td>✔ 尖峰倍率約 1.6×</td><td>✘ <strong>全部集中在同一秒</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>這三件事同時失效，是直播成本結構的全部原因。</strong>
+        以下逐項拆開。
+      </p>
+
+      <h2>2. 轉碼：從批次變成即時</h2>
+      <p>
+        點播轉碼可以排隊、可以用 Spot、可以慢（第 70 課）。
+        直播轉碼有一個硬性條件：<strong>必須比實時快</strong>，
+        否則延遲會無限累積。
+      </p>
+      <div class="code-block">點播轉碼
+  一支 10 分鐘影片，用 5 台機器各編一個畫質，花 30 分鐘 → 沒問題
+  機器可以是 Spot，被搶走就重跑
+  可以塞滿機器，利用率接近 100%
+
+直播轉碼
+  一路 1080p 輸入，要同時輸出 1080p/720p/480p/360p
+  每一路都必須 > 1.0× 實時，通常要求 1.3× 以上留餘裕
+  機器不能被搶走（Spot 不可用）
+  機器必須在直播開始前就準備好 → 利用率低
+
+結果：同樣的轉碼工作量，直播的機器成本大約是點播的 3–8 倍</div>
+      <p>
+        利用率是最被低估的那一項。
+        點播轉碼的佇列永遠有工作可做，機器可以跑滿；
+        直播轉碼的機器<strong>在沒有人開播時就是閒著</strong>，
+        而開播的尖峰又集中在晚上。
+        一個直播平台的轉碼機隊，平均利用率可能只有 20–30%。
+      </p>
+
+      <h2>3. 快取：命中率的意義完全改變</h2>
+      <p>
+        第 26 課的命中率是這樣算的：同一個檔案被 N 個人要，
+        邊緣回源一次，其餘 N−1 次命中。
+      </p>
+      <p>
+        直播也有這個效果，但<strong>時間窗口極短</strong>。
+      </p>
+      <div class="code-block">直播分段時間 2 秒（低延遲）或 6 秒（傳統 HLS）
+
+  每產生一個分段，它的「有效期」就只有幾秒到幾十秒
+  超過之後除了回看的人，沒人會再要它
+
+  同時 10 萬人看同一場 → 命中率依然很高（99.999%）
+  同時 50 人看一場小直播 → 命中率 98%，但回源次數是固定的
+
+關鍵差異：回源次數不隨觀眾數下降而下降
+  一場 0 個觀眾的直播，仍然要編碼、要產生分段、要佔用 ingest
+  點播沒人看的影片，成本趨近於零（只有儲存）</div>
+      <p>
+        <strong>這是直播平台最痛的一件事：長尾直播是純虧損。</strong>
+        一個只有三個觀眾的實況主，平台仍然要付完整的 ingest 與轉碼成本。
+        而點播的長尾影片，沒人看就幾乎不花錢。
+      </p>
+      <p>
+        實務上的因應方式：
+      </p>
+      <ul>
+        <li><strong>小台不轉碼</strong>：觀眾少於某個數量就只做 passthrough（原畫質直出），不產生階梯。</li>
+        <li><strong>延遲啟動</strong>：開播後觀眾數超過門檻才啟動完整轉碼。</li>
+        <li><strong>降級解析度</strong>：小台限制最高 720p。</li>
+      </ul>
+      <p>
+        這也解釋了一個常被抱怨的現象：
+        小實況主的畫質選項比大台少。那不是歧視，是成本結構。
+      </p>
+
+      <h2>4. 尖峰：沒有平滑效應</h2>
+      <p>
+        第 3 課的尖峰倍率約 1.6×，那是因為點播觀看分散在一天各時段，
+        而且不同時區彼此錯開。
+      </p>
+      <div class="code-block">點播的尖峰
+  全球用戶時區錯開，尖峰倍率約 1.5–2×
+  單一影片爆紅也是幾小時內逐步累積
+
+直播的尖峰
+  一場世界盃決賽：開賽前 5 分鐘湧入
+  同時在線從 100 萬跳到 5,000 萬，時間跨度不到 10 分鐘
+
+  而且結束是同時的：終場哨音後 2 分鐘內流量掉 80%</div>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+          <line x1="60" y1="180" x2="610" y2="180" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="60" y1="20" x2="60" y2="180" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="335" y="207" fill="var(--text-muted)" font-size="12" text-anchor="middle">時間</text>
+          <text x="14" y="100" fill="var(--text-muted)" font-size="12">流量</text>
+          <path d="M 70 165 C 150 150, 200 120, 280 112 C 360 105, 440 118, 520 145 C 560 158, 585 168, 600 172" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="300" y="100" fill="var(--accent)" font-size="11" text-anchor="middle">點播：緩坡</text>
+          <path d="M 70 176 L 250 174 L 268 40 L 430 34 L 448 172 L 600 176" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+          <text x="350" y="26" fill="#ff8a65" font-size="11" text-anchor="middle">直播賽事：方波</text>
+          <line x1="268" y1="34" x2="268" y2="180" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="268" y="196" fill="var(--text-muted)" font-size="10" text-anchor="middle">開賽</text>
+          <line x1="448" y1="34" x2="448" y2="180" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="448" y="196" fill="var(--text-muted)" font-size="10" text-anchor="middle">終場</text>
+        </svg>
+      </div>
+      <p>
+        容量規劃（第 63 課）在直播上完全不同：
+        <strong>你必須按照「那一場最大的賽事」蓋容量，
+        而那個容量在其餘 364 天是閒置的。</strong>
+      </p>
+      <div class="code-block">一場 5,000 萬人同時觀看的賽事
+  平均 4 Mbps → 5,000 萬 × 4 Mbps = 200 Tbps
+
+  對照第 4 課：整個 YouTube 的尖峰約 100 Tbps
+
+單一場賽事的瞬間需求，可能是一個大型點播平台整體尖峰的兩倍。</div>
+      <p>
+        這就是為什麼大型賽事轉播幾乎總是<strong>多 CDN 併用</strong>：
+        沒有任何單一平台會為了一年幾場比賽蓋出 200 Tbps 的常備容量，
+        所以向多家 CDN 同時購買突發容量，事後按用量結算。
+      </p>
+
+      <h2>5. 延遲：一個額外的維度</h2>
+      <p>
+        點播沒有「延遲」這個概念——影片本來就是過去錄的。
+        直播有，而且它跟成本直接衝突。
+      </p>
+      <table>
+        <thead><tr><th>延遲等級</th><th>典型值</th><th>技術</th><th>相對成本</th></tr></thead>
+        <tbody>
+          <tr><td>傳統 HLS/DASH</td><td>20–45 秒</td><td>6 秒分段，播放器緩衝 3 段</td><td>1×（最便宜）</td></tr>
+          <tr><td>低延遲 HLS/DASH</td><td>3–8 秒</td><td>2 秒分段 + chunked transfer</td><td>1.3–2×</td></tr>
+          <tr><td>LL-HLS（部分分段）</td><td>2–5 秒</td><td>分段再切成 200ms 的 part</td><td>2–3×</td></tr>
+          <tr><td>WebRTC</td><td>&lt; 1 秒</td><td>點對點協定，不走 HTTP 快取</td><td><strong>10–50×</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>WebRTC 那一行是重點。</strong>
+        第 14 課解釋過影片走 HTTP 的理由：
+        HTTP 可以被任何一台快取伺服器複製給下一個人。
+        WebRTC 是有狀態的、每個觀眾一條獨立連線，
+        <strong>完全無法被 CDN 快取</strong>。
+        所以一萬個 WebRTC 觀眾，就是一萬條從伺服器出去的串流。
+      </p>
+      <p>
+        這解釋了業界的分工：
+        互動性強、觀眾少的場景（視訊會議、一對一直播、遊戲串流）用 WebRTC；
+        觀眾多的場景（賽事、演唱會）用 LL-HLS，
+        接受幾秒延遲換取可快取性。
+      </p>
+
+      <h2>6. Ingest：一個點播沒有的環節</h2>
+      <p>
+        直播多了一整層「收訊」的基礎設施。
+      </p>
+      <ul>
+        <li><strong>全球 ingest POP</strong>：實況主的上行連線必須就近接入，否則上行不穩會直接毀掉直播。這是一套跟邊緣分發對稱、但方向相反的網路。</li>
+        <li><strong>協定轉換</strong>：實況主端常用 RTMP 或 SRT，要轉成 HLS/DASH。</li>
+        <li><strong>斷線續傳</strong>：實況主網路抖動時要能維持串流不中斷。</li>
+        <li><strong>來源冗餘</strong>：重要賽事會有兩路或三路獨立的訊號來源。</li>
+      </ul>
+      <p>
+        對點播來說，上傳只是一個 HTTP PUT，失敗了重傳就好。
+        <strong>直播的 ingest 失敗就是直播中斷，沒有重來的機會。</strong>
+      </p>
+
+      <h2>7. 成本總結</h2>
+      <table>
+        <thead><tr><th>環節</th><th>直播相對點播</th><th>主因</th></tr></thead>
+        <tbody>
+          <tr><td>頻寬（同觀看時數）</td><td>1.0–1.2×</td><td>差不多，稍高因為畫質較高</td></tr>
+          <tr><td>尖峰容量預留</td><td><strong>2–5×</strong></td><td>方波型流量，無法平滑</td></tr>
+          <tr><td>轉碼</td><td><strong>3–8×</strong></td><td>即時要求 + 低利用率</td></tr>
+          <tr><td>Ingest</td><td>點播沒有這項</td><td>全球收訊網路</td></tr>
+          <tr><td>儲存</td><td>0.2×（若不存檔）</td><td>播完就丟</td></tr>
+          <tr><td>營運複雜度</td><td><strong>高</strong></td><td>故障無法事後補救</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>綜合起來，同樣一小時的觀看，
+        直播的基礎設施成本大約是點播的 2–4 倍。</strong>
+        這就是為什麼直播平台的商業模式通常不是純廣告——
+        打賞抽成、訂閱、賽事版權轉售，都是為了讓收入端也跟著提高。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出點播的三個前提，以及直播為何三個都沒有</li>
+          <li>解釋為何「長尾直播是純虧損」而長尾點播不是</li>
+          <li>說明 WebRTC 為何比 LL-HLS 貴一個數量級</li>
+          <li>算出 5,000 萬人同時觀看 4 Mbps 直播所需的頻寬</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理短影音：影片變短之後，為什麼反而更難。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-71.html">← 上一課：Netflix：片庫小、畫質高、可預測</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-73.html">下一課：短影音：為什麼比長影片更難 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

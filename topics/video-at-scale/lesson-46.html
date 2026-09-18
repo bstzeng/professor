@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：轉碼要多少算力 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="不同編碼器、不同畫質下的實時倍率與其含義。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜轉碼：最貴的那道工 · 第 46 課</div>
+      <h1>轉碼要多少算力</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解實時倍率這個單位</li>
+          <li>算出一支影片的轉碼成本</li>
+          <li>知道各編碼器的算力差距</li>
+        </ul>
+      </div>
+
+      <h2>1. 實時倍率</h2>
+      <div class="code-block">實時倍率 = 影片長度 / 編碼所需時間
+
+2× 實時：一小時影片編 30 分鐘（比播放快）
+1× 實時：一小時影片編一小時（剛好跟得上直播）
+0.1× 實時：一小時影片要編 10 小時</div>
+      <p>
+        直播要求至少 1× 實時（而且要有餘裕），
+        點播則可以慢慢來。這是兩者的根本差異（第 16 課）。
+      </p>
+
+      <h2>2. 單核心的實時倍率（示意）</h2>
+      <table>
+        <thead><tr><th>設定</th><th>1080p30</th><th>720p30</th><th>360p30</th></tr></thead>
+        <tbody>
+          <tr><td>H.264 極快</td><td>3–6×</td><td>10–20×</td><td>40–80×</td></tr>
+          <tr><td>H.264 中等</td><td>1–2×</td><td>4–8×</td><td>15–30×</td></tr>
+          <tr><td>H.264 高品質</td><td>0.3–0.6×</td><td>1–2×</td><td>5–10×</td></tr>
+          <tr><td>VP9 高品質</td><td>0.1–0.2×</td><td>0.4–0.8×</td><td>2–4×</td></tr>
+          <tr><td>AV1 高品質</td><td>0.03–0.1×</td><td>0.1–0.3×</td><td>0.5–1.5×</td></tr>
+        </tbody>
+      </table>
+      <p>
+        （實際值依編碼器實作、CPU 世代與參數差異很大，這裡看的是量級關係。）
+      </p>
+      <p>
+        關鍵觀察：<strong>畫質每降一階，速度快 3–4 倍</strong>。
+        所以整個階梯的成本主要由最高畫質決定。
+      </p>
+
+      <h2>3. 一支影片的全階梯成本</h2>
+      <div class="code-block">一小時影片，H.264 中等品質，六階梯：
+
+1080p  @ 1.5× → 0.67 核心小時
+ 720p  @ 6×   → 0.17
+ 480p  @ 12×  → 0.08
+ 360p  @ 20×  → 0.05
+ 240p  @ 35×  → 0.03
+ 144p  @ 60×  → 0.02
+             ─────────
+合計約 1.0 核心小時
+
+→ 全階梯的成本約等於「1080p 單獨編一次」的 1.5 倍</div>
+      <p>
+        這是個有用的經驗法則：
+        <strong>算全階梯時，用最高畫質的成本乘 1.5 就差不多了。</strong>
+      </p>
+
+      <h2>4. 加上其他編碼器</h2>
+      <div class="code-block">同一支影片：
+
+H.264 全階梯          約 1.0 核心小時
++ VP9 全階梯          約 8 核心小時
++ AV1 全階梯          約 25 核心小時
+                     ──────────────
+全部都編              約 34 核心小時</div>
+      <p>
+        <strong>加上 AV1 讓成本變成 34 倍。</strong>
+        這就是為什麼不能每支影片都編 AV1，
+        必須分級（第 48 課）。
+      </p>
+
+      <h2>5. 其他處理的成本</h2>
+      <table>
+        <thead><tr><th>工作</th><th>相對成本</th></tr></thead>
+        <tbody>
+          <tr><td>探測與驗證</td><td>很低</td></tr>
+          <tr><td>縮圖與精靈圖</td><td>低（只要解碼取樣）</td></tr>
+          <tr><td>語音辨識字幕</td><td>中（一小時影片約 0.1–0.5 核心小時，用 GPU 更快）</td></tr>
+          <tr><td>自動翻譯</td><td>低（按需產生）</td></tr>
+          <tr><td>版權指紋比對</td><td>中（要與龐大資料庫比對）</td></tr>
+          <tr><td>內容分析（推薦用特徵）</td><td>中至高（可能要跑視覺模型）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        近年這些「非轉碼」的處理成本成長很快，
+        因為平台加入越來越多的自動化分析。
+        在某些情況下它們加起來已經可以與轉碼相比。
+      </p>
+
+      <h2>6. 為什麼不用 GPU 就好</h2>
+      <p>
+        GPU 有硬體編碼器，速度很快，但有取捨：
+      </p>
+      <table>
+        <thead><tr><th></th><th>CPU 軟體編碼</th><th>GPU 硬體編碼</th><th>專用 ASIC</th></tr></thead>
+        <tbody>
+          <tr><td>速度</td><td>慢</td><td>快</td><td>最快</td></tr>
+          <tr><td>同位元率的畫質</td><td><strong>最好</strong></td><td>較差</td><td>接近軟體（專門優化過）</td></tr>
+          <tr><td>彈性</td><td>最高</td><td>受硬體限制</td><td>最低</td></tr>
+          <tr><td>每瓦效率</td><td>差</td><td>好</td><td><strong>最好</strong></td></tr>
+          <tr><td>單位成本</td><td>高</td><td>中</td><td>低（量夠大時）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        GPU 編碼器是為了遊戲直播設計的，
+        重視速度勝於壓縮效率。對平台來說，
+        <strong>壓縮效率差 20% 意味著頻寬成本多 20%</strong>——
+        那個數字太大，所以他們寧可自己做 ASIC。下一課處理。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用經驗法則估算 4K 全階梯的核心小時</li>
+          <li>說明為何加 AV1 會讓成本變成幾十倍</li>
+          <li>解釋平台為何不滿意 GPU 編碼器</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理專用晶片：為什麼要自己做。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：上傳之後發生什麼：轉碼管線全圖</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：為什麼要做專用晶片 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

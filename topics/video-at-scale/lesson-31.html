@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：內嵌式 CDN：把機器放進 ISP 機房 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="Open Connect 與 Google Global Cache 這類做法的雙贏邏輯。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜CDN：真正在送影片的那一層 · 第 31 課</div>
+      <h1>內嵌式 CDN：把機器放進 ISP 機房</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解內嵌式 CDN 的運作模式</li>
+          <li>算出雙方各自省下多少</li>
+          <li>知道這個模式的限制</li>
+        </ul>
+      </div>
+
+      <h2>1. 模式</h2>
+      <div class="code-block">內容方提供：  伺服器硬體、軟體、遠端維運、內容
+ISP 提供：    機架空間、電力、冷卻、網路埠
+
+雙方都不向對方收費。</div>
+      <p>
+        業界的代表案例是 Netflix 的 Open Connect 與
+        Google 的 Global Cache。公開資料顯示 Open Connect
+        在超過一百個國家、六千多個地點部署了節點，
+        單台 2U 機器可搭載數百 TB 的快閃儲存、
+        持續輸出 100 Gbps 以上。
+      </p>
+
+      <h2>2. ISP 為什麼願意</h2>
+      <div class="code-block">某 ISP 有 100 萬用戶，晚間尖峰需要 300 Gbps 對外頻寬
+其中影音佔 60% = 180 Gbps
+
+不放內嵌節點：
+  180 Gbps 要走 transit 或對等
+  transit @ 0.30 美元／Mbps／月 = 180,000 × 0.30 = 54,000 美元／月
+
+放內嵌節點：
+  提供 2 個機櫃、約 5 kW 電力、100G 埠
+  成本約 2,000–5,000 美元／月
+  省下約 50,000 美元／月</div>
+      <p>
+        <strong>ISP 一年省下五、六十萬美元，代價是兩個機櫃。</strong>
+        而且使用者的體驗明顯變好（RTT 從幾十毫秒降到幾毫秒），
+        客訴減少。這是很難拒絕的提議。
+      </p>
+
+      <h2>3. 內容方為什麼願意</h2>
+      <table>
+        <thead><tr><th>好處</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>零流量成本</td><td>不經過任何付費鏈路</td></tr>
+          <tr><td>最佳體驗</td><td>RTT 個位數，吞吐量穩定</td></tr>
+          <tr><td>可控性</td><td>不受上游擁塞影響</td></tr>
+          <tr><td>可預測</td><td>知道每個節點的容量與服務人數</td></tr>
+          <tr><td>談判籌碼</td><td>ISP 依賴這些節點之後，對等關係更穩固</td></tr>
+        </tbody>
+      </table>
+      <p>
+        代價是硬體成本與維運複雜度——
+        要遠端管理散布在幾千個別人機房裡的機器。
+      </p>
+
+      <h2>4. 運作細節</h2>
+      <ul>
+        <li><strong>內容填充</strong>：離峰時段（通常是凌晨）從區域節點拉取明天預測會熱門的內容</li>
+        <li><strong>導流</strong>：內容方的導流系統知道哪個使用者屬於哪個 ISP，把他導到對應的節點</li>
+        <li><strong>健康監測</strong>：節點自己回報狀態，故障時流量自動導走</li>
+        <li><strong>容量管理</strong>：節點快滿或頻寬吃緊時，部分流量溢出到邊緣 PoP</li>
+        <li><strong>更新</strong>：軟體由內容方遠端更新，ISP 不需要碰</li>
+      </ul>
+
+      <h2>5. 這個模式的限制</h2>
+      <table>
+        <thead><tr><th>限制</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>只適合超大內容方</td><td>要有足夠流量才值得讓 ISP 出機櫃</td></tr>
+          <tr><td>只適合夠大的 ISP</td><td>用戶太少的 ISP，一台機器都放不滿</td></tr>
+          <tr><td>ISP 可能拒絕</td><td>有些 ISP 希望收費，或有自己的政策</td></tr>
+          <tr><td>維運困難</td><td>機器在別人家裡，故障要請對方協助</td></tr>
+          <tr><td>安全考量</td><td>機器在第三方環境，要假設實體不安全</td></tr>
+          <tr><td>內容授權</td><td>某些內容的地理限制要在節點層級處理</td></tr>
+        </tbody>
+      </table>
+
+      <h2>6. 對整體架構的意義</h2>
+      <p>
+        回到第 30 課的分配表：65% 的流量從 ISP 內嵌節點出去。
+        這意味著<strong>影音平台最大的「資料中心」其實是別人的機房</strong>——
+        分散在全球幾千個地點，每個只有一兩台機器。
+      </p>
+      <p>
+        這也回答了「要不要蓋資料中心」這個問題的一個面向：
+        <strong>對交付這件事來說，你要的不是大機房，是很多小點。</strong>
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出一個 200 萬用戶的 ISP 放內嵌節點能省多少（自訂假設）</li>
+          <li>列出內容方獲得的五個好處</li>
+          <li>說出這個模式的三個限制</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理預先填充：內容怎麼在半夜被搬到邊緣。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：PoP、edge、mid-tier、origin 四層</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：預先填充：離峰時段把貨搬過去 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：一支影片上傳後產生的完整檔案清單 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="把一次上傳實際落地的所有物件逐項列出來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜儲存（一）：到底存了什麼 · 第 34 課</div>
+      <h1>一支影片上傳後產生的完整檔案清單</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>列出一次上傳產生的所有物件</li>
+          <li>知道各自的大小與生命週期</li>
+          <li>建立儲存計算的清單</li>
+        </ul>
+      </div>
+
+      <h2>1. 完整清單</h2>
+      <p>以一支一小時的 1080p 影片為例：</p>
+      <table>
+        <thead><tr><th>物件</th><th>數量</th><th>大小</th><th>保留期</th></tr></thead>
+        <tbody>
+          <tr><td>上傳原檔</td><td>1</td><td>2–20 GB</td><td>永久或數年</td></tr>
+          <tr><td>轉碼後影片（各畫質）</td><td>3–8</td><td>合計 4–6 GB</td><td>永久</td></tr>
+          <tr><td>額外編碼器版本</td><td>0–12</td><td>合計 0–8 GB</td><td>永久（熱門才有）</td></tr>
+          <tr><td>音訊軌（各語言／位元率）</td><td>1–10</td><td>50 MB–1 GB</td><td>永久</td></tr>
+          <tr><td>分段檔（若不即時打包）</td><td>數千</td><td>與影片同</td><td>永久</td></tr>
+          <tr><td>Manifest</td><td>2–6</td><td>幾 KB</td><td>永久</td></tr>
+          <tr><td>封面縮圖（多尺寸）</td><td>4–12</td><td>幾百 KB</td><td>永久</td></tr>
+          <tr><td>進度條預覽精靈圖</td><td>1–10</td><td>1–10 MB</td><td>永久</td></tr>
+          <tr><td>字幕（含自動產生）</td><td>1–100</td><td>幾十 KB–幾 MB</td><td>永久</td></tr>
+          <tr><td>內容指紋</td><td>1</td><td>幾 MB</td><td>永久</td></tr>
+          <tr><td>metadata 記錄</td><td>數十列</td><td>幾 KB</td><td>永久</td></tr>
+          <tr><td>轉碼中間檔</td><td>數個</td><td>數 GB</td><td><strong>暫時</strong></td></tr>
+          <tr><td>分析事件紀錄</td><td>持續累積</td><td>隨觀看次數成長</td><td>依政策</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 三類資料</h2>
+      <table>
+        <thead><tr><th>類別</th><th>特性</th><th>儲存系統</th></tr></thead>
+        <tbody>
+          <tr><td><strong>大物件</strong>（影片、音訊）</td><td>寫一次、讀很多次、不修改</td><td>物件儲存 / 分散式檔案系統</td></tr>
+          <tr><td><strong>小物件</strong>（縮圖、字幕、manifest）</td><td>數量極多、單個很小</td><td>物件儲存 + 積極快取</td></tr>
+          <tr><td><strong>結構化資料</strong>（metadata、觀看紀錄）</td><td>要查詢、要交易、會更新</td><td>分散式資料庫</td></tr>
+        </tbody>
+      </table>
+      <p>
+        三者的技術棧完全不同。
+        很多人談「YouTube 的儲存」時只想到影片檔，
+        但<strong>metadata 資料庫的複雜度其實更高</strong>——
+        它要支援搜尋、推薦、權限、留言、統計等所有功能。
+      </p>
+
+      <h2>3. 小物件的數量問題</h2>
+      <div class="code-block">假設全站 10 億支影片，每支有：
+  8 張縮圖
+  5 個 manifest
+  3 個字幕檔
+  1 個精靈圖
+ ─────────────
+ 17 個小物件
+
+總數 = 10 億 × 17 = 170 億個物件</div>
+      <p>
+        170 億個物件的<strong>metadata 本身</strong>
+        （檔名、大小、位置、校驗碼）就要幾 TB，
+        而且要能在毫秒內查到任何一個。
+        這是典型的「小檔案問題」——
+        總容量不大，但物件數量讓檔案系統吃不消。
+      </p>
+
+      <h2>4. 分段檔的爆炸</h2>
+      <p>
+        如果把每個 4 秒的分段都存成獨立檔案：
+      </p>
+      <div class="code-block">一小時影片 = 900 個分段
+× 6 個畫質 = 5,400 個檔案
+× 10 億支影片 = 5.4 兆個檔案</div>
+      <p>
+        這個數量沒有任何檔案系統扛得住。所以實務上的做法是
+        <strong>存成完整檔案，在邊緣即時切段</strong>（just-in-time packaging）：
+        邊緣節點收到「要第 37 段」的請求時，
+        從完整檔案的對應位移讀出那一段回傳。
+      </p>
+      <p>
+        代價是邊緣要多一點 CPU，
+        但省下了幾兆個檔案的管理成本。這是非常划算的交換。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出一次上傳產生的六類物件</li>
+          <li>說明三類資料各自適合什麼儲存系統</li>
+          <li>解釋即時切段解決了什麼問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理一個大決定：上傳原檔要不要留。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：導流：使用者怎麼被指到正確那台機器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：原始檔要不要留：留與不留的代價 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

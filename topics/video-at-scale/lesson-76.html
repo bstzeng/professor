@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 76 課：常見誤解十二條 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="關於頻寬、儲存與資料中心最常見的錯誤直覺。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 76 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 O｜總結 · 第 76 課</div>
+      <h1>常見誤解十二條</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把整門課推翻過的錯誤直覺集中列出</li>
+          <li>每一條都給出正確的說法與對應的課次</li>
+          <li>用這份清單檢驗自己是否真的理解了</li>
+        </ul>
+      </div>
+
+      <h2>誤解 1：「公司要買 100 Tbps 的頻寬」</h2>
+      <p>
+        <strong>錯在哪：</strong>頻寬不是一種可以整批購買的商品。
+        超大型平台的流量裡，只有一小部分是「買」來的 transit，
+        大部分是透過 peering 免費交換，或走自己鋪設的骨幹（第 5、19、22 課）。
+      </p>
+      <p>
+        <strong>正確的說法：</strong>公司要在數百個地點建立互連能力，
+        其中一部分付費、一部分互惠、一部分自有。
+        「買頻寬」這個動作只發生在最外圍的長尾地區。
+      </p>
+
+      <h2>誤解 2：「影片存在一個很大的資料庫裡」</h2>
+      <p>
+        <strong>錯在哪：</strong>影片檔案不存在關聯式資料庫裡。
+        它們存在分散式物件儲存或分散式檔案系統中（第 43 課），
+        資料庫裡只有 metadata——標題、作者、時長、檔案位置指標（第 36 課）。
+      </p>
+      <p>
+        <strong>正確的說法：</strong>一支影片是「metadata 一筆 + 物件儲存裡十幾個檔案」。
+        兩者的儲存系統、擴展方式、成本結構都完全不同。
+      </p>
+
+      <h2>誤解 3：「一支影片只有一個檔案」</h2>
+      <p>
+        <strong>錯在哪：</strong>一支影片會被編成多個解析度 × 多個編碼器 × 多條音軌，
+        再各自切成數百個分段檔案（第 10、12 課）。
+      </p>
+      <div class="code-block">一支 10 分鐘影片的實際檔案數（保守估計）
+  6 個畫質階梯 × 2 個編碼器 = 12 路視訊
+  每路切成 6 秒分段 → 100 段
+  = 1,200 個視訊分段檔
+
+  + 2 條音軌 × 100 段 = 200 個音訊檔
+  + manifest、縮圖、預覽
+
+  合計超過 1,400 個物件。</div>
+
+      <h2>誤解 4：「CDN 就是把檔案複製到全世界」</h2>
+      <p>
+        <strong>錯在哪：</strong>沒有任何 CDN 會把全部內容複製到全部節點——
+        EB 級的片庫根本塞不進邊緣（第 30 課）。
+        邊緣節點是<strong>快取</strong>，靠 LRU 之類的策略動態保留熱門內容（第 26 課）。
+      </p>
+      <p>
+        <strong>例外：</strong>片庫夠小的平台（第 71 課的 Netflix）確實可以做預填，
+        但那是因為片庫只有 PB 級，不是 EB 級。
+      </p>
+
+      <h2>誤解 5：「快取命中率 95% 已經很好了」</h2>
+      <p>
+        <strong>錯在哪：</strong>在超大規模下，命中率要看的是<strong>未命中的那一面</strong>。
+      </p>
+      <div class="code-block">尖峰 100 Tbps，回源流量 =
+
+  命中率 95%   → 5 Tbps 回源
+  命中率 99%   → 1 Tbps 回源
+  命中率 99.9% → 0.1 Tbps 回源
+
+從 95% 提升到 99.9%，中層與 origin 的容量需求降為 1/50。</div>
+      <p>
+        <strong>正確的思考方式：</strong>不要看命中率，看未命中率。
+        95% → 99% 不是「進步 4 個百分點」，是<strong>回源量變成五分之一</strong>（第 26 課）。
+      </p>
+
+      <h2>誤解 6：「用 SSD 取代硬碟就對了」</h2>
+      <p>
+        <strong>錯在哪：</strong>兩者解決的是不同問題（第 42 課）。
+        SSD 的優勢是 IOPS 與延遲，HDD 的優勢是每 TB 成本。
+        影音的冷資料是<strong>順序讀取、低頻存取</strong>，
+        這正是 HDD 最擅長也最划算的場景。
+      </p>
+      <table>
+        <thead><tr><th>層級</th><th>媒體</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>邊緣熱快取</td><td>SSD / NVMe</td><td>高並發隨機讀</td></tr>
+          <tr><td>邊緣溫快取</td><td>大容量 HDD</td><td>每 TB 便宜，順序讀夠用</td></tr>
+          <tr><td>origin 儲存</td><td>HDD 為主</td><td>容量決定成本</td></tr>
+          <tr><td>歸檔</td><td>高密度 HDD / 磁帶</td><td>幾乎不讀</td></tr>
+        </tbody>
+      </table>
+
+      <h2>誤解 7：「三複本比糾刪碼安全」</h2>
+      <p>
+        <strong>錯在哪：</strong>安全性取決於<strong>能容忍幾個同時故障</strong>，
+        不是複製了幾份（第 41 課）。
+      </p>
+      <div class="code-block">三複本：容忍 2 個故障，空間開銷 3.0×
+RS(10,4)：容忍 4 個故障，空間開銷 1.4×
+RS(6,3)： 容忍 3 個故障，空間開銷 1.5×
+
+糾刪碼在更低的空間開銷下提供更高的容錯度。</div>
+      <p>
+        <strong>糾刪碼真正的代價是重建成本</strong>：
+        壞一顆盤要讀 10 顆盤才能算回來，
+        而三複本只要從另一份直接複製。
+        所以熱資料常用複本（重建快、讀取簡單），冷資料用糾刪碼（省空間）。
+      </p>
+
+      <h2>誤解 8：「資料中心的容量單位是機器數量」</h2>
+      <p>
+        <strong>錯在哪：</strong>真正的上限是<strong>電力</strong>（第 56 課）。
+        一座資料中心說「20 MW」，意思是它能供給也能散熱 20 MW。
+        機器數量是這個數字除以每台功耗的結果，不是獨立的限制。
+      </p>
+      <div class="code-block">20 MW 設施，PUE 1.15
+  可用於 IT 設備 = 20 / 1.15 = 17.4 MW
+
+  若每台伺服器 400 W → 43,500 台
+  若每台伺服器 800 W（高密度 GPU）→ 21,750 台
+
+  同一座機房，機器數量可以差一倍。</div>
+
+      <h2>誤解 9：「PUE 1.1 表示只浪費 10% 的電」</h2>
+      <p>
+        <strong>錯在哪：</strong>PUE 只衡量「設施用電 ÷ IT 用電」（第 57 課）。
+        它完全不管 IT 設備本身的效率。
+      </p>
+      <p>
+        一座 PUE 1.05 但跑滿十年前舊伺服器的機房，
+        整體效率可能遠差於 PUE 1.3 但跑最新硬體的機房。
+        <strong>PUE 是一個好的冷卻指標，但是一個糟糕的整體效率指標。</strong>
+        它甚至會被反向操作——把伺服器風扇功耗算進 IT 那一欄，PUE 就變好看了。
+      </p>
+
+      <h2>誤解 10：「頻寬成本是影音平台最大的支出」</h2>
+      <p>
+        <strong>錯在哪：</strong>對超大型平台，基礎設施合計只佔營收約 3%，
+        而其中頻寬又只是一部分（第 66、68 課）。
+        最大的支出是<strong>創作者分潤與內容授權</strong>。
+      </p>
+      <p>
+        <strong>但這個結論有前提：</strong>那 3% 是幾十年工程投資的結果。
+        對沒有做過這些投資的公司，同樣的流量會花掉 30% 以上的營收（第 70 課），
+        商業模式直接不成立。
+      </p>
+
+      <h2>誤解 11：「短影音比長影片便宜」</h2>
+      <p>
+        <strong>錯在哪：</strong>以「每小時觀看」計算，短影音通常更貴（第 73 課）。
+        原因是預載浪費率高、每支影片的固定開銷被放大幾十倍、
+        個人化推薦讓快取命中率下降。
+      </p>
+      <p>
+        <strong>正確的說法：</strong>單支影片便宜，單位觀看時間貴。
+        比較成本時一定要問清楚分母是什麼。
+      </p>
+
+      <h2>誤解 12：「以後會有一億用戶，所以現在就該自建」</h2>
+      <p>
+        <strong>錯在哪：</strong>這是這個領域最昂貴的錯誤（第 75 課）。
+        自建的固定成本以億美元計、以人年計，
+        而它在小規模上不但不省錢，還會消耗掉公司唯一的工程資源。
+      </p>
+      <p>
+        <strong>正確的說法：</strong>每個階段的架構應該支撐目前規模的三到五倍。
+        到了門檻再改，改的成本遠低於過早建造的成本。
+        而且大多數平台永遠不會到達那個門檻——
+        為一個沒發生的未來付錢，是最純粹的浪費。
+      </p>
+
+      <h2>附加：三個容易記錯的數字</h2>
+      <table>
+        <thead><tr><th>項目</th><th>常見的錯誤印象</th><th>實際量級</th></tr></thead>
+        <tbody>
+          <tr><td>1080p 串流位元率</td><td>「一定要 10 Mbps 以上」</td><td>現代編碼器 3–5 Mbps 就很好</td></tr>
+          <tr><td>硬碟年故障率</td><td>「很少壞」</td><td>約 1–2%，十萬顆機隊每天壞 3–5 顆（第 40、61 課）</td></tr>
+          <tr><td>觀看分布</td><td>「大家看的東西差不多」</td><td>約 1% 的影片佔 90% 的觀看（第 25 課）</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>不看課文，說出至少八條誤解與它們的正確版本</li>
+          <li>解釋為何「看未命中率」比「看命中率」更有用</li>
+          <li>說明 PUE 為什麼不是整體效率指標</li>
+          <li>用自己的話說明第 12 條為何是最昂貴的錯誤</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>最後一課是總表：所有公式、所有名詞、所有可以拿去查證的來源。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-75.html">← 上一課：從一萬人到一億人的演進路線</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-77.html">下一課：名詞總表、公式總表與延伸閱讀 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

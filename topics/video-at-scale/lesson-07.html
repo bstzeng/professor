@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：壓縮原理：為什麼影片能壓到千分之一 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="幀內壓縮、幀間預測、運動補償與熵編碼的基本想法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜影片本身：位元組從哪來 · 第 7 課</div>
+      <h1>壓縮原理：為什麼影片能壓到千分之一</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解三種畫面類型（I／P／B）</li>
+          <li>掌握運動補償的想法</li>
+          <li>知道為什麼影片不能隨便從中間開始播</li>
+        </ul>
+      </div>
+
+      <h2>1. 核心觀察</h2>
+      <p>
+        連續兩張畫面通常極度相似。一個人在說話，
+        背景完全沒變，只有嘴巴動。那為什麼要把整張畫面重新存一次？
+      </p>
+      <p>
+        答案是不用。只存<strong>「跟上一張差在哪」</strong>就好。
+      </p>
+
+      <h2>2. 三種畫面</h2>
+      <table>
+        <thead><tr><th>類型</th><th>全名</th><th>內容</th><th>相對大小</th></tr></thead>
+        <tbody>
+          <tr><td><strong>I 幀</strong></td><td>Intra-coded</td><td>完整畫面，不依賴其他幀</td><td>基準（大）</td></tr>
+          <tr><td><strong>P 幀</strong></td><td>Predicted</td><td>只存與前一幀的差異</td><td>約 I 的 1/3</td></tr>
+          <tr><td><strong>B 幀</strong></td><td>Bi-directional</td><td>同時參考前後兩幀</td><td>約 I 的 1/10</td></tr>
+        </tbody>
+      </table>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="16" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個 GOP（畫面群組）的結構</text>
+          <g>
+            <rect x="60" y="50" width="42" height="48" fill="#ff8a65" opacity="0.35" stroke="#ff8a65" stroke-width="1.2" rx="3"/>
+            <text x="81" y="79" text-anchor="middle" font-size="12" fill="#ff8a65">I</text>
+            <rect x="122" y="62" width="30" height="36" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="137" y="85" text-anchor="middle" font-size="10" fill="var(--gold)">B</text>
+            <rect x="172" y="62" width="30" height="36" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="187" y="85" text-anchor="middle" font-size="10" fill="var(--gold)">B</text>
+            <rect x="222" y="56" width="36" height="42" fill="var(--accent)" opacity="0.3" stroke="var(--accent)" stroke-width="1" rx="3"/>
+            <text x="240" y="82" text-anchor="middle" font-size="11" fill="var(--accent)">P</text>
+            <rect x="278" y="62" width="30" height="36" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="293" y="85" text-anchor="middle" font-size="10" fill="var(--gold)">B</text>
+            <rect x="328" y="62" width="30" height="36" fill="var(--gold)" opacity="0.3" stroke="var(--gold)" stroke-width="1" rx="3"/>
+            <text x="343" y="85" text-anchor="middle" font-size="10" fill="var(--gold)">B</text>
+            <rect x="378" y="56" width="36" height="42" fill="var(--accent)" opacity="0.3" stroke="var(--accent)" stroke-width="1" rx="3"/>
+            <text x="396" y="82" text-anchor="middle" font-size="11" fill="var(--accent)">P</text>
+            <rect x="500" y="50" width="42" height="48" fill="#ff8a65" opacity="0.35" stroke="#ff8a65" stroke-width="1.2" rx="3"/>
+            <text x="521" y="79" text-anchor="middle" font-size="12" fill="#ff8a65">I</text>
+            <text x="460" y="79" text-anchor="middle" font-size="12" fill="var(--text-muted)">…</text>
+          </g>
+          <path d="M 81 110 Q 300 140 521 110" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="300" y="140" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">一個 GOP（通常 2–10 秒）</text>
+          <text x="320" y="160" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">方塊大小代表資料量：I 幀最大，B 幀最小</text>
+        </svg>
+      </div>
+
+      <h2>3. 運動補償</h2>
+      <p>
+        P 幀不是笨笨地存「每個像素差多少」。
+        它做的是<strong>運動估計</strong>：把畫面切成小區塊，
+        然後在前一幀裡找「這個區塊原本在哪」。
+      </p>
+      <div class="code-block">區塊(120,80) 的內容 ≈ 前一幀的 區塊(115,80)
+→ 只要存一個「向左移了 5 像素」的向量，加上微小的殘差
+
+一個移動向量：幾個 bit
+一個完整區塊：幾百 bit</div>
+      <p>
+        所以鏡頭平移時（整個畫面一起動），壓縮效率極好；
+        而爆炸、雜訊、快速剪接時，運動估計找不到對應，
+        壓縮效率就崩潰——<strong>這就是為什麼動作片比談話節目吃頻寬</strong>。
+      </p>
+
+      <h2>4. GOP 與隨機存取</h2>
+      <p>
+        既然 P 與 B 幀都依賴其他幀，那你就不能從任意一幀開始播。
+        必須從最近的 I 幀開始解碼。
+      </p>
+      <table>
+        <thead><tr><th>GOP 長度</th><th>壓縮效率</th><th>跳轉精度</th><th>適合</th></tr></thead>
+        <tbody>
+          <tr><td>短（1–2 秒）</td><td>較差</td><td>好，跳轉快</td><td>直播、需要頻繁切畫質</td></tr>
+          <tr><td>長（8–10 秒）</td><td>好</td><td>差，跳轉要等</td><td>點播、追求壓縮率</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這也影響串流分段：HLS／DASH 的每個片段
+        <strong>必須從 I 幀開始</strong>，否則播放器拿到片段無法獨立解碼。
+        所以分段長度通常是 GOP 長度的整數倍（第 12 課）。
+      </p>
+
+      <h2>5. 熵編碼</h2>
+      <p>
+        最後一步是無損壓縮：把出現頻率高的符號用短碼表示。
+        現代編碼器用 CABAC 這類算術編碼，能再擠出 10–15%。
+        這一步沒有畫質損失，純粹是資料表示的效率。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>I 幀完整、P 幀參考前面、B 幀參考前後</li>
+          <li>運動補償只存「移動向量 + 殘差」，這是壓縮的主力</li>
+          <li>畫面變化劇烈時壓縮效率會崩潰</li>
+          <li>GOP 長度是壓縮效率與跳轉精度的取捨，也決定串流分段</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 I、P、B 三種幀的差異與相對大小</li>
+          <li>解釋為何動作片比談話節目需要更高位元率</li>
+          <li>說出 GOP 長度與串流分段的關係</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課比較四代編碼器，以及為何舊的一直不退場。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：影格、解析度、色深：未壓縮有多可怕</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：編碼器演進：H.264、VP9、H.265、AV1 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

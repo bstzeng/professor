@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：CDN 不只是「離你比較近的伺服器」 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="CDN 實際解決的四個問題，以及它的組成。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜CDN：真正在送影片的那一層 · 第 28 課</div>
+      <h1>CDN 不只是「離你比較近的伺服器」</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 CDN 解決的四個問題</li>
+          <li>認識它的組成元件</li>
+          <li>知道它與單純「多放幾台伺服器」的差別</li>
+        </ul>
+      </div>
+
+      <h2>1. CDN 解決四件事</h2>
+      <table>
+        <thead><tr><th>問題</th><th>CDN 的做法</th></tr></thead>
+        <tbody>
+          <tr><td>延遲</td><td>節點靠近使用者，RTT 從百毫秒降到個位數</td></tr>
+          <tr><td>頻寬成本</td><td>在 ISP 附近交付，避開昂貴的 transit</td></tr>
+          <tr><td>來源負載</td><td>快取吸收 98% 以上的請求</td></tr>
+          <tr><td>可用度</td><td>單一節點故障時自動導到其他節點</td></tr>
+        </tbody>
+      </table>
+      <p>
+        很多人以為 CDN 只做第一件事。
+        實際上對影音平台來說，<strong>第二與第三件才是主要價值</strong>——
+        它們直接決定成本能不能撐得住。
+      </p>
+
+      <h2>2. CDN 的組成</h2>
+      <table>
+        <thead><tr><th>元件</th><th>功能</th></tr></thead>
+        <tbody>
+          <tr><td>快取節點</td><td>儲存內容並直接回應請求</td></tr>
+          <tr><td>導流系統</td><td>決定每個使用者被送到哪個節點（第 33 課）</td></tr>
+          <tr><td>健康檢查</td><td>偵測節點故障並把流量導開</td></tr>
+          <tr><td>快取控制</td><td>決定什麼要快取、快取多久、何時淘汰</td></tr>
+          <tr><td>回源邏輯</td><td>未命中時去哪裡拿、要不要合併請求</td></tr>
+          <tr><td>監控與分析</td><td>命中率、延遲、錯誤率的即時資料</td></tr>
+          <tr><td>內容管理</td><td>預先填充、清除快取、版本控制</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>「多放幾台伺服器」只做到第一項。</strong>
+        真正困難的是後面六項，尤其是導流與內容管理——
+        它們才是 CDN 作為一個系統的價值所在。
+      </p>
+
+      <h2>3. 影音 CDN 的特殊需求</h2>
+      <table>
+        <thead><tr><th>需求</th><th>與一般網站 CDN 的差異</th></tr></thead>
+        <tbody>
+          <tr><td>物件很大</td><td>每個段 1–10 MB，而非幾 KB 的網頁資源</td></tr>
+          <tr><td>單節點吞吐要求高</td><td>要能穩定輸出 100 Gbps 以上</td></tr>
+          <tr><td>儲存密度要求高</td><td>單節點要放 10–100 TB，不是幾 GB 的記憶體快取</td></tr>
+          <tr><td>連線持續時間長</td><td>一個使用者連續幾十分鐘要段</td></tr>
+          <tr><td>可預測性高</td><td>知道使用者接下來會要哪一段，可預取</td></tr>
+          <tr><td>對 CPU 需求低</td><td>主要是磁碟讀與網路送，不太需要運算</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項造成了硬體設計的分歧：
+        <strong>影音快取節點是「儲存與網路很強、CPU 很弱」的機器</strong>，
+        與一般的運算伺服器完全不同。第 50 課會處理規格。
+      </p>
+
+      <h2>4. 一個典型的影音快取節點</h2>
+      <div class="code-block">機箱        2U
+儲存        數十 TB 至數百 TB 的 NVMe 或 SSD
+網路        2 × 100 GbE 或更高
+CPU         中階即可（主要工作是搬資料）
+記憶體      256 GB 以上（作為第二層快取）
+作業系統    針對高吞吐調校過的核心
+
+單機輸出    100 Gbps 以上（持續）</div>
+      <p>
+        業界公開的案例顯示，這類 2U 機器已經能做到
+        數百 TB 的快閃儲存搭配持續 100 Gbps 以上的輸出。
+        這是第 51 課計算邊緣機器數量的基礎參數。
+      </p>
+
+      <h2>5. 為什麼是快閃而不是硬碟</h2>
+      <p>
+        影音快取節點幾乎都用 SSD／NVMe，而來源儲存用 HDD。原因：
+      </p>
+      <table>
+        <thead><tr><th></th><th>邊緣快取</th><th>來源儲存</th></tr></thead>
+        <tbody>
+          <tr><td>需要什麼</td><td>高吞吐、高 IOPS</td><td>大容量、低成本</td></tr>
+          <tr><td>瓶頸</td><td>要餵滿 100 Gbps 網卡</td><td>每 TB 的價格</td></tr>
+          <tr><td>資料量</td><td>幾十 TB（只放熱門）</td><td>幾 EB（放全部）</td></tr>
+          <tr><td>選擇</td><td>NVMe SSD</td><td>HDD</td></tr>
+        </tbody>
+      </table>
+      <p>
+        一顆 HDD 的循序讀取約 200 MB/s。
+        要餵滿 100 Gbps（12.5 GB/s）需要 60 顆以上同時全速讀——
+        不實際。所以邊緣一定要用快閃。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出 CDN 解決的四個問題，並指出影音平台最在意哪兩個</li>
+          <li>列出影音 CDN 與一般網站 CDN 的三個差異</li>
+          <li>算出要餵滿 100 Gbps 需要幾顆 200 MB/s 的硬碟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課算自建與商用 CDN 的分水嶺在哪裡。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：從中心到邊緣：分層快取架構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：自建 vs 商用 CDN：成本的分水嶺 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

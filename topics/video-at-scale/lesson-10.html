@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：一支影片變成十幾個檔案 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="解析度 × 編碼器 × 音軌的組合爆炸，以及它對儲存的意義。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜影片本身：位元組從哪來 · 第 10 課</div>
+      <h1>一支影片變成十幾個檔案</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出一支影片實際產生幾個檔案</li>
+          <li>理解組合爆炸的來源</li>
+          <li>知道平台怎麼控制它</li>
+        </ul>
+      </div>
+
+      <h2>1. 三個維度相乘</h2>
+      <div class="code-block">檔案數 = 畫質階數 × 編碼器數 × 音訊版本數 + 附屬檔案
+
+畫質  ：144p 到 4K，最多 8 階
+編碼器：H.264 / VP9 / AV1，最多 3 種
+音訊  ：AAC 128k / Opus 128k / 環繞聲，最多 3 種</div>
+      <p>最壞情況：8 × 3 = 24 個影片檔 + 3 個音訊檔 = 27 個。</p>
+
+      <h2>2. 但不是每支都全編</h2>
+      <p>
+        全編是浪費——多數影片的觀看次數是個位數。
+        實務上是<strong>分級策略</strong>：
+      </p>
+      <table>
+        <thead><tr><th>級別</th><th>觀看次數</th><th>編碼策略</th><th>檔案數</th></tr></thead>
+        <tbody>
+          <tr><td>長尾</td><td>&lt; 100</td><td>只編 H.264 的低中畫質</td><td>3–4</td></tr>
+          <tr><td>一般</td><td>100 – 10,000</td><td>H.264 全階梯</td><td>6–7</td></tr>
+          <tr><td>熱門</td><td>&gt; 10,000</td><td>加上 VP9</td><td>12</td></tr>
+          <tr><td>爆紅</td><td>&gt; 1,000,000</td><td>再加 AV1、高畫質</td><td>20+</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵在於<strong>這是動態的</strong>：一支影片突然爆紅時，
+        系統會把它排進佇列補編更好的版本。
+        第 48 課會完整處理這個機制。
+      </p>
+
+      <h2>3. 儲存量的實際計算</h2>
+      <p>以一小時 1080p 內容為例：</p>
+      <div class="code-block">【H.264 全階梯】
+144p   0.1 Mbps
+240p   0.3
+360p   0.7
+480p   1.2
+720p   2.5
+1080p  5.0
+音訊   0.2
+──────────────
+合計  10.0 Mbps
+
+一小時 = 10.0 × 3600 / 8 = 4,500 MB = 4.5 GB</div>
+      <p>
+        加上保留的上傳原檔（假設 12 Mbps，5.4 GB），
+        一小時內容約需 <strong>10 GB</strong>。
+        這是第 37 課計算的基礎。
+      </p>
+
+      <h2>4. 不只是影片檔</h2>
+      <table>
+        <thead><tr><th>附屬資料</th><th>量級</th><th>備註</th></tr></thead>
+        <tbody>
+          <tr><td>縮圖（多尺寸）</td><td>幾百 KB</td><td>每支影片數張，還有進度條預覽圖</td></tr>
+          <tr><td>進度條預覽精靈圖</td><td>1–5 MB</td><td>每隔幾秒一張小圖拼成大圖</td></tr>
+          <tr><td>字幕（多語言）</td><td>幾十 KB</td><td>含自動產生的</td></tr>
+          <tr><td>metadata</td><td>幾 KB</td><td>標題、描述、標籤、權限</td></tr>
+          <tr><td>索引檔（manifest）</td><td>幾 KB</td><td>每種編碼器與階梯各一份</td></tr>
+          <tr><td>內容指紋</td><td>幾 MB</td><td>版權比對用</td></tr>
+        </tbody>
+      </table>
+      <p>
+        單支看起來很小，但乘上數億支影片後，
+        <strong>metadata 與縮圖本身就是一個 PB 級的資料庫問題</strong>。
+        第 36 課會處理。
+      </p>
+
+      <h2>5. 一個常被忽略的成本</h2>
+      <p>
+        每多一種編碼器，不只多一份儲存，還多一份：
+      </p>
+      <ul>
+        <li>轉碼算力</li>
+        <li>快取空間（邊緣節點要存更多版本）</li>
+        <li>快取命中率下降（同一支影片的流量被拆散到多個檔案）</li>
+        <li>測試與維運複雜度</li>
+      </ul>
+      <p>
+        第四點最容易被忽略：<strong>多版本會稀釋快取效率</strong>。
+        一支影片如果有 20 個版本，每個版本在邊緣節點被要求的次數就少了，
+        比較容易被淘汰出快取。這是支援新編碼器的隱藏代價。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 6 階 × 2 編碼器 × 2 音訊的檔案數</li>
+          <li>說明分級編碼策略的理由</li>
+          <li>解釋多版本為何會稀釋快取效率</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課給一張完整的位元率對照表，收束模組 B。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：位元率階梯與 ABR</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：各畫質的實際位元率對照表 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

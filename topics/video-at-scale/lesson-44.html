@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：靜默損壞與定期掃描 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="資料在沒人察覺時壞掉，以及對抗它的機制。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜儲存（二）：怎麼存才不會壞 · 第 44 課</div>
+      <h1>靜默損壞與定期掃描</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解靜默損壞的成因</li>
+          <li>知道對抗它的機制</li>
+          <li>收束模組 H</li>
+        </ul>
+      </div>
+
+      <h2>1. 什麼是靜默損壞</h2>
+      <p>
+        硬碟「壞掉」有兩種：
+      </p>
+      <table>
+        <thead><tr><th>類型</th><th>表現</th><th>好處理嗎</th></tr></thead>
+        <tbody>
+          <tr><td>顯性故障</td><td>讀不到、機器抓不到碟、SMART 警示</td><td>好處理，系統會偵測到</td></tr>
+          <tr><td><strong>靜默損壞</strong></td><td>讀得到，但內容是錯的，沒有任何錯誤訊息</td><td><strong>很難</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        靜默損壞的可怕之處在於：
+        <strong>系統以為一切正常，錯誤的資料被當成正確的用</strong>，
+        甚至被複製到其他副本上。
+      </p>
+
+      <h2>2. 成因</h2>
+      <ul>
+        <li><strong>位元翻轉</strong>：宇宙射線或電氣雜訊造成記憶體或匯流排上的位元改變</li>
+        <li><strong>寫入遺失</strong>：硬碟回報寫入成功但實際沒寫</li>
+        <li><strong>寫錯位置</strong>：資料寫到錯誤的磁區</li>
+        <li><strong>韌體錯誤</strong>：硬碟或控制器的軟體缺陷</li>
+        <li><strong>傳輸錯誤</strong>：網路或線材造成的資料損毀</li>
+      </ul>
+      <p>
+        單一事件的機率很低，但<strong>乘上 EB 級的資料量與持續的讀寫</strong>，
+        它就變成每天都在發生的事。
+      </p>
+
+      <h2>3. 防線一：校驗碼</h2>
+      <div class="code-block">寫入時：
+  計算資料的校驗碼（CRC 或加密雜湊）
+  與資料一起存
+
+讀取時：
+  重新計算校驗碼
+  與存下來的比對
+  不符 → 這份資料壞了，改讀其他副本</div>
+      <p>
+        關鍵是校驗碼要<strong>端到端</strong>：
+        從寫入端算到讀取端，而不只是硬碟內部的校驗。
+        因為損壞可能發生在記憶體、網路、控制器——
+        那些地方硬碟內部的校驗管不到。
+      </p>
+
+      <h2>4. 防線二：定期掃描</h2>
+      <p>
+        校驗碼只在讀取時發揮作用。
+        但冷資料可能好幾年沒被讀過——
+        等到有人要讀時才發現壞了，其他副本可能也已經壞了。
+      </p>
+      <p>
+        所以要<strong>主動掃描</strong>（scrubbing）：
+        背景程序持續把所有資料讀一遍、驗一遍，
+        發現錯誤就從其他副本修復。
+      </p>
+      <div class="code-block">掃描週期的取捨：
+
+每 2 週掃一次  → 發現得早，但背景 I/O 負載高
+每 3 個月一次  → 負載低，但壞了可能很久才發現
+
+實務上依資料的重要性與層級分開設定：
+  熱資料反正常被讀，靠讀取時的校驗即可
+  冷資料要排定期掃描</div>
+
+      <h2>5. 防線三：多層冗餘</h2>
+      <table>
+        <thead><tr><th>層級</th><th>保護什麼</th></tr></thead>
+        <tbody>
+          <tr><td>硬碟內部 ECC</td><td>單一磁區的少量位元錯誤</td></tr>
+          <tr><td>記憶體 ECC</td><td>記憶體中的位元翻轉</td></tr>
+          <tr><td>檔案層校驗碼</td><td>端到端的資料完整性</td></tr>
+          <tr><td>複本／糾刪碼</td><td>整顆硬碟或整台機器的損失</td></tr>
+          <tr><td>跨機房副本</td><td>整座資料中心的損失</td></tr>
+          <tr><td>離線備份</td><td>軟體錯誤造成的大規模刪除</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項常被忽略但很重要：
+        <strong>複本與糾刪碼保護不了「程式把資料刪錯了」</strong>——
+        錯誤的刪除會被忠實地複製到所有副本。
+        對抗這種問題需要離線的、不可變的備份。
+      </p>
+
+      <h2>6. 模組 H 總結</h2>
+      <ul>
+        <li>150 萬顆硬碟的機隊每小時壞約 3 顆，故障是常態</li>
+        <li>資料修復自動進行，實體更換是排程作業</li>
+        <li>糾刪碼用 1.33–1.5 倍空間換到高於三複本的容錯</li>
+        <li>糾刪碼的代價是重建要讀 k 份，流量放大</li>
+        <li>HDD 因為每 TB 成本壓倒性勝出，仍是主力</li>
+        <li>分散式儲存把「在哪裡」與「資料本身」分離</li>
+        <li>靜默損壞要靠端到端校驗碼與定期掃描對抗</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明靜默損壞與顯性故障的差異</li>
+          <li>解釋為何校驗碼要端到端</li>
+          <li>說出複本與糾刪碼保護不了什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 I 開始：整個系統最耗算力的那道工。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：分散式檔案系統：從 GFS 到現代</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：上傳之後發生什麼：轉碼管線全圖 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

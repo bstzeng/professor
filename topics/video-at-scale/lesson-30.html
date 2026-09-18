@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：PoP、edge、mid-tier、origin 四層 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="每一層的規格、數量與命中率分工。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜CDN：真正在送影片的那一層 · 第 30 課</div>
+      <h1>PoP、edge、mid-tier、origin 四層</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識四層節點的規格與數量</li>
+          <li>理解每一層的部署位置</li>
+          <li>知道流量在各層的分配</li>
+        </ul>
+      </div>
+
+      <h2>1. 四層對照表</h2>
+      <table>
+        <thead><tr><th>層級</th><th>數量</th><th>位置</th><th>單點容量</th><th>單點頻寬</th></tr></thead>
+        <tbody>
+          <tr><td>ISP 內嵌</td><td>數千</td><td>ISP 自己的機房</td><td>10–500 TB</td><td>10–200 Gbps</td></tr>
+          <tr><td>邊緣 PoP</td><td>數百</td><td>IX 或電信機房</td><td>100 TB–1 PB</td><td>1–10 Tbps</td></tr>
+          <tr><td>區域節點</td><td>數十</td><td>自有或租用機房</td><td>1–50 PB</td><td>1–20 Tbps</td></tr>
+          <tr><td>來源資料中心</td><td>數座至數十座</td><td>自建園區</td><td>EB 級</td><td>1–5 Tbps 對外</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. ISP 內嵌節點</h2>
+      <p>
+        最靠近使用者的一層，也是流量最大的一層。
+        機器放在 ISP 的機房裡，由內容方提供硬體與軟體，
+        ISP 提供機架、電力與網路。
+      </p>
+      <ul>
+        <li>RTT 通常在 1–10 ms</li>
+        <li>流量完全不經過網際網路，直接在 ISP 內部交付</li>
+        <li>對 ISP 的好處：省下大量對外頻寬成本</li>
+        <li>對內容方的好處：零 transit 費用、最佳體驗</li>
+      </ul>
+      <p>第 31 課會完整處理這個模式。</p>
+
+      <h2>3. 邊緣 PoP</h2>
+      <p>
+        自有的據點，通常設在 IX 或主要電信機房內，
+        可以同時服務多個 ISP。
+      </p>
+      <ul>
+        <li>服務那些不夠大、不值得設內嵌節點的 ISP</li>
+        <li>作為內嵌節點的回源目標</li>
+        <li>承接行動網路、企業網路等零散流量</li>
+        <li>規模通常是幾個到幾十個機櫃</li>
+      </ul>
+
+      <h2>4. 區域節點</h2>
+      <p>
+        數量少但容量大，是「命中率的主力」（第 26、27 課）。
+      </p>
+      <ul>
+        <li>存放的內容遠多於邊緣，可涵蓋區域性的長尾</li>
+        <li>可能同時承擔部分運算工作（例如即時打包、廣告插入）</li>
+        <li>通常一個大洲有數個</li>
+      </ul>
+
+      <h2>5. 流量分配</h2>
+      <div class="code-block">100 Tbps 的分配（示意）
+
+ISP 內嵌節點     65 Tbps   65%
+邊緣 PoP         30 Tbps   30%
+區域節點直送      4 Tbps    4%
+來源直送          1 Tbps    1%
+                ─────────
+                100 Tbps
+
+註：後三者的數字包含「該層自己服務的使用者」與
+    「承接上一層未命中」兩部分。</div>
+      <p>
+        重點是那個 65%：<strong>絕大多數的位元組
+        是從別人（ISP）的機房裡送出去的</strong>。
+        這是整個影音基礎設施最反直覺、也最重要的事實。
+      </p>
+
+      <h2>6. 為什麼要四層而不是兩層</h2>
+      <table>
+        <thead><tr><th>如果少了哪一層</th><th>後果</th></tr></thead>
+        <tbody>
+          <tr><td>沒有 ISP 內嵌</td><td>所有流量都要過 IX，對等頻寬與延遲都變差</td></tr>
+          <tr><td>沒有邊緣 PoP</td><td>小 ISP 的使用者只能連到很遠的區域節點</td></tr>
+          <tr><td>沒有區域節點</td><td>邊緣未命中全部打到來源，來源撐不住（第 27 課）</td></tr>
+          <tr><td>沒有來源</td><td>沒有完整資料可回源</td></tr>
+        </tbody>
+      </table>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出四層的數量級與各自位置</li>
+          <li>解釋 ISP 內嵌節點對雙方的好處</li>
+          <li>說明少了區域節點會發生什麼</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課深入最重要的那一層：ISP 內嵌節點。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：自建 vs 商用 CDN：成本的分水嶺</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：內嵌式 CDN：把機器放進 ISP 機房 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

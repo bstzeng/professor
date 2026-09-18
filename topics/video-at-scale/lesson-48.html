@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：分級轉碼：熱門影片才值得用好編碼器 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="依觀看量動態決定要編幾個版本、用哪個編碼器。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜轉碼：最貴的那道工 · 第 48 課</div>
+      <h1>分級轉碼：熱門影片才值得用好編碼器</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解分級轉碼的決策邏輯</li>
+          <li>算出各級的成本與效益</li>
+          <li>知道熱門度變化時怎麼處理</li>
+        </ul>
+      </div>
+
+      <h2>1. 核心判斷式</h2>
+      <div class="code-block">多編一個高效版本的效益
+  = 預期觀看次數 × 影片長度 × 節省的位元率 × 每 GB 頻寬成本
+
+多編一個高效版本的成本
+  = 額外的核心小時 × 每核心小時成本 + 額外的儲存成本
+
+效益 > 成本 → 值得編</div>
+
+      <h2>2. 損益兩平的觀看次數</h2>
+      <div class="code-block">假設：
+  一小時 1080p 影片
+  AV1 相對 H.264 省 2.9 Mbps（5.0 → 2.1）
+  額外編碼成本 25 核心小時 @ 0.03 美元 = 0.75 美元
+  額外儲存 2 GB @ 0.01 美元／GB／月 × 36 個月 = 0.72 美元
+  合計成本約 1.5 美元
+
+  每次觀看省下：2.9 Mbps × 3600 s / 8 = 1.3 GB
+  假設平均只看 40% = 0.52 GB
+  頻寬成本 0.002 美元／GB → 每次觀看省 0.001 美元
+
+損益兩平觀看次數 = 1.5 / 0.001 = 1,500 次</div>
+      <p>
+        <strong>看超過一千五百次才值得編 AV1。</strong>
+        而依第 25 課的長尾分布，
+        絕大多數影片永遠達不到這個數字。
+      </p>
+
+      <h2>3. 分級表</h2>
+      <table>
+        <thead><tr><th>級別</th><th>觸發條件</th><th>編碼內容</th><th>額外成本</th></tr></thead>
+        <tbody>
+          <tr><td>L0 最小</td><td>上傳當下</td><td>H.264 低中畫質（360p 以下）</td><td>約 0.1 核心小時</td></tr>
+          <tr><td>L1 標準</td><td>上傳當下</td><td>H.264 全階梯到原始解析度</td><td>約 1 核心小時</td></tr>
+          <tr><td>L2 進階</td><td>觀看破千</td><td>加 VP9</td><td>約 8 核心小時</td></tr>
+          <tr><td>L3 高效</td><td>觀看破萬</td><td>加 AV1</td><td>約 25 核心小時</td></tr>
+          <tr><td>L4 極致</td><td>觀看破百萬</td><td>重編最高品質、內容感知階梯</td><td>更多</td></tr>
+        </tbody>
+      </table>
+      <p>
+        L0 的設計是為了<strong>盡快可播放</strong>（第 45 課的漸進式發布）。
+        L1 是預設的完整版本。L2 以上是<strong>事後補編</strong>。
+      </p>
+
+      <h2>4. 事後補編的機制</h2>
+      <div class="code-block">監控系統持續統計每支影片的觀看趨勢
+  ↓
+超過門檻 → 加入「升級轉碼」佇列
+  ↓
+佇列依「預期省下的頻寬」排序（不是先進先出）
+  ↓
+用閒置算力慢慢跑（通常在離峰時段）
+  ↓
+完成後更新 manifest，新的觀看就用新版本</div>
+      <p>
+        兩個重點：
+      </p>
+      <ul>
+        <li><strong>依效益排序</strong>：一支正在爆紅的長片，
+            排在一支剛破門檻的短片前面</li>
+        <li><strong>用閒置算力</strong>：這是低優先級工作，
+            可以隨時被新上傳的即時轉碼搶佔</li>
+      </ul>
+
+      <h2>5. 預測性升級</h2>
+      <p>
+        等觀看數破萬才開始編，那前一萬次觀看就白白多花了頻寬。
+        所以進階做法是<strong>預測</strong>：
+      </p>
+      <table>
+        <thead><tr><th>訊號</th><th>動作</th></tr></thead>
+        <tbody>
+          <tr><td>大頻道發新片</td><td>直接以 L3 處理，不等觀看數</td></tr>
+          <tr><td>上傳後一小時內增速極快</td><td>提前升級</td></tr>
+          <tr><td>已知的大型發布</td><td>預先安排完整編碼</td></tr>
+          <tr><td>系列作品的新集</td><td>依前作表現預測</td></tr>
+        </tbody>
+      </table>
+
+      <h2>6. 這個機制的整體效益</h2>
+      <div class="code-block">若全部影片都編到 L3：
+  720,000 小時／天 × 34 核心小時 = 2,448 萬核心小時／天
+  = 102 萬核心持續運轉  ← 不可能
+
+分級之後：
+  全部 L1        720,000 × 1  =  72 萬核心小時
+  前 10% 加 L2    72,000 × 8  =  58 萬
+  前 1% 加 L3      7,200 × 25 =  18 萬
+                              ─────────
+                  合計約 148 萬核心小時／天
+                  = 約 6.2 萬核心持續運轉
+
+省下約 94% 的轉碼算力，而頻寬效益幾乎完全保留
+（因為省頻寬的效益本來就集中在熱門影片上）</div>
+      <p>
+        <strong>這是整個系統設計中最漂亮的一個取捨。</strong>
+        它之所以成立，完全是因為長尾分布——
+        成本分散在所有影片，但效益集中在少數影片。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>重算一次 AV1 的損益兩平觀看次數（自訂假設）</li>
+          <li>說明升級佇列為何不用先進先出</li>
+          <li>解釋分級為何能省 94% 算力卻幾乎不損失效益</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把轉碼機隊的規模算出來，收束模組 I。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：為什麼要做專用晶片</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：動手算：每天 72 萬小時要多少台轉碼機 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
