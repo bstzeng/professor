@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：導航電腦 AGC 的 72 KB ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="繩式記憶體、即時作業系統與那個顯示介面。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜帶了什麼上去 · 第 40 課</div>
+      <h1>導航電腦 AGC 的 72 KB</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 AGC 的規格與它為何夠用</li>
+          <li>理解繩式記憶體這個奇特的技術</li>
+          <li>看懂即時作業系統與優先權排程</li>
+        </ul>
+      </div>
+
+      <h2>1. 規格</h2>
+      <table>
+        <thead><tr><th>項目</th><th>數值</th></tr></thead>
+        <tbody>
+          <tr><td>字長</td><td>15 位元 + 1 位元同位</td></tr>
+          <tr><td>ROM（繩式記憶體）</td><td>36,864 字 ≈ <strong>72 KB</strong></td></tr>
+          <tr><td>RAM（磁芯記憶體）</td><td>2,048 字 ≈ <strong>4 KB</strong></td></tr>
+          <tr><td>時脈</td><td>2.048 MHz</td></tr>
+          <tr><td>加法時間</td><td>23.4 微秒</td></tr>
+          <tr><td>指令集</td><td>基本 11 條 + 延伸，共約 34 條</td></tr>
+          <tr><td>質量</td><td>32 公斤</td></tr>
+          <tr><td>功耗</td><td>約 55 瓦</td></tr>
+          <tr><td>邏輯元件</td><td>約 5,600 個 NOR 閘（3-input）</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">現代對照
+  一顆現代微控制器（幾十元台幣）
+    時脈 100 MHz+，RAM 數百 KB，Flash 數 MB
+
+  AGC 的整個程式（72 KB）
+    裝不下一張手機照片的 3%
+    大約是這門課三課課文的純文字量
+
+  但這個對照會導向錯誤的結論。</div>
+
+      <h2>2. 為什麼 72 KB 夠用</h2>
+      <p>
+        不是因為程式寫得特別神奇，
+        而是因為<strong>整個系統的設計讓它夠用</strong>。
+      </p>
+      <table>
+        <thead><tr><th>設計決定</th><th>省下了什麼</th></tr></thead>
+        <tbody>
+          <tr><td>軌道用解析公式算（第 19 課）</td><td>不需要數值積分與大型星曆表</td></tr>
+          <tr><td>Encke 法只算偏差（第 23 課）</td><td>精度需求降低好幾個數量級</td></tr>
+          <tr><td>地面負責主要計算</td><td>複雜的軌跡最佳化全部在休士頓做</td></tr>
+          <tr><td>關鍵決策交給人</td><td>不需要人工智慧或複雜的判斷邏輯</td></tr>
+          <tr><td>沒有圖形介面</td><td>顯示只有三組五位數字</td></tr>
+          <tr><td>沒有通用作業系統</td><td>只跑固定的幾十個程式</td></tr>
+          <tr><td>定點數而非浮點數</td><td>省下大量程式碼與執行時間</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">分工的實際樣貌
+
+  地面（休士頓的 IBM System/360，約 1 MB 記憶體）
+    完整數值積分
+    最佳點火參數計算
+    中止軌跡預算
+    → 結果透過無線電上傳成幾十個數字
+
+  AGC
+    接收那幾十個數字
+    在正確的時刻執行點火
+    即時處理姿態控制
+    在通訊中斷時維持基本導航
+
+  換句話說：
+  AGC 不是「太空船的大腦」，
+  它是「地面大腦的即時執行端」。</div>
+
+      <h2>3. 繩式記憶體：用織布機寫程式</h2>
+      <p>
+        AGC 的 ROM 叫 <strong>core rope memory</strong>（磁芯繩記憶體），
+        它的儲存方式極其特殊。
+      </p>
+      <div class="code-block">原理
+  一組小磁環（core），每個磁環代表一組位元位置
+
+  一條導線「穿過」磁環  → 讀出 1
+  一條導線「繞過」磁環  → 讀出 0
+
+  也就是說：資料儲存在「線怎麼走」裡面，
+  不是儲存在磁性狀態裡。
+
+密度
+  每個磁環可以被最多 64 條線穿過或繞過
+  → 一個磁環儲存 64 位元
+
+  對照可讀寫的磁芯記憶體：一個磁環只存 1 位元
+
+  繩式記憶體的密度是它的 64 倍。</div>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="180" cy="100" r="34" fill="none" stroke="var(--gold)" stroke-width="4"/>
+          <path d="M 90 100 C 130 100, 150 100, 180 100 C 210 100, 230 100, 270 100" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="180" y="160" fill="var(--accent)" font-size="12" text-anchor="middle">線穿過磁環 → 1</text>
+          <circle cx="450" cy="100" r="34" fill="none" stroke="var(--gold)" stroke-width="4"/>
+          <path d="M 360 100 C 400 100, 410 40, 450 40 C 490 40, 500 100, 540 100" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+          <text x="450" y="160" fill="#ff8a65" font-size="12" text-anchor="middle">線繞過磁環 → 0</text>
+          <text x="320" y="186" fill="var(--text-muted)" font-size="11" text-anchor="middle">程式碼被「編織」進硬體，寫好之後物理上無法修改</text>
+        </svg>
+      </div>
+      <div class="code-block">製造流程
+  1. 程式設計師在麻省理工儀器實驗室寫好並測試程式
+  2. 程式被轉換成一份「穿線圖」
+  3. 送到雷神公司（Raytheon）的工廠
+  4. 女工用手工逐條穿線，一件要花數週
+  5. 完成後灌環氧樹脂固封
+
+  所以這些程式被暱稱為 "LOL memory"
+  （Little Old Lady memory）
+
+關鍵後果
+  程式必須在製造前數個月就完全定案。
+  之後任何錯誤都無法修改 —— 只能靠 RAM 裡的補丁繞過。
+
+  這強迫了極端嚴謹的驗證流程，
+  也是軟體工程這門學科的早期推動力之一。</div>
+      <p>
+        <strong>好處是它極度可靠：</strong>
+        資料存在線的物理走向裡，
+        不會被輻射翻轉、不會因為斷電而遺失、
+        不會被程式錯誤覆寫。
+      </p>
+
+      <h2>4. 使用者介面：DSKY</h2>
+      <div class="code-block">Display and Keyboard（唸作 "diss-key"）
+
+  顯示：三組五位數字（R1, R2, R3）+ 兩組兩位數字（Verb, Noun）
+  鍵盤：19 個按鍵（0–9、VERB、NOUN、+、−、ENTR、CLR、PRO、KEY REL、RSET）
+
+操作語法：動詞 + 名詞
+  VERB 說「做什麼」
+  NOUN 說「對什麼」
+
+範例
+  V06 N33  = 顯示（V06）下一次點火的時間（N33）
+  V37 N63  = 切換到程式 63（動力下降煞車段）
+  V16 N68  = 連續監視（V16）到著陸點的距離與速度（N68）
+  V82      = 顯示目前的軌道參數</div>
+      <p>
+        <strong>這個介面在今天看來原始，但它有一個重要優點：
+        完全無歧義。</strong>
+        每一個動作都是兩個明確的數字，
+        不會因為看錯按鈕而執行別的功能。
+        太空人把常用的組合背了起來，操作速度相當快。
+      </p>
+
+      <h2>5. 即時作業系統與優先權排程</h2>
+      <p>
+        AGC 執行的不是「一個程式」，
+        而是<strong>同時執行的許多工作</strong>，
+        由一個稱為 <strong>EXEC</strong> 的排程器管理。
+      </p>
+      <div class="code-block">兩層架構
+  WAITLIST：短工作（< 4 ms），定時觸發
+  EXEC：    長工作（可能數百 ms），依優先權排程
+
+優先權（數字越大越優先）
+  例如：
+    姿態控制         高
+    導航更新         中
+    顯示更新         低
+
+核心設計：不是「分時」，是「搶佔式優先權」
+  高優先權工作可以中斷低優先權工作。
+
+最重要的機制：重啟保護
+  每個工作在執行前先登記自己的「重啟點」。
+  如果系統偵測到過載或錯誤，它會：
+    1. 立刻重新啟動
+    2. 從登記的重啟點恢復高優先權工作
+    3. 放棄低優先權工作
+
+  整個過程在數百毫秒內完成。</div>
+      <p>
+        <strong>這個重啟保護機制救了阿波羅 11 號的登月。</strong>
+        第 68 課會完整說明 1202 警報。
+        簡單說：AGC 在下降過程中過載，
+        連續五次重新啟動，
+        每一次都正確地保住了導引與姿態控制，
+        丟掉的只有顯示更新之類的低優先權工作。
+      </p>
+      <p>
+        <strong>一個會在過載時「優雅降級」而不是當機的系統，
+        在 1969 年是非常前衛的設計。</strong>
+      </p>
+
+      <h2>6. 軟體規模與團隊</h2>
+      <table>
+        <thead><tr><th>項目</th><th>數值</th></tr></thead>
+        <tbody>
+          <tr><td>指揮艙程式（COLOSSUS）</td><td>約 36,000 字</td></tr>
+          <tr><td>登月艙程式（LUMINARY）</td><td>約 36,000 字</td></tr>
+          <tr><td>開發團隊</td><td>約 350 人（MIT 儀器實驗室）</td></tr>
+          <tr><td>軟體工程主管</td><td>Margaret Hamilton</td></tr>
+          <tr><td>總工時</td><td>約 1,400 人年</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Margaret Hamilton 是「軟體工程」（software engineering）
+        這個詞的推廣者之一。
+        她堅持的<strong>錯誤偵測與復原機制</strong>
+        （包括上面的重啟保護）
+        當時被許多人認為是多餘的——
+        「太空人受過訓練，不會按錯按鈕」。
+      </p>
+      <p>
+        阿波羅 8 號上，
+        太空人 Jim Lovell 不小心執行了 P01（發射前的對準程式），
+        清空了導航資料。
+        <strong>Hamilton 的團隊在九小時內寫出修補資料上傳，
+        任務得以繼續。</strong>
+      </p>
+
+      <h2>7. 一個常被誤用的對照</h2>
+      <p>
+        「你的手機比登月電腦強一億倍」——這句話是對的，
+        但通常被用來說錯誤的事。
+      </p>
+      <p>
+        <strong>正確的結論不是「他們用爛電腦做到了不可能的事」，
+        而是「他們設計了一個讓那台電腦夠用的系統」。</strong>
+      </p>
+      <ul>
+        <li>把計算放在地面，只把結果上傳。</li>
+        <li>把判斷留給人，電腦只執行。</li>
+        <li>用解析近似取代數值方法。</li>
+        <li>把精度需求降到剛好夠用。</li>
+        <li>用優先權與重啟保護吸收意外。</li>
+      </ul>
+      <p>
+        <strong>這些都是系統設計的決定，不是寫程式的技巧。</strong>
+        而它們在今天仍然完全適用。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出讓 72 KB 夠用的五個系統設計決定</li>
+          <li>說明繩式記憶體的原理與它的優缺點</li>
+          <li>解釋優先權排程與重啟保護如何實現優雅降級</li>
+          <li>說明 AGC 與地面電腦的分工</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理科學儀器與帶回來的 382 公斤月岩。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：A7L 太空衣：一件衣服就是一艘太空船</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：科學儀器、工具與帶回來的東西 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

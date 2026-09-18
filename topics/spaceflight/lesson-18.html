@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：克卜勒方程：偏近點角與牛頓法求根 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="M = E − e·sin E 為什麼沒有解析解，怎麼數值解。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜軌道力學（二）：改變軌道與求解 · 第 18 課</div>
+      <h1>克卜勒方程：偏近點角與牛頓法求根</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為何「幾何」解完了，「時間」還沒解</li>
+          <li>推導克卜勒方程 M = E − e·sin E</li>
+          <li>用牛頓法數值求解，並知道它什麼時候會出問題</li>
+        </ul>
+      </div>
+
+      <h2>1. 還缺什麼</h2>
+      <p>
+        第 11 課解出了 r(θ)：<strong>軌道長什麼樣</strong>。
+        但我們還不知道 <strong>θ(t)</strong>：什麼時候會在哪裡。
+      </p>
+      <p>
+        這對任務規劃是致命的缺口。
+        「TLI 之後三天會到月球」這種話，
+        需要的正是 θ(t)。
+      </p>
+
+      <h2>2. 三種「近點角」</h2>
+      <p>
+        解決這個問題需要引入兩個輔助角度。
+      </p>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="300" cy="135" r="115" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="5 4"/>
+          <text x="300" y="14" fill="var(--text-muted)" font-size="10" text-anchor="middle">輔助圓（半徑 a）</text>
+          <ellipse cx="300" cy="135" rx="115" ry="80" fill="none" stroke="var(--accent)" stroke-width="2"/>
+          <line x1="185" y1="135" x2="415" y2="135" stroke="var(--border)" stroke-width="1"/>
+          <circle cx="300" cy="135" r="3" fill="var(--text-muted)"/>
+          <text x="300" y="152" fill="var(--text-muted)" font-size="10" text-anchor="middle">中心</text>
+          <circle cx="383" cy="135" r="7" fill="var(--gold)"/>
+          <text x="383" y="170" fill="var(--gold)" font-size="10" text-anchor="middle">焦點</text>
+          <circle cx="415" cy="135" r="4" fill="#ff8a65"/>
+          <text x="432" y="139" fill="#ff8a65" font-size="10">近拱點</text>
+          <line x1="300" y1="135" x2="381" y2="53" stroke="var(--text-muted)" stroke-width="1.5"/>
+          <circle cx="381" cy="53" r="4" fill="var(--text-muted)"/>
+          <text x="388" y="48" fill="var(--text-muted)" font-size="10">Q（圓上）</text>
+          <line x1="381" y1="53" x2="381" y2="135" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>
+          <circle cx="381" cy="78" r="4" fill="var(--accent)"/>
+          <text x="392" y="76" fill="var(--accent)" font-size="10">P（橢圓上，太空船）</text>
+          <line x1="383" y1="135" x2="381" y2="78" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M 340 135 A 40 40 0 0 0 328 111" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+          <text x="326" y="130" fill="var(--text-muted)" font-size="11">E</text>
+          <path d="M 366 135 A 18 18 0 0 0 366 120" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+          <text x="352" y="120" fill="var(--accent)" font-size="11">ν</text>
+          <text x="30" y="230" fill="var(--text-muted)" font-size="11">ν（真近點角）從焦點量起；E（偏近點角）從中心量到輔助圓上的投影點。</text>
+          <text x="30" y="250" fill="var(--text-muted)" font-size="11">M（平近點角）不是角度，是時間的線性代理量。</text>
+        </svg>
+      </div>
+      <table>
+        <thead><tr><th>符號</th><th>名稱</th><th>從哪量</th><th>物理意義</th></tr></thead>
+        <tbody>
+          <tr><td>ν</td><td>真近點角</td><td>焦點</td><td>太空船的<strong>真實</strong>角位置</td></tr>
+          <tr><td>E</td><td>偏近點角</td><td>橢圓中心</td><td>數學上的輔助變數</td></tr>
+          <tr><td>M</td><td>平近點角</td><td>—</td><td><strong>與時間成正比</strong></td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">M ≡ n(t − t_p)
+
+  n = √(μ/a³)   平均角速度（mean motion）
+  t_p           通過近拱點的時刻
+
+  M 每一圈增加 2π，而且增加得完全均勻。
+  它就是「時間」換了一個單位。</div>
+
+      <h2>3. 克卜勒方程的推導</h2>
+      <p>
+        用第 9 課的等面積定律：
+        太空船從近拱點掃到 P 的面積，
+        佔整個橢圓面積的比例，等於時間佔週期的比例。
+      </p>
+      <div class="code-block">面積比 = 時間比
+  A(焦點→近拱點→P) / (πab) = (t − t_p)/T = M/(2π)
+
+橢圓是輔助圓在 y 方向壓縮 b/a 倍，所以
+  A_橢圓扇形 = (b/a) × A_圓上對應區域
+
+圓上那塊區域 = 扇形（中心角 E）− 三角形
+  = ½a²E − ½ · (a·e) · (a sin E)
+  = ½a²(E − e sin E)
+
+所以
+  A = (b/a) × ½a²(E − e sin E) = ½ab(E − e sin E)
+
+代回面積比
+  ½ab(E − e sin E) / (πab) = M/(2π)
+  (E − e sin E)/(2π) = M/(2π)
+
+  ┌──────────────────────────┐
+  │   M = E − e·sin E        │  ← 克卜勒方程
+  └──────────────────────────┘</div>
+
+      <h2>4. 為什麼沒有解析解</h2>
+      <p>
+        正向很簡單：給 E，算 M，一行就好。
+      </p>
+      <p>
+        <strong>但我們需要的是反向：給 M（時間），求 E。</strong>
+        而 E − e·sin E = M 是一個<strong>超越方程</strong>——
+        未知數同時出現在線性項與三角函數裡，
+        無法用有限次的代數運算分離出來。
+      </p>
+      <p>
+        這不是「還沒有人找到」，而是<strong>已被證明不存在</strong>
+        用基本函數表達的封閉解。
+        克卜勒本人在 1609 年就意識到這一點，
+        並寫下：「我認為這個問題無法用幾何方法解決。」
+      </p>
+      <p>
+        後續三百多年裡，這個方程催生了大量數學：
+        貝索函數的第一個應用、傅立葉級數的早期例子、
+        以及無數種迭代法。
+      </p>
+
+      <h2>5. 牛頓法：實務上的標準解法</h2>
+      <div class="code-block">要解 f(E) = E − e·sin E − M = 0
+
+牛頓法迭代
+  E_{k+1} = E_k − f(E_k)/f'(E_k)
+
+而 f'(E) = 1 − e·cos E
+
+  ┌────────────────────────────────────────┐
+  │  E_{k+1} = E_k − (E_k − e·sin E_k − M) │
+  │                 ─────────────────────  │
+  │                   (1 − e·cos E_k)      │
+  └────────────────────────────────────────┘</div>
+      <div class="code-block">範例：e = 0.6, M = 0.5 rad
+初始猜測 E₀ = M = 0.5
+
+  iter 1  E = 1.107572165885   變化 6.08e-01
+  iter 2  E = 1.010834411851   變化 9.67e-02
+  iter 3  E = 1.007210193796   變化 3.62e-03
+  iter 4  E = 1.007205283853   變化 4.91e-06
+  iter 5  E = 1.007205283844   變化 9.00e-12
+  iter 6  E = 1.007205283844   收斂
+
+五次迭代達到機器精度。</div>
+      <p>
+        注意<strong>誤差的位數大約每次翻倍</strong>：
+        6e-1 → 1e-1 → 4e-3 → 5e-6 → 9e-12。
+        這是牛頓法的<strong>二次收斂</strong>特性。
+      </p>
+
+      <h2>6. 高離心率時的陷阱</h2>
+      <p>
+        阿波羅的月球轉移軌道 e ≈ 0.97，
+        這時初始猜測 E₀ = M 會出問題。
+      </p>
+      <div class="code-block">為什麼會壞：
+  f'(E) = 1 − e·cos E
+  當 e → 1 且 E → 0 時，f' → 1 − e → 0
+
+  分母趨近零 → 迭代步長爆炸 → 可能跳到很遠的地方</div>
+      <div class="code-block">e = 0.97, M = 0.05，改用初始猜測 E₀ = π
+
+  iter 1  E = 1.5722562812
+  iter 2  E = 1.0207799424
+  iter 3  E = 0.7290043935
+  iter 4  E = 0.6101747551
+  iter 5  E = 0.5889378370
+  iter 6  E = 0.5882963883
+  iter 7  E = 0.5882958144
+  iter 8  E = 0.5882958144   收斂
+
+需要 7 次，比 e = 0.6 時多，但穩定收斂。</div>
+      <p>
+        <strong>實務上的標準做法（Battin 建議）：</strong>
+      </p>
+      <div class="code-block">若 e < 0.8：  E₀ = M
+若 e ≥ 0.8：  E₀ = π        （較保守，保證在正確的凹性一側）
+
+或使用更好的初始估計
+  E₀ = M + e·sin M / (1 − sin(M+e) + sin M)</div>
+
+      <h2>7. 從 E 回到 ν 與 r</h2>
+      <div class="code-block">半徑
+  r = a(1 − e·cos E)
+
+真近點角（用半角公式，避免象限問題）
+  tan(ν/2) = √((1+e)/(1−e)) · tan(E/2)
+
+或用兩個分量一起算（推薦，數值上更穩）
+  cos ν = (cos E − e)/(1 − e·cos E)
+  sin ν = √(1−e²)·sin E/(1 − e·cos E)
+  ν = atan2(sin ν, cos ν)</div>
+      <p>
+        <strong>用 atan2 而不是 atan，是實作時的關鍵。</strong>
+        atan 的值域只有半圈，會在軌道的另一半給出錯誤答案。
+      </p>
+
+      <h2>8. 雙曲線的版本</h2>
+      <p>
+        行星際任務要用到雙曲線軌道（第 93 課），
+        它有對應的方程：
+      </p>
+      <div class="code-block">雙曲克卜勒方程
+  M_h = e·sinh H − H
+
+  n = √(μ/|a|³)
+  r = |a|(e·cosh H − 1)
+
+牛頓法
+  H_{k+1} = H_k − (e·sinh H_k − H_k − M_h)/(e·cosh H_k − 1)
+
+拋物線（e = 1）用 Barker 方程，它反而有解析解：
+  M_p = D + D³/3，可以用卡丹公式直接解出 D</div>
+      <p>
+        拋物線是唯一有封閉解的情況，
+        但它是一個測度為零的特例，實務上幾乎用不到。
+      </p>
+
+      <h2>9. 一個完整的實作</h2>
+      <div class="code-block">import math
+
+def kepler_E(M, e, tol=1e-12, maxit=50):
+    M = math.fmod(M, 2*math.pi)
+    if M < 0: M += 2*math.pi
+    E = M if e < 0.8 else math.pi
+    for _ in range(maxit):
+        f  = E - e*math.sin(E) - M
+        fp = 1 - e*math.cos(E)
+        dE = -f/fp
+        E += dE
+        if abs(dE) < tol:
+            return E
+    raise RuntimeError("Kepler not converged")
+
+def propagate(a, e, t, tp, mu):
+    n = math.sqrt(mu/a**3)
+    M = n*(t - tp)
+    E = kepler_E(M, e)
+    r = a*(1 - e*math.cos(E))
+    nu = math.atan2(math.sqrt(1-e*e)*math.sin(E),
+                    math.cos(E) - e)
+    return r, nu</div>
+      <p>
+        <strong>這二十行是所有軌道預報軟體的核心。</strong>
+        阿波羅的導航電腦裡有功能等價的程式，
+        只是用定點數寫成，而且經過極度的手工優化
+        （第 40 課）。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 ν、E、M 三者的差別，哪一個與時間成正比</li>
+          <li>用等面積定律推導克卜勒方程</li>
+          <li>寫出牛頓法的迭代式，並解釋為何高離心率時要改初始猜測</li>
+          <li>說明為何從 E 算 ν 時要用 atan2</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把這些零件組成完整的軌道傳播器。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：動手算：LEO 到 GEO 要多少 Δv</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：從時間反推位置：軌道傳播 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

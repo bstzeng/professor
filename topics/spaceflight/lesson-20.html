@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：Lambert 問題：給兩點與飛行時間，求那條軌道 ｜ 飛向太空 ｜ 博雅書院</title>
+<meta name="description" content="所有轉移軌道設計背後的那個邊值問題。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">飛向太空</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜軌道力學（二）：改變軌道與求解 · 第 20 課</div>
+      <h1>Lambert 問題：給兩點與飛行時間，求那條軌道</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Lambert 問題的形式與它為何無所不在</li>
+          <li>認識 Lambert 定理這個關鍵簡化</li>
+          <li>知道求解流程與多解的問題</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題的形式</h2>
+      <div class="code-block">已知
+  r₁：出發點的位置向量
+  r₂：到達點的位置向量
+  Δt：兩點之間的飛行時間
+  方向：順行還是逆行（繞短弧還是長弧）
+
+求
+  v₁：出發時需要的速度向量
+  v₂：到達時的速度向量</div>
+      <p>
+        這是一個<strong>邊值問題</strong>（boundary value problem），
+        跟第 19 課的傳播（初值問題）方向相反。
+      </p>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="320" cy="165" r="10" fill="var(--gold)"/>
+          <text x="320" y="192" fill="var(--gold)" font-size="11" text-anchor="middle">中心天體</text>
+          <circle cx="150" cy="120" r="5" fill="var(--accent)"/>
+          <text x="118" y="112" fill="var(--accent)" font-size="11">r₁</text>
+          <line x1="320" y1="165" x2="150" y2="120" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <circle cx="505" cy="78" r="5" fill="var(--accent)"/>
+          <text x="518" y="74" fill="var(--accent)" font-size="11">r₂</text>
+          <line x1="320" y1="165" x2="505" y2="78" stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 3"/>
+          <path d="M 150 120 C 240 40, 400 28, 505 78" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+          <text x="300" y="40" fill="#ff8a65" font-size="11" text-anchor="middle">短弧（Δθ &lt; 180°）</text>
+          <path d="M 150 120 C 190 220, 330 226, 440 190 C 490 170, 508 120, 505 78" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="7 4"/>
+          <text x="300" y="222" fill="var(--accent)" font-size="11" text-anchor="middle">長弧（Δθ &gt; 180°）</text>
+          <line x1="150" y1="120" x2="196" y2="92" stroke="var(--gold)" stroke-width="2.5"/>
+          <polygon points="202,88 190,88 194,97" fill="var(--gold)"/>
+          <text x="166" y="82" fill="var(--gold)" font-size="11">v₁ = ?</text>
+          <line x1="152" y1="128" x2="150" y2="120" stroke="none"/>
+        </svg>
+      </div>
+
+      <h2>2. 為什麼這個問題無所不在</h2>
+      <table>
+        <thead><tr><th>應用</th><th>r₁</th><th>r₂</th><th>Δt</th></tr></thead>
+        <tbody>
+          <tr><td><strong>TLI 設計</strong></td><td>地球停泊軌道上的點火點</td><td>三天後月球的位置</td><td>73 小時</td></tr>
+          <tr><td><strong>火星轉移</strong></td><td>發射時地球的位置</td><td>到達時火星的位置</td><td>約 200–300 天</td></tr>
+          <tr><td>軌道會合</td><td>追趕者現在的位置</td><td>目標未來的位置</td><td>規劃的會合時間</td></tr>
+          <tr><td>攔截</td><td>攔截器位置</td><td>目標未來位置</td><td>攔截時間</td></tr>
+          <tr><td>軌道決定</td><td>第一次觀測</td><td>第二次觀測</td><td>兩次觀測間隔</td></tr>
+          <tr><td>回程設計</td><td>離開月球的位置</td><td>再入點</td><td>約 60–70 小時</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>幾乎所有「從 A 飛到 B」的問題，
+        最後都是一個 Lambert 問題。</strong>
+        霍曼轉移（第 16 課）只是 Lambert 的一個特例——
+        兩點恰好相隔 180 度、Δt 恰好是半個週期。
+      </p>
+
+      <h2>3. Lambert 定理：那個關鍵的簡化</h2>
+      <p>
+        Lambert 在 1761 年證明了一件很不直觀的事：
+      </p>
+      <div class="code-block">  ┌──────────────────────────────────────────────┐
+  │  轉移時間 Δt 只取決於三個量：                │
+  │    a（半長軸）                               │
+  │    r₁ + r₂（兩個半徑之和）                   │
+  │    c（兩點之間的弦長）                       │
+  │                                              │
+  │  與軌道的離心率、方向、形狀細節全部無關。    │
+  └──────────────────────────────────────────────┘</div>
+      <p>
+        <strong>這個定理把一個六維問題壓成了一維問題。</strong>
+        我們只需要找到正確的 a（或某個等價的單一參數），
+        其他一切都能推導出來。
+      </p>
+      <p>
+        它的具體形式（Lagrange 表示式，橢圓情況）：
+      </p>
+      <div class="code-block">√(μ/a³) · Δt = (α − sin α) − (β − sin β)
+
+其中
+  sin²(α/2) = s/(2a)
+  sin²(β/2) = (s − c)/(2a)
+
+  s = (r₁ + r₂ + c)/2        半周長
+  c = |r₂ − r₁|              弦長</div>
+      <p>
+        給定 a，右邊可以直接算出來。
+        所以問題變成：<strong>調整 a，讓 Δt 等於指定值。</strong>
+        一維求根，用牛頓法或二分法都行。
+      </p>
+
+      <h2>4. Δt 與 a 的關係曲線</h2>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+          <line x1="70" y1="205" x2="610" y2="205" stroke="var(--border)" stroke-width="1.5"/>
+          <line x1="70" y1="20" x2="70" y2="205" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="340" y="234" fill="var(--text-muted)" font-size="11" text-anchor="middle">半長軸 a</text>
+          <text x="24" y="110" fill="var(--text-muted)" font-size="11">Δt</text>
+          <line x1="140" y1="20" x2="140" y2="205" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="4 3"/>
+          <text x="144" y="34" fill="var(--gold)" font-size="10">a_min = s/2</text>
+          <path d="M 140 150 C 200 125, 320 100, 600 78" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="420" y="74" fill="var(--accent)" font-size="10">短弧解（Δθ &lt; 180°）</text>
+          <path d="M 140 150 C 200 172, 320 186, 600 196" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+          <text x="420" y="188" fill="#ff8a65" font-size="10">長弧解（Δθ &gt; 180°）</text>
+          <circle cx="140" cy="150" r="5" fill="var(--gold)"/>
+          <text x="152" y="152" fill="var(--gold)" font-size="10">最小能量轉移</text>
+          <line x1="70" y1="98" x2="610" y2="98" stroke="var(--text-muted)" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="76" y="94" fill="var(--text-muted)" font-size="10">指定的 Δt</text>
+          <circle cx="330" cy="98" r="4" fill="var(--accent)"/>
+          <text x="318" y="122" fill="var(--accent)" font-size="10" text-anchor="middle">解</text>
+        </svg>
+      </div>
+      <p>
+        幾個重要的性質：
+      </p>
+      <ul>
+        <li><strong>a 有下限</strong>：a<sub>min</sub> = s/2。小於這個值的橢圓根本連不到那兩點。這條軌道叫「最小能量轉移」。</li>
+        <li><strong>短弧與長弧是兩條不同的曲線</strong>：同樣的 a，走短弧比走長弧快。</li>
+        <li><strong>Δt 隨 a 單調變化</strong>（在各自分支上），所以求根一定收斂到唯一解。</li>
+        <li><strong>a → ∞ 時</strong>：短弧 Δt → 某個下限（拋物線轉移，最快的可能）；長弧 Δt → 另一個值。</li>
+      </ul>
+      <div class="code-block">最小能量轉移的性質
+  a_min = s/2
+  Δt_min-energy = √(a_min³/μ) · [π − β_m + sin β_m]    （短弧）
+
+  注意：「最小能量」不等於「最小 Δv」！
+  最小能量指的是轉移軌道本身的能量最低，
+  但 Δv 還要看它與出發／到達軌道速度的差。</div>
+
+      <h2>5. 多圈解：一個實際的複雜性</h2>
+      <p>
+        如果 Δt 很長，太空船可以在途中繞好幾圈再到達。
+      </p>
+      <div class="code-block">繞 N 圈的 Lambert 方程
+  √(μ/a³)·Δt = 2πN + (α − sin α) − (β − sin β)
+
+對每一個 N，短弧與長弧各有解
+  → 總解數 = 2(N_max + 1)
+
+而且對 N ≥ 1，每個分支上 Δt(a) 不再單調，
+  同一個 Δt 可能對應兩個 a
+  → 求根需要先找出極值點，再在各單調區間內分別求解</div>
+      <p>
+        <strong>多圈解在低推力任務與某些會合設計中很重要。</strong>
+        對阿波羅這種直接轉移的任務，只需要 N = 0。
+      </p>
+
+      <h2>6. 實務上的求解方法</h2>
+      <table>
+        <thead><tr><th>方法</th><th>迭代變數</th><th>特性</th></tr></thead>
+        <tbody>
+          <tr><td>Lagrange / Lancaster</td><td>a 或 x</td><td>經典，橢圓與雙曲線要分開處理</td></tr>
+          <tr><td><strong>通用變數（Bate–Mueller–White）</strong></td><td>z = χ²/a</td><td><strong>一套程式處理所有型態</strong></td></tr>
+          <tr><td>Gooding</td><td>特殊參數化</td><td>收斂極快，三次迭代達機器精度</td></tr>
+          <tr><td>Izzo</td><td>x（Householder 法）</td><td>現代標準，穩健且支援多圈</td></tr>
+        </tbody>
+      </table>
+      <p>
+        通用變數版本的核心（用第 19 課的 Stumpff 函數）：
+      </p>
+      <div class="code-block">A = sin(Δθ)·√(r₁r₂/(1 − cos Δθ))     （順行取正）
+
+給定試探值 z：
+  y(z) = r₁ + r₂ + A(z·S(z) − 1)/√C(z)
+  χ = √(y/C(z))
+  Δt(z) = (χ³·S(z) + A·√y) / √μ
+
+對 z 用牛頓法求根，使 Δt(z) = Δt_指定
+
+收斂後
+  f = 1 − y/r₁
+  g = A·√(y/μ)
+  ġ = 1 − y/r₂
+
+  v₁ = (r₂ − f·r₁)/g
+  v₂ = (ġ·r₂ − r₁)/g</div>
+      <p>
+        <strong>z 的正負號自動決定軌道型態</strong>：
+        z &gt; 0 是橢圓，z &lt; 0 是雙曲線，z = 0 是拋物線。
+        這就是通用變數的價值——不必事先知道答案是哪一類。
+      </p>
+
+      <h2>7. 一個必須注意的退化情況</h2>
+      <p>
+        當 Δθ 恰好等於 180 度時，
+        <strong>Lambert 問題沒有唯一解。</strong>
+      </p>
+      <p>
+        原因是：兩個點與中心天體三點共線，
+        無法決定軌道平面的方向——
+        繞任何一個包含這條線的平面都可以。
+      </p>
+      <div class="code-block">在公式裡的表現
+  A = sin(Δθ)·√(...) → sin(180°) = 0 → A = 0
+  g = A·√(y/μ) = 0
+  v₁ = (r₂ − f·r₁)/g → 除以零</div>
+      <p>
+        實務上這叫<strong>「180 度轉移奇異」</strong>。
+        處理方式是把 Δθ 稍微偏離 180 度
+        （例如設計成 179.5 度），
+        或另外指定軌道平面。
+      </p>
+      <p>
+        <strong>這個奇異點在火星任務裡特別麻煩</strong>，
+        因為理想的霍曼轉移剛好就是 180 度（第 91 課）。
+        所以真實的火星任務從來不用精確的 180 度轉移，
+        而是稍微偏離一點——這個偏離也順便避開了
+        第 92 課會看到的另一個問題。
+      </p>
+
+      <h2>8. Lambert 與這門課後面的關係</h2>
+      <table>
+        <thead><tr><th>課次</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>第 51 課</td><td>TLI 瞄準：三天後月球會在哪，要用什麼速度出發</td></tr>
+          <tr><td>第 77 課</td><td>會合的 TPI 點火：算出攔截目標所需的速度</td></tr>
+          <tr><td>第 81 課</td><td>返程修正：要在指定時間到達再入點</td></tr>
+          <tr><td><strong>第 92 課</strong></td><td><strong>Porkchop plot：對每一組（出發日、到達日）解一次 Lambert</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列是 Lambert 最壯觀的應用。
+        一張 porkchop plot 背後是<strong>幾萬次 Lambert 求解</strong>——
+        每一個像素一次，掃遍所有可能的出發與到達日期組合。
+        這在 1960 年代需要大型主機跑很久，
+        現在筆電上幾秒鐘就能算完。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 Lambert 問題的輸入與輸出，以及它與傳播問題的差別</li>
+          <li>陳述 Lambert 定理，說明它為何是關鍵簡化</li>
+          <li>解釋短弧解與長弧解的差別，以及 a 的下限從哪來</li>
+          <li>說明 180 度轉移為何是奇異情況，實務上怎麼處理</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課回到 Δv 的省錢問題：Oberth 效應為什麼讓近拱點點火這麼划算。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：從時間反推位置：軌道傳播</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：Oberth 效應：為什麼在近地點加速最划算 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
