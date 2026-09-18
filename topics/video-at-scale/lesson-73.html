@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 73 課：短影音：為什麼比長影片更難 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="自動播放、預載與極短內容帶來的新問題。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 73 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 N｜別人怎麼做 · 第 73 課</div>
+      <h1>短影音：為什麼比長影片更難</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出短影音的「浪費率」</li>
+          <li>理解預載與滑動行為的成本</li>
+          <li>看懂為什麼短影音的快取命中率反而更低</li>
+        </ul>
+      </div>
+
+      <h2>1. 直覺上應該更便宜</h2>
+      <p>
+        影片從 10 分鐘變成 15 秒，位元組少了 40 倍。
+        聽起來短影音應該是最便宜的形式。
+      </p>
+      <p>
+        <strong>實際上它是每小時觀看成本最高的形式之一。</strong>
+        原因有四個，全部跟「短」這件事本身有關。
+      </p>
+
+      <h2>2. 原因一：浪費率</h2>
+      <p>
+        短影音的介面是<strong>無限滑動</strong>：
+        下一支影片必須在你滑到它的瞬間就開始播，
+        否則整個產品體驗就毀了。
+        要做到這件事，播放器必須<strong>預載還沒看到的影片</strong>。
+      </p>
+      <div class="code-block">典型的預載策略
+  當前播放第 N 支
+  背景預載第 N+1、N+2、N+3 的前幾秒（或整支）
+
+使用者行為
+  平均每支看完率約 50–70%
+  但「滑走前 1 秒就跳過」的比例也很高
+
+浪費計算（保守估計）
+  預載 3 支，其中使用者實際看的可能只有 1–2 支
+  被預載但完全沒播放的位元組 = 20–40%
+
+  也就是說：每傳 100 MB，有 20–40 MB 是白傳的</div>
+      <p>
+        長影片沒有這個問題：
+        使用者點進去一支 20 分鐘的影片，播放器只預載未來 30 秒，
+        而且使用者大機率會繼續看。
+        <strong>預載的命中率在長影片上接近 100%，在短影音上是 60–80%。</strong>
+      </p>
+
+      <h2>3. 原因二：每支影片的固定開銷</h2>
+      <p>
+        每一支影片，不論長短，都有一組固定成本：
+      </p>
+      <table>
+        <thead><tr><th>固定開銷</th><th>15 秒影片</th><th>20 分鐘影片</th></tr></thead>
+        <tbody>
+          <tr><td>manifest / playlist 請求</td><td>1 次</td><td>1 次</td></tr>
+          <tr><td>metadata 查詢（作者、標題、互動數）</td><td>1 次</td><td>1 次</td></tr>
+          <tr><td>DRM / 授權檢查</td><td>1 次</td><td>1 次</td></tr>
+          <tr><td>轉碼工作啟動開銷</td><td>1 次</td><td>1 次</td></tr>
+          <tr><td>儲存的 metadata 列</td><td>1 筆</td><td>1 筆</td></tr>
+          <tr><td>推薦系統推論</td><td><strong>每支一次</strong></td><td>每支一次</td></tr>
+          <tr><td>觀看事件寫入</td><td><strong>每支一次</strong></td><td>每支一次</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">一小時觀看需要的「支數」
+  長影片：一小時 ≈ 3–6 支
+  短影音：一小時 ≈ 150–240 支
+
+固定開銷的倍數 = 約 40×
+
+如果每支影片的控制平面開銷是 5 個請求
+  長影片一小時 = 30 個請求
+  短影音一小時 = 1,000 個請求</div>
+      <p>
+        第 66 課把「控制與服務」列為四大成本之一（4 億美元／年）。
+        <strong>短影音讓這一塊的單位成本膨脹幾十倍。</strong>
+        推薦系統的推論成本尤其明顯——
+        每滑一支就要跑一次模型，而模型本身還越做越大。
+      </p>
+
+      <h2>4. 原因三：快取命中率變差</h2>
+      <p>
+        這一點最反直覺。
+        第 25 課說長尾分布讓快取可行：1% 的內容佔 90% 的流量。
+        短影音的分布看起來也是 Zipf，那為什麼命中率會變差？
+      </p>
+      <p>
+        關鍵在<strong>推薦系統打散了共同性</strong>。
+      </p>
+      <div class="code-block">長影片平台
+  使用者主動搜尋或點首頁推薦
+  同一時間點，很多人在看同樣那幾支熱門影片
+  → 邊緣快取的工作集（working set）小
+
+短影音平台
+  每個人的 feed 是個人化演算法產生的
+  同一個 POP 底下的一萬個使用者，可能在看一萬支不同的影片
+  → 工作集大得多
+
+再加上：
+  短影音的內容產生速度更快（門檻低、每人每天可發多支）
+  「新鮮度」被演算法高度加權 → 熱門內容的輪替速度極快
+  一支影片的生命週期可能只有 48 小時</div>
+      <p>
+        結果是邊緣需要更大的快取容量才能達到同樣的命中率。
+        但短影音的檔案又很小（幾 MB），
+        所以<strong>快取裡的物件數量爆炸</strong>——
+        這對快取本身的索引結構、metadata 記憶體用量都是壓力。
+      </p>
+      <table>
+        <thead><tr><th>指標</th><th>長影片邊緣節點</th><th>短影音邊緣節點</th></tr></thead>
+        <tbody>
+          <tr><td>單一物件大小</td><td>2–10 MB（分段）</td><td>1–5 MB（整支）</td></tr>
+          <tr><td>100 TB 快取的物件數</td><td>約 2,000 萬</td><td><strong>約 5,000 萬</strong></td></tr>
+          <tr><td>內容輪替週期</td><td>數週</td><td><strong>數天</strong></td></tr>
+          <tr><td>典型命中率</td><td>95–99%</td><td><strong>85–95%</strong></td></tr>
+          <tr><td>回源流量比例</td><td>1–5%</td><td><strong>5–15%</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        回源流量從 2% 變成 10%，中層與 origin 的容量需求就是五倍。
+        第 27 課的三層架構在短影音上必須設計得更厚。
+      </p>
+
+      <h2>5. 原因四：位元率其實沒有比較低</h2>
+      <p>
+        短影音幾乎全是手機直式觀看，解析度看起來不高，
+        但有三個因素把位元率推上去：
+      </p>
+      <ul>
+        <li><strong>內容特性</strong>：手持拍攝、快速剪輯、轉場特效、疊加文字與貼圖，這些都是壓縮的天敵。同樣 1080p，短影音的複雜度通常高於一般談話性內容。</li>
+        <li><strong>畫質期待</strong>：使用者離螢幕很近，壓縮痕跡比在電視上更容易被看到。</li>
+        <li><strong>沒有 ABR 爬升的時間</strong>：15 秒的影片，播放器來不及做畫質爬升（第 13 課）。要嘛一開始就給好畫質，要嘛整支都是低畫質。實務上多半選前者。</li>
+      </ul>
+      <div class="code-block">典型位元率對照
+  長影片 1080p 一般內容      3–5 Mbps
+  短影音 1080p 直式          3–6 Mbps
+
+  短影音並沒有比較省，有時反而更高。</div>
+
+      <h2>6. 短影音的因應設計</h2>
+      <table>
+        <thead><tr><th>問題</th><th>對策</th></tr></thead>
+        <tbody>
+          <tr><td>預載浪費</td><td>只預載第一個 GOP（1–2 秒），滑到才拉完整支</td></tr>
+          <tr><td>預載浪費</td><td>根據網路類型調整：Wi-Fi 預載 3 支，行動網路只預載 1 支</td></tr>
+          <tr><td>固定開銷</td><td>批次 API：一次請求回傳未來 10 支的 manifest 與 metadata</td></tr>
+          <tr><td>推論成本</td><td>一次推論產生一批推薦，而非每滑一次跑一次</td></tr>
+          <tr><td>快取工作集大</td><td>把整支影片當成單一物件（不分段），減少物件數與請求數</td></tr>
+          <tr><td>快取輪替快</td><td>邊緣多配 SSD，接受較低的每 TB 密度換取 IOPS</td></tr>
+          <tr><td>位元率</td><td>大量投資 per-title／內容感知編碼，短影音數量大但單支小，適合快速分析</td></tr>
+        </tbody>
+      </table>
+      <p>
+        第一列的「只預載第一個 GOP」是最重要的一招。
+        它把浪費率從 30% 壓到 5% 以下，
+        代價是滑動時需要極快的後續請求——
+        這反過來又要求邊緣離使用者更近。
+        <strong>短影音平台對邊緣密度的要求，比長影片平台更高。</strong>
+      </p>
+
+      <h2>7. 為什麼還是有人做</h2>
+      <p>
+        既然每小時觀看成本更高，為什麼短影音仍然是最賺錢的形式之一？
+      </p>
+      <div class="code-block">廣告密度的差異
+  長影片：每小時可能插入 4–8 則廣告
+  短影音：每 5–8 支插一則 → 每小時 20–40 則
+
+  即使每則單價較低，每小時的廣告曝光次數高出數倍。
+
+再加上
+  互動率高 → 廣告轉換好 → CPM 高
+  資料豐富（每支都有明確的看完/滑走訊號）→ 推薦與投放更準</div>
+      <p>
+        <strong>收入端的成長，超過了成本端的成長。</strong>
+        這是第 68 課那個框架的再一次應用：
+        技術成本只有在收入端撐不住的時候才會成為否決理由。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出預載浪費率，並說明它為何在長影片上不存在</li>
+          <li>說明為何短影音的每小時固定開銷是長影片的數十倍</li>
+          <li>解釋個人化推薦為何會讓邊緣快取命中率下降</li>
+          <li>說出「只預載第一個 GOP」的效果與代價</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看社群平台：當影片只是動態牆的一部分時，成本結構又變了。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-72.html">← 上一課：直播平台：不能快取的那個難題</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-74.html">下一課：社群平台的影片：自動播放的代價 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

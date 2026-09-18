@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：縮圖、字幕、metadata：容易被忽略的部分 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="非影片資料的量體與它們各自的儲存特性。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜儲存（一）：到底存了什麼 · 第 36 課</div>
+      <h1>縮圖、字幕、metadata：容易被忽略的部分</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識非影片資料的量體</li>
+          <li>理解 metadata 資料庫的挑戰</li>
+          <li>知道小物件為何比大物件難處理</li>
+        </ul>
+      </div>
+
+      <h2>1. 縮圖</h2>
+      <div class="code-block">每支影片的縮圖：
+  封面圖 × 4 種尺寸（列表、卡片、播放頁、分享用）
+  自動擷取候選圖 × 3
+  進度條預覽精靈圖 × 1–3
+ ─────────────────────
+  合計約 8–10 個檔案，200 KB – 10 MB
+
+10 億支影片 × 平均 3 MB = 3 PB</div>
+      <p>
+        3 PB 相對影片的 EB 級不算什麼，
+        但縮圖的<strong>請求量遠高於影片</strong>——
+        使用者滑動列表時一次載入幾十張，卻只播一支影片。
+      </p>
+      <p>
+        所以縮圖的挑戰不是容量，是<strong>請求速率</strong>。
+        它們需要極高的快取命中率與極低的延遲，
+        通常放在專門的圖片 CDN 路徑上。
+      </p>
+
+      <h2>2. 字幕</h2>
+      <table>
+        <thead><tr><th>類型</th><th>來源</th><th>數量</th></tr></thead>
+        <tbody>
+          <tr><td>原始語言字幕</td><td>上傳者提供</td><td>0–1</td></tr>
+          <tr><td>自動語音辨識</td><td>系統產生</td><td>1</td></tr>
+          <tr><td>自動翻譯</td><td>系統產生</td><td>可達數十種語言</td></tr>
+          <tr><td>社群貢獻</td><td>觀眾提供</td><td>不定</td></tr>
+        </tbody>
+      </table>
+      <p>
+        單個字幕檔只有幾十 KB，但乘上語言數與影片數之後，
+        物件數量非常可觀。而且自動翻譯是<strong>按需產生</strong>的——
+        沒人看的語言就不預先產生，看了才生成並快取。
+      </p>
+
+      <h2>3. Metadata 資料庫</h2>
+      <p>這是整個系統最複雜的部分，而不是影片儲存。</p>
+      <table>
+        <thead><tr><th>資料</th><th>特性</th></tr></thead>
+        <tbody>
+          <tr><td>影片基本資料</td><td>標題、描述、標籤、時長、上傳時間</td></tr>
+          <tr><td>權限與可見性</td><td>公開／不公開／私人、地理限制、年齡限制</td></tr>
+          <tr><td>觀看統計</td><td>高頻更新，要即時也要歷史</td></tr>
+          <tr><td>互動資料</td><td>讚、留言、播放清單</td></tr>
+          <tr><td>頻道與創作者</td><td>訂閱關係、收益設定</td></tr>
+          <tr><td>版權比對結果</td><td>與指紋資料庫的比對狀態</td></tr>
+          <tr><td>推薦特徵</td><td>供推薦系統使用的向量與統計</td></tr>
+        </tbody>
+      </table>
+      <p>
+        這些資料的量可能只有幾 PB（相對影片的 EB），
+        但它們要支援<strong>每秒數百萬次的查詢</strong>，
+        而且要一致、要能交易、要能複雜查詢。
+        技術難度遠高於「把大檔案存起來」。
+      </p>
+
+      <h2>4. 分析事件</h2>
+      <div class="code-block">每一次觀看會產生的事件：
+  播放開始、暫停、續播、跳轉、畫質切換、
+  緩衝、結束、離開、廣告曝光、點擊…
+
+假設每次觀看平均 20 個事件，每個事件 200 bytes
+
+每日觀看次數（假設 100 億次）× 20 × 200 bytes
+= 40 TB／天 = 14.6 PB／年</div>
+      <p>
+        這些原始事件通常只保留數週到數月，
+        聚合後的統計資料才長期保存。
+        但即使如此，<strong>分析資料的處理量可能超過影片本身的寫入量</strong>。
+      </p>
+
+      <h2>5. 小物件為什麼難</h2>
+      <table>
+        <thead><tr><th>問題</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>metadata 開銷</td><td>一個 10 KB 的檔案，其索引資料可能就要 1 KB</td></tr>
+          <tr><td>IOPS 瓶頸</td><td>讀 1000 個小檔案要 1000 次 I/O，讀一個大檔案只要幾次</td></tr>
+          <tr><td>索引記憶體</td><td>幾百億個物件的索引放不進單機記憶體</td></tr>
+          <tr><td>刪除成本</td><td>大量小物件的垃圾回收很昂貴</td></tr>
+        </tbody>
+      </table>
+      <p>
+        常見解法是<strong>打包</strong>：
+        把很多小物件合併成一個大檔案，用索引記錄每個物件的位移。
+        這與第 34 課的「即時切段」是同一種思路——
+        <strong>用計算換取檔案數量的減少</strong>。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明縮圖的挑戰為何是請求速率而非容量</li>
+          <li>解釋為何 metadata 資料庫比影片儲存更複雜</li>
+          <li>列出小物件的四個問題與常見解法</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把每日儲存成長完整算出來。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：原始檔要不要留：留與不留的代價</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：動手算：每天長出多少資料 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

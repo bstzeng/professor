@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：從中心到邊緣：分層快取架構 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="edge、mid-tier、origin 三層各自負責什麼。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜為什麼一個機房不夠 · 第 27 課</div>
+      <h1>從中心到邊緣：分層快取架構</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解分層快取的完整架構</li>
+          <li>算出每一層的流量</li>
+          <li>知道分層為何能同時滿足延遲與命中率</li>
+        </ul>
+      </div>
+
+      <h2>1. 三層架構</h2>
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="16" text-anchor="middle" font-size="12" fill="var(--text-muted)">分層快取：流量逐層收斂</text>
+          <rect x="30" y="34" width="580" height="40" fill="#ff8a65" opacity="0.15" stroke="#ff8a65" stroke-width="1.2" rx="4"/>
+          <text x="320" y="52" text-anchor="middle" font-size="9.5" fill="#ff8a65">邊緣層：數千節點 · 每節點 10–100 TB · 命中率 85%</text>
+          <text x="320" y="67" text-anchor="middle" font-size="9" fill="var(--text-muted)">對外輸出 100 Tbps</text>
+          <path d="M 320 74 L 315 92 L 325 92 Z" fill="var(--border)"/>
+          <text x="345" y="88" font-size="8" fill="var(--text-muted)">未命中 15 Tbps</text>
+          <rect x="130" y="96" width="380" height="40" fill="var(--gold)" opacity="0.18" stroke="var(--gold)" stroke-width="1.2" rx="4"/>
+          <text x="320" y="114" text-anchor="middle" font-size="9.5" fill="var(--gold)">區域層：數十節點 · 每節點 1–10 PB · 命中率 80%</text>
+          <text x="320" y="129" text-anchor="middle" font-size="9" fill="var(--text-muted)">承接 15 Tbps</text>
+          <path d="M 320 136 L 315 154 L 325 154 Z" fill="var(--border)"/>
+          <text x="345" y="150" font-size="8" fill="var(--text-muted)">未命中 3 Tbps</text>
+          <rect x="200" y="158" width="240" height="40" fill="var(--accent)" opacity="0.15" stroke="var(--accent)" stroke-width="1.2" rx="4"/>
+          <text x="320" y="176" text-anchor="middle" font-size="9.5" fill="var(--accent)">來源層：數座資料中心 · 完整資料</text>
+          <text x="320" y="191" text-anchor="middle" font-size="9" fill="var(--text-muted)">承接 3 Tbps</text>
+          <text x="320" y="224" text-anchor="middle" font-size="9" fill="var(--text-muted)">整體放大倍率 = 100 / 3 ≈ 33 倍</text>
+          <text x="320" y="242" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">加上預先填充與熱門內容常駐，實務可到 50–100 倍</text>
+        </svg>
+      </div>
+
+      <h2>2. 每一層負責什麼</h2>
+      <table>
+        <thead><tr><th>層級</th><th>主要目標</th><th>容量特性</th><th>放什麼</th></tr></thead>
+        <tbody>
+          <tr><td>邊緣</td><td><strong>低延遲</strong></td><td>小而多</td><td>最熱門的內容、當地熱門</td></tr>
+          <tr><td>區域</td><td><strong>高命中率</strong></td><td>大而少</td><td>次熱門 + 區域長尾</td></tr>
+          <tr><td>來源</td><td>完整性與正確性</td><td>全部資料</td><td>所有內容與母帶</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵設計是<strong>目標分離</strong>：
+        邊緣不必追求高命中率（它的任務是快），
+        區域不必靠近使用者（它的任務是接住未命中）。
+        兩個互相衝突的需求（第 26 課）由不同的層各自負責。
+      </p>
+
+      <h2>3. 為什麼不直接回源</h2>
+      <p>
+        如果沒有區域層，邊緣未命中的 15 Tbps 就要全部打到來源。
+        來源資料中心要準備 15 Tbps 的出口——
+        這回到第 24 課的死因二。
+      </p>
+      <p>
+        加一層區域快取，來源只要準備 3 Tbps。
+        <strong>中間層的價值就是把來源的壓力再降一個數量級。</strong>
+      </p>
+
+      <h2>4. 回源收斂（origin shield）</h2>
+      <p>
+        還有一個細節：如果一百個邊緣節點同時未命中同一支影片，
+        它們會同時向區域層要，區域層又同時向來源要一百次。
+      </p>
+      <p>
+        解法是<strong>請求合併</strong>：
+        區域層發現同一個物件有多個待處理請求時，
+        只向來源發一次請求，拿到後同時回應所有等待者。
+      </p>
+      <div class="code-block">沒有合併：新影片爆紅瞬間，來源被一百個相同請求打中
+有合併  ：來源只收到一個請求
+
+這對「熱門新片剛上架」這種情境特別重要——
+那正是所有節點同時未命中的時刻。</div>
+
+      <h2>5. 模組 E 總結</h2>
+      <ul>
+        <li>光速造成的延遲下限讓單機房無法服務全球</li>
+        <li>單機房還有出口頻寬與單點故障兩個死因</li>
+        <li>長尾分布讓「每個節點只放一小部分」變得可行</li>
+        <li>命中率與回源流量是非線性關係，越高越值錢</li>
+        <li>分層架構讓「低延遲」與「高命中率」兩個衝突目標分工達成</li>
+        <li>整體放大倍率可達 50–100 倍：來源 1–2 Tbps 撐起 100 Tbps</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出邊緣命中 90%、區域命中 85% 時，200 Tbps 的來源需求</li>
+          <li>說明為何邊緣與區域的設計目標不同</li>
+          <li>解釋請求合併解決了什麼問題</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 F 開始：把 CDN 這一層完整拆開。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：快取命中率：整個 CDN 的核心指標</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：CDN 不只是「離你比較近的伺服器」 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

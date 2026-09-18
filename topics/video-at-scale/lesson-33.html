@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：導流：使用者怎麼被指到正確那台機器 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="DNS、Anycast 與應用層導流三種機制的比較。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜CDN：真正在送影片的那一層 · 第 33 課</div>
+      <h1>導流：使用者怎麼被指到正確那台機器</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較三種導流機制</li>
+          <li>理解各自的精度與反應速度</li>
+          <li>知道影音平台為何用應用層導流</li>
+        </ul>
+      </div>
+
+      <h2>1. 問題</h2>
+      <p>
+        有幾千個節點，使用者發出請求時，
+        要怎麼讓他連到<strong>正確的那一個</strong>？
+        「正確」的定義包含：夠近、有那個內容、還有餘裕、沒故障。
+      </p>
+
+      <h2>2. 三種機制</h2>
+      <table>
+        <thead><tr><th></th><th>DNS 導流</th><th>Anycast</th><th>應用層導流</th></tr></thead>
+        <tbody>
+          <tr><td>做法</td><td>依查詢來源回不同 IP</td><td>多個節點宣告同一個 IP，靠 BGP 選路</td><td>先連一個入口，由它回傳實際的節點網址</td></tr>
+          <tr><td>精度</td><td>中（看到的是 DNS 伺服器位置）</td><td>低（BGP 選的是網路距離不是真實延遲）</td><td><strong>高</strong>（知道使用者身分與內容）</td></tr>
+          <tr><td>反應速度</td><td>慢（受 TTL 限制）</td><td>快（BGP 收斂）</td><td><strong>即時</strong></td></tr>
+          <tr><td>能否依內容導流</td><td>不能</td><td>不能</td><td><strong>能</strong></td></tr>
+          <tr><td>額外延遲</td><td>無</td><td>無</td><td>多一次往返</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 為什麼 DNS 導流不夠精準</h2>
+      <p>
+        DNS 伺服器看到的是<strong>解析者的 IP</strong>，不是使用者的 IP。
+        如果使用者用的是公共 DNS，解析請求可能來自幾百公里外，
+        導流就會導錯。
+      </p>
+      <p>
+        EDNS Client Subnet 這個擴充可以讓解析者附帶使用者的網段資訊，
+        改善了這個問題，但不是所有解析者都支援。
+      </p>
+
+      <h2>4. Anycast 的問題</h2>
+      <p>
+        Anycast 讓 BGP 自動選擇「最近」的節點，聽起來很理想。
+        但 BGP 的「近」是<strong>AS 跳數</strong>，不是實際延遲。
+        常見狀況是流量被導到跳數少但地理上很遠的節點。
+      </p>
+      <p>
+        另一個問題是<strong>連線穩定性</strong>：
+        BGP 路由變動時，同一個連線可能被導到不同節點，
+        造成 TCP 連線中斷。這對長時間的影片下載特別麻煩。
+        （QUIC 的連線遷移可以緩解這件事。）
+      </p>
+
+      <h2>5. 應用層導流：影音平台的選擇</h2>
+      <div class="code-block">1. 播放器向「導流服務」要播放資訊
+   POST /get_playback_url  { video_id, client_info }
+
+2. 導流服務綜合判斷：
+   · 使用者的 IP 對應到哪個 ISP、哪個地區
+   · 哪些節點有這支影片
+   · 各節點目前的負載與健康狀態
+   · 使用者的裝置與網路類型
+   · 內容的地理授權限制
+
+3. 回傳實際的節點網址
+   { "url": "https://edge-tw-03.example.net/..." }
+
+4. 播放器直接向該節點要影片段</div>
+      <p>
+        代價是多一次往返（影響 TTFF），
+        但換來的控制力太有價值：
+      </p>
+      <ul>
+        <li>可以依<strong>內容</strong>導流（這個節點有沒有這支影片）</li>
+        <li>可以即時反應節點故障或過載</li>
+        <li>可以做灰度發布與 A/B 測試</li>
+        <li>可以處理地理授權限制</li>
+        <li>可以在播放中途切換節點</li>
+      </ul>
+      <p>
+        而且那次往返通常可以與其他必要的 API 呼叫合併
+        （取得影片 metadata、廣告、字幕清單），實際成本不高。
+      </p>
+
+      <h2>6. 實務上是混合的</h2>
+      <table>
+        <thead><tr><th>用途</th><th>機制</th></tr></thead>
+        <tbody>
+          <tr><td>導流服務本身的入口</td><td>Anycast（要快、要永遠可達）</td></tr>
+          <tr><td>網頁與 API</td><td>DNS + Anycast</td></tr>
+          <tr><td>影片段</td><td>應用層導流</td></tr>
+          <tr><td>備援</td><td>導流失敗時退回 DNS 的預設值</td></tr>
+        </tbody>
+      </table>
+
+      <h2>7. 模組 F 總結</h2>
+      <ul>
+        <li>CDN 解決延遲、頻寬成本、來源負載、可用度四件事</li>
+        <li>影音快取節點是「儲存與網路強、CPU 弱」的特殊機器</li>
+        <li>自建與商用的分水嶺約在平均 1–5 Tbps</li>
+        <li>四層架構中，ISP 內嵌節點承載最大宗流量</li>
+        <li>預先填充在免費的離峰時段搬貨，大幅提升命中率</li>
+        <li>影音平台用應用層導流，因為只有它能依內容與即時狀態決策</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明 DNS 導流為何不夠精準</li>
+          <li>解釋 Anycast 對長連線的問題</li>
+          <li>列出應用層導流能做到的五件事</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 G 開始：回答「裡面到底存了什麼」。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：預先填充：離峰時段把貨搬過去</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：一支影片上傳後產生的完整檔案清單 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

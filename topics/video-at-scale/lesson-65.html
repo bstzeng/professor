@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 65 課：監控與 SRE：怎麼知道系統是正常的 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="指標、SLO、錯誤預算與值班制度。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 65 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜可靠度與營運 · 第 65 課</div>
+      <h1>監控與 SRE：怎麼知道系統是正常的</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道該監控什麼</li>
+          <li>理解 SLO 與錯誤預算</li>
+          <li>收束模組 L</li>
+        </ul>
+      </div>
+
+      <h2>1. 該看什麼指標</h2>
+      <table>
+        <thead><tr><th>層次</th><th>指標</th></tr></thead>
+        <tbody>
+          <tr><td><strong>使用者體驗</strong></td><td>TTFF、卡頓率、平均畫質、播放失敗率</td></tr>
+          <tr><td>服務</td><td>請求量、錯誤率、延遲分位數（p50／p95／p99）</td></tr>
+          <tr><td>快取</td><td>命中率、回源流量、淘汰率</td></tr>
+          <tr><td>基礎設施</td><td>CPU、記憶體、磁碟、網路使用率</td></tr>
+          <tr><td>容量</td><td>各資源的剩餘餘裕、成長趨勢</td></tr>
+          <tr><td>成本</td><td>各區域的頻寬用量與帳單預估</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵是<strong>從上往下看</strong>。
+        CPU 使用率 90% 不一定是問題，
+        但卡頓率上升一定是問題。
+        <strong>指標的優先序要反映使用者的優先序（第 15 課）。</strong>
+      </p>
+
+      <h2>2. 為什麼要看分位數而不是平均</h2>
+      <div class="code-block">某服務的延遲：
+  平均 50 ms    ← 看起來很好
+  p50   30 ms
+  p95  200 ms
+  p99  2,000 ms ← 每一百個請求就有一個要等兩秒
+
+如果一次播放要發 20 個請求，
+那麼「至少遇到一次 p99」的機率 = 1 − 0.99²⁰ = 18%
+
+→ 每五次播放就有一次感覺很慢</div>
+      <p>
+        <strong>平均值會隱藏尾端延遲，而使用者感受到的是尾端。</strong>
+        這是大規模系統監控最重要的一條原則。
+      </p>
+
+      <h2>3. SLO 與錯誤預算</h2>
+      <div class="code-block">SLI（指標）  ：卡頓率
+SLO（目標）  ：99.5% 的播放時間沒有卡頓
+錯誤預算     ：0.5%
+
+一個月的錯誤預算 = 總播放時間 × 0.5%
+
+用完了 → 凍結所有非必要變更，專心修穩定性
+還有剩 → 可以承擔風險，加速推出新功能</div>
+      <p>
+        錯誤預算的價值在於它<strong>把可靠度變成可交易的資源</strong>：
+        不是「越穩越好」，而是「在目標之內，剩下的預算拿去換開發速度」。
+        這讓開發與維運團隊有共同的語言，而不是互相對抗。
+      </p>
+
+      <h2>4. 警報的設計</h2>
+      <table>
+        <thead><tr><th>原則</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>只對「需要人介入」的事發警報</td><td>能自動處理的就別叫人</td></tr>
+          <tr><td>對症狀發警報，不對原因</td><td>「卡頓率上升」比「某台 CPU 高」有用</td></tr>
+          <tr><td>要有可執行的處理步驟</td><td>警報要附上該怎麼做</td></tr>
+          <tr><td>控制警報疲勞</td><td>假警報多了，真警報就被忽略</td></tr>
+          <tr><td>分級</td><td>半夜叫人的警報要很少很少</td></tr>
+        </tbody>
+      </table>
+
+      <h2>5. 模組 L 總結</h2>
+      <ul>
+        <li>10 萬台機隊每天約一百件硬體故障，前兩層必須全自動</li>
+        <li>維運效率的指標是「每人管理幾台機器」，不是修復速度</li>
+        <li>副本放置策略決定實際容錯能力，比糾刪碼參數更重要</li>
+        <li>連鎖故障比硬體故障更常造成大規模中斷</li>
+        <li>實際部署容量約為理論尖峰的 2.5–3.5 倍</li>
+        <li>可預期尖峰靠預先準備，不可預期靠自動降級</li>
+        <li>監控要從使用者體驗往下看，並看分位數而非平均</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>解釋為何平均延遲會誤導</li>
+          <li>說明錯誤預算的用途</li>
+          <li>列出警報設計的三個原則</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 M 開始：把所有成本加起來。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-64.html">← 上一課：尖峰事件：世界盃、跨年、大片上架</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-66.html">下一課：一次觀看到底花多少錢 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

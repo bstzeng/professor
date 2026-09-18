@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：播放器怎麼決定畫質：ABR 演算法與緩衝區 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="緩衝區水位、頻寬估計與畫質切換的決策邏輯。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜串流怎麼送 · 第 13 課</div>
+      <h1>播放器怎麼決定畫質：ABR 演算法與緩衝區</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解播放器的決策邏輯</li>
+          <li>知道緩衝區的角色</li>
+          <li>認識 ABR 演算法的兩大流派</li>
+        </ul>
+      </div>
+
+      <h2>1. 播放器每幾秒做一次決定</h2>
+      <p>
+        每要下一段時，播放器要回答：<strong>這一段要拿哪個畫質？</strong>
+        判斷的依據有兩個：
+      </p>
+      <ul>
+        <li><strong>估計的可用頻寬</strong>：剛才幾段下載得多快</li>
+        <li><strong>緩衝區水位</strong>：手上還有幾秒的影片沒播</li>
+      </ul>
+
+      <h2>2. 緩衝區</h2>
+      <div class="code-block">已播放 ──────┬─── 緩衝區（已下載未播放）───┬─── 未下載
+             │                              │
+          播放頭                        下載進度
+
+緩衝區 15 秒 → 很安全，可以嘗試提高畫質
+緩衝區  5 秒 → 有點危險，維持現狀
+緩衝區  2 秒 → 快斷了，立刻降到最低畫質
+緩衝區  0 秒 → 卡頓（rebuffer）</div>
+      <p>
+        緩衝區是<strong>對抗網路抖動的水庫</strong>。
+        它越深越安全，但也有代價：
+      </p>
+      <table>
+        <thead><tr><th>緩衝區深度</th><th>好處</th><th>代價</th></tr></thead>
+        <tbody>
+          <tr><td>深（30 秒以上）</td><td>幾乎不卡</td><td>換畫質反應慢；使用者關掉時已下載的資料全浪費</td></tr>
+          <tr><td>淺（5–10 秒）</td><td>反應快、浪費少</td><td>網路一抖就卡</td></tr>
+        </tbody>
+      </table>
+      <p>
+        「浪費」這件事在平台的量級上很重要：
+        如果每個使用者平均浪費 10 秒的預載資料，
+        乘上幾十億次觀看，就是可觀的頻寬成本。
+        所以平台會<strong>刻意限制預載深度</strong>，
+        並在偵測到使用者可能離開時停止預載。
+      </p>
+
+      <h2>3. 兩大流派</h2>
+      <table>
+        <thead><tr><th>流派</th><th>依據</th><th>優點</th><th>缺點</th></tr></thead>
+        <tbody>
+          <tr><td>頻寬導向</td><td>預測未來可用頻寬</td><td>反應快</td><td>頻寬估計容易錯，尤其行動網路</td></tr>
+          <tr><td>緩衝區導向</td><td>只看緩衝區水位</td><td>穩定、不需預測</td><td>啟動階段沒有緩衝可參考</td></tr>
+          <tr><td>混合式（實務）</td><td>兩者都看，依階段調整</td><td>兼顧</td><td>參數多、要調</td></tr>
+        </tbody>
+      </table>
+      <p>
+        實務上幾乎都是混合式：啟動時用頻寬估計，
+        穩定後主要看緩衝區。也有用強化學習訓練決策策略的做法。
+      </p>
+
+      <h2>4. 一個反直覺的設計</h2>
+      <p>
+        「網路變好時立刻升到最高畫質」聽起來對，但實際上不好：
+      </p>
+      <ul>
+        <li>頻繁切換畫質本身就很干擾（畫面清晰度忽高忽低）</li>
+        <li>升上去又馬上降下來，比一直維持中等畫質更差</li>
+        <li>升畫質要丟掉已下載的低畫質段，浪費頻寬</li>
+      </ul>
+      <p>
+        所以演算法會加上<strong>遲滯</strong>：
+        升畫質的門檻比降畫質嚴格得多。
+        使用者研究顯示，<strong>穩定的中等畫質，體驗優於忽高忽低的高畫質</strong>。
+      </p>
+
+      <h2>5. 啟動階段的特殊處理</h2>
+      <p>
+        影片剛開始播時沒有任何歷史資料可以估計頻寬，
+        而這又是使用者最沒耐心的時刻。常見做法：
+      </p>
+      <ol>
+        <li>第一段用較低畫質，確保快速開播</li>
+        <li>同時測量下載速度</li>
+        <li>第二、三段快速往上試探</li>
+        <li>幾秒內收斂到合適的畫質</li>
+      </ol>
+      <p>
+        代價是開頭幾秒畫質較差。有些平台會用
+        「開頭段特別短」來縮短這個過程——第一段只有 1 秒，
+        讓試探更快完成。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明緩衝區深度的取捨</li>
+          <li>解釋為何升畫質的門檻要比降畫質嚴格</li>
+          <li>說出啟動階段的四個步驟</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理一個看似浪費的決定：為什麼影片走 HTTP。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：不是下載也不是串流：HLS 與 DASH 的分段機制</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：TCP、QUIC 與影片：為什麼影片走 HTTP →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

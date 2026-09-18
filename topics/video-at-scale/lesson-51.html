@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：Edge 要幾台 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="從尖峰頻寬反推邊緣伺服器數量，含備援係數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜機器數量：把帳算出來 · 第 51 課</div>
+      <h1>Edge 要幾台</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>從尖峰頻寬反推邊緣機器數</li>
+          <li>理解各種餘裕係數</li>
+          <li>知道地理分散帶來的額外成本</li>
+        </ul>
+      </div>
+
+      <h2>1. 基本計算</h2>
+      <div class="code-block">尖峰需求        100 Tbps
+單機持續輸出    100 Gbps
+
+最小台數 = 100,000 / 100 = 1,000 台</div>
+      <p>
+        但 1,000 台是<strong>理論下限</strong>，實務上遠遠不夠。
+        原因是這個數字假設每台機器都在 100% 滿載，
+        而且流量完美平均分配。兩者都不成立。
+      </p>
+
+      <h2>2. 四個餘裕係數</h2>
+      <table>
+        <thead><tr><th>係數</th><th>倍數</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>目標使用率</td><td>÷ 0.6</td><td>不能跑滿，要留空間給突發與抖動</td></tr>
+          <tr><td>地理分散不均</td><td>× 1.5</td><td>每個地區的尖峰時間不同，機器不能共用</td></tr>
+          <tr><td>N+1 冗餘</td><td>× 1.2</td><td>單台故障不能影響服務</td></tr>
+          <tr><td>快取容量需求</td><td>× 1.3</td><td>有些節點是為了放內容而設，不是為了頻寬</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">1,000 / 0.6 × 1.5 × 1.2 × 1.3 ≈ 3,900 台</div>
+
+      <h2>3. 地理分散為何是最大的係數</h2>
+      <p>
+        這一點值得展開。假設全球尖峰是 100 Tbps，
+        但它不是同時發生的：
+      </p>
+      <div class="code-block">亞洲尖峰（當地 21:00）：亞洲節點滿載，歐美節點閒置
+歐洲尖峰（當地 21:00）：歐洲滿載，其他閒置
+美洲尖峰（當地 21:00）：美洲滿載，其他閒置
+
+每個地區都要為「自己的尖峰」準備容量
+而各地區的尖峰加起來，遠大於全球同時的尖峰</div>
+      <p>
+        <strong>時區錯開讓全球尖峰倍率降低（第 3 課的好消息），
+        但同時也意味著硬體無法共用（壞消息）。</strong>
+        這兩件事是同一個現象的兩面。
+      </p>
+      <p>
+        所以「總容量」要用各地區尖峰的<strong>加總</strong>來算，
+        而不是全球同時尖峰。這就是那個 1.5 倍的來源。
+      </p>
+
+      <h2>4. 分層拆解</h2>
+      <table>
+        <thead><tr><th>層級</th><th>承載流量</th><th>單機輸出</th><th>估算台數</th></tr></thead>
+        <tbody>
+          <tr><td>ISP 內嵌</td><td>65 Tbps</td><td>20–50 Gbps（受 ISP 環境限制）</td><td>2,000–3,500 台</td></tr>
+          <tr><td>邊緣 PoP</td><td>30 Tbps</td><td>100 Gbps</td><td>600–900 台</td></tr>
+          <tr><td>區域節點</td><td>5 Tbps（含回源服務）</td><td>100 Gbps</td><td>100–200 台</td></tr>
+          <tr><td><strong>合計</strong></td><td></td><td></td><td><strong>約 3,000–4,500 台</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意 ISP 內嵌節點的單機輸出較低：
+        因為它們受限於 ISP 提供的埠速率與電力，
+        而且服務的人數較少，不會滿載。
+        <strong>數量多但每台利用率低</strong>，這是靠近使用者的代價。
+      </p>
+
+      <h2>5. 儲存容量的檢查</h2>
+      <p>
+        除了頻寬，還要檢查快取容量夠不夠：
+      </p>
+      <div class="code-block">3,500 台 ISP 內嵌節點 × 平均 100 TB = 350 PB
+900 台邊緣 PoP × 平均 500 TB = 450 PB
+150 台區域節點 × 平均 5 PB = 750 PB
+                            ─────────
+                    快取總容量約 1.5 EB
+
+相對全站 20–30 EB，快取層約佔 5–7%
+→ 符合第 25 課「前百分之幾的內容佔絕大多數流量」的分布</div>
+      <p>
+        這個交叉檢查很重要：<strong>如果算出來的快取容量
+        遠低於熱門內容的總量，命中率就達不到假設值</strong>，
+        整個計算就要重來。這裡的 5–7% 落在合理範圍。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出四個餘裕係數與各自理由</li>
+          <li>解釋時區錯開為何同時是好消息與壞消息</li>
+          <li>說明為何要做快取容量的交叉檢查</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課算儲存機器。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：伺服器的四種角色與各自規格</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：儲存要幾台 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

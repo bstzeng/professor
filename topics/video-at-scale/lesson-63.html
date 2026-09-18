@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 63 課：容量規劃：為什麼要留四成餘裕 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="N+1、區域故障轉移與尖峰預留的計算。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 63 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜可靠度與營運 · 第 63 課</div>
+      <h1>容量規劃：為什麼要留四成餘裕</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解餘裕的來源與計算</li>
+          <li>知道各種冗餘策略的成本</li>
+          <li>認識過度與不足的代價</li>
+        </ul>
+      </div>
+
+      <h2>1. 餘裕從哪來</h2>
+      <table>
+        <thead><tr><th>來源</th><th>典型比例</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>日常尖峰</td><td>已含在尖峰倍率內</td><td>第 3 課</td></tr>
+          <tr><td>使用率上限</td><td>不超過 60–70%</td><td>超過會延遲上升、抖動變大</td></tr>
+          <tr><td>故障冗餘（N+1）</td><td>+10–20%</td><td>隨時有機器不在線</td></tr>
+          <tr><td>區域故障轉移</td><td>+30–50%</td><td>一個區域掛掉，鄰區要接手</td></tr>
+          <tr><td>成長緩衝</td><td>+10–30%</td><td>採購有前置期</td></tr>
+          <tr><td>特殊事件</td><td>+10–20%</td><td>可預期的大型事件</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">綜合下來，實際部署容量約為
+「理論尖峰需求」的 2.5–3.5 倍。
+
+也就是說，平時的平均使用率可能只有 25–35%。</div>
+
+      <h2>2. 為什麼不能跑到 90%</h2>
+      <p>
+        排隊理論給了答案：<strong>當使用率接近 100% 時，
+        等待時間會趨近無限大。</strong>
+      </p>
+      <table>
+        <thead><tr><th>使用率</th><th>相對延遲</th></tr></thead>
+        <tbody>
+          <tr><td>50%</td><td>1×（基準）</td></tr>
+          <tr><td>70%</td><td>約 1.7×</td></tr>
+          <tr><td>80%</td><td>約 2.5×</td></tr>
+          <tr><td>90%</td><td>約 5×</td></tr>
+          <tr><td>95%</td><td>約 10×</td></tr>
+          <tr><td>99%</td><td>約 50×</td></tr>
+        </tbody>
+      </table>
+      <p>
+        而且真實流量不是平滑的，會有秒級的突發。
+        使用率 90% 的系統，在突發時就會直接飽和。
+        <strong>60–70% 是延遲與成本的平衡點。</strong>
+      </p>
+
+      <h2>3. 區域故障轉移的算法</h2>
+      <div class="code-block">假設有 4 個區域，每個平時承載 25% 的流量。
+
+若要能承受任一區域完全失效：
+  剩下 3 個區域要吸收 100% 的流量
+  每個區域要能承載 33.3%
+  → 每個區域的容量 = 33.3% / 0.65（使用率上限）= 51%
+  → 總部署容量 = 4 × 51% = 204% 的尖峰需求
+
+區域越多，這個係數越小：
+  4 區域 → 204%
+  8 區域 → 176%
+  16 區域 → 164%</div>
+      <p>
+        <strong>區域越多，故障轉移的成本越低。</strong>
+        這是分散式部署的一個額外好處，
+        也是為什麼大型業者傾向多設點而非少數大點。
+      </p>
+
+      <h2>4. 各類資源的餘裕不同</h2>
+      <table>
+        <thead><tr><th>資源</th><th>目標使用率</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>網路頻寬</td><td>50–60%</td><td>突發性最強，飽和後立刻丟封包</td></tr>
+          <tr><td>CPU</td><td>60–70%</td><td>可排隊，但延遲會上升</td></tr>
+          <tr><td>儲存容量</td><td>80–85%</td><td>不會突然暴增，但要留重建空間</td></tr>
+          <tr><td>記憶體</td><td>70–80%</td><td>用完會 OOM，不能賭</td></tr>
+          <tr><td>轉碼算力</td><td>70–80%</td><td>可以排隊，容忍度高</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意轉碼的目標使用率最高：因為它<strong>可以等</strong>。
+        一支影片晚十分鐘轉好沒人會抱怨，
+        但一個影片段晚一秒到就會卡頓。
+        <strong>可延後的工作可以跑得比較滿。</strong>
+      </p>
+
+      <h2>5. 過度與不足的代價</h2>
+      <table>
+        <thead><tr><th></th><th>容量不足</th><th>容量過剩</th></tr></thead>
+        <tbody>
+          <tr><td>後果</td><td>卡頓、延遲、故障、使用者流失</td><td>資本閒置、折舊</td></tr>
+          <tr><td>可見度</td><td>立刻可見，很痛</td><td>不可見，容易被忽略</td></tr>
+          <tr><td>可逆性</td><td>要幾週到幾個月才能補</td><td>可以逐步消化</td></tr>
+          <tr><td>組織壓力</td><td>巨大</td><td>幾乎沒有</td></tr>
+        </tbody>
+      </table>
+      <p>
+        因為不對稱，實務上<strong>幾乎所有團隊都傾向超額配置</strong>。
+        這不是不理性——不足的代價確實遠高於過剩。
+        但它也意味著<strong>容量管理是一個持續的成本優化題目</strong>，
+        需要有人專門盯著。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 6 個區域要承受單區失效時的總部署係數</li>
+          <li>說明為何網路的目標使用率低於儲存</li>
+          <li>解釋為何團隊傾向超額配置</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理尖峰事件：世界盃那天怎麼辦。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-62.html">← 上一課：沒有「不會故障」，只有「壞了沒人發現」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-64.html">下一課：尖峰事件：世界盃、跨年、大片上架 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 62 課：沒有「不會故障」，只有「壞了沒人發現」 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="冗餘設計、故障域與優雅降級。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 62 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜可靠度與營運 · 第 62 課</div>
+      <h1>沒有「不會故障」，只有「壞了沒人發現」</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解故障域的概念</li>
+          <li>知道副本放置的原則</li>
+          <li>認識優雅降級的設計</li>
+        </ul>
+      </div>
+
+      <h2>1. 故障域</h2>
+      <p>
+        故障域是「會一起壞掉的一組東西」。設計冗餘時，
+        副本必須跨越故障域，否則冗餘是假的。
+      </p>
+      <table>
+        <thead><tr><th>層級</th><th>共同故障原因</th><th>影響範圍</th></tr></thead>
+        <tbody>
+          <tr><td>硬碟</td><td>機械故障</td><td>一顆</td></tr>
+          <tr><td>伺服器</td><td>主機板、電源、記憶體</td><td>該機所有硬碟</td></tr>
+          <tr><td>機櫃</td><td>交換器、機櫃配電</td><td>數十台機器</td></tr>
+          <tr><td>機櫃排 / pod</td><td>配電單元、匯聚交換器</td><td>數百台</td></tr>
+          <tr><td>資料廳</td><td>冷卻系統、配電盤</td><td>數千台</td></tr>
+          <tr><td>建築</td><td>市電、UPS、火災</td><td>整棟</td></tr>
+          <tr><td>園區</td><td>天災、電網、光纖被挖斷</td><td>全部</td></tr>
+          <tr><td>區域</td><td>大範圍天災、法規</td><td>多個園區</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 副本放置原則</h2>
+      <div class="code-block">RS(6,3) 的 9 個塊，放置策略：
+
+錯誤做法：9 塊放在同一個機櫃
+  → 交換器壞掉，資料全部讀不到
+
+較好做法：9 塊放在 9 個不同機櫃
+  → 可承受 3 個機櫃同時故障
+
+更好做法：9 塊分散在 3 個資料廳，每廳 3 塊
+  → 可承受一整個資料廳消失（剩 6 塊仍能還原）</div>
+      <p>
+        <strong>放置策略決定了系統實際能承受什麼</strong>，
+        而不是糾刪碼的參數。
+        RS(6,3) 如果放錯位置，容錯能力等於零。
+      </p>
+
+      <h2>3. 但放太散也有代價</h2>
+      <table>
+        <thead><tr><th>放置範圍</th><th>容錯</th><th>讀取延遲</th><th>重建流量</th></tr></thead>
+        <tbody>
+          <tr><td>同機櫃</td><td>最差</td><td>最低</td><td>只走機櫃內網路</td></tr>
+          <tr><td>跨機櫃同資料廳</td><td>中</td><td>低</td><td>走廳內網路</td></tr>
+          <tr><td>跨資料廳</td><td>好</td><td>中</td><td>走園區網路</td></tr>
+          <tr><td>跨區域</td><td>最好</td><td><strong>高</strong></td><td><strong>走廣域網路，很貴</strong></td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以實務上是<strong>分層放置</strong>：
+        熱資料在單一區域內跨機櫃放（快），
+        冷資料與備份跨區域放（安全）。
+      </p>
+
+      <h2>4. 優雅降級</h2>
+      <p>
+        不是所有故障都能完全隱藏。當資源不夠時，
+        系統應該<strong>有計畫地降低服務品質</strong>，
+        而不是整個掛掉。
+      </p>
+      <table>
+        <thead><tr><th>情況</th><th>降級手段</th><th>使用者感受</th></tr></thead>
+        <tbody>
+          <tr><td>邊緣節點過載</td><td>限制最高畫質</td><td>畫質變差但能看</td></tr>
+          <tr><td>區域節點故障</td><td>導到鄰近區域</td><td>延遲略高</td></tr>
+          <tr><td>推薦服務故障</td><td>改用預先算好的熱門清單</td><td>推薦變得不個人化</td></tr>
+          <tr><td>留言服務故障</td><td>隱藏留言區</td><td>看不到留言但影片正常</td></tr>
+          <tr><td>搜尋故障</td><td>只回傳快取的熱門結果</td><td>搜尋結果變差</td></tr>
+          <tr><td>統計服務故障</td><td>暫停顯示觀看數</td><td>幾乎無感</td></tr>
+        </tbody>
+      </table>
+      <p>
+        關鍵原則：<strong>核心功能（播放影片）永遠優先，
+        周邊功能可以犧牲。</strong>
+        這需要在架構上把依賴關係設計成「周邊服務故障不會拖垮播放」。
+      </p>
+
+      <h2>5. 相依性是隱藏的殺手</h2>
+      <p>
+        很多大型故障不是因為機器壞掉，而是因為
+        <strong>一個看似無關的服務掛掉，
+        連鎖拖垮了核心路徑</strong>。
+      </p>
+      <div class="code-block">典型的連鎖故障：
+
+某個次要服務變慢
+  → 呼叫它的服務的執行緒被佔住
+  → 那個服務也變慢
+  → 上游開始重試
+  → 重試讓負載加倍
+  → 更多服務被拖垮
+  → 全站故障</div>
+      <p>對抗手段：</p>
+      <ul>
+        <li><strong>逾時</strong>：每個呼叫都要有上限，不能無限等</li>
+        <li><strong>斷路器</strong>：連續失敗就直接跳過，不再呼叫</li>
+        <li><strong>重試退避</strong>：重試要加隨機延遲，避免同時湧入</li>
+        <li><strong>艙壁隔離</strong>：不同用途的資源池分開，互不影響</li>
+        <li><strong>負載卸除</strong>：過載時主動拒絕部分請求，保住其餘</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出八個層級的故障域</li>
+          <li>說明為何放置策略比糾刪碼參數更重要</li>
+          <li>描述一次連鎖故障的發生過程與三個對抗手段</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理容量規劃：為什麼要留這麼多餘裕。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-61.html">← 上一課：一萬台機器每天會壞幾台</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-63.html">下一課：容量規劃：為什麼要留四成餘裕 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

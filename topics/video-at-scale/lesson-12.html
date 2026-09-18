@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：不是下載也不是串流：HLS 與 DASH 的分段機制 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="影片被切成幾秒一段的檔案，播放器一段一段要。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜串流怎麼送 · 第 12 課</div>
+      <h1>不是下載也不是串流：HLS 與 DASH 的分段機制</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解分段串流的機制</li>
+          <li>看懂 manifest 檔案</li>
+          <li>知道分段長度的取捨</li>
+        </ul>
+      </div>
+
+      <h2>1. 不是下載整個檔案</h2>
+      <p>
+        早期的網路影片是「下載完才能播」或「漸進式下載」。
+        現代串流不是這樣——影片被<strong>切成幾秒一段的小檔案</strong>，
+        播放器一段一段地要。
+      </p>
+      <div class="code-block">傳統：GET /video.mp4          （一個 500 MB 的請求）
+
+現代：GET /1080p/seg-001.m4s  （一個 2 MB 的請求）
+      GET /1080p/seg-002.m4s
+      GET /720p/seg-003.m4s   ← 網路變差，換低畫質
+      GET /720p/seg-004.m4s</div>
+      <p>這個設計帶來四個好處：</p>
+      <ul>
+        <li>可以逐段切換畫質（ABR）</li>
+        <li>每段都是普通的 HTTP 檔案，<strong>可以被任何 HTTP 快取加速</strong></li>
+        <li>跳轉時只要抓對應的段，不必下載整個檔案</li>
+        <li>直播只要持續產生新的段就好</li>
+      </ul>
+      <p>
+        第二點是規模化的關鍵：<strong>因為是普通 HTTP 檔案，
+        整個 CDN 生態才能直接拿來用</strong>。第 14 課會展開。
+      </p>
+
+      <h2>2. Manifest</h2>
+      <p>
+        播放器怎麼知道有哪些畫質、每段的網址是什麼？
+        靠一個描述檔（manifest／playlist）。
+      </p>
+      <div class="code-block"># HLS 的主播放清單（master.m3u8）
+#EXTM3U
+#EXT-X-STREAM-INF:BANDWIDTH=700000,RESOLUTION=640x360
+360p/index.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=2500000,RESOLUTION=1280x720
+720p/index.m3u8
+#EXT-X-STREAM-INF:BANDWIDTH=5000000,RESOLUTION=1920x1080
+1080p/index.m3u8
+
+# 單一畫質的播放清單（1080p/index.m3u8）
+#EXTM3U
+#EXT-X-TARGETDURATION:4
+#EXTINF:4.0,
+seg-001.m4s
+#EXTINF:4.0,
+seg-002.m4s
+...</div>
+
+      <h2>3. HLS 與 DASH</h2>
+      <table>
+        <thead><tr><th></th><th>HLS</th><th>DASH</th></tr></thead>
+        <tbody>
+          <tr><td>提出者</td><td>Apple</td><td>MPEG（國際標準）</td></tr>
+          <tr><td>描述檔</td><td>.m3u8（文字清單）</td><td>.mpd（XML）</td></tr>
+          <tr><td>裝置支援</td><td>iOS 原生，幾乎全平台</td><td>Android、瀏覽器、智慧電視</td></tr>
+          <tr><td>片段格式</td><td>早期 .ts，現在多用 fMP4</td><td>fMP4</td></tr>
+          <tr><td>實務</td><td colspan="2">平台通常兩種都提供，片段檔案可共用（CMAF）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        <strong>CMAF</strong> 是重要的一步：它讓 HLS 與 DASH 共用同一批片段檔案，
+        只需要兩份不同的 manifest。這直接省下一半的儲存與快取空間。
+      </p>
+
+      <h2>4. 分段長度的取捨</h2>
+      <table>
+        <thead><tr><th>段長</th><th>延遲</th><th>切換反應</th><th>請求數</th><th>壓縮效率</th></tr></thead>
+        <tbody>
+          <tr><td>1 秒</td><td>低</td><td>快</td><td>多（開銷大）</td><td>差（I 幀太密）</td></tr>
+          <tr><td>2–4 秒</td><td>中</td><td>好</td><td>適中</td><td>好</td></tr>
+          <tr><td>6–10 秒</td><td>高</td><td>慢</td><td>少</td><td>最好</td></tr>
+        </tbody>
+      </table>
+      <p>
+        點播通常用 4–6 秒（優先壓縮效率），
+        直播用 2 秒或更短（優先低延遲），
+        超低延遲直播會用「分塊傳輸」把一段再切成更小的塊邊產邊送。
+      </p>
+
+      <h2>5. 對基礎設施的意義</h2>
+      <p>
+        分段機制看起來是播放器的事，實際上決定了整個後端架構：
+      </p>
+      <ul>
+        <li>每段是獨立檔案 → 可以用標準 HTTP 快取 → CDN 直接可用</li>
+        <li>段的數量很大 → 一支一小時影片有近千個檔案 × 多個畫質 → 物件數量爆炸</li>
+        <li>熱門段（影片開頭）與冷段（影片後半）的存取頻率差很多 → 快取策略要分開</li>
+      </ul>
+      <p>
+        最後一點很實際：<strong>大部分人只看影片的前面幾分鐘</strong>。
+        所以前幾段的快取價值遠高於後面的段。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出分段串流的四個好處</li>
+          <li>解釋 CMAF 省下了什麼</li>
+          <li>說明為何影片前幾段的快取價值較高</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看播放器怎麼決定要哪一段。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：各畫質的實際位元率對照表</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：播放器怎麼決定畫質：ABR 演算法與緩衝區 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

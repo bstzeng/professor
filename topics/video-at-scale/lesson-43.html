@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：分散式檔案系統：從 GFS 到現代 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="把幾萬台機器變成一個檔案系統的基本想法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜儲存（二）：怎麼存才不會壞 · 第 43 課</div>
+      <h1>分散式檔案系統：從 GFS 到現代</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解分散式檔案系統的基本設計</li>
+          <li>知道 metadata 與資料分離的理由</li>
+          <li>認識規模帶來的設計演進</li>
+        </ul>
+      </div>
+
+      <h2>1. 要解決什麼</h2>
+      <p>
+        幾萬台機器、幾百萬顆硬碟，
+        要讓上層程式看起來像<strong>一個檔案系統</strong>：
+        給一個路徑就能讀寫，不用管資料實際在哪台機器。
+      </p>
+
+      <h2>2. 經典設計（GFS 那一代）</h2>
+      <div class="code-block">┌──────────────┐
+│  Master 節點  │  只存 metadata：
+│              │  · 檔案 → 區塊清單
+│              │  · 區塊 → 存在哪幾台機器
+└──────┬───────┘
+       │ 只問「在哪裡」
+┌──────┴────────────────────────────────┐
+│  Chunk Server × 數千台                  │
+│  每台管自己的本機硬碟，存 64 MB 的區塊   │
+└───────────────────────────────────────┘
+
+讀取流程：
+1. 客戶端問 Master：檔案 X 的第 3 個區塊在哪？
+2. Master 回：在機器 A、B、C
+3. 客戶端直接向 A 讀，不再經過 Master</div>
+      <p>
+        關鍵設計是<strong>資料不經過 Master</strong>。
+        Master 只處理「在哪裡」的查詢，
+        實際的位元組直接在客戶端與儲存節點之間流動。
+        這讓單一 Master 能管理極大的叢集。
+      </p>
+
+      <h2>3. 幾個關鍵決定</h2>
+      <table>
+        <thead><tr><th>決定</th><th>理由</th></tr></thead>
+        <tbody>
+          <tr><td>區塊很大（64 MB 起）</td><td>減少 metadata 數量；影音檔案本來就大</td></tr>
+          <tr><td>只支援追加寫入</td><td>影片寫一次就不改，不需要支援隨機修改</td></tr>
+          <tr><td>放寬一致性</td><td>換取可用度與效能</td></tr>
+          <tr><td>故障是常態</td><td>偵測、複製、重建全部自動化</td></tr>
+          <tr><td>metadata 放記憶體</td><td>查詢要快；用大區塊讓 metadata 放得下</td></tr>
+        </tbody>
+      </table>
+      <p>
+        第二項值得注意：<strong>放棄通用性換取簡單</strong>。
+        這個檔案系統不能當一般檔案系統用，
+        但它完美符合「寫一次、讀很多次、不修改」的影音場景。
+      </p>
+
+      <h2>4. 單一 Master 的極限</h2>
+      <p>
+        隨著規模成長，單一 Master 撐不住：
+      </p>
+      <ul>
+        <li>metadata 超過單機記憶體</li>
+        <li>查詢速率超過單機處理能力</li>
+        <li>Master 故障時整個叢集暫停</li>
+        <li>小檔案太多時 metadata 爆炸（第 36 課）</li>
+      </ul>
+      <p>
+        所以下一代系統把 metadata 層本身也<strong>分散化</strong>：
+        用分散式資料庫存 metadata，多個無狀態的前端處理查詢。
+        這讓系統能擴展到 EB 級。
+      </p>
+
+      <h2>5. 現代設計的幾個特徵</h2>
+      <table>
+        <thead><tr><th>特徵</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>metadata 分散化</td><td>存在可水平擴展的資料庫，不再是單點</td></tr>
+          <tr><td>糾刪碼原生支援</td><td>不只是複本（第 41 課）</td></tr>
+          <tr><td>分層感知</td><td>系統自己管理資料在熱／冷層之間搬移</td></tr>
+          <tr><td>多租戶隔離</td><td>不同服務共用同一套儲存，但互不影響</td></tr>
+          <tr><td>跨區域複製</td><td>內建的跨機房資料放置策略</td></tr>
+          <tr><td>物件介面</td><td>不一定是檔案系統語意，常是 PUT／GET 的物件儲存</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一項是重要的簡化：
+        <strong>影音平台其實不需要「檔案系統」</strong>，
+        它需要的是「給我一個 ID，還我一坨位元組」。
+        物件儲存的語意更簡單，也更容易擴展。
+      </p>
+
+      <h2>6. 對上層的意義</h2>
+      <p>
+        轉碼服務、CDN 回源、備份系統，
+        全部透過同一個介面存取資料，不必知道：
+      </p>
+      <ul>
+        <li>資料在哪台機器、哪顆硬碟</li>
+        <li>用的是複本還是糾刪碼</li>
+        <li>資料在熱層還是冷層</li>
+        <li>剛剛有沒有硬碟壞掉正在重建</li>
+      </ul>
+      <p>
+        <strong>這層抽象是整個系統能運作的關鍵。</strong>
+        沒有它，每個應用都要自己處理幾百萬顆硬碟的故障。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明為何資料不經過 Master 節點</li>
+          <li>解釋「只支援追加寫入」這個決定的理由</li>
+          <li>列出現代分散式儲存的四個特徵</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課收束模組 H：資料在沒人察覺時壞掉怎麼辦。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：為什麼還在用機械硬碟</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：靜默損壞與定期掃描 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

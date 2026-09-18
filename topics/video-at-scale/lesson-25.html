@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：長尾分布：1% 的影片佔 90% 的流量 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="Zipf 分布如何讓快取變得可行。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜為什麼一個機房不夠 · 第 25 課</div>
+      <h1>長尾分布：1% 的影片佔 90% 的流量</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解觀看行為的長尾分布</li>
+          <li>算出快取需要多少空間</li>
+          <li>知道長尾對成本的影響</li>
+        </ul>
+      </div>
+
+      <h2>1. 觀看次數極度不均</h2>
+      <p>
+        影片的觀看次數大致符合 Zipf 分布：
+        第 n 熱門的影片，觀看次數約與 1/n 成正比。
+        實際資料通常比 Zipf 更極端。
+      </p>
+      <table>
+        <thead><tr><th>影片排名</th><th>佔全站影片</th><th>佔全站觀看</th></tr></thead>
+        <tbody>
+          <tr><td>前 0.01%</td><td>極少數</td><td>約 30%</td></tr>
+          <tr><td>前 0.1%</td><td>千分之一</td><td>約 50%</td></tr>
+          <tr><td>前 1%</td><td>百分之一</td><td>約 80%</td></tr>
+          <tr><td>前 10%</td><td>十分之一</td><td>約 95%</td></tr>
+          <tr><td>後 90%</td><td>絕大多數</td><td>約 5%</td></tr>
+        </tbody>
+      </table>
+      <p>（比例為業界常見的量級，實際依平台而異。）</p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="16" text-anchor="middle" font-size="12" fill="var(--text-muted)">長尾分布：少數影片佔掉絕大多數流量</text>
+          <line x1="70" y1="160" x2="600" y2="160" stroke="var(--border)" stroke-width="1"/>
+          <line x1="70" y1="36" x2="70" y2="160" stroke="var(--border)" stroke-width="1"/>
+          <path d="M 70 44 C 110 110, 150 140, 220 150 C 320 158, 450 159, 600 160"
+                fill="var(--accent)" opacity="0.12" stroke="var(--accent)" stroke-width="2"/>
+          <line x1="123" y1="36" x2="123" y2="160" stroke="var(--gold)" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="127" y="50" font-size="8" fill="var(--gold)">前 1% 的影片</text>
+          <text x="127" y="62" font-size="8" fill="var(--gold)">＝ 80% 的流量</text>
+          <text x="400" y="145" font-size="8.5" fill="var(--text-muted)">長尾：數億支影片，合計只有 5% 的流量</text>
+          <text x="330" y="182" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">影片依熱門度排序 →</text>
+          <text x="46" y="100" font-size="8.5" fill="var(--text-muted)" transform="rotate(-90 46 100)">觀看次數</text>
+        </svg>
+      </div>
+
+      <h2>2. 這讓快取變得可行</h2>
+      <div class="code-block">假設全站有 10 EB 的影片資料
+前 1% 的熱門內容 ≈ 100 PB
+但這 1% 能滿足 80% 的請求
+
+一個邊緣節點放 50 TB 的熱門內容
+→ 能命中約 70–90% 的請求
+→ 只有剩下的 10–30% 需要回源</div>
+      <p>
+        <strong>這就是整個 CDN 的經濟基礎。</strong>
+        如果觀看是均勻分布的，每個節點都要放全部內容才有用，
+        分散式架構在經濟上就不成立。
+      </p>
+
+      <h2>3. 長尾的兩種成本</h2>
+      <table>
+        <thead><tr><th>問題</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>儲存成本高、收益低</td><td>90% 的影片佔掉大部分儲存，卻只帶來 5% 的觀看與廣告收入</td></tr>
+          <tr><td>快取無效</td><td>長尾內容不值得放進邊緣快取，每次觀看都要回源</td></tr>
+        </tbody>
+      </table>
+      <p>
+        所以長尾內容的<strong>單次觀看成本遠高於熱門內容</strong>：
+        它要付完整的儲存費，而且每次播放都要從源頭拉。
+      </p>
+      <p>
+        平台的因應方式是把長尾內容放到便宜的冷儲存層（第 38 課），
+        並接受它的播放延遲稍高。
+        對一支一年被看三次的影片來說，多等 500 毫秒沒有人會在意。
+      </p>
+
+      <h2>4. 熱度會變化</h2>
+      <p>
+        更麻煩的是熱度不是固定的：
+      </p>
+      <ul>
+        <li><strong>新片衝高</strong>：上傳後 48 小時內達到峰值，然後快速衰減</li>
+        <li><strong>突然爆紅</strong>：一支放了三年的老影片可能因為被某人分享而突然爆量</li>
+        <li><strong>週期性</strong>：節慶歌曲、季節性內容每年回來一次</li>
+        <li><strong>地域性</strong>：某支影片可能只在單一國家熱門</li>
+      </ul>
+      <p>
+        最後一項很重要：<strong>熱門排行是分地區的</strong>。
+        東京節點與聖保羅節點該快取的內容完全不同。
+        所以快取決策必須在地化，不能用全球統一的熱門榜。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明長尾分布為何讓 CDN 在經濟上可行</li>
+          <li>解釋長尾內容的單次觀看成本為何較高</li>
+          <li>說出為何快取決策必須在地化</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課處理 CDN 最核心的那個指標：快取命中率。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：集中式架構的三個死因</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：快取命中率：整個 CDN 的核心指標 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

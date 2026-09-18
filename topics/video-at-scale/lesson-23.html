@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：光速的限制：RTT 與體驗 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="地球的大小決定了延遲的下限，這是錢買不到的。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜為什麼一個機房不夠 · 第 23 課</div>
+      <h1>光速的限制：RTT 與體驗</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>算出地理距離造成的延遲下限</li>
+          <li>理解 RTT 對體驗的影響</li>
+          <li>知道這是錢買不到的限制</li>
+        </ul>
+      </div>
+
+      <h2>1. 光速的帳</h2>
+      <div class="code-block">真空中光速          300,000 km/s
+光纖中（折射率約1.47） 約 204,000 km/s
+
+→ 每 1,000 公里約 4.9 毫秒（單程）
+→ 來回（RTT）約 9.8 毫秒</div>
+      <p>實際路徑不是直線，通常要乘 1.3–1.5 倍的繞路係數。</p>
+      <table>
+        <thead><tr><th>路線</th><th>直線距離</th><th>理論 RTT</th><th>實測 RTT</th></tr></thead>
+        <tbody>
+          <tr><td>台北 → 台北</td><td>&lt; 30 km</td><td>&lt; 1 ms</td><td>1–5 ms</td></tr>
+          <tr><td>台北 → 東京</td><td>2,100 km</td><td>21 ms</td><td>30–45 ms</td></tr>
+          <tr><td>台北 → 新加坡</td><td>3,200 km</td><td>31 ms</td><td>40–60 ms</td></tr>
+          <tr><td>台北 → 美西</td><td>10,300 km</td><td>101 ms</td><td>120–160 ms</td></tr>
+          <tr><td>台北 → 歐洲</td><td>9,800 km</td><td>96 ms</td><td>200–280 ms（繞路多）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        注意最後一列：台北到歐洲的實測遠高於理論值，
+        因為海纜路徑要繞經新加坡或美國。
+        <strong>網路距離不等於地理距離。</strong>
+      </p>
+
+      <h2>2. RTT 怎麼變成使用者感受</h2>
+      <p>建立一個 HTTPS 連線並拿到第一段影片，需要好幾次來回：</p>
+      <div class="code-block">DNS 查詢              1 RTT（若無快取）
+TCP 三向握手          1 RTT
+TLS 1.3 握手          1 RTT
+取得 manifest         1 RTT
+請求第一段            1 RTT
+                    ─────
+                      5 RTT
+
+RTT = 10 ms  →  50 ms   感覺是「立刻」
+RTT = 50 ms  →  250 ms  感覺是「有點延遲」
+RTT = 150 ms →  750 ms  感覺是「慢」</div>
+      <p>
+        QUIC 的 0-RTT／1-RTT 可以省掉一兩個來回，
+        但無法改變單次 RTT 的物理下限。
+        <strong>要降低這個數字，只有一個方法：讓距離變短。</strong>
+      </p>
+
+      <h2>3. 這對架構的意義</h2>
+      <p>
+        假設你只有一個機房在美國西岸。對全球使用者而言：
+      </p>
+      <table>
+        <thead><tr><th>使用者位置</th><th>RTT</th><th>5 RTT 的 TTFF 下限</th></tr></thead>
+        <tbody>
+          <tr><td>美西</td><td>10 ms</td><td>50 ms</td></tr>
+          <tr><td>美東</td><td>70 ms</td><td>350 ms</td></tr>
+          <tr><td>歐洲</td><td>150 ms</td><td>750 ms</td></tr>
+          <tr><td>亞洲</td><td>150 ms</td><td>750 ms</td></tr>
+          <tr><td>南美</td><td>180 ms</td><td>900 ms</td></tr>
+          <tr><td>非洲</td><td>250 ms</td><td>1,250 ms</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列已經超過一秒——而這還只是<strong>下限</strong>，
+        沒算上伺服器處理時間與實際下載。
+        第 15 課說 TTFF 目標是一秒以內，
+        單機房架構在半個地球以外根本做不到。
+      </p>
+
+      <h2>4. 還有第二個影響：吞吐量</h2>
+      <p>
+        第 17 課提過，單一 TCP 連線的吞吐量受 RTT 限制。
+        高 RTT 不只讓開播變慢，也讓<strong>下載速度變慢</strong>，
+        進而導致播放器判斷「網路不好」而降低畫質。
+      </p>
+      <p>
+        所以距離遠的使用者會同時遭遇三件事：
+        開播慢、畫質差、容易卡。而這三件事正好是第 15 課
+        列出的全部三個體驗指標。
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>光纖中每 1,000 公里約 10 ms RTT，實際還要乘繞路係數</li>
+          <li>建立播放需要約 5 個 RTT</li>
+          <li>單機房架構對遠端使用者的 TTFF 下限就超過一秒</li>
+          <li>高 RTT 同時傷害開播速度、畫質與穩定度</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出 5,000 公里的理論 RTT</li>
+          <li>說明為何台北到歐洲的實測 RTT 遠高於理論值</li>
+          <li>解釋高 RTT 為何同時影響三個體驗指標</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把單機房的三個死因整理清楚。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：為什麼大公司最後都自己蓋網路</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：集中式架構的三個死因 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

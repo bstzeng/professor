@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：直播與點播的根本差異 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="不能預先轉碼、不能預先快取，直播的每個環節都變難。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜串流怎麼送 · 第 16 課</div>
+      <h1>直播與點播的根本差異</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較直播與點播的每個環節</li>
+          <li>理解直播為何更貴</li>
+          <li>知道延遲等級的分類</li>
+        </ul>
+      </div>
+
+      <h2>1. 逐環節對照</h2>
+      <table>
+        <thead><tr><th>環節</th><th>點播</th><th>直播</th></tr></thead>
+        <tbody>
+          <tr><td>轉碼時機</td><td>上傳後慢慢做，可排隊</td><td><strong>必須即時</strong>，慢一秒就掉一秒</td></tr>
+          <tr><td>轉碼失敗</td><td>重跑就好</td><td>畫面直接中斷</td></tr>
+          <tr><td>快取</td><td>熱門內容命中率 95%+</td><td>新內容，第一批觀眾一定回源</td></tr>
+          <tr><td>預先填充</td><td>可以離峰搬貨</td><td><strong>不可能</strong>，內容還不存在</td></tr>
+          <tr><td>流量可預測性</td><td>相對平穩</td><td>開播瞬間暴衝</td></tr>
+          <tr><td>容量規劃</td><td>依歷史趨勢</td><td>要為單一事件預留</td></tr>
+          <tr><td>儲存</td><td>永久保存</td><td>可選擇不留或留存檔</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 三個根本困難</h2>
+      <p><strong>困難一：轉碼必須即時</strong></p>
+      <p>
+        點播可以用最慢最好的編碼器設定，反正沒人等。
+        直播的每一秒影像都必須在一秒內編完所有畫質版本，
+        否則就會累積延遲。這意味著：
+      </p>
+      <ul>
+        <li>只能用快速編碼設定（品質較差、位元率較高）</li>
+        <li>很難用 AV1 這類高效但慢的編碼器</li>
+        <li>算力需求是「同時進行的直播數 × 階梯數」，且無法排隊削峰</li>
+      </ul>
+
+      <p><strong>困難二：第一批觀眾一定回源</strong></p>
+      <div class="code-block">點播：影片已存在數天，各層快取都有
+      → 命中率 95%+
+
+直播：每一段都是剛產生的新檔案
+      → 每個邊緣節點的第一個請求必定未命中
+      → 回源流量 = 邊緣節點數 × 每段大小 ÷ 段長</div>
+      <p>
+        好消息是這個回源量與<strong>觀眾數無關</strong>，
+        只與節點數有關。一千個邊緣節點、每段 2 秒、1080p 5 Mbps：
+        回源約 1000 × 5 Mbps = 5 Gbps。
+        觀眾一百萬人或一千萬人，回源量都一樣。
+      </p>
+      <p>
+        所以直播的快取效率<strong>反而在觀眾越多時越好</strong>——
+        它的固定成本高但邊際成本極低。
+      </p>
+
+      <p><strong>困難三：流量形狀完全不同</strong></p>
+      <p>
+        點播的流量是連續曲線，直播是階梯：
+        開播瞬間從零跳到峰值，結束瞬間掉回零。
+        容量規劃無法靠平均值，必須為<strong>單一事件的峰值</strong>準備。
+      </p>
+
+      <h2>3. 延遲等級</h2>
+      <table>
+        <thead><tr><th>等級</th><th>延遲</th><th>技術</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td>一般直播</td><td>20–60 秒</td><td>標準 HLS／DASH，6–10 秒段</td><td>演唱會、賽事轉播</td></tr>
+          <tr><td>低延遲</td><td>5–15 秒</td><td>2 秒段 + 調校</td><td>一般實況</td></tr>
+          <tr><td>超低延遲</td><td>2–5 秒</td><td>LL-HLS／LL-DASH，分塊傳輸</td><td>互動實況、聊天互動</td></tr>
+          <tr><td>即時</td><td>&lt; 1 秒</td><td>WebRTC</td><td>視訊通話、互動節目</td></tr>
+        </tbody>
+      </table>
+      <p>
+        每降一級，成本上升而且可快取性下降。
+        WebRTC 幾乎無法用標準 CDN 快取，
+        要靠專用的媒體伺服器叢集轉發——這是最貴的一種。
+      </p>
+
+      <h2>4. 為什麼賽事轉播還是會有延遲</h2>
+      <p>
+        觀眾常抱怨「鄰居先歡呼我才看到進球」。原因是整條鏈路：
+      </p>
+      <div class="code-block">攝影機 → 導播 → 編碼 → 上行傳輸 → 雲端轉碼
+       → 打包分段 → CDN 分發 → 播放器緩衝 → 顯示
+
+每一段都要幾秒，加起來 20–40 秒是正常的。
+而電視的衛星／有線鏈路通常只要 5–10 秒。</div>
+      <p>
+        要把這個差距補起來，每一環都要花錢優化，
+        而且會犧牲畫質與穩定度。這是一個典型的
+        <strong>「使用者要的東西剛好是最貴的那個」</strong>的例子。
+      </p>
+
+      <h2>5. 模組 C 總結</h2>
+      <ul>
+        <li>影片被切成段，用普通 HTTP 傳輸，這讓 CDN 可用</li>
+        <li>播放器依緩衝區與頻寬估計逐段選畫質，升畫質門檻較嚴</li>
+        <li>HTTP 的可快取性帶來一百倍的成本差距，壓倒 UDP 的延遲優勢</li>
+        <li>體驗優先序：卡頓 &gt; TTFF &gt; 畫質</li>
+        <li>直播在轉碼、快取、容量規劃三方面都比點播困難</li>
+      </ul>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說明直播的回源流量為何與觀眾數無關</li>
+          <li>列出四種延遲等級與各自的技術</li>
+          <li>解釋賽事轉播延遲的來源</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>模組 D 開始：正面處理頻寬這件事的物理與金錢。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：首幀時間與卡頓率：使用者真正在意的指標</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：頻寬到底是什麼：水管比喻為何會誤導 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

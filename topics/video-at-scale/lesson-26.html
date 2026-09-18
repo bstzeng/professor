@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：快取命中率：整個 CDN 的核心指標 ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="命中率提高一個百分點，回源流量會怎麼變化。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜為什麼一個機房不夠 · 第 26 課</div>
+      <h1>快取命中率：整個 CDN 的核心指標</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解命中率如何決定回源流量</li>
+          <li>算出提高命中率的槓桿效果</li>
+          <li>知道影響命中率的因素</li>
+        </ul>
+      </div>
+
+      <h2>1. 基本算式</h2>
+      <div class="code-block">回源流量 = 邊緣流量 × (1 − 命中率)
+
+邊緣 100 Tbps：
+  命中率 80%  →  回源 20 Tbps
+  命中率 90%  →  回源 10 Tbps
+  命中率 95%  →  回源  5 Tbps
+  命中率 98%  →  回源  2 Tbps
+  命中率 99%  →  回源  1 Tbps</div>
+      <p>
+        注意這個關係是<strong>非線性的</strong>：
+        從 80% 提到 90%，回源減半；
+        從 95% 提到 98%，回源又減少六成。
+        <strong>命中率越高，每一個百分點越值錢。</strong>
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+          <text x="320" y="16" text-anchor="middle" font-size="12" fill="var(--text-muted)">命中率與回源流量（邊緣固定 100 Tbps）</text>
+          <line x1="70" y1="160" x2="600" y2="160" stroke="var(--border)" stroke-width="1"/>
+          <line x1="70" y1="36" x2="70" y2="160" stroke="var(--border)" stroke-width="1"/>
+          <g>
+            <rect x="110" y="40" width="46" height="120" fill="#ff8a65" opacity="0.7" rx="2"/>
+            <text x="133" y="34" text-anchor="middle" font-size="8" fill="var(--text-muted)">20 T</text>
+            <text x="133" y="175" text-anchor="middle" font-size="8" fill="var(--text-muted)">80%</text>
+            <rect x="200" y="100" width="46" height="60" fill="#ff8a65" opacity="0.6" rx="2"/>
+            <text x="223" y="94" text-anchor="middle" font-size="8" fill="var(--text-muted)">10 T</text>
+            <text x="223" y="175" text-anchor="middle" font-size="8" fill="var(--text-muted)">90%</text>
+            <rect x="290" y="130" width="46" height="30" fill="var(--gold)" opacity="0.7" rx="2"/>
+            <text x="313" y="124" text-anchor="middle" font-size="8" fill="var(--text-muted)">5 T</text>
+            <text x="313" y="175" text-anchor="middle" font-size="8" fill="var(--text-muted)">95%</text>
+            <rect x="380" y="148" width="46" height="12" fill="var(--accent)" opacity="0.7" rx="2"/>
+            <text x="403" y="142" text-anchor="middle" font-size="8" fill="var(--text-muted)">2 T</text>
+            <text x="403" y="175" text-anchor="middle" font-size="8" fill="var(--text-muted)">98%</text>
+            <rect x="470" y="154" width="46" height="6" fill="var(--accent)" opacity="0.7" rx="2"/>
+            <text x="493" y="148" text-anchor="middle" font-size="8" fill="var(--text-muted)">1 T</text>
+            <text x="493" y="175" text-anchor="middle" font-size="8" fill="var(--text-muted)">99%</text>
+          </g>
+          <text x="560" y="100" font-size="8.5" fill="var(--text-muted)">回源流量</text>
+        </svg>
+      </div>
+
+      <h2>2. 兩種命中率</h2>
+      <table>
+        <thead><tr><th>指標</th><th>定義</th><th>誰在意</th></tr></thead>
+        <tbody>
+          <tr><td>請求命中率</td><td>命中的請求數 / 總請求數</td><td>使用者體驗（延遲）</td></tr>
+          <tr><td><strong>位元組命中率</strong></td><td>命中的位元組 / 總位元組</td><td><strong>成本</strong>（回源頻寬）</td></tr>
+        </tbody>
+      </table>
+      <p>
+        兩者可以差很多。小檔案（manifest、縮圖）命中率高但位元組少；
+        大檔案（高畫質影片段）命中率可能較低但位元組多。
+        <strong>談成本時一定要看位元組命中率。</strong>
+      </p>
+
+      <h2>3. 影響命中率的因素</h2>
+      <table>
+        <thead><tr><th>因素</th><th>方向</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td>快取容量</td><td>越大越好</td><td>但報酬遞減，因為長尾很長</td></tr>
+          <tr><td>節點服務人數</td><td>越多越好</td><td>使用者越多，熱門內容被重複請求的機會越大</td></tr>
+          <tr><td>內容版本數</td><td>越少越好</td><td>多編碼器會稀釋命中率（第 10 課）</td></tr>
+          <tr><td>內容新鮮度</td><td>新內容較差</td><td>剛上傳的還沒進快取</td></tr>
+          <tr><td>淘汰策略</td><td>影響大</td><td>LRU、LFU 或依預測熱度</td></tr>
+          <tr><td>預先填充</td><td>顯著提升</td><td>離峰時先搬好（第 32 課）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 節點大小的取捨</h2>
+      <p>
+        一個反直覺的結論：<strong>節點不是越多越好。</strong>
+      </p>
+      <div class="code-block">把 100 萬使用者分給 10 個大節點：
+  每節點 10 萬人 → 熱門內容重複請求多 → 命中率高
+
+把 100 萬使用者分給 1000 個小節點：
+  每節點 1,000 人 → 同一支影片可能只有一個人看 → 命中率低</div>
+      <p>
+        所以節點數量有個最佳點：
+        <strong>夠靠近使用者以降低延遲，
+        又夠大以維持命中率。</strong>
+        這就是為什麼 CDN 要分層——
+        小的邊緣節點負責延遲，大的區域節點負責命中率（第 27 課）。
+      </p>
+
+      <h2>5. 命中率的實務目標</h2>
+      <table>
+        <thead><tr><th>層級</th><th>典型位元組命中率</th></tr></thead>
+        <tbody>
+          <tr><td>ISP 內嵌節點</td><td>70–90%</td></tr>
+          <tr><td>邊緣 PoP</td><td>85–95%</td></tr>
+          <tr><td>區域節點（承接邊緣未命中）</td><td>70–85%</td></tr>
+          <tr><td>整體（對源頭而言）</td><td>98–99.5%</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後一列是重點：<strong>分層之後的整體命中率可以到 99% 以上</strong>，
+        這就是第 5 課說的「源頭只要 1 Tbps 撐起 100 Tbps」的來源。
+      </p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>算出命中率從 92% 提到 97% 時，回源流量減少多少比例</li>
+          <li>說明請求命中率與位元組命中率的差異</li>
+          <li>解釋為何節點不是越多越好</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課把分層快取的完整架構畫出來。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：長尾分布：1% 的影片佔 90% 的流量</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：從中心到邊緣：分層快取架構 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

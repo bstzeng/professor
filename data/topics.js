@@ -9597,6 +9597,169 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "video-at-scale",
+      category: "tech",
+      title: "影音平台的規模工程：YouTube 到底需要多少頻寬、機器與電力",
+      description:
+        "從一支影片的位元組開始，一路推導到十億人規模的基礎設施：頻寬、CDN、儲存、轉碼、機器數量與電力全部算出來。涵蓋影片壓縮與位元率階梯、HLS/DASH 與 ABR、transit 與 peering 的計費方式、長尾分布與快取命中率、分散式儲存與糾刪碼、轉碼算力與專用晶片、資料中心的電力與 PUE、可靠度與容量規劃，最後收束到每次觀看的實際成本，以及 Netflix、直播、短影音與社群動態四種平台為何走向完全不同的架構。",
+      icon: "📺",
+      url: "topics/video-at-scale/index.html",
+      modules: [
+        {
+          title: "模組 A｜先把規模感建立起來",
+          courses: [
+            { title: "一個影片請求到底是多少位元組", url: "topics/video-at-scale/lesson-01.html" },
+            { title: "從一個人到十億人：把數字乘上去", url: "topics/video-at-scale/lesson-02.html" },
+            { title: "三個決定一切的數字：位元率、同時在線、尖峰倍率", url: "topics/video-at-scale/lesson-03.html" },
+            { title: "動手算：YouTube 的頻寬需求", url: "topics/video-at-scale/lesson-04.html" },
+            { title: "為什麼「買頻寬」這句話本身是誤解", url: "topics/video-at-scale/lesson-05.html" }
+          ]
+        },
+        {
+          title: "模組 B｜影片本身：位元組從哪來",
+          courses: [
+            { title: "影格、解析度、色深：未壓縮有多可怕", url: "topics/video-at-scale/lesson-06.html" },
+            { title: "壓縮原理：為什麼影片能壓到千分之一", url: "topics/video-at-scale/lesson-07.html" },
+            { title: "編碼器演進：H.264、VP9、H.265、AV1", url: "topics/video-at-scale/lesson-08.html" },
+            { title: "位元率階梯與 ABR", url: "topics/video-at-scale/lesson-09.html" },
+            { title: "一支影片變成十幾個檔案", url: "topics/video-at-scale/lesson-10.html" },
+            { title: "各畫質的實際位元率對照表", url: "topics/video-at-scale/lesson-11.html" }
+          ]
+        },
+        {
+          title: "模組 C｜串流怎麼送",
+          courses: [
+            { title: "不是下載也不是串流：HLS 與 DASH 的分段機制", url: "topics/video-at-scale/lesson-12.html" },
+            { title: "播放器怎麼決定畫質：ABR 演算法與緩衝區", url: "topics/video-at-scale/lesson-13.html" },
+            { title: "TCP、QUIC 與影片：為什麼影片走 HTTP", url: "topics/video-at-scale/lesson-14.html" },
+            { title: "首幀時間與卡頓率：使用者真正在意的指標", url: "topics/video-at-scale/lesson-15.html" },
+            { title: "直播與點播的根本差異", url: "topics/video-at-scale/lesson-16.html" }
+          ]
+        },
+        {
+          title: "模組 D｜頻寬的物理與金錢",
+          courses: [
+            { title: "頻寬到底是什麼：水管比喻為何會誤導", url: "topics/video-at-scale/lesson-17.html" },
+            { title: "網際網路的三層結構", url: "topics/video-at-scale/lesson-18.html" },
+            { title: "Transit、Peering、IX：三種連法與三種帳單", url: "topics/video-at-scale/lesson-19.html" },
+            { title: "95th percentile 計費：為什麼尖峰決定價格", url: "topics/video-at-scale/lesson-20.html" },
+            { title: "算錢：100 Tbps 如果全走 transit", url: "topics/video-at-scale/lesson-21.html" },
+            { title: "為什麼大公司最後都自己蓋網路", url: "topics/video-at-scale/lesson-22.html" }
+          ]
+        },
+        {
+          title: "模組 E｜為什麼一個機房不夠",
+          courses: [
+            { title: "光速的限制：RTT 與體驗", url: "topics/video-at-scale/lesson-23.html" },
+            { title: "集中式架構的三個死因", url: "topics/video-at-scale/lesson-24.html" },
+            { title: "長尾分布：1% 的影片佔 90% 的流量", url: "topics/video-at-scale/lesson-25.html" },
+            { title: "快取命中率：整個 CDN 的核心指標", url: "topics/video-at-scale/lesson-26.html" },
+            { title: "從中心到邊緣：分層快取架構", url: "topics/video-at-scale/lesson-27.html" }
+          ]
+        },
+        {
+          title: "模組 F｜CDN：真正在送影片的那一層",
+          courses: [
+            { title: "CDN 不只是「離你比較近的伺服器」", url: "topics/video-at-scale/lesson-28.html" },
+            { title: "自建 vs 商用 CDN：成本的分水嶺", url: "topics/video-at-scale/lesson-29.html" },
+            { title: "PoP、edge、mid-tier、origin 四層", url: "topics/video-at-scale/lesson-30.html" },
+            { title: "內嵌式 CDN：把機器放進 ISP 機房", url: "topics/video-at-scale/lesson-31.html" },
+            { title: "預先填充：離峰時段把貨搬過去", url: "topics/video-at-scale/lesson-32.html" },
+            { title: "導流：使用者怎麼被指到正確那台機器", url: "topics/video-at-scale/lesson-33.html" }
+          ]
+        },
+        {
+          title: "模組 G｜儲存（一）：到底存了什麼",
+          courses: [
+            { title: "一支影片上傳後產生的完整檔案清單", url: "topics/video-at-scale/lesson-34.html" },
+            { title: "原始檔要不要留：留與不留的代價", url: "topics/video-at-scale/lesson-35.html" },
+            { title: "縮圖、字幕、metadata：容易被忽略的部分", url: "topics/video-at-scale/lesson-36.html" },
+            { title: "動手算：每天長出多少資料", url: "topics/video-at-scale/lesson-37.html" },
+            { title: "冷熱分層：99% 的影片沒人看", url: "topics/video-at-scale/lesson-38.html" },
+            { title: "十年後怎麼辦：資料只增不減", url: "topics/video-at-scale/lesson-39.html" }
+          ]
+        },
+        {
+          title: "模組 H｜儲存（二）：怎麼存才不會壞",
+          courses: [
+            { title: "硬碟會壞：年故障率乘上規模", url: "topics/video-at-scale/lesson-40.html" },
+            { title: "複本 vs 糾刪碼", url: "topics/video-at-scale/lesson-41.html" },
+            { title: "為什麼還在用機械硬碟", url: "topics/video-at-scale/lesson-42.html" },
+            { title: "分散式檔案系統：從 GFS 到現代", url: "topics/video-at-scale/lesson-43.html" },
+            { title: "靜默損壞與定期掃描", url: "topics/video-at-scale/lesson-44.html" }
+          ]
+        },
+        {
+          title: "模組 I｜轉碼：最貴的那道工",
+          courses: [
+            { title: "上傳之後發生什麼：轉碼管線全圖", url: "topics/video-at-scale/lesson-45.html" },
+            { title: "轉碼要多少算力", url: "topics/video-at-scale/lesson-46.html" },
+            { title: "為什麼要做專用晶片", url: "topics/video-at-scale/lesson-47.html" },
+            { title: "分級轉碼：熱門影片才值得用好編碼器", url: "topics/video-at-scale/lesson-48.html" },
+            { title: "動手算：每天 72 萬小時要多少台轉碼機", url: "topics/video-at-scale/lesson-49.html" }
+          ]
+        },
+        {
+          title: "模組 J｜機器數量：把帳算出來",
+          courses: [
+            { title: "伺服器的四種角色與各自規格", url: "topics/video-at-scale/lesson-50.html" },
+            { title: "Edge 要幾台", url: "topics/video-at-scale/lesson-51.html" },
+            { title: "儲存要幾台", url: "topics/video-at-scale/lesson-52.html" },
+            { title: "轉碼要幾台", url: "topics/video-at-scale/lesson-53.html" },
+            { title: "總表：一個 YouTube 規模的機隊", url: "topics/video-at-scale/lesson-54.html" }
+          ]
+        },
+        {
+          title: "模組 K｜資料中心本身",
+          courses: [
+            { title: "裡面長什麼樣：機櫃、冷熱通道、走線", url: "topics/video-at-scale/lesson-55.html" },
+            { title: "電力：為什麼單位是 MW 而不是台數", url: "topics/video-at-scale/lesson-56.html" },
+            { title: "PUE：那個 1.1 代表什麼", url: "topics/video-at-scale/lesson-57.html" },
+            { title: "冷卻：從空調到液冷", url: "topics/video-at-scale/lesson-58.html" },
+            { title: "資料中心網路：Clos 與 spine-leaf", url: "topics/video-at-scale/lesson-59.html" },
+            { title: "選址：電、水、光纖、稅、天氣", url: "topics/video-at-scale/lesson-60.html" }
+          ]
+        },
+        {
+          title: "模組 L｜可靠度與營運",
+          courses: [
+            { title: "一萬台機器每天會壞幾台", url: "topics/video-at-scale/lesson-61.html" },
+            { title: "沒有「不會故障」，只有「壞了沒人發現」", url: "topics/video-at-scale/lesson-62.html" },
+            { title: "容量規劃：為什麼要留四成餘裕", url: "topics/video-at-scale/lesson-63.html" },
+            { title: "尖峰事件：世界盃、跨年、大片上架", url: "topics/video-at-scale/lesson-64.html" },
+            { title: "監控與 SRE：怎麼知道系統是正常的", url: "topics/video-at-scale/lesson-65.html" }
+          ]
+        },
+        {
+          title: "模組 M｜成本結構與商業模式",
+          courses: [
+            { title: "一次觀看到底花多少錢", url: "topics/video-at-scale/lesson-66.html" },
+            { title: "成本四塊：頻寬、儲存、運算、人", url: "topics/video-at-scale/lesson-67.html" },
+            { title: "為什麼廣告養得起這件事", url: "topics/video-at-scale/lesson-68.html" },
+            { title: "規模經濟的門檻：為什麼小公司做不了", url: "topics/video-at-scale/lesson-69.html" },
+            { title: "用商用服務要多少錢：對照表", url: "topics/video-at-scale/lesson-70.html" }
+          ]
+        },
+        {
+          title: "模組 N｜別人怎麼做",
+          courses: [
+            { title: "Netflix：片庫小、畫質高、可預測", url: "topics/video-at-scale/lesson-71.html" },
+            { title: "直播平台：不能快取的那個難題", url: "topics/video-at-scale/lesson-72.html" },
+            { title: "短影音：為什麼比長影片更難", url: "topics/video-at-scale/lesson-73.html" },
+            { title: "社群平台的影片：自動播放的代價", url: "topics/video-at-scale/lesson-74.html" }
+          ]
+        },
+        {
+          title: "模組 O｜總結",
+          courses: [
+            { title: "從一萬人到一億人的演進路線", url: "topics/video-at-scale/lesson-75.html" },
+            { title: "常見誤解十二條", url: "topics/video-at-scale/lesson-76.html" },
+            { title: "名詞總表、公式總表與延伸閱讀", url: "topics/video-at-scale/lesson-77.html" }
+          ]
+        }
+      ]
     }
   ]
 };

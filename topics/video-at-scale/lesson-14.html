@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：TCP、QUIC 與影片：為什麼影片走 HTTP ｜ 影音平台的規模工程 ｜ 博雅書院</title>
+<meta name="description" content="用 HTTP 傳影片看似浪費，實際上是規模化的關鍵決定。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">影音平台的規模工程</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜串流怎麼送 · 第 14 課</div>
+      <h1>TCP、QUIC 與影片：為什麼影片走 HTTP</h1>
+    </header>
+
+    <article class="lesson-content">
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「用 HTTP 傳影片」的理由</li>
+          <li>比較 TCP 與 UDP 在影片上的表現</li>
+          <li>知道 QUIC 帶來什麼改變</li>
+        </ul>
+      </div>
+
+      <h2>1. 直覺上應該用 UDP</h2>
+      <p>
+        影片是即時媒體，掉幾個封包無所謂，
+        重傳反而造成延遲。教科書會告訴你這種情境該用 UDP。
+        早期的串流協定（RTP／RTSP、RTMP）也確實是這樣設計的。
+      </p>
+      <p>
+        但今天絕大多數的影片是用 <strong>HTTP over TCP</strong> 傳的。為什麼？
+      </p>
+
+      <h2>2. 五個壓倒性的理由</h2>
+      <table>
+        <thead><tr><th>理由</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><strong>快取</strong></td><td>HTTP 檔案可以被任何一層快取，這是 CDN 能運作的前提</td></tr>
+          <tr><td><strong>防火牆</strong></td><td>80／443 埠到處都通，自訂 UDP 協定常被企業網路擋掉</td></tr>
+          <tr><td><strong>現成生態</strong></td><td>伺服器、負載平衡、監控、CDN 全部現成</td></tr>
+          <tr><td><strong>成本</strong></td><td>用通用 HTTP 基礎設施，比維護專用串流伺服器便宜得多</td></tr>
+          <tr><td><strong>畫質彈性</strong></td><td>ABR 天然建立在「一段一個檔案」之上</td></tr>
+        </tbody>
+      </table>
+      <p>
+        第一個理由最關鍵。回到第 5 課的算式：
+        <strong>快取把源頭需求從 100 Tbps 降到 1 Tbps</strong>。
+        任何無法被快取的協定，都要付出一百倍的基礎設施成本。
+        這個差距大到讓「TCP 重傳造成的延遲」相形之下微不足道。
+      </p>
+
+      <h2>3. 緩衝區化解了 TCP 的缺點</h2>
+      <p>
+        TCP 的問題是「隊頭阻塞」：一個封包掉了，
+        後面的資料都要等它重傳。對即時通訊這是災難。
+      </p>
+      <p>
+        但影片播放有<strong>緩衝區</strong>（第 13 課）。
+        手上已經有 10 秒的影片，重傳多花的 200 毫秒完全被吸收掉。
+        <strong>緩衝區把「即時傳輸問題」變成了「批次下載問題」</strong>，
+        而批次下載正是 HTTP 最擅長的。
+      </p>
+
+      <h2>4. QUIC 與 HTTP/3</h2>
+      <p>
+        QUIC 建在 UDP 之上，但保留了 HTTP 的語意。它改善了幾件事：
+      </p>
+      <table>
+        <thead><tr><th>改善</th><th>對影片的意義</th></tr></thead>
+        <tbody>
+          <tr><td>0-RTT／1-RTT 連線建立</td><td>開播更快，TTFF 下降</td></tr>
+          <tr><td>串流層級的獨立重傳</td><td>一個段掉封包不會卡住其他段</td></tr>
+          <tr><td>連線遷移</td><td>手機從 Wi-Fi 切到 4G 時連線不中斷</td></tr>
+          <tr><td>更好的擁塞控制</td><td>行動網路下的吞吐量較穩</td></tr>
+        </tbody>
+      </table>
+      <p>
+        最後兩項對行動裝置特別有感。
+        而且因為它仍然是 HTTP 語意，
+        <strong>整個 CDN 與快取架構完全不用改</strong>——
+        這是它能被大規模採用的原因。
+      </p>
+
+      <h2>5. 什麼時候還是要用 UDP 專用協定</h2>
+      <table>
+        <thead><tr><th>情境</th><th>為什麼</th></tr></thead>
+        <tbody>
+          <tr><td>視訊通話</td><td>延遲要低於 200 ms，沒有緩衝區可用</td></tr>
+          <tr><td>雲端遊戲</td><td>延遲要求更嚴苛</td></tr>
+          <tr><td>超低延遲直播（&lt; 1 秒）</td><td>緩衝區被壓到極小，TCP 重傳會直接卡</td></tr>
+          <tr><td>直播訊號回傳</td><td>從攝影現場傳回機房，用專用可靠 UDP 協定</td></tr>
+        </tbody>
+      </table>
+      <p>
+        判斷原則很清楚：<strong>能容忍幾秒緩衝的，用 HTTP；
+        不能的，用 UDP 專用協定，並接受無法快取的成本。</strong>
+      </p>
+
+      <div class="callout">
+        <h3>重點回顧</h3>
+        <ul>
+          <li>影片用 HTTP 的首要理由是可被快取，這決定了一百倍的成本差距</li>
+          <li>緩衝區吸收了 TCP 重傳的延遲</li>
+          <li>QUIC 保留 HTTP 語意，因此 CDN 架構不用改</li>
+          <li>只有無法容忍緩衝的即時場景才用 UDP 專用協定</li>
+        </ul>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>說出影片用 HTTP 的五個理由，並指出最關鍵的一個</li>
+          <li>解釋緩衝區如何化解 TCP 的隊頭阻塞問題</li>
+          <li>列出兩個必須用 UDP 專用協定的情境</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+      <p>下一課看使用者真正在意的兩個指標。</p>
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：播放器怎麼決定畫質：ABR 演算法與緩衝區</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：首幀時間與卡頓率：使用者真正在意的指標 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
