@@ -9956,6 +9956,25 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "leetcode",
+      category: "tech",
+      title: "LeetCode 題解：思路、圖解與 Python 實作",
+      description:
+        "一題一頁、持續累積的 LeetCode 解題筆記。每一題都附英文題目敘述與中文翻譯、完整的範例與限制條件，然後把所有值得知道的解法一個一個拆開講：從最直覺的暴力法開始，說明它為什麼慢、卡在哪裡，再一步步優化到最佳解，需要的地方補上圖解。所有程式碼都是 Python，附複雜度對照表、邊界條件檢查清單與常見錯誤。左側題目列表會隨著題目增加自動延伸。",
+      icon: "🧩",
+      url: "topics/leetcode/index.html",
+      modules: [
+        {
+          title: "第 001–025 題",
+          courses: [
+            { title: "1. Two Sum 兩數之和", url: "topics/leetcode/problem-0001.html" },
+            { title: "2. Add Two Numbers 兩數相加", url: "topics/leetcode/problem-0002.html" },
+            { title: "3. Longest Substring Without Repeating Characters 無重複字元的最長子字串", url: "topics/leetcode/problem-0003.html" }
+          ]
+        }
+      ]
     }
   ]
 };

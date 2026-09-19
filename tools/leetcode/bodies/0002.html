@@ -1,0 +1,445 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>
+            You are given two non-empty linked lists representing two non-negative integers.
+            The digits are stored in <strong>reverse order</strong>, and each node contains a single digit.
+          </p>
+          <p>
+            Add the two numbers and return the sum as a linked list, also in reverse order.
+          </p>
+          <p>
+            You may assume the two numbers do not contain any leading zero,
+            except the number 0 itself.
+          </p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>
+            給你兩個非空的鏈結串列，分別代表兩個非負整數。
+            數字以<strong>反序</strong>儲存，每個節點存放一位數。
+          </p>
+          <p>
+            請把這兩個數相加，並同樣以反序的鏈結串列回傳結果。
+          </p>
+          <p>
+            你可以假設這兩個數除了 0 本身以外，都沒有前導零。
+          </p>
+        </div>
+
+        <h2>範例</h2>
+        <div class="code-block">範例 1
+  輸入：l1 = [2,4,3], l2 = [5,6,4]
+  輸出：[7,0,8]
+  說明：342 + 465 = 807
+        （反序讀：2,4,3 是 342；5,6,4 是 465；7,0,8 是 807）
+
+範例 2
+  輸入：l1 = [0], l2 = [0]
+  輸出：[0]
+
+範例 3
+  輸入：l1 = [9,9,9,9,9,9,9], l2 = [9,9,9,9]
+  輸出：[8,9,9,9,0,0,0,1]
+  說明：9999999 + 9999 = 10009998</div>
+
+        <h2>限制條件</h2>
+        <ul>
+          <li>每個串列的節點數在 [1, 100] 之間</li>
+          <li>0 ≤ <code>Node.val</code> ≤ 9</li>
+          <li>保證輸入代表的數字沒有前導零（0 本身除外）</li>
+        </ul>
+        <p>
+          <a href="https://leetcode.com/problems/add-two-numbers/" target="_blank" rel="noopener">LeetCode 原題</a>
+        </p>
+
+        <div class="callout">
+          <h3>「反序」其實是在幫你</h3>
+          <p>
+            第一次看到「數字以反序儲存」會覺得很奇怪，但這是<strong>刻意的設計</strong>。
+          </p>
+          <p>
+            回想小學的直式加法：我們從<strong>個位數</strong>開始加，進位往左傳。
+            鏈結串列只能從頭往尾走，所以如果把個位數放在<strong>頭</strong>，
+            走訪的方向就剛好等於加法的方向。
+          </p>
+          <div class="code-block">   342          l1:  2 → 4 → 3        （頭是個位）
+ + 465          l2:  5 → 6 → 4
+ -----          ---------------------
+   807          結果: 7 → 0 → 8
+
+ 直式加法從右往左   鏈結串列從頭往尾
+        ↓                  ↓
+      個位先算          個位在最前面   ← 方向一致</div>
+          <p>
+            如果題目改成「正序儲存」（445 題 Add Two Numbers II），
+            就必須先反轉串列、或用堆疊、或先算長度——難度會明顯提高。
+          </p>
+        </div>
+
+        <h2>解題思路</h2>
+        <p>
+          這題本質上就是<strong>把小學直式加法寫成程式</strong>。
+          真正要處理好的只有三件事：
+        </p>
+        <ol>
+          <li><strong>進位</strong>（carry）要往下一位傳</li>
+          <li><strong>兩個串列不一樣長</strong>，短的那個要當成 0 繼續加</li>
+          <li><strong>最後可能還有進位</strong>（例如 5 + 5 = 10，結果比兩個輸入都長）</li>
+        </ol>
+        <p>
+          下面三種寫法處理的是同一件事，差別在「用什麼結構來組答案」。
+        </p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一 · 最佳解</span>
+          <h3>迭代 + 虛擬頭節點</h3>
+          <p>
+            一邊走兩個串列，一邊把結果節點接在後面。
+          </p>
+          <div class="code-block">class Solution:
+    def addTwoNumbers(self, l1: Optional[ListNode],
+                            l2: Optional[ListNode]) -&gt; Optional[ListNode]:
+        dummy = ListNode()        # 虛擬頭節點：只是個錨點，不放答案
+        cur = dummy
+        carry = 0
+
+        while l1 or l2 or carry:  # 三個條件缺一不可
+            s = carry
+            if l1:
+                s += l1.val
+                l1 = l1.next
+            if l2:
+                s += l2.val
+                l2 = l2.next
+
+            carry, digit = divmod(s, 10)   # 一次拿到進位與本位
+            cur.next = ListNode(digit)
+            cur = cur.next
+
+        return dummy.next         # 跳過虛擬頭，回傳真正的第一個節點</div>
+
+          <h3>虛擬頭節點在做什麼</h3>
+          <p>
+            如果不用 <code>dummy</code>，程式會長成這樣：
+          </p>
+          <div class="code-block">head = None
+cur = None
+while ...:
+    node = ListNode(digit)
+    if head is None:      # 第一個節點要特別處理
+        head = node
+        cur = node
+    else:
+        cur.next = node
+        cur = cur.next</div>
+          <p>
+            每一次迴圈都要問「這是不是第一個節點」。
+            <strong>虛擬頭節點的價值就是讓「第一個節點」不再是特例</strong>——
+            它先占住那個位置，迴圈裡一律用 <code>cur.next = ...</code>，
+            最後回傳 <code>dummy.next</code> 就好。
+          </p>
+          <p>
+            這個技巧在幾乎所有「要建立新鏈結串列」的題目都用得上，
+            值得變成反射動作。
+          </p>
+
+          <h3>逐步追蹤</h3>
+          <div class="content-figure">
+            <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+              <text x="16" y="20" fill="var(--text-muted)" font-size="12">l1 = 2 → 4 → 3　　l2 = 5 → 6 → 4　　（342 + 465）</text>
+
+              <text x="16" y="56" fill="var(--text-muted)" font-size="11">第 1 步</text>
+              <rect x="76" y="38" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="98" y="59" fill="var(--accent)" font-size="14" text-anchor="middle">2</text>
+              <text x="128" y="59" fill="var(--text-muted)" font-size="13">+</text>
+              <rect x="144" y="38" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="166" y="59" fill="var(--accent)" font-size="14" text-anchor="middle">5</text>
+              <text x="196" y="59" fill="var(--text-muted)" font-size="13">+ 0 = 7</text>
+              <text x="290" y="59" fill="var(--text-muted)" font-size="12">carry = 0</text>
+              <rect x="390" y="38" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="412" y="59" fill="var(--gold)" font-size="14" text-anchor="middle">7</text>
+
+              <text x="16" y="110" fill="var(--text-muted)" font-size="11">第 2 步</text>
+              <rect x="76" y="92" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="98" y="113" fill="var(--accent)" font-size="14" text-anchor="middle">4</text>
+              <text x="128" y="113" fill="var(--text-muted)" font-size="13">+</text>
+              <rect x="144" y="92" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="166" y="113" fill="var(--accent)" font-size="14" text-anchor="middle">6</text>
+              <text x="196" y="113" fill="var(--text-muted)" font-size="13">+ 0 = 10</text>
+              <text x="290" y="113" fill="#ff8a65" font-size="12" font-weight="bold">carry = 1</text>
+              <rect x="390" y="92" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="412" y="113" fill="var(--gold)" font-size="14" text-anchor="middle">0</text>
+              <text x="446" y="113" fill="#ff8a65" font-size="11">進位往下傳 ↓</text>
+
+              <text x="16" y="164" fill="var(--text-muted)" font-size="11">第 3 步</text>
+              <rect x="76" y="146" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="98" y="167" fill="var(--accent)" font-size="14" text-anchor="middle">3</text>
+              <text x="128" y="167" fill="var(--text-muted)" font-size="13">+</text>
+              <rect x="144" y="146" width="44" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="166" y="167" fill="var(--accent)" font-size="14" text-anchor="middle">4</text>
+              <text x="196" y="167" fill="#ff8a65" font-size="13">+ 1 = 8</text>
+              <text x="290" y="167" fill="var(--text-muted)" font-size="12">carry = 0</text>
+              <rect x="390" y="146" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="412" y="167" fill="var(--gold)" font-size="14" text-anchor="middle">8</text>
+
+              <line x1="16" y1="194" x2="620" y2="194" stroke="var(--border)" stroke-width="1"/>
+              <text x="16" y="220" fill="var(--text-muted)" font-size="12">結果串列：</text>
+              <rect x="96" y="204" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="118" y="225" fill="var(--gold)" font-size="14" text-anchor="middle">7</text>
+              <text x="148" y="225" fill="var(--text-muted)" font-size="13">→</text>
+              <rect x="166" y="204" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="188" y="225" fill="var(--gold)" font-size="14" text-anchor="middle">0</text>
+              <text x="218" y="225" fill="var(--text-muted)" font-size="13">→</text>
+              <rect x="236" y="204" width="44" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="258" y="225" fill="var(--gold)" font-size="14" text-anchor="middle">8</text>
+              <text x="296" y="225" fill="var(--text-muted)" font-size="13">→ None　（= 807）</text>
+
+              <text x="16" y="266" fill="var(--accent)" font-size="12">迴圈條件 while l1 or l2 or carry 的第三項</text>
+              <text x="16" y="286" fill="var(--text-muted)" font-size="12">就是為了處理「兩串列都走完、但還剩一個進位」的情況，例如 5 + 5 = 10。</text>
+            </svg>
+          </div>
+
+          <div class="callout">
+            <h3><code>while l1 or l2 or carry</code> ——三個條件各自防什麼</h3>
+            <table>
+              <thead><tr><th>少了哪一項</th><th>會在什麼測資出錯</th><th>錯誤結果</th></tr></thead>
+              <tbody>
+                <tr><td><code>l1</code> 或 <code>l2</code>（改成 <code>and</code>）</td><td><code>[1] + [9,9,9]</code></td><td>只加到最短的長度就停，得到 <code>[0]</code></td></tr>
+                <tr><td><code>carry</code></td><td><code>[5] + [5]</code></td><td>最高位的進位被丟掉，得到 <code>[0]</code> 而不是 <code>[0,1]</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p>
+            <code>divmod(s, 10)</code> 一次回傳 <code>(商, 餘數)</code>，
+            正好就是 <code>(進位, 本位數字)</code>。
+            寫成 <code>carry = s // 10</code> 加 <code>digit = s % 10</code> 也完全一樣，
+            <code>divmod</code> 只是少一行。
+          </p>
+          <p>
+            另外注意 <code>s</code> 最大是 <code>9 + 9 + 1 = 19</code>，
+            所以 <code>carry</code> 永遠只會是 0 或 1。
+          </p>
+
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(max(m, n))</td><td>m、n 是兩串列長度，各走一遍</td></tr>
+              <tr><td>空間</td><td>O(max(m, n))</td><td>結果串列本身；不算輸出的話是 O(1)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>遞迴</h3>
+          <p>
+            同樣的邏輯可以寫成遞迴：<strong>把 carry 當成參數往下傳</strong>。
+          </p>
+          <div class="code-block">class Solution:
+    def addTwoNumbers(self, l1: Optional[ListNode],
+                            l2: Optional[ListNode],
+                            carry: int = 0) -&gt; Optional[ListNode]:
+        # 終止條件：兩邊都走完，而且沒有剩下的進位
+        if not l1 and not l2 and not carry:
+            return None
+
+        s = carry + (l1.val if l1 else 0) + (l2.val if l2 else 0)
+        carry, digit = divmod(s, 10)
+
+        node = ListNode(digit)
+        node.next = self.addTwoNumbers(
+            l1.next if l1 else None,
+            l2.next if l2 else None,
+            carry,
+        )
+        return node</div>
+          <p>
+            這個版本讀起來很乾淨：
+            <strong>「結果 = 這一位的數字 + 剩下的部分相加」</strong>，
+            跟數學上的定義幾乎一樣。而且不需要虛擬頭節點——
+            每一層自然回傳自己那一段的頭。
+          </p>
+          <div class="callout">
+            <h3>但遞迴有個現實限制</h3>
+            <p>
+              Python 的預設遞迴深度是 <strong>1000</strong>。
+              這題的限制是節點數 ≤ 100，所以<strong>絕對不會爆</strong>——
+              最深也只有約 101 層。
+            </p>
+            <p>
+              但如果同樣的寫法用在節點數 10⁵ 的題目上，
+              就會直接 <code>RecursionError</code>。
+              遞迴解在鏈結串列題目上要先看清楚長度限制。
+            </p>
+            <p>
+              另外遞迴的空間是 <strong>O(max(m,n)) 的呼叫堆疊</strong>，
+              這部分是迭代版沒有的額外開銷。
+            </p>
+          </div>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(max(m, n))</td><td>與迭代版相同</td></tr>
+              <tr><td>空間</td><td>O(max(m, n))</td><td><strong>呼叫堆疊</strong>，比迭代版多</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三 · 反面教材</span>
+          <h3>轉成整數再相加</h3>
+          <p>
+            很多人的第一個念頭是：
+            「把串列轉成整數、加起來、再轉回串列不就好了？」
+          </p>
+          <div class="code-block">class Solution:
+    def addTwoNumbers(self, l1, l2):
+        def to_int(node):
+            v, place = 0, 1
+            while node:
+                v += node.val * place
+                place *= 10
+                node = node.next
+            return v
+
+        total = to_int(l1) + to_int(l2)
+
+        dummy = ListNode()
+        cur = dummy
+        while True:                    # 用 while True 才能正確處理 total == 0
+            total, d = divmod(total, 10)
+            cur.next = ListNode(d)
+            cur = cur.next
+            if total == 0:
+                break
+        return dummy.next</div>
+          <p>
+            <strong>這段程式碼在 Python 裡是會通過的</strong>，
+            而且在這題的資料範圍下效率也不差。
+            但它有三個問題，值得想清楚。
+          </p>
+          <h3>問題一：它在別的語言會直接爆掉</h3>
+          <div class="code-block">節點數上限 100 → 最大是一個 100 位數
+
+Python  int：沒有上限，100 位數完全沒問題
+Java    long：最多 19 位數 → 溢位
+C++     long long：最多 19 位數 → 溢位
+JavaScript Number：安全整數只到 2⁵³ ≈ 16 位數 → 精度出錯</div>
+          <p>
+            換句話說，<strong>這個解法能過完全是因為 Python 的大整數</strong>，
+            不是因為你解決了題目要考的東西。
+            面試時寫這個版本，下一句話幾乎一定是
+            「那如果不能用大整數呢？」
+          </p>
+          <h3>問題二：它繞過了題目真正的考點</h3>
+          <p>
+            這題要考的是<strong>鏈結串列的走訪與建構</strong>，
+            以及<strong>進位的處理</strong>。
+            轉成整數等於把這兩件事都交給語言內建的加法，
+            你什麼都沒有練到。
+          </p>
+          <h3>問題三：它無法推廣</h3>
+          <p>
+            如果題目改成「兩個超長串列（10⁵ 個節點）相加」，
+            大整數乘法／除法的成本會變成瓶頸：
+            <code>place *= 10</code> 在 100000 位數上每一次都是昂貴的大數運算，
+            整體會退化到<strong>遠差於 O(n)</strong>。
+            而解法一仍然是乾淨的 O(n)。
+          </p>
+          <div class="callout">
+            <h3>什麼時候「轉成整數」是好答案？</h3>
+            <p>
+              當題目<strong>明確保證數值在機器整數範圍內</strong>，
+              而且你要做的是乘法、取模這類在串列上很難直接做的運算時。
+              這題兩個條件都不成立。
+            </p>
+          </div>
+        </div>
+
+        <h2>三種解法對照</h2>
+        <table>
+          <thead>
+            <tr><th>解法</th><th>時間</th><th>額外空間</th><th>可讀性</th><th>評價</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>迭代 + 虛擬頭</strong></td><td>O(max(m,n))</td><td><strong>O(1)</strong></td><td>好</td><td><strong>標準答案</strong></td></tr>
+            <tr><td>遞迴</td><td>O(max(m,n))</td><td>O(max(m,n)) 堆疊</td><td>很好</td><td>可以，但注意深度限制</td></tr>
+            <tr><td>轉整數</td><td>O(max(m,n)) 但常數大</td><td>O(1)</td><td>好</td><td>不推薦，理由見上</td></tr>
+          </tbody>
+        </table>
+        <p>
+          「額外空間」不算輸出的結果串列——
+          那是題目要求的輸出，三種解法都一樣。
+        </p>
+
+        <h2>邊界條件檢查清單</h2>
+        <table>
+          <thead><tr><th>情況</th><th>輸入</th><th>正確輸出</th><th>容易怎麼錯</th></tr></thead>
+          <tbody>
+            <tr><td>兩邊都是 0</td><td><code>[0] + [0]</code></td><td><code>[0]</code></td><td>用 <code>while total:</code> 會回傳空串列</td></tr>
+            <tr><td>長度不同</td><td><code>[1] + [9,9,9]</code></td><td><code>[0,0,0,1]</code></td><td>迴圈條件用 <code>and</code></td></tr>
+            <tr><td>最後有進位</td><td><code>[5] + [5]</code></td><td><code>[0,1]</code></td><td>迴圈條件漏掉 <code>carry</code></td></tr>
+            <tr><td>連鎖進位</td><td><code>[9,9,9,9,9,9,9] + [9,9,9,9]</code></td><td><code>[8,9,9,9,0,0,0,1]</code></td><td>進位只傳一位</td></tr>
+            <tr><td>單節點</td><td><code>[5] + [5]</code></td><td><code>[0,1]</code></td><td>沒有虛擬頭時的第一節點處理</td></tr>
+          </tbody>
+        </table>
+        <p>
+          第一列是解法三的經典陷阱：如果寫成
+        </p>
+        <div class="code-block">while total:              # ✘ total == 0 時一次都不進迴圈
+    total, d = divmod(total, 10)
+    ...</div>
+        <p>
+          那麼 <code>0 + 0</code> 會回傳空串列。
+          必須改成 <code>while True:</code> 加上尾端的 <code>if total == 0: break</code>，
+          確保<strong>至少產生一個節點</strong>。
+        </p>
+
+        <h2>常見追問</h2>
+        <h3>如果數字是正序儲存呢？</h3>
+        <p>
+          那就是 <strong>445. Add Two Numbers II</strong>。
+          加法必須從<strong>尾巴</strong>開始，但鏈結串列只能往前走。三種做法：
+        </p>
+        <ul>
+          <li><strong>反轉兩個串列</strong>，用本題的解法，再把結果反轉回去。簡單但修改了輸入。</li>
+          <li><strong>用兩個堆疊</strong>把數字推進去，再彈出來相加。不修改輸入，O(n) 空間。</li>
+          <li><strong>遞迴</strong>：先遞迴到底，回程時處理加法與進位。</li>
+        </ul>
+        <h3>可以原地修改 l1 來省空間嗎？</h3>
+        <p>
+          可以，把結果寫回比較長的那個串列。但這會<strong>破壞輸入</strong>，
+          在實務上通常不可接受，面試時要先問清楚。
+          而且省下的是「輸出本來就需要」的空間，收益有限。
+        </p>
+        <h3>為什麼不用 Python 的字串反轉來做？</h3>
+        <div class="code-block">int("".join(str(n.val) for n in walk(l1))[::-1])</div>
+        <p>
+          可以，但這只是解法三的另一種寫法，前面講的三個問題原封不動。
+          而且字串轉換比直接算數還慢。
+        </p>
+
+        <h2>延伸題目</h2>
+        <table>
+          <thead><tr><th>題號</th><th>題目</th><th>關聯</th></tr></thead>
+          <tbody>
+            <tr><td>445</td><td>Add Two Numbers II</td><td>正序版本，要用堆疊或反轉</td></tr>
+            <tr><td>369</td><td>Plus One Linked List</td><td>只加 1，正序，進位處理的簡化版</td></tr>
+            <tr><td>66</td><td>Plus One</td><td>陣列版本的進位</td></tr>
+            <tr><td>67</td><td>Add Binary</td><td>字串版本，二進位的進位</td></tr>
+            <tr><td>21</td><td>Merge Two Sorted Lists</td><td>同樣用虛擬頭節點建新串列</td></tr>
+            <tr><td>2</td><td>本題</td><td>虛擬頭節點技巧的入門題</td></tr>
+          </tbody>
+        </table>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>說明為什麼題目要把數字反序儲存</li>
+            <li>不看程式碼，寫出虛擬頭節點的三行骨架</li>
+            <li>說出 <code>while l1 or l2 or carry</code> 三個條件各自防哪一種測資</li>
+            <li>解釋為什麼「轉成整數再相加」在 Python 能過但不是好答案</li>
+          </ol>
+        </div>

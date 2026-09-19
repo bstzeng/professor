@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1. Two Sum 兩數之和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="從暴力法到一趟雜湊表：四種解法、複雜度對照與常見陷阱。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="1">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 1 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 1</div>
+          <h1>Two Sum<br>兩數之和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>
+            Given an array of integers <code>nums</code> and an integer <code>target</code>,
+            return the indices of the two numbers that add up to <code>target</code>.
+          </p>
+          <p>
+            You may assume that each input has <strong>exactly one</strong> solution,
+            and you may not use the same element twice.
+            You can return the answer in any order.
+          </p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>
+            給你一個整數陣列 <code>nums</code> 和一個整數 <code>target</code>，
+            請回傳<strong>兩個數字的索引</strong>，使這兩個數字相加等於 <code>target</code>。
+          </p>
+          <p>
+            你可以假設每一組輸入<strong>恰好只有一組解</strong>，
+            而且同一個元素不能重複使用。
+            答案的順序不限。
+          </p>
+        </div>
+
+        <h2>範例</h2>
+        <div class="code-block">範例 1
+  輸入：nums = [2, 7, 11, 15], target = 9
+  輸出：[0, 1]
+  說明：nums[0] + nums[1] == 9，所以回傳 [0, 1]。
+
+範例 2
+  輸入：nums = [3, 2, 4], target = 6
+  輸出：[1, 2]
+
+範例 3
+  輸入：nums = [3, 3], target = 6
+  輸出：[0, 1]
+  說明：兩個 3 是不同的元素，允許使用。</div>
+
+        <h2>限制條件</h2>
+        <ul>
+          <li>2 ≤ <code>nums.length</code> ≤ 10⁴</li>
+          <li>−10⁹ ≤ <code>nums[i]</code> ≤ 10⁹</li>
+          <li>−10⁹ ≤ <code>target</code> ≤ 10⁹</li>
+          <li>保證恰好存在一組解</li>
+        </ul>
+        <p>
+          <a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener">LeetCode 原題</a>
+        </p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+          <ul>
+            <li><strong>n ≤ 10⁴</strong>：O(n²) 是 10⁸ 次運算，在 LeetCode 上<strong>剛好會過但很慢</strong>。這題的重點不是「能不能過」，是「知不知道怎麼變成 O(n)」。</li>
+            <li><strong>數值可以是負數</strong>：不能用「只找比 target 小的數」這種假設。</li>
+            <li><strong>要回傳索引，不是數值</strong>：任何會打亂順序的做法（例如排序）都必須額外保留原本的索引。</li>
+            <li><strong>同一個元素不能用兩次</strong>：<code>nums = [3, 3], target = 6</code> 可以，但 <code>nums = [3], target = 6</code> 不行——這個區別會影響雜湊表解法的寫法。</li>
+          </ul>
+        </div>
+
+        <h2>解題思路</h2>
+        <p>
+          這題的核心轉換只有一句話：
+          <strong>與其問「哪兩個數加起來等於 target」，不如問「對每個數 x，另一個需要的 target − x 在不在？」</strong>
+        </p>
+        <p>
+          前者要兩兩配對，是 O(n²)；
+          後者是 n 次「查表」，而查表如果是 O(1)，整體就是 O(n)。
+          下面四種解法就是沿著這條路一步一步走過來的。
+        </p>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力雙迴圈</h3>
+          <p>
+            最直接的想法：枚舉所有的配對 <code>(i, j)</code>，檢查是否相加等於 target。
+          </p>
+          <div class="code-block">class Solution:
+    def twoSum(self, nums: List[int], target: int) -&gt; List[int]:
+        n = len(nums)
+        for i in range(n):
+            for j in range(i + 1, n):      # j 從 i+1 開始，避免重複使用同一個元素
+                if nums[i] + nums[j] == target:
+                    return [i, j]
+        return []</div>
+          <p>
+            <code>j</code> 從 <code>i + 1</code> 開始有兩個作用：
+            避免把同一個元素用兩次（<code>i == j</code>），
+            也避免把 <code>(0,1)</code> 和 <code>(1,0)</code> 算成兩組。
+          </p>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n²)</td><td>共檢查 n(n−1)/2 組配對</td></tr>
+              <tr><td>空間</td><td>O(1)</td><td>只用了幾個變數</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>為什麼慢：</strong>對每一個 <code>nums[i]</code>，我們都重新掃描了一次陣列去找 <code>target − nums[i]</code>。
+            這個「找」的動作是 O(n)，而且<strong>前面掃過的資訊完全沒有被記下來</strong>——
+            下一輪又要從頭再找一次。
+          </p>
+          <p>
+            接下來三種解法，都是在回答同一個問題：
+            <strong>怎麼把「找」這個動作變快？</strong>
+          </p>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>排序 + 雙指標</h3>
+          <p>
+            如果陣列是排好序的，找「兩數之和等於 target」有一個經典技巧：
+            左右各放一個指標，看兩端的和。
+          </p>
+          <ul>
+            <li>和太小 → 左指標往右移（換一個更大的數）</li>
+            <li>和太大 → 右指標往左移（換一個更小的數）</li>
+            <li>剛好 → 找到了</li>
+          </ul>
+          <div class="content-figure">
+            <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+              <text x="20" y="22" fill="var(--text-muted)" font-size="12">排序後：[2, 7, 11, 15]，target = 9</text>
+              <g font-size="14" text-anchor="middle">
+                <rect x="60" y="40" width="80" height="44" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <text x="100" y="68" fill="var(--accent)">2</text>
+                <rect x="160" y="40" width="80" height="44" rx="6" fill="none" stroke="var(--border)" stroke-width="2"/>
+                <text x="200" y="68" fill="var(--text-muted)">7</text>
+                <rect x="260" y="40" width="80" height="44" rx="6" fill="none" stroke="var(--border)" stroke-width="2"/>
+                <text x="300" y="68" fill="var(--text-muted)">11</text>
+                <rect x="360" y="40" width="80" height="44" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/>
+                <text x="400" y="68" fill="#ff8a65">15</text>
+              </g>
+              <text x="100" y="104" fill="var(--accent)" font-size="11" text-anchor="middle">lo</text>
+              <text x="400" y="104" fill="#ff8a65" font-size="11" text-anchor="middle">hi</text>
+              <text x="470" y="68" fill="var(--text-muted)" font-size="12">2 + 15 = 17 &gt; 9 → hi 左移</text>
+
+              <g font-size="14" text-anchor="middle">
+                <rect x="60" y="126" width="80" height="44" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+                <text x="100" y="154" fill="var(--accent)">2</text>
+                <rect x="160" y="126" width="80" height="44" rx="6" fill="none" stroke="var(--border)" stroke-width="2"/>
+                <text x="200" y="154" fill="var(--text-muted)">7</text>
+                <rect x="260" y="126" width="80" height="44" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/>
+                <text x="300" y="154" fill="#ff8a65">11</text>
+                <rect x="360" y="126" width="80" height="44" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+                <text x="400" y="154" fill="var(--text-muted)" opacity="0.5">15</text>
+              </g>
+              <text x="100" y="190" fill="var(--accent)" font-size="11" text-anchor="middle">lo</text>
+              <text x="300" y="190" fill="#ff8a65" font-size="11" text-anchor="middle">hi</text>
+              <text x="470" y="154" fill="var(--text-muted)" font-size="12">2 + 11 = 13 &gt; 9 → hi 再左移…</text>
+            </svg>
+          </div>
+          <p>
+            <strong>但這題要回傳的是索引，不是數值。</strong>
+            排序會打亂順序，所以必須把「數值 + 原本的索引」綁在一起排。
+          </p>
+          <div class="code-block">class Solution:
+    def twoSum(self, nums: List[int], target: int) -&gt; List[int]:
+        # 把 (數值, 原索引) 綁在一起排序，排完才不會弄丟索引
+        pairs = sorted((v, i) for i, v in enumerate(nums))
+
+        lo, hi = 0, len(pairs) - 1
+        while lo &lt; hi:
+            s = pairs[lo][0] + pairs[hi][0]
+            if s == target:
+                return sorted([pairs[lo][1], pairs[hi][1]])
+            if s &lt; target:
+                lo += 1
+            else:
+                hi -= 1
+        return []</div>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n log n)</td><td>排序主導；雙指標本身只有 O(n)</td></tr>
+              <tr><td>空間</td><td>O(n)</td><td>存 (值, 索引) 的新陣列</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>比暴力法好，但還不是最好。</strong>
+            它比解法四多了一個 log n，而且空間也沒有省下來。
+          </p>
+          <p>
+            <strong>那為什麼還要學它？</strong>因為這個技巧在<strong>題目不要求回傳索引</strong>、
+            或<strong>陣列本來就有序</strong>時是最佳解，而且它能自然推廣到三數之和（15 題）、
+            四數之和（18 題）。這題只是它的一個「用不太上」的場合。
+          </p>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>雜湊表：兩趟</h3>
+          <p>
+            回到那句核心轉換：我們想要的是「<strong>給一個數值，O(1) 查出它的索引</strong>」。
+            這正是 Python <code>dict</code> 的工作。
+          </p>
+          <p>
+            第一趟：把所有 <code>數值 → 索引</code> 存進字典。<br>
+            第二趟：對每個 <code>nums[i]</code>，查 <code>target − nums[i]</code> 在不在。
+          </p>
+          <div class="code-block">class Solution:
+    def twoSum(self, nums: List[int], target: int) -&gt; List[int]:
+        pos = {v: i for i, v in enumerate(nums)}   # 第一趟：建表
+
+        for i, v in enumerate(nums):               # 第二趟：查表
+            j = pos.get(target - v)
+            if j is not None and j != i:           # j != i：不能用到自己
+                return [i, j]
+        return []</div>
+          <div class="callout">
+            <h3>兩個容易踩的坑</h3>
+            <ul>
+              <li><strong><code>j != i</code> 不能省。</strong>如果 <code>nums = [3, 2, 4], target = 6</code>，
+                走到 <code>i = 0</code>（值 3）時，<code>target − 3 = 3</code>，查表查到的是它自己。
+                沒有這個檢查就會回傳 <code>[0, 0]</code>。</li>
+              <li><strong>重複數值會互相覆蓋。</strong><code>{v: i for ...}</code> 遇到 <code>nums = [3, 3]</code> 時，
+                後面的 3 會蓋掉前面的，字典裡只剩 <code>{3: 1}</code>。
+                幸好這正好救了我們：<code>i = 0</code> 時查到 <code>j = 1</code>，<code>j != i</code> 成立，答案正確。
+                但這是<strong>碰巧</strong>——解法四不需要依賴這種巧合。</li>
+            </ul>
+          </div>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n)</td><td>兩趟線性掃描，字典操作平均 O(1)</td></tr>
+              <tr><td>空間</td><td>O(n)</td><td>字典最多存 n 筆</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法四 · 最佳解</span>
+          <h3>雜湊表：一趟</h3>
+          <p>
+            解法三其實做了多餘的事。想一想：當我們走到位置 <code>i</code> 時，
+            要找的配對<strong>一定在 i 之前或之後</strong>。
+            如果它在之後，那等我們走到那個位置時，<code>i</code> 就變成「在之前」了。
+          </p>
+          <p>
+            <strong>所以只要往回找就夠了——而「往回」的資料，我們可以邊走邊記。</strong>
+          </p>
+          <div class="code-block">class Solution:
+    def twoSum(self, nums: List[int], target: int) -&gt; List[int]:
+        seen = {}                      # 數值 -&gt; 索引，只存「已經走過」的元素
+
+        for i, v in enumerate(nums):
+            need = target - v
+            if need in seen:           # 先查：需要的數之前出現過嗎？
+                return [seen[need], i]
+            seen[v] = i                # 再記：把自己存進去
+
+        return []</div>
+          <div class="callout">
+            <h3>「先查後記」的順序是關鍵</h3>
+            <p>
+              如果顛倒成「先 <code>seen[v] = i</code> 再查」，那麼當 <code>target == 2 * v</code> 時
+              （例如 <code>nums = [3, 2, 4], target = 6</code>），
+              第一個 3 會先把自己存進去，然後立刻查到自己，回傳 <code>[0, 0]</code>。
+            </p>
+            <p>
+              維持「先查後記」，就<strong>結構上保證</strong>了查到的一定是不同的元素——
+              不需要像解法三那樣額外寫 <code>j != i</code>。
+            </p>
+          </div>
+          <h3>逐步追蹤</h3>
+          <p>
+            用 <code>nums = [2, 7, 11, 15], target = 9</code> 走一遍：
+          </p>
+          <div class="content-figure">
+            <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+              <text x="16" y="20" fill="var(--text-muted)" font-size="12">nums = [2, 7, 11, 15]　target = 9</text>
+
+              <text x="16" y="52" fill="var(--text-muted)" font-size="11">i = 0</text>
+              <rect x="70" y="36" width="56" height="34" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="98" y="59" fill="var(--accent)" font-size="14" text-anchor="middle">2</text>
+              <text x="140" y="59" fill="var(--text-muted)" font-size="12">need = 9 − 2 = 7</text>
+              <text x="300" y="59" fill="#ff8a65" font-size="12">7 不在 seen</text>
+              <text x="420" y="59" fill="var(--text-muted)" font-size="12">→ seen = {2: 0}</text>
+
+              <text x="16" y="104" fill="var(--text-muted)" font-size="11">i = 1</text>
+              <rect x="70" y="88" width="56" height="34" rx="5" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+              <text x="98" y="111" fill="var(--gold)" font-size="14" text-anchor="middle">7</text>
+              <text x="140" y="111" fill="var(--text-muted)" font-size="12">need = 9 − 7 = 2</text>
+              <text x="300" y="111" fill="var(--gold)" font-size="12" font-weight="bold">2 在 seen！</text>
+              <text x="420" y="111" fill="var(--gold)" font-size="12">→ 回傳 [0, 1]</text>
+
+              <line x1="16" y1="138" x2="620" y2="138" stroke="var(--border)" stroke-width="1"/>
+              <text x="16" y="164" fill="var(--text-muted)" font-size="12">整趟只掃了 2 個元素就結束 ——</text>
+              <text x="16" y="184" fill="var(--text-muted)" font-size="12">暴力法在這個例子也只要 1 次比較，但最壞情況要 n(n−1)/2 次；</text>
+              <text x="16" y="204" fill="var(--text-muted)" font-size="12">一趟雜湊法的最壞情況仍然只有 n 次。</text>
+              <text x="16" y="232" fill="var(--accent)" font-size="12">核心：用「已經看過什麼」的記憶，換掉「重新找一遍」的時間。</text>
+            </svg>
+          </div>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td><strong>O(n)</strong></td><td>單趟掃描，每步字典操作平均 O(1)</td></tr>
+              <tr><td>空間</td><td>O(n)</td><td>最壞情況（無解時）字典存滿 n 筆</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>四種解法對照</h2>
+        <table>
+          <thead>
+            <tr><th>解法</th><th>時間</th><th>空間</th><th>保留索引</th><th>什麼時候用</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>暴力雙迴圈</td><td>O(n²)</td><td>O(1)</td><td>✔</td><td>n 很小；或記憶體極度受限</td></tr>
+            <tr><td>排序 + 雙指標</td><td>O(n log n)</td><td>O(n)</td><td>需額外處理</td><td>陣列本來有序；或題目只要數值</td></tr>
+            <tr><td>雜湊表兩趟</td><td>O(n)</td><td>O(n)</td><td>✔</td><td>思路上的過渡；實務上被解法四取代</td></tr>
+            <tr><td><strong>雜湊表一趟</strong></td><td><strong>O(n)</strong></td><td>O(n)</td><td>✔</td><td><strong>本題標準答案</strong></td></tr>
+          </tbody>
+        </table>
+        <p>
+          注意<strong>時間與空間的交換</strong>：從 O(n²)/O(1) 換到 O(n)/O(n)。
+          我們用一個最多 n 筆的字典，買到了 n 倍的速度。
+          這是演算法題裡最常見的一種交易，而且幾乎總是划算的——
+          因為記憶體便宜，時間不便宜。
+        </p>
+
+        <h2>邊界條件檢查清單</h2>
+        <table>
+          <thead><tr><th>情況</th><th>輸入</th><th>正確輸出</th><th>哪個解法會出錯</th></tr></thead>
+          <tbody>
+            <tr><td>重複數值</td><td><code>[3, 3], 6</code></td><td><code>[0, 1]</code></td><td>字典建表若不處理重複會漏</td></tr>
+            <tr><td>需要的數等於自己</td><td><code>[3, 2, 4], 6</code></td><td><code>[1, 2]</code></td><td>解法三漏寫 <code>j != i</code>；解法四順序寫反</td></tr>
+            <tr><td>含 0 與重複的 0</td><td><code>[0, 4, 3, 0], 0</code></td><td><code>[0, 3]</code></td><td>用 <code>if pos.get(x):</code> 判斷會誤判（0 是 falsy）</td></tr>
+            <tr><td>全負數</td><td><code>[-1,-2,-3,-4,-5], -8</code></td><td><code>[2, 4]</code></td><td>假設數值為正的解法</td></tr>
+            <tr><td>最小長度</td><td><code>[1, 2], 3</code></td><td><code>[0, 1]</code></td><td>邊界索引處理</td></tr>
+          </tbody>
+        </table>
+        <div class="callout">
+          <h3>第三列特別容易錯</h3>
+          <p>
+            <code>pos.get(x)</code> 在查不到時回傳 <code>None</code>，查到索引 0 時回傳 <code>0</code>。
+            而 <code>None</code> 和 <code>0</code> <strong>在 <code>if</code> 判斷裡都是假值</strong>。
+          </p>
+          <div class="code-block">j = pos.get(target - v)
+
+if j:                     # ✘ 索引剛好是 0 時會被當成「沒找到」
+    ...
+
+if j is not None:         # ✔ 正確
+    ...</div>
+          <p>
+            這是 Python 特有的陷阱，在 <code>[0, 4, 3, 0], target = 0</code> 這組測資會直接現形。
+          </p>
+        </div>
+
+        <h2>常見追問</h2>
+        <h3>如果有多組解，要全部回傳呢？</h3>
+        <p>
+          那就不能一找到就 <code>return</code>。而且字典要改成
+          <code>值 → 索引清單</code>，因為同一個值可能出現多次。
+        </p>
+        <div class="code-block">from collections import defaultdict
+
+def all_two_sums(nums, target):
+    seen = defaultdict(list)
+    result = []
+    for i, v in enumerate(nums):
+        for j in seen[target - v]:     # 所有之前出現過、值為 need 的位置
+            result.append([j, i])
+        seen[v].append(i)
+    return result</div>
+        <h3>如果陣列已經排好序呢？</h3>
+        <p>
+          那就用解法二的雙指標，<strong>O(n) 時間、O(1) 空間</strong>——
+          比雜湊表還好，因為省下了字典的空間。
+          這正是 <strong>167. Two Sum II</strong> 那一題的設定。
+        </p>
+        <h3>雜湊表的 O(1) 是保證的嗎？</h3>
+        <p>
+          不是，是<strong>平均</strong> O(1)。最壞情況（所有鍵雜湊到同一個桶）會退化成 O(n)，
+          整體變成 O(n²)。實務上 Python 的 dict 對整數鍵表現很好，
+          但在刻意構造的測資下（某些競賽平台會這麼做）確實可能被卡。
+          這題不會。
+        </p>
+
+        <h2>延伸題目</h2>
+        <table>
+          <thead><tr><th>題號</th><th>題目</th><th>關聯</th></tr></thead>
+          <tbody>
+            <tr><td>167</td><td>Two Sum II — Input Array Is Sorted</td><td>有序版本，雙指標 O(1) 空間</td></tr>
+            <tr><td>15</td><td>3Sum</td><td>排序 + 固定一個數 + 雙指標</td></tr>
+            <tr><td>18</td><td>4Sum</td><td>再多一層</td></tr>
+            <tr><td>653</td><td>Two Sum IV — Input is a BST</td><td>同樣的雜湊思路，換成樹上走訪</td></tr>
+            <tr><td>1</td><td>本題</td><td>所有「用雜湊表記住走過的東西」的起點</td></tr>
+          </tbody>
+        </table>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>不看程式碼，說出一趟雜湊法「先查後記」為什麼不能顛倒</li>
+            <li>說明為什麼排序 + 雙指標在這題不是最佳解，但在 167 題是</li>
+            <li>寫出一組會讓 <code>if pos.get(x):</code> 出錯的測資</li>
+            <li>解釋 O(n²)/O(1) 換成 O(n)/O(n) 為什麼通常划算</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="index.html">回題目總覽</a>
+          <a href="problem-0002.html">下一題：2. 兩數相加 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
