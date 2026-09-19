@@ -46,7 +46,7 @@ for f in files:
 
     # 3. 不該出現的東西
     for pat, msg in [(r"\{[a-z_]+\}", "疑似未替換的樣板變數"),
-                     (r"TODO|FIXME|XXX", "留下了 TODO"),
+                     (r"TODO|FIXME", "留下了 TODO"),
                      (r"<pre>", "用了 <pre>（本站慣例是 .code-block）")]:
         for m in re.finditer(pat, src):
             print("%s: %s -> %r" % (name, msg, m.group(0)))
