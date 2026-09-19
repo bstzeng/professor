@@ -45,7 +45,8 @@ for f in files:
             bad += 1
 
     # 3. 不該出現的東西
-    for pat, msg in [(r"\{[a-z_]+\}", "疑似未替換的樣板變數"),
+    for pat, msg in [(r"\{(?:num|en|zh|desc|diff_en|diff_zh|diffclass|tagspans|body|nav)\}",
+                      "疑似未替換的 gen.py 樣板變數"),
                      (r"TODO|FIXME", "留下了 TODO"),
                      (r"<pre>", "用了 <pre>（本站慣例是 .code-block）")]:
         for m in re.finditer(pat, src):
