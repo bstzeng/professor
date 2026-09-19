@@ -1,0 +1,312 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given <code>n</code> pairs of parentheses, write a function to generate all combinations of <strong>well-formed</strong> parentheses.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你 <code>n</code> 對括號，寫一個函式生成所有<strong>合法</strong>的括號組合。</p>
+        </div>
+
+        <div class="callout">
+          <h3>合法的判準只有兩條</h3>
+        <div class="code-block">一個由 n 個 '(' 和 n 個 ')' 組成的字串，合法的充要條件是：
+
+  1. 從左到右掃描時，任何前綴裡「右括號數量 ≤ 左括號數量」
+  2. 總數相等（各 n 個）
+
+第 1 條就是「不能先關一個還沒開的括號」。
+
+  "(()"   前綴都合法，但總數不對（第 2 條不滿足）
+  "())("  掃到第 3 個字元時右 &gt; 左（第 1 條不滿足）
+  "(())"  兩條都滿足 ✔
+
+把這兩條直接寫進「什麼時候可以放括號」的條件裡，
+就不會生出任何不合法的字串 —— 這就是剪枝。</div>
+        <p><strong>這題和第 20 題（Valid Parentheses）是一體兩面</strong>：第 20 題是「驗證」，這題是「生成」。而且因為只有一種括號，驗證的堆疊退化成一個計數器。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 3
+  輸出：["((()))","(()())","(())()","()(())","()()()"]
+
+範例 2
+  輸入：n = 1
+  輸出：["()"]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 8</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/generate-parentheses/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>答案有幾個？卡塔蘭數</h3>
+        <div class="code-block">n 對括號的合法組合數 = 第 n 個卡塔蘭數（Catalan number）
+
+    C_n = C(2n, n) / (n + 1)
+
+    n:   0   1   2   3   4    5    6    7     8
+    C_n: 1   1   2   5   14   42   132  429   1430
+
+所以 n = 8 時只有 1430 個答案 —— 非常小。
+
+如果不剪枝，要生成 2^(2n) = 2^16 = 65536 個字串再過濾，
+浪費了 97.8% 的工作量。這就是剪枝的價值。
+
+卡塔蘭數會出現在一大票「遞迴結構」的計數問題裡：
+  - n 對括號的合法組合數
+  - n 個節點的不同二元搜尋樹數量（第 96 題）
+  - 凸多邊形三角剖分的方法數
+  - n×n 網格中不越過對角線的路徑數
+它們之所以答案相同，是因為底層都是同一個遞迴結構。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 294" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">n = 2 的搜尋樹：灰色虛線是被剪掉的分支（右括號不能超過左括號）</text>
+            <g font-size="12" text-anchor="middle" font-family="monospace">
+              <text x="320" y="46" fill="var(--gold)">&quot;&quot;</text>
+              <text x="190" y="96" fill="var(--accent)">&quot;(&quot;</text>
+              <text x="470" y="96" fill="var(--text-muted)" opacity="0.45">&quot;)&quot;</text>
+              <text x="110" y="146" fill="var(--accent)">&quot;((&quot;</text>
+              <text x="280" y="146" fill="var(--accent)">&quot;()&quot;</text>
+              <text x="110" y="196" fill="var(--text-muted)" opacity="0.45">&quot;((( &quot;</text>
+              <text x="200" y="196" fill="var(--accent)">&quot;(()&quot;</text>
+              <text x="280" y="196" fill="var(--accent)">&quot;()(&quot;</text>
+              <text x="370" y="196" fill="var(--text-muted)" opacity="0.45">&quot;())&quot;</text>
+              <text x="200" y="246" fill="#ff8a65">&quot;(())&quot;</text>
+              <text x="310" y="246" fill="#ff8a65">&quot;()()&quot;</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.4">
+              <line x1="306" y1="54" x2="204" y2="84"/>
+              <line x1="180" y1="104" x2="120" y2="134"/>
+              <line x1="200" y1="104" x2="272" y2="134"/>
+              <line x1="112" y1="154" x2="196" y2="184"/>
+              <line x1="282" y1="154" x2="282" y2="184"/>
+              <line x1="202" y1="204" x2="202" y2="234"/>
+              <line x1="288" y1="204" x2="306" y2="234"/>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5">
+              <line x1="336" y1="54" x2="456" y2="84"/>
+              <line x1="105" y1="154" x2="105" y2="184"/>
+              <line x1="292" y1="154" x2="362" y2="184"/>
+            </g>
+            <text x="512" y="96" fill="var(--text-muted)" font-size="11">✘ 開頭不能是 )</text>
+            <text x="110" y="216" fill="var(--text-muted)" font-size="11">✘ 左括號超過 n</text>
+            <text x="402" y="196" fill="var(--text-muted)" font-size="11">✘ 右 &gt; 左</text>
+            <text x="20" y="282" fill="var(--gold)" font-size="12">n = 2 的答案只有 2 個。若不剪枝，要生成 2⁴ = 16 個字串再逐一驗證。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>生成全部再過濾（基準線）</h3>
+        <p>最笨的做法：生成所有 2^(2n) 個由 <code>(</code> 和 <code>)</code> 組成的字串，逐一驗證。</p>
+        <div class="code-block">class Solution:
+    def generateParenthesis(self, n: int) -&gt; List[str]:
+        def valid(s: str) -&gt; bool:
+            bal = 0
+            for ch in s:
+                bal += 1 if ch == "(" else -1
+                if bal &lt; 0:          # 右括號比左括號多 -&gt; 不合法
+                    return False
+            return bal == 0
+
+        out = []
+
+        def gen(cur: str) -&gt; None:
+            if len(cur) == 2 * n:
+                if valid(cur):
+                    out.append(cur)
+                return
+            gen(cur + "(")
+            gen(cur + ")")
+
+        gen("")
+        return out</div>
+        <p>n = 8 時要生成 65536 個字串、驗證 65536 次，而答案只有 1430 個 —— <strong>98% 的工作是白費的</strong>。</p>
+        <p>但它有一個價值：<code>valid()</code> 函式把「合法的定義」寫得清清楚楚，而解法二就是把這個定義<strong>提前</strong>到生成的時候去檢查。<strong>「把事後驗證改成事前剪枝」是所有回溯優化的通用套路。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2^(2n) · n)</td><td>生成 4ⁿ 個 × 驗證 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度 2n</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>回溯 + 剪枝（標準解）</h3>
+        <p>不要生成之後再檢查，而是<strong>只在「放下去仍然可能合法」的時候才放</strong>。</p>
+        <div class="code-block">class Solution:
+    def generateParenthesis(self, n: int) -&gt; List[str]:
+        out = []
+        path = []
+
+        def backtrack(open_used: int, close_used: int) -&gt; None:
+            if len(path) == 2 * n:
+                out.append("".join(path))
+                return
+
+            # 規則 1：左括號還沒用完就可以放
+            if open_used &lt; n:
+                path.append("(")
+                backtrack(open_used + 1, close_used)
+                path.pop()
+
+            # 規則 2：右括號數量必須「嚴格少於」左括號，才可以放
+            if close_used &lt; open_used:
+                path.append(")")
+                backtrack(open_used, close_used + 1)
+                path.pop()
+
+        backtrack(0, 0)
+        return out</div>
+        <h3>兩個條件，各自對應一條合法規則</h3>
+        <div class="code-block">if open_used &lt; n:          可以放左括號
+      對應「總共只有 n 個左括號」
+
+if close_used &lt; open_used:  可以放右括號
+      對應「任何前綴裡右括號不能超過左括號」
+
+      注意是「嚴格小於」。
+      如果寫成 &lt;=，就會允許 close_used == open_used 時再放一個右括號，
+      產生 "()" 之後接 ")" 變成 "())" —— 不合法。
+
+終止條件 len(path) == 2*n：
+      這時候一定是 open_used == close_used == n，
+      因為兩個條件保證了 close_used &lt;= open_used &lt;= n，
+      而 open_used + close_used == 2n 只有在都等於 n 時才成立。
+      所以不需要額外驗證，走到底的一定合法。</div>
+        <p><strong>「走到底的一定合法」是這個解法最漂亮的地方。</strong>剪枝不只是加快速度 —— 它讓「驗證」這個步驟完全消失了。</p>
+        <h3>複雜度為什麼是 O(4ⁿ / √n)？</h3>
+        <p>答案數量是卡塔蘭數 C_n，而 C_n 的漸近式是 4ⁿ / (n^1.5 · √π)。每個答案要花 O(n) 組字串，所以總共約 O(4ⁿ / √n)。<strong>這已經是最優的 —— 因為光是輸出答案就要這麼多時間。</strong>面試時能說出「這題的下界就是答案的總大小」會很加分。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(4ⁿ / √n)</td><td>剛好走過所有合法序列</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度 2n；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>遞迴分解（閉合數 closure number）</h3>
+        <p>換一個角度：<strong>每個合法序列都能<em>唯一</em>分解成 <code>"(" + A + ")" + B</code></strong>，其中第一個 <code>(</code> 和「與它配對的 <code>)</code>」之間是 A，後面是 B。</p>
+        <div class="code-block">"(())()"  分解成：
+    "(" + "()" + ")" + "()"
+          ^A          ^B
+    A 有 1 對，B 有 1 對，加上外層這一對 = 3 對 ✔
+
+"()(())"  分解成：
+    "(" + ""  + ")" + "(())"
+          ^A          ^B
+    A 有 0 對，B 有 2 對 ✔
+
+分解是唯一的，因為「與第一個 ( 配對的 )」只有一個。
+
+所以：
+    f(n) = 聯集，對所有 i = 0..n-1：
+             { "(" + a + ")" + b  :  a ∈ f(i), b ∈ f(n-1-i) }
+
+這個遞迴式直接給出卡塔蘭數的遞迴定義：
+    C_n = Σ C_i · C_(n-1-i)</div>
+        <div class="code-block">class Solution:
+    def generateParenthesis(self, n: int) -&gt; List[str]:
+        # 每個合法序列都能唯一分解成  "(" + A + ")" + B
+        # 其中 A 有 i 對、B 有 n-1-i 對
+        memo = {0: [""]}
+
+        def gen(k: int) -&gt; List[str]:
+            if k in memo:
+                return memo[k]
+            res = []
+            for i in range(k):
+                for a in gen(i):            # 第一個括號「裡面」的部分
+                    for b in gen(k - 1 - i):  # 第一個括號「後面」的部分
+                        res.append("(" + a + ")" + b)
+            memo[k] = res
+            return res
+
+        return gen(n)</div>
+        <p><strong>它比回溯慢</strong>（字串拼接多，而且要存所有中間結果），但它揭示了這題的<strong>數學結構</strong>。如果面試官問「這題的答案數量是多少」，這個分解就是推導卡塔蘭數遞迴式的方法。</p>
+        <p><strong>而且這個分解思路能直接搬到第 95 題</strong>（不同的二元搜尋樹 II）：枚舉根節點，左子樹用前 i 個、右子樹用後 n−1−i 個。一模一樣的結構。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(4ⁿ / √n)</td><td>同上，但常數大很多</td></tr>
+            <tr><td>空間</td><td>O(4ⁿ / √n)</td><td>memo 存所有中間結果</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>浪費的工作</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、生成再過濾</td><td>O(4ⁿ·n)</td><td>O(n)</td><td>98%</td><td>當基準線</td></tr>
+            <tr><td>二、回溯剪枝</td><td>O(4ⁿ/√n)</td><td>O(n)</td><td>0%</td><td>標準解</td></tr>
+            <tr><td>三、遞迴分解</td><td>O(4ⁿ/√n)</td><td>O(4ⁿ/√n)</td><td>0%</td><td>揭示卡塔蘭結構</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → <code>["()"]</code>。</li>
+          <li><strong>n = 2</strong> → <code>["(())", "()()"]</code>（2 個）。</li>
+          <li><strong>n = 3</strong> → 5 個。<strong>n = 8</strong> → 1430 個。答案數要對得上卡塔蘭數。</li>
+          <li><strong>剪枝條件寫成 <code>close_used &lt;= open_used</code></strong>：會生出 <code>"())("</code> 這類不合法的字串，而且長度統計會出錯。</li>
+          <li><strong>忘記 <code>path.pop()</code></strong>：<code>path</code> 會一路變長，產生的字串全部錯誤。</li>
+          <li><strong>n = 0</strong>（題目不會給，但值得想）：應該是 <code>[""]</code>，因為空序列是合法的。回溯版會正確產生它。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有多種括號（<code>()[]{}</code>）呢？</h3>
+
+        <p>分支數從 2 變成 6，而且「可以放右括號」的條件變成「堆疊頂端是對應的左括號」—— 要維護一個真正的堆疊，不能只用計數器。答案數量也會爆炸得更快。</p>
+
+        <h3>追問二：如果只要第 k 個（字典序）呢？</h3>
+
+        <p>不需要全部生成。在每個節點上<strong>計算「走左分支能產生多少個答案」</strong>（這可以用卡塔蘭數的變形算出來），如果 k 小於那個數量就走左邊，否則 k 減掉它再走右邊。這樣可以在 O(n) 步內直接定位到第 k 個。<strong>同樣的技巧見第 60 題（Permutation Sequence）。</strong></p>
+
+        <h3>追問三：為什麼卡塔蘭數會同時出現在括號、二元樹、多邊形剖分裡？</h3>
+
+        <p>因為它們的遞迴結構同構。都可以寫成<code>C_n = Σ_{i=0}^{n-1} C_i · C_(n-1-i)</code>：</p>
+
+        <ul>
+          <li><strong>括號</strong>：第一對括號「裡面」有 i 對、「後面」有 n−1−i 對</li>
+          <li><strong>二元樹</strong>：根的左子樹有 i 個節點、右子樹有 n−1−i 個</li>
+          <li><strong>多邊形剖分</strong>：一條固定邊所在的三角形把多邊形切成兩塊</li>
+        </ul>
+
+        <p><strong>「不同的問題有相同的遞迴結構，所以有相同的答案」—— 這是組合數學裡最有力的想法之一。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 20 題 Valid Parentheses</strong> —— 驗證版</li>
+          <li><strong>第 95／96 題 Unique Binary Search Trees</strong> —— 同樣是卡塔蘭數</li>
+          <li><strong>第 17／39／46／78 題</strong> —— 回溯模板家族</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>剪枝條件為什麼是 <code>close_used &lt; open_used</code> 而不是 <code>&lt;=</code>？舉一個會生出的不合法字串。</li>
+            <li>為什麼「走到底的字串一定合法」？請從兩個剪枝條件推導出來。</li>
+            <li>n = 4 的答案有幾個？不剪枝的話要生成幾個字串？</li>
+            <li>解法三的唯一分解為什麼成立？請把 <code>"(())()"</code> 和 <code>"()(())"</code> 各分解一次。</li>
+          </ol>
+        </div>

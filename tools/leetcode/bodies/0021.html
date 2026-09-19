@@ -1,0 +1,243 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given the heads of two sorted linked lists <code>list1</code> and <code>list2</code>.</p>
+          <p>Merge the two lists into one <strong>sorted</strong> list. The list should be made by splicing together the nodes of the first two lists. Return the head of the merged linked list.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩條<strong>已排序</strong>的鏈結串列的頭節點 <code>list1</code> 和 <code>list2</code>。</p>
+          <p>把它們合併成一條<strong>仍然有序</strong>的串列。合併時要<strong>重新接原本的節點</strong>（splice），不是建新節點。回傳合併後的頭節點。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這是 merge sort 的「merge」步驟</h3>
+        <p>如果你寫過合併排序，這題就是它的核心步驟搬到鏈結串列上。</p>
+        <div class="code-block">list1: 1 -&gt; 2 -&gt; 4
+list2: 1 -&gt; 3 -&gt; 4
+
+兩個指標各指一條的開頭，每次挑小的接到結果後面：
+
+    比 1 vs 1  -&gt; 接 list1 的 1（&lt;= 所以選前面那條）
+    比 2 vs 1  -&gt; 接 list2 的 1
+    比 2 vs 3  -&gt; 接 2
+    比 4 vs 3  -&gt; 接 3
+    比 4 vs 4  -&gt; 接 list1 的 4
+    list1 空了 -&gt; 把 list2 剩下的 4 整段接上
+
+結果： 1 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 4</div>
+        <p><strong>鏈結串列版本比陣列版本更漂亮</strong>：陣列要開一個新陣列存結果，串列只要改指標，<strong>額外空間是 O(1)</strong>。這正是題目說「splice together」的意思。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：list1 = [1,2,4], list2 = [1,3,4]
+  輸出：[1,1,2,3,4,4]
+
+範例 2
+  輸入：list1 = [], list2 = []
+  輸出：[]
+
+範例 3
+  輸入：list1 = [], list2 = [0]
+  輸出：[0]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>兩條串列的節點數都在 <code>[0, 50]</code> 範圍內（<strong>可以是空的</strong>）</li>
+          <li>−100 ≤ <code>Node.val</code> ≤ 100</li>
+          <li><code>list1</code> 和 <code>list2</code> 都是<strong>非遞減排序</strong>的</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/merge-two-sorted-lists/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>兩條都可能是空的</strong>。三種情況（兩空、一空、都不空）都要對。</li>
+          <li><strong>是「非遞減」不是「嚴格遞增」</strong>，所以值可以重複。這就是為什麼比較要用 <code>&lt;=</code> 而不是 <code>&lt;</code>（見下面的說明）。</li>
+          <li>規模只有 50，效率不是重點。這題考的是<strong>指標操作的乾淨度</strong>，是鏈結串列題的入門必修。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>迴圈版和遞迴版都很短，兩個都應該會。迴圈版空間 O(1)、遞迴版 O(n)，但遞迴版只有 8 行且完全不需要 dummy。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>迴圈 + 虛擬頭節點（標準解）</h3>
+        <div class="code-block">class Solution:
+    def mergeTwoLists(self, list1: Optional[ListNode],
+                      list2: Optional[ListNode]) -&gt; Optional[ListNode]:
+        dummy = ListNode()      # 虛擬頭：省掉「第一個節點從哪來」的判斷
+        tail = dummy
+
+        while list1 and list2:
+            if list1.val &lt;= list2.val:      # &lt;= 而不是 &lt; ：維持穩定性
+                tail.next = list1
+                list1 = list1.next
+            else:
+                tail.next = list2
+                list2 = list2.next
+            tail = tail.next
+
+        # 其中一條走完了，把另一條剩下的整段接上去
+        tail.next = list1 if list1 else list2
+
+        return dummy.next</div>
+        <h3>dummy 到底省掉了什麼？</h3>
+        <div class="code-block">沒有 dummy 的寫法：
+
+    if not list1: return list2
+    if not list2: return list1
+    if list1.val &lt;= list2.val:
+        head = list1; list1 = list1.next
+    else:
+        head = list2; list2 = list2.next
+    tail = head
+    while ...
+
+    要先決定「頭是誰」，寫四行只為了處理第一個節點。
+
+有 dummy 的寫法：
+    dummy = ListNode(); tail = dummy
+    while ...
+
+    第一個節點和後面的節點走完全一樣的邏輯，
+    最後 return dummy.next 就好。
+
+dummy 的本質：製造一個「一定存在的前一個節點」，
+讓「頭」不再是特例。</div>
+        <h3>最後那一行 <code>tail.next = list1 if list1 else list2</code></h3>
+        <p>迴圈結束表示至少有一條走完了。剩下的那條<strong>本身就已經排好序，而且全部都比已接上的大</strong>，所以可以<strong>整段直接接上</strong>，不用一個一個接。這是鏈結串列相對於陣列的優勢 —— O(1) 的「接上剩下全部」。</p>
+        <p>如果兩條都走完了，<code>list1</code> 和 <code>list2</code> 都是 <code>None</code>，接上 <code>None</code> 剛好就是正確的結尾。<strong>這一行同時處理了三種情況。</strong></p>
+        <h3>為什麼是 <code>&lt;=</code> 而不是 <code>&lt;</code>？</h3>
+        <div class="code-block">值相等時：
+    &lt;= ：選 list1 的  -&gt;  穩定（stable）
+    &lt;  ：選 list2 的  -&gt;  不穩定
+
+在這題（只比數值）兩者的輸出完全一樣，看不出差別。
+
+但如果節點帶著其他資料（例如 (分數, 學生名字)），
+「穩定」表示分數相同時，原本排在前面的那條串列的元素仍然排在前面。
+
+merge sort 之所以是穩定排序，關鍵就在這個 &lt;=。
+改成 &lt; 就會變成不穩定排序 —— 一個字元的差別。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m+n)</td><td>每個節點處理一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個指標，沒有新節點</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>遞迴（最短的寫法）</h3>
+        <div class="code-block">class Solution:
+    def mergeTwoLists(self, list1: Optional[ListNode],
+                      list2: Optional[ListNode]) -&gt; Optional[ListNode]:
+        if not list1:
+            return list2
+        if not list2:
+            return list1
+
+        if list1.val &lt;= list2.val:
+            list1.next = self.mergeTwoLists(list1.next, list2)
+            return list1
+        else:
+            list2.next = self.mergeTwoLists(list1, list2.next)
+            return list2</div>
+        <p>遞迴式的語意非常直白：<strong>「兩個頭裡比較小的那個，就是合併結果的頭；它的 next 是『剩下的部分合併起來』。」</strong></p>
+        <div class="code-block">merge([1,2,4], [1,3,4])
+  1 &lt;= 1 -&gt; 取 list1 的 1
+  1.next = merge([2,4], [1,3,4])
+             2 &gt; 1 -&gt; 取 list2 的 1
+             1.next = merge([2,4], [3,4])
+                        2 &lt;= 3 -&gt; 取 2
+                        2.next = merge([4], [3,4])
+                                   4 &gt; 3 -&gt; 取 3
+                                   3.next = merge([4], [4])
+                                              4 &lt;= 4 -&gt; 取 list1 的 4
+                                              4.next = merge([], [4])
+                                                         list1 空 -&gt; return [4]
+結果：1 -&gt; 1 -&gt; 2 -&gt; 3 -&gt; 4 -&gt; 4 ✔</div>
+        <p><strong>不需要 dummy</strong>，因為「頭是誰」就是遞迴函式的回傳值。</p>
+        <p><strong>缺點是 O(m+n) 的遞迴堆疊。</strong>這題節點數只有 50，完全不是問題；但如果是 10⁵ 個節點，Python 會 <code>RecursionError</code>。面試時主動提這一點。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m+n)</td><td>每個節點一層遞迴</td></tr>
+            <tr><td>空間</td><td>O(m+n)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、迴圈 + dummy</td><td>O(m+n)</td><td>O(1)</td><td>14</td><td>面試預設；O(1) 空間</td></tr>
+            <tr><td>二、遞迴</td><td>O(m+n)</td><td>O(m+n)</td><td>8</td><td>最短最好讀；注意堆疊深度</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>兩條都空</strong>：<code>([], [])</code> → <code>[]</code>。</li>
+          <li><strong>一條空</strong>：<code>([], [0])</code>、<code>([0], [])</code> → <code>[0]</code>。</li>
+          <li><strong>完全不重疊</strong>：<code>([5], [1,2,4])</code> → <code>[1,2,4,5]</code>。驗證「一條走完後整段接上」。</li>
+          <li><strong>全部相同</strong>：<code>([1,1,1], [1,1])</code> → <code>[1,1,1,1,1]</code>。驗證 <code>&lt;=</code> 不會死循環。</li>
+          <li><strong>長度差很多</strong>：<code>([1], [2,3,4,5,6])</code>。</li>
+          <li><strong>負數</strong>：<code>([-100], [100])</code>。值域有負數，不要用 0 當哨兵。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：合併 k 條呢？</h3>
+
+        <p>第 23 題。三種做法：兩兩依序合併 O(kn)、<strong>分治兩兩配對</strong> O(n log k)、<strong>最小堆</strong> O(n log k)。詳見下一題。</p>
+
+        <h3>追問二：如果不能修改原本的節點（要建新的）呢？</h3>
+
+        <p>把 <code>tail.next = list1</code> 改成 <code>tail.next = ListNode(list1.val)</code>，並且最後不能整段接上、要一個一個複製。空間從 O(1) 變成 O(m+n)。<strong>題目明說可以 splice，所以我們用 O(1) 的版本。</strong></p>
+
+        <h3>追問三：這個 merge 和陣列版的 merge 有什麼不同？</h3>
+
+        <div class="code-block">陣列版：
+    需要一個大小 m+n 的新陣列（不能就地做，會蓋掉還沒讀的資料）
+    空間 O(m+n)
+
+串列版：
+    只改指標，空間 O(1)
+    而且「把剩下的整段接上」是 O(1) 而不是 O(剩餘長度)
+
+這就是為什麼 merge sort 在鏈結串列上特別漂亮：
+陣列版的 merge sort 需要 O(n) 額外空間，
+串列版只需要 O(log n)（遞迴堆疊），
+而且不需要隨機存取 —— 這也是外部排序（資料大到放不進記憶體）
+用 merge sort 而不是 quick sort 的原因。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 23 題 Merge k Sorted Lists</strong> —— 推廣到 k 條</li>
+          <li><strong>第 88 題 Merge Sorted Array</strong> —— 陣列版，要從後往前寫</li>
+          <li><strong>第 148 題 Sort List</strong> —— 用這個 merge 實作串列的 merge sort</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>dummy node 具體省掉了哪幾行程式碼？沒有它要怎麼寫？</li>
+            <li>最後一行 <code>tail.next = list1 if list1 else list2</code> 處理了哪三種情況？</li>
+            <li><code>&lt;=</code> 改成 <code>&lt;</code> 會讓輸出改變嗎？「穩定性」在什麼情況下才看得出差別？</li>
+            <li>遞迴版的空間是 O(m+n)，迴圈版是 O(1)。什麼時候這個差別會變成真正的問題？</li>
+          </ol>
+        </div>
