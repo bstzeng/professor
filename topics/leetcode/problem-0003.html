@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3. Longest Substring Without Repeating Characters 無重複字元的最長子字串 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="滑動視窗的標準範本：從 O(n³) 暴力法一路優化到一趟掃描的 O(n)。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="3">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 3 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 3</div>
+          <h1>Longest Substring Without Repeating Characters<br>無重複字元的最長子字串</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">滑動視窗</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>
+            Given a string <code>s</code>, find the length of the longest
+            <strong>substring</strong> that contains no repeating characters.
+          </p>
+          <p>
+            A substring is a contiguous, non-empty sequence of characters within the string.
+          </p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>
+            給你一個字串 <code>s</code>，請找出其中<strong>不含重複字元</strong>的
+            最長<strong>子字串</strong>的長度。
+          </p>
+          <p>
+            子字串指的是字串裡<strong>連續</strong>的一段非空字元序列。
+          </p>
+        </div>
+
+        <div class="callout">
+          <h3>子字串（substring）≠ 子序列（subsequence）</h3>
+          <p>
+            這是這題最常見的誤讀。
+          </p>
+          <div class="code-block">s = "pwwkew"
+
+子字串（必須連續）：    "pww"、"wke"、"kew" ✔
+                        "pwke" ✘  （跳過了一個 w，不連續）
+
+子序列（可以跳過）：    "pwke" ✔
+
+本題要的是「子字串」，答案是 "wke"，長度 3。
+如果是子序列，答案會是 "pwke"，長度 4 —— 那是另一題。</div>
+        </div>
+
+        <h2>範例</h2>
+        <div class="code-block">範例 1
+  輸入：s = "abcabcbb"
+  輸出：3
+  說明：最長的無重複子字串是 "abc"。
+
+範例 2
+  輸入：s = "bbbbb"
+  輸出：1
+  說明：最長的是 "b"。
+
+範例 3
+  輸入：s = "pwwkew"
+  輸出：3
+  說明：最長的是 "wke"（不是 "pwke"，那不是子字串）。</div>
+
+        <h2>限制條件</h2>
+        <ul>
+          <li>0 ≤ <code>s.length</code> ≤ 5 × 10⁴</li>
+          <li><code>s</code> 由英文字母、數字、符號與空白組成</li>
+        </ul>
+        <p>
+          <a href="https://leetcode.com/problems/longest-substring-without-repeating-characters/" target="_blank" rel="noopener">LeetCode 原題</a>
+        </p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+          <ul>
+            <li><strong>n 可以是 0</strong>：空字串要回傳 0，不能假設至少有一個字元。</li>
+            <li><strong>n ≤ 5 × 10⁴</strong>：O(n²) 是 2.5 × 10⁹，<strong>一定逾時</strong>。這題必須做到 O(n)。</li>
+            <li><strong>不只有小寫字母</strong>：包含數字、符號、空白，所以不能用長度 26 的陣列。<code>" "</code> 是合法輸入，答案是 1。</li>
+          </ul>
+        </div>
+
+        <h2>解題思路</h2>
+        <p>
+          先想最笨的做法：檢查<strong>所有</strong>子字串，看哪個沒有重複字元、而且最長。
+          一個長度 n 的字串有 n(n+1)/2 個子字串，光是枚舉就已經 O(n²) 了。
+        </p>
+        <p>
+          優化的關鍵洞察是：
+        </p>
+        <div class="callout">
+          <p>
+            <strong>如果 <code>s[i..j]</code> 已經有重複字元，那麼 <code>s[i..j+1]</code>、
+            <code>s[i..j+2]</code>…… 全部都有重複字元，不用再檢查。</strong>
+          </p>
+          <p>
+            這代表對每一個起點 <code>i</code>，我們只要往右延伸到「第一次撞到重複」就可以停。
+            而且更進一步——當起點從 <code>i</code> 移到 <code>i+1</code> 時，
+            <strong>右邊界完全不需要退回去重來</strong>。
+          </p>
+        </div>
+        <p>
+          這就是<strong>滑動視窗</strong>：用兩個指標圈出一段區間，
+          右邊界只往右、左邊界也只往右，兩個都不回頭。
+          每個元素最多被左右指標各碰一次，所以是 O(n)。
+        </p>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力：枚舉所有子字串</h3>
+          <div class="code-block">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        def no_repeat(sub: str) -&gt; bool:
+            return len(set(sub)) == len(sub)
+
+        n = len(s)
+        best = 0
+        for i in range(n):
+            for j in range(i + 1, n + 1):
+                if no_repeat(s[i:j]):
+                    best = max(best, j - i)
+        return best</div>
+          <p>
+            <code>len(set(sub)) == len(sub)</code> 是一個很 Python 的寫法：
+            <code>set</code> 會去掉重複，所以只要長度沒變，就代表原本沒有重複。
+          </p>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n³)</td><td>O(n²) 個子字串 × 每個 O(n) 的切片與檢查</td></tr>
+              <tr><td>空間</td><td>O(min(n, k))</td><td>k 是字元集大小</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>n = 5 × 10⁴ 時這個解法會跑到天荒地老。</strong>
+            但它是正確的，可以拿來當「對照組」驗證後面的優化——
+            後面每一種解法我都是用隨機測資跟它比對過的。
+          </p>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>暴力改良：固定起點，撞到重複就停</h3>
+          <p>
+            用上面那個洞察的第一半：對每個起點 <code>i</code>，
+            往右延伸到第一次重複就 <code>break</code>。
+          </p>
+          <div class="code-block">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        n = len(s)
+        best = 0
+        for i in range(n):
+            seen = set()
+            for j in range(i, n):
+                if s[j] in seen:
+                    break              # 撞到重複，這個起點到此為止
+                seen.add(s[j])
+            best = max(best, len(seen))
+        return best</div>
+          <p>
+            少了字串切片與重複檢查，從 O(n³) 降到 O(n²)。
+          </p>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n²)</td><td>最壞情況（全部字元都不同）每個起點都走到底</td></tr>
+              <tr><td>空間</td><td>O(min(n, k))</td><td>set 最多裝滿一個視窗</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>還是不夠。</strong>問題在於：起點從 <code>i</code> 換到 <code>i+1</code> 時，
+            <code>seen</code> 被整個丟掉重建，<strong>前面掃過的工作全部作廢</strong>。
+            下一個解法就是要把這些工作保留下來。
+          </p>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>滑動視窗 + 集合</h3>
+          <p>
+            不要每次都重建視窗。改成：
+          </p>
+          <ul>
+            <li>右邊界 <code>right</code> 一路往右，每次把新字元加進視窗</li>
+            <li>如果新字元已經在視窗裡，<strong>從左邊一個一個踢掉</strong>，直到重複消失</li>
+            <li>過程中記錄看過的最大視窗長度</li>
+          </ul>
+          <div class="code-block">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        window = set()
+        left = 0
+        best = 0
+
+        for right, ch in enumerate(s):
+            while ch in window:        # 有重複就從左邊縮
+                window.remove(s[left])
+                left += 1
+            window.add(ch)
+            best = max(best, right - left + 1)
+
+        return best</div>
+          <div class="content-figure">
+            <svg class="content-diagram" viewBox="0 0 640 330" xmlns="http://www.w3.org/2000/svg">
+              <text x="16" y="20" fill="var(--text-muted)" font-size="12">s = "a b c a b c b b"　（索引 0–7）</text>
+
+              <g font-size="13" text-anchor="middle" fill="var(--text-muted)">
+                <text x="70" y="44">a</text><text x="126" y="44">b</text><text x="182" y="44">c</text>
+                <text x="238" y="44">a</text><text x="294" y="44">b</text><text x="350" y="44">c</text>
+                <text x="406" y="44">b</text><text x="462" y="44">b</text>
+              </g>
+              <g font-size="9" text-anchor="middle" fill="var(--text-muted)" opacity="0.7">
+                <text x="70" y="58">0</text><text x="126" y="58">1</text><text x="182" y="58">2</text>
+                <text x="238" y="58">3</text><text x="294" y="58">4</text><text x="350" y="58">5</text>
+                <text x="406" y="58">6</text><text x="462" y="58">7</text>
+              </g>
+
+              <rect x="48" y="72" width="156" height="30" rx="5" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <text x="220" y="92" fill="var(--gold)" font-size="11">right=2　視窗 "abc"　長度 3 ✔ 最佳</text>
+
+              <rect x="48" y="112" width="212" height="30" rx="5" fill="none" stroke="#ff8a65" stroke-width="2" stroke-dasharray="5 3"/>
+              <text x="276" y="132" fill="#ff8a65" font-size="11">right=3 加入 'a' → 重複！</text>
+
+              <rect x="104" y="152" width="156" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="276" y="172" fill="var(--accent)" font-size="11">left 右移 1 格 → 視窗 "bca"　長度 3</text>
+
+              <rect x="160" y="192" width="156" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="332" y="212" fill="var(--accent)" font-size="11">right=4 → "cab"　長度 3</text>
+
+              <rect x="216" y="232" width="156" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="388" y="252" fill="var(--accent)" font-size="11">right=5 → "abc"　長度 3</text>
+
+              <rect x="328" y="272" width="100" height="30" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="444" y="292" fill="var(--accent)" font-size="11">right=6 → "cb"　長度 2</text>
+
+              <text x="16" y="322" fill="var(--text-muted)" font-size="11">左右邊界都只往右移，從不回頭 —— 這就是「滑動視窗」這個名字的來源。</text>
+            </svg>
+          </div>
+          <div class="callout">
+            <h3>為什麼有 while 迴圈還是 O(n)？</h3>
+            <p>
+              乍看之下「for 裡面包 while」像是 O(n²)，但關鍵在於：
+              <strong><code>left</code> 只會往右移，整個過程中最多移動 n 次。</strong>
+            </p>
+            <p>
+              所以 <code>right</code> 走 n 步、<code>left</code> 總共走 n 步，
+              合計最多 2n 次操作 → O(n)。
+            </p>
+            <p>
+              這叫<strong>攤還分析</strong>（amortized analysis）：
+              不看單次迴圈最壞會跑幾次，而看整體總共跑幾次。
+              這是所有雙指標／滑動視窗解法共通的論證方式。
+            </p>
+          </div>
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td>O(n)</td><td>最多 2n 次操作（right 走 n、left 走 n）</td></tr>
+              <tr><td>空間</td><td>O(min(n, k))</td><td>視窗最大就是字元集大小 k</td></tr>
+            </tbody>
+          </table>
+          <p>
+            <strong>已經是 O(n) 了，但還可以更好。</strong>
+            注意 <code>"abcdefga"</code> 這種情況：撞到重複的 <code>'a'</code> 時，
+            <code>left</code> 要一格一格從 0 移到 1，中間踢掉了 <code>b,c,d,e,f,g</code>——
+            但我們其實<strong>一眼就知道</strong> <code>left</code> 該跳到哪裡。
+          </p>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法四 · 最佳解</span>
+          <h3>滑動視窗 + 最後出現位置（直接跳）</h3>
+          <p>
+            把 <code>set</code> 換成 <code>dict</code>，記住<strong>每個字元最後出現的索引</strong>。
+            撞到重複時，<code>left</code> 直接跳到「那個重複字元的下一格」，不用一格一格縮。
+          </p>
+          <div class="code-block">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        last = {}          # 字元 -&gt; 它最後一次出現的索引
+        left = 0           # 目前視窗的左邊界
+        best = 0
+
+        for right, ch in enumerate(s):
+            if ch in last and last[ch] &gt;= left:
+                left = last[ch] + 1        # 直接跳，不用一格一格縮
+            last[ch] = right               # 更新最後出現位置
+            best = max(best, right - left + 1)
+
+        return best</div>
+
+          <div class="callout">
+            <h3><code>last[ch] &gt;= left</code> 這個條件不能省</h3>
+            <p>
+              這是這題最容易寫錯的一行。如果寫成：
+            </p>
+            <div class="code-block">if ch in last:                 # ✘ 少了 &gt;= left 的檢查
+    left = last[ch] + 1</div>
+            <p>
+              那麼遇到 <code>s = "abba"</code> 就會出錯：
+            </p>
+            <div class="code-block">s = "abba"
+
+right=0 'a'：last={a:0}, left=0, best=1
+right=1 'b'：last={a:0,b:1}, left=0, best=2
+right=2 'b'：'b' 在 last，last[b]=1 &gt;= left=0 → left=2
+             last={a:0,b:2}, best=2
+right=3 'a'：'a' 在 last，last[a]=0
+
+             ✘ 錯誤版：left = 0+1 = 1   ← left 往左倒退了！
+                視窗變成 s[1..3] = "bba"，長度 3 —— 但裡面有兩個 b
+
+             ✔ 正確版：last[a]=0 &lt; left=2，條件不成立，left 保持 2
+                視窗是 s[2..3] = "ba"，長度 2 ✔
+
+錯誤版輸出 3，正確答案是 2。</div>
+            <p>
+              <strong>根本原因：<code>last</code> 裡存的是「整個字串中最後出現的位置」，
+              但那個位置可能已經在目前視窗的<strong>左邊</strong>了。</strong>
+              視窗外面的重複不算重複，所以必須用 <code>last[ch] &gt;= left</code>
+              確認「這次重複確實發生在視窗內」。
+            </p>
+            <p>
+              另一組會現形的測資是 <code>"tmmzuxt"</code>：
+              正確答案 5（<code>"mzuxt"</code>），錯誤版會給 6。
+            </p>
+          </div>
+
+          <h3>為什麼「直接跳」是對的</h3>
+          <p>
+            當我們在位置 <code>right</code> 遇到重複的字元 <code>ch</code>，
+            而它上一次出現在 <code>p = last[ch]</code>（且 <code>p &gt;= left</code>）：
+          </p>
+          <ul>
+            <li>任何<strong>左邊界 ≤ p</strong> 的視窗，都同時包含 <code>s[p]</code> 和 <code>s[right]</code>，一定有重複 → 全部可以跳過</li>
+            <li>所以最小的合法左邊界就是 <code>p + 1</code></li>
+          </ul>
+          <p>
+            這就是解法三「一格一格縮」與解法四「一步到位」的差別：
+            前者不知道要縮多少所以逐格試，後者用 <code>dict</code> 記住的資訊<strong>算出</strong>答案。
+          </p>
+
+          <div class="content-figure">
+            <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+              <text x="16" y="20" fill="var(--text-muted)" font-size="12">s = "a b c d e f g a"　right = 7 遇到重複的 'a'（上次在 0）</text>
+
+              <g font-size="13" text-anchor="middle" fill="var(--text-muted)">
+                <text x="70" y="52">a</text><text x="126" y="52">b</text><text x="182" y="52">c</text>
+                <text x="238" y="52">d</text><text x="294" y="52">e</text><text x="350" y="52">f</text>
+                <text x="406" y="52">g</text><text x="462" y="52">a</text>
+              </g>
+              <g font-size="9" text-anchor="middle" fill="var(--text-muted)" opacity="0.7">
+                <text x="70" y="66">0</text><text x="126" y="66">1</text><text x="182" y="66">2</text>
+                <text x="238" y="66">3</text><text x="294" y="66">4</text><text x="350" y="66">5</text>
+                <text x="406" y="66">6</text><text x="462" y="66">7</text>
+              </g>
+
+              <text x="16" y="100" fill="#ff8a65" font-size="12">解法三：left 一格一格移</text>
+              <g stroke="#ff8a65" stroke-width="2" fill="none">
+                <path d="M 70 112 L 98 124 L 126 112"/>
+                <path d="M 126 112 L 154 124 L 182 112"/>
+                <path d="M 182 112 L 210 124 L 238 112"/>
+                <path d="M 238 112 L 266 124 L 294 112"/>
+                <path d="M 294 112 L 322 124 L 350 112"/>
+                <path d="M 350 112 L 378 124 L 406 112"/>
+              </g>
+              <text x="440" y="124" fill="#ff8a65" font-size="11">踢掉 6 個字元才停</text>
+
+              <text x="16" y="170" fill="var(--gold)" font-size="12">解法四：直接跳到 last['a'] + 1 = 1</text>
+              <path d="M 70 182 C 130 210, 200 210, 126 196" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+              <polygon points="126,196 138,190 134,202" fill="var(--gold)"/>
+              <text x="200" y="200" fill="var(--gold)" font-size="11">一步到位</text>
+
+              <text x="16" y="238" fill="var(--text-muted)" font-size="11">兩者總複雜度都是 O(n)（攤還後相同），但解法四的常數更小、程式更短。</text>
+            </svg>
+          </div>
+
+          <table>
+            <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+            <tbody>
+              <tr><td>時間</td><td><strong>O(n)</strong></td><td>單趟掃描，每個字元只處理一次</td></tr>
+              <tr><td>空間</td><td>O(min(n, k))</td><td>k 是字元集大小</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法五</span>
+          <h3>用固定陣列取代字典</h3>
+          <p>
+            題目說字元是「英文字母、數字、符號、空白」——都在 ASCII 範圍內。
+            所以可以用一個長度 128 的陣列取代 <code>dict</code>。
+          </p>
+          <div class="code-block">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        last = [-1] * 128      # ASCII 碼 -&gt; 最後出現的索引，-1 表示沒出現過
+        left = 0
+        best = 0
+
+        for right, ch in enumerate(s):
+            c = ord(ch)
+            if last[c] &gt;= left:        # -1 永遠 &lt; left(≥0)，所以不必額外檢查存在性
+                left = last[c] + 1
+            last[c] = right
+            best = max(best, right - left + 1)
+
+        return best</div>
+          <p>
+            用 <code>-1</code> 當「沒出現過」的哨兵值，
+            <strong>把 <code>ch in last</code> 的檢查也一併省掉了</strong>——
+            因為 <code>-1 &gt;= left</code> 在 <code>left ≥ 0</code> 時永遠是假。
+          </p>
+          <div class="callout">
+            <h3>但在 Python 裡，這個優化不一定划算</h3>
+            <p>
+              在 C++／Java 中，陣列索引比雜湊查找快很多，這是明確的優化。
+              在 Python 裡：
+            </p>
+            <ul>
+              <li><code>dict</code> 的實作本身已經高度優化，對短字串鍵很快</li>
+              <li>多了一次 <code>ord(ch)</code> 的函式呼叫，而 Python 的函式呼叫很貴</li>
+              <li>實測兩者差距很小，有時陣列版甚至更慢</li>
+            </ul>
+            <p>
+              <strong>而且它犧牲了通用性</strong>：如果輸入含有非 ASCII 字元
+              （中文、emoji），<code>ord(ch)</code> 會超出 128 直接 <code>IndexError</code>。
+              這題保證 ASCII，但這個假設值得寫在註解裡。
+            </p>
+            <p>
+              <strong>建議：面試時寫解法四（dict 版），並口頭提到可以用陣列優化。</strong>
+              這樣既展示了你知道這個技巧，也展示了你知道它的取捨。
+            </p>
+          </div>
+        </div>
+
+        <h2>五種解法對照</h2>
+        <table>
+          <thead>
+            <tr><th>解法</th><th>時間</th><th>空間</th><th>n = 5×10⁴ 能過嗎</th><th>評價</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>暴力枚舉</td><td>O(n³)</td><td>O(k)</td><td>✘</td><td>只當正確性對照組</td></tr>
+            <tr><td>固定起點 + break</td><td>O(n²)</td><td>O(k)</td><td>✘</td><td>思路上的過渡</td></tr>
+            <tr><td>滑動視窗 + set</td><td>O(n)</td><td>O(k)</td><td>✔</td><td>好，也最容易想到</td></tr>
+            <tr><td><strong>滑動視窗 + dict 跳躍</strong></td><td><strong>O(n)</strong></td><td>O(k)</td><td>✔</td><td><strong>標準答案</strong></td></tr>
+            <tr><td>滑動視窗 + 陣列</td><td>O(n)</td><td>O(128)</td><td>✔</td><td>C++/Java 值得；Python 效益不明顯</td></tr>
+          </tbody>
+        </table>
+        <p>
+          <code>k</code> 是字元集大小。因為視窗裡不能有重複字元，
+          視窗長度不會超過 <code>k</code>，所以空間是 <strong>O(min(n, k))</strong>——
+          在 ASCII 下就是 O(1) 的常數空間。
+        </p>
+
+        <h2>邊界條件檢查清單</h2>
+        <table>
+          <thead><tr><th>情況</th><th>輸入</th><th>正確輸出</th><th>容易怎麼錯</th></tr></thead>
+          <tbody>
+            <tr><td>空字串</td><td><code>""</code></td><td><code>0</code></td><td>假設至少一個字元；或初始 best = 1</td></tr>
+            <tr><td>單一字元</td><td><code>"a"</code></td><td><code>1</code></td><td>—</td></tr>
+            <tr><td>全部相同</td><td><code>"bbbbb"</code></td><td><code>1</code></td><td>—</td></tr>
+            <tr><td>全部不同</td><td><code>"abcdefg"</code></td><td><code>7</code></td><td>—</td></tr>
+            <tr><td><strong>left 會倒退</strong></td><td><code>"abba"</code></td><td><code>2</code></td><td><strong>漏寫 <code>last[ch] &gt;= left</code> → 得到 3</strong></td></tr>
+            <tr><td><strong>同上，較長</strong></td><td><code>"tmmzuxt"</code></td><td><code>5</code></td><td><strong>同上 → 得到 6</strong></td></tr>
+            <tr><td>只有空白</td><td><code>" "</code></td><td><code>1</code></td><td>誤以為只會有字母</td></tr>
+            <tr><td>重複在開頭</td><td><code>"dvdf"</code></td><td><code>3</code></td><td>跳躍邏輯寫錯會得到 2</td></tr>
+          </tbody>
+        </table>
+        <p>
+          <strong><code>"abba"</code> 和 <code>"tmmzuxt"</code> 是這題的招牌測資。</strong>
+          寫完之後一定要拿這兩組手動跑一遍——
+          它們正是用來抓 <code>left</code> 倒退這個 bug 的。
+        </p>
+
+        <h2>滑動視窗的通用範本</h2>
+        <p>
+          這題是滑動視窗最經典的入門題。把它抽象出來，範本長這樣：
+        </p>
+        <div class="code-block">def sliding_window(s):
+    window = {}            # 視窗內的狀態（計數、集合、最後位置…）
+    left = 0
+    answer = 初始值
+
+    for right in range(len(s)):
+        把 s[right] 加入 window            # 擴張
+
+        while 視窗不合法:                   # 收縮（可能一次、可能多次、可能零次）
+            把 s[left] 移出 window
+            left += 1
+
+        answer = 用 [left, right] 更新答案   # 記錄
+
+    return answer</div>
+        <p>
+          不同題目的差別只在三個地方：
+        </p>
+        <table>
+          <thead><tr><th>要素</th><th>本題</th><th>其他題目可能是</th></tr></thead>
+          <tbody>
+            <tr><td>視窗狀態</td><td>字元 → 最後索引</td><td>字元計數、總和、不同字元數…</td></tr>
+            <tr><td>「不合法」的定義</td><td>有重複字元</td><td>總和超過 target、不同字元數 &gt; k…</td></tr>
+            <tr><td>要記錄什麼</td><td>最大長度</td><td>最小長度、數量、實際子字串…</td></tr>
+          </tbody>
+        </table>
+
+        <h2>常見追問</h2>
+        <h3>如果要回傳子字串本身，不只是長度呢？</h3>
+        <p>
+          多記一個起點就好：
+        </p>
+        <div class="code-block">best, start = 0, 0
+for right, ch in enumerate(s):
+    if ch in last and last[ch] &gt;= left:
+        left = last[ch] + 1
+    last[ch] = right
+    if right - left + 1 &gt; best:
+        best = right - left + 1
+        start = left                 # 只在破紀錄時更新起點
+
+return s[start:start + best]</div>
+        <p>
+          注意 <code>start</code> 只在<strong>破紀錄時</strong>更新，
+          不能每輪都更新，否則會記到最後一個視窗而不是最長的那個。
+        </p>
+        <h3>如果允許最多 k 個重複字元呢？</h3>
+        <p>
+          那就是 <strong>340. Longest Substring with At Most K Distinct Characters</strong>
+          那一類。視窗狀態改成 <code>Counter</code>，
+          「不合法」的定義改成 <code>len(counter) &gt; k</code>，範本其餘完全一樣。
+        </p>
+        <h3>為什麼 <code>best = max(best, ...)</code> 放在迴圈最後？</h3>
+        <p>
+          因為必須<strong>先把視窗調整到合法</strong>，才能用它的長度更新答案。
+          放在前面會把「還含有重複字元」的視窗長度算進去。
+        </p>
+
+        <h2>延伸題目</h2>
+        <table>
+          <thead><tr><th>題號</th><th>題目</th><th>關聯</th></tr></thead>
+          <tbody>
+            <tr><td>159</td><td>Longest Substring with At Most Two Distinct Characters</td><td>同範本，換合法條件</td></tr>
+            <tr><td>340</td><td>Longest Substring with At Most K Distinct Characters</td><td>上一題的推廣</td></tr>
+            <tr><td>424</td><td>Longest Repeating Character Replacement</td><td>可替換 k 個字元的滑動視窗</td></tr>
+            <tr><td>76</td><td>Minimum Window Substring</td><td>求<strong>最小</strong>視窗，收縮邏輯更複雜</td></tr>
+            <tr><td>209</td><td>Minimum Size Subarray Sum</td><td>數值版的最小視窗</td></tr>
+            <tr><td>438</td><td>Find All Anagrams in a String</td><td>固定長度的滑動視窗</td></tr>
+          </tbody>
+        </table>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>說明「子字串」與「子序列」的差別，並用 <code>"pwwkew"</code> 舉例</li>
+            <li>解釋為什麼「for 裡面包 while」的滑動視窗仍然是 O(n)</li>
+            <li>用 <code>"abba"</code> 手動走一遍，說明漏掉 <code>last[ch] &gt;= left</code> 會發生什麼</li>
+            <li>不看課文，寫出滑動視窗的通用範本</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0002.html">← 上一題：2. 兩數相加</a>
+          <a href="index.html">回題目總覽</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

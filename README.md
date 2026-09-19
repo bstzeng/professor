@@ -18,6 +18,14 @@ topics/               各主題的內容頁面（依需要新增資料夾）
 2. 若該主題有獨立頁面，在 `topics/<topic-id>/` 底下新增 HTML 頁面，並在資料裡填上 `url`。
 3. 存檔後首頁會自動出現新的主題卡片，不需要修改 `index.html` 或 `js/main.js`。
 
+## 由產生器維護的主題
+
+有些主題的頁面是用腳本產生的，**不要直接編輯 `topics/` 底下產生出來的 HTML**：
+
+| 主題 | 產生器 | 說明 |
+|---|---|---|
+| `leetcode` | `tools/leetcode/` | 一題一頁，持續新增。做法見 `tools/leetcode/README.md` |
+
 ## 本機預覽
 
 直接用瀏覽器打開 `index.html`，或用簡單的本機伺服器（例如 `python3 -m http.server`）避免部分瀏覽器對本機檔案的限制。
