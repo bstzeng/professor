@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>46. Permutations 全排列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="交換法與 used 陣列法兩種回溯骨架。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="46">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 46 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 46</div>
+          <h1>Permutations<br>全排列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array <code>nums</code> of <strong>distinct</strong> integers, return <em>all the possible permutations</em>. You can return the answer in any order.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>元素互不相同</strong>的整數陣列 <code>nums</code>，回傳它的<strong>所有排列</strong>。答案順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>排列 vs 組合：差在「有沒有 start」</h3>
+        <div class="code-block">組合（第 39、40、77、78、90 題）：
+    順序不重要，[1,2] 和 [2,1] 是同一個
+    -&gt; 用 start 參數限制「只能往後選」
+    -&gt; for i in range(start, n)
+
+排列（第 46、47 題）：
+    順序很重要，[1,2] 和 [2,1] 是不同的
+    -&gt; 不能用 start，每一層都要從頭掃
+    -&gt; for i in range(n)，但要用 used[] 記錄「這個已經用過了」
+
+一句話：
+    組合用 start 防止「重複的集合」
+    排列用 used  防止「重複使用同一個元素」
+
+    兩者都是在控制「哪些還能選」，只是規則不同。</div>
+        <p><strong>n 個相異元素的排列有 n! 個。</strong>n = 6 時 720 個，n = 10 時 3,628,800 個 —— 所以這類題目的 n 一定很小（本題 n ≤ 6）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,2,3]
+  輸出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+範例 2
+  輸入：nums = [0,1]
+  輸出：[[0,1],[1,0]]
+
+範例 3
+  輸入：nums = [1]
+  輸出：[[1]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 6</li>
+          <li>−10 ≤ <code>nums[i]</code> ≤ 10</li>
+          <li><code>nums</code> 的所有元素<strong>互不相同</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/permutations/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 6</strong>，所以答案最多 720 個。這個數字就是在說：<strong>直接枚舉，不用擔心效率。</strong></li>
+          <li><strong>元素互不相同</strong> —— 不用去重。（有重複的是第 47 題，去重會麻煩很多。）</li>
+          <li><strong>答案順序不拘</strong>，所以三種解法產生的順序不同都沒關係。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 284" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">nums = [1,2,3] 的搜尋樹：每一層選一個「還沒用過」的數字</text>
+            <g font-size="12" text-anchor="middle" font-family="monospace">
+              <text x="320" y="44" fill="var(--gold)">[]</text>
+              <text x="140" y="92" fill="var(--accent)">[1]</text>
+              <text x="320" y="92" fill="var(--accent)">[2]</text>
+              <text x="500" y="92" fill="var(--accent)">[3]</text>
+              <text x="90" y="140" fill="var(--accent)">[1,2]</text>
+              <text x="200" y="140" fill="var(--accent)">[1,3]</text>
+              <text x="268" y="140" fill="var(--accent)">[2,1]</text>
+              <text x="378" y="140" fill="var(--accent)">[2,3]</text>
+              <text x="446" y="140" fill="var(--accent)">[3,1]</text>
+              <text x="556" y="140" fill="var(--accent)">[3,2]</text>
+              <text x="90" y="188" fill="#ff8a65">[1,2,3]</text>
+              <text x="200" y="188" fill="#ff8a65">[1,3,2]</text>
+              <text x="268" y="188" fill="#ff8a65">[2,1,3]</text>
+              <text x="378" y="188" fill="#ff8a65">[2,3,1]</text>
+              <text x="446" y="188" fill="#ff8a65">[3,1,2]</text>
+              <text x="556" y="188" fill="#ff8a65">[3,2,1]</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.3">
+              <line x1="306" y1="52" x2="152" y2="80"/>
+              <line x1="320" y1="52" x2="320" y2="80"/>
+              <line x1="334" y1="52" x2="488" y2="80"/>
+              <line x1="130" y1="100" x2="96" y2="128"/>
+              <line x1="150" y1="100" x2="194" y2="128"/>
+              <line x1="308" y1="100" x2="274" y2="128"/>
+              <line x1="332" y1="100" x2="372" y2="128"/>
+              <line x1="490" y1="100" x2="452" y2="128"/>
+              <line x1="510" y1="100" x2="550" y2="128"/>
+              <line x1="90" y1="148" x2="90" y2="176"/>
+              <line x1="200" y1="148" x2="200" y2="176"/>
+              <line x1="268" y1="148" x2="268" y2="176"/>
+              <line x1="378" y1="148" x2="378" y2="176"/>
+              <line x1="446" y1="148" x2="446" y2="176"/>
+              <line x1="556" y1="148" x2="556" y2="176"/>
+            </g>
+            <text x="20" y="226" fill="var(--gold)" font-size="12">每一層的分支數：3 → 2 → 1，總共 3! = 6 條路徑</text>
+            <text x="20" y="250" fill="var(--text-muted)" font-size="12">和組合題（第 39、40、78 題）最大的差別：<tspan fill="var(--accent)">沒有 start 參數</tspan>，每一層都從頭掃</text>
+            <text x="20" y="272" fill="var(--text-muted)" font-size="12">因為排列在乎順序，[1,2] 和 [2,1] 是不同的答案，不能用 start 限制</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯 + used 陣列（最標準）</h3>
+        <div class="code-block">class Solution:
+    def permute(self, nums: List[int]) -&gt; List[List[int]]:
+        n = len(nums)
+        out = []
+        path = []
+        used = [False] * n
+
+        def backtrack() -&gt; None:
+            if len(path) == n:
+                out.append(path[:])
+                return
+            for i in range(n):
+                if used[i]:
+                    continue
+                used[i] = True
+                path.append(nums[i])
+                backtrack()
+                path.pop()
+                used[i] = False
+
+        backtrack()
+        return out</div>
+        <h3>三個狀態要同步</h3>
+        <div class="code-block">used[i] = True       標記「這個元素被用了」
+path.append(...)     記錄選了什麼
+backtrack()          往下一層
+path.pop()           撤銷選擇
+used[i] = False      撤銷標記
+
+「做」和「撤銷」必須完全對稱 ——
+少撤銷一個，後面的搜尋就會基於錯的狀態。
+
+建議的寫法習慣：
+    做的兩行寫在一起，撤銷的兩行也寫在一起，
+    而且撤銷的順序和做的順序相反（像堆疊）。
+    這樣視覺上就能檢查有沒有漏。</div>
+        <p><strong>終止條件是 <code>len(path) == n</code></strong>，不是 <code>all(used)</code> —— 前者是 O(1)，後者是 O(n)。</p>
+        <p><strong>為什麼 <code>path[:]</code> 不能省？</strong>同第 39 題：<code>path</code> 是共用的 list，之後還會被改。<strong>這是回溯題第一名的 bug。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n! · n)</td><td>n! 條路徑，每條複製 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>used + path + 遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>原地交換（不需要 used 陣列）</h3>
+        <p>另一種思路：<strong>不用額外標記，直接在原陣列上交換。</strong>把「決定第 k 個位置放誰」想成「從 <code>nums[k:]</code> 裡挑一個換到第 k 位」。</p>
+        <div class="code-block">class Solution:
+    def permute(self, nums: List[int]) -&gt; List[List[int]]:
+        n = len(nums)
+        out = []
+
+        def backtrack(k: int) -&gt; None:
+            """nums[:k] 已經固定好了，決定第 k 個位置放誰"""
+            if k == n:
+                out.append(nums[:])
+                return
+            for i in range(k, n):
+                nums[k], nums[i] = nums[i], nums[k]   # 把 nums[i] 換到第 k 位
+                backtrack(k + 1)
+                nums[k], nums[i] = nums[i], nums[k]   # 換回來
+
+        backtrack(0)
+        return out</div>
+        <div class="code-block">nums = [1,2,3]，backtrack(0)
+
+  i=0: 交換 (0,0) -&gt; [1,2,3]，往下
+       i=1: 交換 (1,1) -&gt; [1,2,3]，往下
+            i=2: 交換 (2,2) -&gt; 收 [1,2,3]
+            換回
+       i=2: 交換 (1,2) -&gt; [1,3,2]，往下
+            收 [1,3,2]
+            換回 -&gt; [1,2,3]
+  i=1: 交換 (0,1) -&gt; [2,1,3]，往下 ...
+  i=2: 交換 (0,2) -&gt; [3,2,1]，往下 ...
+
+不變量：進入 backtrack(k) 時，nums[:k] 是已經決定好的前綴，
+        nums[k:] 是「還沒用到的元素」（順序可能被打亂，但集合不變）。</div>
+        <p><strong>優點</strong>：不需要 <code>used</code> 陣列，也不需要 <code>path</code> —— <code>nums</code> 本身就是路徑。空間更省。</p>
+        <p><strong>缺點</strong>：</p>
+        <ul>
+          <li><strong>產生的順序不是字典序</strong>（解法一是）。題目不要求，但有些題目會要求。</li>
+          <li><strong>推廣到第 47 題（有重複值）時會出問題</strong> —— 因為交換會打亂順序，「相同的值相鄰」這個去重前提就不成立了。要改用 set 記錄「這一層試過哪些值」。</li>
+        </ul>
+        <p><strong>所以：解法一更通用，解法二更省空間。面試建議寫解法一。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n! · n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只有遞迴深度和 nums 本身</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>迭代插入（不用遞迴）</h3>
+        <p>完全不同的角度：<strong>已經有了 k 個元素的所有排列，要加入第 k+1 個元素時，把它插進每個排列的每一個位置。</strong></p>
+        <div class="code-block">class Solution:
+    def permute(self, nums: List[int]) -&gt; List[List[int]]:
+        # 迭代法：一個一個把元素插進「所有已知排列」的每一個位置
+        out = [[]]
+        for x in nums:
+            out = [p[:i] + [x] + p[i:] for p in out for i in range(len(p) + 1)]
+        return out</div>
+        <div class="code-block">nums = [1,2,3]
+
+初始：      [[]]
+
+加入 1：    把 1 插進 [] 的 1 個位置
+            -&gt; [[1]]
+
+加入 2：    把 2 插進 [1] 的 2 個位置（前、後）
+            -&gt; [[2,1], [1,2]]
+
+加入 3：    把 3 插進 [2,1] 的 3 個位置 -&gt; [3,2,1], [2,3,1], [2,1,3]
+            把 3 插進 [1,2] 的 3 個位置 -&gt; [3,1,2], [1,3,2], [1,2,3]
+            -&gt; 共 6 個 ✔
+
+數量驗證：1 × 2 × 3 = 6 = 3! ✔
+每一輪的數量乘上「目前長度 + 1」，剛好就是階乘的定義。</div>
+        <p><strong>一行 list comprehension 寫完</strong>，而且完全不用遞迴。</p>
+        <p><strong>缺點</strong>：所有中間結果都要留在記憶體裡（O(n!·n) 空間），而回溯只需要 O(n)。在 n 大的時候差別很大 —— 但這題 n ≤ 6，無所謂。</p>
+        <p><strong>這個「插入法」在數學上很漂亮</strong>：它直接對應了 <code>n! = 1 × 2 × ... × n</code> 的遞迴定義。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n! · n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(n! · n)</td><td>所有中間結果</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>額外空間</th><th>字典序？</th><th>能推廣到第 47 題？</th></tr></thead>
+          <tbody>
+            <tr><td>一、used 陣列</td><td>O(n!·n)</td><td>O(n)</td><td>✔（若輸入有序）</td><td>✔ 最容易</td></tr>
+            <tr><td>二、原地交換</td><td>O(n!·n)</td><td>O(n)</td><td>✘</td><td>要改成用 set 去重</td></tr>
+            <tr><td>三、迭代插入</td><td>O(n!·n)</td><td>O(n!·n)</td><td>✘</td><td>很難</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一元素</strong>：<code>[1]</code> → <code>[[1]]</code>。</li>
+          <li><strong>兩個元素</strong>：<code>[0,1]</code> → <code>[[0,1],[1,0]]</code>。</li>
+          <li><strong>空陣列</strong>：<code>[]</code> → <code>[[]]</code>（一個空排列）。題目保證 n ≥ 1，但三種解法都自然正確。</li>
+          <li><strong>n = 6</strong>：720 個答案。確認數量對得上 <code>6! = 720</code>。</li>
+          <li><strong>忘記 <code>path[:]</code></strong>：輸出會是 n! 個空 list。</li>
+          <li><strong>忘記 <code>used[i] = False</code></strong>：只會產生一個排列（之後全部被擋）。</li>
+          <li><strong>負數</strong>：<code>[-1, 0, 1]</code>。值域有負數，不要用某個數字當「沒用過」的標記。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有重複元素呢？</h3>
+
+        <p>第 47 題。加上排序 + 同層去重：</p>
+
+        <div class="code-block">nums.sort()
+...
+for i in range(n):
+    if used[i]:
+        continue
+    if i &gt; 0 and nums[i] == nums[i-1] and not used[i-1]:
+        continue          # 同一層裡，相同的值只用第一個
+    ...
+
+那個 not used[i-1] 是關鍵：
+    used[i-1] == True   表示「前一個相同的值」在「上一層」被用了
+                        -&gt; 這是合法的（用兩個相同的值）
+    used[i-1] == False  表示「前一個相同的值」在這一層被跳過了
+                        -&gt; 那我也該跳過，否則會產生一模一樣的子樹
+
+和第 40 題的 i &gt; start 是同一個道理：
+「同一層裡，相同的值只選第一次出現的那個」。</div>
+
+        <h3>追問二：如果只要第 k 個排列（字典序）呢？</h3>
+
+        <p>第 60 題。不需要生成全部 —— 用<strong>階乘進位制</strong>直接算：第一位有 <code>(n-1)!</code> 種後續，所以 <code>第一位的候選索引 = k // (n-1)!</code>，然後 <code>k %= (n-1)!</code>，遞迴下去。O(n²)。</p>
+
+        <h3>追問三：如果要「下一個排列」呢？</h3>
+
+        <p>第 31 題。O(n) 的 Narayana Pandita 演算法：找下降點 → 交換 → 反轉尾段。<strong>如果要依序列出所有排列，反覆呼叫「下一個排列」比回溯更省記憶體</strong>（O(1) vs O(n)），而且天然是字典序。</p>
+
+        <h3>追問四：Python 的 <code>itertools.permutations</code> 用什麼演算法？</h3>
+
+        <p>CPython 的實作是<strong>迭代版的「索引 + 迴圈計數器」</strong>，本質上和解法二（交換法）類似，但寫成了不用遞迴的形式。<strong>而且它是惰性的（generator）</strong> —— 所以 <code>itertools.permutations(range(20))</code> 不會爆記憶體，只有真的去迭代它才會一個一個產生。<strong>在「只需要前幾個」或「邊產生邊過濾」的場景，惰性求值是關鍵。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 47 題 Permutations II</strong> —— 有重複元素</li>
+          <li><strong>第 31 題 Next Permutation</strong> —— 一次產生下一個</li>
+          <li><strong>第 60 題 Permutation Sequence</strong> —— 直接算第 k 個</li>
+          <li><strong>第 78／90 題 Subsets</strong> —— 組合版的回溯</li>
+          <li><strong>第 17／39／40／77 題</strong> —— 回溯家族</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>排列和組合的回溯，在程式碼上最大的差別是什麼？為什麼排列不能用 <code>start</code>？</li>
+            <li>解法二（交換法）為什麼不需要 <code>used</code> 陣列？它的不變量是什麼？</li>
+            <li>解法三的中間結果數量是 1, 2, 6, 24, ...，這對應什麼公式？</li>
+            <li>第 47 題的去重條件 <code>not used[i-1]</code> 在表達什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0045.html">← 上一題：45. 跳躍遊戲 II</a>
+          <a href="problem-0047.html">下一題：47. 全排列 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

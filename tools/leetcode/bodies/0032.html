@@ -1,0 +1,349 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string containing just the characters <code>'('</code> and <code>')'</code>, return <em>the length of the longest valid (well-formed) parentheses substring</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個只含 <code>'('</code> 和 <code>')'</code> 的字串，回傳其中<strong>最長的合法括號子字串</strong>的長度。</p>
+        </div>
+
+        <div class="callout">
+          <h3>注意是「子字串」不是「子序列」</h3>
+        <div class="code-block">s = "()(()"
+
+  子字串（必須連續）：
+      "()"   長度 2  ✔
+      "(()"  不合法
+      最長合法子字串 = 2
+
+  如果是子序列（可以跳過）：
+      取索引 0,1,3,4 -&gt; "()()" 長度 4
+      那會是另一題（而且簡單很多：答案就是 2 × min(左括號數, 右括號數) 的某種計算）
+
+本題要的是「連續」的那一段。</div>
+        <p><strong>這題是第 20 題（Valid Parentheses）的 Hard 版。</strong>第 20 題只要回答「整串合不合法」，這題要找出「最長的合法區段有多長」。難度的來源是：<strong>合法區段可以拼接</strong>（<code>"()()"</code> 長度是 4 不是 2），所以不能只記「這一段合不合法」，還要能把相鄰的合法段接起來。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "(()"
+  輸出：2
+  說明：最長的合法子字串是 "()"。
+
+範例 2
+  輸入：s = ")()())"
+  輸出：4
+  說明：最長的是中間的 "()()"。
+
+範例 3
+  輸入：s = ""
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>s.length</code> ≤ 3 × 10⁴</li>
+          <li><code>s[i]</code> 是 <code>'('</code> 或 <code>')'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/longest-valid-parentheses/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>字串可以是空的</strong> → 答案 0。所有解法都要能處理。</li>
+          <li><strong>n 到 3 × 10⁴</strong>。O(n²)（枚舉所有子字串再驗證）是 9 × 10⁸ —— 太慢。必須是 O(n)。</li>
+          <li><strong>答案一定是偶數</strong>（合法括號的長度必為偶數）。這可以當作一個 sanity check。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>三種 O(n) 解法，思路完全不同：</p>
+
+        <table>
+          <thead><tr><th>解法</th><th>核心想法</th><th>空間</th><th>特點</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊存索引</td><td>底部放哨兵，用索引差算長度</td><td>O(n)</td><td>最直觀</td></tr>
+            <tr><td>二、DP</td><td>dp[i] = 以 i 結尾的最長合法長度</td><td>O(n)</td><td>最能推廣</td></tr>
+            <tr><td>三、雙向計數</td><td>左右各掃一遍，用計數器</td><td>O(1)</td><td>空間最省</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>堆疊存「索引」+ 哨兵（最直觀）</h3>
+        <p>第 20 題的堆疊存的是「字元」，這題要存「索引」—— 因為我們要算長度。</p>
+        <div class="code-block">class Solution:
+    def longestValidParentheses(self, s: str) -&gt; int:
+        # 堆疊存「索引」，底部放一個哨兵：最後一個「不合法」的位置
+        stack = [-1]
+        best = 0
+
+        for i, ch in enumerate(s):
+            if ch == "(":
+                stack.append(i)
+            else:
+                stack.pop()
+                if stack:
+                    # 目前這段合法區間是 (stack[-1], i]
+                    best = max(best, i - stack[-1])
+                else:
+                    # 堆疊空了 -&gt; 這個 ')' 沒人配，它成為新的哨兵
+                    stack.append(i)
+
+        return best</div>
+        <h3>哨兵 −1 在做什麼？</h3>
+        <div class="code-block">堆疊底部永遠放著「最後一個不合法位置」的索引。
+
+初始放 -1，表示「在字串開始之前」有一個虛擬的不合法位置。
+
+這樣 i - stack[-1] 就直接是「從那個不合法位置之後到 i」的長度。
+
+追一遍 s = ")()())"
+
+  i=0 ')' : pop 掉 -1，堆疊空了 -&gt; push 0（0 成為新哨兵）
+            stack = [0]
+  i=1 '(' : push 1          stack = [0, 1]
+  i=2 ')' : pop 掉 1，stack = [0]
+            best = max(0, 2 - 0) = 2
+  i=3 '(' : push 3          stack = [0, 3]
+  i=4 ')' : pop 掉 3，stack = [0]
+            best = max(2, 4 - 0) = 4
+  i=5 ')' : pop 掉 0，堆疊空了 -&gt; push 5
+            stack = [5]
+
+  答案 4 ✔（中間的 "()()"）
+
+關鍵：i=4 時算出 4 而不是 2 ——
+因為哨兵 0 記住了「從索引 1 開始都是合法的」，
+所以 "()()"  被當成一整段算，而不是兩個 "()"。
+這就是「拼接」自然發生的地方。</div>
+        <h3>為什麼是「先 pop 再檢查空不空」？</h3>
+        <p>遇到 <code>')'</code> 一律先 pop。如果 pop 完還有東西，表示剛剛 pop 掉的是一個配對的 <code>'('</code>（或哨兵之上的某個），此時 <code>stack[-1]</code> 就是「這段合法區間的前一格」。如果 pop 完空了，表示這個 <code>')'</code> 沒人配 —— 它自己成為新的哨兵。</p>
+        <p><strong>堆疊裡永遠只有：一個哨兵 + 若干個還沒配對的 <code>'('</code> 的索引。</strong>理解這個不變量，這個解法就再也不會忘。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個字元 push/pop 各一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>最壞（全是左括號）堆疊有 n 個</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>動態規劃（最能推廣）</h3>
+        <p>定義 <code>dp[i]</code> = <strong>以 <code>s[i]</code> 結尾</strong>的最長合法子字串長度。因為合法子字串一定以 <code>')'</code> 結尾，所以 <code>s[i] == '('</code> 時 <code>dp[i] = 0</code>。</p>
+        <div class="code-block">class Solution:
+    def longestValidParentheses(self, s: str) -&gt; int:
+        n = len(s)
+        # dp[i] = 「以 s[i] 結尾」的最長合法子字串長度
+        # 只有 s[i] == ')' 時才可能 &gt; 0
+        dp = [0] * n
+        best = 0
+
+        for i in range(1, n):
+            if s[i] != ")":
+                continue
+
+            if s[i - 1] == "(":
+                # 形如 "....()"  -&gt;  前面的長度 + 2
+                dp[i] = (dp[i - 2] if i &gt;= 2 else 0) + 2
+            else:
+                # 形如 "....))"  -&gt;  看內層合法段前面那個字元是不是 '('
+                inner = dp[i - 1]
+                j = i - inner - 1          # 內層合法段前面那一格
+                if j &gt;= 0 and s[j] == "(":
+                    dp[i] = inner + 2 + (dp[j - 1] if j &gt;= 1 else 0)
+
+            best = max(best, dp[i])
+
+        return best</div>
+        <h3>兩種情況</h3>
+        <div class="code-block">情況 A： s[i-1] == '('，也就是形如 "...()"
+
+        dp[i] = dp[i-2] + 2
+
+        那個 "()" 貢獻 2，
+        再加上它前面「以 s[i-2] 結尾」的合法長度（可以拼接）。
+
+        例： "()()"
+             dp[1] = 0 + 2 = 2
+             dp[3] = dp[1] + 2 = 4 ✔
+
+情況 B： s[i-1] == ')'，也就是形如 "...))"
+
+        s[i] 要配對的是「內層合法段」前面那一個字元。
+
+        內層長度 = dp[i-1]
+        內層的前一格 j = i - dp[i-1] - 1
+
+        如果 s[j] == '('，配對成功：
+            dp[i] = dp[i-1] + 2 + dp[j-1]
+                    ^內層      ^這一對  ^再前面能接上的
+
+        例： "(())"
+             i=2: s[1]=='(' -&gt; dp[2] = dp[0] + 2 = 2
+             i=3: s[2]==')' -&gt; 內層 dp[2]=2，j = 3-2-1 = 0
+                  s[0]=='(' ✔  dp[3] = 2 + 2 + 0 = 4 ✔
+
+        例： "()(())"
+             dp[1] = 2
+             dp[3] = 0（s[3]=='(' ）
+             dp[4] = dp[2] + 2 = 0 + 2 = 2
+             dp[5]: 內層 dp[4]=2，j = 5-2-1 = 2，s[2]=='(' ✔
+                    dp[5] = 2 + 2 + dp[1] = 2 + 2 + 2 = 6 ✔</div>
+        <p><strong><code>+ dp[j-1]</code> 這一項是最容易漏的。</strong>它負責「把前面已經合法的那一段接上來」—— 沒有它，<code>"()(())"</code> 會算成 4 而不是 6。</p>
+        <p>DP 的好處是<strong>它能回答更多問題</strong>：有了 <code>dp</code> 陣列，你可以直接知道「每個位置結尾的最長合法段」，進而找出所有合法段的位置、數量、總長度等等。堆疊解法要多做一些工作才能回答這些。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>dp 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>雙向計數（O(1) 空間）</h3>
+        <p>只用兩個計數器，掃兩遍。</p>
+        <div class="code-block">class Solution:
+    def longestValidParentheses(self, s: str) -&gt; int:
+        best = 0
+
+        # 從左往右：left 多的時候還有救，right 超過 left 就重來
+        left = right = 0
+        for ch in s:
+            if ch == "(":
+                left += 1
+            else:
+                right += 1
+            if left == right:
+                best = max(best, 2 * right)
+            elif right &gt; left:
+                left = right = 0
+
+        # 從右往左：對稱處理「左括號比較多」的情況，例如 "(()"
+        left = right = 0
+        for ch in reversed(s):
+            if ch == "(":
+                left += 1
+            else:
+                right += 1
+            if left == right:
+                best = max(best, 2 * left)
+            elif left &gt; right:
+                left = right = 0
+
+        return best</div>
+        <h3>為什麼一遍不夠？</h3>
+        <div class="code-block">從左往右掃，維護 left（左括號數）和 right（右括號數）：
+
+    left == right  -&gt;  找到一段合法的，長度 2*right
+    right &gt; left   -&gt;  這個 ')' 沒救了，歸零重來
+
+這樣可以正確處理 ")()())"：
+    ')' : right=1 &gt; left=0 -&gt; 歸零
+    '(' : left=1
+    ')' : right=1，相等 -&gt; best = 2
+    '(' : left=2
+    ')' : right=2，相等 -&gt; best = 4
+    ')' : right=3 &gt; left=2 -&gt; 歸零
+    答案 4 ✔
+
+但處理不了 "(()"：
+    '(' : left=1
+    '(' : left=2
+    ')' : right=1，left=2 &gt; right -&gt; 既不相等也不歸零
+    迴圈結束，best 還是 0  ✘ 應該是 2
+
+問題出在：「左括號比較多」的情況永遠等不到相等。
+從右往左再掃一遍（把判斷條件對調）就能補上：
+    ')' : right=1
+    '(' : left=1，相等 -&gt; best = 2 ✔
+    '(' : left=2 &gt; right=1 -&gt; 歸零
+
+兩個方向合起來，涵蓋所有情況。</div>
+        <p><strong>這是三個解法裡唯一 O(1) 空間的</strong>，而且程式碼最短。缺點是<strong>最不直觀</strong> —— 「為什麼要掃兩遍」這件事如果講不清楚，面試官會懷疑你是背來的。</p>
+        <p>建議：面試時<strong>先寫堆疊版</strong>（好解釋），再說「還有一個 O(1) 空間的雙向掃描解法」並說明為什麼需要兩個方向。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃兩遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>四個計數器</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>直觀程度</th><th>能回答更多問題？</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊 + 哨兵</td><td>O(n)</td><td>O(n)</td><td>★★★★★</td><td>普通</td></tr>
+            <tr><td>二、DP</td><td>O(n)</td><td>O(n)</td><td>★★★☆☆</td><td>✔ 有完整的 dp 表</td></tr>
+            <tr><td>三、雙向計數</td><td>O(n)</td><td>O(1)</td><td>★★☆☆☆</td><td>✘</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空字串</strong>：<code>""</code> → 0。</li>
+          <li><strong>全是左括號</strong>：<code>"(((((("</code> → 0。</li>
+          <li><strong>全是右括號</strong>：<code>"))))))"</code> → 0。</li>
+          <li><strong>只有右括號在前</strong>：<code>")("</code> → 0。</li>
+          <li><strong>需要拼接</strong>：<code>"()()()"</code> → 6。DP 漏掉 <code>dp[i-2]</code> 或堆疊沒有哨兵的話會得到 2。</li>
+          <li><strong>巢狀 + 拼接</strong>：<code>"()(())"</code> → 6。DP 漏掉 <code>dp[j-1]</code> 會得到 4。</li>
+          <li><strong>前面有垃圾</strong>：<code>")()())"</code> → 4。考驗哨兵的更新。</li>
+          <li><strong>左括號比較多</strong>：<code>"(()"</code> → 2。解法三只掃一遍的話會得到 0。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要回傳那一段的起始位置呢？</h3>
+
+        <p>堆疊版最方便：更新 <code>best</code> 時一併記下 <code>stack[-1] + 1</code>（起點）。DP 版則是 <code>i - dp[i] + 1</code>。兩者都不增加複雜度。</p>
+
+        <h3>追問二：如果要算「有幾個合法子字串」呢？</h3>
+
+        <p>用 DP 比較好做：所有合法子字串的數量和 <code>dp</code> 陣列有關，但要小心「一段長度 2k 的合法字串裡有多少個合法子字串」不只是 k —— 巢狀結構會產生更多。這其實是一個相當不同的計數問題。</p>
+
+        <h3>追問三：如果有多種括號呢？</h3>
+
+        <p>計數器法完全失效（不能只數數量），DP 也會變複雜。堆疊法還能用，但要同時存「索引」和「字元類型」，而且配對失敗時整段都要作廢。難度會顯著上升。</p>
+
+        <h3>追問四：這三個解法背後有什麼共通點？</h3>
+
+        <p>都在回答同一個問題：<strong>「這個 <code>')'</code> 往左最遠能合法配到哪裡？」</strong></p>
+
+        <ul>
+          <li>堆疊：用 <code>stack[-1]</code> 直接記住那個邊界</li>
+          <li>DP：用 <code>dp[i]</code> 遞推出那個距離</li>
+          <li>計數器：用「left == right」的時刻隱含地標記那個邊界</li>
+        </ul>
+
+        <p><strong>看出不同解法在回答同一個問題，是把題目真正學會的標誌。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 20 題 Valid Parentheses</strong> —— 驗證版，這題的基礎</li>
+          <li><strong>第 22 題 Generate Parentheses</strong> —— 生成版</li>
+          <li><strong>第 84 題 Largest Rectangle in Histogram</strong> —— 另一個「堆疊存索引」的經典</li>
+          <li><strong>第 921／1249 題</strong> —— 讓括號合法的最小插入／刪除</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>堆疊底部的哨兵 −1 代表什麼？如果初始化成空堆疊，<code>"()"</code> 會算出什麼？</li>
+            <li>DP 的情況 B 裡，<code>j = i - dp[i-1] - 1</code> 這個位置是什麼？為什麼要檢查它是不是 <code>'('</code>？</li>
+            <li>DP 漏掉 <code>+ dp[j-1]</code> 的話，<code>"()(())"</code> 會算出多少？</li>
+            <li>解法三為什麼一定要掃兩遍？只從左往右掃，哪一類輸入會漏？</li>
+          </ol>
+        </div>

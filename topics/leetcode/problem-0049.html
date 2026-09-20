@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>49. Group Anagrams 字母異位詞分組 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="兩種簽章：排序後的字串與 26 維計數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="49">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 49 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 49</div>
+          <h1>Group Anagrams<br>字母異位詞分組</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of strings <code>strs</code>, group <strong>the anagrams</strong> together. You can return the answer in <strong>any order</strong>.</p>
+          <p>An <strong>Anagram</strong> is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串陣列 <code>strs</code>，把<strong>字母異位詞</strong>分到同一組。回傳的順序不拘。</p>
+          <p><strong>字母異位詞</strong>指的是：用完全相同的字母（含數量）重新排列而成的字串。例如 <code>"eat"</code>、<code>"tea"</code>、<code>"ate"</code> 互為異位詞。</p>
+        </div>
+
+        <div class="callout">
+          <h3>整題只有一個問題：怎麼設計 key？</h3>
+        <div class="code-block">所有解法的骨架都一樣：
+
+    groups = defaultdict(list)
+    for s in strs:
+        groups[key(s)].append(s)
+    return list(groups.values())
+
+唯一的差別是 key(s) 怎麼算。
+
+key 必須滿足：
+    「兩個字串互為異位詞」  &lt;=&gt;  「它們的 key 相同」
+
+三種 key 設計：
+    ① 排序後的字串     "eat" -&gt; "aet"
+    ② 26 個字母的計數  "eat" -&gt; (1,0,0,0,1,0,...,1,0,...)
+    ③ 質數乘積        "eat" -&gt; 5 × 2 × 71 = 710
+
+而 key 必須是「可雜湊的（hashable）」——
+所以計數要用 tuple 而不是 list。</div>
+        <p><strong>「設計一個好的 key」是雜湊表題目的核心技能。</strong>一旦 key 對了，剩下的就是三行。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：strs = ["eat","tea","tan","ate","nat","bat"]
+  輸出：[["bat"],["nat","tan"],["ate","eat","tea"]]
+
+範例 2
+  輸入：strs = [""]
+  輸出：[[""]]
+
+範例 3
+  輸入：strs = ["a"]
+  輸出：[["a"]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>strs.length</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>strs[i].length</code> ≤ 100（<strong>可以是空字串</strong>）</li>
+          <li><code>strs[i]</code> 只含<strong>小寫英文字母</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>只有小寫英文字母（26 種）</strong> —— 這是「用長度 26 的計數陣列當 key」（解法二）能成立的前提。</li>
+          <li><strong>字串可以是空的</strong>。空字串和空字串互為異位詞，會被分到同一組。三種 key 都自然處理（空的排序還是空、計數全 0、乘積是 1）。</li>
+          <li><strong>n ≤ 10⁴、每個長度 ≤ 100</strong>。所以 <code>k</code>（平均字串長度）不大，<code>O(n · k log k)</code> 的排序法完全夠用。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <table>
+          <thead><tr><th>key 設計</th><th>計算成本</th><th>key 大小</th><th>有沒有隱憂</th></tr></thead>
+          <tbody>
+            <tr><td>排序後的字串</td><td>O(k log k)</td><td>k 個字元</td><td>無</td></tr>
+            <tr><td>26 格計數 tuple</td><td>O(k)</td><td>固定 26</td><td>字元集大時 key 變大</td></tr>
+            <tr><td>質數乘積</td><td>O(k)</td><td>一個大整數</td><td>在定長整數語言會溢位</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序當 key（最推薦）</h3>
+        <div class="code-block">from collections import defaultdict
+
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
+        groups = defaultdict(list)
+        for s in strs:
+            key = "".join(sorted(s))     # 字母重排後相同 -&gt; 同一組
+            groups[key].append(s)
+        return list(groups.values())</div>
+        <p>三行。<code>sorted("eat")</code> 得到 <code>['a','e','t']</code>，<code>"".join(...)</code> 變成 <code>"aet"</code>。<strong>異位詞排序後一定相同</strong> —— 這是定義的直接推論。</p>
+        <h3>為什麼 <code>defaultdict(list)</code>？</h3>
+        <p>省掉 <code>if key not in groups: groups[key] = []</code> 這一行。<code>defaultdict(list)</code> 在存取不存在的 key 時會自動建一個空 list。<strong>這是 Python 處理「分組」時的標準工具。</strong></p>
+        <h3>複雜度</h3>
+        <p><code>n</code> 個字串，平均長度 <code>k</code>。每個字串排序 O(k log k)，總共 <strong>O(n · k log k)</strong>。k ≤ 100 的話 <code>log k ≈ 7</code>，完全可以接受。</p>
+        <p><strong>實務上這是最好的選擇</strong>：最短、最清楚、沒有任何隱憂。解法二的 O(n·k) 在理論上更好，但常數（建 tuple、雜湊 26 個元素）往往抵銷掉那個 log k。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·k log k)</td><td>每個字串排序一次</td></tr>
+            <tr><td>空間</td><td>O(n·k)</td><td>所有字串 + key</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>26 格計數當 key（理論上最快）</h3>
+        <div class="code-block">from collections import defaultdict
+
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
+        groups = defaultdict(list)
+        for s in strs:
+            count = [0] * 26
+            for ch in s:
+                count[ord(ch) - ord("a")] += 1
+            groups[tuple(count)].append(s)   # tuple 才能當 dict 的 key
+        return list(groups.values())</div>
+        <div class="code-block">"eat" 的計數：
+    索引:  0(a) 1(b) 2(c) 3(d) 4(e) ... 19(t) ...
+    值:     1    0    0    0    1   ...   1   ...
+
+key = (1,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0)
+
+"tea" 和 "ate" 算出來完全一樣 ✔</div>
+        <p><strong>為什麼要 <code>tuple(count)</code> 而不是直接用 <code>count</code>？</strong>因為 Python 的 <code>list</code> 是可變的，<strong>不可雜湊</strong>，不能當 dict 的 key。<code>tuple</code> 是不可變的，可以。<strong>忘記轉 tuple 會直接 <code>TypeError: unhashable type: 'list'</code>。</strong></p>
+        <h3>理論上 O(n·k) 比 O(n·k log k) 好，實務上呢？</h3>
+        <div class="code-block">理論：  O(n·k) &lt; O(n·k log k)
+
+實務（k = 100，26 個字母）：
+    排序法：  一次 sorted() 是高度優化的 C 實作（Timsort）
+              key 是長度 100 的字串，雜湊很快
+
+    計數法：  建一個 26 元素的 list，逐字元累加（Python 迴圈，慢）
+              轉成 tuple，雜湊 26 個整數
+
+    在 CPython 裡，排序法通常「更快」——
+    因為 sorted() 和字串雜湊都在 C 層跑，
+    而計數法的逐字元迴圈在 Python 層跑。
+
+    如果字串很長（k &gt;&gt; 26），計數法才會贏。
+    如果字串很短（k &lt; 26），計數法反而浪費（key 比字串還大）。
+
+結論：漸近複雜度不是唯一標準，常數和實作語言都重要。</div>
+        <p><strong>但在 C++ / Java 裡，計數法明顯更快</strong>，因為那些語言的逐字元迴圈沒有 Python 的直譯開銷。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·k)</td><td>每個字元掃一次</td></tr>
+            <tr><td>空間</td><td>O(n·k)</td><td>所有字串 + n 個 26 元組</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>質數乘積當 key（漂亮但危險）</h3>
+        <p>利用<strong>算術基本定理</strong>：每個正整數的質因數分解是唯一的。所以「字母的質數乘積」和「字母的組成」是一一對應的。</p>
+        <div class="code-block">from collections import defaultdict
+
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
+        # 每個字母配一個質數，字串的 key = 所有字母的質數乘積
+        # 由算術基本定理，乘積相同 &lt;=&gt; 字母組成相同
+        PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41,
+                  43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101]
+
+        groups = defaultdict(list)
+        for s in strs:
+            key = 1
+            for ch in s:
+                key *= PRIMES[ord(ch) - ord("a")]
+            groups[key].append(s)
+        return list(groups.values())</div>
+        <div class="code-block">a=2, b=3, c=5, d=7, e=11, ...
+
+"abc" -&gt; 2 × 3 × 5 = 30
+"bca" -&gt; 3 × 5 × 2 = 30  ✔ 相同（乘法交換律）
+"abb" -&gt; 2 × 3 × 3 = 18  ✘ 和 "abc" 不同
+
+為什麼保證不會碰撞？
+    算術基本定理：30 = 2 × 3 × 5 是唯一的分解。
+    所以 key = 30 只可能來自「一個 a、一個 b、一個 c」。
+
+漂亮的地方：
+    「字母的多重集合」這個抽象概念，
+    被編碼成「一個整數」，而且完全無損。</div>
+        <h3>為什麼實務上不該用？</h3>
+        <div class="code-block">字串長度 100、全是 'z'（質數 101）：
+
+    key = 101^100 ≈ 10^200
+
+    Python：沒問題（任意精度整數），但大整數的乘法和雜湊很慢
+    C++/Java：早就溢位了
+
+    溢位之後會發生什麼？
+        值會環繞成某個「看起來隨機」的數字。
+        兩個不同的字母組合可能環繞到同一個值 -&gt; 碰撞 -&gt; 答案錯。
+        而且這種錯誤「很難重現」——
+        只有特定的長字串才會撞，測資通常測不出來。
+
+    有人會說「模一個大質數就好」——
+    但那就不再是「唯一分解」了，只是一個雜湊函式，
+    碰撞機率雖低但不是 0，而且你失去了「保證正確」這個唯一的優點。
+
+所以：這個解法值得知道（它很漂亮，而且展示了數論的應用），
+      但不該在正式程式碼裡用。</div>
+        <p><strong>面試時提到它會加分</strong>（顯示你想得夠多），但一定要主動說明溢位的問題 —— 不然反而像是不知道風險。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·k)</td><td>每個字元一次乘法</td></tr>
+            <tr><td>空間</td><td>O(n·k)</td><td>大整數 key</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>key 大小</th><th>安全？</th><th>實務推薦</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序</td><td>O(n·k log k)</td><td>k</td><td>✔</td><td>★★★★★</td></tr>
+            <tr><td>二、26 格計數</td><td>O(n·k)</td><td>26</td><td>✔</td><td>★★★★☆（C++/Java 更好）</td></tr>
+            <tr><td>三、質數乘積</td><td>O(n·k)</td><td>大整數</td><td>✘ 會溢位</td><td>★☆☆☆☆ 只當談資</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空字串</strong>：<code>[""]</code> → <code>[[""]]</code>。三種 key 都能處理。</li>
+          <li><strong>多個空字串</strong>：<code>["", "", "b"]</code> → 兩組。</li>
+          <li><strong>單一字串</strong>：<code>["a"]</code> → <code>[["a"]]</code>。</li>
+          <li><strong>完全沒有異位詞</strong>：<code>["abc","xyz"]</code> → 兩組，各一個。</li>
+          <li><strong>全部互為異位詞</strong>：<code>["abc","cba","bac"]</code> → 一組三個。</li>
+          <li><strong>重複的字串</strong>：<code>["a","a"]</code> → 一組兩個（不去重）。</li>
+          <li><strong>忘記 <code>tuple(count)</code></strong>：<code>TypeError: unhashable type: 'list'</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果字元集很大（例如 Unicode）呢？</h3>
+
+        <p>26 格計數法就不能用了（開 10 萬格的陣列太浪費）。改用：</p>
+
+        <ul>
+          <li><strong>排序法</strong>：完全不受影響，key 的大小和字串一樣長。</li>
+          <li><strong><code>Counter</code> 的 <code>frozenset(items)</code></strong>：<code>frozenset(Counter(s).items())</code>，只存出現過的字元。稀疏但可雜湊。</li>
+        </ul>
+
+        <p><strong>這是排序法勝出的場景</strong> —— 它對字元集大小完全不敏感。</p>
+
+        <h3>追問二：如果要「串流」處理（字串一個一個進來）呢？</h3>
+
+        <p>三種解法都天然支援 —— 它們本來就是「逐一處理」。只要改成「每次進來一個就更新 groups，並回報它屬於哪一組」即可。</p>
+
+        <h3>追問三：怎麼判斷「兩個字串是不是異位詞」（單一比對）？</h3>
+
+        <p>第 242 題。不需要建 dict，直接比較：<code>sorted(s) == sorted(t)</code>（O(k log k)）或 <code>Counter(s) == Counter(t)</code>（O(k)）。<strong>先檢查長度是否相同</strong>可以提早退出，是很值得寫的一行。</p>
+
+        <h3>追問四：這題背後的抽象概念是什麼？</h3>
+
+        <p><strong>「等價類（equivalence class）」與「標準形（canonical form）」。</strong></p>
+
+        <div class="code-block">「互為異位詞」是一個等價關係：
+    自反：s 和自己互為異位詞 ✔
+    對稱：s~t 則 t~s ✔
+    遞移：s~t 且 t~u 則 s~u ✔
+
+而 key(s) 就是「s 所屬等價類的標準形」——
+同一類的所有元素算出同一個 key。
+
+這個模式在很多地方出現：
+    分數化簡（1/2 和 2/4 的標準形都是 1/2）
+    圖同構的判定（canonical labeling）
+    編譯器的常數摺疊與公共子表達式消除
+    快取的 key 正規化（URL 的 query 參數排序）
+
+「找一個標準形，然後用雜湊表分組」是這一整類問題的通用解法。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 242 題 Valid Anagram</strong> —— 單一比對版</li>
+          <li><strong>第 438 題 Find All Anagrams in a String</strong> —— 滑動視窗找異位詞</li>
+          <li><strong>第 567 題 Permutation in String</strong> —— 同上</li>
+          <li><strong>第 819／1002 題</strong> —— 其他字元計數題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼計數法一定要 <code>tuple(count)</code>？不轉會怎樣？</li>
+            <li>質數乘積法在 Java 裡會出什麼問題？為什麼「模一個大質數」不能完全解決？</li>
+            <li>排序法的 O(n·k log k) 比計數法的 O(n·k) 差，為什麼在 Python 裡反而通常更快？</li>
+            <li>如果字元集是完整的 Unicode，三種解法各會怎樣？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0048.html">← 上一題：48. 旋轉圖像</a>
+          <a href="problem-0050.html">下一題：50. Pow(x, n) →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

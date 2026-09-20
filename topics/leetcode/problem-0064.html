@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>64. Minimum Path Sum 最小路徑和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="網格 DP 的標準形式，含邊界初始化的處理。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="64">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 64 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 64</div>
+          <h1>Minimum Path Sum<br>最小路徑和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a <code>m x n</code> <code>grid</code> filled with non-negative numbers, find a path from top left to bottom right, which <strong>minimizes</strong> the sum of all numbers along its path.</p>
+          <p><strong>Note:</strong> You can only move either down or right at any point in time.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個填滿<strong>非負整數</strong>的 <code>m × n</code> 網格，找出一條從左上角到右下角的路徑，使路徑上所有數字的<strong>總和最小</strong>，回傳這個最小總和。</p>
+          <p><strong>注意：</strong>每一步只能往下或往右。</p>
+        </div>
+
+        <div class="callout">
+          <h3>和第 62、63 題是同一張表</h3>
+        <div class="code-block">第 62 題： dp[i][j] = dp[i-1][j] + dp[i][j-1]        （數路徑）
+第 63 題： 同上，障礙物那格設 0                      （數路徑，有限制）
+第 64 題： dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i][j]
+
+同一張表、同樣的走訪順序，
+只是把「相加」換成「取 min 再加上自己的成本」。
+
+這三題放在一起看，會發現 DP 的本質是：
+    1. 定義狀態（dp[i][j] 代表什麼）
+    2. 找出轉移（dp[i][j] 怎麼從更小的子問題算出來）
+    3. 決定順序（確保算 dp[i][j] 時，它依賴的都已經算好）
+
+「聚合運算」（sum / min / max / count）只是最後一個細節。
+
+同一個骨架還能做：
+    最大路徑和      -&gt; 把 min 換成 max
+    路徑上的最大值最小化 -&gt; dp = min(max(上, 自己), max(左, 自己))
+    有幾條最小路徑   -&gt; 同時維護「最小值」和「達成它的路徑數」</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：grid = [[1,3,1],[1,5,1],[4,2,1]]
+  輸出：7
+  說明：路徑 1 → 3 → 1 → 1 → 1，總和 7。
+
+範例 2
+  輸入：grid = [[1,2,3],[4,5,6]]
+  輸出：12
+  說明：1 → 2 → 3 → 6。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == grid.length</code>，<code>n == grid[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 200</li>
+          <li>0 ≤ <code>grid[i][j]</code> ≤ 200</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>值是「非負」的</strong> —— 這一點很重要，它保證了「走更多格不會變便宜」，所以 DP（甚至 Dijkstra）都適用。<strong>如果允許負數，而且可以往四個方向走，就可能有負環，最短路徑無定義。</strong></li>
+          <li><strong>m, n ≤ 200</strong>，O(mn) = 4 × 10⁴ —— 瞬間完成。</li>
+          <li><strong>值可以是 0</strong>，所以不能用 0 當「還沒算過」的標記。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">grid（左）與 dp 表（右）：dp[i][j] = min(上, 左) + grid[i][j]</text>
+            <g font-size="15" text-anchor="middle">
+              <text x="130" y="52" fill="var(--text-muted)" font-size="12">grid</text>
+              <rect x="70" y="64" width="46" height="42" fill="none" stroke="var(--border)"/><text x="93" y="92" fill="var(--text-muted)">1</text>
+              <rect x="116" y="64" width="46" height="42" fill="none" stroke="var(--border)"/><text x="139" y="92" fill="var(--text-muted)">3</text>
+              <rect x="162" y="64" width="46" height="42" fill="none" stroke="var(--border)"/><text x="185" y="92" fill="var(--text-muted)">1</text>
+              <rect x="70" y="106" width="46" height="42" fill="none" stroke="var(--border)"/><text x="93" y="134" fill="var(--text-muted)">1</text>
+              <rect x="116" y="106" width="46" height="42" fill="none" stroke="var(--border)"/><text x="139" y="134" fill="var(--text-muted)">5</text>
+              <rect x="162" y="106" width="46" height="42" fill="none" stroke="var(--border)"/><text x="185" y="134" fill="var(--text-muted)">1</text>
+              <rect x="70" y="148" width="46" height="42" fill="none" stroke="var(--border)"/><text x="93" y="176" fill="var(--text-muted)">4</text>
+              <rect x="116" y="148" width="46" height="42" fill="none" stroke="var(--border)"/><text x="139" y="176" fill="var(--text-muted)">2</text>
+              <rect x="162" y="148" width="46" height="42" fill="none" stroke="var(--border)"/><text x="185" y="176" fill="var(--text-muted)">1</text>
+            </g>
+            <text x="250" y="130" fill="var(--gold)" font-size="20" text-anchor="middle">→</text>
+            <g font-size="15" text-anchor="middle">
+              <text x="380" y="52" fill="var(--text-muted)" font-size="12">dp</text>
+              <rect x="320" y="64" width="52" height="42" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="346" y="92" fill="var(--accent)">1</text>
+              <rect x="372" y="64" width="52" height="42" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="398" y="92" fill="var(--accent)">4</text>
+              <rect x="424" y="64" width="52" height="42" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="450" y="92" fill="var(--accent)">5</text>
+              <rect x="320" y="106" width="52" height="42" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="346" y="134" fill="var(--accent)">2</text>
+              <rect x="372" y="106" width="52" height="42" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="398" y="134" fill="var(--gold)">7</text>
+              <rect x="424" y="106" width="52" height="42" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="450" y="134" fill="var(--gold)">6</text>
+              <rect x="320" y="148" width="52" height="42" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="346" y="176" fill="var(--accent)">6</text>
+              <rect x="372" y="148" width="52" height="42" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="398" y="176" fill="var(--gold)">8</text>
+              <rect x="424" y="148" width="52" height="42" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="450" y="176" fill="#ff8a65">7</text>
+            </g>
+            <text x="20" y="224" fill="var(--text-muted)" font-size="12">dp[1][2] = min(dp[0][2], dp[1][1]) + grid[1][2] = min(5, 7) + 1 = 6</text>
+            <text x="20" y="248" fill="var(--text-muted)" font-size="12">dp[2][2] = min(dp[1][2], dp[2][1]) + grid[2][2] = min(6, 8) + 1 = 7</text>
+            <text x="20" y="276" fill="#ff8a65" font-size="12">答案 7，對應路徑 1 → 3 → 1 → 1 → 1（往右、右、下、下）</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>一維滾動 DP（最推薦）</h3>
+        <div class="code-block">class Solution:
+    def minPathSum(self, grid: List[List[int]]) -&gt; int:
+        m, n = len(grid), len(grid[0])
+        dp = [0] * n
+
+        for i in range(m):
+            for j in range(n):
+                if i == 0 and j == 0:
+                    dp[j] = grid[0][0]
+                elif i == 0:
+                    dp[j] = dp[j - 1] + grid[i][j]        # 第一列：只能從左邊來
+                elif j == 0:
+                    dp[j] = dp[j] + grid[i][j]            # 第一行：只能從上面來
+                else:
+                    dp[j] = min(dp[j], dp[j - 1]) + grid[i][j]
+                    #            ^上面     ^左邊
+        return dp[n - 1]</div>
+        <h3>四個分支，為什麼不能合併？</h3>
+        <div class="code-block">i == 0 and j == 0：起點。沒有「上面」也沒有「左邊」。
+i == 0：第一列。只能從左邊來。
+j == 0：第一行。只能從上面來。
+其他：   兩邊都可以，取 min。
+
+第 62 題可以把第一列和第一行都設成 1 來省掉分支，
+但這題的邊界值不是常數（要累加 grid 的值），
+所以只能老實分四種情況。
+
+一個常見的簡化技巧：
+    把 dp 開成 (m+1) × (n+1)，多一圈「哨兵」，
+    值設成 inf（除了 dp[0][1] 或 dp[1][0] 設成 0）。
+    這樣 min(上, 左) 在邊界上會自動選到正確的那一邊。
+
+        dp = [[inf] * (n+1) for _ in range(m+1)]
+        dp[0][1] = 0        # 讓 dp[1][1] 能算出 grid[0][0]
+        for i in 1..m:
+            for j in 1..n:
+                dp[i][j] = min(dp[i-1][j], dp[i][j-1]) + grid[i-1][j-1]
+
+    四個分支變成一個。代價是索引要偏移 1，容易搞混。
+    兩種寫法各有支持者 —— 挑一個你不會寫錯的。</div>
+        <h3>一維版裡 <code>dp[j]</code> 和 <code>dp[j-1]</code> 分別是什麼？</h3>
+        <p>處理 <code>(i, j)</code> 時：<code>dp[j]</code> <strong>還沒更新</strong>，所以是「上一列同欄」= <code>dp[i-1][j]</code>；<code>dp[j-1]</code> <strong>已經更新</strong>，所以是「這一列左邊」= <code>dp[i][j-1]</code>。<strong>和第 62、63 題完全一樣的滾動機制。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>每格一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>一條長度 n 的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>原地修改 grid（O(1) 額外空間）</h3>
+        <div class="code-block">class Solution:
+    def minPathSum(self, grid: List[List[int]]) -&gt; int:
+        m, n = len(grid), len(grid[0])
+
+        # 直接把 grid 當 dp 表用（會破壞輸入，但空間 O(1)）
+        for i in range(m):
+            for j in range(n):
+                if i == 0 and j == 0:
+                    continue
+                elif i == 0:
+                    grid[i][j] += grid[i][j - 1]
+                elif j == 0:
+                    grid[i][j] += grid[i - 1][j]
+                else:
+                    grid[i][j] += min(grid[i - 1][j], grid[i][j - 1])
+
+        return grid[m - 1][n - 1]</div>
+        <p><strong>把輸入的 <code>grid</code> 直接當 <code>dp</code> 表用。</strong>因為 <code>dp[i][j]</code> 算完之後，<code>grid[i][j]</code> 的原值就不再需要了。</p>
+        <p><strong>優點</strong>：完全不用額外空間。</p>
+        <p><strong>缺點</strong>：<strong>破壞了輸入</strong>。在真實的程式裡這通常是不可接受的（呼叫端可能還要用那份資料），而且會讓函式變得「不可重複呼叫」。</p>
+        <p><strong>面試時</strong>：可以提出來，但一定要主動說「這會修改輸入，如果不允許的話我會用一維滾動陣列，O(n) 空間」。<strong>主動指出自己解法的副作用，比被面試官抓到好得多。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>破壞輸入</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>Dijkstra（對照組：為什麼用不到）</h3>
+        <p>這題其實是一個「帶權最短路徑」問題，所以 Dijkstra 當然可以解。但它是<strong>殺雞用牛刀</strong> —— 值得看一眼，理解為什麼不需要。</p>
+        <div class="code-block">import heapq
+
+class Solution:
+    def minPathSum(self, grid: List[List[int]]) -&gt; int:
+        # 對照組：把它當成一般的最短路徑問題（Dijkstra）
+        # 正確但沒必要 —— 因為這張圖是 DAG（只能往下往右），DP 就夠了
+        m, n = len(grid), len(grid[0])
+        dist = [[float("inf")] * n for _ in range(m)]
+        dist[0][0] = grid[0][0]
+
+        pq = [(grid[0][0], 0, 0)]
+        while pq:
+            d, r, c = heapq.heappop(pq)
+            if (r, c) == (m - 1, n - 1):
+                return d
+            if d &gt; dist[r][c]:
+                continue
+            for nr, nc in ((r + 1, c), (r, c + 1)):
+                if nr &lt; m and nc &lt; n and d + grid[nr][nc] &lt; dist[nr][nc]:
+                    dist[nr][nc] = d + grid[nr][nc]
+                    heapq.heappush(pq, (dist[nr][nc], nr, nc))
+
+        return dist[m - 1][n - 1]</div>
+        <h3>為什麼 DP 就夠了，不需要 Dijkstra？</h3>
+        <div class="code-block">因為這張圖是【有向無環圖（DAG）】，而且有一個「天然的拓撲順序」。
+
+    只能往下或往右
+        -&gt; 任何路徑上的 (i+j) 嚴格遞增
+        -&gt; 不可能有環
+        -&gt; 按 i 由小到大、j 由小到大掃過去，
+           就是一個合法的拓撲排序
+
+    在 DAG 上，只要按拓撲順序走一遍，
+    每個節點的最短距離在「第一次算到它」時就已經是最終答案了。
+    不需要優先佇列去反覆挑「目前最近的節點」。
+
+複雜度比較：
+    DP：        O(mn)
+    Dijkstra：  O(mn log(mn))   多一個 log，還有堆的常數
+
+什麼時候真的需要 Dijkstra？
+    - 可以往四個方向走（有環了）
+    - 邊權不同且圖不是 DAG
+
+    例如第 1631 題（Path With Minimum Effort）就必須用 Dijkstra 或二分 + BFS。
+
+結論：
+    「DP 是 DAG 上的最短路徑」，
+    「Dijkstra 是一般圖上的最短路徑」。
+    看到「只能往一個方向走」就該想到 DP。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn log(mn))</td><td>優先佇列的額外負擔</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>dist 表 + 堆</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>破壞輸入？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、一維滾動 DP</td><td>O(mn)</td><td>O(n)</td><td>✘</td><td>面試預設</td></tr>
+            <tr><td>二、原地 DP</td><td>O(mn)</td><td>O(1)</td><td>✔</td><td>要主動說明副作用</td></tr>
+            <tr><td>三、Dijkstra</td><td>O(mn log mn)</td><td>O(mn)</td><td>✘</td><td>殺雞用牛刀，但理解它的差別很有價值</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>1 × 1</strong>：<code>[[1]]</code> → 1。</li>
+          <li><strong>只有一列</strong>：<code>[[1,2]]</code> → 3。只能一直往右。</li>
+          <li><strong>只有一行</strong>：<code>[[1],[2]]</code> → 3。</li>
+          <li><strong>全是 0</strong>：<code>[[0,0],[0,0]]</code> → 0。不能用 0 當哨兵。</li>
+          <li><strong>最小路徑不是「貪婪地每步選小的」</strong>：<code>[[1,3,1],[1,5,1],[4,2,1]]</code> 的第一步，往右（3）比往下（1）貴，但正確答案走的是往右。<strong>貪婪在這題行不通 —— 這正是需要 DP 的理由。</strong></li>
+          <li><strong>200 × 200 全是 200</strong>：答案 <code>399 × 200 = 79800</code>。不會溢位。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要回傳「那條路徑」而不只是總和？</h3>
+
+        <p>兩種做法：</p>
+
+        <ul>
+          <li><strong>記 parent</strong>：算 <code>dp[i][j]</code> 時記下它是從上面還是左邊來的，最後從終點回溯。需要 O(mn) 空間。</li>
+          <li><strong>從 dp 表反推</strong>：從 <code>(m-1, n-1)</code> 開始，比較 <code>dp[i-1][j]</code> 和 <code>dp[i][j-1]</code>，誰小就往誰走。不用額外空間，但需要完整的二維 dp 表（不能用滾動陣列）。</li>
+        </ul>
+
+        <h3>追問二：如果要求「最大路徑和」呢？</h3>
+
+        <p>把 <code>min</code> 換成 <code>max</code>。<strong>一個字的差別。</strong>（但如果值可以是負的，「最大」和「最小」的難度就不對稱了 —— 見下一個追問。）</p>
+
+        <h3>追問三：如果值可以是負的呢？</h3>
+
+        <p><strong>只能往下往右的話，DP 完全不受影響</strong>（還是 DAG，沒有環）。但如果可以往四個方向走，負權就可能造成<strong>負環</strong>，最短路徑無定義。此時 Dijkstra 也不能用（它要求非負權），要改用 <strong>Bellman-Ford</strong>（能偵測負環）。</p>
+
+        <p><strong>「非負」這個條件，正是 Dijkstra 和很多貪婪演算法的前提。</strong></p>
+
+        <h3>追問四：如果要「最小化路徑上的最大值」呢？</h3>
+
+        <p>轉移式換成 <code>dp[i][j] = min(max(dp[i-1][j], grid[i][j]), max(dp[i][j-1], grid[i][j]))</code>。<strong>同一張表，換一個聚合運算。</strong>這類問題叫做「瓶頸最短路徑（bottleneck shortest path）」，在網路頻寬、登山路線規劃裡都有應用。（第 1631 題是它的四方向版本，要用 Dijkstra 或二分搜尋 + BFS。）</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 62／63 題 Unique Paths</strong> —— 同一張表，換成計數</li>
+          <li><strong>第 120 題 Triangle</strong> —— 三角形上的同一種 DP</li>
+          <li><strong>第 931 題 Minimum Falling Path Sum</strong> —— 三個來源方向</li>
+          <li><strong>第 1631 題 Path With Minimum Effort</strong> —— 四方向 + 瓶頸，要 Dijkstra</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「每一步都選比較小的那一格」（貪婪）在這題行不通？舉範例 1 的第一步說明。</li>
+            <li>一維版裡 <code>dp[j]</code> 和 <code>dp[j-1]</code> 分別對應二維表的哪一格？</li>
+            <li>為什麼這題用 DP 就夠，不需要 Dijkstra？關鍵性質是什麼？</li>
+            <li>如果改成「最小化路徑上的最大值」，轉移式要怎麼寫？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0063.html">← 上一題：63. 不同路徑 II</a>
+          <a href="problem-0065.html">下一題：65. 有效數字 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

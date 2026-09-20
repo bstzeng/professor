@@ -1,0 +1,362 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The <strong>n-queens</strong> puzzle is the problem of placing <code>n</code> queens on an <code>n x n</code> chessboard such that no two queens attack each other.</p>
+          <p>Given an integer <code>n</code>, return <em>all distinct solutions to the <strong>n-queens puzzle</strong></em>. You may return the answer in any order.</p>
+          <p>Each solution contains a distinct board configuration, where <code>'Q'</code> and <code>'.'</code> both indicate a queen and an empty space, respectively.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><strong>N 皇后問題</strong>：在 <code>n × n</code> 的西洋棋盤上放 <code>n</code> 個皇后，使得任意兩個皇后<strong>不會互相攻擊</strong>。</p>
+          <p>皇后可以攻擊<strong>同一列、同一行、以及兩條對角線</strong>上的任何棋子。</p>
+          <p>給你一個整數 <code>n</code>，回傳所有不同的擺法。每個解用一個字串陣列表示，<code>'Q'</code> 代表皇后，<code>'.'</code> 代表空格。</p>
+        </div>
+
+        <div class="callout">
+          <h3>三個約束，各有各的編碼方式</h3>
+        <div class="code-block">皇后互不攻擊 = 任兩個皇后不在同一列、同一行、同一對角線
+
+約束 1：列（row）
+    我們「逐列往下放，每列剛好放一個」——
+    這個約束就自動滿足了，完全不用檢查。
+
+約束 2：行（column）
+    用一個集合 cols 記錄「哪些行已經有皇后」。
+
+約束 3：對角線
+    ↘ 方向（左上到右下）：同一條線上 r - c 是定值
+        (0,0) (1,1) (2,2) 的 r-c 都是 0
+    ↙ 方向（右上到左下）：同一條線上 r + c 是定值
+        (0,2) (1,1) (2,0) 的 r+c 都是 2
+
+    所以用兩個集合 diag1（存 r-c）和 diag2（存 r+c）。
+
+這個「用一個數字識別一條對角線」的技巧，
+是所有棋盤類問題的基本功。</div>
+        <p><strong>N 皇后是回溯法的教科書範例</strong>（Wirth 1976 年的《Algorithms + Data Structures = Programs》裡就有），也是「約束滿足問題（CSP）」最經典的例子。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 4
+  輸出：[[".Q..","...Q","Q...","..Q."],
+        ["..Q.","Q...","...Q",".Q.."]]
+  說明：4 皇后有兩組解。
+
+        . Q . .        . . Q .
+        . . . Q        Q . . .
+        Q . . .        . . . Q
+        . . Q .        . Q . .
+
+範例 2
+  輸入：n = 1
+  輸出：[["Q"]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 9</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/n-queens/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>解的數量（值得記住，用來驗證程式）</h3>
+        <div class="code-block">n:     1   2   3   4   5    6   7    8    9     10
+解數:  1   0   0   2   10   4   40   92   352   724
+
+注意 n = 2 和 n = 3 是「無解」——
+這不是 bug，是真的放不下。
+
+n = 8（標準西洋棋盤）有 92 組解，
+這是高斯在 1850 年就算出來的著名數字。
+（他一開始還算錯了，說是 76 組。）
+
+如果考慮旋轉和鏡射的對稱性，
+n = 8 只有 12 組「本質上不同」的解。
+
+n 到 27 為止的解數都已經被算出來（2016 年），
+n = 27 有 234,907,967,154,122,528 組 ——
+用了大量的平行運算才算完。
+沒有已知的公式可以直接算出解數。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 288" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">兩條對角線的識別碼：↘ 用 r − c、↙ 用 r + c（同一條線上的格子，值都相同）</text>
+            <g font-size="13" text-anchor="middle">
+              <text x="150" y="52" fill="var(--accent)" font-size="12">r − c（↘ 方向）</text>
+              <rect x="70" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="90" y="90" fill="var(--accent)">0</text>
+              <rect x="110" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="130" y="90" fill="var(--text-muted)">−1</text>
+              <rect x="150" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="170" y="90" fill="var(--text-muted)">−2</text>
+              <rect x="190" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="210" y="90" fill="var(--text-muted)">−3</text>
+              <rect x="70" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="90" y="130" fill="var(--text-muted)">1</text>
+              <rect x="110" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="130" y="130" fill="var(--accent)">0</text>
+              <rect x="150" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="170" y="130" fill="var(--text-muted)">−1</text>
+              <rect x="190" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="210" y="130" fill="var(--text-muted)">−2</text>
+              <rect x="70" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="90" y="170" fill="var(--text-muted)">2</text>
+              <rect x="110" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="130" y="170" fill="var(--text-muted)">1</text>
+              <rect x="150" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="170" y="170" fill="var(--accent)">0</text>
+              <rect x="190" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="210" y="170" fill="var(--text-muted)">−1</text>
+              <rect x="70" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="90" y="210" fill="var(--text-muted)">3</text>
+              <rect x="110" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="130" y="210" fill="var(--text-muted)">2</text>
+              <rect x="150" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="170" y="210" fill="var(--text-muted)">1</text>
+              <rect x="190" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="210" y="210" fill="var(--accent)">0</text>
+            </g>
+            <g font-size="13" text-anchor="middle">
+              <text x="450" y="52" fill="#ff8a65" font-size="12">r + c（↙ 方向）</text>
+              <rect x="370" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="390" y="90" fill="var(--text-muted)">0</text>
+              <rect x="410" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="430" y="90" fill="var(--text-muted)">1</text>
+              <rect x="450" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="470" y="90" fill="#ff8a65">2</text>
+              <rect x="490" y="64" width="40" height="40" fill="none" stroke="var(--border)"/><text x="510" y="90" fill="var(--text-muted)">3</text>
+              <rect x="370" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="390" y="130" fill="var(--text-muted)">1</text>
+              <rect x="410" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="430" y="130" fill="#ff8a65">2</text>
+              <rect x="450" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="470" y="130" fill="var(--text-muted)">3</text>
+              <rect x="490" y="104" width="40" height="40" fill="none" stroke="var(--border)"/><text x="510" y="130" fill="var(--text-muted)">4</text>
+              <rect x="370" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="390" y="170" fill="#ff8a65">2</text>
+              <rect x="410" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="430" y="170" fill="var(--text-muted)">3</text>
+              <rect x="450" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="470" y="170" fill="var(--text-muted)">4</text>
+              <rect x="490" y="144" width="40" height="40" fill="none" stroke="var(--border)"/><text x="510" y="170" fill="var(--text-muted)">5</text>
+              <rect x="370" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="390" y="210" fill="var(--text-muted)">3</text>
+              <rect x="410" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="430" y="210" fill="var(--text-muted)">4</text>
+              <rect x="450" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="470" y="210" fill="var(--text-muted)">5</text>
+              <rect x="490" y="184" width="40" height="40" fill="none" stroke="var(--border)"/><text x="510" y="210" fill="var(--text-muted)">6</text>
+            </g>
+            <text x="20" y="252" fill="var(--gold)" font-size="12">所以「這一格的對角線被佔了嗎」只要查兩個集合：(r − c) ∈ diag1？(r + c) ∈ diag2？</text>
+            <text x="20" y="276" fill="var(--text-muted)" font-size="12">而「列」不用檢查 —— 因為我們一列只放一個皇后，逐列往下走。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯 + 三個集合（標準解）</h3>
+        <div class="code-block">class Solution:
+    def solveNQueens(self, n: int) -&gt; List[List[str]]:
+        out = []
+        cols = set()        # 已被佔用的「行」
+        diag1 = set()       # 已被佔用的「↘ 對角線」，識別碼 r - c
+        diag2 = set()       # 已被佔用的「↙ 對角線」，識別碼 r + c
+        queens = []         # queens[r] = 第 r 列的皇后放在哪一行
+
+        def backtrack(r: int) -&gt; None:
+            if r == n:
+                out.append(["." * c + "Q" + "." * (n - c - 1) for c in queens])
+                return
+
+            for c in range(n):
+                if c in cols or (r - c) in diag1 or (r + c) in diag2:
+                    continue
+
+                cols.add(c); diag1.add(r - c); diag2.add(r + c)
+                queens.append(c)
+
+                backtrack(r + 1)
+
+                queens.pop()
+                cols.remove(c); diag1.remove(r - c); diag2.remove(r + c)
+
+        backtrack(0)
+        return out</div>
+        <h3>為什麼不用檢查「列」？</h3>
+        <p>因為 <code>backtrack(r)</code> 的語意就是「現在要在第 <code>r</code> 列放一個皇后」，而且放完就往 <code>r + 1</code> 走。<strong>「每列剛好一個」是由程式結構保證的，不需要額外的資料結構。</strong></p>
+        <p><strong>這是一個很值得學的設計</strong>：把一個約束「編進演算法的結構裡」，而不是「用一個檢查去維護」。少一個資料結構，就少一個出錯的地方。</p>
+        <h3>撤銷必須完全對稱</h3>
+        <div class="code-block">做：
+    cols.add(c); diag1.add(r - c); diag2.add(r + c)
+    queens.append(c)
+
+撤銷：
+    queens.pop()
+    cols.remove(c); diag1.remove(r - c); diag2.remove(r + c)
+
+四個「做」對應四個「撤銷」，一個都不能少。
+
+一個實用的檢查習慣：
+    在 backtrack 的開頭和結尾各印一次三個集合的大小，
+    它們應該完全相同。
+    （正式程式碼裡可以寫成 assert。）</div>
+        <h3>產生輸出的那一行</h3>
+        <div class="code-block">["." * c + "Q" + "." * (n - c - 1) for c in queens]
+
+queens[r] = c 表示第 r 列的皇后在第 c 行。
+把它轉成字串：c 個點 + 一個 Q + (n-c-1) 個點。
+
+例：n = 4, queens = [1, 3, 0, 2]
+    r=0, c=1 -&gt; ".Q.."
+    r=1, c=3 -&gt; "...Q"
+    r=2, c=0 -&gt; "Q..."
+    r=3, c=2 -&gt; "..Q."
+
+只在「找到完整解」時才建字串，
+所以字串建構的成本只和「解的數量」成正比，
+不會拖慢搜尋本身。</div>
+        <h3>複雜度</h3>
+        <p>理論上界是 O(n!)（第一列 n 種、第二列最多 n−1 種…），但剪枝讓實際搜尋的節點數遠低於此。n = 9 時只有 352 組解，整個搜尋在毫秒內完成。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n!) 上界</td><td>剪枝後遠低於上界</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>三個集合 + queens + 遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>位元遮罩（更快，也更漂亮）</h3>
+        <p>把三個集合換成三個整數的位元遮罩。<strong>對角線的部分有一個很巧妙的處理：不用算 <code>r ± c</code>，而是讓遮罩本身「跟著往下平移」。</strong></p>
+        <div class="code-block">class Solution:
+    def solveNQueens(self, n: int) -&gt; List[List[str]]:
+        out = []
+        queens = []
+
+        def backtrack(r: int, cols: int, d1: int, d2: int) -&gt; None:
+            if r == n:
+                out.append(["." * c + "Q" + "." * (n - c - 1) for c in queens])
+                return
+
+            # 這一列還能放的位置（1 表示可放），只保留低 n 位
+            avail = ~(cols | d1 | d2) &amp; ((1 &lt;&lt; n) - 1)
+
+            while avail:
+                bit = avail &amp; -avail        # 取最低位的 1
+                avail -= bit
+                c = bit.bit_length() - 1    # 這個位元對應第幾行
+
+                queens.append(c)
+                # 往下一列時，對角線的遮罩要左右各平移一格
+                backtrack(r + 1, cols | bit, (d1 | bit) &lt;&lt; 1, (d2 | bit) &gt;&gt; 1)
+                queens.pop()
+
+        backtrack(0, 0, 0, 0)
+        return out</div>
+        <h3>為什麼對角線遮罩要左移／右移？</h3>
+        <div class="code-block">假設第 r 列在第 c 行放了皇后。
+
+它的 ↘ 對角線威脅到第 r+1 列的第 c+1 行、
+                  第 r+2 列的第 c+2 行、…
+
+所以「往下一列時，這個威脅的位置往右移一格」——
+    d1 = (d1 | bit) &lt;&lt; 1
+
+同理 ↙ 對角線往左移：
+    d2 = (d2 | bit) &gt;&gt; 1
+
+而「行」的威脅位置不會變：
+    cols = cols | bit
+
+這個做法的漂亮之處：
+    不需要計算 r - c 或 r + c，
+    也不需要處理負數索引或偏移量，
+    威脅的「傳播」直接由位移表示。
+
+而且 &lt;&lt; 1 之後超出 n 位的部分，
+會被下一層的 &amp; ((1 &lt;&lt; n) - 1) 自動切掉 ——
+對應「對角線走出棋盤外就消失了」。</div>
+        <h3>三個位元技巧</h3>
+        <div class="code-block">avail = ~(cols | d1 | d2) &amp; ((1 &lt;&lt; n) - 1)
+    「三種威脅的聯集」取補集，再切到 n 位
+    -&gt; 這一列所有「可以放」的位置
+
+bit = avail &amp; -avail
+    取出最低位的 1（二補數的經典技巧）
+    -x = ~x + 1，所以 x &amp; -x 只留下最低位的 1
+    例：0b1011000 &amp; -0b1011000 = 0b0001000
+
+avail -= bit
+    清掉剛剛取出的那一位
+    也可以寫 avail &amp;= avail - 1
+
+c = bit.bit_length() - 1
+    1 &lt;&lt; k 的 bit_length() 是 k + 1
+    所以減 1 就得到 k（第幾行）</div>
+        <h3>快多少？</h3>
+        <p>在 n = 9 時，位元版大約比集合版快 3–5 倍（集合的雜湊運算比位元運算慢得多）。在 n = 14、15 這種「只數解、不列出」的場景，差距會到 10 倍以上。</p>
+        <p><strong>面試時先寫解法一</strong>（好解釋），再說「可以用位元遮罩加速，而且對角線可以用位移傳播」。這個「位移傳播」的想法通常會讓面試官眼睛一亮。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n!) 上界</td><td>位元運算取代雜湊</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>三個整數 + 遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>約束的表示</th><th>速度</th><th>好解釋？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、三個集合</td><td>set of int</td><td>基準</td><td>★★★★★</td><td>面試預設</td></tr>
+            <tr><td>二、位元遮罩</td><td>三個 int</td><td>快 3–5 倍</td><td>★★★☆☆</td><td>對角線用位移傳播</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → <code>[["Q"]]</code>（一組解）。</li>
+          <li><strong>n = 2、n = 3</strong> → <code>[]</code>（<strong>無解</strong>）。這不是 bug，要確認程式回傳空 list 而不是崩潰。</li>
+          <li><strong>n = 4</strong> → 2 組。最小的有解的非平凡情況。</li>
+          <li><strong>n = 8</strong> → 92 組。經典答案，拿來驗證。</li>
+          <li><strong>n = 9</strong> → 352 組。本題的上限。</li>
+          <li><strong>撤銷不完整</strong>：漏掉任一個 <code>remove</code>，後續搜尋會基於錯的狀態，通常會少找到很多解。</li>
+          <li><strong>對角線識別碼弄反</strong>：<code>r - c</code> 和 <code>r + c</code> 互換不會出錯（兩個集合是對稱的），但如果兩個都用 <code>r - c</code>，就會漏檢查一個方向。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果只要「有幾組解」而不要列出來呢？</h3>
+
+        <p>第 52 題（N-Queens II）。把 <code>out.append(...)</code> 改成 <code>count += 1</code>，並且拿掉 <code>queens</code> 這個 list —— 就這樣。<strong>位元版在這裡優勢最大</strong>，因為完全不用建字串。</p>
+
+        <h3>追問二：能不能利用對稱性加速？</h3>
+
+        <p>可以。棋盤有 8 種對稱（4 種旋轉 × 2 種鏡射）。<strong>只搜尋「第一列的皇后在左半邊」的情況，再把結果鏡射過去</strong>，可以省掉接近一半的搜尋。n 是奇數時中間那一行要特別處理（它鏡射到自己）。這是計算大 n 的解數時的標準技巧。</p>
+
+        <h3>追問三：n 很大時（例如 n = 1000）呢？</h3>
+
+        <p><strong>如果只要「找出一組解」而不是「全部」，有 O(n) 的構造法。</strong></p>
+
+        <div class="code-block">對 n &gt; 3，存在直接的構造公式（依 n mod 6 分情況）：
+
+  n mod 6 不是 2 也不是 3：
+      偶數列放 2, 4, 6, ..., n
+      奇數列放 1, 3, 5, ..., n-1
+
+  其他情況要做一些調整。
+
+這是 1969 年 Hoffman 等人給出的結果。
+
+所以「找一組解」是 O(n)，
+但「找出所有解」或「數出解的數量」仍然沒有多項式演算法 ——
+這是一個很好的對比：
+    「存在性」和「計數」可以有天差地遠的難度。</div>
+
+        <h3>追問四：N 皇后是 NP-complete 嗎？</h3>
+
+        <p><strong>「找一組解」不是</strong>（有 O(n) 構造法）。但一個相關的問題 —— <strong>「給定一個已經放了幾個皇后的殘局，能不能補完？」</strong> —— 在 2017 年被證明是 NP-complete（Gent、Jefferson、Nightingale）。</p>
+
+        <p><strong>這是一個很好的提醒</strong>：問題的微小變化可以徹底改變它的複雜度。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 52 題 N-Queens II</strong> —— 只數數量</li>
+          <li><strong>第 37 題 Sudoku Solver</strong> —— 另一個 CSP + 位元遮罩</li>
+          <li><strong>第 46／47 題 Permutations</strong> —— 「每列一個」其實就是一個排列</li>
+          <li><strong>第 79 題 Word Search</strong> —— 網格上的回溯</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼不需要檢查「同一列」這個約束？</li>
+            <li>為什麼 <code>r - c</code> 能識別一條 ↘ 對角線？<code>r + c</code> 呢？</li>
+            <li>位元版為什麼對角線遮罩要 <code>&lt;&lt; 1</code> 和 <code>&gt;&gt; 1</code>？它在表達什麼？</li>
+            <li><code>avail &amp; -avail</code> 在做什麼？為什麼它能取出最低位的 1？</li>
+          </ol>
+        </div>

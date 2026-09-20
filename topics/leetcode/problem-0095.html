@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>95. Unique Binary Search Trees II 不同的二元搜尋樹 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="分治遞迴建樹，以及為什麼可以共用子樹。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="95">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 95 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 95</div>
+          <h1>Unique Binary Search Trees II<br>不同的二元搜尋樹 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">回溯</span>
+          <span class="lc-badge">樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer <code>n</code>, return <em>all the structurally unique <strong>BST's</strong> (binary search trees), which has exactly </em><code>n</code><em> nodes of unique values from </em><code>1</code><em> to </em><code>n</code>. Return the answer in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數 <code>n</code>，請生成所有由 <code>1</code> 到 <code>n</code> 這 <code>n</code> 個不同數字組成的<strong>二元搜尋樹（BST）</strong>，回傳它們的根節點。順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>核心：枚舉「誰當根」</h3>
+        <div class="code-block">BST 的定義：左子樹的所有值 &lt; 根 &lt; 右子樹的所有值。
+
+所以如果選 k 當根，那麼：
+    左子樹只能用 1 .. k-1
+    右子樹只能用 k+1 .. n
+
+    而且【左右子樹的選擇是獨立的】——
+    左邊有 a 種、右邊有 b 種，組合起來就有 a × b 種。
+
+遞迴式：
+    build(lo, hi) = 用 lo..hi 這些數字能建出的所有 BST
+
+    build(lo, hi) = 對每個 k ∈ [lo, hi]：
+                        for L in build(lo, k-1):
+                            for R in build(k+1, hi):
+                                產生 TreeNode(k, L, R)
+
+    base：lo &gt; hi  -&gt;  [None]（空樹，一種）
+
+數量：
+    f(n) = Σ_{k=1..n} f(k-1) × f(n-k)
+
+    這正是【卡塔蘭數】的遞迴式！
+        f(0)=1, f(1)=1, f(2)=2, f(3)=5, f(4)=14, ...
+
+    和第 22 題（括號生成）是同一個數列 ——
+    因為兩者的遞迴結構同構。</div>
+        <p><strong>base case 是 <code>[None]</code> 而不是 <code>[]</code></strong> —— 這是本題最關鍵的一行。<code>[]</code> 表示「沒有任何方案」，<code>[None]</code> 表示「有一種方案，就是空樹」。寫成 <code>[]</code> 的話內層迴圈一次都不跑，答案永遠是空的。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 3
+  輸出：[[1,null,2,null,3],[1,null,3,2],[2,1,3],
+         [3,1,null,null,2],[3,2,null,1]]
+  說明：共 5 棵，剛好是第 3 個卡塔蘭數。
+
+範例 2
+  輸入：n = 1
+  輸出：[[1]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 8</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/unique-binary-search-trees-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>為什麼 n 只到 8？</h3>
+        <div class="code-block">卡塔蘭數：
+    n:     1  2  3  4   5   6    7    8     9     10
+    C(n):  1  2  5  14  42  132  429  1430  4862  16796
+
+n = 8 時要生成 1430 棵樹 ——
+而且每棵樹有 8 個節點，總共約 11440 個節點。
+
+n = 15 時是 9694845 棵 —— 記憶體就爆了。
+
+所以 n ≤ 8 是「輸出大小」的限制，不是演算法的限制。
+
+驗證你的程式最快的方法：
+    數數量對不對（1, 1, 2, 5, 14, 42, 132, 429, 1430）</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 288" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">n = 3：枚舉「誰當根」，左右子樹各自遞迴生成</text>
+            <g font-size="13" text-anchor="middle">
+              <text x="90" y="48" fill="var(--gold)" font-size="12">根 = 1</text>
+              <circle cx="60" cy="74" r="15" fill="none" stroke="var(--accent)"/><text x="60" y="79" fill="var(--accent)">1</text>
+              <circle cx="90" cy="118" r="15" fill="none" stroke="var(--accent)"/><text x="90" y="123" fill="var(--accent)">2</text>
+              <circle cx="120" cy="162" r="15" fill="none" stroke="var(--accent)"/><text x="120" y="167" fill="var(--accent)">3</text>
+              <line x1="70" y1="86" x2="80" y2="106" stroke="var(--border)"/>
+              <line x1="100" y1="130" x2="110" y2="150" stroke="var(--border)"/>
+
+              <circle cx="180" cy="74" r="15" fill="none" stroke="var(--accent)"/><text x="180" y="79" fill="var(--accent)">1</text>
+              <circle cx="220" cy="118" r="15" fill="none" stroke="var(--accent)"/><text x="220" y="123" fill="var(--accent)">3</text>
+              <circle cx="196" cy="162" r="15" fill="none" stroke="var(--accent)"/><text x="196" y="167" fill="var(--accent)">2</text>
+              <line x1="190" y1="86" x2="210" y2="106" stroke="var(--border)"/>
+              <line x1="210" y1="130" x2="204" y2="150" stroke="var(--border)"/>
+            </g>
+            <g font-size="13" text-anchor="middle">
+              <text x="300" y="48" fill="var(--gold)" font-size="12">根 = 2</text>
+              <circle cx="300" cy="74" r="15" fill="none" stroke="#ff8a65"/><text x="300" y="79" fill="#ff8a65">2</text>
+              <circle cx="270" cy="118" r="15" fill="none" stroke="#ff8a65"/><text x="270" y="123" fill="#ff8a65">1</text>
+              <circle cx="330" cy="118" r="15" fill="none" stroke="#ff8a65"/><text x="330" y="123" fill="#ff8a65">3</text>
+              <line x1="290" y1="86" x2="280" y2="106" stroke="var(--border)"/>
+              <line x1="310" y1="86" x2="320" y2="106" stroke="var(--border)"/>
+            </g>
+            <g font-size="13" text-anchor="middle">
+              <text x="470" y="48" fill="var(--gold)" font-size="12">根 = 3</text>
+              <circle cx="420" cy="74" r="15" fill="none" stroke="var(--accent)"/><text x="420" y="79" fill="var(--accent)">3</text>
+              <circle cx="390" cy="118" r="15" fill="none" stroke="var(--accent)"/><text x="390" y="123" fill="var(--accent)">1</text>
+              <circle cx="414" cy="162" r="15" fill="none" stroke="var(--accent)"/><text x="414" y="167" fill="var(--accent)">2</text>
+              <line x1="410" y1="86" x2="400" y2="106" stroke="var(--border)"/>
+              <line x1="398" y1="130" x2="408" y2="150" stroke="var(--border)"/>
+
+              <circle cx="530" cy="74" r="15" fill="none" stroke="var(--accent)"/><text x="530" y="79" fill="var(--accent)">3</text>
+              <circle cx="500" cy="118" r="15" fill="none" stroke="var(--accent)"/><text x="500" y="123" fill="var(--accent)">2</text>
+              <circle cx="470" cy="162" r="15" fill="none" stroke="var(--accent)"/><text x="470" y="167" fill="var(--accent)">1</text>
+              <line x1="520" y1="86" x2="510" y2="106" stroke="var(--border)"/>
+              <line x1="490" y1="130" x2="480" y2="150" stroke="var(--border)"/>
+            </g>
+            <line x1="20" y1="192" x2="620" y2="192" stroke="var(--border)"/>
+            <text x="20" y="220" fill="var(--gold)" font-size="12">根 = 1：左邊空、右邊用 {2,3}（2 種）　根 = 2：左 {1}、右 {3}（1 種）</text>
+            <text x="20" y="244" fill="var(--gold)" font-size="12">根 = 3：左邊用 {1,2}（2 種）、右邊空　　　合計 2 + 1 + 2 = 5 種 ✔</text>
+            <text x="20" y="272" fill="var(--text-muted)" font-size="12">這正是卡塔蘭數的遞迴式：C(3) = C(0)C(2) + C(1)C(1) + C(2)C(0) = 2 + 1 + 2 = 5</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>遞迴分治（標準解）</h3>
+        <div class="code-block">class Solution:
+    def generateTrees(self, n: int) -&gt; List[Optional[TreeNode]]:
+        if n == 0:
+            return []
+
+        def build(lo: int, hi: int) -&gt; List[Optional[TreeNode]]:
+            """用 lo..hi 這些數字，能建出哪些 BST"""
+            if lo &gt; hi:
+                return [None]          # 空樹也是一種（注意是 [None] 不是 []）
+
+            res = []
+            for root_val in range(lo, hi + 1):
+                # 左子樹用 lo..root_val-1，右子樹用 root_val+1..hi
+                for left in build(lo, root_val - 1):
+                    for right in build(root_val + 1, hi):
+                        res.append(TreeNode(root_val, left, right))
+            return res
+
+        return build(1, n)</div>
+        <h3>三層迴圈的意義</h3>
+        <div class="code-block">for root_val in range(lo, hi + 1):      枚舉「誰當根」
+    for left in build(lo, root_val-1):  左子樹的所有可能
+        for right in build(root_val+1, hi):  右子樹的所有可能
+            res.append(TreeNode(root_val, left, right))
+
+這是一個【笛卡兒積】：
+    每一個左子樹，都可以配上每一個右子樹。
+
+    根 = 3，左邊用 {1,2} 有 2 種，右邊空有 1 種
+    -&gt; 2 × 1 = 2 種 ✔</div>
+        <h3><code>[None]</code> vs <code>[]</code></h3>
+        <div class="code-block">if lo &gt; hi:
+    return [None]        &lt;- 一定是 [None]
+
+寫成 [] 的話：
+    for left in build(lo, root_val-1):     &lt;- 空清單，迴圈不跑
+        ...                                 &lt;- 裡面的程式碼永遠不執行
+
+    結果 res 永遠是空的 -&gt; 答案是 [] ✘
+
+[None] 的語意：
+    「用『沒有任何數字』能建出的 BST，有一種 —— 就是空樹」
+
+    這和「0! = 1」「空集合的子集有 1 個」是同一個慣例：
+        「什麼都沒有」本身就是一種情況。
+
+    也和第 70 題的 f(0) = 1、第 91 題的 dp[0] = 1 同源。
+
+這是本題第一名的 bug。</div>
+        <h3>節點會被共用嗎？</h3>
+        <div class="code-block">會！而且【題目允許】。
+
+    根 = 1 時，右子樹用 {2,3} 有兩種：
+        2 -&gt; 3（2 當根，3 當右子）
+        3 -&gt; 2（3 當根，2 當左子）
+
+    這兩棵樹是獨立建出來的（各自 new 了節點），不共用。
+
+    但如果 n 更大，例如根 = 1、右子樹用 {2,3,4}：
+        build(2, 4) 回傳 5 棵樹
+        每棵都被接到「同一個根節點 1」下面嗎？
+
+        不是 —— 迴圈每次都 TreeNode(root_val, left, right)，
+        每次都建一個【新的根節點】。
+
+        但 left 和 right 【是共用的】！
+        不同的根節點可能指向同一棵子樹物件。
+
+    LeetCode 接受這樣的答案（它只檢查樹的結構）。
+
+    如果要求「每棵樹完全獨立」，就得深複製 —— 但沒必要。</div>
+        <h3>複雜度</h3>
+        <p>生成 <code>C(n)</code> 棵樹，每棵有 <code>n</code> 個節點 —— <strong>O(C(n) × n)</strong>，而 <code>C(n) ≈ 4ⁿ / n^1.5</code>。<strong>這已經是下界了</strong>（光是輸出就要這麼多）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(C(n) × n)</td><td>C(n) 是第 n 個卡塔蘭數</td></tr>
+            <tr><td>空間</td><td>O(C(n) × n)</td><td>所有樹的節點</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>記憶化 + 平移（利用形狀的重複）</h3>
+        <p><strong>關鍵觀察：<code>build(1,3)</code> 和 <code>build(5,7)</code> 產生的樹「形狀完全一樣」，只是每個值都差 4。</strong>所以只要算「長度為 k 的區間」的所有形狀，再整體平移。</p>
+        <div class="code-block">class Solution:
+    def generateTrees(self, n: int) -&gt; List[Optional[TreeNode]]:
+        if n == 0:
+            return []
+
+        # 「長度相同的區間」形狀完全一樣，只是數值有偏移
+        # 所以只算 1..k 的所有形狀，再整體平移
+        memo = {}
+
+        def build(length: int) -&gt; List[Optional[TreeNode]]:
+            if length == 0:
+                return [None]
+            if length in memo:
+                return memo[length]
+
+            res = []
+            for root_val in range(1, length + 1):
+                for left in build(root_val - 1):
+                    for right in build(length - root_val):
+                        res.append(TreeNode(root_val, left, clone(right, root_val)))
+            memo[length] = res
+            return res
+
+        def clone(node, offset):
+            """把整棵子樹的值都加上 offset（右子樹需要平移）"""
+            if not node:
+                return None
+            return TreeNode(node.val + offset,
+                            clone(node.left, offset), clone(node.right, offset))
+
+        return build(n)</div>
+        <div class="code-block">memo[length] = 「用 1..length 能建出的所有 BST」
+
+    build(3) 的結果可以重複用在
+        build(1,3)、build(2,4)、build(5,7)… 只要長度是 3
+
+    但值要平移 —— 所以右子樹要 clone 並加上 offset。
+
+節省了多少？
+    原版：build(lo, hi) 對每一對 (lo, hi) 都算一次
+          -&gt; O(n²) 個不同的區間
+
+    記憶化版：只對每個「長度」算一次
+          -&gt; O(n) 個不同的長度
+
+    但代價是【每次使用都要 clone】（因為值不同）——
+    而 clone 的成本和樹的大小成正比。
+
+所以在這一題（n &lt;= 8）記憶化【不一定更快】——
+clone 的開銷可能抵銷掉省下的遞迴。
+
+它的真正價值在於展示一個觀念：
+    「不同的子問題，如果結構同構，就可以共用計算」
+
+    這在「只要數量」的第 96 題就非常有用 ——
+    那題不用 clone，記憶化的效果是決定性的。</div>
+        <p><strong>面試時寫解法一就好。</strong>這個版本當作「知道形狀可以共用」的展示。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(C(n) × n)</td><td>省下重複的遞迴，但多了 clone</td></tr>
+            <tr><td>空間</td><td>O(C(n) × n)</td><td>memo + 所有樹</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>記憶化</th><th>需要 clone？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、遞迴分治</td><td>O(C(n)·n)</td><td>✘</td><td>✘</td><td>面試預設，最清楚</td></tr>
+            <tr><td>二、記憶化 + 平移</td><td>O(C(n)·n)</td><td>✔ 依長度</td><td>✔</td><td>展示「形狀同構」的觀念</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → 1 棵。</li>
+          <li><strong>n = 3</strong> → 5 棵。<strong>先數數量是最快的驗證。</strong></li>
+          <li><strong>n = 8</strong> → 1430 棵。</li>
+          <li><strong>base case 寫成 <code>[]</code></strong>：答案永遠是空的。<strong>本題第一名的 bug。</strong></li>
+          <li><strong>n = 0</strong>（題目不會給）：應該回 <code>[]</code>（沒有樹）而不是 <code>[None]</code>。<strong>注意這和 base case 的 <code>[None]</code> 語意不同</strong> —— 「頂層要求 0 個節點」和「某個子樹是空的」是兩回事。</li>
+          <li><strong>驗證每棵樹</strong>：中序走訪必須是 <code>1, 2, ..., n</code>，而且必須真的滿足 BST 的性質。</li>
+          <li><strong>驗證沒有重複</strong>：把樹序列化成字串放進 set，數量要和卡塔蘭數相同。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果只要「有幾棵」呢？</h3>
+
+        <p>第 96 題。<strong>不用真的建樹，只要算卡塔蘭數</strong> —— O(n²) 的 DP 或 O(n) 的公式。<strong>「數出來」和「列出來」的複雜度差距是天文數字</strong>：n = 19 時卡塔蘭數是 1767263190，數出來只要幾微秒，列出來則完全不可能。</p>
+
+        <h3>追問二：為什麼答案是卡塔蘭數？</h3>
+
+        <div class="code-block">f(n) = Σ_{k=1..n} f(k-1) × f(n-k)
+
+    k 當根 -&gt; 左子樹用 k-1 個節點，右子樹用 n-k 個節點
+
+而卡塔蘭數的標準遞迴式是：
+    C(n) = Σ_{i=0..n-1} C(i) × C(n-1-i)
+
+    把 i = k-1 代入就一模一樣 ✔
+
+第 22 題（括號生成）的遞迴式：
+    「第一對括號裡面有 i 對、後面有 n-1-i 對」
+    -&gt; 同一個式子 ✔
+
+所以【括號序列】和【二元樹】之間存在一一對應：
+    每個合法的括號序列  &lt;-&gt;  一棵二元樹
+
+    "(" = 往下走進左子樹
+    ")" = 回到父節點
+
+    這叫做「樹的括號表示法」，
+    也是 DFS 走訪的自然編碼。
+
+卡塔蘭數出現在超過 200 種組合結構裡 ——
+它們之所以答案相同，都是因為底層有這個相同的遞迴分解。</div>
+
+        <h3>追問三：如果數字不是 1..n 而是任意的呢？</h3>
+
+        <p>只要它們<strong>互不相同</strong>，答案的<strong>數量</strong>就一樣（形狀由「有幾個節點」決定，和具體的值無關）。只要先排序，然後把 <code>1..n</code> 換成「排序後的陣列」即可。</p>
+
+        <h3>追問四：如果要「所有二元樹」（不要求是 BST）呢？</h3>
+
+        <p><strong>數量會變成 <code>C(n) × n!</code></strong> —— 因為形狀有 <code>C(n)</code> 種，而每種形狀可以填入 <code>n!</code> 種數值排列。</p>
+
+        <p><strong>BST 的限制「消滅」了所有的排列自由度</strong> —— 一旦形狀確定了，每個位置放什麼數字也就唯一確定了（由中序必須遞增決定）。<strong>這是 BST 一個很優雅的性質。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 96 題 Unique Binary Search Trees</strong> —— 只要數量</li>
+          <li><strong>第 22 題 Generate Parentheses</strong> —— 同樣是卡塔蘭數</li>
+          <li><strong>第 98 題 Validate BST</strong> —— 驗證 BST 的性質</li>
+          <li><strong>第 241 題 Different Ways to Add Parentheses</strong> —— 同樣的「枚舉分割點」分治</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>base case 為什麼是 <code>[None]</code> 而不是 <code>[]</code>？寫成 <code>[]</code> 會回傳什麼？</li>
+            <li>為什麼「左右子樹的選擇是獨立的」？這造成了什麼運算（加法還是乘法）？</li>
+            <li>n = 4 應該有幾棵樹？請用遞迴式算一遍。</li>
+            <li>為什麼「BST 的形狀確定後，每個節點的值也唯一確定」？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0094.html">← 上一題：94. 二元樹的中序走訪</a>
+          <a href="problem-0096.html">下一題：96. 不同的二元搜尋樹 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

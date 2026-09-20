@@ -1,0 +1,318 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of <code>intervals</code> where <code>intervals[i] = [start_i, end_i]</code>, merge all overlapping intervals, and return <em>an array of the non-overlapping intervals that cover all the intervals in the input</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個區間陣列 <code>intervals</code>，其中 <code>intervals[i] = [startᵢ, endᵢ]</code>。請把所有<strong>重疊的區間合併</strong>，回傳一個不重疊的區間陣列，而且它要剛好覆蓋輸入的所有區間。</p>
+        </div>
+
+        <div class="callout">
+          <h3>排序是這題的全部</h3>
+        <div class="code-block">不排序的話，你必須拿每個區間和「所有其他區間」比較 -&gt; O(n²)，
+而且合併之後還要重新檢查（合併可能製造出新的重疊）。
+
+依「起點」排序之後，一個關鍵性質成立：
+
+    處理到第 i 個區間時，它的起點 &gt;= 前面所有區間的起點。
+    所以它只可能和「目前結果裡的最後一段」重疊 ——
+    不可能和更早的段重疊（那些段的結束更早，或已經被合併進去了）。
+
+    =&gt; 只要和 out[-1] 比較就夠了，O(n)。
+
+重疊的判斷：
+    上一段 [a, b]，這一段 [c, d]，而且 c &gt;= a（排序保證）
+
+    重疊  &lt;=&gt;  c &lt;= b
+    不重疊 &lt;=&gt;  c &gt; b
+
+    合併後變成 [a, max(b, d)]
+    （d 不一定比 b 大！[1,10] 和 [2,3] 合併後還是 [1,10]）</div>
+        <p><strong><code>max(b, d)</code> 的 max 不能省。</strong>包含關係（<code>[1,10]</code> 完全包住 <code>[2,3]</code>）是最常被漏掉的情況。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：intervals = [[1,3],[2,6],[8,10],[15,18]]
+  輸出：[[1,6],[8,10],[15,18]]
+  說明：[1,3] 和 [2,6] 重疊，合併成 [1,6]。
+
+範例 2
+  輸入：intervals = [[1,4],[4,5]]
+  輸出：[[1,5]]
+  說明：端點相碰也算重疊。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>intervals.length</code> ≤ 10⁴</li>
+          <li><code>intervals[i].length == 2</code></li>
+          <li>0 ≤ <code>startᵢ</code> ≤ <code>endᵢ</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/merge-intervals/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong><code>startᵢ ≤ endᵢ</code></strong> —— 保證區間是合法的（不會有 <code>[5,2]</code>）。而且<strong>可以相等</strong>（<code>[1,1]</code> 是一個「點」區間）。</li>
+          <li><strong>端點相碰算重疊</strong>：<code>[1,4]</code> 和 <code>[4,5]</code> → <code>[1,5]</code>。所以判斷式是 <code>out[-1][1] &lt; start</code>（嚴格小於才不重疊），<strong>不是 <code>&lt;=</code></strong>。（有些題目定義成開區間，那就要用 <code>&lt;=</code> —— 一定要先確認規格。）</li>
+          <li><strong>沒說輸入已排序</strong>，所以要自己排。排序 O(n log n) 就是這題的複雜度下界。</li>
+          <li><strong>n 到 10⁴</strong>，O(n log n) 完全沒問題。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 306" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">依起點排序後，只需要和「上一個已合併的區間」比較</text>
+            <text x="20" y="48" fill="var(--text-muted)" font-size="12">intervals = [[1,3], [2,6], [8,10], [15,18]]</text>
+            <g>
+              <line x1="40" y1="180" x2="600" y2="180" stroke="var(--text-muted)"/>
+              <g font-size="11" fill="var(--text-muted)" text-anchor="middle">
+                <text x="70" y="198">1</text><text x="130" y="198">3</text>
+                <text x="100" y="198">2</text><text x="250" y="198">6</text>
+                <text x="310" y="198">8</text><text x="370" y="198">10</text>
+                <text x="460" y="198">15</text><text x="550" y="198">18</text>
+              </g>
+              <line x1="70" y1="74" x2="130" y2="74" stroke="var(--accent)" stroke-width="4"/>
+              <text x="145" y="78" fill="var(--accent)" font-size="12">[1, 3]</text>
+              <line x1="100" y1="100" x2="250" y2="100" stroke="var(--accent)" stroke-width="4"/>
+              <text x="265" y="104" fill="var(--accent)" font-size="12">[2, 6]　與上一段重疊（2 ≤ 3）</text>
+              <line x1="310" y1="126" x2="370" y2="126" stroke="var(--gold)" stroke-width="4"/>
+              <text x="385" y="130" fill="var(--gold)" font-size="12">[8, 10]　不重疊（8 &gt; 6）</text>
+              <line x1="460" y1="152" x2="550" y2="152" stroke="var(--gold)" stroke-width="4"/>
+              <text x="565" y="156" fill="var(--gold)" font-size="12">[15, 18]</text>
+            </g>
+            <g>
+              <line x1="70" y1="232" x2="250" y2="232" stroke="#ff8a65" stroke-width="5"/>
+              <line x1="310" y1="232" x2="370" y2="232" stroke="#ff8a65" stroke-width="5"/>
+              <line x1="460" y1="232" x2="550" y2="232" stroke="#ff8a65" stroke-width="5"/>
+              <text x="20" y="236" fill="#ff8a65" font-size="12">結果</text>
+            </g>
+            <text x="20" y="268" fill="var(--gold)" font-size="12">[[1,6], [8,10], [15,18]]</text>
+            <text x="20" y="294" fill="var(--text-muted)" font-size="12">排序保證了：新區間的起點 ≥ 所有已處理區間的起點，所以只要看最後一段。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序 + 一趟合併（標準解）</h3>
+        <div class="code-block">class Solution:
+    def merge(self, intervals: List[List[int]]) -&gt; List[List[int]]:
+        intervals.sort(key=lambda x: x[0])      # 依「起點」排序
+
+        out = []
+        for start, end in intervals:
+            # 和上一段沒有重疊（上一段的結束 &lt; 這一段的開始）-&gt; 開新的一段
+            if not out or out[-1][1] &lt; start:
+                out.append([start, end])
+            else:
+                # 有重疊 -&gt; 把上一段的結束往右延伸
+                out[-1][1] = max(out[-1][1], end)
+
+        return out</div>
+        <h3>三個細節</h3>
+        <div class="code-block">① intervals.sort(key=lambda x: x[0])
+   只依「起點」排序就夠了。
+   起點相同時，終點的順序不影響正確性
+   （因為我們用 max 取聯集）。
+
+   直接寫 intervals.sort() 也行（會依 [start, end] 字典序排），
+   效果一樣。
+
+② if not out or out[-1][1] &lt; start
+   not out 處理「第一個區間」。
+   注意順序：先檢查 not out，Python 的短路求值保證
+   不會對空 list 取 out[-1]。
+
+③ out[-1][1] = max(out[-1][1], end)
+   max 不能省！
+   [[1,10], [2,3]] 排序後還是 [[1,10],[2,3]]，
+   如果直接寫 out[-1][1] = end，會變成 [[1,3]] ✘</div>
+        <h3>為什麼不需要「合併後再檢查一次」？</h3>
+        <div class="code-block">直覺會擔心：合併 [1,3] 和 [2,6] 變成 [1,6] 之後，
+會不會又和更早的某一段重疊？
+
+不會。因為排序保證了「更早的段」起點更小，
+而它們已經是「不重疊的」了 ——
+    out 裡的段永遠滿足 out[i][1] &lt; out[i+1][0]
+
+而新來的區間起點 &gt;= 所有已處理的起點，
+所以它只可能往右延伸 out[-1]，
+不可能「往回」碰到 out[-2]。
+
+嚴格說：
+    設 out = [..., A, B]，A[1] &lt; B[0]（不重疊）
+    新區間 C，C[0] &gt;= B[0]
+    若 C 和 B 合併成 B'，則 B'[0] = B[0] 不變
+    所以 A[1] &lt; B[0] = B'[0] 仍然成立 ✔
+
+合併只會改變「右端點」，不會改變「左端點」——
+這就是為什麼一趟就夠。</div>
+        <p><strong>複雜度由排序主導：O(n log n)。</strong>合併本身只是 O(n) 的一趟掃描。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>排序主導</td></tr>
+            <tr><td>空間</td><td>O(n) 或 O(log n)</td><td>排序的空間；輸出不算</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>掃描線（事件排序）</h3>
+        <p>更一般化的框架：<strong>把每個區間拆成「開始」和「結束」兩個事件，按位置排序後掃過去，用一個計數器記錄「目前疊了幾層」。計數器從 0 升起時是一段的開始，回到 0 時是一段的結束。</strong></p>
+        <div class="code-block">class Solution:
+    def merge(self, intervals: List[List[int]]) -&gt; List[List[int]]:
+        # 掃描線：把每個區間拆成「開始 +1」和「結束 -1」兩個事件
+        events = []
+        for s, e in intervals:
+            events.append((s, 0))       # 0 排在 1 前面，讓 [1,2] 和 [2,3] 能合併
+            events.append((e, 1))
+        events.sort()
+
+        out = []
+        depth = 0
+        start = 0
+        for pos, kind in events:
+            if kind == 0:
+                if depth == 0:
+                    start = pos         # 從 0 變成 1：一段新的合併區間開始
+                depth += 1
+            else:
+                depth -= 1
+                if depth == 0:
+                    out.append([start, pos])   # 回到 0：這一段結束
+
+        return out</div>
+        <div class="code-block">intervals = [[1,3], [2,6], [8,10]]
+
+事件（位置, 類型）：
+    (1, 開始) (2, 開始) (3, 結束) (6, 結束) (8, 開始) (10, 結束)
+
+掃描：
+    pos=1  開始  depth 0-&gt;1  記下 start=1
+    pos=2  開始  depth 1-&gt;2
+    pos=3  結束  depth 2-&gt;1
+    pos=6  結束  depth 1-&gt;0  輸出 [1, 6] ✔
+    pos=8  開始  depth 0-&gt;1  start=8
+    pos=10 結束  depth 1-&gt;0  輸出 [8, 10] ✔
+
+關鍵：事件的 tuple 是 (位置, 類型)，而「開始」用 0、「結束」用 1。
+      這樣同一個位置上，「開始」會排在「結束」前面。
+
+      為什麼重要？
+      [1,4] 和 [4,5] 在位置 4 同時有「結束」和「開始」。
+      如果「結束」先處理，depth 會歸零 -&gt; 輸出 [1,4]，然後 [4,5] 另起一段 ✘
+      如果「開始」先處理，depth 從 2 降到 1 -&gt; 繼續 -&gt; 最後輸出 [1,5] ✔
+
+      這一個排序鍵的細節，決定了「端點相碰算不算重疊」。</div>
+        <p><strong>掃描線比「排序 + 合併」複雜，但它能回答更多問題</strong>：</p>
+        <ul>
+          <li><strong>最大重疊層數</strong>（第 253 題 Meeting Rooms II：最少需要幾間會議室）—— 就是 <code>depth</code> 的最大值</li>
+          <li><strong>被覆蓋至少 k 次的區域</strong></li>
+          <li><strong>區間的聯集總長度</strong></li>
+          <li><strong>加權區間</strong>（每個區間帶一個值，求每個位置的總和）</li>
+        </ul>
+        <p><strong>「排序 + 合併」是掃描線的一個特例。</strong>先學會前者，但知道後者的存在，遇到變形題時才不會卡住。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>2n 個事件排序</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>事件陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>能回答</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序 + 合併</td><td>O(n log n)</td><td>O(log n)</td><td>只有合併</td><td>面試預設，最短</td></tr>
+            <tr><td>二、掃描線</td><td>O(n log n)</td><td>O(n)</td><td>重疊層數、覆蓋次數…</td><td>更通用的框架</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>沒有重疊</strong>：<code>[[1,2],[3,4]]</code> → 原樣。</li>
+          <li><strong>全部重疊成一段</strong>：<code>[[1,4],[2,3],[0,5]]</code> → <code>[[0,5]]</code>。</li>
+          <li><strong>包含關係</strong>：<code>[[1,4],[2,3]]</code> → <code>[[1,4]]</code>。<strong>沒有 <code>max</code> 會變成 <code>[[1,3]]</code>。</strong></li>
+          <li><strong>端點相碰</strong>：<code>[[1,4],[4,5]]</code> → <code>[[1,5]]</code>。判斷式用 <code>&lt;=</code> 而不是 <code>&lt;</code> 會分成兩段。</li>
+          <li><strong>點區間</strong>：<code>[[1,1]]</code> → <code>[[1,1]]</code>。</li>
+          <li><strong>沒排序的輸入</strong>：<code>[[1,4],[0,4]]</code> → <code>[[0,4]]</code>。<strong>忘記排序會輸出兩段。</strong></li>
+          <li><strong>單一區間</strong>：<code>[[1,3]]</code> → 原樣。</li>
+          <li><strong>空輸入</strong>：<code>[]</code> → <code>[]</code>。題目保證不會，但別崩潰。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要插入一個新區間到「已排序且不重疊」的陣列裡呢？</h3>
+
+        <p>第 57 題（Insert Interval）。因為已經排序，可以 O(n) 解決 —— 甚至可以用二分搜尋找到插入位置，做到 O(log n + 受影響的區間數)。詳見下一題。</p>
+
+        <h3>追問二：如果要問「最少需要幾間會議室」呢？</h3>
+
+        <p>第 253 題。<strong>就是掃描線的 <code>depth</code> 最大值。</strong></p>
+
+        <div class="code-block">max_depth = 0
+depth = 0
+for pos, kind in events:
+    depth += 1 if kind == 0 else -1
+    max_depth = max(max_depth, depth)
+
+注意：這題的「端點相碰」通常「不算」重疊
+（10:00 結束的會議和 10:00 開始的會議可以用同一間房），
+所以排序鍵要反過來：結束事件排在開始事件前面。
+
+同一個框架，改一個排序鍵，答案完全不同 ——
+所以規格一定要先問清楚。</div>
+
+        <h3>追問三：如果區間會動態新增和刪除呢？</h3>
+
+        <p>排序 + 合併不適用（每次都要重排）。要用<strong>平衡二元搜尋樹</strong>（Python 可以用 <code>sortedcontainers</code> 的 <code>SortedList</code>）維護「目前的不重疊區間集合」，每次插入時用二分搜尋找到影響範圍，合併掉被吞併的區間。這就是第 715 題（Range Module）和第 352 題（Data Stream as Disjoint Intervals）。</p>
+
+        <h3>追問四：區間問題的通用心法？</h3>
+
+        <div class="code-block">1. 幾乎都要「先排序」
+       依起點排：合併、插入
+       依終點排：無重疊區間的最大數量（第 435 題）、活動選擇問題
+
+2. 想清楚「重疊」的定義
+       閉區間 [a,b] 和 [c,d] 重疊  &lt;=&gt;  a &lt;= d 且 c &lt;= b
+       端點相碰算不算？一定要問。
+
+3. 掃描線是更一般的框架
+       把區間拆成事件，用計數器追蹤狀態。
+       能回答「合併」以外的一大票問題。
+
+4. 依終點排序 + 貪婪 = 活動選擇
+       「最多能選幾個互不重疊的區間」的標準解，
+       貪婪地選「最早結束」的那一個。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 57 題 Insert Interval</strong> —— 插入單一區間</li>
+          <li><strong>第 253 題 Meeting Rooms II</strong> —— 掃描線求最大重疊</li>
+          <li><strong>第 435 題 Non-overlapping Intervals</strong> —— 依終點排序的貪婪</li>
+          <li><strong>第 452 題 Minimum Number of Arrows</strong> —— 同上</li>
+          <li><strong>第 986 題 Interval List Intersections</strong> —— 兩組區間的交集</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「依起點排序後，只要和最後一段比較」就夠了？</li>
+            <li><code>max(out[-1][1], end)</code> 的 <code>max</code> 為什麼不能省？舉一個會錯的輸入。</li>
+            <li>掃描線裡「開始事件排在結束事件前面」這個設計，決定了什麼？</li>
+            <li>如果題目改成「端點相碰不算重疊」，兩種解法各要改哪裡？</li>
+          </ol>
+        </div>

@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>18. 4Sum 四數之和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="kSum 的通用遞迴框架，以及兩層剪枝。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="18">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 18 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 18</div>
+          <h1>4Sum<br>四數之和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雙指標</span>
+          <span class="lc-badge">排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array <code>nums</code> of <code>n</code> integers, return an array of all the <strong>unique</strong> quadruplets <code>[nums[a], nums[b], nums[c], nums[d]]</code> such that <code>a, b, c, d</code> are distinct indices and <code>nums[a] + nums[b] + nums[c] + nums[d] == target</code>.</p>
+          <p>You may return the answer in any order.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個長度為 <code>n</code> 的整數陣列 <code>nums</code> 和一個目標值 <code>target</code>，找出所有<strong>不重複</strong>的四元組，使四個數相加等於 <code>target</code>。</p>
+          <p>四個索引必須互不相同，答案順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題就是 3Sum 再包一層</h3>
+        <p>如果你已經把第 15 題寫熟了，這題只是把同一套邏輯往外多包一層迴圈。<strong>去重的方式、雙指標的移動、剪枝的想法，全部一模一樣。</strong></p>
+        <div class="code-block">kSum 的通用降維：
+
+  4Sum  -&gt;  固定一個數，剩下就是 3Sum
+        -&gt;  固定兩個數，剩下就是 2Sum（雙指標，O(n)）
+
+  複雜度：O(n³)
+
+  一般地：kSum = O(n^(k-1))
+    2Sum: O(n)      （排序後雙指標）
+    3Sum: O(n²)
+    4Sum: O(n³)
+    5Sum: O(n⁴)
+    ...</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1, 0, -1, 0, -2, 2], target = 0
+  輸出：[[-2,-1,1,2], [-2,0,0,2], [-1,0,0,1]]
+
+範例 2
+  輸入：nums = [2, 2, 2, 2, 2], target = 8
+  輸出：[[2,2,2,2]]
+  說明：雖然有多種索引組合，但值都一樣，只算一組。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 200</li>
+          <li>−10⁹ ≤ <code>nums[i]</code> ≤ 10⁹</li>
+          <li>−10⁹ ≤ <code>target</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/4sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 200</strong>。O(n³) 是 8 × 10⁶ —— 輕鬆過。O(n⁴) 是 1.6 × 10⁹ —— 太慢。所以目標是 O(n³)。</li>
+          <li><strong>數值和 target 都到 ±10⁹。</strong>四個數相加最大可到 4 × 10⁹，<strong>超過 32 位元有號整數的範圍</strong>。Python 不受影響，但在 C++／Java 裡累加時<strong>必須用 64 位元</strong>，否則會溢位。這是這題相對於第 15 題新增的唯一陷阱。</li>
+          <li><strong>陣列長度可能小於 4</strong>（最小是 1）。<code>range(n-3)</code> 在 n &lt; 4 時是空的，自然就對了 —— 不必額外檢查。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>兩種寫法：<strong>直接寫死兩層迴圈</strong>（好懂、好 debug），或<strong>寫成遞迴的 kSum</strong>（優雅、可以直接推廣到 5Sum、6Sum）。面試時建議寫第一種，但能講出第二種會加分很多。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>兩層迴圈 + 雙指標（直接寫）</h3>
+        <div class="code-block">class Solution:
+    def fourSum(self, nums: List[int], target: int) -&gt; List[List[int]]:
+        nums.sort()
+        n = len(nums)
+        out = []
+
+        for i in range(n - 3):
+            if i &gt; 0 and nums[i] == nums[i - 1]:
+                continue
+            # 剪枝：這一層可能的最小值已經超過 target
+            if nums[i] + nums[i + 1] + nums[i + 2] + nums[i + 3] &gt; target:
+                break
+            # 剪枝：這一層可能的最大值還不到 target
+            if nums[i] + nums[n - 3] + nums[n - 2] + nums[n - 1] &lt; target:
+                continue
+
+            for j in range(i + 1, n - 2):
+                if j &gt; i + 1 and nums[j] == nums[j - 1]:
+                    continue
+                if nums[i] + nums[j] + nums[j + 1] + nums[j + 2] &gt; target:
+                    break
+                if nums[i] + nums[j] + nums[n - 2] + nums[n - 1] &lt; target:
+                    continue
+
+                lo, hi = j + 1, n - 1
+                need = target - nums[i] - nums[j]
+                while lo &lt; hi:
+                    s = nums[lo] + nums[hi]
+                    if s &lt; need:
+                        lo += 1
+                    elif s &gt; need:
+                        hi -= 1
+                    else:
+                        out.append([nums[i], nums[j], nums[lo], nums[hi]])
+                        while lo &lt; hi and nums[lo] == nums[lo + 1]:
+                            lo += 1
+                        while lo &lt; hi and nums[hi] == nums[hi - 1]:
+                            hi -= 1
+                        lo += 1
+                        hi -= 1
+
+        return out</div>
+        <h3>去重要處理三個位置</h3>
+        <div class="code-block">i 層：  if i &gt; 0     and nums[i] == nums[i-1]:   continue
+j 層：  if j &gt; i + 1 and nums[j] == nums[j-1]:   continue
+lo/hi： 找到答案後跳過重複值（兩個 while）
+
+注意 j 層的邊界是 j &gt; i + 1，不是 j &gt; 0！
+  因為 j 的起點是 i + 1，我們要允許「j 的第一個位置」，
+  只跳過它之後的重複。
+  寫成 j &gt; 0 的話，當 i 變大時 nums[i+1] 可能剛好等於 nums[i]，
+  就會被錯誤地跳掉。
+
+這個 off-by-one 是 4Sum 相對 3Sum 最容易寫錯的地方。</div>
+        <h3>四個剪枝，兩兩對稱</h3>
+        <div class="code-block">對每一層（以 i 層為例）：
+
+  最小可能和 = nums[i] + nums[i+1] + nums[i+2] + nums[i+3]
+      &gt; target  -&gt;  break     （後面的 i 只會更大，整層結束）
+
+  最大可能和 = nums[i] + nums[n-3] + nums[n-2] + nums[n-1]
+      &lt; target  -&gt;  continue  （這個 i 沒救，但更大的 i 可能有）
+
+一個是 break 一個是 continue，這個不對稱很容易搞反：
+  「最小值都太大」-&gt; 越往後越大 -&gt; 全部沒救 -&gt; break
+  「最大值都太小」-&gt; 換個更大的 i 可能有救 -&gt; continue
+
+沒有這四個剪枝，n=200 時也能過，
+但在「大量相同值」或「target 極端」的測資上會慢好幾倍。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n³)</td><td>兩層迴圈 × 雙指標</td></tr>
+            <tr><td>空間</td><td>O(log n)</td><td>排序本身；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>遞迴 kSum（優雅，可推廣）</h3>
+        <p>把「固定一個數，剩下遞迴解」這個想法直接寫成程式碼。<strong>base case 是 k == 2，用雙指標 O(n) 解決。</strong></p>
+        <div class="code-block">class Solution:
+    def fourSum(self, nums: List[int], target: int) -&gt; List[List[int]]:
+        nums.sort()
+
+        def two_sum(start: int, target: int) -&gt; List[List[int]]:
+            """在 nums[start:] 上用雙指標找所有和為 target 的「兩個數」。"""
+            res = []
+            lo, hi = start, len(nums) - 1
+            while lo &lt; hi:
+                s = nums[lo] + nums[hi]
+                if s &lt; target:
+                    lo += 1
+                elif s &gt; target:
+                    hi -= 1
+                else:
+                    res.append([nums[lo], nums[hi]])
+                    while lo &lt; hi and nums[lo] == nums[lo + 1]:
+                        lo += 1
+                    while lo &lt; hi and nums[hi] == nums[hi - 1]:
+                        hi -= 1
+                    lo += 1
+                    hi -= 1
+            return res
+
+        def k_sum(start: int, target: int, k: int) -&gt; List[List[int]]:
+            """在 nums[start:] 上找所有和為 target 的 k 個數。"""
+            if k == 2:
+                return two_sum(start, target)
+
+            res = []
+            n = len(nums)
+            for i in range(start, n - k + 1):
+                if i &gt; start and nums[i] == nums[i - 1]:
+                    continue
+                # 剪枝：剩下最小的 k 個都太大 / 最大的 k 個都太小
+                if nums[i] * k &gt; target:
+                    break
+                if nums[n - 1] * k &lt; target:
+                    break
+                for rest in k_sum(i + 1, target - nums[i], k - 1):
+                    res.append([nums[i]] + rest)
+            return res
+
+        return k_sum(0, target, 4)</div>
+        <h3>這個寫法的好處</h3>
+        <ul>
+          <li><strong>去重邏輯只寫兩次</strong>（<code>k_sum</code> 裡一次、<code>two_sum</code> 裡一次），而不是每一層都抄一遍。抄得越少，寫錯的機會越少。</li>
+          <li><strong>改成 5Sum 只要改最後一行</strong>：<code>k_sum(0, target, 5)</code>。</li>
+          <li><strong>剪枝也統一了</strong>：<code>nums[i] * k &gt; target</code> 表示「就算剩下 k 個都取最小的 <code>nums[i]</code>，和也太大」。</li>
+        </ul>
+        <h3>剪枝 <code>nums[i] * k &gt; target</code> 為什麼對？</h3>
+        <div class="code-block">排序後，從位置 i 開始取 k 個數，最小的可能和是
+    nums[i] + nums[i+1] + ... + nums[i+k-1]
+而每一項都 ≥ nums[i]，所以這個和 ≥ nums[i] * k。
+
+如果 nums[i] * k &gt; target，那最小可能和也 &gt; target -&gt; 沒救。
+而且之後的 i 只會讓 nums[i] 更大 -&gt; break。
+
+這是一個「比實際最小值寬鬆」的下界，
+所以它剪得沒有解法一的精確剪枝那麼多，
+但它只需要一次乘法，而且對任何 k 都成立。</div>
+        <p><strong>什麼時候該寫這個版本？</strong>面試官明確問「如果是 kSum 呢」的時候。一開始就寫遞迴版可能會被認為是在炫技，而且遞迴的去重邊界（<code>i &gt; start</code>）比迴圈版更容易寫錯。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n^(k−1))</td><td>k=4 時是 O(n³)</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>遞迴深度 k；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>推廣到 kSum</th><th>好寫程度</th></tr></thead>
+          <tbody>
+            <tr><td>一、兩層迴圈 + 雙指標</td><td>O(n³)</td><td>O(log n)</td><td>要手動抄一層</td><td>★★★★☆</td></tr>
+            <tr><td>二、遞迴 kSum</td><td>O(n^(k−1))</td><td>O(k)</td><td>改一個參數</td><td>★★★☆☆</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>長度不足 4</strong>：<code>[]</code>、<code>[1,2]</code> → <code>[]</code>。</li>
+          <li><strong>全部相同</strong>：<code>([2,2,2,2,2], 8)</code> → <code>[[2,2,2,2]]</code>（只有一組）。這是最能抓出去重 bug 的測資。</li>
+          <li><strong>四個 0</strong>：<code>([0,0,0,0], 0)</code> → <code>[[0,0,0,0]]</code>。</li>
+          <li><strong>溢位測資</strong>：<code>([10⁹,10⁹,10⁹,10⁹], 4×10⁹)</code> → 有答案。在 Java/C++ 裡用 int 累加會溢位成負數而算不出來。</li>
+          <li><strong>沒有答案</strong>：<code>([1,2,3,4], 100)</code> → <code>[]</code>。驗證剪枝不會誤判。</li>
+          <li><strong>j 層去重的邊界</strong>：<code>([-3,-1,0,2,4,5], 0)</code> 這類含重複的測資，把 <code>j &gt; i+1</code> 誤寫成 <code>j &gt; 0</code> 會漏掉答案。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：有沒有比 O(n³) 更快的做法？</h3>
+
+        <p>有一個 <strong>O(n²)</strong> 的做法，但代價是 O(n²) 的記憶體：把所有「兩個數的和」連同它們的索引存進一個雜湊表（共 n²/2 筆），然後對每一對 <code>(a, b)</code> 去查 <code>target − a − b</code> 有沒有對應的配對，同時檢查四個索引不重疊。</p>
+
+        <p><strong>但實務上通常不值得</strong>：n = 200 時 O(n³) = 8 × 10⁶ 已經很快，而雜湊表版本要處理「索引不重疊」和「去重」兩個相當麻煩的問題，程式碼會長得多、錯的機會也高得多。面試時值得提出來當作「知道有這條路」，但不建議真的寫。</p>
+
+        <h3>追問二：k 很大的時候（例如 kSum 中 k = 10）呢？</h3>
+
+        <p>O(n⁹) 完全不可行。這時候要改用<strong>中間相遇（meet in the middle）</strong>：把 k 個數分成兩半，各自枚舉所有 C(n, k/2) 種組合的和，存進雜湊表後配對。複雜度大約是 O(n^(k/2))，對 k = 10、n = 40 這種規模是可行的。這也是子集合和（Subset Sum）問題的經典技巧。</p>
+
+        <h3>追問三：為什麼一定要排序？</h3>
+
+        <p>排序在這題同時做了<strong>三件事</strong>：</p>
+
+        <ul>
+          <li>讓雙指標能用（需要單調性）</li>
+          <li>讓相同的值相鄰，去重才能用「和前一個比」這種 O(1) 的方式做</li>
+          <li>讓剪枝能用（知道「往後只會更大」）</li>
+        </ul>
+
+        <p>而排序只要 O(n log n)，遠小於 O(n³)。<strong>這是一筆非常划算的交易。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1 題 Two Sum</strong>、<strong>第 15 題 3Sum</strong>、<strong>第 16 題 3Sum Closest</strong> —— 同一家族</li>
+          <li><strong>第 454 題 4Sum II</strong> —— 四個獨立陣列各取一個，可以用雜湊表做到 O(n²)</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>j 層的去重為什麼寫 <code>j &gt; i + 1</code> 而不是 <code>j &gt; 0</code>？請舉一個會出錯的輸入。</li>
+            <li>為什麼「最小值太大」是 break 而「最大值太小」是 continue？</li>
+            <li>在 Java 裡這題有什麼陷阱是第 15 題沒有的？</li>
+            <li>kSum 的複雜度為什麼是 O(n^(k−1)) 而不是 O(n^k)？最後那一層省在哪裡？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0017.html">← 上一題：17. 電話號碼的字母組合</a>
+          <a href="problem-0019.html">下一題：19. 刪除鏈結串列的倒數第 N 個節點 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

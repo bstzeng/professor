@@ -1,0 +1,304 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two integers <code>dividend</code> and <code>divisor</code>, divide two integers <strong>without</strong> using multiplication, division, and mod operator.</p>
+          <p>The integer division should truncate toward zero, which means losing its fractional part. For example, <code>8.345</code> would be truncated to <code>8</code>, and <code>-2.7335</code> would be truncated to <code>-2</code>.</p>
+          <p>Return the quotient. If the quotient is strictly greater than <code>2³¹ - 1</code>, return <code>2³¹ - 1</code>; if less than <code>-2³¹</code>, return <code>-2³¹</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個整數 <code>dividend</code>（被除數）和 <code>divisor</code>（除數），在<strong>不使用乘法、除法和取餘運算子</strong>的前提下做整數除法。</p>
+          <p>結果要<strong>向零取整</strong>（截斷小數部分）。例如 <code>8.345</code> 截斷成 <code>8</code>，<code>-2.7335</code> 截斷成 <code>-2</code>（不是 −3）。</p>
+          <p>回傳商。如果商大於 <code>2³¹ − 1</code> 就回 <code>2³¹ − 1</code>，小於 <code>−2³¹</code> 就回 <code>−2³¹</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>三個陷阱，一個比一個隱蔽</h3>
+        <div class="code-block">陷阱 1：溢位。而且只有「一種」情況會溢位。
+
+    -2³¹ / -1 = 2³¹ = 2147483648 &gt; INT_MAX = 2147483647
+
+    其他所有組合的商都在範圍內：
+      任何數除以 |divisor| &gt;= 1 只會變小或不變，
+      而 dividend 本身一定在範圍內。
+      唯一的例外就是「最負的數 ÷ -1」，因為正負兩側不對稱。
+
+陷阱 2：向零取整，不是向下取整。
+
+    -7 / 3  -&gt;  -2   （不是 -3！）
+     7 / -3 -&gt;  -2
+
+    Python 的 // 是「向下取整（floor）」：
+        -7 // 3 == -3    ✘ 和題目要的不一樣
+    Python 的 int() 對浮點數是向零截斷，但不能用除法。
+
+    正確做法：取絕對值算、最後補上符號。
+        abs(-7) // abs(3) = 2，異號 -&gt; -2 ✔
+
+陷阱 3：Python 沒有 32 位元整數。
+
+    在 C/Java 裡，abs(INT_MIN) 本身就會溢位。
+    標準做法是「全程用負數算」，因為負數那一側範圍比較大。
+    Python 沒這個問題，但面試官可能會問。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：dividend = 10, divisor = 3
+  輸出：3
+  說明：10 / 3 = 3.333... 截斷成 3。
+
+範例 2
+  輸入：dividend = 7, divisor = -3
+  輸出：-2
+  說明：7 / -3 = -2.333... 向零截斷成 -2（不是 -3）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>−2³¹ ≤ <code>dividend</code>, <code>divisor</code> ≤ 2³¹ − 1</li>
+          <li><code>divisor != 0</code>（不用處理除以零）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/divide-two-integers/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>保證 divisor 不是 0</strong>，省掉一個邊界。</li>
+          <li><strong>只有 <code>INT_MIN / -1</code> 會溢位</strong>。所以「clamp 到範圍內」實際上只要寫一個 if。很多人會寫一大串 min/max，那是沒想清楚。</li>
+          <li><strong>不能用 <code>*</code>、<code>/</code>、<code>%</code></strong>。但<strong>可以用位移 <code>&lt;&lt;</code> <code>&gt;&gt;</code>、加減、比較</strong> —— 而位移就是乘除 2 的冪次。這就是這題的解法方向。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p><strong>除法的本質是「減多少次」。</strong>一次減一個太慢，所以改成<strong>一次減掉「除數的 2 的冪次倍」</strong> —— 這正是我們小學學的直式除法，只是換成二進位。</p>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 296" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">43 ÷ 3：二進位長除法，從高位往低位問「這一位能填 1 嗎？」</text>
+            <g font-family="monospace" font-size="13">
+              <text x="40" y="54" fill="var(--text-muted)">k = 5:  3 &lt;&lt; 5 = 96  &gt; 43  ✘  這一位填 0</text>
+              <text x="40" y="78" fill="var(--text-muted)">k = 4:  3 &lt;&lt; 4 = 48  &gt; 43  ✘  填 0</text>
+              <text x="40" y="102" fill="var(--gold)">k = 3:  3 &lt;&lt; 3 = 24  ≤ 43  ✔  填 1，a = 43 − 24 = 19</text>
+              <text x="40" y="126" fill="var(--gold)">k = 2:  3 &lt;&lt; 2 = 12  ≤ 19  ✔  填 1，a = 19 − 12 = 7</text>
+              <text x="40" y="150" fill="var(--gold)">k = 1:  3 &lt;&lt; 1 = 6   ≤ 7   ✔  填 1，a = 7 − 6 = 1</text>
+              <text x="40" y="174" fill="var(--text-muted)">k = 0:  3 &lt;&lt; 0 = 3   &gt; 1   ✘  填 0</text>
+            </g>
+            <line x1="20" y1="192" x2="620" y2="192" stroke="var(--border)"/>
+            <g font-family="monospace" font-size="14">
+              <text x="40" y="222" fill="var(--accent)">商 = 0b001110 = 14</text>
+              <text x="300" y="222" fill="var(--accent)">餘 = 1</text>
+              <text x="40" y="250" fill="var(--text-muted)" font-size="12">驗算：14 × 3 + 1 = 43 ✔</text>
+            </g>
+            <text x="20" y="284" fill="var(--gold)" font-size="12">最多 32 位 → 最多 32 輪。比「一次減 3」的 14 輪穩定得多（想像 2³¹ ÷ 1）。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>一次減一個（會 TLE 的基準線）</h3>
+        <div class="code-block">class Solution:
+    def divide(self, dividend: int, divisor: int) -&gt; int:
+        INT_MIN, INT_MAX = -2**31, 2**31 - 1
+
+        # 唯一會溢位的情況：-2^31 / -1 = 2^31，超過 INT_MAX
+        if dividend == INT_MIN and divisor == -1:
+            return INT_MAX
+
+        negative = (dividend &lt; 0) != (divisor &lt; 0)   # 異號才是負的
+        a, b = abs(dividend), abs(divisor)
+
+        quotient = 0
+        while a &gt;= b:            # 一次減一個 b —— 正確但會 TLE
+            a -= b
+            quotient += 1
+
+        return -quotient if negative else quotient</div>
+        <p>邏輯完全正確，但當 <code>dividend = 2³¹ − 1</code>、<code>divisor = 1</code> 時，要跑 21 億次迴圈 —— 必定 TLE。</p>
+        <p><strong>但它的前兩行（溢位檢查、符號處理）在後面兩個解法裡完全一樣</strong>，所以先把它寫對是有價值的。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(dividend / divisor)</td><td>最壞 2³¹ 次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>倍增：每次減掉「盡可能大」的一塊</h3>
+        <p>既然一次減一個太慢，那就<strong>一次減掉 divisor 的 2 的冪次倍</strong>。而 <code>b × 2ᵏ</code> 用位移就能算出來，不算乘法。</p>
+        <div class="code-block">class Solution:
+    def divide(self, dividend: int, divisor: int) -&gt; int:
+        INT_MIN, INT_MAX = -2**31, 2**31 - 1
+
+        if dividend == INT_MIN and divisor == -1:
+            return INT_MAX
+
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a, b = abs(dividend), abs(divisor)
+
+        quotient = 0
+        while a &gt;= b:
+            # 找出最大的 k，使得 b &lt;&lt; k 仍然 &lt;= a
+            temp, multiple = b, 1
+            while a &gt;= (temp &lt;&lt; 1):
+                temp &lt;&lt;= 1           # temp 翻倍
+                multiple &lt;&lt;= 1       # 對應的商也翻倍
+            a -= temp
+            quotient += multiple
+
+        return -quotient if negative else quotient</div>
+        <div class="code-block">43 ÷ 3
+
+外層第 1 輪（a = 43）：
+    temp = 3,  multiple = 1
+    43 &gt;= 6?  ✔ -&gt; temp = 6,  multiple = 2
+    43 &gt;= 12? ✔ -&gt; temp = 12, multiple = 4
+    43 &gt;= 24? ✔ -&gt; temp = 24, multiple = 8
+    43 &gt;= 48? ✘ 停
+    a = 43 - 24 = 19，quotient = 8
+
+外層第 2 輪（a = 19）：
+    temp = 3, multiple = 1
+    19 &gt;= 6?  ✔ -&gt; temp = 6,  multiple = 2
+    19 &gt;= 12? ✔ -&gt; temp = 12, multiple = 4
+    19 &gt;= 24? ✘ 停
+    a = 19 - 12 = 7，quotient = 12
+
+外層第 3 輪（a = 7）：
+    7 &gt;= 6? ✔ -&gt; temp = 6, multiple = 2
+    7 &gt;= 12? ✘ 停
+    a = 7 - 6 = 1，quotient = 14
+
+a = 1 &lt; 3，結束。答案 14 ✔</div>
+        <h3>為什麼是 O(log²n)？</h3>
+        <p>外層每輪至少把 <code>a</code> 砍掉一半（因為減掉的 <code>temp</code> 至少是 <code>a</code> 的一半），所以外層最多 32 輪；內層的倍增也最多 32 次。總共 O(log² n) —— 大約 1024 次運算，瞬間完成。</p>
+        <p><strong>注意內層條件是 <code>a &gt;= (temp &lt;&lt; 1)</code> 而不是 <code>a &gt;= temp</code>。</strong>我們要找的是「翻倍之後<strong>還不會超過</strong>」的最大值，所以要先試探翻倍後的結果。寫錯的話 <code>temp</code> 會超過 <code>a</code>，減出負數。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log²n)</td><td>外層 log n 輪 × 內層 log n</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>二進位長除法（最乾淨）</h3>
+        <p>把解法二的兩層迴圈<strong>攤平成一層</strong>：直接從第 31 位往下問「這一位的商能不能是 1？」</p>
+        <div class="code-block">class Solution:
+    def divide(self, dividend: int, divisor: int) -&gt; int:
+        INT_MIN, INT_MAX = -2**31, 2**31 - 1
+
+        if dividend == INT_MIN and divisor == -1:
+            return INT_MAX
+
+        negative = (dividend &lt; 0) != (divisor &lt; 0)
+        a, b = abs(dividend), abs(divisor)
+
+        # 從高位往低位試：這一位能不能填 1？
+        # 就是長除法（直式除法）的二進位版本
+        quotient = 0
+        for k in range(31, -1, -1):
+            if (b &lt;&lt; k) &lt;= a:
+                a -= b &lt;&lt; k
+                quotient |= 1 &lt;&lt; k
+
+        return -quotient if negative else quotient</div>
+        <p><strong>這就是我們小學學的直式除法，只是基底從 10 換成 2。</strong>十進位的直式除法每一位要試 0–9（十選一），二進位每一位只要試 0 或 1（能減就是 1，不能就是 0）—— <strong>這正是為什麼電腦用二進位做除法比較簡單。</strong></p>
+        <div class="code-block">43 ÷ 3，從 k = 31 開始（前面全是 0，略過）
+
+k=5: 3&lt;&lt;5 = 96 &gt; 43  -&gt; 商的第 5 位 = 0
+k=4: 3&lt;&lt;4 = 48 &gt; 43  -&gt; 第 4 位 = 0
+k=3: 3&lt;&lt;3 = 24 &lt;= 43 -&gt; 第 3 位 = 1，a = 43-24 = 19
+k=2: 3&lt;&lt;2 = 12 &lt;= 19 -&gt; 第 2 位 = 1，a = 19-12 = 7
+k=1: 3&lt;&lt;1 = 6  &lt;= 7  -&gt; 第 1 位 = 1，a = 7-6 = 1
+k=0: 3&lt;&lt;0 = 3  &gt; 1   -&gt; 第 0 位 = 0
+
+商 = 0b001110 = 14，餘 = 1
+驗算：14 × 3 + 1 = 43 ✔</div>
+        <p><strong>固定 32 輪</strong>，不管數字多大 —— 複雜度是 O(32) = O(1)。而且沒有巢狀迴圈，最好讀也最好記。</p>
+        <h3>在 C/Java 裡要注意什麼？</h3>
+        <div class="code-block">b &lt;&lt; k 在 32 位元裡可能溢位！
+
+C/Java 的正確寫法是反過來比：
+    if ((a &gt;&gt;&gt; k) &gt;= b)        // 無號右移，避免符號位問題
+        a -= b &lt;&lt; k;
+
+或者全程用 long（64 位元）來算 b &lt;&lt; k。
+
+Python 沒有這個問題（整數任意精度），
+但如果面試官問「這段翻成 C 會怎樣」，
+要能指出這一行。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(32) = O(1)</td><td>固定 32 輪</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>會 TLE？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐次相減</td><td>O(n)</td><td>O(1)</td><td>✔ 會</td><td>邏輯基準</td></tr>
+            <tr><td>二、倍增</td><td>O(log²n)</td><td>O(1)</td><td>✘</td><td>直觀，但有巢狀迴圈</td></tr>
+            <tr><td>三、二進位長除法</td><td>O(32)</td><td>O(1)</td><td>✘</td><td>最乾淨；就是直式除法</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>INT_MIN / -1</code></strong> → <code>INT_MAX</code>。<strong>唯一會溢位的組合</strong>，一定要單獨擋。</li>
+          <li><strong><code>INT_MIN / 1</code></strong> → <code>INT_MIN</code>。不溢位，不能被上面那個 if 誤攔。</li>
+          <li><strong>被除數是 0</strong>：<code>(0, 5)</code> → 0。while 一次都不跑。</li>
+          <li><strong>除數比被除數大</strong>：<code>(1, 2)</code> → 0。</li>
+          <li><strong>剛好整除</strong>：<code>(6, 3)</code> → 2。</li>
+          <li><strong>負數的向零取整</strong>：<code>(7, -3)</code> → −2（不是 −3）；<code>(-7, 3)</code> → −2；<code>(-7, -3)</code> → 2。四種符號組合都要測。</li>
+          <li><strong>除以 1 和 −1</strong>：<code>(2147483647, 1)</code> → 2147483647。這是解法一 TLE 的測資。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果還要回傳餘數呢？</h3>
+
+        <p>解法三跑完之後，<code>a</code> 裡剩下的就是餘數（絕對值）。符號依照語言慣例：C99 和 Java 的 <code>%</code> 結果跟<strong>被除數</strong>同號，Python 的 <code>%</code> 跟<strong>除數</strong>同號。<code>-7 % 3</code> 在 C 裡是 −1，在 Python 裡是 2。<strong>這個差別在跨語言移植時害過很多人。</strong></p>
+
+        <h3>追問二：CPU 是怎麼做除法的？</h3>
+
+        <p>本質上就是解法三 —— 硬體版的「回復餘數法（restoring division）」或它的改良版「不回復餘數法（non-restoring division）」，一個時脈週期算一位。<strong>這也是為什麼整數除法比乘法慢很多</strong>（在現代 x86 上，乘法約 3–5 個週期，除法約 20–40 個）。</p>
+
+        <p>編譯器知道這一點，所以<strong>看到「除以常數」時會把它改寫成乘法 + 位移</strong>。例如 <code>x / 3</code> 會被編譯成大約 <code>(x * 0xAAAAAAAB) &gt;&gt; 33</code> —— 用一個「魔術數字」（1/3 的定點數近似）的乘法取代除法。這個技巧叫做 <strong>Barrett reduction / magic number division</strong>。</p>
+
+        <h3>追問三：如果不准用減法呢？</h3>
+
+        <p>那就只剩位元運算了。加法可以用 <code>XOR</code>（不進位加）和 <code>AND + 左移</code>（進位）遞迴實作；減法是「加上二補數」。這就是第 371 題（Sum of Two Integers）。把那題和這題組合起來，就能在<strong>只用位元運算</strong>的前提下做除法。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 7 題 Reverse Integer</strong> —— 同一套 32 位元溢位思維</li>
+          <li><strong>第 50 題 Pow(x, n)</strong> —— 同樣的「倍增 / 二進位分解」技巧</li>
+          <li><strong>第 371 題 Sum of Two Integers</strong> —— 只用位元做加法</li>
+          <li><strong>第 166 題 Fraction to Recurring Decimal</strong> —— 長除法的延伸</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼只有 <code>INT_MIN / -1</code> 會溢位？請說明其他組合為什麼都安全。</li>
+            <li>Python 的 <code>-7 // 3</code> 是多少？和題目要的答案差在哪？為什麼要先取絕對值？</li>
+            <li>解法二的內層條件為什麼是 <code>a &gt;= (temp &lt;&lt; 1)</code> 而不是 <code>a &gt;= temp</code>？</li>
+            <li>解法三翻成 C 的話，<code>b &lt;&lt; k</code> 這一行有什麼問題？該怎麼改？</li>
+          </ol>
+        </div>

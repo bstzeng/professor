@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>28. Find the Index of the First Occurrence in a String 找出字串中第一個匹配項的下標 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="暴力比對、KMP 與 Rabin–Karp 三種字串匹配演算法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="28">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 28 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 28</div>
+          <h1>Find the Index of the First Occurrence in a String<br>找出字串中第一個匹配項的下標</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">雙指標</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">字串匹配</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two strings <code>needle</code> and <code>haystack</code>, return the index of the first occurrence of <code>needle</code> in <code>haystack</code>, or <code>-1</code> if <code>needle</code> is not part of <code>haystack</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個字串 <code>haystack</code>（大海）和 <code>needle</code>（針），回傳 <code>needle</code> 在 <code>haystack</code> 中<strong>第一次出現</strong>的索引；如果沒出現過，回傳 <code>-1</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題就是 C 的 strstr / Python 的 str.find</h3>
+        <p>字串搜尋是計算機科學裡研究得最徹底的問題之一。這題表面上是 Easy（因為 <code>haystack.find(needle)</code> 一行就過），但它背後是 <strong>KMP 演算法</strong> —— 面試時真正被問的東西。</p>
+        <div class="code-block">規模與演算法的對應：
+
+    n = len(haystack), m = len(needle)
+
+    暴力法：      O(n · m)    最壞情況
+    KMP：         O(n + m)    最壞情況也是線性
+    Rabin-Karp：  O(n + m)    平均；最壞 O(n·m)（雜湊碰撞）
+    Boyer-Moore： O(n/m)      最好情況；實務上最快，grep 就在用
+
+本題 n, m ≤ 10⁴，所以暴力法 10⁸ 次比較 ——
+在 LeetCode 上「大概」會過，但不保證。
+而且面試官問這題八成是想聽 KMP。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：haystack = "sadbutsad", needle = "sad"
+  輸出：0
+  說明："sad" 在索引 0 和 6 都出現，回傳第一個。
+
+範例 2
+  輸入：haystack = "leetcode", needle = "leeto"
+  輸出：-1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>haystack.length</code>, <code>needle.length</code> ≤ 10⁴</li>
+          <li><code>haystack</code> 和 <code>needle</code> 只含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>長度至少 1</strong>，所以題目保證不會出現空的 <code>needle</code>。但<strong>依照 C 的慣例，空 needle 應該回傳 0</strong>（空字串在任何位置都「出現」），我們的程式碼還是會處理它 —— 這是好習慣。</li>
+          <li><strong>n, m ≤ 10⁴</strong>：暴力法最壞 10⁸ 次字元比較。在 Python 裡可能 TLE，在 C++ 裡會過。KMP 的 2 × 10⁴ 則是瞬間。</li>
+          <li><strong>只有小寫字母（26 種）</strong>，所以 Boyer-Moore 的壞字元表只要 26 格。但真正會讓暴力法變慢的是「重複性高的字串」，例如 <code>haystack = "aaa...a"</code>、<code>needle = "aaa...ab"</code>。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 332" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">KMP 的核心：配到一半失敗時，不要把指標退回去重來，而是「滑到下一個可能的對齊」</text>
+            <text x="20" y="52" fill="var(--text-muted)" font-size="12">暴力法：失敗就回到起點 + 1，haystack 的指標往回走</text>
+            <g font-family="monospace" font-size="14">
+              <text x="40" y="84" fill="var(--text-muted)">a a b a a a b a a a c</text>
+              <text x="40" y="108" fill="var(--accent)">a a b a a a c</text>
+              <text x="360" y="108" fill="#ff8a65" font-size="12">第 7 個字配不上</text>
+              <text x="58" y="132" fill="var(--text-muted)" opacity="0.5">a a b a a a c</text>
+              <text x="360" y="132" fill="var(--text-muted)" font-size="12">整組右移 1 格，從頭比</text>
+            </g>
+            <line x1="20" y1="150" x2="620" y2="150" stroke="var(--border)"/>
+            <text x="20" y="178" fill="var(--text-muted)" font-size="12">KMP：利用「aabaa」的前綴後綴重疊，一口氣滑到正確位置</text>
+            <g font-family="monospace" font-size="14">
+              <text x="40" y="210" fill="var(--text-muted)">a a b a a a b a a a c</text>
+              <text x="40" y="234" fill="var(--accent)">a a b a a</text>
+              <text x="152" y="234" fill="#ff8a65">a c</text>
+              <text x="40" y="262" fill="var(--gold)" font-size="11">已配對的 &quot;aabaa&quot; 的最長「前綴＝後綴」是 &quot;aa&quot;（長度 2）</text>
+              <text x="130" y="288" fill="var(--accent)">a a b a a a c</text>
+              <text x="360" y="288" fill="var(--gold)" font-size="12">直接滑 3 格，k 退到 2 繼續</text>
+            </g>
+            <text x="20" y="318" fill="var(--gold)" font-size="12">haystack 的指標 i 從頭到尾只往前走 —— 這就是 O(n + m) 的來源。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>直接用內建函式（能過，但答不到重點）</h3>
+        <div class="code-block">class Solution:
+    def strStr(self, haystack: str, needle: str) -&gt; int:
+        return haystack.find(needle)      # 找不到會回傳 -1，剛好符合題目</div>
+        <p><code>str.find</code> 找不到時回傳 −1，剛好就是題目要的。（注意 <code>str.index</code> 找不到會拋 <code>ValueError</code>，不能用。）</p>
+        <p><strong>CPython 的 <code>find</code> 用的是一個混合演算法</strong>（Crochemore-Perrin 的 Two-Way algorithm 加上 Bloom filter 式的壞字元跳躍），最壞情況是 O(n + m)。所以效能完全沒問題。</p>
+        <p>但面試時寫這一行就結束，等於什麼都沒展示。<strong>至少要能寫出解法二，最好能寫解法三。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n + m)</td><td>CPython 的 Two-Way 演算法</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>—</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>暴力比對（先確保會寫）</h3>
+        <div class="code-block">class Solution:
+    def strStr(self, haystack: str, needle: str) -&gt; int:
+        n, m = len(haystack), len(needle)
+        if m == 0:
+            return 0
+
+        # 起點最多只能到 n - m（再後面就放不下 needle 了）
+        for i in range(n - m + 1):
+            j = 0
+            while j &lt; m and haystack[i + j] == needle[j]:
+                j += 1
+            if j == m:
+                return i
+        return -1</div>
+        <h3>為什麼外層是 <code>range(n - m + 1)</code>？</h3>
+        <div class="code-block">起點 i 必須滿足 i + m &lt;= n，也就是 i &lt;= n - m。
+所以 range 的上界是 n - m + 1。
+
+  n = 5, m = 3  -&gt;  i 可以是 0, 1, 2  -&gt;  range(3) = range(5-3+1) ✔
+
+如果寫 range(n)，i = 3 時會存取 haystack[3+2] = haystack[5] -&gt; IndexError。
+（在 Python 裡用切片 haystack[i:i+m] 不會錯，
+  但會安靜地比較一個長度不足的字串，結果還是對，只是多做白工。）</div>
+        <h3>最壞情況長什麼樣？</h3>
+        <div class="code-block">haystack = "aaaaaaaaaa...a"   （n 個 a）
+needle   = "aaaa...ab"           （m-1 個 a 加一個 b）
+
+每一個起點都會比對到最後一個字元才失敗：
+    n - m + 1 個起點 × m 次比較 = O(n·m)
+
+n = m = 10⁴ 的話是 10⁸ 次 —— 這就是 KMP 要解決的問題。
+
+注意：一般的英文文字不會觸發這個最壞情況，
+      暴力法在真實資料上通常很快。
+      但「通常很快」和「保證很快」是兩回事。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·m) 最壞</td><td>每個起點最多比 m 次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用兩個下標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>KMP（線性時間的標準答案）</h3>
+        <p>暴力法的浪費在於：配對失敗時，<strong>把已經比對過的資訊全部丟掉</strong>，haystack 的指標退回去重來。KMP 的洞察是：<strong>那些資訊可以用來決定「該滑多遠」。</strong></p>
+        <h3>第 1 步：next 表（failure function）</h3>
+        <div class="code-block">nxt[i] 定義：
+    needle[0..i] 這個前綴裡，
+    「既是真前綴、又是真後綴」的最長字串的長度。
+
+    （「真」= proper = 不能是整個字串自己）
+
+needle = "aabaaac"
+
+  i  前綴        最長的「前綴=後綴」        nxt[i]
+  0  "a"         （沒有真前綴）              0
+  1  "aa"        "a"                        1
+  2  "aab"       （無）                      0
+  3  "aaba"      "a"                        1
+  4  "aabaa"     "aa"                       2
+  5  "aabaaa"    "aa"                       2
+  6  "aabaaac"   （無）                      0
+
+  nxt = [0, 1, 0, 1, 2, 2, 0]
+
+為什麼這個表有用？
+
+  假設我們配到 needle[0..4] = "aabaa" 都成功，
+  第 5 個字元失敗了。
+
+  已配對的 "aabaa" 的後綴 "aa" 同時也是前綴，
+  所以我們可以直接假設「needle 的前 2 個字元已經配好了」，
+  從 k = 2 繼續比 —— 不必回頭重比。
+
+  這就是 nxt[4] = 2 的意義。</div>
+        <h3>第 2 步：用 next 表掃描</h3>
+        <div class="code-block">class Solution:
+    def strStr(self, haystack: str, needle: str) -&gt; int:
+        n, m = len(haystack), len(needle)
+        if m == 0:
+            return 0
+
+        # --- 第 1 步：建 next 表（也叫 failure function / LPS 表）---
+        # nxt[i] = needle[0..i] 這個前綴裡，
+        #          「同時是真前綴又是真後綴」的最長長度
+        nxt = [0] * m
+        k = 0
+        for i in range(1, m):
+            while k &gt; 0 and needle[i] != needle[k]:
+                k = nxt[k - 1]          # 配不上就退回更短的邊界
+            if needle[i] == needle[k]:
+                k += 1
+            nxt[i] = k
+
+        # --- 第 2 步：用 next 表掃描 haystack，指標永不回頭 ---
+        k = 0                            # 目前已經配對到 needle 的第幾個字元
+        for i in range(n):
+            while k &gt; 0 and haystack[i] != needle[k]:
+                k = nxt[k - 1]           # 部分失配，滑到下一個可能的對齊
+            if haystack[i] == needle[k]:
+                k += 1
+            if k == m:
+                return i - m + 1
+
+        return -1</div>
+        <h3>為什麼 while 而不是 if？</h3>
+        <div class="code-block">while k &gt; 0 and haystack[i] != needle[k]:
+    k = nxt[k - 1]
+
+退一次可能還是配不上，要繼續退，直到配上或退到 0。
+
+例子：needle = "aabaaac"，nxt = [0,1,0,1,2,2,0]
+      配到 k = 5（"aabaaa" 都對），第 6 個字元 haystack[i] = 'b'
+      needle[5] = 'a' != 'b'
+        -&gt; k = nxt[4] = 2，needle[2] = 'b' == 'b' ✔ 配上了，k = 3
+
+如果 haystack[i] 是 'x'：
+        -&gt; k = nxt[4] = 2，needle[2] = 'b' != 'x'
+        -&gt; k = nxt[1] = 1，needle[1] = 'a' != 'x'
+        -&gt; k = nxt[0] = 0，跳出 while（k == 0）
+        -&gt; needle[0] = 'a' != 'x'，k 保持 0
+
+每次退都讓 k 變小，而 k 每輪最多 +1 ——
+所以「退」的總次數不會超過「加」的總次數，也就是 O(n)。
+這又是一次攤還分析。</div>
+        <h3>建表的迴圈和掃描的迴圈幾乎一模一樣</h3>
+        <p>這不是巧合。<strong>建 next 表 = 拿 needle 去比對它自己</strong>（從第 1 個字元開始，用同一套「失配就退」的邏輯）。認出這一點之後，KMP 就只剩一個要記的迴圈，而不是兩個。</p>
+        <h3>複雜度</h3>
+        <p>建表 O(m)、掃描 O(n)，總共 <strong>O(n + m)</strong>，而且 <strong>haystack 的指標 <code>i</code> 從頭到尾只往前走，絕不回頭</strong>。這個性質讓 KMP 可以用在<strong>串流</strong>上 —— 資料一個字元一個字元進來，不能倒帶也沒關係。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n + m)</td><td>建表 O(m) + 掃描 O(n)</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td>next 表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>最壞時間</th><th>空間</th><th>指標會回頭？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、內建 find</td><td>O(n+m)</td><td>O(1)</td><td>—</td><td>能過，但沒展示能力</td></tr>
+            <tr><td>二、暴力</td><td>O(n·m)</td><td>O(1)</td><td>會</td><td>先寫它確保正確</td></tr>
+            <tr><td>三、KMP</td><td>O(n+m)</td><td>O(m)</td><td>不會</td><td>面試想聽的答案；可用於串流</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>needle 比 haystack 長</strong>：<code>("a", "ab")</code> → −1。<code>range(n-m+1)</code> 會是空的（<code>range(0)</code>），自然回 −1。</li>
+          <li><strong>needle 是空字串</strong>：→ 0。題目保證不會，但依慣例要處理。</li>
+          <li><strong>完全相等</strong>：<code>("abab", "abab")</code> → 0。</li>
+          <li><strong>出現在最後</strong>：<code>("aaab", "ab")</code> → 2。</li>
+          <li><strong>多次出現</strong>：<code>("sadbutsad", "sad")</code> → 0（回第一個）。</li>
+          <li><strong>KMP 的經典測資</strong>：<code>("aabaaabaaac", "aabaaac")</code> → 4。這筆會把 next 表的每一種退回都走一遍。</li>
+          <li><strong>暴力法的最壞情況</strong>：<code>"a"×10000</code> 配 <code>"a"×9999+"b"</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要找「所有」出現位置呢？</h3>
+
+        <p>KMP 只要改一行：找到之後不要 return，而是記錄位置並把 <code>k = nxt[k-1]</code>（退到最長的邊界，繼續往下找）。這樣可以找出所有位置，包含<strong>重疊</strong>的，而且總複雜度還是 O(n + m)。</p>
+
+        <h3>追問二：如果要在同一個 haystack 裡搜很多不同的 needle 呢？</h3>
+
+        <p>KMP 是為「一個 pattern」設計的。多個 pattern 要用 <strong>Aho-Corasick</strong>（把所有 pattern 建成一棵 Trie，再在 Trie 上建 failure link —— 本質上就是「Trie 版的 KMP」）。複雜度是 O(所有 pattern 總長 + n + 匹配數)。防毒軟體和 grep 的多模式搜尋都用它。</p>
+
+        <h3>追問三：如果 pattern 固定但 haystack 有無限多個呢？</h3>
+
+        <p>那就<strong>預先建好 next 表</strong>，之後每個 haystack 只要 O(n)。或者更進一步，把 next 表編譯成一個 <strong>DFA</strong>（每個狀態對每個字元都有明確的轉移），這樣連 while 迴圈都不用，每個字元恰好一次查表。代價是 O(m × 字元集大小) 的表 —— 對 26 個小寫字母是 26m，很划算。</p>
+
+        <h3>追問四：實務上真的會用 KMP 嗎？</h3>
+
+        <p><strong>其實不太會。</strong>grep、Python 的 <code>str.find</code>、C++ 的 <code>std::search</code> 大多用 Boyer-Moore 系列或 Two-Way algorithm。原因是：Boyer-Moore <strong>從 pattern 的尾巴往前比</strong>，失配時可以一口氣跳過 m 格，平均複雜度是 <strong>次線性</strong>的 O(n/m) —— 比 KMP 的 O(n) 還快。KMP 的價值在於<strong>最壞情況的保證</strong>和<strong>不需要回頭</strong>（串流友善），以及它是 Aho-Corasick、Z-algorithm、後綴自動機這一整條路線的起點。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 214 題 Shortest Palindrome</strong> —— KMP 的 next 表的巧妙應用</li>
+          <li><strong>第 459 題 Repeated Substring Pattern</strong> —— 一行 KMP 就解決</li>
+          <li><strong>第 686 題 Repeated String Match</strong> —— 字串搜尋的變形</li>
+          <li><strong>第 30 題 Substring with Concatenation of All Words</strong> —— 另一種子串搜尋</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>needle = "aabaaac"</code> 的 next 表是什麼？請自己算一遍。</li>
+            <li>為什麼 KMP 的掃描迴圈裡用 <code>while</code> 而不是 <code>if</code>？</li>
+            <li>KMP 的總複雜度為什麼是 O(n+m) 而不是 O(n·m)？請用攤還分析說明。</li>
+            <li>為什麼「建 next 表」和「掃描」的程式碼長得幾乎一樣？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0027.html">← 上一題：27. 移除元素</a>
+          <a href="problem-0029.html">下一題：29. 兩數相除 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Implement the <code>myAtoi(string s)</code> function, which converts a string to a 32-bit signed integer.</p>
+          <p>The algorithm is as follows: (1) skip any leading whitespace; (2) read an optional <code>'+'</code> or <code>'-'</code> sign; (3) read digits until a non-digit character or the end of input; (4) if no digits were read, the result is 0; (5) clamp the result to the range <code>[-2³¹, 2³¹ - 1]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>實作 <code>myAtoi(string s)</code>，把字串轉換成 32 位元有號整數（類似 C/C++ 的 <code>atoi</code>）。</p>
+          <p>規則依序是：（1）跳過開頭的空白；（2）讀一個可有可無的 <code>'+'</code> 或 <code>'-'</code>；（3）一直讀數字，直到遇到非數字或字串結束；（4）如果一個數字都沒讀到，結果是 0；（5）超出 <code>[-2³¹, 2³¹ − 1]</code> 就夾（clamp）到邊界值，<strong>不是回傳 0</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題不難，但規則多到一定會漏掉一條</h3>
+        <p>第 7 題溢位回 <code>0</code>，這題溢位回 <strong>邊界值</strong>。光這一條就淘汰掉一半的人。把五條規則抄下來、一條一條對照著寫，是最有效率的做法。</p>
+        <div class="code-block">五條規則，缺一不可：
+
+  1. 只跳「開頭」的空白，而且只跳半形空格 ' '
+     → "  42"    -&gt;  42
+     → " 4 2"    -&gt;  4     （中間的空白就是終止符）
+
+  2. 符號最多一個
+     → "+-12"    -&gt;  0     （第二個符號不是數字，直接結束）
+     → "--1"     -&gt;  0
+
+  3. 遇到非數字立刻停，不報錯
+     → "4193 with words"  -&gt;  4193
+     → "words and 987"    -&gt;  0     （開頭就不是數字）
+
+  4. 一個數字都沒讀到 -&gt; 0
+     → "", "   ", "+", "abc"   都是 0
+
+  5. 溢位要 clamp，不是回 0
+     → "-91283472332"  -&gt;  -2147483648   （不是 0！）
+     → "21474836460"   -&gt;   2147483647</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "42"
+  輸出：42
+
+範例 2
+  輸入：s = "   -42"
+  輸出：-42
+  說明：跳過三個空白，讀到 '-'，然後讀 42。
+
+範例 3
+  輸入：s = "4193 with words"
+  輸出：4193
+  說明：讀到空白就停了。
+
+範例 4
+  輸入：s = "words and 987"
+  輸出：0
+  說明：第一個非空白字元是 'w'，不是數字也不是符號，直接結束。
+
+範例 5
+  輸入：s = "-91283472332"
+  輸出：-2147483648
+  說明：超出下界，夾到 INT_MIN（不是回傳 0）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>s.length</code> ≤ 200（<strong>可以是空字串</strong>）</li>
+          <li><code>s</code> 由英文字母、數字、<code>' '</code>、<code>'+'</code>、<code>'-'</code>、<code>'.'</code> 組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/string-to-integer-atoi/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>字串可以是空的</strong>，所以每個 <code>s[i]</code> 之前都要先確認 <code>i &lt; n</code>。</li>
+          <li><strong>字元集裡有 <code>'.'</code></strong> —— 這是在提醒你 <code>"3.14"</code> 的答案是 <strong>3</strong>，不是 3.14，也不是 0。小數點就只是一個普通的終止符。</li>
+          <li><strong>只有半形空格 <code>' '</code>，沒有 <code>\t</code> 或 <code>\n</code>。</strong>所以千萬不要用 <code>s.strip()</code> 或 <code>str.isspace()</code> —— 它們會把 tab、換行、甚至全形空白都吃掉，在某些測資上會與規格不符。</li>
+          <li>n ≤ 200，效率完全不是問題。這題考的是<strong>把規格翻譯成程式碼的精準度</strong>。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>把它當成一台<strong>有限狀態機</strong>來看，五條規則就變成四個狀態之間的轉移，一條都不會漏。</p>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 216" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">把 atoi 想成一台只有四個狀態的自動機</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="34" y="52" width="106" height="46" rx="8" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="87" y="72" fill="var(--accent)" font-size="13">start</text>
+              <text x="87" y="90" fill="var(--text-muted)" font-size="10">吃空白</text>
+
+              <rect x="192" y="52" width="106" height="46" rx="8" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="245" y="72" fill="var(--accent)" font-size="13">signed</text>
+              <text x="245" y="90" fill="var(--text-muted)" font-size="10">剛吃完 + 或 −</text>
+
+              <rect x="350" y="52" width="106" height="46" rx="8" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+              <text x="403" y="72" fill="var(--gold)" font-size="13">number</text>
+              <text x="403" y="90" fill="var(--text-muted)" font-size="10">正在累加</text>
+
+              <rect x="508" y="52" width="106" height="46" rx="8" fill="none" stroke="#ff8a65" stroke-width="2"/>
+              <text x="561" y="72" fill="#ff8a65" font-size="13">end</text>
+              <text x="561" y="90" fill="var(--text-muted)" font-size="10">停，不再改變</text>
+            </g>
+            <path d="M140 75 L188 75" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="164" y="68" fill="var(--text-muted)" font-size="10" text-anchor="middle">+ −</text>
+            <path d="M298 75 L346 75" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="322" y="68" fill="var(--text-muted)" font-size="10" text-anchor="middle">0-9</text>
+            <path d="M456 75 L504 75" stroke="#ff8a65" stroke-width="1.5"/>
+            <text x="480" y="68" fill="var(--text-muted)" font-size="10" text-anchor="middle">其他</text>
+            <path d="M87 52 Q87 20 155 24 Q230 28 245 48" stroke="var(--border)" stroke-width="1.5" fill="none"/>
+            <path d="M87 98 Q160 140 350 110" stroke="var(--accent)" stroke-width="1.5" fill="none" stroke-dasharray="4 3"/>
+            <text x="220" y="136" fill="var(--text-muted)" font-size="10">直接是數字（沒有符號）</text>
+            <path d="M87 98 Q60 130 110 134 Q140 136 140 110" stroke="var(--border)" stroke-width="1.5" fill="none"/>
+            <text x="60" y="120" fill="var(--text-muted)" font-size="10">空白</text>
+            <path d="M403 98 Q403 128 440 128 Q470 128 456 100" stroke="var(--gold)" stroke-width="1.5" fill="none"/>
+            <text x="470" y="128" fill="var(--text-muted)" font-size="10">0-9</text>
+            <text x="20" y="176" fill="var(--gold)" font-size="12">關鍵：一旦離開 number 進到 end，就再也回不去了 —— 這就是 &quot;4193 with words&quot; 只讀到 4193 的原因。</text>
+            <text x="20" y="200" fill="var(--text-muted)" font-size="12">&quot;+-12&quot;：start →(+) signed →(−) 不是數字 → end，num 還是 0 → 答案 0</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>照著規則一步一步走（面試標準答案）</h3>
+        <p>四個步驟對應四段程式碼，順序不能換：<strong>吃空白 → 吃符號 → 吃數字 → 夾範圍</strong>。</p>
+        <div class="code-block">class Solution:
+    def myAtoi(self, s: str) -&gt; int:
+        INT_MIN, INT_MAX = -2**31, 2**31 - 1
+        i, n = 0, len(s)
+
+        # 第 1 步：跳過開頭的空白（只有 ' '，不含 \t \n）
+        while i &lt; n and s[i] == " ":
+            i += 1
+        if i == n:
+            return 0
+
+        # 第 2 步：讀符號，最多一個
+        sign = 1
+        if s[i] in "+-":
+            if s[i] == "-":
+                sign = -1
+            i += 1
+
+        # 第 3 步：讀連續的數字，遇到非數字立刻停
+        num = 0
+        while i &lt; n and s[i].isdigit():
+            num = num * 10 + int(s[i])
+            i += 1
+            # 第 4 步：邊讀邊夾住範圍（讀完才判斷也行，但這樣不會累積大數）
+            if sign == 1 and num &gt; INT_MAX:
+                return INT_MAX
+            if sign == -1 and -num &lt; INT_MIN:
+                return INT_MIN
+
+        return sign * num</div>
+        <h3>為什麼溢位檢查要放在迴圈裡面？</h3>
+        <p>放在迴圈外面（讀完整個數字再夾）在 Python 裡也會對，但有兩個問題：</p>
+        <ul>
+          <li>字串長度 200 時，累積出來的整數會有 200 位數 —— Python 撐得住，C/Java 早就爆了。把檢查放在迴圈裡，<strong>同一份邏輯可以直接翻譯成 C</strong>。</li>
+          <li>提前 return 也比較快，雖然在這個規模下無所謂。</li>
+        </ul>
+        <h3>為什麼負數要寫 <code>-num &lt; INT_MIN</code> 而不是 <code>num &gt; 2**31</code>？</h3>
+        <p>兩者等價（<code>-num &lt; -2**31</code> ⟺ <code>num &gt; 2**31</code>），但寫成前者的好處是：<strong>判斷式直接對應題目的規格文字</strong>「結果小於 INT_MIN」，讀程式碼的人不用自己在心裡做一次移項。規格題寫得越像規格越好。</p>
+        <h3>那個常見的錯誤：用 <code>strip()</code></h3>
+        <div class="code-block">錯誤寫法：
+    s = s.strip()          # ✘ 會把結尾的空白也吃掉，還會吃掉 \t \n
+    s = s.lstrip()         # ✘ 同樣會吃 \t \n
+
+規格只說「跳過開頭的『空白字元』」，而測資裡只會出現半形空格。
+用 while s[i] == " " 才是精確對應規格的寫法。
+
+實務上這個差別很重要：如果你在寫一個真的 parser，
+「哪些字元算 whitespace」必須由規格決定，不能由語言的預設值決定。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個字元最多看一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>正規表示式（簡潔但要小心）</h3>
+        <div class="code-block">import re
+
+class Solution:
+    def myAtoi(self, s: str) -&gt; int:
+        INT_MIN, INT_MAX = -2**31, 2**31 - 1
+
+        m = re.match(r"[ ]*([+-]?\d+)", s)
+        if not m:
+            return 0
+
+        return max(INT_MIN, min(INT_MAX, int(m.group(1))))</div>
+        <h3>這個 pattern 逐字拆解</h3>
+        <div class="code-block">r"[ ]*([+-]?\d+)"
+
+  [ ]*      開頭 0 個以上的半形空格
+            （寫 [ ] 而不是 \s 是故意的：\s 會吃 \t \n \r \f \v）
+  (         開始擷取
+    [+-]?     可有可無的一個符號
+    \d+       一個以上的數字（+ 而不是 * ，沒數字就整個不匹配）
+  )         結束擷取
+
+re.match 只從字串開頭比對（不是 re.search），
+所以 "words and 987" 匹配失敗 → 回傳 0 ✔</div>
+        <h3>三個容易出錯的地方</h3>
+        <ul>
+          <li><strong>必須用 <code>re.match</code> 而不是 <code>re.search</code>。</strong><code>search</code> 會在整個字串裡找，<code>"words and 987"</code> 就會錯誤地回傳 987。</li>
+          <li><strong>必須用 <code>\d+</code> 而不是 <code>\d*</code>。</strong>用 <code>*</code> 的話 <code>"+"</code> 會匹配成功但 group 是 <code>"+"</code>，<code>int("+")</code> 會拋例外。</li>
+          <li><strong>不要用 <code>\s*</code>。</strong>理由同上：規格只允許半形空格。</li>
+        </ul>
+        <p><strong>面試時該不該用？</strong>可以寫，但要主動說明每個部分在做什麼 —— 面試官想確認你是<strong>理解規格後寫出 regex</strong>，而不是從網路上背了一條。被追問「如果不准用 regex 呢」的機率很高，所以解法一還是要會。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>regex 引擎掃一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>編譯後的 pattern 與擷取到的子字串</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>可翻譯成 C？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐步解析</td><td>O(n)</td><td>O(1)</td><td>✔</td><td>面試預設；規格對應最清楚</td></tr>
+            <tr><td>二、正規表示式</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>最短，但細節陷阱多</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空字串 / 全空白</strong>：<code>""</code>、<code>"   "</code> → 0。不能對空字串取 <code>s[0]</code>。</li>
+          <li><strong>只有符號</strong>：<code>"+"</code>、<code>"-"</code>、<code>"+-12"</code>、<code>"--1"</code> → 都是 0。</li>
+          <li><strong>開頭不是數字也不是符號</strong>：<code>"words and 987"</code>、<code>".1"</code> → 0。</li>
+          <li><strong>數字後面接垃圾</strong>：<code>"4193 with words"</code> → 4193；<code>"3.14"</code> → 3；<code>"00000-42a1234"</code> → 0。</li>
+          <li><strong>前導零</strong>：<code>"0032"</code> → 32；<code>"-000000000000001"</code> → −1。</li>
+          <li><strong>正溢位</strong>：<code>"2147483648"</code> → 2147483647（<strong>不是 0</strong>）。</li>
+          <li><strong>負溢位</strong>：<code>"-2147483649"</code> → −2147483648（<strong>不是 0</strong>）。</li>
+          <li><strong>剛好在邊界</strong>：<code>"2147483647"</code>、<code>"-2147483648"</code> → 原值，不能被誤夾。</li>
+          <li><strong>空白在中間</strong>：<code>"  +0 123"</code> → 0（讀完 0 之後遇到空白就停）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：要支援小數或科學記號呢？</h3>
+
+        <p>那就變成第 65 題（Valid Number），狀態機會從 4 個狀態擴張到 9 個左右。<strong>這正是為什麼一開始就用狀態機的角度思考很划算</strong> —— 加規則等於加狀態和轉移，而不是在一堆 if 裡面到處補洞。</p>
+
+        <h3>追問二：要支援不同進位（像 <code>strtol</code> 的 base 參數）呢？</h3>
+
+        <p>把 <code>s[i].isdigit()</code> 換成「這個字元在 base 進位下的值」，把 <code>num * 10</code> 換成 <code>num * base</code>，再處理 <code>0x</code>／<code>0b</code> 前綴即可。溢位檢查的移項技巧完全一樣，只是把 10 換成 base。</p>
+
+        <h3>追問三：為什麼真實世界的 <code>atoi</code> 被認為是壞 API？</h3>
+
+        <p>因為它<strong>無法區分「解析失敗」和「答案真的是 0」</strong> —— <code>atoi("abc")</code> 和 <code>atoi("0")</code> 都回 0，呼叫端無從得知發生了什麼。這也是 C 標準後來推薦 <code>strtol</code>（會回傳「停在哪裡」和設定 <code>errno</code>）的原因，而 Rust 的 <code>str::parse</code> 直接回傳 <code>Result</code>。這是一個很好的 API 設計話題，面試時提到會加分。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 7 題 Reverse Integer</strong> —— 同一套溢位處理</li>
+          <li><strong>第 65 題 Valid Number</strong> —— 狀態機的完整版</li>
+          <li><strong>第 12／13 題 羅馬數字互轉</strong> —— 另一類解析題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>"  +0 123"</code> 的答案是什麼？請一個字元一個字元說明狀態怎麼轉移。</li>
+            <li>為什麼溢位要 clamp 而不是回 0？請找出題目敘述裡明確講這件事的那一句。</li>
+            <li>如果把 <code>while s[i] == " "</code> 改成 <code>s = s.lstrip()</code>，哪一種輸入會與規格不符？</li>
+            <li>regex 版本如果改用 <code>re.search</code>，<code>"words and 987"</code> 會回傳什麼？為什麼是錯的？</li>
+          </ol>
+        </div>

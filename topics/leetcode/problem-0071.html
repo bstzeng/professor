@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>71. Simplify Path 簡化路徑 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="split 之後用堆疊處理 . 與 .. 的四種情況。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="71">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 71 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 71</div>
+          <h1>Simplify Path<br>簡化路徑</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">堆疊</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <strong>absolute path</strong> for a Unix-style file system, which begins with a slash <code>'/'</code>, transform this path into its <strong>simplified canonical path</strong>.</p>
+          <p>The rules are: a single period <code>'.'</code> represents the current directory; a double period <code>'..'</code> represents the previous directory (going one level up); multiple consecutive slashes are treated as a single slash. Any sequence of periods that is not <code>'.'</code> or <code>'..'</code> (e.g. <code>'...'</code>) is treated as a <strong>valid directory name</strong>.</p>
+          <p>The canonical path must start with <code>'/'</code>, have directories separated by a single <code>'/'</code>, and must not end with <code>'/'</code> (unless it is the root).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 Unix 風格的<strong>絕對路徑</strong>（以 <code>'/'</code> 開頭），把它化簡成<strong>標準路徑（canonical path）</strong>。</p>
+          <p>規則：<code>'.'</code> 表示<strong>當前目錄</strong>；<code>'..'</code> 表示<strong>回上一層</strong>；連續的多個 <code>'/'</code> 視為一個；任何「不是 <code>.</code> 也不是 <code>..</code>」的點序列（例如 <code>'...'</code>）都是<strong>合法的目錄名</strong>。</p>
+          <p>標準路徑必須以 <code>'/'</code> 開頭、目錄之間只用一個 <code>'/'</code> 分隔、而且<strong>結尾不能有 <code>'/'</code></strong>（除非它就是根目錄）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>為什麼是堆疊？</h3>
+        <div class="code-block">路徑是一個「進入／退出」的巢狀結構：
+
+    進入一個目錄  -&gt;  push
+    回到上一層    -&gt;  pop
+
+這正是堆疊的定義。
+
+四種路徑片段的處理：
+    ""    連續斜線或開頭／結尾的斜線   -&gt; 忽略
+    "."   當前目錄                    -&gt; 忽略
+    ".."  上一層                      -&gt; pop（堆疊空了就什麼都不做）
+    其他  目錄名                       -&gt; push
+
+第四種要特別注意：
+    "..."   是合法的目錄名！（不是 ".." 也不是 "."）
+    "...."  也是
+    "..a"   也是
+
+    只有「剛好兩個點」才是「上一層」。
+    很多人用 startswith("..") 判斷，那會把 "..." 誤判 ✘</div>
+        <p><strong>「根目錄的 <code>..</code> 停在根目錄」</strong>是 Unix 的實際行為 —— <code>cd /..</code> 之後你還在 <code>/</code>。所以 <code>pop</code> 之前要檢查堆疊是不是空的。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：path = "/home/"
+  輸出："/home"
+  說明：結尾的斜線要去掉。
+
+範例 2
+  輸入：path = "/../"
+  輸出："/"
+  說明：根目錄的上一層還是根目錄。
+
+範例 3
+  輸入：path = "/home//foo/"
+  輸出："/home/foo"
+  說明：連續的斜線視為一個。
+
+範例 4
+  輸入：path = "/a/./b/../../c/"
+  輸出："/c"
+
+範例 5
+  輸入：path = "/..."
+  輸出："/..."
+  說明："..." 是合法的目錄名，不是「上兩層」。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>path.length</code> ≤ 3000</li>
+          <li><code>path</code> 只含英文字母、數字、<code>'.'</code>、<code>'/'</code>、<code>'_'</code></li>
+          <li><code>path</code> 是一個<strong>有效的絕對 Unix 路徑</strong>（一定以 <code>'/'</code> 開頭）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/simplify-path/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>五個容易踩的坑</h3>
+        <ul>
+          <li><strong><code>"..."</code> 是目錄名</strong>，不是「上兩層」。只有<strong>剛好兩個點</strong>才是 <code>..</code>。</li>
+          <li><strong>根目錄的 <code>..</code> 要停住</strong>：<code>"/../../../"</code> → <code>"/"</code>，不能 pop 空堆疊。</li>
+          <li><strong>結果為空時要輸出 <code>"/"</code></strong>。<code>"/" + "/".join([])</code> = <code>"/" + ""</code> = <code>"/"</code> ✔ —— 這個公式自然就對了，不用特判。</li>
+          <li><strong>結尾不能有斜線</strong>：<code>"/home/"</code> → <code>"/home"</code>。用 <code>"/".join</code> 天然不會產生尾隨斜線。</li>
+          <li><strong>連續斜線</strong>：<code>split("/")</code> 會產生空字串，要過濾掉。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 336" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">path = &quot;/a/./b/../../c/&quot;　用堆疊模擬「進入目錄」和「回上一層」</text>
+            <g font-family="monospace" font-size="13">
+              <text x="40" y="56" fill="var(--text-muted)">切開後</text>
+              <text x="140" y="56" fill="var(--accent)">&apos;&apos;</text>
+              <text x="200" y="56" fill="var(--gold)">&apos;a&apos;</text>
+              <text x="260" y="56" fill="var(--accent)">&apos;.&apos;</text>
+              <text x="320" y="56" fill="var(--gold)">&apos;b&apos;</text>
+              <text x="380" y="56" fill="#ff8a65">&apos;..&apos;</text>
+              <text x="450" y="56" fill="#ff8a65">&apos;..&apos;</text>
+              <text x="520" y="56" fill="var(--gold)">&apos;c&apos;</text>
+              <text x="570" y="56" fill="var(--accent)">&apos;&apos;</text>
+            </g>
+            <line x1="20" y1="72" x2="620" y2="72" stroke="var(--border)"/>
+            <g font-family="monospace" font-size="13">
+              <text x="40" y="100" fill="var(--accent)">&apos;&apos;　 空字串（連續斜線或開頭）→ 忽略</text>
+              <text x="380" y="100" fill="var(--text-muted)">堆疊：[]</text>
+              <text x="40" y="126" fill="var(--gold)">&apos;a&apos;　一般目錄名 → push</text>
+              <text x="380" y="126" fill="var(--text-muted)">堆疊：[a]</text>
+              <text x="40" y="152" fill="var(--accent)">&apos;.&apos;　當前目錄 → 忽略</text>
+              <text x="380" y="152" fill="var(--text-muted)">堆疊：[a]</text>
+              <text x="40" y="178" fill="var(--gold)">&apos;b&apos;　→ push</text>
+              <text x="380" y="178" fill="var(--text-muted)">堆疊：[a, b]</text>
+              <text x="40" y="204" fill="#ff8a65">&apos;..&apos;  上一層 → pop</text>
+              <text x="380" y="204" fill="var(--text-muted)">堆疊：[a]</text>
+              <text x="40" y="230" fill="#ff8a65">&apos;..&apos;  上一層 → pop</text>
+              <text x="380" y="230" fill="var(--text-muted)">堆疊：[]</text>
+              <text x="40" y="256" fill="var(--gold)">&apos;c&apos;　→ push</text>
+              <text x="380" y="256" fill="var(--text-muted)">堆疊：[c]</text>
+              <text x="40" y="282" fill="var(--accent)">&apos;&apos;　 → 忽略（結尾的斜線）</text>
+              <text x="380" y="282" fill="var(--text-muted)">堆疊：[c]</text>
+            </g>
+            <text x="20" y="318" fill="var(--gold)" font-size="13">結果 = &quot;/&quot; + &quot;/&quot;.join([&quot;c&quot;]) = &quot;/c&quot;　（堆疊為空時剛好是 &quot;/&quot;）</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>split + 堆疊（最推薦）</h3>
+        <div class="code-block">class Solution:
+    def simplifyPath(self, path: str) -&gt; str:
+        stack = []
+
+        # split("/") 會自動把 "a//b" 切成 ['a', '', 'b']，空字串代表連續斜線
+        for part in path.split("/"):
+            if part == "" or part == ".":
+                continue            # 空的或「當前目錄」-&gt; 忽略
+            if part == "..":
+                if stack:
+                    stack.pop()     # 回上一層；已經在根目錄就什麼都不做
+            else:
+                stack.append(part)  # 一般的目錄名（含 "..." 這種）
+
+        return "/" + "/".join(stack)</div>
+        <h3><code>path.split("/")</code> 的行為</h3>
+        <div class="code-block">"/a/./b/../../c/".split("/")
+    -&gt; ['', 'a', '.', 'b', '..', '..', 'c', '']
+
+注意：
+  - 開頭的 "/" 產生一個空字串
+  - 結尾的 "/" 也產生一個空字串
+  - 連續的 "//" 會產生中間的空字串
+
+    "/home//foo/".split("/")
+    -&gt; ['', 'home', '', 'foo', '']
+
+所以「忽略空字串」這一條，同時處理了
+「開頭斜線」「結尾斜線」「連續斜線」三件事。
+
+（注意這裡用的是 split("/")，帶參數版本。
+  和第 58 題不同 —— 那題要用不帶參數的 split() 來忽略連續空白。
+  兩種 split 的語意不同，要看清楚需求。）</div>
+        <h3>最後一行的巧妙之處</h3>
+        <div class="code-block">return "/" + "/".join(stack)
+
+  stack = ["home", "foo"]  -&gt;  "/" + "home/foo" = "/home/foo" ✔
+  stack = ["c"]            -&gt;  "/" + "c"        = "/c"        ✔
+  stack = []               -&gt;  "/" + ""         = "/"         ✔
+
+三種情況（多層、單層、根目錄）都被同一個公式涵蓋，
+而且天然不會產生尾隨斜線。
+
+不用任何 if —— 這是「讓邊界自然落在公式裡」的好例子。</div>
+        <p><strong>複雜度 O(n)</strong>：split 是 O(n)，迴圈是 O(片段數)，join 是 O(n)。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊 + 切出來的片段</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>手動掃描（不用 split）</h3>
+        <p>如果語言沒有好用的 <code>split</code>（例如 C），或者想避免建那個中間 list，就手動掃描。</p>
+        <div class="code-block">class Solution:
+    def simplifyPath(self, path: str) -&gt; str:
+        # 不用 split，手動掃描（在沒有 split 的語言裡就得這樣寫）
+        stack = []
+        i, n = 0, len(path)
+
+        while i &lt; n:
+            while i &lt; n and path[i] == "/":
+                i += 1                      # 跳過連續的斜線
+            j = i
+            while j &lt; n and path[j] != "/":
+                j += 1                      # 取出一段名稱
+            part = path[i:j]
+            i = j
+
+            if part == "" or part == ".":
+                continue
+            if part == "..":
+                if stack:
+                    stack.pop()
+            else:
+                stack.append(part)
+
+        return "/" + "/".join(stack)</div>
+        <h3>雙指標分段的骨架</h3>
+        <div class="code-block">while i &lt; n:
+    while i &lt; n and path[i] == "/":   # 跳過所有斜線
+        i += 1
+    j = i
+    while j &lt; n and path[j] != "/":   # 取出一段名稱
+        j += 1
+    part = path[i:j]
+    i = j
+    ...處理 part...
+
+這個「跳過分隔符 + 取出一段」的骨架，
+就是手寫 tokenizer 的最基本形式。
+
+它自然處理了連續斜線（第一個 while 會一路跳過），
+所以 part 永遠不會是空字串
+（除非 i == n，此時 part 是空的，被 continue 擋掉）。
+
+好處：不建中間的 list，空間只有堆疊。
+壞處：長很多，而且兩個 while 的邊界要小心。</div>
+        <p><strong>在 Python 裡沒有理由用這個版本</strong>，但如果面試官問「不用內建函式呢」，這就是答案。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只有堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>行數</th><th>額外空間</th><th>適合</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、split + 堆疊</td><td>12</td><td>O(n)（含 split 的 list）</td><td>Python</td><td>面試預設</td></tr>
+            <tr><td>二、手動掃描</td><td>22</td><td>O(n)（只有堆疊）</td><td>C / 不准用 split</td><td>tokenizer 的基本骨架</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>根目錄</strong>：<code>"/"</code> → <code>"/"</code>。</li>
+          <li><strong>結尾斜線</strong>：<code>"/home/"</code> → <code>"/home"</code>。</li>
+          <li><strong>根目錄的上一層</strong>：<code>"/../"</code>、<code>"/../../../"</code> → <code>"/"</code>。</li>
+          <li><strong>連續斜線</strong>：<code>"/home//foo/"</code> → <code>"/home/foo"</code>。</li>
+          <li><strong>三個點</strong>：<code>"/..."</code> → <code>"/..."</code>。<strong>用 <code>startswith("..")</code> 判斷會錯。</strong></li>
+          <li><strong>以點開頭的隱藏檔</strong>：<code>"/..hidden"</code> → <code>"/..hidden"</code>。同上。</li>
+          <li><strong>全部被抵銷</strong>：<code>"/a/../../b/../c//.//"</code> → <code>"/c"</code>。</li>
+          <li><strong>複雜的混合</strong>：<code>"/a//b////c/d//././/.."</code> → <code>"/a/b/c"</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果是相對路徑（不以 <code>/</code> 開頭）呢？</h3>
+
+        <p>麻煩得多。<strong>相對路徑開頭的 <code>..</code> 不能被丟掉</strong> —— <code>"../a"</code> 化簡後還是 <code>"../a"</code>。</p>
+
+        <div class="code-block">做法：用一個計數器記「有幾個還沒被抵銷的 ..」
+
+    for part in path.split("/"):
+        if part in ("", "."):
+            continue
+        if part == "..":
+            if stack and stack[-1] != "..":
+                stack.pop()
+            else:
+                stack.append("..")     # 相對路徑才需要這一行
+        else:
+            stack.append(part)
+
+    return "/".join(stack) or "."
+
+    "a/../../b"  -&gt;  ["..", "b"]  -&gt;  "../b" ✔
+    "a/.."       -&gt;  []           -&gt;  "."    ✔（空路徑要輸出 "."）
+
+Python 的 os.path.normpath 就是這樣做的。</div>
+
+        <h3>追問二：真實的 <code>realpath</code> 和這題有什麼不同？</h3>
+
+        <div class="code-block">本題（以及 Python 的 os.path.normpath）是【純字串操作】——
+它不碰檔案系統。
+
+真實的 realpath(3) 會：
+  1. 解析【符號連結（symlink）】
+     這是關鍵差異！如果 /a/b 是一個指向 /x/y 的 symlink，
+     那 /a/b/.. 的答案是 /x（不是 /a）。
+
+     所以純字串的化簡「在有 symlink 時是錯的」。
+
+  2. 檢查每一層是否真的存在、是否有權限
+
+  3. 處理掛載點、/proc 這類特殊檔案系統
+
+這就是為什麼 shell 裡 cd .. 的行為
+和 pwd -P（物理路徑）可能不一樣：
+    cd 預設用「邏輯路徑」（純字串化簡），
+    pwd -P 會真的去解析 symlink。
+
+本題考的是「邏輯路徑」的化簡。</div>
+
+        <h3>追問三：這題的安全意義是什麼？</h3>
+
+        <p><strong>路徑穿越（path traversal）攻擊</strong>。如果一個網站讓使用者指定檔名，而沒有做路徑化簡，攻擊者就能用 <code>../../../etc/passwd</code> 讀到不該讀的檔案。</p>
+
+        <p><strong>正確的防禦</strong>：</p>
+
+        <ul>
+          <li><strong>先化簡，再檢查</strong>是否還在允許的目錄底下（而不是「先檢查有沒有 <code>..</code>」—— 那會被 URL 編碼、Unicode 正規化、或 <code>....//</code> 這類技巧繞過）</li>
+          <li><strong>用作業系統提供的 <code>realpath</code></strong>（會解析 symlink），而不是純字串化簡</li>
+          <li><strong>最後再確認一次結果的前綴</strong>是允許的根目錄</li>
+        </ul>
+
+        <p><strong>「先正規化，再驗證」是所有輸入驗證的通則</strong> —— 反過來（先驗證再正規化）幾乎總是可以被繞過。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 20 題 Valid Parentheses</strong> —— 堆疊的最基本應用</li>
+          <li><strong>第 388 題 Longest Absolute File Path</strong> —— 另一個路徑 + 堆疊題</li>
+          <li><strong>第 1472 題 Design Browser History</strong> —— 「上一頁／下一頁」也是堆疊</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>"/..."</code> 的答案是什麼？用 <code>startswith("..")</code> 判斷會錯在哪？</li>
+            <li><code>"/" + "/".join(stack)</code> 在 <code>stack</code> 為空時會得到什麼？</li>
+            <li><code>split("/")</code> 產生的空字串，同時處理了哪三種情況？</li>
+            <li>為什麼「純字串化簡」在有符號連結時是錯的？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0070.html">← 上一題：70. 爬樓梯</a>
+          <a href="problem-0072.html">下一題：72. 編輯距離 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,386 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>We can scramble a string <code>s</code> to get a string <code>t</code> using the following algorithm: (1) If the length of the string is 1, stop. (2) If the length is &gt; 1, split the string into two non-empty substrings at a random index. (3) <strong>Randomly</strong> decide to swap the two substrings or keep them in the same order. (4) Apply the algorithm recursively on each of the two substrings.</p>
+          <p>Given two strings <code>s1</code> and <code>s2</code> of <strong>the same length</strong>, return <code>true</code> if <code>s2</code> is a scrambled string of <code>s1</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>我們可以用下面的演算法把字串 <code>s</code> 「擾亂」成字串 <code>t</code>：（1）長度是 1 就停止；（2）長度 &gt; 1 時，在<strong>隨機</strong>的位置把字串切成兩段非空的子字串；（3）<strong>隨機</strong>決定要不要交換這兩段；（4）對這兩段<strong>遞迴</strong>做同樣的事。</p>
+          <p>給你兩個<strong>長度相同</strong>的字串 <code>s1</code> 和 <code>s2</code>，判斷 <code>s2</code> 是不是 <code>s1</code> 的擾亂字串。</p>
+        </div>
+
+        <div class="callout">
+          <h3>先把「擾亂」想成一棵二元樹</h3>
+        <div class="code-block">「擾亂」的過程，就是【建一棵二元樹，然後隨機交換某些節點的左右子樹】。
+
+    "great" 切成 "gr" | "eat"
+              "gr" 切成 "g" | "r"
+              "eat" 切成 "e" | "at"
+                        "at" 切成 "a" | "t"
+
+    這棵樹的葉子由左到右讀出來就是 "great"。
+
+    如果在 "gr" 那個節點交換左右子樹：
+        葉子變成 r, g, e, a, t  -&gt;  "rgeat" ✔
+
+所以問題變成：
+    「存不存在一棵這樣的二元樹，
+      以及一組交換的選擇，讓葉子序列變成 s2？」
+
+遞迴式：
+    isScramble(a, b) 為真，若且唯若存在一個切點 i：
+
+      (不交換) isScramble(a[:i], b[:i]) 且 isScramble(a[i:], b[i:])
+      (交換)   isScramble(a[:i], b[n-i:]) 且 isScramble(a[i:], b[:n-i])
+
+「交換」那一行的下標最容易寫錯：
+    a 的左邊（長度 i）要去配 b 的【末尾 i 個字元】-&gt; b[n-i:]
+    a 的右邊（長度 n-i）要去配 b 的【開頭 n-i 個】-&gt; b[:n-i]</div>
+        <p><strong>這題是「區間 DP」的一個特別難的變形</strong> —— 它的狀態不是一維的區間，而是「兩個字串的兩個區間」。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s1 = "great", s2 = "rgeat"
+  輸出：true
+  說明：
+    great
+    /    \
+   gr    eat        交換 gr -&gt; rg
+   / \   /  \
+  g   r e    at     得到 rg + eat = rgeat
+
+範例 2
+  輸入：s1 = "abcde", s2 = "caebd"
+  輸出：false
+
+範例 3
+  輸入：s1 = "a", s2 = "a"
+  輸出：true</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>s1.length == s2.length</code></li>
+          <li>1 ≤ <code>s1.length</code> ≤ 30</li>
+          <li><code>s1</code> 和 <code>s2</code> 由小寫英文字母組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/scramble-string/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>長度只有 30</strong> —— 這反映了複雜度。DP 的狀態是 <code>O(n³)</code>（長度 × i × j），每個狀態要試 <code>O(n)</code> 個切點 —— 總共 <strong>O(n⁴)</strong>。n = 30 時是 81 萬 —— 剛好可以。n = 100 就會是 10⁸，太慢。</li>
+          <li><strong>兩個字串長度相同</strong>（題目保證），所以不用檢查。</li>
+          <li><strong>只有小寫字母</strong>，所以「字母組成」的剪枝可以用 26 格的計數陣列。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 370" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">擾亂字串：把字串遞迴地切成兩段，每一刀都可以決定「要不要交換左右」</text>
+            <g font-size="13" text-anchor="middle" font-family="monospace">
+              <text x="320" y="50" fill="var(--gold)">&quot;great&quot;</text>
+              <text x="180" y="96" fill="var(--accent)">&quot;gr&quot;</text>
+              <text x="440" y="96" fill="var(--accent)">&quot;eat&quot;</text>
+              <text x="120" y="142" fill="var(--text-muted)">&quot;g&quot;</text>
+              <text x="240" y="142" fill="var(--text-muted)">&quot;r&quot;</text>
+              <text x="380" y="142" fill="var(--text-muted)">&quot;e&quot;</text>
+              <text x="500" y="142" fill="var(--accent)">&quot;at&quot;</text>
+              <text x="450" y="186" fill="var(--text-muted)">&quot;a&quot;</text>
+              <text x="550" y="186" fill="var(--text-muted)">&quot;t&quot;</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.3">
+              <line x1="300" y1="58" x2="196" y2="84"/>
+              <line x1="340" y1="58" x2="424" y2="84"/>
+              <line x1="168" y1="104" x2="130" y2="130"/>
+              <line x1="192" y1="104" x2="230" y2="130"/>
+              <line x1="424" y1="104" x2="390" y2="130"/>
+              <line x1="452" y1="104" x2="490" y2="130"/>
+              <line x1="490" y1="150" x2="458" y2="174"/>
+              <line x1="512" y1="150" x2="542" y2="174"/>
+            </g>
+            <line x1="20" y1="208" x2="620" y2="208" stroke="var(--border)"/>
+            <text x="20" y="236" fill="var(--gold)" font-size="12">在 &quot;gr&quot; 這一層交換左右子樹 → &quot;rg&quot;</text>
+            <text x="20" y="260" fill="var(--text-muted)" font-size="12">得到 &quot;rg&quot; + &quot;eat&quot; = &quot;rgeat&quot; ✔ 所以 &quot;great&quot; 可以擾亂成 &quot;rgeat&quot;</text>
+            <line x1="20" y1="278" x2="620" y2="278" stroke="var(--border)"/>
+            <text x="20" y="306" fill="var(--text-muted)" font-size="12">遞迴式：對每一個切點 i，試「不交換」和「交換」兩種配對</text>
+            <text x="20" y="330" fill="var(--accent)" font-size="12">不交換：a[:i] ↔ b[:i]　且　a[i:] ↔ b[i:]</text>
+            <text x="20" y="354" fill="#ff8a65" font-size="12">交換：　a[:i] ↔ b[n−i:]　且　a[i:] ↔ b[:n−i]</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>記憶化遞迴（最推薦）</h3>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def isScramble(self, s1: str, s2: str) -&gt; bool:
+        @lru_cache(maxsize=None)
+        def go(a: str, b: str) -&gt; bool:
+            if a == b:
+                return True
+            if sorted(a) != sorted(b):      # 字母組成不同 -&gt; 不可能
+                return False
+
+            n = len(a)
+            for i in range(1, n):           # 在第 i 個位置切一刀
+                # 不交換：a 的左邊配 b 的左邊，a 的右邊配 b 的右邊
+                if go(a[:i], b[:i]) and go(a[i:], b[i:]):
+                    return True
+                # 交換：a 的左邊配 b 的「右邊末段」，a 的右邊配 b 的「左邊前段」
+                if go(a[:i], b[n - i:]) and go(a[i:], b[:n - i]):
+                    return True
+            return False
+
+        result = go(s1, s2)
+        go.cache_clear()
+        return result</div>
+        <h3>三個部分</h3>
+        <div class="code-block">1. 終止條件 a == b
+   完全相同就不用切了。
+   （也涵蓋了「長度 1 且字元相同」的情況。）
+
+2. 剪枝 sorted(a) != sorted(b)
+   字母組成不同 -&gt; 不管怎麼切怎麼換都不可能相等。
+
+   這個剪枝【威力極大】——
+   沒有它的話，大量明顯不可能的分支會被完整搜索。
+
+   實測：加上它之後，"abcdefghij" vs "jihgfedcba" 這類測資
+   從幾秒降到毫秒。
+
+   更快的版本是用 Counter 或 26 格陣列（O(n) 而不是 O(n log n)），
+   但 n &lt;= 30，sorted 的常數完全可以接受。
+
+3. 枚舉切點 i，試兩種配對
+
+   注意 i 的範圍是 1..n-1（兩段都必須非空）。
+   寫成 range(n) 會產生「空段」，造成無限遞迴。</div>
+        <h3>「交換」那一行的下標推導</h3>
+        <div class="code-block">a 在位置 i 切開：  a[:i]（長度 i）  +  a[i:]（長度 n-i）
+
+「不交換」：
+    a[:i] 配 b 的【前 i 個】      -&gt; b[:i]
+    a[i:] 配 b 的【後 n-i 個】    -&gt; b[i:]
+
+「交換」：
+    a[:i] 跑到右邊去了
+        -&gt; 它要配 b 的【後 i 個】  -&gt; b[n-i:]
+    a[i:] 跑到左邊去了
+        -&gt; 它要配 b 的【前 n-i 個】-&gt; b[:n-i]
+
+驗算 a = "great"（n=5），i = 2：
+    a[:2] = "gr"，a[2:] = "eat"
+
+    不交換： "gr" 配 b[:2]，"eat" 配 b[2:]
+    交換：   "gr" 配 b[3:]（後 2 個），"eat" 配 b[:3]（前 3 個）
+
+    b = "rgeat"
+        不交換： "gr" vs "rg" -&gt; 遞迴（會成立）✔
+        交換：   "gr" vs "at"  ✘，"eat" vs "rge" ✘
+
+    所以是走「不交換」那條路，然後在 "gr" vs "rg" 那一層才交換 ✔</div>
+        <h3><code>lru_cache</code> 用字串當 key 的代價</h3>
+        <div class="code-block">@lru_cache 會用 (a, b) 這個 tuple 當 key。
+
+    字串的雜湊是 O(長度) 的（雖然 Python 會快取字串的 hash 值）。
+    而且每個狀態要存兩個字串的參照。
+
+    狀態數：a 是 s1 的某個子字串（O(n²) 個），
+            b 是 s2 的某個子字串（O(n²) 個），
+            但因為長度必須相同，實際只有 O(n³) 個有效狀態。
+
+    n = 30 -&gt; 約 27000 個狀態，完全可以接受。
+
+如果要更省，就用解法二的「三維 dp 陣列」——
+它用 (length, i, j) 當索引，不用存字串。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n⁴)</td><td>O(n³) 個狀態 × O(n) 個切點</td></tr>
+            <tr><td>空間</td><td>O(n³)</td><td>快取 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>自底向上三維 DP</h3>
+        <p>把遞迴翻成迭代：<code>dp[length][i][j]</code> = 「<code>s1[i:i+length]</code> 能不能擾亂成 <code>s2[j:j+length]</code>」。</p>
+        <div class="code-block">class Solution:
+    def isScramble(self, s1: str, s2: str) -&gt; bool:
+        n = len(s1)
+        if n != len(s2) or sorted(s1) != sorted(s2):
+            return False
+
+        # dp[length][i][j] = s1[i:i+length] 能不能擾亂成 s2[j:j+length]
+        dp = [[[False] * n for _ in range(n)] for _ in range(n + 1)]
+
+        for i in range(n):
+            for j in range(n):
+                dp[1][i][j] = s1[i] == s2[j]
+
+        for length in range(2, n + 1):
+            for i in range(n - length + 1):
+                for j in range(n - length + 1):
+                    for k in range(1, length):          # 左段長度 k
+                        # 不交換
+                        if dp[k][i][j] and dp[length - k][i + k][j + k]:
+                            dp[length][i][j] = True
+                            break
+                        # 交換
+                        if dp[k][i][j + length - k] and dp[length - k][i + k][j]:
+                            dp[length][i][j] = True
+                            break
+
+        return dp[n][0][0]</div>
+        <h3>為什麼狀態要用 (length, i, j) 而不是 (i1, j1, i2, j2)？</h3>
+        <div class="code-block">直覺上狀態應該是「s1 的區間 [i1, j1]」對「s2 的區間 [i2, j2]」——
+那是四個維度，O(n⁴) 個狀態。
+
+但因為【兩個區間的長度必須相同】，
+    j1 - i1 == j2 - i2
+
+所以只要記 (length, i1, i2) 三個量就夠了，
+第四個可以算出來。
+
+O(n³) 個狀態 × O(n) 個切點 = O(n⁴) 時間。
+
+「發現某個維度可以被其他維度決定」是壓縮 DP 狀態的常見手法。</div>
+        <h3>迴圈的順序</h3>
+        <div class="code-block">for length in 2..n:        &lt;- 一定要「由短到長」
+    for i in ...:
+        for j in ...:
+            for k in 1..length-1:
+                看 dp[k][...] 和 dp[length-k][...]
+
+    因為 dp[length] 依賴 dp[k] 和 dp[length-k]，
+    而 k 和 length-k 都【小於 length】——
+    所以必須先算完所有更短的長度。
+
+    這和第 5 題（最長回文子字串）的區間 DP 是同一個道理：
+    「區間 DP 要按區間長度由短到長填表」。</div>
+        <p><strong>優點</strong>：不吃遞迴堆疊、沒有雜湊的開銷。</p>
+        <p><strong>缺點</strong>：四層迴圈、下標關係複雜，而且<strong>失去了「字母組成」的剪枝</strong>（除非額外加）—— 所以它一定會跑滿 O(n⁴)，而記憶化版本通常遠低於此。</p>
+        <p><strong>實測上記憶化版本通常更快</strong>，因為剪枝砍掉了大部分狀態。<strong>面試時寫記憶化版。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n⁴)</td><td>四層迴圈，一定跑滿</td></tr>
+            <tr><td>空間</td><td>O(n³)</td><td>三維陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>有剪枝？</th><th>實測</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、記憶化遞迴</td><td>O(n⁴) 上界</td><td>O(n³)</td><td>✔ 字母組成</td><td>通常快得多</td><td>面試預設</td></tr>
+            <tr><td>二、三維 DP</td><td>O(n⁴)</td><td>O(n³)</td><td>✘</td><td>一定跑滿</td><td>不吃堆疊</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>完全相同</strong>：<code>("a", "a")</code>、<code>("abc", "abc")</code> → true。第一個判斷就 return。</li>
+          <li><strong>字母組成不同</strong>：<code>("abc", "abd")</code> → false。剪枝直接擋下。</li>
+          <li><strong>長度 2</strong>：<code>("ab", "ba")</code> → true（交換一次）。</li>
+          <li><strong>看起來像但其實不行</strong>：<code>("abcde", "caebd")</code> → false。<strong>字母組成相同，但沒有任何一種切法能達成 —— 這是本題的核心測資。</strong></li>
+          <li><strong>有重複字母</strong>：<code>("abb", "bab")</code> → true。</li>
+          <li><strong>切點範圍</strong>：<code>range(1, n)</code>。寫成 <code>range(n)</code> 會產生空段，造成<strong>無限遞迴</strong>。</li>
+          <li><strong>沒有剪枝</strong>：長度 30 的測資會超時。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼這題這麼難？</h3>
+
+        <div class="code-block">因為它的狀態空間是「兩個字串的兩個區間」——
+比一般的字串 DP（第 5、72、516 題）多了一個維度。
+
+而且它的「決策」有兩層：
+    1. 在哪裡切（n-1 種）
+    2. 要不要交換（2 種）
+
+一般的區間 DP 只有第 1 種。
+
+另外，「交換」讓下標的對應變得不直覺 ——
+大部分人第一次寫都會把 b[n-i:] 和 b[:n-i] 弄反。
+
+建議的驗證方法：
+    用 "ab" vs "ba" 這個最小的例子手動追一遍。
+    n=2, i=1：
+        不交換： "a" vs "b" ✘
+        交換：   "a" vs b[1:]="a" ✔ 且 "b" vs b[:1]="b" ✔
+        -&gt; True ✔
+
+    如果下標寫反（b[:i] 和 b[i:]），這個例子會回傳 False。</div>
+
+        <h3>追問二：剪枝為什麼這麼重要？</h3>
+
+        <div class="code-block">沒有「字母組成」剪枝的話：
+
+    s1 = "abcdefghijklmnopqrstuvwxyzabcd"（30 個字元）
+    s2 = 完全不同的 30 個字元
+
+    程式會枚舉所有切點、所有交換組合，
+    在確定「不可能」之前走完整棵搜尋樹。
+
+加上剪枝之後，第一次呼叫就直接 return False。
+
+而且剪枝在【遞迴的中途】也持續生效 ——
+一旦某一段的字母組成對不上，整棵子樹就被砍掉。
+
+這是「可行性剪枝（feasibility pruning）」的典型案例：
+    用一個便宜的必要條件，提前排除不可能的分支。
+
+    必要條件：字母組成相同（O(n log n) 或 O(n)）
+    真正的條件：存在合法的擾亂樹（指數級）
+
+    便宜的必要條件擋掉了絕大部分的失敗案例。</div>
+
+        <h3>追問三：這題有沒有多項式的「聰明」解法？</h3>
+
+        <p><strong>沒有已知的更好解法。</strong>O(n⁴) 已經是標準答案。有一些研究用「後綴自動機」或「字串雜湊」把常數壓小，但漸近複雜度還是 O(n⁴)。</p>
+
+        <p><strong>這題的價值不在於它的實用性</strong>（幾乎沒有真實應用），<strong>而在於它逼你把「遞迴式 → 記憶化 → DP」這條路走得很紮實</strong> —— 因為它的下標複雜到，不把定義寫清楚就一定會錯。</p>
+
+        <h3>追問四：寫這類題目的除錯建議？</h3>
+
+        <ul>
+          <li><strong>先寫一個不記憶化的暴力遞迴</strong>，用短字串驗證正確性</li>
+          <li><strong>再加 <code>@lru_cache</code></strong>（一行），確認答案不變但變快</li>
+          <li><strong>最後才考慮翻成迭代 DP</strong>（如果真的需要）</li>
+          <li><strong>用最小的例子手動追</strong>（<code>"ab"</code> vs <code>"ba"</code>）驗證下標</li>
+        </ul>
+
+        <p><strong>本篇的測試就是這樣做的</strong>：獨立寫一份暴力遞迴當基準，然後用隨機測資對照兩個解法。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 5 題 Longest Palindromic Substring</strong> —— 區間 DP 的入門</li>
+          <li><strong>第 72 題 Edit Distance</strong> —— 兩字串的二維 DP</li>
+          <li><strong>第 312 題 Burst Balloons</strong> —— 另一個需要「枚舉切點」的區間 DP</li>
+          <li><strong>第 1000 題 Minimum Cost to Merge Stones</strong> —— 三維區間 DP</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「交換」那一行的下標為什麼是 <code>b[n-i:]</code> 和 <code>b[:n-i]</code>？請用 <code>"ab"</code> vs <code>"ba"</code> 驗證。</li>
+            <li>切點的範圍為什麼是 <code>range(1, n)</code> 而不是 <code>range(n)</code>？</li>
+            <li>「字母組成相同」是必要條件還是充分條件？它為什麼是一個好剪枝？</li>
+            <li>DP 的狀態為什麼是 (length, i, j) 三維而不是四維？</li>
+          </ol>
+        </div>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>15. 3Sum 三數之和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="排序後固定一個數 + 雙指標，重點在三處去重。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="15">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 15 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 15</div>
+          <h1>3Sum<br>三數之和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雙指標</span>
+          <span class="lc-badge">排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, return all the triplets <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>, <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>.</p>
+          <p>Notice that the solution set must <strong>not contain duplicate triplets</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，找出所有<strong>不重複</strong>的三元組 <code>[nums[i], nums[j], nums[k]]</code>，滿足 <code>i</code>、<code>j</code>、<code>k</code> 互不相同，且三個數相加等於 <code>0</code>。</p>
+          <p>注意：答案裡<strong>不能有重複的三元組</strong>（順序不同但內容相同算重複）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題真正的難點是「去重」，不是「找到」</h3>
+        <p>找出和為 0 的三個數並不難。難的是<strong>同一組答案不能出現兩次</strong>。</p>
+        <div class="code-block">nums = [-1, 0, 1, 2, -1, -4]
+
+和為 0 的三元組（依索引）：
+    (0, 1, 2) -&gt; [-1,  0,  1]
+    (1, 2, 4) -&gt; [ 0,  1, -1]     &lt;- 值和上面一樣！
+    (0, 3, 4) -&gt; [-1,  2, -1]
+    (2, 3, 4) -&gt; [ 1,  2, -1]     &lt;- 值和上面一樣！
+
+題目要的答案只有兩組：
+    [[-1, -1, 2], [-1, 0, 1]]
+
+注意「不重複」指的是「值的多重集合不重複」，不是索引不重複。
+[-1, 0, 1] 和 [0, 1, -1] 是同一組。
+
+而且 [-1, -1, 2] 是合法的 —— 陣列裡確實有兩個 -1，
+它們是不同的位置，只是值一樣。
+「不能重複用同一個位置」≠「不能有相同的值」。</div>
+        <p>很多人的第一反應是「先全部找出來，再丟進 set 去重」。那樣會過，但<strong>會被追問「能不能在找的時候就避免產生重複」</strong> —— 那才是這題想教的東西。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [-1, 0, 1, 2, -1, -4]
+  輸出：[[-1, -1, 2], [-1, 0, 1]]
+  說明：順序不重要，但兩組都要有，而且不能重複。
+
+範例 2
+  輸入：nums = [0, 1, 1]
+  輸出：[]
+  說明：湊不出 0。
+
+範例 3
+  輸入：nums = [0, 0, 0]
+  輸出：[[0, 0, 0]]
+  說明：只有一組（雖然三個 0 可以有多種索引組合）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>3 ≤ <code>nums.length</code> ≤ 3000</li>
+          <li>−10⁵ ≤ <code>nums[i]</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/3sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 3000</strong>。O(n³) 是 2.7 × 10¹⁰ —— TLE。O(n²) 是 9 × 10⁶ —— 輕鬆過。所以目標很明確：<strong>O(n²)</strong>。</li>
+          <li><strong>值域到 ±10⁵，但陣列長度只有 3000</strong>。這表示不能用「開一個值域大小的陣列」那種計數技巧（會浪費，而且值域其實也不算大但沒必要）。</li>
+          <li><strong>沒說陣列是排序的</strong>，所以我們可以自己排 —— 排序只要 O(n log n)，遠小於 O(n²)，等於免費。<strong>而排序是去重的關鍵。</strong></li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p><strong>核心降維：把 3Sum 變成「固定一個數 + 2Sum」。</strong></p>
+
+        <div class="code-block">要找 a + b + c = 0
+
+固定 a = nums[i]，問題變成：在 i 右邊找兩個數，和為 -a。
+那就是第 1 題 Two Sum。
+
+  用雜湊表解 2Sum  -&gt; O(n)  -&gt; 總共 O(n²)，但去重比較麻煩
+  用雙指標解 2Sum  -&gt; O(n)  -&gt; 總共 O(n²)，而且排序後去重很自然
+
+雙指標需要「有序」這個前提 ——
+而我們本來就想排序（為了去重），所以這個前提是免費的。</div>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 288" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">排序後 nums = [−4, −1, −1, 0, 1, 2]，固定 i = 1（值 −1），在右邊用雙指標找和為 +1 的一對</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="50" y="42" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+              <text x="86" y="68" fill="var(--text-muted)" opacity="0.55">−4</text>
+              <rect x="134" y="42" width="72" height="40" rx="6" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+              <text x="170" y="68" fill="var(--gold)">−1</text>
+              <rect x="218" y="42" width="72" height="40" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="254" y="68" fill="var(--accent)">−1</text>
+              <rect x="302" y="42" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="2"/>
+              <text x="338" y="68" fill="var(--text-muted)">0</text>
+              <rect x="386" y="42" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="2"/>
+              <text x="422" y="68" fill="var(--text-muted)">1</text>
+              <rect x="470" y="42" width="72" height="40" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/>
+              <text x="506" y="68" fill="#ff8a65">2</text>
+            </g>
+            <text x="170" y="102" fill="var(--gold)" font-size="11" text-anchor="middle">i（固定）</text>
+            <text x="254" y="102" fill="var(--accent)" font-size="11" text-anchor="middle">lo</text>
+            <text x="506" y="102" fill="#ff8a65" font-size="11" text-anchor="middle">hi</text>
+            <text x="20" y="136" fill="var(--text-muted)" font-size="12">−1 + (−1) + 2 = 0 ✔ 收錄 [−1, −1, 2]，兩邊同時往內縮</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="50" y="152" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+              <text x="86" y="178" fill="var(--text-muted)" opacity="0.55">−4</text>
+              <rect x="134" y="152" width="72" height="40" rx="6" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+              <text x="170" y="178" fill="var(--gold)">−1</text>
+              <rect x="218" y="152" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+              <text x="254" y="178" fill="var(--text-muted)" opacity="0.55">−1</text>
+              <rect x="302" y="152" width="72" height="40" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="338" y="178" fill="var(--accent)">0</text>
+              <rect x="386" y="152" width="72" height="40" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/>
+              <text x="422" y="178" fill="#ff8a65">1</text>
+              <rect x="470" y="152" width="72" height="40" rx="6" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="4 3"/>
+              <text x="506" y="178" fill="var(--text-muted)" opacity="0.55">2</text>
+            </g>
+            <text x="338" y="212" fill="var(--accent)" font-size="11" text-anchor="middle">lo</text>
+            <text x="422" y="212" fill="#ff8a65" font-size="11" text-anchor="middle">hi</text>
+            <text x="20" y="246" fill="var(--text-muted)" font-size="12">−1 + 0 + 1 = 0 ✔ 收錄 [−1, 0, 1]，再縮就 lo ≥ hi，這一層結束</text>
+            <text x="20" y="274" fill="var(--gold)" font-size="12">下一輪 i = 2 的值也是 −1，和 i = 1 重複 → 直接 continue，這就是去重</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>三重迴圈 + set 去重（基準線）</h3>
+        <div class="code-block">class Solution:
+    def threeSum(self, nums: List[int]) -&gt; List[List[int]]:
+        found = set()
+        n = len(nums)
+        for i in range(n):
+            for j in range(i + 1, n):
+                for k in range(j + 1, n):
+                    if nums[i] + nums[j] + nums[k] == 0:
+                        found.add(tuple(sorted((nums[i], nums[j], nums[k]))))
+        return [list(t) for t in found]</div>
+        <p><code>tuple(sorted(...))</code> 是去重的關鍵：把三個值排序後當成 key，這樣 <code>[-1,0,1]</code> 和 <code>[0,1,-1]</code> 會映射到同一個 tuple。</p>
+        <p>O(n³) 在 n = 3000 時必定 TLE，但它是最可靠的正確性基準 —— 本篇的壓力測試就是拿它對答案。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n³)</td><td>三層迴圈</td></tr>
+            <tr><td>空間</td><td>O(答案數)</td><td>set 存所有答案</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>固定一個數 + 雜湊表解 2Sum</h3>
+        <p>把第 1 題的雜湊表解法套進來：固定 <code>nums[i]</code>，在右邊找兩個數和為 <code>-nums[i]</code>。</p>
+        <div class="code-block">class Solution:
+    def threeSum(self, nums: List[int]) -&gt; List[List[int]]:
+        nums.sort()
+        n = len(nums)
+        out = []
+
+        for i in range(n - 2):
+            if nums[i] &gt; 0:                      # 最小的都大於 0，不可能湊出 0
+                break
+            if i &gt; 0 and nums[i] == nums[i - 1]: # 第一個數去重
+                continue
+
+            seen = set()
+            target = -nums[i]
+            j = i + 1
+            while j &lt; n:
+                if target - nums[j] in seen:
+                    out.append([nums[i], target - nums[j], nums[j]])
+                    # 第三個數去重：跳過所有重複的 nums[j]
+                    while j + 1 &lt; n and nums[j] == nums[j + 1]:
+                        j += 1
+                seen.add(nums[j])
+                j += 1
+
+        return out</div>
+        <h3>去重要處理兩層，不是一層</h3>
+        <ul>
+          <li><strong>第一層（<code>i</code>）</strong>：<code>if i &gt; 0 and nums[i] == nums[i-1]: continue</code>。同一個值只當一次「第一個數」。</li>
+          <li><strong>第三層（<code>j</code>）</strong>：找到答案後要跳過所有重複的 <code>nums[j]</code>。否則 <code>[0,0,0,0]</code> 會產生兩組 <code>[0,0,0]</code>。</li>
+        </ul>
+        <p>這個解法能用，但<strong>去重的邏輯比雙指標版本彆扭</strong> —— 因為雜湊表沒有「位置」的概念，你得額外小心哪些重複該跳、哪些不該。所以雖然複雜度一樣，實務上大家還是寫雙指標。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>外層 n 次 × 內層 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>每一輪的 seen 集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>排序 + 雙指標（標準解）</h3>
+        <div class="code-block">class Solution:
+    def threeSum(self, nums: List[int]) -&gt; List[List[int]]:
+        nums.sort()                 # 排序是一切的前提：去重和雙指標都靠它
+        n = len(nums)
+        out = []
+
+        for i in range(n - 2):
+            # 剪枝：排序後 nums[i] 是三個裡最小的，它 &gt; 0 就沒救了
+            if nums[i] &gt; 0:
+                break
+            # 去重：i 這一層只取「這個值的第一次出現」
+            if i &gt; 0 and nums[i] == nums[i - 1]:
+                continue
+
+            lo, hi = i + 1, n - 1
+            while lo &lt; hi:
+                total = nums[i] + nums[lo] + nums[hi]
+
+                if total &lt; 0:
+                    lo += 1
+                elif total &gt; 0:
+                    hi -= 1
+                else:
+                    out.append([nums[i], nums[lo], nums[hi]])
+                    # 找到一組後，兩邊都要跳過重複值
+                    while lo &lt; hi and nums[lo] == nums[lo + 1]:
+                        lo += 1
+                    while lo &lt; hi and nums[hi] == nums[hi - 1]:
+                        hi -= 1
+                    lo += 1
+                    hi -= 1
+
+        return out</div>
+        <h3>三個關鍵設計，逐一拆解</h3>
+        <h3>① 剪枝：<code>if nums[i] &gt; 0: break</code></h3>
+        <div class="code-block">排序後 nums[i] ≤ nums[lo] ≤ nums[hi]。
+如果 nums[i] &gt; 0，那三個數全是正的，和一定 &gt; 0，不可能是 0。
+而且後面的 i 只會更大 —— 所以是 break（整個結束），不是 continue（跳過這一輪）。
+
+這個剪枝在「大部分是正數」的測資上能省掉很多時間。
+寫 continue 也會對，只是慢一點。</div>
+        <h3>② 第一層去重：<code>if i &gt; 0 and nums[i] == nums[i-1]: continue</code></h3>
+        <div class="code-block">排序後 nums = [-1, -1, 0, 1, 2]
+
+i = 0（值 -1）：會找出 [-1, -1, 2] 和 [-1, 0, 1]
+i = 1（值 -1）：nums[1] == nums[0]，跳過
+
+為什麼可以跳過？
+  因為 i=1 能找到的所有答案，i=0 一定也找得到
+  （i=0 的搜尋範圍 [1, n-1] 完整包含 i=1 的範圍 [2, n-1]）。
+  所以 i=1 只會產生重複，不會產生新東西。
+
+注意 i &gt; 0 這個條件不能少 ——
+否則 i=0 時會存取 nums[-1]（Python 不會報錯，但會拿到最後一個元素，邏輯就錯了）。
+這是 Python 特有的陷阱：負索引不會 IndexError。</div>
+        <h3>③ 找到答案後的雙邊去重</h3>
+        <div class="code-block">nums = [-2, 0, 0, 2, 2]，i = 0（值 -2），找和為 2 的一對
+
+lo = 1(0), hi = 4(2)：-2 + 0 + 2 = 0 ✔ 收錄 [-2, 0, 2]
+
+如果只是單純地 lo += 1; hi -= 1：
+    lo = 2(0), hi = 3(2)：-2 + 0 + 2 = 0 ✔ 又收錄一次 [-2, 0, 2]  ✘ 重複！
+
+所以收錄之後要先把兩邊的重複值跳完：
+    while lo &lt; hi and nums[lo] == nums[lo+1]: lo += 1   # lo 停在最後一個 0
+    while lo &lt; hi and nums[hi] == nums[hi-1]: hi -= 1   # hi 停在第一個 2
+    lo += 1; hi -= 1                                     # 再各跨一步
+
+跳完之後 lo = 3, hi = 2，lo &lt; hi 不成立，這一層結束 ✔
+
+注意 while 裡的 lo &lt; hi 條件不能省，
+否則 [0,0,0,0] 這種全同的輸入會讓 lo 衝過 hi 而越界。</div>
+        <h3>為什麼不用先收集再去重？</h3>
+        <p>可以，但有兩個代價：（1）要多一份 O(答案數) 的記憶體；（2）最壞情況答案數是 O(n²)，全部存下來再去重會拖慢常數。更重要的是 —— <strong>面試官問這題，就是想看你能不能在「生成的當下」就避免重複</strong>。這個技巧在所有「找出所有不重複組合」的題目（第 40、47、90 題）都會再遇到。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>排序 O(n log n) + 雙層 O(n²)</td></tr>
+            <tr><td>空間</td><td>O(log n) 或 O(n)</td><td>排序本身的空間；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>額外空間</th><th>去重方式</th><th>n=3000 能過？</th></tr></thead>
+          <tbody>
+            <tr><td>一、三重迴圈</td><td>O(n³)</td><td>O(答案數)</td><td>事後 set</td><td>✘</td></tr>
+            <tr><td>二、固定 + 雜湊</td><td>O(n²)</td><td>O(n)</td><td>排序 + 跳過重複</td><td>✔ 但寫法彆扭</td></tr>
+            <tr><td>三、排序 + 雙指標</td><td>O(n²)</td><td>O(log n)</td><td>排序 + 跳過重複</td><td>✔ 標準解</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>長度不足 3</strong>：<code>[]</code>、<code>[0]</code>、<code>[0,0]</code> → <code>[]</code>。<code>range(n-2)</code> 在 n &lt; 3 時是空的，自然就對了。</li>
+          <li><strong>全部是 0</strong>：<code>[0,0,0,0]</code> → 只有一組 <code>[[0,0,0]]</code>。這是最能抓出去重 bug 的測資。</li>
+          <li><strong>剛好三個 0</strong>：<code>[0,0,0]</code> → <code>[[0,0,0]]</code>。</li>
+          <li><strong>沒有答案</strong>：<code>[0,1,1]</code>、<code>[1,2,3]</code> → <code>[]</code>。</li>
+          <li><strong>大量重複值</strong>：<code>[-2,0,1,1,2]</code> → <code>[[-2,0,2],[-2,1,1]]</code>。<code>[-2,1,1]</code> 用到兩個不同位置的 1，是合法的。</li>
+          <li><strong>全是正數 / 全是負數</strong>：<code>[1,2,3]</code>、<code>[-1,-2,-3]</code> → <code>[]</code>。驗證剪枝。</li>
+          <li><strong>Python 負索引陷阱</strong>：忘記 <code>i &gt; 0</code> 的話，<code>nums[-1]</code> 不會報錯而是回傳最後一個元素 —— 錯得很安靜，很難查。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：4Sum 呢？kSum 呢？</h3>
+
+        <p>第 18 題就是 4Sum。做法是<strong>再包一層迴圈</strong>：固定兩個數，剩下用雙指標，O(n³)。</p>
+
+        <p>更一般地，kSum 可以寫成遞迴：<strong>固定一個數，遞迴解 (k−1)Sum，直到 k == 2 時改用雙指標</strong>。複雜度 O(n^(k−1))。每一層的去重邏輯完全一樣（跳過與前一個相同的值），所以寫成遞迴反而更不容易錯。</p>
+
+        <h3>追問二：如果要的是「有幾組」而不是「列出來」呢？</h3>
+
+        <p>如果不要求去重，用雜湊表統計配對數會更快。但如果要求「不重複的組數」，還是得走一樣的流程 —— 因為你必須能區分「值相同的不同位置」。</p>
+
+        <h3>追問三：能不能做到比 O(n²) 更快？</h3>
+
+        <p><strong>目前沒有人知道怎麼做。</strong>3SUM 是計算複雜度理論裡的一個著名問題，有一整類問題被稱為「<strong>3SUM-hard</strong>」—— 如果你能在 O(n^(2−ε)) 解 3SUM，就能同時加速一大票計算幾何問題。目前最好的結果只比 O(n²) 快了一個 log 的因子。所以面試時如果被問「能不能更快」，正確答案是：<strong>「在一般情況下不行，這是 3SUM 猜想」</strong> —— 而不是硬想。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1 題 Two Sum</strong> —— 降維後的子問題</li>
+          <li><strong>第 16 題 3Sum Closest</strong> —— 同樣的骨架，改成找最接近的</li>
+          <li><strong>第 18 題 4Sum</strong> —— 再包一層</li>
+          <li><strong>第 259 題 3Sum Smaller</strong> —— 雙指標的計數變形</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>[0,0,0,0]</code> 的正確答案是什麼？如果拿掉「找到後跳過重複」那兩個 while，會輸出什麼？</li>
+            <li>第一層去重為什麼要寫 <code>i &gt; 0</code>？在 Python 裡漏掉它會發生什麼（提示：不會報錯）？</li>
+            <li><code>if nums[i] &gt; 0: break</code> 為什麼是 break 而不是 continue？</li>
+            <li>為什麼排序是「免費」的？它在這題裡同時解決了哪兩個問題？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0014.html">← 上一題：14. 最長公共前綴</a>
+          <a href="problem-0016.html">下一題：16. 最接近的三數之和 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

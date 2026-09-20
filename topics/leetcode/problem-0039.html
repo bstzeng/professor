@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>39. Combination Sum 組合總和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="可重複取用的回溯，用起始索引避免重複組合。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="39">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 39 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 39</div>
+          <h1>Combination Sum<br>組合總和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of <strong>distinct</strong> integers <code>candidates</code> and a target integer <code>target</code>, return a list of all <strong>unique combinations</strong> of <code>candidates</code> where the chosen numbers sum to <code>target</code>.</p>
+          <p>The <strong>same</strong> number may be chosen from <code>candidates</code> an <strong>unlimited number of times</strong>. Two combinations are unique if the frequency of at least one of the chosen numbers is different.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>元素互不相同</strong>的整數陣列 <code>candidates</code> 和一個目標值 <code>target</code>，找出所有能讓總和等於 <code>target</code> 的<strong>不重複組合</strong>。</p>
+          <p><strong>同一個數字可以無限次重複使用</strong>。兩個組合只要有任何一個數字的<strong>使用次數</strong>不同，就算不同的組合。</p>
+        </div>
+
+        <div class="callout">
+          <h3>三句話決定整題的寫法</h3>
+        <div class="code-block">1. 「元素互不相同」   -&gt;  不用處理候選陣列裡的重複
+2. 「可以無限重複用」  -&gt;  遞迴時傳 i 而不是 i+1
+3. 「組合不能重複」    -&gt;  用 start 限制「只能往後選」
+
+第 3 點最重要，值得展開：
+
+    如果每一層都從 0 開始選，target=4、candidates=[2]：
+        [2,2] 會被生成一次（沒問題）
+    但 candidates=[2,3]、target=5：
+        [2,3] 和 [3,2] 都會被生成 -&gt; 重複！
+
+    用 start 限制之後，每一層只能選「&gt;= 上一次選的」，
+    所以產生的組合永遠是「非遞減」的：
+        [2,3] ✔   [3,2] ✘（不會被生成）
+
+    「強制一個固定的順序」是組合類問題去重的標準手法 ——
+    它讓每個「多重集合」只有唯一一種生成路徑。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：candidates = [2,3,6,7], target = 7
+  輸出：[[2,2,3],[7]]
+  說明：2+2+3 = 7，7 = 7。
+
+範例 2
+  輸入：candidates = [2,3,5], target = 8
+  輸出：[[2,2,2,2],[2,3,3],[3,5]]
+
+範例 3
+  輸入：candidates = [2], target = 1
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>candidates.length</code> ≤ 30</li>
+          <li>2 ≤ <code>candidates[i]</code> ≤ 40</li>
+          <li><code>candidates</code> 的所有元素<strong>互不相同</strong></li>
+          <li>1 ≤ <code>target</code> ≤ 40</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong><code>candidates[i] ≥ 2</code></strong> —— 沒有 0 也沒有 1。<strong>如果允許 0，遞迴會無限深</strong>（一直選 0，remain 永遠不變）。這一條保證每選一個數 <code>remain</code> 至少減 2，遞迴深度最多 <code>target/2 = 20</code>。</li>
+          <li><strong>target ≤ 40</strong>，所以答案的數量有限（題目說「不超過 150 個組合」）。這是在告訴你：<strong>直接枚舉就好，不需要擔心爆炸</strong>。</li>
+          <li><strong>元素互不相同</strong> —— 這是和第 40 題最大的差別。那題候選可以重複，去重會麻煩很多。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">candidates = [2, 3, 6, 7]，target = 7。虛線是被剪掉的分支。</text>
+            <g font-size="12" text-anchor="middle" font-family="monospace">
+              <text x="320" y="44" fill="var(--gold)">[] remain=7</text>
+              <text x="120" y="96" fill="var(--accent)">[2] r=5</text>
+              <text x="300" y="96" fill="var(--accent)">[3] r=4</text>
+              <text x="440" y="96" fill="var(--text-muted)" opacity="0.5">[6] r=1</text>
+              <text x="560" y="96" fill="#ff8a65">[7] r=0 ✔</text>
+              <text x="70" y="148" fill="var(--accent)">[2,2] r=3</text>
+              <text x="190" y="148" fill="var(--accent)">[2,3] r=2</text>
+              <text x="300" y="148" fill="var(--text-muted)" opacity="0.5">[3,3] r=1</text>
+              <text x="70" y="200" fill="var(--accent)">[2,2,2] r=1</text>
+              <text x="200" y="200" fill="#ff8a65">[2,2,3] r=0 ✔</text>
+              <text x="330" y="200" fill="var(--text-muted)" opacity="0.5">[2,3,3] r=-1</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.3">
+              <line x1="300" y1="52" x2="140" y2="84"/>
+              <line x1="316" y1="52" x2="304" y2="84"/>
+              <line x1="120" y1="104" x2="80" y2="136"/>
+              <line x1="134" y1="104" x2="184" y2="136"/>
+              <line x1="70" y1="156" x2="70" y2="188"/>
+              <line x1="86" y1="156" x2="180" y2="188"/>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5">
+              <line x1="336" y1="52" x2="428" y2="84"/>
+              <line x1="344" y1="52" x2="544" y2="84"/>
+              <line x1="304" y1="104" x2="300" y2="136"/>
+              <line x1="200" y1="156" x2="320" y2="188"/>
+            </g>
+            <text x="20" y="240" fill="var(--text-muted)" font-size="12">關鍵一：遞迴傳 <tspan fill="var(--gold)">i</tspan>（不是 i+1）→ 同一個數字可以再選一次</text>
+            <text x="20" y="262" fill="var(--text-muted)" font-size="12">關鍵二：從 <tspan fill="var(--gold)">start</tspan> 開始而不是 0 → 保證組合是「非遞減」的，天然去重</text>
+            <text x="20" y="288" fill="var(--gold)" font-size="12">答案：[[2,2,3], [7]]　注意沒有 [3,2,2] —— 因為 start 限制住了順序。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯（標準解）</h3>
+        <div class="code-block">class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -&gt; List[List[int]]:
+        candidates.sort()          # 排序讓剪枝成立（也讓輸出比較整齊）
+        out = []
+        path = []
+
+        def backtrack(start: int, remain: int) -&gt; None:
+            if remain == 0:
+                out.append(path[:])        # 一定要複製！path 之後還會被改
+                return
+
+            for i in range(start, len(candidates)):
+                if candidates[i] &gt; remain:
+                    break                  # 排序後，後面只會更大 -&gt; 整層剪掉
+
+                path.append(candidates[i])
+                # 傳 i 而不是 i+1：同一個數字可以重複使用
+                backtrack(i, remain - candidates[i])
+                path.pop()
+
+        backtrack(0, target)
+        return out</div>
+        <h3>三個關鍵，缺一不可</h3>
+        <div class="code-block">① backtrack(i, ...) 而不是 backtrack(i + 1, ...)
+      -&gt; 允許同一個數字再選一次
+      -&gt; 這是「無限重複」的實作方式
+
+② for i in range(start, len(...)) 而不是 range(len(...))
+      -&gt; 只能往後選，保證組合非遞減
+      -&gt; 這是「去重」的實作方式
+
+③ out.append(path[:]) 而不是 out.append(path)
+      -&gt; path 是共用的 list，之後還會被 pop 和 append
+      -&gt; 不複製的話，out 裡全部都會變成同一個（而且最後是空的）
+      -&gt; 這是 Python 回溯題第一名的 bug</div>
+        <h3>剪枝：<code>if candidates[i] &gt; remain: break</code></h3>
+        <div class="code-block">因為 candidates 已經排序，
+如果 candidates[i] 已經超過 remain，
+那 candidates[i+1], candidates[i+2], ... 只會更大 ——
+整個 for 迴圈剩下的部分都不可能有答案。
+
+所以是 break（跳出整層），不是 continue（只跳過這一個）。
+
+沒有排序的話只能寫 continue，效率差很多：
+    candidates = [7, 2, 3]，remain = 1
+    不排序：檢查 7 ✘、2 ✘、3 ✘   三次
+    有排序：檢查 2 ✘ -&gt; break     一次</div>
+        <h3>為什麼不用檢查 <code>remain &lt; 0</code>？</h3>
+        <p>因為剪枝已經保證了 <code>candidates[i] &lt;= remain</code>，所以 <code>remain - candidates[i] &gt;= 0</code>，永遠不會變成負數。<strong>剪枝同時扮演了「邊界檢查」的角色</strong> —— 這是好設計的副產品。</p>
+        <h3>複雜度</h3>
+        <p>回溯類問題的複雜度很難給出緊的上界。粗略地說，搜尋樹的深度是 O(target / min(candidates))，每個節點的分支數最多 <code>len(candidates)</code>，所以最壞是 O(n^(target/min))。但實際上剪枝讓它遠低於這個數字 —— <strong>而且輸出本身就有 O(答案數 × 平均長度) 那麼大，這是無法避免的下界。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n^(T/m))</td><td>T = target，m = 最小候選；剪枝後遠低於上界</td></tr>
+            <tr><td>空間</td><td>O(T/m)</td><td>遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>動態規劃（完全背包的組合列舉版）</h3>
+        <p>這題本質上是<strong>完全背包問題</strong>（每種物品可以拿無限個）。如果只問「有幾種組合」，DP 是標準答案；要「列出所有組合」，DP 也能做，只是要存下所有組合。</p>
+        <div class="code-block">class Solution:
+    def combinationSum(self, candidates: List[int], target: int) -&gt; List[List[int]]:
+        # dp[t] = 湊出金額 t 的所有組合
+        dp = [[] for _ in range(target + 1)]
+        dp[0] = [[]]               # 湊出 0 只有一種方法：什麼都不拿
+
+        # 外層跑「候選」、內層跑「金額」-&gt; 每個組合只會被「非遞減」地生成一次
+        for c in sorted(candidates):
+            for t in range(c, target + 1):
+                for combo in dp[t - c]:
+                    dp[t].append(combo + [c])
+
+        return dp[target]</div>
+        <h3>迴圈順序決定了「組合」還是「排列」</h3>
+        <div class="code-block">外層跑候選、內層跑金額  -&gt;  組合（本題要的）
+    for c in candidates:
+        for t in range(c, target+1):
+            dp[t] += dp[t-c] 加上 c
+
+    因為每個候選只被「處理一次」，
+    生成的組合裡的數字順序一定是「候選被處理的順序」——
+    也就是排序後的非遞減順序。
+    [2,3] 會出現，[3,2] 不會。
+
+外層跑金額、內層跑候選  -&gt;  排列（第 377 題要的）
+    for t in range(1, target+1):
+        for c in candidates:
+            dp[t] += dp[t-c] 加上 c
+
+    每個金額都把所有候選試一遍，
+    [2,3] 和 [3,2] 都會被生成。
+
+這兩個迴圈只是交換順序，語意卻完全不同。
+這是背包問題裡最容易搞混、也最值得記住的一點。</div>
+        <p><strong>優點</strong>：沒有遞迴，而且 <code>dp</code> 陣列裡有「湊出每個金額」的所有答案 —— 如果題目要問多個 target，這個解法只要算一次。</p>
+        <p><strong>缺點</strong>：<strong>記憶體大很多</strong>。它把所有中間金額的組合都存起來，而回溯只需要當前路徑。在這題（target ≤ 40）沒問題，但 target 大一點就會爆。</p>
+        <p><strong>所以：只問「有幾種」用 DP（只存數量，O(target) 空間）；要「列出來」用回溯。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(target × n × 答案數)</td><td>每個金額存所有組合</td></tr>
+            <tr><td>空間</td><td>O(target × 答案總大小)</td><td>所有中間結果</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>適合</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、回溯</td><td>O(n^(T/m))</td><td>O(T/m)</td><td>列出所有組合</td><td>面試標準解</td></tr>
+            <tr><td>二、DP</td><td>較大</td><td>大</td><td>多次查詢、只問數量</td><td>完全背包</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>湊不出來</strong>：<code>([2], 1)</code> → <code>[]</code>。</li>
+          <li><strong>剛好一個數字就是答案</strong>：<code>([2,3,6,7], 7)</code> 裡的 <code>[7]</code>。</li>
+          <li><strong>需要重複很多次</strong>：<code>([2], 40)</code> → <code>[[2]×20]</code>。遞迴深度 20。</li>
+          <li><strong>候選沒排序</strong>：<code>([7,3,2], 18)</code>。不先排序的話 <code>break</code> 剪枝會錯剪。</li>
+          <li><strong>忘記 <code>path[:]</code></strong>：輸出會是一堆空 list（或全部相同）。<strong>先寫 <code>path[:]</code> 再想別的。</strong></li>
+          <li><strong>傳 <code>i+1</code> 而不是 <code>i</code></strong>：<code>([2,3,6,7], 7)</code> 會少掉 <code>[2,2,3]</code>，只剩 <code>[7]</code>。</li>
+          <li><strong>從 0 而不是 <code>start</code> 開始</strong>：會產生 <code>[2,2,3]</code>、<code>[2,3,2]</code>、<code>[3,2,2]</code> 三份重複。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果候選裡有重複、而且每個只能用一次呢？</h3>
+
+        <p>那就是第 40 題（Combination Sum II）。兩個改動：</p>
+
+        <ul>
+          <li>遞迴傳 <code>i + 1</code>（每個只能用一次）</li>
+          <li>加上「同一層跳過重複值」：<code>if i &gt; start and candidates[i] == candidates[i-1]: continue</code></li>
+        </ul>
+
+        <p><strong>注意是 <code>i &gt; start</code> 不是 <code>i &gt; 0</code></strong> —— 同一層不能重複選同一個值，但<strong>不同層可以</strong>（那是「用了兩個相同的數」，是合法的）。</p>
+
+        <h3>追問二：如果只問「有幾種組合」呢？</h3>
+
+        <p>完全背包的標準 DP，O(target) 空間：</p>
+
+        <div class="code-block">dp = [0] * (target + 1)
+dp[0] = 1
+for c in candidates:          # 外層候選 -&gt; 算「組合」
+    for t in range(c, target + 1):
+        dp[t] += dp[t - c]
+return dp[target]
+
+如果把兩層迴圈交換，算出來的是「排列」數（第 377 題）。
+這是背包問題最經典的一組對照。</div>
+
+        <h3>追問三：如果 target 很大（例如 10⁹）呢？</h3>
+
+        <p>列出所有組合是不可能的（答案數量爆炸）。如果只問「有沒有解」，那是<strong>硬幣問題（Frobenius 問題）</strong>：當所有候選的最大公因數是 1 時，存在一個「Frobenius 數」，超過它的所有金額都湊得出來。兩個數 a、b 互質時，這個數是 <code>ab − a − b</code>（Chicken McNugget 定理）。三個以上就沒有簡單公式了。</p>
+
+        <h3>追問四：這個回溯模板還能用在哪？</h3>
+
+        <div class="code-block">start 參數控制「能選哪些」，是組合類回溯的核心：
+
+    傳 i    + start  -&gt;  可重複、組合         （第 39 題）
+    傳 i+1  + start  -&gt;  不可重複、組合       （第 40、77、78、90 題）
+    不用 start，用 used[] 標記  -&gt;  排列      （第 46、47 題）
+
+三種變化涵蓋了 LeetCode 上絕大多數的枚舉題。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 40 題 Combination Sum II</strong> —— 每個只能用一次 + 候選有重複</li>
+          <li><strong>第 216 題 Combination Sum III</strong> —— 限定用 k 個數字</li>
+          <li><strong>第 377 題 Combination Sum IV</strong> —— 其實是「排列」，只問數量</li>
+          <li><strong>第 77／78／90 題</strong> —— 同一個回溯模板</li>
+          <li><strong>第 322 題 Coin Change</strong> —— 完全背包的最少硬幣數</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>遞迴為什麼傳 <code>i</code> 而不是 <code>i+1</code>？改成 <code>i+1</code> 會少掉哪些答案？</li>
+            <li><code>start</code> 參數是怎麼達成去重的？如果每層都從 0 開始，<code>([2,3], 5)</code> 會輸出什麼？</li>
+            <li><code>out.append(path[:])</code> 的 <code>[:]</code> 為什麼不能省？不寫會得到什麼？</li>
+            <li>DP 版本的兩層迴圈如果交換順序，算出來的是什麼？和本題的差別在哪？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0038.html">← 上一題：38. 外觀數列</a>
+          <a href="problem-0040.html">下一題：40. 組合總和 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,348 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> that may contain duplicates, return <em>all possible subsets (the power set)</em>.</p>
+          <p>The solution set <strong>must not</strong> contain duplicate subsets. Return the solution in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>可能含有重複元素</strong>的整數陣列 <code>nums</code>，回傳它的所有子集（冪集合）。</p>
+          <p>答案裡<strong>不能有重複的子集</strong>，順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>重複元素讓 2ⁿ 個子集裡出現重複</h3>
+        <div class="code-block">nums = [1, 2, 2]
+
+如果照第 78 題（不去重）跑，會得到 2³ = 8 個：
+    []      [1]     [2ₐ]    [1,2ₐ]
+    [2ᵦ]    [1,2ᵦ]  [2ₐ,2ᵦ] [1,2ₐ,2ᵦ]
+
+但 [2ₐ] 和 [2ᵦ] 的「值」相同，[1,2ₐ] 和 [1,2ᵦ] 也是。
+
+不重複的子集只有 6 個：
+    []  [1]  [2]  [1,2]  [2,2]  [1,2,2]
+
+一般公式：
+    每個不同的值 v 出現 cᵥ 次，
+    不重複的子集數 = ∏ (cᵥ + 1)
+
+    [1,2,2]：1 出現 1 次、2 出現 2 次
+             (1+1) × (2+1) = 2 × 3 = 6 ✔
+
+去重的兩種思路（和第 40、47 題完全一樣）：
+    (a) 排序 + 同層跳過
+    (b) 用 Counter 把相同的值合併，改成「決定取幾個」</div>
+        <p><strong>先算出「答案應該有幾個」，是驗證去重是否正確最快的方法。</strong></p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,2,2]
+  輸出：[[],[1],[1,2],[1,2,2],[2],[2,2]]
+
+範例 2
+  輸入：nums = [0]
+  輸出：[[],[0]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10</li>
+          <li>−10 ≤ <code>nums[i]</code> ≤ 10</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/subsets-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 10</strong>，最多 <code>2¹⁰ = 1024</code> 個子集（去重後更少）。</li>
+          <li><strong>可能有重複元素</strong> —— 這是和第 78 題唯一的差別。</li>
+          <li><strong>沒說輸入已排序</strong>，所以<strong>要自己排</strong>（去重的前提）。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>去重方式</th><th>和哪一題同構</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序 + 同層跳過</td><td>搜尋時判斷</td><td>第 40 題（組合總和 II）</td></tr>
+            <tr><td>二、Counter 決定取幾個</td><td>資料結構保證</td><td>第 40 題解法二</td></tr>
+            <tr><td>三、迭代 + 控制起點</td><td>只接在「新增的」後面</td><td>第 78 題解法四的變形</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序 + 同層去重（標準解）</h3>
+        <div class="code-block">class Solution:
+    def subsetsWithDup(self, nums: List[int]) -&gt; List[List[int]]:
+        nums.sort()              # 讓相同的值相鄰，去重才做得到
+        out = []
+        path = []
+
+        def backtrack(start: int) -&gt; None:
+            out.append(path[:])
+            for i in range(start, len(nums)):
+                # 同一層裡，相同的值只取第一個
+                if i &gt; start and nums[i] == nums[i - 1]:
+                    continue
+                path.append(nums[i])
+                backtrack(i + 1)
+                path.pop()
+
+        backtrack(0)
+        return out</div>
+        <h3>和第 78 題只差兩行</h3>
+        <div class="code-block">第 78 題（無重複）：
+    def backtrack(start):
+        out.append(path[:])
+        for i in range(start, n):
+            path.append(nums[i])
+            backtrack(i + 1)
+            path.pop()
+
+第 90 題（有重複）：
+    nums.sort()                                    &lt;- 多這一行
+    def backtrack(start):
+        out.append(path[:])
+        for i in range(start, n):
+            if i &gt; start and nums[i] == nums[i-1]: &lt;- 多這一行
+                continue
+            ...
+
+去重條件 i &gt; start（不是 i &gt; 0）的理由，
+和第 40 題完全一樣：
+
+    i == start  -&gt;  這一層的第一個，永遠可以選
+    i &gt; start 且值和前一個相同  -&gt;  這一層已經試過同樣的值了，跳過
+
+    但【不同層】可以選相同的值 ——
+    那代表「取了兩個 2」，是合法的子集。
+
+    nums = [1, 2, 2]
+    第 1 層（start=1）：i=1 選 2ₐ  -&gt; path = [2ₐ]
+        第 2 層（start=2）：i=2，i == start，不跳過
+                            選 2ᵦ -&gt; path = [2ₐ, 2ᵦ] = [2,2] ✔
+    第 1 層：i=2，i &gt; start(1) 且 nums[2]==nums[1] -&gt; 跳過 ✔
+             （否則會產生另一個 [2]，重複）</div>
+        <p><strong>強制「相同的值必須按陣列順序取」</strong>，所以每個「值的多重集合」只有唯一一條生成路徑 —— 不重不漏 ✔</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ × n)</td><td>去重後遠少於 2ⁿ</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>path + 遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>Counter：對每個值決定「取幾個」</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def subsetsWithDup(self, nums: List[int]) -&gt; List[List[int]]:
+        # 另一個角度：對每個「不同的值」決定「要取幾個」
+        items = sorted(Counter(nums).items())
+        out = []
+
+        def backtrack(idx: int, path: List[int]) -&gt; None:
+            if idx == len(items):
+                out.append(path)
+                return
+            value, cnt = items[idx]
+            for take in range(cnt + 1):          # 取 0 個、1 個、…、cnt 個
+                backtrack(idx + 1, path + [value] * take)
+
+        backtrack(0, [])
+        return out</div>
+        <div class="code-block">nums = [1, 2, 2]  -&gt;  items = [(1, 1), (2, 2)]
+
+  對 (1, 1)：取 0 個 或 1 個
+  對 (2, 2)：取 0 個、1 個 或 2 個
+
+  2 × 3 = 6 種組合 ✔ 剛好就是答案數
+
+  遞迴樹：
+      取 0 個 1 -&gt; 取 0 個 2 -&gt; []
+                -&gt; 取 1 個 2 -&gt; [2]
+                -&gt; 取 2 個 2 -&gt; [2,2]
+      取 1 個 1 -&gt; 取 0 個 2 -&gt; [1]
+                -&gt; 取 1 個 2 -&gt; [1,2]
+                -&gt; 取 2 個 2 -&gt; [1,2,2]
+
+每個葉子就是一個答案，而且【天然不會重複】——
+因為「取幾個」這個決定對每個值只做一次。</div>
+        <p><strong>優點</strong>：</p>
+        <ul>
+          <li><strong>不需要記 <code>i &gt; start</code> 這個容易寫錯的條件</strong></li>
+          <li><strong>搜尋樹的大小剛好等於答案數</strong>（沒有任何被剪掉的分支）</li>
+          <li><strong>在重複值很多時快得多</strong>：<code>[1]×10</code> 只有 11 個葉子，而解法一要走 11 條路徑但檢查了更多分支</li>
+        </ul>
+        <p><strong>缺點</strong>：產生的順序取決於 <code>sorted(Counter(...).items())</code>，而且 <code>path + [value] * take</code> 每層都複製一次 list。在 n ≤ 10 完全無所謂。</p>
+        <p><strong>我更推薦這個版本</strong> —— 它把「去重」從「搜尋時的判斷」變成「問題的重新表述」，比較不容易出錯。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(答案數 × n)</td><td>沒有無用分支</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>Counter + 遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>迭代擴張 + 控制起點</h3>
+        <p>第 78 題的迭代版（每加一個元素就把所有已知子集複製一份）<strong>在有重複值時會產生重複</strong>。修法是：<strong>重複的值只能接在「上一輪新增的那些子集」後面。</strong></p>
+        <div class="code-block">class Solution:
+    def subsetsWithDup(self, nums: List[int]) -&gt; List[List[int]]:
+        nums.sort()
+        out = [[]]
+        start = 0                # 上一輪「新增的那些子集」的起點
+
+        for i, x in enumerate(nums):
+            # 如果 x 和前一個相同，只能接在「上一輪新增的」後面
+            # 否則會產生重複
+            begin = start if i &gt; 0 and nums[i] == nums[i - 1] else 0
+            start = len(out)
+            out += [out[j] + [x] for j in range(begin, start)]
+
+        return out</div>
+        <div class="code-block">nums = [1, 2, 2]（已排序）
+
+  初始： out = [[]]
+
+  i=0, x=1（第一個，begin=0）
+      start = 1
+      新增 [[] + [1]] = [[1]]
+      out = [[], [1]]
+
+  i=1, x=2（和前一個 1 不同，begin=0）
+      start = 2
+      新增 out[0..1] 各加 2 = [[2], [1,2]]
+      out = [[], [1], [2], [1,2]]
+
+  i=2, x=2（和前一個 2 相同！begin = start = 2）
+      start = 4
+      只從 out[2..3] 開始加 = [[2,2], [1,2,2]]
+      out = [[], [1], [2], [1,2], [2,2], [1,2,2]]  ✔ 6 個
+
+  如果 begin 錯誤地設成 0：
+      會新增 [[2], [1,2], [2,2], [1,2,2]]
+      -&gt; [2] 和 [1,2] 重複了 ✘
+
+關鍵：重複的值只能「接在上一輪剛產生的子集」後面，
+      這樣才不會製造出「同樣個數的 2」的兩份。</div>
+        <p><strong>不用遞迴</strong>，但 <code>begin</code> 和 <code>start</code> 的關係要想很清楚。<strong>面試時不建議寫這個版本</strong>（解釋成本太高）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(答案數 × n)</td><td>每個子集建一次</td></tr>
+            <tr><td>空間</td><td>O(答案數 × n)</td><td>所有中間結果</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>要排序？</th><th>去重方式</th><th>有無用分支？</th><th>推薦度</th></tr></thead>
+          <tbody>
+            <tr><td>一、同層跳過</td><td>✔</td><td>搜尋時判斷</td><td>有（被 continue 掉）</td><td>★★★★☆</td></tr>
+            <tr><td>二、Counter</td><td>✘（Counter 不在乎）</td><td>重新表述問題</td><td>沒有</td><td>★★★★★</td></tr>
+            <tr><td>三、迭代 + begin</td><td>✔</td><td>控制起點</td><td>沒有</td><td>★★☆☆☆</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全部相同</strong>：<code>[1,1,1]</code> → 4 個（<code>[]、[1]、[1,1]、[1,1,1]</code>）。<strong>最能抓出去重 bug 的測資。</strong></li>
+          <li><strong>成對重複</strong>：<code>[1,2,2]</code> → 6 個。</li>
+          <li><strong>沒有重複</strong>：<code>[1,2,3]</code> → 8 個。退化成第 78 題。</li>
+          <li><strong>單一元素</strong>：<code>[0]</code> → <code>[[], [0]]</code>。</li>
+          <li><strong>沒排序的輸入</strong>：<code>[4,4,4,1,4]</code> → 應該是 <code>(4+1) × (1+1) = 10</code> 個。<strong>忘記排序的話會產生大量重複。</strong></li>
+          <li><strong>答案數量</strong>：<code>∏ (cᵥ + 1)</code>。<strong>先算這個數再檢查程式輸出。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：三個「同層去重」的題目有什麼共同點？</h3>
+
+        <div class="code-block">第 40 題 Combination Sum II（組合 + 和的條件）
+    if i &gt; start and candidates[i] == candidates[i-1]: continue
+
+第 47 題 Permutations II（排列）
+    if i &gt; 0 and nums[i] == nums[i-1] and not used[i-1]: continue
+
+第 90 題 Subsets II（子集）
+    if i &gt; start and nums[i] == nums[i-1]: continue
+
+三者在說同一件事：
+    「同一層裡，相同的值只選第一次出現的那個」
+
+差別只在「怎麼判斷『同一層』」：
+    有 start 的（組合、子集）-&gt; i &gt; start
+    沒有 start 的（排列）    -&gt; not used[i-1]
+
+而且三者都【必須先排序】。
+
+一句話記住：
+    「讓每個答案只有唯一一條生成路徑」
+
+    做法：強制「相同的值必須按陣列順序被使用」。</div>
+
+        <h3>追問二：為什麼位元遮罩法（第 78 題解法三）在這裡失效？</h3>
+
+        <div class="code-block">nums = [1, 2, 2]
+
+  mask = 0b010 -&gt; 選 nums[1] = 2  -&gt; [2]
+  mask = 0b100 -&gt; 選 nums[2] = 2  -&gt; [2]   重複！
+
+  位元遮罩枚舉的是「選哪些【位置】」，
+  而不是「選哪些【值】」。
+
+  位置不同但值相同 -&gt; 產生重複的子集。
+
+  只能事後用 set 去重 —— 但那就浪費了 2ⁿ 的搜尋。
+
+所以「有重複元素」的版本只能用回溯（或 Counter）。</div>
+
+        <h3>追問三：答案的數量怎麼算？</h3>
+
+        <p><code>∏ (cᵥ + 1)</code>，其中 <code>cᵥ</code> 是值 <code>v</code> 出現的次數。</p>
+
+        <div class="code-block">[1,2,2]：      (1+1)(2+1) = 6
+[1,1,1]：      (3+1) = 4
+[1,2,3]：      2×2×2 = 8
+[4,4,4,1,4]：  (4+1)(1+1) = 10
+
+直覺：對每個不同的值，獨立決定「要取 0 個、1 個、…、cᵥ 個」。
+
+這也正是解法二（Counter 版）搜尋樹的葉子數 ——
+所以那個版本【一個無用的節點都沒有】。
+
+寫完程式之後先用這個公式算一遍，是最快的驗證。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 78 題 Subsets</strong> —— 無重複元素的版本</li>
+          <li><strong>第 40 題 Combination Sum II</strong> —— 組合的同層去重</li>
+          <li><strong>第 47 題 Permutations II</strong> —— 排列的同層去重</li>
+          <li><strong>第 77 題 Combinations</strong> —— 限定大小的子集</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>去重條件為什麼是 <code>i &gt; start</code> 而不是 <code>i &gt; 0</code>？請用 <code>[1,2,2]</code> 說明後者會漏掉什麼。</li>
+            <li>為什麼位元遮罩枚舉法在有重複元素時會失效？</li>
+            <li><code>[4,4,4,1,4]</code> 應該有幾個子集？用公式算一遍。</li>
+            <li>Counter 版本的搜尋樹為什麼「一個無用的節點都沒有」？</li>
+          </ol>
+        </div>

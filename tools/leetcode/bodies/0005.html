@@ -1,0 +1,358 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code>, return <em>the longest palindromic substring</em> in <code>s</code>.</p>
+          <p>A string is a palindrome when it reads the same backward as forward.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code>，找出 <code>s</code> 中最長的<strong>回文子字串</strong>並回傳。</p>
+          <p>回文的意思是：從左讀到右和從右讀到左完全一樣。</p>
+        </div>
+
+        <div class="callout">
+          <h3>回文的「奇偶」問題，是這題所有麻煩的來源</h3>
+        <div class="code-block">奇數長度的回文：  r a c e c a r
+                        ↑ 正中間是「一個字元」
+
+偶數長度的回文：  a b b a
+                    ↑ 正中間是「兩個字元的縫隙」，沒有中心字元
+
+只想到奇數的人，會在 "cbbd" 這種測資上得到 "b"（正確答案是 "bb"）。
+這是本題第一名的錯誤。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "babad"
+  輸出："bab"
+  說明："aba" 也是正確答案（題目說任一個都可以）。
+
+範例 2
+  輸入：s = "cbbd"
+  輸出："bb"
+  說明：偶數長度的回文。
+
+範例 3
+  輸入：s = "a"
+  輸出："a"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 1000</li>
+          <li><code>s</code> 只由數字和英文字母組成（<strong>大小寫有分</strong>，'A' ≠ 'a'）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/longest-palindromic-substring/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 1000</strong> 是一個關鍵訊號。O(n²) 是 10⁶ 次運算 —— 穩過。O(n³) 是 10⁹ —— 一定超時。所以題目在說：<strong>做到 O(n²) 就及格了</strong>，O(n) 的 Manacher 是加分題而不是必需品。</li>
+          <li><strong>長度至少 1</strong>，所以不必處理空字串（但我們的程式碼還是會擋，因為寫成通用的比較安全）。</li>
+          <li><strong>大小寫有分</strong>：<code>"Aa"</code> 的答案是 <code>"A"</code>，不是 <code>"Aa"</code>。這題沒有「忽略大小寫與標點」的要求 —— 那是第 125 題。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>所有解法都在回答同一個問題：<strong>怎麼避免把 O(n²) 個子字串每一個都花 O(n) 去驗證？</strong></p>
+
+        <table>
+          <thead><tr><th>解法</th><th>怎麼避免重複驗證</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力法</td><td>不避免（基準線）</td><td>O(n³)</td><td>O(n)</td></tr>
+            <tr><td>二、區間 DP</td><td>用「內層是回文」的結果推「外層是回文」</td><td>O(n²)</td><td>O(n²)</td></tr>
+            <tr><td>三、中心擴散</td><td>從中心往外長，天然就是遞增驗證</td><td>O(n²)</td><td>O(1)</td></tr>
+            <tr><td>四、Manacher</td><td>用已知回文的對稱性，直接抄鏡像的答案</td><td>O(n)</td><td>O(n)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力列舉所有子字串</h3>
+        <p>枚舉左右端點共 O(n²) 對，每一對花 O(n) 檢查是不是回文。總共 O(n³)。</p>
+        <div class="code-block">class Solution:
+    def longestPalindrome(self, s: str) -&gt; str:
+        best = ""
+        for i in range(len(s)):
+            for j in range(i, len(s)):
+                sub = s[i:j + 1]
+                if sub == sub[::-1] and len(sub) &gt; len(best):
+                    best = sub
+        return best</div>
+        <p>n = 1000 時大約 10⁹ 次字元比較，LeetCode 上會 TLE。但它只有 8 行、絕對正確，是後面三種解法的對照組 —— 這篇的所有測試都拿它當標準答案。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n³)</td><td>O(n²) 個子字串 × O(n) 驗證</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>切片 <code>s[i:j+1]</code> 本身就是 O(n) 記憶體</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>區間 DP：把驗證的 O(n) 省掉</h3>
+        <p>暴力法的浪費在於：驗證 <code>"abcba"</code> 是回文時，其實剛剛已經驗證過 <code>"bcb"</code> 是回文了，卻沒有留下來用。</p>
+        <p>定義 <code>dp[i][j]</code>＝<code>s[i..j]</code>（閉區間）是不是回文。轉移只有一行：</p>
+        <div class="code-block">dp[i][j] = (s[i] == s[j]) and dp[i+1][j-1]
+
+白話：頭尾一樣，而且「去掉頭尾之後」也是回文。
+
+邊界：
+  長度 1： dp[i][i]   = True              （單一字元必是回文）
+  長度 2： dp[i][i+1] = (s[i] == s[i+1])  （沒有「內層」可以問）</div>
+        <h3>迴圈順序是這題唯一的陷阱</h3>
+        <p><code>dp[i][j]</code> 依賴 <code>dp[i+1][j-1]</code> —— 一個<strong>更短</strong>的區間。所以必須<strong>按區間長度由短到長</strong>填表。如果照著直覺寫 <code>for i in range(n): for j in range(n):</code>，在算 <code>dp[0][4]</code> 的時候 <code>dp[1][3]</code> 還是 False，答案就錯了。</p>
+        <div class="code-block">填表順序（n = 5）：先填 ln=1 的對角線，再一層一層往右上角推
+
+     j=0  j=1  j=2  j=3  j=4
+i=0   1    2    3    4    5     ← 數字是填的順序（第幾輪）
+i=1        1    2    3    4
+i=2             1    2    3
+i=3                  1    2
+i=4                       1
+
+只有右上三角（i ≤ j）有意義，左下三角永遠用不到。</div>
+        <div class="code-block">class Solution:
+    def longestPalindrome(self, s: str) -&gt; str:
+        n = len(s)
+        if n &lt; 2:
+            return s
+
+        # dp[i][j] = s[i..j] 是不是回文
+        dp = [[False] * n for _ in range(n)]
+        start, length = 0, 1
+
+        for i in range(n):          # 長度 1 一定是回文
+            dp[i][i] = True
+
+        # 一定要「按長度由短到長」跑，因為 dp[i][j] 依賴 dp[i+1][j-1]
+        for ln in range(2, n + 1):
+            for i in range(n - ln + 1):
+                j = i + ln - 1
+                if s[i] != s[j]:
+                    continue
+                if ln == 2 or dp[i + 1][j - 1]:
+                    dp[i][j] = True
+                    if ln &gt; length:
+                        start, length = i, ln
+
+        return s[start:start + length]</div>
+        <p><strong>為什麼還是 O(n²) 空間？</strong>因為要存整張表。雖然可以用滾動陣列壓到 O(n)，但既然解法三能做到 O(1)，這個優化就沒什麼意義了。區間 DP 真正的價值在於：它能推廣到「最長回文<strong>子序列</strong>」（第 516 題）和「回文分割」（第 131、132 題），而中心擴散不行。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>填滿半張 n×n 的表</td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td>整張 dp 表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>中心擴散（最推薦的寫法）</h3>
+        <p>換個方向想：<strong>與其問「這段是不是回文」，不如從中心開始長出回文。</strong></p>
+        <p>每個回文都有唯一的中心。長度 n 的字串總共有 <strong>2n − 1</strong> 個可能的中心：n 個字元（奇數長度的回文）加上 n − 1 個縫隙（偶數長度的回文）。每個中心往外撐最多 O(n) 步，總共 O(n²) —— 和 DP 一樣，但<strong>不需要任何額外空間</strong>。</p>
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 278" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">中心擴散：每個位置都當一次中心，往左右同時撐開</text>
+            <text x="20" y="52" fill="var(--text-muted)" font-size="12">奇數中心（i = 2，字元 &apos;c&apos;）</text>
+            <g font-size="15" text-anchor="middle">
+              <rect x="70" y="64" width="44" height="38" rx="5" fill="none" stroke="var(--border)"/><text x="92" y="90" fill="var(--text-muted)">a</text>
+              <rect x="118" y="64" width="44" height="38" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="140" y="90" fill="var(--accent)">b</text>
+              <rect x="166" y="64" width="44" height="38" rx="5" fill="none" stroke="var(--gold)" stroke-width="2.5"/><text x="188" y="90" fill="var(--gold)">c</text>
+              <rect x="214" y="64" width="44" height="38" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="236" y="90" fill="var(--accent)">b</text>
+              <rect x="262" y="64" width="44" height="38" rx="5" fill="none" stroke="var(--border)"/><text x="284" y="90" fill="var(--text-muted)">d</text>
+            </g>
+            <path d="M188 110 L140 110" stroke="var(--accent)" stroke-width="1.5" marker-end="url(none)"/>
+            <path d="M188 110 L236 110" stroke="var(--accent)" stroke-width="1.5"/>
+            <text x="188" y="126" fill="var(--gold)" font-size="11" text-anchor="middle">中心</text>
+            <text x="330" y="90" fill="var(--text-muted)" font-size="12">b == b ✔ 撐開 → &quot;bcb&quot;</text>
+            <text x="330" y="108" fill="var(--text-muted)" font-size="12">a != d ✘ 停 → 長度 3</text>
+
+            <text x="20" y="162" fill="var(--text-muted)" font-size="12">偶數中心（i = 1 與 i = 2 之間的縫隙）</text>
+            <g font-size="15" text-anchor="middle">
+              <rect x="70" y="174" width="44" height="38" rx="5" fill="none" stroke="var(--border)"/><text x="92" y="200" fill="var(--text-muted)">c</text>
+              <rect x="118" y="174" width="44" height="38" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="140" y="200" fill="var(--accent)">b</text>
+              <rect x="166" y="174" width="44" height="38" rx="5" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="188" y="200" fill="var(--accent)">b</text>
+              <rect x="214" y="174" width="44" height="38" rx="5" fill="none" stroke="var(--border)"/><text x="236" y="200" fill="var(--text-muted)">d</text>
+            </g>
+            <line x1="164" y1="168" x2="164" y2="220" stroke="var(--gold)" stroke-width="2.5" stroke-dasharray="4 3"/>
+            <text x="164" y="234" fill="var(--gold)" font-size="11" text-anchor="middle">中心在縫隙上</text>
+            <text x="330" y="200" fill="var(--text-muted)" font-size="12">b == b ✔ → &quot;bb&quot;，c != d ✘ 停</text>
+            <text x="20" y="262" fill="var(--gold)" font-size="12">一個長度 n 的字串共有 2n − 1 個中心：n 個字元 + (n−1) 個縫隙</text>
+          </svg>
+        </div>
+        <div class="code-block">class Solution:
+    def longestPalindrome(self, s: str) -&gt; str:
+        if not s:
+            return ""
+
+        def expand(l: int, r: int) -&gt; tuple:
+            """從 (l, r) 往兩邊撐開，回傳撐到最大時的閉區間。"""
+            while l &gt;= 0 and r &lt; len(s) and s[l] == s[r]:
+                l -= 1
+                r += 1
+            return l + 1, r - 1      # 多跑了一步，收回來
+
+        start, end = 0, 0
+        for i in range(len(s)):
+            for l, r in (expand(i, i),        # 奇數長度，中心是一個字元
+                         expand(i, i + 1)):   # 偶數長度，中心是兩字元的縫隙
+                if r - l &gt; end - start:
+                    start, end = l, r
+
+        return s[start:end + 1]</div>
+        <h3>為什麼 expand 回傳 <code>(l+1, r-1)</code>？</h3>
+        <p>因為 while 迴圈是在「撐不動了」才停下來，此時 <code>l</code> 和 <code>r</code> 已經各多走了一步（要嘛出界、要嘛字元不同）。收回一步才是真正的回文邊界。這個 off-by-one 是這個解法唯一容易寫錯的地方 —— 驗證方法：拿 <code>"a"</code> 試，<code>expand(0,0)</code> 應該回傳 <code>(0,0)</code>，長度 1。</p>
+        <h3>為什麼偶數中心用 <code>expand(i, i+1)</code> 就好，不用擋越界？</h3>
+        <p>當 <code>i</code> 是最後一個字元時 <code>i+1 == len(s)</code>，while 的條件 <code>r &lt; len(s)</code> 第一次就不成立，直接回傳 <code>(i+1, i)</code> —— 一個「長度 −1」的空區間，自然不會贏過任何真實答案。<strong>用區間長度為負來表示「不存在」</strong>，省掉一個 if，是很實用的小技巧。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>2n−1 個中心 × 最多 n 步</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個下標；回傳的切片不算</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>Manacher：O(n) 的完整解</h3>
+        <p>中心擴散還有浪費：算 <code>"aaaaaaa"</code> 時，每個中心都從頭撐一次，總步數是 O(n²)。但這些回文彼此高度重疊 —— Manacher 就是把重疊的部分「抄」過來。</p>
+        <h3>第一步：用 # 消滅奇偶之分</h3>
+        <div class="code-block">s = "abba"
+t = "#a#b#b#a#"     （長度變成 2n+1，永遠是奇數）
+
+s = "aba"
+t = "#a#b#a#"
+
+好處：
+  1. 所有回文在 t 裡都是奇數長度，只要處理「以某字元為中心」一種情況。
+  2. pal[i]（t 裡的半徑）剛好等於「原字串裡對應回文的長度」。
+     例如 t = "#a#b#b#a#"，中心在正中央的 # 上，半徑 4，
+     原字串的回文 "abba" 長度就是 4。不用換算，直接相等。</div>
+        <h3>第二步：利用對稱性抄答案</h3>
+        <p>維護目前<strong>右端最靠右</strong>的那個回文，記下它的中心 <code>center</code> 和右端 <code>right</code>。當我們要算位置 <code>i</code>（且 <code>i &lt; right</code>）時，它在這個大回文裡有一個鏡像位置 <code>mirror = 2*center − i</code>。</p>
+        <div class="code-block">                  center
+                     |
+  ...  [  #  a  #  a  #  a  #  ]  ...
+          ^              ^     ^
+        mirror           i    right
+
+因為 [left..right] 整段是回文，mirror 附近和 i 附近長得一模一樣，
+所以 pal[i] 至少可以直接抄 pal[mirror]。
+
+但有一個限制：抄的部分不能超出 right，
+因為 right 外面的字元還沒被這個大回文保證過。
+          pal[i] = min(right - i, pal[mirror])
+
+抄完之後再從這個起點繼續往外撐 —— 撐成功的每一步都會把 right 往右推。</div>
+        <h3>為什麼總複雜度是 O(n)？</h3>
+        <p>關鍵在最後一句：<strong>while 迴圈每成功跑一次，<code>right</code> 就 +1</strong>。而 <code>right</code> 從 0 單調遞增到 n，最多只能被推 n 次。所以所有 while 的總執行次數是 O(n)，不是 O(n²)。這是「攤還分析（amortized analysis）」的經典例子 —— 單看一次迴圈可能跑很久，但整體加起來有上界。</p>
+        <div class="code-block">class Solution:
+    def longestPalindrome(self, s: str) -&gt; str:
+        if not s:
+            return ""
+
+        # 插入分隔符，讓奇偶長度統一成奇數
+        t = "#" + "#".join(s) + "#"
+        n = len(t)
+        pal = [0] * n              # pal[i] = 以 t[i] 為中心的回文「半徑」
+        center = right = 0         # 目前最靠右的回文的中心與右端
+
+        for i in range(n):
+            if i &lt; right:
+                mirror = 2 * center - i
+                pal[i] = min(right - i, pal[mirror])   # 先抄鏡像，最多抄到 right
+
+            # 從已知的半徑繼續往外撐
+            while (i - pal[i] - 1 &gt;= 0 and i + pal[i] + 1 &lt; n
+                   and t[i - pal[i] - 1] == t[i + pal[i] + 1]):
+                pal[i] += 1
+
+            if i + pal[i] &gt; right:
+                center, right = i, i + pal[i]
+
+        k = max(range(n), key=lambda i: pal[i])
+        length = pal[k]                    # 半徑剛好等於原字串裡的長度
+        start = (k - length) // 2          # 映射回原字串的下標
+        return s[start:start + length]</div>
+        <h3>下標換算：<code>start = (k − length) // 2</code></h3>
+        <div class="code-block">t = "#b#a#b#a#d#"   （s = "babad"）
+下標  0123456789…
+
+最佳中心 k = 3（字元 'a'），半徑 pal[3] = 3
+  → 在 t 裡的回文是 t[0..6] = "#b#a#b#"
+  → 對應 s 裡的 "bab"，起點 0，長度 3
+
+驗算：start = (3 - 3) // 2 = 0 ✔   length = pal[3] = 3 ✔</div>
+        <p><strong>實務上要不要寫 Manacher？</strong>老實說：n ≤ 1000 的話完全不需要。面試時能把中心擴散寫對、再口頭說明「有 O(n) 的 Manacher，原理是利用已知回文的對稱性省掉重複比較」，通常就足夠了。硬寫 Manacher 寫錯，比不寫還扣分。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>攤還分析：right 單調遞增</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>t 和 pal 兩個陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>好寫程度</th><th>什麼時候該用</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>O(n³)</td><td>O(n)</td><td>★★★★★</td><td>只當測試用的參考答案</td></tr>
+            <tr><td>二、區間 DP</td><td>O(n²)</td><td>O(n²)</td><td>★★★☆☆</td><td>當你還要解回文分割、最長回文子序列</td></tr>
+            <tr><td>三、中心擴散</td><td>O(n²)</td><td>O(1)</td><td>★★★★☆</td><td>面試預設答案</td></tr>
+            <tr><td>四、Manacher</td><td>O(n)</td><td>O(n)</td><td>★☆☆☆☆</td><td>n 到 10⁶ 等級，或題目就是要考它</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>偶數回文</strong>：<code>"cbbd"</code> → <code>"bb"</code>。只寫奇數中心的話會得到 <code>"b"</code>。</li>
+          <li><strong>全部相同</strong>：<code>"aaaa"</code> → <code>"aaaa"</code>。這是中心擴散的最壞情況（真的跑滿 O(n²)）。</li>
+          <li><strong>完全沒有長度 &gt; 1 的回文</strong>：<code>"abcd"</code> → 任一個單字元。不能回傳空字串。</li>
+          <li><strong>長度 1</strong>：<code>"a"</code> → <code>"a"</code>。DP 解法的 <code>n &lt; 2</code> 提前 return 就是為了它。</li>
+          <li><strong>整個字串就是回文</strong>：<code>"racecar"</code>。撐開會一路撐到出界，檢查 <code>l &gt;= 0</code> 和 <code>r &lt; len(s)</code> 不能漏。</li>
+          <li><strong>答案不唯一</strong>：<code>"babad"</code> 回 <code>"bab"</code> 或 <code>"aba"</code> 都算對，但你的程式要穩定回其中一個 —— 用 <code>&gt;</code> 而不是 <code>&gt;=</code> 比長度，會回傳最早出現的那個。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：要的是最長回文「子序列」呢？</h3>
+
+        <p>完全不同的題（第 516 題）。子序列可以跳過字元，中心擴散整個失效，只能用區間 DP：<code>dp[i][j] = dp[i+1][j-1] + 2</code>（若 <code>s[i]==s[j]</code>）否則 <code>max(dp[i+1][j], dp[i][j-1])</code>。<strong>這就是為什麼解法二值得學</strong> —— 它的骨架可以直接搬過去。</p>
+
+        <h3>追問二：要回傳「有幾個回文子字串」呢？</h3>
+
+        <p>第 647 題。中心擴散幾乎不用改：每成功撐開一次就 <code>count += 1</code>，因為每一次成功的撐開都對應一個不同的回文子字串。三行改完。</p>
+
+        <h3>追問三：要把字串補成回文，最少在前面加幾個字元？</h3>
+
+        <p>第 214 題（Shortest Palindrome）。等價於「找出從 0 開始的最長回文前綴」，可以用 KMP 在 O(n) 解決 —— 把 <code>s + "#" + reversed(s)</code> 做一次 failure function 即可。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 516 題 Longest Palindromic Subsequence</strong> —— 區間 DP 的直接應用</li>
+          <li><strong>第 647 題 Palindromic Substrings</strong> —— 中心擴散改三行</li>
+          <li><strong>第 131／132 題 Palindrome Partitioning</strong> —— 需要 dp 表當預處理</li>
+          <li><strong>第 125 題 Valid Palindrome</strong> —— 忽略大小寫與標點的版本</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼中心的總數是 <code>2n − 1</code> 而不是 <code>n</code>？請用 <code>"abba"</code> 列出全部 7 個中心。</li>
+            <li>區間 DP 如果把外層迴圈寫成 <code>for i in range(n)</code>、內層 <code>for j in range(i, n)</code>，哪一筆輸入會算錯？請追出第一個出錯的 <code>dp[i][j]</code>。</li>
+            <li><code>expand</code> 為什麼回傳 <code>(l+1, r-1)</code>？如果誤寫成 <code>(l, r)</code>，對 <code>"a"</code> 會回傳什麼？</li>
+            <li>Manacher 裡 <code>pal[i] = min(right - i, pal[mirror])</code>，如果把 <code>min</code> 拿掉只寫 <code>pal[mirror]</code>，為什麼會錯？</li>
+          </ol>
+        </div>

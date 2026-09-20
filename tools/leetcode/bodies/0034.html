@@ -1,0 +1,323 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of integers <code>nums</code> sorted in non-decreasing order, find the starting and ending position of a given <code>target</code> value.</p>
+          <p>If <code>target</code> is not found in the array, return <code>[-1, -1]</code>.</p>
+          <p>You must write an algorithm with <code>O(log n)</code> runtime complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>非遞減排序</strong>的整數陣列 <code>nums</code> 和一個目標值 <code>target</code>，找出 <code>target</code> 出現的<strong>第一個位置和最後一個位置</strong>。</p>
+          <p>如果 <code>target</code> 不在陣列裡，回傳 <code>[-1, -1]</code>。</p>
+          <p>演算法必須是 <code>O(log n)</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題就是在考 lower_bound / upper_bound</h3>
+        <div class="code-block">兩個最重要的二分搜尋變體：
+
+  lower_bound(t) = 第一個 &gt;= t 的位置
+  upper_bound(t) = 第一個 &gt;  t 的位置
+
+有了它們，這題就是兩行：
+
+  first = lower_bound(target)
+  last  = upper_bound(target) - 1
+
+nums = [5, 7, 7, 8, 8, 10]，target = 8
+       索引 0  1  2  3  4  5
+
+  lower_bound(8) = 3    （第一個 &gt;= 8）
+  upper_bound(8) = 5    （第一個 &gt; 8，也就是 10 的位置）
+  答案 = [3, 5 - 1] = [3, 4] ✔
+
+有用的恆等式：
+  upper_bound(t) == lower_bound(t + 1)      （整數才成立）
+  出現次數 = upper_bound(t) - lower_bound(t)
+
+Python 的 bisect 模組：
+  bisect.bisect_left  == lower_bound
+  bisect.bisect_right == upper_bound（也叫 bisect）</div>
+        <p><strong>「找到某個值」和「找到某個邊界」是兩種不同的二分搜尋。</strong>前者用 <code>while lo &lt;= hi</code> + 找到就 return；後者用 <code>while lo &lt; hi</code> + 收斂到唯一一點。把這兩個骨架分清楚，二分搜尋就不會再寫錯。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [5,7,7,8,8,10], target = 8
+  輸出：[3,4]
+
+範例 2
+  輸入：nums = [5,7,7,8,8,10], target = 6
+  輸出：[-1,-1]
+
+範例 3
+  輸入：nums = [], target = 0
+  輸出：[-1,-1]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>nums.length</code> ≤ 10⁵（<strong>可以是空陣列</strong>）</li>
+          <li>−10⁹ ≤ <code>nums[i]</code> ≤ 10⁹</li>
+          <li><code>nums</code> 是<strong>非遞減</strong>排序的</li>
+          <li>−10⁹ ≤ <code>target</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/find-first-and-last-position-of-element-in-sorted-array/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>陣列可以是空的</strong>。<code>lower_bound</code> 會回傳 0，然後 <code>left == len(nums)</code> 這個檢查擋下來。</li>
+          <li><strong>要求 O(log n)</strong> —— 所以「先二分找到一個，再往兩邊線性掃」是不行的。全部相同的陣列（<code>[8,8,8,...,8]</code>，10⁵ 個）會讓那種寫法變成 O(n)。<strong>這是本題最常見的陷阱。</strong></li>
+          <li><strong>值域到 ±10⁹</strong>，所以 <code>lower_bound(target + 1)</code> 在 <code>target == 10⁹</code> 時會是 <code>10⁹ + 1</code> —— Python 沒問題，但在 C/Java 裡要注意不要溢位（用 long 或改用 upper_bound）。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>三種寫法，本質都是「找邊界」而不是「找元素」。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>自己寫 lower_bound（最該掌握的版本）</h3>
+        <div class="code-block">class Solution:
+    def searchRange(self, nums: List[int], target: int) -&gt; List[int]:
+        def lower_bound(t: int) -&gt; int:
+            """第一個 &gt;= t 的位置（找不到就回 len(nums)）"""
+            lo, hi = 0, len(nums)        # 注意 hi 是 len，不是 len-1
+            while lo &lt; hi:
+                mid = (lo + hi) // 2
+                if nums[mid] &lt; t:
+                    lo = mid + 1
+                else:
+                    hi = mid             # mid 可能就是答案，不能跳過
+            return lo
+
+        left = lower_bound(target)
+        if left == len(nums) or nums[left] != target:
+            return [-1, -1]
+
+        # 第一個 &gt; target 的位置 = 第一個 &gt;= target+1 的位置
+        right = lower_bound(target + 1) - 1
+        return [left, right]</div>
+        <h3>lower_bound 的三個關鍵，一個都不能改</h3>
+        <div class="code-block">1. hi 初始是 len(nums)，不是 len(nums) - 1
+
+   因為答案的範圍是 [0, n]，n 表示「全部都 &lt; t，插在最後面」。
+   寫 len-1 的話永遠回不了 n，空陣列也會出錯。
+
+2. while lo &lt; hi（不是 &lt;=）
+
+   這是「收斂到一點」的骨架。
+   結束時 lo == hi，那一點就是答案。
+   寫 &lt;= 會死循環（因為 hi = mid 可能讓區間不縮小）。
+
+3. else 分支是 hi = mid（不是 mid - 1）
+
+   當 nums[mid] &gt;= t 時，mid「本身可能就是答案」，
+   不能把它排除掉。
+
+   而 if 分支是 lo = mid + 1，因為 nums[mid] &lt; t
+   表示 mid 確定不是答案，可以排除。
+
+這三點是配套的：hi = mid 不縮小上界，
+所以必須用 lo &lt; hi 而不是 &lt;=；
+而 mid = (lo+hi)//2 向下取整保證了 mid &lt; hi，
+所以 hi = mid 一定會讓區間變小，不會死循環。</div>
+        <h3>為什麼可以用 <code>lower_bound(target + 1) - 1</code> 找最後一個？</h3>
+        <div class="code-block">lower_bound(target + 1) = 第一個 &gt;= target+1 的位置
+                        = 第一個 &gt; target 的位置（整數）
+                        = upper_bound(target)
+
+減 1 就是「最後一個 == target」的位置。
+
+nums = [5,7,7,8,8,10]，target = 8
+    lower_bound(9) = 5（值 10 的位置）
+    5 - 1 = 4 ✔
+
+好處：只要寫一個 lower_bound 就夠了，不用再寫一個 upper_bound。
+（兩個函式長得很像，寫兩次容易抄錯一個等號。）</div>
+        <p><strong>找不到的判斷</strong>：<code>left == len(nums)</code>（全部都比 target 小）<strong>或</strong> <code>nums[left] != target</code>（插入位置上不是 target）。兩個條件缺一不可，而且順序不能換（Python 的短路求值避免了 IndexError）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>兩次二分</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個下標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>用 bisect 模組（Python 的正解）</h3>
+        <div class="code-block">import bisect
+
+class Solution:
+    def searchRange(self, nums: List[int], target: int) -&gt; List[int]:
+        left = bisect.bisect_left(nums, target)    # 第一個 &gt;= target
+        if left == len(nums) or nums[left] != target:
+            return [-1, -1]
+        right = bisect.bisect_right(nums, target) - 1   # 最後一個 == target
+        return [left, right]</div>
+        <div class="code-block">bisect.bisect_left(a, x)   第一個 &gt;= x 的位置（lower_bound）
+bisect.bisect_right(a, x)  第一個 &gt;  x 的位置（upper_bound）
+bisect.bisect              就是 bisect_right 的別名
+
+記法：
+    bisect_left  = 把 x 插在「所有等於 x 的元素的左邊」
+    bisect_right = 把 x 插在「所有等於 x 的元素的右邊」
+
+    a = [5,7,7,8,8,10]
+    bisect_left(a, 8)  = 3   [5,7,7,|8,8,10]
+    bisect_right(a, 8) = 5   [5,7,7,8,8,|10]
+
+出現次數 = bisect_right(a,x) - bisect_left(a,x) = 5 - 3 = 2 ✔</div>
+        <p><strong>實務上就該這樣寫。</strong>但面試時建議先寫解法一，證明你知道它在做什麼，再說「Python 有 bisect 可以直接用」。</p>
+        <p><strong>bisect 的常見誤用</strong>：忘了檢查 <code>nums[left] != target</code>。<code>bisect_left</code> 回傳的是「插入位置」，不保證那裡真的有 target。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>兩次二分（C 實作，常數很小）</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>—</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>找到之後繼續往一邊逼（不用 lower_bound）</h3>
+        <p>如果一時想不起 <code>lower_bound</code> 的骨架，這個寫法用的是熟悉的「<code>while lo &lt;= hi</code> + 找到就 return」骨架，只是<strong>找到之後不 return，先記下來再繼續往一邊找</strong>。</p>
+        <div class="code-block">class Solution:
+    def searchRange(self, nums: List[int], target: int) -&gt; List[int]:
+        def find(first: bool) -&gt; int:
+            lo, hi = 0, len(nums) - 1
+            ans = -1
+            while lo &lt;= hi:
+                mid = (lo + hi) // 2
+                if nums[mid] == target:
+                    ans = mid                 # 先記下來
+                    if first:
+                        hi = mid - 1          # 繼續往左找更早的
+                    else:
+                        lo = mid + 1          # 繼續往右找更晚的
+                elif nums[mid] &lt; target:
+                    lo = mid + 1
+                else:
+                    hi = mid - 1
+            return ans
+
+        return [find(True), find(False)]</div>
+        <div class="code-block">找第一個（first = True）：
+    nums = [5,7,7,8,8,10]，target = 8
+
+    lo=0, hi=5, mid=2: nums[2]=7 &lt; 8 -&gt; lo=3
+    lo=3, hi=5, mid=4: nums[4]=8 == 8 -&gt; ans=4，往左找 hi=3
+    lo=3, hi=3, mid=3: nums[3]=8 == 8 -&gt; ans=3，往左找 hi=2
+    lo=3 &gt; hi=2 -&gt; 結束
+
+    回傳 3 ✔
+
+「先記下來再繼續找」這個模式很好記，
+而且不需要管 hi 該是 len 還是 len-1。
+
+缺點：比 lower_bound 多跑幾輪
+（找到之後還要繼續二分完），但複雜度一樣。</div>
+        <p><strong>推薦給「二分搜尋還不夠熟」的人</strong>：它的骨架和最基本的二分搜尋一模一樣，只改了「找到時做什麼」。等到 <code>lower_bound</code> 的三個要點記熟了，再換解法一。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>兩次二分，每次都跑完</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個下標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>要記的東西</th><th>適合</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、lower_bound</td><td>O(log n)</td><td>三個要點</td><td>面試</td><td>最標準；一個函式解決兩件事</td></tr>
+            <tr><td>二、bisect</td><td>O(log n)</td><td>兩個函式名</td><td>實務</td><td>最短，但要記得檢查值</td></tr>
+            <tr><td>三、記下來再逼</td><td>O(log n)</td><td>基本骨架</td><td>剛學二分</td><td>最不容易寫錯</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空陣列</strong>：<code>([], 0)</code> → <code>[-1,-1]</code>。<code>left == len(nums) == 0</code> 擋下。</li>
+          <li><strong>target 不在裡面</strong>：<code>([5,7,7,8,8,10], 6)</code> → <code>[-1,-1]</code>。<code>lower_bound(6) = 1</code>，但 <code>nums[1] = 7 != 6</code>。</li>
+          <li><strong>target 比全部都大</strong>：<code>([1,2,3], 5)</code> → <code>[-1,-1]</code>。<code>lower_bound = 3 == len</code>。<strong>hi 初始寫成 len−1 會在這裡出錯。</strong></li>
+          <li><strong>target 比全部都小</strong>：<code>([1,2,3], 0)</code> → <code>[-1,-1]</code>。</li>
+          <li><strong>只出現一次</strong>：<code>([1,2,3], 2)</code> → <code>[1,1]</code>。</li>
+          <li><strong>全部都是 target</strong>：<code>([2,2], 2)</code> → <code>[0,1]</code>。<strong>10⁵ 個相同元素是「二分後線性掃」會 TLE 的測資。</strong></li>
+          <li><strong>target 在頭或尾</strong>：<code>([1,2,3], 1)</code> → <code>[0,0]</code>；<code>([1,2,3], 3)</code> → <code>[2,2]</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要算「出現幾次」呢？</h3>
+
+        <p><code>upper_bound(t) - lower_bound(t)</code>，一行。<strong>這比「找到範圍再相減再加一」乾淨</strong>，而且在「不存在」時自動回 0，不用特判。</p>
+
+        <h3>追問二：這兩個函式在標準庫裡叫什麼？</h3>
+
+        <div class="code-block">C++ ：  std::lower_bound / std::upper_bound
+        還有 std::equal_range 一次回傳兩個
+
+Python：bisect.bisect_left / bisect.bisect_right
+
+Java：  沒有內建的 lower_bound！
+        Arrays.binarySearch 在有重複值時回傳「任意一個」，
+        不保證是第一個 —— 所以 Java 要自己寫。
+
+Rust：  slice::partition_point（更一般化的版本）
+
+「有重複值時回傳哪一個」是這些 API 最大的差異，
+用之前一定要查清楚。</div>
+
+        <h3>追問三：lower_bound 可以推廣成什麼？</h3>
+
+        <p><strong>「找出第一個讓述詞 P 為真的位置」</strong>，其中 P 必須是<strong>單調</strong>的（一旦為真就一直為真）。</p>
+
+        <div class="code-block">def partition_point(lo, hi, P):
+    while lo &lt; hi:
+        mid = (lo + hi) // 2
+        if P(mid):
+            hi = mid
+        else:
+            lo = mid + 1
+    return lo
+
+lower_bound 就是 P(i) = (nums[i] &gt;= target)
+
+這個骨架可以直接用在：
+  - 二分答案（P = 「這個答案可行嗎」）
+  - 第 278 題 First Bad Version（P = isBadVersion）
+  - 第 875 題 Koko Eating Bananas（P = 「這個速度吃得完嗎」）
+  - 第 1011 題 船的運載能力
+
+把 lower_bound 理解成 partition_point，
+你就同時學會了一大類「二分答案」的題目。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 35 題 Search Insert Position</strong> —— 就是 lower_bound 本身</li>
+          <li><strong>第 278 題 First Bad Version</strong> —— partition_point 的最單純形式</li>
+          <li><strong>第 875／1011 題</strong> —— 二分答案</li>
+          <li><strong>第 33 題 Search in Rotated Sorted Array</strong> —— 二分的另一種變形</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>lower_bound</code> 的 <code>hi</code> 為什麼初始化成 <code>len(nums)</code> 而不是 <code>len(nums)-1</code>？</li>
+            <li>為什麼 <code>else</code> 分支是 <code>hi = mid</code> 而不是 <code>hi = mid - 1</code>？改了會怎樣？</li>
+            <li>「先二分找到一個，再往兩邊線性掃」在哪一種輸入上會退化成 O(n)？</li>
+            <li>把 <code>lower_bound</code> 改寫成 <code>partition_point</code> 的形式，述詞 P 是什麼？</li>
+          </ol>
+        </div>

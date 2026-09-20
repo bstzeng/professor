@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>70. Climbing Stairs 爬樓梯 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="費波那契數列：遞迴 → 記憶化 → 滾動變數 → 矩陣快速冪。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="70">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 70 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 70</div>
+          <h1>Climbing Stairs<br>爬樓梯</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">記憶化搜尋</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are climbing a staircase. It takes <code>n</code> steps to reach the top.</p>
+          <p>Each time you can either climb <code>1</code> or <code>2</code> steps. In how many distinct ways can you climb to the top?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>你正在爬樓梯，需要爬 <code>n</code> 階才能到頂。</p>
+          <p>每次你可以爬 <strong>1 階</strong>或 <strong>2 階</strong>。請問有幾種不同的方法可以爬到頂？</p>
+        </div>
+
+        <div class="callout">
+          <h3>一句話推導出遞迴式</h3>
+        <div class="code-block">要到第 n 階，最後一步只有兩種可能：
+    從第 n-1 階跨 1 步上來
+    從第 n-2 階跨 2 步上來
+
+而這兩種情況不會重疊（最後一步的大小不同），
+也涵蓋了所有可能。
+
+所以：  f(n) = f(n-1) + f(n-2)
+
+邊界：
+    f(1) = 1     只有「1」
+    f(2) = 2     「1+1」或「2」
+
+    n:     1  2  3  4  5  6   7   8
+    f(n):  1  2  3  5  8  13  21  34
+
+這正是【費氏數列】（只是起點偏移了一位）：
+    Fib: 1, 1, 2, 3, 5, 8, 13, 21, ...
+    f:      1, 2, 3, 5, 8, 13, 21, 34
+
+    f(n) = Fib(n+1)
+
+「最後一步從哪來」是所有計數型 DP 的標準切入點 ——
+它把問題分解成互斥且窮盡的幾種情況。</div>
+        <p><strong>這題是動態規劃的「Hello World」。</strong>值得花時間把它的每一種寫法都弄懂 —— 因為第 62、63、64、91、198、746 題都是同一個骨架的變形。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 2
+  輸出：2
+  說明：1 + 1，或 2
+
+範例 2
+  輸入：n = 3
+  輸出：3
+  說明：1 + 1 + 1，1 + 2，2 + 1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 45</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/climbing-stairs/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>為什麼上限是 45？</h3>
+        <div class="code-block">f(45) = 1836311903
+
+而 INT_MAX = 2147483647
+
+f(46) = 2971215073 &gt; INT_MAX  -&gt;  在 Java/C 裡會溢位
+
+所以題目把 n 限制在 45，讓答案剛好裝得進 32 位元整數。
+
+這是一個很典型的「限制反映了實作細節」的例子 ——
+看到 45 這個奇怪的數字，就該想到「應該是為了不溢位」。
+
+（Python 沒有這個問題，但題目要對所有語言公平。）</div>
+        <p><strong>n ≤ 45 也表示「純遞迴會 TLE」</strong>：沒有記憶化的話 <code>f(45)</code> 要算約 <code>2 × 1.8 × 10⁹</code> 次遞迴呼叫。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>適合</th></tr></thead>
+          <tbody>
+            <tr><td>純遞迴</td><td>O(φⁿ)</td><td>O(n)</td><td>只當反例</td></tr>
+            <tr><td>記憶化遞迴</td><td>O(n)</td><td>O(n)</td><td>從遞迴式直接翻譯</td></tr>
+            <tr><td>迭代（滾動）</td><td>O(n)</td><td>O(1)</td><td>面試預設</td></tr>
+            <tr><td>矩陣快速冪</td><td>O(log n)</td><td>O(1)</td><td>n 極大時</td></tr>
+            <tr><td>通項公式</td><td>O(1)</td><td>O(1)</td><td>有浮點誤差，不推薦</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>迭代 + 兩個變數（標準解）</h3>
+        <div class="code-block">class Solution:
+    def climbStairs(self, n: int) -&gt; int:
+        # dp[i] = 爬到第 i 階有幾種方法 = dp[i-1] + dp[i-2]（費氏數列）
+        a, b = 1, 1        # a = dp[0] = 1（站著不動也算一種），b = dp[1] = 1
+        for _ in range(n - 1):
+            a, b = b, a + b
+        return b</div>
+        <h3>為什麼初值是 <code>a, b = 1, 1</code>？</h3>
+        <div class="code-block">這裡的 a, b 代表 (f(k-1), f(k))，從 k = 1 開始：
+    a = f(0) = 1     「爬 0 階」有 1 種方法：站著不動
+    b = f(1) = 1     「爬 1 階」有 1 種方法
+
+每一輪 a, b = b, a + b 讓 k 往前一步。
+跑 n-1 輪之後，b = f(n) ✔
+
+驗算 n = 3：
+    初始 a=1, b=1        (f(0), f(1))
+    輪 1: a=1, b=2       (f(1), f(2))
+    輪 2: a=2, b=3       (f(2), f(3))
+    回傳 3 ✔
+
+為什麼 f(0) = 1（而不是 0）？
+    「爬 0 階」= 已經在頂端 = 什麼都不做 = 1 種方法（空的方法）。
+
+    這和「0! = 1」、「空集合的子集有 1 個」是同一種慣例：
+    「什麼都不做」本身就是一種做法。
+
+    如果設成 0，f(2) 會算成 1 而不是 2 ✘</div>
+        <p><strong><code>a, b = b, a + b</code> 是 Python 的同時賦值</strong> —— 右邊會先全部算完再賦值給左邊，所以不需要暫存變數。在 C/Java 裡要寫成 <code>int tmp = a + b; a = b; b = tmp;</code>。</p>
+        <p><strong>O(1) 空間</strong>。這就是「滾動陣列」的極致 —— 只留兩個變數。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>n 次迴圈</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>兩個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>記憶化遞迴（從遞迴式直接翻譯）</h3>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def climbStairs(self, n: int) -&gt; int:
+        @lru_cache(maxsize=None)
+        def f(k: int) -&gt; int:
+            if k &lt;= 2:
+                return k        # f(1) = 1, f(2) = 2
+            return f(k - 1) + f(k - 2)
+        return f(n)</div>
+        <p><strong>優點</strong>：程式碼<strong>就是遞迴式本身</strong>，不需要思考「迴圈該從哪裡開始」。在面試時，如果你能寫出遞迴式但一時想不清楚迭代的順序，<strong>加一個 <code>@lru_cache</code> 就能立刻達到同樣的複雜度</strong>。</p>
+        <h3>沒有記憶化會有多慢？</h3>
+        <div class="code-block">純遞迴的呼叫次數大約是 2 × f(n)：
+
+    n = 10:  約 177 次        瞬間
+    n = 30:  約 270 萬次      約 1 秒
+    n = 45:  約 37 億次       約 20 分鐘 ✘
+
+為什麼這麼慢？
+    因為 f(n-2) 被算了兩次（一次從 f(n-1)、一次直接），
+    f(n-3) 被算了三次…
+
+    呼叫樹的大小是 O(φⁿ)，φ = 1.618（黃金比例）。
+
+加上 @lru_cache 之後，每個 f(k) 只算一次 -&gt; O(n) ✔
+
+「重複子問題」是判斷「該不該用 DP」的第一個訊號。</div>
+        <p><strong>缺點</strong>：O(n) 的遞迴深度。n = 45 沒問題，但如果 n 到 10⁵，Python 會 <code>RecursionError</code>。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個 k 算一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>快取 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>矩陣快速冪（O(log n)）</h3>
+        <p>費氏數列可以寫成矩陣的冪：</p>
+        <div class="code-block">[F(n+1)]   [1 1]   [F(n)  ]
+[F(n)  ] = [1 0] · [F(n-1)]
+
+所以：
+[F(n+1)]   [1 1]^n   [F(1)]
+[F(n)  ] = [1 0]   · [F(0)]
+
+而 [1 1]^n 的左上角就是 F(n+1)
+   [1 0]
+
+本題的 f(n) = F(n+1)，所以答案就是那個矩陣 n 次方的左上角。
+
+用第 50 題的快速冪算矩陣的 n 次方 -&gt; O(log n) 次矩陣乘法
+每次 2×2 矩陣乘法是 O(1)（8 次乘法）
+總共 O(log n) ✔</div>
+        <div class="code-block">class Solution:
+    def climbStairs(self, n: int) -&gt; int:
+        # 矩陣快速冪：[[1,1],[1,0]]^n 的左上角就是 F(n+1)
+        def mul(A, B):
+            return [[A[0][0]*B[0][0] + A[0][1]*B[1][0],
+                     A[0][0]*B[0][1] + A[0][1]*B[1][1]],
+                    [A[1][0]*B[0][0] + A[1][1]*B[1][0],
+                     A[1][0]*B[0][1] + A[1][1]*B[1][1]]]
+
+        result = [[1, 0], [0, 1]]        # 單位矩陣
+        base = [[1, 1], [1, 0]]
+        e = n
+        while e:
+            if e &amp; 1:
+                result = mul(result, base)
+            base = mul(base, base)
+            e &gt;&gt;= 1
+
+        return result[0][0]</div>
+        <p><strong>在 n ≤ 45 時完全沒必要</strong>（迭代版只要 45 次加法）。<strong>但如果 n 到 10¹⁸，這是唯一可行的做法。</strong></p>
+        <p><strong>而且這個技巧能推廣到任何線性遞迴</strong>：<code>f(n) = a·f(n-1) + b·f(n-2) + c·f(n-3)</code> 就用 3×3 矩陣，複雜度 O(k³ log n)。在競賽和「求第 n 項模某個數」的題目裡非常常用。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>log n 次 2×2 矩陣乘法</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個 2×2 矩陣</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>n = 10¹⁸ 可行？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>純遞迴</td><td>O(φⁿ)</td><td>O(n)</td><td>✘</td><td>只當反例</td></tr>
+            <tr><td>記憶化</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>遞迴式直翻</td></tr>
+            <tr><td>迭代</td><td>O(n)</td><td>O(1)</td><td>✘</td><td>面試預設</td></tr>
+            <tr><td>矩陣快速冪</td><td>O(log n)</td><td>O(1)</td><td>✔</td><td>線性遞迴通用</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>通項公式（Binet 公式）為什麼不推薦</h3>
+        <div class="code-block">F(n) = (φⁿ - ψⁿ) / √5
+
+    φ = (1 + √5) / 2 ≈ 1.6180339887   （黃金比例）
+    ψ = (1 - √5) / 2 ≈ -0.6180339887
+
+看起來 O(1) 就能算出來，但有兩個問題：
+
+  1. 浮點誤差
+     √5 是無理數，浮點數只能近似。
+     n 大到一定程度（大約 n &gt; 70），
+     算出來的值會偏離正確的整數。
+
+  2. 「O(1)」是假的
+     計算 φⁿ 本身就需要 O(log n) 次乘法（快速冪），
+     而且要維持足夠的精度，位數會隨 n 增長。
+
+     真正的「大 n」情境下，Binet 公式並不比矩陣快速冪快。
+
+所以：Binet 公式是漂亮的數學結果，
+      但在工程上，矩陣快速冪（純整數運算）更可靠。
+
+      這是一個很好的提醒：
+      「有封閉形式」不等於「計算上更好」。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → 1。迴圈跑 0 次，直接回傳 <code>b = 1</code>。</li>
+          <li><strong>n = 2</strong> → 2。迴圈跑 1 次。</li>
+          <li><strong>n = 3</strong> → 3。</li>
+          <li><strong>n = 45</strong> → 1836311903。剛好在 <code>INT_MAX</code> 之內。</li>
+          <li><strong>初值設錯</strong>：如果設 <code>a, b = 0, 1</code>（標準費氏數列），會算出 <code>f(3) = 2</code> 而不是 3。<strong>「f(0) = 1」這個慣例是關鍵。</strong></li>
+          <li><strong>純遞迴</strong>：n = 45 時大約 37 億次呼叫，會 TLE。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果每次可以爬 1、2 或 3 階呢？</h3>
+
+        <p><code>f(n) = f(n-1) + f(n-2) + f(n-3)</code>（Tribonacci 數列）。初值 <code>f(0)=1, f(1)=1, f(2)=2</code>。<strong>迭代版只要多留一個變數。</strong></p>
+
+        <h3>追問二：如果可以爬「集合 S 裡的任意步數」呢？</h3>
+
+        <p><code>f(n) = Σ f(n - s)，s ∈ S 且 n - s &gt;= 0</code>。這其實就是<strong>完全背包的「排列數」版本</strong>（第 377 題）—— 外層跑金額、內層跑步數。（如果外層跑步數、內層跑金額，算出來的是「組合數」，也就是「不在乎爬的順序」—— 完全不同的問題。）</p>
+
+        <h3>追問三：如果某些階梯壞了不能踩呢？</h3>
+
+        <p>把壞掉的那一階的 <code>f(i)</code> 設成 0。<strong>和第 63 題（有障礙物的路徑）完全一樣的處理方式。</strong></p>
+
+        <h3>追問四：如果每一階有「成本」，要求最小成本呢？</h3>
+
+        <p>第 746 題（Min Cost Climbing Stairs）。把「相加」換成「取 min 再加上自己的成本」：<code>dp[i] = min(dp[i-1], dp[i-2]) + cost[i]</code>。<strong>同一個骨架，換一個聚合運算 —— 和第 62 → 64 題的關係一模一樣。</strong></p>
+
+        <h3>追問五：為什麼這題是 DP 的入門題？</h3>
+
+        <p>因為它同時展示了 DP 的三個核心要素，而且每一個都極度單純：</p>
+
+        <ul>
+          <li><strong>最優子結構</strong>：f(n) 可以從 f(n-1) 和 f(n-2) 算出來</li>
+          <li><strong>重複子問題</strong>：純遞迴會重複算 f(n-2) 很多次</li>
+          <li><strong>狀態的定義</strong>：「爬到第 i 階的方法數」</li>
+        </ul>
+
+        <p><strong>把這題的五種寫法（純遞迴 → 記憶化 → 迭代 → 滾動 → 矩陣冪）都寫過一遍，就等於走過了一次完整的 DP 優化流程。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 746 題 Min Cost Climbing Stairs</strong> —— 加上成本</li>
+          <li><strong>第 509 題 Fibonacci Number</strong> —— 純粹的費氏數列</li>
+          <li><strong>第 62 題 Unique Paths</strong> —— 二維版的同一種計數 DP</li>
+          <li><strong>第 91 題 Decode Ways</strong> —— 加上「哪些步合法」的限制</li>
+          <li><strong>第 198 題 House Robber</strong> —— f(n) = max(f(n-1), f(n-2) + v)</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 <code>f(0) = 1</code> 而不是 0？設成 0 的話 <code>f(2)</code> 會算出什麼？</li>
+            <li>純遞迴在 n = 45 時大約要跑幾次？為什麼是指數級？</li>
+            <li>矩陣 <code>[[1,1],[1,0]]</code> 的 n 次方為什麼會給出費氏數？</li>
+            <li>為什麼 Binet 通項公式在工程上不如矩陣快速冪可靠？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0069.html">← 上一題：69. x 的平方根</a>
+          <a href="problem-0071.html">下一題：71. 簡化路徑 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

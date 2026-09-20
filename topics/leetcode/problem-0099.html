@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>99. Recover Binary Search Tree 復原二元搜尋樹 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="中序走訪找出兩個逆序點，Morris 走訪做到 O(1) 空間。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="99">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 99 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 99</div>
+          <h1>Recover Binary Search Tree<br>復原二元搜尋樹</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">二元搜尋樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given the <code>root</code> of a binary search tree (BST), where the values of <strong>exactly two</strong> nodes of the tree were swapped by mistake. <em>Recover the tree without changing its structure</em>.</p>
+          <p><strong>Follow up:</strong> A solution using <code>O(n)</code> space is pretty straight-forward. Could you devise a constant <code>O(1)</code> space solution?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一棵二元搜尋樹（BST）的根節點 <code>root</code>，其中<strong>剛好有兩個</strong>節點的值被不小心<strong>交換</strong>了。</p>
+          <p>請<strong>在不改變樹的結構</strong>的前提下，把它復原。</p>
+          <p><strong>進階：</strong>用 <code>O(n)</code> 空間很直接，你能做到 <code>O(1)</code> 嗎？</p>
+        </div>
+
+        <div class="callout">
+          <h3>先確認題目到底在說什麼</h3>
+        <div class="code-block">「兩個節點的值被交換」的意思是：
+
+    原本是一棵合法的 BST，
+    然後有人把【其中兩個節點裡存的數字】對調了。
+
+    樹的【形狀完全沒變】，只有兩個位置的數字換了位子。
+
+你要做的是：把那兩個數字換回來。
+
+【注意：是改 val，不是搬節點。】
+
+    題目明確說「不改變結構」——
+    所以不能重建樹、不能改 left/right 指標，
+    只能修改節點裡的 val。
+
+    （實務上兩者等價，但面試官會看你有沒有讀清楚題目。）
+
+前一題（98）教你「怎麼判斷是不是 BST」，
+這一題教你「壞掉了要怎麼修」——
+兩題用的是【同一把鑰匙】。</div>
+        </div>
+
+        <div class="callout">
+          <h3>這把鑰匙：BST ⟺ 中序走訪嚴格遞增</h3>
+        <div class="code-block">把 BST 中序走訪一遍，會得到一條【嚴格遞增】的序列。
+
+    現在有兩個值被交換了，
+    那條序列上就會出現【逆序】。
+
+    原本：  1  2  3  4  5  6  7
+    交換 2 和 6：
+            1  6  3  4  5  2  7
+               ^           ^
+
+    【問題從「樹」變成了「一條幾乎排好序的陣列裡，
+      找出被交換的那兩個元素」。】
+
+    這是一個非常標準的化簡：
+        樹的問題  --中序--&gt;  陣列的問題</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,3,null,null,2]
+
+          1
+         /
+        3
+         \
+          2
+
+  中序走訪：3, 2, 1   （應該要是 1, 2, 3）
+  輸出：[3,1,null,null,2]
+
+          3
+         /
+        1
+         \
+          2
+
+  說明：1 和 3 被交換了，換回來即可。
+
+範例 2
+  輸入：root = [3,1,4,null,null,2]
+
+          3
+         / \
+        1   4
+           /
+          2
+
+  中序走訪：1, 3, 2, 4   （應該要是 1, 2, 3, 4）
+  輸出：[2,1,4,null,null,3]
+
+  說明：2 和 3 被交換了。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[2, 1000]</code> 之間</li>
+          <li>−2³¹ ≤ <code>Node.val</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/recover-binary-search-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意：節點數至少是 2</h3>
+        <p>所以<strong>一定存在兩個被交換的節點</strong>，不需要處理「樹本來就是對的」這種情況。</p>
+        <p><strong>但寫防呆比較安全</strong>：如果 <code>first is None</code>（沒找到逆序），就直接 <code>return</code>。<strong>面試時主動加上這行會加分。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 406" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">中序走訪一遍，把 BST 攤平成一條「本該遞增」的序列。被交換的兩個值，就藏在逆序點裡。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">情況 A：兩個被換的節點【不相鄰】 → 出現兩個逆序點</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="40" y="70" width="62" height="30" fill="none" stroke="var(--border)"/><text x="71" y="91" fill="var(--text-muted)">1</text>
+              <rect x="112" y="70" width="62" height="30" fill="none" stroke="#ff8a65" stroke-width="3"/><text x="143" y="91" fill="#ff8a65">6</text>
+              <rect x="184" y="70" width="62" height="30" fill="none" stroke="var(--border)"/><text x="215" y="91" fill="var(--text-muted)">3</text>
+              <rect x="256" y="70" width="62" height="30" fill="none" stroke="var(--border)"/><text x="287" y="91" fill="var(--text-muted)">4</text>
+              <rect x="328" y="70" width="62" height="30" fill="none" stroke="var(--border)"/><text x="359" y="91" fill="var(--text-muted)">5</text>
+              <rect x="400" y="70" width="62" height="30" fill="none" stroke="#ff8a65" stroke-width="3"/><text x="431" y="91" fill="#ff8a65">2</text>
+              <rect x="472" y="70" width="62" height="30" fill="none" stroke="var(--border)"/><text x="503" y="91" fill="var(--text-muted)">7</text>
+            </g>
+            <text x="143" y="122" fill="#ff8a65" font-size="11">↑ 6 &gt; 3</text>
+            <text x="431" y="122" fill="#ff8a65" font-size="11">↑ 5 &gt; 2</text>
+            <text x="40" y="148" fill="var(--accent)" font-size="12">第一個逆序點取【前者 6】，第二個逆序點取【後者 2】 → 交換 6 和 2 ✔</text>
+            <line x1="20" y1="168" x2="620" y2="168" stroke="var(--border)"/>
+            <text x="20" y="196" fill="var(--gold)" font-size="13">情況 B：兩個被換的節點【相鄰】 → 只出現一個逆序點</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="40" y="214" width="62" height="30" fill="none" stroke="var(--border)"/><text x="71" y="235" fill="var(--text-muted)">1</text>
+              <rect x="112" y="214" width="62" height="30" fill="none" stroke="var(--border)"/><text x="143" y="235" fill="var(--text-muted)">2</text>
+              <rect x="184" y="214" width="62" height="30" fill="none" stroke="#ff8a65" stroke-width="3"/><text x="215" y="235" fill="#ff8a65">4</text>
+              <rect x="256" y="214" width="62" height="30" fill="none" stroke="#ff8a65" stroke-width="3"/><text x="287" y="235" fill="#ff8a65">3</text>
+              <rect x="328" y="214" width="62" height="30" fill="none" stroke="var(--border)"/><text x="359" y="235" fill="var(--text-muted)">5</text>
+              <rect x="400" y="214" width="62" height="30" fill="none" stroke="var(--border)"/><text x="431" y="235" fill="var(--text-muted)">6</text>
+            </g>
+            <text x="251" y="266" fill="#ff8a65" font-size="11">↑ 只有這一個：4 &gt; 3</text>
+            <text x="40" y="292" fill="var(--accent)" font-size="12">first = 4（前者），second = 3（後者） → 交換 4 和 3 ✔</text>
+            <line x1="20" y1="312" x2="620" y2="312" stroke="var(--border)"/>
+            <text x="20" y="340" fill="var(--gold)" font-size="12">一段程式碼同時處理兩種情況的訣竅：</text>
+            <text x="20" y="364" fill="var(--text-muted)" font-size="12">first 只在【第一次】遇到逆序時設定（永遠取前者）；second 在【每一次】逆序都覆蓋（永遠取後者）。</text>
+            <text x="20" y="388" fill="var(--accent)" font-size="12">情況 B 只逆序一次 → first 和 second 在同一次設定，剛好就是那兩個相鄰的節點 ✔</text>
+          </svg>
+        </div>
+
+        <div class="code-block">在中序序列上找「逆序點」（相鄰兩項 prev &gt; cur 的位置）。
+
+【情況 A：被交換的兩個位置不相鄰】
+
+    1  6  3  4  5  2  7
+       ^逆序1        ^逆序2
+
+    逆序1：6 &gt; 3   -&gt; 要換的「大值」是 6（前者）
+    逆序2：5 &gt; 2   -&gt; 要換的「小值」是 2（後者）
+
+    出現【兩個】逆序點。
+
+【情況 B：被交換的兩個位置相鄰】
+
+    1  2  4  3  5  6
+          ^逆序
+
+    只有【一個】逆序點：4 &gt; 3
+    要換的就是 4（前者）和 3（後者）。
+
+【怎麼用一段程式碼同時處理兩種情況？】
+
+    每遇到一次逆序 (prev, cur)：
+        if first is None: first = prev      # 只記第一次的前者
+        second = cur                         # 每次都更新成後者
+
+    情況 A：
+        第一次逆序 -&gt; first = 6, second = 3
+        第二次逆序 -&gt; first 不動,  second = 2   ✔ 最終 (6, 2)
+
+    情況 B：
+        唯一一次逆序 -&gt; first = 4, second = 3   ✔
+
+    【first 只設一次、second 每次都覆蓋】——
+    這六個字就是本題的全部技巧。
+
+最後 swap(first.val, second.val) 即可。</div>
+
+        <h3>為什麼「最多只會有兩個逆序點」？</h3>
+
+        <div class="code-block">把中序序列想成一個排序好的陣列，然後交換位置 i &lt; j 的兩個元素。
+
+    ... a[i-1]  a[j]  a[i+1] ... a[j-1]  a[i]  a[j+1] ...
+                 ^                        ^
+              變大了                    變小了
+
+    a[j] 原本比 a[i] 大，現在被放到前面 -&gt; 和右鄰居產生逆序
+    a[i] 原本比 a[j] 小，現在被放到後面 -&gt; 和左鄰居產生逆序
+
+    中間那一段 a[i+1] ... a[j-1] 內部仍然遞增（沒被動到）。
+
+    所以【恰好兩個逆序點】——
+
+    除非 j = i + 1（相鄰），此時兩個逆序點重疊成一個。
+
+【這個推理是本題的正確性證明，面試時值得講一遍。】</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>中序收集 + 排序（最笨但最保險）</h3>
+        <div class="code-block">class Solution:
+    def recoverTree(self, root: Optional[TreeNode]) -&gt; None:
+        # 先把中序走訪的「節點」收集起來
+        nodes = []
+
+        def go(node):
+            if not node:
+                return
+            go(node.left)
+            nodes.append(node)
+            go(node.right)
+
+        go(root)
+
+        # 正確的中序應該是值排序後的結果，直接填回去
+        for node, v in zip(nodes, sorted(n.val for n in nodes)):
+            node.val = v</div>
+        <p><strong>先把中序的節點收集起來，再把「排序後的值」依序填回去。</strong>完全不用思考逆序點，<strong>絕對不會錯</strong>。</p>
+        <div class="code-block">為什麼這樣一定對？
+
+    中序的第 k 個節點，就該放「第 k 小的值」——
+    這是 BST 的定義。
+
+    所以把所有值排序後依序填回中序位置，
+    結果必然是合法的 BST，而且形狀沒變 ✔
+
+    而且它甚至比題目要求的更強：
+    【就算被交換的不只兩個節點，它也能修好。】
+
+代價：
+    時間 O(n log n)（排序）
+    空間 O(n)（存節點）
+
+    題目 n &lt;= 1000，這個成本完全可以接受。</div>
+        <p><strong>面試時可以先講這個當「保底解」</strong>，說「這一定對，但我可以做得更好」，然後再講解法二。<strong>先給出一個正確解、再優化，是很好的節奏。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>排序主導</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>存所有節點</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>中序找逆序點（面試預設答案）</h3>
+        <div class="code-block">class Solution:
+    def recoverTree(self, root: Optional[TreeNode]) -&gt; None:
+        self.first = self.second = self.prev = None
+
+        def go(node):
+            if not node:
+                return
+            go(node.left)
+
+            # 中序走訪裡，prev 應該永遠 &lt; node。違反了就是逆序點
+            if self.prev and self.prev.val &gt; node.val:
+                if self.first is None:
+                    self.first = self.prev      # 第一次：記「大的那個」
+                self.second = node              # 每次都更新「小的那個」
+            self.prev = node
+
+            go(node.right)
+
+        go(root)
+        self.first.val, self.second.val = self.second.val, self.first.val</div>
+        <h3>三個變數的分工</h3>
+        <div class="code-block">prev    中序走訪裡「上一個節點」（注意存的是節點，不是值）
+first   要交換的兩個節點中，【比較大】的那個（先出現）
+second  要交換的兩個節點中，【比較小】的那個（後出現）
+
+    if prev and prev.val &gt; node.val:
+        if first is None:
+            first = prev      # 只在第一次逆序時設定
+        second = node         # 每次逆序都更新
+
+    最後 swap(first.val, second.val)
+
+【為什麼 first 只設一次？】
+    因為在情況 A 裡，第一個逆序點的「前者」才是被錯放的大值；
+    第二個逆序點的前者只是個無辜的路人。
+
+【為什麼 second 每次都更新？】
+    因為在情況 A 裡，被錯放的小值出現在【第二個】逆序點的後者。
+    在情況 B 裡只有一次逆序，所以「每次都更新」也等於「設一次」。
+
+    兩種情況共用同一段程式碼 ✔</div>
+        <h3>為什麼 <code>prev</code> 存節點而不是值？</h3>
+        <p>因為<strong>最後要交換的是節點裡的 <code>val</code></strong>，所以必須抓得到那個節點物件。</p>
+        <p><strong>只存值的話，你知道「要換 6 和 2」，卻不知道它們在哪兩個節點上</strong> —— 而且樹裡可能有同值節點（雖然 BST 不該有，但壞掉的樹什麼都可能）。</p>
+        <h3><code>if self.prev</code> 這裡為什麼可以不用 <code>is not None</code>？</h3>
+        <p><strong>因為 <code>prev</code> 是 <code>TreeNode</code> 物件</strong>，而自訂類別的實例<strong>永遠是 truthy</strong>（除非定義了 <code>__bool__</code> 或 <code>__len__</code>）。</p>
+        <p><strong>對照第 98 題</strong>：那裡的 <code>prev</code> 存的是<strong>整數值</strong>，值可能是 <code>0</code>，<strong>所以那裡非得寫 <code>is not None</code> 不可</strong>。<strong>同一個符號、不同的型別，安全性完全不同 —— 這是很好的對照練習。</strong></p>
+        <p><strong>空間 O(h)</strong>（遞迴堆疊）。<strong>還不是 O(1)</strong>，所以進階要求還沒滿足。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點看一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>中序迭代版（把遞迴堆疊變成顯式堆疊）</h3>
+        <div class="code-block">class Solution:
+    def recoverTree(self, root: Optional[TreeNode]) -&gt; None:
+        stack, prev = [], None
+        first = second = None
+        node = root
+
+        while stack or node:
+            while node:
+                stack.append(node)
+                node = node.left
+            node = stack.pop()
+
+            if prev and prev.val &gt; node.val:
+                if first is None:
+                    first = prev
+                second = node
+            prev = node
+
+            node = node.right
+
+        first.val, second.val = second.val, first.val</div>
+        <p><strong>和解法二完全等價</strong>，只是把遞迴改成 <code>while</code> + <code>stack</code>。</p>
+        <p><strong>好處</strong>：沒有遞迴深度限制（本題 n ≤ 1000 其實不會爆，但養成習慣總是好的），而且可以用<strong>區域變數</strong>，不用 <code>self.</code> 或 <code>nonlocal</code>。</p>
+        <div class="code-block">這個骨架（第 94、98、99、173、230 題共用）：
+
+    stack, node = [], root
+    while stack or node:
+        while node:
+            stack.append(node)
+            node = node.left
+        node = stack.pop()
+        # ★★★ 中序輸出的時機，你的邏輯寫在這裡 ★★★
+        node = node.right
+
+【把它背起來。】
+只要換掉星號那一行，就能解一整排 BST 題目。</div>
+        <p><strong>空間仍然是 O(h)</strong> —— 堆疊沒消失，只是換了地方住。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點進出堆疊一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>顯式堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>Morris 中序走訪（真正的 O(1) 空間，滿足進階）</h3>
+        <div class="code-block">class Solution:
+    def recoverTree(self, root: Optional[TreeNode]) -&gt; None:
+        first = second = prev = None
+        node = root
+
+        while node:
+            if not node.left:
+                if prev and prev.val &gt; node.val:
+                    if first is None:
+                        first = prev
+                    second = node
+                prev = node
+                node = node.right
+            else:
+                pre = node.left                      # 找中序前驅
+                while pre.right and pre.right is not node:
+                    pre = pre.right
+
+                if not pre.right:                    # 第一次：架線，往左
+                    pre.right = node
+                    node = node.left
+                else:                                # 第二次：拆線，輸出
+                    pre.right = None
+                    if prev and prev.val &gt; node.val:
+                        if first is None:
+                            first = prev
+                        second = node
+                    prev = node
+                    node = node.right
+
+        first.val, second.val = second.val, first.val</div>
+        <h3>Morris 的核心：借用空指標當「回家的線」</h3>
+        <div class="code-block">一棵 n 個節點的二元樹有 n+1 個空指標，
+Morris 把它們臨時借來記錄「走完左子樹之後要回到誰身上」。
+
+對每個有左子樹的 node：
+
+    pre = node.left
+    while pre.right and pre.right is not node:
+        pre = pre.right            # pre 走到左子樹的最右邊 = node 的中序前驅
+
+    if not pre.right:              # 【第一次】造訪 node
+        pre.right = node           #   架線：走完左子樹會自動回到 node
+        node = node.left           #   往左下去
+
+    else:                          # 【第二次】造訪 node（沿著線回來的）
+        pre.right = None           #   拆線，把樹恢復原狀
+        &lt;輸出 node&gt;                #   左子樹已經走完了，現在輪到自己
+        node = node.right          #   往右子樹
+
+    如果 node 沒有左子樹，直接輸出自己然後往右走。
+
+【pre.right is not node 這個判斷，就是在區分「第一次」和「第二次」。】</div>
+        <h3>為什麼總時間還是 O(n)？</h3>
+        <div class="code-block">看起來「找前驅」是個內層迴圈，會不會變成 O(n²)？
+
+    不會。
+
+    關鍵：每一條「右邊緣」（right spine）最多被走過【兩次】——
+    一次是架線時，一次是拆線時。
+
+    而所有右邊緣的總長度是 O(n)（每條邊只屬於一條右邊緣）。
+
+    所以總成本是 O(n) ✔
+
+    這個分析叫做【攤還分析（amortized analysis）】——
+    單次操作可能很貴，但總量有上界。</div>
+        <h3>本題用 Morris 的注意事項</h3>
+        <p><strong>和第 98 題不同，這裡沒有「提早結束」的誘惑</strong> —— 本來就要走完整棵樹才能確定 <code>second</code>，<strong>所以 Morris 在這題用起來反而比第 98 題順</strong>。</p>
+        <p><strong>但仍然要注意</strong>：中途絕對不能 <code>return</code>，否則樹上會留下沒拆的線，變成有環的結構。</p>
+        <p><strong>空間真的是 O(1)</strong>（只有 <code>first</code>、<code>second</code>、<code>prev</code>、<code>node</code>、<code>pre</code> 五個指標）—— <strong>這才是進階要求的答案。</strong></p>
+        <p><strong>代價</strong>：程式碼長了三倍、暫時修改樹（不可用於唯讀樹或多執行緒）、實際執行常常比解法三慢（找前驅的常數不小）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>攤還每條邊常數次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用五個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、收集 + 排序</td><td>O(n log n)</td><td>O(n)</td><td>短</td><td>最保險，連「換三個」都能修</td></tr>
+            <tr><td>二、中序遞迴找逆序</td><td>O(n)</td><td>O(h)</td><td>短</td><td>面試預設答案</td></tr>
+            <tr><td>三、中序迭代找逆序</td><td>O(n)</td><td>O(h)</td><td>中</td><td>沒有遞迴深度問題</td></tr>
+            <tr><td>四、Morris</td><td>O(n)</td><td>O(1)</td><td>長</td><td>唯一滿足進階的解</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>面試時的講法建議</h3>
+        <div class="code-block">1. 先說出那把鑰匙：
+   「BST 的中序走訪是嚴格遞增的，
+     所以交換兩個值，就會在中序序列上留下逆序點。」
+
+2. 給保底解（收集 + 排序），說「這一定對，O(n log n)」。
+
+3. 升級到「找逆序點」，講清楚【兩個逆序點 vs 一個逆序點】
+   這兩種情況，以及 first / second 的更新規則。
+   ★ 這一步是本題的核心，講不清楚就等於沒解出來。
+
+4. 被問到 O(1) 空間，再端出 Morris。
+
+【第 3 步的「兩種情況」是面試官真正在看的東西。】
+很多人寫出程式碼卻說不出「為什麼 second 要每次覆蓋」——
+那代表是背來的，不是想出來的。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>[1,3,null,null,2]</code></strong> → 換 1 和 3（官方範例 1）。</li>
+          <li><strong><code>[3,1,4,null,null,2]</code></strong> → 換 2 和 3（官方範例 2）。</li>
+          <li><strong>被交換的兩個節點在中序裡相鄰</strong>（情況 B）→ <strong>只有一個逆序點</strong>。<strong>沒處理這個情況的話，<code>second</code> 會是 <code>None</code>，直接 crash —— 這是本題第一名的 bug。</strong></li>
+          <li><strong>被交換的是根節點和某個葉子</strong> → 一樣用同一套邏輯處理。</li>
+          <li><strong>只有兩個節點</strong> <code>[2,3]</code>（3 是左孩子）→ 中序是 <code>3, 2</code>，一個逆序點，換回來變 <code>[3,2]</code>。</li>
+          <li><strong><code>first</code> 寫成「每次都更新」</strong> → 情況 A 會抓到錯的節點（抓到第二個逆序點的前者）。</li>
+          <li><strong><code>second</code> 寫成「只設一次」</strong> → 情況 A 會抓到錯的節點（抓到第一個逆序點的後者）。</li>
+          <li><strong><code>prev</code> 存值而不是節點</strong> → 最後不知道要改哪個節點的 <code>val</code>。</li>
+          <li><strong>Morris 版中途 <code>return</code></strong> → 樹上留下沒拆的線，變成有環。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有 k 個節點被交換（k > 2）呢？</h3>
+
+        <p><strong>「找逆序點」的邏輯就不夠用了</strong> —— k 個錯位可能產生任意數量的逆序點，而且對應關係不再單純。</p>
+
+        <p><strong>解法一（收集 + 排序）卻完全不受影響</strong>，因為它根本不管「錯了幾個」，直接把正確的值填回正確的位置。<strong>這就是「笨解法」的價值 —— 它的正確性不依賴題目的特殊假設。</strong></p>
+
+        <p>如果只想<strong>找出「哪些節點被動過」</strong>：把中序序列和它的排序版逐項比對，不相等的位置就是被動過的節點。<strong>O(n log n) 時間、O(n) 空間。</strong></p>
+
+        <h3>追問二：如果是「兩個節點的位置被交換」（連同子樹一起搬）呢？</h3>
+
+        <p><strong>那就是完全不同的題目了</strong> —— 樹的形狀變了，中序序列不再只是「兩個元素互換」，而是「兩段子序列互換」。</p>
+
+        <p><strong>本題明確說「不改變結構」，所以只有 <code>val</code> 被動過。</strong><strong>讀題時要抓住這個關鍵字。</strong></p>
+
+        <h3>追問三：Morris 走訪還能做什麼？</h3>
+
+        <ul>
+          <li><strong>第 94 題</strong>：中序走訪，O(1) 空間</li>
+          <li><strong>第 98 題</strong>：驗證 BST，O(1) 空間</li>
+          <li><strong>本題</strong>：復原 BST，O(1) 空間</li>
+          <li><strong>第 114 題</strong>：把二元樹攤平成鏈結串列（Morris 的變形）</li>
+          <li><strong>前序版</strong>：只要把「輸出的時機」從「拆線時」改成「架線時」</li>
+        </ul>
+
+        <p><strong>後序版也存在但複雜很多</strong>（需要「反轉右邊緣」的技巧），面試幾乎不會考。</p>
+
+        <h3>追問四：能不能一趟就知道「有沒有被交換」？</h3>
+
+        <p><strong>可以 —— 那就是第 98 題</strong>。本題和第 98 題的差別只在：<strong>第 98 題發現逆序就回 <code>False</code>，本題發現逆序要記下來繼續走</strong>。</p>
+
+        <div class="code-block">98 題：  if prev.val &gt; node.val: return False
+99 題：  if prev.val &gt; node.val:
+             if first is None: first = prev
+             second = node
+
+【同一個骨架，不同的動作。】
+
+這種「一個模板解一整類題」的感覺，
+正是刷題的真正收穫 ——
+不是記住 100 個解法，而是記住 10 個骨架。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 98 題 Validate Binary Search Tree</strong> —— 同一把鑰匙，只是判斷不修復</li>
+          <li><strong>第 94 題 Binary Tree Inorder Traversal</strong> —— 中序走訪的三種寫法</li>
+          <li><strong>第 173 題 Binary Search Tree Iterator</strong> —— 把中序拆成迭代器</li>
+          <li><strong>第 114 題 Flatten Binary Tree to Linked List</strong> —— Morris 的變形</li>
+          <li><strong>第 230 題 Kth Smallest Element in a BST</strong> —— 同一個中序骨架</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「交換兩個值」在中序序列上最多只會產生兩個逆序點？請證明一遍。</li>
+            <li><code>first</code> 為什麼只在第一次逆序時設定，<code>second</code> 為什麼每次都覆蓋？</li>
+            <li>被交換的兩個節點在中序裡相鄰時會發生什麼？沒處理會怎麼壞？</li>
+            <li>為什麼這題的 <code>if prev</code> 可以不寫 <code>is not None</code>，第 98 題卻非寫不可？</li>
+            <li>Morris 走訪的時間複雜度為什麼還是 O(n)，而不是 O(n²)？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0098.html">← 上一題：98. 驗證二元搜尋樹</a>
+          <a href="problem-0100.html">下一題：100. 相同的樹 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

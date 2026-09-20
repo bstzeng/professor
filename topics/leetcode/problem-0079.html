@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>79. Word Search 單詞搜索 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="網格回溯，原地標記避免額外的 visited 陣列。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="79">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 79 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 79</div>
+          <h1>Word Search<br>單詞搜索</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <code>m x n</code> grid of characters <code>board</code> and a string <code>word</code>, return <code>true</code> <em>if</em> <code>word</code> <em>exists in the grid</em>.</p>
+          <p>The word can be constructed from letters of sequentially adjacent cells, where adjacent cells are horizontally or vertically neighboring. <strong>The same letter cell may not be used more than once.</strong></p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m × n</code> 的字元網格 <code>board</code> 和一個字串 <code>word</code>，判斷 <code>word</code> 是否存在於網格中。</p>
+          <p>單字必須由<strong>相鄰的格子</strong>依序連成（上下左右相鄰，不含對角線），而且<strong>同一個格子不能重複使用</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>網格回溯的標準三步驟</h3>
+        <div class="code-block">1. 標記：把目前這一格標成「已在路徑上」
+2. 遞迴：往四個方向繼續找
+3. 還原：不管成不成功，把標記拿掉
+
+第 3 步是「回溯」的精髓。
+如果不還原，後續從別的起點出發的搜尋，
+會誤以為那些格子還被佔用著。
+
+為什麼一定要標記？
+    因為「同一格不能重複使用」。
+
+    board = [["A","B"],
+             ["C","D"]]
+    word = "ABA"
+
+    如果不標記：A(0,0) -&gt; B(0,1) -&gt; 回到 A(0,0)  -&gt;  回傳 True ✘
+    正確答案是 False（只有一個 A）。
+
+標記的兩種做法：
+    (a) 另開一個 visited 陣列        —— O(mn) 額外空間
+    (b) 就地把 board[r][c] 改成 '#'  —— O(1) 額外空間
+
+    (b) 更省空間，但「破壞輸入」——
+    所以【還原】變得絕對必要，不只是為了正確性，
+    也是為了不留下副作用。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：board = [["A","B","C","E"],
+                ["S","F","C","S"],
+                ["A","D","E","E"]], word = "ABCCED"
+  輸出：true
+
+範例 2
+  輸入：同上，word = "SEE"
+  輸出：true
+
+範例 3
+  輸入：同上，word = "ABCB"
+  輸出：false
+  說明：兩個 B 是同一格，不能重複使用。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == board.length</code>，<code>n == board[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 6</li>
+          <li>1 ≤ <code>word.length</code> ≤ 15</li>
+          <li><code>board</code> 和 <code>word</code> 只含大小寫英文字母</li>
+          <li><strong>進階：</strong>能不能加上剪枝，讓最壞情況更快？</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/word-search/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>網格只有 6 × 6 = 36 格，word 最長 15</strong>。這個規模小得刻意 —— 因為<strong>最壞情況是指數級的</strong>。</li>
+          <li><strong>複雜度分析</strong>：從每個起點出發，第一步有 4 個方向，之後每步最多 3 個（不能回頭）—— 所以是 <code>O(mn × 4 × 3^(L-1))</code>，L 是 word 長度。L = 15 時 <code>3¹⁴ ≈ 478 萬</code>，再乘 36 個起點 ——<strong>約 1.7 億，在最壞情況下確實會很慢</strong>，這就是「進階：加剪枝」的理由。</li>
+          <li><strong>word 至少 1 個字元</strong>，所以不用處理空字串。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">board 找 &quot;ABCCED&quot;：從 (0,0) 出發，四個方向 DFS，走過的格子暫時標記成 #</text>
+            <g font-size="16" text-anchor="middle">
+              <rect x="120" y="48" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="148" y="79" fill="#ff8a65">A</text>
+              <rect x="176" y="48" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="204" y="79" fill="#ff8a65">B</text>
+              <rect x="232" y="48" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="260" y="79" fill="#ff8a65">C</text>
+              <rect x="288" y="48" width="56" height="46" fill="none" stroke="var(--border)"/><text x="316" y="79" fill="var(--text-muted)">E</text>
+              <rect x="120" y="94" width="56" height="46" fill="none" stroke="var(--border)"/><text x="148" y="125" fill="var(--text-muted)">S</text>
+              <rect x="176" y="94" width="56" height="46" fill="none" stroke="var(--border)"/><text x="204" y="125" fill="var(--text-muted)">F</text>
+              <rect x="232" y="94" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="260" y="125" fill="#ff8a65">C</text>
+              <rect x="288" y="94" width="56" height="46" fill="none" stroke="var(--border)"/><text x="316" y="125" fill="var(--text-muted)">S</text>
+              <rect x="120" y="140" width="56" height="46" fill="none" stroke="var(--border)"/><text x="148" y="171" fill="var(--text-muted)">A</text>
+              <rect x="176" y="140" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="204" y="171" fill="#ff8a65">D</text>
+              <rect x="232" y="140" width="56" height="46" fill="none" stroke="#ff8a65" stroke-width="2.5"/><text x="260" y="171" fill="#ff8a65">E</text>
+              <rect x="288" y="140" width="56" height="46" fill="none" stroke="var(--border)"/><text x="316" y="171" fill="var(--text-muted)">E</text>
+            </g>
+            <g stroke="#ff8a65" stroke-width="2" fill="none">
+              <path d="M148 71 L204 71 L260 71 L260 117 L260 163 L204 163"/>
+            </g>
+            <g font-size="11" fill="#ff8a65" text-anchor="middle">
+              <text x="148" y="40">1</text><text x="204" y="40">2</text><text x="260" y="40">3</text>
+              <text x="300" y="120">4</text><text x="300" y="166">5</text><text x="204" y="200">6</text>
+            </g>
+            <text x="380" y="80" fill="#ff8a65" font-size="13">A → B → C → C → E → D ✔</text>
+            <text x="380" y="106" fill="var(--text-muted)" font-size="12">路徑不能重複經過同一格</text>
+            <text x="380" y="132" fill="var(--text-muted)" font-size="12">所以要「標記 → 遞迴 → 還原」</text>
+            <line x1="20" y1="216" x2="620" y2="216" stroke="var(--border)"/>
+            <text x="20" y="244" fill="var(--gold)" font-size="12">就地標記（board[r][c] = &quot;#&quot;）比另開一個 visited 陣列省空間，</text>
+            <text x="20" y="266" fill="var(--text-muted)" font-size="12">但一定要在遞迴回來之後還原 —— 否則後續的搜尋會看到殘留的 #。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>DFS + 就地標記回溯（標準解）</h3>
+        <div class="code-block">class Solution:
+    def exist(self, board: List[List[str]], word: str) -&gt; bool:
+        m, n = len(board), len(board[0])
+
+        def dfs(r: int, c: int, k: int) -&gt; bool:
+            if k == len(word):
+                return True                    # 整個 word 都配完了
+            if not (0 &lt;= r &lt; m and 0 &lt;= c &lt; n) or board[r][c] != word[k]:
+                return False
+
+            # 就地標記「這一格已經在目前的路徑上」，避免同一格用兩次
+            tmp, board[r][c] = board[r][c], "#"
+
+            found = (dfs(r + 1, c, k + 1) or dfs(r - 1, c, k + 1) or
+                     dfs(r, c + 1, k + 1) or dfs(r, c - 1, k + 1))
+
+            board[r][c] = tmp                  # 回溯：把格子還原
+            return found
+
+        return any(dfs(i, j, 0) for i in range(m) for j in range(n))</div>
+        <h3>為什麼把「越界」和「字元不符」放在函式的開頭？</h3>
+        <div class="code-block">兩種寫法：
+
+  (A) 呼叫前檢查：
+      for 每個方向:
+          if 在界內 and board[nr][nc] == word[k+1]:
+              dfs(nr, nc, k+1)
+
+  (B) 進函式才檢查（本文用的）：
+      def dfs(r, c, k):
+          if k == len(word): return True
+          if 越界 or board[r][c] != word[k]: return False
+          ...
+
+(B) 的好處：
+    - 四個方向的呼叫長得一模一樣，不用each 都寫一次檢查
+    - 最外層的 any(dfs(i, j, 0) ...) 也不用先檢查 board[i][j] == word[0]
+    - 邊界邏輯只寫一次 -&gt; 只有一個地方會寫錯
+
+(A) 的好處：少一層函式呼叫（常數稍快）。
+
+在網格 DFS 裡，(B) 幾乎總是比較好的選擇。</div>
+        <h3>終止條件的順序不能換</h3>
+        <div class="code-block">if k == len(word):
+    return True
+if 越界 or board[r][c] != word[k]:
+    return False
+
+必須先檢查 k == len(word)！
+
+    因為當 k == len(word) 時，word[k] 會 IndexError。
+
+    而且語意上也對：「整個 word 都配完了」就是成功，
+    此時 (r, c) 是什麼根本不重要。
+
+追一遍 word = "A"，board = [["A"]]：
+    dfs(0, 0, 0): k=0 != 1，不越界，board[0][0] == 'A' ✔
+                  標記，然後四個方向都 dfs(..., 1)
+                  其中 dfs(1, 0, 1): k == 1 == len(word) -&gt; True ✔
+    回傳 True ✔
+
+    咦？dfs(1, 0, 1) 的 (1,0) 明明越界了，為什麼回傳 True？
+    因為 k == len(word) 的檢查在越界檢查之前 ——
+    我們已經配完整個 word 了，位置不重要。
+
+    這不是 bug，是刻意的設計。</div>
+        <h3>還原那一行的重要性</h3>
+        <p><code>board[r][c] = tmp</code> 讓函式<strong>沒有副作用</strong> —— 不管成功失敗，離開時盤面和進來時一樣。</p>
+        <p><strong>如果忘了還原</strong>：</p>
+        <ul>
+          <li>從別的起點出發的搜尋會看到殘留的 <code>#</code>，錯誤地失敗</li>
+          <li>而且<strong>函式會破壞呼叫端的資料</strong> —— 在真實的程式裡這是很嚴重的問題</li>
+        </ul>
+        <p><strong>本篇的測試除了檢查答案，還會檢查「board 有沒有被改壞」</strong> —— 這是驗證回溯正確性的好習慣。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn × 3^L)</td><td>L = word 長度；遞迴深度 L</td></tr>
+            <tr><td>空間</td><td>O(L)</td><td>遞迴堆疊；就地標記不用額外空間</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>加上兩個剪枝（進階要求）</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def exist(self, board: List[List[str]], word: str) -&gt; bool:
+        m, n = len(board), len(board[0])
+
+        # 剪枝 1：board 裡每個字母的數量，必須夠 word 用
+        board_count = Counter(ch for row in board for ch in row)
+        word_count = Counter(word)
+        if any(word_count[ch] &gt; board_count[ch] for ch in word_count):
+            return False
+
+        # 剪枝 2：如果 word 的「結尾字母」比「開頭字母」稀有，就反過來找
+        # （稀有的字母當起點，能砍掉更多分支）
+        if board_count[word[0]] &gt; board_count[word[-1]]:
+            word = word[::-1]
+
+        def dfs(r: int, c: int, k: int) -&gt; bool:
+            if k == len(word):
+                return True
+            if not (0 &lt;= r &lt; m and 0 &lt;= c &lt; n) or board[r][c] != word[k]:
+                return False
+
+            tmp, board[r][c] = board[r][c], "#"
+            found = (dfs(r + 1, c, k + 1) or dfs(r - 1, c, k + 1) or
+                     dfs(r, c + 1, k + 1) or dfs(r, c - 1, k + 1))
+            board[r][c] = tmp
+            return found
+
+        return any(dfs(i, j, 0) for i in range(m) for j in range(n))</div>
+        <h3>剪枝 1：字母數量檢查</h3>
+        <div class="code-block">如果 word 需要 3 個 'X'，而整個 board 只有 2 個 ——
+那不管怎麼搜都不可能成功。
+
+    board_count = Counter(所有格子的字母)
+    word_count = Counter(word)
+    if any(word_count[ch] &gt; board_count[ch] for ch in word_count):
+        return False
+
+成本：O(mn + L)，一次就好。
+效益：在「word 含有 board 沒有（或不夠）的字母」時，
+      直接把 O(mn × 3^L) 變成 O(mn)。
+
+LeetCode 上有一筆著名的測資：
+    board 是 6×6 全是 'a'，只有右下角是 'b'
+    word = "aaaaaaaaaaaaaaab"（15 個 a + 1 個 b）
+
+    不剪枝的話會搜很久。
+    （這一筆剪枝 1 擋不住，要靠剪枝 2 和搜尋本身。）</div>
+        <h3>剪枝 2：從稀有的那一端開始搜</h3>
+        <div class="code-block">if board_count[word[0]] &gt; board_count[word[-1]]:
+    word = word[::-1]
+
+為什麼有效？
+    搜尋的起點是「所有等於 word[0] 的格子」。
+    起點越少，要展開的搜尋樹就越少。
+
+    board = 35 個 'a' + 1 個 'b'
+    word = "aaaa...b"
+
+    正著搜：起點是 35 個 'a' -&gt; 35 棵搜尋樹
+    反著搜：起點是 1 個 'b'  -&gt; 1 棵搜尋樹
+
+    快 35 倍！
+
+為什麼可以反著搜？
+    因為「路徑」是無向的 ——
+    如果 board 裡存在一條路徑拼出 word，
+    那反過來走同一條路徑就拼出 reversed(word)。
+
+    兩者的存在性完全等價 ✔
+
+這是一個很漂亮的剪枝：
+    它不改變演算法，只改變「從哪一端開始」。
+
+    同樣的想法出現在雙向 BFS、
+    以及資料庫的 join 順序優化（先掃小表）。</div>
+        <p><strong>還可以加的剪枝</strong>（本文沒寫，但值得知道）：</p>
+        <ul>
+          <li><strong>剩餘長度檢查</strong>：如果 <code>len(word) - k</code> 大於「從這一格可達的格子數」，就剪掉。但算「可達格子數」本身有成本。</li>
+          <li><strong>連通性檢查</strong>：如果 <code>word</code> 的長度超過整個 board 的格子數，直接 false。（這被剪枝 1 涵蓋了。）</li>
+        </ul>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>最壞仍是 O(mn × 3^L)</td><td>多數情況快很多</td></tr>
+            <tr><td>空間</td><td>O(L + Σ)</td><td>遞迴堆疊 + 兩個 Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>最壞時間</th><th>剪枝</th><th>破壞輸入？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、DFS + 就地標記</td><td>O(mn·3^L)</td><td>無</td><td>✘（有還原）</td><td>面試預設</td></tr>
+            <tr><td>二、加兩個剪枝</td><td>O(mn·3^L)</td><td>字母數量 + 反向搜</td><td>✘</td><td>進階要求</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一格子</strong>：<code>([["A"]], "A")</code> → true；<code>([["A"]], "B")</code> → false。</li>
+          <li><strong>不能重複使用同一格</strong>：<code>"ABCB"</code> → false。<strong>沒有標記的話會錯誤地回 true。</strong></li>
+          <li><strong>word 比整個 board 還長</strong>：直接 false（剪枝 1 會擋）。</li>
+          <li><strong>需要轉彎的路徑</strong>：<code>"ABCCED"</code> → true。</li>
+          <li><strong>需要往回走（上）</strong>：<code>"ASFCCE"</code> → true（A→S→F→C→往上的 C→E）。<strong>只寫「右」和「下」兩個方向會錯。</strong></li>
+          <li><strong>board 被破壞</strong>：忘記還原的話，第二次呼叫同一個 <code>exist</code> 會得到錯誤的結果。</li>
+          <li><strong>長度 1 的 word</strong>：只要 board 裡有那個字母就 true。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要同時找「很多個單字」呢？</h3>
+
+        <p>第 212 題（Word Search II）。<strong>對每個單字各跑一次 DFS 是 O(單字數 × mn × 3^L)，太慢。</strong></p>
+
+        <div class="code-block">標準解法：把所有單字建成一棵 Trie（字典樹），
+然後在 board 上只做【一次】DFS，同時沿著 Trie 往下走。
+
+    def dfs(r, c, node):
+        ch = board[r][c]
+        if ch not in node.children:
+            return                     # Trie 上沒有這條路 -&gt; 剪掉整棵子樹
+        nxt = node.children[ch]
+        if nxt.word:
+            找到一個單字
+        ...四個方向遞迴...
+
+這樣所有單字「共用」同一趟搜尋 ——
+而且 Trie 提供了極強的剪枝：
+    只要目前的前綴不是任何單字的前綴，立刻停。
+
+這是「Trie + 回溯」最經典的組合，
+也是第 79 題真正想引導你去的地方。</div>
+
+        <h3>追問二：如果允許對角線（八個方向）呢？</h3>
+
+        <p>把方向陣列從 4 個改成 8 個。<strong>但複雜度會從 O(3^L) 變成 O(7^L)</strong> —— L = 15 時是 <code>7¹⁴ ≈ 6.8 × 10¹¹</code>，完全不可行。<strong>所以八方向的版本一定要有很強的剪枝（例如 Trie）。</strong></p>
+
+        <h3>追問三：這題是 NP-hard 嗎？</h3>
+
+        <p><strong>一般化的版本是。</strong>「在網格上找一條不重複經過任何格子的路徑，使它拼出指定字串」本質上是<strong>尋找哈密頓路徑（Hamiltonian path）</strong>的變形 —— 當 <code>word</code> 的長度等於格子總數時，它就是在問「有沒有哈密頓路徑」，而那是 NP-complete 的。</p>
+
+        <p><strong>這就是為什麼題目把 board 限制在 6×6</strong> —— 沒有多項式演算法，只能靠剪枝硬搜。</p>
+
+        <h3>追問四：「就地標記」vs「visited 陣列」怎麼選？</h3>
+
+        <table>
+          <thead><tr><th></th><th>就地標記</th><th>visited 陣列</th></tr></thead>
+          <tbody>
+            <tr><td>額外空間</td><td>O(1)</td><td>O(mn)</td></tr>
+            <tr><td>破壞輸入</td><td>會（但有還原）</td><td>不會</td></tr>
+            <tr><td>能平行化</td><td>✘（共用 board）</td><td>✔（每個執行緒一份 visited）</td></tr>
+            <tr><td>需要保留值</td><td>✔（要一個不會出現的字元）</td><td>✘</td></tr>
+          </tbody>
+        </table>
+
+        <p><strong>如果字元集是完整的 Unicode，就找不到安全的標記字元</strong> —— 那時只能用 <code>visited</code> 陣列。本題只有英文字母，所以 <code>'#'</code> 是安全的。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 212 題 Word Search II</strong> —— 多個單字，要用 Trie</li>
+          <li><strong>第 200 題 Number of Islands</strong> —— 網格 DFS 的入門題</li>
+          <li><strong>第 37／51 題</strong> —— 回溯家族</li>
+          <li><strong>第 208 題 Implement Trie</strong> —— 第 212 題的前置</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 <code>if k == len(word)</code> 必須放在越界檢查之前？</li>
+            <li>忘記 <code>board[r][c] = tmp</code> 會有哪兩個後果？</li>
+            <li>剪枝 2（從稀有的那一端搜）為什麼是正確的？</li>
+            <li>為什麼複雜度是 <code>3^L</code> 而不是 <code>4^L</code>？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0078.html">← 上一題：78. 子集</a>
+          <a href="problem-0080.html">下一題：80. 刪除有序陣列中的重複項 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

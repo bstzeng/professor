@@ -1,0 +1,309 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a string <code>s</code> and an array of strings <code>words</code>. All the strings of <code>words</code> are of <strong>the same length</strong>.</p>
+          <p>A <strong>concatenated substring</strong> in <code>s</code> is a substring that contains all the strings of <code>words</code> concatenated in <strong>any order</strong>, exactly once, with no other characters in between.</p>
+          <p>Return the starting indices of all the concatenated substrings in <code>s</code>. You can return the answer in any order.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code> 和一個字串陣列 <code>words</code>，<code>words</code> 裡所有字串的<strong>長度都相同</strong>。</p>
+          <p>所謂<strong>串聯子字串</strong>，是指 <code>s</code> 的一段子字串，它剛好由 <code>words</code> 裡<strong>所有</strong>單字以<strong>任意順序</strong>串接而成，每個單字恰好用一次，中間不能有多餘的字元。</p>
+          <p>回傳所有串聯子字串的<strong>起始索引</strong>，順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>「所有單字等長」是這題唯一可用的槓桿</h3>
+        <div class="code-block">如果單字長度不一樣，這題會變成一個相當困難的搜尋問題。
+題目保證等長，所以：
+
+    1. 串聯子字串的長度是固定的 = m × w
+       （m = 單字個數，w = 單字長度）
+
+    2. 可以把 s 按 w 切塊，一次看 w 個字元，
+       而不是一個字元一個字元看。
+
+    3. 起點只有 w 種「對齊方式」：
+       i % w == 0, 1, 2, ..., w-1
+       同一組對齊的起點之間可以共用計算 -&gt; 滑動視窗。
+
+例子：
+    s = "barfoothefoobarman"，words = ["foo","bar"]
+    m = 2, w = 3, total = 6
+
+    i=0:  "barfoo"  = bar + foo  ✔ 兩個都用到，各一次
+    i=9:  "foobar"  = foo + bar  ✔
+    答案 [0, 9]
+
+    注意 words 可能有重複：
+    words = ["a","a"] 表示需要「兩個 a」，不是「一個 a」。
+    所以要用 Counter 而不是 set。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "barfoothefoobarman", words = ["foo","bar"]
+  輸出：[0,9]
+  說明：索引 0 開始的 "barfoo" 和索引 9 開始的 "foobar"。
+
+範例 2
+  輸入：s = "wordgoodgoodgoodbestword", words = ["word","good","best","word"]
+  輸出：[]
+  說明：需要兩個 "word"，但沒有任何一段同時包含兩個 word 和 good、best。
+
+範例 3
+  輸入：s = "barfoofoobarthefoobarman", words = ["bar","foo","the"]
+  輸出：[6,9,12]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 10⁴</li>
+          <li>1 ≤ <code>words.length</code> ≤ 5000</li>
+          <li>1 ≤ <code>words[i].length</code> ≤ 30</li>
+          <li><code>s</code> 和 <code>words[i]</code> 只含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/substring-with-concatenation-of-all-words/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong><code>words</code> 可以有重複的單字。</strong><code>["word","good","best","word"]</code> 需要<strong>兩個</strong> word。所以必須用 <code>Counter</code>（多重集合）而不是 <code>set</code>。<strong>這是本題最常見的錯誤。</strong></li>
+          <li><strong>n ≤ 10⁴、m ≤ 5000、w ≤ 30</strong>。暴力法是 O(n × m × w)，最壞 10⁴ × 5000 × 30 = 1.5 × 10⁹ —— 太慢。但注意 <code>m × w ≤ n</code> 才可能有答案，所以實際上 <strong>O(n × m)</strong> 已經夠好（Python 的切片和 Counter 有常數開銷，但暴力法在 LeetCode 上通常能過）。滑動視窗的 O(n × w) 才是真正漂亮的解。</li>
+          <li><strong>單字長度可以到 30</strong>，所以「w 組對齊」最多 30 組。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">兩種解法：
+
+暴力法：對每個起點 i，把後面 m 個單字切出來逐一檢查
+        O(n × m × w)，但一旦發現不對就提早退出，實測不算慢
+
+滑動視窗：把起點按 i % w 分成 w 組，每組維護一個視窗
+          每個字元進出視窗各一次
+          O(n × w)   —— w 是單字長度，最多 30
+
+為什麼要分成 w 組？
+
+    s = "barfoothefoobarman"，w = 3
+
+    對齊方式 0： bar|foo|the|foo|bar|man     起點 0, 3, 6, 9, 12, 15
+    對齊方式 1： b|arf|oot|hef|oob|arm|an    起點 1, 4, 7, 10, 13, 16
+    對齊方式 2： ba|rfo|oth|efo|oba|rma|n    起點 2, 5, 8, 11, 14, 17
+
+    同一組裡的起點，切出來的「單字邊界」是一致的，
+    所以可以像一般的滑動視窗那樣「右邊進、左邊出」。
+    不同組之間邊界不同，不能混在一起，所以要跑 w 次。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>枚舉每個起點，逐塊檢查</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def findSubstring(self, s: str, words: List[str]) -&gt; List[int]:
+        if not s or not words:
+            return []
+
+        m = len(words)            # 單字個數
+        w = len(words[0])         # 每個單字的長度（題目保證等長）
+        total = m * w
+        need = Counter(words)
+        out = []
+
+        for i in range(len(s) - total + 1):
+            seen = Counter()
+            for j in range(m):
+                piece = s[i + j * w: i + (j + 1) * w]
+                if piece not in need:
+                    break             # 根本不是任何一個單字
+                seen[piece] += 1
+                if seen[piece] &gt; need[piece]:
+                    break             # 這個單字用太多次了
+            else:
+                out.append(i)         # for 沒有 break -&gt; 全部配對成功
+
+        return out</div>
+        <h3>Python 的 <code>for ... else</code></h3>
+        <div class="code-block">for j in range(m):
+    ...
+    if 有問題:
+        break
+else:
+    out.append(i)      # 只有「沒 break」才會執行
+
+for-else 的 else 是「迴圈正常跑完」才執行，
+被 break 中斷就不執行。
+
+這個語法在「搜尋失敗才做某事」的場景很好用，
+但很多人沒看過，會誤以為 else 配的是 if。
+面試時建議改寫成一個 bool 旗標，比較不會造成誤解。</div>
+        <h3>兩個提早退出的條件</h3>
+        <ul>
+          <li><code>piece not in need</code>：切出來的根本不是清單裡的任何單字 —— 立刻失敗。</li>
+          <li><code>seen[piece] &gt; need[piece]</code>：這個單字用超過允許的次數 —— 立刻失敗。<strong>這就是為什麼用 Counter 而不是 set。</strong></li>
+        </ul>
+        <p><strong>為什麼不用比較 <code>seen == need</code>？</strong>因為我們一路檢查「沒有超量」，而且總共放進 <code>m</code> 個，所以跑完 <code>m</code> 輪就一定剛好相等。提早檢查比最後比較兩個 Counter 快得多。</p>
+        <p>實測上這個解法在 LeetCode 通常能過，因為提早退出很有效 —— 大部分起點在第一塊就失敗了。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·m·w) 最壞</td><td>n 個起點 × m 塊 × 切片 O(w)</td></tr>
+            <tr><td>空間</td><td>O(m·w)</td><td>兩個 Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>分組滑動視窗（最佳解）</h3>
+        <p>暴力法的浪費：相鄰的起點 <code>i</code> 和 <code>i+w</code> 共用了 <code>m−1</code> 塊，卻各自重算一遍。滑動視窗把這些共用的部分留下來。</p>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def findSubstring(self, s: str, words: List[str]) -&gt; List[int]:
+        if not s or not words:
+            return []
+
+        m = len(words)
+        w = len(words[0])
+        total = m * w
+        n = len(s)
+        if n &lt; total:
+            return []
+
+        need = Counter(words)
+        out = []
+
+        # 依「起點對 w 取餘數」分成 w 組，每組各做一次滑動視窗
+        for offset in range(w):
+            left = offset
+            count = 0                 # 視窗裡目前有幾個單字
+            window = Counter()
+
+            for right in range(offset, n - w + 1, w):
+                piece = s[right: right + w]
+
+                if piece not in need:
+                    # 整個視窗作廢，從下一格重新開始
+                    window.clear()
+                    count = 0
+                    left = right + w
+                    continue
+
+                window[piece] += 1
+                count += 1
+
+                # 這個單字用太多次 -&gt; 從左邊縮，直到把多出來的那個吐掉
+                while window[piece] &gt; need[piece]:
+                    window[s[left: left + w]] -= 1
+                    left += w
+                    count -= 1
+
+                if count == m:
+                    out.append(left)
+                    # 視窗已經滿了，吐掉最左邊一個再繼續
+                    window[s[left: left + w]] -= 1
+                    left += w
+                    count -= 1
+
+        return out</div>
+        <h3>三種情況，對應三段程式碼</h3>
+        <div class="code-block">情況 A：切出來的不是任何單字
+    整個視窗都作廢（因為任何包含這塊的視窗都不可能成立）
+    -&gt; window.clear(), count = 0, left 跳到這塊後面
+
+情況 B：是單字，但用太多次
+    不能整個丟掉，只要從左邊吐到「不超量」為止
+    -&gt; while window[piece] &gt; need[piece]: 吐最左邊那塊
+
+    例：need = {"a": 1}，視窗是 [a]，現在又進來一個 a
+        吐掉最左邊的 a，視窗變成 [a]（新的那個）
+
+情況 C：視窗剛好滿了（count == m）
+    記下答案，然後吐掉最左邊一塊，繼續往右找
+    （不能停下來，後面可能還有答案）</div>
+        <h3>為什麼是 O(n × w) 而不是 O(n)？</h3>
+        <p>因為要跑 <code>w</code> 組（<code>w</code> 種對齊方式）。每一組裡，<code>left</code> 和 <code>right</code> 各自只往右走 <code>n/w</code> 步，所以每組是 O(n/w) 次「塊操作」，每次塊操作要做一次長度 <code>w</code> 的切片和雜湊 —— O(w)。每組 O(n)，共 w 組 —— <strong>O(n × w)</strong>。</p>
+        <p>相較暴力法的 O(n × m × w)，這裡把 <code>m</code> 換成了 1。當單字很多（m = 5000）時差距非常大。</p>
+        <h3>常見的實作錯誤</h3>
+        <ul>
+          <li><strong>忘記在情況 C 之後吐掉最左邊</strong> —— 視窗會永遠滿著，只找到第一個答案。</li>
+          <li><strong>情況 A 忘記把 <code>left</code> 跳到 <code>right + w</code></strong> —— 視窗會殘留無效的塊。</li>
+          <li><strong><code>range(offset, n - w + 1, w)</code> 的上界寫錯</strong> —— 最後一塊的起點最多是 <code>n − w</code>。</li>
+        </ul>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·w)</td><td>w 組 × 每組 O(n)</td></tr>
+            <tr><td>空間</td><td>O(m·w)</td><td>兩個 Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>m=5000 時</th><th>好寫程度</th></tr></thead>
+          <tbody>
+            <tr><td>一、枚舉起點</td><td>O(n·m·w)</td><td>O(m·w)</td><td>慢但通常能過</td><td>★★★★☆</td></tr>
+            <tr><td>二、分組滑動視窗</td><td>O(n·w)</td><td>O(m·w)</td><td>快很多</td><td>★★☆☆☆</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>words</code> 有重複</strong>：<code>("aaa", ["a","a"])</code> → <code>[0,1]</code>。用 set 會得到錯誤答案。</li>
+          <li><strong>整個 s 就是答案</strong>：<code>("a", ["a"])</code> → <code>[0]</code>。</li>
+          <li><strong>沒有答案</strong>：<code>("ab", ["ba"])</code> → <code>[]</code>。</li>
+          <li><strong>重疊的答案</strong>：<code>("barfoofoobarthefoobarman", ["bar","foo","the"])</code> → <code>[6,9,12]</code>。答案可以重疊，不能找到一個就跳過整段。</li>
+          <li><strong>s 比 total 短</strong>：<code>("a", ["ab"])</code> → <code>[]</code>。<code>range(n - total + 1)</code> 會是空的。</li>
+          <li><strong>全部相同</strong>：<code>("aaaaaa", ["aa","aa","aa"])</code> → <code>[0]</code>。</li>
+          <li><strong>單字長度 1</strong>：<code>w = 1</code> 時只有一組對齊，退化成一般的滑動視窗（第 438 題）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果單字長度不一樣呢？</h3>
+
+        <p><strong>整個解法都崩潰了。</strong>「按 w 切塊」不成立，滑動視窗也不成立。這時候要用 Trie + 回溯（每個位置試所有可能的單字長度），複雜度會變得很差。<strong>「等長」這個條件價值連城。</strong></p>
+
+        <h3>追問二：如果只要求「包含」而不要求「恰好」呢？</h3>
+
+        <p>那就退化成第 76 題（Minimum Window Substring）的變形 —— 不需要分組，因為不要求對齊。</p>
+
+        <h3>追問三：這題和第 438 題（Find All Anagrams）的關係？</h3>
+
+        <div class="code-block">第 438 題：s 裡所有「p 的字母重排」的起點
+          = 本題在 w = 1 的特例
+          （每個「單字」就是一個字元）
+
+所以：
+    w = 1  -&gt;  只有一組對齊，就是標準滑動視窗
+    w &gt; 1  -&gt;  要分成 w 組
+
+先把第 438 題寫熟，這題就只是「多包一層 offset 迴圈」。
+反過來先攻這題會事倍功半。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 438 題 Find All Anagrams in a String</strong> —— w = 1 的特例，建議先練</li>
+          <li><strong>第 76 題 Minimum Window Substring</strong> —— 滑動視窗 + Counter 的經典</li>
+          <li><strong>第 567 題 Permutation in String</strong> —— 固定長度的滑動視窗</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要用 <code>Counter</code> 而不是 <code>set</code>？舉一個會出錯的輸入。</li>
+            <li>為什麼滑動視窗要分成 <code>w</code> 組？如果只跑一組會漏掉什麼？</li>
+            <li>情況 A（切出來不是單字）為什麼可以把整個視窗清空，而不是只吐一塊？</li>
+            <li>找到答案（<code>count == m</code>）之後為什麼一定要吐掉最左邊一塊？</li>
+          </ol>
+        </div>

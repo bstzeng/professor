@@ -1,0 +1,325 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array of non-overlapping intervals <code>intervals</code> where <code>intervals[i] = [start_i, end_i]</code> represent the start and the end of the <code>i</code>-th interval and <code>intervals</code> is sorted in ascending order by <code>start_i</code>. You are also given an interval <code>newInterval</code>.</p>
+          <p>Insert <code>newInterval</code> into <code>intervals</code> such that <code>intervals</code> is still sorted in ascending order by <code>start_i</code> and <code>intervals</code> still does not have any overlapping intervals (merge overlapping intervals if necessary).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>已依起點排序、而且互不重疊</strong>的區間陣列 <code>intervals</code>，以及一個新區間 <code>newInterval</code>。</p>
+          <p>把新區間插進去，並且讓結果<strong>仍然是「依起點排序、互不重疊」</strong>（必要時要合併重疊的區間）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>把原陣列切成三段</h3>
+        <div class="code-block">設新區間是 [s, e]。原本的區間可以分成三類：
+
+  ① 完全在左邊： interval[1] &lt; s
+     它的結束比新區間的開始還早 -&gt; 不重疊，原封不動
+
+  ② 有重疊：     interval[0] &lt;= e  且  interval[1] &gt;= s
+     要被吞併進新區間
+
+  ③ 完全在右邊： interval[0] &gt; e
+     它的開始比新區間的結束還晚 -&gt; 不重疊，原封不動
+
+而因為原陣列「已排序且不重疊」，
+這三類在陣列裡剛好是【連續的三段】：
+    [①①①][②②②][③③③]
+
+所以只要找出兩個分界點，就能一趟做完。
+
+吞併的規則：
+    s = min(s, 所有重疊區間的最小起點)
+    e = max(e, 所有重疊區間的最大終點)</div>
+        <p><strong>「已排序且不重疊」這個前提，讓這題從 O(n log n) 降到 O(n)</strong> —— 如果沒有這個前提，就只能套用第 56 題的做法（先加進去再全部重排合併）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：intervals = [[1,3],[6,9]], newInterval = [2,5]
+  輸出：[[1,5],[6,9]]
+  說明：[2,5] 和 [1,3] 重疊，合併成 [1,5]。
+
+範例 2
+  輸入：intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]], newInterval = [4,8]
+  輸出：[[1,2],[3,10],[12,16]]
+  說明：[4,8] 和 [3,5]、[6,7]、[8,10] 都重疊，一起合併成 [3,10]。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>intervals.length</code> ≤ 10⁴（<strong>可以是空的</strong>）</li>
+          <li><code>intervals[i].length == 2</code></li>
+          <li>0 ≤ <code>startᵢ</code> ≤ <code>endᵢ</code> ≤ 10⁵</li>
+          <li><code>intervals</code> 已依 <code>startᵢ</code> <strong>升序排列</strong>且<strong>互不重疊</strong></li>
+          <li><code>newInterval.length == 2</code>，0 ≤ <code>start</code> ≤ <code>end</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/insert-interval/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong><code>intervals</code> 可以是空的</strong> → 答案就是 <code>[newInterval]</code>。三段式寫法自然處理（前兩個 while 都不跑，直接 append）。</li>
+          <li><strong>已排序且不重疊</strong> —— 這是 O(n) 解法的全部基礎。面試時務必確認這個前提（如果沒有，就是第 56 題）。</li>
+          <li><strong>端點相碰算重疊</strong>：<code>[[1,5]]</code> 插入 <code>[5,7]</code> → <code>[[1,7]]</code>。所以判斷式用 <code>&lt;</code> 和 <code>&lt;=</code> 而不是反過來。</li>
+          <li><strong>n 到 10⁴</strong>，O(n) 輕鬆過。二分搜尋（O(log n) 定位）是加分項而不是必需。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 290" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">把原本的區間分成三段：左邊、重疊、右邊</text>
+            <text x="20" y="48" fill="var(--text-muted)" font-size="12">intervals = [[1,2], [3,5], [6,7], [8,10], [12,16]]，新區間 = [4, 8]</text>
+            <g>
+              <line x1="40" y1="200" x2="600" y2="200" stroke="var(--text-muted)"/>
+              <line x1="60" y1="90" x2="92" y2="90" stroke="var(--accent)" stroke-width="4"/>
+              <text x="76" y="80" fill="var(--accent)" font-size="11" text-anchor="middle">[1,2]</text>
+              <line x1="124" y1="90" x2="188" y2="90" stroke="var(--gold)" stroke-width="4"/>
+              <text x="156" y="80" fill="var(--gold)" font-size="11" text-anchor="middle">[3,5]</text>
+              <line x1="220" y1="90" x2="252" y2="90" stroke="var(--gold)" stroke-width="4"/>
+              <text x="236" y="80" fill="var(--gold)" font-size="11" text-anchor="middle">[6,7]</text>
+              <line x1="284" y1="90" x2="348" y2="90" stroke="var(--gold)" stroke-width="4"/>
+              <text x="316" y="80" fill="var(--gold)" font-size="11" text-anchor="middle">[8,10]</text>
+              <line x1="412" y1="90" x2="540" y2="90" stroke="var(--accent)" stroke-width="4"/>
+              <text x="476" y="80" fill="var(--accent)" font-size="11" text-anchor="middle">[12,16]</text>
+
+              <line x1="156" y1="130" x2="284" y2="130" stroke="#ff8a65" stroke-width="5"/>
+              <text x="220" y="150" fill="#ff8a65" font-size="12" text-anchor="middle">新區間 [4, 8]</text>
+
+              <rect x="110" y="70" width="252" height="76" fill="var(--gold)" opacity="0.1"/>
+              <text x="236" y="178" fill="var(--gold)" font-size="11" text-anchor="middle">重疊區：[3,5]、[6,7]、[8,10]</text>
+            </g>
+            <g font-size="11" fill="var(--text-muted)" text-anchor="middle">
+              <text x="60" y="218">1</text><text x="92" y="218">2</text><text x="124" y="218">3</text>
+              <text x="156" y="218">4</text><text x="188" y="218">5</text><text x="220" y="218">6</text>
+              <text x="252" y="218">7</text><text x="284" y="218">8</text><text x="348" y="218">10</text>
+              <text x="412" y="218">12</text><text x="540" y="218">16</text>
+            </g>
+            <text x="20" y="252" fill="var(--gold)" font-size="12">吞併後：s = min(4, 3) = 3，e = max(8, 10) = 10 → [3, 10]</text>
+            <text x="20" y="276" fill="#ff8a65" font-size="12">答案：[[1,2], [3,10], [12,16]]</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>三段式一趟掃描（標準解）</h3>
+        <div class="code-block">class Solution:
+    def insert(self, intervals: List[List[int]],
+               newInterval: List[int]) -&gt; List[List[int]]:
+        out = []
+        s, e = newInterval
+        i, n = 0, len(intervals)
+
+        # 第 1 段：完全在新區間「左邊」的，原封不動放進去
+        while i &lt; n and intervals[i][1] &lt; s:
+            out.append(intervals[i])
+            i += 1
+
+        # 第 2 段：所有和新區間重疊的，吞併成一個大區間
+        while i &lt; n and intervals[i][0] &lt;= e:
+            s = min(s, intervals[i][0])
+            e = max(e, intervals[i][1])
+            i += 1
+        out.append([s, e])
+
+        # 第 3 段：完全在右邊的，原封不動放進去
+        while i &lt; n:
+            out.append(intervals[i])
+            i += 1
+
+        return out</div>
+        <h3>兩個 while 的條件，一個字都不能錯</h3>
+        <div class="code-block">第 1 段（左邊）：  intervals[i][1] &lt; s
+    「這個區間的結束，比新區間的開始還早」
+    用嚴格 &lt; ：如果 intervals[i][1] == s，端點相碰，算重疊，不能放進第 1 段。
+
+第 2 段（重疊）：  intervals[i][0] &lt;= e
+    「這個區間的開始，不超過新區間的結束」
+    用 &lt;= ：端點相碰算重疊。
+
+    為什麼不用同時檢查 intervals[i][1] &gt;= s？
+    因為第 1 段的 while 已經把「結束 &lt; s」的全部消化掉了，
+    所以走到第 2 段時，剩下的都保證 intervals[i][1] &gt;= s。
+
+    這是「三段式」的優雅之處：
+    每一段的條件都靠前一段的結束來簡化。
+
+第 3 段：  剩下全部原封不動。</div>
+        <h3>追一遍範例 2</h3>
+        <div class="code-block">intervals = [[1,2],[3,5],[6,7],[8,10],[12,16]]，new = [4,8]
+s, e = 4, 8
+
+第 1 段：
+    i=0: [1,2] 的 2 &lt; 4 ✔  放進 out，i=1
+    i=1: [3,5] 的 5 &lt; 4 ✘  停
+
+第 2 段：
+    i=1: [3,5] 的 3 &lt;= 8 ✔  s=min(4,3)=3, e=max(8,5)=8，i=2
+    i=2: [6,7] 的 6 &lt;= 8 ✔  s=3, e=max(8,7)=8，i=3
+    i=3: [8,10] 的 8 &lt;= 8 ✔ s=3, e=max(8,10)=10，i=4
+    i=4: [12,16] 的 12 &lt;= 10 ✘ 停
+    out.append([3, 10])
+
+第 3 段：
+    i=4: 放進 [12,16]
+
+結果 [[1,2],[3,10],[12,16]] ✔</div>
+        <p><strong>注意 <code>e</code> 在第 2 段會「一邊擴大一邊被用來判斷」</strong> —— 這是對的，因為吞併之後新區間變大，可能又碰到更右邊的區間。例子裡 <code>[8,10]</code> 就是靠 <code>e</code> 從 8 沒變（<code>8 &lt;= 8</code>）才被吞進來的。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個區間看一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>輸出陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>二分搜尋定位（在區間很多時更快）</h3>
+        <p>既然陣列已排序，兩個分界點可以用<strong>二分搜尋</strong>找出來，而不是線性掃過去。</p>
+        <div class="code-block">import bisect
+
+class Solution:
+    def insert(self, intervals: List[List[int]],
+               newInterval: List[int]) -&gt; List[List[int]]:
+        starts = [x[0] for x in intervals]
+        ends = [x[1] for x in intervals]
+        s, e = newInterval
+
+        # 第一個「結束 &gt;= s」的區間 —— 從它開始可能有重疊
+        lo = bisect.bisect_left(ends, s)
+        # 第一個「開始 &gt; e」的區間 —— 從它開始不可能重疊
+        hi = bisect.bisect_right(starts, e)
+
+        if lo &lt; hi:        # 有區間要被吞併
+            s = min(s, intervals[lo][0])
+            e = max(e, intervals[hi - 1][1])
+
+        return intervals[:lo] + [[s, e]] + intervals[hi:]</div>
+        <div class="code-block">lo = bisect_left(ends, s)
+    ends 是所有區間的「結束」，它也是遞增的（因為不重疊）。
+    找「第一個 end &gt;= s」的位置 —— 從它開始才可能重疊。
+
+hi = bisect_right(starts, e)
+    starts 是所有區間的「開始」，遞增。
+    找「第一個 start &gt; e」的位置 —— 從它開始不可能重疊。
+
+所以 intervals[lo : hi] 就是所有和新區間重疊的區間。
+
+if lo &lt; hi:  表示真的有重疊
+    s = min(s, intervals[lo][0])     最左邊那個的起點
+    e = max(e, intervals[hi-1][1])   最右邊那個的終點
+
+    （不用掃過中間所有的，因為已排序且不重疊，
+      最小起點一定在 lo，最大終點一定在 hi-1。）
+
+最後拼起來：
+    intervals[:lo] + [[s, e]] + intervals[hi:]</div>
+        <h3>為什麼 <code>ends</code> 也是遞增的？</h3>
+        <p>因為題目保證「已排序且<strong>不重疊</strong>」。不重疊表示 <code>intervals[i][1] &lt; intervals[i+1][0] ≤ intervals[i+1][1]</code>，所以 <code>ends</code> 必然也遞增 —— 才能對它做二分搜尋。<strong>如果區間可能重疊（例如 <code>[[1,10],[2,3]]</code>），<code>ends</code> 就不是遞增的，這個解法會錯。</strong></p>
+        <h3>複雜度真的比較好嗎？</h3>
+        <div class="code-block">定位：   O(log n)
+切片：   intervals[:lo] 和 intervals[hi:] 是 O(n) 的複製
+
+所以總複雜度還是 O(n)。
+
+真正的差別在「常數」：
+    解法一：n 次迴圈（Python 層）
+    解法二：兩次 bisect（C 層）+ 兩次切片（C 層的 memcpy）
+
+在 n = 10⁴ 時，解法二通常快 5–10 倍 ——
+不是因為複雜度，而是因為工作都在 C 層做。
+
+如果輸出可以用「回傳索引範圍」而不是「新陣列」，
+解法二才能真正做到 O(log n)。</div>
+        <p><strong>面試時：先寫解法一</strong>（它展示了對問題結構的理解），再提「因為已排序，兩個分界點可以二分搜尋」。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)（定位 O(log n)）</td><td>切片主導</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>輸出陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>定位</th><th>總時間</th><th>依賴「不重疊」？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、三段式掃描</td><td>O(n)</td><td>O(n)</td><td>只依賴「已排序」</td><td>面試預設</td></tr>
+            <tr><td>二、二分搜尋</td><td>O(log n)</td><td>O(n)（切片）</td><td>✔ 必須</td><td>常數小很多</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空陣列</strong>：<code>([], [5,7])</code> → <code>[[5,7]]</code>。</li>
+          <li><strong>新區間在最前面</strong>：<code>([[1,5]], [0,0])</code> → <code>[[0,0],[1,5]]</code>。</li>
+          <li><strong>新區間在最後面</strong>：<code>([[1,5]], [6,8])</code> → <code>[[1,5],[6,8]]</code>。</li>
+          <li><strong>新區間被完全包含</strong>：<code>([[1,5]], [2,3])</code> → <code>[[1,5]]</code>。<code>min</code> 和 <code>max</code> 都不能省。</li>
+          <li><strong>新區間包含所有</strong>：<code>([[1,2],[3,4]], [0,10])</code> → <code>[[0,10]]</code>。</li>
+          <li><strong>端點相碰</strong>：<code>([[1,5]], [5,7])</code> → <code>[[1,7]]</code>；<code>([[3,5],[12,15]], [6,6])</code> → <code>[[3,5],[6,6],[12,15]]</code>。</li>
+          <li><strong>點區間插在縫隙</strong>：驗證「不重疊」時不會被誤吞。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要插入很多個區間呢？</h3>
+
+        <p>一個一個插是 O(k · n)。<strong>更好的做法：把 k 個新區間全部加進去，再套第 56 題的「排序 + 合併」</strong>，O((n+k) log(n+k))。當 <code>k</code> 接近 <code>n</code> 時後者明顯更好。</p>
+
+        <h3>追問二：如果是「刪除一個區間」呢？</h3>
+
+        <p>第 1272 題（Remove Interval）。結構很像，也是三段式，但重疊的部分要「切掉中間」而不是「合併」：</p>
+
+        <div class="code-block">對每個重疊的區間 [a, b] 和要刪除的 [s, e]：
+    左邊殘留： [a, s]  若 a &lt; s
+    右邊殘留： [e, b]  若 e &lt; b
+
+一個區間可能被切成兩段（當 [s,e] 完全在 [a,b] 內部時）。
+
+刪除比插入麻煩，因為區間數量可能「變多」。</div>
+
+        <h3>追問三：如果要支援「動態插入 + 查詢某點是否被覆蓋」呢？</h3>
+
+        <p>第 715 題（Range Module）。用 <strong>平衡二元搜尋樹</strong>（Python 的 <code>sortedcontainers.SortedList</code>）維護不重疊的區間集合，每次操作 O(log n + 受影響的區間數)。或者用<strong>線段樹 + 座標壓縮</strong>。</p>
+
+        <h3>追問四：這題的「三段式」在哪裡還會出現？</h3>
+
+        <p>任何「有序資料 + 一個範圍操作」的問題：</p>
+
+        <ul>
+          <li><strong>陣列的區間刪除／替換</strong>（<code>list[a:b] = [...]</code> 就是三段式）</li>
+          <li><strong>版本控制的 diff / patch</strong>：未變、變更、未變</li>
+          <li><strong>資料庫的範圍更新</strong></li>
+          <li><strong>文字編輯器的區塊選取與替換</strong></li>
+        </ul>
+
+        <p><strong>「把序列切成『不受影響的前段 + 受影響的中段 + 不受影響的後段』」是處理有序資料的通用模式。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 56 題 Merge Intervals</strong> —— 沒有「已排序」前提的版本</li>
+          <li><strong>第 1272 題 Remove Interval</strong> —— 刪除版</li>
+          <li><strong>第 715 題 Range Module</strong> —— 動態版</li>
+          <li><strong>第 986 題 Interval List Intersections</strong> —— 兩組有序區間的交集</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>第 1 段的條件為什麼用 <code>&lt;</code> 而第 2 段用 <code>&lt;=</code>？</li>
+            <li>第 2 段為什麼不需要檢查 <code>intervals[i][1] &gt;= s</code>？</li>
+            <li>二分搜尋版為什麼需要「不重疊」這個前提？只有「已排序」夠嗎？</li>
+            <li><code>([[1,5]], [2,3])</code> 的答案是什麼？哪個 <code>min</code> / <code>max</code> 在這裡起作用？</li>
+          </ol>
+        </div>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>40. Combination Sum II 組合總和 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="每個元素只能用一次 + 有重複元素，去重是重點。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="40">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 40 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 40</div>
+          <h1>Combination Sum II<br>組合總和 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a collection of candidate numbers (<code>candidates</code>) and a target number (<code>target</code>), find all unique combinations in <code>candidates</code> where the candidate numbers sum to <code>target</code>.</p>
+          <p>Each number in <code>candidates</code> may only be used <strong>once</strong> in the combination. Note: the solution set must not contain duplicate combinations.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個候選數字陣列 <code>candidates</code>（<strong>可能含有重複的值</strong>）和一個目標值 <code>target</code>，找出所有能讓總和等於 <code>target</code> 的組合。</p>
+          <p><code>candidates</code> 裡的<strong>每個數字在每個組合中只能用一次</strong>。答案裡<strong>不能有重複的組合</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>和第 39 題的兩個差異</h3>
+        <div class="code-block">第 39 題                      第 40 題（本題）
+--------------------          --------------------
+候選互不相同                    候選「可能重複」
+每個可以用無限次                 每個只能用一次
+
+程式碼的差異只有兩處：
+
+    ① 遞迴傳 i + 1（不是 i）
+       -&gt; 每個位置只能用一次
+
+    ② 多一行去重
+       if i &gt; start and candidates[i] == candidates[i-1]: continue
+       -&gt; 同一層裡，相同的值只選第一次出現的那個
+
+第 ② 點是全題的重點，而且那個 i &gt; start 非常容易寫錯成 i &gt; 0。</div>
+        <p><strong>「值重複」和「位置重複」要分清楚。</strong><code>[1, 1, 6]</code> 是合法答案（用了兩個<strong>不同位置</strong>的 1），但同一個位置的 1 不能用兩次。而 <code>[1, 1, 6]</code> 只能出現一次，不能因為「有兩種選法」就輸出兩份。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：candidates = [10,1,2,7,6,1,5], target = 8
+  輸出：[[1,1,6],[1,2,5],[1,7],[2,6]]
+  說明：注意 [1,1,6] 用了兩個不同位置的 1，是合法的。
+        而 [1,7] 只出現一次，雖然有兩個 1 可以選。
+
+範例 2
+  輸入：candidates = [2,5,2,1,2], target = 5
+  輸出：[[1,2,2],[5]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>candidates.length</code> ≤ 100</li>
+          <li>1 ≤ <code>candidates[i]</code> ≤ 50</li>
+          <li>1 ≤ <code>target</code> ≤ 30</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/combination-sum-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong><code>candidates[i]</code> 最小是 1</strong>（第 39 題最小是 2）。但因為每個只能用一次，所以不會有無限遞迴的問題 —— 遞迴深度最多是 <code>len(candidates) = 100</code>。</li>
+          <li><strong>target ≤ 30，但 candidates[i] 可以到 50</strong>。所以會有很多候選一開始就超過 target —— 剪枝很有效。</li>
+          <li><strong>候選長度可以到 100</strong>，不剪枝的話最壞是 2¹⁰⁰ 個子集合 —— 完全不可行。<strong>排序 + break 剪枝 + 去重</strong>三者缺一不可。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 334" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">去重的關鍵：同一層不能重複選「同樣的值」，但不同層可以</text>
+            <text x="20" y="50" fill="var(--text-muted)" font-size="12">candidates 排序後 = [1, 1, 2, 5, 6, 7, 10]，target = 8</text>
+            <g font-size="12" font-family="monospace">
+              <text x="40" y="84" fill="var(--gold)">第 0 層（start = 0）：i 可以是 0..6</text>
+              <text x="70" y="108" fill="var(--accent)">i = 0 → 選 candidates[0] = 1 ✔（第一次出現）</text>
+              <text x="70" y="130" fill="#ff8a65">i = 1 → candidates[1] = 1 == candidates[0]，而且 i &gt; start</text>
+              <text x="110" y="150" fill="#ff8a65">→ continue（跳過，否則會產生重複的組合）</text>
+              <text x="70" y="172" fill="var(--accent)">i = 2 → 選 2 ✔</text>
+              <text x="70" y="194" fill="var(--text-muted)">…</text>
+            </g>
+            <line x1="20" y1="212" x2="620" y2="212" stroke="var(--border)"/>
+            <g font-size="12" font-family="monospace">
+              <text x="40" y="242" fill="var(--gold)">第 1 層（start = 1，因為上一層選了 i = 0）：i 可以是 1..6</text>
+              <text x="70" y="266" fill="var(--accent)">i = 1 → candidates[1] = 1，但 i == start，不跳過 ✔</text>
+              <text x="110" y="286" fill="var(--accent)">→ 得到 [1, 1]，這是合法的（用了兩個「不同位置」的 1）</text>
+            </g>
+            <text x="20" y="322" fill="var(--gold)" font-size="12">所以條件是 i &gt; start，不是 i &gt; 0。寫成 i &gt; 0 會漏掉 [1,1,6] 這類答案。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯 + 同層去重（標準解）</h3>
+        <div class="code-block">class Solution:
+    def combinationSum2(self, candidates: List[int], target: int) -&gt; List[List[int]]:
+        candidates.sort()          # 排序：讓相同的值相鄰，去重才做得到
+        out = []
+        path = []
+
+        def backtrack(start: int, remain: int) -&gt; None:
+            if remain == 0:
+                out.append(path[:])
+                return
+
+            for i in range(start, len(candidates)):
+                # 剪枝：排序後，後面只會更大
+                if candidates[i] &gt; remain:
+                    break
+
+                # 去重：同一層裡，相同的值只取「第一次出現」
+                # 注意是 i &gt; start 不是 i &gt; 0
+                if i &gt; start and candidates[i] == candidates[i - 1]:
+                    continue
+
+                path.append(candidates[i])
+                backtrack(i + 1, remain - candidates[i])   # i+1：每個只用一次
+                path.pop()
+
+        backtrack(0, target)
+        return out</div>
+        <h3>為什麼是 <code>i &gt; start</code> 而不是 <code>i &gt; 0</code>？</h3>
+        <div class="code-block">candidates 排序後 = [1, 1, 2, 5, 6, 7, 10]，target = 8
+
+寫 i &gt; start（正確）：
+    第 0 層 start=0：
+        i=0 選 1  -&gt;  進入第 1 層，start=1
+            第 1 層 i=1：i == start，不跳過
+                         選第二個 1  -&gt;  [1,1]  ✔
+                         繼續下去找到 [1,1,6] ✔
+        i=1：i &gt; start(0) 且值相同  -&gt;  跳過 ✔
+             （避免產生和 i=0 完全一樣的子樹）
+
+寫 i &gt; 0（錯誤）：
+    第 1 層 i=1：i &gt; 0 且 candidates[1] == candidates[0]
+                 -&gt; 跳過！
+    結果 [1,1,6] 永遠生不出來 ✘
+
+一句話總結：
+    「同一層」不能選重複的值（會產生一模一樣的子樹）
+    「不同層」可以選重複的值（那是用了兩個不同的位置）
+
+    start 剛好就是「這一層的起點」，
+    所以 i &gt; start 精確地表達了「這一層裡，不是第一個」。</div>
+        <h3>為什麼這樣就能完全去重？</h3>
+        <div class="code-block">排序之後，相同的值連續排在一起。
+
+考慮值 v 在陣列裡出現在位置 p, p+1, ..., p+k-1（共 k 個）。
+
+去重規則保證：
+    如果要用 j 個 v（j &lt;= k），
+    程式只會選「最前面的 j 個」：p, p+1, ..., p+j-1
+
+    因為：
+    - 第一次選 v 時，只允許 i == start 或「i 是這段的第一個」
+    - 選了之後 start 變成 i+1，下一層可以選 p+1
+    - 所以生成的一定是連續的前綴
+
+    而 [v(p), v(p+2)] 這種「跳著選」的組合會被跳過 ——
+    但它和 [v(p), v(p+1)] 的「值」完全一樣，所以沒有損失。
+
+每個「值的多重集合」都恰好對應唯一一條生成路徑 -&gt; 不重不漏 ✔</div>
+        <h3>三個要素的分工</h3>
+        <table>
+          <thead><tr><th>程式碼</th><th>負責什麼</th></tr></thead>
+          <tbody>
+            <tr><td><code>candidates.sort()</code></td><td>讓相同的值相鄰，去重和剪枝才成立</td></tr>
+            <tr><td><code>if candidates[i] &gt; remain: break</code></td><td>剪枝：後面只會更大</td></tr>
+            <tr><td><code>if i &gt; start and 值相同: continue</code></td><td>去重：同層不選重複值</td></tr>
+            <tr><td><code>backtrack(i + 1, ...)</code></td><td>每個位置只用一次</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ)</td><td>最壞列舉所有子集；剪枝後遠低於此</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>先合併成 (值, 次數)，再枚舉次數</h3>
+        <p>另一種去重的思路：<strong>與其在搜尋時跳過重複，不如一開始就把重複合併掉。</strong>把 <code>[1,1,2,5,...]</code> 變成 <code>[(1,2), (2,1), (5,1), ...]</code>，然後對每個「值」枚舉「要用幾個」。</p>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def combinationSum2(self, candidates: List[int], target: int) -&gt; List[List[int]]:
+        # 另一種去重方式：把「相同的值」合併成 (值, 可用次數)
+        items = sorted(Counter(candidates).items())
+        out = []
+
+        def backtrack(idx: int, remain: int, path: List[int]) -&gt; None:
+            if remain == 0:
+                out.append(path)          # path 每層都是新的 list，不會被改到
+                return
+            if idx == len(items):
+                return
+
+            value, avail = items[idx]
+
+            # 這個值可以用 0 次、1 次、…、avail 次，各是一條分支
+            k = 0
+            while k &lt;= avail and value * k &lt;= remain:
+                backtrack(idx + 1, remain - value * k, path + [value] * k)
+                k += 1
+
+        backtrack(0, target, [])
+        return out</div>
+        <div class="code-block">items = [(1,2), (2,1), (5,1), (6,1), (7,1), (10,1)]
+
+對 (1, 2)：可以用 0 個、1 個、或 2 個 1
+    -&gt; 三條分支，各自往下遞迴
+對 (2, 1)：可以用 0 個或 1 個 2
+    -&gt; 兩條分支
+...
+
+這樣天然就不會產生重複，
+因為「這個值要用幾個」這個決定，對每個值只做一次。
+
+path 的寫法：
+    這裡把 path 當成「不可變的參數」傳下去（path + [value] * k），
+    每層都建一個新 list，所以完全不需要手動撤銷。
+    代價是每層複製一次 —— 在這題（target &lt;= 30）完全無所謂，
+    而且它換來的是「絕對不會忘記 pop」。
+
+    如果要省那個複製，就得改回 append/pop 的寫法，
+    但這裡一次 append 了 k 個，撤銷時也要一次 pop 掉 k 個，
+    比第 39 題的「一次一個」容易寫錯。</div>
+        <p><strong>優點</strong>：去重的邏輯變成「資料的預處理」而不是「搜尋時的判斷」，概念上更乾淨，也不會寫錯 <code>i &gt; start</code>。</p>
+        <p><strong>缺點</strong>：<code>path</code> 的維護比較繞，而且分支數變成「每個值有 avail+1 種選擇」而不是「每個位置選或不選」—— 在重複值很多的時候反而更快，重複值少的時候差不多。</p>
+        <p><strong>這個「合併相同物品」的想法就是「多重背包」的標準處理方式</strong>，值得記起來。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(∏(cnt+1))</td><td>每個不同的值有 cnt+1 種選擇</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>去重方式</th><th>好寫程度</th><th>重複值多時</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、同層跳過</td><td>搜尋時判斷</td><td>★★★★☆</td><td>普通</td><td>面試標準；小心 i &gt; start</td></tr>
+            <tr><td>二、合併計數</td><td>資料預處理</td><td>★★★☆☆</td><td>較快</td><td>多重背包的思路</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>候選有重複，答案要用到多個</strong>：<code>([10,1,2,7,6,1,5], 8)</code> → 含 <code>[1,1,6]</code>。<code>i &gt; 0</code> 的寫法會漏掉它。</li>
+          <li><strong>候選有重複，答案只用一個</strong>：同上輸入的 <code>[1,7]</code> 只能出現一次。<strong>沒有去重的話會出現兩次。</strong></li>
+          <li><strong>全部相同</strong>：<code>([2,2,2], 4)</code> → <code>[[2,2]]</code>（只有一組）。</li>
+          <li><strong>全部相同且湊不出來</strong>：<code>([1,1,1,1], 2)</code> → <code>[[1,1]]</code>。</li>
+          <li><strong>單一元素</strong>：<code>([1], 1)</code> → <code>[[1]]</code>；<code>([1], 2)</code> → <code>[]</code>。</li>
+          <li><strong>候選比 target 大</strong>：全部被 <code>break</code> 剪掉，回 <code>[]</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：這個「同層去重」的模板還能用在哪？</h3>
+
+        <div class="code-block">完全一樣的一行，出現在：
+
+    第 40 題  Combination Sum II    （本題）
+    第 47 題  Permutations II        （排列，條件稍有不同）
+    第 90 題  Subsets II             （子集）
+
+第 47 題的去重條件是：
+    if i &gt; 0 and nums[i] == nums[i-1] and not used[i-1]: continue
+
+差別在多了 not used[i-1]，因為排列題用的是 used[] 而不是 start。
+語意一樣：「同一層裡，相同的值只選第一次」。
+
+背這三題的去重條件不如理解一句話：
+    「讓每個答案只有唯一一條生成路徑」</div>
+
+        <h3>追問二：如果不排序，改成用 set 去重可以嗎？</h3>
+
+        <p>可以（把每個答案排序後放進 set），但有兩個代價：</p>
+
+        <ul>
+          <li><strong>做了白工</strong>：重複的子樹還是被完整搜過一遍，只是結果被丟掉。在候選有大量重複時，這個浪費是指數級的。</li>
+          <li><strong>失去 <code>break</code> 剪枝</strong>：不排序就不能靠「後面只會更大」提早結束。</li>
+        </ul>
+
+        <p><strong>「在生成時避免重複」永遠優於「生成後再去重」</strong> —— 這是所有枚舉類問題的通則。</p>
+
+        <h3>追問三：如果 target 很大、候選很多呢？</h3>
+
+        <p>如果只問「有沒有解」或「有幾種」，那是 <strong>0/1 背包</strong>，用 DP 在 O(n × target) 解決。但「列出所有組合」本質上是指數的 —— 答案數量可能就有指數多個，任何演算法都無法避免。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 39 題 Combination Sum</strong> —— 可重複使用的版本</li>
+          <li><strong>第 47 題 Permutations II</strong> —— 排列的去重</li>
+          <li><strong>第 90 題 Subsets II</strong> —— 子集的去重</li>
+          <li><strong>第 216 題 Combination Sum III</strong> —— 固定個數</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>去重條件為什麼是 <code>i &gt; start</code> 而不是 <code>i &gt; 0</code>？請用 <code>([1,1,6], 8)</code> 說明後者會漏掉什麼。</li>
+            <li>為什麼「同一層不能選重複值」但「不同層可以」？兩者的語意差別是什麼？</li>
+            <li>為什麼一定要先排序？它同時讓哪兩件事成立？</li>
+            <li>第 47 題（排列）的去重條件多了 <code>not used[i-1]</code>，它在扮演 <code>start</code> 的什麼角色？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0039.html">← 上一題：39. 組合總和</a>
+          <a href="problem-0041.html">下一題：41. 缺失的第一個正數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

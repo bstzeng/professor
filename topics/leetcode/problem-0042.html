@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>42. Trapping Rain Water 接雨水 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="四種解法：暴力、前後綴極值、單調堆疊、雙指標。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="42">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 42 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 42</div>
+          <h1>Trapping Rain Water<br>接雨水</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雙指標</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">堆疊</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given <code>n</code> non-negative integers representing an elevation map where the width of each bar is <code>1</code>, compute how much water it can trap after raining.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你 <code>n</code> 個非負整數，代表一張<strong>高度圖</strong>，每根柱子的寬度都是 1。計算下雨之後這張圖能接住多少水。</p>
+        </div>
+
+        <div class="callout">
+          <h3>唯一需要的公式：逐格計算</h3>
+        <div class="code-block">第 i 格能積多少水？
+
+    水位 = min(左邊最高的柱子, 右邊最高的柱子)
+    水量 = max(0, 水位 - height[i])
+
+為什麼是 min？
+    水會從「比較矮的那一邊」溢出去。
+    左牆 2、右牆 3 -&gt; 水最多只能積到高度 2。
+
+為什麼要 max(0, ...)？
+    如果 height[i] 自己就是最高的牆，
+    min(左, 右) 會等於 height[i]，差是 0。
+    （不會是負的，因為「左邊最高」的定義包含 i 自己。）
+
+    注意這個定義很重要：left_max[i] 是 max(height[0..i])，「含 i」。
+    如果定義成「不含 i」，就要真的用 max(0, ...) 夾住。
+
+把每一格的水量加起來就是答案。
+四種解法的差別只在「怎麼算出每一格的左右最大值」。</div>
+        <p><strong>「逐格計算」（column by column）是關鍵的視角切換。</strong>很多人第一次看到這題會想「找出所有的凹槽」—— 那很難定義，因為凹槽可以巢狀、可以相連。<strong>但「每一格積多少水」是完全獨立的。</strong></p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：height = [0,1,0,2,1,0,1,3,2,1,2,1]
+  輸出：6
+
+範例 2
+  輸入：height = [4,2,0,3,2,5]
+  輸出：9
+  說明：
+    索引 1 (高 2)：min(4, 5) - 2 = 2
+    索引 2 (高 0)：min(4, 5) - 0 = 4
+    索引 3 (高 3)：min(4, 5) - 3 = 1
+    索引 4 (高 2)：min(4, 5) - 2 = 2
+    合計 9</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == height.length</code></li>
+          <li>1 ≤ <code>n</code> ≤ 2 × 10⁴</li>
+          <li>0 ≤ <code>height[i]</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/trapping-rain-water/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n 到 2 × 10⁴</strong>。O(n²) 是 4 × 10⁸ —— 在 Python 裡會 TLE。所以要 O(n)。</li>
+          <li><strong>高度可以是 0</strong>，而且很常見（那是積水最深的地方）。</li>
+          <li><strong>沒有要求 O(1) 空間</strong>，所以前後綴陣列（解法二）完全合法。但雙指標（解法三）能做到 O(1)，是加分項。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">height = [0,1,0,2,1,0,1,3,2,1,2,1]，總共接 6 單位的水</text>
+            <g>
+              <rect x="86" y="170" width="38" height="24" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="170" y="146" width="38" height="48" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="212" y="170" width="38" height="24" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="296" y="170" width="38" height="24" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="338" y="122" width="38" height="72" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="380" y="146" width="38" height="48" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="422" y="170" width="38" height="24" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="464" y="146" width="38" height="48" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="506" y="170" width="38" height="24" fill="var(--text-muted)" opacity="0.65"/>
+              <rect x="128" y="170" width="38" height="24" fill="var(--accent)" opacity="0.4"/>
+              <rect x="212" y="146" width="38" height="24" fill="var(--accent)" opacity="0.4"/>
+              <rect x="254" y="146" width="38" height="48" fill="var(--accent)" opacity="0.4"/>
+              <rect x="296" y="146" width="38" height="24" fill="var(--accent)" opacity="0.4"/>
+              <rect x="422" y="146" width="38" height="24" fill="var(--accent)" opacity="0.4"/>
+              <line x1="40" y1="194" x2="600" y2="194" stroke="var(--text-muted)"/>
+            </g>
+            <g font-size="10" fill="var(--text-muted)" text-anchor="middle">
+              <text x="63" y="210">0</text><text x="105" y="210">1</text><text x="147" y="210">0</text>
+              <text x="189" y="210">2</text><text x="231" y="210">1</text><text x="273" y="210">0</text>
+              <text x="315" y="210">1</text><text x="357" y="210">3</text><text x="399" y="210">2</text>
+              <text x="441" y="210">1</text><text x="483" y="210">2</text><text x="525" y="210">1</text>
+            </g>
+            <text x="270" y="118" fill="var(--accent)" font-size="12" text-anchor="middle">藍色 = 積水</text>
+            <text x="20" y="242" fill="var(--gold)" font-size="12">每一格的水位 = min(左邊最高, 右邊最高)　水量 = 水位 − 自己的高度（不能是負的）</text>
+            <text x="20" y="266" fill="var(--text-muted)" font-size="12">索引 5（高度 0）：左邊最高 2、右邊最高 3 → 水位 min(2,3) = 2 → 積水 2 − 0 = 2</text>
+            <text x="20" y="288" fill="var(--text-muted)" font-size="12">索引 7（高度 3）：水位 3 → 積水 0（它自己就是最高的牆）</text>
+          </svg>
+        </div>
+
+        <table>
+          <thead><tr><th>解法</th><th>怎麼取得左右最大值</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>每格都重新掃一遍</td><td>O(n²)</td><td>O(1)</td></tr>
+            <tr><td>二、前後綴陣列</td><td>預先算好兩個陣列</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>三、雙指標</td><td>邊走邊維護，只處理矮的那邊</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>四、單調堆疊</td><td>橫著一層一層算</td><td>O(n)</td><td>O(n)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力：每格都重新找左右最大值</h3>
+        <div class="code-block">class Solution:
+    def trap(self, height: List[int]) -&gt; int:
+        n = len(height)
+        total = 0
+        for i in range(n):
+            # 這一格能積多少水 = min(左邊最高, 右邊最高) - 自己的高度
+            left_max = max(height[:i + 1])
+            right_max = max(height[i:])
+            total += min(left_max, right_max) - height[i]
+        return total</div>
+        <p>直接把公式翻成程式碼。正確，但每一格都要掃兩次整個陣列 —— O(n²)。</p>
+        <p><strong>它的價值是把公式講清楚</strong>，而且是後面三個解法的正確性基準。</p>
+        <p><code>height[:i+1]</code> 包含 i 自己，<code>height[i:]</code> 也包含 i 自己 —— 這保證了 <code>min(left, right) &gt;= height[i]</code>，差永遠非負。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每格掃兩遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>切片產生的暫時陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>前後綴最大值陣列（最好懂的 O(n)）</h3>
+        <p>暴力法的浪費：<code>left_max[i]</code> 和 <code>left_max[i-1]</code> 只差一個元素，卻重算了一遍。用遞推一次算完。</p>
+        <div class="code-block">class Solution:
+    def trap(self, height: List[int]) -&gt; int:
+        n = len(height)
+        if n == 0:
+            return 0
+
+        # 預先算好每一格的「左邊最高」和「右邊最高」
+        left = [0] * n
+        left[0] = height[0]
+        for i in range(1, n):
+            left[i] = max(left[i - 1], height[i])
+
+        right = [0] * n
+        right[n - 1] = height[n - 1]
+        for i in range(n - 2, -1, -1):
+            right[i] = max(right[i + 1], height[i])
+
+        return sum(min(left[i], right[i]) - height[i] for i in range(n))</div>
+        <div class="code-block">height = [0,1,0,2,1,0,1,3,2,1,2,1]
+
+left   = [0,1,1,2,2,2,2,3,3,3,3,3]     從左往右取 max
+right  = [3,3,3,3,3,3,3,3,2,2,2,1]     從右往左取 max
+min    = [0,1,1,2,2,2,2,3,2,2,2,1]
+height = [0,1,0,2,1,0,1,3,2,1,2,1]
+水量    = [0,0,1,0,1,2,1,0,0,1,0,0]     min - height
+
+總和 = 1 + 1 + 2 + 1 + 1 = 6 ✔</div>
+        <p><strong>「前綴最大值 / 後綴最大值」是一個極常用的預處理模式</strong>。任何「每個位置都需要知道左邊（或右邊）某個聚合值」的問題都適用 —— 最大值、最小值、總和、乘積都一樣。</p>
+        <p>三次掃描、兩個輔助陣列，思路完全直白。<strong>面試時這個解法就夠了。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃三遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩個長度 n 的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>雙指標（O(1) 空間）</h3>
+        <p>核心洞察：<strong>如果我們知道「左邊最高」比「右邊最高」小，那這一格的水位就由左邊決定 —— 右邊到底多高根本不重要。</strong></p>
+        <div class="code-block">class Solution:
+    def trap(self, height: List[int]) -&gt; int:
+        lo, hi = 0, len(height) - 1
+        left_max = right_max = 0
+        total = 0
+
+        while lo &lt; hi:
+            # 處理「比較矮」的那一邊：它的水位由那一邊的 max 決定
+            if height[lo] &lt; height[hi]:
+                left_max = max(left_max, height[lo])
+                total += left_max - height[lo]
+                lo += 1
+            else:
+                right_max = max(right_max, height[hi])
+                total += right_max - height[hi]
+                hi -= 1
+
+        return total</div>
+        <h3>為什麼這樣是對的？</h3>
+        <div class="code-block">設當前 lo 和 hi，已經掃過的部分讓我們知道：
+    left_max  = max(height[0..lo])
+    right_max = max(height[hi..n-1])
+
+情況：height[lo] &lt; height[hi]
+
+    我們要算 lo 這一格的水位 = min(真正的左最大, 真正的右最大)
+
+    「真正的左最大」就是 left_max（左邊已經全掃過了）✔
+
+    「真正的右最大」是 max(height[lo+1..n-1])，我們還不知道全部，
+    但我們知道它 &gt;= height[hi] &gt; height[lo]
+
+    而 left_max 呢？left_max 是 max(height[0..lo])。
+    這裡的關鍵：left_max 也 &gt;= height[lo]。
+
+    要證明 min(左最大, 右最大) == left_max，
+    只要證明 left_max &lt;= 右最大。
+
+    分兩種情況：
+      - 若 left_max &lt;= height[lo]：那 left_max == height[lo] &lt; height[hi] &lt;= 右最大 ✔
+      - 若 left_max &gt; height[lo]：left_max 是某根在 lo 左邊的柱子…
+
+    比較乾淨的論證方式是換個角度：
+      我們只在 height[lo] &lt; height[hi] 時處理 lo。
+      這保證了「右邊至少有一根高度 height[hi] 的柱子」，
+      而水位是 min(left_max, 右最大)。
+
+      若 left_max &lt;= height[hi]，則因為 右最大 &gt;= height[hi] &gt;= left_max，
+      得 min = left_max ✔
+
+      若 left_max &gt; height[hi]，那麼 height[lo] &lt; height[hi] &lt; left_max，
+      表示 lo 左邊有一根比 height[hi] 還高的柱子。
+      此時 min(left_max, 右最大) 可能小於 left_max…
+
+      但這種情況不會發生！因為如果 left_max &gt; height[hi]，
+      那在更早的某一輪，我們會走 else 分支去處理 hi 那一邊，
+      而不是走到這裡。
+
+      更精確地說，演算法維持一個不變量：
+          每一步只處理「兩端中較矮的那一根」，
+          而較矮那一根的水位一定由「它自己那一側的 max」決定。
+
+結論：只處理矮的那一邊，永遠不會算錯。</div>
+        <p><strong>這個「只處理矮的那一邊」的直覺，和第 11 題（盛最多水的容器）一模一樣</strong> —— 雖然兩題問的東西完全不同。<strong>「瓶頸在矮的那邊」是柱狀圖問題的共同結構。</strong></p>
+        <p><strong>優點</strong>：O(1) 空間、一趟掃完。<strong>缺點</strong>：正確性最不直觀，面試時要能講清楚，不然像在背。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>兩個指標合計走 n 步</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>單調堆疊（橫著算）</h3>
+        <p>前面三個解法都是「<strong>直著算</strong>」—— 一次算完一整欄的水。單調堆疊是「<strong>橫著算</strong>」—— 一次算完一整層的水。</p>
+        <div class="code-block">class Solution:
+    def trap(self, height: List[int]) -&gt; int:
+        stack = []        # 存索引，對應的高度由高到低（單調遞減堆疊）
+        total = 0
+
+        for i, h in enumerate(height):
+            # 當前柱子比堆疊頂端高 -&gt; 形成一個「凹槽」
+            while stack and height[stack[-1]] &lt; h:
+                bottom = stack.pop()        # 凹槽的底
+                if not stack:
+                    break                   # 左邊沒有牆，接不到水
+                left = stack[-1]            # 左邊的牆
+                width = i - left - 1
+                depth = min(height[left], h) - height[bottom]
+                total += width * depth
+            stack.append(i)
+
+        return total</div>
+        <div class="code-block">堆疊裡存索引，對應的高度是「單調遞減」的。
+
+遇到一根「比堆疊頂端高」的柱子時，就形成了一個凹槽：
+
+      左牆        底        右牆
+    height[left]  height[bottom]  h
+         |                          |
+         |____________     _________|
+                      |   |
+                    凹槽（積水）
+
+    寬 = i - left - 1          （不含兩道牆）
+    深 = min(左牆, 右牆) - 底
+    水量 = 寬 × 深
+
+height = [4, 2, 0, 3, 2, 5]
+
+  i=0 h=4: 堆疊空 -&gt; push  stack=[0]
+  i=1 h=2: 2 &lt; 4，不彈 -&gt; push  stack=[0,1]
+  i=2 h=0: 0 &lt; 2 -&gt; push  stack=[0,1,2]
+  i=3 h=3: 3 &gt; height[2]=0
+      pop bottom=2（高 0），left=1（高 2）
+      寬 = 3-1-1 = 1，深 = min(2,3)-0 = 2  -&gt; +2
+      3 &gt; height[1]=2
+      pop bottom=1（高 2），left=0（高 4）
+      寬 = 3-0-1 = 2，深 = min(4,3)-2 = 1  -&gt; +2
+      3 &lt; 4，停 -&gt; push  stack=[0,3]   小計 4
+  i=4 h=2: 2 &lt; 3 -&gt; push  stack=[0,3,4]
+  i=5 h=5: 5 &gt; height[4]=2
+      pop bottom=4（高 2），left=3（高 3）
+      寬 = 5-3-1 = 1，深 = min(3,5)-2 = 1  -&gt; +1
+      5 &gt; height[3]=3
+      pop bottom=3（高 3），left=0（高 4）
+      寬 = 5-0-1 = 4，深 = min(4,5)-3 = 1  -&gt; +4
+      堆疊剩 [0]，5 &gt; 4
+      pop bottom=0，堆疊空 -&gt; break（左邊沒牆）
+      push  stack=[5]
+
+  總計 4 + 1 + 4 = 9 ✔</div>
+        <p><strong><code>if not stack: break</code> 不能省</strong>：彈出底之後如果堆疊空了，表示左邊沒有牆，水會流走。</p>
+        <p><strong>單調堆疊的通用意義</strong>：它在回答「<strong>對每個元素，左邊／右邊第一個比它大（或小）的是誰</strong>」。認出這個模式之後，第 84、85、496、503、739 題都會變簡單。<strong>但對這一題，它是四個解法裡最複雜的一個 —— 除非面試官指定，否則不建議寫。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個索引 push/pop 各一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊最壞有 n 個元素</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>算的方向</th><th>面試推薦度</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>O(n²)</td><td>O(1)</td><td>直</td><td>只當基準</td></tr>
+            <tr><td>二、前後綴陣列</td><td>O(n)</td><td>O(n)</td><td>直</td><td>★★★★★ 最好講</td></tr>
+            <tr><td>三、雙指標</td><td>O(n)</td><td>O(1)</td><td>直</td><td>★★★★☆ 最優，但要會證明</td></tr>
+            <tr><td>四、單調堆疊</td><td>O(n)</td><td>O(n)</td><td>橫</td><td>★★☆☆☆ 為第 84 題鋪路</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空陣列或單一元素</strong>：<code>[]</code>、<code>[1]</code> → 0。</li>
+          <li><strong>兩根柱子</strong>：<code>[1,2]</code>、<code>[2,1]</code> → 0。中間沒有格子。</li>
+          <li><strong>遞增</strong>：<code>[1,2,3,4]</code> → 0。水全部流走。</li>
+          <li><strong>遞減</strong>：<code>[4,3,2,1]</code> → 0。</li>
+          <li><strong>全部一樣高</strong>：<code>[5,5,5]</code> → 0。</li>
+          <li><strong>全部是 0</strong>：<code>[0,0,0]</code> → 0。</li>
+          <li><strong>最簡單的凹槽</strong>：<code>[3,0,3]</code> → 3。</li>
+          <li><strong>巢狀凹槽</strong>：<code>[4,2,0,3,2,5]</code> → 9。單調堆疊在這裡會連續彈出多層，最能驗證實作。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：這題和第 11 題（盛最多水的容器）差在哪？</h3>
+
+        <div class="code-block">第 11 題                       第 42 題（本題）
+--------------------          --------------------
+只選「兩根」當牆                所有柱子都參與
+中間的柱子被忽略                中間的柱子會佔掉體積
+求「最大的一個矩形」             求「總積水量」
+答案是 max                     答案是 sum
+
+雖然都用雙指標、都在柱狀圖上，問的東西完全不同。
+
+共同點：兩題的雙指標都是「處理矮的那一邊」，
+因為兩題的瓶頸都在矮的那一側。</div>
+
+        <h3>追問二：二維版本呢？</h3>
+
+        <p>第 407 題（Trapping Rain Water II）。二維的「左右最大值」變成「從邊界往內的最小屏障高度」，沒辦法用簡單的前後綴。<strong>標準解法是用最小堆從邊界往內做 BFS</strong>：每次從堆裡取出最矮的邊界格，向內擴展，內部格子的水位 = max(自己的高度, 當前邊界的高度)。這其實是 Dijkstra 的變形。</p>
+
+        <h3>追問三：如果柱子的寬度不是 1 呢？</h3>
+
+        <p>水量公式變成 <code>寬度 × (水位 − 高度)</code>，其餘邏輯完全不變。前後綴陣列和雙指標都能直接推廣。</p>
+
+        <h3>追問四：如果要回答「哪幾格積了水」而不只是總量？</h3>
+
+        <p>前後綴陣列版最方便 —— 它本來就逐格算出了每一格的水量。雙指標版也可以（處理每一格時記錄下來）。<strong>單調堆疊版最不方便</strong>，因為它是橫著算的，一次的計算跨越多個格子。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 11 題 Container With Most Water</strong> —— 同一張圖，不同的問題</li>
+          <li><strong>第 84 題 Largest Rectangle in Histogram</strong> —— 單調堆疊的經典</li>
+          <li><strong>第 85 題 Maximal Rectangle</strong> —— 第 84 題的二維版</li>
+          <li><strong>第 407 題 Trapping Rain Water II</strong> —— 二維版，要用最小堆</li>
+          <li><strong>第 739 題 Daily Temperatures</strong> —— 單調堆疊的入門題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼水位是 <code>min(左邊最高, 右邊最高)</code> 而不是 <code>max</code>？</li>
+            <li>雙指標為什麼只處理「比較矮」的那一邊？如果處理比較高的那一邊會算錯什麼？</li>
+            <li>單調堆疊裡 <code>if not stack: break</code> 是在處理什麼情況？</li>
+            <li>這題和第 11 題的雙指標寫法很像，但一個求 max 一個求 sum。它們的共同結構是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0041.html">← 上一題：41. 缺失的第一個正數</a>
+          <a href="problem-0043.html">下一題：43. 字串相乘 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

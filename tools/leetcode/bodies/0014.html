@@ -1,0 +1,288 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Write a function to find the longest common prefix string amongst an array of strings.</p>
+          <p>If there is no common prefix, return an empty string <code>""</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>寫一個函式，找出一組字串裡<strong>最長的共同前綴</strong>。</p>
+          <p>如果沒有共同前綴，回傳空字串 <code>""</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>前綴的兩個性質，決定了所有解法</h3>
+        <div class="code-block">性質 1：答案的長度不會超過「最短的那個字串」
+    ["abcdef", "ab"] -&gt; 最多只能是 "ab"
+
+性質 2：共同前綴具有「傳遞收斂」的性質
+    LCP(a, b, c) = LCP(LCP(a, b), c)
+    也就是可以一個一個併進去，不必同時看全部。
+
+性質 3（最漂亮的一個）：
+    把所有字串照「字典序」排好之後，
+    LCP(全部) == LCP(最小的那個, 最大的那個)
+
+    因為字典序最小和最大的兩個字串「差最多」，
+    它們都同意的前綴，中間的字串一定也同意。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：strs = ["flower", "flow", "flight"]
+  輸出："fl"
+
+範例 2
+  輸入：strs = ["dog", "racecar", "car"]
+  輸出：""
+  說明：連第一個字元都不一樣。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>strs.length</code> ≤ 200</li>
+          <li>0 ≤ <code>strs[i].length</code> ≤ 200（<strong>字串可以是空的</strong>）</li>
+          <li><code>strs[i]</code> 只含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/longest-common-prefix/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>字串可以是空的。</strong><code>["", "b"]</code> 的答案是 <code>""</code>。任何對 <code>s[0]</code> 的存取都要先確認長度 —— 這是本題最常見的 IndexError 來源。</li>
+          <li><strong>陣列至少有一個元素</strong>（<code>strs.length ≥ 1</code>），所以理論上不用檢查空陣列。但寫上 <code>if not strs</code> 只要一行，而且讓函式在別的情境下也安全 —— 建議保留。</li>
+          <li><strong>只有一個字串時</strong>，答案就是它自己。<code>["a"]</code> → <code>"a"</code>。</li>
+          <li>規模很小（200 × 200 = 40000 個字元），任何解法都會過。這題考的是<strong>邊界處理的乾淨程度</strong>。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>怎麼掃</th><th>時間</th><th>特點</th></tr></thead>
+          <tbody>
+            <tr><td>一、垂直掃描</td><td>一欄一欄往下比</td><td>O(S)</td><td>最早退出，最直覺</td></tr>
+            <tr><td>二、水平掃描</td><td>把 prefix 和下一個字串合併</td><td>O(S)</td><td>體現 LCP 的結合律</td></tr>
+            <tr><td>三、排序取頭尾</td><td>只比 min 和 max</td><td>O(n·m)</td><td>最少的比較次數</td></tr>
+            <tr><td>四、zip</td><td>Python 的一行流</td><td>O(S)</td><td>最短，但要懂 zip 的行為</td></tr>
+          </tbody>
+        </table>
+
+        <p><code>S</code> 是所有字元的總數。四種都是線性等級，差別在<strong>提早退出的時機</strong>和可讀性。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>垂直掃描：一欄一欄比（最推薦）</h3>
+        <p>把所有字串上下對齊排好，一次比一「欄」。只要有任何一個字串在這一欄對不上（或已經沒字元了），就結束。</p>
+        <div class="code-block">strs = ["flower", "flow", "flight"]
+
+  欄位:   0  1  2  3  4  5
+        f  l  o  w  e  r
+        f  l  o  w
+        f  l  i  g  h  t
+        ─  ─  ✘
+        ✔  ✔  第 2 欄：o vs o vs i -&gt; 不一致，停
+
+答案 = first[:2] = "fl"</div>
+        <div class="code-block">class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -&gt; str:
+        if not strs:
+            return ""
+
+        first = strs[0]
+        for i, ch in enumerate(first):        # 一欄一欄往下比
+            for other in strs[1:]:
+                if i &gt;= len(other) or other[i] != ch:
+                    return first[:i]          # 這一欄對不上，前 i 個字元就是答案
+        return first                          # 第一個字串本身就是共同前綴</div>
+        <p><strong>最壞情況只會比到「最短字串的長度」次</strong>，因為 <code>i &gt;= len(other)</code> 會在最短的字串用完時立刻 return。</p>
+        <p>這是四種解法裡<strong>最早退出</strong>的：只要第一欄就不一致（像範例 2），只做 <code>n−1</code> 次比較就結束了。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(S)</td><td>S = 所有字元總數；不一致時提早退出</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只回傳切片</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>水平掃描：把答案一個一個併進去</h3>
+        <p>利用 <code>LCP(a,b,c) = LCP(LCP(a,b), c)</code>：先拿第一個當候選前綴，然後每遇到一個新字串就把候選砍短，直到它是新字串的前綴為止。</p>
+        <div class="code-block">prefix = "flower"
+
+  vs "flow":
+      "flow".startswith("flower")  ✘  -&gt; prefix = "flowe"
+      "flow".startswith("flowe")   ✘  -&gt; prefix = "flow"
+      "flow".startswith("flow")    ✔  停
+
+  vs "flight":
+      "flight".startswith("flow")  ✘  -&gt; prefix = "flo"
+      "flight".startswith("flo")   ✘  -&gt; prefix = "fl"
+      "flight".startswith("fl")    ✔  停
+
+答案 = "fl"</div>
+        <div class="code-block">class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -&gt; str:
+        if not strs:
+            return ""
+
+        prefix = strs[0]
+        for s in strs[1:]:
+            # 一直砍 prefix 的尾巴，直到它是 s 的前綴
+            while not s.startswith(prefix):
+                prefix = prefix[:-1]
+                if not prefix:
+                    return ""
+        return prefix</div>
+        <p><code>if not prefix: return ""</code> 這行不能省 —— 否則 <code>prefix[:-1]</code> 在空字串上會一直是空字串，<code>"".startswith("")</code> 是 True，所以其實不會死循環，但加上這行可以提早結束，也讓意圖更清楚。</p>
+        <p><strong>這個解法的價值在於它體現了「結合律」</strong>，可以直接推廣成 map-reduce：把字串分成幾組平行算出各組的 LCP，再把結果兩兩合併。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(S)</td><td>m = 最短字串長度</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td>prefix 的切片</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>排序後只比頭尾（最少的字元比較）</h3>
+        <p>字典序排序後，只需要比<strong>最小</strong>和<strong>最大</strong>這兩個字串。</p>
+        <h3>為什麼只比頭尾就夠？</h3>
+        <div class="code-block">設排序後是 s₁ ≤ s₂ ≤ ... ≤ sₙ（字典序）
+
+宣稱：LCP(全部) = LCP(s₁, sₙ)
+
+證明的直覺：
+  設 p = LCP(s₁, sₙ)，也就是 s₁ 和 sₙ 的前 |p| 個字元都一樣。
+  對於中間任何一個 sₖ，我們有 s₁ ≤ sₖ ≤ sₙ。
+
+  字典序比較是「從左到右逐字元比，第一個不同的決定大小」。
+  既然 s₁ 和 sₙ 的前 |p| 個字元完全相同，
+  而 sₖ 被夾在它們中間，
+  sₖ 的前 |p| 個字元也只能是同一串 —— 否則它會跑到 s₁ 之前或 sₙ 之後。
+
+  所以 p 是所有字串的共同前綴。
+  又因為 LCP(全部) ⊆ LCP(s₁, sₙ)（子集的 LCP 一定不比全集短），
+  兩邊相等。</div>
+        <div class="code-block">class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -&gt; str:
+        if not strs:
+            return ""
+
+        # 字典序排序後，只有頭尾兩個需要比
+        lo, hi = min(strs), max(strs)
+
+        for i, ch in enumerate(lo):
+            if i &gt;= len(hi) or hi[i] != ch:
+                return lo[:i]
+        return lo</div>
+        <p>用 <code>min()</code> 和 <code>max()</code> 只要 O(n·m) 就能找出頭尾，不必真的做 O(n·m·log n) 的完整排序。</p>
+        <p><strong>字元比較次數最少</strong>（只比兩個字串），但因為 <code>min</code>／<code>max</code> 本身要掃過所有字串，總複雜度沒有變好。面試時提出來會是很好的加分點 —— 它展示了你會從「資料的序關係」找結構。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·m)</td><td>n 個字串各比較一次求 min/max</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只回傳切片</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>Python 的 zip 一行流</h3>
+        <div class="code-block">class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -&gt; str:
+        if not strs:
+            return ""
+
+        out = []
+        for chars in zip(*strs):              # zip 在最短的字串用完時自動停
+            if len(set(chars)) &gt; 1:           # 這一欄有人不一樣
+                break
+            out.append(chars[0])
+        return "".join(out)</div>
+        <h3><code>zip(*strs)</code> 在做什麼？</h3>
+        <div class="code-block">strs = ["flower", "flow", "flight"]
+
+zip(*strs) 等於 zip("flower", "flow", "flight")
+  -&gt; ('f', 'f', 'f')
+     ('l', 'l', 'l')
+     ('o', 'o', 'i')      &lt;- set 大小 3 &gt; 1，break
+     ...
+
+關鍵：zip 會在「最短的那個」用完時自動停止。
+      "flow" 只有 4 個字元，所以最多只會產生 4 組。
+      這剛好就是我們要的「答案不超過最短字串」的性質 ——
+      連檢查都不用寫。
+
+len(set(chars)) &gt; 1 就是「這一欄有人不一樣」。</div>
+        <p><strong>如果 <code>strs</code> 裡有空字串會怎樣？</strong><code>zip</code> 會立刻停（最短長度是 0），迴圈一次都不跑，回傳 <code>""</code> —— 正確。</p>
+        <p>很 Pythonic，寫起來很爽。但面試時建議<strong>先寫解法一，再說「Python 可以這樣一行寫」</strong>，因為面試官想確認你懂演算法，而不是懂語言特性。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(S)</td><td>每一欄建一次 set</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td>輸出的 list</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>最早退出？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、垂直掃描</td><td>O(S)</td><td>O(1)</td><td>✔ 最好</td><td>面試預設</td></tr>
+            <tr><td>二、水平掃描</td><td>O(S)</td><td>O(m)</td><td>普通</td><td>可平行化（結合律）</td></tr>
+            <tr><td>三、排序頭尾</td><td>O(n·m)</td><td>O(1)</td><td>—</td><td>字元比較最少，思路漂亮</td></tr>
+            <tr><td>四、zip</td><td>O(S)</td><td>O(m)</td><td>✔</td><td>最短，Python 專用</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>完全沒有共同前綴</strong>：<code>["dog","racecar","car"]</code> → <code>""</code>。</li>
+          <li><strong>含空字串</strong>：<code>[""]</code>、<code>["","b"]</code>、<code>["b",""]</code> → 全部是 <code>""</code>。</li>
+          <li><strong>其中一個是另一個的前綴</strong>：<code>["ab","a"]</code> → <code>"a"</code>。垂直掃描要靠 <code>i &gt;= len(other)</code> 這個檢查擋住。</li>
+          <li><strong>全部一樣</strong>：<code>["abc","abc","abc"]</code> → <code>"abc"</code>。第一個字串會被完整走完，迴圈正常結束。</li>
+          <li><strong>只有一個字串</strong>：<code>["a"]</code> → <code>"a"</code>。</li>
+          <li><strong>第一個字串最短</strong>：<code>["c","acc","ccc"]</code> → <code>""</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果字串陣列很大，而且會反覆查詢不同的子集合呢？</h3>
+
+        <p>建一棵 <strong>Trie（字典樹）</strong>。所有字串插進去之後，從根節點往下走，只要當前節點<strong>只有一個子節點</strong>而且<strong>不是某個字串的結尾</strong>，就繼續往下。建樹 O(S)，之後每次查詢 O(答案長度)。<strong>但如果只查一次，建 Trie 是浪費</strong> —— 建樹本身就已經 O(S) 了。</p>
+
+        <h3>追問二：要找最長共同「後綴」呢？</h3>
+
+        <p>把每個字串反轉，套用同一套解法，答案再反轉回來。一行 <code>[s[::-1] for s in strs]</code> 就解決。</p>
+
+        <h3>追問三：這個問題可以平行化嗎？</h3>
+
+        <p>可以，而且很漂亮。因為 LCP 滿足<strong>結合律</strong>（<code>LCP(LCP(a,b), c) = LCP(a, LCP(b,c))</code>）而且有單位元（任意長字串），它是一個 <strong>monoid</strong>。所以可以把陣列切成 k 塊，各自算出局部 LCP，再把 k 個結果兩兩合併 —— 這正是 map-reduce 的標準形式。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 208 題 Implement Trie</strong> —— 字典樹的完整實作</li>
+          <li><strong>第 720 題 Longest Word in Dictionary</strong> —— Trie 的應用</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「排序後只比頭尾」是對的？請用 <code>["abc", "abd", "abe"]</code> 說明。</li>
+            <li>垂直掃描裡 <code>i &gt;= len(other)</code> 這個檢查是為了哪一種輸入？拿掉會發生什麼？</li>
+            <li><code>zip(*strs)</code> 遇到 <code>["", "abc"]</code> 會產生幾組？為什麼答案自動就對了？</li>
+            <li>LCP 是一個 monoid，這件事為什麼讓它可以平行化？</li>
+          </ol>
+        </div>

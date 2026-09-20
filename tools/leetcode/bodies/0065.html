@@ -1,0 +1,473 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A <strong>valid number</strong> can be split up into these components (in order):</p>
+          <p>(1) A <strong>decimal number</strong> or an <strong>integer</strong>. (2) (Optional) An <code>'e'</code> or <code>'E'</code>, followed by an <strong>integer</strong>.</p>
+          <p>A <strong>decimal number</strong> can be split up into: (optional) sign, then one of: digits followed by a dot; digits followed by a dot followed by digits; or a dot followed by digits. An <strong>integer</strong> is: (optional) sign, then digits.</p>
+          <p>Given a string <code>s</code>, return <code>true</code> if <code>s</code> is a <strong>valid number</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>一個<strong>有效數字</strong>由以下兩部分組成（依序）：</p>
+          <p>（1）一個<strong>小數</strong>或<strong>整數</strong>；（2）（可選）一個 <code>'e'</code> 或 <code>'E'</code>，後面接一個<strong>整數</strong>。</p>
+          <p><strong>小數</strong>＝（可選的）正負號 + 下列之一：<code>數字.</code>、<code>數字.數字</code>、<code>.數字</code>。<strong>整數</strong>＝（可選的）正負號 + 數字。</p>
+          <p>給你一個字串 <code>s</code>，判斷它是不是有效數字。</p>
+        </div>
+
+        <div class="callout">
+          <h3>先把規則攤平成一張表</h3>
+        <div class="code-block">合法的例子：
+    "2"           整數
+    "0089"        前導零沒關係
+    "-0.1"        小數
+    "+3.14"
+    "4."          小數點後面可以沒有數字 ✔
+    "-.9"         小數點前面可以沒有數字 ✔
+    "2e10"        科學記號
+    "-90E3"       大寫 E 也可以
+    "3e+7"        指數可以有正負號
+    "53.5e93"
+    "46.e3"       "46." 是合法小數，後面接 e3 ✔
+
+不合法的例子：
+    "abc"         不是數字
+    "1a"          有雜訊
+    "1e"          e 後面必須有數字
+    "e3"          e 前面必須有數字
+    "99e2.5"      指數必須是「整數」，不能有小數點
+    "--6"         正負號最多一個
+    "-+3"
+    "95a54e53"
+    "."           光一個小數點不算數字
+    "+"           光一個正負號不算
+    ""            空字串不算
+    "4e+"         e 和正負號之後還是要有數字
+
+四條核心規則：
+    1. 正負號只能在「開頭」或「e/E 的正後面」
+    2. 小數點最多一個，而且不能在 e/E 之後
+    3. e/E 最多一個，而且「前面」和「後面」都必須有數字
+    4. 整個字串必須以數字收場（不能停在 . + - e 上）
+       —— 但 "4." 是合法的！所以規則 4 要小心。</div>
+        <p><strong>「4.」合法但「.」不合法</strong> —— 這一組對照抓出了大部分錯誤的實作。關鍵在於：<strong>小數點兩邊至少要有一邊有數字</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "0"
+  輸出：true
+
+範例 2
+  輸入：s = "e"
+  輸出：false
+
+範例 3
+  輸入：s = "."
+  輸出：false
+
+範例 4
+  輸入：s = "4."
+  輸出：true</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 20</li>
+          <li><code>s</code> 由英文字母（大小寫）、數字、<code>'+'</code>、<code>'-'</code>、<code>'.'</code> 組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/valid-number/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>字元集包含所有英文字母</strong>，不只是 <code>e</code> 和 <code>E</code>。所以 <code>"1a"</code>、<code>"abc"</code>、<code>"Infinity"</code> 都是測資，要有一個 <code>else: return False</code> 兜底。</li>
+          <li><strong>長度只有 20</strong>，效率完全不是問題。這題百分之百考<strong>規格的精確翻譯</strong>。</li>
+          <li><strong>不需要處理 <code>"Infinity"</code>、<code>"NaN"</code>、十六進位、底線分隔符</strong>（Python 的 <code>float()</code> 接受其中幾種）—— <strong>所以不能用 <code>try: float(s)</code> 作弊</strong>，<code>float("inf")</code> 和 <code>float("nan")</code> 都會成功但答案應該是 false。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 268" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">有限狀態機：8 個狀態，雙圈的是「可接受」狀態</text>
+            <g font-size="12" text-anchor="middle">
+              <circle cx="60" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="60" y="75" fill="var(--accent)">0</text>
+              <text x="60" y="104" fill="var(--text-muted)" font-size="10">起始</text>
+
+              <circle cx="160" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="160" y="75" fill="var(--accent)">1</text>
+              <text x="160" y="104" fill="var(--text-muted)" font-size="10">正負號</text>
+
+              <circle cx="280" cy="70" r="20" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <circle cx="280" cy="70" r="24" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+              <text x="280" y="75" fill="var(--gold)">2</text>
+              <text x="280" y="108" fill="var(--text-muted)" font-size="10">整數</text>
+
+              <circle cx="160" cy="180" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="160" y="185" fill="var(--accent)">3</text>
+              <text x="160" y="214" fill="var(--text-muted)" font-size="10">只有小數點</text>
+
+              <circle cx="280" cy="180" r="20" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <circle cx="280" cy="180" r="24" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+              <text x="280" y="185" fill="var(--gold)">4</text>
+              <text x="280" y="218" fill="var(--text-muted)" font-size="10">小數</text>
+
+              <circle cx="400" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="400" y="75" fill="var(--accent)">5</text>
+              <text x="400" y="104" fill="var(--text-muted)" font-size="10">剛吃 e</text>
+
+              <circle cx="500" cy="70" r="20" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="500" y="75" fill="var(--accent)">6</text>
+              <text x="500" y="104" fill="var(--text-muted)" font-size="10">指數符號</text>
+
+              <circle cx="590" cy="150" r="20" fill="none" stroke="var(--gold)" stroke-width="2"/>
+              <circle cx="590" cy="150" r="24" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+              <text x="590" y="155" fill="var(--gold)">7</text>
+              <text x="590" y="188" fill="var(--text-muted)" font-size="10">指數數字</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.4" fill="none">
+              <path d="M80 70 L138 70"/>
+              <path d="M180 70 L256 70"/>
+              <path d="M78 82 L146 166"/>
+              <path d="M74 56 Q170 20 258 58"/>
+              <path d="M178 172 L258 172"/>
+              <path d="M290 92 L172 162"/>
+              <path d="M304 70 L378 70"/>
+              <path d="M300 168 Q380 130 396 92"/>
+              <path d="M420 70 L478 70"/>
+              <path d="M414 86 Q520 120 570 138"/>
+              <path d="M518 84 Q568 108 582 128"/>
+            </g>
+            <g font-size="10" fill="var(--text-muted)" text-anchor="middle">
+              <text x="109" y="62">+ −</text>
+              <text x="218" y="62">數字</text>
+              <text x="96" y="132">.</text>
+              <text x="166" y="30">數字</text>
+              <text x="218" y="164">數字</text>
+              <text x="236" y="138">.</text>
+              <text x="341" y="62">e E</text>
+              <text x="364" y="146">e E</text>
+              <text x="449" y="62">+ −</text>
+              <text x="490" y="126">數字</text>
+              <text x="566" y="96">數字</text>
+            </g>
+            <path d="M262 56 Q280 36 298 56" stroke="var(--border)" stroke-width="1.4" fill="none"/>
+            <text x="280" y="34" fill="var(--text-muted)" font-size="10" text-anchor="middle">數字</text>
+            <path d="M262 166 Q280 146 298 166" stroke="var(--border)" stroke-width="1.4" fill="none"/>
+            <text x="280" y="144" fill="var(--text-muted)" font-size="10" text-anchor="middle">數字</text>
+            <path d="M572 136 Q590 116 608 136" stroke="var(--border)" stroke-width="1.4" fill="none"/>
+            <text x="590" y="114" fill="var(--text-muted)" font-size="10" text-anchor="middle">數字</text>
+            <text x="20" y="256" fill="var(--gold)" font-size="12">走完整個字串後，停在 2、4、7 才算合法 —— 這三個狀態的共同點是「剛吃完數字」。</text>
+          </svg>
+        </div>
+
+        <p>三種寫法：<strong>逐字元 + 三個旗標</strong>（最好寫）、<strong>正規表示式</strong>（最短）、<strong>明確的狀態機</strong>（最能擴充）。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>逐字元掃描 + 三個旗標（最推薦）</h3>
+        <div class="code-block">class Solution:
+    def isNumber(self, s: str) -&gt; bool:
+        seen_digit = False      # 看過數字了嗎
+        seen_dot = False        # 看過小數點了嗎
+        seen_exp = False        # 看過 e/E 了嗎
+
+        for i, ch in enumerate(s):
+            if ch.isdigit():
+                seen_digit = True
+
+            elif ch in "+-":
+                # 正負號只能出現在「最開頭」或「e/E 的正後面」
+                if i &gt; 0 and s[i - 1] not in "eE":
+                    return False
+
+            elif ch == ".":
+                # 小數點不能重複，也不能出現在 e/E 之後（指數必須是整數）
+                if seen_dot or seen_exp:
+                    return False
+                seen_dot = True
+
+            elif ch in "eE":
+                # e/E 不能重複，而且前面「必須」已經有數字
+                if seen_exp or not seen_digit:
+                    return False
+                seen_exp = True
+                seen_digit = False     # 重設：e 後面也「必須」有數字
+
+            else:
+                return False           # 其他字元一律不合法
+
+        return seen_digit              # 結尾必須以數字收場</div>
+        <h3>四個分支，逐一對照規則</h3>
+        <div class="code-block">數字： seen_digit = True
+    沒有任何限制，數字永遠可以出現。
+
+正負號： 只能在 i == 0 或 s[i-1] in "eE"
+    "-1.5"   i=0      ✔
+    "1e-5"   s[1]='e' ✔
+    "1-5"    s[0]='1' ✘
+    "--6"    i=1，s[0]='-' ✘
+
+小數點： 不能重複，也不能在 e 之後
+    "1.2.3"   第二個點 -&gt; seen_dot 已經是 True ✘
+    "1e2.5"   seen_exp 已經是 True ✘（指數必須是整數）
+
+e/E： 不能重複，而且前面必須有數字
+    "e3"      seen_digit 還是 False ✘
+    "1e2e3"   seen_exp 已經是 True ✘
+    "1e5"     ✔</div>
+        <h3>最精妙的一行：<code>seen_digit = False</code></h3>
+        <div class="code-block">elif ch in "eE":
+    if seen_exp or not seen_digit:
+        return False
+    seen_exp = True
+    seen_digit = False      &lt;- 這一行
+
+為什麼要把 seen_digit 重設成 False？
+
+因為 e 之後「也必須」有數字。
+把旗標歸零，等於說「從現在開始重新要求至少一個數字」。
+
+然後最後一行 return seen_digit 就同時檢查了兩件事：
+    - 沒有 e 的情況：整個字串至少有一個數字
+    - 有 e 的情況：  e 之後至少有一個數字
+
+    "1e"   -&gt; e 之後沒數字 -&gt; seen_digit 是 False -&gt; False ✔
+    "1e5"  -&gt; e 之後有 5   -&gt; seen_digit 是 True  -&gt; True  ✔
+    "4."   -&gt; 有數字 4     -&gt; True ✔
+    "."    -&gt; 從來沒有數字 -&gt; False ✔
+
+一個變數的重複利用，同時處理了兩個「必須有數字」的要求。
+這是這個解法最漂亮的地方。</div>
+        <p><strong>只有 20 行，而且每一行都直接對應規格的一條規則</strong> —— 這讓它很容易驗證，也很容易在面試時逐條講解。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>三個 bool</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>正規表示式（最短）</h3>
+        <div class="code-block">import re
+
+class Solution:
+    def isNumber(self, s: str) -&gt; bool:
+        # 整數或小數，後面可接一個「e/E + 整數」
+        pattern = r"[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?"
+        return re.fullmatch(pattern, s) is not None</div>
+        <h3>pattern 逐段拆解</h3>
+        <div class="code-block">r"[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?"
+
+[+-]?              可選的正負號
+
+(                  小數或整數，兩種形式擇一
+  \d+\.?\d*         一個以上的數字，然後可選的小數點，然後 0 個以上的數字
+                   -&gt; 涵蓋 "123"、"123."、"123.456"
+  |
+  \.\d+             小數點 + 一個以上的數字
+                   -&gt; 涵蓋 ".456"
+)
+
+(                  可選的指數部分
+  [eE]
+  [+-]?            指數的可選正負號
+  \d+              指數必須是「一個以上的數字」（不能有小數點）
+)?
+
+必須用 re.fullmatch（不是 match 或 search）——
+否則 "1a" 會匹配前面的 "1" 而回傳 True ✘</div>
+        <h3>為什麼要拆成兩個分支？</h3>
+        <div class="code-block">如果寫成 \d*\.?\d*（兩邊都用 *），
+那 "." 和 "" 都會匹配成功 ✘
+
+必須保證「小數點的至少一邊有數字」：
+    \d+\.?\d*   左邊一定有數字
+    \.\d+        右邊一定有數字
+
+兩者的聯集剛好涵蓋所有合法的小數和整數，
+而且排除了 "." 和 ""。
+
+這一行就是整個 pattern 最需要想清楚的地方。</div>
+        <p><strong>面試時可以寫，但要能逐段解釋。</strong>而且要主動說「如果不准用 regex，我會用逐字元掃描」—— 因為 regex 版本無法展示你對規格的拆解能力。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>regex 引擎掃一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>編譯後的 pattern</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>明確的有限狀態機（最能擴充）</h3>
+        <p>把狀態機畫出來，寫成一張轉移表。</p>
+        <div class="code-block">class Solution:
+    def isNumber(self, s: str) -&gt; bool:
+        # 明確的有限狀態機：state -&gt; {字元類別: 下一個 state}
+        # 字元類別：d=數字, s=正負號, .=小數點, e=指數符號
+        TRANSITIONS = [
+            {"s": 1, "d": 2, ".": 3},          # 0 起始
+            {"d": 2, ".": 3},                  # 1 吃過正負號
+            {"d": 2, ".": 4, "e": 5},          # 2 整數部分（可接受狀態）
+            {"d": 4},                          # 3 「.」開頭，還沒有數字
+            {"d": 4, "e": 5},                  # 4 小數部分（可接受狀態）
+            {"s": 6, "d": 7},                  # 5 剛吃過 e/E
+            {"d": 7},                          # 6 指數的正負號
+            {"d": 7},                          # 7 指數數字（可接受狀態）
+        ]
+        ACCEPT = {2, 4, 7}
+
+        def kind(ch: str) -&gt; str:
+            if ch.isdigit():
+                return "d"
+            if ch in "+-":
+                return "s"
+            if ch == ".":
+                return "."
+            if ch in "eE":
+                return "e"
+            return "?"
+
+        state = 0
+        for ch in s:
+            k = kind(ch)
+            if k not in TRANSITIONS[state]:
+                return False
+            state = TRANSITIONS[state][k]
+
+        return state in ACCEPT</div>
+        <h3>八個狀態的意義</h3>
+        <table>
+          <thead><tr><th>狀態</th><th>意義</th><th>可接受？</th></tr></thead>
+          <tbody>
+            <tr><td>0</td><td>起始，什麼都還沒讀</td><td>✘</td></tr>
+            <tr><td>1</td><td>讀過正負號，等數字或小數點</td><td>✘</td></tr>
+            <tr><td>2</td><td>整數部分（至少一個數字）</td><td>✔</td></tr>
+            <tr><td>3</td><td>只讀到小數點（前面沒數字），等數字</td><td>✘</td></tr>
+            <tr><td>4</td><td>小數部分（小數點兩側至少一邊有數字）</td><td>✔</td></tr>
+            <tr><td>5</td><td>剛讀過 e/E，等指數</td><td>✘</td></tr>
+            <tr><td>6</td><td>指數的正負號，等數字</td><td>✘</td></tr>
+            <tr><td>7</td><td>指數數字</td><td>✔</td></tr>
+          </tbody>
+        </table>
+        <h3>為什麼狀態 2 和 4 都可接受，3 不行？</h3>
+        <div class="code-block">狀態 2：讀完整數，例如 "123"          -&gt; 合法 ✔
+狀態 3：只讀到 "."（前面沒數字）       -&gt; 還不是數字 ✘
+        再讀一個數字就變成狀態 4        -&gt; ".5" ✔
+狀態 4：小數，例如 "123." 或 ".5"      -&gt; 合法 ✔
+
+注意狀態 2 讀到 "." 會去狀態 4（不是 3）：
+    "123." -&gt; 狀態 2 讀 "." -&gt; 狀態 4（可接受）✔
+
+而狀態 0 或 1 讀到 "." 會去狀態 3：
+    "." -&gt; 狀態 3（不可接受）✘
+    ".5" -&gt; 狀態 3 讀 "5" -&gt; 狀態 4 ✔
+
+3 和 4 的差別，精確地編碼了
+「小數點至少要有一邊有數字」這條規則。</div>
+        <h3>狀態機的價值</h3>
+        <ul>
+          <li><strong>加規則 = 加狀態和轉移</strong>，不用在一堆 if 裡找地方插。例如要支援 <code>"0x1F"</code>，只要加幾個狀態。</li>
+          <li><strong>可以被機器產生和驗證</strong>。真正的編譯器的詞法分析器（lexer）就是這樣做的 —— 工具（lex、flex、ANTLR）從正規表示式自動產生狀態轉移表。</li>
+          <li><strong>O(1) 空間，一次掃過，不回頭</strong> —— 串流友善。</li>
+        </ul>
+        <p><strong>缺點</strong>：這張表要手動推導，而且推錯很難查。在面試的時間壓力下，解法一通常比較保險。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍，每個字元一次查表</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>固定大小的轉移表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>行數</th><th>可擴充性</th><th>好驗證？</th><th>面試推薦</th></tr></thead>
+          <tbody>
+            <tr><td>一、旗標掃描</td><td>20</td><td>★★☆☆☆</td><td>★★★★★</td><td>★★★★★</td></tr>
+            <tr><td>二、regex</td><td>3</td><td>★★★☆☆</td><td>★★☆☆☆</td><td>★★★☆☆</td></tr>
+            <tr><td>三、狀態機</td><td>30</td><td>★★★★★</td><td>★★★★☆</td><td>★★★☆☆</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>"4."</code></strong> → true；<strong><code>"."</code></strong> → false。<strong>最關鍵的一組對照。</strong></li>
+          <li><strong><code>".1"</code>、<code>"+.8"</code></strong> → true。小數點可以開頭。</li>
+          <li><strong><code>"46.e3"</code></strong> → true。<code>"46."</code> 是合法小數，後面接 <code>e3</code>。</li>
+          <li><strong><code>"e"</code>、<code>"e3"</code>、<code>"1e"</code>、<code>"4e+"</code></strong> → false。e 的前後都必須有數字。</li>
+          <li><strong><code>"99e2.5"</code>、<code>"6e6.5"</code></strong> → false。指數必須是整數。</li>
+          <li><strong><code>"--6"</code>、<code>"-+3"</code>、<code>"+"</code></strong> → false。</li>
+          <li><strong><code>"1.2.3"</code></strong> → false。小數點只能一個。</li>
+          <li><strong><code>"0089"</code></strong> → true。前導零是合法的。</li>
+          <li><strong><code>"abc"</code>、<code>"95a54e53"</code></strong> → false。要有 else 兜底。</li>
+          <li><strong>不要用 <code>float(s)</code></strong>：<code>float("inf")</code>、<code>float("nan")</code>、<code>float("1_0")</code> 都會成功，但這題應該回 false。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼不能用 <code>try: float(s); return True</code>？</h3>
+
+        <div class="code-block">Python 的 float() 接受一些這題不允許的東西：
+
+    float("inf")     -&gt; inf      但題目要 false
+    float("nan")     -&gt; nan      但題目要 false
+    float("  1.5  ") -&gt; 1.5      有空白，題目要 false
+    float("1_000")   -&gt; 1000     底線分隔符（3.6+），題目要 false
+
+所以這個「作弊法」會 WA。
+
+更重要的是：這題的用意就是「實作一個 parser」，
+用內建函式等於什麼都沒展示。
+
+而且在真實工作裡，你很可能是在寫一個
+「和某個規格完全一致」的 parser（例如 JSON、CSV、設定檔），
+那時候內建函式的語意和你的規格幾乎不會完全吻合。</div>
+
+        <h3>追問二：這題和第 8 題（atoi）的關係？</h3>
+
+        <div class="code-block">第 8 題：解析出一個整數，遇到非法就停（不報錯）
+第 65 題：判斷整個字串是否合法（要全對）
+
+第 8 題的狀態機只有 4 個狀態，
+第 65 題有 8 個 —— 因為多了小數點和指數。
+
+兩題一起看，就能感受到「規格變複雜時，
+狀態機的擴充性為什麼比 if-else 好」。
+
+再往上就是 JSON parser、正規表示式引擎、
+以及真正的程式語言 lexer —— 狀態數會到數十個。</div>
+
+        <h3>追問三：真正的浮點數規格有多複雜？</h3>
+
+        <p>IEEE 754 的十進位字串表示還包括：<code>Infinity</code>、<code>NaN</code>（還分 quiet 和 signaling）、十六進位浮點數（<code>0x1.8p3</code>）、以及各種語言自己加的糖（Python 的底線、C++ 的 <code>'</code> 分隔符）。<strong>「正確地解析一個浮點數」是一個出名地難的問題</strong> —— 要做到「解析出的值是最接近的可表示浮點數」需要任意精度運算（著名的 Ryū 和 Grisu 演算法，以及 David Gay 的 <code>strtod</code>）。這題只是判斷語法，已經比那簡單太多了。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 8 題 String to Integer (atoi)</strong> —— 簡化版的狀態機</li>
+          <li><strong>第 7 題 Reverse Integer</strong> —— 同一家族的數字處理</li>
+          <li><strong>第 468 題 Validate IP Address</strong> —— 另一個規格驗證題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>"4."</code> 合法而 <code>"."</code> 不合法。你的程式碼裡哪一行造成這個差別？</li>
+            <li>解法一裡 <code>seen_digit = False</code> 那一行在做什麼？拿掉的話哪一筆測資會錯？</li>
+            <li>regex 為什麼要拆成 <code>\d+\.?\d*</code> 和 <code>\.\d+</code> 兩個分支？</li>
+            <li>為什麼 <code>try: float(s)</code> 會 WA？舉三個會出錯的輸入。</li>
+          </ol>
+        </div>
