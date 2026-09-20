@@ -1,0 +1,382 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary tree, return <em>the level order traversal of its nodes' values</em>. (i.e., from left to right, level by level).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code>，回傳它的<strong>層序走訪</strong>結果。</p>
+          <p>也就是<strong>一層一層</strong>、每層<strong>由左到右</strong>，而且<strong>每一層各自裝成一個 list</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題是 BFS 的「母題」</h3>
+        <div class="code-block">前面學過的走訪（第 94、144、145 題）都是【深度優先】——
+一路往下走到底，再回頭。
+
+這題是【廣度優先】——
+把第 0 層走完，再走第 1 層，再走第 2 層。
+
+    深度優先（DFS）用【堆疊】：後進先出 -&gt; 一路鑽到底
+    廣度優先（BFS）用【佇列】：先進先出 -&gt; 一層一層擴散
+
+【BFS 最重要的應用是「最短路徑」】——
+因為它保證「先走到的一定比較近」。
+
+    第 111 題（最小深度）、第 127 題（單詞接龍）、
+    第 200 題（島嶼數量）、第 994 題（腐爛的橘子）
+    用的都是這題的骨架。
+
+    【這題本身不難，但它是後面幾十題的地基。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [3,9,20,null,null,15,7]
+
+            3
+           / \
+          9   20
+             /  \
+            15   7
+
+  輸出：[[3],[9,20],[15,7]]
+
+範例 2
+  輸入：root = [1]
+  輸出：[[1]]
+
+範例 3
+  輸入：root = []
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 2000]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/binary-tree-level-order-traversal/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意：節點數可以是 0</h3>
+        <p><strong>所以 <code>root</code> 可能是 <code>None</code>，答案是 <code>[]</code></strong>。<strong>忘了擋這個，<code>deque([root])</code> 會放進一個 <code>None</code>，然後 <code>node.val</code> 直接爆炸。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 434" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">BFS 的核心技巧：進入迴圈前先記下 len(queue)，那就是「這一層有幾個節點」。</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="320" cy="60" r="18" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="320" y="65" fill="var(--gold)">3</text>
+              <circle cx="230" cy="120" r="18" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="230" y="125" fill="var(--accent)">9</text>
+              <circle cx="410" cy="120" r="18" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="410" y="125" fill="var(--accent)">20</text>
+              <circle cx="360" cy="180" r="18" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="360" y="185" fill="#ff8a65">15</text>
+              <circle cx="460" cy="180" r="18" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="460" y="185" fill="#ff8a65">7</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="307" y1="73" x2="243" y2="107"/><line x1="333" y1="73" x2="397" y2="107"/>
+              <line x1="397" y1="133" x2="373" y2="167"/><line x1="423" y1="133" x2="447" y2="167"/>
+            </g>
+            <line x1="20" y1="212" x2="620" y2="212" stroke="var(--border)"/>
+            <text x="20" y="238" fill="var(--gold)" font-size="12">佇列的變化（方框內是佇列內容，n 是這一輪鎖住的數量）：</text>
+            <text x="30" y="266" fill="var(--text-muted)" font-size="12">起始　　 [3]　　　　　　　　n = 1 → 取出 3，放入 9, 20　　　　收成 [3]</text>
+            <text x="30" y="292" fill="var(--text-muted)" font-size="12">第 2 輪　 [9, 20]　　　　　　n = 2 → 取出 9, 20，放入 15, 7　　收成 [9, 20]</text>
+            <text x="30" y="318" fill="var(--text-muted)" font-size="12">第 3 輪　 [15, 7]　　　　　　n = 2 → 取出 15, 7，沒有孩子　　　收成 [15, 7]</text>
+            <text x="30" y="344" fill="var(--text-muted)" font-size="12">第 4 輪　 []　　　　　　　　 佇列空了 → 結束</text>
+            <line x1="20" y1="366" x2="620" y2="366" stroke="var(--border)"/>
+            <text x="20" y="392" fill="#ff8a65" font-size="12">如果沒有先鎖住 n，直接 while dq: node = dq.popleft()，你會拿到一條扁平的序列，</text>
+            <text x="20" y="416" fill="#ff8a65" font-size="12">沒辦法知道「哪幾個屬於同一層」。那一行 n = len(dq) 就是全部的魔法。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">BFS 的標準骨架，只有一個技巧：
+
+    dq = deque([root])
+    while dq:
+        n = len(dq)            ★★★ 這一行是全部的魔法 ★★★
+        for _ in range(n):
+            node = dq.popleft()
+            &lt;處理 node&gt;
+            把 node 的孩子放進 dq
+
+【為什麼 n = len(dq) 就等於「這一層的節點數」？】
+
+    因為在進入 for 迴圈之前，
+    佇列裡【剛好就是完整的一層】——不多也不少。
+
+    這是一個不變量（invariant）：
+        「每次外層 while 開始時，dq 裡正好是某一層的全部節點。」
+
+    證明：
+        初始時 dq = [root]，正好是第 0 層 ✔
+        處理完第 k 層的 n 個節點後，
+        放進去的正好是它們所有的孩子 = 第 k+1 層的全部 ✔
+
+    【能講出這個不變量，就代表你真的懂 BFS 了，
+      而不只是背了一個模板。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS + 鎖住層大小（標準答案）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -&gt; List[List[int]]:
+        if not root:
+            return []
+
+        res, dq = [], deque([root])
+        while dq:
+            n = len(dq)                     # 【關鍵】先鎖住這一層的節點數
+            level = []
+            for _ in range(n):              # 只處理這 n 個，之後進來的屬於下一層
+                node = dq.popleft()
+                level.append(node.val)
+                if node.left:
+                    dq.append(node.left)
+                if node.right:
+                    dq.append(node.right)
+            res.append(level)
+
+        return res</div>
+        <h3>為什麼一定要用 <code>deque</code> 而不是 <code>list</code>？</h3>
+        <div class="code-block">Python 的 list.pop(0) 是 O(n)！
+
+    因為它要把後面所有元素往前搬一格。
+
+    用 list 當佇列：
+        n 個節點 × 每次 O(n) 的搬移 = O(n²)
+
+        n = 2000 時是 400 萬次搬移 —— 還撐得住，
+        但在 n = 10⁵ 的題目（例如第 127、200 題）就會直接逾時。
+
+    collections.deque 的 popleft() 是 O(1)（雙向鏈結串列實作）。
+
+【這是 Python 刷題最常見的效能陷阱之一。】
+
+    看到「佇列」就 from collections import deque，
+    養成反射動作。
+
+    （另一個常見陷阱：用字串相加拼接大量字串，
+      應該用 list + "".join。）</div>
+        <h3><code>if node.left</code> 而不是無條件 append</h3>
+        <p><strong>只把「存在的孩子」放進佇列</strong>。如果把 <code>None</code> 也放進去，下一輪 <code>node.val</code> 就會爆炸；而且 <code>n = len(dq)</code> 會算進不存在的節點，層的邊界就亂了。</p>
+        <p><strong>時間 O(n)</strong>（每個節點進出佇列各一次）、<strong>空間 O(w)</strong>（w 是最大寬度，完全二元樹時約 n/2）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點進出佇列一次</td></tr>
+            <tr><td>空間</td><td>O(w)</td><td>佇列最大寬度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>整層替換（Python 最漂亮的寫法）</h3>
+        <div class="code-block">class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -&gt; List[List[int]]:
+        if not root:
+            return []
+
+        res, level = [], [root]
+        while level:
+            res.append([node.val for node in level])
+            # 直接把整層換成下一層，連佇列都不用
+            level = [kid for node in level for kid in (node.left, node.right) if kid]
+
+        return res</div>
+        <h3>連佇列都不需要</h3>
+        <div class="code-block">既然每一輪要處理的就是「一整層」，
+那乾脆直接用一個 list 存整層，然後【整個換成下一層】：
+
+    level = [kid for node in level
+                 for kid in (node.left, node.right) if kid]
+
+    這一行讀作：
+        「對 level 裡的每個 node，
+          取它的 left 和 right，
+          留下不是 None 的，組成新的 level。」
+
+    巢狀生成式的順序和巢狀 for 迴圈一樣：
+
+        for node in level:
+            for kid in (node.left, node.right):
+                if kid:
+                    yield kid
+
+    【左先右後的順序自動保證了「每層由左到右」。】
+
+    完全不需要記 n = len(dq)，
+    因為「這一層」本來就被獨立裝在一個 list 裡。</div>
+        <p><strong>四行解完，而且沒有那個容易忘記的 <code>n = len(dq)</code>。</strong><strong>複雜度和解法一完全相同。</strong></p>
+        <p><strong>面試時可以先寫解法一（展示你懂 BFS 的標準結構），再說「用 Python 的話我會這樣寫」。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點看一次</td></tr>
+            <tr><td>空間</td><td>O(w)</td><td>一層的大小</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>DFS + 深度當索引（證明「層序不一定要 BFS」）</h3>
+        <div class="code-block">class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -&gt; List[List[int]]:
+        res = []
+
+        def go(node, depth):
+            if not node:
+                return
+            if depth == len(res):           # 第一次抵達這個深度 -&gt; 開一個新的桶
+                res.append([])
+            res[depth].append(node.val)
+            go(node.left, depth + 1)        # 先左後右，所以桶裡的順序就是左到右
+            go(node.right, depth + 1)
+
+        go(root, 0)
+        return res</div>
+        <h3>核心：用 <code>depth</code> 決定放進哪個桶</h3>
+        <div class="code-block">res[depth].append(node.val)
+
+    每個節點知道自己在第幾層，就直接丟進對應的桶裡。
+
+    if depth == len(res):
+        res.append([])
+
+    這一行在說：「第一次走到這個深度，先開一個空桶。」
+
+    為什麼 depth 一定是「剛好等於」len(res) 而不會跳號？
+        因為 DFS 是一層一層往下走的，
+        要走到深度 d，一定先經過深度 d-1。
+        所以桶是依序被開出來的 ✔
+
+【為什麼每個桶裡的順序是「由左到右」？】
+
+    因為我們永遠先遞迴 left 再遞迴 right。
+
+    在同一層裡，比較靠左的節點，
+    它的整條祖先路徑在 DFS 中一定比較早被走到 ——
+    所以它比較早被 append 進桶裡 ✔
+
+    【換成先 right 後 left，每層就會變成由右到左
+      —— 那正是第 199 題（右視圖）的做法。】</div>
+        <p><strong>空間 O(h)</strong>（遞迴堆疊）—— <strong>對「深而窄」的樹，這比 BFS 的 O(w) 省</strong>。</p>
+        <p><strong>但對「淺而寬」的樹（例如完全二元樹）BFS 比較好。</strong><strong>兩者沒有絕對優劣，看樹的形狀。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點看一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、BFS + 鎖層大小</td><td>O(n)</td><td>O(w)</td><td>中</td><td>標準答案，最通用</td></tr>
+            <tr><td>二、整層替換</td><td>O(n)</td><td>O(w)</td><td>短</td><td>Python 最漂亮</td></tr>
+            <tr><td>三、DFS + 深度索引</td><td>O(n)</td><td>O(h)</td><td>中</td><td>深而窄的樹比較省</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>這個 BFS 骨架能解的題目</h3>
+        <div class="code-block">dq = deque([root])
+while dq:
+    n = len(dq)
+    for _ in range(n):
+        node = dq.popleft()
+        ...
+        dq.append(孩子)
+
+只要換掉「...」裡的邏輯：
+
+  102  層序走訪            收集 node.val 成 list          （本題）
+  103  鋸齒層序            奇數層把 list 反轉
+  107  由下而上的層序      最後把整個結果反轉
+  111  最小深度            第一次遇到葉節點就回傳層數
+  116  填 next 指標        把同一層的節點串起來
+  199  右視圖              每層只收最後一個
+  515  每層最大值          每層取 max
+  637  每層平均值          每層取平均
+
+【八題共用一個骨架。這就是為什麼 BFS 值得背熟。】</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code></strong> → <code>[]</code>。<strong>沒擋的話 <code>None.val</code> 直接 crash —— 本題第一名的 bug。</strong></li>
+          <li><strong>單一節點</strong> → <code>[[1]]</code>（注意是巢狀 list）。</li>
+          <li><strong>退化成一條鏈</strong>（每層只有一個節點）→ 2000 層，每層一個元素。<strong>DFS 版可能 <code>RecursionError</code>（Python 預設上限 1000）。</strong></li>
+          <li><strong>完全二元樹</strong> → 最後一層約有 n/2 個節點，BFS 的空間是 O(n)。</li>
+          <li><strong>忘了 <code>n = len(dq)</code></strong> → 結果會是一條扁平的序列，分不出層。</li>
+          <li><strong>用 <code>list.pop(0)</code> 當佇列</strong> → O(n²)。本題 n ≤ 2000 還過得了，<strong>但養成這個習慣遲早會在大題目上逾時</strong>。</li>
+          <li><strong>把 <code>None</code> 也放進佇列</strong> → <code>n = len(dq)</code> 算錯，層的邊界全亂。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要「由下而上」呢？</h3>
+
+        <p><strong>第 107 題</strong>。最簡單的做法：<strong>正常做完，最後 <code>res[::-1]</code></strong>。</p>
+
+        <p><strong>不要用 <code>res.insert(0, level)</code></strong> —— <code>insert(0, ...)</code> 是 <code>O(len(res))</code>，整體變成 <code>O(h²)</code>。<strong>「先收集再反轉」永遠比「每次插到最前面」好</strong>，這在鏈結串列、字串、list 上都適用。</p>
+
+        <h3>追問二：如果要「鋸齒狀」（一層左到右、下一層右到左）呢？</h3>
+
+        <p><strong>第 103 題</strong>。<strong>在 <code>res.append(level)</code> 之前，奇數層先 <code>level.reverse()</code></strong>。</p>
+
+        <p><strong>也可以用 <code>deque</code> 從兩端 append</strong>，但<strong>「最後反轉」更簡單，而且複雜度相同</strong>（反轉一層是 O(該層大小)，全部加起來還是 O(n)）。</p>
+
+        <h3>追問三：如果是 N 元樹呢？</h3>
+
+        <div class="code-block">把「放 left 和 right」換成「放 children 裡的每一個」：
+
+    for kid in node.children:
+        dq.append(kid)
+
+【N 元樹的 BFS 和二元樹一模一樣】——
+BFS 根本不在乎每個節點有幾個孩子。
+
+    這是 BFS 相對於「二元樹專屬遞迴」的一大優勢。
+
+    第 429 題就是這題的 N 元樹版本。</div>
+
+        <h3>追問四：如果樹非常寬（例如 10⁷ 個葉節點），BFS 的記憶體撐不住怎麼辦？</h3>
+
+        <p><strong>改用 DFS（解法三）</strong> —— 它的空間是 <code>O(h)</code>，和寬度無關。</p>
+
+        <p><strong>但如果只是要「逐層輸出」而不用全部存起來</strong>，可以用<strong>迭代加深（IDDFS）</strong>：對每個深度 <code>d = 0, 1, 2, ...</code> 做一次「只輸出深度 d」的 DFS。</p>
+
+        <p><strong>空間降到 O(h)，代價是時間變成 O(n·h)</strong> —— <strong>這是空間換時間的經典取捨</strong>，在<strong>記憶體受限的搜尋</strong>（例如西洋棋引擎）裡是標準手法。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 103 題 Zigzag Level Order</strong> —— 奇數層反轉</li>
+          <li><strong>第 107 題 Level Order Traversal II</strong> —— 最後整個反轉</li>
+          <li><strong>第 111 題 Minimum Depth</strong> —— BFS 找最短，第一個葉節點就是答案</li>
+          <li><strong>第 199 題 Right Side View</strong> —— 每層只取最後一個</li>
+          <li><strong>第 200 題 Number of Islands</strong> —— 同一個 BFS 骨架，換到格子圖上</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>n = len(dq)</code> 為什麼剛好等於「這一層的節點數」？請說出那個不變量。</li>
+            <li>為什麼要用 <code>deque</code> 而不是 <code>list</code>？<code>list.pop(0)</code> 的複雜度是多少？</li>
+            <li>DFS 版為什麼每個桶裡的順序自動是「由左到右」？</li>
+            <li>「由下而上」為什麼要用「最後反轉」而不是 <code>insert(0, ...)</code>？</li>
+          </ol>
+        </div>
