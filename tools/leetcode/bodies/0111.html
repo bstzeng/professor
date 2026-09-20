@@ -1,0 +1,342 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a binary tree, find its minimum depth.</p>
+          <p>The minimum depth is the number of nodes along the shortest path from the root node down to the nearest <strong>leaf</strong> node.</p>
+          <p><strong>Note:</strong> A leaf is a node with no children.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹，求它的<strong>最小深度</strong>。</p>
+          <p><strong>最小深度</strong>是從根節點到<strong>最近的葉節點</strong>那條路徑上的<strong>節點個數</strong>。</p>
+          <p><strong>注意：</strong>「葉節點」是指<strong>沒有任何孩子</strong>的節點。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題唯一的考點：不能把第 104 題的 max 換成 min</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】
+    def minDepth(self, root: Optional[TreeNode]) -&gt; int:
+        if not root:
+            return 0
+        return 1 + min(self.minDepth(root.left), self.minDepth(root.right))</div>
+        <div class="code-block">這段看起來完全合理，但它是【錯的】。
+
+反例：
+
+        1
+       /
+      2
+
+    minDepth(1)
+      = 1 + min(minDepth(2), minDepth(None))
+      = 1 + min(1, 0)
+      = 1 + 0
+      = 1    ✘
+
+    但根節點【不是葉節點】（它有一個孩子），
+    所以最短路徑必須走到節點 2 -&gt; 答案是 2。
+
+【問題出在哪裡？】
+
+    空子樹回傳 0。
+
+    對 max 來說，0 是無害的 ——
+    取最大時它會被忽略，「另一邊的真實深度」勝出。
+
+    對 min 來說，0 是災難 ——
+    它會把答案直接拉到 0，吃掉正確答案。
+
+【0 對 max 是單位元素，對 min 不是。】
+
+    這個不對稱就是第 104 題和第 111 題的全部差別，
+    也是這題被單獨列出來的唯一理由。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [3,9,20,null,null,15,7]
+
+            3
+           / \
+          9   20
+             /  \
+            15   7
+
+  輸出：2
+  說明：9 是葉節點，路徑 3 -&gt; 9 有 2 個節點。
+
+範例 2
+  輸入：root = [2,null,3,null,4,null,5,null,6]
+
+      2
+       \
+        3
+         \
+          4
+           \
+            5
+             \
+              6
+
+  輸出：5
+  說明：唯一的葉節點是 6，路徑有 5 個節點。
+        【注意這裡答案不是 2 ——
+          雖然節點 2 只有一個孩子，但它不是葉節點。】</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 10⁵]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/minimum-depth-of-binary-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>節點數可以到 10⁵ —— 這是個明確的提示</h3>
+        <p><strong>如果樹退化成一條鏈，遞迴深度會是 10⁵</strong>，<strong>Python 一定會 <code>RecursionError</code></strong>。</p>
+        <p><strong>而且鏈狀樹正是這題最糟的情況</strong>（要走到最底才找到唯一的葉節點）。</p>
+        <p><strong>所以這題的「正確答案」其實是 BFS（解法二）</strong> —— 它<strong>不但沒有深度問題，還能提早結束</strong>。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">正確的遞迴要分三種情況：
+
+    if not root:        return 0              空樹
+
+    if not root.left:   return 1 + f(right)   只有右孩子 -&gt; 必須往右
+    if not root.right:  return 1 + f(left)    只有左孩子 -&gt; 必須往左
+
+    return 1 + min(f(left), f(right))         兩邊都有 -&gt; 才能取 min
+
+【換個角度理解】：
+    min 只在「兩條路都是真的路」時才有意義。
+
+    空子樹不是一條「通往葉節點的路」，
+    它是「此路不通」——
+    所以應該當作 +∞ 而不是 0。
+
+    寫成這樣也對（而且更統一）：
+
+        def f(node):
+            if not node:
+                return float('inf')          # 此路不通
+            if not node.left and not node.right:
+                return 1                     # 是葉節點
+            return 1 + min(f(node.left), f(node.right))
+
+        # 外層要處理空樹
+        return 0 if not root else f(root)
+
+    【用 inf 當「不可能」的哨兵，
+      比三個 if 更能表達意圖。】
+
+但【最好的解法是 BFS】：
+    層序走訪時，【第一個遇到的葉節點】就是最淺的葉節點。
+    找到就立刻回傳，完全不用走完整棵樹。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>遞迴（要分三種情況）</h3>
+        <div class="code-block">class Solution:
+    def minDepth(self, root: Optional[TreeNode]) -&gt; int:
+        if not root:
+            return 0
+        # 【關鍵】只有一邊有孩子時，不能取 min（空的那邊不算路徑）
+        if not root.left:
+            return 1 + self.minDepth(root.right)
+        if not root.right:
+            return 1 + self.minDepth(root.left)
+        return 1 + min(self.minDepth(root.left), self.minDepth(root.right))</div>
+        <p><strong>三個 <code>if</code>，一個都不能少。</strong></p>
+        <h3>為什麼不能只寫「是葉節點就回 1」？</h3>
+        <div class="code-block">有人會寫：
+
+    if not root.left and not root.right:
+        return 1
+    return 1 + min(f(root.left), f(root.right))
+
+    這【還是錯的】——
+
+        1
+       /
+      2
+
+    節點 1 不是葉節點 -&gt; 走到第二行
+    -&gt; 1 + min(f(2), f(None)) = 1 + min(1, 0) = 1 ✘
+
+    「是不是葉節點」和「某一邊是不是空」是兩個不同的檢查，
+    兩個都要做。
+
+    正確的寫法要嘛是本文的三個 if，
+    要嘛是上面 idea 裡用 inf 的版本。</div>
+        <p><strong>時間 O(n)</strong>（最壞要走完整棵樹）、<strong>空間 O(h)</strong>。</p>
+        <p><strong>對 n = 10⁵ 的鏈狀樹，這個版本會 <code>RecursionError</code>。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>最壞走完整棵樹</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>BFS —— 第一個葉節點就是答案（本題最佳）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def minDepth(self, root: Optional[TreeNode]) -&gt; int:
+        if not root:
+            return 0
+
+        depth, dq = 1, deque([root])
+        while dq:
+            for _ in range(len(dq)):
+                node = dq.popleft()
+                if not node.left and not node.right:
+                    return depth            # 【第一個遇到的葉節點就是答案】
+                if node.left:
+                    dq.append(node.left)
+                if node.right:
+                    dq.append(node.right)
+            depth += 1
+
+        return depth</div>
+        <h3>★ 為什麼 BFS 在這題完勝遞迴？</h3>
+        <div class="code-block">BFS 是【一層一層】往外擴散的，
+所以【先遇到的葉節點一定比較淺】。
+
+    找到第一個葉節點 -&gt; 立刻回傳 -&gt; 【完全不用走完整棵樹】
+
+    對照第 104 題（最大深度）：
+        那題必須走完整棵樹才知道最深在哪 ——
+        BFS 沒有任何優勢，遞迴的三行版反而更好。
+
+    這題則相反：
+        【提早結束】是巨大的優勢。
+
+    極端例子：
+
+        根的左孩子是葉節點，
+        右子樹有 10⁵ 個節點。
+
+        遞迴版：走完 10⁵ 個節點
+        BFS：   第二層就回傳 -&gt; 只看了 3 個節點 ✔
+
+【這是「BFS 找最短、DFS 找最長」這條通則的完美示範。】
+
+    最短路徑 -&gt; BFS（第一次到達就是最短）
+    最長路徑 / 全部路徑 -&gt; DFS（反正都要走完）</div>
+        <h3>為什麼不用擔心遞迴深度？</h3>
+        <p><strong>BFS 完全沒有遞迴</strong>，佇列的大小是 <code>O(w)</code>（最大寬度）。</p>
+        <p><strong>而且對這題最糟的情況（鏈狀樹），寬度只有 1</strong> —— <strong>BFS 的空間反而是 O(1)。</strong><strong>遞迴版在那裡爆掉，BFS 卻毫髮無傷。</strong></p>
+        <p><strong>唯一的弱點是「又寬又淺」的樹</strong>（例如完全二元樹），那時佇列會到 <code>O(n/2)</code>。<strong>但那種樹的最小深度很淺，BFS 一樣很快就結束了。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n) 最壞</td><td>通常提早結束</td></tr>
+            <tr><td>空間</td><td>O(w)</td><td>佇列寬度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>能提早結束</th><th>鏈狀樹會爆嗎</th></tr></thead>
+          <tbody>
+            <tr><td>一、遞迴</td><td>O(n)</td><td>O(h)</td><td>✘</td><td>✔ 會 RecursionError</td></tr>
+            <tr><td>二、BFS</td><td>O(n) 最壞</td><td>O(w)</td><td>✔</td><td>✘ 安全</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code></strong> → <code>0</code>。</li>
+          <li><strong>單一節點</strong> → <code>1</code>。</li>
+          <li><strong><code>[1,2]</code></strong>（只有左孩子）→ <code>2</code>，<strong>不是 1</strong>。<strong>這是本題的核心測資 —— 直接把 <code>max</code> 換 <code>min</code> 會答 1。</strong></li>
+          <li><strong><code>[1,null,2]</code></strong>（只有右孩子）→ <code>2</code>。同上。</li>
+          <li><strong>範例 2 的一條右鏈</strong> → <code>5</code>，不是 2。</li>
+          <li><strong>完全二元樹</strong> → 所有葉節點同深度，答案 = 最大深度。</li>
+          <li><strong>10⁵ 個節點的鏈狀樹</strong> → <strong>遞迴版 <code>RecursionError</code>，BFS 版完全沒事。</strong></li>
+          <li><strong>只寫「是葉節點回 1」而沒處理「單邊為空」</strong> → 仍然錯。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼第 104 題（max）不用特判？</h3>
+
+        <div class="code-block">因為【0 是 max 的單位元素，不是 min 的】。
+
+    max(真實深度, 0) = 真實深度 ✔   （0 被忽略）
+    min(真實深度, 0) = 0          ✘   （0 吃掉答案）
+
+【更一般的說法】：
+    空子樹的回傳值，應該是「該運算的單位元素」。
+
+        求 max  -&gt; 單位元素是 -∞（或 0，如果值都非負）
+        求 min  -&gt; 單位元素是 +∞
+        求 sum  -&gt; 單位元素是 0
+        求 product -&gt; 單位元素是 1
+        求 and  -&gt; 單位元素是 True
+        求 or   -&gt; 單位元素是 False
+
+    【base case 填錯單位元素，是遞迴題最常見的 bug 來源。】
+
+    這題填了 0（sum 的單位元素）給 min 用 —— 所以錯了。
+    正確的應該是 float('inf')。</div>
+
+        <h3>追問二：如果要「最淺的葉節點的值」而不是深度呢？</h3>
+
+        <p><strong>BFS 版只要把 <code>return depth</code> 改成 <code>return node.val</code></strong>。</p>
+
+        <p><strong>如果有多個同深度的葉節點</strong>，BFS 會回傳<strong>最左邊</strong>的那個（因為佇列是從左到右填的）—— <strong>這正是第 513 題（找樹左下角的值）的變形。</strong></p>
+
+        <h3>追問三：如果要「根到最近葉節點的路徑」呢？</h3>
+
+        <p><strong>BFS 時在佇列裡存 <code>(節點, 路徑)</code></strong>，或是<strong>存一個 <code>parent</code> 字典，找到葉節點後往回追。</strong></p>
+
+        <p><strong>存 <code>parent</code> 比較省空間</strong> —— 存完整路徑的話每個節點都要複製一份 list，<strong>最壞 <code>O(n·h)</code></strong>。<strong>「記父節點、事後回溯」是 BFS 求路徑的標準做法</strong>，第 126 題（單詞接龍 II）會把這招用到極致。</p>
+
+        <h3>追問四：什麼時候該用 BFS、什麼時候該用 DFS？</h3>
+
+        <div class="code-block">【用 BFS】
+    ✔ 求「最短 / 最少步數」——第一次到達就是最優
+    ✔ 只需要前幾層
+    ✔ 樹很深、怕遞迴爆掉
+    ✔ 要「逐層」處理（第 102、103、107、199 題）
+
+【用 DFS】
+    ✔ 求「最長 / 全部路徑」——反正都要走完
+    ✔ 要回溯（第 113 題：路徑總和 II）
+    ✔ 樹很寬（DFS 的 O(h) 比 BFS 的 O(w) 省）
+    ✔ 需要「後序合併子樹資訊」（第 110、124 題）
+
+【這一題（最小深度）是 BFS，
+  第 104 題（最大深度）是 DFS ——
+  兩題放在一起看，這條界線就很清楚了。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 104 題 Maximum Depth</strong> —— 對照組，為什麼那題不用特判</li>
+          <li><strong>第 102 題 Level Order Traversal</strong> —— BFS 的骨架</li>
+          <li><strong>第 112 題 Path Sum</strong> —— 同樣要小心「葉節點」的定義</li>
+          <li><strong>第 513 題 Find Bottom Left Tree Value</strong> —— BFS 的另一個變形</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼直接把第 104 題的 <code>max</code> 換成 <code>min</code> 是錯的？請舉出反例。</li>
+            <li>空子樹的 base case 應該回傳什麼才「統一」？為什麼？</li>
+            <li>為什麼 BFS 在這題完勝遞迴，在第 104 題卻沒有優勢？</li>
+            <li>「只寫是葉節點就回 1」為什麼還是不夠？</li>
+          </ol>
+        </div>
