@@ -1,0 +1,398 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two strings <code>word1</code> and <code>word2</code>, return <em>the minimum number of operations required to convert <code>word1</code> to <code>word2</code></em>.</p>
+          <p>You have the following three operations permitted on a word: <strong>Insert</strong> a character, <strong>Delete</strong> a character, <strong>Replace</strong> a character.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個字串 <code>word1</code> 和 <code>word2</code>，回傳把 <code>word1</code> 轉換成 <code>word2</code> 所需的<strong>最少操作次數</strong>。</p>
+          <p>你可以使用三種操作：<strong>插入</strong>一個字元、<strong>刪除</strong>一個字元、<strong>替換</strong>一個字元。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這就是 Levenshtein 距離</h3>
+        <div class="code-block">「編輯距離」正式的名字是【Levenshtein 距離】
+（1965 年由蘇聯數學家 Vladimir Levenshtein 提出）。
+
+它是「兩個字串有多不一樣」最常用的度量，
+而且它是一個真正的【度量（metric）】：
+    d(a, a) = 0
+    d(a, b) = d(b, a)         對稱（因為插入和刪除互為反操作）
+    d(a, c) &lt;= d(a, b) + d(b, c)   三角不等式
+
+實際應用：
+    拼字檢查、自動更正
+    DNA 序列比對（生物資訊學）
+    版本控制的 diff
+    模糊搜尋（fuzzy search）
+    OCR 的錯誤率評估
+
+    "kitten" -&gt; "sitting" 的距離是 3：
+        kitten -&gt; sitten  （k 換成 s）
+        sitten -&gt; sittin  （e 換成 i）
+        sittin -&gt; sitting （插入 g）</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：word1 = "horse", word2 = "ros"
+  輸出：3
+  說明：
+    horse -&gt; rorse （把 'h' 換成 'r'）
+    rorse -&gt; rose  （刪掉 'r'）
+    rose  -&gt; ros   （刪掉 'e'）
+
+範例 2
+  輸入：word1 = "intention", word2 = "execution"
+  輸出：5</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>word1.length</code>, <code>word2.length</code> ≤ 500</li>
+          <li><code>word1</code> 和 <code>word2</code> 只含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>兩個字串都可以是空的</strong>。<code>("", "")</code> → 0；<code>("", "abc")</code> → 3。<strong>邊界初始化就是為了這個。</strong></li>
+          <li><strong>長度到 500</strong>，所以 O(mn) = 25 萬 —— 瞬間完成。而 O(m × n) 的 dp 表也只有 25 萬個整數，記憶體沒問題。</li>
+          <li><strong>三種操作的成本都是 1</strong>。如果成本不同（例如插入比刪除貴），轉移式要加上對應的權重 —— 見文末追問。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">狀態定義（最關鍵的一步）：
+
+    dp[i][j] = 把 word1 的【前 i 個字元】變成 word2 的【前 j 個字元】，最少幾步
+
+轉移：看 word1[i-1] 和 word2[j-1]（注意索引偏移 1）
+
+  情況 A：兩個字元相同
+      不需要任何操作，直接看更小的子問題
+          dp[i][j] = dp[i-1][j-1]
+
+  情況 B：兩個字元不同，三種操作各試一次，取最小
+
+      刪除 word1[i-1]：
+          先把 word1 前 i-1 個變成 word2 前 j 個，再刪掉這一個
+          dp[i][j] = dp[i-1][j] + 1
+
+      插入 word2[j-1]：
+          先把 word1 前 i 個變成 word2 前 j-1 個，再插入這一個
+          dp[i][j] = dp[i][j-1] + 1
+
+      替換 word1[i-1] 成 word2[j-1]：
+          先把前 i-1 對上前 j-1，再換掉這一個
+          dp[i][j] = dp[i-1][j-1] + 1
+
+      取三者的 min。
+
+邊界：
+    dp[i][0] = i     word2 是空的 -&gt; 全部刪掉，i 步
+    dp[0][j] = j     word1 是空的 -&gt; 全部插入，j 步</div>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">word1 = &quot;horse&quot;，word2 = &quot;ros&quot;　dp 表（答案在右下角）</text>
+            <g font-family="monospace" font-size="14" text-anchor="middle">
+              <text x="100" y="52" fill="var(--text-muted)" font-size="12">&quot;&quot;</text>
+              <text x="160" y="52" fill="var(--accent)">r</text>
+              <text x="220" y="52" fill="var(--accent)">o</text>
+              <text x="280" y="52" fill="var(--accent)">s</text>
+
+              <text x="50" y="80" fill="var(--text-muted)" font-size="12">&quot;&quot;</text>
+              <text x="100" y="80" fill="var(--gold)">0</text>
+              <text x="160" y="80" fill="var(--gold)">1</text>
+              <text x="220" y="80" fill="var(--gold)">2</text>
+              <text x="280" y="80" fill="var(--gold)">3</text>
+
+              <text x="50" y="110" fill="var(--accent)">h</text>
+              <text x="100" y="110" fill="var(--gold)">1</text>
+              <text x="160" y="110" fill="var(--text-muted)">1</text>
+              <text x="220" y="110" fill="var(--text-muted)">2</text>
+              <text x="280" y="110" fill="var(--text-muted)">3</text>
+
+              <text x="50" y="140" fill="var(--accent)">o</text>
+              <text x="100" y="140" fill="var(--gold)">2</text>
+              <text x="160" y="140" fill="var(--text-muted)">2</text>
+              <text x="220" y="140" fill="#ff8a65">1</text>
+              <text x="280" y="140" fill="var(--text-muted)">2</text>
+
+              <text x="50" y="170" fill="var(--accent)">r</text>
+              <text x="100" y="170" fill="var(--gold)">3</text>
+              <text x="160" y="170" fill="#ff8a65">2</text>
+              <text x="220" y="170" fill="var(--text-muted)">2</text>
+              <text x="280" y="170" fill="var(--text-muted)">2</text>
+
+              <text x="50" y="200" fill="var(--accent)">s</text>
+              <text x="100" y="200" fill="var(--gold)">4</text>
+              <text x="160" y="200" fill="var(--text-muted)">3</text>
+              <text x="220" y="200" fill="var(--text-muted)">3</text>
+              <text x="280" y="200" fill="#ff8a65">2</text>
+
+              <text x="50" y="230" fill="var(--accent)">e</text>
+              <text x="100" y="230" fill="var(--gold)">5</text>
+              <text x="160" y="230" fill="var(--text-muted)">4</text>
+              <text x="220" y="230" fill="var(--text-muted)">4</text>
+              <text x="280" y="230" fill="#ff8a65">3</text>
+            </g>
+            <rect x="256" y="212" width="48" height="26" fill="none" stroke="#ff8a65" stroke-width="2"/>
+            <g font-size="12">
+              <text x="350" y="80" fill="var(--gold)">第 0 列／第 0 行：一邊是空字串</text>
+              <text x="350" y="100" fill="var(--text-muted)">只能全刪（i 步）或全插（j 步）</text>
+              <text x="350" y="140" fill="var(--text-muted)">字元相同 → 直接抄左上角</text>
+              <text x="350" y="160" fill="var(--text-muted)">（o == o，dp[2][2] = dp[1][1] = 1）</text>
+              <text x="350" y="196" fill="var(--text-muted)">字元不同 → 1 + min(上, 左, 左上)</text>
+              <text x="350" y="216" fill="#ff8a65">答案 dp[5][3] = 3</text>
+            </g>
+            <text x="20" y="266" fill="var(--gold)" font-size="12">horse → rorse（替換 h→r）→ rose（刪 r）→ ros（刪 e）　共 3 步</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二維 DP（標準解）</h3>
+        <div class="code-block">class Solution:
+    def minDistance(self, word1: str, word2: str) -&gt; int:
+        m, n = len(word1), len(word2)
+
+        # dp[i][j] = 把 word1 的前 i 個字元，變成 word2 的前 j 個字元，最少幾步
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+        # 邊界：一邊是空字串時，只能全刪或全插
+        for i in range(m + 1):
+            dp[i][0] = i        # 刪掉 i 個
+        for j in range(n + 1):
+            dp[0][j] = j        # 插入 j 個
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    dp[i][j] = dp[i - 1][j - 1]        # 字元相同，不用動
+                else:
+                    dp[i][j] = 1 + min(
+                        dp[i - 1][j],      # 刪除 word1[i-1]
+                        dp[i][j - 1],      # 插入 word2[j-1]
+                        dp[i - 1][j - 1],  # 替換
+                    )
+
+        return dp[m][n]</div>
+        <h3>三個方向，各自對應一種操作</h3>
+        <div class="code-block">dp[i][j] 的三個來源（在 dp 表上的方向）：
+
+        dp[i-1][j-1]  ←左上→  替換
+             ↑
+        dp[i-1][j]    ←上→    刪除 word1 的一個字元
+             
+        dp[i][j-1]    ←左→    插入 word2 的一個字元
+
+記法：
+    「上」表示 i 變小 -&gt; word1 少一個字元 -&gt; 刪除
+    「左」表示 j 變小 -&gt; word2 少一個字元 -&gt; 對應「插入」
+                        （我們在 word1 裡插入一個字元來配上 word2[j-1]）
+    「左上」表示兩邊都少一個 -&gt; 一對一，替換（或不用動）
+
+很多人會把「上」和「左」搞混 ——
+記住「i 對應 word1，j 對應 word2」就不會錯。</div>
+        <h3>為什麼「字元相同」時不用考慮其他三種？</h3>
+        <div class="code-block">直覺上會擔心：字元相同的時候，
+會不會「刪掉它再插入別的」反而更省？
+
+不會。可以證明：
+    dp[i][j] = dp[i-1][j-1]  當 word1[i-1] == word2[j-1] 時
+    永遠是最優的。
+
+證明的直覺（交換論證）：
+    設有一個最優解，它沒有把 word1[i-1] 對應到 word2[j-1]。
+    那麼這兩個字元各自被「刪除」或「替換」了。
+    我們總可以把方案改成「讓它們互相對應、不動」，
+    而操作次數不會增加。
+
+    （嚴格的證明要處理幾種情況，但結論是對的。）
+
+實務上：如果不確定，就四個都取 min ——
+    dp[i][j] = min(dp[i-1][j-1] + (0 if 相同 else 1),
+                   dp[i-1][j] + 1,
+                   dp[i][j-1] + 1)
+
+    這樣寫也對，而且不用依賴上面那個定理。
+    複雜度一樣。</div>
+        <h3>索引偏移 1 的陷阱</h3>
+        <p><code>dp[i][j]</code> 對應的是 <code>word1[i-1]</code> 和 <code>word2[j-1]</code>，<strong>不是 <code>word1[i]</code></strong>。因為 <code>dp</code> 的第 0 列／第 0 行代表「空字串」。<strong>這個 off-by-one 是 DP 題最常見的 bug 之一。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>填滿 (m+1)×(n+1) 的表</td></tr>
+            <tr><td>空間</td><td>O(m·n)</td><td>dp 表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>一維滾動（O(min(m,n)) 空間）</h3>
+        <p><code>dp[i][j]</code> 只依賴<strong>上一列</strong>（<code>dp[i-1][*]</code>）和<strong>這一列的左邊</strong>（<code>dp[i][j-1]</code>），所以兩條陣列就夠。</p>
+        <div class="code-block">class Solution:
+    def minDistance(self, word1: str, word2: str) -&gt; int:
+        m, n = len(word1), len(word2)
+        if m &lt; n:
+            word1, word2, m, n = word2, word1, n, m   # 讓 n 是較小的那個
+
+        prev = list(range(n + 1))          # dp[0][*]
+
+        for i in range(1, m + 1):
+            cur = [i] + [0] * n            # dp[i][0] = i
+            for j in range(1, n + 1):
+                if word1[i - 1] == word2[j - 1]:
+                    cur[j] = prev[j - 1]
+                else:
+                    cur[j] = 1 + min(prev[j], cur[j - 1], prev[j - 1])
+            prev = cur
+
+        return prev[n]</div>
+        <h3>為什麼要先交換讓 n 變小？</h3>
+        <p>空間是 O(n)，所以讓 <code>n = min(m, n)</code> 可以省一半。<strong>而且編輯距離是對稱的</strong>（<code>d(a,b) == d(b,a)</code>），所以交換不影響答案。</p>
+        <h3>為什麼這裡用兩條陣列而不是一條？</h3>
+        <div class="code-block">轉移式需要三個值：
+    prev[j]      上一列同欄     （dp[i-1][j]）
+    cur[j-1]     這一列左邊     （dp[i][j-1]）
+    prev[j-1]    上一列左邊     （dp[i-1][j-1]）  ← 關鍵
+
+如果只用一條陣列 dp：
+    當我們要寫 dp[j] 時，dp[j] 還是舊值（上一列）✔
+    dp[j-1] 已經是新值（這一列）✔
+    但 dp[i-1][j-1] 呢？它在上一輪就被 dp[j-1] 的新值蓋掉了 ✘
+
+所以單陣列版必須「先把 dp[j-1] 的舊值存起來」：
+
+    prev_diag = dp[0]
+    dp[0] = i
+    for j in 1..n:
+        tmp = dp[j]                    # 先存 dp[i-1][j]
+        dp[j] = ... 用 prev_diag ...
+        prev_diag = tmp                # 它就是下一輪的「左上」
+
+    這樣可以做到真正的 O(n) 單陣列，但容易寫錯。
+
+    用兩條陣列（prev 和 cur）比較不容易錯，
+    空間一樣是 O(n)，只是常數 2 倍 —— 完全值得。
+
+這和第 62、63、64 題的差別：
+    那幾題的轉移只需要「上」和「左」，不需要「左上」，
+    所以單陣列就夠。
+    多一個「左上」，就多一層麻煩。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(min(m,n))</td><td>兩條陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>能回溯出操作序列？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、二維 DP</td><td>O(mn)</td><td>O(mn)</td><td>✔</td><td>面試預設</td></tr>
+            <tr><td>二、一維滾動</td><td>O(mn)</td><td>O(min(m,n))</td><td>✘（表被丟掉了）</td><td>空間最省</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>兩個都空</strong>：<code>("", "")</code> → 0。</li>
+          <li><strong>一個空</strong>：<code>("", "abc")</code> → 3；<code>("abc", "")</code> → 3。</li>
+          <li><strong>完全相同</strong>：<code>("abc", "abc")</code> → 0。走的是「字元相同」那條路。</li>
+          <li><strong>完全不同</strong>：<code>("abc", "xyz")</code> → 3（三次替換）。</li>
+          <li><strong>長度不同</strong>：<code>("a", "ab")</code> → 1（插入一個）。</li>
+          <li><strong>經典測資</strong>：<code>("kitten", "sitting")</code> → 3；<code>("sunday", "saturday")</code> → 3。</li>
+          <li><strong>索引偏移</strong>：<code>word1[i-1]</code> 寫成 <code>word1[i]</code> 會 IndexError 或答案錯。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要回傳「具體的操作序列」呢？</h3>
+
+        <p>需要完整的二維 dp 表（不能用滾動陣列）。從 <code>dp[m][n]</code> 開始往回走，每一步比較「當前值是從哪個方向來的」，就能重建出插入／刪除／替換的序列。O(m+n) 的回溯。</p>
+
+        <p><strong>這正是 <code>diff</code> 工具的原理</strong> —— 它算的是「最少的插入和刪除」（沒有替換），也就是 LCS（最長公共子序列）的對偶問題。</p>
+
+        <h3>追問二：如果三種操作的成本不同呢？</h3>
+
+        <div class="code-block">dp[i][j] = min(
+    dp[i-1][j]   + cost_delete,
+    dp[i][j-1]   + cost_insert,
+    dp[i-1][j-1] + (0 if 相同 else cost_replace),
+)
+
+骨架完全一樣，只是把 1 換成對應的成本。
+
+有趣的特例：
+    如果 cost_replace &gt;= cost_delete + cost_insert，
+    那「替換」永遠不划算（不如刪了再插），
+    這時候編輯距離退化成「LCS 距離」：
+        d(a,b) = m + n - 2 × LCS(a,b)
+
+    這就是 diff 的模型（只有插入和刪除）。</div>
+
+        <h3>追問三：如果還能「交換相鄰兩個字元」呢？</h3>
+
+        <p>那叫做 <strong>Damerau-Levenshtein 距離</strong>，多一個轉移項：<code>dp[i-2][j-2] + 1</code>（當 <code>word1[i-1] == word2[j-2]</code> 且 <code>word1[i-2] == word2[j-1]</code> 時）。</p>
+
+        <p><strong>這對拼字檢查很重要</strong> —— 打字時「相鄰字母打反」（<code>teh</code> → <code>the</code>）是最常見的錯誤之一，在 Levenshtein 裡它是 2 步，在 Damerau-Levenshtein 裡只有 1 步。</p>
+
+        <h3>追問四：有沒有比 O(mn) 更快的做法？</h3>
+
+        <div class="code-block">有幾個方向：
+
+  1. 如果只要知道「距離是不是 &lt;= k」
+     只需要算 dp 表中「離對角線 k 格以內」的部分
+     -&gt; O(k × min(m,n))
+     這在拼字檢查裡非常實用（通常只關心距離 1 或 2）。
+
+  2. 位元平行（Myers 1999）
+     用位元運算一次處理 64 個格子
+     -&gt; O(mn / w)，w 是字組寬度
+     實測快 10-30 倍，是 agrep、TRE 等工具的核心。
+
+  3. 理論下界
+     2015 年 Backurs 和 Indyk 證明：
+     如果存在 O(n^(2-ε)) 的演算法，
+     那麼 SETH（強指數時間假說）就不成立。
+
+     換句話說：在合理的複雜度假設下，
+     O(n²) 已經是最優的。
+
+     這是「細緻複雜度（fine-grained complexity）」的
+     一個著名結果 —— 它為「看起來可以更快但一直沒人做到」
+     的問題提供了理論解釋。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1143 題 Longest Common Subsequence</strong> —— 只有插入和刪除的版本</li>
+          <li><strong>第 583 題 Delete Operation for Two Strings</strong> —— 同上</li>
+          <li><strong>第 10／44 題 正規表示式／通配符匹配</strong> —— 同樣的二維 DP 骨架</li>
+          <li><strong>第 97 題 Interleaving String</strong> —— 兩字串的另一種二維 DP</li>
+          <li><strong>第 712 題 Minimum ASCII Delete Sum</strong> —— 成本不是 1 的版本</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>dp[i][j]</code> 的三個來源（上、左、左上）分別對應哪一種操作？</li>
+            <li>為什麼「字元相同」時可以直接抄左上角，不用考慮其他三種？</li>
+            <li>一維滾動為什麼需要兩條陣列（或一個額外的 <code>prev_diag</code> 變數）？和第 62 題的差別在哪？</li>
+            <li>如果 <code>cost_replace</code> 很貴，編輯距離會退化成什麼？</li>
+          </ol>
+        </div>
