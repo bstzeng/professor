@@ -1,0 +1,410 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of integers <code>heights</code> representing the histogram's bar height where the width of each bar is <code>1</code>, return <em>the area of the largest rectangle in the histogram</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>heights</code>，代表柱狀圖裡每根柱子的高度（寬度都是 1）。求出這張柱狀圖裡<strong>最大的矩形面積</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>換一個角度：對「每個高度」問最大寬度</h3>
+        <div class="code-block">直接枚舉所有矩形是 O(n²) 甚至更多。
+換個角度：
+
+    每一個「最大矩形」，它的高度一定等於【某一根柱子的高度】
+    （否則還可以再往上長一點）。
+
+    所以只要對每根柱子 i 問：
+        「以 heights[i] 為高，這個矩形最寬能到哪裡？」
+
+    答案是：往左右擴張，直到碰到「比 heights[i] 矮」的柱子為止。
+
+        左邊界 L = 左邊第一個「比 heights[i] 矮」的位置
+        右邊界 R = 右邊第一個「比 heights[i] 矮」的位置
+        寬度 = R - L - 1
+        面積 = heights[i] × (R - L - 1)
+
+    取所有 i 的最大值就是答案。
+
+heights = [2, 1, 5, 6, 2, 3]
+
+  i=2（高 5）：左邊第一個比 5 矮的是 index 1（值 1）
+               右邊第一個比 5 矮的是 index 4（值 2）
+               寬 = 4 - 1 - 1 = 2，面積 = 5 × 2 = 10 ✔
+
+問題轉化成：
+    「對每個元素，找出左邊／右邊第一個比它小的元素」
+
+    這正是【單調堆疊】要回答的問題。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：heights = [2,1,5,6,2,3]
+  輸出：10
+  說明：高 5、寬 2 的矩形（索引 2 到 3，高度取 min(5,6) = 5）。
+
+範例 2
+  輸入：heights = [2,4]
+  輸出：4</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>heights.length</code> ≤ 10⁵</li>
+          <li>0 ≤ <code>heights[i]</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/largest-rectangle-in-histogram/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n 到 10⁵</strong>。O(n²) 是 10¹⁰ —— 必定 TLE。<strong>必須 O(n)。</strong></li>
+          <li><strong>高度可以是 0</strong>。高度 0 的柱子面積永遠是 0，但它會<strong>切斷</strong>左右兩邊的矩形 —— 這在邏輯上很重要。</li>
+          <li><strong>最大面積可能是 10⁵ × 10⁴ = 10⁹</strong>，在 32 位元整數範圍內（剛好），但在 C/Java 裡值得留意。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 336" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">heights = [2, 1, 5, 6, 2, 3]，最大矩形面積是 10（高 5、寬 2）</text>
+            <g>
+              <rect x="80" y="172" width="70" height="36" fill="var(--border)" opacity="0.6"/>
+              <rect x="150" y="190" width="70" height="18" fill="var(--border)" opacity="0.6"/>
+              <rect x="220" y="118" width="70" height="90" fill="var(--border)" opacity="0.6"/>
+              <rect x="290" y="100" width="70" height="108" fill="var(--border)" opacity="0.6"/>
+              <rect x="360" y="172" width="70" height="36" fill="var(--border)" opacity="0.6"/>
+              <rect x="430" y="154" width="70" height="54" fill="var(--border)" opacity="0.6"/>
+              <rect x="220" y="118" width="140" height="90" fill="#ff8a65" opacity="0.35"/>
+              <rect x="220" y="118" width="140" height="90" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+              <line x1="60" y1="208" x2="540" y2="208" stroke="var(--text-muted)"/>
+            </g>
+            <g font-size="12" fill="var(--text-muted)" text-anchor="middle">
+              <text x="115" y="226">2</text><text x="185" y="226">1</text><text x="255" y="226">5</text>
+              <text x="325" y="226">6</text><text x="395" y="226">2</text><text x="465" y="226">3</text>
+            </g>
+            <text x="290" y="112" fill="#ff8a65" font-size="13" text-anchor="middle">5 × 2 = 10</text>
+            <line x1="20" y1="244" x2="620" y2="244" stroke="var(--border)"/>
+            <text x="20" y="272" fill="var(--gold)" font-size="12">核心：對每根柱子，問「以它的高度為高，最寬能延伸到哪裡？」</text>
+            <text x="20" y="296" fill="var(--text-muted)" font-size="12">左邊界＝左邊第一個比它矮的、右邊界＝右邊第一個比它矮的 → 寬 = right − left − 1</text>
+            <text x="20" y="320" fill="var(--text-muted)" font-size="12">「左／右第一個比我小的」正是單調堆疊要回答的問題。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力擴張（O(n²)，當基準）</h3>
+        <div class="code-block">class Solution:
+    def largestRectangleArea(self, heights: List[int]) -&gt; int:
+        # 暴力：以每根柱子的高度為「矩形的高」，往兩邊擴張
+        n = len(heights)
+        best = 0
+        for i in range(n):
+            h = heights[i]
+            l = i
+            while l - 1 &gt;= 0 and heights[l - 1] &gt;= h:
+                l -= 1
+            r = i
+            while r + 1 &lt; n and heights[r + 1] &gt;= h:
+                r += 1
+            best = max(best, h * (r - l + 1))
+        return best</div>
+        <p>對每根柱子，往左右擴張直到碰到更矮的。<strong>直白地實作了上面的公式</strong>，是驗證單調堆疊的標準答案。</p>
+        <p><strong>最壞 O(n²)</strong>（全部等高時每根都要掃全長），n = 10⁵ 會 TLE。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每根柱子最多掃全長</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>單調堆疊，一趟解決（標準解）</h3>
+        <div class="code-block">class Solution:
+    def largestRectangleArea(self, heights: List[int]) -&gt; int:
+        stack = []          # 存索引，對應的高度「嚴格遞增」
+        best = 0
+        n = len(heights)
+
+        for i in range(n + 1):
+            # i == n 時用高度 0 當哨兵，把堆疊裡剩下的全部結算掉
+            h = heights[i] if i &lt; n else 0
+
+            while stack and heights[stack[-1]] &gt;= h:
+                height = heights[stack.pop()]
+                # 左邊界：堆疊裡的前一個（它一定比 height 矮）
+                left = stack[-1] if stack else -1
+                width = i - left - 1
+                best = max(best, height * width)
+
+            stack.append(i)
+
+        return best</div>
+        <h3>堆疊的不變量</h3>
+        <div class="code-block">堆疊裡存【索引】，而且對應的高度是「單調不遞減」的。
+
+    stack = [i1, i2, i3, ...]
+    heights[i1] &lt; heights[i2] &lt; heights[i3] &lt; ...
+
+為什麼要維持這個性質？
+    因為當我們遇到一根「比堆疊頂端矮」的柱子時，
+    就表示堆疊頂端那根柱子的【右邊界】找到了！
+
+    而它的【左邊界】就是堆疊裡的前一個
+    （因為堆疊是遞增的，前一個一定比它矮）。
+
+    兩個邊界都有了 -&gt; 可以算面積 -&gt; 彈出它。
+
+這就是單調堆疊的核心：
+    「用堆疊維持一個單調序列，
+      當單調性被破壞時，就是結算的時機。」</div>
+        <h3>逐步追蹤 <code>heights = [2, 1, 5, 6, 2, 3]</code></h3>
+        <div class="code-block">i=0, h=2: 堆疊空 -&gt; push 0        stack=[0]
+i=1, h=1: heights[0]=2 &gt;= 1
+            pop 0，height=2
+            stack 空 -&gt; left = -1
+            width = 1 - (-1) - 1 = 1
+            面積 = 2 × 1 = 2          best=2
+          push 1                      stack=[1]
+i=2, h=5: heights[1]=1 &lt; 5 -&gt; 不彈
+          push 2                      stack=[1,2]
+i=3, h=6: heights[2]=5 &lt; 6 -&gt; 不彈
+          push 3                      stack=[1,2,3]
+i=4, h=2: heights[3]=6 &gt;= 2
+            pop 3，height=6，left=2
+            width = 4 - 2 - 1 = 1，面積 = 6      best=6
+          heights[2]=5 &gt;= 2
+            pop 2，height=5，left=1
+            width = 4 - 1 - 1 = 2，面積 = 10 ✔  best=10
+          heights[1]=1 &lt; 2 -&gt; 停
+          push 4                      stack=[1,4]
+i=5, h=3: heights[4]=2 &lt; 3 -&gt; 不彈
+          push 5                      stack=[1,4,5]
+i=6, h=0（哨兵）:
+          pop 5，height=3，left=4，width=6-4-1=1，面積 3
+          pop 4，height=2，left=1，width=6-1-1=4，面積 8
+          pop 1，height=1，left=-1，width=6-(-1)-1=6，面積 6
+          stack 空
+
+答案 10 ✔</div>
+        <h3>三個關鍵細節</h3>
+        <div class="code-block">① 迴圈跑到 n（不是 n-1），用高度 0 當哨兵
+
+   如果不加哨兵，堆疊裡「一路遞增到底」的柱子永遠不會被結算。
+       heights = [1, 2, 3]
+       沒有哨兵的話，1、2、3 都留在堆疊裡，best 永遠是 0 ✘
+
+   哨兵 0 比任何高度都矮（題目說高度 &gt;= 0…嚴格說 0 不小於 0，
+   但我們用的是 &gt;= 的彈出條件，所以高度 0 的柱子也會被彈出）✔
+
+   另一種寫法是在迴圈後面再加一個「清空堆疊」的迴圈，
+   但那要重複寫一次面積計算的邏輯 —— 哨兵的寫法更精簡。
+
+② left = stack[-1] if stack else -1
+
+   彈出之後，堆疊頂端就是「左邊第一個比它矮的」。
+   如果堆疊空了，表示左邊沒有更矮的 -&gt; 可以延伸到最左邊 -&gt; left = -1。
+
+③ width = i - left - 1
+
+   開區間 (left, i) 裡的柱子，高度都 &gt;= height。
+   個數 = i - left - 1。
+
+   驗算：left=1, i=4 -&gt; width = 2（索引 2 和 3）✔</div>
+        <h3>彈出條件用 <code>&gt;=</code> 還是 <code>&gt;</code>？</h3>
+        <div class="code-block">本文用 &gt;=（相等也彈出）。
+
+用 &gt; 的話，等高的柱子不會互相彈出，
+會導致某些柱子算出「偏小的寬度」。
+
+    heights = [2, 2]
+    用 &gt;：i=1 時 heights[0]=2 不 &gt; 2，不彈 -&gt; stack=[0,1]
+          i=2（哨兵 0）：pop 1，left=0，width=2-0-1=1，面積 2
+                        pop 0，left=-1，width=2-(-1)-1=2，面積 4 ✔
+          答案 4 ✔ —— 也對！
+
+    為什麼也對？
+        因為等高的柱子裡，「最左邊那一根」會算出正確的完整寬度。
+        其他的會算出偏小的值，但不影響最大值。
+
+所以 &gt;= 和 &gt; 都會得到正確答案。
+&gt;= 會多做幾次彈出（每次都算一個偏小的面積），
+&gt; 則是「只讓最左邊那根算完整寬度」。
+
+實務上兩種都常見。用 &gt;= 的好處是
+「彈出條件」和「單調不遞減」的定義一致，比較不會搞混。</div>
+        <h3>為什麼是 O(n)？</h3>
+        <p><strong>每個索引最多被 push 一次、pop 一次。</strong>雖然內層有 while，但所有 while 的總執行次數不超過 n。<strong>這是攤還分析（amortized analysis）的標準例子</strong> —— 和 KMP、以及第 42 題的單調堆疊解法同一個道理。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個索引 push/pop 各一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊最壞有 n 個元素</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>分別求左右邊界（兩趟，最好理解）</h3>
+        <p>把「找左邊第一個比我矮的」和「找右邊第一個比我矮的」<strong>分開做</strong>，各用一次單調堆疊，最後再一起算面積。</p>
+        <div class="code-block">class Solution:
+    def largestRectangleArea(self, heights: List[int]) -&gt; int:
+        n = len(heights)
+
+        # left[i] = 左邊第一個「比 heights[i] 矮」的位置（沒有就是 -1）
+        left = [-1] * n
+        stack = []
+        for i in range(n):
+            while stack and heights[stack[-1]] &gt;= heights[i]:
+                stack.pop()
+            left[i] = stack[-1] if stack else -1
+            stack.append(i)
+
+        # right[i] = 右邊第一個「比 heights[i] 矮」的位置（沒有就是 n）
+        right = [n] * n
+        stack = []
+        for i in range(n - 1, -1, -1):
+            while stack and heights[stack[-1]] &gt;= heights[i]:
+                stack.pop()
+            right[i] = stack[-1] if stack else n
+            stack.append(i)
+
+        return max((right[i] - left[i] - 1) * heights[i] for i in range(n)) if n else 0</div>
+        <div class="code-block">heights = [2, 1, 5, 6, 2, 3]
+
+left  = [-1, -1,  1,  2,  1,  4]
+right = [ 1,  6,  4,  4,  6,  6]
+
+i=0: (1 - (-1) - 1) × 2 = 1 × 2 = 2
+i=1: (6 - (-1) - 1) × 1 = 6 × 1 = 6
+i=2: (4 - 1 - 1)    × 5 = 2 × 5 = 10 ✔
+i=3: (4 - 2 - 1)    × 6 = 1 × 6 = 6
+i=4: (6 - 1 - 1)    × 2 = 4 × 2 = 8
+i=5: (6 - 4 - 1)    × 3 = 1 × 3 = 3
+
+最大 10 ✔</div>
+        <p><strong>優點</strong>：把「找邊界」和「算面積」分開，每一步都很單純，而且 <code>left</code>／<code>right</code> 陣列可以印出來檢查。<strong>debug 友善得多。</strong></p>
+        <p><strong>缺點</strong>：三趟掃描、兩個額外陣列。複雜度一樣是 O(n)。</p>
+        <p><strong>而且「求每個元素左右第一個比它小的」本身就是一個可重用的工具</strong> —— 第 42、85、739、496、503 題都會用到。<strong>先學會這個版本，再學解法一的「一趟合併」。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>三趟掃描</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩個陣列 + 堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>趟數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力擴張</td><td>O(n²)</td><td>O(1)</td><td>n</td><td>會 TLE，當基準</td></tr>
+            <tr><td>二、單調堆疊（一趟）</td><td>O(n)</td><td>O(n)</td><td>1</td><td>最精簡，面試預設</td></tr>
+            <tr><td>三、左右邊界（兩趟）</td><td>O(n)</td><td>O(n)</td><td>3</td><td>最好 debug，工具可重用</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空陣列</strong>：<code>[]</code> → 0。題目保證 n ≥ 1，但別崩潰。</li>
+          <li><strong>單一柱子</strong>：<code>[1]</code> → 1；<code>[0]</code> → 0。</li>
+          <li><strong>遞增</strong>：<code>[1,2,3,4,5]</code> → 9（高 3 寬 3）。<strong>沒有哨兵的話會回傳 0。</strong></li>
+          <li><strong>遞減</strong>：<code>[5,4,3,2,1]</code> → 9。每一步都會觸發彈出。</li>
+          <li><strong>全部等高</strong>：<code>[2,2,2]</code> → 6。驗證 <code>&gt;=</code> vs <code>&gt;</code>。</li>
+          <li><strong>含 0</strong>：<code>[3,6,5,7,4,8,1,0]</code> → 16。0 會把堆疊清空。</li>
+          <li><strong>兩根</strong>：<code>[2,4]</code> → 4。</li>
+          <li><strong>忘記哨兵</strong>：遞增序列會回傳 0 —— <strong>這是最常見的 bug。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：二維版（最大全 1 矩形）呢？</h3>
+
+        <p>第 85 題（Maximal Rectangle）。<strong>把二維矩陣「逐列」轉成柱狀圖，對每一列跑一次本題的演算法。</strong></p>
+
+        <div class="code-block">matrix = [["1","0","1","0","0"],
+          ["1","0","1","1","1"],
+          ["1","1","1","1","1"],
+          ["1","0","0","1","0"]]
+
+第 0 列的柱狀圖： [1, 0, 1, 0, 0]   -&gt; 最大 1
+第 1 列的柱狀圖： [2, 0, 2, 1, 1]   -&gt; 最大 3
+第 2 列的柱狀圖： [3, 1, 3, 2, 2]   -&gt; 最大 6 ✔
+第 3 列的柱狀圖： [4, 0, 0, 3, 0]   -&gt; 最大 4
+
+「柱子的高度」= 從這一列往上，連續有幾個 1
+    如果 matrix[i][j] == '1'：heights[j] += 1
+    否則：                     heights[j] = 0
+
+複雜度 O(m × n) —— 每一列 O(n)，共 m 列。
+
+這是「把二維問題降成一維」的漂亮例子。</div>
+
+        <h3>追問二：單調堆疊能解哪些問題？</h3>
+
+        <div class="code-block">通用形式：
+    「對每個元素，找出左邊／右邊第一個比它大（或小）的元素」
+
+單調遞增堆疊（heights[stack] 遞增）
+    -&gt; 彈出時找到的是「第一個比它小的」
+單調遞減堆疊
+    -&gt; 彈出時找到的是「第一個比它大的」
+
+題目：
+    第 42 題   接雨水            （找左右第一個更高的）
+    第 84 題   柱狀圖最大矩形     （本題，找左右第一個更矮的）
+    第 85 題   最大矩形          （第 84 題的二維版）
+    第 496 題  下一個更大元素 I
+    第 503 題  下一個更大元素 II（環形）
+    第 739 題  每日溫度          （最經典的入門題）
+    第 901 題  股票價格跨度
+    第 907 題  子陣列的最小值之和
+
+建議的學習順序：
+    739（最單純）-&gt; 496/503 -&gt; 84 -&gt; 42 -&gt; 85
+
+單調堆疊的三個要素：
+    1. 堆疊裡存【索引】（不是值）—— 因為要算距離
+    2. 維持單調性（push 前先彈出破壞單調的）
+    3. 彈出的那一刻，就是「找到答案」的時刻</div>
+
+        <h3>追問三：有沒有不用堆疊的 O(n) 解法？</h3>
+
+        <p>有一個用「跳躍指標」的做法：算 <code>left[i]</code> 時，如果 <code>heights[i-1] &gt;= heights[i]</code>，就直接跳到 <code>left[i-1]</code>，而不是一格一格退。<strong>攤還下來也是 O(n)</strong>，而且不用堆疊（O(1) 額外空間，不算輸出陣列）。但它的正確性論證比堆疊版更難講清楚，實務上很少用。</p>
+
+        <h3>追問四：分治法可以嗎？</h3>
+
+        <p>可以。找到最矮的柱子，答案是三者的最大值：「整個寬度 × 最矮高度」、「左半的答案」、「右半的答案」。<strong>但複雜度是 O(n log n)（用線段樹找區間最小值），而且最壞情況（遞增序列）會退化成 O(n²)</strong>（如果用線性掃描找最小值）。<strong>比單調堆疊差 —— 但它是一個很好的「換個角度」練習。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 85 題 Maximal Rectangle</strong> —— 二維版，直接套用本題</li>
+          <li><strong>第 42 題 Trapping Rain Water</strong> —— 同一張圖，不同的問題</li>
+          <li><strong>第 739 題 Daily Temperatures</strong> —— 單調堆疊的入門題</li>
+          <li><strong>第 496／503 題 Next Greater Element</strong> —— 單調堆疊的基本形式</li>
+          <li><strong>第 907 題 Sum of Subarray Minimums</strong> —— 同樣求「左右第一個更小的」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「最大矩形的高度」一定等於某一根柱子的高度？</li>
+            <li>哨兵（<code>i == n</code> 時用高度 0）在做什麼？拿掉的話 <code>[1,2,3]</code> 會回傳什麼？</li>
+            <li><code>width = i - left - 1</code> 為什麼要減 1？請用 <code>left=1, i=4</code> 驗算。</li>
+            <li>為什麼每個索引最多被 push 和 pop 各一次？這保證了什麼？</li>
+          </ol>
+        </div>
