@@ -1,0 +1,819 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <code>m x n</code> 2D binary grid <code>grid</code> which represents a map of <code>'1'</code>s (land) and <code>'0'</code>s (water), return <em>the number of islands</em>.</p>
+          <p>An <strong>island</strong> is surrounded by water and is formed by connecting adjacent lands horizontally or vertically. You may assume all four edges of the grid are all surrounded by water.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m × n</code> 的二維格子 <code>grid</code>，<code>'1'</code> 代表陸地、<code>'0'</code> 代表水，回傳<strong>島嶼的數量</strong>。</p>
+          <p><strong>島嶼</strong>是由<strong>水平或垂直方向</strong>相鄰的陸地連成的（<strong>斜角不算相鄰</strong>），而且四周都被水包圍。你可以假設格子的四個邊界外面都是水。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這是「洪水填充 / 連通分量」的標準範本題</h3>
+        <div class="code-block">【一句話解法】：
+
+    掃過每一格；
+    碰到還沒處理過的 '1' -&gt; 答案 +1，然後【把整座島淹掉】。
+
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == '1':
+                count += 1
+                sink(i, j)      # 把這座島全部變成 '0'
+
+【為什麼「淹掉」就對了？】
+
+    淹掉之後，同一座島的其他格子
+    在後面的掃描中都是 '0' -&gt; 不會被重複計算 ✔
+
+    所以【count 增加的次數 = 島的座數】 ✔
+
+【sink 有三種寫法】：
+
+    1. DFS 遞迴 —— 最短，但可能爆堆疊
+    2. DFS 迭代（堆疊）—— 安全 ✔
+    3. BFS（佇列）—— 也安全
+
+    【三種都是 O(mn)】，選哪個都可以。
+
+【★ 全題最重要的一行】：
+
+    【標記要在「推進容器的當下」做，不是「取出來的時候」】。
+
+    寫錯的話同一格會被推進去很多次 ——
+    最壞會退化成指數級 ✘
+
+【另一個角度：並查集】
+
+    把每個 '1' 當成一個節點，
+    相鄰的 '1' union 起來，
+    最後數有幾個集合 ✔
+
+    【一般情況下比 DFS/BFS 慢】，
+    但如果題目改成「動態加陸地、每次問島數」
+    （第 305 題），那就【非並查集不可】。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：grid = [
+    ["1","1","1","1","0"],
+    ["1","1","0","1","0"],
+    ["1","1","0","0","0"],
+    ["0","0","0","0","0"]
+  ]
+  輸出：1
+  說明：★ 左上角那一大塊是連通的（(0,3) 透過 (0,2)、(0,1) 連到左邊）。
+
+範例 2
+  輸入：grid = [
+    ["1","1","0","0","0"],
+    ["1","1","0","0","0"],
+    ["0","0","1","0","0"],
+    ["0","0","0","1","1"]
+  ]
+  輸出：3
+
+範例 3（斜角不算相鄰）
+  輸入：grid = [
+    ["1","0","1"],
+    ["0","1","0"],
+    ["1","0","1"]
+  ]
+  輸出：5
+  說明：★ 五個 '1' 兩兩都只是斜角相鄰 -&gt; 各自獨立。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == grid.length</code>、<code>n == grid[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 300</li>
+          <li><code>grid[i][j]</code> 是 <code>'0'</code> 或 <code>'1'</code>（<strong>字元，不是整數</strong>）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>★ 是字元 '1' 不是整數 1</h3>
+        <p><strong><code>grid[i][j] == 1</code> 永遠是 <code>False</code></strong> —— 會回傳 0，而且不會報錯。</p>
+        <p><strong>這是本題最容易「靜悄悄答錯」的地方。</strong>同理，淹掉時要寫 <code>grid[i][j] = '0'</code> 而不是 <code>0</code>（雖然寫 <code>0</code> 也能達到「不等於 <code>'1'</code>」的效果，但不一致很容易出錯）。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 434" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 掃過每一格，遇到還沒淹掉的 &#39;1&#39; 就「答案 +1」，然後把整座島一次淹光。</text>
+            <g font-family="monospace" font-size="15">
+              <text x="40" y="58" fill="var(--text-muted)">1 1 0 0 0</text>
+              <text x="40" y="84" fill="var(--text-muted)">1 1 0 0 0</text>
+              <text x="40" y="110" fill="var(--text-muted)">0 0 1 0 0</text>
+              <text x="40" y="136" fill="var(--text-muted)">0 0 0 1 1</text>
+              <text x="200" y="98" fill="var(--text-muted)" font-size="13">→ 掃到 (0,0) →</text>
+              <text x="360" y="58" fill="#ff8a65">· · 0 0 0</text>
+              <text x="360" y="84" fill="#ff8a65">· · 0 0 0</text>
+              <text x="360" y="110" fill="var(--gold)">0 0 1 0 0</text>
+              <text x="360" y="136" fill="var(--gold)">0 0 0 1 1</text>
+              <text x="510" y="72" fill="#ff8a65" font-size="12">第 1 座</text>
+              <text x="510" y="98" fill="var(--text-muted)" font-size="12">淹掉</text>
+            </g>
+            <text x="20" y="172" fill="var(--text-muted)" font-size="12">繼續掃 → 碰到 (2,2) 是第 2 座、(3,3) 是第 3 座 → 答案 3 ✔</text>
+            <line x1="20" y1="194" x2="620" y2="194" stroke="var(--border)"/>
+            <text x="20" y="222" fill="#ff8a65" font-size="13">★ 最常見的錯：出隊（或彈出）時才標記</text>
+            <text x="40" y="252" fill="var(--text-muted)" font-size="12">同一格可能從上下左右被多次推進佇列 —— 如果出隊時才標記，它會被處理很多次。</text>
+            <text x="40" y="278" fill="var(--gold)" font-size="12">★ 正確做法：入隊的當下就標記成 &#39;0&#39;，保證每格只進去一次 → O(mn) ✔</text>
+            <text x="40" y="304" fill="#ff8a65" font-size="12">寫錯的話最壞會退化成指數級，大測資直接超時。</text>
+            <line x1="20" y1="326" x2="620" y2="326" stroke="var(--border)"/>
+            <text x="20" y="354" fill="var(--accent)" font-size="13">★ 三種走法，同一個骨架</text>
+            <text x="40" y="384" fill="var(--text-muted)" font-size="12">DFS（遞迴／堆疊）：一路往深處淹　BFS（佇列）：一圈一圈往外淹</text>
+            <text x="40" y="410" fill="var(--text-muted)" font-size="12">並查集：先當成 mn 座島，每合併一次相鄰的 &#39;1&#39; 就減一 → 適合「邊加邊問」</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【框架：外層掃描 + 內層淹沒】
+
+    count = 0
+    for 每一格 (i, j):
+        if grid[i][j] == '1':      # 一座還沒數過的島
+            count += 1
+            淹掉整座島
+    return count
+
+【複雜度為什麼是 O(mn) 而不是更糟？】
+
+    因為【每一格最多被淹一次】——
+    淹掉之後就變 '0'，不會再被處理。
+
+    外層掃描 O(mn) + 所有淹沒加起來 O(mn)
+    = O(mn) ✔
+
+【★ 標記時機（全題最容易錯的地方）】
+
+    【錯誤】：出隊時才標記
+
+        q = deque([(i, j)])
+        while q:
+            r, c = q.popleft()
+            if grid[r][c] == '0': continue
+            grid[r][c] = '0'
+            for 四個方向:
+                if 是 '1': q.append(...)
+
+        問題：同一格可以【從上下左右四個方向】
+              各被推進去一次 ——
+              佇列會膨脹，最壞 O(4^k) ✘
+
+    【正確】：入隊時就標記
+
+        grid[i][j] = '0'
+        q = deque([(i, j)])
+        while q:
+            r, c = q.popleft()
+            for 四個方向:
+                if 是 '1':
+                    grid[nr][nc] = '0'   ★ 這裡
+                    q.append(...)
+
+        每格【只可能被推進去一次】 ✔
+        佇列大小 &lt;= mn ✔
+
+    【DFS 遞迴版沒有這個問題】——
+    因為它進函式的第一件事就是標記。
+
+【邊界檢查】
+
+    0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n
+
+    ★ 在 Python 裡【絕對不能省】——
+      nr = -1 不會報錯，它會繞到最後一列 ✘
+      （這是 Python 負索引的陷阱。）
+
+【四個方向的寫法】
+
+    for nr, nc in ((r+1,c), (r-1,c), (r,c+1), (r,c-1)):
+
+    或者用方向陣列：
+
+        DIRS = ((1,0), (-1,0), (0,1), (0,-1))
+        for dr, dc in DIRS:
+            nr, nc = r + dr, c + dc
+
+    【後者在「八方向」或「要記錄方向」時更好擴充】。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>DFS 迭代（堆疊）</h3>
+        <div class="code-block">class Solution:
+    def numIslands(self, grid: List[List[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        m, n = len(grid), len(grid[0])
+
+        def sink(i: int, j: int) -&gt; None:
+            stack = [(i, j)]
+            grid[i][j] = '0'                    # ★ 推進堆疊時就標記
+            while stack:
+                r, c = stack.pop()
+                for nr, nc in ((r+1, c), (r-1, c), (r, c+1), (r, c-1)):
+                    if 0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n and grid[nr][nc] == '1':
+                        grid[nr][nc] = '0'
+                        stack.append((nr, nc))
+
+        count = 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == '1':
+                    count += 1
+                    sink(i, j)
+        return count</div>
+        <p><strong>面試首選：O(mn)、不會爆堆疊、標記時機正確。</strong></p>
+        <h3>★ 為什麼推薦迭代而不是遞迴？</h3>
+        <div class="code-block">題目的 m, n &lt;= 300 -&gt; 最多 90000 格。
+
+    如果整張圖都是 '1'，
+    遞迴深度最壞會到 90000 ——
+
+    【Python 預設遞迴上限是 1000】 ✘ RecursionError
+
+    LeetCode 上這題的遞迴版【通常會過】
+    （因為測資的島沒那麼大），
+    但那是運氣，不是正確性 ✔
+
+【要用遞迴的話】：
+
+    import sys
+    sys.setrecursionlimit(300 * 300 + 10)
+
+    【但這只是把問題往後推】——
+    真正的深遞迴還是可能撐爆 C 層的堆疊。
+
+【面試時的說法】：
+
+    「我先寫遞迴版因為比較短，
+      但如果格子很大我會改成迭代版避免堆疊溢位」
+
+    然後【真的寫出迭代版】 ✔</div>
+        <h3>為什麼堆疊版也要「推入時標記」？</h3>
+        <div class="code-block">和 BFS 一樣的道理。
+
+    如果只在 pop 之後才標記，
+    同一格可能同時在堆疊裡出現好幾次 ——
+
+        堆疊大小最壞 O(mn) 變成 O(4mn)，
+        而且每一份都要重新展開一次 ✘
+
+    【推入時標記 -&gt; 每格只進去一次 ✔】
+
+    程式碼裡有兩處要標記：
+        1. sink 的第一行（起點）
+        2. 迴圈裡 append 之前（鄰居）
+
+    【兩處都要，漏一處就會重複。】</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td>每格處理一次</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>最壞整張圖進堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>DFS 遞迴（最短）</h3>
+        <div class="code-block">class Solution:
+    def numIslands(self, grid: List[List[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        m, n = len(grid), len(grid[0])
+
+        def sink(i: int, j: int) -&gt; None:
+            if i &lt; 0 or i &gt;= m or j &lt; 0 or j &gt;= n or grid[i][j] != '1':
+                return
+            grid[i][j] = '0'                    # ★ 先淹掉，再往四周走
+            sink(i + 1, j)
+            sink(i - 1, j)
+            sink(i, j + 1)
+            sink(i, j - 1)
+
+        count = 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == '1':
+                    count += 1
+                    sink(i, j)
+        return count</div>
+        <p><strong>十五行，是最好記的版本。</strong></p>
+        <h3>★ 「先淹再走」的順序</h3>
+        <div class="code-block">def sink(i, j):
+    if 越界 or grid[i][j] != '1':
+        return
+    grid[i][j] = '0'        ★ 先淹掉
+    sink(i+1, j)            再往四周
+    sink(i-1, j)
+    sink(i, j+1)
+    sink(i, j-1)
+
+【如果順序反過來（先走再淹）】：
+
+    sink(i+1, j)
+    ...
+    grid[i][j] = '0'        ✘
+
+    -&gt; 鄰居會走回來，發現 (i,j) 還是 '1'
+    -&gt; 【無窮遞迴】 ✘
+
+【這個模式叫「進入時標記」】，
+    是所有圖走訪的通則：
+
+        visit(node):
+            mark(node)          ★ 第一件事
+            for 鄰居:
+                if not marked:
+                    visit(鄰居)
+
+    【先標記再展開 —— 圖走訪的鐵律。】
+
+【把「越界」和「不是 1」合併判斷】
+
+    if i &lt; 0 or i &gt;= m or j &lt; 0 or j &gt;= n or grid[i][j] != '1':
+
+    這樣呼叫端就完全不用檢查 ——
+    程式碼乾淨很多 ✔
+
+    【代價】：多了四次沒必要的函式呼叫
+    （對越界的鄰居）—— 常數稍大，可忽略。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td>每格處理一次</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>遞迴堆疊最壞 mn</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>BFS（佇列）</h3>
+        <div class="code-block">from collections import deque
+
+
+class Solution:
+    def numIslands(self, grid: List[List[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        m, n = len(grid), len(grid[0])
+        count = 0
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] != '1':
+                    continue
+                count += 1
+                grid[i][j] = '0'
+                q = deque([(i, j)])
+                while q:
+                    r, c = q.popleft()
+                    for nr, nc in ((r+1, c), (r-1, c), (r, c+1), (r, c-1)):
+                        if 0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n and grid[nr][nc] == '1':
+                            grid[nr][nc] = '0'   # ★ 入隊時標記，不是出隊時
+                            q.append((nr, nc))
+        return count</div>
+        <h3>★ <code>grid[nr][nc] = '0'</code> 一定要寫在 <code>append</code> 前面</h3>
+        <div class="code-block">這是 BFS 版【唯一】的陷阱，但它很致命。
+
+【錯誤版】：
+
+    while q:
+        r, c = q.popleft()
+        if grid[r][c] == '0':      # 出隊才檢查
+            continue
+        grid[r][c] = '0'
+        for 四方向:
+            if grid[nr][nc] == '1':
+                q.append((nr, nc))
+
+    考慮一整片 '1'：
+        每一格都會被它的【四個鄰居】各推一次
+        -&gt; 佇列裡最多 4mn 個項目
+
+    這個版本【還是 O(mn)】（因為有 continue 擋著），
+    但【空間變成 4 倍】，而且常數很大。
+
+    ★ 真正會爆的是【連 continue 都沒有】的版本 ——
+      那就會無窮迴圈 ✘
+
+【正確版】：入隊前就標記
+
+        if grid[nr][nc] == '1':
+            grid[nr][nc] = '0'      ★ 先改
+            q.append((nr, nc))
+
+    每格【只可能被推一次】 ✔
+    佇列大小 &lt;= mn ✔
+
+【BFS vs DFS 的空間】
+
+    DFS：最壞 O(mn)（一條蛇形的島）
+    BFS：最壞 O(min(m,n))（如果島是規則的）
+         但最壞情況（整張圖是島）也是 O(mn)
+
+    【實務上差不多】，選你順手的 ✔
+
+【什麼時候一定要用 BFS？】
+
+    如果題目改成「島上任兩點的最短距離」
+    或「最近的水有多遠」（第 542、1162 題）——
+    那就【非 BFS 不可】，因為要的是層數 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td>每格處理一次</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>佇列最壞整張圖</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>並查集（為第 305 題鋪路）</h3>
+        <div class="code-block">class Solution:
+    def numIslands(self, grid: List[List[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        m, n = len(grid), len(grid[0])
+
+        parent = list(range(m * n))
+        count = sum(row.count('1') for row in grid)   # 先當成各自獨立
+
+        def find(x: int) -&gt; int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]         # 路徑減半
+                x = parent[x]
+            return x
+
+        def union(a: int, b: int) -&gt; None:
+            nonlocal count
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+                count -= 1                            # ★ 每合併一次少一座島
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] != '1':
+                    continue
+                for ni, nj in ((i + 1, j), (i, j + 1)):   # 只看右和下就夠
+                    if ni &lt; m and nj &lt; n and grid[ni][nj] == '1':
+                        union(i * n + j, ni * n + nj)
+        return count</div>
+        <h3>★ 「先當成全部獨立，每合併一次減一」</h3>
+        <div class="code-block">count = '1' 的總數      # 一開始每格自成一島
+
+每次成功 union 兩個不同的集合：
+    count -= 1              # 兩座島合併成一座 ✔
+
+最後的 count 就是答案。
+
+【為什麼只檢查「右」和「下」？】
+
+    每一對相鄰的格子會被檢查【剛好一次】：
+
+        (i,j) 和 (i,j+1) -&gt; 在處理 (i,j) 時檢查「右」✔
+        (i,j) 和 (i+1,j) -&gt; 在處理 (i,j) 時檢查「下」✔
+
+    如果四個方向都檢查，
+    每一對會被檢查兩次 ——
+    【答案還是對的】（第二次 find 相同不會再減），
+    只是多做一倍的工 ✔
+
+【二維座標怎麼變成一維編號？】
+
+    id(i, j) = i * n + j
+
+    n 是【行寬】（列數），不是 m ——
+    這裡寫錯是常見 bug ✘
+
+    驗算：(0,0) -&gt; 0、(0,n-1) -&gt; n-1、(1,0) -&gt; n ✔
+
+【路徑減半（path halving）】
+
+    while parent[x] != x:
+        parent[x] = parent[parent[x]]   ★ 指向祖父
+        x = parent[x]
+
+    比「完整路徑壓縮」（遞迴）短，
+    效果幾乎一樣，而且【不用遞迴】 ✔
+
+【複雜度】
+
+    O(mn · α(mn))，α 是反阿克曼函數 ——
+    實務上 &lt; 5，可以當成常數。
+
+    【但常數比 DFS 大】（每次 find 要走幾步指標），
+    所以【純粹解本題時 DFS 更快】。
+
+【★ 那為什麼要學並查集版？】
+
+    因為【第 305 題（島嶼數量 II）】：
+
+        「陸地是一個一個加上去的，
+          每加一個就要回報當前的島數」
+
+    DFS 每次都要重掃整張圖 -&gt; O(k · mn) ✘
+    並查集每次只要 O(α) -&gt; O(k · α) ✔
+
+    【「動態加邊、隨時查詢連通分量數」
+      是並查集的殺手級應用】——
+    DFS/BFS 完全做不到。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn·α)</td><td>α ≈ 常數</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>parent 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法五</span>
+          <h3>不修改輸入（用 visited 集合）</h3>
+        <div class="code-block">class Solution:
+    def numIslands(self, grid: List[List[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        m, n = len(grid), len(grid[0])
+        seen = set()                                  # ★ 不改動 grid
+        count = 0
+
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] != '1' or (i, j) in seen:
+                    continue
+                count += 1
+                stack = [(i, j)]
+                seen.add((i, j))
+                while stack:
+                    r, c = stack.pop()
+                    for nr, nc in ((r+1, c), (r-1, c), (r, c+1), (r, c-1)):
+                        if (0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n
+                                and grid[nr][nc] == '1' and (nr, nc) not in seen):
+                            seen.add((nr, nc))
+                            stack.append((nr, nc))
+        return count</div>
+        <h3>★ 面試官很可能會問「你可以不改動輸入嗎？」</h3>
+        <div class="code-block">前面四種解法都【把 grid 改壞了】——
+
+    呼叫端拿回去的是一張全是 '0' 的圖 ✘
+
+【什麼時候這是問題？】
+
+    1. 【呼叫端還要用這張圖】
+    2. 【函式被要求是「純函式」】（沒有副作用）
+    3. 【多執行緒共用同一張圖】
+    4. 【輸入是唯讀的】（例如它其實是資料庫的快取）
+
+【解法】：用一個 seen 集合代替「改成 '0'」✔
+
+【代價】：
+
+    空間從 O(1) 額外（改原圖）
+    變成 O(mn)（seen 集合）
+
+    而且 set 的雜湊比陣列存取慢 ——
+    實測大約慢 2~3 倍。
+
+【折衷方案】：
+
+    先 copy 一份再淹：
+
+        g = [row[:] for row in grid]
+
+    空間一樣 O(mn)，
+    但存取是陣列而不是雜湊 -&gt; 快很多 ✔
+
+    【如果只是「不想改動呼叫端的資料」，
+      copy 比 set 好；
+      如果 grid 大到 copy 不划算，
+      才用 set。】
+
+【面試時的完整回答】：
+
+    「我這個版本會修改輸入，
+      這通常在面試題裡是可以接受的、而且省空間；
+      如果不允許，我可以用 visited 集合或先複製一份，
+      代價是 O(mn) 的額外空間。」
+
+    ★ 【主動說出來】比【被問到才想到】好得多 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td>雜湊常數較大</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td>seen 集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>額外空間</th><th>改動輸入</th><th>適用場景</th></tr></thead>
+          <tbody>
+            <tr><td>一、DFS 迭代</td><td>O(mn)</td><td>O(mn)</td><td>是</td><td>面試首選 ✔</td></tr>
+            <tr><td>二、DFS 遞迴</td><td>O(mn)</td><td>O(mn)</td><td>是</td><td>最短，但可能爆堆疊</td></tr>
+            <tr><td>三、BFS</td><td>O(mn)</td><td>O(mn)</td><td>是</td><td>要層數時必用</td></tr>
+            <tr><td>四、並查集</td><td>O(mn·α)</td><td>O(mn)</td><td>否</td><td>動態加陸地（第 305 題）</td></tr>
+            <tr><td>五、visited 集合</td><td>O(mn)</td><td>O(mn)</td><td>否</td><td>輸入唯讀時</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全是 <code>'0'</code></strong> → <code>0</code>。</li>
+          <li><strong>全是 <code>'1'</code></strong> → <code>1</code>（整張圖是一座島）。<strong>這是遞迴版最容易爆堆疊的測資。</strong></li>
+          <li><strong>1 × 1 的格子</strong> → <code>0</code> 或 <code>1</code>。</li>
+          <li><strong>棋盤格</strong>（<code>101/010/101</code>）→ <code>5</code>。<strong>測「斜角不算相鄰」。</strong></li>
+          <li><strong>把 <code>'1'</code> 寫成整數 <code>1</code></strong> → <strong>永遠回 0，而且不會報錯。</strong></li>
+          <li><strong>忘了邊界檢查</strong> → <strong>Python 的 <code>-1</code> 會繞到最後一列/行，把不相鄰的島連起來。</strong></li>
+          <li><strong>BFS 在出隊時才標記</strong> → 同一格重複入隊，空間膨脹。</li>
+          <li><strong>遞迴版「先走再淹」</strong> → <strong>無窮遞迴。</strong></li>
+          <li><strong>並查集的 <code>i * n + j</code> 寫成 <code>i * m + j</code></strong> → <strong><code>m ≠ n</code> 時編號重疊，答案錯。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果陸地是一格一格動態加上去的呢？（第 305 題）</h3>
+
+        <div class="code-block">【每加一格就重新掃一次】-&gt; O(k · mn) ✘
+
+【並查集】-&gt; 每次 O(α) ✔
+
+    def numIslands2(m, n, positions):
+        parent = {}
+        count = 0
+        res = []
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        for r, c in positions:
+            idx = r * n + c
+            if idx in parent:        # ★ 重複加同一格
+                res.append(count)
+                continue
+            parent[idx] = idx
+            count += 1               # 先當成新的一座島
+            for nr, nc in ((r+1,c),(r-1,c),(r,c+1),(r,c-1)):
+                nidx = nr * n + nc
+                if 0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n and nidx in parent:
+                    a, b = find(idx), find(nidx)
+                    if a != b:
+                        parent[a] = b
+                        count -= 1   # 合併，少一座
+            res.append(count)
+        return res
+
+【兩個關鍵】：
+
+    1. 【用 dict 而不是陣列】——
+       只有已經變成陸地的格子才在裡面 ✔
+
+    2. 【要處理重複加同一格】——
+       測資裡真的有，不擋的話 count 會多算 ✘
+
+【這就是「為什麼要學並查集版」的答案】：
+
+    DFS/BFS 是【靜態】的工具（一次掃完），
+    並查集是【增量】的工具（可以邊加邊問）。
+
+    【一旦題目出現「動態」兩個字，先想並查集。】</div>
+
+        <h3>追問二：如果斜角也算相鄰呢？</h3>
+
+        <div class="code-block">【把四方向改成八方向】：
+
+    DIRS = ((1,0),(-1,0),(0,1),(0,-1),
+            (1,1),(1,-1),(-1,1),(-1,-1))
+
+    【其他完全不用改】 ✔
+
+【島數會變少】（更容易連通）：
+
+    棋盤格 101/010/101：
+        四方向 -&gt; 5 座
+        八方向 -&gt; 1 座 ✔
+
+【★ 並查集版要小心】
+
+    四方向版只檢查「右」和「下」就夠，
+    因為每一對相鄰格子都會被覆蓋到。
+
+    八方向版要檢查【右、下、右下、左下】四個 ——
+
+        右：  (i, j+1)
+        下：  (i+1, j)
+        右下：(i+1, j+1)
+        左下：(i+1, j-1)   ★ 這個容易漏
+
+    【漏掉「左下」的話，
+      從右上到左下的斜線就連不起來】 ✘
+
+    （原則：對每一對，只在「掃描順序較早」的那一格檢查。
+      掃描順序是由上到下、由左到右，
+      所以要檢查的是「同列右邊」和「下一列的三個」。）</div>
+
+        <h3>追問三：如果格子大到放不進記憶體呢？</h3>
+
+        <div class="code-block">【假設是一個 10^6 × 10^6 的圖，只能一列一列讀進來。】
+
+【用「兩列滾動 + 並查集」】：
+
+    1. 讀進第 i 列
+    2. 【列內】：相鄰的 '1' 合併
+    3. 【跨列】：和第 i-1 列的對應位置合併
+    4. 丟掉第 i-1 列，只保留它的「集合代表」
+
+    -&gt; 記憶體只要 O(n)（一列的寬度）✔
+
+【這是「連通分量標記（Connected Component Labeling）」
+  的標準串流演算法】，
+    影像處理裡的【兩遍掃描法】就是它。
+
+【另一個思路：分塊 + 邊界合併】
+
+    把大圖切成很多塊，
+    每塊各自算連通分量（可以平行），
+    再把【跨塊邊界】上的分量合併起來 ✔
+
+    這是 MapReduce / Spark 上處理超大圖的標準做法。
+
+【面試時不用寫完整程式碼】——
+    說出「滾動兩列 + 並查集」或「分塊 + 邊界合併」
+    這個架構就夠了 ✔</div>
+
+        <h3>追問四：相關的變形題有哪些？</h3>
+
+        <div class="code-block">【同一個洪水填充骨架，換個統計方式】：
+
+    第 695 題（島嶼最大面積）：
+        sink 回傳淹掉的格子數，取 max ✔
+
+    第 1254 題（封閉島嶼）：
+        先從邊界的 '0' 開始淹（那些通到外海），
+        剩下的 '0' 連通塊才是封閉島 ✔
+
+    第 130 題（被圍繞的區域）：
+        同樣的「先淹邊界」技巧 ✔
+
+    第 463 題（島嶼周長）：
+        不用 DFS，直接數：
+        每個 '1' 貢獻 4，每一對相鄰的 '1' 扣 2 ✔
+
+    第 694 題（不同島嶼的數量）：
+        DFS 時記錄【相對於起點的座標序列】當作簽名，
+        放進 set 去重 ✔
+
+    第 1020 題（飛地的數量）：
+        先淹邊界，再數剩下的 '1' ✔
+
+【三個反覆出現的技巧】：
+
+    1. 【先淹邊界】—— 處理「通到外面」的連通塊
+       （第 130、1020、1254 題）
+
+    2. 【sink 回傳一個值】—— 面積、周長、簽名
+       （第 695、694 題）
+
+    3. 【不用走訪，直接數貢獻】—— 周長類
+       （第 463 題）
+
+    【把本題的骨架背熟，這一整類題都會寫。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 695 題 島嶼的最大面積</strong> —— <code>sink</code> 回傳格子數</li>
+          <li><strong>第 130 題 被圍繞的區域</strong> —— 先淹邊界</li>
+          <li><strong>第 305 題 島嶼數量 II</strong> —— 動態加陸地，非並查集不可</li>
+          <li><strong>第 547 題 省份數量</strong> —— 同樣是連通分量，但輸入是鄰接矩陣</li>
+          <li><strong>第 994 題 腐爛的橘子</strong> —— 多源 BFS，要的是層數</li>
+          <li><strong>第 463 題 島嶼的周長</strong> —— 直接數貢獻，不用走訪</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「碰到 <code>'1'</code> 就 +1 然後淹掉」不會重複計算？</li>
+            <li>BFS 版的標記為什麼一定要寫在 <code>append</code> 前面？寫在後面會怎樣？</li>
+            <li>遞迴版如果「先走鄰居再淹自己」會發生什麼事？</li>
+            <li>並查集版為什麼只要檢查「右」和「下」兩個方向？八方向版要檢查哪幾個？</li>
+            <li>什麼情況下必須用並查集而不能用 DFS？</li>
+          </ol>
+        </div>
