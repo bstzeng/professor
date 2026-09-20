@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>130. Surrounded Regions 被圍繞的區域 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="反過來想：從邊界出發，標記「不會被圍」的 O。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="130">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 130 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 130</div>
+          <h1>Surrounded Regions<br>被圍繞的區域</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">聯合查找</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an <code>m x n</code> matrix <code>board</code> containing <strong>letters</strong> <code>'X'</code> and <code>'O'</code>, <strong>capture regions</strong> that are <strong>surrounded</strong>:</p>
+          <ul><li><strong>Connect</strong>: A cell is connected to adjacent cells horizontally or vertically.</li><li><strong>Region</strong>: To form a region <strong>connect every</strong> <code>'O'</code> cell.</li><li><strong>Surround</strong>: The region is surrounded with <code>'X'</code> cells if you can <strong>connect the region</strong> with <code>'X'</code> cells and none of the region cells are on the edge of the <code>board</code>.</li></ul>
+          <p>To capture a <strong>surrounded region</strong>, replace all <code>'O'</code>s with <code>'X'</code>s <strong>in-place</strong> in the original board.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m × n</code> 的矩陣 <code>board</code>，裡面只有 <code>'X'</code> 和 <code>'O'</code>。</p>
+          <p>找出所有<strong>被 <code>'X'</code> 完全圍住</strong>的 <code>'O'</code> 區域，把它們<strong>原地</strong>翻成 <code>'X'</code>。</p>
+        <ul>
+          <li><strong>相連</strong>：只算<strong>上下左右</strong>四個方向（不算斜的）。</li>
+          <li><strong>區域</strong>：所有互相連通的 <code>'O'</code> 算同一塊。</li>
+          <li><strong>被圍住</strong>：整塊區域<strong>沒有任何一格在邊界上</strong>。</li>
+        </ul>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題的全部：反過來想</h3>
+        <div class="code-block">【正著做】：找出「被圍住的 O」
+
+    對每一塊 O 區域，走一遍，檢查有沒有碰到邊界。
+        沒碰到 -&gt; 全部翻成 X
+        碰到了 -&gt; 【前面走過的都要撤銷】
+
+    問題：你在走到一半時還不知道結論，
+    所以要嘛先收集整塊再決定，
+    要嘛標記了再撤銷 —— 兩種都很麻煩。
+
+【反著做】：找出「安全的 O」
+
+    「被圍住」的反面是「連得到邊界」。
+
+    所以：
+        1. 從【四條邊界上】的每個 O 出發，DFS/BFS
+        2. 走得到的所有 O 都標記成「安全」（用 # ）
+        3. 掃全盤：
+             # -&gt; 翻回 O（安全的）
+             O -&gt; 翻成 X（沒被走到 = 被圍住）
+             X -&gt; 保持 X
+
+    【一次定案，完全不用撤銷。】✔
+
+【「正著難、反著易」是很常見的模式】：
+
+    130  被圍繞的區域    找「連得到邊界的」而不是「被圍住的」  （本題）
+    1020 飛地的數量      同樣從邊界出發
+    417  太平洋大西洋    從兩個海洋反向往內流
+    1254 封閉島嶼的數目  同樣的反向思路
+
+    【看到「完全被包圍 / 不能到達外面」，
+      就反過來從外面開始搜。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：board = [["X","X","X","X"],
+                ["X","O","O","X"],
+                ["X","X","O","X"],
+                ["X","O","X","X"]]
+
+  輸出：       [["X","X","X","X"],
+                ["X","X","X","X"],
+                ["X","X","X","X"],
+                ["X","O","X","X"]]
+
+  說明：中間那三個 O 四周都是 X -&gt; 被圍住，翻成 X。
+        最後一列的 O 在【邊界上】 -&gt; 沒有被圍住，保留。
+
+範例 2
+  輸入：board = [["X"]]
+  輸出：[["X"]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == board.length</code></li>
+          <li><code>n == board[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 200</li>
+          <li><code>board[i][j]</code> 是 <code>'X'</code> 或 <code>'O'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/surrounded-regions/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 408" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 反過來想：不要找「被圍住的 O」，而是找「碰得到邊界的 O」—— 剩下的就是被圍住的。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">原始盤面</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="40" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="57" y="89" fill="var(--text-muted)">X</text>
+              <rect x="74" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="91" y="89" fill="var(--text-muted)">X</text>
+              <rect x="108" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="125" y="89" fill="var(--text-muted)">X</text>
+              <rect x="142" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="159" y="89" fill="var(--text-muted)">X</text>
+              <rect x="40" y="100" width="34" height="34" fill="none" stroke="var(--border)"/><text x="57" y="123" fill="var(--text-muted)">X</text>
+              <rect x="74" y="100" width="34" height="34" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="91" y="123" fill="#ff8a65">O</text>
+              <rect x="108" y="100" width="34" height="34" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="125" y="123" fill="#ff8a65">O</text>
+              <rect x="142" y="100" width="34" height="34" fill="none" stroke="var(--border)"/><text x="159" y="123" fill="var(--text-muted)">X</text>
+              <rect x="40" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="57" y="157" fill="var(--text-muted)">X</text>
+              <rect x="74" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="91" y="157" fill="var(--text-muted)">X</text>
+              <rect x="108" y="134" width="34" height="34" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="125" y="157" fill="#ff8a65">O</text>
+              <rect x="142" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="159" y="157" fill="var(--text-muted)">X</text>
+              <rect x="40" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="57" y="191" fill="var(--text-muted)">X</text>
+              <rect x="74" y="168" width="34" height="34" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="91" y="191" fill="var(--gold)">O</text>
+              <rect x="108" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="125" y="191" fill="var(--text-muted)">X</text>
+              <rect x="142" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="159" y="191" fill="var(--text-muted)">X</text>
+            </g>
+            <text x="210" y="130" fill="var(--gold)" font-size="22">→</text>
+            <text x="260" y="52" fill="var(--gold)" font-size="13">結果</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="260" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="277" y="89" fill="var(--text-muted)">X</text>
+              <rect x="294" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="311" y="89" fill="var(--text-muted)">X</text>
+              <rect x="328" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="345" y="89" fill="var(--text-muted)">X</text>
+              <rect x="362" y="66" width="34" height="34" fill="none" stroke="var(--border)"/><text x="379" y="89" fill="var(--text-muted)">X</text>
+              <rect x="260" y="100" width="34" height="34" fill="none" stroke="var(--border)"/><text x="277" y="123" fill="var(--text-muted)">X</text>
+              <rect x="294" y="100" width="34" height="34" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="311" y="123" fill="var(--accent)">X</text>
+              <rect x="328" y="100" width="34" height="34" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="345" y="123" fill="var(--accent)">X</text>
+              <rect x="362" y="100" width="34" height="34" fill="none" stroke="var(--border)"/><text x="379" y="123" fill="var(--text-muted)">X</text>
+              <rect x="260" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="277" y="157" fill="var(--text-muted)">X</text>
+              <rect x="294" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="311" y="157" fill="var(--text-muted)">X</text>
+              <rect x="328" y="134" width="34" height="34" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="345" y="157" fill="var(--accent)">X</text>
+              <rect x="362" y="134" width="34" height="34" fill="none" stroke="var(--border)"/><text x="379" y="157" fill="var(--text-muted)">X</text>
+              <rect x="260" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="277" y="191" fill="var(--text-muted)">X</text>
+              <rect x="294" y="168" width="34" height="34" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="311" y="191" fill="var(--gold)">O</text>
+              <rect x="328" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="345" y="191" fill="var(--text-muted)">X</text>
+              <rect x="362" y="168" width="34" height="34" fill="none" stroke="var(--border)"/><text x="379" y="191" fill="var(--text-muted)">X</text>
+            </g>
+            <text x="430" y="130" fill="var(--gold)" font-size="11" text-anchor="start">最後一列的 O 在邊界上</text>
+            <text x="430" y="152" fill="var(--gold)" font-size="11" text-anchor="start">→ 沒有被圍住，保留</text>
+            <text x="430" y="182" fill="#ff8a65" font-size="11" text-anchor="start">中間那三個 O 四面都是 X</text>
+            <text x="430" y="204" fill="#ff8a65" font-size="11" text-anchor="start">→ 被圍住，翻成 X</text>
+            <line x1="20" y1="226" x2="620" y2="226" stroke="var(--border)"/>
+            <text x="20" y="254" fill="var(--accent)" font-size="13">為什麼要「反過來找」？</text>
+            <text x="20" y="282" fill="var(--text-muted)" font-size="12">正著找「被圍住的 O」很難：你必須確認整塊區域【沒有任何一格】碰到邊界 ——</text>
+            <text x="20" y="306" fill="var(--text-muted)" font-size="12">走到一半發現碰到邊界，前面標記的全部都要撤銷。</text>
+            <text x="20" y="336" fill="var(--gold)" font-size="12">反過來找「安全的 O」就沒有這個問題：從邊界出發，能走到的都安全，一次就定案。</text>
+            <text x="20" y="366" fill="var(--accent)" font-size="12">三個狀態要用三個符號：O（還沒判定）、#（確定安全）、X（牆或已翻）。</text>
+            <text x="20" y="390" fill="#ff8a65" font-size="12">用兩個符號會分不清「本來就是 X」和「安全的 O」——這是本題最常見的實作 bug。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">三個步驟：
+
+    1. 從【四條邊界】上的 O 出發做 DFS/BFS，
+       把走得到的全部標記成 '#'
+
+    2. 掃全盤：
+           '#' -&gt; 'O'     （安全的，翻回來）
+           'O' -&gt; 'X'     （沒被標記 = 被圍住）
+           'X' -&gt; 'X'     （不變）
+
+【★ 為什麼要用第三個符號 '#'？】
+
+    如果只用兩個符號（把安全的 O 直接留著、其他翻 X），
+    你就【分不清】：
+
+        「這格是本來就是 X」還是「這格是我剛翻掉的 O」？
+
+    更糟的是：在標記階段，你無法區分
+        「還沒判定的 O」和「已判定安全的 O」
+    -&gt; DFS 會無限繞圈（走回已經走過的格子）。
+
+    用 '#' 當【中間狀態】，一切都清楚了：
+
+        O = 還沒判定
+        # = 確定安全
+        X = 牆，或者已經定案
+
+    【「用一個額外的標記值表示中間狀態」
+      是格子圖 DFS 的標準手法，
+      它同時充當了「visited 陣列」。】
+
+    第 200 題（島嶼數量）也是同一招
+    （把走過的 '1' 改成 '0'）。
+
+【★ 邊界的走法】
+
+    for i in range(m): mark(i, 0); mark(i, n-1)    左右兩欄
+    for j in range(n): mark(0, j); mark(m-1, j)    上下兩列
+
+    四個角落會被處理兩次 —— 沒關係，
+    第二次進去時那格已經是 '#'，會立刻 return ✔
+
+複雜度：O(m·n) 時間（每格最多被訪問常數次）、
+        O(m·n) 空間（最壞情況的遞迴深度 / 佇列大小）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>從邊界 DFS 標記（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def solve(self, board: List[List[str]]) -&gt; None:
+        if not board:
+            return
+        m, n = len(board), len(board[0])
+
+        def mark(i, j):
+            """把和邊界相連的 O 標記成 #（安全的）"""
+            if not (0 &lt;= i &lt; m and 0 &lt;= j &lt; n) or board[i][j] != "O":
+                return
+            board[i][j] = "#"
+            mark(i + 1, j); mark(i - 1, j)
+            mark(i, j + 1); mark(i, j - 1)
+
+        # 只從【四條邊界】上的 O 出發
+        for i in range(m):
+            mark(i, 0); mark(i, n - 1)
+        for j in range(n):
+            mark(0, j); mark(m - 1, j)
+
+        # 剩下的 O 都是被圍住的 -&gt; 翻成 X；# 是安全的 -&gt; 翻回 O
+        for i in range(m):
+            for j in range(n):
+                board[i][j] = "O" if board[i][j] == "#" else "X"</div>
+        <h3><code>mark</code> 的三個 <code>return</code> 條件合成一行</h3>
+        <div class="code-block">if not (0 &lt;= i &lt; m and 0 &lt;= j &lt; n) or board[i][j] != "O":
+    return
+
+    這一行同時處理了：
+        1. 越界
+        2. 這格是 'X'（牆）
+        3. 這格已經是 '#'（走過了）
+
+    【把「越界檢查」放在遞迴函式的開頭，
+      而不是在呼叫之前檢查】——
+
+        mark(i+1, j)                    ✔ 直接呼叫，讓它自己判斷
+        if i+1 &lt; m: mark(i+1, j)        ✘ 四個方向都要寫一次
+
+    前者程式碼短很多，而且不容易漏。
+
+    代價是多幾次無謂的函式呼叫 —— 完全可以接受。
+
+【注意 Python 的 or 會短路】：
+    先檢查越界，確定安全了才去存取 board[i][j] ✔
+    順序反過來就會 IndexError。</div>
+        <h3>★ 遞迴深度的風險</h3>
+        <div class="code-block">最壞情況：整個盤面都是 O（200 × 200 = 40000 格）。
+
+    DFS 可能一路遞迴 40000 層 -&gt;
+    Python 預設上限 1000 -&gt; RecursionError ✘
+
+    LeetCode 的 Python 環境通常調高了上限，
+    所以這題實測大多會過。
+
+    但【正式面試要主動說出來】：
+        「如果盤面很大，我會改用 BFS（解法二）避免堆疊溢位。」
+
+    這比寫出哪個版本更重要。
+
+【格子圖的 DFS 遞迴深度 = O(m·n)】，
+    不像樹的 O(h) —— 因為格子圖可以「蛇行」走過每一格。
+
+    這是格子圖題目普遍偏好 BFS 的原因。</div>
+        <p><strong>時間 O(m·n)、空間 O(m·n)（遞迴堆疊）。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>每格最多訪問常數次</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>從邊界 BFS（避免遞迴深度問題）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def solve(self, board: List[List[str]]) -&gt; None:
+        if not board:
+            return
+        m, n = len(board), len(board[0])
+
+        dq = deque()
+        for i in range(m):
+            for j in (0, n - 1):
+                if board[i][j] == "O":
+                    board[i][j] = "#"
+                    dq.append((i, j))
+        for j in range(n):
+            for i in (0, m - 1):
+                if board[i][j] == "O":
+                    board[i][j] = "#"
+                    dq.append((i, j))
+
+        while dq:
+            i, j = dq.popleft()
+            for di, dj in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                x, y = i + di, j + dj
+                if 0 &lt;= x &lt; m and 0 &lt;= y &lt; n and board[x][y] == "O":
+                    board[x][y] = "#"
+                    dq.append((x, y))
+
+        for i in range(m):
+            for j in range(n):
+                board[i][j] = "O" if board[i][j] == "#" else "X"</div>
+        <p><strong>和解法一完全等價，只是把遞迴換成佇列。</strong></p>
+        <div class="code-block">【注意入隊時就要標記】：
+
+    if board[i][j] == "O":
+        board[i][j] = "#"       ← 標記
+        dq.append((i, j))       ← 再入隊
+
+    順序反過來（先入隊、出隊才標記）的話，
+    同一格可能被重複入隊很多次 ——
+    這是 BFS 最常見的效能 bug（第 127 題也提過）。
+
+【四個方向的寫法】：
+
+    for di, dj in ((1,0), (-1,0), (0,1), (0,-1)):
+        x, y = i + di, j + dj
+
+    這個「方向陣列」的寫法比寫四次 if 好太多：
+        ✔ 短
+        ✔ 要改成八方向（含斜的）只要加四筆
+        ✔ 不會漏掉某個方向
+
+    【格子圖題目一律用方向陣列。】
+
+    八方向版：
+        ((1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1))
+
+    或者用 itertools：
+        [(a,b) for a in (-1,0,1) for b in (-1,0,1) if (a,b) != (0,0)]</div>
+        <p><strong>空間 O(m·n)（佇列），但沒有堆疊溢位的風險。</strong><strong>對 200×200 的盤面，這是比較穩的選擇。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>每格進出佇列一次</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>佇列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>並查集 + 虛擬節點（想法漂亮）</h3>
+        <div class="code-block">class Solution:
+    def solve(self, board: List[List[str]]) -&gt; None:
+        if not board:
+            return
+        m, n = len(board), len(board[0])
+        # 多開一個「虛擬節點」代表邊界外面
+        OUT = m * n
+        parent = list(range(m * n + 1))
+
+        def find(x):
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a, b):
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[rb] = ra
+
+        for i in range(m):
+            for j in range(n):
+                if board[i][j] != "O":
+                    continue
+                if i in (0, m - 1) or j in (0, n - 1):
+                    union(OUT, i * n + j)       # 在邊界上 -&gt; 連到虛擬節點
+                for di, dj in ((1, 0), (0, 1)):  # 只看右和下，避免重複
+                    x, y = i + di, j + dj
+                    if x &lt; m and y &lt; n and board[x][y] == "O":
+                        union(i * n + j, x * n + y)
+
+        root_out = find(OUT)
+        for i in range(m):
+            for j in range(n):
+                if board[i][j] == "O" and find(i * n + j) != root_out:
+                    board[i][j] = "X"</div>
+        <h3>★ 「虛擬節點」這個技巧</h3>
+        <div class="code-block">多開一個編號 m*n 的節點，代表「盤面外面」。
+
+    然後：
+        邊界上的 O  -&gt; union(OUT, 它)
+        相鄰的兩個 O -&gt; union 起來
+
+    最後：
+        find(格子) == find(OUT)  -&gt; 安全 ✔
+        否則                      -&gt; 被圍住，翻成 X
+
+【虛擬節點（virtual / super node）的用途】：
+
+    把「一組節點都連到同一個東西」這件事，
+    變成「它們都和同一個虛擬節點連通」。
+
+    這樣「判斷是否屬於某一類」就變成一次 find。
+
+    其他用法：
+        - 多源最短路：加一個超級源點，連到所有起點
+        - 多個匯點：加一個超級匯點
+        - 第 803 題（打磚塊）：屋頂當虛擬節點
+
+【為什麼只 union 「右」和「下」？】
+
+    for di, dj in ((1, 0), (0, 1)):
+
+    因為 union 是對稱的 —— (i,j) 和 (i+1,j) 連起來時，
+    等一下處理 (i+1,j) 就不用再往上連一次。
+
+    每條邊只處理一次，省一半的工作。
+
+【這個解法值得會嗎？】
+
+    這題用並查集是【殺雞用牛刀】——
+    DFS/BFS 更短也更快。
+
+    但如果題目變成「動態地把某些 X 改成 O，
+    每次都要問哪些區域被圍住」，
+    那並查集就是唯一合理的選擇
+    （第 803 題就是這種動態版本）。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n·α)</td><td>並查集的攤還成本</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>parent 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>會堆疊溢位嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、邊界 DFS</td><td>O(mn)</td><td>O(mn)</td><td>✔ 大盤面有風險</td><td>最短</td></tr>
+            <tr><td>二、邊界 BFS</td><td>O(mn)</td><td>O(mn)</td><td>✘</td><td>最穩</td></tr>
+            <tr><td>三、並查集 + 虛擬節點</td><td>O(mn·α)</td><td>O(mn)</td><td>✘</td><td>動態版才需要</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>1×1 的盤面</strong> <code>[["O"]]</code> → 保持 <code>O</code>（它自己就在邊界上）。</li>
+          <li><strong>全部是 O</strong> → 全部保留（都連得到邊界）。</li>
+          <li><strong>全部是 X</strong> → 不變。</li>
+          <li><strong>只有一列或一欄</strong> → 每一格都在邊界上，全部保留。</li>
+          <li><strong>棋盤格 <code>[["XOX"],["OXO"],["XOX"]]</code></strong> → 四個 O 都在邊界上，全部保留。</li>
+          <li><strong>只用兩個符號（不用 <code>#</code>）</strong> → <strong>分不清「本來的 X」和「翻掉的 O」，而且 DFS 會無限繞圈。本題第一名的 bug。</strong></li>
+          <li><strong>BFS 出隊時才標記</strong> → 同一格重複入隊，效能爆炸。</li>
+          <li><strong>忘了處理四個角落</strong> → 其實不會漏（左右欄和上下列都掃了），<strong>但角落會被走兩次 —— 無害。</strong></li>
+          <li><strong>200×200 全是 O</strong> → DFS 遞迴 4 萬層，可能 <code>RecursionError</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果連通算八個方向（含斜的）呢？</h3>
+
+        <p><strong>把方向陣列從 4 個改成 8 個</strong>，其他完全不用動。</p>
+
+        <p><strong>但要注意：這樣「被圍住」會變得更難</strong> —— <strong>斜向也能逃出去，所以會有更多 O 被保留。</strong><strong>「連通的定義」是格子圖題目一定要先問清楚的事。</strong></p>
+
+        <h3>追問二：如果要「數有幾塊被圍住的區域」呢？</h3>
+
+        <p><strong>標記完安全的 <code>#</code> 之後，對剩下的 <code>O</code> 再做一次連通塊計數</strong>（就是第 200 題）。</p>
+
+        <p><strong>或者在第一次掃描時就順便記錄每塊的編號</strong> —— <strong>那樣一趟就能同時知道「有幾塊」和「哪些被圍住」。</strong></p>
+
+        <h3>追問三：這題和第 200 題（島嶼數量）有什麼不同？</h3>
+
+        <div class="code-block">第 200 題：數有幾塊 '1' 的連通區域
+第 130 題：找出「不碰邊界」的 'O' 連通區域
+
+    骨架完全相同（格子圖的 DFS/BFS 洪水填充），
+    差別只在「從哪裡開始」和「要記錄什麼」。
+
+    200：從每一格沒走過的 '1' 開始，每開始一次計數 +1
+    130：只從邊界開始，記錄「走得到」
+
+【洪水填充（flood fill）的通用骨架】：
+
+    for 每個起點:
+        if 該格符合條件 and 沒走過:
+            DFS/BFS 把整塊標記起來
+            &lt;做點事：計數 / 記錄大小 / 記錄顏色&gt;
+
+    200 島嶼數量、130 被圍繞的區域、733 圖像渲染、
+    695 島嶼的最大面積、1254 封閉島嶼、417 太平洋大西洋
+    —— 六題一個骨架。</div>
+
+        <h3>追問四：如果盤面很大（10⁴ × 10⁴）放不進記憶體呢？</h3>
+
+        <p><strong>可以分塊處理（tiling）</strong>：把盤面切成小塊，<strong>用並查集記錄「跨塊邊界的連通關係」</strong>。</p>
+
+        <p><strong>這是真實影像處理（例如衛星影像的連通區域標記）的做法</strong> —— <strong>叫做「兩遍掃描連通元件標記」（two-pass CCL），第一遍給臨時標籤、用並查集記等價關係，第二遍統一標籤。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 200 題 Number of Islands</strong> —— 同一個洪水填充骨架</li>
+          <li><strong>第 1020 題 Number of Enclaves</strong> —— 幾乎一模一樣的反向思路</li>
+          <li><strong>第 417 題 Pacific Atlantic Water Flow</strong> —— 從兩個邊界反向搜</li>
+          <li><strong>第 1254 題 Number of Closed Islands</strong> —— 數「被圍住的島」</li>
+          <li><strong>第 803 題 Bricks Falling When Hit</strong> —— 動態版，非用並查集不可</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要「反過來找安全的 O」而不是「正著找被圍住的 O」？</li>
+            <li>為什麼一定要用第三個符號 <code>#</code>？只用兩個會怎樣？</li>
+            <li>BFS 版為什麼要「入隊時就標記」而不是「出隊時才標記」？</li>
+            <li>200×200 全是 O 的盤面，DFS 版有什麼風險？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0129.html">← 上一題：129. 求根節點到葉節點數字之和</a>
+          <a href="problem-0131.html">下一題：131. 分割回文串 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

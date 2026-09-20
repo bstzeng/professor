@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>164. Maximum Gap 最大間距 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="鴿籠原理 + 桶排序，做到線性時間。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="164">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 164 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 164</div>
+          <h1>Maximum Gap<br>最大間距</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">排序</span>
+          <span class="lc-badge">桶排序</span>
+          <span class="lc-badge">基數排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, return <em>the maximum difference between two successive elements in its sorted form</em>. If the array contains less than two elements, return <code>0</code>.</p>
+          <p>You must write an algorithm that runs in linear time and uses linear extra space.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，把它排序之後，找出<strong>相鄰兩個元素的最大差值</strong>。</p>
+          <p>如果陣列少於兩個元素，回傳 <code>0</code>。</p>
+          <p><strong>必須是線性時間、線性額外空間的演算法。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 「線性時間」把排序排除了</h3>
+        <div class="code-block">最直覺的做法：排序、掃一遍相鄰差。
+
+    nums.sort()
+    return max(b - a for a, b in zip(nums, nums[1:]))
+
+    兩行，O(n log n) ——【能通過 LeetCode】。
+
+    但題目明確要求【線性時間】。
+
+【怎麼可能不排序就知道「排序後的相鄰差」？】
+
+    關鍵洞察：【我們不需要完整的排序】。
+
+    答案是「最大的間隙」——
+    而最大的間隙一定【比平均間隙大】（鴿籠原理）。
+
+    所以：
+        把數值範圍切成「寬度 &lt; 平均間隙」的桶，
+        那麼【同一個桶裡的兩個數，它們的差一定小於答案】
+        -&gt; 答案一定跨在【兩個桶之間】✔
+
+    於是每個桶只要記「最小值」和「最大值」就夠 ——
+    桶內的其他數完全不影響答案。
+
+【這就是「桶排序」思想的精髓】：
+
+    不是「把東西排好」，
+    而是「把東西分組，讓我們只需要看組與組之間」。
+
+【另一條路：基數排序】（解法三）
+
+    O(d·n) 時間，d 是位數（32 位元整數下 d = 4，如果一次處理 8 位）。
+
+    它真的把陣列排序了，但不用比較 -&gt; 突破了 O(n log n) 的下界。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [3,6,9,1]
+  輸出：3
+  說明：排序後是 [1,3,6,9]，相鄰差是 2, 3, 3，最大是 3。
+
+範例 2
+  輸入：nums = [10]
+  輸出：0
+  說明：少於兩個元素。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁵</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/maximum-gap/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 456" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 鴿籠原理：把 n 個數丟進「間距 &lt; 平均間距」的桶裡，答案一定跨在【兩個桶之間】。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">nums = [1, 3, 9, 20]　n = 4，min = 1、max = 20</text>
+            <text x="20" y="80" fill="var(--text-muted)" font-size="12">桶的大小 = (20 − 1) / (4 − 1) = 6（取下整）　→　桶數 = (20 − 1) / 6 + 1 = 4</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="60" y="100" width="120" height="50" fill="none" stroke="var(--accent)"/><text x="120" y="120" fill="var(--accent)">桶 0：[1, 7)</text><text x="120" y="140" fill="var(--gold)">1, 3</text>
+              <rect x="180" y="100" width="120" height="50" fill="none" stroke="var(--border)" stroke-dasharray="4 3"/><text x="240" y="120" fill="var(--text-muted)">桶 1：[7, 13)</text><text x="240" y="140" fill="var(--gold)">9</text>
+              <rect x="300" y="100" width="120" height="50" fill="none" stroke="var(--border)" stroke-dasharray="4 3"/><text x="360" y="120" fill="var(--text-muted)">桶 2：[13, 19)</text><text x="360" y="140" fill="var(--text-muted)">（空）</text>
+              <rect x="420" y="100" width="120" height="50" fill="none" stroke="var(--accent)"/><text x="480" y="120" fill="var(--accent)">桶 3：[19, 25)</text><text x="480" y="140" fill="var(--gold)">20</text>
+            </g>
+            <text x="20" y="182" fill="var(--text-muted)" font-size="12">相鄰非空桶之間的差：9 − 3 = 6　　20 − 9 = 11　→　答案 = 11 ✔</text>
+            <line x1="20" y1="206" x2="620" y2="206" stroke="var(--border)"/>
+            <text x="20" y="234" fill="var(--accent)" font-size="13">★ 為什麼「答案一定跨桶」？</text>
+            <text x="40" y="264" fill="var(--text-muted)" font-size="12">n 個數分布在 [min, max] 之間，共有 n − 1 個間隙。</text>
+            <text x="40" y="290" fill="var(--gold)" font-size="12">所以【最大間隙 ≥ 平均間隙 = (max − min) / (n − 1)】—— 這就是鴿籠原理。</text>
+            <text x="40" y="320" fill="var(--text-muted)" font-size="12">而我們把桶的大小設成「平均間隙（取下整）」，所以：</text>
+            <text x="60" y="348" fill="var(--accent)" font-size="12">同一個桶裡的兩個數，差 &lt; 桶大小 ≤ 最大間隙</text>
+            <text x="60" y="374" fill="var(--gold)" font-size="12">→ 最大間隙【不可能】在同一個桶裡 → 一定跨桶 ✔</text>
+            <text x="20" y="408" fill="#ff8a65" font-size="12">★ 所以每個桶只要記「桶內的最小值和最大值」就夠 —— 桶裡其他的數完全不用管。</text>
+            <text x="20" y="434" fill="var(--text-muted)" font-size="12">這讓空間從「存所有數」降到 O(桶數) = O(n)，而且不用排序 → 總共 O(n) ✔</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【鴿籠原理（pigeonhole principle）】
+
+    n 個數分布在 [min, max] 之間，
+    排序後有 n - 1 個間隙，總和是 max - min。
+
+    所以【最大間隙 &gt;= (max - min) / (n - 1)】
+
+    （因為「最大值 &gt;= 平均值」。）
+
+【桶的設計】
+
+    size = max(1, (max - min) // (n - 1))    ← 桶的寬度
+    cnt  = (max - min) // size + 1           ← 桶的數量
+
+    把 x 放進桶 (x - min) // size。
+
+    【同一個桶裡的兩個數，差最多是 size - 1 &lt; size &lt;= 最大間隙】
+
+    -&gt; 最大間隙【不可能】發生在同一個桶內 ✔
+    -&gt; 它一定是「某個桶的最大值」到「下一個非空桶的最小值」
+
+【所以每個桶只要記兩個數】：
+
+    bmin[k]、bmax[k]
+
+    其他的數完全不用管 -&gt; 空間 O(桶數) = O(n) ✔
+
+【掃描時要跳過空桶】
+
+    prev = 上一個非空桶的最大值
+    for 每個非空桶 k:
+        best = max(best, bmin[k] - prev)
+        prev = bmax[k]
+
+【★ 為什麼 size 要 max(1, ...)？】
+
+    如果 max - min &lt; n - 1（數字很密集），
+    (max-min)//(n-1) 會是 0 -&gt; 除以零 ✘
+
+    設成 1 的話，每個桶剛好裝一個數值 ——
+    這時「桶」退化成「計數陣列」，但演算法仍然正確 ✔
+
+【複雜度】：O(n) 時間、O(n) 空間 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>桶 + 鴿籠原理（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def maximumGap(self, nums: List[int]) -&gt; int:
+        n = len(nums)
+        if n &lt; 2:
+            return 0
+
+        lo, hi = min(nums), max(nums)
+        if lo == hi:
+            return 0                        # 全部相同
+
+        # 桶的大小：讓「同一個桶內的差」一定小於答案
+        size = max(1, (hi - lo) // (n - 1))
+        cnt = (hi - lo) // size + 1
+
+        # 每個桶只記錄「桶內的最小值和最大值」
+        bmin = [None] * cnt
+        bmax = [None] * cnt
+        for x in nums:
+            k = (x - lo) // size
+            bmin[k] = x if bmin[k] is None else min(bmin[k], x)
+            bmax[k] = x if bmax[k] is None else max(bmax[k], x)
+
+        # 答案只可能出現在「相鄰兩個非空桶」之間
+        best, prev = 0, None
+        for k in range(cnt):
+            if bmin[k] is None:
+                continue                    # 空桶跳過
+            if prev is not None:
+                best = max(best, bmin[k] - prev)
+            prev = bmax[k]
+
+        return best</div>
+        <p><strong>O(n) 時間、O(n) 空間。</strong><strong>這是題目要的答案。</strong></p>
+        <h3>★ 為什麼「同桶內的差」一定小於答案？</h3>
+        <div class="code-block">設 g = 最大間隙，size = (max-min) // (n-1)。
+
+    由鴿籠原理：g &gt;= (max-min) / (n-1) &gt;= size
+
+    （第二個 &gt;= 是因為 size 是向下取整。）
+
+    同一個桶的寬度是 size，
+    所以桶內兩個數的差【最多是 size - 1】。
+
+    size - 1 &lt; size &lt;= g
+
+    -&gt; 桶內的差【嚴格小於】最大間隙 ✔
+
+    -&gt; 最大間隙必然跨桶 ✔
+
+【★ 一個容易忽略的邊界】
+
+    如果 size = 1（數字很密集），
+    桶內只能有【相同的數】（差是 0）——
+    仍然滿足「桶內差 &lt; g」（除非 g = 0，那時全部相同，答案就是 0 ✔）。
+
+    所以 max(1, ...) 這個保護不只是防除零，
+    它在邏輯上也是正確的。
+
+【★ 為什麼不用擔心「桶太多」？】
+
+    cnt = (max-min) // size + 1
+        &lt;= (max-min) // ((max-min)//(n-1)) + 1
+        ≈ n
+
+    所以桶數是 O(n) ✔
+
+    （size = 1 時 cnt = max-min+1，
+      但那只在 max-min &lt; n 時發生，所以 cnt &lt; n + 1 ✔）</div>
+        <h3>為什麼要特判 <code>lo == hi</code>？</h3>
+        <p><strong>全部相同時 <code>max - min = 0</code>，<code>size = max(1, 0) = 1</code>，<code>cnt = 1</code></strong> —— <strong>只有一個桶，掃描時 <code>prev</code> 一直是 <code>None</code>，回傳 0 ✔</strong></p>
+        <p><strong>所以其實不特判也對，但寫了更清楚（而且省掉一趟）。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>分桶 + 掃桶</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩個桶陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>排序（O(n log n)，不滿足要求但最短）</h3>
+        <div class="code-block">class Solution:
+    def maximumGap(self, nums: List[int]) -&gt; int:
+        if len(nums) &lt; 2:
+            return 0
+        nums.sort()                         # O(n log n)，不滿足進階要求
+        return max(b - a for a, b in zip(nums, nums[1:]))</div>
+        <p><strong>兩行。實測通常最快（Timsort 是 C 實作的）。</strong></p>
+        <div class="code-block">【它能通過 LeetCode，但不是題目要的答案。】
+
+    面試時寫這個，面試官一定會說
+    「現在做到線性時間」。
+
+【zip(nums, nums[1:]) 這個寫法】
+
+    產生相鄰的配對：(a0,a1), (a1,a2), ...
+
+    比 for i in range(len(nums)-1) 好讀很多，
+    是 Python 處理「相鄰元素」的慣用法。
+
+    （和第 114、118 題用的是同一招。）
+
+【什麼時候「不滿足要求但最短」的解法是對的？】
+
+    ✔ 真實工作（除非有效能瓶頸，用內建排序永遠對）
+    ✔ 先確保有一個正確答案，再優化
+
+    ✘ 題目明確要求線性時間（本題）
+
+    【但一定要先寫出它】——
+    它是驗證線性解法的參考實作。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>排序主導</td></tr>
+            <tr><td>空間</td><td>O(1) 或 O(n)</td><td>視排序實作而定</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>基數排序（真的線性，但常數大）</h3>
+        <div class="code-block">class Solution:
+    def maximumGap(self, nums: List[int]) -&gt; int:
+        n = len(nums)
+        if n &lt; 2:
+            return 0
+
+        # 基數排序：一次處理 8 個位元，跑 4 輪（32 位元整數）
+        a = list(nums)
+        buf = [0] * n
+        for shift in (0, 8, 16, 24):
+            cnt = [0] * 256
+            for x in a:
+                cnt[(x &gt;&gt; shift) &amp; 255] += 1
+            for i in range(1, 256):
+                cnt[i] += cnt[i - 1]        # 前綴和 -&gt; 每個桶的結束位置
+            for x in reversed(a):           # 倒著走才穩定
+                cnt[(x &gt;&gt; shift) &amp; 255] -= 1
+                buf[cnt[(x &gt;&gt; shift) &amp; 255]] = x
+            a, buf = buf, a
+
+        return max(b - c for c, b in zip(a, a[1:]))</div>
+        <h3>★ 基數排序：不用比較的排序</h3>
+        <div class="code-block">比較排序的下界是 Ω(n log n)
+（因為 n! 種排列需要 log(n!) = Ω(n log n) 次比較來區分）。
+
+【基數排序不用比較，所以能突破這個下界】：
+
+    它按「每一位數」分組，從低位到高位，
+    每一輪都用【穩定的】計數排序。
+
+    做完所有位數之後，整個陣列就排好了 ✔
+
+【為什麼「從低位到高位」而且必須穩定？】
+
+    最後一輪（最高位）決定主要順序。
+    而「最高位相同」的元素，它們的相對順序
+    是【前一輪（次高位）排好的】——
+
+    只有【穩定排序】才能保留這個順序 ✔
+
+    這就是為什麼那個迴圈要 for x in reversed(a)：
+        cnt 是「結束位置」，從後往前填才穩定。
+
+【複雜度】
+
+    每輪 O(n + 256)，共 4 輪（32 位元，每次 8 位）
+    -&gt; O(4(n + 256)) = O(n) ✔
+
+    空間 O(n + 256) = O(n) ✔
+
+【實務上快嗎？】
+
+    在 Python 裡【比內建 sort 慢很多】——
+    因為那是純 Python 迴圈，而 sort 是 C。
+
+    在 C/C++ 裡，對大量整數，基數排序確實比快排快。
+
+【基數排序的限制】：
+    ✘ 只能排「能拆成固定位數」的東西（整數、固定長度字串）
+    ✘ 需要 O(n) 額外空間
+    ✘ 對浮點數、自訂物件不適用（除非能編碼成整數）
+
+【這題用桶的解法（解法一）更貼近題目的精神】——
+    它根本不排序，只是「分組」。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(d·n)</td><td>d = 4 輪</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>輔助陣列 + 計數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>符合要求</th><th>實測速度（Python）</th></tr></thead>
+          <tbody>
+            <tr><td>一、桶 + 鴿籠</td><td>O(n)</td><td>O(n)</td><td>✔</td><td>中</td></tr>
+            <tr><td>二、排序</td><td>O(n log n)</td><td>O(n)</td><td>✘</td><td>最快</td></tr>
+            <tr><td>三、基數排序</td><td>O(d·n)</td><td>O(n)</td><td>✔</td><td>最慢（純 Python 迴圈）</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>少於兩個元素</strong> → <code>0</code>。</li>
+          <li><strong>全部相同</strong> <code>[1,1,1]</code> → <code>0</code>。<strong><code>max - min = 0</code>，要防除零。</strong></li>
+          <li><strong>兩個元素</strong> <code>[1, 10000000]</code> → <code>9999999</code>。<strong><code>n - 1 = 1</code>，<code>size</code> 就是整個範圍。</strong></li>
+          <li><strong>數字很密集</strong>（<code>max - min &lt; n - 1</code>）→ <strong><code>size</code> 會是 0，必須用 <code>max(1, ...)</code> 保護。</strong></li>
+          <li><strong>有空桶</strong> → <strong>掃描時一定要跳過，否則 <code>bmin[k]</code> 是 <code>None</code> 會 crash。</strong></li>
+          <li><strong>數值到 10⁹</strong> → 不能開「值域大小」的桶陣列（10⁹ 個格子）；<strong>桶數是 O(n) 才可行。</strong></li>
+          <li><strong>10⁵ 個元素</strong> → O(n log n) 其實也只要 170 萬次，實測會過。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：鴿籠原理還能用在哪些題目？</h3>
+
+        <ul>
+          <li><strong>第 287 題 尋找重複數</strong>：n+1 個數在 1..n 裡 → 一定有重複</li>
+          <li><strong>第 268 題 缺失的數字</strong>：同一類的計數論證</li>
+          <li><strong>第 41 題 第一個缺失的正數</strong>：答案一定在 1..n+1 之間</li>
+          <li><strong>生日悖論</strong>：23 個人就有 50% 機率同天生日</li>
+          <li><strong>雜湊碰撞必然存在</strong>：輸入空間比輸出空間大</li>
+        </ul>
+
+        <div class="code-block">【鴿籠原理的標準形式】：
+
+    把 n 個物品放進 m 個盒子，如果 n &gt; m，
+    那至少有一個盒子裝了 2 個以上。
+
+【本題用的是「平均版」】：
+
+    n 個數的總和是 S，那至少有一個數 &gt;= S/n。
+
+    這裡：n-1 個間隙的總和是 max-min，
+    所以至少有一個間隙 &gt;= (max-min)/(n-1) ✔
+
+【辨認訊號】：
+
+    「一定存在某個東西滿足某個下界」
+    而且那個下界是「總量 / 數量」——
+    八成就是鴿籠原理。
+
+    它常常能把「需要精確計算」的問題
+    變成「只要分組就好」。</div>
+
+        <h3>追問二：為什麼比較排序有 Ω(n log n) 的下界？</h3>
+
+        <div class="code-block">【決策樹論證】：
+
+    任何「只靠比較」的排序演算法，
+    可以畫成一棵【二元決策樹】：
+        每個內部節點是一次比較（兩個結果）
+        每個葉節點是一種可能的排列
+
+    n 個元素有 n! 種排列 -&gt; 至少要 n! 個葉節點
+
+    一棵高度 h 的二元樹最多有 2^h 個葉節點
+
+        2^h &gt;= n!
+        h &gt;= log₂(n!)
+          ≈ n log₂ n - n log₂ e     （史特林近似）
+          = Ω(n log n) ✔
+
+【所以任何比較排序，最壞情況至少要 n log n 次比較。】
+
+【基數排序、計數排序、桶排序怎麼繞過？】
+
+    它們【不比較元素】——
+    而是直接用「值本身」當索引。
+
+    代價：
+        ✘ 只適用於「值可以當索引」的資料（整數、固定長度字串）
+        ✘ 複雜度依賴值域大小或位數
+
+    【下界只對「比較模型」成立 ——
+      換一個計算模型，下界就不一樣了。】
+
+    這是理論計算機科學很重要的一課。</div>
+
+        <h3>追問三：桶的大小可以設成別的值嗎？</h3>
+
+        <div class="code-block">可以，只要滿足【桶寬 &lt;= 最大間隙】。
+
+    常見的選擇：
+        size = (max-min) // (n-1)        本文用的（最精確）
+        size = (max-min) // n + 1        也常見
+        size = ceil((max-min) / (n-1))   ✘ 【這個不行！】
+
+【為什麼向上取整不行？】
+
+    如果 size &gt; 最大間隙，
+    那麼最大間隙就【可能發生在同一個桶內】——
+    我們就會漏掉它 ✘
+
+    例如 nums = [1, 2, 10]：
+        max-min = 9, n-1 = 2
+        向下取整：size = 4 -&gt; 桶 [1,5), [5,9), [9,13)
+                  1,2 在桶 0；10 在桶 2
+                  答案 = 10 - 2 = 8 ✔
+        向上取整：size = 5 -&gt; 桶 [1,6), [6,11)
+                  1,2 在桶 0；10 在桶 1
+                  答案 = 10 - 2 = 8 ✔ 剛好也對
+
+    這個例子看不出差別，但一般情況下向上取整會有風險。
+
+【安全的原則：桶寬要【不大於】平均間隙】。
+
+    向下取整保證了這一點 ✔</div>
+
+        <h3>追問四：這題在真實世界有什麼對應？</h3>
+
+        <p><strong>「找出資料裡最大的空隙」是異常偵測和分群的基本操作</strong> —— <strong>例如「把數值分成兩群，切在最大的空隙處」（Jenks natural breaks 的一維特例）。</strong></p>
+
+        <p><strong>而「用桶而不是排序」的思路，在處理大量資料時很重要</strong> —— <strong>例如計算近似分位數（t-digest、HdrHistogram）時，也是「分桶 + 只記桶的統計量」，而不是存下所有資料。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 287 題 Find the Duplicate Number</strong> —— 另一個鴿籠原理的應用</li>
+          <li><strong>第 41 題 First Missing Positive</strong> —— 值域受限的原地技巧</li>
+          <li><strong>第 912 題 Sort an Array</strong> —— 各種排序演算法的練習場</li>
+          <li><strong>第 220 題 存在重複元素 III</strong> —— 同樣用「桶」的思路</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>鴿籠原理在這題說了什麼？為什麼「最大間隙 ≥ 平均間隙」？</li>
+            <li>為什麼「同一個桶內的差」一定小於答案？</li>
+            <li><code>size</code> 為什麼要 <code>max(1, ...)</code>？向上取整為什麼有風險？</li>
+            <li>為什麼基數排序能突破 O(n log n) 的下界？它的代價是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0162.html">← 上一題：162. 尋找峰值</a>
+          <a href="problem-0165.html">下一題：165. 比較版本號 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>115. Distinct Subsequences 不同的子序列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="二維 DP 的「用或不用」，以及滾動時為何要倒著更新。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="115">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 115 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 115</div>
+          <h1>Distinct Subsequences<br>不同的子序列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two strings <code>s</code> and <code>t</code>, return <em>the number of distinct subsequences of </em><code>s</code><em> which equals </em><code>t</code>.</p>
+          <p>The test cases are generated so that the answer fits on a 32-bit signed integer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個字串 <code>s</code> 和 <code>t</code>，回傳 <code>s</code> 的<strong>子序列</strong>中，等於 <code>t</code> 的<strong>有幾種</strong>。</p>
+          <p>測資保證答案能裝進 32 位元有號整數。</p>
+        <div class="callout">
+          <h3>「子序列」的定義</h3>
+        <p><strong>刪掉 <code>s</code> 裡任意個字元（可以不刪），剩下的字元<strong>保持原本順序</strong>。</strong></p>
+        <p>所以 <code>"ace"</code> 是 <code>"abcde"</code> 的子序列，但 <code>"aec"</code> 不是（順序變了）。</p>
+        <p><strong>「不同的子序列」數的是「刪除方式」而不是「結果字串」</strong> —— 這是本題最容易誤解的地方，下面會講。</p>
+        </div>
+        </div>
+
+        <div class="callout">
+          <h3>★ 「不同」到底在數什麼？</h3>
+        <div class="code-block">s = "rabbbit", t = "rabbit"  -&gt; 答案是 3
+
+    s 裡有三個 b：  r a b b b i t
+                        1 2 3
+
+    要湊出 "rabbit"（兩個 b），就要從三個 b 裡【選兩個】：
+        選 b1, b2  ✔
+        選 b1, b3  ✔
+        選 b2, b3  ✔
+
+    三種選法，結果字串都是 "rabbit" —— 但算【三種】。
+
+【所以「不同的子序列」數的是「不同的【位置組合】」，
+  不是「不同的結果字串」。】
+
+    如果數的是「不同的結果字串」，
+    那答案永遠只有 0 或 1（因為 t 是固定的），題目就沒意義了。
+
+    英文原題 "number of distinct subsequences of s which equals t"
+    這個 distinct 指的是「s 的不同子序列（按位置區分）」。
+
+    【讀題時卡在這裡是正常的 ——
+      先看範例，再回頭理解定義。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "rabbbit", t = "rabbit"
+  輸出：3
+  說明：（^ 標出選中的位置）
+        r a b b b i t
+        ^ ^ ^ ^     ^ ^     -&gt; 選 b1, b2
+        ^ ^ ^   ^   ^ ^     -&gt; 選 b1, b3
+        ^ ^   ^ ^   ^ ^     -&gt; 選 b2, b3
+
+範例 2
+  輸入：s = "babgbag", t = "bag"
+  輸出：5
+  說明：b a b g b a g
+        ^ ^     ^           (b1, a1, g1)... 共五種位置組合</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code>, <code>t.length</code> ≤ 1000</li>
+          <li><code>s</code> 和 <code>t</code> 只包含英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/distinct-subsequences/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 436" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">dp[i][j] = 用 s 的前 i 個字，能湊出 t 的前 j 個字的【方法數】。s = &quot;babgbag&quot;, t = &quot;bag&quot;</text>
+            <g font-size="12" text-anchor="middle">
+              <text x="60" y="56" fill="var(--text-muted)">s \ t</text>
+              <text x="120" y="56" fill="var(--gold)">&quot;&quot;</text>
+              <text x="180" y="56" fill="var(--gold)">b</text>
+              <text x="240" y="56" fill="var(--gold)">ba</text>
+              <text x="300" y="56" fill="var(--gold)">bag</text>
+            </g>
+            <g font-size="12" text-anchor="middle">
+              <text x="60" y="82" fill="var(--gold)">&quot;&quot;</text><text x="120" y="82" fill="var(--accent)">1</text><text x="180" y="82" fill="var(--text-muted)">0</text><text x="240" y="82" fill="var(--text-muted)">0</text><text x="300" y="82" fill="var(--text-muted)">0</text>
+              <text x="60" y="108" fill="var(--gold)">b</text><text x="120" y="108" fill="var(--accent)">1</text><text x="180" y="108" fill="var(--accent)">1</text><text x="240" y="108" fill="var(--text-muted)">0</text><text x="300" y="108" fill="var(--text-muted)">0</text>
+              <text x="60" y="134" fill="var(--gold)">ba</text><text x="120" y="134" fill="var(--accent)">1</text><text x="180" y="134" fill="var(--accent)">1</text><text x="240" y="134" fill="var(--accent)">1</text><text x="300" y="134" fill="var(--text-muted)">0</text>
+              <text x="60" y="160" fill="var(--gold)">bab</text><text x="120" y="160" fill="var(--accent)">1</text><text x="180" y="160" fill="var(--accent)">2</text><text x="240" y="160" fill="var(--accent)">1</text><text x="300" y="160" fill="var(--text-muted)">0</text>
+              <text x="60" y="186" fill="var(--gold)">babg</text><text x="120" y="186" fill="var(--accent)">1</text><text x="180" y="186" fill="var(--accent)">2</text><text x="240" y="186" fill="var(--accent)">1</text><text x="300" y="186" fill="var(--accent)">1</text>
+              <text x="60" y="212" fill="var(--gold)">babgb</text><text x="120" y="212" fill="var(--accent)">1</text><text x="180" y="212" fill="var(--accent)">3</text><text x="240" y="212" fill="var(--accent)">1</text><text x="300" y="212" fill="var(--accent)">1</text>
+              <text x="60" y="238" fill="var(--gold)">babgba</text><text x="120" y="238" fill="var(--accent)">1</text><text x="180" y="238" fill="var(--accent)">3</text><text x="240" y="238" fill="var(--accent)">4</text><text x="300" y="238" fill="var(--accent)">1</text>
+              <text x="60" y="264" fill="var(--gold)">babgbag</text><text x="120" y="264" fill="var(--accent)">1</text><text x="180" y="264" fill="var(--accent)">3</text><text x="240" y="264" fill="var(--accent)">4</text><text x="300" y="264" fill="var(--gold)">5</text>
+            </g>
+            <rect x="276" y="248" width="48" height="22" fill="none" stroke="var(--gold)" stroke-width="2"/>
+            <text x="350" y="264" fill="var(--gold)" font-size="12" text-anchor="start">← 答案 = 5</text>
+            <line x1="20" y1="288" x2="620" y2="288" stroke="var(--border)"/>
+            <text x="20" y="314" fill="var(--accent)" font-size="12">每一格的兩個來源：</text>
+            <text x="40" y="340" fill="var(--text-muted)" font-size="12">不用 s[i-1]　　→　dp[i-1][j]　　　（正上方，永遠要加）</text>
+            <text x="40" y="364" fill="var(--text-muted)" font-size="12">用 s[i-1] 對上 t[j-1]　→　dp[i-1][j-1]　（左上方，只有字元相同時才加）</text>
+            <text x="20" y="394" fill="#ff8a65" font-size="12">注意第一欄全是 1（湊出空字串只有「什麼都不選」一種），第一列除了 [0][0] 全是 0。</text>
+            <text x="20" y="418" fill="var(--gold)" font-size="12">滾動成一維時【必須倒著走 j】，否則 dp[j-1] 會先被這一列改掉，變成「同一個字用兩次」。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">狀態：
+    dp[i][j] = 用 s 的前 i 個字，湊出 t 的前 j 個字，有幾種方式
+
+轉移（對每個 s[i-1] 只有兩個選擇）：
+
+    【選擇一：不用 s[i-1]】
+        那就只能靠前 i-1 個字湊出 t 的前 j 個
+        -&gt; dp[i-1][j]
+
+        這一項【永遠存在】（不管字元相不相同）。
+
+    【選擇二：用 s[i-1] 去對上 t[j-1]】
+        前提：s[i-1] == t[j-1]
+        剩下的 t 前 j-1 個，要靠 s 的前 i-1 個湊
+        -&gt; dp[i-1][j-1]
+
+    dp[i][j] = dp[i-1][j] + (dp[i-1][j-1] if s[i-1]==t[j-1] else 0)
+
+邊界：
+    dp[i][0] = 1      湊出空字串：什麼都不選，恰好一種 ✔
+    dp[0][j] = 0 (j&gt;0)  空的 s 湊不出非空的 t ✔
+
+    【dp[0][0] = 1 這一格是整個 DP 的種子，
+      設成 0 的話全表都是 0。】
+
+答案：dp[m][n]
+
+【和第 72 題（編輯距離）、第 1143 題（最長公共子序列）
+  是同一個「雙字串二維 DP」家族】——
+
+    差別只在轉移式：
+        LCS：     取 max
+        編輯距離： 取 min + 1
+        本題：     取 sum（計數）
+
+    【求極值用 max/min，求方案數用 +。
+      這是布林／極值／計數三種 DP 的萬用轉換。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二維 DP（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def numDistinct(self, s: str, t: str) -&gt; int:
+        m, n = len(s), len(t)
+
+        # dp[i][j] = s 的前 i 個字裡，有幾種方式湊出 t 的前 j 個字
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+
+        for i in range(m + 1):
+            dp[i][0] = 1            # 湊出空字串永遠有 1 種（什麼都不選）
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                # 不用 s[i-1]：答案就是前 i-1 個字的結果
+                dp[i][j] = dp[i - 1][j]
+                if s[i - 1] == t[j - 1]:
+                    # 也可以用 s[i-1] 去對上 t[j-1]
+                    dp[i][j] += dp[i - 1][j - 1]
+
+        return dp[m][n]</div>
+        <h3>為什麼 <code>dp[i][0] = 1</code>？</h3>
+        <div class="code-block">「用 s 的前 i 個字湊出空字串，有幾種方式？」
+
+    答案是 1 —— 【什麼都不選】。
+
+    不是 0！
+
+    這和「空集合的子集有 1 個（就是空集合自己）」、
+    「0! = 1」、「空乘積 = 1」是同一類約定 ——
+    它們都是為了讓遞迴式在邊界處自洽。
+
+    驗證：如果設成 0，
+        dp[1][1] = dp[0][1] + dp[0][0] = 0 + 0 = 0
+        整張表全是 0 ✘
+
+    【base case 設錯，是 DP 題最常見的 bug。
+      設完之後一定要手動驗算最小的幾格。】</div>
+        <h3>為什麼 <code>dp[i-1][j]</code> 那一項永遠要加？</h3>
+        <div class="code-block">因為「不用 s[i-1]」永遠是一個合法的選擇。
+
+    就算 s[i-1] == t[j-1]，你也可以選擇【不用它】，
+    改用前面的某個相同字元。
+
+    這正是範例 1 裡「三個 b 選兩個」會產生 3 種的原因 ——
+    每個 b 都有「用」和「不用」兩條路。
+
+【常見錯誤】：寫成 if/else
+
+    if s[i-1] == t[j-1]:
+        dp[i][j] = dp[i-1][j-1]      ✘ 漏掉「不用」那條路
+    else:
+        dp[i][j] = dp[i-1][j]
+
+    這樣 "rabbbit" / "rabbit" 會算出 1 而不是 3。
+
+    【正確的是「永遠加 dp[i-1][j]，字元相同時【再多加】dp[i-1][j-1]」。】</div>
+        <p><strong>時間 O(mn) = 10⁶，空間 O(mn)</strong>。<strong>對 1000×1000 來說，二維表是 100 萬個整數 —— Python 下約 40MB，有點吃緊。</strong><strong>所以滾動陣列（解法二）在這題是有實際價值的。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>每格 O(1)</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>二維表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>滾動陣列（一維，★ 必須倒著走）</h3>
+        <div class="code-block">class Solution:
+    def numDistinct(self, s: str, t: str) -&gt; int:
+        n = len(t)
+        dp = [0] * (n + 1)
+        dp[0] = 1
+
+        for ch in s:
+            # 【一定要倒著走】：dp[j] 依賴 dp[j-1] 的「上一列」的值
+            for j in range(n, 0, -1):
+                if ch == t[j - 1]:
+                    dp[j] += dp[j - 1]
+
+        return dp[n]</div>
+        <h3>★★ 為什麼 <code>j</code> 一定要從大到小？</h3>
+        <div class="code-block">轉移式：dp[i][j] = dp[i-1][j] + dp[i-1][j-1]
+
+    兩個來源【都在上一列】。
+
+    壓成一維之後，dp[j] 一開始還是上一列的值。
+
+    【正著走（j 從小到大）】：
+
+        更新 dp[1] 時用到 dp[0]     -&gt; dp[0] 是上一列的 ✔（dp[0] 不會變）
+        更新 dp[2] 時用到 dp[1]     -&gt; dp[1] 【已經被這一列改掉了】✘
+
+        就會變成「同一個 s[i] 被用了兩次」——
+        答案會偏大。
+
+    【倒著走（j 從大到小）】：
+
+        更新 dp[n] 時用到 dp[n-1]   -&gt; 還沒改，是上一列的 ✔
+        更新 dp[n-1] 時用到 dp[n-2] -&gt; 還沒改 ✔
+        ...
+
+        所有用到的都還是上一列的值 ✔
+
+【這是 01 背包的經典技巧，一字不差】：
+
+    01 背包（每個物品只能用一次）-&gt; 倒著走
+    完全背包（每個物品可以用多次）-&gt; 正著走
+
+    本題「每個 s[i] 只能用一次」-&gt; 01 背包 -&gt; 倒著走 ✔
+
+    【記住這個對照，你就解決了一整類 DP 題的方向問題。】</div>
+        <h3>為什麼沒有 <code>dp[j] = dp[j]</code> 這一行？</h3>
+        <div class="code-block">二維版是：
+    dp[i][j] = dp[i-1][j]              # 先繼承
+    if 相同: dp[i][j] += dp[i-1][j-1]  # 再加
+
+一維版裡「繼承」這件事是【自動發生的】——
+dp[j] 如果不被修改，它本來就還是上一列的值 ✔
+
+    所以只剩下：
+        if ch == t[j-1]:
+            dp[j] += dp[j-1]
+
+    【滾動陣列常常會讓程式碼「看起來少了一半」，
+      那是因為「不變」的部分變成了「不做事」。】</div>
+        <p><strong>空間從 O(mn) 降到 O(n) = 1000 個整數。</strong><strong>時間不變。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>格數不變</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只留一列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>記憶化遞迴（最好想）</h3>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def numDistinct(self, s: str, t: str) -&gt; int:
+        @lru_cache(maxsize=None)
+        def go(i: int, j: int) -&gt; int:
+            """用 s[i:] 湊出 t[j:] 有幾種方式"""
+            if j == len(t):
+                return 1                    # t 已經湊完了
+            if i == len(s):
+                return 0                    # s 用完了但 t 還沒湊完
+
+            res = go(i + 1, j)              # 不用 s[i]
+            if s[i] == t[j]:
+                res += go(i + 1, j + 1)     # 用 s[i] 對上 t[j]
+            return res
+
+        ans = go(0, 0)
+        go.cache_clear()
+        return ans</div>
+        <h3>兩個 base case 的順序很重要</h3>
+        <div class="code-block">if j == len(t): return 1      # t 湊完了 -&gt; 成功一種
+if i == len(s): return 0      # s 用完了但 t 沒湊完 -&gt; 失敗
+
+    【順序不能反！】
+
+    如果先檢查 i == len(s)：
+        當 s 和 t 同時用完時（i == m 且 j == n），
+        會回傳 0 ✘ —— 但那其實是「成功湊完」的情況。
+
+    先檢查 j == len(t)：
+        同時用完時回傳 1 ✔
+
+    驗證：s = "a", t = "a"
+        go(0,0): s[0]==t[0] -&gt; go(1,0) + go(1,1)
+            go(1,0): j=0 != 1, i=1 == 1 -&gt; 0
+            go(1,1): j=1 == 1 -&gt; 1 ✔
+        答案 1 ✔
+
+【「兩個終止條件同時滿足時該回哪一個」
+  是遞迴題最容易踩的邊界。】
+
+    第 97 題（交錯字串）的 base case 也有同樣的考量。</div>
+        <p><strong>複雜度和迭代版相同</strong>（<code>O(mn)</code> 個狀態，每個算一次）。</p>
+        <p><strong>但遞迴深度是 <code>m + n = 2000</code></strong> —— <strong>Python 預設上限 1000，這題會 <code>RecursionError</code>！</strong></p>
+        <div class="code-block">實際上 go(i, j) 的遞迴鏈是 i 一路加到 m，
+所以深度是 O(m) = 1000 —— 【剛好卡在上限】。
+
+    LeetCode 的 Python 環境通常把上限調高了，
+    所以這題實測會過。
+
+    但【不能依賴這件事】——
+    面試時要主動說：「這裡深度 1000，
+    正式環境我會改用迭代版（解法二）。」
+
+    這比寫出哪個版本更能展示工程判斷。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>每個狀態算一次</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>快取 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>遞迴深度</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、二維 DP</td><td>O(mn)</td><td>O(mn)</td><td>—</td><td>標準答案，最好講</td></tr>
+            <tr><td>二、滾動一維</td><td>O(mn)</td><td>O(n)</td><td>—</td><td>空間最省，注意倒著走</td></tr>
+            <tr><td>三、記憶化遞迴</td><td>O(mn)</td><td>O(mn)</td><td>O(m)</td><td>最好想，但深度有風險</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>s = "", t = ""</code></strong>（題目保證不會）→ <code>1</code>。</li>
+          <li><strong><code>t</code> 比 <code>s</code> 長</strong> → <code>0</code>。三種解法都自然正確。</li>
+          <li><strong><code>s = "aaa", t = "aa"</code></strong> → <code>3</code>（C(3,2)）。<strong>「全部字元相同」是檢驗「有沒有漏掉不用那條路」的最快測資。</strong></li>
+          <li><strong><code>s = "rabbbit", t = "rabbit"</code></strong> → <code>3</code>。</li>
+          <li><strong><code>dp[i][0]</code> 設成 0</strong> → <strong>整張表全是 0。</strong></li>
+          <li><strong>轉移寫成 <code>if/else</code> 而不是「永遠加 + 條件再加」</strong> → <strong>答案偏小，本題第一名的 bug。</strong></li>
+          <li><strong>一維版正著走 <code>j</code></strong> → <strong>答案偏大（同一個字被用兩次）。</strong></li>
+          <li><strong>記憶化版兩個 base case 順序寫反</strong> → <code>s</code> 和 <code>t</code> 同時用完時答錯。</li>
+          <li><strong>1000 × 1000</strong> → 二維表約 40MB（Python），可能觸發記憶體限制。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼答案保證能裝進 32 位元整數？</h3>
+
+        <div class="code-block">最壞情況：s 和 t 都是同一個字元重複。
+
+    s = "a" × 1000, t = "a" × k
+
+    答案 = C(1000, k)
+
+    C(1000, 500) 是一個 300 位數的天文數字 ——
+    遠遠超過 2^31。
+
+【所以「測資保證答案裝得下」是一個很強的限制】：
+    它排除了上面那種極端輸入。
+
+    在 C++ / Java 裡要小心中間值也不能溢位；
+    Python 的整數無限大，所以「不小心就過了」——
+    但這正是要警覺的地方：
+    【題目在考「你知不知道會溢位」，而不是「你會不會算」。】
+
+    面試時主動說「在 C++ 我會用 long long，
+    或者題目保證了答案範圍」會加分。</div>
+
+        <h3>追問二：如果改問「s 有幾個不同的子序列」（不指定 t）呢？</h3>
+
+        <p><strong>那是第 940 題（Distinct Subsequences II），而且那題數的是「不同的【字串】」而不是「不同的位置組合」</strong> —— 定義正好相反。</p>
+
+        <div class="code-block">dp[i] = s 的前 i 個字，有幾個【不同的】子序列字串
+
+    dp[i] = 2 × dp[i-1]                     每個舊的都有「加 / 不加 s[i]」兩種
+          - dp[last[s[i]] - 1]              扣掉重複算的
+
+    last[c] 是字元 c 上一次出現的位置。
+
+【扣掉的那一項就是「去重」】——
+    因為 s[i] 和它上一次出現時，
+    會產生一模一樣的字串集合。
+
+    這題（115）不用去重（按位置算），
+    第 940 題要去重（按字串算）——
+    兩題放在一起看，「distinct」這個字的歧義就很清楚了。</div>
+
+        <h3>追問三：如果要輸出「是哪些位置組合」呢？</h3>
+
+        <p><strong>從 <code>dp[m][n]</code> 往回走，每一格看是從「上面」還是「左上」來的</strong>。</p>
+
+        <p><strong>但答案的數量可能是指數級的</strong>（<code>C(1000,500)</code>），<strong>所以「輸出全部」在最壞情況下不可行</strong>。<strong>實務上只會要求「輸出其中一組」或「輸出前 k 組」。</strong></p>
+
+        <h3>追問四：空間能不能低於 O(n)？</h3>
+
+        <p><strong>不行。</strong><code>dp</code> 這一列的每一格都可能被後面用到，<strong>而且它們互不相同 —— 資訊量本身就是 Θ(n)。</strong></p>
+
+        <p><strong>不過如果只要「答案是不是 0」（也就是「t 是不是 s 的子序列」），那就只要 O(1)</strong> —— 貪心的雙指標掃一遍即可（第 392 題）。<strong>「要計數」比「要判斷存在」貴得多，這個對比很有代表性。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 72 題 Edit Distance</strong> —— 同一個雙字串二維 DP 家族</li>
+          <li><strong>第 1143 題 Longest Common Subsequence</strong> —— 取 max 的版本</li>
+          <li><strong>第 97 題 Interleaving String</strong> —— 布林版的雙字串 DP</li>
+          <li><strong>第 392 題 Is Subsequence</strong> —— 只問存在性，貪心 O(n)</li>
+          <li><strong>第 940 題 Distinct Subsequences II</strong> —— 數「不同字串」而非「位置組合」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「不同的子序列」數的是不同的字串還是不同的位置組合？請用 <code>"rabbbit"</code> 說明。</li>
+            <li>為什麼 <code>dp[i-1][j]</code> 那一項永遠要加，而不是寫成 <code>if/else</code>？</li>
+            <li>一維版為什麼一定要倒著走 <code>j</code>？正著走會多算什麼？</li>
+            <li><code>dp[i][0] = 1</code> 的意義是什麼？設成 0 會怎樣？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0114.html">← 上一題：114. 二元樹展開為鏈結串列</a>
+          <a href="problem-0116.html">下一題：116. 填充每個節點的下一個右側節點指標 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

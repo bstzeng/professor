@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>112. Path Sum 路徑總和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="葉節點的定義，以及有負數時為何不能剪枝。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="112">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 112 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 112</div>
+          <h1>Path Sum<br>路徑總和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary tree and an integer <code>targetSum</code>, return <code>true</code> <em>if the tree has a <strong>root-to-leaf</strong> path such that adding up all the values along the path equals</em> <code>targetSum</code>.</p>
+          <p>A <strong>leaf</strong> is a node with no children.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code> 和一個整數 <code>targetSum</code>。</p>
+          <p>判斷樹裡有沒有一條<strong>從根到葉</strong>的路徑，使得路徑上所有節點的值<strong>加起來剛好等於</strong> <code>targetSum</code>。</p>
+          <p><strong>葉節點</strong>是指沒有任何孩子的節點。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 兩個關鍵字：「根到葉」和「葉」</h3>
+        <div class="code-block">【必須從根開始、必須在葉結束。】
+
+    不是「任意一段路徑」（那是第 437 題）。
+    不是「走到一半就停」。
+
+【最常見的錯誤寫法】：
+
+    if not root:
+        return targetSum == 0
+
+    看起來很自然：「走到底了，看剩下的是不是 0」。
+
+    但「走到 None」不等於「走到葉節點」！
+
+    反例：
+
+        1          targetSum = 1
+       /
+      2
+
+        f(1, 1)
+          rest = 1 - 1 = 0
+          -&gt; f(2, 0)  or  f(None, 0)
+                          ^^^^^^^^^^
+                          這個回傳 True ✘
+
+        因為 root.right 是 None，
+        而 targetSum 剛好是 0 -&gt; 誤判成找到了。
+
+    但根節點 1 【不是葉節點】，
+    所以「只走到 1」不是一條合法的路徑 -&gt; 應該是 False。
+
+【正確的 base case 是「走到葉節點」，不是「走到 None」。】
+
+    if not root.left and not root.right:
+        return targetSum == root.val
+
+    這和第 111 題的「不能直接取 min」是同一類錯誤 ——
+    都源自「把 None 當成合法的終點」。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \      \
+        7    2      1
+
+  輸出：true
+  說明：5 -&gt; 4 -&gt; 11 -&gt; 2 = 22 ✔
+
+範例 2
+  輸入：root = [1,2,3], targetSum = 5
+  輸出：false
+  說明：兩條路徑分別是 1+2=3 和 1+3=4，都不是 5。
+
+範例 3
+  輸入：root = [], targetSum = 0
+  輸出：false
+  說明：空樹【沒有任何路徑】，所以連 0 都湊不出來。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 5000]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+          <li>−1000 ≤ <code>targetSum</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/path-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意：節點值可以是負數</h3>
+        <p><strong>所以「目前的和已經超過 <code>targetSum</code> 就剪枝」是錯的</strong> —— 後面可能有負數把它拉回來。</p>
+        <p><strong>只有在「保證所有值都是正數」時，剪枝才安全。</strong><strong>面試時一定要先問這個。</strong></p>
+        <p>範例：<code>[-2,null,-3]</code>、<code>targetSum = -5</code> → <code>True</code>。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">遞迴時「把目標往下減」，比「把和往下累加」乾淨：
+
+    f(node, remaining)：
+        「從 node 出發，有沒有一條到葉的路徑，和剛好是 remaining？」
+
+    if not node:
+        return False                          空樹沒有路徑
+
+    if 是葉節點:
+        return remaining == node.val          剛好用完 ✔
+
+    rest = remaining - node.val
+    return f(node.left, rest) or f(node.right, rest)
+
+【為什麼「減目標」比「加總和」好？】
+
+    加總和的話，遞迴要多帶一個參數：
+        f(node, acc, target)
+
+    減目標只要一個：
+        f(node, remaining)
+
+    而且 base case 更自然（remaining == node.val 就是剛好）。
+
+    【「把目標往下傳遞並遞減」是回溯 / DFS 的常見手法】——
+    第 39 題（組合總和）、第 494 題（目標和）用的都是它。
+
+【三個 base case 的順序】：
+    1. not node          -&gt; False      （空子樹不是路徑）
+    2. 是葉節點           -&gt; 比對
+    3. 其他               -&gt; 遞迴
+
+    順序不能換：先檢查 None，才能安全地存取 node.left。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>遞迴（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -&gt; bool:
+        if not root:
+            return False                    # 空樹沒有任何「根到葉」的路徑
+
+        # 走到葉節點：看剩下的目標是不是剛好等於它的值
+        if not root.left and not root.right:
+            return targetSum == root.val
+
+        rest = targetSum - root.val
+        return (self.hasPathSum(root.left, rest) or
+                self.hasPathSum(root.right, rest))</div>
+        <p><strong>六行。<code>or</code> 會短路，所以找到一條就不會再找了。</strong></p>
+        <h3>為什麼空樹要回 <code>False</code> 而不是 <code>targetSum == 0</code>？</h3>
+        <div class="code-block">「空樹」和「走到 None」是兩個不同的狀況，
+但在這個遞迴裡它們共用同一行程式碼。
+
+    空樹（最外層呼叫）：沒有任何根到葉的路徑 -&gt; False ✔
+    走到 None（某個孩子不存在）：此路不通    -&gt; False ✔
+
+    兩者都應該是 False，所以可以共用 ✔
+
+    而寫成 targetSum == 0 的話：
+        空樹 + targetSum = 0 -&gt; 誤判 True ✘
+        單邊為空 -&gt; 誤判 True ✘
+
+【「此路不通」的正確回傳值，
+  在「求存在性」的問題裡永遠是 False（or 的單位元素）。】
+
+    對照第 111 題：那裡「此路不通」應該回 +∞（min 的單位元素）。
+
+    又是同一個「base case 要填對單位元素」的原則。</div>
+        <h3>為什麼葉節點的判斷是 <code>targetSum == root.val</code>？</h3>
+        <p>因為 <code>targetSum</code> 是「<strong>走到這個節點之前</strong>還差多少」，而葉節點是最後一個 —— 所以它的值必須<strong>剛好把差額補完</strong>。</p>
+        <p><strong>寫成 <code>targetSum - root.val == 0</code> 完全一樣</strong>，只是前者少一次運算。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>最壞走完整棵樹</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>迭代 + 堆疊（把剩餘量打包進去）</h3>
+        <div class="code-block">class Solution:
+    def hasPathSum(self, root: Optional[TreeNode], targetSum: int) -&gt; bool:
+        if not root:
+            return False
+
+        stack = [(root, targetSum - root.val)]   # (節點, 走到這裡還差多少)
+        while stack:
+            node, rest = stack.pop()
+            if not node.left and not node.right and rest == 0:
+                return True
+            if node.left:
+                stack.append((node.left, rest - node.left.val))
+            if node.right:
+                stack.append((node.right, rest - node.right.val))
+
+        return False</div>
+        <h3>和遞迴版的對應關係</h3>
+        <div class="code-block">遞迴： f(node.left, rest)
+迭代： stack.append((node.left, rest - node.left.val))
+
+    注意迭代版的 rest 語意稍有不同：
+        遞迴版：「走到這個節點【之前】還差多少」
+        迭代版：「走過這個節點【之後】還差多少」
+
+    所以迭代版的葉節點判斷是 rest == 0，
+    而遞迴版是 rest == node.val。
+
+    兩種寫法都對，但【不要混用】——
+    混用就會差一個 node.val，答案全錯。
+
+【這是「遞迴改迭代」時最容易出錯的地方】：
+    狀態的「時間點」要定義清楚，並且全程一致。
+
+    建議在註解裡寫明白：
+        # (節點, 走到這裡【之後】還差多少)</div>
+        <p><strong>沒有遞迴深度問題</strong>（5000 個節點的鏈狀樹會讓遞迴版爆掉）。</p>
+        <p><strong>用 <code>pop()</code>（DFS）還是 <code>popleft()</code>（BFS）都可以</strong> —— <strong>我們只要「存不存在」，順序不影響答案。</strong>但<strong>如果答案通常在淺處，BFS 會比較快找到。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>顯式堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、遞迴</td><td>O(n)</td><td>O(h)</td><td>6</td><td>標準答案</td></tr>
+            <tr><td>二、堆疊迭代</td><td>O(n)</td><td>O(h)</td><td>12</td><td>避免遞迴深度問題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code>, <code>targetSum = 0</code></strong> → <strong><code>False</code></strong>（空樹沒有任何路徑）。<strong>這是最容易錯的測資。</strong></li>
+          <li><strong><code>[1]</code>, <code>targetSum = 1</code></strong> → <code>True</code>。</li>
+          <li><strong><code>[1,2]</code>, <code>targetSum = 1</code></strong> → <strong><code>False</code></strong>。<strong>根不是葉節點 —— 寫錯 base case 會答 True。</strong></li>
+          <li><strong><code>[-2,null,-3]</code>, <code>targetSum = -5</code></strong> → <code>True</code>。<strong>負數：不能用「超過就剪枝」。</strong></li>
+          <li><strong>所有值都是 0，<code>targetSum = 0</code></strong> → <code>True</code>（任何路徑都行）。</li>
+          <li><strong>把 base case 寫成 <code>if not root: return targetSum == 0</code></strong> → <strong>本題第一名的 bug。</strong></li>
+          <li><strong>5000 個節點的鏈狀樹</strong> → 遞迴版可能 <code>RecursionError</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要回傳「所有」符合的路徑呢？</h3>
+
+        <p><strong>第 113 題</strong>。要改用<strong>回溯</strong>：一路把節點 <code>append</code> 進 <code>path</code>，到葉節點時<strong>複製一份</strong>存起來，回溯時 <code>pop()</code>。</p>
+
+        <p><strong>「複製一份」是關鍵</strong>（<code>res.append(path[:])</code>）—— <strong>直接 <code>res.append(path)</code> 的話，所有答案都會指向同一個 list，最後全變成空的。</strong></p>
+
+        <h3>追問二：如果路徑不必從根開始、也不必在葉結束呢？</h3>
+
+        <p><strong>第 437 題（Path Sum III）</strong>。那題要用<strong>「前綴和 + 雜湊表」</strong>，和第 560 題（和為 k 的子陣列）是同一招，只是搬到樹上。</p>
+
+        <div class="code-block">核心：走訪時維護「從根到目前節點」的前綴和 acc，
+並用一個 counter 記錄「路上出現過哪些前綴和」。
+
+    acc - target 在 counter 裡出現幾次，
+    就代表有幾條「以目前節點結尾」的路徑符合。
+
+    【重點：回溯時要把自己的前綴和從 counter 拿掉】——
+    否則會算到「不在同一條路徑上」的節點。
+
+    這是本題往上一個難度級距的版本。</div>
+
+        <h3>追問三：什麼時候可以剪枝？</h3>
+
+        <div class="code-block">【所有值都是正數】時可以：
+
+    if remaining &lt; 0:
+        return False          # 已經超過了，後面只會更大
+
+    這能省下大量搜尋。
+
+【有負數時絕對不行】：
+
+        10
+       /
+     -20
+       \
+        12
+
+    targetSum = 2：
+        走到 10 時 remaining = -8（已經「超過」）
+        但繼續走 -20 -&gt; remaining = 12
+        再走 12 -&gt; remaining = 0 ✔ 找到了
+
+    提早剪枝就會漏掉這條路徑。
+
+【面試時一定要問：「節點值可以是負數嗎？」】
+    這個問題本身就會加分 ——
+    它顯示你在思考演算法的前提，而不只是套模板。</div>
+
+        <h3>追問四：如果要「路徑積」等於某個值呢？</h3>
+
+        <p><strong>把減法換成除法，但要小心 <code>0</code></strong> —— <strong>路徑上有 0 的話，積永遠是 0，而且不能做除法。</strong></p>
+
+        <p><strong>更安全的做法是「往下累乘」而不是「往下累除」</strong>：傳 <code>acc * node.val</code>，到葉節點時比對 <code>acc == target</code>。</p>
+
+        <p><strong>「累加 / 累乘」比「遞減 / 遞除」通用</strong> —— <strong>當運算沒有反元素（除法遇到 0、位元 AND 等）時，只能用前者。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 113 題 Path Sum II</strong> —— 回傳所有路徑（回溯）</li>
+          <li><strong>第 437 題 Path Sum III</strong> —— 任意起訖點（前綴和 + 雜湊表）</li>
+          <li><strong>第 129 題 Sum Root to Leaf Numbers</strong> —— 把路徑當成數字</li>
+          <li><strong>第 111 題 Minimum Depth</strong> —— 同樣要小心「葉節點 ≠ None」</li>
+          <li><strong>第 124 題 Maximum Path Sum</strong> —— 路徑可以拐彎的版本</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 base case 不能寫成 <code>if not root: return targetSum == 0</code>？請舉出反例。</li>
+            <li>「走到 None」和「走到葉節點」有什麼不同？為什麼這個區別這麼重要？</li>
+            <li>節點值有負數時，為什麼不能用「和已經超過就剪枝」？</li>
+            <li>迭代版裡 <code>rest</code> 的語意和遞迴版差在哪裡？混用會怎樣？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0111.html">← 上一題：111. 二元樹的最小深度</a>
+          <a href="problem-0113.html">下一題：113. 路徑總和 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

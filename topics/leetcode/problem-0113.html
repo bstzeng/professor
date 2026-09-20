@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>113. Path Sum II 路徑總和 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="回溯記錄路徑，以及「存之前要複製一份」的理由。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="113">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 113 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 113</div>
+          <h1>Path Sum II<br>路徑總和 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary tree and an integer <code>targetSum</code>, return <em>all <strong>root-to-leaf</strong> paths where the sum of the node values in the path equals</em> <code>targetSum</code>. Each path should be returned as a list of the node <strong>values</strong>, not node references.</p>
+          <p>A <strong>root-to-leaf</strong> path is a path starting from the root and ending at any leaf node. A <strong>leaf</strong> is a node with no children.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code> 和一個整數 <code>targetSum</code>。</p>
+          <p>找出<strong>所有</strong>從根到葉、且路徑上節點值總和等於 <code>targetSum</code> 的路徑。</p>
+          <p>每條路徑請回傳<strong>節點值的 list</strong>（不是節點物件）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>從「有沒有」到「有哪些」——回溯登場</h3>
+        <div class="code-block">第 112 題問「存不存在」-&gt; 找到一條就可以 return True。
+第 113 題問「有哪些」  -&gt; 必須【走完整棵樹】，而且要記住走過的路。
+
+【這個差別帶來三個新東西】：
+
+  1. 要維護一條 path（目前走到哪裡）
+  2. 走完一個分支要【撤銷】（回溯），才能走另一個分支
+  3. 收集答案時要【複製一份】
+
+    第 3 點是本題第一名的 bug，
+    而且它不會報錯 —— 你會得到 [[], [], []] 這種結果。
+
+【回溯（backtracking）的骨架，背起來】：
+
+    def go(狀態):
+        if 找到答案:
+            res.append(目前狀態的【複製】)
+            return
+        for 每個選擇:
+            做選擇           # append
+            go(新狀態)
+            撤銷選擇         # pop
+
+    第 39、46、78、79、93、131 題用的都是它。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [5,4,8,11,null,13,4,7,2,null,null,5,1], targetSum = 22
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+
+  輸出：[[5,4,11,2],[5,8,4,5]]
+
+範例 2
+  輸入：root = [1,2,3], targetSum = 5
+  輸出：[]
+
+範例 3
+  輸入：root = [1,2], targetSum = 0
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 5000]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+          <li>−1000 ≤ <code>targetSum</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/path-sum-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 436" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">回溯（backtracking）的三個動作：選擇 → 遞迴 → 撤銷。path 這條 list 全程只有一份。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">走到 5 → 4 → 11 → 7 的過程中，path 的變化：</text>
+            <g font-size="13">
+              <text x="40" y="84" fill="var(--text-muted)">進入 5　　append(5)　　path = [5]</text>
+              <text x="60" y="110" fill="var(--text-muted)">進入 4　　append(4)　　path = [5, 4]</text>
+              <text x="80" y="136" fill="var(--text-muted)">進入 11　 append(11)　 path = [5, 4, 11]</text>
+              <text x="100" y="162" fill="var(--accent)">進入 7　　append(7)　　path = [5, 4, 11, 7]　rest = 0？ 否 → 不收</text>
+              <text x="100" y="188" fill="#ff8a65">離開 7　　pop()　　　　path = [5, 4, 11]　　★ 撤銷，換下一條路</text>
+              <text x="100" y="214" fill="var(--gold)">進入 2　　append(2)　　path = [5, 4, 11, 2]　rest = 0 ✔ → 收！</text>
+              <text x="100" y="240" fill="#ff8a65">離開 2　　pop()　　　　path = [5, 4, 11]</text>
+              <text x="80" y="266" fill="#ff8a65">離開 11　 pop()　　　　path = [5, 4]</text>
+            </g>
+            <line x1="20" y1="288" x2="620" y2="288" stroke="var(--border)"/>
+            <text x="20" y="316" fill="#ff8a65" font-size="13">★ 為什麼收集時一定要寫 path[:] 而不是 path？</text>
+            <text x="20" y="342" fill="var(--text-muted)" font-size="12">因為 path 是【同一個 list 物件】，後面還會被 pop 和 append 改來改去。</text>
+            <text x="20" y="366" fill="var(--text-muted)" font-size="12">res.append(path) 存進去的只是一個【參考】——走完之後 path 會變回 []，</text>
+            <text x="20" y="390" fill="var(--text-muted)" font-size="12">於是 res 裡每一筆都指向那個空 list，答案變成 [[], [], ...]。</text>
+            <text x="20" y="418" fill="var(--accent)" font-size="12">path[:]（或 list(path)、copy.copy(path)）會造出一份快照，才是正確的做法。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">回溯三部曲，一個都不能少：
+
+    path.append(node.val)        # 1. 選擇：把自己加進路徑
+    ...遞迴左右子樹...
+    path.pop()                   # 3. 撤銷：離開時把自己拿掉
+
+    # 2. 在葉節點檢查
+    if 是葉節點 and rest == 0:
+        res.append(path[:])      # ★ 複製快照
+
+【為什麼要撤銷？】
+
+    因為 path 是【全域共用的一條 list】。
+
+    走完左子樹之後，path 裡還留著左子樹的節點；
+    如果不清掉就去走右子樹，
+    path 會變成「左子樹 + 右子樹」的大雜燴 ✘
+
+    pop() 把「進入這個節點時 append 的那一個」拿掉，
+    讓 path 回到「進來之前的樣子」——
+    這就是「回溯」這個名字的來源。
+
+【不變量（invariant）】：
+    go(node) 開始執行時，path = 從根到 node.parent 的路徑
+    go(node) 結束執行時，path 必須【完全相同】
+
+    每個 append 都要有對應的 pop，
+    就像每個開括號都要有閉括號。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯 + 共用 path（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def pathSum(self, root: Optional[TreeNode], targetSum: int) -&gt; List[List[int]]:
+        res, path = [], []
+
+        def go(node, rest):
+            if not node:
+                return
+
+            path.append(node.val)                 # 選擇
+            rest -= node.val
+
+            if not node.left and not node.right and rest == 0:
+                res.append(path[:])               # ★ 一定要複製一份
+            else:
+                go(node.left, rest)
+                go(node.right, rest)
+
+            path.pop()                            # 撤銷選擇（回溯）
+
+        go(root, targetSum)
+        return res</div>
+        <h3>★ <code>path[:]</code> 為什麼不能省</h3>
+        <div class="code-block">res.append(path)      ✘ 只存了一個【參考】
+res.append(path[:])   ✔ 存了一份【快照】
+
+    Python 的 list 是可變物件，
+    res.append(path) 存進去的是「那個 list 的地址」。
+
+    之後 path.pop() 會改到【同一個物件】——
+    res 裡那一筆也跟著變了。
+
+    走完整棵樹之後 path 會回到 []，
+    於是 res = [[], [], []]  ✘
+
+【四種複製寫法，都可以】：
+    path[:]           最短，最常用
+    list(path)        最明確
+    path.copy()       Python 3.3+
+    copy.copy(path)   最囉唆
+
+    【注意這些都是「淺複製」】——
+    對 list of int 來說完全夠用。
+    但如果 path 裡裝的是 list（例如二維路徑），
+    就要用 copy.deepcopy()。
+
+【這個 bug 的可怕之處在於它不會報錯】。
+    你只會拿到一個「長度對、內容全空」的答案，
+    然後盯著程式碼看半小時。
+
+    養成反射：【把可變物件存進結果時，先問自己「要不要複製」。】</div>
+        <h3>為什麼葉節點那裡用 <code>else</code>？</h3>
+        <div class="code-block">if 是葉節點 and rest == 0:
+    res.append(path[:])
+else:
+    go(node.left, rest)
+    go(node.right, rest)
+
+    其實不用 else 也對 ——
+    因為葉節點的 left 和 right 都是 None，
+    go(None, ...) 會立刻 return。
+
+    寫 else 只是省下兩次無謂的函式呼叫。
+
+    但要小心【不要寫成這樣】：
+
+        if 是葉節點:
+            if rest == 0:
+                res.append(path[:])
+            return          # ← 忘了 path.pop()！
+
+    提早 return 會跳過撤銷 -&gt;
+    path 越積越長，後面全錯。
+
+    【回溯裡的「提早 return」是很常見的陷阱。】
+    要嘛不要提早 return，
+    要嘛用 try/finally，
+    要嘛改用解法二（不可變 path）。</div>
+        <p><strong>時間 O(n·h)</strong> 最壞 —— <strong>走訪是 O(n)，但每次複製路徑是 O(h)</strong>，而最多可能有 <code>O(n)</code> 條答案路徑。<strong>空間 O(h)</strong>（不算輸出）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·h)</td><td>複製路徑的成本</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>path + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>不可變 path（不用撤銷，最不容易錯）</h3>
+        <div class="code-block">class Solution:
+    def pathSum(self, root: Optional[TreeNode], targetSum: int) -&gt; List[List[int]]:
+        res = []
+
+        def go(node, rest, path):
+            if not node:
+                return
+            path = path + [node.val]              # 每次造一條新的 path -&gt; 不用撤銷
+            rest -= node.val
+            if not node.left and not node.right:
+                if rest == 0:
+                    res.append(path)
+                return
+            go(node.left, rest, path)
+            go(node.right, rest, path)
+
+        go(root, targetSum, [])
+        return res</div>
+        <h3>用「造新的」取代「改舊的」</h3>
+        <div class="code-block">path = path + [node.val]
+
+    這一行【建立一條新的 list】，
+    原本那條完全沒被改到。
+
+    所以：
+        ✔ 不需要 pop()（沒東西要撤銷）
+        ✔ 不需要 path[:]（每條本來就是獨立的）
+        ✔ 提早 return 完全安全
+
+    代價：
+        ✘ 每一層都複製整條 path -&gt; 每個節點 O(h)
+        ✘ 總共 O(n·h) 的複製成本（解法一只在收集時複製）
+
+【注意不能寫成 path += [node.val]】
+
+    += 對 list 是【原地修改】（等同 extend），
+    會改到呼叫者的那條 path ✘
+
+    path = path + [...]  造新的 ✔
+    path += [...]        改舊的 ✘
+
+    【這兩者在 list 上行為完全不同，
+      是 Python 很經典的一個坑。】
+    （對 tuple、str 等不可變型別則沒有差別。）
+
+【什麼時候該用這個版本？】
+    ✔ 路徑很短、樹很小 -&gt; 差異可以忽略，換來「不會寫錯」
+    ✔ 需要在多執行緒 / 非同步環境共用
+    ✔ 你剛被回溯的 pop() 坑過
+
+    大部分面試場合，這個版本是完全可以接受的答案，
+    而且更難寫錯。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·h)</td><td>每層都複製</td></tr>
+            <tr><td>空間</td><td>O(n·h)</td><td>所有中間路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>迭代 + 堆疊</h3>
+        <div class="code-block">class Solution:
+    def pathSum(self, root: Optional[TreeNode], targetSum: int) -&gt; List[List[int]]:
+        if not root:
+            return []
+
+        res = []
+        stack = [(root, targetSum - root.val, [root.val])]
+        while stack:
+            node, rest, path = stack.pop()
+            if not node.left and not node.right and rest == 0:
+                res.append(path)
+            if node.right:
+                stack.append((node.right, rest - node.right.val, path + [node.right.val]))
+            if node.left:
+                stack.append((node.left, rest - node.left.val, path + [node.left.val]))
+
+        return res</div>
+        <p><strong>把 <code>(節點, 剩餘量, 路徑)</code> 一起打包進堆疊</strong> —— <strong>和解法二一樣用不可變的 path，所以不用撤銷。</strong></p>
+        <h3>為什麼先 push <code>right</code> 再 push <code>left</code>？</h3>
+        <div class="code-block">堆疊是後進先出，所以【後 push 的先被處理】。
+
+    要讓輸出順序和遞迴版一致（左子樹的路徑排前面），
+    就得【先 push right、後 push left】。
+
+    如果順序反了，答案的內容一樣但【排列順序不同】——
+    LeetCode 這題不在意順序，但有些題目在意。
+
+【養成習慣：用堆疊模擬 DFS 時，
+  push 的順序要和想要的走訪順序【相反】。】
+
+    這在第 144 題（前序走訪的迭代版）也是同一回事。</div>
+        <p><strong>沒有遞迴深度問題</strong> —— 5000 個節點的鏈狀樹上這是唯一安全的解法。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·h)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(n·h)</td><td>堆疊裡的所有路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>要撤銷嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、共用 path + 回溯</td><td>O(n·h)</td><td>O(h)</td><td>✔</td><td>標準答案，空間最省</td></tr>
+            <tr><td>二、不可變 path</td><td>O(n·h)</td><td>O(n·h)</td><td>✘</td><td>最不容易寫錯</td></tr>
+            <tr><td>三、堆疊迭代</td><td>O(n·h)</td><td>O(n·h)</td><td>✘</td><td>避免遞迴深度問題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code></strong> → <code>[]</code>。</li>
+          <li><strong>沒有任何符合的路徑</strong> → <code>[]</code>（不是 <code>None</code>）。</li>
+          <li><strong><code>[1,2]</code>, <code>targetSum = 1</code></strong> → <code>[]</code>。<strong>根不是葉節點。</strong></li>
+          <li><strong>多條路徑符合</strong> → 全部都要回傳。</li>
+          <li><strong><code>res.append(path)</code> 忘了 <code>[:]</code></strong> → <strong>結果是 <code>[[], [], ...]</code>，不會報錯 —— 本題第一名的 bug。</strong></li>
+          <li><strong>忘了 <code>path.pop()</code></strong> → 路徑會越積越長，後面的答案全錯。</li>
+          <li><strong>在葉節點提早 <code>return</code> 而沒有 <code>pop()</code></strong> → 同上。</li>
+          <li><strong>寫成 <code>path += [node.val]</code>（解法二裡）</strong> → <strong>變成原地修改，破壞了「不可變」的前提。</strong></li>
+          <li><strong>負數節點值</strong> → 不能用「超過就剪枝」（同第 112 題）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：最多可能有幾條答案？時間複雜度真的是 O(n·h) 嗎？</h3>
+
+        <div class="code-block">最壞情況：一棵完美二元樹，所有值都是 0，targetSum = 0。
+
+    葉節點有 n/2 個 -&gt; 有 n/2 條路徑全部符合
+    每條路徑長度 h = log n
+
+    光是【輸出】就要 O(n/2 × log n) = O(n log n)
+
+    所以 O(n·h) 這個上界是【緊的】——
+    不可能更快，因為輸出本身就這麼大。
+
+【這叫做「輸出敏感」（output-sensitive）的複雜度】：
+
+    當答案的規模本身就很大時，
+    演算法的複雜度下界由輸出決定。
+
+    第 46 題（全排列，n! 個答案）、
+    第 78 題（所有子集，2^n 個答案）
+    都是這一類 —— 不要試圖「優化」它們的漸進複雜度。</div>
+
+        <h3>追問二：如果只要「最長的那條」符合路徑呢？</h3>
+
+        <p><strong>不用存所有路徑，只要記住「目前最長的那一條」</strong>。</p>
+
+        <p><strong>空間從 <code>O(n·h)</code> 降到 <code>O(h)</code></strong> —— <strong>「只要一個最佳解」時，永遠不要先全部收集再挑。</strong></p>
+
+        <h3>追問三：如果節點值都是正數，能怎麼剪枝？</h3>
+
+        <div class="code-block">if rest &lt; 0:
+    path.pop()          # ★ 別忘了撤銷！
+    return
+
+    正數保證「和只會越加越大」，
+    所以超過目標就不可能再回來。
+
+【剪枝時最容易忘記撤銷】——
+
+    正確的寫法是把剪枝放在 append 之前：
+
+        def go(node, rest):
+            if not node or rest &lt; node.val:   # 先判斷再 append
+                return
+            path.append(node.val)
+            ...
+            path.pop()
+
+    【「所有的 return 路徑都要維持不變量」
+      是回溯程式碼正確性的核心。】</div>
+
+        <h3>追問四：如果要回傳節點物件而不是值呢？</h3>
+
+        <p><strong>把 <code>path.append(node.val)</code> 改成 <code>path.append(node)</code> 即可</strong>。</p>
+
+        <p><strong>題目特別強調「不是節點物件」</strong>，是因為<strong>回傳節點會讓呼叫者能改到樹的內容</strong> —— <strong>在 API 設計上，回傳內部物件的參考通常是壞事</strong>（呼叫者可以繞過你的介面直接改狀態）。<strong>這是題目在偷偷教一個工程觀念。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 112 題 Path Sum</strong> —— 只問「有沒有」</li>
+          <li><strong>第 437 題 Path Sum III</strong> —— 任意起訖點</li>
+          <li><strong>第 257 題 Binary Tree Paths</strong> —— 所有根到葉路徑（不看和）</li>
+          <li><strong>第 39 題 Combination Sum</strong> —— 同一個回溯骨架</li>
+          <li><strong>第 46 題 Permutations</strong> —— 回溯的另一個經典</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>res.append(path)</code> 和 <code>res.append(path[:])</code> 差在哪裡？前者會得到什麼？</li>
+            <li>回溯的「不變量」是什麼？為什麼每個 <code>append</code> 都要配一個 <code>pop</code>？</li>
+            <li><code>path = path + [x]</code> 和 <code>path += [x]</code> 在 list 上有什麼不同？</li>
+            <li>最壞情況下答案有多大？為什麼這題的複雜度不可能低於 O(n·h)？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0112.html">← 上一題：112. 路徑總和</a>
+          <a href="problem-0114.html">下一題：114. 二元樹展開為鏈結串列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

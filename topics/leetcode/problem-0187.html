@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>187. Repeated DNA Sequences 重複的 DNA 序列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="滑動視窗 + 集合，以及 Rabin-Karp 的位元編碼。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="187">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 187 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 187</div>
+          <h1>Repeated DNA Sequences<br>重複的 DNA 序列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">位元運算</span>
+          <span class="lc-badge">滑動視窗</span>
+          <span class="lc-badge">雜湊函數</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The <strong>DNA sequence</strong> is composed of a series of nucleotides abbreviated as <code>'A'</code>, <code>'C'</code>, <code>'G'</code>, and <code>'T'</code>.</p>
+          <p>When studying <strong>DNA</strong>, it is useful to identify repeated sequences within the DNA.</p>
+          <p>Given a string <code>s</code> that represents a <strong>DNA sequence</strong>, return all the <strong><code>10</code>-letter-long</strong> sequences (substrings) that occur <strong>more than once</strong> in a DNA molecule. You may return the answer in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>DNA 序列由 <code>'A'</code>、<code>'C'</code>、<code>'G'</code>、<code>'T'</code> 四種字母組成。</p>
+          <p>給你一個代表 DNA 序列的字串 <code>s</code>，找出所有<strong>長度為 10</strong> 且<strong>出現超過一次</strong>的子字串。</p>
+          <p>答案的<strong>順序不限</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 最直白的做法就能過 —— 但有一個更漂亮的</h3>
+        <div class="code-block">【直白版】：滑動一個長度 10 的視窗，用 set 記錄看過的。
+
+    for i in range(len(s) - 9):
+        sub = s[i:i+10]
+        if sub in seen: dup.add(sub)
+        else: seen.add(sub)
+
+    O(n) 個視窗 × O(10) 的切片和雜湊 = O(10n) = O(n) ✔
+
+    n &lt;= 10^5 -&gt; 完全夠快。
+
+【但它有一個隱藏成本】：
+
+    每個視窗都建立一個【新的長度 10 的字串】——
+    10^5 個字串物件，每個約 60 bytes -&gt; 約 6 MB。
+
+    而且雜湊每個字串要 O(10)。
+
+【更漂亮的做法：滾動雜湊（Rabin-Karp）】
+
+    四個字母只需要 2 個位元：
+        A = 00, C = 01, G = 10, T = 11
+
+    10 個字母 = 20 個位元 -&gt; 剛好塞進一個整數 ✔
+
+    視窗右移時：
+        h = ((h &lt;&lt; 2) | 新字母) &amp; MASK
+
+    【O(1) 更新，而且不用建字串】✔
+
+【為什麼這個題目特別適合？】
+
+    因為「字母表只有 4 個」而且「長度固定是 10」——
+
+    20 位元剛好能唯一表示一個視窗 -&gt;
+    【完全沒有雜湊碰撞】✔
+
+    這是一個「完美雜湊」（perfect hash），
+    不是近似 —— 所以不用二次驗證。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT"
+  輸出：["AAAAACCCCC","CCCCCAAAAA"]
+
+範例 2
+  輸入：s = "AAAAAAAAAAAAA"
+  輸出：["AAAAAAAAAA"]
+  說明：長度 10 的視窗有 4 個，全部都是 "AAAAAAAAAA"。
+        答案只回傳一次（要去重）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 10⁵</li>
+          <li><code>s[i]</code> 是 <code>'A'</code>、<code>'C'</code>、<code>'G'</code> 或 <code>'T'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/repeated-dna-sequences/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 486" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 滾動雜湊：四個字母各編成 2 個位元，10 個字母剛好塞進 20 位元的整數。</text>
+            <text x="40" y="56" fill="var(--gold)" font-size="13">A = 00　　C = 01　　G = 10　　T = 11</text>
+            <text x="20" y="92" fill="var(--accent)" font-size="12">「ACGT…」的編碼：</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="50" y="106" width="50" height="26" fill="none" stroke="var(--border)"/><text x="75" y="124" fill="var(--text-muted)">A</text>
+              <rect x="100" y="106" width="50" height="26" fill="none" stroke="var(--border)"/><text x="125" y="124" fill="var(--text-muted)">C</text>
+              <rect x="150" y="106" width="50" height="26" fill="none" stroke="var(--border)"/><text x="175" y="124" fill="var(--text-muted)">G</text>
+              <rect x="200" y="106" width="50" height="26" fill="none" stroke="var(--border)"/><text x="225" y="124" fill="var(--text-muted)">T</text>
+              <text x="285" y="124" fill="var(--text-muted)">…</text>
+              <text x="75" y="152" fill="var(--accent)">00</text><text x="125" y="152" fill="var(--accent)">01</text>
+              <text x="175" y="152" fill="var(--accent)">10</text><text x="225" y="152" fill="var(--accent)">11</text>
+            </g>
+            <text x="20" y="186" fill="var(--gold)" font-size="12">整串 = 00 01 10 11 00 01 10 11 00 01（20 個位元）</text>
+            <line x1="20" y1="210" x2="620" y2="210" stroke="var(--border)"/>
+            <text x="20" y="238" fill="var(--accent)" font-size="13">★ 視窗右移一格，只要三個位元運算：</text>
+            <text x="40" y="270" fill="var(--gold)" font-size="13">h = ((h &lt;&lt; 2) | code[新字母]) &amp; MASK</text>
+            <text x="60" y="300" fill="var(--text-muted)" font-size="12">h &lt;&lt; 2　　　把整串往左推 2 位（騰出空位給新字母）</text>
+            <text x="60" y="326" fill="var(--text-muted)" font-size="12">| code[新]　填進新字母的 2 位元</text>
+            <text x="60" y="352" fill="var(--text-muted)" font-size="12">&amp; MASK　　　只留最低 20 位 → 自動擠掉最舊的那個字母 ✔</text>
+            <text x="20" y="386" fill="#ff8a65" font-size="12">MASK = (1 &lt;&lt; 20) − 1 = 0xFFFFF（20 個 1）</text>
+            <line x1="20" y1="410" x2="620" y2="410" stroke="var(--border)"/>
+            <text x="20" y="438" fill="var(--accent)" font-size="12">好處：比較兩個視窗只要比一個整數（O(1)），而不是比 10 個字元。</text>
+            <text x="20" y="464" fill="var(--text-muted)" font-size="12">而且不用為每個視窗建立一個新的子字串 —— 省下大量記憶體配置。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【滾動雜湊（Rabin-Karp）的核心】
+
+    把字串看成一個「4 進位的數字」：
+
+        A=0, C=1, G=2, T=3
+
+        "ACGT" = 0·4³ + 1·4² + 2·4¹ + 3·4⁰
+
+    用位元運算的話，4 進位的一位 = 2 個位元：
+
+        h = (h &lt;&lt; 2) | code[c]      加一個字母（Horner 法則）
+
+    視窗右移時，除了「加新的」還要「去掉最舊的」：
+
+        h = ((h &lt;&lt; 2) | code[新]) &amp; MASK
+
+        MASK = (1 &lt;&lt; 20) - 1        只保留最低 20 位
+
+    【&amp; MASK 自動擠掉最高的那 2 位】= 最舊的字母 ✔
+
+【★ 為什麼「20 位元」就夠？】
+
+    10 個字母 × 2 位元 = 20 位元
+    -&gt; 2^20 = 1048576 種可能
+
+    而每個長度 10 的 DNA 序列
+    恰好對應一個 0..2^20-1 的整數 ——
+
+    【一一對應，沒有碰撞】✔
+
+    所以「h 相同」就代表「字串相同」，
+    不用再驗證一次 ✔
+
+【對照一般的 Rabin-Karp】：
+
+    一般的字串雜湊要對某個大質數取模，
+    而且【可能碰撞】-&gt; 找到之後要驗證一次。
+
+    這題因為「字母表小 + 長度固定」，
+    可以做到完美雜湊 ——
+    這是它特別適合這個技巧的原因。
+
+【複雜度】：O(n) 時間、O(n) 空間</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>滑動視窗 + 兩個集合（最直白）</h3>
+        <div class="code-block">class Solution:
+    def findRepeatedDnaSequences(self, s: str) -&gt; List[str]:
+        seen, dup = set(), set()
+
+        for i in range(len(s) - 9):         # 每個長度 10 的視窗
+            sub = s[i:i + 10]
+            if sub in seen:
+                dup.add(sub)                # 用 set 去重（同一段可能出現三次以上）
+            else:
+                seen.add(sub)
+
+        return list(dup)</div>
+        <p><strong>八行，O(n) 時間、O(n) 空間。</strong><strong>面試時先寫這個。</strong></p>
+        <h3>★ 為什麼需要【兩個】集合？</h3>
+        <div class="code-block">seen：看過的視窗
+dup： 出現超過一次的視窗（答案）
+
+【只用一個 set 會怎樣？】
+
+    "AAAAAAAAAAAAA"（13 個 A）有 4 個視窗，全都相同。
+
+    如果只用 seen 並在重複時 append 到 list：
+        第 2 次：append ✔
+        第 3 次：又 append ✘（重複了）
+        第 4 次：又 append ✘
+
+    答案會有三個一樣的 "AAAAAAAAAA" ✘
+
+【用 dup 這個 set 就自動去重 ✔】
+
+    也可以用一個 dict 記次數，在「剛好變成 2」時 append：
+
+        cnt[sub] += 1
+        if cnt[sub] == 2:        ★ 只在「剛好第二次」時收
+            res.append(sub)
+
+【三種寫法都對】——
+    重點是【意識到「可能出現三次以上」這件事】。
+
+    只測「出現兩次」的測資的話，這個 bug 不會被發現。</div>
+        <h3><code>range(len(s) - 9)</code> 的邊界</h3>
+        <div class="code-block">長度 10 的視窗，起點可以是 0 到 n-10
+    -&gt; range(n - 9) ✔
+
+    n = 10 -&gt; range(1) -&gt; 只有一個視窗 ✔
+    n = 9  -&gt; range(0) -&gt; 沒有視窗 ✔
+    n = 0  -&gt; range(-9) -&gt; 空的 ✔
+
+    【range 對負數參數會產生空序列】——
+    所以不用特判「字串太短」✔
+
+    在 C/Java 裡要寫 for (int i = 0; i + 10 &lt;= n; i++)。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個視窗 O(10)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩個集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3><code>Counter</code>（最短）</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def findRepeatedDnaSequences(self, s: str) -&gt; List[str]:
+        c = Counter(s[i:i + 10] for i in range(len(s) - 9))
+        return [k for k, v in c.items() if v &gt; 1]</div>
+        <p><strong>兩行。</strong><strong>用生成式產生所有視窗，<code>Counter</code> 數次數，最後篩 <code>&gt; 1</code> 的。</strong></p>
+        <div class="code-block">Counter(s[i:i+10] for i in range(len(s) - 9))
+
+    【用生成式而不是 list】——
+    Counter 會逐一消耗，不會一次建出 10^5 個字串的 list ✔
+
+    （不過每個字串還是會被建立，只是不會同時存在。）
+
+【空間仍然是 O(n)】（Counter 要存所有不同的視窗）。
+
+【面試時可以寫這個，然後說】：
+
+    「這很短，但每個視窗都要建一個字串。
+      因為字母表只有 4 個，我可以用 20 位元的
+      滾動雜湊把它壓成一個整數。」
+
+    然後寫解法三 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>滾動雜湊 / 位元編碼（最省，也最漂亮）</h3>
+        <div class="code-block">class Solution:
+    def findRepeatedDnaSequences(self, s: str) -&gt; List[str]:
+        n = len(s)
+        if n &lt; 10:
+            return []
+
+        # 每個字母編成 2 個位元 -&gt; 10 個字母剛好 20 位元
+        code = {"A": 0, "C": 1, "G": 2, "T": 3}
+        MASK = (1 &lt;&lt; 20) - 1
+
+        h = 0
+        for i in range(9):                  # 先填前 9 個字母
+            h = (h &lt;&lt; 2) | code[s[i]]
+
+        seen, dup = set(), set()
+        for i in range(9, n):
+            h = ((h &lt;&lt; 2) | code[s[i]]) &amp; MASK   # 進一個字母，擠掉最舊的
+            if h in seen:
+                dup.add(s[i - 9:i + 1])
+            else:
+                seen.add(h)
+
+        return list(dup)</div>
+        <h3>★ 三個位元運算做了什麼</h3>
+        <div class="code-block">h = ((h &lt;&lt; 2) | code[s[i]]) &amp; MASK
+
+    ① h &lt;&lt; 2
+       把現有的 20 位元往左推 2 位。
+       最高的 2 位（最舊的字母）被推到第 21-22 位。
+
+    ② | code[s[i]]
+       在最低的 2 位填進新字母。
+
+    ③ &amp; MASK
+       只保留最低 20 位 -&gt; 第 21-22 位（最舊的）被切掉 ✔
+
+    【三個運算，O(1) 完成「滑動一格」】✔
+
+【驗算】（用 4 個字母、MASK = (1&lt;&lt;8)-1 簡化）：
+
+    "ACGT" = 00 01 10 11 = 0b00011011 = 27
+
+    滑到 "CGTA"：
+        h &lt;&lt; 2    = 0b0001101100 = 108
+        | code[A] = 108 | 0 = 108
+        &amp; 0xFF    = 108 &amp; 255 = 108
+
+        "CGTA" = 01 10 11 00 = 0b01101100 = 108 ✔
+
+【★ 先填前 9 個，然後從第 10 個開始滑】
+
+    for i in range(9):          填滿前 9 個字母
+        h = (h &lt;&lt; 2) | code[s[i]]
+
+    for i in range(9, n):       從第 10 個開始，每次滑一格
+        h = ((h &lt;&lt; 2) | code[s[i]]) &amp; MASK
+
+    這樣第一次進入第二個迴圈時，h 剛好是前 10 個字母 ✔
+
+    【「先填 k-1 個，再從第 k 個開始滑」
+      是所有滑動視窗的標準初始化。】
+
+【★ 為什麼 dup 存字串而不是 h？】
+
+    因為答案要回傳【字串】。
+
+    存 s[i-9:i+1] 只在「找到重複時」才建字串 ——
+    而重複的數量通常遠小於 n ✔
+
+【複雜度】：O(n) 時間、O(n) 空間，
+    但常數比解法一小很多（不用建 10^5 個字串）。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每次 O(1) 更新</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>整數集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>常數</th><th>行數</th></tr></thead>
+          <tbody>
+            <tr><td>一、視窗 + 兩個集合</td><td>O(n)</td><td>O(n)</td><td>中</td><td>8</td></tr>
+            <tr><td>二、Counter</td><td>O(n)</td><td>O(n)</td><td>中</td><td>2</td></tr>
+            <tr><td>三、滾動雜湊</td><td>O(n)</td><td>O(n)</td><td>最小</td><td>18</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>字串長度 &lt; 10</strong> → <code>[]</code>。<strong><code>range(n-9)</code> 對負數自動變成空，不用特判 ✔</strong></li>
+          <li><strong>剛好 10 個字元</strong> → <code>[]</code>（只有一個視窗，沒有重複）。</li>
+          <li><strong>同一段出現三次以上</strong> <code>"A"×13</code> → <strong>答案只回傳一次。不去重的話會有三筆重複。本題第一名的 bug。</strong></li>
+          <li><strong>重疊的重複</strong> → <strong>視窗可以重疊，<code>"CCCCCAAAAA"</code> 也算（範例 1）。</strong></li>
+          <li><strong>完全沒有重複</strong> → <code>[]</code>。</li>
+          <li><strong>10⁵ 個字元</strong> → <strong>解法一會建 10⁵ 個字串（約 6MB），解法三只用整數。</strong></li>
+          <li><strong>忘了 <code>&amp; MASK</code></strong> → <strong><code>h</code> 會無限成長，變成「整個前綴的雜湊」而不是「視窗的雜湊」。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果子字串的長度不是 10，而是任意的 k 呢？</h3>
+
+        <div class="code-block">【解法一、二】：把 10 換成 k 就好 ✔
+
+【解法三（滾動雜湊）】：
+
+    2k 位元 —— 當 k &gt; 31 時就超過 32 位元整數了。
+
+    那就要用【對大質數取模】的一般 Rabin-Karp：
+
+        h = (h * BASE + code[c]) % MOD
+        滑動：h = (h * BASE - code[舊] * BASE^k + code[新]) % MOD
+
+    需要預先算好 BASE^k % MOD。
+
+    【而且會有碰撞】-&gt; 找到相同的 h 時要【再驗證一次字串】✔
+
+【碰撞機率】：
+
+    用一個大質數 MOD（例如 10^9+7），
+    n 個視窗兩兩碰撞的機率約 n²/MOD。
+
+    n = 10^5 -&gt; 10^10 / 10^9 = 10 —— 太高了！
+
+    所以實務上要用【雙雜湊】（兩個不同的 MOD），
+    或者用 64 位元的 MOD。
+
+【這題因為 k = 10 且字母表只有 4 個，
+  可以做到完美雜湊 —— 那是運氣好。】</div>
+
+        <h3>追問二：Rabin-Karp 的經典應用是什麼？</h3>
+
+        <ul>
+          <li><strong>字串匹配</strong>（第 28 題）：在 text 裡找 pattern，O(n+m) 期望</li>
+          <li><strong>找最長重複子字串</strong>：二分長度 + 滾動雜湊</li>
+          <li><strong>抄襲偵測</strong>：把文件切成固定長度的片段，比對雜湊</li>
+          <li><strong>rsync / 增量備份</strong>：用滾動雜湊找出「哪些區塊沒變」</li>
+        </ul>
+
+        <div class="code-block">【rsync 的做法特別有趣】：
+
+    它用一個【弱但快】的滾動雜湊（Adler-32 的變形）
+    掃過整個檔案，找出「可能相同」的區塊；
+
+    然後對候選區塊算一個【強雜湊】（MD5）驗證。
+
+    【兩層雜湊：快的篩選 + 慢的確認】——
+
+    這是處理「大量比對」的通用架構。
+
+【本題的解法三也是同一個精神】——
+    只是因為完美雜湊，省掉了第二層驗證 ✔</div>
+
+        <h3>追問三：能不能用 O(1) 空間？</h3>
+
+        <p><strong>不行 —— 因為要記住「看過哪些視窗」。</strong></p>
+
+        <p><strong>最壞情況有 <code>n − 9</code> 個不同的視窗，所以至少 O(n) 空間。</strong></p>
+
+        <div class="code-block">【除非允許近似】：
+
+    用 Bloom filter 或 Count-Min Sketch，
+    可以用 O(1/ε) 空間【近似】判斷「這個視窗看過沒」。
+
+    代價：可能有【偽陽性】（說看過但其實沒有）。
+
+    對「DNA 重複片段偵測」這種應用，
+    偽陽性可以接受（後續再驗證）——
+
+    所以真實的生物資訊工具（例如 Bloom filter
+    based k-mer counters）確實會這樣做 ✔
+
+【「精確 vs 近似」的取捨，在處理大資料時無所不在。】</div>
+
+        <h3>追問四：為什麼 DNA 只有四個字母，這件事這麼重要？</h3>
+
+        <div class="code-block">因為它讓「2 個位元」就能表示一個字母。
+
+    4 個字母 = 2 位元
+    10 個字母 = 20 位元 -&gt; 塞進一個 int ✔
+
+【如果是英文（26 個字母）】：
+
+    需要 5 位元（2^5 = 32 &gt;= 26）
+    10 個字母 = 50 位元 -&gt; 還塞得進 64 位元 ✔
+    但 13 個字母就超過了 ✘
+
+【如果是 Unicode】：
+
+    完全不可行 —— 只能用一般的 Rabin-Karp（取模 + 驗證）。
+
+【所以「字母表大小」決定了能不能用完美雜湊】：
+
+    能塞進機器字長 -&gt; 完美雜湊，零碰撞 ✔
+    塞不進         -&gt; 取模雜湊，要處理碰撞
+
+【這也是為什麼生物資訊學特別愛用位元技巧】——
+
+    DNA 的 4 個字母是「電腦最喜歡的字母表大小」。
+
+    一個 64 位元整數能存 32 個鹼基，
+    而「k-mer（長度 k 的片段）計數」是
+    基因組組裝的核心操作。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 28 題 找出字串中第一個匹配項</strong> —— Rabin-Karp 的經典應用</li>
+          <li><strong>第 1044 題 最長重複子字串</strong> —— 二分長度 + 滾動雜湊</li>
+          <li><strong>第 3 題 無重複字元的最長子字串</strong> —— 滑動視窗的基本款</li>
+          <li><strong>第 171 題 Excel 欄位序號</strong> —— 同樣的 Horner 法則</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼需要「兩個集合」（或 Counter）？只用一個會在什麼測資出錯？</li>
+            <li><code>h = ((h &lt;&lt; 2) | code[c]) &amp; MASK</code> 的三個運算各做什麼？</li>
+            <li>為什麼這題的滾動雜湊「不會碰撞」？一般的 Rabin-Karp 為什麼會？</li>
+            <li>如果子字串長度是 32 而不是 10，這個位元技巧還能用嗎？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0179.html">← 上一題：179. 最大數</a>
+          <a href="problem-0188.html">下一題：188. 買賣股票的最佳時機 IV →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

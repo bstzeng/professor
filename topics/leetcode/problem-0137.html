@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>137. Single Number II 只出現一次的數字 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="逐位數 mod 3，以及兩個狀態變數的位元魔法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="137">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 137 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 137</div>
+          <h1>Single Number II<br>只出現一次的數字 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">位元運算</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> where every element appears <strong>three times</strong> except for one, which appears <strong>exactly once</strong>. <em>Find the single element and return it</em>.</p>
+          <p>You must implement a solution with a linear runtime complexity and use only constant extra space.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，裡面<strong>每個數字都出現三次，只有一個恰好出現一次</strong>。找出那一個。</p>
+          <p><strong>要求：時間 <code>O(n)</code>、額外空間 <code>O(1)</code>。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼第 136 題的 XOR 在這裡失效</h3>
+        <div class="code-block">XOR 之所以能解第 136 題，是因為 a ^ a = 0。
+
+    但 a ^ a ^ a = (a ^ a) ^ a = 0 ^ a = a  ✘
+
+    三個相同的數 XOR 起來還是它自己，抵銷不掉。
+
+【本質原因】：
+
+    XOR 算的是「1 的個數 mod 2」。
+
+    這題需要的是「1 的個數 mod 3」——
+    而 XOR 沒有這個能力。
+
+【所以要自己造一個「mod 3 的計數器」】：
+
+    方法一：真的逐位去數（解法一）
+        對每一位，數所有數字在那一位有幾個 1，
+        然後對 3 取餘數。
+
+    方法二：用兩個變數編碼「mod 3 的狀態」（解法二）
+        因為 0/1/2 需要兩位元，所以用兩個整數變數，
+        讓它們在【每一位上】合起來表示狀態。
+
+【推廣】：
+    每個數出現 k 次、一個出現一次
+    -&gt; 逐位數 mod k，或者用 ⌈log₂ k⌉ 個狀態變數。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [2,2,3,2]
+  輸出：3
+
+範例 2
+  輸入：nums = [0,1,0,1,0,1,99]
+  輸出：99</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 3 × 10⁴</li>
+          <li>−2³¹ ≤ <code>nums[i]</code> ≤ 2³¹ − 1</li>
+          <li>除了某一個元素只出現一次外，<strong>其餘每個元素都恰好出現三次</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/single-number-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>★ Python 的整數沒有位寬 —— 這題會被咬到</h3>
+        <div class="code-block">題目說數字範圍是 32 位元有號整數（−2³¹ 到 2³¹−1）。
+
+    但 Python 的整數是【任意精度】的，
+    負數在概念上有「無限多個前導 1」。
+
+    所以解法一「逐位數 32 位」之後，
+    如果答案的第 31 位是 1（代表它是負數），
+    直接回傳會得到一個【很大的正數】而不是負數。
+
+    例如 −7 在 32 位元下是 0xFFFFFFF9 = 4294967289，
+    直接回傳就是這個大正數 ✘
+
+【修正】：
+
+    return res - (1 &lt;&lt; 32) if res &gt;= (1 &lt;&lt; 31) else res
+
+    「如果最高位（符號位）是 1，就減掉 2³²」——
+    這就是「把無號數轉回有號數」的標準做法。
+
+【解法二（狀態機）沒有這個問題】，
+    因為它從頭到尾都在做位元運算，
+    負數的表示被完整保留下來 ✔
+
+【這是 Python 做位元題目最常見的坑】，
+    第 190 題（顛倒位元）、第 371 題（不用加號的加法）
+    也都會遇到。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 474" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">XOR 在這題不夠用：a ^ a ^ a = a，三個一樣的數抵銷不掉。要換一套「模 3」的計數法。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">方法一：逐位元數 1 的個數，再對 3 取餘數</text>
+            <text x="20" y="80" fill="var(--text-muted)" font-size="12">nums = [2, 2, 3, 2]　　二進位： 010, 010, 011, 010</text>
+            <g font-size="13" text-anchor="middle">
+              <text x="150" y="112" fill="var(--text-muted)">第 2 位</text><text x="280" y="112" fill="var(--text-muted)">第 1 位</text><text x="410" y="112" fill="var(--text-muted)">第 0 位</text>
+              <text x="150" y="140" fill="var(--text-muted)">0 個 1</text><text x="280" y="140" fill="var(--text-muted)">4 個 1</text><text x="410" y="140" fill="var(--text-muted)">1 個 1</text>
+              <text x="150" y="168" fill="var(--accent)">0 mod 3 = 0</text><text x="280" y="168" fill="var(--accent)">4 mod 3 = 1</text><text x="410" y="168" fill="var(--accent)">1 mod 3 = 1</text>
+            </g>
+            <text x="20" y="202" fill="var(--gold)" font-size="12">答案的二進位 = 0 1 1 = 3 ✔</text>
+            <text x="20" y="228" fill="var(--text-muted)" font-size="12">出現三次的數在每一位都貢獻 0 或 3 個 1 → 對「mod 3」完全沒有影響。</text>
+            <line x1="20" y1="252" x2="620" y2="252" stroke="var(--border)"/>
+            <text x="20" y="280" fill="var(--gold)" font-size="13">方法二：用兩個變數當「每一位的模 3 計數器」</text>
+            <text x="20" y="308" fill="var(--text-muted)" font-size="12">一位元只能存 0/1，但我們要數到 0/1/2 —— 所以用【兩個】變數合起來當兩位元：</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="120" y="326" width="120" height="26" fill="none" stroke="var(--border)"/><text x="180" y="344" fill="var(--text-muted)">(twos, ones)</text>
+              <rect x="260" y="326" width="100" height="26" fill="none" stroke="var(--border)"/><text x="310" y="344" fill="var(--text-muted)">看過幾次</text>
+              <rect x="120" y="352" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="180" y="370" fill="var(--accent)">(0, 0)</text>
+              <rect x="260" y="352" width="100" height="26" fill="none" stroke="var(--accent)"/><text x="310" y="370" fill="var(--accent)">0 次</text>
+              <rect x="120" y="378" width="120" height="26" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="180" y="396" fill="var(--gold)">(0, 1)</text>
+              <rect x="260" y="378" width="100" height="26" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="310" y="396" fill="var(--gold)">1 次 ← 答案</text>
+              <rect x="120" y="404" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="180" y="422" fill="var(--accent)">(1, 0)</text>
+              <rect x="260" y="404" width="100" height="26" fill="none" stroke="var(--accent)"/><text x="310" y="422" fill="var(--accent)">2 次</text>
+            </g>
+            <text x="390" y="370" fill="var(--text-muted)" font-size="11" text-anchor="start">第三次出現時，狀態從</text>
+            <text x="390" y="392" fill="var(--text-muted)" font-size="11" text-anchor="start">(1,0) 轉回 (0,0) —— 歸零。</text>
+            <text x="390" y="420" fill="var(--gold)" font-size="11" text-anchor="start">所以最後 ones 就是答案。</text>
+            <text x="20" y="456" fill="#ff8a65" font-size="12">★ 兩行更新的順序不能換：twos 那一行用的是【已經更新過】的 ones。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【方法一：逐位元數 mod 3】
+
+    for b in 0..31:
+        cnt = 有幾個數字的第 b 位是 1
+        if cnt % 3 != 0:
+            答案的第 b 位是 1
+
+    為什麼對？
+        出現三次的數，在每一位都貢獻 0 或 3 個 1
+        -&gt; 對 mod 3 沒有影響 ✔
+
+        所以剩下的餘數，完全來自那個落單的數。
+
+    O(32n) = O(n) 時間、O(1) 空間 ✔
+
+【方法二：兩個狀態變數】
+
+    想像每一位上有一個「mod 3 計數器」，
+    它的值是 0、1、2。
+
+    兩位元可以表示這三個狀態：
+
+        (twos, ones) = (0,0) -&gt; 看過 0 次
+                       (0,1) -&gt; 看過 1 次
+                       (1,0) -&gt; 看過 2 次
+                       (1,1) -&gt; 【不會出現】
+
+    轉移（當這一位出現一個 1 時）：
+        (0,0) -&gt; (0,1) -&gt; (1,0) -&gt; (0,0) -&gt; ...
+
+    用位元運算實現這個狀態機：
+
+        ones = (ones ^ x) &amp; ~twos
+        twos = (twos ^ x) &amp; ~ones
+
+    最後 ones 就是「看過 1 次」的那些位 = 答案 ✔
+
+    【這兩行很難自己推出來，但可以驗證它是對的 ——
+      見解法二的逐狀態檢查。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>逐位元數 mod 3（最好懂）</h3>
+        <div class="code-block">class Solution:
+    def singleNumber(self, nums: List[int]) -&gt; int:
+        res = 0
+        for b in range(32):
+            # 數所有數字在第 b 位上有幾個 1
+            cnt = sum((x &gt;&gt; b) &amp; 1 for x in nums)
+            if cnt % 3:                     # 不是 3 的倍數 -&gt; 答案在這一位是 1
+                res |= 1 &lt;&lt; b
+
+        # Python 的整數沒有位寬，要自己處理負數
+        return res - (1 &lt;&lt; 32) if res &gt;= (1 &lt;&lt; 31) else res</div>
+        <p><strong>七行，O(32n) 時間、O(1) 空間。</strong><strong>面試時寫這個 —— 它的正確性一句話就能說清楚。</strong></p>
+        <h3>★ 最後那行負數處理</h3>
+        <div class="code-block">return res - (1 &lt;&lt; 32) if res &gt;= (1 &lt;&lt; 31) else res
+
+    res &gt;= 2^31 代表「第 31 位（符號位）是 1」-&gt; 這是個負數。
+
+    32 位元補數的解讀方式：
+        無號值 u 對應的有號值是 u - 2^32（當 u &gt;= 2^31 時）
+
+    驗算 −7：
+        32 位元補數 = 0xFFFFFFF9 = 4294967289
+        4294967289 - 4294967296 = -7  ✔
+
+【在 C/Java 裡不用這一行】——
+    因為 int 本來就是 32 位元，溢位會自動繞回來。
+
+    這純粹是 Python「整數無限大」帶來的副作用。
+
+【要怎麼記住這件事？】
+
+    反射：在 Python 裡做「固定位寬」的位元運算時，
+          如果結果可能是負數，最後一定要手動轉換。
+
+    另一個常見寫法：
+        res = res &amp; 0xFFFFFFFF          先截斷成 32 位
+        if res &gt;= 0x80000000:
+            res -= 0x100000000</div>
+        <h3>為什麼用 <code>range(32)</code> 而不是動態決定位數？</h3>
+        <p><strong>因為題目保證是 32 位元整數。</strong><strong>如果範圍更大（例如 64 位元），就要改成 <code>range(64)</code>。</strong></p>
+        <p><strong>「固定 32 位」讓複雜度是 O(32n) 而不是 O(n log(max))</strong> —— <strong>對這題來說兩者一樣，但在「數值範圍很大」時要注意。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(32n)</td><td>32 位 × n 個數</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>兩個狀態變數（位元魔法，O(n) 一趟）</h3>
+        <div class="code-block">class Solution:
+    def singleNumber(self, nums: List[int]) -&gt; int:
+        # ones / twos：每一位上「目前看過 1 的次數 mod 3」的兩位元編碼
+        #   (twos, ones) = (0,0) -&gt; 看過 0 次
+        #                  (0,1) -&gt; 看過 1 次
+        #                  (1,0) -&gt; 看過 2 次
+        ones = twos = 0
+
+        for x in nums:
+            ones = (ones ^ x) &amp; ~twos       # 先更新 ones
+            twos = (twos ^ x) &amp; ~ones       # 再用【新的】ones 更新 twos
+
+        return ones</div>
+        <h3>★ 逐狀態驗證這兩行</h3>
+        <div class="code-block">ones = (ones ^ x) &amp; ~twos
+twos = (twos ^ x) &amp; ~ones      ← 用【新的】ones
+
+    只看某一位，設 x 在這一位是 b（0 或 1）。
+
+【情況 b = 0】（這個數在這一位是 0）：
+
+    ones' = (ones ^ 0) &amp; ~twos = ones &amp; ~twos
+    因為 (twos, ones) 不會同時是 1，ones &amp; ~twos = ones
+    -&gt; ones 不變 ✔
+
+    twos' = (twos ^ 0) &amp; ~ones' = twos &amp; ~ones
+    -&gt; twos 不變 ✔
+
+    （出現 0，狀態不該變 ✔）
+
+【情況 b = 1】：
+
+    狀態 (0,0)「0 次」：
+        ones' = (0 ^ 1) &amp; ~0 = 1 &amp; 1 = 1
+        twos' = (0 ^ 1) &amp; ~1 = 1 &amp; 0 = 0
+        -&gt; (0,1)「1 次」 ✔
+
+    狀態 (0,1)「1 次」：
+        ones' = (1 ^ 1) &amp; ~0 = 0 &amp; 1 = 0
+        twos' = (0 ^ 1) &amp; ~0 = 1 &amp; 1 = 1
+        -&gt; (1,0)「2 次」 ✔
+
+    狀態 (1,0)「2 次」：
+        ones' = (0 ^ 1) &amp; ~1 = 1 &amp; 0 = 0
+        twos' = (1 ^ 1) &amp; ~0 = 0 &amp; 1 = 0
+        -&gt; (0,0)「0 次」 ✔ 歸零
+
+    三個狀態循環，完全正確 ✔
+
+【★ 順序不能換】
+
+    twos 那一行用的是【新算出來的 ones】。
+
+    換成用舊的 ones，狀態 (0,1) 那一格就會算錯：
+        twos' = (0 ^ 1) &amp; ~1 = 0   ✘ 應該是 1
+
+    【這是本解法第一名的 bug。】</div>
+        <h3>為什麼最後回傳 <code>ones</code>？</h3>
+        <p><strong>因為落單的數字只出現一次，它的每一位（是 1 的那些）最後都停在「1 次」的狀態，也就是 <code>ones</code> 裡的 1。</strong></p>
+        <p><strong>而出現三次的數字，每一位都回到了「0 次」—— 不會留在 <code>ones</code> 裡 ✔</strong></p>
+        <h3>Python 的 <code>~</code> 對負數安全嗎？</h3>
+        <div class="code-block">~x 在 Python 裡是 -(x+1)（概念上無限延伸的補數）。
+
+    看起來很可怕，但【對這個演算法是安全的】——
+
+    因為所有運算都是 &amp; ^ ~ 的組合，
+    它們在「無限位元」的模型下和「32 位元」的模型
+    在【每一個實際的位元上】行為完全相同 ✔
+
+    而輸入的負數本身就帶著正確的無限延伸表示，
+    所以輸出也會是正確的負數。
+
+    【這就是為什麼解法二不需要最後那行轉換，
+      而解法一需要 ——
+
+      解法一「重新組裝」了一個數（從 0 開始 |=），
+      失去了原本的符號資訊；
+      解法二從頭到尾都在「加工原本的數」，
+      符號資訊一路被保留。】</div>
+        <p><strong>O(n) 一趟、O(1) 空間，常數比解法一小 32 倍。</strong><strong>但它幾乎不可能在面試現場推導出來 —— 屬於「知道就會、不知道就想不到」的技巧。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>一趟掃描</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>兩個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3><code>Counter</code>（不滿足空間要求，但先講）</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def singleNumber(self, nums: List[int]) -&gt; int:
+        # 最直白：數次數（但用了 O(n) 空間）
+        for k, v in Counter(nums).items():
+            if v == 1:
+                return k
+        return -1</div>
+        <p><strong>三行。O(n) 時間、O(n) 空間。</strong></p>
+        <p><strong>面試時可以先寫它把問題確認清楚，然後說「這用了 O(n) 空間，我可以用位元運算做到 O(1)」。</strong></p>
+        <div class="code-block">【Counter 的其他寫法】：
+
+    # 找出計數為 1 的那個
+    return next(k for k, v in Counter(nums).items() if v == 1)
+
+    # 或者用 most_common（但那要排序，比較慢）
+    return Counter(nums).most_common()[-1][0]
+
+【next(生成式) 這個寫法很好用】：
+    「找出第一個滿足條件的元素」——
+    而且是【惰性】的，找到就停。
+
+    比 [x for x in ... if cond][0] 好，
+    後者會把整個 list 建出來。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>數次數</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>雜湊表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>要處理負數嗎</th><th>好推導嗎</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐位數 mod 3</td><td>O(32n)</td><td>O(1)</td><td>✔ Python 要</td><td>★★★</td></tr>
+            <tr><td>二、兩個狀態變數</td><td>O(n)</td><td>O(1)</td><td>✘</td><td>★☆☆</td></tr>
+            <tr><td>三、Counter</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>★★★</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個元素</strong> <code>[1]</code> → <code>1</code>。</li>
+          <li><strong>落單的是 0</strong> <code>[1,1,1,0]</code> → <code>0</code>。</li>
+          <li><strong>落單的是負數</strong> <code>[5,5,5,-7]</code> → <code>-7</code>。<strong>解法一沒有最後那行轉換的話會回傳 4294967289。本題在 Python 下的第一名陷阱。</strong></li>
+          <li><strong>出現三次的是負數</strong> <code>[-2,-2,-2,1]</code> → <code>1</code>。</li>
+          <li><strong>解法二兩行順序寫反</strong> → 狀態機錯，答案錯。</li>
+          <li><strong>用 XOR</strong> → 三個抵銷不掉，答案完全錯。</li>
+          <li><strong>3 × 10⁴ 個元素</strong> → 解法一要 96 萬次運算，完全沒問題。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果每個數出現 <code>k</code> 次呢？</h3>
+
+        <div class="code-block">【逐位數 mod k】（解法一的推廣）：
+
+    for b in range(32):
+        cnt = sum((x &gt;&gt; b) &amp; 1 for x in nums)
+        if cnt % k:
+            res |= 1 &lt;&lt; b
+
+    完全一樣，只是把 3 換成 k ✔
+
+    O(32n) 時間、O(1) 空間。
+
+【狀態變數版】：
+    需要 ⌈log₂ k⌉ 個變數來編碼 0..k-1 的狀態。
+
+    k = 3 -&gt; 2 個變數（本題）
+    k = 5 -&gt; 3 個變數
+    k = 7 -&gt; 3 個變數
+
+    但轉移式會變得非常複雜，
+    實務上直接用逐位數 mod k 就好。
+
+【★ 注意 k 是偶數時】：
+
+    如果 k 是偶數（例如 4），
+    那「落單的數」和「出現 k 次的數」
+    在 mod 2 下無法區分 —— 但 mod k 仍然可以 ✔
+
+    不過這時 XOR 反而又可以用了（k 是偶數 -&gt; 抵銷）。</div>
+
+        <h3>追問二：如果有【兩個】數各出現一次、其餘出現三次呢？</h3>
+
+        <p><strong>逐位數 mod 3 就不夠了</strong> —— <strong>因為兩個落單的數可能在同一位都是 1（餘數變成 2），也可能一個 1 一個 0（餘數 1）。</strong></p>
+
+        <p><strong>可以先用「餘數不是 0 的那些位」把數字分成兩組（類似第 260 題的做法），但要更小心 —— 這是很少見的變形。</strong></p>
+
+        <h3>追問三：解法二的兩行式是怎麼被發現的？</h3>
+
+        <div class="code-block">通常是這樣推的：
+
+    1. 寫出狀態轉移表（我們上面驗證的那三格）
+    2. 把它當成「兩個布林函數」：
+           ones' = f(ones, twos, x)
+           twos' = g(ones, twos, x)
+    3. 用卡諾圖（Karnaugh map）化簡
+
+    這是【數位邏輯設計】的標準流程 ——
+    和設計一個實體電路是同一件事。
+
+【所以這個技巧的來源其實是硬體設計】，
+    不是「聰明的程式設計師靈光一閃」。
+
+    知道這個背景，就不會覺得「想不到」是自己的問題。
+
+    面試時如果被問到，
+    誠實說「這個我是背下來的，推導要靠卡諾圖」
+    比硬掰一個「直覺」好。</div>
+
+        <h3>追問四：為什麼題目要限制「32 位元整數」？</h3>
+
+        <p><strong>因為解法一的迴圈次數直接由位寬決定。</strong></p>
+
+        <p><strong>如果沒有這個限制（例如可以是任意大的整數），複雜度就會變成 O(n · log(max))，而且無法預先決定迴圈次數。</strong></p>
+
+        <p><strong>「限定數值範圍」常常是為了讓某個「看起來是常數」的因子真的是常數。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 136 題 Single Number</strong> —— 出現兩次，XOR 就夠</li>
+          <li><strong>第 260 題 Single Number III</strong> —— 兩個落單的數</li>
+          <li><strong>第 190 題 Reverse Bits</strong> —— 同樣要注意 Python 的位寬</li>
+          <li><strong>第 371 題 Sum of Two Integers</strong> —— 同樣的負數處理問題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼第 136 題的 XOR 在這題會失效？</li>
+            <li>「逐位數 mod 3」為什麼是對的？出現三次的數為什麼不影響？</li>
+            <li>在 Python 裡，解法一最後那行負數轉換為什麼必要？解法二為什麼不用？</li>
+            <li>解法二的兩行更新為什麼不能交換順序？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0136.html">← 上一題：136. 只出現一次的數字</a>
+          <a href="problem-0138.html">下一題：138. 複製帶隨機指標的鏈結串列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>141. Linked List Cycle 環形鏈結串列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="Floyd 快慢指標為什麼一定會相遇。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="141">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 141 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 141</div>
+          <h1>Linked List Cycle<br>環形鏈結串列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">鏈結串列</span>
+          <span class="lc-badge">雙指標</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given <code>head</code>, the head of a linked list, determine if the linked list has a cycle in it.</p>
+          <p>There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the <code>next</code> pointer. Internally, <code>pos</code> is used to denote the index of the node that tail's <code>next</code> pointer is connected to. <strong>Note that <code>pos</code> is not passed as a parameter</strong>.</p>
+          <p>Return <code>true</code> <em>if there is a cycle in the linked list</em>. Otherwise, return <code>false</code>.</p>
+          <p><strong>Follow up:</strong> Can you solve it using <code>O(1)</code> (i.e. constant) memory?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一條鏈結串列的頭節點 <code>head</code>，判斷它裡面<strong>有沒有環</strong>。</p>
+          <p>「有環」的意思是：<strong>一直沿著 <code>next</code> 走，會回到某個走過的節點</strong>。</p>
+          <p><strong>注意 <code>pos</code>（環的接入點）不會當成參數傳給你</strong> —— 它只是用來描述測資。</p>
+          <p><strong>進階：</strong>你能用 <code>O(1)</code> 空間解決嗎？</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼「有環」這麼麻煩</h3>
+        <div class="code-block">沒有環的串列，走到底會碰到 None -&gt; 天然的終止條件。
+
+    有環的話，while head: 會【永遠跑不完】。
+
+    所以任何對「可能有環」的串列做的操作，
+    都必須自己想辦法終止。
+
+【三條路】：
+
+    (a) 記住走過的節點（雜湊集合）-&gt; O(n) 空間
+    (b) 數步數，超過上限就判定有環 -&gt; 依賴題目的上限，很醜
+    (c) 快慢指標（Floyd）-&gt; O(1) 空間 ✔
+
+    進階要求 O(1) 空間，所以答案是 (c)。
+
+【Floyd 判圈法（龜兔賽跑）】：
+
+    slow 一次走一步，fast 一次走兩步。
+
+    沒有環 -&gt; fast 會先走到 None
+    有環   -&gt; fast 一定會從後面追上 slow
+
+    這個演算法優雅到它有自己的名字，
+    而且是所有「環偵測」問題的標準答案。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：head = [3,2,0,-4], pos = 1
+
+        3 -&gt; 2 -&gt; 0 -&gt; -4
+             ^           |
+             +-----------+
+
+  輸出：true
+  說明：尾巴接回索引 1（值為 2 的節點）。
+
+範例 2
+  輸入：head = [1,2], pos = 0
+  輸出：true
+
+範例 3
+  輸入：head = [1], pos = -1
+  輸出：false
+  說明：pos = -1 代表沒有環。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>串列的節點數在 <code>[0, 10⁴]</code> 之間</li>
+          <li>−10⁵ ≤ <code>Node.val</code> ≤ 10⁵</li>
+          <li><code>pos</code> 是 <code>-1</code> 或串列中的一個<strong>有效索引</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/linked-list-cycle/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">快慢指標（Floyd 判圈法）：一個一次走一步，一個一次走兩步。有環的話，快的一定會從後面追上慢的。</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="80" cy="90" r="20" fill="none" stroke="var(--text-muted)" stroke-width="2"/><text x="80" y="95" fill="var(--text-muted)">3</text>
+              <circle cx="180" cy="90" r="20" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="180" y="95" fill="var(--gold)">2</text>
+              <circle cx="290" cy="90" r="20" fill="none" stroke="var(--text-muted)" stroke-width="2"/><text x="290" y="95" fill="var(--text-muted)">0</text>
+              <circle cx="290" cy="180" r="20" fill="none" stroke="var(--text-muted)" stroke-width="2"/><text x="290" y="185" fill="var(--text-muted)">-4</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="100" y1="90" x2="158" y2="90"/><polygon points="158,90 150,86 150,94" fill="var(--border)"/>
+              <line x1="200" y1="90" x2="268" y2="90"/><polygon points="268,90 260,86 260,94" fill="var(--border)"/>
+              <line x1="290" y1="110" x2="290" y2="158"/><polygon points="290,158 286,150 294,150" fill="var(--border)"/>
+            </g>
+            <path d="M 270 180 Q 180 180 180 112" fill="none" stroke="var(--gold)" stroke-width="2"/>
+            <polygon points="180,112 176,120 184,120" fill="var(--gold)"/>
+            <text x="180" y="146" fill="var(--gold)" font-size="11" text-anchor="middle">尾巴接回這裡</text>
+            <line x1="380" y1="40" x2="380" y2="220" stroke="var(--border)"/>
+            <text x="400" y="62" fill="var(--accent)" font-size="13" text-anchor="start">為什麼快的一定追得上？</text>
+            <text x="400" y="92" fill="var(--text-muted)" font-size="12" text-anchor="start">兩個都進入環之後，</text>
+            <text x="400" y="116" fill="var(--text-muted)" font-size="12" text-anchor="start">每走一輪，快的就「多走一步」——</text>
+            <text x="400" y="140" fill="var(--gold)" font-size="12" text-anchor="start">兩者的距離每輪【減 1】。</text>
+            <text x="400" y="170" fill="var(--text-muted)" font-size="12" text-anchor="start">距離是 0 到 L−1 之間的整數，</text>
+            <text x="400" y="194" fill="var(--accent)" font-size="12" text-anchor="start">每輪減 1 → 一定會變成 0 ✔</text>
+            <line x1="20" y1="240" x2="620" y2="240" stroke="var(--border)"/>
+            <text x="20" y="268" fill="#ff8a65" font-size="12">★ 為什麼步差是 1 很重要？如果快的一次走 3 步，距離每輪減 2 ——</text>
+            <text x="20" y="292" fill="var(--text-muted)" font-size="12">距離是奇數而環長是偶數時，就可能【永遠跳過】對方，繞不到相遇。</text>
+            <text x="20" y="318" fill="var(--text-muted)" font-size="12">（實際上因為是在模 L 的環上，步差 k 時只要 gcd(k−1, L) 整除初始距離才會相遇。）</text>
+            <text x="20" y="348" fill="var(--gold)" font-size="12">步差 1 是唯一「保證對任何環長都成立」的選擇 —— 這就是 Floyd 用 1 和 2 的原因。</text>
+            <text x="20" y="378" fill="var(--accent)" font-size="12">★ 用 is 而不是 == 比較：我們要的是「同一個節點物件」，不是「值相同」。</text>
+            <text x="20" y="402" fill="#ff8a65" font-size="12">值可能重複（範例裡就有兩個相同的值），用 == 會誤判。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【Floyd 判圈法】
+
+    slow = fast = head
+    while fast and fast.next:
+        slow = slow.next
+        fast = fast.next.next
+        if slow is fast:
+            return True
+    return False
+
+【★ 為什麼 fast 一定追得上 slow？】
+
+    假設 slow 進入環的時候，fast 已經在環裡，
+    兩者在環上的距離是 d（fast 落後 slow d 步，0 &lt;= d &lt; L）。
+
+    每走一輪：
+        slow 前進 1 步
+        fast 前進 2 步
+        -&gt; 兩者的距離【減 1】
+
+    距離是 0 到 L-1 之間的整數，每輪減 1
+    -&gt; 最多 L 輪之後一定變成 0 -&gt; 相遇 ✔
+
+【★ 為什麼「步差必須是 1」？】
+
+    如果 fast 一次走 3 步，距離每輪減 2。
+
+    距離是奇數、而每次減 2 -&gt; 可能永遠跳過 0
+    （在模 L 的意義下，要 gcd(2, L) 整除 d 才會相遇）。
+
+    步差 1 時 gcd(1, L) = 1，整除任何數 ✔
+    -&gt; 【保證對任何環長、任何初始距離都會相遇】
+
+    這就是為什麼標準寫法是「1 步 vs 2 步」。
+
+【★ 迴圈條件 while fast and fast.next】
+
+    兩個都要檢查：
+        fast 是 None      -&gt; 已經走到尾巴（沒有環）
+        fast.next 是 None -&gt; 再走一步就出界
+
+    少檢查一個就會 AttributeError。
+
+    奇數個節點時是 fast 變 None，
+    偶數個節點時是 fast.next 變 None ——
+    兩種情況都要擋。
+
+【複雜度】
+
+    時間 O(n)：
+        沒有環 -&gt; fast 走 n/2 步就到尾
+        有環   -&gt; slow 最多走 n 步（進環最多 n 步，環裡最多 L 步）
+
+    空間 O(1) ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>Floyd 快慢指標（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -&gt; bool:
+        slow = fast = head
+        while fast and fast.next:
+            slow = slow.next            # 一次走一步
+            fast = fast.next.next       # 一次走兩步
+            if slow is fast:            # 追上了 -&gt; 有環
+                return True
+        return False                    # fast 走到頭 -&gt; 沒有環</div>
+        <p><strong>六行，O(n) 時間、O(1) 空間。</strong><strong>這是進階要求的答案。</strong></p>
+        <h3>★ 用 <code>is</code> 而不是 <code>==</code></h3>
+        <div class="code-block">if slow is fast:        ✔ 同一個【物件】
+if slow == fast:        ✘ 值相同就算（如果有定義 __eq__）
+
+    對 LeetCode 的 ListNode 來說，
+    沒有定義 __eq__，所以 == 會退化成 is ——
+    兩者碰巧等價。
+
+    但【不要依賴這個】：
+        ✘ 語意不清楚
+        ✘ 如果節點類別定義了 __eq__（例如比較 val），就會誤判
+
+    範例 1 的串列裡沒有重複值，
+    但題目沒有保證值互不相同。
+
+【一般原則】：
+    比較「是不是同一個物件」-&gt; is
+    比較「值相不相等」       -&gt; ==
+
+    比較 None 也一律用 is（PEP 8 的建議）。</div>
+        <h3>為什麼 <code>slow</code> 和 <code>fast</code> 都從 <code>head</code> 開始？</h3>
+        <div class="code-block">也可以寫成 slow = head; fast = head.next（錯開一步）。
+
+    那樣的話迴圈條件和判斷位置都要跟著調整，
+    而且要特判 head 是 None。
+
+    【從同一點出發的版本】：
+        ✔ 不用特判空串列（while 條件就擋掉了）
+        ✔ 迴圈裡「先走再比」，邏輯清楚
+        ✔ 而且這個版本能直接延伸到第 142 題（找環的入口）
+
+    所以標準寫法是兩個都從 head 開始。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>slow 最多走 n 步</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>兩個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>雜湊集合（最直白，但不滿足進階）</h3>
+        <div class="code-block">class Solution:
+    def hasCycle(self, head: Optional[ListNode]) -&gt; bool:
+        seen = set()
+        while head:
+            if head in seen:            # 走過的節點又出現 -&gt; 有環
+                return True
+            seen.add(head)
+            head = head.next
+        return False</div>
+        <p><strong>五行。O(n) 時間、O(n) 空間。</strong></p>
+        <div class="code-block">【把「節點物件」放進 set】
+
+    Python 的物件預設可雜湊（用 id），
+    所以可以直接 seen.add(head) ✔
+
+    在 Java 裡也一樣（HashSet&lt;ListNode&gt; 用預設的 identity hash）。
+
+    【不要放 head.val】——
+    值可能重複，會誤判成有環。
+
+【面試時的說法】：
+
+    「用集合記錄走過的節點，O(n) 時間、O(n) 空間。
+      如果要 O(1) 空間，我會用快慢指標。」
+
+    然後寫解法一。
+
+    先給一個正確解、再優化，永遠是對的節奏。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>雜湊集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>數步數（能過，但不該寫）</h3>
+        <div class="code-block">class Solution:
+    # 【能過但不好】：走超過「節點數上限」就判定有環
+    def hasCycle(self, head: Optional[ListNode]) -&gt; bool:
+        limit = 10 ** 4 + 1             # 題目說節點數 &lt;= 10^4
+        steps = 0
+        while head:
+            steps += 1
+            if steps &gt; limit:
+                return True
+            head = head.next
+        return False</div>
+        <div class="code-block">「走超過 10^4 步還沒到底 -&gt; 一定繞回來了」。
+
+    能通過 LeetCode，但這是【投機】而不是解法：
+
+    ✘ 完全依賴題目給的節點數上限
+    ✘ 上限一改就壞
+    ✘ 在真實程式裡，你根本不知道串列有多長
+    ✘ 面試官會覺得你在鑽漏洞
+
+【放在這裡是為了指出它的問題】：
+
+    「利用測資的限制」和「解決問題」是兩件事。
+
+    有時候前者能過關，
+    但它不會讓你學到任何東西，
+    也不會在面試裡得分。
+
+【什麼時候「用限制」是合理的？】
+
+    當限制是【問題本身的一部分】時，
+    例如「數值範圍 0..9 所以可以用計數排序」——
+    那是在利用問題結構。
+
+    而「節點數 &lt;= 10^4 所以走 10^4 步」
+    利用的是「測資規模」，不是問題結構。
+
+    這個區別值得記住。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>依賴節點數上限</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>一個計數器</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>滿足進階</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、Floyd 快慢指標</td><td>O(n)</td><td>O(1)</td><td>✔</td><td>標準答案</td></tr>
+            <tr><td>二、雜湊集合</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>最直白</td></tr>
+            <tr><td>三、數步數</td><td>O(n)</td><td>O(1)</td><td>△</td><td>投機，不該寫</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空串列</strong> → <code>False</code>。<strong><code>while fast and fast.next</code> 天然擋掉，不用特判 ✔</strong></li>
+          <li><strong>單一節點、沒有環</strong> → <code>False</code>。</li>
+          <li><strong>單一節點、自己指向自己</strong> <code>pos = 0</code> → <code>True</code>。</li>
+          <li><strong>兩個節點互指</strong> → <code>True</code>。</li>
+          <li><strong>環就是整條串列</strong>（尾接頭）→ <code>True</code>。</li>
+          <li><strong>迴圈條件只寫 <code>while fast</code></strong> → <strong><code>fast.next.next</code> 會 <code>AttributeError</code>。</strong></li>
+          <li><strong>用 <code>==</code> 而不是 <code>is</code></strong> → 節點類別若定義了 <code>__eq__</code> 就會誤判。</li>
+          <li><strong>值有重複</strong> → 用值判斷的話會誤判成有環。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要找出「環的入口」呢？</h3>
+
+        <p><strong>第 142 題</strong>。相遇之後，<strong>把一個指標移回 <code>head</code>，然後兩個都一次走一步 —— 它們會在環的入口相遇。</strong></p>
+
+        <p><strong>這個結論非常不直觀，但有漂亮的證明</strong>（見第 142 題）。</p>
+
+        <h3>追問二：如果要算出「環有多長」呢？</h3>
+
+        <div class="code-block">相遇之後，讓其中一個指標繞環走一圈：
+
+    count = 1
+    p = slow.next
+    while p is not slow:
+        count += 1
+        p = p.next
+
+    count 就是環長 ✔
+
+【因為相遇點一定在環上】——
+    從它出發繞回自己，走過的步數就是環長。
+
+    O(L) 時間、O(1) 空間。</div>
+
+        <h3>追問三：Floyd 判圈法還能用在哪裡？</h3>
+
+        <ul>
+          <li><strong>第 142 題</strong>：找環的入口</li>
+          <li><strong>第 287 題 尋找重複數</strong>：把陣列當成函數 <code>i -> nums[i]</code>，重複的數就是環的入口 —— <strong>非常漂亮的轉換</strong></li>
+          <li><strong>第 202 題 快樂數</strong>：判斷數字變換會不會進入循環</li>
+          <li><strong>偽隨機數產生器的週期偵測</strong></li>
+          <li><strong>Pollard's rho 質因數分解</strong>：用 Floyd 找模 n 下的循環</li>
+        </ul>
+
+        <p><strong>共同結構：有一個「函數 f」和一個起點，反覆套用 f 會走出一條路徑。如果狀態空間有限，路徑必然進入循環（鴿籠原理）—— Floyd 就是用 O(1) 空間找出那個循環。</strong></p>
+
+        <h3>追問四：有沒有比 Floyd 更好的判圈法？</h3>
+
+        <div class="code-block">【Brent 演算法】（又叫「指數搜尋」判圈法）：
+
+    固定 slow，讓 fast 走 1, 2, 4, 8, ... 步，
+    每一輪結束就把 slow 移到 fast 的位置。
+
+    優點：
+        ✔ 平均比 Floyd 快約 25%（實測）
+        ✔ 直接得到環長（不用再繞一圈）
+
+    缺點：
+        ✘ 比較難記
+        ✘ 找「環的入口」要多一步
+
+【實務上（例如 Pollard's rho）常用 Brent】，
+    但面試講 Floyd 就好 —— 它更廣為人知，
+    而且第 142 題的入口定理只在 Floyd 的架構下成立。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 142 題 Linked List Cycle II</strong> —— 找環的入口</li>
+          <li><strong>第 287 題 Find the Duplicate Number</strong> —— 陣列版的 Floyd</li>
+          <li><strong>第 202 題 Happy Number</strong> —— 數字版的判圈</li>
+          <li><strong>第 876 題 Middle of the Linked List</strong> —— 快慢指標的另一個用途</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 <code>fast</code> 一定會追上 <code>slow</code>？請說出那個「距離每輪減 1」的論證。</li>
+            <li>為什麼步差一定要是 1（也就是 1 步 vs 2 步）？走 3 步會有什麼問題？</li>
+            <li>迴圈條件為什麼要寫 <code>while fast and fast.next</code>？少一個會怎樣？</li>
+            <li>為什麼要用 <code>is</code> 而不是 <code>==</code>？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0140.html">← 上一題：140. 單詞拆分 II</a>
+          <a href="problem-0142.html">下一題：142. 環形鏈結串列 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

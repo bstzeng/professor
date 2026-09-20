@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>132. Palindrome Partitioning II 分割回文串 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="兩層 DP：先算回文表，再算最少切幾刀。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="132">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 132 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 132</div>
+          <h1>Palindrome Partitioning II<br>分割回文串 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code>, partition <code>s</code> such that every substring of the partition is a palindrome.</p>
+          <p>Return <em>the <strong>minimum</strong> cuts needed for a palindrome partitioning of </em><code>s</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code>，把它切成若干段，使得<strong>每一段都是回文</strong>。</p>
+          <p>回傳<strong>最少需要切幾刀</strong>。</p>
+        <div class="callout">
+          <h3>注意是「刀數」不是「段數」</h3>
+        <p><strong>切 <code>k</code> 刀會得到 <code>k+1</code> 段。</strong></p>
+        <p>所以整個字串本身就是回文時，答案是 <code>0</code>（一刀都不用切）。</p>
+        <p><strong>答案的上界是 <code>n-1</code></strong>（每個字元自己一段）。</p>
+        </div>
+        </div>
+
+        <div class="callout">
+          <h3>和第 131 題的天壤之別</h3>
+        <div class="code-block">131（列出所有分法）：O(n · 2^n)，n &lt;= 16
+132（只要最少刀數）：O(n²)，     n &lt;= 2000
+
+    同一個問題結構，但「要全部」和「要最優」
+    的成本差了天文數字。
+
+【為什麼？】
+
+    「列出全部」的下界由【輸出大小】決定 ——
+    答案有 2^(n-1) 種，光印出來就要那麼久。
+
+    「求最優」不需要產生所有答案 ——
+    只要一路記住「到目前為止的最佳值」。
+
+    這正是【動態規劃】存在的理由：
+
+        用「最優子結構」把指數級的搜尋空間
+        壓縮成多項式級的狀態空間。
+
+【辨認訊號】：
+
+    題目問「最少 / 最多 / 有幾種」-&gt; 想 DP
+    題目問「列出所有」           -&gt; 回溯，而且要接受指數級
+
+    n 的上限也是提示：
+        n &lt;= 20 左右 -&gt; 指數級是預期解
+        n &lt;= 2000    -&gt; O(n²) 是預期解
+        n &lt;= 10^5    -&gt; O(n) 或 O(n log n)</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "aab"
+  輸出：1
+  說明：切成 "aa" | "b"，兩段都是回文，只切了一刀。
+
+範例 2
+  輸入：s = "a"
+  輸出：0
+
+範例 3
+  輸入：s = "ab"
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 2000</li>
+          <li><code>s</code> 只包含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/palindrome-partitioning-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 448" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">只要「最少刀數」時，完全不需要枚舉所有分法 —— 一維 DP 就夠了。</text>
+            <text x="20" y="50" fill="var(--gold)" font-size="13">s = &quot;aabbc&quot;　　dp[i] = s[0..i] 最少要切幾刀</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="70" y="70" width="70" height="30" fill="none" stroke="var(--border)"/><text x="105" y="90" fill="var(--text-muted)">a</text>
+              <rect x="140" y="70" width="70" height="30" fill="none" stroke="var(--border)"/><text x="175" y="90" fill="var(--text-muted)">a</text>
+              <rect x="210" y="70" width="70" height="30" fill="none" stroke="var(--border)"/><text x="245" y="90" fill="var(--text-muted)">b</text>
+              <rect x="280" y="70" width="70" height="30" fill="none" stroke="var(--border)"/><text x="315" y="90" fill="var(--text-muted)">b</text>
+              <rect x="350" y="70" width="70" height="30" fill="none" stroke="var(--border)"/><text x="385" y="90" fill="var(--text-muted)">c</text>
+              <text x="105" y="124" fill="var(--accent)">0</text>
+              <text x="175" y="124" fill="var(--accent)">0</text>
+              <text x="245" y="124" fill="var(--accent)">1</text>
+              <text x="315" y="124" fill="var(--accent)">1</text>
+              <text x="385" y="124" fill="var(--gold)" font-size="16">2</text>
+              <text x="40" y="90" fill="var(--gold)" font-size="11">s：</text>
+              <text x="40" y="124" fill="var(--gold)" font-size="11">dp：</text>
+            </g>
+            <text x="450" y="124" fill="var(--gold)" font-size="12" text-anchor="start">← 答案</text>
+            <line x1="20" y1="148" x2="620" y2="148" stroke="var(--border)"/>
+            <text x="20" y="176" fill="var(--accent)" font-size="12">逐格推導：</text>
+            <text x="40" y="202" fill="var(--text-muted)" font-size="12">dp[0]：&quot;a&quot; 本身是回文 → 0 刀</text>
+            <text x="40" y="226" fill="var(--text-muted)" font-size="12">dp[1]：&quot;aa&quot; 本身是回文 → 0 刀</text>
+            <text x="40" y="250" fill="var(--text-muted)" font-size="12">dp[2]：&quot;aab&quot; 不是回文。試最後一段是 &quot;b&quot; → dp[1] + 1 = 1 ✔</text>
+            <text x="40" y="274" fill="var(--text-muted)" font-size="12">dp[3]：試最後一段 &quot;bb&quot; → dp[1] + 1 = 1 ✔　（比切成 aa|b|b 的 2 刀好）</text>
+            <text x="40" y="298" fill="var(--gold)" font-size="12">dp[4]：最後一段只能是 &quot;c&quot; → dp[3] + 1 = 2 ✔　→ &quot;aa | bb | c&quot;</text>
+            <line x1="20" y1="320" x2="620" y2="320" stroke="var(--border)"/>
+            <text x="20" y="348" fill="#ff8a65" font-size="12">★ 和第 131 題的複雜度差距：</text>
+            <text x="40" y="374" fill="var(--text-muted)" font-size="12">131（列出所有分法）：O(n · 2ⁿ)，所以 n ≤ 16</text>
+            <text x="40" y="398" fill="var(--gold)" font-size="12">132（只要最少刀數）：O(n²)，　　所以 n 可以到 2000</text>
+            <text x="20" y="430" fill="var(--accent)" font-size="12">「算出最優的那一個」比「列出全部」便宜太多 —— 這是 DP 存在的全部理由。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【狀態】
+    dp[i] = s[0..i] 最少要切幾刀
+
+【轉移】
+    如果 s[0..i] 整段就是回文 -&gt; dp[i] = 0
+
+    否則枚舉「最後一段從哪裡開始」：
+
+        dp[i] = min over j (1 &lt;= j &lt;= i, s[j..i] 是回文) of dp[j-1] + 1
+                                                            ^^^^^^^  ^^^
+                                                            前面的成本  這一刀
+
+【答案】dp[n-1]
+
+【為什麼要特判 pal[0][i]？】
+
+    因為 j 是從 1 開始的（「最後一段」的起點）。
+    j = 0 的情況（整段都是最後一段）沒有「前面的部分」，
+    也不需要切這一刀 -&gt; 直接是 0。
+
+    寫成 dp[-1] = -1 的話可以統一，
+    但用 1-indexed 會更乾淨（見解法二）。
+
+【複雜度】
+    回文表 O(n²) + DP O(n²) = O(n²)
+
+    n = 2000 -&gt; 400 萬，完全可以接受。
+
+【★ 為什麼這題一定要預處理回文表？】
+
+    第 131 題裡預處理「不影響漸進複雜度」
+    （因為輸出本來就是指數級的）。
+
+    這題不一樣：
+        不預處理 -&gt; 每次檢查 O(n) -&gt; 總共 O(n³)
+        n = 2000 -&gt; 80 億 ✘ 一定逾時
+
+        預處理   -&gt; 每次檢查 O(1) -&gt; 總共 O(n²) ✔
+
+    【同一個優化，在兩題裡的價值完全不同。
+      這就是為什麼要看清楚「瓶頸在哪裡」。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回文表 + 一維 DP（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def minCut(self, s: str) -&gt; int:
+        n = len(s)
+        # pal[i][j] = s[i..j] 是不是回文
+        pal = [[False] * n for _ in range(n)]
+        for i in range(n - 1, -1, -1):
+            for j in range(i, n):
+                pal[i][j] = s[i] == s[j] and (j - i &lt; 2 or pal[i + 1][j - 1])
+
+        # dp[i] = s[0..i] 最少要切幾刀
+        dp = [0] * n
+        for i in range(n):
+            if pal[0][i]:
+                dp[i] = 0                   # 整段就是回文，不用切
+            else:
+                dp[i] = min(dp[j - 1] + 1 for j in range(1, i + 1) if pal[j][i])
+
+        return dp[n - 1]</div>
+        <h3>兩個 O(n²) 疊在一起</h3>
+        <div class="code-block">第一段：建回文表     O(n²)
+第二段：DP           O(n²)
+
+    兩段都是 O(n²)，總共還是 O(n²) ✔
+
+    n = 2000 -&gt; 回文表有 400 萬格（Python 下約 32MB），
+    有點大但還在限制內。
+
+【空間優化：可以不存完整的回文表嗎？】
+
+    可以 —— 解法二用「中心擴展」把兩件事合在一起做，
+    空間降到 O(n)。
+
+    但解法一的結構比較清楚，
+    面試時先寫它。</div>
+        <h3><code>min(...)</code> 裡的生成式不會是空的嗎？</h3>
+        <div class="code-block">dp[i] = min(dp[j-1] + 1 for j in range(1, i+1) if pal[j][i])
+
+    如果沒有任何 j 滿足 pal[j][i]，min() 會丟 ValueError。
+
+    但這【不可能發生】——
+
+        j = i 時，pal[i][i] 永遠是 True（單一字元是回文）✔
+
+    所以生成式至少有一項。
+
+【不過寫防禦性的程式比較好】：
+
+        dp[i] = min((dp[j-1] + 1 for j in ... if pal[j][i]), default=i)
+
+    default=i 是「最壞情況：每個字元自己一段，切 i 刀」。
+
+    【知道「為什麼不會出錯」比「加上防禦」更重要 ——
+      但兩個都做最好。】</div>
+        <p><strong>時間 O(n²)、空間 O(n²)。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>回文表 + DP</td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td>回文表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>中心擴展 + 同時更新 DP（空間 O(n)）</h3>
+        <div class="code-block">class Solution:
+    def minCut(self, s: str) -&gt; int:
+        n = len(s)
+        # dp[i] = s[0..i-1] 最少切幾刀（用 1-indexed 比較好寫）
+        dp = list(range(-1, n))             # dp[0] = -1，dp[i] 上界是 i-1 刀
+
+        for center in range(n):
+            # 奇數長度的回文：以 s[center] 為中心
+            l = r = center
+            while l &gt;= 0 and r &lt; n and s[l] == s[r]:
+                dp[r + 1] = min(dp[r + 1], dp[l] + 1)
+                l -= 1
+                r += 1
+            # 偶數長度的回文：以 s[center], s[center+1] 之間為中心
+            l, r = center, center + 1
+            while l &gt;= 0 and r &lt; n and s[l] == s[r]:
+                dp[r + 1] = min(dp[r + 1], dp[l] + 1)
+                l -= 1
+                r += 1
+
+        return dp[n]</div>
+        <h3>★ 把「找回文」和「更新 DP」合成一步</h3>
+        <div class="code-block">不先建表，而是【一邊擴展回文、一邊更新 dp】：
+
+    for center in 每個可能的中心:
+        往兩邊擴展，每擴出一個回文 s[l..r]：
+            dp[r+1] = min(dp[r+1], dp[l] + 1)
+
+【為什麼這樣就夠？】
+
+    每個回文子字串都會被「它的中心」擴展到 ✔
+    （奇數長度用單一中心，偶數長度用兩個字之間。）
+
+    所以每個「合法的最後一段」都會被考慮到。
+
+【1-indexed 的技巧】
+
+    dp = list(range(-1, n))     -&gt; dp = [-1, 0, 1, 2, ..., n-1]
+
+    dp[i] 代表「s[0..i-1]（前 i 個字）最少切幾刀」
+
+    dp[0] = -1：空字串「切 -1 刀」
+        —— 這樣 dp[l] + 1 在 l = 0 時剛好是 0 ✔
+           （整段就是回文，不用切）
+
+    初始值 dp[i] = i - 1：
+        最壞情況「每個字元自己一段」= i-1 刀 ✔
+
+    【用 -1 當「空字串」的 base case，
+      是為了讓「加一刀」的公式在邊界也成立。
+      這和第 1 題用 dummy head 的精神一樣。】
+
+【複雜度】
+    中心有 2n-1 個，每個最多擴展 O(n) 次 -&gt; O(n²) 時間
+    只用一個長度 n+1 的 dp -&gt; O(n) 空間 ✔
+
+    比解法一省了 O(n²) 的回文表。</div>
+        <h3>為什麼可以「邊擴邊更新」而不用等回文表建完？</h3>
+        <div class="code-block">因為 dp[r+1] 只依賴 dp[l]，而 l &lt;= r。
+
+    但要小心：dp[l] 在被讀取時，是不是已經是最終值？
+
+    【不一定！】
+
+    例如 center 很小時，可能會更新一個很大的 dp[r+1]，
+    而那時 dp[l] 可能還會被後面的 center 改小。
+
+    ...但這不影響正確性，因為：
+
+        我們對 dp[r+1] 做的是 min()，
+        而所有 (l, r) 的組合最終都會被枚舉到。
+
+        只要「每一對 (l, r) 都被考慮過至少一次」，
+        最後的 dp 就是正確的最小值 ✔
+
+    【這是「鬆弛（relaxation）」的思想 ——
+      和 Bellman-Ford 演算法一樣：
+      不要求「按正確順序更新」，
+      只要求「每條邊都被鬆弛夠多次」。】
+
+    嚴格地說，這裡每對 (l, r) 只被鬆弛一次，
+    而由於 dp[l] 只依賴「更短的前綴」，
+    且中心擴展會先產生短的回文，順序其實是安全的。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每個中心擴展 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只有 dp 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、回文表 + DP</td><td>O(n²)</td><td>O(n²)</td><td>16</td><td>結構最清楚</td></tr>
+            <tr><td>二、中心擴展 + DP</td><td>O(n²)</td><td>O(n)</td><td>18</td><td>空間最省</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一字元</strong> → <code>0</code>。</li>
+          <li><strong>整個就是回文</strong> <code>"abccba"</code> → <code>0</code>。<strong>忘了特判 <code>pal[0][i]</code> 會得到 1。</strong></li>
+          <li><strong>完全沒有多字元回文</strong> <code>"abc"</code> → <code>2</code>（上界）。</li>
+          <li><strong><code>"aab"</code></strong> → <code>1</code>。</li>
+          <li><strong><code>"cdd"</code></strong> → <code>1</code>（切成 <code>"c"|"dd"</code>）。</li>
+          <li><strong>全部相同</strong> <code>"aaaa"</code> → <code>0</code>。</li>
+          <li><strong>不預處理回文表（O(n³)）</strong> → <strong>n = 2000 時 80 億次運算，一定逾時。</strong></li>
+          <li><strong>回文表的 <code>i</code> 由小到大算</strong> → 長度 ≥ 3 的回文全漏。</li>
+          <li><strong>解法二的 <code>dp[0]</code> 設成 0 而不是 -1</strong> → 每個答案都多 1。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要輸出「切在哪裡」呢？</h3>
+
+        <p><strong>在更新 <code>dp[i]</code> 時記下「最後一段的起點 <code>j</code>」</strong>，最後從 <code>n-1</code> 往回追。</p>
+
+        <div class="code-block">cut_from = [0] * n
+...
+    dp[i] = dp[j-1] + 1
+    cut_from[i] = j          # 記下來
+
+回溯：
+    i = n - 1
+    parts = []
+    while i &gt;= 0:
+        j = cut_from[i]
+        parts.append(s[j:i+1])
+        i = j - 1
+    parts.reverse()
+
+【O(n) 額外空間，O(n) 回溯時間。】
+
+    這是所有 DP 題「輸出方案」的通用做法：
+    【在轉移時記錄「是從哪裡來的」】。</div>
+
+        <h3>追問二：能不能比 O(n²) 更快？</h3>
+
+        <div class="code-block">可以 —— 有 O(n log n) 甚至 O(n) 的做法，
+但都非常進階：
+
+    (a) 用【回文樹（Eertree）】或【Manacher】
+        找出所有「極大回文」，
+        然後在一個特殊結構上做 DP。
+
+    (b) 利用「回文的週期性質」：
+        以某個位置結尾的所有回文，
+        它們的起點構成 O(log n) 個等差數列（Palindromic Series）。
+
+        基於這個可以做到 O(n log n)。
+
+【但這在面試裡幾乎不會被要求】。
+
+    O(n²) 對 n = 2000 完全夠用，
+    知道「存在更快的做法」就好。
+
+    如果面試官真的追問，
+    回答「這牽涉到回文的週期結構，
+    可以用 Manacher 加上分組 DP 做到 O(n log n)」
+    就足夠了。</div>
+
+        <h3>追問三：如果改成「每段長度至少 k」呢？</h3>
+
+        <p><strong>轉移式加一個條件：<code>i - j + 1 >= k</code></strong>。</p>
+
+        <p><strong>但要注意可能無解</strong>（例如 <code>s = "ab"</code>、<code>k = 2</code>）—— <strong>那時 <code>dp[n-1]</code> 會是 <code>inf</code>，要回傳 <code>-1</code> 之類的。</strong></p>
+
+        <p><strong>加限制時，第一件事永遠是問「還有沒有解」。</strong></p>
+
+        <h3>追問四：這個 DP 的形狀在別的題目也見過嗎？</h3>
+
+        <div class="code-block">「把字串切成若干段，每段滿足某個條件，求最優」
+是一個非常常見的骨架：
+
+  132  回文分割 II      每段是回文，求最少刀數      （本題）
+  139  單詞拆分         每段在字典裡，問可不可行
+  140  單詞拆分 II      每段在字典裡，列出所有分法
+  91   解碼方法         每段是 1..26，問有幾種
+  93   復原 IP 位址     切成 4 段，每段 0..255
+
+【共同的轉移式】：
+
+    dp[i] = &lt;合併&gt; over j: (s[j..i] 合法) 的 dp[j-1] &lt;加上這一段的成本&gt;
+
+    「合併」是 min / max / sum / or，
+    取決於題目要「最優」「有幾種」還是「可不可行」。
+
+【認出這個骨架，這五題就變成同一題。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 131 題 Palindrome Partitioning</strong> —— 列出所有分法</li>
+          <li><strong>第 5 題 Longest Palindromic Substring</strong> —— 中心擴展的原型</li>
+          <li><strong>第 139 題 Word Break</strong> —— 同一個「切字串」DP 骨架</li>
+          <li><strong>第 91 題 Decode Ways</strong> —— 同上，改成計數</li>
+          <li><strong>第 1278 題 Palindrome Partitioning III</strong> —— 固定切 k 段，允許改字元</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「求最少刀數」的複雜度比「列出所有分法」低這麼多？</li>
+            <li>這題為什麼一定要預處理回文表，而第 131 題不預處理也沒差？</li>
+            <li>解法二的 <code>dp[0] = -1</code> 是什麼意思？設成 0 會怎樣？</li>
+            <li>如果要輸出「切在哪些位置」，該記錄什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0131.html">← 上一題：131. 分割回文串</a>
+          <a href="problem-0133.html">下一題：133. 複製圖 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
