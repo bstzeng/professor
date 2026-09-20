@@ -1,0 +1,546 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Implement the <code>BSTIterator</code> class that represents an iterator over the <strong>in-order traversal</strong> of a binary search tree (BST):</p>
+          <p>('raw', '<ul><li><code>BSTIterator(TreeNode root)</code> Initializes an object of the <code>BSTIterator</code> class. The <code>root</code> of the BST is given as part of the constructor. The pointer should be initialized to a non-existent number smaller than any element in the BST.</li><li><code>boolean hasNext()</code> Returns <code>true</code> if there exists a number in the traversal to the right of the pointer, otherwise returns <code>false</code>.</li><li><code>int next()</code> Moves the pointer to the right, then returns the number at the pointer.</li></ul>')</p>
+          <p>You may assume that <code>next()</code> calls will always be valid. That is, there will be at least a next number in the in-order traversal when <code>next()</code> is called.</p>
+          <p><strong>Follow up:</strong> Could you implement <code>next()</code> and <code>hasNext()</code> to run in average <code>O(1)</code> time and use <code>O(h)</code> memory, where <code>h</code> is the height of the tree?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>實作一個 <code>BSTIterator</code>，讓它能<strong>依中序走訪的順序</strong>逐一吐出 BST 裡的值。</p>
+          <p>('ul', ['<code>BSTIterator(root)</code>：用 BST 的根節點初始化。', '<code>hasNext()</code>：還有下一個值嗎？', '<code>next()</code>：回傳下一個值（也就是「下一個最小的」）。'])</p>
+          <p><strong>進階：</strong>能不能讓 <code>next()</code> 和 <code>hasNext()</code> 都是<strong>平均 <code>O(1)</code></strong>，而且只用 <code>O(h)</code> 空間（<code>h</code> 是樹高）？</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題的本質：把「遞迴走訪」拆成「可以暫停的步驟」</h3>
+        <div class="code-block">遞迴的中序走訪很簡單：
+
+    def go(node):
+        if not node: return
+        go(node.left)
+        輸出 node.val
+        go(node.right)
+
+    但它【一口氣跑完】——
+    我們沒辦法「走一步、停下來、等別人叫我再走」。
+
+【迭代器要的是「可暫停」】。
+
+    最直白的做法：先跑完，把結果存成 list（解法二）
+        ✔ 簡單
+        ✘ O(n) 空間，而且建構子要 O(n) 時間
+
+    進階要的是：
+        ✔ O(h) 空間
+        ✔ next() 攤還 O(1)
+
+【怎麼做到？】
+
+    用【第 94 題的中序迭代版】的堆疊 ——
+    但不要一口氣跑完，而是「每次 pop 一個就停」。
+
+    堆疊裡放的是「從根往下走到目前最左」的那條路徑 ——
+    最長就是 h ✔
+
+【這是「把遞迴改成迭代」的最大價值】：
+
+    遞迴的狀態藏在呼叫堆疊裡，你控制不了；
+    迭代的狀態在你自己的堆疊裡，想停就停 ✔
+
+    這也是所有「產生器 / 協程」在做的事 ——
+    Python 的 yield 就是把這件事自動化了（解法三）。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：
+    ["BSTIterator","next","next","hasNext","next","hasNext",
+     "next","hasNext","next","hasNext"]
+    [[[7,3,15,null,null,9,20]],[],[],[],[],[],[],[],[],[]]
+
+  輸出：
+    [null,3,7,true,9,true,15,true,20,false]
+
+  說明（樹的中序是 3, 7, 9, 15, 20）：
+        7
+       / \
+      3   15
+         /  \
+        9    20
+
+    next()    -&gt; 3
+    next()    -&gt; 7
+    hasNext() -&gt; true
+    next()    -&gt; 9
+    ...
+    next()    -&gt; 20
+    hasNext() -&gt; false</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[1, 10⁵]</code> 之間</li>
+          <li>0 ≤ <code>Node.val</code> ≤ 10⁶</li>
+          <li>最多會呼叫 10⁵ 次 <code>hasNext</code> 和 <code>next</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/binary-search-tree-iterator/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 474" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 把「中序走訪」拆成可以暫停的步驟：堆疊裡永遠放著「從根往下走到目前最左」的那條路徑。</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="150" cy="70" r="19" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="150" y="75" fill="var(--gold)">7</text>
+              <circle cx="80" cy="134" r="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="80" y="139" fill="var(--accent)">3</text>
+              <circle cx="230" cy="134" r="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="230" y="139" fill="var(--accent)">15</text>
+              <circle cx="180" cy="198" r="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="180" y="203" fill="var(--accent)">9</text>
+              <circle cx="285" cy="198" r="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="285" y="203" fill="var(--accent)">20</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="137" y1="83" x2="93" y2="121"/><line x1="163" y1="83" x2="217" y2="121"/>
+              <line x1="216" y1="148" x2="194" y2="184"/><line x1="244" y1="148" x2="271" y2="184"/>
+            </g>
+            <text x="150" y="240" fill="var(--text-muted)" font-size="11" text-anchor="middle">中序：3, 7, 9, 15, 20</text>
+            <line x1="360" y1="40" x2="360" y2="250" stroke="var(--border)"/>
+            <text x="385" y="62" fill="var(--gold)" font-size="12" text-anchor="start">堆疊的變化（由底到頂）：</text>
+            <text x="385" y="92" fill="var(--text-muted)" font-size="12" text-anchor="start">初始　　　　[7, 3]</text>
+            <text x="385" y="118" fill="var(--accent)" font-size="12" text-anchor="start">next() → 3　[7]</text>
+            <text x="385" y="144" fill="var(--accent)" font-size="12" text-anchor="start">next() → 7　[15, 9]　← 壓入 7 的右子樹的左路徑</text>
+            <text x="385" y="170" fill="var(--accent)" font-size="12" text-anchor="start">next() → 9　[15]</text>
+            <text x="385" y="196" fill="var(--accent)" font-size="12" text-anchor="start">next() → 15 [20]</text>
+            <text x="385" y="222" fill="var(--gold)" font-size="12" text-anchor="start">next() → 20 []　→ hasNext() = False</text>
+            <line x1="20" y1="272" x2="620" y2="272" stroke="var(--border)"/>
+            <text x="20" y="300" fill="var(--accent)" font-size="13">★ 為什麼空間是 O(h) 而不是 O(n)？</text>
+            <text x="40" y="330" fill="var(--text-muted)" font-size="12">堆疊裡放的永遠是「一條從根往下的路徑」—— 最長就是樹高 h。</text>
+            <text x="40" y="358" fill="var(--gold)" font-size="12">而「先算出整個中序 list」的做法要 O(n) —— 樹很大時就吃不消。</text>
+            <text x="20" y="392" fill="var(--accent)" font-size="13">★ 為什麼 next() 是「攤還 O(1)」而不是 O(h)？</text>
+            <text x="40" y="422" fill="var(--text-muted)" font-size="12">單次 next() 最壞要壓入 O(h) 個節點，但【每個節點一生只會被壓入一次、彈出一次】。</text>
+            <text x="40" y="450" fill="var(--gold)" font-size="12">n 次 next() 的總成本是 O(n) → 平均每次 O(1) ✔　（又是一次總量分析）</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【核心：堆疊裡放「最左路徑」】
+
+    def _push_left(node):
+        while node:
+            stack.append(node)
+            node = node.left
+
+    建構子：_push_left(root)
+        -&gt; 堆疊裡是「從根一路往左走到底」的那條路徑
+        -&gt; 堆疊頂就是【整棵樹最小的節點】✔
+
+    next():
+        node = stack.pop()          彈出目前最小的
+        _push_left(node.right)      它的右子樹接手
+        return node.val
+
+    hasNext():
+        return len(stack) &gt; 0
+
+【★ 為什麼 pop 之後要 _push_left(node.right)？】
+
+    中序的順序是：左 -&gt; 根 -&gt; 右
+
+    node 被彈出時，代表「它的左子樹已經走完了」。
+
+    接下來要走的是【它的右子樹】——
+    而右子樹裡最小的，就是「右子樹的最左路徑的底部」✔
+
+    所以把那條路徑壓進去，
+    堆疊頂就又是「下一個最小的」了 ✔
+
+【★ 不變量】
+
+    「堆疊由底到頂，是一條『還沒被輸出的祖先鏈』，
+      而堆疊頂就是下一個要輸出的節點。」
+
+【★ 複雜度分析】
+
+    空間：堆疊最多存一條從根往下的路徑 -&gt; O(h) ✔
+
+    時間：單次 next() 最壞要 _push_left O(h) 個節點。
+
+        但【每個節點一生只會被 push 一次、pop 一次】——
+
+        n 次 next() 的總成本 = O(n) 次 push + O(n) 次 pop = O(n)
+        -&gt; 平均每次 O(1) ✔【攤還 O(1)】
+
+    這又是一次「總量分析」
+    （和第 128、103、99 題用的是同一種論證）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>受控的中序堆疊（進階要求的答案）</h3>
+        <div class="code-block">class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        self.stack = []
+        self._push_left(root)           # 把最左邊那條路徑先壓進去
+
+    def _push_left(self, node):
+        while node:
+            self.stack.append(node)
+            node = node.left
+
+    def next(self) -&gt; int:
+        node = self.stack.pop()         # 堆疊頂就是「下一個最小的」
+        self._push_left(node.right)     # 它的右子樹接手
+        return node.val
+
+    def hasNext(self) -&gt; bool:
+        return len(self.stack) &gt; 0</div>
+        <p><strong>十二行，<code>next()</code> 攤還 O(1)、空間 O(h)。</strong><strong>這是題目要的答案。</strong></p>
+        <h3>和第 94 題（中序走訪）的關係</h3>
+        <div class="code-block">第 94 題的迭代版：
+
+    stack, node = [], root
+    while stack or node:
+        while node:                  ← 這就是 _push_left
+            stack.append(node)
+            node = node.left
+        node = stack.pop()
+        res.append(node.val)         ← 「輸出」
+        node = node.right            ← 準備走右子樹
+
+【本題只是把這個迴圈「拆開」】：
+
+    「while node: push」-&gt; _push_left()
+    「pop + 輸出 + 轉右」-&gt; next()
+    「while stack or node」-&gt; hasNext()
+
+    完全同一個演算法，只是【控制權反轉】了 ——
+
+    第 94 題：迴圈在我手上，我決定什麼時候走下一步
+    第 173 題：迴圈在呼叫者手上，我只負責「走一步」
+
+【這叫做「控制反轉」（inversion of control）】——
+
+    它是所有迭代器 / 產生器 / 回呼 / 事件迴圈
+    的共同模式。
+
+    【能把一個迴圈拆成「一次一步」的形式，
+      是理解非同步程式設計的第一步。】</div>
+        <h3>為什麼堆疊裡存「節點」而不是「值」？</h3>
+        <p><strong>因為 <code>pop</code> 之後要存取 <code>node.right</code></strong> —— <strong>只存值的話就找不到右子樹了。</strong></p>
+        <p><strong>這和第 99 題（<code>prev</code> 存節點而不是值）是同一個道理。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>next() 攤還 O(1)</td><td>每個節點進出堆疊一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>一條路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>先算出整個中序 list（最直白）</h3>
+        <div class="code-block">class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        # 最直白：先把整個中序走訪算出來
+        self.vals = []
+        self.i = 0
+
+        def go(node):
+            if not node:
+                return
+            go(node.left)
+            self.vals.append(node.val)
+            go(node.right)
+
+        go(root)
+
+    def next(self) -&gt; int:
+        v = self.vals[self.i]
+        self.i += 1
+        return v
+
+    def hasNext(self) -&gt; bool:
+        return self.i &lt; len(self.vals)</div>
+        <div class="code-block">建構子：O(n) 時間、O(n) 空間
+next() / hasNext()：O(1)
+
+【它【真的】是 O(1)，不是攤還 O(1)】——
+    所以在「單次呼叫的延遲」這個指標上，它比解法一好。
+
+【但它不滿足 O(h) 空間的要求】。
+
+【什麼時候這個版本更好？】
+
+    ✔ 樹不大（n &lt;= 10^5 的 list 只有幾百 KB）
+    ✔ 一定會走訪完整棵樹（那 O(n) 空間反正省不掉）
+    ✔ 需要「可以往回走」（list 支援隨機存取）
+
+【什麼時候解法一更好？】
+
+    ✔ 樹很大，而且【只會取前面幾個】
+       （例如「找第 k 小」，k 很小）
+    ✔ 記憶體受限
+    ✔ 樹是「懶載入」的（例如從磁碟讀）
+
+【這是一個很典型的「預先計算 vs 惰性計算」的取捨】：
+
+    預先算完：建構慢、後續快、記憶體多
+    惰性計算：建構快、後續攤還一樣快、記憶體少
+
+    資料庫的「游標」（cursor）用的是後者 ——
+    因為查詢結果可能有幾億筆。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>next() O(1)</td><td>建構子 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>整個中序 list</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>Python 產生器（最短，但有限制）</h3>
+        <div class="code-block">class BSTIterator:
+    def __init__(self, root: Optional[TreeNode]):
+        # 用產生器：Python 的 yield 天生就是「暫停的走訪」
+        def inorder(node):
+            if node:
+                yield from inorder(node.left)
+                yield node.val
+                yield from inorder(node.right)
+
+        self.it = inorder(root)
+        self.nxt = next(self.it, None)      # 先預取一個，好實作 hasNext
+
+    def next(self) -&gt; int:
+        v = self.nxt
+        self.nxt = next(self.it, None)
+        return v
+
+    def hasNext(self) -&gt; bool:
+        return self.nxt is not None</div>
+        <div class="code-block">def inorder(node):
+    if node:
+        yield from inorder(node.left)
+        yield node.val
+        yield from inorder(node.right)
+
+    【yield 讓函式「可以暫停」】——
+    這正是迭代器需要的能力 ✔
+
+    Python 幫我們把「控制反轉」自動化了。
+
+【★ 為什麼要「預取一個」（self.nxt）？】
+
+    產生器沒有 hasNext() ——
+    只能「try next() 看看會不會 StopIteration」。
+
+    所以我們先取一個放著：
+        hasNext() = (self.nxt is not None)
+        next() = 回傳 self.nxt，然後再預取下一個 ✔
+
+    這叫做「前瞻一個」（one-token lookahead），
+    是把「只能往前的迭代器」變成
+    「可以先問有沒有下一個」的標準做法。
+
+【★ 注意 next(self.it, None) 的第二個參數】
+
+    next(iterator, default) 在耗盡時回傳 default
+    而不是丟 StopIteration ✔
+
+    沒有第二個參數的話就要 try/except。
+
+【限制】：
+
+    ✘ 空間是 O(h)（yield from 的巢狀產生器也佔堆疊）
+       —— 其實這點和解法一一樣，沒問題
+
+    ✘ 【yield from 的巢狀很慢】——
+       每個 yield 要穿過 h 層產生器 -&gt; O(h) 每次
+       總共 O(n·h) ✘
+
+       （Python 3.7+ 對 yield from 有優化，但仍有開銷。）
+
+    ✘ 【節點值不能是 None】——
+       我們用 None 當「結束」的標記。
+       本題的值是 0..10^6，所以安全 ✔
+
+【面試時可以提一句「Python 的產生器能直接做這件事」，
+  但還是要寫出解法一（那才是在考的東西）。】</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>next() O(h) 最壞</td><td>yield from 的巢狀開銷</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>產生器堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>建構子</th><th>next()</th><th>空間</th><th>滿足進階</th></tr></thead>
+          <tbody>
+            <tr><td>一、受控堆疊</td><td>O(h)</td><td>攤還 O(1)</td><td>O(h)</td><td>✔</td></tr>
+            <tr><td>二、預先算 list</td><td>O(n)</td><td>O(1)</td><td>O(n)</td><td>✘</td></tr>
+            <tr><td>三、產生器</td><td>O(1)</td><td>O(h)</td><td>O(h)</td><td>△ 常數大</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一節點</strong> → <code>next()</code> 一次，然後 <code>hasNext()</code> 是 <code>False</code>。</li>
+          <li><strong>整棵樹是一條左鏈</strong> → 建構子就把全部 <code>h = n</code> 個節點壓進堆疊。<strong>空間 O(n)，但那就是 O(h)。</strong></li>
+          <li><strong>整棵樹是一條右鏈</strong> → 建構子只壓一個，之後每次 <code>next()</code> 壓一個。</li>
+          <li><strong>交錯呼叫 <code>hasNext()</code> 和 <code>next()</code></strong> → <strong><code>hasNext()</code> 不能有副作用（不能改變狀態）。</strong></li>
+          <li><strong>連續呼叫 <code>hasNext()</code> 多次</strong> → 結果必須一致。</li>
+          <li><strong>用完之後再呼叫 <code>hasNext()</code></strong> → <code>False</code>（不能 crash）。</li>
+          <li><strong>堆疊裡存「值」而不是「節點」</strong> → 找不到右子樹。</li>
+          <li><strong>10⁵ 個節點的鏈狀樹</strong> → 解法一的堆疊會有 10⁵ 個元素，但那是 heap 上的 list，<strong>不是呼叫堆疊 —— 沒問題。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果還要支援 <code>prev()</code>（往回走）呢？</h3>
+
+        <p><strong>第 1586 題（二元搜尋樹迭代器 II）</strong>。</p>
+
+        <div class="code-block">兩條路：
+
+    (a) 【記錄已經走過的值】
+        用一個 list 存「已經輸出過的」，
+        prev() 就是往回查那個 list。
+
+        空間 O(已輸出的數量)，最壞 O(n)。
+
+    (b) 【用「前驅」的走訪】
+        對稱地維護一個「反向中序」的堆疊。
+
+        但兩個堆疊要保持同步 —— 非常難寫對。
+
+【實務上用 (a)】：
+
+    因為「往回走」本質上就需要記憶 ——
+    你不可能在 O(1) 空間下支援雙向走訪
+    （除非樹有 parent 指標）。
+
+【如果節點有 parent 指標】：
+
+    那就可以真正的 O(1) 空間雙向走訪 ——
+    「找中序後繼」的標準演算法：
+
+        如果有右子樹 -&gt; 右子樹的最左
+        否則 -&gt; 一路往上，直到「自己是父節點的左孩子」
+
+    C++ 的 std::map 迭代器就是這樣實作的。</div>
+
+        <h3>追問二：這個堆疊技巧還能用在哪？</h3>
+
+        <ul>
+          <li><strong>第 230 題 BST 第 k 小的元素</strong> —— 呼叫 <code>next()</code> k 次就好</li>
+          <li><strong>第 285 題 中序後繼</strong> —— 同樣的「最左路徑」想法</li>
+          <li><strong>第 501 題 BST 裡的眾數</strong> —— 中序 + 計數，可以邊走邊算</li>
+          <li><strong>第 653 題 兩數之和 IV</strong> —— 用兩個迭代器（正向 + 反向）做雙指標</li>
+          <li><strong>合併 k 個 BST</strong> —— 每棵樹一個迭代器，用堆做 k 路歸併</li>
+        </ul>
+
+        <div class="code-block">【第 653 題特別漂亮】：
+
+    「BST 裡有沒有兩個數的和等於 target？」
+
+    做法：
+        正向迭代器（給最小的）+ 反向迭代器（給最大的）
+        然後做第 167 題的對撞雙指標 ✔
+
+        O(n) 時間、O(h) 空間
+
+    【這就是「把 BST 當成有序陣列」的極致】——
+
+    有了迭代器，任何「在有序陣列上」的演算法
+    都可以搬到 BST 上，而且不用 O(n) 空間 ✔</div>
+
+        <h3>追問三：「攤還 O(1)」和「O(1)」的差別在哪裡？</h3>
+
+        <div class="code-block">【攤還 O(1)】：n 次操作的總成本是 O(n)，
+                   但【單次】可能是 O(h)。
+
+【真正的 O(1)】：【每一次】都是 O(1)。
+
+【什麼時候這個差別重要？】
+
+    ✔ 即時系統（real-time）：
+       「最壞單次延遲」比「平均延遲」重要。
+       例如飛行控制、音訊處理 ——
+       偶爾一次 10ms 的延遲就會出事。
+
+    ✘ 批次處理：
+       只關心總時間 -&gt; 攤還就夠了。
+
+【其他「攤還 O(1)」的例子】：
+
+    - Python list 的 append（偶爾要擴容）
+    - 並查集的 find（路徑壓縮）
+    - 雜湊表的插入（偶爾要 rehash）
+    - 本題的 next()
+
+【要做到「真正的 O(1)」通常要犧牲空間】——
+
+    本題的解法二（預先算 list）就是真正的 O(1)，
+    代價是 O(n) 空間 ✔
+
+    【這個取捨在「即時 vs 吞吐量」的系統設計裡
+      反覆出現。】</div>
+
+        <h3>追問四：Python 的產生器和這個堆疊有什麼關係？</h3>
+
+        <div class="code-block">【產生器就是「自動化的控制反轉」】。
+
+    當你寫：
+
+        def inorder(node):
+            yield from inorder(node.left)
+            yield node.val
+            yield from inorder(node.right)
+
+    Python 在底層做的事，和解法一的堆疊【本質相同】——
+    它把「呼叫堆疊的狀態」保存起來，
+    下次 next() 時從那裡繼續 ✔
+
+【差別在於】：
+
+    手寫堆疊：你明確控制「要存什麼」-&gt; 可以只存 O(h) 個節點
+    產生器：  Python 保存整個「幀」（frame）-&gt; 常數大很多
+
+    而且 yield from 的巢狀讓每個值要「穿過 h 層」
+    -&gt; O(h) 每次 ✘
+
+【所以「產生器很優雅」和「產生器很快」是兩回事】。
+
+    在需要效能的地方（例如這題的進階要求），
+    手寫堆疊仍然是對的選擇。
+
+    但在一般的程式碼裡，
+    產生器的可讀性優勢通常更重要 ✔</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 94 題 中序走訪</strong> —— 本題堆疊的來源</li>
+          <li><strong>第 230 題 BST 第 k 小</strong> —— 呼叫 next() k 次</li>
+          <li><strong>第 653 題 兩數之和 IV</strong> —— 兩個迭代器做雙指標</li>
+          <li><strong>第 1586 題 BST 迭代器 II</strong> —— 加上 prev()</li>
+          <li><strong>第 284 題 Peeking Iterator</strong> —— 「前瞻一個」的技巧</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>堆疊裡放的是什麼？為什麼它的大小是 O(h)？</li>
+            <li><code>next()</code> 為什麼是「攤還 O(1)」而不是 O(1)？請說出那個總量分析。</li>
+            <li><code>pop</code> 之後為什麼要 <code>_push_left(node.right)</code>？</li>
+            <li>「攤還 O(1)」和「真正的 O(1)」在什麼場合會有實際差別？</li>
+          </ol>
+        </div>
