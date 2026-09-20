@@ -1,0 +1,394 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given the <code>root</code> of a binary tree containing digits from <code>0</code> to <code>9</code> only.</p>
+          <p>Each root-to-leaf path in the tree represents a number.</p>
+          <p>('raw', '<ul><li>For example, the root-to-leaf path <code>1 -&gt; 2 -&gt; 3</code> represents the number <code>123</code>.</li></ul>')</p>
+          <p>Return <em>the total sum of all root-to-leaf numbers</em>. Test cases are generated so that the answer will fit in a <strong>32-bit</strong> integer.</p>
+          <p>A <strong>leaf</strong> node is a node with no children.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code>，每個節點的值都是 <code>0</code> 到 <code>9</code> 的數字。</p>
+          <p><strong>每一條從根到葉的路徑，都代表一個數字</strong>（例如路徑 <code>1 → 2 → 3</code> 代表數字 <code>123</code>）。</p>
+          <p>回傳<strong>所有這些數字的總和</strong>。測資保證答案能裝進 32 位元整數。</p>
+        </div>
+
+        <div class="callout">
+          <h3>「把路徑當成數字往下傳」</h3>
+        <div class="code-block">核心只有一行：
+
+    cur = cur * 10 + node.val
+
+    這就是「在數字後面接一位」的標準寫法。
+
+    根是 1        -&gt; cur = 0*10 + 1 = 1
+    走到 2        -&gt; cur = 1*10 + 2 = 12
+    走到 3        -&gt; cur = 12*10 + 3 = 123    ✔
+
+【為什麼用整數而不是字串？】
+
+    字串版（解法三）：path = path + str(node.val)，最後 int(path)
+
+    整數版：cur = cur * 10 + node.val
+
+    整數版：
+        ✔ 不用建字串（省時省空間）
+        ✔ 不用最後再轉換
+        ✔ 沒有前導零的問題（0 * 10 + 5 = 5）
+
+    字串版：
+        ✔ 比較直白
+        ✘ 每層都建新字串 -&gt; O(h) 每次
+
+【「cur * 進位 + 新的一位」是所有進位制轉換的基本動作】——
+
+    第 8 題（字串轉整數）、
+    第 171 題（Excel 欄位序號）、
+    第 2 題（兩數相加）
+    用的都是它。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,2,3]
+
+        1
+       / \
+      2   3
+
+  輸出：25
+  說明：路徑 1-&gt;2 代表 12，路徑 1-&gt;3 代表 13。
+        12 + 13 = 25
+
+範例 2
+  輸入：root = [4,9,0,5,1]
+
+          4
+         / \
+        9   0
+       / \
+      5   1
+
+  輸出：1026
+  說明：495 + 491 + 40 = 1026</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[1, 1000]</code> 之間</li>
+          <li>0 ≤ <code>Node.val</code> ≤ 9</li>
+          <li>樹的深度不超過 <code>10</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/sum-root-to-leaf-numbers/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>「深度不超過 10」這個限制在說什麼</h3>
+        <p><strong>所以每個數字最多 10 位</strong> —— 最大約 <code>9999999999</code>，已經超過 <code>2³¹</code>。</p>
+        <p><strong>但題目又說「答案裝得進 32 位元整數」</strong> —— 這表示測資不會真的給出 10 位數的路徑。</p>
+        <p><strong>在 Java / C++ 裡還是要小心</strong>；Python 的整數無限大，不受影響。</p>
+        <p><strong>深度 ≤ 10 也保證了遞迴不會太深。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">DFS，把「目前累積的數字」當參數往下傳：
+
+    def go(node, cur):
+        if not node: return 0
+        cur = cur * 10 + node.val
+        if 是葉節點: return cur          ← 一條完整的路徑
+        return go(left, cur) + go(right, cur)
+
+【★ 三個 base case 的分工】
+
+    1. not node       -&gt; 0
+       「此路不通」，對加法來說 0 是單位元素 ✔
+
+    2. 是葉節點       -&gt; cur
+       一條完整的路徑，貢獻這個數字
+
+    3. 其他           -&gt; 左邊的和 + 右邊的和
+
+【為什麼空節點回 0 而不是 cur？】
+
+    因為「走到 None」不代表「完成了一條路徑」。
+
+    例如：
+        1
+       /
+      2
+
+    go(1, 0) -&gt; cur = 1，不是葉節點
+        -&gt; go(2, 1) + go(None, 1)
+             ^^^^^^^   ^^^^^^^^^^
+             = 12       必須是 0，不能是 1
+
+    回傳 cur 的話會多算一個 1 -&gt; 答案變成 13 ✘
+
+    【這和第 112 題「走到 None ≠ 走到葉節點」是完全同一個陷阱。】
+
+    對照表（base case 該回什麼）：
+        求和      -&gt; 0     （加法的單位元素）
+        求存在性  -&gt; False （or 的單位元素）
+        求最小值  -&gt; +∞    （min 的單位元素）
+        求最大值  -&gt; -∞    （max 的單位元素）
+        求乘積    -&gt; 1     （乘法的單位元素）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>DFS 往下傳累積值（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -&gt; int:
+        def go(node, cur: int) -&gt; int:
+            if not node:
+                return 0
+            cur = cur * 10 + node.val       # 把自己接到數字後面
+            if not node.left and not node.right:
+                return cur                  # 走到葉節點，這就是一個完整的數字
+            return go(node.left, cur) + go(node.right, cur)
+
+        return go(root, 0)</div>
+        <p><strong>七行，O(n) 時間、O(h) 空間。</strong></p>
+        <h3>手動走一遍範例 2</h3>
+        <div class="code-block">          4
+         / \
+        9   0
+       / \
+      5   1
+
+go(4, 0):  cur = 4，不是葉
+    go(9, 4): cur = 49，不是葉
+        go(5, 49): cur = 495，是葉 -&gt; 495
+        go(1, 49): cur = 491，是葉 -&gt; 491
+        -&gt; 986
+    go(0, 4): cur = 40，是葉 -&gt; 40
+    -&gt; 986 + 40 = 1026 ✔</div>
+        <h3>為什麼不需要「回溯」（撤銷）？</h3>
+        <div class="code-block">因為 cur 是【傳值】的參數，不是共享的可變狀態。
+
+    cur = cur * 10 + node.val
+
+    這一行只改了【這一層的區域變數】，
+    父節點的 cur 完全沒動 ✔
+
+    所以左右子樹各自拿到「父節點的 cur」，互不干擾。
+
+【對照第 113 題（路徑總和 II）】：
+    那題用共享的 list path，所以必須 append / pop 回溯。
+
+    這題用不可變的 int，所以不用。
+
+    【只要狀態是「值」而不是「參考」，就不用回溯。】
+
+    這也是為什麼第 113 題的「解法二」（不可變 path）
+    也不需要 pop —— 同一個道理。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>迭代 + 堆疊</h3>
+        <div class="code-block">class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -&gt; int:
+        if not root:
+            return 0
+
+        total = 0
+        stack = [(root, root.val)]
+        while stack:
+            node, cur = stack.pop()
+            if not node.left and not node.right:
+                total += cur
+            if node.left:
+                stack.append((node.left, cur * 10 + node.left.val))
+            if node.right:
+                stack.append((node.right, cur * 10 + node.right.val))
+
+        return total</div>
+        <p><strong>把 <code>(節點, 累積值)</code> 一起打包進堆疊 —— 「遞迴改迭代」的標準手法。</strong></p>
+        <div class="code-block">注意這裡的 cur 語意和遞迴版稍有不同：
+
+    遞迴版：go(node, cur) 的 cur 是「走到 node【之前】的值」
+            然後在函式裡才加上 node.val
+
+    迭代版：stack 裡的 cur 是「【已經包含】node 自己的值」
+            所以初始是 (root, root.val)
+
+    兩種都對，但【不能混用】——
+    混用就會差一位數。
+
+【建議在註解裡寫清楚】：
+    # (節點, 【已包含這個節點】的累積值)
+
+    這類「狀態的時間點」的歧義，
+    是「遞迴改迭代」時最容易出錯的地方
+    （第 112 題也提過同一件事）。</div>
+        <p><strong>沒有遞迴深度問題</strong>（雖然本題深度 ≤ 10，用不到）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>顯式堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>收集字串再加總（最直白）</h3>
+        <div class="code-block">class Solution:
+    def sumNumbers(self, root: Optional[TreeNode]) -&gt; int:
+        # 先收集所有「根到葉」的數字字串，再加起來（最直白）
+        nums = []
+
+        def go(node, path):
+            if not node:
+                return
+            path = path + str(node.val)
+            if not node.left and not node.right:
+                nums.append(int(path))
+                return
+            go(node.left, path)
+            go(node.right, path)
+
+        go(root, "")
+        return sum(nums)</div>
+        <div class="code-block">優點：一眼看得懂「每條路徑代表一個數字」。
+
+缺點：
+    ✘ 每層都建新字串 -&gt; O(h) 每次，總共 O(n·h)
+    ✘ 存所有數字 -&gt; O(葉節點數) 額外空間
+    ✘ 最後 int(path) 又掃一遍字串
+
+【但它有一個獨特的優勢】：
+
+    如果題目改成「每個節點的值可能超過一位數」
+    （例如節點值是 0..99），
+    那「cur * 10 + val」就【不對】了 ——
+
+        節點 1 和節點 23 -&gt; 應該是 "123" -&gt; 123
+        但 1 * 10 + 23 = 33  ✘
+
+    字串版完全不受影響 ✔
+
+    【整數版依賴「每個節點剛好一位數」這個前提。
+      前提被打破時，字串版才是對的。】
+
+    這又是一次「短但依賴前提 vs 長但通用」的取捨
+    （和第 116/117 題一樣）。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·h)</td><td>建字串的成本</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>所有路徑字串</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>節點值可超過一位嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、DFS 傳累積值</td><td>O(n)</td><td>O(h)</td><td>✘</td><td>標準答案</td></tr>
+            <tr><td>二、堆疊迭代</td><td>O(n)</td><td>O(h)</td><td>✘</td><td>避免遞迴</td></tr>
+            <tr><td>三、收集字串</td><td>O(n·h)</td><td>O(n)</td><td>✔</td><td>通用但慢</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一節點</strong> <code>[0]</code> → <code>0</code>。</li>
+          <li><strong><code>[1,2,3]</code></strong> → <code>25</code>。</li>
+          <li><strong><code>[1,0]</code></strong>（只有左孩子 0）→ <code>10</code>，<strong>不是 1</strong>。<strong>根不是葉節點。</strong></li>
+          <li><strong>節點值是 0</strong> → <code>cur * 10 + 0</code> 正確處理（<strong>不要用 <code>if node.val</code> 判斷節點存在</strong>）。</li>
+          <li><strong>把空節點的 base case 寫成 <code>return cur</code></strong> → <strong>單邊的節點會被多算一次。本題第一名的 bug。</strong></li>
+          <li><strong>用共享的變數累積 <code>cur</code> 而忘了回溯</strong> → 右子樹會拿到左子樹留下的值。</li>
+          <li><strong>迭代版和遞迴版的 <code>cur</code> 語意混用</strong> → 差一位數。</li>
+          <li><strong>深度 10 的滿樹</strong> → 1023 個節點、512 條路徑，每條 10 位數。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要「所有路徑數字的最大值」呢？</h3>
+
+        <p><strong>把 <code>+</code> 換成 <code>max</code>，base case 從 0 換成 <code>-inf</code></strong>。</p>
+
+        <div class="code-block">def go(node, cur):
+    if not node: return float('-inf')     ← 單位元素換了
+    cur = cur * 10 + node.val
+    if 是葉節點: return cur
+    return max(go(left, cur), go(right, cur))
+
+【又是「base case 要填對單位元素」】——
+
+    求和 -&gt; 0
+    求最大 -&gt; -inf
+
+    這個原則在第 111、112、124 題都出現過。
+    值得當成反射動作。</div>
+
+        <h3>追問二：如果數字是「從葉到根」讀的呢？</h3>
+
+        <p><strong>那就不能邊走邊累積了</strong> —— 因為<strong>「個位數」要等走到葉節點才知道</strong>。</p>
+
+        <div class="code-block">兩種做法：
+
+    (a) 傳「目前的位數」，往下時乘上 10^depth
+        go(node, cur, place):
+            cur += node.val * place
+            go(child, cur, place * 10)
+
+        —— 但這樣 place 會依賴深度，而深度不固定。
+
+    (b) 收集路徑，到葉節點時反轉再算
+        —— 最簡單，就是解法三加一個 [::-1]
+
+【「從哪一端開始累積」會完全改變演算法的形狀】——
+
+    從根開始（本題）：可以邊走邊算 ✔
+    從葉開始：        必須先知道長度，或者收集後再處理
+
+    這和第 2 題（兩數相加，低位在前）vs
+    第 445 題（兩數相加 II，高位在前）的差別是同一回事。</div>
+
+        <h3>追問三：如果節點值可能是多位數呢？</h3>
+
+        <p><strong><code>cur * 10 + val</code> 就錯了</strong> —— 要改成 <code>cur * 10^(val 的位數) + val</code>，或者直接用字串（解法三）。</p>
+
+        <p><strong>「每個節點剛好一位數」是整數版的隱含前提</strong>，<strong>題目用 <code>0 ≤ Node.val ≤ 9</code> 明確保證了它。</strong><strong>讀題時注意這種「限定值域」的條件 —— 它們常常是某個技巧成立的基礎。</strong></p>
+
+        <h3>追問四：如果樹很深（例如 10⁵），數字會很大怎麼辦？</h3>
+
+        <p><strong>在 Python 裡沒問題（大整數），但會慢</strong> —— <strong>大整數的乘法不是 O(1)。</strong></p>
+
+        <p><strong>實務上會要求「對某個數取模」</strong>：<code>cur = (cur * 10 + node.val) % MOD</code>。<strong>因為加法和乘法都和取模可交換，所以這樣算出來的結果是對的。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 112/113 題 Path Sum I/II</strong> —— 同樣的「根到葉」骨架</li>
+          <li><strong>第 257 題 Binary Tree Paths</strong> —— 輸出所有路徑字串</li>
+          <li><strong>第 988 題 Smallest String Starting From Leaf</strong> —— 從葉到根的版本</li>
+          <li><strong>第 2 題 Add Two Numbers</strong> —— 同樣的「進位累積」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>cur = cur * 10 + node.val</code> 在做什麼？為什麼不用字串？</li>
+            <li>空節點的 base case 為什麼是 0 而不是 <code>cur</code>？寫錯會在哪個測資出問題？</li>
+            <li>為什麼這題不需要「回溯」，而第 113 題需要？</li>
+            <li>如果節點值可能是兩位數，哪一個解法還是對的？</li>
+          </ol>
+        </div>

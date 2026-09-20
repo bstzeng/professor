@@ -1,0 +1,444 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A <strong>transformation sequence</strong> from word <code>beginWord</code> to word <code>endWord</code> using a dictionary <code>wordList</code> is a sequence of words <code>beginWord -&gt; s₁ -&gt; s₂ -&gt; ... -&gt; sₖ</code> such that every adjacent pair differs by a single letter, every <code>sᵢ</code> is in <code>wordList</code>, and <code>sₖ == endWord</code>.</p>
+          <p>Given two words, <code>beginWord</code> and <code>endWord</code>, and a dictionary <code>wordList</code>, return <em>all the <strong>shortest transformation sequences</strong></em>. If no such sequence exists, return an empty list. Each sequence should be returned as a list of words <code>[beginWord, s₁, s₂, ..., sₖ]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>規則和第 127 題完全相同，但這次要回傳<strong>所有最短的轉換序列</strong>（不只是長度）。</p>
+          <p>如果不存在，回傳空 list。每條序列都要包含 <code>beginWord</code> 和 <code>endWord</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼不能「在 BFS 的佇列裡直接存路徑」？</h3>
+        <div class="code-block">最直覺的想法：佇列裡不放單字，放整條路徑。
+
+    dq = deque([[beginWord]])
+    ...
+    dq.append(path + [cand])
+
+    能動（解法二就是這樣），但有兩個嚴重問題：
+
+【問題一：記憶體爆炸】
+
+    最短路徑的條數可能是【指數級】的。
+
+    例如字典裡有很多「平行的」轉換路線時，
+    路徑數可以到 2^(d/2) 條。
+
+    每條路徑又有 d 個單字 -&gt; 佇列會撐爆記憶體。
+
+【問題二：重複複製】
+
+    path + [cand] 每次都複製整條路徑 -&gt; O(d) 時間。
+    走過的節點數 × d -&gt; 常數變得很大。
+
+【正確的做法：只記「前驅」】
+
+    parents[cand] = {所有能一步走到 cand 的前一個字}
+
+    這只要 O(V + E) 空間 —— 和路徑數無關 ✔
+
+    然後在最後用 DFS 沿著 parents 回溯，
+    路徑是「需要時才長出來」的。
+
+【這個「BFS 建 DAG + DFS 回溯」的兩階段結構，
+  是所有「求全部最短路徑」問題的標準解法。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：beginWord = "hit", endWord = "cog",
+        wordList = ["hot","dot","dog","lot","log","cog"]
+  輸出：[["hit","hot","dot","dog","cog"],
+        ["hit","hot","lot","log","cog"]]
+
+  說明：有兩條長度同為 5 的最短路徑，兩條都要回傳。
+        （順序不限。）
+
+範例 2
+  輸入：beginWord = "hit", endWord = "cog",
+        wordList = ["hot","dot","dog","lot","log"]
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>beginWord.length</code> ≤ 10</li>
+          <li><code>endWord.length == beginWord.length</code></li>
+          <li>1 ≤ <code>wordList.length</code> ≤ 500</li>
+          <li>所有單字只包含<strong>小寫英文字母</strong></li>
+          <li><code>beginWord != endWord</code></li>
+          <li><code>wordList</code> 裡<strong>沒有重複</strong></li>
+          <li>答案的<strong>總長度不超過 10⁵</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/word-ladder-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意最後那個限制</h3>
+        <p><strong>「答案的總長度不超過 10⁵」</strong>是題目在保證<strong>「路徑數不會爆炸」</strong>。</p>
+        <p><strong>沒有這個保證的話，光是輸出就不可能完成</strong> —— 因為最短路徑數在最壞情況下是指數級的。</p>
+        <p><strong>但你的演算法仍然不應該在「中間過程」就佔用指數級的記憶體</strong>，這正是「記前驅」比「存路徑」好的理由。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 444" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">兩階段：先 BFS 建出「最短路徑 DAG」（每個字記住所有前驅），再 DFS 回溯列出全部路徑。</text>
+            <text x="20" y="50" fill="var(--gold)" font-size="13">階段一：BFS 分層，每層記下「我是從誰來的」</text>
+            <g font-size="12" text-anchor="middle">
+              <ellipse cx="80" cy="96" rx="32" ry="17" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="80" y="101" fill="var(--gold)">hit</text>
+              <ellipse cx="200" cy="96" rx="32" ry="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="200" y="101" fill="var(--accent)">hot</text>
+              <ellipse cx="330" cy="64" rx="32" ry="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="330" y="69" fill="var(--accent)">dot</text>
+              <ellipse cx="330" cy="130" rx="32" ry="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="330" y="135" fill="var(--accent)">lot</text>
+              <ellipse cx="450" cy="64" rx="32" ry="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="450" y="69" fill="var(--accent)">dog</text>
+              <ellipse cx="450" cy="130" rx="32" ry="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="450" y="135" fill="var(--accent)">log</text>
+              <ellipse cx="560" cy="96" rx="32" ry="17" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="560" y="101" fill="#ff8a65">cog</text>
+            </g>
+            <g stroke="var(--accent)" stroke-width="1.5">
+              <line x1="112" y1="96" x2="166" y2="96"/><polygon points="166,96 158,92 158,100" fill="var(--accent)"/>
+              <line x1="228" y1="88" x2="296" y2="70"/><polygon points="296,70 288,68 290,76" fill="var(--accent)"/>
+              <line x1="228" y1="104" x2="296" y2="124"/><polygon points="296,124 288,118 288,126" fill="var(--accent)"/>
+              <line x1="362" y1="64" x2="416" y2="64"/><polygon points="416,64 408,60 408,68" fill="var(--accent)"/>
+              <line x1="362" y1="130" x2="416" y2="130"/><polygon points="416,130 408,126 408,134" fill="var(--accent)"/>
+              <line x1="482" y1="70" x2="528" y2="88"/><polygon points="528,88 520,82 518,90" fill="var(--accent)"/>
+              <line x1="482" y1="124" x2="528" y2="104"/><polygon points="528,104 518,102 520,110" fill="var(--accent)"/>
+            </g>
+            <text x="560" y="166" fill="#ff8a65" font-size="11" text-anchor="middle">parents[cog] = {dog, log}</text>
+            <line x1="20" y1="192" x2="620" y2="192" stroke="var(--border)"/>
+            <text x="20" y="220" fill="var(--gold)" font-size="13">階段二：從 cog 沿著箭頭【逆向】走，走出每一條路</text>
+            <text x="40" y="248" fill="var(--text-muted)" font-size="12">cog ← dog ← dot ← hot ← hit　　　反轉 → [hit, hot, dot, dog, cog]</text>
+            <text x="40" y="272" fill="var(--text-muted)" font-size="12">cog ← log ← lot ← hot ← hit　　　反轉 → [hit, hot, lot, log, cog]</text>
+            <line x1="20" y1="296" x2="620" y2="296" stroke="var(--border)"/>
+            <text x="20" y="324" fill="#ff8a65" font-size="12">★ 為什麼不能在 BFS 時就把整條路徑存在佇列裡？</text>
+            <text x="20" y="348" fill="var(--text-muted)" font-size="12">因為最短路徑的條數可能是【指數級】的 —— 佇列會爆掉。記「前驅」只要 O(V+E) 空間，</text>
+            <text x="20" y="372" fill="var(--text-muted)" font-size="12">路徑則是在最後才一條一條「長」出來，該多大就多大，不會提早佔滿記憶體。</text>
+            <text x="20" y="402" fill="var(--accent)" font-size="12">★ 另一個關鍵：words -= level —— 用過的整層要一起刪掉，不能邊走邊刪，</text>
+            <text x="20" y="426" fill="var(--accent)" font-size="12">否則同一層裡「互為鄰居」的兩個字會互相擋住對方，漏掉路徑。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【階段一：BFS 分層，建立「最短路徑 DAG」】
+
+    level = {beginWord}
+    while level and not found:
+        words -= level                 ★ 整層一起從候選集刪掉
+        nxt = set()
+        for w in level:
+            for 每個鄰居 cand in words:
+                nxt.add(cand)
+                parents[cand].add(w)   ★ 記【所有】前驅
+                if cand == endWord: found = True
+        level = nxt
+
+【階段二：從 endWord 沿著 parents 回溯】
+
+    def back(word, path):
+        if word == beginWord:
+            res.append(path[::-1])
+            return
+        for p in parents[word]:
+            back(p, path + [p])
+
+    back(endWord, [endWord])
+
+【★★ 為什麼是 words -= level（整層一起刪）而不是邊走邊刪？】
+
+    如果在 for 迴圈裡就 words.discard(cand)：
+
+        同一層裡的兩個字 A 和 B，
+        如果 A 和 B 都能走到 C，
+        那麼第一個處理的（假設是 A）會把 C 從 words 刪掉，
+        B 就看不到 C 了 -&gt; parents[C] 少了 B ✘
+
+        -&gt; 漏掉「經過 B」的那些路徑。
+
+    整層處理完再一起刪，就能保證
+    「這一層的每個字都有機會把自己登記成 C 的前驅」✔
+
+【★ 為什麼要刪？（不刪會怎樣）】
+
+    不刪的話會走回上一層，
+    parents 裡會出現「反方向」的邊 -&gt; DFS 回溯時無窮迴圈。
+
+    刪掉「已經走過的層」等於「只保留往前的邊」——
+    這樣 parents 構成的就是一個 DAG ✔
+
+【★ 為什麼 found 了還要把這一層走完？】
+
+    因為同一層裡可能有【多條】路徑同時到達 endWord。
+
+    while level and not found 是在「這一層全部處理完」之後
+    才檢查 found —— 所以不會漏 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS 建 DAG + DFS 回溯（標準答案）</h3>
+        <div class="code-block">from collections import deque, defaultdict
+
+class Solution:
+    def findLadders(self, beginWord: str, endWord: str,
+                    wordList: List[str]) -&gt; List[List[str]]:
+        words = set(wordList)
+        if endWord not in words:
+            return []
+
+        L = len(beginWord)
+        # ---- 第一階段：BFS 分層，記錄每個字的「所有前驅」 ----
+        parents = defaultdict(set)
+        level = {beginWord}
+        found = False
+
+        while level and not found:
+            words -= level                  # 這一層用過的字，下面不能再用
+            nxt = set()
+            for w in level:
+                for i in range(L):
+                    for c in "abcdefghijklmnopqrstuvwxyz":
+                        cand = w[:i] + c + w[i + 1:]
+                        if cand in words:
+                            nxt.add(cand)
+                            parents[cand].add(w)   # ★ 記所有前驅，不是只記一個
+                            if cand == endWord:
+                                found = True
+            level = nxt
+
+        if not found:
+            return []
+
+        # ---- 第二階段：從 endWord 沿著 parents 回溯，列出所有路徑 ----
+        res = []
+
+        def back(word, path):
+            if word == beginWord:
+                res.append(path[::-1])      # path 是倒著建的
+                return
+            for p in parents[word]:
+                back(p, path + [p])
+
+        back(endWord, [endWord])
+        return res</div>
+        <h3>兩階段的複雜度</h3>
+        <div class="code-block">階段一（BFS）：
+    每個單字被擴展一次，每次枚舉 L × 26 個候選
+    -&gt; O(N · L² · 26)
+
+階段二（DFS 回溯）：
+    O(所有路徑的總長度) = O(答案的大小)
+
+    題目保證答案總長度 &lt;= 10^5，所以這一步是可控的 ✔
+
+【總空間】：
+    parents 最多 O(V + E) = O(N · L · 26)
+    —— 和「路徑數」完全無關 ✔
+
+    這就是比「佇列存路徑」好的地方。</div>
+        <h3>為什麼 <code>parents</code> 用 <code>set</code> 而不是 <code>list</code>？</h3>
+        <p><strong>因為同一個前驅可能被加入多次</strong>（例如同一層的 <code>w</code> 透過不同的字母位置變成同一個 <code>cand</code>）。</p>
+        <p><strong>用 <code>list</code> 的話會產生重複路徑</strong> —— <strong>答案裡會有一模一樣的兩條序列。</strong></p>
+        <h3><code>path[::-1]</code> 別忘了</h3>
+        <p><strong>回溯是從 <code>endWord</code> 往回走的，所以 <code>path</code> 是倒著建的。</strong><strong>忘記反轉的話，每條路徑都是反的。</strong></p>
+        <p><strong>也可以改成「從 <code>beginWord</code> 正著 DFS」</strong>，但那要先把 <code>parents</code> 反轉成 <code>children</code> —— 多一步，不如直接反轉路徑。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N·L²·26 + 答案大小)</td><td>BFS + 回溯</td></tr>
+            <tr><td>空間</td><td>O(N·L·26)</td><td>前驅圖（與路徑數無關）</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>BFS 佇列直接存路徑（只適合小輸入）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    # 【只適合小輸入】：直接在 BFS 的佇列裡存整條路徑
+    def findLadders(self, beginWord: str, endWord: str,
+                    wordList: List[str]) -&gt; List[List[str]]:
+        words = set(wordList)
+        if endWord not in words:
+            return []
+
+        L = len(beginWord)
+        dq = deque([[beginWord]])
+        seen = {beginWord}
+        res = []
+
+        while dq and not res:
+            # 這一層走過的字，等這一層全部處理完才一起標記
+            used = set()
+            for _ in range(len(dq)):
+                path = dq.popleft()
+                w = path[-1]
+                for i in range(L):
+                    for c in "abcdefghijklmnopqrstuvwxyz":
+                        cand = w[:i] + c + w[i + 1:]
+                        if cand in words and cand not in seen:
+                            if cand == endWord:
+                                res.append(path + [cand])
+                            used.add(cand)
+                            dq.append(path + [cand])
+            seen |= used
+
+        return res</div>
+        <div class="code-block">優點：不用兩階段，一個迴圈寫完。
+缺點：最壞情況下佇列會存指數級的路徑。
+
+【★ 注意 seen 的處理方式】
+
+    used = set()
+    for ...（這一層）:
+        ...
+        used.add(cand)
+    seen |= used                  ← 整層處理完才一起標記
+
+    和解法一的 words -= level 是同一個道理：
+
+        如果在迴圈裡就 seen.add(cand)，
+        同一層的其他路徑就找不到 cand 了 -&gt; 漏路徑 ✘
+
+【★ while dq and not res】
+
+    一旦 res 非空（找到了最短長度），
+    就不再往下一層走 —— 因為更深的路徑一定更長。
+
+【什麼時候可以用這個版本？】
+
+    ✔ 字典很小（本題 N &lt;= 500，其實勉強可以）
+    ✔ 你確定路徑數不多
+    ✔ 寫比賽、追求快速寫完
+
+    ✘ 正式面試（面試官會問空間複雜度）
+    ✘ 路徑數可能爆炸的場合</div>
+        <p><strong>本題 <code>N ≤ 500</code> 且題目保證答案總長度 <code>≤ 10⁵</code>，所以這個版本實際上會過。</strong><strong>但它的最壞空間複雜度說不出口。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N·L²·26 + 答案大小)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(路徑數 × L)</td><td>佇列裡的所有路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>最壞會爆嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、BFS 建 DAG + DFS</td><td>O(N·L²·26 + 答案)</td><td>O(N·L·26)</td><td>✘</td><td>標準答案</td></tr>
+            <tr><td>二、佇列存路徑</td><td>O(N·L²·26 + 答案)</td><td>O(路徑數 × L)</td><td>✔</td><td>小輸入可用</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>endWord</code> 不在字典裡</strong> → <code>[]</code>。</li>
+          <li><strong>一步就到</strong> → <code>[[begin, end]]</code>。</li>
+          <li><strong>有多條等長最短路徑</strong> → 全部都要回傳（範例 1）。</li>
+          <li><strong>完全連不到</strong> → <code>[]</code>。</li>
+          <li><strong>邊走邊刪 <code>words</code>（而不是整層一起刪）</strong> → <strong>漏掉路徑。本題第一名的 bug，而且只在「同層互為鄰居」時才出現。</strong></li>
+          <li><strong>完全不刪 <code>words</code></strong> → <code>parents</code> 出現反向邊，DFS 回溯時無窮迴圈。</li>
+          <li><strong><code>parents</code> 用 <code>list</code> 而不是 <code>set</code></strong> → 產生重複路徑。</li>
+          <li><strong>忘了 <code>path[::-1]</code></strong> → 每條路徑都是反的。</li>
+          <li><strong>找到 <code>endWord</code> 就立刻 <code>break</code> 出這一層</strong> → 漏掉同一層的其他路徑。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：這個「兩階段」結構還能用在哪裡？</h3>
+
+        <div class="code-block">任何「求全部最優解」的最短路徑問題：
+
+  126  單詞接龍 II            （本題）
+  1129 顏色交替的最短路徑     記前驅，回溯
+  1857 有向圖中最大顏色值     DAG 上的 DP
+
+  一般化：
+    Dijkstra 求「所有最短路」-&gt; 同樣記前驅
+    （只是要判斷 dist[v] == dist[u] + w(u,v) 才算前驅）
+
+【核心觀念】：
+
+    「最短路徑 DAG」= 只保留「在某條最短路上」的那些邊。
+
+    建好之後，
+        數路徑數 -&gt; DAG 上的 DP，O(V+E)
+        列出路徑 -&gt; DFS，O(答案大小)
+        求最小/最大某個屬性 -&gt; DAG 上的 DP
+
+    【把「最短路」和「列舉路徑」分成兩階段，
+      是處理這類問題的通用架構。】</div>
+
+        <h3>追問二：能不能用雙向 BFS？</h3>
+
+        <p><strong>可以，而且會快很多</strong> —— 但<strong>實作複雜度大幅上升</strong>。</p>
+
+        <p><strong>難點在於「兩邊碰頭時，要把兩側的前驅圖正確接起來」</strong>，而且<strong>要分清楚哪一邊是正向、哪一邊是反向</strong>（路徑方向會反）。</p>
+
+        <p><strong>面試時提一句「可以用雙向 BFS 加速，但接前驅圖的細節很多」就夠了</strong> —— <strong>沒有人會要求你在白板上寫出來。</strong></p>
+
+        <h3>追問三：如果要「數有幾條最短路徑」而不是列出來呢？</h3>
+
+        <p><strong>那就簡單多了 —— 在 BFS 時順便做計數 DP</strong>：</p>
+
+        <div class="code-block">count[beginWord] = 1
+處理 cand 時：
+    count[cand] += count[w]        （對所有前驅 w 累加）
+
+答案 = count[endWord]
+
+O(V + E)，【完全不需要第二階段】。
+
+【「數數量」永遠比「列出來」便宜得多】——
+    前者是多項式，後者可能是指數。
+
+    第 95/96 題（生成所有 BST vs 數 BST）
+    是同一個對比。</div>
+
+        <h3>追問四：為什麼 <code>words -= level</code> 要放在迴圈開頭而不是結尾？</h3>
+
+        <div class="code-block">放開頭：
+    words -= level        # 先把「這一層自己」刪掉
+    for w in level: ...   # 再去找鄰居
+
+    這樣找鄰居時，level 裡的字已經不在 words 了
+    -&gt; 不會走回同一層 ✔
+
+放結尾（先找鄰居再刪）：
+    for w in level:
+        for cand in ...:
+            if cand in words: ...    ← level 裡的字還在 words！
+
+    -&gt; 同一層的字會互相當成鄰居
+    -&gt; parents 裡出現「同層之間的邊」
+    -&gt; 那不是最短路徑的一部分 ✘
+
+【「什麼時候把節點標記成已訪問」
+  是 BFS 最容易出錯的細節，
+  而在「求全部路徑」時尤其致命。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 127 題 Word Ladder</strong> —— 只要長度，先學那題</li>
+          <li><strong>第 433 題 Minimum Genetic Mutation</strong> —— 同一題換皮</li>
+          <li><strong>第 1129 題 Shortest Path with Alternating Colors</strong> —— 同樣記前驅</li>
+          <li><strong>第 113 題 Path Sum II</strong> —— DFS 回溯列出所有路徑</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼不能在 BFS 的佇列裡直接存整條路徑？</li>
+            <li><code>words -= level</code> 為什麼要「整層一起刪」而不是邊走邊刪？會漏掉什麼？</li>
+            <li><code>parents</code> 為什麼用 <code>set</code> 而不是 <code>list</code>？</li>
+            <li>如果只要「數有幾條最短路徑」，該怎麼改？複雜度差多少？</li>
+          </ol>
+        </div>
