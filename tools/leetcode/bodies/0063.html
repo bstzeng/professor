@@ -1,0 +1,239 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an <code>m x n</code> integer array <code>grid</code>. There is a robot initially located at the <strong>top-left corner</strong>. The robot tries to move to the <strong>bottom-right corner</strong>. The robot can only move either down or right.</p>
+          <p>An obstacle and space are marked as <code>1</code> or <code>0</code> respectively in <code>grid</code>. A path that the robot takes cannot include <strong>any</strong> square that is an obstacle.</p>
+          <p>Return <em>the number of possible unique paths</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m × n</code> 的二維陣列 <code>obstacleGrid</code>，機器人從<strong>左上角</strong>出發，要走到<strong>右下角</strong>，每一步只能往下或往右。</p>
+          <p>格子裡的 <code>1</code> 表示<strong>障礙物</strong>，<code>0</code> 表示空地。路徑上<strong>不能經過任何障礙物</strong>。</p>
+          <p>回傳總共有幾種不同的走法。</p>
+        </div>
+
+        <div class="callout">
+          <h3>和第 62 題只差一行</h3>
+        <div class="code-block">第 62 題：dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+第 63 題：if 是障礙物: dp[i][j] = 0
+          else:      dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+「障礙物 = 0 種走法」這個設定非常漂亮：
+    走不到它（0 種），
+    而且它也不會把任何走法「傳」給右邊和下面的格子（加 0 等於沒加）。
+
+所以我們不需要特別處理「繞過障礙物」——
+只要把它的值設成 0，整張表就會自動正確。
+
+而組合公式（C(m+n-2, m-1)）在這裡完全失效 ——
+因為「哪些路徑會被擋住」沒有簡單的封閉形式。
+這就是 DP 相對於數學公式的價值：它能吸收任意的局部限制。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
+  輸出：2
+  說明：3×3 的網格正中間有一個障礙物。
+        1. 右 → 右 → 下 → 下
+        2. 下 → 下 → 右 → 右
+
+範例 2
+  輸入：obstacleGrid = [[0,1],[0,0]]
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == obstacleGrid.length</code>，<code>n == obstacleGrid[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 100</li>
+          <li><code>obstacleGrid[i][j]</code> 是 <code>0</code> 或 <code>1</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/unique-paths-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>三個容易踩的邊界</h3>
+        <ul>
+          <li><strong>起點就是障礙物</strong>：<code>[[1]]</code> → 0。如果直接寫 <code>dp[0][0] = 1</code> 而不檢查，答案會錯。</li>
+          <li><strong>終點是障礙物</strong>：答案 0。這個會被主迴圈自然處理（<code>dp[m-1][n-1]</code> 被設成 0）。</li>
+          <li><strong>第一列或第一行中間有障礙物</strong>：<code>[[0,1,0]]</code> → 0。<strong>障礙物「後面」的格子全部走不到</strong> —— 所以第一列／第一行不能無腦初始化成 1，必須讓 DP 自然算出來。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>第 62 題的 DP 骨架完全不變，只加上「障礙物歸零」。<strong>但初始化要小心</strong>：第 62 題可以把第一列和第一行都設成 1，這題不行。</p>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二維 DP（把邊界也交給迴圈處理）</h3>
+        <div class="code-block">class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -&gt; int:
+        m, n = len(obstacleGrid), len(obstacleGrid[0])
+        if obstacleGrid[0][0] == 1:
+            return 0                      # 起點就被擋住
+
+        dp = [[0] * n for _ in range(m)]
+        dp[0][0] = 1
+
+        for i in range(m):
+            for j in range(n):
+                if obstacleGrid[i][j] == 1:
+                    dp[i][j] = 0          # 障礙物：走不到，也不能往外傳
+                    continue
+                if i &gt; 0:
+                    dp[i][j] += dp[i - 1][j]
+                if j &gt; 0:
+                    dp[i][j] += dp[i][j - 1]
+
+        return dp[m - 1][n - 1]</div>
+        <h3>為什麼不預先初始化第一列和第一行？</h3>
+        <div class="code-block">第 62 題可以寫 dp = [[1] * n for _ in range(m)]
+（第一列和第一行都是 1）。
+
+這題不行，因為障礙物會「切斷」它們：
+
+    grid = [[0, 1, 0]]
+
+    dp[0][0] = 1
+    dp[0][1] = 0（障礙物）
+    dp[0][2] = dp[0][1] = 0   ← 走不到！
+
+    如果無腦設成 1，dp[0][2] 會是 1 ✘
+
+所以正確的做法是：
+    只設 dp[0][0] = 1（起點），
+    其餘全部交給主迴圈的 if i &gt; 0 / if j &gt; 0 去累加。
+
+    i == 0 時只會累加 dp[0][j-1]（左邊）
+    j == 0 時只會累加 dp[i-1][0]（上面）
+
+    邊界自然就對了，而且障礙物的 0 會正確地往後傳播。
+
+「讓邊界由一般規則自然產生，而不是特別初始化」
+是減少 bug 的好習慣。</div>
+        <h3>起點被擋住的特判</h3>
+        <p><code>if obstacleGrid[0][0] == 1: return 0</code>。其實主迴圈也會處理（<code>dp[0][0]</code> 被 <code>continue</code> 前的 <code>dp[i][j] = 0</code> 蓋掉）—— 但我們在迴圈前就寫了 <code>dp[0][0] = 1</code>，而迴圈的第一輪 <code>i=0, j=0</code> 會把它改回 0。<strong>所以其實不特判也對</strong>，但寫出來讓意圖更清楚。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>填滿整張表</td></tr>
+            <tr><td>空間</td><td>O(m·n)</td><td>dp 表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>一維 DP（滾動陣列，最推薦）</h3>
+        <div class="code-block">class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -&gt; int:
+        n = len(obstacleGrid[0])
+        dp = [0] * n
+        dp[0] = 1                         # 起點（若被擋，下面第一輪就會歸零）
+
+        for row in obstacleGrid:
+            for j in range(n):
+                if row[j] == 1:
+                    dp[j] = 0             # 障礙物：這一格歸零
+                elif j &gt; 0:
+                    dp[j] += dp[j - 1]    # 否則：上面(舊 dp[j]) + 左邊(新 dp[j-1])
+        return dp[n - 1]</div>
+        <h3>初始化 <code>dp[0] = 1</code> 的巧妙之處</h3>
+        <div class="code-block">dp = [0] * n
+dp[0] = 1
+
+這個 dp 代表「第 -1 列」的狀態 ——
+一個虛擬的、在網格上方的列，
+只有第 0 欄有 1 條路徑（代表「起點可達」）。
+
+然後第一輪迴圈（處理第 0 列）：
+    j=0: row[0] == 0 -&gt; j &gt; 0 不成立 -&gt; dp[0] 保持 1 ✔
+         （或 row[0] == 1 -&gt; dp[0] = 0，處理了「起點被擋」）
+    j=1: dp[1] += dp[0] = 1
+    ...
+
+所以「起點被擋住」這個邊界，被第一輪迴圈自動處理了 ——
+不需要任何特判。
+
+這就是為什麼一維版比二維版還短。</div>
+        <h3>三個分支的順序</h3>
+        <div class="code-block">if row[j] == 1:
+    dp[j] = 0              障礙物優先，直接歸零
+elif j &gt; 0:
+    dp[j] += dp[j-1]       非障礙物且不在第一欄：累加左邊
+（else: j == 0 且非障礙物 -&gt; dp[0] 保持不變 = 上一列的值）
+
+第三種情況（j == 0）為什麼「保持不變」就對？
+    第 0 欄只能從上面來，
+    而 dp[0] 此刻正好是「上一列第 0 欄」的值 ✔
+
+    不用寫任何程式碼 —— 這是滾動陣列的自然結果。</div>
+        <p><strong>O(n) 空間，而且程式碼比二維版還短。</strong>面試時寫這個版本，並且說明「<code>dp</code> 在迴圈中途同時混合了新舊兩列的值」。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>一條長度 n 的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、二維 DP</td><td>O(mn)</td><td>O(mn)</td><td>16</td><td>最直白</td></tr>
+            <tr><td>二、一維 DP</td><td>O(mn)</td><td>O(n)</td><td>11</td><td>更短，邊界自動處理</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>起點是障礙物</strong>：<code>[[1]]</code>、<code>[[1,0]]</code> → 0。</li>
+          <li><strong>終點是障礙物</strong>：<code>[[0,0],[0,1]]</code> → 0。</li>
+          <li><strong>第一列被切斷</strong>：<code>[[0,1,0]]</code> → 0。<strong>無腦初始化第一列為 1 會錯。</strong></li>
+          <li><strong>整列被擋住</strong>：<code>[[0,0],[1,1],[0,0]]</code> → 0。</li>
+          <li><strong>沒有障礙物</strong>：退化成第 62 題。</li>
+          <li><strong>1×1 空網格</strong>：<code>[[0]]</code> → 1。</li>
+          <li><strong>繞得過的障礙</strong>：<code>[[0,0,0],[1,1,0],[0,0,0]]</code> → 1（只能從上面繞）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼組合公式在這裡失效？</h3>
+
+        <p>因為「有幾條路徑被障礙物擋住」沒有簡單的封閉形式。理論上可以用<strong>容斥原理</strong>（扣掉經過障礙物 A 的、扣掉經過 B 的、加回同時經過 A 和 B 的…），但障礙物有 k 個時要算 2ᵏ 項 —— 遠不如 DP 的 O(mn)。</p>
+
+        <p><strong>這是一個很好的例子：封閉公式很美，但 DP 更能「吸收」局部的限制。</strong></p>
+
+        <h3>追問二：如果要原地做（不用額外空間）呢？</h3>
+
+        <p>可以直接把 <code>obstacleGrid</code> 當成 <code>dp</code> 表用 —— 把障礙物的 1 改成 0，空地填上路徑數。<strong>但這會破壞輸入</strong>，而且「1 同時代表障礙物和路徑數 1」很容易混淆。<strong>一維滾動陣列的 O(n) 已經夠好了</strong>，不值得為了 O(1) 犧牲可讀性。</p>
+
+        <h3>追問三：如果障礙物很少呢？</h3>
+
+        <p>可以用<strong>容斥 + 組合數</strong>：先算總路徑 <code>C(m+n-2, m-1)</code>，再依序扣掉「第一個碰到的障礙物是第 i 個」的路徑數。把障礙物排序後，用 <code>f[i] = C(到 i 的路徑) − Σ f[j] × C(從 j 到 i 的路徑)</code> 遞推。複雜度 O(k²)，k 是障礙物數量。<strong>當 k ≪ mn 時（例如 10⁹ × 10⁹ 的網格只有 100 個障礙物），這是唯一可行的做法。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 62 題 Unique Paths</strong> —— 沒有障礙物的版本</li>
+          <li><strong>第 64 題 Minimum Path Sum</strong> —— 同一張表，換成求最小值</li>
+          <li><strong>第 980 題 Unique Paths III</strong> —— 必須走過所有空格，要用回溯</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼第一列和第一行不能無腦初始化成 1？舉一個會錯的輸入。</li>
+            <li>一維版的 <code>dp[0] = 1</code> 代表什麼？「起點被擋」是怎麼被自動處理的？</li>
+            <li>一維版裡 <code>j == 0</code> 且非障礙物時什麼都不做，為什麼是對的？</li>
+            <li>為什麼組合公式在有障礙物時失效？容斥原理的代價是什麼？</li>
+          </ol>
+        </div>
