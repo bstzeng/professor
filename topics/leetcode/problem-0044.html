@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>44. Wildcard Matching 通配符匹配 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="與 10 題對照：* 的語意不同導致貪心可行。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="44">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 44 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 44</div>
+          <h1>Wildcard Matching<br>通配符匹配</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">貪心</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an input string <code>s</code> and a pattern <code>p</code>, implement wildcard pattern matching with support for <code>'?'</code> and <code>'*'</code> where:</p>
+          <p><code>'?'</code> matches any <strong>single</strong> character; <code>'*'</code> matches any <strong>sequence</strong> of characters (including the empty sequence).</p>
+          <p>The matching should cover the <strong>entire</strong> input string.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code> 和一個模式 <code>p</code>，實作支援 <code>'?'</code> 和 <code>'*'</code> 的<strong>萬用字元匹配</strong>：</p>
+          <p><code>'?'</code> 匹配<strong>任意單一字元</strong>；<code>'*'</code> 匹配<strong>任意一段字元序列</strong>（可以是空的）。</p>
+          <p>匹配必須覆蓋<strong>整個</strong> <code>s</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>和第 10 題（正規表示式匹配）的關鍵差異</h3>
+        <div class="code-block">第 10 題 Regular Expression        第 44 題 Wildcard（本題）
+--------------------------        --------------------------
+'.'  配任意「一個」字元             '?'  配任意「一個」字元
+'*'  「前一個元素」重複 0+ 次        '*'  自己就配任意「一段」
+
+差異的後果非常大：
+
+    第 10 題的 '*' 和前一個字元「綁在一起」，
+    "a*" 是一個不可分割的單位，只能配 a 的重複。
+    -&gt; 貪婪行不通，必須 DP。
+
+    第 44 題的 '*' 是「獨立」的，
+    它可以配任何東西，和前後完全無關。
+    -&gt; 可以用「先吃 0 個，卡住再多吃一個」的貪婪 + 回溯。
+
+這就是為什麼第 44 題有 O(1) 空間的解，而第 10 題沒有。
+
+這也是 shell 萬用字元（ls *.txt）和 regex 的差別：
+    shell 的 *.txt  =  任意字元 + ".txt"
+    regex 的 *.txt  =  「任意多個任意字元」+ 任意一個字元 + "txt"
+                       （因為 regex 的 * 要有前綴，這裡是 .）</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "aa", p = "a"
+  輸出：false
+
+範例 2
+  輸入：s = "aa", p = "*"
+  輸出：true
+  說明：'*' 可以配任意長度的序列。
+
+範例 3
+  輸入：s = "cb", p = "?a"
+  輸出：false
+  說明：'?' 配掉 'c'，但 'a' 配不上 'b'。
+
+範例 4
+  輸入：s = "adceb", p = "*a*b"
+  輸出：true
+  說明：第一個 '*' 配空，第二個 '*' 配 "dce"。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>s.length</code>, <code>p.length</code> ≤ 2000</li>
+          <li><code>s</code> 只含小寫英文字母</li>
+          <li><code>p</code> 只含小寫英文字母、<code>'?'</code>、<code>'*'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/wildcard-matching/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>長度到 2000</strong>（第 10 題只有 20）。O(m × n) = 4 × 10⁶ 沒問題，但如果寫成指數級的純遞迴就會 TLE。</li>
+          <li><strong>兩邊都可以是空字串</strong>。<code>("", "")</code> → true；<code>("", "*")</code> → true；<code>("a", "")</code> → false。三種都要測。</li>
+          <li><strong>沒有「保證 * 前面有字元」這種限制</strong>（第 10 題有）。因為這題的 <code>'*'</code> 是獨立的，<code>"*"</code>、<code>"**"</code>、<code>"*a*"</code> 都是合法的 pattern。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>兩條路：<strong>DP</strong>（穩、好推導、O(m·n) 空間）或<strong>貪婪 + 回溯</strong>（O(1) 空間，但要想清楚為什麼對）。</p>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>動態規劃（先確保會寫）</h3>
+        <div class="code-block">class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        m, n = len(s), len(p)
+
+        # dp[i][j] = s 的前 i 個字元，能不能被 p 的前 j 個字元匹配
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True
+
+        # 空字串 vs 只由 '*' 組成的前綴
+        for j in range(1, n + 1):
+            if p[j - 1] == "*":
+                dp[0][j] = dp[0][j - 1]
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == "*":
+                    # '*' 配空（不用它）   或   '*' 多吃一個 s[i-1]
+                    dp[i][j] = dp[i][j - 1] or dp[i - 1][j]
+                elif p[j - 1] in (s[i - 1], "?"):
+                    dp[i][j] = dp[i - 1][j - 1]
+
+        return dp[m][n]</div>
+        <h3>轉移式只有兩條</h3>
+        <div class="code-block">情況 A： p[j-1] == '*'
+
+    dp[i][j] = dp[i][j-1]     '*' 配空字串（等於不用它）
+             or dp[i-1][j]     '*' 再多吃一個 s[i-1]
+
+    第二項的 j 不變 —— 因為 '*' 可以繼續吃，它還在。
+
+情況 B： p[j-1] 是普通字元或 '?'
+
+    dp[i][j] = dp[i-1][j-1]  且  p[j-1] 配得上 s[i-1]
+
+    只有一條路，沒有分岔。
+
+初始化：
+    dp[0][0] = True
+    dp[0][j] = dp[0][j-1]  若 p[j-1] == '*'
+               False       否則
+
+    「空字串只能被全是 * 的 pattern 匹配」
+
+    p = "*a*"
+      dp[0][0] = True
+      dp[0][1] = dp[0][0] = True    （'*' 配空）
+      dp[0][2] = False              （'a' 配不上空）
+      dp[0][3] = False              （前面已經斷了）</div>
+        <h3>和第 10 題的 DP 比較</h3>
+        <div class="code-block">第 10 題（'*' 綁前一個字元）：
+    dp[i][j] = dp[i][j-2]                        （'x*' 用 0 次）
+             or (dp[i-1][j] and p[j-2] 配 s[i-1]) （'x*' 多吃一個）
+    注意是 j-2（跳過 'x*' 兩格）
+
+第 44 題（'*' 獨立）：
+    dp[i][j] = dp[i][j-1]     （'*' 配空）
+             or dp[i-1][j]     （'*' 多吃一個）
+    是 j-1（只跳過 '*' 一格），而且沒有「配得上」的前提
+
+少了那個前提，就是本題能用貪婪的根本原因。</div>
+        <p><strong>空間可以壓到 O(n)</strong>：<code>dp[i][j]</code> 只依賴 <code>dp[i][j-1]</code>（同列）和 <code>dp[i-1][j]</code>（上一列），用一條長度 n+1 的陣列滾動即可。但既然有 O(1) 的解法（解法二），這個優化意義不大。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>填滿 (m+1)×(n+1) 的表</td></tr>
+            <tr><td>空間</td><td>O(m·n)（可壓到 O(n)）</td><td>dp 表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>貪婪 + 回溯（O(1) 空間，最佳解）</h3>
+        <p>核心策略：<strong>遇到 <code>'*'</code> 先讓它吃 0 個字元，繼續往下配；如果之後卡住了，就回到最後一個 <code>'*'</code>，讓它多吃一個，重來。</strong></p>
+        <div class="code-block">class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        i = j = 0                    # s 和 p 的指標
+        star = -1                    # p 裡「最後一個 *」的位置
+        match = 0                    # 那個 * 目前吃掉了 s 的哪個位置
+
+        while i &lt; len(s):
+            if j &lt; len(p) and p[j] in (s[i], "?"):
+                i += 1
+                j += 1
+            elif j &lt; len(p) and p[j] == "*":
+                star = j             # 記住這個 *
+                match = i            # 先讓它吃 0 個
+                j += 1
+            elif star != -1:
+                # 卡住了，但前面有 * -&gt; 讓它多吃一個字元，從 * 之後重來
+                j = star + 1
+                match += 1
+                i = match
+            else:
+                return False         # 卡住而且沒有 * 可以回溯
+
+        # s 用完了，p 剩下的必須全是 '*'
+        while j &lt; len(p) and p[j] == "*":
+            j += 1
+        return j == len(p)</div>
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 318" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">貪婪 + 回溯：* 先吃 0 個，卡住了才讓它多吃一個</text>
+            <text x="20" y="50" fill="var(--text-muted)" font-size="12">s = &quot;adceb&quot;，p = &quot;*a*b&quot;</text>
+            <g font-family="monospace" font-size="13">
+              <text x="40" y="82" fill="var(--gold)">① p[0] = &apos;*&apos;  →  記下 star=0, match=0，先吃 0 個，j=1</text>
+              <text x="40" y="106" fill="var(--accent)">② p[1]=&apos;a&apos; vs s[0]=&apos;a&apos;  ✔  i=1, j=2</text>
+              <text x="40" y="130" fill="var(--gold)">③ p[2] = &apos;*&apos;  →  star=2, match=1，j=3</text>
+              <text x="40" y="154" fill="#ff8a65">④ p[3]=&apos;b&apos; vs s[1]=&apos;d&apos;  ✘  但有 star</text>
+              <text x="76" y="176" fill="#ff8a65">→ 回到 j=star+1=3，match=2，i=2</text>
+              <text x="40" y="200" fill="#ff8a65">⑤ p[3]=&apos;b&apos; vs s[2]=&apos;c&apos;  ✘  → match=3, i=3</text>
+              <text x="40" y="224" fill="#ff8a65">⑥ p[3]=&apos;b&apos; vs s[3]=&apos;e&apos;  ✘  → match=4, i=4</text>
+              <text x="40" y="248" fill="var(--accent)">⑦ p[3]=&apos;b&apos; vs s[4]=&apos;b&apos;  ✔  i=5, j=4</text>
+              <text x="40" y="272" fill="var(--accent)">⑧ i == len(s)，j == len(p)  →  匹配成功 ✔</text>
+            </g>
+            <text x="20" y="306" fill="var(--gold)" font-size="12">只回溯到「最後一個 *」就夠了 —— 這是本題能用貪婪的關鍵，第 10 題做不到。</text>
+          </svg>
+        </div>
+        <h3>為什麼「只回溯到最後一個 <code>*</code>」就夠了？</h3>
+        <div class="code-block">這是本題最需要想清楚的一點。
+
+假設 p = "*a*b"，我們已經用第一個 * 配了某一段、
+並且成功配上了 'a'，現在卡在 'b' 上。
+
+問：需不需要回去讓「第一個 *」多吃一點？
+
+答：不需要。
+
+理由：
+    設第一個 * 目前吃到 s[0..k]，然後 'a' 配上 s[k+1]。
+    如果讓第一個 * 多吃一點，'a' 就要配 s[k+2] 之後的某個 'a'。
+
+    但！第二個 * 可以配「任意一段」——
+    它能吃掉的範圍，完全涵蓋了「第一個 * 多吃」所能達成的效果。
+
+    換句話說：
+        "* a * b" 中，第二個 * 的彈性已經包含了
+        「a 出現在更後面」這種可能性嗎？
+
+    不完全是 —— 但關鍵在於：
+    我們是在「第二個 * 之後」卡住的，
+    而第二個 * 可以無限往後吃，
+    所以只要 s 的後面還有 'b'，第二個 * 一定能配上。
+
+    如果 s 的後面完全沒有 'b'，那不管第一個 * 怎麼調整都沒用。
+
+    所以：卡住時，只需要調整「離卡住位置最近的那個 *」。
+
+嚴格的證明要用「交換論證」：
+    如果存在一組成功的匹配，
+    那麼一定存在一組「每個 * 都盡量少吃」的成功匹配，
+    而貪婪演算法找到的就是那一組。</div>
+        <h3>四個分支，逐一對照</h3>
+        <div class="code-block">① p[j] 配得上 s[i]（字元相同或 '?'）
+       -&gt; 兩邊都前進
+
+② p[j] 是 '*'
+       -&gt; 記下 star = j、match = i（先吃 0 個），只有 j 前進
+
+③ 配不上，但前面有 * （star != -1）
+       -&gt; j 回到 star + 1，match += 1（* 多吃一個），i = match
+
+④ 配不上，而且沒有 *
+       -&gt; 直接失敗
+
+結束後的收尾：
+    s 用完了，但 p 可能還剩東西。
+    只有「剩下的全是 *」才算成功（* 可以配空）。
+    p = "a*", s = "a"  -&gt;  j 停在 1，剩下 '*'  -&gt;  True ✔
+    p = "ab", s = "a"  -&gt;  j 停在 1，剩下 'b'  -&gt;  False ✔</div>
+        <h3>複雜度</h3>
+        <p>最壞情況是 O(m × n)（例如 <code>s = "aaaa...a"</code>、<code>p = "*a*a*a*a"</code>，每個 <code>*</code> 都要反覆回溯）。<strong>但實務上幾乎總是接近 O(m + n)</strong>，而且<strong>空間是 O(1)</strong> —— 這是它勝過 DP 的地方。</p>
+        <p><strong>這正是 shell 的 <code>fnmatch</code> 和 <code>glob</code> 用的演算法。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n) 最壞，實務接近 O(m+n)</td><td>只有病態 pattern 才會退化</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>四個整數變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>好證明？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、DP</td><td>O(m·n)</td><td>O(m·n)→O(n)</td><td>✔ 容易</td><td>穩；面試先寫它</td></tr>
+            <tr><td>二、貪婪 + 回溯</td><td>O(m·n) 最壞</td><td>O(1)</td><td>✘ 要交換論證</td><td>最優；shell 就用它</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>兩邊都空</strong>：<code>("", "")</code> → true。</li>
+          <li><strong>pattern 只有 <code>*</code></strong>：<code>("", "*")</code>、<code>("", "***")</code> → true。</li>
+          <li><strong>s 非空、p 空</strong>：<code>("a", "")</code> → false。</li>
+          <li><strong>結尾的 <code>*</code></strong>：<code>("a", "a*")</code> → true。收尾的 while 迴圈就是為它。</li>
+          <li><strong>連續多個 <code>*</code></strong>：<code>("abc", "*****a*****c")</code> → true。貪婪版會反覆更新 <code>star</code>，但不影響正確性。</li>
+          <li><strong>需要回溯的情況</strong>：<code>("adceb", "*a*b")</code> → true。</li>
+          <li><strong>貪婪的最壞情況</strong>：<code>("aaaa", "*a*a*a*a*")</code> → true。會觸發大量回溯。</li>
+          <li><strong>只有 <code>?</code></strong>：<code>("abc", "???")</code> → true；<code>("ab", "???")</code> → false（<code>?</code> 不能配空）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼第 10 題不能用同樣的貪婪？</h3>
+
+        <p>因為第 10 題的 <code>'*'</code> <strong>不能配任意字元</strong>，它只能配「前面那個字元」的重複。</p>
+
+        <div class="code-block">s = "aaa", p = "a*b*a"
+
+第 44 題的貪婪思路（讓 * 盡量少吃，卡住再多吃）在這裡完全不成立，
+因為 "a*" 只能吃 a，"b*" 只能吃 b。
+
+而且「卡住時該調整哪個 *」也不明確 ——
+可能要同時調整好幾個，那就是指數級的搜尋。
+
+所以第 10 題只能 DP。</div>
+
+        <h3>追問二：這個演算法在真實世界的哪裡？</h3>
+
+        <ul>
+          <li><strong>shell 的檔名展開</strong>：<code>ls *.txt</code>、<code>rm test_?.log</code></li>
+          <li><strong>POSIX 的 <code>fnmatch(3)</code></strong>：本題的演算法就是它的簡化版</li>
+          <li><strong>.gitignore</strong>：也是萬用字元（加上 <code>**</code> 表示跨目錄）</li>
+          <li><strong>SQL 的 LIKE</strong>：<code>%</code> 對應 <code>*</code>，<code>_</code> 對應 <code>?</code></li>
+        </ul>
+
+        <p><strong>萬用字元之所以在 shell 裡勝過 regex，就是因為它簡單、直覺、而且可以 O(1) 空間匹配。</strong></p>
+
+        <h3>追問三：如果要支援 <code>[abc]</code> 這種字元集呢？</h3>
+
+        <p>DP 版只要改「配不配得上」那一行的判斷即可，結構完全不變。貪婪版也一樣 —— <strong>因為 <code>[abc]</code> 和 <code>?</code> 一樣是「配一個」</strong>，不會影響 <code>*</code> 的回溯邏輯。這正是 <code>fnmatch</code> 實際支援的功能。</p>
+
+        <h3>追問四：如果 pattern 要重複用在很多字串上？</h3>
+
+        <p>可以把 pattern <strong>預先正規化</strong>：把連續的 <code>"***"</code> 壓成 <code>"*"</code>（語意完全相同），並且預先切成「被 <code>*</code> 分隔的片段」。之後每次匹配就變成「依序在 s 裡找這些片段」，第一段要在開頭、最後一段要在結尾、中間的貪婪往後找。<strong>這是 <code>fnmatch</code> 的實際實作方式，也能天然避開貪婪版的最壞情況。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 10 題 Regular Expression Matching</strong> —— <code>*</code> 語意不同的姊妹題</li>
+          <li><strong>第 72 題 Edit Distance</strong> —— 兩字串的二維 DP</li>
+          <li><strong>第 97 題 Interleaving String</strong> —— 同樣的 DP 骨架</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>第 44 題的 <code>'*'</code> 和第 10 題的 <code>'*'</code> 差在哪？為什麼這個差別讓貪婪變得可行？</li>
+            <li>貪婪版為什麼「只回溯到最後一個 <code>*</code>」就夠了？</li>
+            <li>DP 的初始化 <code>dp[0][j] = dp[0][j-1]</code> 為什麼是 <code>j-1</code>（第 10 題是 <code>j-2</code>）？</li>
+            <li>貪婪版最後那個 while 迴圈在處理什麼？拿掉的話哪一筆測資會錯？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0043.html">← 上一題：43. 字串相乘</a>
+          <a href="problem-0045.html">下一題：45. 跳躍遊戲 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

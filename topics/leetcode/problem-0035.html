@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>35. Search Insert Position 搜尋插入位置 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="二分搜尋的標準模板，重點在迴圈不變式。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="35">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 35 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 35</div>
+          <h1>Search Insert Position<br>搜尋插入位置</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">二分搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a sorted array of <strong>distinct</strong> integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
+          <p>You must write an algorithm with <code>O(log n)</code> runtime complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>元素互不相同</strong>的升序陣列和一個目標值 <code>target</code>。如果 <code>target</code> 存在就回傳它的索引；不存在的話，回傳<strong>它應該被插入的位置</strong>（插入後陣列仍然有序）。</p>
+          <p>演算法必須是 <code>O(log n)</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題就是 lower_bound，沒別的</h3>
+        <div class="code-block">「第一個 &gt;= target 的位置」同時回答了兩件事：
+
+  target 存在  -&gt;  那個位置就是 target 的索引
+  target 不存在 -&gt;  那個位置就是該插進去的地方
+
+nums = [1, 3, 5, 6]
+
+  target=5 -&gt; 第一個 &gt;= 5 的是索引 2  -&gt;  回 2（存在）
+  target=2 -&gt; 第一個 &gt;= 2 的是索引 1  -&gt;  回 1（插在 1 和 3 之間）
+  target=7 -&gt; 沒有 &gt;= 7 的           -&gt;  回 4（插在最後）
+  target=0 -&gt; 第一個 &gt;= 0 的是索引 0  -&gt;  回 0（插在最前）
+
+所以答案的範圍是 [0, n]，一共 n+1 種可能。
+這就是為什麼 hi 要初始化成 n 而不是 n-1。</div>
+        <p><strong>這題是整個二分搜尋家族的入口。</strong>把 <code>lower_bound</code> 的骨架在這裡寫熟，第 34、69、74、278、875、1011 題都會受益。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,3,5,6], target = 5
+  輸出：2
+
+範例 2
+  輸入：nums = [1,3,5,6], target = 2
+  輸出：1
+
+範例 3
+  輸入：nums = [1,3,5,6], target = 7
+  輸出：4</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁴</li>
+          <li>−10⁴ ≤ <code>nums[i]</code> ≤ 10⁴</li>
+          <li><code>nums</code> 是<strong>嚴格遞增</strong>的（沒有重複值）</li>
+          <li>−10⁴ ≤ <code>target</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/search-insert-position/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>沒有重複值</strong>，所以 lower_bound 和 upper_bound 的差別在這題看不出來。（有重複值時就是第 34 題。）</li>
+          <li><strong>要求 O(log n)</strong> —— 排除線性掃描（雖然 n = 10⁴ 線性也會過，但這題的重點就是二分）。</li>
+          <li><strong>答案可能是 <code>n</code></strong>（插在最後面）。這是最常被漏掉的邊界。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>兩種骨架都能寫，但它們的「結束狀態」意義不同，值得一起看清楚。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>lower_bound 骨架（推薦）</h3>
+        <div class="code-block">class Solution:
+    def searchInsert(self, nums: List[int], target: int) -&gt; int:
+        lo, hi = 0, len(nums)        # hi = len，答案範圍是 [0, n]
+
+        while lo &lt; hi:
+            mid = (lo + hi) // 2
+            if nums[mid] &lt; target:
+                lo = mid + 1         # mid 確定不是答案
+            else:
+                hi = mid             # mid 可能就是答案，不能排除
+
+        return lo                    # lo == hi，就是答案</div>
+        <h3>三個要點（和第 34 題一模一樣）</h3>
+        <div class="code-block">1. hi = len(nums)     答案範圍是 [0, n]，n 表示「插在最後」
+2. while lo &lt; hi      收斂到一點，不是「找到就 return」
+3. hi = mid           mid 可能是答案，不能寫 mid - 1
+
+為什麼不會死循環？
+    mid = (lo + hi) // 2 向下取整，所以當 lo &lt; hi 時一定有 mid &lt; hi。
+    因此 hi = mid 一定讓 hi 嚴格變小。
+    而 lo = mid + 1 一定讓 lo 嚴格變大。
+    區間每輪都真的縮小 -&gt; 保證終止。
+
+不變量（loop invariant）：
+    答案永遠落在 [lo, hi] 裡面。
+    - nums[mid] &lt; target  -&gt; mid 及其左邊都不可能是答案 -&gt; lo = mid + 1 ✔
+    - nums[mid] &gt;= target -&gt; mid 可能是答案，右邊都不可能更好 -&gt; hi = mid ✔
+    結束時 lo == hi，區間只剩一點，那就是答案。</div>
+        <p><strong>追一遍 <code>nums = [1,3,5,6], target = 2</code></strong>：</p>
+        <div class="code-block">lo=0, hi=4
+mid=2: nums[2]=5 &gt;= 2  -&gt; hi=2
+lo=0, hi=2
+mid=1: nums[1]=3 &gt;= 2  -&gt; hi=1
+lo=0, hi=1
+mid=0: nums[0]=1 &lt;  2  -&gt; lo=1
+lo=1, hi=1  -&gt; 結束，回傳 1 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>每輪砍一半</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用兩個下標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>經典骨架（找到就 return）</h3>
+        <p>如果你比較習慣「<code>while lo &lt;= hi</code>、找到就 return」的寫法，這題也能用 —— 關鍵是<strong>知道迴圈結束時 <code>lo</code> 是什麼</strong>。</p>
+        <div class="code-block">class Solution:
+    def searchInsert(self, nums: List[int], target: int) -&gt; int:
+        lo, hi = 0, len(nums) - 1
+
+        while lo &lt;= hi:
+            mid = (lo + hi) // 2
+            if nums[mid] == target:
+                return mid
+            if nums[mid] &lt; target:
+                lo = mid + 1
+            else:
+                hi = mid - 1
+
+        # 迴圈結束時 lo == hi + 1，而 lo 剛好就是插入位置
+        return lo</div>
+        <h3>為什麼結束時 <code>lo</code> 就是插入位置？</h3>
+        <div class="code-block">迴圈結束的條件是 lo &gt; hi，而且一定是 lo == hi + 1。
+
+此時的不變量：
+    所有 index &lt; lo 的元素都 &lt; target
+    所有 index &gt; hi 的元素都 &gt; target
+    （而 lo == hi + 1，所以這兩個範圍剛好覆蓋全部）
+
+所以 lo 就是「第一個 &gt;= target 的位置」= 插入位置。
+
+追一遍 nums = [1,3,5,6], target = 2：
+    lo=0, hi=3, mid=1: nums[1]=3 &gt; 2 -&gt; hi=0
+    lo=0, hi=0, mid=0: nums[0]=1 &lt; 2 -&gt; lo=1
+    lo=1 &gt; hi=0 -&gt; 結束，回傳 lo=1 ✔
+
+追一遍 target = 7：
+    lo=0, hi=3, mid=1: 3 &lt; 7 -&gt; lo=2
+    lo=2, hi=3, mid=2: 5 &lt; 7 -&gt; lo=3
+    lo=3, hi=3, mid=3: 6 &lt; 7 -&gt; lo=4
+    lo=4 &gt; hi=3 -&gt; 回傳 4 ✔</div>
+        <p><strong>「結束時 <code>lo</code> 是插入位置」這個性質很有用</strong>，很多人寫二分只記得「找到就 return」，卻不知道找不到時 <code>lo</code> 和 <code>hi</code> 落在哪裡。這題剛好逼你搞清楚。</p>
+        <p><strong>兩種骨架的取捨</strong>：解法一比較短、意圖更明確（「我要找邊界」）；解法二在「剛好命中」時可以提早 return（常數上稍快）。實務上建議<strong>只記一種並記熟</strong> —— 混用是所有二分 bug 的來源。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>每輪砍一半</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用兩個下標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>骨架</th><th>迴圈條件</th><th>結束狀態</th><th>適合的問題</th></tr></thead>
+          <tbody>
+            <tr><td>lower_bound</td><td><code>lo &lt; hi</code></td><td><code>lo == hi</code>，就是答案</td><td>找邊界、找插入點</td></tr>
+            <tr><td>經典</td><td><code>lo &lt;= hi</code></td><td><code>lo == hi + 1</code></td><td>找特定元素</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>target 比全部都大</strong>：<code>([1,3,5,6], 7)</code> → 4。<strong><code>hi</code> 寫成 <code>len-1</code> 會回傳 3，錯。</strong></li>
+          <li><strong>target 比全部都小</strong>：<code>([1,3,5,6], 0)</code> → 0。</li>
+          <li><strong>剛好命中</strong>：<code>([1,3,5,6], 5)</code> → 2。</li>
+          <li><strong>插在中間</strong>：<code>([1,3,5,6], 2)</code> → 1。</li>
+          <li><strong>單一元素</strong>：<code>([1], 1)</code> → 0；<code>([1], 0)</code> → 0；<code>([1], 2)</code> → 1。</li>
+          <li><strong>空陣列</strong>：<code>([], 1)</code> → 0。題目保證不會，但 lower_bound 自然就對。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有重複值呢？</h3>
+
+        <p><code>lower_bound</code> 會回傳「第一個等於 target 的位置」，也就是插在<strong>所有相同元素的最左邊</strong>。如果要插在最右邊，就用 <code>upper_bound</code>（把 <code>&lt;</code> 改成 <code>&lt;=</code>）。一個字元的差別。</p>
+
+        <h3>追問二：這個骨架還能用在哪？</h3>
+
+        <p>只要能定義一個<strong>單調的述詞</strong> <code>P(i)</code>（i 小的時候是 False，超過某一點之後一直是 True），就能用同一個骨架找那個交界點：</p>
+
+        <div class="code-block">本題：       P(i) = nums[i] &gt;= target
+第 278 題：  P(v) = isBadVersion(v)
+第 875 題：  P(speed) = 「這個速度吃得完嗎」
+第 1011 題： P(cap) = 「這個載重量運得完嗎」
+第 410 題：  P(x) = 「最大子陣列和 &lt;= x 時分得出 k 段嗎」
+
+這叫「二分答案」：不是在陣列上二分，而是在「答案的值域」上二分。
+一旦認出這個模式，一大票看起來很難的最佳化問題都會變成
+「寫一個 check 函式 + 套這個骨架」。</div>
+
+        <h3>追問三：<code>mid = (lo + hi) // 2</code> 有什麼隱患？</h3>
+
+        <p>在 Python 裡沒有。但在 C/Java 裡，<code>lo + hi</code> <strong>可能溢位</strong>（兩個都接近 INT_MAX 時）。這是 Java 的 <code>Arrays.binarySearch</code> 存在了九年的著名 bug（2006 年由 Joshua Bloch 公開）。安全的寫法是 <code>mid = lo + (hi - lo) // 2</code>。<strong>這是二分搜尋最有名的歷史教訓，面試時提到會加分。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 34 題 Find First and Last Position</strong> —— 有重複值的版本</li>
+          <li><strong>第 278 題 First Bad Version</strong> —— 最單純的 partition point</li>
+          <li><strong>第 875／1011／410 題</strong> —— 二分答案</li>
+          <li><strong>第 704 題 Binary Search</strong> —— 最基本的版本</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 <code>hi</code> 要初始化成 <code>len(nums)</code>？哪一筆測資會抓出 <code>len-1</code> 的錯？</li>
+            <li>解法二的迴圈結束時，<code>lo</code> 和 <code>hi</code> 的關係是什麼？為什麼 <code>lo</code> 就是答案？</li>
+            <li>為什麼 <code>hi = mid</code>（不減一）不會造成死循環？</li>
+            <li><code>mid = (lo + hi) // 2</code> 在 Java 裡有什麼問題？該怎麼寫？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0034.html">← 上一題：34. 在排序陣列中查找元素的第一個和最後一個位置</a>
+          <a href="problem-0036.html">下一題：36. 有效的數獨 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>98. Validate Binary Search Tree 驗證二元搜尋樹 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="上下界遞迴與中序走訪兩種解法，以及最常見的錯誤寫法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="98">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 98 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 98</div>
+          <h1>Validate Binary Search Tree<br>驗證二元搜尋樹</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">二元搜尋樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary tree, <em>determine if it is a valid binary search tree (BST)</em>.</p>
+          <p>A <strong>valid BST</strong> is defined as follows:</p>
+          <p>('raw', "<ul><li>The left subtree of a node contains only nodes with keys <strong>less than</strong> the node's key.</li><li>The right subtree of a node contains only nodes with keys <strong>greater than</strong> the node's key.</li><li>Both the left and right subtrees must also be binary search trees.</li></ul>")</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code>，判斷它是不是一棵合法的<strong>二元搜尋樹（BST）</strong>。</p>
+          <p><strong>合法的 BST</strong> 定義如下：</p>
+          <p>('ul', ['一個節點的<strong>左子樹</strong>裡，<strong>所有</strong>節點的值都<strong>小於</strong>它。', '一個節點的<strong>右子樹</strong>裡，<strong>所有</strong>節點的值都<strong>大於</strong>它。', '左右子樹<strong>本身也必須</strong>是合法的 BST。'])</p>
+        </div>
+
+        <div class="callout">
+          <h3>定義裡藏了兩個關鍵字，錯過就會寫出錯的解</h3>
+        <div class="code-block">【關鍵字一：「所有」】
+
+    不是「左孩子比我小」，而是【整個左子樹都比我小】。
+
+    這是本題唯一的難點，也是 90% 的人第一次寫會錯的地方。
+
+【關鍵字二：「小於 / 大於」是嚴格的】
+
+    不能有相等的值。
+
+    所以 [2, 2] 和 [2, null, 2] 都是【不合法】的。
+
+    （注意：有些教科書允許重複值放在某一側，
+      但 LeetCode 這題採用「嚴格」的定義。）</div>
+        </div>
+
+        <div class="callout">
+          <h3>先看看錯在哪裡：最常見的錯誤寫法</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】
+    def isValidBST(self, root: Optional[TreeNode]) -&gt; bool:
+        if not root:
+            return True
+        if root.left and root.left.val &gt;= root.val:
+            return False
+        if root.right and root.right.val &lt;= root.val:
+            return False
+        return self.isValidBST(root.left) and self.isValidBST(root.right)</div>
+        <div class="code-block">這段程式碼看起來完全合理：
+    「檢查左孩子比我小、右孩子比我大，然後遞迴檢查左右子樹。」
+
+但它只檢查了【父子】關係，沒有檢查【祖孫】關係。
+
+反例：
+
+            10
+           /  \
+          5    15
+              /  \
+             6    20
+
+    10 的左孩子 5  &lt; 10 ✔
+    10 的右孩子 15 &gt; 10 ✔
+    15 的左孩子 6  &lt; 15 ✔
+    15 的右孩子 20 &gt; 15 ✔
+
+    每一組父子都合法 -&gt; 錯誤解法回答 True
+
+    但 6 在【10 的右子樹】裡，卻 6 &lt; 10 ✘
+    -&gt; 正確答案是 False
+
+【限制必須沿著路徑一路往下傳遞，而不是只看一層。】
+這就是解法一「上下界」存在的理由。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [2,1,3]
+
+          2
+         / \
+        1   3
+
+  輸出：true
+
+範例 2
+  輸入：root = [5,1,4,null,null,3,6]
+
+          5
+         / \
+        1   4
+           / \
+          3   6
+
+  輸出：false
+  說明：根是 5，但右子樹裡有 4 和 3，都比 5 小。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[1, 10⁴]</code> 之間</li>
+          <li>−2³¹ ≤ <code>Node.val</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/validate-binary-search-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意這個限制：節點值可以剛好是 2³¹ − 1 或 −2³¹</h3>
+        <div class="code-block">這是題目故意設的陷阱。
+
+如果你在 Java / C++ 裡寫：
+
+    boolean go(TreeNode node, int lo, int hi)   // 用 int 當邊界
+
+    然後一開始傳 go(root, INT_MIN, INT_MAX)，
+    那麼單一節點 [INT_MIN] 會被判成 False（因為要求嚴格大於 lo）✘
+
+解法：
+    (a) 用 long（Java）/ long long（C++），邊界設成 LONG_MIN / LONG_MAX
+    (b) 用 null / Integer 物件表示「沒有限制」，並在比較前先判空
+    (c) 改用【中序走訪】—— 它根本不需要邊界值，自然免疫
+
+Python 有 float('-inf') / float('inf')，而且整數不會溢位，
+所以沒有這個問題 ——
+【但面試時要主動講出來，這是很加分的細節。】</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 394" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">最經典的錯誤：只比較「父子」是不夠的，必須比較「整個子樹」。</text>
+            <text x="20" y="48" fill="#ff8a65" font-size="13">反例：root = [10, 5, 15, null, null, 6, 20]</text>
+            <g font-size="14" text-anchor="middle">
+              <circle cx="200" cy="96" r="21" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="200" y="101" fill="var(--gold)">10</text>
+              <circle cx="120" cy="164" r="21" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="120" y="169" fill="var(--accent)">5</text>
+              <circle cx="280" cy="164" r="21" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="280" y="169" fill="var(--accent)">15</text>
+              <circle cx="230" cy="232" r="21" fill="none" stroke="#ff8a65" stroke-width="3"/><text x="230" y="237" fill="#ff8a65">6</text>
+              <circle cx="340" cy="232" r="21" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="340" y="237" fill="var(--accent)">20</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="185" y1="111" x2="135" y2="149"/>
+              <line x1="215" y1="111" x2="265" y2="149"/>
+              <line x1="266" y1="179" x2="244" y2="217"/>
+              <line x1="294" y1="179" x2="326" y2="217"/>
+            </g>
+            <text x="376" y="100" fill="var(--text-muted)" font-size="12">10 &lt; 15 ✔（父子合法）</text>
+            <text x="376" y="124" fill="var(--text-muted)" font-size="12">6 &lt; 15 ✔（父子合法）</text>
+            <text x="376" y="156" fill="#ff8a65" font-size="12">但 6 在 10 的右子樹裡，</text>
+            <text x="376" y="180" fill="#ff8a65" font-size="12">卻 6 &lt; 10 ✘ —— 隔代違規！</text>
+            <line x1="20" y1="270" x2="620" y2="270" stroke="var(--border)"/>
+            <text x="20" y="296" fill="var(--accent)" font-size="12">解法一（上下界）怎麼抓到它：走到 15 時區間收成 (10, +∞)，再往左走到 6 時區間是 (10, 15)。</text>
+            <text x="20" y="320" fill="var(--accent)" font-size="12">6 不在 (10, 15) 裡 → False ✔　【上界會沿著左邊的路徑一路傳下去。】</text>
+            <text x="20" y="348" fill="var(--gold)" font-size="12">解法二（中序）怎麼抓到它：中序輸出 5, 10, 6, 15, 20 —— 10 之後接 6，不是遞增 → False ✔</text>
+            <text x="20" y="376" fill="var(--text-muted)" font-size="12">記住這句話：「BST ⟺ 中序走訪嚴格遞增」。這是 BST 所有題目的共同鑰匙。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">兩條主線，兩種都要會：
+
+【思路 A：由上往下傳「合法區間」】
+
+    每個節點都帶著一個開區間 (lo, hi)，意思是
+    「你的值必須嚴格落在這個範圍裡」。
+
+    根節點：       (-∞, +∞)
+    往左走：       上界收緊成父節點的值 -&gt; (lo, node.val)
+    往右走：       下界收緊成父節點的值 -&gt; (node.val, hi)
+
+    這樣「祖先的限制」就自動沿著路徑傳下去了 ✔
+
+【思路 B：BST ⟺ 中序走訪嚴格遞增】
+
+    這是 BST 最重要的一個等價命題。
+
+    因為中序是「左 -&gt; 根 -&gt; 右」，而 BST 保證
+    「左子樹全部 &lt; 根 &lt; 右子樹全部」，
+    所以輸出必然是由小到大。
+
+    反過來也成立：中序嚴格遞增的二元樹，一定是 BST。
+
+    所以只要中序走一遍，檢查每個值都比前一個大即可。
+    【連陣列都不用存，記住前一個值就好。】
+
+兩條路都是 O(n) 時間，選哪個都對；
+面試時能同時講出來最好。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>上下界遞迴（最直觀、最好講）</h3>
+        <div class="code-block">class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -&gt; bool:
+        def go(node, lo, hi):
+            """node 這棵子樹的所有值，是不是都嚴格落在 (lo, hi) 之間"""
+            if not node:
+                return True                  # 空樹是合法的 BST
+            if not (lo &lt; node.val &lt; hi):
+                return False
+            # 往左：上界收緊成 node.val；往右：下界收緊成 node.val
+            return (go(node.left, lo, node.val) and
+                    go(node.right, node.val, hi))
+
+        return go(root, float("-inf"), float("inf"))</div>
+        <h3>為什麼這樣就抓得到「隔代違規」？</h3>
+        <div class="code-block">回到那個反例：
+
+            10
+           /  \
+          5    15
+              /  \
+             6    20
+
+    go(10, -∞, +∞)    -∞ &lt; 10 &lt; +∞ ✔
+      go(5,  -∞, 10)  -∞ &lt; 5  &lt; 10 ✔
+      go(15, 10, +∞)  10 &lt; 15 &lt; +∞ ✔
+        go(6,  10, 15)  【10 &lt; 6 ？ 不成立】 ✘ -&gt; False
+
+    關鍵在【往右走時，下界 10 被保留下來了】，
+    然後【再往左走時，那個 10 仍然在】。
+
+    「往左走只改上界、往右走只改下界」——
+    另一邊的限制原封不動地往下傳，
+    這正是「整個子樹」這個要求的程式化表達。</div>
+        <h3>為什麼用 <code>float('-inf')</code> / <code>float('inf')</code>？</h3>
+        <p>這樣就<strong>不用為根節點寫特例</strong>，而且和「節點值可能是 <code>±2³¹</code>」的邊界完全無關。</p>
+        <p><strong>在 Java / C++ 裡</strong>請用 <code>long</code>，或用 <code>null</code> 表示「沒有限制」。</p>
+        <h3>一個更嚴謹的寫法（值可能是任意大整數時）</h3>
+        <div class="code-block">def go(node, lo, hi):        # lo, hi 用 None 表示「沒有限制」
+    if not node:
+        return True
+    if lo is not None and node.val &lt;= lo:
+        return False
+    if hi is not None and node.val &gt;= hi:
+        return False
+    return go(node.left, lo, node.val) and go(node.right, node.val, hi)
+
+這個版本對任何型別的值都成立（只要能比大小），
+不依賴「有一個比所有值都大/小的哨兵」。
+
+【面試時如果面試官追問「如果值是任意精度的呢」，
+  就端出這個版本。】</div>
+        <p><strong>空間 O(h)</strong>（h 是樹高）。<strong>最壞情況（退化成一條鏈）是 O(n) = 10⁴</strong> —— Python 預設遞迴上限是 1000，<strong>極端測資下真的會 <code>RecursionError</code></strong>，這時要改用解法三。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點看一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>中序走訪（遞迴版）</h3>
+        <div class="code-block">class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -&gt; bool:
+        self.prev = None                     # 中序走訪的前一個值
+
+        def go(node):
+            if not node:
+                return True
+            if not go(node.left):            # 先走左子樹
+                return False
+            if self.prev is not None and self.prev &gt;= node.val:
+                return False                 # 不是嚴格遞增 -&gt; 不合法
+            self.prev = node.val
+            return go(node.right)            # 再走右子樹
+
+        return go(root)</div>
+        <h3>為什麼只要記「前一個值」就夠？</h3>
+        <div class="code-block">「嚴格遞增」這個性質是【只看相鄰兩項】就能驗證的：
+
+    a1 &lt; a2 &lt; a3 &lt; ... &lt; an
+    ⟺ 對每個 i，a_i &lt; a_{i+1}
+
+所以不需要把中序結果存成陣列（那要 O(n) 額外空間），
+只要一個變數記住「剛剛輸出的值」就好。
+
+【而且可以提早結束】——
+一旦發現逆序就立刻回 False，不必走完整棵樹。
+
+這在「大樹但錯誤出現得早」的測資上快非常多。</div>
+        <h3>為什麼用 <code>self.prev</code> 而不是區域變數？</h3>
+        <div class="code-block">Python 的閉包不能直接「寫入」外層函式的區域變數
+（讀可以，寫會被當成新的區域變數）。
+
+三種解法：
+    (a) self.prev = None          &lt;- 本文用這個，最直白
+    (b) nonlocal prev             &lt;- Python 3 的關鍵字
+    (c) prev = [None]             &lt;- 用 list 當可變盒子
+
+    def isValidBST(self, root):
+        prev = None
+        def go(node):
+            nonlocal prev         # (b) 的寫法
+            ...
+
+三種都對，挑一個順手的。
+【面試時寫 nonlocal 最乾淨。】</div>
+        <h3><code>self.prev is not None</code> 為什麼不能寫成 <code>self.prev</code>？</h3>
+        <p><strong>因為節點值可能是 <code>0</code></strong>，而 <code>0</code> 在 Python 裡是 falsy。<strong>寫成 <code>if self.prev and ...</code> 就會漏掉「前一個值是 0」的檢查</strong>，例如 <code>[0, null, -1]</code> 會被誤判成 True。</p>
+        <p><strong>這是「用真假值代替 <code>is not None</code>」的經典 bug</strong>，在有 <code>0</code>、空字串、空 list 的地方都要小心。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點看一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>中序走訪（迭代版，避開遞迴深度限制）</h3>
+        <div class="code-block">class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -&gt; bool:
+        stack, prev, node = [], None, root
+
+        while stack or node:
+            while node:                      # 一路往左走到底
+                stack.append(node)
+                node = node.left
+            node = stack.pop()               # 這裡就是「中序輸出」的時機
+            if prev is not None and prev &gt;= node.val:
+                return False                 # 提早結束，不用走完整棵樹
+            prev = node.val
+            node = node.right                # 轉向右子樹
+
+        return True</div>
+        <h3>和第 94 題一模一樣的骨架</h3>
+        <div class="code-block">while stack or node:
+    while node:            # 一路往左沉到底，沿路把節點壓進 stack
+        stack.append(node)
+        node = node.left
+    node = stack.pop()     # 【彈出的瞬間就是中序輸出的時機】
+    ...檢查...
+    node = node.right      # 轉向右子樹，回到外層迴圈
+
+這個 pattern 請背下來 ——
+第 94（中序走訪）、98（本題）、173（BST 迭代器）、
+230（BST 第 k 小）用的都是它。
+
+【只要在「pop 之後」插入你要做的事，就能解一整類 BST 題目。】</div>
+        <p><strong>沒有遞迴深度限制</strong> —— 節點數 10⁴ 且樹退化成鏈時，這是唯一安全的一般解法。</p>
+        <p><strong>一樣可以提早結束</strong>（發現逆序就 <code>return False</code>），而且<strong>不用擔心「還有沒拆的線」</strong>（解法四就要擔心）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點進出堆疊一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>顯式堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>Morris 中序走訪（O(1) 額外空間）</h3>
+        <div class="code-block">class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -&gt; bool:
+        prev, node, ok = None, root, True
+
+        while node:
+            if not node.left:
+                if prev is not None and prev &gt;= node.val:
+                    ok = False               # 【不能直接 return】，要先把樹修回來
+                prev = node.val
+                node = node.right
+            else:
+                # 找左子樹的最右節點（中序的前驅）
+                pre = node.left
+                while pre.right and pre.right is not node:
+                    pre = pre.right
+
+                if not pre.right:            # 第一次來：架一條回家的線
+                    pre.right = node
+                    node = node.left
+                else:                        # 第二次來：拆線，並輸出自己
+                    pre.right = None
+                    if prev is not None and prev &gt;= node.val:
+                        ok = False
+                    prev = node.val
+                    node = node.right
+
+        return ok</div>
+        <h3>核心技巧：借用空的 <code>right</code> 指標當「回家的線」</h3>
+        <div class="code-block">一棵有 n 個節點的二元樹，有 n+1 個空指標。
+Morris 的想法就是【把它們臨時借來當作返回路徑】。
+
+對每個有左子樹的節點 node：
+
+    1. 找到左子樹的最右節點 pre（= node 在中序裡的前驅）
+    2. 如果 pre.right 是空的：
+           架線 pre.right = node，然後往左走
+           （之後走完左子樹，自然會沿著這條線回到 node）
+    3. 如果 pre.right 已經指向 node：
+           表示左子樹走完了 -&gt; 拆線、輸出 node、往右走
+
+    【每條線最多架一次、拆一次 -&gt; 總時間仍是 O(n)。】
+
+    （準確地說是 O(n)，因為「找前驅」的總成本
+      等於每條右邊緣被走過常數次。）</div>
+        <h3>本題用 Morris 的一個大坑</h3>
+        <div class="code-block">【發現不合法時，不能直接 return False！】
+
+    因為此時樹上還掛著沒拆掉的線 ——
+    直接返回會把【原本的樹結構破壞掉】，
+    後續任何操作（甚至只是印出來）都會無窮迴圈。
+
+    所以要：
+        ok = False        # 只做記號
+        ...繼續把走訪跑完，讓所有線都被拆掉...
+        return ok
+
+    代價：【失去了提早結束的能力】。
+
+    這也是為什麼實務上 Morris 不一定比解法三快 ——
+    它省的是空間，不是時間。</div>
+        <p><strong>什麼時候真的需要 Morris？</strong>當面試官明確問「能不能 O(1) 空間」，或是在<strong>記憶體極度受限的嵌入式環境</strong>。<strong>一般情況請寫解法一或解法三</strong> —— 更短、更不容易錯、還能提早結束。</p>
+        <p><strong>另一個限制</strong>：Morris 會<strong>暫時修改樹</strong>，所以在<strong>多執行緒環境</strong>或<strong>樹是唯讀的</strong>情況下不能用。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每條線架一次拆一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用幾個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>能提早結束</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、上下界遞迴</td><td>O(n)</td><td>O(h)</td><td>✔</td><td>最直觀，面試預設</td></tr>
+            <tr><td>二、中序遞迴</td><td>O(n)</td><td>O(h)</td><td>✔</td><td>展示「BST ⟺ 中序遞增」</td></tr>
+            <tr><td>三、中序迭代</td><td>O(n)</td><td>O(h)</td><td>✔</td><td>沒有遞迴深度問題</td></tr>
+            <tr><td>四、Morris</td><td>O(n)</td><td>O(1)</td><td>✘ 要拆線</td><td>唯一的 O(1) 空間解</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>把「中序遞增」背下來，你就解開了一整類題目</h3>
+        <div class="code-block">BST ⟺ 中序走訪嚴格遞增
+
+這一句話直接或間接解決了：
+
+    98   Validate BST          -&gt; 檢查中序是否遞增（本題）
+    99   Recover BST           -&gt; 中序裡找出逆序對（下一題）
+    230  Kth Smallest in BST   -&gt; 中序的第 k 個
+    173  BST Iterator          -&gt; 把中序走訪拆成 next() 逐步執行
+    501  Find Mode in BST      -&gt; 中序裡相同的值一定連續
+    530  Minimum Absolute Diff -&gt; 最小差一定發生在中序的相鄰兩項
+    1038 Greater Sum Tree      -&gt; 反向中序（右 -&gt; 根 -&gt; 左）累加
+
+    【看到 BST，先問自己：「中序走一遍能不能解？」
+      一半以上的 BST 題答案是「可以」。】</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一節點</strong> <code>[1]</code> → <code>True</code>。</li>
+          <li><strong><code>[5,1,4,null,null,3,6]</code></strong> → <code>False</code>（官方範例 2）。</li>
+          <li><strong><code>[10,5,15,null,null,6,20]</code></strong> → <code>False</code>。<strong>這是打臉「只比父子」的標準反例</strong>。</li>
+          <li><strong><code>[2,2]</code> 和 <code>[2,null,2]</code></strong> → 都是 <code>False</code>。<strong>必須是嚴格不等</strong>，寫成 <code>&lt;=</code> 就錯。</li>
+          <li><strong><code>[2147483647]</code></strong> → <code>True</code>。用 <code>int</code> 當邊界的語言會在這裡掛掉。</li>
+          <li><strong><code>[-2147483648]</code></strong> → <code>True</code>。同上。</li>
+          <li><strong><code>[0,null,-1]</code></strong> → <code>False</code>。<strong><code>if prev</code> 寫法（而非 <code>if prev is not None</code>）會在這裡誤判成 True</strong>。</li>
+          <li><strong>退化成一條鏈</strong>（10⁴ 個節點）→ 遞迴版可能 <code>RecursionError</code>，要用解法三或四。</li>
+          <li><strong>Morris 版提早 return</strong> → 樹被破壞，後續操作可能無窮迴圈。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果允許重複值呢？</h3>
+
+        <p><strong>先問清楚重複值放哪一側</strong>（這是設計決定，沒有標準答案）。</p>
+
+        <ul>
+          <li><strong>重複值放左邊</strong>：條件變成 <code>左子樹 ≤ 根 &lt; 右子樹</code>，中序是<strong>非遞減</strong>（<code>prev &gt; node.val</code> 才算錯）。</li>
+          <li><strong>重複值放右邊</strong>：條件變成 <code>左子樹 &lt; 根 ≤ 右子樹</code>。</li>
+          <li><strong>在節點上存計數</strong>（<code>count</code> 欄位）：樹裡仍然沒有重複的鍵，<strong>實務上最常見的做法</strong>（C++ 的 <code>std::multiset</code> 就是這樣）。</li>
+        </ul>
+
+        <h3>追問二：如果要回報「哪個節點違規」呢？</h3>
+
+        <p><strong>上下界版</strong>：在 <code>return False</code> 的地方把 <code>node</code> 記下來，就是第一個（前序順序）違規的節點。</p>
+
+        <p><strong>中序版</strong>：記下 <code>prev</code> 和 <code>node</code>，就是第一個逆序對 —— <strong>這正是第 99 題的起手式</strong>。</p>
+
+        <h3>追問三：如果樹非常大，放不進記憶體呢？</h3>
+
+        <p><strong>中序走訪是「串流友善」的</strong>：它只需要 <code>O(h)</code> 的堆疊，而且<strong>一次只碰一個節點</strong>。</p>
+
+        <p>所以可以<strong>邊從磁碟讀邊驗證</strong>，只要維護「上一個值」和一個 <code>O(h)</code> 的路徑堆疊。<strong>上下界版也可以，但它需要同時持有父節點的資訊。</strong></p>
+
+        <h3>追問四：怎麼驗證一棵樹是「平衡的」BST？</h3>
+
+        <p><strong>兩件事要分開檢查</strong>：（1）BST 性質（本題）；（2）平衡性（第 110 題：每個節點的左右高度差 ≤ 1）。</p>
+
+        <p><strong>可以合併成一趟後序走訪</strong>：每個節點同時回傳 <code>(是否合法, 最小值, 最大值, 高度)</code>，父節點用子節點的結果 <code>O(1)</code> 合成。<strong>這種「後序回傳一包資訊」的手法是樹題的另一個萬用範式</strong>。</p>
+
+        <h3>追問五：為什麼「中序遞增 ⟹ 是 BST」也成立？</h3>
+
+        <div class="code-block">（⟸ 方向）BST -&gt; 中序遞增，前面說過了。
+
+（⟹ 方向）中序遞增 -&gt; BST，證明如下：
+
+    對任一節點 x，考慮它的左子樹 L 和右子樹 R。
+
+    中序走訪的順序是：  [L 的全部] x [R 的全部]
+
+    既然整個序列嚴格遞增，
+    那麼 L 裡的每個值都排在 x 前面 -&gt; 都 &lt; x ✔
+    R 裡的每個值都排在 x 後面 -&gt; 都 &gt; x ✔
+
+    這對每個節點都成立 -&gt; 符合 BST 的定義 ✔
+
+【所以「中序嚴格遞增」和「是 BST」是完全等價的，
+  不只是必要條件。】
+
+    這個等價性是解法二、三、四全部成立的基礎，
+    也值得在面試時主動說出來。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 94 題 Binary Tree Inorder Traversal</strong> —— 中序走訪的三種寫法</li>
+          <li><strong>第 99 題 Recover Binary Search Tree</strong> —— 中序裡找逆序對</li>
+          <li><strong>第 230 題 Kth Smallest Element in a BST</strong> —— 中序的第 k 個</li>
+          <li><strong>第 173 題 Binary Search Tree Iterator</strong> —— 把中序拆成迭代器</li>
+          <li><strong>第 110 題 Balanced Binary Tree</strong> —— 後序回傳一包資訊</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「只檢查左孩子 &lt; 根 &lt; 右孩子」是錯的？請畫出一個反例。</li>
+            <li>上下界遞迴往左走和往右走時，各自改的是哪一個邊界？另一個為什麼不動？</li>
+            <li>「BST ⟺ 中序走訪嚴格遞增」的兩個方向各要怎麼證？</li>
+            <li>中序版為什麼要寫 <code>prev is not None</code> 而不是 <code>if prev</code>？</li>
+            <li>Morris 版為什麼發現不合法時不能直接 <code>return False</code>？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0097.html">← 上一題：97. 交錯字串</a>
+          <a href="problem-0099.html">下一題：99. 復原二元搜尋樹 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

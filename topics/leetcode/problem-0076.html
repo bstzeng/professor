@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>76. Minimum Window Substring 最小覆蓋子串 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="求最小視窗的滑動視窗，收縮條件比第 3 題複雜。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="76">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 76 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 76</div>
+          <h1>Minimum Window Substring<br>最小覆蓋子串</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">滑動視窗</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two strings <code>s</code> and <code>t</code> of lengths <code>m</code> and <code>n</code> respectively, return <em>the <strong>minimum window substring</strong> of <code>s</code> such that every character in <code>t</code> (<strong>including duplicates</strong>) is included in the window</em>. If there is no such substring, return the empty string <code>""</code>.</p>
+          <p>The testcases will be generated such that the answer is <strong>unique</strong>.</p>
+          <p><strong>Follow up:</strong> Could you find an algorithm that runs in <code>O(m + n)</code> time?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個字串 <code>s</code> 和 <code>t</code>，找出 <code>s</code> 裡<strong>最短的子字串</strong>，使它<strong>涵蓋 <code>t</code> 的所有字元（含重複次數）</strong>。如果不存在，回傳空字串 <code>""</code>。</p>
+          <p>測資保證答案是<strong>唯一</strong>的。</p>
+          <p><strong>進階：</strong>能不能做到 <code>O(m + n)</code>？</p>
+        </div>
+
+        <div class="callout">
+          <h3>「含重複」這三個字改變了一切</h3>
+        <div class="code-block">t = "AABC"  表示視窗裡必須有【兩個】A、一個 B、一個 C。
+
+    "ABC"    ✘ 只有一個 A
+    "AABC"   ✔
+    "ABAC"   ✔ 順序不重要，只要數量夠
+
+所以不能用 set，必須用 Counter（多重集合）。
+
+視窗「可行」的定義：
+    對每一個字元 c，  window[c] &gt;= need[c]
+
+滑動視窗的標準流程：
+    1. right 往右擴張，直到視窗「可行」
+    2. left 往右收縮，只要收縮後還「可行」就繼續收
+    3. 記錄這個「極小可行窗」的長度
+    4. 再吐掉一個左端點（變成不可行），回到步驟 1
+
+    重複直到 right 走到底。
+
+為什麼這樣不會漏掉答案？
+    對每一個 right，我們都找出了「以 right 為右端點的最短可行窗」。
+    答案一定是某個 right 的最短可行窗，所以全部取 min 就對了。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "ADOBECODEBANC", t = "ABC"
+  輸出："BANC"
+  說明：最短的涵蓋 A、B、C 的子字串。
+
+範例 2
+  輸入：s = "a", t = "a"
+  輸出："a"
+
+範例 3
+  輸入：s = "a", t = "aa"
+  輸出：""
+  說明：s 裡只有一個 a，湊不出兩個。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == s.length</code>，<code>n == t.length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 10⁵</li>
+          <li><code>s</code> 和 <code>t</code> 由英文字母（大小寫）組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/minimum-window-substring/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>m, n 到 10⁵</strong>。O(m·n) 是 10¹⁰ —— 必定 TLE。<strong>必須 O(m + n)。</strong></li>
+          <li><strong><code>t</code> 可能比 <code>s</code> 長</strong> → 直接回 <code>""</code>。</li>
+          <li><strong>大小寫有分</strong>：<code>'A'</code> 和 <code>'a'</code> 是不同的字元。</li>
+          <li><strong>t 可能有重複字元</strong> —— 這是本題的核心難點。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 292" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">s = &quot;ADOBECODEBANC&quot;，t = &quot;ABC&quot;　滑動視窗：右邊擴張直到可行，左邊收縮直到不可行</text>
+            <g font-family="monospace" font-size="15" text-anchor="middle">
+              <text x="60" y="66" fill="var(--text-muted)">A</text>
+              <text x="100" y="66" fill="var(--text-muted)">D</text>
+              <text x="140" y="66" fill="var(--text-muted)">O</text>
+              <text x="180" y="66" fill="var(--text-muted)">B</text>
+              <text x="220" y="66" fill="var(--text-muted)">E</text>
+              <text x="260" y="66" fill="var(--text-muted)">C</text>
+              <text x="300" y="66" fill="var(--text-muted)">O</text>
+              <text x="340" y="66" fill="var(--text-muted)">D</text>
+              <text x="380" y="66" fill="var(--text-muted)">E</text>
+              <text x="420" y="66" fill="var(--text-muted)">B</text>
+              <text x="460" y="66" fill="var(--text-muted)">A</text>
+              <text x="500" y="66" fill="var(--text-muted)">N</text>
+              <text x="540" y="66" fill="var(--text-muted)">C</text>
+            </g>
+            <g font-size="11" fill="var(--text-muted)" text-anchor="middle">
+              <text x="60" y="86">0</text><text x="180" y="86">3</text><text x="260" y="86">5</text>
+              <text x="420" y="86">9</text><text x="460" y="86">10</text><text x="540" y="86">12</text>
+            </g>
+            <g>
+              <rect x="44" y="104" width="232" height="26" rx="4" fill="var(--accent)" opacity="0.2"/>
+              <text x="300" y="122" fill="var(--accent)" font-size="12">[0, 5] &quot;ADOBEC&quot; 長度 6　第一個可行窗</text>
+
+              <rect x="164" y="140" width="352" height="26" rx="4" fill="var(--gold)" opacity="0.2"/>
+              <text x="530" y="158" fill="var(--gold)" font-size="12">[3, 10] 長度 8</text>
+
+              <rect x="404" y="176" width="152" height="26" rx="4" fill="#ff8a65" opacity="0.28"/>
+              <text x="570" y="194" fill="#ff8a65" font-size="12">[9, 12]</text>
+            </g>
+            <text x="20" y="232" fill="#ff8a65" font-size="13">最短的可行窗是 [9, 12] = &quot;BANC&quot;，長度 4</text>
+            <line x1="20" y1="250" x2="620" y2="250" stroke="var(--border)"/>
+            <text x="20" y="278" fill="var(--gold)" font-size="12">為什麼是 O(n)：left 和 right 都只往右走，各走 n 步 —— 每個字元最多進出視窗各一次。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>單一 Counter + missing 計數（最精簡）</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def minWindow(self, s: str, t: str) -&gt; str:
+        if not s or not t or len(s) &lt; len(t):
+            return ""
+
+        need = Counter(t)          # 還「缺」多少個（可以是負的，表示多了）
+        missing = len(t)           # 還缺幾個字元（含重複）
+        best = (float("inf"), 0, 0)
+        left = 0
+
+        for right, ch in enumerate(s):
+            # 只有「還缺這個字元」時才減少 missing
+            if need[ch] &gt; 0:
+                missing -= 1
+            need[ch] -= 1
+
+            if missing == 0:
+                # 視窗已經涵蓋 t，開始從左邊收縮
+                while need[s[left]] &lt; 0:      # 這個字元是多餘的
+                    need[s[left]] += 1
+                    left += 1
+
+                if right - left + 1 &lt; best[0]:
+                    best = (right - left + 1, left, right)
+
+                # 把左端點吐掉一個，繼續找下一個可行窗
+                need[s[left]] += 1
+                missing += 1
+                left += 1
+
+        return "" if best[0] == float("inf") else s[best[1]:best[2] + 1]</div>
+        <h3><code>need</code> 的值可以是負的 —— 這是最巧妙的地方</h3>
+        <div class="code-block">need = Counter(t)     一開始是「還缺多少」
+
+每讀一個字元 ch：
+    need[ch] -= 1
+
+    need[ch] &gt; 0   還缺這個字元
+    need[ch] == 0  剛好夠
+    need[ch] &lt; 0   多了 |need[ch]| 個（可以吐掉）
+
+而 missing 是「還缺幾個字元（含重複）」：
+    只有在 need[ch] &gt; 0（真的還缺）時才 missing -= 1。
+
+    如果 need[ch] &lt;= 0（已經夠了，或不在 t 裡），
+    missing 不變 —— 因為多拿一個並不會讓我們「更接近目標」。
+
+    對於不在 t 裡的字元，need[ch] 初始是 0（Counter 的預設），
+    減下去會變負 —— 自動被歸類成「多餘的」✔
+
+missing == 0  &lt;=&gt;  所有字元都湊夠了  &lt;=&gt;  視窗可行</div>
+        <h3>收縮迴圈 <code>while need[s[left]] &lt; 0</code></h3>
+        <div class="code-block">need[s[left]] &lt; 0 表示「這個字元在視窗裡是多餘的」
+-&gt; 吐掉它不會破壞可行性 -&gt; 可以安全收縮。
+
+一路收到 need[s[left]] == 0，
+表示左端點那個字元是「剛好夠用」的 —— 再吐就不行了。
+
+此時的視窗就是「以 right 為右端點的最短可行窗」✔
+
+收完之後記錄答案，然後：
+    need[s[left]] += 1     把左端點吐掉
+    missing += 1           現在又缺一個了
+    left += 1
+
+這樣視窗變成不可行，迴圈繼續往右找下一個。</div>
+        <h3>為什麼是 O(m + n)？</h3>
+        <p><strong><code>left</code> 和 <code>right</code> 都只會往右走，而且都不會超過 <code>m</code>。</strong>所以總步數是 O(m)。加上建 <code>Counter(t)</code> 的 O(n) —— 總共 <strong>O(m + n)</strong> ✔</p>
+        <p><strong>「兩個指標都單調前進」是滑動視窗能達到線性的根本原因</strong> —— 雖然內層有 while 迴圈，但它的總執行次數受 <code>left</code> 的移動次數限制（攤還分析）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m + n)</td><td>left 和 right 各走 m 步</td></tr>
+            <tr><td>空間</td><td>O(字元集大小)</td><td>一個 Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>兩個 Counter + formed 計數（最好講解）</h3>
+        <div class="code-block">from collections import Counter
+
+class Solution:
+    def minWindow(self, s: str, t: str) -&gt; str:
+        if not s or not t:
+            return ""
+
+        need = Counter(t)
+        window = Counter()
+        required = len(need)       # 需要「滿足」幾種不同的字元
+        formed = 0                 # 目前滿足了幾種
+
+        best = (float("inf"), 0, 0)
+        left = 0
+
+        for right, ch in enumerate(s):
+            window[ch] += 1
+            if ch in need and window[ch] == need[ch]:
+                formed += 1        # 這一種字元「剛好」湊夠
+
+            while formed == required:
+                if right - left + 1 &lt; best[0]:
+                    best = (right - left + 1, left, right)
+
+                lch = s[left]
+                window[lch] -= 1
+                if lch in need and window[lch] &lt; need[lch]:
+                    formed -= 1    # 吐掉之後就不夠了
+                left += 1
+
+        return "" if best[0] == float("inf") else s[best[1]:best[2] + 1]</div>
+        <h3><code>formed</code> 和 <code>required</code></h3>
+        <div class="code-block">required = len(need)   需要滿足「幾種」不同的字元
+formed              目前滿足了「幾種」
+
+    注意這裡數的是「種類」而不是「個數」。
+
+    t = "AABC"
+        need = {A:2, B:1, C:1}
+        required = 3（三種字元）
+
+    視窗 = "AAB"
+        window = {A:2, B:1}
+        A 滿足（2 &gt;= 2）✔，B 滿足（1 &gt;= 1）✔，C 不滿足
+        formed = 2 != 3  -&gt;  不可行
+
+只有在「剛好湊夠」的那一刻才 formed += 1：
+    if window[ch] == need[ch]:
+        formed += 1
+
+    用 == 而不是 &gt;= 是關鍵 ——
+    如果用 &gt;=，同一種字元會被重複計算很多次。
+
+同理，收縮時：
+    if window[lch] &lt; need[lch]:
+        formed -= 1
+
+    只有「掉到不夠」時才減。</div>
+        <h3>兩種寫法怎麼選？</h3>
+        <table>
+          <thead><tr><th></th><th>解法一（單 Counter）</th><th>解法二（雙 Counter）</th></tr></thead>
+          <tbody>
+            <tr><td>變數個數</td><td>2（need, missing）</td><td>4（need, window, required, formed）</td></tr>
+            <tr><td>核心技巧</td><td>允許 Counter 有負值</td><td>只在「剛好夠／剛好不夠」時更新</td></tr>
+            <tr><td>好講解</td><td>★★★☆☆</td><td>★★★★★</td></tr>
+            <tr><td>程式碼長度</td><td>較短</td><td>較長</td></tr>
+          </tbody>
+        </table>
+        <p><strong>解法二的語意更直白</strong>（「有幾種字元已經湊夠了」），面試時比較容易一邊寫一邊解釋。<strong>解法一更精簡</strong>，但「Counter 可以是負的」這個技巧需要多解釋幾句。</p>
+        <p><strong>兩個都該會 —— 它們是同一個滑動視窗骨架的兩種記帳方式。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m + n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(字元集大小)</td><td>兩個 Counter</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>變數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、單 Counter + missing</td><td>O(m+n)</td><td>O(Σ)</td><td>2</td><td>最精簡</td></tr>
+            <tr><td>二、雙 Counter + formed</td><td>O(m+n)</td><td>O(Σ)</td><td>4</td><td>最好講解</td></tr>
+            <tr><td>暴力枚舉</td><td>O(m²·n)</td><td>O(Σ)</td><td>—</td><td>會 TLE，只當基準</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>t 比 s 長</strong>：<code>("a", "aa")</code> → <code>""</code>。</li>
+          <li><strong>剛好相等</strong>：<code>("a", "a")</code> → <code>"a"</code>。</li>
+          <li><strong>沒有答案</strong>：<code>("ab", "c")</code> → <code>""</code>。</li>
+          <li><strong>t 有重複字元</strong>：<code>("aa", "aa")</code> → <code>"aa"</code>；<code>("a", "aa")</code> → <code>""</code>。<strong>用 set 而不是 Counter 會在這裡錯。</strong></li>
+          <li><strong>答案在最後面</strong>：<code>("ADOBECODEBANC", "ABC")</code> → <code>"BANC"</code>。<strong>不能找到第一個可行窗就 return。</strong></li>
+          <li><strong>答案就是整個 s</strong>：<code>("abc", "abc")</code> → <code>"abc"</code>。</li>
+          <li><strong>s 有大量不相關的字元</strong>：<code>("cabwefgewcwaefgcf", "cae")</code> → <code>"cwae"</code>。</li>
+          <li><strong>大小寫</strong>：<code>("a", "A")</code> → <code>""</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要「最長」的可行窗呢？</h3>
+
+        <p><strong>問題的結構完全不同。</strong>「最短可行窗」的可行性是<strong>單調的</strong>（窗變大只會更可行），所以「擴張到可行、收縮到極小」的策略有效。</p>
+
+        <p>如果要「最長」，而條件也是「涵蓋 t」，那答案就是整個 <code>s</code>（如果可行）—— 沒有意義。<strong>有意義的「最長」題目通常是「最多包含 k 種不同字元」</strong>（第 340 題）或「最多 k 個 0」（第 1004 題）—— 那類條件是「窗變大會變不可行」，所以策略反過來：<strong>擴張到不可行，收縮到可行</strong>。</p>
+
+        <div class="code-block">兩種滑動視窗的對照：
+
+  求最短可行窗（本題）：
+      while 可行:
+          記錄答案
+          收縮左邊
+
+  求最長可行窗（第 3、340、424、1004 題）：
+      while 不可行:
+          收縮左邊
+      記錄答案
+
+    差別在「記錄答案」的位置，以及 while 的條件方向。
+
+    判斷方法：問自己「窗變大，會變得更可行還是更不可行？」</div>
+
+        <h3>追問二：如果字元集很大（例如 Unicode）呢？</h3>
+
+        <p>空間從 O(52) 變成 O(|t| 的不同字元數)。<code>Counter</code>（雜湊表）本來就只存出現過的字元，所以不用改。<strong>但如果用「長度 52 的陣列」實作就要改回雜湊表。</strong></p>
+
+        <h3>追問三：這個滑動視窗骨架能解哪些題？</h3>
+
+        <div class="code-block">求最短：
+    第 76 題   最小覆蓋子串（本題）
+    第 209 題  長度最小的子陣列（和 &gt;= target）
+    第 862 題  和至少為 K 的最短子陣列（有負數，要用單調佇列）
+
+求最長：
+    第 3 題    無重複字元的最長子字串
+    第 340 題  至多包含 K 種不同字元的最長子字串
+    第 424 題  替換後的最長重複字元
+    第 1004 題 最大連續 1 的個數 III
+
+固定長度：
+    第 438 題  找所有字母異位詞
+    第 567 題  字串的排列
+    第 30 題   串聯所有單詞的子串（分組滑動視窗）
+
+共同結構：
+    for right in range(n):
+        把 s[right] 加入視窗
+        while &lt;該收縮的條件&gt;:
+            從視窗移除 s[left]
+            left += 1
+        &lt;在適當的位置記錄答案&gt;
+
+    差別只在「該收縮的條件」和「記錄答案的位置」。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 3 題 Longest Substring Without Repeating</strong> —— 求最長的版本</li>
+          <li><strong>第 209 題 Minimum Size Subarray Sum</strong> —— 數值版的「求最短」</li>
+          <li><strong>第 438／567 題</strong> —— 固定長度的滑動視窗</li>
+          <li><strong>第 30 題 Substring with Concatenation of All Words</strong> —— 分組滑動視窗</li>
+          <li><strong>第 239 題 Sliding Window Maximum</strong> —— 單調佇列</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要用 <code>Counter</code> 而不是 <code>set</code>？舉一個會錯的輸入。</li>
+            <li>解法一裡 <code>need[ch]</code> 可以是負的，這代表什麼？為什麼只在 <code>need[ch] &gt; 0</code> 時才 <code>missing -= 1</code>？</li>
+            <li>解法二裡為什麼 <code>formed += 1</code> 的條件用 <code>==</code> 而不是 <code>&gt;=</code>？</li>
+            <li>「求最短可行窗」和「求最長可行窗」的滑動視窗骨架差在哪兩個地方？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0075.html">← 上一題：75. 顏色分類</a>
+          <a href="problem-0077.html">下一題：77. 組合 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

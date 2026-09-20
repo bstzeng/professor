@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>52. N-Queens II N 皇后 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="只數數量，順便介紹位元運算版本。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="52">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 52 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 52</div>
+          <h1>N-Queens II<br>N 皇后 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The <strong>n-queens</strong> puzzle is the problem of placing <code>n</code> queens on an <code>n x n</code> chessboard such that no two queens attack each other.</p>
+          <p>Given an integer <code>n</code>, return <em>the number of distinct solutions to the <strong>n-queens puzzle</strong></em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><strong>N 皇后問題</strong>：在 <code>n × n</code> 棋盤上放 <code>n</code> 個皇后，使得任兩個不會互相攻擊。</p>
+          <p>給你一個整數 <code>n</code>，回傳<strong>不同解法的數量</strong>（不需要列出棋盤）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>和第 51 題只差一行</h3>
+        <div class="code-block">第 51 題：out.append(棋盤字串)
+第 52 題：count += 1
+
+其他完全一樣。
+
+但「只要數量」讓我們可以做兩個第 51 題做不到的優化：
+
+  ① 完全不用維護 queens 這個 list，也不用建字串
+     -&gt; 省掉大量的記憶體配置
+
+  ② 可以利用「鏡射對稱」：
+     把棋盤左右翻轉，一組解會變成另一組解。
+     所以「第一列放在左半邊」的解，數量和「放在右半邊」的一樣。
+     只算一半再乘 2 -&gt; 搜尋量減半。
+
+     （第 51 題也能用，但要把每組解鏡射回去，
+       程式碼變複雜，而且省下的時間被建字串吃掉了。）</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 4
+  輸出：2
+
+範例 2
+  輸入：n = 1
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 9</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/n-queens-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>答案表（用來驗證）</h3>
+        <div class="code-block">n:     1   2   3   4   5    6   7    8    9
+解數:  1   0   0   2   10   4   40   92   352
+
+n = 2、3 無解。
+n = 6 只有 4 組，比 n = 5 的 10 組還少 ——
+解數不是單調遞增的，這常讓人以為程式寫錯了。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>既然第 51 題已經講完了回溯和位元遮罩的原理，這裡直接看兩個優化版本。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>位元遮罩計數（標準解）</h3>
+        <div class="code-block">class Solution:
+    def totalNQueens(self, n: int) -&gt; int:
+        FULL = (1 &lt;&lt; n) - 1
+
+        def backtrack(cols: int, d1: int, d2: int) -&gt; int:
+            if cols == FULL:            # n 個皇后都放好了
+                return 1
+
+            count = 0
+            avail = ~(cols | d1 | d2) &amp; FULL
+            while avail:
+                bit = avail &amp; -avail
+                avail -= bit
+                count += backtrack(cols | bit,
+                                   (d1 | bit) &lt;&lt; 1 &amp; FULL,
+                                   (d2 | bit) &gt;&gt; 1)
+            return count
+
+        return backtrack(0, 0, 0)</div>
+        <h3>終止條件用 <code>cols == FULL</code> 而不是 <code>r == n</code></h3>
+        <div class="code-block">因為我們連「現在是第幾列」都不需要記！
+
+    cols 是「已經被佔用的行」的遮罩。
+    每放一個皇后就多佔一行。
+    所以 cols 的 1 位元個數 == 已經放了幾個皇后 == 目前在第幾列。
+
+    cols == FULL（全部 n 位都是 1）
+        &lt;=&gt; 放了 n 個皇后
+        &lt;=&gt; 走到底了 ✔
+
+這讓遞迴函式只需要三個參數，完全不用傳 r。
+是位元表示法的一個附帶好處。</div>
+        <h3><code>(d1 | bit) &lt;&lt; 1 &amp; FULL</code> 的 <code>&amp; FULL</code></h3>
+        <p>左移之後可能超出 n 位，<code>&amp; FULL</code> 把超出的部分切掉 —— 對應「對角線走出棋盤右邊就消失了」。<strong>不切的話遮罩會無限變大</strong>，在 Python 裡不會出錯（任意精度整數）但會愈來愈慢；在 C/Java 裡則會影響正確性。</p>
+        <p><code>(d2 | bit) &gt;&gt; 1</code> 不用切，因為右移只會讓位元變少。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n!) 上界</td><td>純位元運算，沒有字串建構</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>三個整數 + 遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>再加上鏡射對稱（搜尋量減半）</h3>
+        <p>把棋盤<strong>左右鏡射</strong>，一組合法解會變成另一組合法解（攻擊關係在鏡射下保持不變）。</p>
+        <div class="code-block">class Solution:
+    def totalNQueens(self, n: int) -&gt; int:
+        if n == 1:
+            return 1
+        FULL = (1 &lt;&lt; n) - 1
+
+        def backtrack(cols: int, d1: int, d2: int) -&gt; int:
+            if cols == FULL:
+                return 1
+            count = 0
+            avail = ~(cols | d1 | d2) &amp; FULL
+            while avail:
+                bit = avail &amp; -avail
+                avail -= bit
+                count += backtrack(cols | bit,
+                                   (d1 | bit) &lt;&lt; 1 &amp; FULL,
+                                   (d2 | bit) &gt;&gt; 1)
+            return count
+
+        # 鏡射對稱：第一列放在左半邊的解，鏡射過去就是右半邊的解
+        total = 0
+        for c in range(n // 2):
+            bit = 1 &lt;&lt; c
+            total += backtrack(bit, bit &lt;&lt; 1, bit &gt;&gt; 1)
+        total *= 2
+
+        # n 是奇數時，第一列放正中間的情況要單獨算（它鏡射到自己）
+        if n % 2:
+            bit = 1 &lt;&lt; (n // 2)
+            total += backtrack(bit, bit &lt;&lt; 1, bit &gt;&gt; 1)
+
+        return total</div>
+        <div class="code-block">n = 8，第一列可以放在第 0..7 行。
+
+    第一列放第 0 行的解數  ==  第一列放第 7 行的解數
+    第一列放第 1 行的解數  ==  第一列放第 6 行的解數
+    第一列放第 2 行的解數  ==  第一列放第 5 行的解數
+    第一列放第 3 行的解數  ==  第一列放第 4 行的解數
+
+    所以只要算 c = 0, 1, 2, 3 這四種，再 × 2 就好。
+    搜尋量剛好減半。
+
+n = 9（奇數）：
+    c = 0..3 算完 × 2，
+    再單獨加上 c = 4（正中間）的解數 ——
+    因為它鏡射之後還是自己，不能乘 2。
+
+驗證 n = 8：
+    c=0: 4 組    c=1: 8 組    c=2: 16 組    c=3: 18 組
+    (4+8+16+18) × 2 = 46 × 2 = 92 ✔</div>
+        <p><strong>只能用鏡射，不能用旋轉。</strong>旋轉 90° 也會把解變成解，但<strong>它會改變「第一列的皇后在哪」這個分類</strong>，沒辦法簡單地用「乘以 4」來計數（有些解在旋轉下是自己，要扣掉重複）。正確處理旋轉對稱要用 Burnside 引理，複雜很多。</p>
+        <p><strong>左右鏡射是安全的</strong>，因為它保持「第一列」還是第一列，只是把行號 <code>c</code> 變成 <code>n-1-c</code>。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n!) 上界，常數減半</td><td>只搜一半的第一列</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>三個整數 + 遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>搜尋量</th><th>n=9 相對耗時</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>第 51 題的集合版 + 計數</td><td>100%</td><td>最慢</td><td>會建 queens list</td></tr>
+            <tr><td>一、位元遮罩</td><td>100%</td><td>約 1/4</td><td>不建字串</td></tr>
+            <tr><td>二、位元 + 鏡射</td><td>50%</td><td>約 1/8</td><td>n 是奇數時要處理中間</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → 1。<strong>鏡射版要特判</strong>：<code>n // 2 = 0</code>，for 迴圈不跑，只有「奇數的中間」那一段會執行，剛好算對 —— 但寫 <code>if n == 1: return 1</code> 更保險也更清楚。</li>
+          <li><strong>n = 2、3</strong> → 0。搜尋會全部失敗，回傳 0。</li>
+          <li><strong>n = 6</strong> → 4。比 n = 5 的 10 還少，不要以為寫錯了。</li>
+          <li><strong>n = 8</strong> → 92。經典驗證值。</li>
+          <li><strong>n 是奇數</strong>：鏡射版一定要單獨處理中間那一行，否則 n = 5 會算出 8 而不是 10。</li>
+          <li><strong>忘記 <code>&amp; FULL</code></strong>：在 Python 裡答案仍然正確（因為 <code>avail</code> 那一行也有 <code>&amp; FULL</code>），但 <code>d1</code> 會無限制地變大，愈來愈慢。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：n 更大時能算到多少？</h3>
+
+        <div class="code-block">用本題的位元 + 對稱剪枝，在一般電腦上：
+
+    n = 15   約 0.1 秒（2,279,184 組）
+    n = 18   約 10 秒（666,090,624 組）
+    n = 20   約 10 分鐘
+
+再往上就需要更強的技巧：
+    - 完整的 8 重對稱（要用 Burnside 引理處理自對稱的解）
+    - 位元平行（一次算多個分支）
+    - GPU / 分散式運算
+
+目前的世界紀錄是 n = 27（2016 年），
+用了 FPGA 叢集算了好幾個月。
+
+n = 27 的答案：234,907,967,154,122,528
+
+沒有已知的公式，也沒有多項式演算法 ——
+這是一個「看起來簡單，但計數極難」的問題。</div>
+
+        <h3>追問二：這個問題的計數難度屬於哪一類？</h3>
+
+        <p>N 皇后的計數問題被認為是 <strong>#P-hard</strong>（讀作 sharp-P hard）。<strong>#P 是「計數版的 NP」</strong> —— NP 問「有沒有解」，#P 問「有幾組解」。有些問題「找一組解」很容易但「數出所有解」極難 —— N 皇后正是這樣（有 O(n) 的構造法，但計數沒有多項式演算法）。</p>
+
+        <h3>追問三：為什麼這題只到 n = 9？</h3>
+
+        <p>因為 LeetCode 的時間限制。n = 9 只有 352 組解，毫秒級完成。如果放到 n = 15，樸素的集合版可能會 TLE，而位元版還能過。<strong>題目的上限往往反映了「出題者預期的解法」</strong> —— n ≤ 9 表示「寫得出正確的回溯就好」。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 51 題 N-Queens</strong> —— 列出所有解</li>
+          <li><strong>第 37 題 Sudoku Solver</strong> —— 同樣的 CSP + 位元遮罩</li>
+          <li><strong>第 1349 題 Maximum Students Taking Exam</strong> —— 位元遮罩 DP 的棋盤題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼終止條件可以用 <code>cols == FULL</code> 而不需要記「現在第幾列」？</li>
+            <li><code>(d1 | bit) &lt;&lt; 1 &amp; FULL</code> 裡的 <code>&amp; FULL</code> 在做什麼？拿掉會怎樣？</li>
+            <li>鏡射對稱為什麼安全，旋轉對稱為什麼不能簡單地乘 4？</li>
+            <li>n = 5 用鏡射版時，如果忘記處理「中間那一行」，會算出多少？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0051.html">← 上一題：51. N 皇后</a>
+          <a href="problem-0053.html">下一題：53. 最大子陣列和 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

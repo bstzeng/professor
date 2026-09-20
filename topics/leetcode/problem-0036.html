@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>36. Valid Sudoku 有效的數獨 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="三組集合一趟掃完，宮格索引的公式推導。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="36">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 36 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 36</div>
+          <h1>Valid Sudoku<br>有效的數獨</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Determine if a <code>9 x 9</code> Sudoku board is <strong>valid</strong>. Only the filled cells need to be validated according to the following rules:</p>
+          <p>(1) Each row must contain the digits <code>1-9</code> without repetition. (2) Each column must contain the digits <code>1-9</code> without repetition. (3) Each of the nine <code>3 x 3</code> sub-boxes must contain the digits <code>1-9</code> without repetition.</p>
+          <p><strong>Note:</strong> A Sudoku board (partially filled) could be valid but is not necessarily solvable.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>判斷一個 <code>9 × 9</code> 的數獨盤面是否<strong>有效</strong>。<strong>只需要檢查已經填上的格子</strong>，規則如下：</p>
+          <p>（1）每一<strong>列</strong>的數字 1–9 不能重複；（2）每一<strong>行</strong>的數字 1–9 不能重複；（3）每個 <code>3 × 3</code> <strong>宮格</strong>裡的數字 1–9 不能重複。</p>
+          <p><strong>注意：</strong>一個部分填寫的盤面可以是「有效」的，但不一定<strong>有解</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>「有效」不等於「有解」</h3>
+        <div class="code-block">這題只問：目前填的這些數字，有沒有違反三條規則？
+
+它「不」問：這個盤面能不能填完？
+
+例子：
+    第一列填了 1 2 3 4 5 6 7 8，第九格是空的
+    第一行填了 1（在 (0,0)）
+    ...
+
+    可能出現「某個空格所有數字都不能填」的死局，
+    但只要目前填的沒有重複，這題就算「有效」。
+
+「能不能填完」是第 37 題（Sudoku Solver），難度高很多。
+
+這個區分很重要：本題是 O(81) 的檢查，第 37 題是回溯搜尋。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1（有效）
+  5 3 . | . 7 . | . . .
+  6 . . | 1 9 5 | . . .
+  . 9 8 | . . . | . 6 .
+  ------+-------+------
+  8 . . | . 6 . | . . 3
+  4 . . | 8 . 3 | . . 1
+  7 . . | . 2 . | . . 6
+  ------+-------+------
+  . 6 . | . . . | 2 8 .
+  . . . | 4 1 9 | . . 5
+  . . . | . 8 . | . 7 9
+  輸出：true
+
+範例 2（無效）
+  把左上角的 5 改成 8
+  -&gt; 左上 3x3 宮格裡有兩個 8（(0,0) 和 (3,0) 不同宮…
+     實際衝突在 (0,0)=8 與同一宮的另一個 8）
+  輸出：false</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>board.length == 9</code>，<code>board[i].length == 9</code></li>
+          <li><code>board[i][j]</code> 是 <code>'1'</code>–<code>'9'</code> 的<strong>字元</strong>，或 <code>'.'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/valid-sudoku/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>盤面固定是 9×9</strong>，所以所有解法都是 O(81) = O(1)。<strong>這題不考效率，考的是「你怎麼組織這三個約束」。</strong></li>
+          <li><strong>格子裡是「字元」不是「整數」</strong>。<code>board[r][c]</code> 是 <code>'5'</code> 而不是 <code>5</code>。用位元法時要記得 <code>int(v)</code>。</li>
+          <li><strong>空格是 <code>'.'</code></strong>，要跳過，不能當成一個值。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>三條規則的形狀不一樣（列、行、宮），但檢查的邏輯完全一樣：<strong>有沒有重複</strong>。所以關鍵是<strong>把「這一格屬於哪一列 / 哪一行 / 哪一宮」統一成三個索引</strong>。</p>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 320" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">宮格編號 = (r // 3) * 3 + c // 3</text>
+            <g>
+              <rect x="150" y="40" width="240" height="240" fill="none" stroke="var(--text-muted)" stroke-width="2"/>
+              <line x1="230" y1="40" x2="230" y2="280" stroke="var(--text-muted)" stroke-width="2"/>
+              <line x1="310" y1="40" x2="310" y2="280" stroke="var(--text-muted)" stroke-width="2"/>
+              <line x1="150" y1="120" x2="390" y2="120" stroke="var(--text-muted)" stroke-width="2"/>
+              <line x1="150" y1="200" x2="390" y2="200" stroke="var(--text-muted)" stroke-width="2"/>
+            </g>
+            <g font-size="26" text-anchor="middle" fill="var(--accent)">
+              <text x="190" y="90">0</text><text x="270" y="90">1</text><text x="350" y="90">2</text>
+              <text x="190" y="170">3</text><text x="270" y="170">4</text><text x="350" y="170">5</text>
+              <text x="190" y="250">6</text><text x="270" y="250">7</text><text x="350" y="250">8</text>
+            </g>
+            <g font-size="11" fill="var(--text-muted)" text-anchor="middle">
+              <text x="190" y="106">r//3=0, c//3=0</text>
+              <text x="350" y="266">r//3=2, c//3=2</text>
+            </g>
+            <text x="420" y="80" fill="var(--gold)" font-size="12">例：r=4, c=7</text>
+            <text x="420" y="102" fill="var(--text-muted)" font-size="12">r // 3 = 1</text>
+            <text x="420" y="122" fill="var(--text-muted)" font-size="12">c // 3 = 2</text>
+            <text x="420" y="142" fill="var(--text-muted)" font-size="12">1 × 3 + 2 = 5</text>
+            <text x="420" y="166" fill="var(--accent)" font-size="12">→ 宮格 5 ✔</text>
+            <text x="20" y="310" fill="var(--gold)" font-size="12">整除 3 把 0~8 壓成 0~2，乘 3 再加就得到 0~8 的唯一編號 —— 就是二維展平成一維。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>三組集合，一次掃完（最推薦）</h3>
+        <div class="code-block">class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -&gt; bool:
+        rows = [set() for _ in range(9)]
+        cols = [set() for _ in range(9)]
+        boxes = [set() for _ in range(9)]      # 3x3 宮格，編號 0..8
+
+        for r in range(9):
+            for c in range(9):
+                v = board[r][c]
+                if v == ".":
+                    continue
+
+                b = (r // 3) * 3 + c // 3      # 宮格編號
+
+                if v in rows[r] or v in cols[c] or v in boxes[b]:
+                    return False
+
+                rows[r].add(v)
+                cols[c].add(v)
+                boxes[b].add(v)
+
+        return True</div>
+        <h3>宮格編號公式 <code>(r // 3) * 3 + c // 3</code></h3>
+        <div class="code-block">r // 3 把列號 0..8 壓成宮列 0..2
+c // 3 把行號 0..8 壓成宮行 0..2
+
+然後用「二維展平成一維」的標準公式：
+    index = 宮列 * 每列的宮數 + 宮行
+          = (r // 3) * 3 + (c // 3)
+
+驗算：
+    (0,0) -&gt; 0*3 + 0 = 0   左上
+    (0,8) -&gt; 0*3 + 2 = 2   右上
+    (4,4) -&gt; 1*3 + 1 = 4   正中
+    (8,8) -&gt; 2*3 + 2 = 8   右下  ✔
+
+這個「整除壓縮 + 展平」的技巧在所有網格分塊的題目都會用到。
+另一個等價寫法是用 tuple (r//3, c//3) 當 key，
+不用算公式，但要用 dict 而不是 list。</div>
+        <p><strong>只掃一遍就同時檢查三條規則</strong>，因為每一格同時屬於一列、一行、一宮，三個都可以在看到它的當下就更新。</p>
+        <p><strong>為什麼用 <code>set</code> 而不是先收集再比長度？</strong>因為 <code>set</code> 可以<strong>提早退出</strong> —— 一發現重複立刻 return False，不用把整個盤面掃完。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(81) = O(1)</td><td>每格處理一次</td></tr>
+            <tr><td>空間</td><td>O(81) = O(1)</td><td>27 個集合，合計最多 81 個元素</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>一個集合，把約束編碼進 key</h3>
+        <p>另一種組織方式：<strong>只用一個集合</strong>，但把「哪一種約束」也編進 key 裡，讓三種約束不會互相撞到。</p>
+        <div class="code-block">class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -&gt; bool:
+        seen = set()
+
+        for r in range(9):
+            for c in range(9):
+                v = board[r][c]
+                if v == ".":
+                    continue
+
+                # 把三個約束編碼成三個「不可能撞在一起」的字串
+                keys = ((v, "row", r),
+                        (v, "col", c),
+                        (v, "box", r // 3, c // 3))
+
+                for k in keys:
+                    if k in seen:
+                        return False
+                    seen.add(k)
+
+        return True</div>
+        <div class="code-block">(v, "row", r)       表示「第 r 列有 v」
+(v, "col", c)       表示「第 c 行有 v」
+(v, "box", i, j)    表示「第 (i,j) 宮有 v」
+
+這三種 tuple 的形狀不同、內容也不同，
+所以絕不可能互相碰撞。
+
+很多題解會寫成字串：
+    f"{v} in row {r}"
+    f"{v} in col {c}"
+    f"{v} in box {r//3}-{c//3}"
+
+效果一樣，但 tuple 比字串快（不用格式化），
+而且不會有「分隔符號選錯導致碰撞」的風險。
+例如用 f"{v}-{r}" 當 row key、f"{r}-{v}" 當 col key，
+在 v == r 時就會撞在一起。</div>
+        <p><strong>優點</strong>：概念上最統一 —— 「所有約束都是『這個東西不能出現兩次』」。<strong>缺點</strong>：key 比較大，常數稍慢，而且要小心不要設計出會碰撞的編碼。</p>
+        <p>這個「把多個維度編碼進一個 key」的技巧在<strong>約束檢查</strong>類的問題裡很常見（例如 N 皇后的行／對角線衝突檢查）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(81) = O(1)</td><td>每格產生三個 key</td></tr>
+            <tr><td>空間</td><td>O(243) = O(1)</td><td>一個集合，最多 243 個 key</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>位元遮罩（最省記憶體）</h3>
+        <p>9 個數字剛好可以用一個 9 位元的整數表示「哪些用過了」。</p>
+        <div class="code-block">class Solution:
+    def isValidSudoku(self, board: List[List[str]]) -&gt; bool:
+        # 每一列/行/宮用一個 9 位元的整數記錄「哪些數字用過了」
+        rows = [0] * 9
+        cols = [0] * 9
+        boxes = [0] * 9
+
+        for r in range(9):
+            for c in range(9):
+                v = board[r][c]
+                if v == ".":
+                    continue
+
+                bit = 1 &lt;&lt; (int(v) - 1)        # '1' -&gt; 第 0 位，'9' -&gt; 第 8 位
+                b = (r // 3) * 3 + c // 3
+
+                if rows[r] &amp; bit or cols[c] &amp; bit or boxes[b] &amp; bit:
+                    return False
+
+                rows[r] |= bit
+                cols[c] |= bit
+                boxes[b] |= bit
+
+        return True</div>
+        <div class="code-block">bit = 1 &lt;&lt; (int(v) - 1)
+
+    '1' -&gt; 1 &lt;&lt; 0 = 0b000000001
+    '5' -&gt; 1 &lt;&lt; 4 = 0b000010000
+    '9' -&gt; 1 &lt;&lt; 8 = 0b100000000
+
+檢查：rows[r] &amp; bit    非 0 表示這一列已經有 v 了
+標記：rows[r] |= bit   把那一位設成 1
+
+例：第 0 列填了 5, 3, 7
+    rows[0] = 0b001010100
+                 ^  ^ ^
+                 7  5 3   （第 6、4、2 位）</div>
+        <p><strong>27 個整數取代 27 個集合</strong>，記憶體從幾 KB 降到 216 位元組。而且位元運算比雜湊快得多。</p>
+        <p>在這題（固定 9×9）差別可以忽略，但<strong>第 37 題（解數獨）會做上百萬次這種檢查</strong>，位元遮罩帶來的加速是實質的 —— <strong>所以這個版本值得先在這裡練熟。</strong></p>
+        <h3>常用的位元技巧</h3>
+        <div class="code-block">檢查第 k 位：      mask &amp; (1 &lt;&lt; k)
+設定第 k 位：      mask |= (1 &lt;&lt; k)
+清除第 k 位：      mask &amp;= ~(1 &lt;&lt; k)
+翻轉第 k 位：      mask ^= (1 &lt;&lt; k)
+數有幾個 1：       bin(mask).count("1")  或  mask.bit_count()（3.10+）
+取最低位的 1：     mask &amp; -mask
+清除最低位的 1：   mask &amp; (mask - 1)
+全部候選（1~9）：  0b111111111 = 0x1FF = 511
+可填的數字：       ~(rows[r] | cols[c] | boxes[b]) &amp; 0x1FF</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(81) = O(1)</td><td>每格三次位元運算</td></tr>
+            <tr><td>空間</td><td>O(27) = O(1)</td><td>27 個整數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>資料結構</th><th>記憶體</th><th>速度</th><th>適合</th></tr></thead>
+          <tbody>
+            <tr><td>一、三組集合</td><td>27 個 set</td><td>中</td><td>快</td><td>面試預設，最好讀</td></tr>
+            <tr><td>二、單一集合</td><td>1 個 set</td><td>大</td><td>中</td><td>概念統一</td></tr>
+            <tr><td>三、位元遮罩</td><td>27 個 int</td><td>小</td><td>最快</td><td>第 37 題的前置練習</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全空盤面</strong>：全是 <code>'.'</code> → true。</li>
+          <li><strong>同一列重複</strong>：<code>board[0][0] == board[0][5] == '5'</code> → false。</li>
+          <li><strong>同一行重複</strong>：<code>board[0][0] == board[5][0] == '5'</code> → false。</li>
+          <li><strong>同一宮重複但不同列不同行</strong>：<code>board[0][0] == board[1][1] == '5'</code> → false。<strong>這是最容易漏掉的一種</strong> —— 只檢查列和行的話會誤判成 true。</li>
+          <li><strong>有效但無解</strong>：題目明說這算 true。不要試著去判斷可解性。</li>
+          <li><strong>只有一個數字</strong>：一定 true。</li>
+          <li><strong>81 格全滿且合法</strong>：true。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要驗證任意 n²×n² 的數獨呢？</h3>
+
+        <p>把所有的 9 換成 <code>n*n</code>、3 換成 <code>n</code> 即可：<code>box = (r // n) * n + c // n</code>。位元遮罩在 n² &gt; 64 時要改用大整數或多個字組 —— Python 沒問題，C++ 要用 bitset。</p>
+
+        <h3>追問二：如果要「一邊填一邊驗證」呢？</h3>
+
+        <p>那就是第 37 題。此時三組遮罩要能<strong>增量更新和回退</strong>：</p>
+
+        <div class="code-block">填入：  rows[r] |= bit;  cols[c] |= bit;  boxes[b] |= bit
+回退：  rows[r] ^= bit;  cols[c] ^= bit;  boxes[b] ^= bit
+        （XOR 可以當「切換」用，因為我們確定那一位現在是 1）
+
+有了遮罩，「這一格可以填哪些數字」是一次運算：
+    candidates = ~(rows[r] | cols[c] | boxes[b]) &amp; 0x1FF
+
+這正是第 37 題能在毫秒內解完的關鍵。</div>
+
+        <h3>追問三：為什麼數獨的三條規則可以用同一套程式碼檢查？</h3>
+
+        <p>因為它們在抽象上是同一件事：<strong>「這 9 個格子構成一個群組，群組內不能有重複」</strong>。列、行、宮只是三種不同的分組方式。如果把數獨看成一個<strong>圖著色問題</strong>（81 個節點，同群組的節點之間連邊，用 9 種顏色著色），那麼「有效」就是「目前的部分著色沒有衝突」。<strong>從這個角度看，數獨、N 皇后、地圖著色、課表排程其實是同一類問題。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 37 題 Sudoku Solver</strong> —— 這題的延伸，回溯 + 同一套遮罩</li>
+          <li><strong>第 51 題 N-Queens</strong> —— 另一個「約束檢查 + 回溯」的經典</li>
+          <li><strong>第 289 題 Game of Life</strong> —— 另一個網格題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>宮格編號公式 <code>(r//3)*3 + c//3</code> 是怎麼來的？(4,7) 屬於第幾宮？</li>
+            <li>只檢查列和行、不檢查宮，哪一種輸入會被誤判成有效？</li>
+            <li>解法二如果把 row key 寫成 <code>f"{v}-{r}"</code>、col key 寫成 <code>f"{r}-{v}"</code>，什麼情況會誤判？</li>
+            <li>位元遮罩要怎麼算出「這一格可以填哪些數字」？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0035.html">← 上一題：35. 搜尋插入位置</a>
+          <a href="problem-0037.html">下一題：37. 解數獨 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

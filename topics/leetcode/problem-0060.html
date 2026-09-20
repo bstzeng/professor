@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>60. Permutation Sequence 排列序列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="用階乘直接算出每一位，不需要真的枚舉。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="60">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 60 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 60</div>
+          <h1>Permutation Sequence<br>排列序列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The set <code>[1, 2, 3, ..., n]</code> contains a total of <code>n!</code> unique permutations. By listing and labeling all of the permutations in order, we get the sequence for <code>n = 3</code>: <code>"123", "132", "213", "231", "312", "321"</code>.</p>
+          <p>Given <code>n</code> and <code>k</code>, return the <code>k</code>-th permutation sequence.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>集合 <code>[1, 2, 3, ..., n]</code> 共有 <code>n!</code> 種不同的排列。把它們<strong>按字典序</strong>列出來並編號（從 1 開始），例如 <code>n = 3</code> 時依序是：<code>"123", "132", "213", "231", "312", "321"</code>。</p>
+          <p>給你 <code>n</code> 和 <code>k</code>，回傳<strong>第 <code>k</code> 個</strong>排列。</p>
+        </div>
+
+        <div class="callout">
+          <h3>核心：排列的字典序有「分組」結構</h3>
+        <div class="code-block">n = 4 的 24 個排列，依「第一位是誰」分成 4 組：
+
+    第一位是 1 -&gt; 索引 0..5    （後面 3 個數字的 3! = 6 種排列）
+    第一位是 2 -&gt; 索引 6..11
+    第一位是 3 -&gt; 索引 12..17
+    第一位是 4 -&gt; 索引 18..23
+
+所以「第 k 個排列的第一位是誰」可以直接算：
+    idx = k // 3!        （k 用 0-indexed）
+
+算完之後，k 減掉前面那些組，繼續決定第二位：
+    k = k % 3!
+    第二位的分組大小是 2!
+
+這就是【階乘進位制（factorial number system / factoradic）】：
+
+    8 (十進位)  =  1 × 3! + 1 × 2! + 0 × 1! + 0 × 0!
+                =  (1, 1, 0, 0) 階乘進位
+
+    而 (1, 1, 0, 0) 的意思是：
+      第 1 位取「剩餘候選」的第 1 個
+      第 2 位取「剩餘候選」的第 1 個
+      第 3 位取「剩餘候選」的第 0 個
+      第 4 位取「剩餘候選」的第 0 個
+
+    這叫做 Lehmer code —— 排列和階乘進位數之間的一一對應。</div>
+        <p><strong>關鍵是「取剩餘候選的第幾個」而不是「取數字幾」</strong> —— 因為用過的數字要從候選裡移除，索引會跟著變。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 3, k = 3
+  輸出："213"
+
+範例 2
+  輸入：n = 4, k = 9
+  輸出："2314"
+
+範例 3
+  輸入：n = 3, k = 1
+  輸出："123"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 9</li>
+          <li>1 ≤ <code>k</code> ≤ <code>n!</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/permutation-sequence/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 9</strong>，所以 <code>n!</code> 最大是 <code>9! = 362880</code>。這個數字剛好落在「生成所有排列會慢但不會爆」的邊緣 —— 所以樸素做法（呼叫 k−1 次 next_permutation）能過，但慢很多。</li>
+          <li><strong>k 從 1 開始</strong>（1-indexed）。<strong>程式裡第一件事就是 <code>k -= 1</code></strong>，轉成 0-indexed 之後所有的除法和取模才會對。<strong>忘記減 1 是本題第一名的 bug。</strong></li>
+          <li><strong>保證 <code>k ≤ n!</code></strong>，所以不用處理「k 太大」。</li>
+          <li><strong>數字是 1..9，剛好是一位數</strong>，所以答案可以直接字串串接，不用擔心多位數的問題。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 326" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">n = 4，k = 9（1-indexed）→ 先轉成 k = 8（0-indexed）</text>
+            <text x="20" y="48" fill="var(--text-muted)" font-size="12">4 個數字的排列共 24 個，依第一位分成 4 組，每組 3! = 6 個</text>
+            <g font-size="12" font-family="monospace">
+              <text x="40" y="82" fill="var(--text-muted)">索引 0–5  ：第一位是 1</text>
+              <text x="330" y="82" fill="var(--text-muted)">1234 1243 1324 1342 1423 1432</text>
+              <text x="40" y="106" fill="var(--gold)">索引 6–11 ：第一位是 2  ← k = 8 落在這</text>
+              <text x="330" y="106" fill="var(--gold)">2134 2143 2314 2341 2413 2431</text>
+              <text x="40" y="130" fill="var(--text-muted)">索引 12–17：第一位是 3</text>
+              <text x="40" y="154" fill="var(--text-muted)">索引 18–23：第一位是 4</text>
+            </g>
+            <line x1="20" y1="172" x2="620" y2="172" stroke="var(--border)"/>
+            <g font-size="12" font-family="monospace">
+              <text x="40" y="200" fill="var(--gold)">第 1 位：block = 3! = 6　idx = 8 // 6 = 1　→ 取候選[1] = &apos;2&apos;　k = 8 % 6 = 2</text>
+              <text x="40" y="226" fill="var(--gold)">第 2 位：block = 2! = 2　idx = 2 // 2 = 1　→ 取候選[1] = &apos;3&apos;　k = 2 % 2 = 0</text>
+              <text x="40" y="252" fill="var(--gold)">第 3 位：block = 1! = 1　idx = 0 // 1 = 0　→ 取候選[0] = &apos;1&apos;　k = 0</text>
+              <text x="40" y="278" fill="var(--gold)">第 4 位：block = 0! = 1　idx = 0　　　　　→ 取候選[0] = &apos;4&apos;</text>
+            </g>
+            <text x="20" y="312" fill="#ff8a65" font-size="13">答案：&quot;2314&quot;　（候選清單每次都會移除已用的數字，所以永遠取得到）</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>階乘進位制直接構造（標準解）</h3>
+        <div class="code-block">class Solution:
+    def getPermutation(self, n: int, k: int) -&gt; str:
+        # 預先算好階乘：fact[i] = i!
+        fact = [1] * (n + 1)
+        for i in range(1, n + 1):
+            fact[i] = fact[i - 1] * i
+
+        nums = [str(i) for i in range(1, n + 1)]   # 還沒用掉的數字（遞增）
+        k -= 1                                     # 轉成 0-indexed
+        out = []
+
+        for i in range(n, 0, -1):
+            block = fact[i - 1]        # 固定第一位之後，後面有 (i-1)! 種排法
+            idx = k // block           # 第一位該取「剩餘數字」裡的第幾個
+            k %= block
+
+            out.append(nums.pop(idx))  # 取走並從候選裡移除
+
+        return "".join(out)</div>
+        <h3>三個關鍵</h3>
+        <div class="code-block">① k -= 1    轉成 0-indexed
+
+   為什麼？因為除法的分組是從 0 開始的：
+       k=0..5   -&gt; 第一組（0 // 6 = 0）
+       k=6..11  -&gt; 第二組（6 // 6 = 1）
+
+   如果不減 1，k=6 會算成 6//6 = 1（第二組），
+   但 1-indexed 的第 6 個其實還在第一組（"1432"）。
+
+② nums.pop(idx)    取走並移除
+
+   候選清單必須「動態縮短」。
+   n=4、第一位取了 '2' 之後，
+   剩下的候選是 ['1','3','4']，
+   第二位的 idx=1 對應的是 '3' 而不是 '2'。
+
+   如果不移除，第二位的 idx=1 會取到 '2' —— 重複了。
+
+③ block = fact[i-1]
+
+   i 是「還剩幾個數字沒放」。
+   固定第一位之後，剩下 i-1 個數字有 (i-1)! 種排法。
+   所以每一組的大小是 (i-1)!。</div>
+        <h3>為什麼 <code>nums</code> 必須保持遞增？</h3>
+        <p>因為「字典序」要求：<strong>索引小的候選，對應字典序小的排列。</strong><code>nums</code> 一開始是 <code>['1','2',...,'n']</code>（遞增），而 <code>pop(idx)</code> 不會破壞剩下元素的相對順序 —— 所以它永遠保持遞增。</p>
+        <h3>複雜度</h3>
+        <p>外層迴圈 n 次，每次 <code>nums.pop(idx)</code> 是 O(n)（list 要往前搬）。所以是 <strong>O(n²)</strong>。n ≤ 9 時完全無所謂。</p>
+        <p>如果 n 很大，可以把 <code>nums</code> 換成<strong>樹狀陣列（Fenwick tree）</strong>或平衡樹來支援「找第 idx 個還沒用的數字」，做到 O(n log n)。但那是競賽等級的優化，面試不需要。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>n 次迴圈 × pop 的 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>候選清單 + 階乘表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>反覆呼叫「下一個排列」（對照組）</h3>
+        <div class="code-block">class Solution:
+    def getPermutation(self, n: int, k: int) -&gt; str:
+        # 對照組：從最小的排列開始，呼叫 k-1 次「下一個排列」
+        # 正確但 O(k·n)，k 可以到 9! = 362880，會慢很多
+        nums = list(range(1, n + 1))
+
+        def next_perm(a):
+            i = len(a) - 2
+            while i &gt;= 0 and a[i] &gt;= a[i + 1]:
+                i -= 1
+            if i &gt;= 0:
+                j = len(a) - 1
+                while a[j] &lt;= a[i]:
+                    j -= 1
+                a[i], a[j] = a[j], a[i]
+            a[i + 1:] = reversed(a[i + 1:])
+
+        for _ in range(k - 1):
+            next_perm(nums)
+        return "".join(map(str, nums))</div>
+        <p>正確，而且重複利用了第 31 題的演算法。<strong>但複雜度是 O(k · n)</strong> —— <code>k</code> 最大 362880，<code>n</code> 最大 9，約 300 萬次操作。LeetCode 上大概能過，但比解法一慢好幾百倍。</p>
+        <p><strong>什麼時候這個做法比較好？</strong>當 <code>k</code> 很小的時候（例如 k ≤ 10），或者當你「已經有一個排列，想要它後面的幾個」時。<strong>「直接跳到第 k 個」和「一步一步往前走」各有適用場合。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k·n)</td><td>呼叫 k−1 次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只有排列本身</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>k=9! 時</th><th>適合</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、階乘進位制</td><td>O(n²)</td><td>瞬間</td><td>k 很大</td><td>標準解</td></tr>
+            <tr><td>二、next_permutation ×(k−1)</td><td>O(k·n)</td><td>約 300 萬次操作</td><td>k 很小</td><td>重用第 31 題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>k = 1</strong>：<code>(3, 1)</code> → <code>"123"</code>（最小的排列）。<code>k -= 1</code> 之後 <code>k = 0</code>，每一位都取候選的第 0 個。</li>
+          <li><strong>k = n!</strong>：<code>(3, 6)</code> → <code>"321"</code>（最大的排列）。<code>(9, 362880)</code> → <code>"987654321"</code>。</li>
+          <li><strong>n = 1</strong>：<code>(1, 1)</code> → <code>"1"</code>。</li>
+          <li><strong>忘記 <code>k -= 1</code></strong>：<code>(3, 3)</code> 會回傳 <code>"231"</code> 而不是 <code>"213"</code>。</li>
+          <li><strong>忘記 <code>pop</code>（只用索引不移除）</strong>：會產生重複的數字，例如 <code>"2214"</code>。</li>
+          <li><strong>階乘表的邊界</strong>：<code>fact[0] = 1</code>（0! = 1）。最後一位的 <code>block = fact[0] = 1</code>，<code>idx = k // 1 = k</code>，而此時 <code>k</code> 必然是 0，所以取候選的第 0 個（唯一剩下的那個）✔</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：反過來，給一個排列求它是第幾個？</h3>
+
+        <p>這叫做<strong>求 Lehmer code</strong>（排列的排名，ranking）。</p>
+
+        <div class="code-block">對每一位 i，數出「它右邊有幾個比它小的數字」，設為 c_i。
+然後排名 = Σ c_i × (n-1-i)!  （0-indexed），最後 +1 轉回 1-indexed。
+
+"2314" 的排名：
+    '2' 右邊比它小的：只有 '1'      -&gt; c_0 = 1
+    '3' 右邊比它小的：只有 '1'      -&gt; c_1 = 1
+    '1' 右邊比它小的：沒有          -&gt; c_2 = 0
+    '4' 右邊比它小的：沒有          -&gt; c_3 = 0
+
+    排名（0-indexed）= 1×3! + 1×2! + 0×1! + 0×0!
+                     = 6 + 2 = 8
+    1-indexed = 9 ✔
+
+樸素做法是 O(n²)（每一位都往右數）。
+用樹狀陣列可以做到 O(n log n)。
+
+「排名（rank）」和「反排名（unrank）」是一對 ——
+本題是 unrank，這個追問是 rank。</div>
+
+        <h3>追問二：如果集合裡有重複元素呢？</h3>
+
+        <p>分組的大小就不再是 <code>(i-1)!</code>，而是「多重集合的排列數」<code>(i-1)! / ∏(cⱼ!)</code>。程式的骨架一樣，但每取走一個數字之後，要重新計算下一組的大小。<strong>比原題麻煩得多，但思路完全相同。</strong></p>
+
+        <h3>追問三：這個「直接跳到第 k 個」的技巧還能用在哪？</h3>
+
+        <ul>
+          <li><strong>第 22 題 Generate Parentheses</strong>：用卡塔蘭數算「走左分支有幾個答案」，就能直接定位第 k 個合法括號序列</li>
+          <li><strong>組合的第 k 個</strong>：用組合數 C(n,k) 分組</li>
+          <li><strong>子集合的第 k 個</strong>：直接用 k 的二進位表示</li>
+          <li><strong>格雷碼的第 k 個</strong>（第 89 題）：<code>k ^ (k &gt;&gt; 1)</code></li>
+        </ul>
+
+        <p><strong>共同的模式：把「第 k 個」的問題，轉成「k 在某個進位制下的表示」。</strong>只要枚舉的結構有清楚的分組，就能跳過前面所有的答案直接算出目標。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 31 題 Next Permutation</strong> —— 一步一步往前走</li>
+          <li><strong>第 46／47 題 Permutations</strong> —— 生成全部</li>
+          <li><strong>第 89 題 Gray Code</strong> —— 另一個「第 k 個」有公式的枚舉</li>
+          <li><strong>第 22 題 Generate Parentheses</strong> —— 可以用同樣的技巧定位第 k 個</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼第一件事就是 <code>k -= 1</code>？不減的話 <code>(3, 3)</code> 會回傳什麼？</li>
+            <li>為什麼 <code>nums</code> 必須用 <code>pop</code> 移除，而不是只記錄「用過了」？</li>
+            <li><code>block = fact[i-1]</code> 在語意上代表什麼？</li>
+            <li>反過來要算「<code>"2314"</code> 是第幾個」，該怎麼做？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0059.html">← 上一題：59. 螺旋矩陣 II</a>
+          <a href="problem-0061.html">下一題：61. 旋轉串列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

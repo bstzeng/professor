@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>45. Jump Game II 跳躍遊戲 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="把它看成 BFS 分層，貪心就自然了。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="45">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 45 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 45</div>
+          <h1>Jump Game II<br>跳躍遊戲 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a <code>0</code>-indexed array of integers <code>nums</code> of length <code>n</code>. You are initially positioned at <code>nums[0]</code>.</p>
+          <p>Each element <code>nums[i]</code> represents the maximum length of a forward jump from index <code>i</code>.</p>
+          <p>Return the <strong>minimum</strong> number of jumps to reach <code>nums[n - 1]</code>. The test cases are generated such that you can reach <code>nums[n - 1]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個長度為 <code>n</code> 的整數陣列 <code>nums</code>，你一開始站在索引 0。</p>
+          <p><code>nums[i]</code> 表示從索引 <code>i</code> 出發<strong>最多</strong>能往前跳幾格（也就是可以跳 1 到 <code>nums[i]</code> 格）。</p>
+          <p>回傳到達最後一格所需的<strong>最少跳躍次數</strong>。題目保證<strong>一定到得了</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>把它看成 BFS，一切就清楚了</h3>
+        <div class="code-block">把每個位置當成一個節點，「一步能跳到」當成一條邊。
+求「最少幾步」= 求無權圖的最短路徑 = BFS。
+
+而 BFS 的「層」在這題有一個特別漂亮的性質：
+
+    第 k 層 = 「剛好 k 步能到達的所有位置」
+            = 一段「連續的區間」！
+
+為什麼是連續的？
+    因為從位置 i 可以跳 1..nums[i] 格（不是只能跳 nums[i] 格），
+    所以第 k 層能到的位置是 [上一層的右邊界+1, 這一層能到的最遠處]。
+
+    既然每一層都是一個區間，
+    我們就不需要真的維護一個佇列 ——
+    只要記住「這一層的右邊界」和「下一層的右邊界」就夠了。
+
+    O(n) 空間的 BFS 變成 O(1) 空間的雙變數掃描。
+
+nums = [2, 3, 1, 1, 4]
+    第 0 層： [0, 0]        最遠能到 0+2 = 2
+    第 1 層： [1, 2]        最遠 max(1+3, 2+1) = 4
+    第 2 層： [3, 4]        含終點 4  -&gt;  答案 2</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [2,3,1,1,4]
+  輸出：2
+  說明：從索引 0 跳 1 步到索引 1，再從索引 1 跳 3 步到索引 4。
+
+範例 2
+  輸入：nums = [2,3,0,1,4]
+  輸出：2</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 1000</li>
+          <li><strong>保證一定能到達 <code>nums[n-1]</code></strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/jump-game-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>保證一定到得了</strong> —— 所以不用回傳 −1，也不用處理「卡住」的情況。（「會不會卡住」是第 55 題 Jump Game。）</li>
+          <li><strong>n 到 10⁴</strong>。O(n²) 是 10⁸ —— 在 Python 裡會 TLE。所以要 O(n)。</li>
+          <li><strong><code>nums[i]</code> 可以是 0</strong>，但因為保證到得了，0 只會出現在「不需要經過」的位置，或最後一格。</li>
+          <li><strong>n 可以是 1</strong>：起點就是終點，答案 0。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 286" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">nums = [2, 3, 1, 1, 4]，把它看成一層一層的 BFS</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="60" y="48" width="64" height="38" rx="6" fill="none" stroke="var(--gold)" stroke-width="2.5"/><text x="92" y="73" fill="var(--gold)">2</text>
+              <rect x="152" y="48" width="64" height="38" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="184" y="73" fill="var(--accent)">3</text>
+              <rect x="244" y="48" width="64" height="38" rx="6" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="276" y="73" fill="var(--accent)">1</text>
+              <rect x="336" y="48" width="64" height="38" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="368" y="73" fill="#ff8a65">1</text>
+              <rect x="428" y="48" width="64" height="38" rx="6" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="460" y="73" fill="#ff8a65">4</text>
+            </g>
+            <g font-size="11" fill="var(--text-muted)" text-anchor="middle">
+              <text x="92" y="102">0</text><text x="184" y="102">1</text><text x="276" y="102">2</text>
+              <text x="368" y="102">3</text><text x="460" y="102">4</text>
+            </g>
+            <text x="540" y="73" fill="var(--text-muted)" font-size="12">← 終點</text>
+            <line x1="20" y1="122" x2="620" y2="122" stroke="var(--border)"/>
+            <g font-size="12">
+              <text x="40" y="150" fill="var(--gold)">第 0 層（0 步可達）：{0}</text>
+              <text x="340" y="150" fill="var(--text-muted)">從 0 最遠能到 0 + 2 = 2</text>
+              <text x="40" y="180" fill="var(--accent)">第 1 層（1 步可達）：{1, 2}</text>
+              <text x="340" y="180" fill="var(--text-muted)">最遠 max(1+3, 2+1) = 4</text>
+              <text x="40" y="210" fill="#ff8a65">第 2 層（2 步可達）：{3, 4}</text>
+              <text x="340" y="210" fill="#ff8a65">4 就是終點 → 答案 2</text>
+            </g>
+            <text x="20" y="250" fill="var(--gold)" font-size="12">貪婪版的 cur_end 就是「這一層的右邊界」，farthest 就是「下一層的右邊界」。</text>
+            <text x="20" y="274" fill="var(--text-muted)" font-size="12">走到 cur_end 時就代表這一層走完了，jumps += 1，進入下一層 —— 這就是 BFS 的層數。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>動態規劃（會 TLE 的基準線）</h3>
+        <div class="code-block">class Solution:
+    def jump(self, nums: List[int]) -&gt; int:
+        n = len(nums)
+        INF = float("inf")
+        dp = [INF] * n          # dp[i] = 跳到位置 i 最少要幾步
+        dp[0] = 0
+
+        for i in range(n):
+            for j in range(i + 1, min(i + nums[i], n - 1) + 1):
+                dp[j] = min(dp[j], dp[i] + 1)
+
+        return dp[n - 1]</div>
+        <p><code>dp[j] = min(dp[j], dp[i] + 1)</code> —— 標準的最短路徑 DP。</p>
+        <p><strong>但它是 O(n²)</strong>：最壞情況（每個 <code>nums[i]</code> 都很大）內層迴圈要跑 O(n) 次。n = 10⁴ 時是 10⁸ —— TLE。</p>
+        <p>它的價值是<strong>絕對正確</strong>，可以拿來驗證後面的貪婪解。（本篇的壓力測試就是拿它當基準。）</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每個位置往後更新 O(n) 格</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>dp 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>貪婪 / 隱式 BFS（標準解）</h3>
+        <div class="code-block">class Solution:
+    def jump(self, nums: List[int]) -&gt; int:
+        n = len(nums)
+        jumps = 0
+        cur_end = 0        # 目前這一步能到的最遠邊界
+        farthest = 0       # 在目前這一步的範圍內，下一步最遠能到哪
+
+        # 不看最後一格：走到那裡就結束了，不需要再跳
+        for i in range(n - 1):
+            farthest = max(farthest, i + nums[i])
+
+            if i == cur_end:          # 走到這一層的邊界了，必須再跳一步
+                jumps += 1
+                cur_end = farthest
+
+        return jumps</div>
+        <h3>三個變數的意義</h3>
+        <div class="code-block">jumps     已經跳了幾步（= BFS 的層數）
+cur_end   「目前這一層」能到的最右邊界
+farthest  「掃過目前這一層的所有位置後」，下一層能到的最右邊界
+
+演算法：
+    一路往右走，沿途更新 farthest。
+    一旦走到 cur_end（這一層的邊界），
+    就表示「這一層走完了」，必須再跳一步進入下一層。
+
+nums = [2, 3, 1, 1, 4]
+
+  i=0: farthest = max(0, 0+2) = 2
+       i == cur_end(0)  -&gt;  jumps=1, cur_end=2
+  i=1: farthest = max(2, 1+3) = 4
+       i(1) != cur_end(2)
+  i=2: farthest = max(4, 2+1) = 4
+       i == cur_end(2)  -&gt;  jumps=2, cur_end=4
+  i=3: 迴圈到 n-1=4 就停（range(4) = 0,1,2,3）
+
+  回傳 2 ✔</div>
+        <h3>為什麼迴圈是 <code>range(n - 1)</code> 而不是 <code>range(n)</code>？</h3>
+        <div class="code-block">因為走到最後一格就結束了，不需要「從最後一格再跳」。
+
+如果寫成 range(n)：
+    nums = [1, 1]
+    i=0: farthest=1, i==cur_end(0) -&gt; jumps=1, cur_end=1
+    i=1: farthest=2, i==cur_end(1) -&gt; jumps=2  ✘ 多算一步
+
+    正確答案是 1（從 0 跳到 1）。
+
+一句話：最後一格是「終點」不是「跳板」。
+
+同理，n == 1 時 range(0) 是空的，直接回 0 ✔</div>
+        <h3>為什麼貪婪是對的？</h3>
+        <div class="code-block">貪婪的策略是：「在這一層的範圍內，選能跳最遠的那個位置」。
+
+為什麼不會錯過更好的解？
+
+    設第 k 層能到的範圍是 [L_k, R_k]。
+    這是「恰好 k 步能到的所有位置」（而且是連續的）。
+
+    第 k+1 層能到的最遠處 = max(i + nums[i])，i 在 [L_k, R_k] 裡。
+
+    關鍵：任何「k+1 步能到的位置」，
+          都必須先在 k 步內到達某個 i，再從 i 跳過去。
+          所以 R_{k+1} 就是上面那個 max —— 沒有更好的了。
+
+    而因為每一層都是連續區間，
+    「到達第 j 格的最少步數」就是「j 落在第幾層」。
+
+這其實不是「貪婪的啟發式」，而是「BFS 的正確性」——
+BFS 保證第一次訪問到某個節點時，走的就是最短路徑。
+
+所以這個解法既可以說是貪婪，也可以說是 BFS。
+兩種說法都對，只是視角不同。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>三個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>顯式寫出 BFS 的層（最能看出結構）</h3>
+        <p>把「層」明確地寫出來，讓 BFS 的結構一目了然。</p>
+        <div class="code-block">class Solution:
+    def jump(self, nums: List[int]) -&gt; int:
+        n = len(nums)
+        if n &lt;= 1:
+            return 0
+
+        # 把它看成 BFS：第 k 層 = 「剛好 k 步能到的所有位置」
+        level = 0
+        left = right = 0          # 目前這一層的範圍 [left, right]
+
+        while right &lt; n - 1:
+            level += 1
+            nxt = max(i + nums[i] for i in range(left, right + 1))
+            left, right = right + 1, nxt
+
+        return level</div>
+        <div class="code-block">nums = [2, 3, 1, 1, 4]，n = 5
+
+  初始： left=0, right=0, level=0
+  right(0) &lt; 4  -&gt;
+      level=1
+      nxt = max(i + nums[i] for i in [0,0]) = 0+2 = 2
+      left, right = 1, 2
+  right(2) &lt; 4  -&gt;
+      level=2
+      nxt = max(1+3, 2+1) = 4
+      left, right = 3, 4
+  right(4) == 4  -&gt;  迴圈結束
+
+  回傳 2 ✔</div>
+        <p><strong>和解法二完全等價</strong>，只是把「層」寫成明確的 <code>[left, right]</code>，而不是隱含在 <code>cur_end</code> 裡。</p>
+        <p><strong>優點</strong>：結構最清楚，一眼就看得出這是 BFS。<strong>缺點</strong>：每一層要重新掃一次 <code>range(left, right+1)</code>，雖然總和還是 O(n)（每個位置只屬於一層），但常數稍大。</p>
+        <p><strong>面試時的建議</strong>：先用這個版本講清楚「為什麼是 BFS」，再說「可以壓成兩個變數」，然後寫解法二。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個位置恰好屬於一層</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>n=10⁴ 能過？</th><th>視角</th></tr></thead>
+          <tbody>
+            <tr><td>一、DP</td><td>O(n²)</td><td>O(n)</td><td>✘</td><td>最短路徑 DP</td></tr>
+            <tr><td>二、貪婪掃描</td><td>O(n)</td><td>O(1)</td><td>✔</td><td>貪婪 / 隱式 BFS</td></tr>
+            <tr><td>三、顯式分層</td><td>O(n)</td><td>O(1)</td><td>✔</td><td>BFS，結構最清楚</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一格</strong>：<code>[1]</code> → 0。起點就是終點。<code>range(0)</code> 是空的。</li>
+          <li><strong>兩格</strong>：<code>[1,2]</code> → 1；<code>[2,1]</code> → 1。</li>
+          <li><strong>一步到底</strong>：<code>[5,1,1,1,1]</code> → 1。</li>
+          <li><strong>每次只能跳一格</strong>：<code>[1,1,1,1]</code> → 3。</li>
+          <li><strong>中間有 0 但可以跨過</strong>：<code>[2,3,0,1,4]</code> → 2。</li>
+          <li><strong>迴圈寫成 <code>range(n)</code></strong>：<code>[1,1]</code> 會回傳 2 而不是 1。<strong>這是本題第一名的 off-by-one。</strong></li>
+          <li><strong>nums[i] 超出陣列</strong>：<code>[100, 1]</code> → 1。<code>farthest</code> 可能超過 <code>n-1</code>，不影響正確性。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果不保證到得了呢？</h3>
+
+        <p>那是第 55 題（Jump Game），問「能不能到」。同樣的貪婪，只是條件變成：<strong>如果 <code>i &gt; farthest</code> 就表示卡住了</strong>。</p>
+
+        <div class="code-block">class Solution:
+    def canJump(self, nums):
+        farthest = 0
+        for i, v in enumerate(nums):
+            if i &gt; farthest:      # 連這一格都到不了
+                return False
+            farthest = max(farthest, i + v)
+        return True
+
+如果本題也要處理「到不了」，
+就在解法二的迴圈裡加上 if i &gt; cur_end: return -1。</div>
+
+        <h3>追問二：如果每一步的成本不同（不是都算 1 步）呢？</h3>
+
+        <p>那就不能用 BFS 了（BFS 只對無權圖有效），要改用 <strong>Dijkstra</strong>（O(n log n)）或 DP。<strong>「所有邊的權重都一樣」正是 BFS 能用的前提</strong>，也是這題能做到 O(n) 的根本原因。</p>
+
+        <h3>追問三：如果可以往回跳呢？</h3>
+
+        <p>第 1345 題（Jump Game IV）是這類問題的一般化 —— 可以往前一格、往後一格、或跳到任何「數值相同」的格子。那題就必須寫真正的 BFS（用佇列），因為「可達範圍」不再是連續區間了。<strong>「層是連續區間」這個性質，是本題能省掉佇列的關鍵。</strong></p>
+
+        <h3>追問四：如果要回傳「實際的跳躍路徑」呢？</h3>
+
+        <p>在更新 <code>farthest</code> 時一併記下「是從哪個位置達成的」，然後每次 <code>jumps += 1</code> 時把那個位置記進路徑。複雜度不變，空間變 O(答案長度)。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 55 題 Jump Game</strong> —— 只問「能不能到」</li>
+          <li><strong>第 1306 題 Jump Game III</strong> —— 可以往回跳，要真的 BFS</li>
+          <li><strong>第 1345 題 Jump Game IV</strong> —— 加上「跳到相同值」的邊</li>
+          <li><strong>第 134 題 Gas Station</strong> —— 另一個「貪婪 + 掃一遍」的經典</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼迴圈是 <code>range(n-1)</code>？用 <code>[1,1]</code> 說明寫成 <code>range(n)</code> 會錯在哪。</li>
+            <li><code>cur_end</code> 和 <code>farthest</code> 分別對應 BFS 的什麼？</li>
+            <li>為什麼「k 步能到的位置」一定是一段連續區間？這個性質依賴題目的哪一句話？</li>
+            <li>如果每一步的成本不同，為什麼就不能用這個解法了？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0044.html">← 上一題：44. 通配符匹配</a>
+          <a href="problem-0046.html">下一題：46. 全排列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

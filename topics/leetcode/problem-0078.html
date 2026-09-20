@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>78. Subsets 子集 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="回溯、迭代擴充與位元枚舉三種解法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="78">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 78 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 78</div>
+          <h1>Subsets<br>子集</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">位元運算</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> of <strong>unique</strong> elements, return <em>all possible subsets (the power set)</em>.</p>
+          <p>The solution set <strong>must not</strong> contain duplicate subsets. Return the solution in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>元素互不相同</strong>的整數陣列 <code>nums</code>，回傳它的<strong>所有子集</strong>（也就是<strong>冪集合</strong>）。</p>
+          <p>答案裡不能有重複的子集，順序不拘。</p>
+        </div>
+
+        <div class="callout">
+          <h3>子集的數量一定是 2ⁿ</h3>
+        <div class="code-block">對每個元素，你只有兩種選擇：「選」或「不選」。
+n 個元素各自獨立 -&gt; 2 × 2 × ... × 2 = 2ⁿ 種。
+
+    nums = [1,2,3]  -&gt;  2³ = 8 個子集（含空集合和全集）
+
+這個「2ⁿ」的結構有一個非常漂亮的對應：
+
+    每個子集  &lt;-&gt;  一個 n 位元的二進位數
+
+    000 -&gt; []         100 -&gt; [3]
+    001 -&gt; [1]        101 -&gt; [1,3]
+    010 -&gt; [2]        110 -&gt; [2,3]
+    011 -&gt; [1,2]      111 -&gt; [1,2,3]
+
+    第 i 位是 1  &lt;=&gt;  選了 nums[i]
+
+這個對應是「位元遮罩枚舉」的基礎，
+也是「子集 DP」（第 464、698、1349、TSP 等題）的核心工具。</div>
+        <p><strong>寫完之後先檢查「答案數量是不是 2ⁿ」</strong> —— 這是最快的除錯方法。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,2,3]
+  輸出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+範例 2
+  輸入：nums = [0]
+  輸出：[[],[0]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10</li>
+          <li>−10 ≤ <code>nums[i]</code> ≤ 10</li>
+          <li><code>nums</code> 的所有元素<strong>互不相同</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/subsets/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>n ≤ 10</strong>，所以最多 <code>2¹⁰ = 1024</code> 個子集。<strong>規模小到可以用任何方法。</strong></li>
+          <li><strong>元素互不相同</strong> —— 不用去重。（有重複的是第 90 題。）</li>
+          <li><strong>順序不拘</strong>，所以四種解法產生的順序不同都沒關係。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 332" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">位元遮罩：n 個元素的子集，和 n 位元的二進位數一一對應</text>
+            <text x="20" y="46" fill="var(--text-muted)" font-size="12">nums = [1, 2, 3]，共 2³ = 8 個子集</text>
+            <g font-family="monospace" font-size="13">
+              <text x="60" y="80" fill="var(--text-muted)">mask</text>
+              <text x="180" y="80" fill="var(--text-muted)">二進位</text>
+              <text x="330" y="80" fill="var(--text-muted)">選了誰</text>
+              <text x="490" y="80" fill="var(--text-muted)">子集</text>
+            </g>
+            <line x1="40" y1="90" x2="600" y2="90" stroke="var(--border)"/>
+            <g font-family="monospace" font-size="13">
+              <text x="60" y="114" fill="var(--accent)">0</text><text x="180" y="114" fill="var(--gold)">000</text>
+              <text x="330" y="114" fill="var(--text-muted)">—</text><text x="490" y="114" fill="#ff8a65">[]</text>
+
+              <text x="60" y="138" fill="var(--accent)">1</text><text x="180" y="138" fill="var(--gold)">001</text>
+              <text x="330" y="138" fill="var(--text-muted)">第 0 位</text><text x="490" y="138" fill="#ff8a65">[1]</text>
+
+              <text x="60" y="162" fill="var(--accent)">2</text><text x="180" y="162" fill="var(--gold)">010</text>
+              <text x="330" y="162" fill="var(--text-muted)">第 1 位</text><text x="490" y="162" fill="#ff8a65">[2]</text>
+
+              <text x="60" y="186" fill="var(--accent)">3</text><text x="180" y="186" fill="var(--gold)">011</text>
+              <text x="330" y="186" fill="var(--text-muted)">第 0、1 位</text><text x="490" y="186" fill="#ff8a65">[1, 2]</text>
+
+              <text x="60" y="210" fill="var(--accent)">4</text><text x="180" y="210" fill="var(--gold)">100</text>
+              <text x="330" y="210" fill="var(--text-muted)">第 2 位</text><text x="490" y="210" fill="#ff8a65">[3]</text>
+
+              <text x="60" y="234" fill="var(--accent)">5</text><text x="180" y="234" fill="var(--gold)">101</text>
+              <text x="330" y="234" fill="var(--text-muted)">第 0、2 位</text><text x="490" y="234" fill="#ff8a65">[1, 3]</text>
+
+              <text x="60" y="258" fill="var(--accent)">6</text><text x="180" y="258" fill="var(--gold)">110</text>
+              <text x="330" y="258" fill="var(--text-muted)">第 1、2 位</text><text x="490" y="258" fill="#ff8a65">[2, 3]</text>
+
+              <text x="60" y="282" fill="var(--accent)">7</text><text x="180" y="282" fill="var(--gold)">111</text>
+              <text x="330" y="282" fill="var(--text-muted)">全部</text><text x="490" y="282" fill="#ff8a65">[1, 2, 3]</text>
+            </g>
+            <text x="20" y="318" fill="var(--gold)" font-size="12">「子集 ↔ 位元遮罩」是計數與枚舉的核心對應 —— 也是「子集 DP」這一整類題的基礎。</text>
+          </svg>
+        </div>
+
+        <p>四種解法，對應四種看待「子集」的方式：<strong>「選哪些位置」、「每個元素選不選」、「一個二進位數」、「逐步擴張」</strong>。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>回溯 + start（和第 77 題同一個模板）</h3>
+        <div class="code-block">class Solution:
+    def subsets(self, nums: List[int]) -&gt; List[List[int]]:
+        out = []
+        path = []
+
+        def backtrack(start: int) -&gt; None:
+            out.append(path[:])          # 每個節點都是一個合法的子集
+            for i in range(start, len(nums)):
+                path.append(nums[i])
+                backtrack(i + 1)
+                path.pop()
+
+        backtrack(0)
+        return out</div>
+        <h3>和第 77 題只差一行</h3>
+        <div class="code-block">第 77 題（恰好 k 個）：
+    if len(path) == k:
+        out.append(path[:])
+        return
+    for i in range(start, n):
+        ...
+
+第 78 題（所有子集）：
+    out.append(path[:])          &lt;- 不判斷長度，每個節點都收
+    for i in range(start, n):
+        ...
+
+差別：
+    第 77 題只在「葉子」（長度剛好 k）收集
+    第 78 題在「每一個節點」都收集
+
+    因為搜尋樹上的每一條路徑（不管長短）都對應一個合法的子集。
+
+    根節點（path 為空）-&gt; 空集合 ✔
+    第一層          -&gt; 單元素子集
+    ...
+    葉子            -&gt; 全集
+
+    共 2ⁿ 個節點 = 2ⁿ 個子集 ✔</div>
+        <p><strong>沒有終止條件</strong>（沒有 <code>if ... return</code>）—— 迴圈跑完自然就返回了。<strong>這是本題和第 77 題最明顯的視覺差異。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ × n)</td><td>2ⁿ 個節點，每個複製 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>path + 遞迴深度；不算輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>選 / 不選的二元決策樹</h3>
+        <p>另一種回溯的組織方式：<strong>對每個元素做一次「選」或「不選」的決定。</strong></p>
+        <div class="code-block">class Solution:
+    def subsets(self, nums: List[int]) -&gt; List[List[int]]:
+        n = len(nums)
+        out = []
+        path = []
+
+        def backtrack(i: int) -&gt; None:
+            """對第 i 個元素做「選」或「不選」的二元決定"""
+            if i == n:
+                out.append(path[:])
+                return
+
+            backtrack(i + 1)             # 不選 nums[i]
+
+            path.append(nums[i])         # 選 nums[i]
+            backtrack(i + 1)
+            path.pop()
+
+        backtrack(0)
+        return out</div>
+        <div class="code-block">搜尋樹長這樣（nums = [1,2]）：
+
+                    i=0
+            不選 /        \ 選 1
+              i=1          i=1
+         不選 /  \ 選2   不選 /  \ 選2
+           []    [2]     [1]   [1,2]
+
+    每個葉子就是一個子集，共 2ⁿ 個葉子 ✔
+
+和解法一的差別：
+    解法一：在「每個節點」收集，樹的節點數 = 2ⁿ
+    解法二：只在「葉子」收集，樹的節點數 = 2^(n+1) - 1，葉子數 = 2ⁿ
+
+    解法二的樹大一倍（有很多內部節點不對應答案），
+    但它的結構更「規整」—— 每一層剛好對應一個元素。
+
+什麼時候解法二比較好？
+    當「選 / 不選」有不同的代價或條件時。
+    例如 0/1 背包、第 494 題（目標和）、
+    以及任何「對每個元素做二元決定」的問題。
+
+    解法一的 start 形式在「要收集所有前綴」時比較自然。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ × n)</td><td>2^(n+1) 個節點</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>同上</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>位元遮罩枚舉（最直接的對應）</h3>
+        <div class="code-block">class Solution:
+    def subsets(self, nums: List[int]) -&gt; List[List[int]]:
+        n = len(nums)
+        out = []
+
+        # 每個子集對應一個 n 位元的二進位數：第 i 位是 1 表示選 nums[i]
+        for mask in range(1 &lt;&lt; n):
+            subset = [nums[i] for i in range(n) if mask &amp; (1 &lt;&lt; i)]
+            out.append(subset)
+
+        return out</div>
+        <div class="code-block">for mask in range(1 &lt;&lt; n):      # 0 到 2ⁿ-1
+    subset = [nums[i] for i in range(n) if mask &amp; (1 &lt;&lt; i)]
+
+mask &amp; (1 &lt;&lt; i)    測試 mask 的第 i 位是不是 1
+
+    mask = 5 = 0b101, n = 3
+    i=0: 5 &amp; 1 = 1 ✔  選 nums[0]
+    i=1: 5 &amp; 2 = 0 ✘
+    i=2: 5 &amp; 4 = 4 ✔  選 nums[2]
+    -&gt; [nums[0], nums[2]]
+
+沒有遞迴、沒有回溯，就是兩層迴圈。
+
+常用的相關技巧：
+    bin(mask).count("1")   這個子集有幾個元素
+    mask &amp; (mask - 1)      清掉最低位的 1
+    mask &amp; -mask           取出最低位的 1
+    (1 &lt;&lt; n) - 1           全選的遮罩
+
+    枚舉 mask 的所有「子集」（子集的子集）：
+        sub = mask
+        while sub:
+            ...
+            sub = (sub - 1) &amp; mask
+        # 別忘了空集合
+
+        這個技巧在「子集 DP」裡非常重要，
+        而且總複雜度是 O(3ⁿ) 而不是 O(4ⁿ)。</div>
+        <p><strong>優點</strong>：沒有遞迴、程式碼最短、而且<strong>可以直接平行化</strong>（每個 mask 獨立）。</p>
+        <p><strong>限制</strong>：<code>n</code> 不能超過語言的整數位寬（在 C 裡是 32 或 64）。Python 沒這個限制，但 2ⁿ 本來就撐不了多大的 n。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ × n)</td><td>2ⁿ 個 mask × O(n) 展開</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>不算輸出的話 O(1)</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>迭代擴張（最短）</h3>
+        <div class="code-block">class Solution:
+    def subsets(self, nums: List[int]) -&gt; List[List[int]]:
+        # 迭代：每加入一個新元素，就把「所有已知子集」各複製一份並加上它
+        out = [[]]
+        for x in nums:
+            out += [sub + [x] for sub in out]
+        return out</div>
+        <div class="code-block">out = [[]]
+
+加入 1：  out = [[]] + [[1]]           = [[], [1]]
+加入 2：  out = [[],[1]] + [[2],[1,2]] = [[], [1], [2], [1,2]]
+加入 3：  out = ... + [[3],[1,3],[2,3],[1,2,3]]
+          = 8 個 ✔
+
+每加入一個元素，答案的數量就「乘以 2」——
+因為每個已知的子集，都分裂成「加它」和「不加它」兩個。
+
+這正是 2ⁿ 的建構式定義：
+    P(S ∪ {x}) = P(S) ∪ { A ∪ {x} : A ∈ P(S) }</div>
+        <p><strong>一行核心邏輯</strong>，而且<strong>不需要遞迴、不需要位元運算</strong>。</p>
+        <p><strong>缺點</strong>：所有中間結果都在記憶體裡（但反正最後也要全部輸出）。而且 <code>out += [...]</code> 在迴圈中修改 <code>out</code> —— <strong>這裡是安全的</strong>，因為右邊的 list comprehension 會先完整求值。（如果寫成 generator 就會無限迴圈。）</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ × n)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(2ⁿ × n)</td><td>所有中間結果</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>遞迴？</th><th>行數</th><th>能平行化？</th><th>最能推廣到</th></tr></thead>
+          <tbody>
+            <tr><td>一、回溯 + start</td><td>✔</td><td>10</td><td>✘</td><td>第 90 題（去重）</td></tr>
+            <tr><td>二、選 / 不選</td><td>✔</td><td>12</td><td>✘</td><td>0/1 背包、第 494 題</td></tr>
+            <tr><td>三、位元遮罩</td><td>✘</td><td>6</td><td>✔</td><td>子集 DP、狀態壓縮</td></tr>
+            <tr><td>四、迭代擴張</td><td>✘</td><td>5</td><td>✘</td><td>最短，但最不好推廣</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空陣列</strong>：<code>[]</code> → <code>[[]]</code>（一個空集合）。題目保證 n ≥ 1，但四種解法都自然正確。</li>
+          <li><strong>單一元素</strong>：<code>[0]</code> → <code>[[], [0]]</code>。</li>
+          <li><strong>答案數量</strong>：必須是 <code>2ⁿ</code>。<strong>n = 10 時是 1024 個 —— 先數數量再檢查內容。</strong></li>
+          <li><strong>空集合要包含</strong>：很多人會漏掉。解法一的「根節點也收集」、解法四的初值 <code>[[]]</code>、解法三的 <code>mask = 0</code> —— 三者都在處理這件事。</li>
+          <li><strong>全集要包含</strong>：<code>[1,2,3]</code> 的答案要有 <code>[1,2,3]</code>。</li>
+          <li><strong>忘記 <code>path[:]</code></strong>：輸出會是 2ⁿ 個空 list。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有重複元素呢？</h3>
+
+        <p>第 90 題（Subsets II）。加上排序 + 同層去重（和第 40 題一樣）：</p>
+
+        <div class="code-block">nums.sort()
+...
+for i in range(start, n):
+    if i &gt; start and nums[i] == nums[i-1]:
+        continue
+    ...
+
+位元遮罩法在這裡會失效（會產生重複的子集），
+除非事後用 set 去重 —— 那就浪費了。
+
+所以「有重複」的版本只能用回溯。</div>
+
+        <h3>追問二：什麼是「子集 DP」？</h3>
+
+        <div class="code-block">當狀態是「一個集合」時，用 n 位元的整數當 DP 的索引。
+
+    dp[mask] = 「已經處理了 mask 這些元素」時的最佳值
+
+經典應用：
+    第 464 題  我能贏嗎（博弈 + 狀態壓縮）
+    第 698 題  劃分為 k 個相等的子集
+    第 847 題  訪問所有節點的最短路徑
+    第 1349 題 參加考試的最大學生數
+    旅行推銷員問題（TSP）：dp[mask][i] = 走過 mask、目前在 i 的最短距離
+                            O(2ⁿ × n²)，n &lt;= 20 左右可行
+
+前提：n 要夠小（通常 &lt;= 20，因為 2²⁰ ≈ 100 萬）。
+
+而「枚舉 mask 的所有子集」的技巧：
+    sub = mask
+    while sub:
+        處理 sub
+        sub = (sub - 1) &amp; mask
+
+    總複雜度 O(3ⁿ)（不是 O(4ⁿ)）——
+    因為每個元素有三種狀態：不在 mask 裡、在 mask 但不在 sub、在 sub 裡。</div>
+
+        <h3>追問三：為什麼不可能有比 O(2ⁿ) 更快的演算法？</h3>
+
+        <p><strong>因為輸出本身就有 2ⁿ 個子集。</strong>任何「列出所有子集」的演算法，光是寫出答案就要 Ω(2ⁿ) 的時間。</p>
+
+        <p><strong>這是「輸出敏感（output-sensitive）」複雜度的典型例子</strong> —— 當答案的大小是指數級時，演算法的複雜度下界也是指數級，所以「優化」的空間只在常數和記憶體上。</p>
+
+        <p>（如果只要「子集的個數」或「某個統計量」，那就完全不同了 —— 個數是 2ⁿ，一行就算出來。<strong>「列出來」和「數出來」的難度可以天差地遠。</strong>）</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 90 題 Subsets II</strong> —— 有重複元素</li>
+          <li><strong>第 77 題 Combinations</strong> —— 限定大小的子集</li>
+          <li><strong>第 39／40 題 Combination Sum</strong> —— 加上和的條件</li>
+          <li><strong>第 46／47 題 Permutations</strong> —— 排列</li>
+          <li><strong>第 698／1349 題</strong> —— 子集 DP（狀態壓縮）</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>本題和第 77 題的回溯程式碼只差一行，是哪一行？為什麼？</li>
+            <li>位元遮罩法裡 <code>mask &amp; (1 &lt;&lt; i)</code> 在測試什麼？</li>
+            <li>解法四的初值為什麼是 <code>[[]]</code> 而不是 <code>[]</code>？</li>
+            <li>為什麼不可能有比 O(2ⁿ) 更快的演算法？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0077.html">← 上一題：77. 組合</a>
+          <a href="problem-0079.html">下一題：79. 單詞搜索 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10. Regular Expression Matching 正規表示式匹配 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="* 的兩種選擇：記憶化遞迴與自底向上 DP 的完整狀態轉移推導。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="10">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 10 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 10</div>
+          <h1>Regular Expression Matching<br>正規表示式匹配</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">遞迴</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an input string <code>s</code> and a pattern <code>p</code>, implement regular expression matching with support for <code>'.'</code> and <code>'*'</code> where:</p>
+          <p><code>'.'</code> matches any single character; <code>'*'</code> matches zero or more of the <strong>preceding</strong> element.</p>
+          <p>The matching should cover the <strong>entire</strong> input string (not partial).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code> 和一個模式 <code>p</code>，實作支援 <code>'.'</code> 和 <code>'*'</code> 的正規表示式匹配：</p>
+          <p><code>'.'</code> 匹配<strong>任意單一字元</strong>；<code>'*'</code> 匹配<strong>它前面那個元素</strong>的零次或多次。</p>
+          <p>匹配必須覆蓋<strong>整個</strong> <code>s</code>，不是部分匹配。</p>
+        </div>
+
+        <div class="callout">
+          <h3>先把 '*' 的語意講死，這是全題的關鍵</h3>
+        <div class="code-block">'*' 不是獨立的萬用字元，它是「前一個元素的量詞」。
+必須把 'x*' 當成一個不可分割的單位來看。
+
+  "a*"   =  可以是 ""、"a"、"aa"、"aaa"…
+  ".*"   =  可以是 ""、任意 1 個字元、任意 2 個字元…（等於萬用的一切）
+  "a*b"  =  0 個以上的 a，然後一個 b  -&gt;  "b"、"ab"、"aaab" ✔
+
+常見誤解 1：以為 '*' 像 shell 的萬用字元（那是第 44 題 Wildcard Matching）
+  shell:      "a*"  =  以 a 開頭的任何字串
+  regex:      "a*"  =  只由 a 組成的字串（含空字串）
+  完全不同！
+
+常見誤解 2：忘了 '*' 可以吃 0 次
+  s = "aab", p = "c*a*b"
+  c* 吃 0 次、a* 吃 2 次、b 吃 1 次  -&gt;  匹配成功 ✔
+  漏掉「吃 0 次」這條路，這題就一定錯。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "aa", p = "a"
+  輸出：false
+  說明："a" 只能匹配一個 a，但 s 有兩個，不是「整個」匹配。
+
+範例 2
+  輸入：s = "aa", p = "a*"
+  輸出：true
+  說明：a* 可以匹配零個或多個 a，這裡吃兩個。
+
+範例 3
+  輸入：s = "ab", p = ".*"
+  輸出：true
+  說明：".*" 表示「零個或多個任意字元」。
+
+範例 4
+  輸入：s = "aab", p = "c*a*b"
+  輸出：true
+  說明：c* 吃 0 個 c，a* 吃 2 個 a，b 吃 1 個 b。
+
+範例 5
+  輸入：s = "mississippi", p = "mis*is*p*."
+  輸出：false</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 20，1 ≤ <code>p.length</code> ≤ 20</li>
+          <li><code>s</code> 只含小寫英文字母</li>
+          <li><code>p</code> 只含小寫英文字母、<code>'.'</code>、<code>'*'</code></li>
+          <li><strong>保證每個 <code>'*'</code> 前面都有一個有效的字元</strong>（不會出現 <code>"*a"</code> 或 <code>"**"</code>）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>長度只有 20</strong>。這是在說：連純遞迴（指數級）都可能過得了 —— 但別賭，加個記憶化只要多一行。</li>
+          <li><strong>「保證 * 前面有有效字元」是一個大禮。</strong>你完全不用檢查 <code>p[j-1]</code> 存不存在，也不用處理 <code>"**"</code> 這種病態輸入。沒有這條保證，這題會難上一倍。</li>
+          <li><strong>要「整個」匹配</strong>，所以終止條件是 <code>i == len(s) and j == len(p)</code>，對應 Python 的 <code>re.fullmatch</code> 而不是 <code>re.match</code>。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <p>所有解法的骨架都一樣，差別只在「有沒有把算過的結果存起來」。先想清楚遞迴，DP 只是把同一個遞迴式從上往下改成從下往上。</p>
+
+        <h3>核心的分岔：看 p[j+1] 是不是 '*'</h3>
+
+        <div class="code-block">定義 go(i, j) = 「s[i:] 能不能被 p[j:] 完整匹配」
+
+情況 1：p[j+1] 不是 '*'（或 j 已經是最後一格）
+    只有一條路：s[i] 要配得上 p[j]，然後兩邊都前進一格。
+        go(i, j) = first and go(i+1, j+1)
+
+情況 2：p[j+1] 是 '*'    ← 這是唯一會分岔的地方
+    兩條路，任一條通就算通：
+      (A) 'x*' 用 0 次  -&gt;  跳過這兩格：      go(i, j+2)
+      (B) 'x*' 再吃一個  -&gt;  s 前進、p 不動：  first and go(i+1, j)
+
+        go(i, j) = go(i, j+2) or (first and go(i+1, j))
+
+其中 first = (i &lt; len(s)) and p[j] in (s[i], '.')
+
+注意 (B) 為什麼 j 不動：
+    因為 'x*' 可以吃任意多次，吃完一個之後它還在，下一輪還能再吃。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>純遞迴（先把遞迴式寫對）</h3>
+        <div class="code-block">class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        def go(i: int, j: int) -&gt; bool:
+            """s[i:] 能不能被 p[j:] 完整匹配"""
+            if j == len(p):
+                return i == len(s)      # pattern 用完了，s 也要剛好用完
+
+            # 第一個字元配不配得上（要先確認 s 還有字元可配）
+            first = i &lt; len(s) and p[j] in (s[i], ".")
+
+            # 往後看一格是不是 '*'
+            if j + 1 &lt; len(p) and p[j + 1] == "*":
+                # 兩條路：'x*' 整組不用（跳 2 格），或用掉一個 s 的字元（i 前進）
+                return go(i, j + 2) or (first and go(i + 1, j))
+
+            return first and go(i + 1, j + 1)
+
+        return go(0, 0)</div>
+        <h3>三個必須想清楚的細節</h3>
+        <ul>
+          <li><strong><code>j == len(p)</code> 時要回 <code>i == len(s)</code>，不是 <code>True</code>。</strong>pattern 用完但 s 還有剩，那是匹配失敗。</li>
+          <li><strong><code>first</code> 一定要先檢查 <code>i &lt; len(s)</code>。</strong>s 已經用完時沒有 <code>s[i]</code> 可以配，但 pattern 可能還有一堆 <code>"a*b*"</code> 要靠「吃 0 次」消化掉 —— 所以不能直接 return False。</li>
+          <li><strong>情況 2 的 <code>or</code> 順序有影響（效能上）。</strong>先試「吃 0 次」通常比較快收斂，因為它讓 j 前進了兩格，而「再吃一個」讓 j 原地不動。</li>
+        </ul>
+        <h3>為什麼會變成指數級？</h3>
+        <div class="code-block">s = "aaaaaaaaaaaaaaaaaaaa"  (20 個 a)
+p = "a*a*a*a*a*a*a*a*a*a*"
+
+每個 a* 都可以吃 0~20 個，組合數爆炸，
+而且大量不同的路徑會走到同一個 (i, j) —— 重複計算。
+
+這正是「加記憶化」的訊號：
+狀態只有 (i, j)，最多 21 × 21 = 441 種，
+但沒有快取的話同一個狀態會被重算幾十萬次。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>最壞 O(2^(m+n))</td><td>大量重複子問題</td></tr>
+            <tr><td>空間</td><td>O(m+n)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>記憶化遞迴（加一行就好）</h3>
+        <p>遞迴式一個字都不用改，只要在函式上掛一個 <code>@lru_cache</code>。狀態總數是 <code>(m+1) × (n+1)</code>，每個狀態算一次 O(1)，立刻變成多項式時間。</p>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        @lru_cache(maxsize=None)
+        def go(i: int, j: int) -&gt; bool:
+            if j == len(p):
+                return i == len(s)
+
+            first = i &lt; len(s) and p[j] in (s[i], ".")
+
+            if j + 1 &lt; len(p) and p[j + 1] == "*":
+                return go(i, j + 2) or (first and go(i + 1, j))
+
+            return first and go(i + 1, j + 1)
+
+        result = go(0, 0)
+        go.cache_clear()        # 避免不同測資之間互相污染
+        return result</div>
+        <p><code>cache_clear()</code> 在 LeetCode 上其實不必要（每次呼叫都是新的 Solution 實例，但 <code>lru_cache</code> 掛在內層函式上，本來就會隨著外層函式結束而釋放）。寫上去是好習慣：如果把 <code>go</code> 提到類別層級，忘了清快取就會在跨測資時拿到錯的答案。</p>
+        <p><strong>面試時這是最推薦的寫法</strong>：遞迴式直接對應你剛剛在白板上推導的邏輯，不需要再花腦力去想「迴圈該從哪裡開始、邊界要怎麼初始化」。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>(m+1)(n+1) 個狀態 × O(1)</td></tr>
+            <tr><td>空間</td><td>O(m·n)</td><td>快取表 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>自底向上 DP（把遞迴翻成表格）</h3>
+        <p>定義改成<strong>前綴</strong>形式比較好寫邊界：<code>dp[i][j]</code> = 「<code>s</code> 的前 <code>i</code> 個字元」能不能被「<code>p</code> 的前 <code>j</code> 個字元」匹配。注意此時 <code>s[i-1]</code> 才是第 i 個字元。</p>
+        <div class="code-block">class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        m, n = len(s), len(p)
+
+        # dp[i][j] = s 的前 i 個字元，能不能被 p 的前 j 個字元匹配
+        dp = [[False] * (n + 1) for _ in range(m + 1)]
+        dp[0][0] = True                       # 空 vs 空
+
+        # 空字串 vs 只由 "x*" 組成的 pattern，例如 "a*b*c*"
+        for j in range(1, n + 1):
+            if p[j - 1] == "*":
+                dp[0][j] = dp[0][j - 2]
+
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if p[j - 1] == "*":
+                    # 情況 A：'x*' 當作出現 0 次 -&gt; 直接看 p 少兩格的結果
+                    dp[i][j] = dp[i][j - 2]
+                    # 情況 B：'x*' 多吃一個 s[i-1]（前提是 x 配得上 s[i-1]）
+                    if p[j - 2] in (s[i - 1], "."):
+                        dp[i][j] = dp[i][j] or dp[i - 1][j]
+                else:
+                    dp[i][j] = dp[i - 1][j - 1] and p[j - 1] in (s[i - 1], ".")
+
+        return dp[m][n]</div>
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 252" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">dp 表：s = &quot;aab&quot;，p = &quot;c*a*b&quot;　（✔ = True）</text>
+            <g font-family="monospace" font-size="13" text-anchor="middle">
+              <text x="120" y="52" fill="var(--text-muted)">&quot;&quot;</text>
+              <text x="180" y="52" fill="var(--accent)">c</text>
+              <text x="240" y="52" fill="var(--accent)">*</text>
+              <text x="300" y="52" fill="var(--accent)">a</text>
+              <text x="360" y="52" fill="var(--accent)">*</text>
+              <text x="420" y="52" fill="var(--accent)">b</text>
+              <text x="70" y="52" fill="var(--text-muted)" font-size="11">p →</text>
+              <text x="70" y="84" fill="var(--text-muted)">&quot;&quot;</text>
+              <text x="70" y="116" fill="var(--gold)">a</text>
+              <text x="70" y="148" fill="var(--gold)">a</text>
+              <text x="70" y="180" fill="var(--gold)">b</text>
+              <text x="30" y="116" fill="var(--text-muted)" font-size="11">s</text>
+              <text x="30" y="136" fill="var(--text-muted)" font-size="11">↓</text>
+
+              <text x="120" y="84" fill="var(--gold)">✔</text>
+              <text x="180" y="84" fill="var(--text-muted)">·</text>
+              <text x="240" y="84" fill="var(--gold)">✔</text>
+              <text x="300" y="84" fill="var(--text-muted)">·</text>
+              <text x="360" y="84" fill="var(--gold)">✔</text>
+              <text x="420" y="84" fill="var(--text-muted)">·</text>
+
+              <text x="120" y="116" fill="var(--text-muted)">·</text>
+              <text x="180" y="116" fill="var(--text-muted)">·</text>
+              <text x="240" y="116" fill="var(--text-muted)">·</text>
+              <text x="300" y="116" fill="var(--gold)">✔</text>
+              <text x="360" y="116" fill="var(--gold)">✔</text>
+              <text x="420" y="116" fill="var(--text-muted)">·</text>
+
+              <text x="120" y="148" fill="var(--text-muted)">·</text>
+              <text x="180" y="148" fill="var(--text-muted)">·</text>
+              <text x="240" y="148" fill="var(--text-muted)">·</text>
+              <text x="300" y="148" fill="var(--text-muted)">·</text>
+              <text x="360" y="148" fill="var(--gold)">✔</text>
+              <text x="420" y="148" fill="var(--text-muted)">·</text>
+
+              <text x="120" y="180" fill="var(--text-muted)">·</text>
+              <text x="180" y="180" fill="var(--text-muted)">·</text>
+              <text x="240" y="180" fill="var(--text-muted)">·</text>
+              <text x="300" y="180" fill="var(--text-muted)">·</text>
+              <text x="360" y="180" fill="var(--text-muted)">·</text>
+              <text x="420" y="180" fill="#ff8a65">✔</text>
+            </g>
+            <rect x="400" y="164" width="40" height="24" rx="4" fill="none" stroke="#ff8a65" stroke-width="2"/>
+            <text x="470" y="180" fill="#ff8a65" font-size="12">答案</text>
+            <text x="20" y="216" fill="var(--text-muted)" font-size="12">第一列全靠 &quot;x*&quot; 當 0 次：dp[0][2] = dp[0][0]，dp[0][4] = dp[0][2]</text>
+            <text x="20" y="238" fill="var(--gold)" font-size="12">dp[2][4]（&quot;aa&quot; vs &quot;c*a*&quot;）＝ a* 吃掉第二個 a → 看 dp[1][4] ✔</text>
+          </svg>
+        </div>
+        <h3>第一列（空字串）的初始化最容易漏</h3>
+        <div class="code-block">dp[0][j]：s 是空的，p 的前 j 個字元能不能匹配空字串？
+
+只有一種可能：p 的前 j 個字元全部是 "x*" 的形式，每組都吃 0 次。
+
+  p = "a*b*c*"
+  dp[0][0] = True                （空 vs 空）
+  dp[0][1] = False               （"a" 配不上空字串）
+  dp[0][2] = dp[0][0] = True     （"a*" 吃 0 次）
+  dp[0][3] = False               （"a*b" 裡的 b 配不上）
+  dp[0][4] = dp[0][2] = True     （"a*b*" 都吃 0 次）
+  dp[0][5] = False
+  dp[0][6] = dp[0][4] = True
+
+規律：只有 p[j-1] == '*' 時 dp[0][j] = dp[0][j-2]，其餘一律 False。
+
+漏掉這一段的話，s = "aab"、p = "c*a*b" 會算成 False。</div>
+        <h3>為什麼 '*' 那一格要寫成兩行而不是一個 or？</h3>
+        <p>因為情況 B 有前置條件：只有當 <code>p[j-2]</code>（也就是 <code>'*'</code> 前面那個字元）配得上 <code>s[i-1]</code> 時，才輪得到「多吃一個」這條路。寫成兩行（先給 A，再視情況 or 上 B）比塞進一個長運算式好讀，也比較不會把條件擺錯位置。</p>
+        <h3>空間可以壓到 O(n)</h3>
+        <p><code>dp[i][j]</code> 只依賴 <code>dp[i][*]</code>（同一列）和 <code>dp[i-1][j]</code>（上一列同欄），所以用兩條長度 n+1 的陣列滾動就夠。但 m, n ≤ 20，這個優化在這題沒有意義，講出來即可。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n)</td><td>填滿 (m+1)×(n+1) 的表</td></tr>
+            <tr><td>空間</td><td>O(m·n)</td><td>可滾動壓到 O(n)</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>好寫程度</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、純遞迴</td><td>最壞 O(2^(m+n))</td><td>O(m+n)</td><td>★★★★☆</td><td>先寫它來確認遞迴式</td></tr>
+            <tr><td>二、記憶化</td><td>O(m·n)</td><td>O(m·n)</td><td>★★★★☆</td><td>面試首選：加一行就達標</td></tr>
+            <tr><td>三、自底向上 DP</td><td>O(m·n)</td><td>O(m·n)→O(n)</td><td>★★☆☆☆</td><td>邊界最多，但不吃遞迴深度</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>和第 44 題 Wildcard Matching 的差別</h3>
+        <div class="code-block">第 10 題（本題）              第 44 題 Wildcard Matching
+------------------------      ------------------------
+'.'  配任意「一個」字元        '?'  配任意「一個」字元
+'*'  前一個元素重複 0+ 次      '*'  自己就配任意「一段」（含空）
+
+關鍵差異：
+  第 10 題的 '*' 要往前看一格（p[j-1] 是誰）；
+  第 44 題的 '*' 是獨立的，不依賴前面。
+
+所以第 44 題可以用貪婪 + 回溯做到 O(1) 空間，
+第 10 題不行 —— 'x*' 的耦合讓貪婪失效。
+
+兩題常被搞混，面試前建議放在一起讀。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>p</code> 裡的 <code>"x*"</code> 要吃 0 次</strong>：<code>("aab", "c*a*b")</code> → true。漏掉這條路是第一名錯誤。</li>
+          <li><strong><code>s</code> 空、<code>p</code> 非空</strong>：<code>("", "a*")</code> → true；<code>("", "a")</code> → false。</li>
+          <li><strong><code>s</code> 非空、<code>p</code> 空</strong>：<code>("a", "")</code> → false。</li>
+          <li><strong>連續多個 <code>"x*"</code></strong>：<code>("", "a*b*c*")</code> → true。考驗第一列的初始化。</li>
+          <li><strong><code>".*"</code></strong>：<code>("ab", ".*")</code> → true。<code>'.'</code> 和 <code>'*'</code> 疊在一起。</li>
+          <li><strong>貪婪會出錯的例子</strong>：<code>("aaa", "a*a")</code> → true。若讓 <code>a*</code> 貪婪吃光三個 a，後面的 <code>a</code> 就沒東西配了 —— 必須能「退回來」少吃一個。這正是 DP 兩條路都要試的原因。</li>
+          <li><strong>長度到上限</strong>：20 個 a 配 <code>"a*"×10</code>，純遞迴會明顯變慢。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：要支援 <code>'+'</code>（一次以上）呢？</h3>
+
+        <p>最省事的做法是<strong>改寫 pattern</strong>：把 <code>"x+"</code> 換成 <code>"xx*"</code>，然後完全沿用現有的程式碼。這也是很多 regex 引擎內部的做法 —— 先正規化（desugar），再交給核心引擎。</p>
+
+        <h3>追問二：真正的 regex 引擎是怎麼做的？</h3>
+
+        <p>兩大流派：<strong>回溯式</strong>（Perl、Python 的 <code>re</code>、Java）和 <strong>自動機式</strong>（NFA/DFA，如 RE2、Go 的 <code>regexp</code>）。回溯式支援 backreference 這類強大但無法用自動機表達的功能，代價是最壞情況會指數爆炸（著名的 ReDoS 攻擊，例如 <code>(a+)+$</code> 配上一串 a）。自動機式保證線性時間，但功能受限。<strong>本題的 DP 解本質上就是自動機式的做法</strong> —— 這是很好的延伸話題。</p>
+
+        <h3>追問三：如果 pattern 要重複用在很多字串上？</h3>
+
+        <p>那就把 pattern <strong>預編譯</strong>成自動機（狀態轉移表），之後每個字串只要 O(len(s)) 掃一遍即可，不必每次重跑 O(m·n) 的 DP。這正是 <code>re.compile</code> 存在的理由。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 44 題 Wildcard Matching</strong> —— <code>'*'</code> 語意不同的姊妹題</li>
+          <li><strong>第 72 題 Edit Distance</strong> —— 同樣是兩個字串的二維 DP</li>
+          <li><strong>第 97 題 Interleaving String</strong> —— 兩指標 DP 的另一個變形</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>("aaa", "a*a")</code> 為什麼是 true？如果用「<code>a*</code> 貪婪吃到底」的寫法會得到什麼？</li>
+            <li>DP 第一列的初始化 <code>dp[0][j] = dp[0][j-2]</code>，為什麼是減 2 而不是減 1？</li>
+            <li>把遞迴裡 <code>first</code> 的 <code>i &lt; len(s)</code> 拿掉，哪一筆測資會 IndexError？</li>
+            <li>狀態總共有幾個？為什麼加了 <code>lru_cache</code> 之後複雜度就從指數變成 O(m·n)？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0009.html">← 上一題：9. 回文數</a>
+          <a href="problem-0011.html">下一題：11. 盛最多水的容器 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

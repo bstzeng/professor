@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>69. Sqrt(x) x 的平方根 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="二分搜尋與牛頓法，以及浮點數為什麼不可靠。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="69">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 69 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 69</div>
+          <h1>Sqrt(x)<br>x 的平方根</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">二分搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a non-negative integer <code>x</code>, return <em>the square root of <code>x</code> rounded down to the nearest integer</em>. The returned integer should be <strong>non-negative</strong> as well.</p>
+          <p>You <strong>must not use</strong> any built-in exponent function or operator.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個非負整數 <code>x</code>，回傳它的<strong>算術平方根，向下取整</strong>。</p>
+          <p><strong>不能使用</strong>任何內建的次方函式或運算子（例如 <code>pow(x, 0.5)</code> 或 <code>x ** 0.5</code>）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這題就是「找邊界」型的二分搜尋</h3>
+        <div class="code-block">要找的是：「最大的整數 m，使得 m² &lt;= x」
+
+    x = 8  -&gt;  2² = 4 &lt;= 8，3² = 9 &gt; 8  -&gt;  答案 2
+    x = 16 -&gt;  4² = 16 &lt;= 16            -&gt;  答案 4
+
+關鍵性質：述詞 P(m) = (m² &lt;= x) 是【單調】的
+
+    m:      0  1  2  3  4  5 ...
+    m² &lt;= 8: ✔  ✔  ✔  ✘  ✘  ✘
+
+    一旦變成 ✘ 就永遠是 ✘ —— 這正是二分搜尋的前提。
+
+所以這題和第 35 題（Search Insert Position）是同一個骨架，
+只是述詞從「nums[i] &gt;= target」換成「m² &gt; x」。
+
+「二分答案」的通用模式：
+    1. 答案的範圍是什麼？        [0, x]
+    2. 述詞是什麼？              m² &lt;= x
+    3. 它單調嗎？                ✔
+    4. 套 partition_point 骨架</div>
+        <p><strong>為什麼不能用 <code>x ** 0.5</code>？</strong>除了題目禁止之外，浮點數在大數時會有精度問題 —— <code>int(2147395600 ** 0.5)</code> 在某些平台上會得到 46339 而不是 46340。<strong>整數平方根必須用整數運算算，才能保證精確。</strong></p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：x = 4
+  輸出：2
+
+範例 2
+  輸入：x = 8
+  輸出：2
+  說明：8 的平方根是 2.828...，向下取整是 2。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>x</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/sqrtx/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>x 可以到 2³¹ − 1 = 2147483647</strong>，答案最大是 46340（因為 46340² = 2147395600 ≤ x，而 46341² = 2147488281 > x）。</li>
+          <li><strong>在 C/Java 裡 <code>mid * mid</code> 會溢位！</strong><code>mid</code> 可能到 10⁹，平方是 10¹⁸ —— 超過 <code>int</code>。標準做法是改成 <code>mid &gt; x / mid</code>（除法比較，不會溢位）或用 <code>long</code>。<strong>Python 沒這個問題，但面試時一定要提。</strong></li>
+          <li><strong>x 可以是 0 或 1</strong> → 答案就是它自己。<strong>牛頓法要特判這兩個</strong>（<code>x // r</code> 在 <code>r = 0</code> 時會除以零）。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>想法</th><th>迭代次數（x ≈ 2³¹）</th></tr></thead>
+          <tbody>
+            <tr><td>一、二分搜尋</td><td>在 [0, x] 上找邊界</td><td>約 31 次</td></tr>
+            <tr><td>二、partition_point</td><td>同上，換一個骨架</td><td>約 31 次</td></tr>
+            <tr><td>三、牛頓法</td><td>用切線逼近，二次收斂</td><td>約 20 次</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二分搜尋（經典骨架）</h3>
+        <div class="code-block">class Solution:
+    def mySqrt(self, x: int) -&gt; int:
+        if x &lt; 2:
+            return x
+
+        # 找「最大的 m 使得 m*m &lt;= x」
+        lo, hi = 1, x // 2       # x &gt;= 2 時，答案不會超過 x//2
+        while lo &lt;= hi:
+            mid = (lo + hi) // 2
+            sq = mid * mid
+            if sq == x:
+                return mid
+            if sq &lt; x:
+                lo = mid + 1     # mid 可行，但也許還能更大
+            else:
+                hi = mid - 1
+
+        return hi                # 迴圈結束時 hi 就是「最大的可行值」</div>
+        <h3>為什麼結束時回傳 <code>hi</code>？</h3>
+        <div class="code-block">迴圈用的是「while lo &lt;= hi」的經典骨架。
+結束時 lo == hi + 1，而且：
+
+    所有 &lt;= hi 的 m 都滿足 m² &lt;= x
+    所有 &gt;= lo 的 m 都滿足 m² &gt; x
+
+所以 hi 就是「最大的可行值」= 答案 ✔
+
+追一遍 x = 8：
+    lo=1, hi=4
+    mid=2: 4 &lt; 8  -&gt; lo=3
+    lo=3, hi=4
+    mid=3: 9 &gt; 8  -&gt; hi=2
+    lo=3 &gt; hi=2   -&gt; 結束
+    return hi = 2 ✔</div>
+        <h3>為什麼上界可以取 <code>x // 2</code>？</h3>
+        <div class="code-block">對 x &gt;= 4，sqrt(x) &lt;= x/2：
+    等價於 4x &lt;= x²，也就是 x &gt;= 4 ✔
+
+x = 2, 3 時 x//2 = 1，而答案也是 1 ✔
+x = 0, 1 已經被提前 return 擋掉。
+
+所以 hi = x // 2 對所有 x &gt;= 2 都是安全的上界。
+
+這只是常數優化（少一兩次迭代），
+寫 hi = x 也完全正確。</div>
+        <h3>C/Java 的溢位陷阱</h3>
+        <div class="code-block">if (mid * mid &lt;= x)      // ✘ mid 到 10⁹ 時 mid*mid 會溢位
+
+三種修法：
+  1. 用 long：  if ((long)mid * mid &lt;= x)
+  2. 改成除法： if (mid &lt;= x / mid)
+  3. 縮小上界： hi = 46340（sqrt(INT_MAX) 的上界）
+
+第 2 種最優雅，而且不依賴更大的型別。
+    mid &lt;= x / mid   &lt;=&gt;   mid² &lt;= x（整數除法會捨去，但不影響比較的方向）
+
+    嚴格說：x / mid 是 floor(x/mid)，
+    而 mid &lt;= floor(x/mid)  &lt;=&gt;  mid * mid &lt;= x
+    （因為 mid 是整數）✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log x)</td><td>約 31 次迭代</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>partition_point 骨架（更統一）</h3>
+        <div class="code-block">class Solution:
+    def mySqrt(self, x: int) -&gt; int:
+        # partition_point 骨架：找「第一個 m 使得 m*m &gt; x」，再減 1
+        lo, hi = 0, x + 1
+        while lo &lt; hi:
+            mid = (lo + hi) // 2
+            if mid * mid &gt; x:
+                hi = mid
+            else:
+                lo = mid + 1
+        return lo - 1</div>
+        <p>用第 35 題的 <code>lower_bound</code> 骨架：<strong>找「第一個讓 <code>m² &gt; x</code> 成立的 m」，然後減 1。</strong></p>
+        <div class="code-block">述詞 P(m) = (m² &gt; x)
+
+    m:      0  1  2  3  4
+    P(m):   ✘  ✘  ✘  ✔  ✔    （x = 8）
+
+    第一個 ✔ 是 m = 3
+    答案 = 3 - 1 = 2 ✔
+
+上界設 x + 1：
+    因為答案最大是 x（當 x = 0 或 1 時），
+    所以「第一個 P 成立的位置」最大是 x + 1。
+
+    x = 1: lo 會收斂到 2，答案 2 - 1 = 1 ✔
+    x = 0: lo 會收斂到 1，答案 1 - 1 = 0 ✔
+
+這個版本不用任何特判（x = 0 和 1 自動處理），
+而且和第 34、35、278、875 題共用同一個骨架。
+
+我個人偏好這個版本 ——
+「只記一種二分骨架」比「記三種」不容易出錯。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log x)</td><td>同上</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>牛頓法（收斂最快）</h3>
+        <p>把「求 √x」變成「求方程式 <code>f(r) = r² − x = 0</code> 的根」，然後用<strong>牛頓-拉弗森法（Newton-Raphson）</strong>迭代。</p>
+        <div class="code-block">class Solution:
+    def mySqrt(self, x: int) -&gt; int:
+        if x &lt; 2:
+            return x
+
+        # 牛頓法：求 f(r) = r² - x = 0 的根
+        # 迭代式 r' = r - f(r)/f'(r) = r - (r² - x)/(2r) = (r + x/r) / 2
+        r = x
+        while r * r &gt; x:
+            r = (r + x // r) // 2      # 整數版，會單調遞減收斂到 floor(sqrt(x))
+        return r</div>
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 330" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">牛頓法：用切線逼近，每一次迭代「正確位數大約加倍」</text>
+            <g>
+              <line x1="60" y1="230" x2="600" y2="230" stroke="var(--text-muted)"/>
+              <line x1="80" y1="40" x2="80" y2="244" stroke="var(--text-muted)"/>
+              <path d="M80 230 Q200 226 300 180 Q420 110 540 46" fill="none" stroke="var(--accent)" stroke-width="2"/>
+              <text x="556" y="52" fill="var(--accent)" font-size="12">f(r) = r² − x</text>
+              <line x1="140" y1="230" x2="140" y2="222" stroke="var(--text-muted)"/>
+              <text x="140" y="248" fill="var(--text-muted)" font-size="11" text-anchor="middle">√x</text>
+            </g>
+            <g>
+              <circle cx="520" cy="58" r="4" fill="#ff8a65"/>
+              <text x="520" y="42" fill="#ff8a65" font-size="11" text-anchor="middle">r₀ = x</text>
+              <line x1="520" y1="58" x2="330" y2="230" stroke="#ff8a65" stroke-width="1.4" stroke-dasharray="5 4"/>
+              <circle cx="330" cy="230" r="4" fill="#ff8a65"/>
+              <text x="330" y="262" fill="#ff8a65" font-size="11" text-anchor="middle">r₁</text>
+
+              <line x1="330" y1="230" x2="330" y2="168" stroke="var(--border)" stroke-dasharray="3 3"/>
+              <circle cx="330" cy="168" r="4" fill="var(--gold)"/>
+              <line x1="330" y1="168" x2="212" y2="230" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="5 4"/>
+              <circle cx="212" cy="230" r="4" fill="var(--gold)"/>
+              <text x="212" y="262" fill="var(--gold)" font-size="11" text-anchor="middle">r₂</text>
+
+              <line x1="212" y1="230" x2="212" y2="216" stroke="var(--border)" stroke-dasharray="3 3"/>
+              <circle cx="212" cy="216" r="4" fill="var(--accent)"/>
+              <line x1="212" y1="216" x2="156" y2="230" stroke="var(--accent)" stroke-width="1.4" stroke-dasharray="5 4"/>
+              <circle cx="156" cy="230" r="4" fill="var(--accent)"/>
+              <text x="156" y="262" fill="var(--accent)" font-size="11" text-anchor="middle">r₃</text>
+            </g>
+            <text x="20" y="292" fill="var(--gold)" font-size="12">r&apos; = (r + x/r) / 2　每一步都是「目前猜測」和「x 除以猜測」的平均</text>
+            <text x="20" y="316" fill="var(--text-muted)" font-size="12">x = 2147483647 時，牛頓法只要約 20 次迭代；二分搜尋要 31 次。</text>
+          </svg>
+        </div>
+        <h3>迭代式的推導</h3>
+        <div class="code-block">牛頓法的通式：從點 (r, f(r)) 畫切線，切線和 x 軸的交點就是下一個 r。
+
+    r' = r - f(r) / f'(r)
+
+    f(r)  = r² - x
+    f'(r) = 2r
+
+    r' = r - (r² - x) / (2r)
+       = r - r/2 + x/(2r)
+       = (r + x/r) / 2
+
+最後這個形式有一個很直覺的解讀：
+    「目前的猜測 r」和「x 除以猜測 x/r」的【平均】
+
+    如果 r 太大，x/r 就會太小；反之亦然。
+    取平均就會往中間靠 —— 而正確答案 √x 剛好滿足 r == x/r。
+
+這個公式在古代就被發現了，叫做【巴比倫方法】或【希羅方法】——
+比牛頓早了三千多年。</div>
+        <h3>為什麼整數版的 <code>while r * r &gt; x</code> 會停在正確答案？</h3>
+        <div class="code-block">整數版： r = (r + x // r) // 2
+
+關鍵性質：
+  1. 從 r = x 開始，序列是【單調遞減】的（在 r &gt; sqrt(x) 的範圍內）
+  2. 而且永遠 &gt;= floor(sqrt(x))（不會衝過頭太多）
+  3. 所以當 r*r &lt;= x 第一次成立時，r 就是 floor(sqrt(x))
+
+     直覺：r &gt; sqrt(x) 時，AM-GM 不等式保證
+           (r + x/r)/2 &gt;= sqrt(x)
+           所以新的 r 不會掉到 sqrt(x) 以下。
+           而整數除法的捨去，剛好讓它停在 floor(sqrt(x))。
+
+x = 8 的迭代：
+    r = 8:  8*8 = 64 &gt; 8  -&gt; r = (8 + 8//8)//2 = (8+1)//2 = 4
+    r = 4:  16 &gt; 8        -&gt; r = (4 + 8//4)//2 = (4+2)//2 = 3
+    r = 3:  9 &gt; 8         -&gt; r = (3 + 8//3)//2 = (3+2)//2 = 2
+    r = 2:  4 &lt;= 8        -&gt; 停，回傳 2 ✔
+
+x = 0 會在 x // r 那裡除以零 —— 所以要提前 return。</div>
+        <h3>為什麼牛頓法比二分快？</h3>
+        <p><strong>二分是「線性收斂」</strong>：每次把誤差減半，正確的<strong>位元數</strong>每次加 1。</p>
+        <p><strong>牛頓法是「二次收斂」</strong>：每次把誤差平方，正確的<strong>位元數大約加倍</strong>。</p>
+        <div class="code-block">x ≈ 2³¹ 時：
+    二分：  約 31 次迭代（每次砍一半）
+    牛頓：  約 5-6 次就收斂到很接近，
+            但整數版從 r = x 開始，前幾步是「除以 2」，
+            所以實際約 20 次。
+
+    如果初始猜測選得好（例如用位元長度估一個接近的起點），
+    牛頓法可以壓到 5-6 次。
+
+實務上：
+    現代 CPU 有 sqrt 指令（硬體實作，幾個週期）。
+    而軟體實作（例如嵌入式系統、大數函式庫）
+    幾乎都用牛頓法 —— 因為二次收斂太划算了。
+
+    著名的「快速反平方根」（Quake III 的 0x5f3759df）
+    也是牛頓法，只是用一個位元技巧產生了極好的初始猜測。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log log x) 迭代</td><td>二次收斂</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>一個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>迭代次數</th><th>空間</th><th>會溢位？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、二分（經典骨架）</td><td>約 31</td><td>O(1)</td><td>C/Java 會</td><td>最常見</td></tr>
+            <tr><td>二、partition_point</td><td>約 31</td><td>O(1)</td><td>同上</td><td>骨架統一，不用特判</td></tr>
+            <tr><td>三、牛頓法</td><td>約 20</td><td>O(1)</td><td>同上</td><td>二次收斂，實務用它</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>x = 0</strong> → 0；<strong>x = 1</strong> → 1。<strong>牛頓法必須特判（<code>x // r</code> 會除以零）。</strong></li>
+          <li><strong>完全平方數</strong>：<code>4 → 2</code>、<code>16 → 4</code>、<code>100 → 10</code>。</li>
+          <li><strong>剛好差一</strong>：<code>15 → 3</code>、<code>17 → 4</code>。驗證邊界沒有差一。</li>
+          <li><strong>最大值</strong>：<code>2147483647 → 46340</code>。</li>
+          <li><strong>臨界點</strong>：<code>2147395599 → 46339</code>（因為 46340² = 2147395600 &gt; 它）。<strong>這是 LeetCode 專門用來抓浮點精度錯誤的測資</strong> —— <code>int(2147395599 ** 0.5)</code> 在某些平台會得到 46340（錯）。</li>
+          <li><strong>C/Java 的 <code>mid * mid</code></strong>：<code>mid</code> 到 10⁹ 時會溢位。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要精確到小數點後 k 位呢？</h3>
+
+        <p>兩種做法：</p>
+
+        <ul>
+          <li><strong>放大再開根號</strong>：算 <code>isqrt(x × 10^(2k))</code>，然後在結果的小數點後 k 位插入小數點。這樣完全用整數運算，沒有浮點誤差。</li>
+          <li><strong>浮點二分</strong>：在 <code>[0, x]</code> 上二分，直到 <code>hi - lo &lt; 10^(-k)</code>。簡單但有浮點誤差累積。</li>
+        </ul>
+
+        <p><strong>第一種在金融和密碼學裡是標準做法</strong> —— 整數運算才能保證可重現。</p>
+
+        <h3>追問二：Python 有內建的整數平方根嗎？</h3>
+
+        <p><strong>有：<code>math.isqrt(x)</code>（Python 3.8+）。</strong>它保證回傳 <code>floor(sqrt(x))</code>，而且對任意大的整數都精確。內部用的是一個基於牛頓法的「自適應精度」演算法。<strong>本篇的測試就是拿它當基準。</strong></p>
+
+        <h3>追問三：「快速反平方根」是什麼？</h3>
+
+        <div class="code-block">Quake III Arena 的著名程式碼（1999 年公開）：
+
+    float Q_rsqrt(float number) {
+        long i = *(long*)&amp;number;
+        i = 0x5f3759df - (i &gt;&gt; 1);      // 什麼鬼？
+        float y = *(float*)&amp;i;
+        y = y * (1.5f - 0.5f * number * y * y);   // 一次牛頓迭代
+        return y;
+    }
+
+它在算 1/sqrt(x)（3D 圖學裡用來正規化向量）。
+
+那一行魔術數字在做什麼？
+    IEEE 754 浮點數的位元表示，本身就「近似」是 log₂(x) 的線性函數。
+    所以對位元做「減半再取負」，近似就是對數值做「開根號再取倒數」。
+    0x5f3759df 是那個近似的最佳偏移常數。
+
+這給出約 1 位有效數字的初始猜測，
+然後一次牛頓迭代就把它提升到約 6 位 ——
+夠 3D 遊戲用了，而且比呼叫 sqrt() 快好幾倍。
+
+現代 CPU 有 rsqrtss 指令，所以這個技巧已經過時，
+但它是「理解浮點數位元表示」的經典教材。</div>
+
+        <h3>追問四：為什麼「二分答案」是一個這麼通用的模式？</h3>
+
+        <p>因為很多最佳化問題都可以改寫成「找最大／最小的可行值」，而「可行性」往往是單調的。</p>
+
+        <div class="code-block">本題：      P(m) = (m² &lt;= x)                     找最大可行
+第 278 題： P(v) = isBadVersion(v)                找最小成立
+第 875 題： P(speed) = 能在 h 小時內吃完           找最小可行
+第 1011 題：P(cap) = 能在 d 天內運完               找最小可行
+第 410 題： P(x) = 能分成 k 段且每段和 &lt;= x        找最小可行
+第 4 題：   二分「切割點」而不是值
+
+判斷能不能用：
+    1. 答案在一個有界的範圍裡
+    2. 有一個「檢查可行性」的函式 check(m)
+    3. check 是單調的（一旦可行就一直可行，或反之）
+
+三個條件都滿足 -&gt; 套 partition_point 骨架，
+複雜度 O(log(值域) × check 的複雜度)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 35 題 Search Insert Position</strong> —— 同一個二分骨架</li>
+          <li><strong>第 367 題 Valid Perfect Square</strong> —— 判斷是不是完全平方數</li>
+          <li><strong>第 50 題 Pow(x, n)</strong> —— 另一個數值計算題</li>
+          <li><strong>第 875／1011／410 題</strong> —— 二分答案家族</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>在 Java 裡 <code>mid * mid &lt;= x</code> 有什麼問題？三種修法各是什麼？</li>
+            <li>為什麼 <code>x = 2147395599</code> 是一個重要的測資？</li>
+            <li>牛頓法的迭代式 <code>(r + x/r) / 2</code> 有什麼直覺上的解讀？</li>
+            <li>「二分答案」需要滿足哪三個條件？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0068.html">← 上一題：68. 文字左右對齊</a>
+          <a href="problem-0070.html">下一題：70. 爬樓梯 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

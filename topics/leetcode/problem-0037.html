@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>37. Sudoku Solver 解數獨 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="回溯 + 約束傳播，以及位元遮罩的加速。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="37">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 37 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 37</div>
+          <h1>Sudoku Solver<br>解數獨</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">回溯</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Write a program to solve a Sudoku puzzle by filling the empty cells.</p>
+          <p>A sudoku solution must satisfy <strong>all of the following rules</strong>: each of the digits <code>1-9</code> must occur exactly once in each row, each column, and each of the nine <code>3 x 3</code> sub-boxes.</p>
+          <p>The <code>'.'</code> character indicates empty cells. It is guaranteed that the input board has <strong>only one solution</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>寫一個程式填滿數獨的空格，把它解出來。</p>
+          <p>解答必須滿足：<strong>每一列、每一行、每個 3×3 宮格</strong>，數字 1–9 都<strong>恰好出現一次</strong>。</p>
+          <p><code>'.'</code> 表示空格。題目保證輸入<strong>恰好只有一組解</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>回溯 = 深度優先搜尋 + 撤銷</h3>
+        <div class="code-block">基本框架只有四行邏輯：
+
+    for 每個候選:
+        填進去
+        遞迴解剩下的
+        如果成功 -&gt; 回報成功
+        否則把它拿掉（撤銷）
+    全部試完都不行 -&gt; 回報失敗
+
+難的不是框架，是「怎麼讓它夠快」。
+
+盲目回溯的搜尋空間有多大？
+    最壞情況 9^(空格數)。
+    一個典型數獨有 50 個空格 -&gt; 9^50 ≈ 5 × 10^47
+
+顯然不可能窮舉。能在毫秒內解完，完全靠「剪枝」：
+
+    剪枝 1：只試「合法」的候選（而不是 1-9 全試）
+    剪枝 2：優先填「候選最少」的格子（MRV 啟發式）
+
+剪枝 1 是必須的，剪枝 2 是把「某些難題要跑好幾秒」
+變成「所有題目都在毫秒內」的關鍵。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">輸入（. 是空格）
+  5 3 . | . 7 . | . . .
+  6 . . | 1 9 5 | . . .
+  . 9 8 | . . . | . 6 .
+  ------+-------+------
+  8 . . | . 6 . | . . 3
+  4 . . | 8 . 3 | . . 1
+  7 . . | . 2 . | . . 6
+  ------+-------+------
+  . 6 . | . . . | 2 8 .
+  . . . | 4 1 9 | . . 5
+  . . . | . 8 . | . 7 9
+
+輸出（原地修改 board）
+  5 3 4 | 6 7 8 | 9 1 2
+  6 7 2 | 1 9 5 | 3 4 8
+  1 9 8 | 3 4 2 | 5 6 7
+  ------+-------+------
+  8 5 9 | 7 6 1 | 4 2 3
+  4 2 6 | 8 5 3 | 7 9 1
+  7 1 3 | 9 2 4 | 8 5 6
+  ------+-------+------
+  9 6 1 | 5 3 7 | 2 8 4
+  2 8 7 | 4 1 9 | 6 3 5
+  3 4 5 | 2 8 6 | 1 7 9</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>board.length == 9</code>，<code>board[i].length == 9</code></li>
+          <li><code>board[i][j]</code> 是 <code>'1'</code>–<code>'9'</code> 或 <code>'.'</code></li>
+          <li><strong>保證輸入只有一組解</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/sudoku-solver/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>「只有一組解」是一個很大的簡化。</strong>找到就可以立刻 return True 一路傳回去，不用繼續搜。如果要「找出所有解」，就不能提早結束，複雜度會高很多。</li>
+          <li><strong>必須原地修改 <code>board</code></strong>，函式回傳 <code>None</code>。在 Python 裡記得用 <code>board[r][c] = ch</code> 而不是重新綁定。</li>
+          <li><strong>沒有時間限制的明文要求</strong>，但 LeetCode 的測資包含一些刻意設計的難題（空格多、線索少）。<strong>沒有 MRV 剪枝的版本在某些測資上會 TLE。</strong></li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">兩個版本：
+
+一、樸素回溯
+    - 每次檢查候選時掃 9+9+9 格
+    - 按順序填格子（左上到右下）
+    - 好寫、好懂，一般題目能過
+
+二、位元遮罩 + MRV
+    - 候選檢查是三次位元運算
+    - 每次挑「候選最少」的格子先填
+    - 快幾十到幾百倍，難題也能瞬間解完
+
+建議：面試時寫版本一並說明，
+      主動提到「可以用位元遮罩加速、用 MRV 剪枝」。
+      如果面試官有興趣再寫版本二。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>樸素回溯（先把框架寫對）</h3>
+        <div class="code-block">class Solution:
+    def solveSudoku(self, board: List[List[str]]) -&gt; None:
+        def ok(r: int, c: int, ch: str) -&gt; bool:
+            for i in range(9):
+                if board[r][i] == ch or board[i][c] == ch:
+                    return False
+            br, bc = (r // 3) * 3, (c // 3) * 3
+            for i in range(br, br + 3):
+                for j in range(bc, bc + 3):
+                    if board[i][j] == ch:
+                        return False
+            return True
+
+        def solve(pos: int) -&gt; bool:
+            if pos == 81:
+                return True
+            r, c = divmod(pos, 9)
+            if board[r][c] != ".":
+                return solve(pos + 1)
+
+            for ch in "123456789":
+                if ok(r, c, ch):
+                    board[r][c] = ch
+                    if solve(pos + 1):
+                        return True
+                    board[r][c] = "."      # 回溯
+            return False
+
+        solve(0)</div>
+        <h3>用 <code>pos</code>（0..80）而不是 <code>(r, c)</code> 的好處</h3>
+        <p>只要一個整數就能表示進度，遞迴呼叫是 <code>solve(pos + 1)</code>，不用處理「行走到底要換列」的邏輯。<code>r, c = divmod(pos, 9)</code> 一行還原。</p>
+        <h3>「撤銷」那一行為什麼不能省？</h3>
+        <div class="code-block">board[r][c] = ch
+if solve(pos + 1):
+    return True
+board[r][c] = "."        &lt;- 這一行
+
+如果不寫，失敗的嘗試會留在盤面上，
+後面的檢查就會被這些「假資料」誤導。
+
+一個直觀的檢驗：
+    回溯函式應該滿足「進去時盤面是什麼樣，
+    失敗回來時盤面還是那樣」。
+    這叫做「狀態的可逆性」，
+    是所有回溯演算法的正確性基礎。</div>
+        <h3>為什麼 <code>ok()</code> 不用檢查 <code>board[r][c]</code> 自己？</h3>
+        <p>因為呼叫 <code>ok()</code> 的時候那一格還是 <code>'.'</code>，不會和 <code>ch</code> 相等。如果改成「先填再檢查」的寫法，就必須排除自己 —— 那樣比較容易寫錯。</p>
+        <p><strong>複雜度</strong>：理論上界是 O(9^m)（m = 空格數），但實際上剪枝（只試合法候選）讓它遠遠低於這個數。<strong>對「數獨」這個特定的固定大小問題，談漸近複雜度意義不大</strong> —— 真正重要的是實測：這個版本解一般難度的題目大約幾毫秒，解刻意設計的難題可能要幾秒。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>最壞 O(9^m)</td><td>m = 空格數；剪枝後遠低於上界</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td>遞迴深度 m</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>位元遮罩 + MRV 啟發式（快幾十倍）</h3>
+        <div class="code-block">class Solution:
+    def solveSudoku(self, board: List[List[str]]) -&gt; None:
+        FULL = 0x1FF                       # 0b111111111，9 個候選全開
+
+        rows = [0] * 9
+        cols = [0] * 9
+        boxes = [0] * 9
+        empties = []
+
+        # 初始化：把已知的數字記進三組遮罩，並收集空格
+        for r in range(9):
+            for c in range(9):
+                v = board[r][c]
+                if v == ".":
+                    empties.append((r, c))
+                else:
+                    bit = 1 &lt;&lt; (int(v) - 1)
+                    rows[r] |= bit
+                    cols[c] |= bit
+                    boxes[(r // 3) * 3 + c // 3] |= bit
+
+        def solve(k: int) -&gt; bool:
+            if k == len(empties):
+                return True
+
+            # MRV（minimum remaining values）：
+            # 在還沒填的格子裡挑「候選最少」的那一格先填
+            best_i, best_mask, best_cnt = -1, 0, 10
+            for i in range(k, len(empties)):
+                r, c = empties[i]
+                b = (r // 3) * 3 + c // 3
+                mask = FULL &amp; ~(rows[r] | cols[c] | boxes[b])
+                cnt = bin(mask).count("1")
+                if cnt &lt; best_cnt:
+                    best_i, best_mask, best_cnt = i, mask, cnt
+                    if cnt &lt;= 1:
+                        break              # 不可能更好了
+            if best_cnt == 0:
+                return False               # 有格子無解，整個分支剪掉
+
+            empties[k], empties[best_i] = empties[best_i], empties[k]
+            r, c = empties[k]
+            b = (r // 3) * 3 + c // 3
+
+            mask = best_mask
+            while mask:
+                bit = mask &amp; -mask         # 取最低位的 1
+                mask -= bit
+
+                rows[r] |= bit; cols[c] |= bit; boxes[b] |= bit
+                board[r][c] = str(bit.bit_length())
+
+                if solve(k + 1):
+                    return True
+
+                rows[r] ^= bit; cols[c] ^= bit; boxes[b] ^= bit
+                board[r][c] = "."
+
+            empties[k], empties[best_i] = empties[best_i], empties[k]
+            return False
+
+        solve(0)</div>
+        <h3>改進 1：位元遮罩取代逐格掃描</h3>
+        <div class="code-block">樸素版檢查一個候選要掃 27 格。
+位元版只要：
+
+    b = (r // 3) * 3 + c // 3
+    candidates = FULL &amp; ~(rows[r] | cols[c] | boxes[b])
+
+一次算出「這一格可以填哪些數字」，三次位元運算。
+
+用到的技巧：
+    FULL = 0x1FF = 0b111111111     九個候選全開
+    mask &amp; -mask                   取出最低位的 1
+    mask -= bit                    清掉那一位（也可以寫 mask &amp;= mask - 1）
+    bit.bit_length()               1&lt;&lt;0 -&gt; 1, 1&lt;&lt;8 -&gt; 9，剛好是數字本身
+
+    rows[r] ^= bit                 撤銷（XOR 當切換用）</div>
+        <h3>改進 2：MRV（minimum remaining values）</h3>
+        <div class="code-block">不要按順序填格子，而是每次都挑「候選最少」的那一格。
+
+為什麼有效？
+    假設有兩個空格：
+        格 A 有 7 個候選
+        格 B 有 2 個候選
+
+    先填 A：搜尋樹這一層有 7 個分支
+    先填 B：只有 2 個分支
+
+    而且先填 B 之後，B 的值會進一步限制 A 的候選 ——
+    可能讓 A 從 7 個降到 3 個。
+
+    反過來先填 A 的話，每個分支都還要再面對 B。
+
+這是約束滿足問題（CSP）裡最有名的啟發式，
+也叫「fail-first principle」：
+    優先處理最受限制的變數，
+    因為如果這條路走不通，越早發現越好。
+
+特例：候選數 == 1 -&gt; 唯一解，直接填，不用分支（這叫 naked single）
+      候選數 == 0 -&gt; 這一格無解，整個分支立刻剪掉
+
+程式碼裡 if cnt &lt;= 1: break 就是在利用第一種情況 ——
+找到「只有一個候選」的格子就不必再比了，它一定是最好的選擇。</div>
+        <h3>為什麼用「交換」而不是重新排序？</h3>
+        <div class="code-block">empties[k], empties[best_i] = empties[best_i], empties[k]
+
+把選中的格子換到位置 k，
+這樣 empties[k:] 永遠是「還沒填的格子」。
+
+遞迴回來之後要換回去 —— 這也是「撤銷」的一部分。
+（實際上換不換回去對正確性沒有影響，
+  因為 empties[k:] 的「集合」不變，只是順序。
+  但換回去讓「狀態可逆」的性質完整，比較不容易出錯。）
+
+這個「選中的元素換到前面」的技巧，
+在選擇排序、快速選擇、以及所有「每次挑一個最好的」的演算法裡都會用到。</div>
+        <h3>實測差距</h3>
+        <div class="code-block">在「世界最難數獨」之一（只有 21 個線索）上：
+
+    樸素回溯：      數秒到數十秒（視實作而定）
+    位元 + MRV：    數毫秒
+
+差距主要來自 MRV ——
+它讓搜尋樹的分支因子從平均 3~4 降到接近 1，
+搜尋樹從「寬而深」變成「幾乎是一條線」。
+
+位元遮罩則是把每個節點的成本從 27 次比較降到 3 次運算，
+帶來大約 5~10 倍的常數加速。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>實測毫秒級</td><td>MRV 讓分支因子接近 1</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td>三組遮罩 + 遞迴深度 m</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>候選檢查</th><th>填格順序</th><th>難題表現</th><th>行數</th></tr></thead>
+          <tbody>
+            <tr><td>一、樸素回溯</td><td>掃 27 格</td><td>左上到右下</td><td>可能數秒</td><td>25</td></tr>
+            <tr><td>二、位元 + MRV</td><td>3 次位元運算</td><td>候選最少優先</td><td>毫秒</td><td>55</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>還能再加的剪枝（如果你想寫一個真正的數獨引擎）</h3>
+        <ul>
+          <li><strong>Hidden single</strong>：某個數字在一列／行／宮裡只剩一個位置能放 —— 直接填。這是人類解數獨最常用的技巧，比 naked single 更有威力。</li>
+          <li><strong>Constraint propagation</strong>：每填一格就把影響傳播出去，反覆套用 naked/hidden single 直到不動為止，才進入下一層搜尋。Peter Norvig 的著名數獨程式就是這個架構，它能在不搜尋的情況下解掉大部分題目。</li>
+          <li><strong>Dancing Links（DLX）</strong>：把數獨轉成「精確覆蓋問題」（exact cover），用 Knuth 的 Algorithm X + 雙向十字鏈結串列求解。這是理論上最優雅的做法 —— 數獨的 729 個「可能的填法」對上 324 個約束，解數獨就變成「選出一組列，讓每個約束恰好被覆蓋一次」。<strong>但實作複雜度高很多，面試絕對不會要求。</strong></li>
+        </ul>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>盤面已經填滿</strong>：<code>empties</code> 是空的，<code>solve(0)</code> 立刻回 True。</li>
+          <li><strong>幾乎全空</strong>：只有一兩個線索。MRV 在這裡最有價值（樸素版會很慢）。</li>
+          <li><strong>刻意設計的難題</strong>：17 個線索是「有唯一解的最少線索數」（2012 年被證明）。這類題目是測試剪枝效果的標準測資。</li>
+          <li><strong>撤銷不完整</strong>：忘記 <code>board[r][c] = "."</code> 或漏了某個遮罩的 XOR，會得到錯誤的解或無限搜尋。<strong>撤銷必須和「做」完全對稱。</strong></li>
+          <li><strong>修改到原有的數字</strong>：<code>empties</code> 只收集 <code>'.'</code> 的位置，所以原有數字不會被動到。樸素版靠 <code>if board[r][c] != ".": return solve(pos+1)</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要找出「所有」解呢？</h3>
+
+        <p>把 <code>if solve(k+1): return True</code> 改成 <code>solve(k+1)</code>（不提早結束），並在 <code>k == len(empties)</code> 時記錄一份盤面的複本。<strong>但要注意：解的數量可能非常大</strong>（完全空的盤面有約 6.67 × 10²¹ 種解），所以通常會限制「最多找 N 個」。</p>
+
+        <h3>追問二：怎麼判斷一個盤面有幾組解？</h3>
+
+        <p>同上，但找到第 2 組就可以停 —— 「唯一解」只要證明「不存在第 2 組」。這是數獨出題程式的核心：挖掉一個數字，檢查是否仍然唯一解，不唯一就放回去。</p>
+
+        <h3>追問三：解數獨是 NP-complete 嗎？</h3>
+
+        <p><strong>一般化的 n²×n² 數獨是 NP-complete 的</strong>（1周2003 年由 Yato 和 Seta 證明）。但 9×9 是固定大小，理論上是 O(1) —— 所以「數獨是 NP-complete」這句話只在談一般化版本時才有意義。</p>
+
+        <p><strong>這是一個很好的提醒：漸近複雜度只對「規模可以變大」的問題有意義。</strong>對固定大小的問題，唯一有意義的指標是實測。</p>
+
+        <h3>追問四：這題的技巧還能用在哪？</h3>
+
+        <p>任何<strong>約束滿足問題（CSP）</strong>：N 皇后（第 51 題）、圖著色、課表排程、拼圖、以及各種「把東西放進格子且不能衝突」的問題。<strong>「位元遮罩表示候選集合」+「MRV 選變數」是這一整類問題的通用武器。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 36 題 Valid Sudoku</strong> —— 這題的前置，同一套遮罩</li>
+          <li><strong>第 51／52 題 N-Queens</strong> —— 另一個 CSP + 位元遮罩的經典</li>
+          <li><strong>第 79 題 Word Search</strong> —— 網格上的回溯</li>
+          <li><strong>第 39／40／46／47 題</strong> —— 回溯家族</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「撤銷」那幾行如果漏掉一個，會發生什麼？請說明為什麼「狀態可逆」是回溯的正確性基礎。</li>
+            <li>MRV 為什麼能大幅縮小搜尋樹？請用「A 有 7 個候選、B 有 2 個候選」的例子說明。</li>
+            <li><code>mask & -mask</code> 在做什麼？<code>bit.bit_length()</code> 為什麼剛好是那個數字？</li>
+            <li>如果要找出所有解，要改哪幾行？為什麼通常要加上數量上限？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0036.html">← 上一題：36. 有效的數獨</a>
+          <a href="problem-0038.html">下一題：38. 外觀數列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

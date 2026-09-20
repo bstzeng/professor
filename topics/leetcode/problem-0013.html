@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>13. Roman to Integer 羅馬數字轉整數 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="「小的在大的左邊就是減」——一趟掃描的判斷規則。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="13">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 13 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 13</div>
+          <h1>Roman to Integer<br>羅馬數字轉整數</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">字串</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Roman numerals are represented by seven different symbols: <code>I, V, X, L, C, D</code> and <code>M</code> (values <code>1, 5, 10, 50, 100, 500, 1000</code>).</p>
+          <p>Usually, numerals are written largest to smallest from left to right. However, for <code>4</code> and <code>9</code>, the smaller numeral is placed before the larger one and <strong>subtracted</strong>: <code>IV, IX, XL, XC, CD, CM</code>.</p>
+          <p>Given a Roman numeral, convert it to an integer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>羅馬數字由七個符號組成：<code>I=1, V=5, X=10, L=50, C=100, D=500, M=1000</code>。</p>
+          <p>一般來說是<strong>由大到小、從左寫到右</strong>。但遇到 4 和 9 的時候，會把小的符號寫在大的<strong>左邊</strong>表示<strong>相減</strong>：<code>IV=4, IX=9, XL=40, XC=90, CD=400, CM=900</code>。</p>
+          <p>給你一個羅馬數字字串，把它轉成整數。</p>
+        </div>
+
+        <div class="callout">
+          <h3>一句話就解完這題</h3>
+        <p><strong>從左往右掃，如果當前符號比右邊那個小，就減它；否則加它。</strong></p>
+        <div class="code-block">為什麼這一句就夠了？
+
+因為羅馬數字的寫法規定是「由大到小」。
+唯一會出現「小的在大的左邊」的情形，就是那六個減法形式。
+
+所以「比右邊小」這個條件，
+恰好、而且只會，在減法形式的前半個字元上成立。
+
+  "MCMXCIV"
+   M  C  M  X  C  I  V
+   ^     ^     ^     ^     這些「≥ 右邊」-&gt; 加
+      ^     ^     ^        這些「&lt; 右邊」-&gt; 減
+
+你完全不需要在程式裡列出 IV、IX、XL… 這六個組合。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "III"
+  輸出：3
+
+範例 2
+  輸入：s = "LVIII"
+  輸出：58
+  說明：L = 50，V = 5，III = 3
+
+範例 3
+  輸入：s = "MCMXCIV"
+  輸出：1994
+  說明：M = 1000，CM = 900，XC = 90，IV = 4</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 15</li>
+          <li><code>s</code> 只含 <code>'I', 'V', 'X', 'L', 'C', 'D', 'M'</code></li>
+          <li><strong>保證 <code>s</code> 是 1 到 3999 範圍內的有效羅馬數字</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/roman-to-integer/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>先看懂限制在說什麼</h3>
+        <ul>
+          <li><strong>「保證是有效的羅馬數字」是一個非常大的禮物。</strong>你不用檢查 <code>"IIII"</code>、<code>"IL"</code>、<code>"VX"</code> 這些非法輸入，也不用回報錯誤。所有解法都可以假設輸入完美。（如果面試官追問「那要怎麼驗證合法性」，那是另一個難度等級的問題 —— 見文末追問。）</li>
+          <li><strong>長度 ≤ 15</strong>：最長的合法羅馬數字是 3888 = <code>"MMMDCCCLXXXVIII"</code>，剛好 15 個字元。</li>
+          <li>效率完全不是問題，所以這題的評分重點是：<strong>你的解法有多簡潔、多能說明白</strong>。</li>
+        </ul>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 238" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">s = &quot;MCMXCIV&quot;：每個字元只要問一句「我比右邊的小嗎？」</text>
+            <g font-family="monospace" font-size="18" text-anchor="middle">
+              <text x="80" y="66" fill="var(--accent)">M</text>
+              <text x="160" y="66" fill="#ff8a65">C</text>
+              <text x="240" y="66" fill="var(--accent)">M</text>
+              <text x="320" y="66" fill="#ff8a65">X</text>
+              <text x="400" y="66" fill="var(--accent)">C</text>
+              <text x="480" y="66" fill="#ff8a65">I</text>
+              <text x="560" y="66" fill="var(--accent)">V</text>
+            </g>
+            <g font-size="12" text-anchor="middle" fill="var(--text-muted)">
+              <text x="80" y="92">1000</text>
+              <text x="160" y="92">100</text>
+              <text x="240" y="92">1000</text>
+              <text x="320" y="92">10</text>
+              <text x="400" y="92">100</text>
+              <text x="480" y="92">1</text>
+              <text x="560" y="92">5</text>
+            </g>
+            <g font-size="13" text-anchor="middle">
+              <text x="80" y="122" fill="var(--accent)">+1000</text>
+              <text x="160" y="122" fill="#ff8a65">−100</text>
+              <text x="240" y="122" fill="var(--accent)">+1000</text>
+              <text x="320" y="122" fill="#ff8a65">−10</text>
+              <text x="400" y="122" fill="var(--accent)">+100</text>
+              <text x="480" y="122" fill="#ff8a65">−1</text>
+              <text x="560" y="122" fill="var(--accent)">+5</text>
+            </g>
+            <g font-size="11" text-anchor="middle" fill="var(--text-muted)">
+              <text x="80" y="144">1000 ≥ 100</text>
+              <text x="160" y="144">100 &lt; 1000</text>
+              <text x="240" y="144">1000 ≥ 10</text>
+              <text x="320" y="144">10 &lt; 100</text>
+              <text x="400" y="144">100 ≥ 1</text>
+              <text x="480" y="144">1 &lt; 5</text>
+              <text x="560" y="144">最後一個</text>
+            </g>
+            <line x1="40" y1="164" x2="600" y2="164" stroke="var(--border)"/>
+            <text x="320" y="192" fill="var(--gold)" font-size="14" text-anchor="middle">1000 − 100 + 1000 − 10 + 100 − 1 + 5 = 1994</text>
+            <text x="20" y="222" fill="var(--text-muted)" font-size="12">不需要認得 CM、XC、IV 這些組合 —— 只要比大小，減法形式會自動浮現。</text>
+          </svg>
+        </div>
+
+        <p>三種寫法，本質都是同一個觀察，只是實作角度不同：往右看、成對吃、往左掃。</p>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>往右看一格，決定加還是減（最推薦）</h3>
+        <div class="code-block">class Solution:
+    def romanToInt(self, s: str) -&gt; int:
+        VALUE = {"I": 1, "V": 5, "X": 10, "L": 50,
+                 "C": 100, "D": 500, "M": 1000}
+
+        total = 0
+        for i, ch in enumerate(s):
+            v = VALUE[ch]
+            # 比右邊的小 -&gt; 這是減法形式的前半，要減；否則加
+            if i + 1 &lt; len(s) and v &lt; VALUE[s[i + 1]]:
+                total -= v
+            else:
+                total += v
+        return total</div>
+        <p>只需要一張 7 筆的表，不需要列出六個減法組合。<strong>最後一個字元一定是加</strong>（<code>i + 1 &lt; len(s)</code> 不成立），這和羅馬數字「最後一個符號永遠不做減數」的規則一致。</p>
+        <h3>為什麼這個判斷不會誤判？</h3>
+        <p>因為合法的羅馬數字裡，「小的在大的左邊」只可能是那六個減法形式之一。例如 <code>"XIV"</code>（14）：<code>X</code>(10) ≥ <code>I</code>(1) → 加；<code>I</code>(1) &lt; <code>V</code>(5) → 減；<code>V</code> → 加。得到 10 − 1 + 5 = 14 ✔</p>
+        <p><strong>如果輸入不合法就不保證了</strong>：<code>"IM"</code> 會被算成 999，但那不是合法的羅馬數字（1000−1 應寫成 <code>"CMXCIX"</code>）。題目保證輸入合法，所以這不是問題 —— 但要知道這個前提在哪裡。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>7 筆常數表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>認出兩字元的組合，一次吃兩個</h3>
+        <p>另一種直覺：既然有六個「雙字元符號」，就把它們也放進表裡，遇到就一次吃兩格。</p>
+        <div class="code-block">class Solution:
+    def romanToInt(self, s: str) -&gt; int:
+        VALUE = {"I": 1, "V": 5, "X": 10, "L": 50,
+                 "C": 100, "D": 500, "M": 1000}
+        PAIR = {"IV": 4, "IX": 9, "XL": 40, "XC": 90, "CD": 400, "CM": 900}
+
+        total, i = 0, 0
+        while i &lt; len(s):
+            if i + 1 &lt; len(s) and s[i:i + 2] in PAIR:
+                total += PAIR[s[i:i + 2]]
+                i += 2                      # 兩個字元一起消化掉
+            else:
+                total += VALUE[s[i]]
+                i += 1
+        return total</div>
+        <p>邏輯上和第 12 題的貪婪法完全對稱（那題是查值找符號，這題是查符號找值）。</p>
+        <p><strong>缺點是表變大了</strong>（7 + 6 = 13 筆），而且要小心 <code>i</code> 的前進步數。好處是<strong>意圖非常明確</strong>：讀程式碼的人一眼就看得出「CM 是一個符號」。在需要維護的真實程式裡，這種明確性往往比精簡更值錢。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍，每格最多看兩個字元</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>13 筆常數表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>從右往左掃（面試常見的變體）</h3>
+        <p>換個方向：從最右邊開始，記住「目前看過的最大值」。如果當前符號比它小，就是減法形式的前半，減掉；否則加。</p>
+        <div class="code-block">class Solution:
+    def romanToInt(self, s: str) -&gt; int:
+        VALUE = {"I": 1, "V": 5, "X": 10, "L": 50,
+                 "C": 100, "D": 500, "M": 1000}
+
+        total, prev = 0, 0
+        for ch in reversed(s):              # 從右往左掃
+            v = VALUE[ch]
+            # 比「右邊已經處理過的最大值」小 -&gt; 減，否則加
+            total += -v if v &lt; prev else v
+            prev = max(prev, v)
+        return total</div>
+        <h3>為什麼要用 <code>max</code> 而不是直接記上一個？</h3>
+        <div class="code-block">考慮 "XIV"（14），從右往左：
+
+  V (5):  prev = 0，5 ≥ 0  -&gt; +5,   prev = 5
+  I (1):  prev = 5，1 &lt; 5  -&gt; -1,   prev = max(5, 1) = 5     ← 這裡是關鍵
+  X (10): prev = 5，10 ≥ 5 -&gt; +10,  prev = 10
+
+  總和 = 5 - 1 + 10 = 14 ✔
+
+如果 prev 只記「上一個」而不取 max：
+  I 之後 prev 會變成 1，
+  然後 X (10) ≥ 1 -&gt; +10，這次剛好也對。
+
+但看 "MCMXCIV"：
+  V(5) +5, prev=5
+  I(1) -1, prev=1  ← 沒取 max，prev 退化成 1
+  C(100) ≥ 1 -&gt; +100, prev=100
+  X(10)  &lt; 100 -&gt; -10, prev=10   ← 又退化
+  M(1000) ≥ 10 -&gt; +1000, prev=1000
+  C(100)  &lt; 1000 -&gt; -100, prev=100
+  M(1000) ≥ 100 -&gt; +1000
+  總和 = 5-1+100-10+1000-100+1000 = 1994 ✔ 碰巧也對
+
+實際上在「合法羅馬數字」的前提下兩種寫法都對，
+因為減法形式的後半永遠比前半大。
+但寫 max 的版本語意更穩（「右邊出現過的最大值」），
+也比較不需要依賴輸入的合法性 —— 建議保留。</div>
+        <p>這個方向的好處是：如果題目改成「串流輸入、從尾端逐字到達」，它可以邊收邊算。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>表格大小</th><th>好讀程度</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、往右看一格</td><td>O(n)</td><td>7 筆</td><td>★★★★★</td><td>面試首選，最短</td></tr>
+            <tr><td>二、成對比對</td><td>O(n)</td><td>13 筆</td><td>★★★★☆</td><td>意圖最明確，好維護</td></tr>
+            <tr><td>三、從右往左</td><td>O(n)</td><td>7 筆</td><td>★★★☆☆</td><td>串流友善；要解釋 max</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一字元</strong>：<code>"I"</code> → 1，<code>"M"</code> → 1000。</li>
+          <li><strong>全部是減法形式</strong>：<code>"MCMXCIV"</code> → 1994。</li>
+          <li><strong>完全沒有減法形式</strong>：<code>"MMMDCCCLXXXVIII"</code> → 3888（最長的輸入）。</li>
+          <li><strong>六個減法形式各測一次</strong>：IV=4、IX=9、XL=40、XC=90、CD=400、CM=900。</li>
+          <li><strong>減法形式在開頭</strong>：<code>"IX"</code> → 9。第一個字元就要減。</li>
+          <li><strong>減法形式在結尾</strong>：<code>"XIV"</code> → 14。倒數第二個字元要減。</li>
+          <li><strong>連續三個相同符號</strong>：<code>"III"</code> → 3、<code>"MMM"</code> → 3000。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果不保證輸入合法，要怎麼驗證？</h3>
+
+        <p>這比轉換難得多，要檢查的規則包括：</p>
+
+        <ul>
+          <li>同一符號不能連寫超過三次（<code>"IIII"</code> 非法）</li>
+          <li><code>V</code>、<code>L</code>、<code>D</code> 不能重複出現（<code>"VV"</code> 非法）</li>
+          <li>只有 <code>I</code>、<code>X</code>、<code>C</code> 能當減數，而且只能減它的 5 倍和 10 倍（<code>"IL"</code>、<code>"IC"</code> 非法）</li>
+          <li>減法形式後面不能再接更大或等大的符號（<code>"IXI"</code>、<code>"CMM"</code> 非法）</li>
+        </ul>
+
+        <p><strong>最乾淨的做法是「轉回去比對」</strong>：先用本題的解法算出數字 n，再用第 12 題的解法把 n 轉回羅馬數字，看看是不是和輸入一模一樣。因為第 12 題產生的是<strong>唯一的標準寫法</strong>，所以「轉回來一樣」等價於「輸入是合法的標準寫法」。<strong>用一個已知正確的正向函式來驗證反向輸入 —— 這個技巧在很多解析題上都很好用。</strong></p>
+
+        <h3>追問二：為什麼羅馬數字不適合做算術？</h3>
+
+        <p>因為它<strong>沒有位值（positional value）也沒有零</strong>。<code>MCMXCIV + I</code> 沒辦法像十進位那樣「個位加一、有需要再進位」，你得先理解整個字串代表什麼數。這正是十進位位值系統（以及零這個概念）在數學史上如此重要的原因 —— 它讓算術變成可以機械化的符號操作。</p>
+
+        <h3>追問三：處理很長的輸入（假設可以超過 3999）時，哪個解法最好？</h3>
+
+        <p>三個都是 O(n)、O(1)，沒有差別。但解法三（從右往左）在串流場景下最有優勢，因為它不需要往後看。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 12 題 Integer to Roman</strong> —— 反方向，也是驗證合法性的工具</li>
+          <li><strong>第 8 題 String to Integer (atoi)</strong> —— 另一種字串轉數字的解析題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「比右邊小就減」這條規則，不需要另外列出六個減法組合就能正確運作？</li>
+            <li>這個規則依賴「輸入是合法羅馬數字」嗎？請舉一個非法輸入，說明它會算出什麼。</li>
+            <li>解法三的 <code>prev = max(prev, v)</code> 如果改成 <code>prev = v</code>，在哪一種輸入上語意會變得不可靠？</li>
+            <li>要驗證一個字串是不是「合法的標準羅馬數字」，最簡單的做法是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0012.html">← 上一題：12. 整數轉羅馬數字</a>
+          <a href="problem-0014.html">下一題：14. 最長公共前綴 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
