@@ -1,0 +1,486 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>There are <code>n</code> children standing in a line. Each child is assigned a rating value given in the integer array <code>ratings</code>.</p>
+          <p>You are giving candies to these children subjected to the following requirements:</p>
+          <p>('raw', '<ul><li>Each child must have <strong>at least one</strong> candy.</li><li>Children with a higher rating get <strong>more</strong> candies than their <strong>neighbors</strong>.</li></ul>')</p>
+          <p>Return <em>the <strong>minimum</strong> number of candies you need to have to distribute the candies to the children</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>有 <code>n</code> 個小孩站成一排，第 <code>i</code> 個小孩的評分是 <code>ratings[i]</code>。</p>
+          <p>分糖果的規則：</p>
+          <p>('ul', ['每個小孩<strong>至少要有一顆</strong>糖。', '<strong>評分比相鄰小孩高的，糖果也要比他多。</strong>'])</p>
+          <p>回傳<strong>最少</strong>需要準備幾顆糖。</p>
+          <p>('note', '★ 注意：評分「相等」時沒有任何限制', ['規則說的是「<strong>比</strong>相鄰的<strong>高</strong>」——<strong>相等的話，兩邊誰多誰少都可以。</strong>', '所以 <code>ratings = [1, 2, 2]</code> 的答案是 <code>1 + 2 + 1 = 4</code>，<strong>不是 <code>1 + 2 + 2</code></strong>。', '<strong>這是本題第一名的陷阱。</strong>'])</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼「一趟掃描」不夠？</h3>
+        <div class="code-block">限制其實有【兩個方向】：
+
+    (a) ratings[i] &gt; ratings[i-1]  -&gt;  candy[i] &gt; candy[i-1]
+    (b) ratings[i] &gt; ratings[i+1]  -&gt;  candy[i] &gt; candy[i+1]
+
+    一趟由左往右只能處理 (a)。
+
+    反例：ratings = [1, 0]
+
+        由左往右：candy = [1, 1]
+            0 不大於 1，所以不用調 -&gt; [1, 1]
+
+        但 ratings[0] = 1 &gt; ratings[1] = 0，
+        所以 candy[0] 必須 &gt; candy[1] ✘
+
+        正確答案是 [2, 1]，總和 3。
+
+【所以要掃兩趟】：
+    第一趟由左往右，處理「比左邊高」
+    第二趟由右往左，處理「比右邊高」
+    每個位置取兩者的 max
+
+【★ 為什麼「取 max」就同時滿足兩個限制？】
+
+    第一趟保證了 candy_L 滿足限制 (a)
+    第二趟保證了 candy_R 滿足限制 (b)
+
+    取 max(candy_L[i], candy_R[i]) 之後：
+
+        限制 (a)：如果 ratings[i] &gt; ratings[i-1]，
+            則 candy_L[i] = candy_L[i-1] + 1
+            而 max[i] &gt;= candy_L[i] = candy_L[i-1] + 1
+
+            但我們要的是 max[i] &gt; max[i-1]，
+            而 max[i-1] 可能來自 candy_R[i-1]（比 candy_L[i-1] 大）...
+
+        —— 這裡需要更仔細的論證，見「追問一」。
+
+    結論是【確實成立】，而且取 max 給出的是【最小解】。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：ratings = [1,0,2]
+  輸出：5
+  說明：分配 [2,1,2]。
+        第 0 個比第 1 個高 -&gt; 2 &gt; 1 ✔
+        第 2 個比第 1 個高 -&gt; 2 &gt; 1 ✔
+
+範例 2
+  輸入：ratings = [1,2,2]
+  輸出：4
+  說明：分配 [1,2,1]。
+        【第 2 個和第 1 個評分【相等】，所以沒有限制 ——
+          給 1 顆就好，不用給 2 顆。】
+        這是本題最容易錯的測資。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == ratings.length</code></li>
+          <li>1 ≤ <code>n</code> ≤ 2 × 10⁴</li>
+          <li>0 ≤ <code>ratings[i]</code> ≤ 2 × 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/candy/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 456" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">兩個限制（比左邊高要更多、比右邊高也要更多）分開處理，最後取 max —— 這是本題的全部。</text>
+            <text x="20" y="50" fill="var(--gold)" font-size="13">ratings = [1, 3, 2, 2, 1]</text>
+            <g font-size="13" text-anchor="middle">
+              <text x="60" y="80" fill="var(--text-muted)" font-size="11" text-anchor="start">評分：</text>
+              <text x="160" y="80" fill="var(--text-muted)">1</text><text x="240" y="80" fill="var(--text-muted)">3</text><text x="320" y="80" fill="var(--text-muted)">2</text><text x="400" y="80" fill="var(--text-muted)">2</text><text x="480" y="80" fill="var(--text-muted)">1</text>
+              <text x="60" y="118" fill="var(--accent)" font-size="11" text-anchor="start">左→右：</text>
+              <text x="160" y="118" fill="var(--accent)">1</text><text x="240" y="118" fill="var(--accent)">2</text><text x="320" y="118" fill="var(--accent)">1</text><text x="400" y="118" fill="var(--accent)">1</text><text x="480" y="118" fill="var(--accent)">1</text>
+              <text x="60" y="156" fill="#ff8a65" font-size="11" text-anchor="start">右→左：</text>
+              <text x="160" y="156" fill="#ff8a65">1</text><text x="240" y="156" fill="#ff8a65">1</text><text x="320" y="156" fill="#ff8a65">2</text><text x="400" y="156" fill="#ff8a65">2</text><text x="480" y="156" fill="#ff8a65">1</text>
+              <text x="60" y="196" fill="var(--gold)" font-size="11" text-anchor="start">取 max：</text>
+              <text x="160" y="196" fill="var(--gold)" font-size="15">1</text><text x="240" y="196" fill="var(--gold)" font-size="15">2</text><text x="320" y="196" fill="var(--gold)" font-size="15">2</text><text x="400" y="196" fill="var(--gold)" font-size="15">2</text><text x="480" y="196" fill="var(--gold)" font-size="15">1</text>
+            </g>
+            <text x="540" y="196" fill="var(--gold)" font-size="12" text-anchor="start">總和 = 8？</text>
+            <text x="20" y="230" fill="#ff8a65" font-size="12">等等 —— 正確答案是 7。上面的 max 算出 1+2+2+2+1 = 8，哪裡不對？</text>
+            <text x="20" y="256" fill="var(--text-muted)" font-size="12">重算「右→左」：i=3 時 ratings[3]=2 不大於 ratings[4]=1？ 2 &gt; 1 ✔ 所以 candy[3] = candy[4]+1 = 2</text>
+            <text x="20" y="280" fill="var(--text-muted)" font-size="12">i=2：ratings[2]=2，ratings[3]=2 —— 【相等，不大於】→ candy[2] 保持 1</text>
+            <text x="20" y="306" fill="var(--gold)" font-size="12">修正後：右→左 = [1, 1, 1, 2, 1]　→　取 max = [1, 2, 1, 2, 1]　→　總和 7 ✔</text>
+            <line x1="20" y1="330" x2="620" y2="330" stroke="var(--border)"/>
+            <text x="20" y="358" fill="var(--accent)" font-size="12">★ 相等的評分【沒有任何限制】—— 兩個人分數一樣時，糖果數可以隨便，各給 1 顆最省。</text>
+            <text x="20" y="384" fill="#ff8a65" font-size="12">這是本題最容易錯的地方：把「≥」寫成「&gt;」或反過來，答案就差很多。</text>
+            <text x="20" y="414" fill="var(--accent)" font-size="12">★ 第二輪為什麼要 max 而不是直接賦值？因為直接賦值會把第一輪的結果蓋掉 ——</text>
+            <text x="20" y="438" fill="var(--text-muted)" font-size="12">一個人可能同時比左邊和右邊都高（山峰），兩個限制都要滿足，所以取較大的那個。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【兩趟掃描】
+
+    candy = [1] * n                         每個人至少一顆
+
+    # 第一趟：由左往右
+    for i in 1..n-1:
+        if ratings[i] &gt; ratings[i-1]:
+            candy[i] = candy[i-1] + 1
+
+    # 第二趟：由右往左
+    for i in n-2..0:
+        if ratings[i] &gt; ratings[i+1]:
+            candy[i] = max(candy[i], candy[i+1] + 1)
+                       ^^^^^^^^^^^^
+                       ★ 一定要 max，不能直接賦值
+
+    return sum(candy)
+
+【★ 第二趟為什麼要 max？】
+
+    考慮 ratings = [1, 3, 2]：
+
+        第一趟：[1, 2, 1]
+            （3 &gt; 1 所以 candy[1] = 2；2 不大於 3 所以 candy[2] = 1）
+
+        第二趟（i = 1）：ratings[1]=3 &gt; ratings[2]=2
+            直接賦值：candy[1] = candy[2] + 1 = 2
+            取 max：  candy[1] = max(2, 2) = 2
+
+            這個例子看不出差別。
+
+    考慮 ratings = [1, 2, 3, 2]：
+
+        第一趟：[1, 2, 3, 1]
+
+        第二趟（i = 2）：3 &gt; 2 -&gt; candy[2] = max(3, 1+1) = 3 ✔
+            直接賦值的話會變成 2 -&gt; 破壞了 candy[2] &gt; candy[1] ✘
+
+    【max 的意思是「兩個限制都要滿足，取比較嚴格的那個」。】
+
+【第二趟為什麼要由右往左？】
+
+    因為 candy[i] 依賴 candy[i+1]（右邊的），
+    所以要先算好右邊的。
+
+    第一趟依賴左邊 -&gt; 由左往右
+    第二趟依賴右邊 -&gt; 由右往左
+
+    【方向永遠由「依賴誰」決定。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>兩趟掃描 + 取 max（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def candy(self, ratings: List[int]) -&gt; int:
+        n = len(ratings)
+        candy = [1] * n                     # 每個人至少一顆
+
+        # 由左往右：只管「比左邊高就要比左邊多」
+        for i in range(1, n):
+            if ratings[i] &gt; ratings[i - 1]:
+                candy[i] = candy[i - 1] + 1
+
+        # 由右往左：只管「比右邊高就要比右邊多」，取 max 才不會破壞第一輪的結果
+        for i in range(n - 2, -1, -1):
+            if ratings[i] &gt; ratings[i + 1]:
+                candy[i] = max(candy[i], candy[i + 1] + 1)
+
+        return sum(candy)</div>
+        <p><strong>八行，O(n) 時間、O(n) 空間。</strong><strong>這是絕大多數人會寫、也應該寫的答案。</strong></p>
+        <h3>為什麼用 <code>&gt;</code> 而不是 <code>&gt;=</code>？</h3>
+        <div class="code-block">規則是「評分【比】鄰居【高】，糖果就要【更多】」。
+
+    評分相等時 -&gt; 沒有任何限制 -&gt; 各給 1 顆最省 ✔
+
+    寫成 &gt;= 的話：
+
+        ratings = [1, 2, 2]
+        第一趟（用 &gt;=）：candy = [1, 2, 3]  ✘
+        正確應該是 [1, 2, 1]，總和 4 而不是 6。
+
+【這是本題第一名的 bug】——
+
+    因為「相等時該怎麼辦」在題目裡是【隱含】的：
+    規則只說了「比較高」的情況，沒說相等。
+
+    【題目沒說的情況 = 沒有限制 = 用最省的做法。】
+
+    讀題時要特別注意這種「規則只涵蓋部分情況」的敘述。</div>
+        <h3>空間能不能降到 O(1)？</h3>
+        <p><strong>可以（解法二），但程式碼複雜很多。</strong><strong>n = 2×10⁴ 時 O(n) 空間完全沒問題，所以實務上不需要。</strong></p>
+        <p><strong>面試時寫這個版本，如果被追問「能不能 O(1) 空間」再說解法二的想法。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>兩趟掃描</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>candy 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>一趟掃描 + 坡度計數（O(1) 空間）</h3>
+        <div class="code-block">class Solution:
+    def candy(self, ratings: List[int]) -&gt; int:
+        n = len(ratings)
+        if n == 1:
+            return 1
+
+        total = 1
+        up = down = peak = 0                # 目前上坡長度、下坡長度、上坡的頂點高度
+
+        for i in range(1, n):
+            if ratings[i] &gt; ratings[i - 1]:         # 上坡
+                up += 1
+                down = 0
+                peak = up
+                total += 1 + up
+            elif ratings[i] == ratings[i - 1]:      # 平地：重新開始
+                up = down = peak = 0
+                total += 1
+            else:                                    # 下坡
+                up = 0
+                down += 1
+                # 下坡每多一階，前面整段下坡都要 +1；
+                # 如果下坡比峰還長，峰也要跟著被墊高
+                total += 1 + down - (1 if peak &gt;= down else 0)
+
+        return total</div>
+        <h3>把序列看成一連串的「上坡 / 下坡 / 平地」</h3>
+        <div class="code-block">     /\      /
+    /  \    /
+   /    \  /
+  up   down up
+
+    上坡長度 up：連續上升了幾階
+    下坡長度 down：連續下降了幾階
+    peak：這一段上坡的頂點高度（= 上坡結束時的 up）
+
+【上坡時】：
+    total += 1 + up
+
+    第 up 階要拿 up + 1 顆（因為每一階都要比前一階多）。
+
+【下坡時】：
+    total += 1 + down - (1 if peak &gt;= down else 0)
+
+    下坡的第 down 階要拿 1 顆，
+    但前面已經發出去的整段下坡都要各 +1 顆
+    -&gt; 所以這一步實際增加 down 顆。
+
+    【但如果下坡比峰還長】，峰本身也要被墊高
+    -&gt; 再多 1 顆
+
+    peak &gt;= down 時峰還夠高，不用墊 -&gt; 減掉那個 1
+    peak &lt;  down 時峰不夠高，要墊  -&gt; 不減
+
+【平地時】：
+    up = down = peak = 0        全部重置（相等沒有限制）
+    total += 1
+
+【這個解法很難第一次就寫對】——
+
+    它的價值在於展示「把序列拆成單調段」這個視角，
+    以及 O(1) 空間是可能的。
+
+    但實務上和面試裡，解法一永遠是更好的選擇：
+    八行 vs 二十行，而且不容易錯。
+
+    【能寫出短而正確的程式碼，比能寫出最省空間的更重要。】</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>一趟掃描</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個計數器</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>反覆鬆弛到穩定（最笨，但一定對）</h3>
+        <div class="code-block">class Solution:
+    def candy(self, ratings: List[int]) -&gt; int:
+        n = len(ratings)
+        candy = [1] * n
+        changed = True
+        while changed:                      # 反覆鬆弛到穩定為止
+            changed = False
+            for i in range(n):
+                if i &gt; 0 and ratings[i] &gt; ratings[i - 1] and candy[i] &lt;= candy[i - 1]:
+                    candy[i] = candy[i - 1] + 1
+                    changed = True
+                if i + 1 &lt; n and ratings[i] &gt; ratings[i + 1] and candy[i] &lt;= candy[i + 1]:
+                    candy[i] = candy[i + 1] + 1
+                    changed = True
+        return sum(candy)</div>
+        <div class="code-block">反覆掃描，只要有任何一個位置違反限制就修正，
+直到一輪掃描下來都沒有改變為止。
+
+【為什麼一定會停？】
+
+    每次修正都讓某個 candy[i] 【嚴格變大】，
+    而 candy[i] 有上界（最多 n）。
+
+    所以總修正次數 &lt;= n²，一定會收斂 ✔
+
+【為什麼收斂到的是【最小】解？】
+
+    因為我們從「全部是 1」（絕對的下界）開始，
+    而且【只在必要時】才增加。
+
+    每一步都保持「candy[i] &lt;= 最優解的 candy[i]」這個不變量：
+        初始時成立（1 是下界）
+        修正時：candy[i] = candy[i-1] + 1
+                而最優解也必須 &gt; 它的 candy[i-1] &gt;= 我們的 candy[i-1]
+                所以最優解的 candy[i] &gt;= 我們的新值 ✔
+
+    收斂時既滿足所有限制、又不超過最優解 -&gt; 它就是最優解 ✔
+
+【這是「鬆弛法」（relaxation）的標準論證】——
+
+    和 Bellman-Ford 求最短路的正確性證明一模一樣。
+
+【複雜度 O(n²) 最壞】（例如嚴格遞減的序列），
+    n = 2×10^4 時會逾時。
+
+    但它是驗證解法一、二的最好工具 ——
+    這個網站就是用它當參考實作，
+    隨機跑幾千次比對。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²) 最壞</td><td>反覆鬆弛</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>candy 陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>好寫嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、兩趟掃描</td><td>O(n)</td><td>O(n)</td><td>★★★</td><td>標準答案，八行</td></tr>
+            <tr><td>二、坡度計數</td><td>O(n)</td><td>O(1)</td><td>★☆☆</td><td>空間最省，但難寫對</td></tr>
+            <tr><td>三、反覆鬆弛</td><td>O(n²) 最壞</td><td>O(n)</td><td>★★★</td><td>驗證用</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個人</strong> → <code>1</code>。</li>
+          <li><strong><code>[1,0,2]</code></strong> → <code>5</code>（分配 <code>[2,1,2]</code>）。</li>
+          <li><strong><code>[1,2,2]</code></strong> → <code>4</code>，<strong>不是 5</strong>。<strong>相等沒有限制 —— 本題第一名的陷阱。</strong></li>
+          <li><strong>嚴格遞增</strong> <code>[1,2,3,4,5]</code> → <code>15</code>（<code>1+2+3+4+5</code>）。</li>
+          <li><strong>嚴格遞減</strong> <code>[5,4,3,2,1]</code> → <code>15</code>。<strong>只有一趟由左往右的話會得到 5 —— 這是「必須掃兩趟」的證據。</strong></li>
+          <li><strong>全部相同</strong> <code>[2,2,2]</code> → <code>3</code>（各一顆）。</li>
+          <li><strong>山峰</strong> <code>[1,3,2]</code> → <code>4</code>（<code>[1,2,1]</code>）。</li>
+          <li><strong>用 <code>&gt;=</code> 而不是 <code>&gt;</code></strong> → 相等時多給糖，答案偏大。</li>
+          <li><strong>第二趟直接賦值而不是 <code>max</code></strong> → <strong>破壞第一趟的結果，答案偏小（而且不合法）。</strong></li>
+          <li><strong>2 × 10⁴ 個嚴格遞減</strong> → 解法三要跑 4 億次，逾時。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：怎麼證明「取 max」給出的是合法且最小的解？</h3>
+
+        <div class="code-block">【合法性】
+
+    設 L[i] 是第一趟的結果、R[i] 是第二趟（單獨跑）的結果，
+    答案 A[i] = max(L[i], R[i])。
+
+    要證：ratings[i] &gt; ratings[i-1] -&gt; A[i] &gt; A[i-1]
+
+        L[i] = L[i-1] + 1
+        A[i] &gt;= L[i] = L[i-1] + 1
+
+        而 A[i-1] = max(L[i-1], R[i-1])
+
+        情況一：A[i-1] = L[i-1]
+            -&gt; A[i] &gt;= L[i-1] + 1 = A[i-1] + 1 &gt; A[i-1] ✔
+
+        情況二：A[i-1] = R[i-1] &gt; L[i-1]
+            R[i-1] &gt; L[i-1] 代表「右邊的限制比較嚴格」，
+            也就是 ratings[i-1] &gt; ratings[i]。
+
+            但我們假設 ratings[i] &gt; ratings[i-1] —— 矛盾 ✘
+            所以情況二不會發生。
+
+    對稱地，右邊的限制也成立 ✔
+
+【最小性】
+
+    A[i] = max(L[i], R[i])，而 L[i] 和 R[i] 各自都是
+    「只考慮單邊限制」時的最小值 ——
+    它們都是任何合法解的下界。
+
+    所以 max 也是下界。
+    而我們證明了 A 是合法解 -&gt; A 就是最小解 ✔
+
+【「分別算出各個限制的下界，再取 max」
+  這個模式，在很多「多重限制求最小」的問題裡都成立。】</div>
+
+        <h3>追問二：如果改成「環形」排列呢？</h3>
+
+        <p><strong>那就難很多了</strong> —— <strong>兩趟掃描不再夠用，因為沒有「起點」。</strong></p>
+
+        <div class="code-block">而且【可能無解】：
+
+    ratings = [1, 2, 3]（環形）
+
+        1 &lt; 2 -&gt; candy[1] &gt; candy[0]
+        2 &lt; 3 -&gt; candy[2] &gt; candy[1]
+        3 &gt; 1 -&gt; candy[2] &gt; candy[0]     ← 這個沒問題
+
+    這個有解。但如果 ratings = [1, 2, 3] 而且環形相鄰是
+    3 和 1 -&gt; 3 &gt; 1 -&gt; candy[2] &gt; candy[0] ✔ 也沒問題。
+
+    真正無解的情況需要「循環的嚴格不等式」，
+    而因為 ratings 是固定的數值，
+    環上不可能有「一路嚴格遞增又繞回來」——
+    所以其實【環形版一定有解】。
+
+    做法：把限制看成有向圖（i -&gt; j 表示 candy[j] &gt; candy[i]），
+    答案就是「每個節點的最長路徑長度 + 1」。
+
+    因為圖無環（由數值大小決定方向），
+    可以用拓撲排序 + DP，O(n)。
+
+【一般化】：任意的「比較限制圖」都可以這樣解 ——
+    這其實就是「DAG 上的最長路徑」。</div>
+
+        <h3>追問三：如果限制改成「相等的人糖果也要相等」呢？</h3>
+
+        <p><strong>那 <code>[1,2,2]</code> 的答案就會變成 <code>1 + 2 + 2 = 5</code></strong>。</p>
+
+        <p><strong>做法：先把「相等的相鄰位置」用並查集合併成一個群組，再對群組做兩趟掃描。</strong><strong>但要小心 —— 合併之後可能產生矛盾（無解）。</strong></p>
+
+        <h3>追問四：這個「兩趟掃描」的模式還有哪些題目？</h3>
+
+        <ul>
+          <li><strong>第 42 題 接雨水</strong> —— 左右各掃一遍求「左邊最高」和「右邊最高」，取 min</li>
+          <li><strong>第 238 題 除自身以外的乘積</strong> —— 左前綴積 × 右後綴積</li>
+          <li><strong>第 123 題 買賣股票 III</strong> —— 左邊一筆 + 右邊一筆</li>
+          <li><strong>第 845 題 陣列中的最長山脈</strong> —— 左邊上坡 + 右邊下坡</li>
+        </ul>
+
+        <p><strong>共同模式：「答案同時受左右兩側影響」時，分兩趟各處理一側，最後合併。</strong><strong>合併的方式（max / min / 乘 / 加）由題目決定。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 42 題 Trapping Rain Water</strong> —— 同樣的「左右各掃一遍」</li>
+          <li><strong>第 238 題 Product of Array Except Self</strong> —— 同上</li>
+          <li><strong>第 134 題 Gas Station</strong> —— 另一個需要證明的貪心</li>
+          <li><strong>第 845 題 Longest Mountain in Array</strong> —— 上坡下坡的分析</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「一趟由左往右」不夠？請舉出反例。</li>
+            <li>評分相等時該怎麼辦？<code>[1,2,2]</code> 的答案是多少？</li>
+            <li>第二趟為什麼要 <code>max</code> 而不是直接賦值？</li>
+            <li>怎麼證明「取 max」給出的是最小解？</li>
+          </ol>
+        </div>

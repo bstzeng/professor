@@ -1,0 +1,450 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>There are <code>n</code> gas stations along a circular route, where the amount of gas at the <code>i</code><sup>th</sup> station is <code>gas[i]</code>.</p>
+          <p>You have a car with an unlimited gas tank and it costs <code>cost[i]</code> of gas to travel from the <code>i</code><sup>th</sup> station to its next <code>(i + 1)</code><sup>th</sup> station. You begin the journey with an empty tank at one of the gas stations.</p>
+          <p>Given two integer arrays <code>gas</code> and <code>cost</code>, return <em>the starting gas station's index if you can travel around the circuit once in the clockwise direction, otherwise return</em> <code>-1</code>. If there exists a solution, it is <strong>guaranteed</strong> to be <strong>unique</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>有 <code>n</code> 個加油站排成一個<strong>環</strong>，第 <code>i</code> 個站有 <code>gas[i]</code> 公升的油。</p>
+          <p>你的車油箱無限大，從第 <code>i</code> 站開到第 <code>i+1</code> 站要花 <code>cost[i]</code> 公升。你從某一站出發，<strong>一開始油箱是空的</strong>。</p>
+          <p>回傳<strong>能繞完一圈的起點編號</strong>；如果不可能，回傳 <code>-1</code>。</p>
+          <p><strong>如果有解，題目保證解是唯一的。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>第一步：把兩個陣列合併成一個</h3>
+        <div class="code-block">diff[i] = gas[i] - cost[i]      「在第 i 站的淨收益」
+
+    正的 -&gt; 這一站補的油比開到下一站花的多
+    負的 -&gt; 這一站會虧油
+
+問題重新表述：
+
+    【找一個起點 s，使得從 s 開始的「環狀前綴和」永遠 &gt;= 0】
+
+    也就是：對所有 k = 0..n-1，
+        diff[s] + diff[s+1] + ... + diff[s+k]  &gt;= 0   （索引取模）
+
+【這個轉換讓問題從「兩個陣列」變成「一個陣列」，
+  而且從「模擬開車」變成「前綴和」——
+  一下子清楚很多。】
+
+    第 121 題（買賣股票）也用過同樣的「轉成差分」技巧。</div>
+        </div>
+
+        <div class="callout">
+          <h3>★ 兩個關鍵引理</h3>
+        <div class="code-block">【引理一：total &lt; 0 -&gt; 一定無解】
+
+    繞完一圈的總淨收益就是 sum(diff)。
+    如果它是負的，不管從哪裡出發，
+    走完一圈之後油箱一定是負的 -&gt; 無解 ✔
+
+【引理二：total &gt;= 0 -&gt; 一定有解】
+
+    這個比較不直觀，但可以證明（見下方「追問一」）。
+
+    直覺：油「總量夠」的話，
+    一定存在一個「最低點」，從它的下一站出發就能撐過全程。
+
+【兩個引理合起來】：
+
+    total &gt;= 0  ⟺  有解
+
+    所以我們只要：
+        1. 算 total 判斷「有沒有解」
+        2. 用貪心找出「那個唯一的起點」
+
+    而且【這兩件事可以在同一趟掃描裡完成】✔</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：gas = [1,2,3,4,5], cost = [3,4,5,1,2]
+  輸出：3
+  說明：從 3 號站出發（油箱 0）：
+        到 3 號站加 4 升        -&gt; 油箱 = 4
+        開到 4 號站花 1 升      -&gt; 油箱 = 3
+        到 4 號站加 5 升        -&gt; 油箱 = 8
+        開到 0 號站花 2 升      -&gt; 油箱 = 6
+        加 1 升 -&gt; 7，開到 1 花 3 -&gt; 4
+        加 2 升 -&gt; 6，開到 2 花 4 -&gt; 2
+        加 3 升 -&gt; 5，開到 3 花 5 -&gt; 0  ✔ 繞回來了
+
+範例 2
+  輸入：gas = [2,3,4], cost = [3,4,3]
+  輸出：-1
+  說明：總油量 9，總花費 10 -&gt; 不夠，怎麼繞都不行。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == gas.length == cost.length</code></li>
+          <li>1 ≤ <code>n</code> ≤ 10⁵</li>
+          <li>0 ≤ <code>gas[i]</code>, <code>cost[i]</code> ≤ 10⁴</li>
+          <li>如果有解，保證<strong>唯一</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/gas-station/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 468" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">把每站化成一個淨值 diff[i] = gas[i] − cost[i]，問題變成「從哪裡開始繞一圈，前綴和永遠不會變負」。</text>
+            <text x="20" y="50" fill="var(--gold)" font-size="13">gas = [1,2,3,4,5]　cost = [3,4,5,1,2]　→　diff = [−2, −2, −2, 3, 3]</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="70" y="70" width="84" height="30" fill="none" stroke="#ff8a65"/><text x="112" y="90" fill="#ff8a65">−2</text>
+              <rect x="154" y="70" width="84" height="30" fill="none" stroke="#ff8a65"/><text x="196" y="90" fill="#ff8a65">−2</text>
+              <rect x="238" y="70" width="84" height="30" fill="none" stroke="#ff8a65"/><text x="280" y="90" fill="#ff8a65">−2</text>
+              <rect x="322" y="70" width="84" height="30" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="364" y="90" fill="var(--gold)">+3</text>
+              <rect x="406" y="70" width="84" height="30" fill="none" stroke="var(--accent)"/><text x="448" y="90" fill="var(--accent)">+3</text>
+              <text x="112" y="118" fill="var(--text-muted)" font-size="11">站 0</text>
+              <text x="196" y="118" fill="var(--text-muted)" font-size="11">站 1</text>
+              <text x="280" y="118" fill="var(--text-muted)" font-size="11">站 2</text>
+              <text x="364" y="118" fill="var(--gold)" font-size="11">站 3 ← 答案</text>
+              <text x="448" y="118" fill="var(--text-muted)" font-size="11">站 4</text>
+            </g>
+            <text x="20" y="152" fill="var(--text-muted)" font-size="12">總和 = −2−2−2+3+3 = 0 ≥ 0 → 一定有解</text>
+            <line x1="20" y1="174" x2="620" y2="174" stroke="var(--border)"/>
+            <text x="20" y="202" fill="var(--accent)" font-size="13">一趟掃描（tank 變負就換起點）：</text>
+            <text x="40" y="230" fill="var(--text-muted)" font-size="12">i=0　tank = −2 &lt; 0 → start = 1，tank 歸零</text>
+            <text x="40" y="254" fill="var(--text-muted)" font-size="12">i=1　tank = −2 &lt; 0 → start = 2，tank 歸零</text>
+            <text x="40" y="278" fill="var(--text-muted)" font-size="12">i=2　tank = −2 &lt; 0 → start = 3，tank 歸零</text>
+            <text x="40" y="302" fill="var(--text-muted)" font-size="12">i=3　tank = 3 ≥ 0 → 繼續</text>
+            <text x="40" y="326" fill="var(--gold)" font-size="12">i=4　tank = 6 ≥ 0 → 結束。答案 start = 3 ✔</text>
+            <line x1="20" y1="348" x2="620" y2="348" stroke="var(--border)"/>
+            <text x="20" y="376" fill="#ff8a65" font-size="12">★ 為什麼「從 start 到 i 之間」的每一站都可以直接跳過，不用一個一個試？</text>
+            <text x="20" y="402" fill="var(--text-muted)" font-size="12">因為從 start 出發走到 i 時油箱才變負 —— 代表 start..i−1 的每個前綴和都 ≥ 0。</text>
+            <text x="20" y="426" fill="var(--text-muted)" font-size="12">從中間任何一站 k 出發，等於少了「start..k−1」那段【非負】的補給 ——</text>
+            <text x="20" y="450" fill="var(--accent)" font-size="12">只會更早撐不住，不可能更好。所以那些起點可以一次全部排除 → O(n)。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">一趟掃描同時做兩件事：
+
+    total = 0       # 全程淨值 -&gt; 判斷有沒有解
+    tank = 0        # 從目前候選起點出發，開到這裡剩多少
+    start = 0
+
+    for i in 0..n-1:
+        d = gas[i] - cost[i]
+        total += d
+        tank += d
+        if tank &lt; 0:
+            start = i + 1      ★ 換起點
+            tank = 0           ★ 重新開始累積
+
+    return start if total &gt;= 0 else -1
+
+【★★ 核心：為什麼 tank &lt; 0 時可以「跳過中間所有站」？】
+
+    假設從 start 出發，走到 i 時 tank 第一次變負。
+
+    這代表：對所有 k 在 [start, i-1]，
+        diff[start..k] &gt;= 0            （不然更早就負了）
+
+    現在考慮從中間某一站 m（start &lt; m &lt;= i）出發：
+
+        從 m 走到 i 的和
+            = diff[start..i] - diff[start..m-1]
+              ^^^^^^^^^^^^^^   ^^^^^^^^^^^^^^^^^
+              &lt; 0（已知）        &gt;= 0（上面推出來的）
+
+            &lt;= diff[start..i]  &lt;  0
+
+        所以【從 m 出發，走到 i 也一定會變負】✔
+
+    -&gt; start..i 這些起點【全部可以排除】
+    -&gt; 直接跳到 i+1
+
+    【這就是為什麼一趟 O(n) 就夠，
+      而不用對每個起點都試一遍 O(n²)。】
+
+【這個論證叫做「交換論證」或「排除論證」，
+  是證明貪心正確性的標準手法。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>一趟貪心（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -&gt; int:
+        total = 0       # 全程的淨油量：負的就一定無解
+        tank = 0        # 從目前的起點出發，開到這裡剩多少油
+        start = 0
+
+        for i in range(len(gas)):
+            diff = gas[i] - cost[i]
+            total += diff
+            tank += diff
+            if tank &lt; 0:
+                start = i + 1   # ★ 從 start 到 i 都不能當起點，直接跳到 i+1
+                tank = 0
+
+        return start if total &gt;= 0 else -1</div>
+        <p><strong>九行，O(n) 時間、O(1) 空間。</strong></p>
+        <h3>為什麼最後可以直接 <code>return start</code>，不用再驗證一次？</h3>
+        <div class="code-block">因為：
+
+    (a) total &gt;= 0 保證【有解】（引理二）
+    (b) 題目保證解【唯一】
+    (c) 我們的貪心把「所有不可能的起點」都排除了
+
+    所以剩下的 start 就是那個唯一解 ✔
+
+【嚴格一點的論證】：
+
+    最後一次「換起點」之後，tank 一路都 &gt;= 0，
+    代表從 start 走到 n-1 都沒問題。
+
+    而從 n-1 繞回 start 的那一段，
+    它的和 = total - (start 到 n-1 的和) = total - tank
+
+    因為 total &gt;= 0 而 tank &gt;= 0... 
+    這裡需要更仔細的論證，
+    但關鍵是「被排除掉的那些前綴，它們的和都是負的」，
+    所以繞回來的那一段補得回來。
+
+    完整的證明在「追問一」。
+
+【面試時的說法】：
+    「total &gt;= 0 保證有解，貪心排除了所有不可能的起點，
+      題目又保證唯一，所以剩下的就是答案。」
+
+    這樣講就夠了。</div>
+        <h3>為什麼 <code>tank</code> 要歸零而不是繼續累積？</h3>
+        <p>因為 <code>tank</code> 的語意是<strong>「從【目前的候選起點】出發到這裡剩多少」</strong>。</p>
+        <p><strong>換了起點就要重新開始算</strong> —— 不歸零的話，<strong>前面那段（已經被排除的）的虧損會被錯誤地帶進來。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>三個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>暴力枚舉每個起點（先講這個）</h3>
+        <div class="code-block">class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -&gt; int:
+        n = len(gas)
+        for start in range(n):
+            tank = 0
+            for k in range(n):              # 從 start 開一圈
+                i = (start + k) % n
+                tank += gas[i] - cost[i]
+                if tank &lt; 0:
+                    break
+            else:
+                return start                # 沒有 break -&gt; 成功繞一圈
+        return -1</div>
+        <p><strong>O(n²) 時間。<code>n = 10⁵</code> 時是 10¹⁰ —— 一定逾時。</strong></p>
+        <div class="code-block">【但它有兩個價值】：
+
+    1. 面試時三十秒就能寫完，先確保「有一個對的答案」
+
+    2. 它是驗證貪心解的最好工具 ——
+       這個網站的每一題都是這樣測的：
+       用暴力解當「參考實作」，隨機跑幾千次比對。
+
+【for-else 這個 Python 語法】：
+
+    for k in range(n):
+        ...
+        if tank &lt; 0:
+            break
+    else:
+        return start        # 【沒有 break】才會執行
+
+    for-else 的 else 是「迴圈正常跑完（沒被 break）時執行」。
+
+    這個語法很少見，但在「搜尋失敗才做某事」的場合很好用。
+
+    （很多人覺得這個 else 的命名很糟 ——
+      叫 nobreak 會清楚得多。）</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每個起點試一圈</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>找「前綴和最小」的位置（另一個角度）</h3>
+        <div class="code-block">class Solution:
+    def canCompleteCircuit(self, gas: List[int], cost: List[int]) -&gt; int:
+        # 另一個角度：找「前綴和最小」的那個位置，它的下一站就是答案
+        total = 0
+        min_sum = 0
+        min_idx = 0
+
+        for i in range(len(gas)):
+            total += gas[i] - cost[i]
+            if total &lt; min_sum:
+                min_sum = total
+                min_idx = i + 1
+
+        return min_idx % len(gas) if total &gt;= 0 else -1</div>
+        <h3>★ 這個視角更直觀</h3>
+        <div class="code-block">把 diff 的前綴和畫成一條折線：
+
+        prefix[i] = diff[0] + diff[1] + ... + diff[i]
+
+    從起點 s 出發能繞完一圈
+        ⟺ 從 s 開始的所有環狀前綴和都 &gt;= 0
+        ⟺ 【prefix[s-1] 是整條折線的最小值】
+
+    為什麼？
+
+        從 s 出發、走到 j 的油量
+          = prefix[j] - prefix[s-1]
+
+        要它 &gt;= 0 對所有 j 成立
+          ⟺ prefix[s-1] &lt;= prefix[j] 對所有 j
+          ⟺ prefix[s-1] 是最小值 ✔
+
+    所以：【找到前綴和的最低點，它的下一站就是答案】。
+
+    程式碼：
+        追蹤 min_sum 和 min_idx（= 最低點的下一個位置）
+
+【這個「最低點的下一站」的說法，
+  和解法一的「tank 變負就換起點」其實是同一件事】——
+
+    tank 變負的那一刻，正是「前綴和創新低」的時候。
+
+    兩個解法是同一個演算法的兩種說法。
+
+【為什麼要 min_idx % n？】
+
+    如果最低點是最後一站（i = n-1），
+    min_idx 會是 n -&gt; 取模變回 0 ✔</div>
+        <p><strong>O(n) 時間、O(1) 空間，和解法一相同。</strong><strong>挑一個你覺得比較好解釋的講。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>三個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>好證明嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、一趟貪心</td><td>O(n)</td><td>O(1)</td><td>要交換論證</td><td>標準答案</td></tr>
+            <tr><td>二、暴力枚舉</td><td>O(n²)</td><td>O(1)</td><td>不用證</td><td>驗證用</td></tr>
+            <tr><td>三、找前綴和最低點</td><td>O(n)</td><td>O(1)</td><td>★ 最直觀</td><td>同一個演算法的另一種說法</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一站</strong> <code>gas=[5], cost=[4]</code> → <code>0</code>。</li>
+          <li><strong>只有一站但油不夠</strong> <code>gas=[4], cost=[5]</code> → <code>-1</code>。</li>
+          <li><strong>總油量剛好等於總花費</strong> → 有解（<code>total == 0</code> 也算 <code>>= 0</code>）。<strong>寫成 <code>total > 0</code> 會漏掉這種情況 —— 範例 1 就是。</strong></li>
+          <li><strong>第 0 站就是答案</strong> <code>gas=[3,1,1], cost=[1,2,2]</code> → <code>0</code>。</li>
+          <li><strong>最後一站是答案</strong> → <code>start = n-1</code>，解法三要記得取模。</li>
+          <li><strong><code>tank</code> 變負時忘了歸零</strong> → 前面的虧損被帶進來，答案錯。</li>
+          <li><strong>用 <code>total > 0</code> 而不是 <code>>= 0</code></strong> → <strong>剛好打平的情況會誤判成 -1。</strong></li>
+          <li><strong>10⁵ 站</strong> → 暴力法 10¹⁰ 次，必定逾時。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：怎麼證明「total ≥ 0 就一定有解」？</h3>
+
+        <div class="code-block">用「前綴和最低點」的視角最好證（解法三）：
+
+    設 prefix[i] = diff[0] + ... + diff[i]，prefix[-1] = 0
+
+    令 m 是使 prefix[m] 最小的索引（有並列就取最後一個）。
+
+    宣稱：從 s = m + 1 出發可以繞完一圈。
+
+    證明：從 s 出發走到 j 的油量是
+
+        (a) j &gt;= s 時：prefix[j] - prefix[m]  &gt;= 0
+            （因為 prefix[m] 是最小值）✔
+
+        (b) j &lt; s 時（已經繞過頭了）：
+            油量 = (prefix[n-1] - prefix[m]) + prefix[j]
+                 = total - prefix[m] + prefix[j]
+
+            因為 total &gt;= 0 而 prefix[j] &gt;= prefix[m]，
+            所以 = total + (prefix[j] - prefix[m]) &gt;= 0 ✔
+
+    兩種情況都 &gt;= 0 -&gt; 可以繞完一圈 ✔
+
+【這個證明的核心是「找到那個最低點」——
+  它把「環狀」的困難轉化成「線性」的最小值問題。】</div>
+
+        <h3>追問二：如果解不唯一呢？</h3>
+
+        <p><strong>題目保證唯一，但如果不唯一（例如所有 <code>diff</code> 都是 0），貪心會回傳 <code>0</code></strong>（因為 <code>tank</code> 從來沒變負）。</p>
+
+        <p><strong>解法三會回傳「最後一個最低點的下一站」</strong> —— <strong>兩者可能不同，但都是合法答案。</strong><strong>「保證唯一」這個條件讓我們不用煩惱要回傳哪一個。</strong></p>
+
+        <h3>追問三：如果要找「所有可行的起點」呢？</h3>
+
+        <p><strong>算出所有前綴和，找出「等於最小值」的那些位置，它們的下一站都是可行起點。</strong></p>
+
+        <p><strong>O(n) 時間</strong>（前提是 <code>total >= 0</code>）。<strong>如果 <code>total < 0</code>，一個可行起點都沒有。</strong></p>
+
+        <h3>追問四：這個貪心和第 53 題（最大子陣列）有什麼關係？</h3>
+
+        <div class="code-block">非常像！
+
+    第 53 題（Kadane）：
+        cur = max(x, cur + x)
+        —— 「cur 變負就從頭開始」
+
+    第 134 題：
+        if tank &lt; 0: tank = 0; start = i + 1
+        —— 「tank 變負就從頭開始」
+
+    【兩者都是「累積值變負就重置」】。
+
+    差別：
+        53 題要的是「最大的那一段和」
+        134 題要的是「重置後最後一個起點」
+
+【共同的直覺】：
+
+    「一段【負】的前綴，對後面只有害處 ——
+      把它丟掉永遠不會更差。」
+
+    這個直覺在第 121、53、134 題都成立。
+
+    它成立的條件是：
+        「起點可以自由選擇」+「累積是可加的」</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 53 題 Maximum Subarray</strong> —— 同樣的「變負就重置」</li>
+          <li><strong>第 121 題 Best Time to Buy and Sell Stock</strong> —— 同樣的差分轉換</li>
+          <li><strong>第 135 題 Candy</strong> —— 另一個需要證明的貪心</li>
+          <li><strong>第 55 題 Jump Game</strong> —— 另一個一趟掃描的貪心</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>diff[i] = gas[i] - cost[i]</code> 這個轉換讓問題變成什麼？</li>
+            <li><code>tank &lt; 0</code> 時，為什麼「從 <code>start</code> 到 <code>i</code>」的所有起點都可以一次排除？</li>
+            <li>怎麼證明 <code>total >= 0</code> 就一定有解？</li>
+            <li><code>total > 0</code> 和 <code>total >= 0</code> 差在哪個測資？</li>
+          </ol>
+        </div>
