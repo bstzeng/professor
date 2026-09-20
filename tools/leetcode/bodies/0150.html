@@ -1,0 +1,509 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array of strings <code>tokens</code> that represents an arithmetic expression in a <a href="https://en.wikipedia.org/wiki/Reverse_Polish_notation" target="_blank" rel="noopener">Reverse Polish Notation</a>.</p>
+          <p>Evaluate the expression. Return <em>an integer that represents the value of the expression</em>.</p>
+          <p><strong>Note</strong> that:</p>
+          <p>('raw', "<ul><li>The valid operators are <code>'+'</code>, <code>'-'</code>, <code>'*'</code>, and <code>'/'</code>.</li><li>Each operand may be an integer or another expression.</li><li>The division between two integers always <strong>truncates toward zero</strong>.</li><li>There will not be any division by zero.</li><li>The input represents a valid arithmetic expression in a reverse polish notation.</li><li>The answer and all the intermediate calculations can be represented in a <strong>32-bit</strong> integer.</li></ul>")</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串陣列 <code>tokens</code>，代表一個<strong>逆波蘭表示法</strong>（後綴表示法）的算式。求它的值。</p>
+          <p>('ul', ['合法的運算子是 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>。', '<strong>整數除法一律「往零截斷」</strong>（truncate toward zero）。', '<strong>不會有除以零的情況。</strong>', '輸入保證是合法的逆波蘭式。', '答案和所有中間結果都能裝進 32 位元整數。'])</p>
+        </div>
+
+        <div class="callout">
+          <h3>什麼是「逆波蘭表示法」？</h3>
+        <div class="code-block">【中綴（infix）】：我們平常寫的     (2 + 1) * 3
+【後綴（postfix / 逆波蘭）】：        2 1 + 3 *
+【前綴（prefix / 波蘭）】：           * + 2 1 3
+
+【逆波蘭的兩個好處】：
+
+    ✔ 【完全不需要括號】
+        中綴的 (2+1)*3 和 2+(1*3) 要靠括號區分，
+        後綴是 "2 1 + 3 *" 和 "2 1 3 * +" —— 天生不同 ✔
+
+    ✔ 【完全不需要運算子優先順序】
+        因為順序已經編碼在序列裡了。
+
+【它和「後序走訪」是同一件事】：
+
+    把算式看成一棵【運算式樹】：
+
+            *
+           / \
+          +   3
+         / \
+        2   1
+
+    後序走訪（左右根）= 2, 1, +, 3, * ✔
+
+    所以「求值逆波蘭式」= 「後序走訪一棵運算式樹並求值」。
+
+    這就是為什麼它用【堆疊】就能算 ——
+    後序走訪的迭代版本質上就是堆疊操作（第 145 題）。
+
+【實務上的用途】：
+    HP 的工程計算機、PostScript、Forth 語言、
+    以及大部分虛擬機器的位元組碼（JVM、CPython）
+    都是基於堆疊的後綴運算。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：tokens = ["2","1","+","3","*"]
+  輸出：9
+  說明：((2 + 1) * 3) = 9
+
+範例 2
+  輸入：tokens = ["4","13","5","/","+"]
+  輸出：6
+  說明：(4 + (13 / 5)) = 4 + 2 = 6
+        【13 / 5 = 2.6，往零截斷是 2】
+
+範例 3
+  輸入：tokens = ["10","6","9","3","+","-11","*","/","*","17","+","5","+"]
+  輸出：22
+  說明：((10 * (6 / ((9 + 3) * -11))) + 17) + 5
+       = ((10 * (6 / -132)) + 17) + 5
+       = ((10 * 0) + 17) + 5          【6 / -132 = -0.045… 往零截斷是 0】
+       = 22</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>tokens.length</code> ≤ 10⁴</li>
+          <li><code>tokens[i]</code> 是 <code>"+"</code>、<code>"-"</code>、<code>"*"</code>、<code>"/"</code>，或一個範圍在 <code>[-200, 200]</code> 的整數</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/evaluate-reverse-polish-notation/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 478" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">逆波蘭式（後序）把運算子放在運算元後面 —— 完全不需要括號，也不需要優先順序規則。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">tokens = [&quot;2&quot;, &quot;1&quot;, &quot;+&quot;, &quot;3&quot;, &quot;*&quot;]　　（等同於中綴的 (2 + 1) × 3）</text>
+            <g font-size="12" text-anchor="middle">
+              <text x="70" y="90" fill="var(--text-muted)" text-anchor="start">讀到</text>
+              <text x="250" y="90" fill="var(--text-muted)" text-anchor="start">動作</text>
+              <text x="450" y="90" fill="var(--text-muted)" text-anchor="start">堆疊</text>
+            </g>
+            <g font-size="12">
+              <text x="70" y="120" fill="var(--accent)">&quot;2&quot;</text><text x="250" y="120" fill="var(--text-muted)">是數字 → push</text><text x="450" y="120" fill="var(--gold)">[2]</text>
+              <text x="70" y="148" fill="var(--accent)">&quot;1&quot;</text><text x="250" y="148" fill="var(--text-muted)">是數字 → push</text><text x="450" y="148" fill="var(--gold)">[2, 1]</text>
+              <text x="70" y="176" fill="#ff8a65">&quot;+&quot;</text><text x="250" y="176" fill="var(--text-muted)">pop 1（右）、pop 2（左）→ push 2+1</text><text x="450" y="176" fill="var(--gold)">[3]</text>
+              <text x="70" y="204" fill="var(--accent)">&quot;3&quot;</text><text x="250" y="204" fill="var(--text-muted)">是數字 → push</text><text x="450" y="204" fill="var(--gold)">[3, 3]</text>
+              <text x="70" y="232" fill="#ff8a65">&quot;*&quot;</text><text x="250" y="232" fill="var(--text-muted)">pop 3（右）、pop 3（左）→ push 3×3</text><text x="450" y="232" fill="var(--gold)">[9]</text>
+            </g>
+            <text x="20" y="266" fill="var(--gold)" font-size="12">堆疊只剩一個元素 9 —— 那就是答案 ✔</text>
+            <line x1="20" y1="288" x2="620" y2="288" stroke="var(--border)"/>
+            <text x="20" y="316" fill="#ff8a65" font-size="13">★ 兩個必錯的細節</text>
+            <text x="40" y="346" fill="var(--accent)" font-size="12">① 先 pop 的是【右】運算元</text>
+            <text x="60" y="372" fill="var(--text-muted)" font-size="12">　 b = pop(); a = pop(); 算 a − b　　寫反的話減法和除法全錯。</text>
+            <text x="40" y="404" fill="var(--accent)" font-size="12">② 除法要「往零截斷」，不是 Python 的 //</text>
+            <text x="60" y="430" fill="#ff8a65" font-size="12">　 −7 // 2 = −4　（向下取整）　✘</text>
+            <text x="60" y="454" fill="var(--gold)" font-size="12">　 int(−7 / 2) = −3　（往零截斷）　✔　題目要的是這個</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【堆疊求值】
+
+    for t in tokens:
+        if t 是運算子:
+            b = stack.pop()     ★ 先彈出的是【右】運算元
+            a = stack.pop()
+            stack.append(a op b)
+        else:
+            stack.append(int(t))
+
+    return stack[0]
+
+【★ 為什麼先 pop 的是右運算元？】
+
+    push 的順序是「先左後右」（因為後綴式裡左運算元在前）。
+
+    堆疊是後進先出 -&gt; 先 pop 出來的是【後 push 的】= 右運算元 ✔
+
+    寫反的話：
+        "5 3 -" 應該是 5 - 3 = 2
+        寫反變成 3 - 5 = -2 ✘
+
+    【加法和乘法看不出來（可交換），
+      減法和除法會直接錯。】
+
+【★ 除法要「往零截斷」】
+
+    Python 的 // 是【向下取整】（floor division）：
+        -7 // 2 = -4        （往負無窮）
+
+    題目要的是【往零截斷】（truncate toward zero）：
+        -7 -&gt; -3.5 -&gt; -3    （往 0 的方向）
+
+    正確寫法：
+        int(a / b)          先算浮點除法，int() 會往零截斷 ✔
+
+    或者：
+        import math
+        math.trunc(a / b)
+
+    或者純整數（避免浮點）：
+        q = abs(a) // abs(b)
+        q = -q if (a &lt; 0) != (b &lt; 0) else q
+
+    【本題數值範圍在 32 位元內，
+      float 有 53 位精度，所以 int(a/b) 是安全的。】
+
+    但如果數字可能超過 2^53，就必須用純整數的版本。
+
+【複雜度】：O(n) 時間、O(n) 空間（堆疊）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>堆疊求值（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def evalRPN(self, tokens: List[str]) -&gt; int:
+        stack = []
+
+        for t in tokens:
+            if t in ("+", "-", "*", "/"):
+                b = stack.pop()             # ★ 先彈出的是【右】運算元
+                a = stack.pop()
+                if t == "+":
+                    stack.append(a + b)
+                elif t == "-":
+                    stack.append(a - b)
+                elif t == "*":
+                    stack.append(a * b)
+                else:
+                    stack.append(int(a / b))  # ★ 往零截斷，不是 Python 的 //
+            else:
+                stack.append(int(t))
+
+        return stack[0]</div>
+        <p><strong>十五行，O(n) 時間、O(n) 空間。</strong></p>
+        <h3>★ Python 的整數除法有三種，別搞混</h3>
+        <div class="code-block">a // b          向下取整（floor）      -7 // 2 = -4
+int(a / b)      往零截斷（truncate）    int(-7/2) = -3
+divmod(a, b)    回傳 (商, 餘數)，商是 floor
+
+【大部分語言的 / 對整數是「往零截斷」】：
+    C、C++、Java、Go、Rust、JavaScript 的 Math.trunc
+
+【Python 特立獨行，用 floor】：
+    因為 Python 想保證 a == (a // b) * b + (a % b)
+    而且 a % b 的符號跟著 b（方便做「環狀索引」）。
+
+        -7 % 2 == 1      （Python）
+        -7 % 2 == -1     （C）
+
+    Python 的選擇在「取模運算」上更好用
+    （例如 (i - 1) % n 永遠是合法索引），
+    但在「模擬其他語言的整數除法」時就要小心。
+
+【這題明確要求往零截斷】-&gt; 一定要用 int(a / b)。
+
+    這是本題第一名的 bug，而且只有在
+    「被除數或除數是負數」時才會出現 ——
+    很容易漏測。</div>
+        <h3>為什麼最後回傳 <code>stack[0]</code>？</h3>
+        <div class="code-block">輸入保證是合法的逆波蘭式，
+所以處理完之後堆疊裡【剛好剩一個元素】——
+那就是整個算式的值 ✔
+
+    也可以寫 stack.pop() 或 stack[-1]，
+    三者在「合法輸入」下完全等價。
+
+【如果輸入不合法呢？】
+
+    "1 2" （少一個運算子）-&gt; 堆疊剩 [1, 2]
+    "1 +" （少一個運算元）-&gt; pop 空堆疊 -&gt; IndexError
+
+    題目保證合法，所以不用檢查。
+
+    但如果要寫一個真實的計算機，
+    就必須驗證「堆疊最後剛好剩一個」——
+    那是最簡單的合法性檢查。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個 token 處理一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>用字典把運算子映射到函式</h3>
+        <div class="code-block">import operator
+
+class Solution:
+    def evalRPN(self, tokens: List[str]) -&gt; int:
+        ops = {
+            "+": operator.add,
+            "-": operator.sub,
+            "*": operator.mul,
+            "/": lambda a, b: int(a / b),   # 往零截斷
+        }
+
+        stack = []
+        for t in tokens:
+            if t in ops:
+                b = stack.pop()
+                a = stack.pop()
+                stack.append(ops[t](a, b))
+            else:
+                stack.append(int(t))
+
+        return stack[0]</div>
+        <div class="code-block">ops = {"+": operator.add, "-": operator.sub,
+       "*": operator.mul, "/": lambda a, b: int(a / b)}
+
+    if t in ops:
+        b = stack.pop(); a = stack.pop()
+        stack.append(ops[t](a, b))
+
+【好處】：
+    ✔ 沒有一長串的 if/elif
+    ✔ 要加新運算子（例如 "%" 或 "^"）只要在字典裡加一筆
+    ✔ 「判斷是不是運算子」和「取得對應的函式」用同一個字典
+
+【operator 模組】：
+    operator.add / sub / mul / truediv / floordiv / mod / pow
+    比 lambda a, b: a + b 快（C 實作），也更清楚。
+
+【這個「用字典派發（dispatch table）」的模式很通用】：
+
+    - 直譯器 / 虛擬機的指令分派
+    - 狀態機的轉移表
+    - 命令模式（Command pattern）
+
+    它把「控制流程」變成「資料」——
+    程式碼更短，而且擴充時不用改邏輯，只要改資料。
+
+【注意除法不能直接用 operator.truediv】
+    （那會回傳浮點數）
+    也不能用 operator.floordiv（那是向下取整）——
+    必須自己包一個 lambda。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊 + 派發表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>用 <code>//</code> 的錯誤版本（示範那個 bug）</h3>
+        <div class="code-block">class Solution:
+    # 【除法是錯的，不要抄】
+    def evalRPN(self, tokens: List[str]) -&gt; int:
+        stack = []
+        for t in tokens:
+            if t in ("+", "-", "*", "/"):
+                b, a = stack.pop(), stack.pop()
+                if t == "+":   stack.append(a + b)
+                elif t == "-": stack.append(a - b)
+                elif t == "*": stack.append(a * b)
+                else:          stack.append(a // b)   # ← Python 的 // 是向下取整
+            else:
+                stack.append(int(t))
+        return stack[0]</div>
+        <div class="code-block">只有除法那一行不同：
+
+    stack.append(a // b)        ✘ 向下取整
+    stack.append(int(a / b))    ✔ 往零截斷
+
+【什麼時候會出錯？】
+
+    只有在【商是負數而且除不盡】時：
+
+        -7 // 2  = -4    但正確答案是 -3
+         7 // -2 = -4    但正確答案是 -3
+        -7 // -2 = 3     ✔ 剛好一樣（商是正的）
+         6 // 4  = 1     ✔ 剛好一樣（商是正的）
+
+    【所以如果測資裡沒有「負數除法且除不盡」，
+      這個 bug 完全不會被發現。】
+
+    這是最危險的一種 bug ——
+    它在 90% 的情況下都對。
+
+【怎麼避免這類 bug？】
+
+    看到「除法」就問自己三件事：
+        1. 會不會除以零？
+        2. 負數怎麼處理（向下 vs 往零）？
+        3. 會不會溢位（INT_MIN / -1）？
+
+    這題的題目已經幫你回答了 1 和 3，
+    而且【明確指定】了 2 —— 讀題時不能跳過。</div>
+        <p><strong>本文的測試特別包含 <code>["-7","2","/"]</code> 這一組</strong>，<strong>而且驗證了錯誤版本確實會答 -4。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊 + if/elif</td><td>O(n)</td><td>O(n)</td><td>15</td><td>標準答案</td></tr>
+            <tr><td>二、堆疊 + 派發表</td><td>O(n)</td><td>O(n)</td><td>16</td><td>好擴充</td></tr>
+            <tr><td>三、用 //</td><td>O(n)</td><td>O(n)</td><td>14</td><td>負數除法會錯</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個數字</strong> <code>["3"]</code> → <code>3</code>。</li>
+          <li><strong>負數的 token</strong> <code>["-11"]</code> → <strong><code>int("-11")</code> 正確處理；但如果用 <code>t.isdigit()</code> 判斷「是不是數字」就會誤判成運算子。</strong></li>
+          <li><strong><code>["-7","2","/"]</code></strong> → <strong><code>-3</code>（往零截斷），不是 <code>-4</code>。本題第一名的 bug。</strong></li>
+          <li><strong><code>["7","-2","/"]</code></strong> → <code>-3</code>。</li>
+          <li><strong><code>["-7","-2","/"]</code></strong> → <code>3</code>（商是正的，<code>//</code> 也剛好對）。</li>
+          <li><strong>除法的結果是 0</strong>（範例 3 的 <code>6 / -132</code>）→ <code>0</code>。</li>
+          <li><strong><code>b</code> 和 <code>a</code> 的 pop 順序寫反</strong> → <strong>減法和除法全錯，加法和乘法看不出來。</strong></li>
+          <li><strong>10⁴ 個 token</strong> → O(n) 輕鬆。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼不能用 <code>t.isdigit()</code> 判斷是不是數字？</h3>
+
+        <div class="code-block">"-11".isdigit() 回傳 False！
+（因為有負號，不是純數字字元。）
+
+    所以 "-11" 會被當成運算子 -&gt; 找不到對應的運算 ✘
+
+【三種正確的判斷方式】：
+
+    (a) if t in ("+", "-", "*", "/"):      ✔ 本文用這個
+        —— 明確列出運算子
+
+    (b) if t in ops:                        ✔ 解法二
+        —— 用派發表當作判斷
+
+    (c) if t.lstrip("-").isdigit():         能動但囉唆
+
+【為什麼 (a)(b) 比較好？】
+
+    因為「運算子只有四個，而數字有無限多種」——
+    列舉少的那一邊永遠比較安全。
+
+    這是一個很實用的原則：
+    【判斷「屬於哪一類」時，檢查【集合較小】的那一類。】</div>
+
+        <h3>追問二：如果要處理「中綴表示法」呢？</h3>
+
+        <div class="code-block">那就是第 224 / 227 題（基本計算器）。
+
+    中綴需要處理【括號】和【運算子優先順序】——
+    難得多。
+
+【兩條路】：
+
+    (a) 【調度場演算法】（Shunting-yard，Dijkstra 發明）
+        用兩個堆疊（數字 + 運算子），
+        把中綴【轉成】後綴，然後用本題的方法求值。
+
+        遇到運算子時，先把堆疊裡「優先順序 &gt;= 它」的
+        全部彈出來運算。
+
+    (b) 【遞迴下降解析】
+        expr   := term (('+' | '-') term)*
+        term   := factor (('*' | '/') factor)*
+        factor := number | '(' expr ')'
+
+        每一層處理一個優先順序 ——
+        這是編譯器前端的標準做法。
+
+【逆波蘭式之所以簡單，就是因為它已經把
+  「優先順序」和「括號」的資訊編碼掉了】——
+
+    那些困難被移到了「產生逆波蘭式」的那一步。
+
+    而堆疊求值只是「後序走訪」而已。</div>
+
+        <h3>追問三：如果數字可能很大（超過 2⁵³）呢？</h3>
+
+        <p><strong><code>int(a / b)</code> 就不安全了</strong> —— <strong><code>a / b</code> 是浮點除法，會損失精度。</strong></p>
+
+        <div class="code-block">純整數的「往零截斷」除法：
+
+    def trunc_div(a, b):
+        q = abs(a) // abs(b)
+        return -q if (a &lt; 0) != (b &lt; 0) else q
+
+    或者利用 Python 的 // 和 % 的關係：
+
+        q = a // b
+        if q &lt; 0 and q * b != a:      # 商是負數且除不盡
+            q += 1
+        return q
+
+【本題保證「所有中間結果都在 32 位元內」】，
+    所以 int(a/b) 完全安全（float 有 53 位精度）。
+
+    但在寫「通用的計算機」時，
+    要用純整數的版本。
+
+    【知道「什麼時候浮點是安全的」比「一律避免浮點」更重要。】</div>
+
+        <h3>追問四：這題和第 145 題（後序走訪）的關係是什麼？</h3>
+
+        <div class="code-block">逆波蘭式【就是】運算式樹的後序走訪結果。
+
+    所以：
+        「求值逆波蘭式」= 「後序走訪並求值」
+
+    本文的參考實作 _p150_ref 就是用遞迴做的：
+
+        倒著讀 tokens（後序的反序是「根右左」），
+        遇到運算子就先解析右邊、再解析左邊。
+
+    而堆疊版是它的迭代形式 ——
+    就像第 145 題的堆疊版是遞迴版的迭代形式。
+
+【反過來：從逆波蘭式建出運算式樹】
+
+    用同樣的堆疊，
+    但 push 的是【節點】而不是【數值】：
+
+        遇到數字 -&gt; push 葉節點
+        遇到運算子 -&gt; pop 兩個當左右孩子，push 新的內部節點
+
+    最後堆疊裡剩下的就是樹根 ✔
+
+    這正是第 105/106 題「從走訪序列建樹」的特例 ——
+    只是這裡的「樹」是運算式樹。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 145 題 Postorder Traversal</strong> —— 逆波蘭式就是後序走訪</li>
+          <li><strong>第 224 題 Basic Calculator</strong> —— 中綴 + 括號</li>
+          <li><strong>第 227 題 Basic Calculator II</strong> —— 中綴 + 優先順序</li>
+          <li><strong>第 20 題 Valid Parentheses</strong> —— 堆疊的入門</li>
+          <li><strong>第 1006 題 Clumsy Factorial</strong> —— 另一個運算順序題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼先 <code>pop</code> 出來的是<strong>右</strong>運算元？寫反會在哪些運算上出錯？</li>
+            <li>Python 的 <code>//</code> 和題目要的除法差在哪裡？請舉出一個會出錯的例子。</li>
+            <li>為什麼不能用 <code>t.isdigit()</code> 判斷「是不是數字」？</li>
+            <li>逆波蘭式和「後序走訪」是什麼關係？</li>
+          </ol>
+        </div>
