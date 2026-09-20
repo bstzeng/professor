@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>148. Sort List 排序鏈結串列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="自頂向下與自底向上的歸併排序，真正的 O(1) 空間解。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="148">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 148 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 148</div>
+          <h1>Sort List<br>排序鏈結串列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">鏈結串列</span>
+          <span class="lc-badge">雙指標</span>
+          <span class="lc-badge">分治</span>
+          <span class="lc-badge">排序</span>
+          <span class="lc-badge">歸併排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>head</code> of a linked list, return <em>the list after sorting it in <strong>ascending order</strong></em>.</p>
+          <p><strong>Follow up:</strong> Can you sort the linked list in <code>O(n logn)</code> time and <code>O(1)</code> memory (i.e. constant space)?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一條鏈結串列，把它<strong>升序排好</strong>並回傳。</p>
+          <p><strong>進階：</strong>你能在 <code>O(n log n)</code> 時間、<code>O(1)</code> 空間內完成嗎？</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼串列排序要用「歸併」而不是「快排」？</h3>
+        <div class="code-block">【快速排序需要什麼？】
+
+    partition：選一個 pivot，把小的放左邊、大的放右邊。
+
+    在陣列上，這靠「兩個指標從兩端往中間夾」做到 ——
+    需要【隨機存取】和【從後往前走】。
+
+    串列做不到（只能往前走）✘
+
+    （硬要做的話，可以用「三條子串列」的方式 partition，
+      但那樣就不是原地的，而且 pivot 選不好會退化成 O(n²)。）
+
+【歸併排序需要什麼？】
+
+    1. 把序列切成兩半        -&gt; 快慢指標，O(n) ✔
+    2. 遞迴排序兩半          -&gt; ✔
+    3. 合併兩段有序序列      -&gt; 循序走訪 + 改指標，O(n) ✔
+
+    【三件事串列都做得到，而且第 3 步比陣列還省空間】——
+
+        陣列合併要先複製到暫存陣列 -&gt; O(n) 空間
+        串列合併只要改指標        -&gt; O(1) 空間 ✔
+
+【結論】：
+    陣列的最佳排序是快排（原地、常數小）
+    串列的最佳排序是歸併（不用額外空間、而且穩定）
+
+    【資料結構決定演算法的選擇。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：head = [4,2,1,3]
+  輸出：[1,2,3,4]
+
+範例 2
+  輸入：head = [-1,5,3,4,0]
+  輸出：[-1,0,3,4,5]
+
+範例 3
+  輸入：head = []
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>串列的節點數在 <code>[0, 5 × 10⁴]</code> 之間</li>
+          <li>−10⁵ ≤ <code>Node.val</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/sort-list/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>5 × 10⁴ 這個上限在說什麼</h3>
+        <p><strong>O(n²) = 25 億 —— 一定逾時。</strong><strong>所以第 147 題的插入排序在這裡行不通。</strong></p>
+        <p><strong>必須是 O(n log n)</strong>：5×10⁴ × 16 ≈ 80 萬，輕鬆。</p>
+        <p><strong>而進階要求的 O(1) 空間，排除了「倒進陣列」和「遞迴」兩種做法。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 478" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">為什麼串列要用【歸併】而不是快排？因為歸併只需要「循序走訪」和「切一半」——串列都做得到。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">自頂向下（遞迴）：切一半 → 各自排好 → 合併</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="230" y="70" width="180" height="26" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="320" y="88" fill="var(--gold)">[4, 2, 1, 3]</text>
+              <rect x="120" y="126" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="180" y="144" fill="var(--accent)">[4, 2]</text>
+              <rect x="400" y="126" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="460" y="144" fill="var(--accent)">[1, 3]</text>
+              <rect x="70" y="182" width="70" height="26" fill="none" stroke="var(--text-muted)"/><text x="105" y="200" fill="var(--text-muted)">[4]</text>
+              <rect x="160" y="182" width="70" height="26" fill="none" stroke="var(--text-muted)"/><text x="195" y="200" fill="var(--text-muted)">[2]</text>
+              <rect x="410" y="182" width="70" height="26" fill="none" stroke="var(--text-muted)"/><text x="445" y="200" fill="var(--text-muted)">[1]</text>
+              <rect x="500" y="182" width="70" height="26" fill="none" stroke="var(--text-muted)"/><text x="535" y="200" fill="var(--text-muted)">[3]</text>
+              <rect x="120" y="240" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="180" y="258" fill="var(--accent)">[2, 4]</text>
+              <rect x="400" y="240" width="120" height="26" fill="none" stroke="var(--accent)"/><text x="460" y="258" fill="var(--accent)">[1, 3]</text>
+              <rect x="230" y="296" width="180" height="26" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="320" y="314" fill="var(--gold)">[1, 2, 3, 4]</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="280" y1="96" x2="200" y2="120"/><line x1="360" y1="96" x2="440" y2="120"/>
+              <line x1="160" y1="152" x2="120" y2="176"/><line x1="200" y1="152" x2="200" y2="176"/>
+              <line x1="440" y1="152" x2="450" y2="176"/><line x1="480" y1="152" x2="525" y2="176"/>
+            </g>
+            <g stroke="var(--gold)" stroke-width="1.5">
+              <line x1="115" y1="208" x2="160" y2="234"/><line x1="195" y1="208" x2="195" y2="234"/>
+              <line x1="450" y1="208" x2="450" y2="234"/><line x1="530" y1="208" x2="490" y2="234"/>
+              <line x1="200" y1="266" x2="280" y2="290"/><line x1="440" y1="266" x2="360" y2="290"/>
+            </g>
+            <line x1="20" y1="342" x2="620" y2="342" stroke="var(--border)"/>
+            <text x="20" y="370" fill="var(--accent)" font-size="12">★ 為什麼串列的歸併排序可以 O(1) 空間，而陣列的不行？</text>
+            <text x="40" y="398" fill="var(--text-muted)" font-size="12">陣列合併兩段有序區間時，必須先複製到暫存陣列 → O(n) 空間。</text>
+            <text x="40" y="424" fill="var(--gold)" font-size="12">串列只要【改指標】把節點重新串起來 → O(1) 空間 ✔</text>
+            <text x="20" y="456" fill="#ff8a65" font-size="12">但自頂向下（遞迴）還是要 O(log n) 的堆疊 —— 真正的 O(1) 要用自底向上（解法二）。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【自頂向下（遞迴歸併）】
+
+    1. 快慢指標找中點，切成兩條
+    2. 遞迴排序兩條
+    3. 合併
+
+    O(n log n) 時間、O(log n) 空間（遞迴堆疊）
+
+    【★ 切斷那一步不能忘】：
+        slow.next = None
+
+        不切的話，左半的遞迴會一直走到整條串列的尾巴
+        -&gt; 無窮遞迴 ✘
+
+【自底向上（迭代歸併）】
+
+    不遞迴，而是「一層一層」由小到大合併：
+
+        size = 1: 合併相鄰的「1 個 + 1 個」
+        size = 2: 合併相鄰的「2 個 + 2 個」
+        size = 4: 合併相鄰的「4 個 + 4 個」
+        ...
+
+    O(n log n) 時間、O(1) 空間 ✔ 滿足進階要求
+
+    【這是本題進階要求的答案，也是它被列為 Medium 的原因。】
+
+【合併兩條有序串列（兩個版本共用）】
+
+    dummy = tail = ListNode(0)
+    while a and b:
+        if a.val &lt;= b.val: tail.next = a; a = a.next
+        else:              tail.next = b; b = b.next
+        tail = tail.next
+    tail.next = a or b          ★ 接上剩下的那一條
+    return dummy.next
+
+    【a or b 這個寫法】：
+        a 不是 None 就回 a，否則回 b。
+        剛好處理「其中一條先用完」的情況 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>自頂向下歸併（遞迴，最好寫）</h3>
+        <div class="code-block">class Solution:
+    def sortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        if not head or not head.next:
+            return head                     # 0 或 1 個節點，本來就有序
+
+        # 快慢指標找中點（slow 停在前半的最後一個）
+        slow, fast = head, head.next
+        while fast and fast.next:
+            slow = slow.next
+            fast = fast.next.next
+
+        mid = slow.next
+        slow.next = None                    # ★ 切斷，變成兩條獨立的串列
+
+        left = self.sortList(head)
+        right = self.sortList(mid)
+        return self._merge(left, right)
+
+    def _merge(self, a, b):
+        dummy = tail = ListNode(0)
+        while a and b:
+            if a.val &lt;= b.val:              # &lt;= 保證穩定
+                tail.next = a
+                a = a.next
+            else:
+                tail.next = b
+                b = b.next
+            tail = tail.next
+        tail.next = a or b                  # 接上剩下的那一條
+        return dummy.next</div>
+        <p><strong>O(n log n) 時間、O(log n) 空間（遞迴堆疊）。</strong><strong>面試時先寫這個。</strong></p>
+        <h3>★ 三個必須寫對的地方</h3>
+        <div class="code-block">1. 【base case 是 not head or not head.next】
+
+   0 個或 1 個節點時直接回傳。
+
+   只寫 not head 的話，單一節點會無窮遞迴：
+       slow = head, fast = head.next = None
+       mid = slow.next = None
+       sortList(head) -&gt; 又是同一個單節點 ✘
+
+2. 【slow, fast = head, head.next】（錯開一步）
+
+   這樣 n = 2 時 slow 停在第一個 -&gt; 切成 [1] 和 [1] ✔
+
+   如果 fast 也從 head 出發：
+       n = 2 時 slow 停在第二個 -&gt; 切成 [兩個] 和 [空] ✘
+       -&gt; 左半永遠是整條 -&gt; 無窮遞迴
+
+   【這個錯誤會直接 RecursionError，很好發現。】
+
+3. 【slow.next = None】（切斷）
+
+   不切的話兩條會黏在一起 -&gt; 遞迴永遠切不完。
+
+【這三個錯誤的共同症狀都是「無窮遞迴」】——
+    看到 RecursionError 時，先檢查這三個地方。</div>
+        <h3>為什麼空間是 O(log n) 而不是 O(n)？</h3>
+        <p><strong>因為遞迴樹的深度是 <code>log n</code></strong>（每次切一半）。</p>
+        <p><strong>而「合併」這一步完全不用額外空間（只改指標）</strong> —— <strong>這就是串列相對於陣列的優勢。</strong></p>
+        <p><strong>陣列的歸併排序是 O(n) 空間（暫存陣列）。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>遞迴樹深度 log n</td></tr>
+            <tr><td>空間</td><td>O(log n)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>自底向上歸併（O(1) 空間，滿足進階）</h3>
+        <div class="code-block">class Solution:
+    def sortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        # 先數長度
+        n, p = 0, head
+        while p:
+            n += 1
+            p = p.next
+
+        dummy = ListNode(0, head)
+        size = 1
+        while size &lt; n:                     # 每輪把「長度 size」的相鄰兩段合併
+            prev, cur = dummy, dummy.next
+            while cur:
+                left = cur
+                right = self._split(left, size)     # 切出左段，回傳右段的頭
+                cur = self._split(right, size)      # 切出右段，回傳下一組的頭
+                prev = self._merge_to(prev, left, right)
+            size *= 2
+
+        return dummy.next
+
+    def _split(self, node, size):
+        """往前走 size-1 步，切斷，回傳後面那一段的頭"""
+        for _ in range(size - 1):
+            if not node:
+                break
+            node = node.next
+        if not node:
+            return None
+        rest = node.next
+        node.next = None
+        return rest
+
+    def _merge_to(self, prev, a, b):
+        """把 a 和 b 合併之後接在 prev 後面，回傳新的尾巴"""
+        cur = prev
+        while a and b:
+            if a.val &lt;= b.val:
+                cur.next = a; a = a.next
+            else:
+                cur.next = b; b = b.next
+            cur = cur.next
+        cur.next = a or b
+        while cur.next:
+            cur = cur.next
+        return cur</div>
+        <h3>★ 「一層一層由小到大合併」</h3>
+        <div class="code-block">size = 1, 2, 4, 8, ... 直到 &gt;= n
+
+    每一輪：
+        把串列切成「size 個一組」，
+        相鄰兩組合併成一組（長度 2·size）。
+
+    例如 [4, 2, 1, 3]：
+
+        size=1: 合併 (4)(2) -&gt; (2,4)
+                合併 (1)(3) -&gt; (1,3)
+                結果 [2, 4, 1, 3]
+
+        size=2: 合併 (2,4)(1,3) -&gt; (1,2,3,4) ✔
+
+        size=4 &gt;= n，結束。
+
+【為什麼這樣就不用遞迴了？】
+
+    遞迴歸併是「先切到底，再往上合併」。
+
+    自底向上是「直接從最底層開始合併」——
+    完全不需要「記住切了哪些」-&gt; 不用堆疊 ✔
+
+【三個輔助函式】
+
+    _split(node, size)：
+        往前走 size-1 步，切斷，回傳後面那段的頭
+        （如果不夠長，回傳 None）
+
+    _merge_to(prev, a, b)：
+        合併 a 和 b，接在 prev 後面，
+        回傳【合併後的尾巴】（好讓下一組接上去）
+
+    這兩個函式是自底向上版最容易寫錯的地方 ——
+    特別是「不夠長」的邊界。
+
+【複雜度】
+
+    外層 log n 輪，每輪掃過整條串列 O(n)
+    -&gt; O(n log n) 時間 ✔
+
+    只用幾個指標 -&gt; O(1) 空間 ✔
+
+【這是真正滿足進階要求的解法】，
+    但它比遞迴版長兩倍，而且邊界很多。
+
+    面試時的順序：
+        1. 寫遞迴版，講清楚思路
+        2. 說「遞迴用了 O(log n) 堆疊，
+           要真正的 O(1) 我會改成自底向上」
+        3. 如果時間夠，再寫出來</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>log n 輪，每輪 O(n)</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只用指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>倒進陣列排序（最短，但不滿足進階）</h3>
+        <div class="code-block">class Solution:
+    def sortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        # 倒進陣列排序再寫回（O(n) 空間，但最短也最快）
+        vals = []
+        cur = head
+        while cur:
+            vals.append(cur.val)
+            cur = cur.next
+
+        vals.sort()
+        cur = head
+        for v in vals:
+            cur.val = v
+            cur = cur.next
+
+        return head</div>
+        <div class="code-block">O(n log n) 時間、O(n) 空間。
+
+【和第 147 題不同，這題【沒有】指定演算法】——
+    所以這個做法在「只求 AC」的意義下是合法的。
+
+    而且實測通常【最快】：
+        Python 的 sort 是 C 實作的 Timsort，
+        常數比手寫的歸併小很多。
+
+【但它不滿足進階要求的 O(1) 空間。】
+
+【面試時的判斷】：
+
+    ✔ 如果面試官說「隨便你怎麼排」-&gt; 寫這個，三十秒搞定
+    ✘ 如果題目/面試官提到 O(1) 空間 -&gt; 必須寫解法二
+
+    而且無論如何，要能說出
+    「這是 O(n) 空間，如果要 O(1) 我會用自底向上的歸併」。
+
+【一個中間選項】：
+    把【節點】倒進陣列（而不是值），
+    用 key=lambda x: x.val 排序，再重新串起來。
+
+    這樣就不用「改值」（有些題目禁止改值），
+    空間仍然是 O(n)。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>內建 Timsort</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>值的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>滿足進階</th><th>行數</th></tr></thead>
+          <tbody>
+            <tr><td>一、自頂向下歸併</td><td>O(n log n)</td><td>O(log n)</td><td>✘ 差一點</td><td>22</td></tr>
+            <tr><td>二、自底向上歸併</td><td>O(n log n)</td><td>O(1)</td><td>✔</td><td>40</td></tr>
+            <tr><td>三、倒進陣列</td><td>O(n log n)</td><td>O(n)</td><td>✘</td><td>12</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空串列</strong> → <code>None</code>。<strong>base case 要擋。</strong></li>
+          <li><strong>單一節點</strong> → 不變。<strong>base case 只寫 <code>not head</code> 會無窮遞迴。</strong></li>
+          <li><strong>兩個節點</strong> <code>[2,1]</code> → <code>[1,2]</code>。<strong>考驗快慢指標的停法。</strong></li>
+          <li><strong>已經有序</strong> → 歸併排序仍然是 O(n log n)（不會變快）。</li>
+          <li><strong>完全降序</strong> → 同上。</li>
+          <li><strong>全部相同</strong> → <code>&lt;=</code> 保證穩定。</li>
+          <li><strong>忘了 <code>slow.next = None</code></strong> → <strong>無窮遞迴。本題第一名的 bug。</strong></li>
+          <li><strong><code>fast</code> 從 <code>head</code> 而不是 <code>head.next</code> 出發</strong> → <strong>兩個節點時切不開，無窮遞迴。</strong></li>
+          <li><strong>5 × 10⁴ 個節點</strong> → 遞迴深度只有 16，安全；<strong>但 O(n²) 的插入排序會逾時。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：為什麼歸併排序是「穩定」的？</h3>
+
+        <div class="code-block">合併時用 &lt;= 而不是 &lt;：
+
+    if a.val &lt;= b.val:
+        取 a       ← 相等時優先取【左邊那一條】
+
+    而左邊那一條在原本的串列裡就在前面 -&gt;
+    相等元素的相對順序被保持 ✔
+
+    如果寫成 a.val &lt; b.val，相等時會取 b（右邊的）
+    -&gt; 順序被交換 -&gt; 不穩定 ✘
+
+【一個字的差別。】
+
+    歸併排序天然可以是穩定的，
+    而快速排序【天然不穩定】（partition 會交換遠處的元素）。
+
+    這也是為什麼：
+        Python 的 sorted / list.sort -&gt; Timsort（歸併的變形）-&gt; 穩定
+        C++ 的 std::sort -&gt; introsort（快排 + 堆排）-&gt; 不穩定
+        C++ 的 std::stable_sort -&gt; 歸併 -&gt; 穩定</div>
+
+        <h3>追問二：能不能在串列上做快速排序？</h3>
+
+        <div class="code-block">可以，但不好：
+
+    partition 時把節點分成三條子串列：
+        小於 pivot、等於 pivot、大於 pivot
+
+    然後遞迴排序第一和第三條，最後接起來。
+
+    O(n log n) 平均、O(n²) 最壞
+    O(log n) 空間（遞迴）
+
+【為什麼不好？】
+
+    ✘ 最壞情況 O(n²)（已排序的輸入 + 固定選第一個當 pivot）
+    ✘ 沒辦法「隨機選 pivot」（要 O(n) 才能走到隨機位置）
+    ✘ 沒有比歸併省空間
+
+    【快排在陣列上的所有優勢（原地、快取友善、常數小）
+      在串列上全部消失。】
+
+    這就是「資料結構決定演算法」的最好例子。</div>
+
+        <h3>追問三：自底向上版為什麼真的是 O(1) 空間？</h3>
+
+        <p><strong>因為它完全不遞迴，只用幾個指標變數</strong>（<code>prev</code>、<code>cur</code>、<code>left</code>、<code>right</code>、<code>size</code>）。</p>
+
+        <p><strong>合併時也只是改指標，不配置任何新節點</strong>（<code>dummy</code> 只有一個，而且是在函式開頭建的）。</p>
+
+        <p><strong>「O(1) 空間」的嚴格定義是「額外空間不隨 n 成長」</strong> —— <strong>常數個變數完全符合。</strong></p>
+
+        <h3>追問四：Timsort 是怎麼運作的？</h3>
+
+        <div class="code-block">Python 的 sorted / list.sort 用的排序演算法：
+
+    1. 掃描輸入，找出天然的「已排序區段」（run）
+       —— 遞增或遞減（遞減的就地反轉）
+
+    2. 太短的 run 用【二分插入排序】擴充到最小長度
+       （通常是 32~64）
+
+    3. 把這些 run 用【歸併】合併起來，
+       並用一套規則維持「堆疊上的 run 長度平衡」
+
+【為什麼這樣快？】
+
+    ✔ 真實資料常常「部分有序」-&gt; 第 1 步直接撿到便宜
+    ✔ 小分段用插入排序 -&gt; 常數小
+    ✔ 歸併 -&gt; 穩定，而且最壞仍是 O(n log n)
+
+    完全有序的輸入：O(n) ✔
+    隨機輸入：      O(n log n)
+
+【Timsort 是「理論最優」和「實務調校」結合的典範】——
+    它的最壞複雜度和歸併一樣，
+    但在真實資料上快得多。
+
+    Java、Android、V8（JavaScript）也都採用了它。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 147 題 Insertion Sort List</strong> —— n 小時的 O(n²) 版</li>
+          <li><strong>第 21 題 Merge Two Sorted Lists</strong> —— 合併那一步</li>
+          <li><strong>第 23 題 Merge k Sorted Lists</strong> —— 合併 k 條</li>
+          <li><strong>第 876 題 Middle of the Linked List</strong> —— 找中點</li>
+          <li><strong>第 143 題 Reorder List</strong> —— 同樣的「找中點 + 切斷」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼串列適合歸併排序而不適合快速排序？</li>
+            <li>為什麼串列的歸併合併不需要額外空間，而陣列的需要？</li>
+            <li>base case 只寫 <code>not head</code> 會發生什麼？</li>
+            <li>自底向上版為什麼能做到真正的 O(1) 空間？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0147.html">← 上一題：147. 對鏈結串列進行插入排序</a>
+          <a href="problem-0149.html">下一題：149. 直線上最多的點數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

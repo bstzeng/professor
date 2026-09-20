@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>106. Construct Binary Tree from Inorder and Postorder Traversal 從中序與後序走訪序列建構二元樹 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="後序倒著看就是「根右左」，與第 105 題的完整對照。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="106">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 106 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 106</div>
+          <h1>Construct Binary Tree from Inorder and Postorder Traversal<br>從中序與後序走訪序列建構二元樹</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">分治</span>
+          <span class="lc-badge">樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two integer arrays <code>inorder</code> and <code>postorder</code> where <code>inorder</code> is the inorder traversal of a binary tree and <code>postorder</code> is the postorder traversal of the same tree, <em>construct and return the binary tree</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個整數陣列 <code>inorder</code> 和 <code>postorder</code>，分別是同一棵二元樹的<strong>中序走訪</strong>和<strong>後序走訪</strong>結果。</p>
+          <p>請把這棵樹<strong>還原出來</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>第 105 題的鏡像版：兩個地方要反過來</h3>
+        <div class="code-block">前序： 根 → 左 → 右     -&gt; 【第一個】是根，游標【往前】走
+後序： 左 → 右 → 根     -&gt; 【最後一個】是根，游標【往後】走
+
+把後序【倒過來讀】：
+
+    reversed(後序) = 根 → 右 → 左
+
+    對照 前序 = 根 → 左 → 右
+
+    【完全對稱！只是左右對調。】
+
+所以第 105 題的程式碼只要改兩個地方：
+
+    1. self.i 從 len - 1 開始，每次 -= 1（而不是 0 開始 += 1）
+    2. 先建 right 再建 left（而不是先 left 後 right）
+
+    其餘一模一樣。
+
+【如果你已經懂第 105 題，這題只要五秒鐘。
+  如果你覺得這題很難，代表第 105 題還沒真的懂。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
+  輸出：[3,9,20,null,null,15,7]
+
+            3
+           / \
+          9   20
+             /  \
+            15   7
+
+  驗算：後序（左右根）= 9, 15, 7, 20, 3 ✔
+        最後一個 3 就是根。
+
+範例 2
+  輸入：inorder = [-1], postorder = [-1]
+  輸出：[-1]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>inorder.length</code> ≤ 3000</li>
+          <li><code>postorder.length == inorder.length</code></li>
+          <li>−3000 ≤ <code>inorder[i]</code>, <code>postorder[i]</code> ≤ 3000</li>
+          <li><code>inorder</code> 和 <code>postorder</code> 都<strong>沒有重複值</strong></li>
+          <li><code>postorder</code> 保證是某棵二元樹的後序走訪</li>
+          <li><code>inorder</code> 保證是<strong>同一棵樹</strong>的中序走訪</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/construct-binary-tree-from-inorder-and-postorder-traversal/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">對照表（把第 105 題放在旁邊看）：
+
+                     第 105 題（前序+中序）      第 106 題（中序+後序）
+    根在哪            preorder[0]                postorder[-1]
+    游標起點          0                          len - 1
+    游標方向          += 1                       -= 1
+    先建哪一邊        left                       right
+    中序的用途        找根的位置、分左右          完全相同
+
+【為什麼一定要先建右子樹？】
+
+    倒著讀後序，順序是 根 → 右 → 左。
+
+    游標從尾端往前走時：
+        第一個拿到的是根
+        接下來一整段是【右子樹】（倒序的）
+        再接下來是【左子樹】
+
+    所以必須先把右子樹消耗完，
+    游標才會指到左子樹 ✔
+
+    寫反的話（先 left 後 right），
+    會拿右子樹的資料去建左子樹 ——
+    【樹整個錯掉，而且不會報錯。】</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>遞迴 + 切片（先講思路）</h3>
+        <div class="code-block">class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -&gt; Optional[TreeNode]:
+        if not postorder:
+            return None
+
+        root_val = postorder[-1]            # 後序最後一個是根
+        k = inorder.index(root_val)
+
+        return TreeNode(
+            root_val,
+            self.buildTree(inorder[:k], postorder[:k]),          # 左子樹有 k 個
+            self.buildTree(inorder[k + 1:], postorder[k:-1]),    # 右子樹（去掉最後的根）
+        )</div>
+        <h3>切片邊界比第 105 題更容易寫錯</h3>
+        <div class="code-block">postorder = [左子樹的後序(k 個)] [右子樹的後序] [根]
+             0 .. k-1            k .. n-2      n-1
+
+    左子樹： postorder[:k]        ✔
+    右子樹： postorder[k:-1]      ✔  （注意 -1 是要去掉最後那個根）
+
+【最常見的錯誤】：寫成 postorder[k:]
+    那樣右子樹會多吃到根，長度對不上。
+
+    驗證方法（養成習慣）：
+        len(postorder[:k])   應該 == len(inorder[:k])   = k     ✔
+        len(postorder[k:-1]) 應該 == len(inorder[k+1:]) = n-k-1 ✔
+
+    兩邊長度對不上，就是切錯了。</div>
+        <p><strong>最壞 O(n²)</strong>（<code>index()</code> 和切片）。<strong>思路清楚，但要準備好被問「怎麼變快」。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²) 最壞</td><td>index + 切片</td></tr>
+            <tr><td>空間</td><td>O(n²) 最壞</td><td>切片的副本</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>雜湊表 + 索引區間（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -&gt; Optional[TreeNode]:
+        pos = {v: i for i, v in enumerate(inorder)}
+        self.i = len(postorder) - 1         # 後序【從尾端】往回讀
+
+        def build(lo: int, hi: int) -&gt; Optional[TreeNode]:
+            if lo &gt; hi:
+                return None
+
+            root_val = postorder[self.i]    # 後序倒著讀，下一個就是根
+            self.i -= 1
+            mid = pos[root_val]
+
+            node = TreeNode(root_val)
+            node.right = build(mid + 1, hi) # 【一定要先建右】：倒讀後序是 根→右→左
+            node.left = build(lo, mid - 1)
+            return node
+
+        return build(0, len(inorder) - 1)</div>
+        <p><strong>和第 105 題的解法二逐行對照，只有兩處不同</strong>（游標方向、左右順序）—— <strong>上面的對照表就是全部。</strong></p>
+        <h3>為什麼 <code>pos</code> 建在 <code>inorder</code> 上而不是 <code>postorder</code>？</h3>
+        <p>因為<strong>我們要找的是「根在中序裡的位置」</strong> —— 那才是能把左右切開的資訊。<strong>後序只負責「按順序吐出根」，不需要查位置。</strong></p>
+        <p><strong>O(n) 時間、O(n) 空間。</strong><strong>每個節點只做 O(1) 的工作。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點 O(1)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>雜湊表 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>直接 <code>postorder.pop()</code>（最短）</h3>
+        <div class="code-block">class Solution:
+    def buildTree(self, inorder: List[int], postorder: List[int]) -&gt; Optional[TreeNode]:
+        pos = {v: i for i, v in enumerate(inorder)}
+
+        def build(lo: int, hi: int) -&gt; Optional[TreeNode]:
+            if lo &gt; hi:
+                return None
+            root_val = postorder.pop()      # 直接從尾端 pop，等同倒著讀
+            mid = pos[root_val]
+            node = TreeNode(root_val)
+            node.right = build(mid + 1, hi) # 先右後左
+            node.left = build(lo, mid - 1)
+            return node
+
+        return build(0, len(inorder) - 1)</div>
+        <h3>用 <code>pop()</code> 取代手動游標</h3>
+        <div class="code-block">postorder.pop()  從尾端拿掉並回傳最後一個元素 —— O(1)
+
+    這正好就是「倒著讀後序」的意思，
+    連 self.i 都不用維護。
+
+    比較：
+        第 105 題（前序）：不能用 pop(0) —— 那是 O(n)！
+                           所以必須用游標。
+        第 106 題（後序）：可以用 pop() —— O(1) ✔
+
+    【list 的尾端操作快、頭端操作慢，
+      這個不對稱在這裡剛好幫了後序版一把。】
+
+【代價：它會破壞輸入的 postorder。】
+
+    LeetCode 上無所謂，
+    但在真實程式裡【修改呼叫者傳進來的參數是壞習慣】——
+    面試時要主動說明這一點，或先 copy 一份。
+
+    這種「函式偷偷改掉輸入」的 bug
+    在大型程式裡極難追查。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>pop 是 O(1)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>雜湊表 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>會改輸入嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、切片遞迴</td><td>O(n²) 最壞</td><td>O(n²)</td><td>✘</td><td>思路清楚</td></tr>
+            <tr><td>二、雜湊表 + 游標</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>標準答案</td></tr>
+            <tr><td>三、pop()</td><td>O(n)</td><td>O(n)</td><td>✔</td><td>最短，但會破壞輸入</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>三種走訪能組出的所有建樹題</h3>
+        <div class="code-block">前序 + 中序   -&gt; 第 105 題   ✔ 一般二元樹都可以
+中序 + 後序   -&gt; 第 106 題   ✔ 一般二元樹都可以
+前序 + 後序   -&gt; 第 889 題   ✘ 一般情況不唯一，需要「完滿二元樹」
+
+【規律】：只要其中一條是【中序】，就一定可以。
+
+    因為中序是唯一能「把左右分開」的走訪 ——
+    根在中間，左邊全是左子樹，右邊全是右子樹。
+
+    前序和後序都只告訴你「根在哪一端」，
+    對「左右怎麼分」完全沒有貢獻。
+
+    兩個都只能定根 -&gt; 資訊不足。
+
+【延伸】：層序 + 中序也可以嗎？
+    可以 ✔ —— 層序的第一個是根（和前序一樣），
+    但要從層序裡篩出「屬於左子樹的那些」比較麻煩，
+    實作上不如前序方便。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一節點</strong> → 一個節點的樹。</li>
+          <li><strong>退化成一條鏈</strong>（3000 個節點）→ <code>RecursionError</code> 的風險。</li>
+          <li><strong>先建 <code>left</code> 後建 <code>right</code></strong> → <strong>樹整個錯掉，不會報錯 —— 本題第一名的 bug。</strong></li>
+          <li><strong>切片寫成 <code>postorder[k:]</code></strong>（忘了去掉根）→ 長度對不上，結構錯亂。</li>
+          <li><strong>游標從 0 開始往前走</strong> → 拿到的是最左下的葉節點當根。</li>
+          <li><strong>用 <code>postorder.pop(0)</code></strong> → 那是 O(n)，而且順序也錯。</li>
+          <li><strong>解法三會修改輸入</strong> → 呼叫端如果還要用 <code>postorder</code> 就出事了。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：能不能寫成「和第 105 題共用一份程式碼」？</h3>
+
+        <div class="code-block">可以 —— 把後序反轉，再交換「左右」的角色：
+
+    def buildTree(self, inorder, postorder):
+        # reversed(postorder) 的結構是 根 → 右 → 左
+        # 相當於「前序」，只是左右對調
+        rev = postorder[::-1]
+        mirrored = self.build_from_preorder(rev, inorder[::-1])
+        return mirror(mirrored)     # 最後再鏡像回來
+
+【能動，但不推薦】：
+    多了兩次反轉和一次鏡像，常數變大、也更難讀。
+
+    直接改兩行（游標方向 + 左右順序）比較好。
+
+    不過這個「化簡成已解決的問題」的思路本身很有價值 ——
+    在真的想不出來時，它是可靠的退路。</div>
+
+        <h3>追問二：如何驗證建出來的樹是對的？</h3>
+
+        <p><strong>把它的中序和後序再走一遍，和輸入比對</strong> —— <strong>這是最可靠的自我檢查，也是這個網站每一題都在做的事。</strong></p>
+
+        <div class="code-block">assert inorder_of(tree)   == inorder
+assert postorder_of(tree) == postorder
+
+【注意：光比對一條是不夠的。】
+
+    只比中序的話，任何「中序相同」的樹都會通過 ——
+    而中序相同的樹有 C(n) 種（卡塔蘭數，第 96 題）。
+
+    兩條都對，才能確定樹是唯一正確的那一棵。</div>
+
+        <h3>追問三：如果輸入是不合法的（不是同一棵樹的走訪）呢？</h3>
+
+        <p><strong>題目保證合法，所以不用檢查。</strong>但如果要寫防禦性的程式：</p>
+
+        <ul>
+          <li><strong>長度不同</strong> → 直接無效。</li>
+          <li><strong>多重集合不同</strong> → 無效（用 <code>Counter</code> 比較）。</li>
+          <li><strong>結構矛盾</strong> → 最可靠的檢查是「先照常建樹，再驗證走訪結果」。<strong>先建再驗，比想辦法「邊建邊檢查」簡單得多。</strong></li>
+        </ul>
+
+        <h3>追問四：時間能不能低於 O(n)？</h3>
+
+        <p><strong>不可能。</strong>輸出本身就有 <code>n</code> 個節點，<strong>光是把它們建出來就要 O(n)</strong>。<strong>這叫做「輸出規模下界」（output-sensitive lower bound）</strong> —— 任何「要產生 n 個東西」的問題都至少要 Ω(n)。</p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 105 題 從前序與中序建樹</strong> —— 本題的鏡像版</li>
+          <li><strong>第 889 題 從前序與後序建樹</strong> —— 為什麼需要額外前提</li>
+          <li><strong>第 108 題 有序陣列轉 BST</strong> —— 另一種分治建樹</li>
+          <li><strong>第 145 題 後序走訪</strong> —— 本題的逆運算</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>後序倒著讀是什麼順序？為什麼這讓它和前序「對稱」？</li>
+            <li>為什麼一定要先建 <code>right</code> 再建 <code>left</code>？</li>
+            <li>切片版裡右子樹為什麼是 <code>postorder[k:-1]</code> 而不是 <code>postorder[k:]</code>？</li>
+            <li>為什麼「只要有中序」就一定能建樹，而「前序 + 後序」不行？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0105.html">← 上一題：105. 從前序與中序走訪序列建構二元樹</a>
+          <a href="problem-0107.html">下一題：107. 二元樹的層序走訪 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>head</code> of a singly linked list, sort the list using <strong>insertion sort</strong>, and return <em>the sorted list's head</em>.</p>
+          <p>The steps of the <strong>insertion sort</strong> algorithm:</p>
+          <ul><li>Insertion sort iterates, consuming one input element each repetition and growing a sorted output list.</li><li>At each iteration, insertion sort removes one element from the input data, finds the location it belongs within the sorted list and inserts it there.</li><li>It repeats until no input elements remain.</li></ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一條單向鏈結串列，用<strong>插入排序</strong>把它排好，回傳排序後的頭節點。</p>
+          <p><strong>插入排序</strong>的步驟：</p>
+        <ul>
+          <li>維護一段「已排序」的部分，每次從輸入取一個元素。</li>
+          <li>在已排序的部分裡<strong>找到它該待的位置</strong>，插進去。</li>
+          <li>重複到輸入用完。</li>
+        </ul>
+        </div>
+
+        <div class="callout">
+          <h3>插入排序在鏈結串列上，反而比在陣列上「自然」</h3>
+        <div class="code-block">【陣列的插入排序】：
+
+    找到位置之後，要把後面的元素【全部往後搬一格】
+    -&gt; 每次插入 O(n) 的搬移
+
+【串列的插入排序】：
+
+    找到位置之後，【改兩個指標】就好
+    -&gt; 每次插入 O(1) ✔
+
+    （但「找位置」還是要 O(n)，所以總共還是 O(n²)。）
+
+【所以串列版省掉了「搬移」這件事】——
+    這是鏈結串列相對於陣列的經典優勢：
+    「在中間插入 / 刪除是 O(1)（只要你已經在那個位置）」。
+
+    代價是「找到那個位置」要 O(n)（不能隨機存取）。
+
+【本題的核心技巧】：
+
+    (a) 虛擬頭節點（dummy）—— 省掉「插在最前面」的特判
+    (b) 先存 cur.next 再改指標 —— 鏈結串列的鐵律
+    (c) 「已經有序就跳過」的優化（解法二）</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：head = [4,2,1,3]
+  輸出：[1,2,3,4]
+
+  過程：
+    已排序 []        取 4  -&gt; [4]
+    已排序 [4]       取 2  -&gt; [2,4]
+    已排序 [2,4]     取 1  -&gt; [1,2,4]
+    已排序 [1,2,4]   取 3  -&gt; [1,2,3,4]
+
+範例 2
+  輸入：head = [-1,5,3,4,0]
+  輸出：[-1,0,3,4,5]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>串列的節點數在 <code>[1, 5000]</code> 之間</li>
+          <li>−5000 ≤ <code>Node.val</code> ≤ 5000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/insertion-sort-list/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>節點數只有 5000 —— 這是在說「O(n²) 可以接受」</h3>
+        <p><strong>5000² = 2500 萬</strong>，在時限內。</p>
+        <p><strong>如果上限是 5 × 10⁴（像第 148 題那樣），O(n²) 就會逾時</strong> —— <strong>那時就必須用歸併排序。</strong></p>
+        <p><strong>看到「題目指定演算法」+「不大的 n」，就知道它真的要你寫那個演算法。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【基本版】
+
+    dummy = ListNode(0)         虛擬頭，已排序的部分掛在它後面
+    cur = head
+
+    while cur:
+        nxt = cur.next          ★ 先存起來
+
+        p = dummy               從頭找插入位置
+        while p.next and p.next.val &lt;= cur.val:
+            p = p.next
+
+        cur.next = p.next       插進 p 後面
+        p.next = cur
+
+        cur = nxt
+
+    return dummy.next
+
+【★ 為什麼要先存 nxt？】
+
+    cur.next = p.next 這一行會【覆蓋掉 cur.next】。
+
+    不先存的話，cur = cur.next 就會跳到錯的地方
+    （跳進已排序的部分，造成無窮迴圈或亂序）。
+
+    【動指標之前先把要用的存起來 —— 鏈結串列第一鐵律。】
+
+【★ 為什麼需要 dummy？】
+
+    如果 cur 比所有已排序的都小，它要插在【最前面】。
+
+    沒有 dummy 的話，「插在最前面」和「插在中間」
+    是兩段不同的程式碼（要改 head 這個變數）。
+
+    有了 dummy，「最前面」也只是「dummy 後面」——
+    完全一樣的程式碼 ✔
+
+【★ 為什麼是 &lt;= 而不是 &lt;？】
+
+    p.next.val &lt;= cur.val -&gt; 繼續往後
+
+    用 &lt;= 的話，相同的值會讓 cur 插在【後面】
+    -&gt; 排序是【穩定的】（相同元素保持原本的相對順序）✔
+
+    用 &lt; 的話會插在前面 -&gt; 不穩定。
+
+    這題不要求穩定，但「預設寫成穩定的」是好習慣。
+
+【複雜度】：最壞 O(n²)（每次都要從頭找）、O(1) 額外空間。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>虛擬頭 + 每次從頭找位置（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def insertionSortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        dummy = ListNode(0)                 # 虛擬頭：省掉「插在最前面」的特判
+        cur = head
+
+        while cur:
+            nxt = cur.next                  # ★ 先存起來（等一下 cur.next 會被改）
+
+            # 從頭找插入位置：第一個「下一個比 cur 大」的地方
+            p = dummy
+            while p.next and p.next.val &lt;= cur.val:
+                p = p.next
+
+            cur.next = p.next               # 把 cur 插進 p 後面
+            p.next = cur
+            cur = nxt
+
+        return dummy.next</div>
+        <p><strong>十二行，O(n²) 時間、O(1) 空間。</strong></p>
+        <h3>為什麼「從 <code>dummy</code> 開始找」而不是從上次的位置？</h3>
+        <div class="code-block">因為新來的 cur 可能比【任何】已排序的元素都小 ——
+必須從頭開始檢查。
+
+    只有在「輸入已經接近有序」時，
+    「從上次的位置繼續」才划算（那就是解法二的優化）。
+
+【最壞情況】：輸入是【降序】的
+
+    [5, 4, 3, 2, 1]
+
+    每個元素都要插到最前面，
+    但我們是從 dummy 往後找 ——
+    第 k 個元素要走 0 步就找到（因為它最小）。
+
+    等等，降序輸入時每次都插在最前面，
+    反而是【最快】的（每次 O(1)）？
+
+    對！降序輸入時，插入排序在串列上是 O(n)。
+
+【真正的最壞情況是【升序】輸入】：
+
+    [1, 2, 3, 4, 5]
+
+    每個元素都要插到最後面 -&gt;
+    第 k 個要走 k 步 -&gt; 總共 O(n²) ✘
+
+    【這和陣列版的插入排序【相反】】：
+        陣列版：升序輸入最快（不用搬移），降序最慢
+        串列版：降序輸入最快（都插在頭），升序最慢
+
+    因為串列只能「從頭往後找」，沒有「從後往前比」的能力。
+
+【解法二的優化正是針對這個】——
+    「已經有序就不用找」，讓升序輸入變成 O(n)。</div>
+        <h3><code>while p.next and ...</code> 的兩個條件</h3>
+        <p><code>p.next</code> <strong>是 <code>None</code> 代表已經走到已排序部分的尾端</strong> —— <strong><code>cur</code> 就插在那裡（最大的位置）。</strong></p>
+        <p><strong>少檢查這個會 <code>AttributeError</code>。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每次找位置 O(n)</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>加上「已經有序就跳過」的優化</h3>
+        <div class="code-block">class Solution:
+    def insertionSortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        dummy = ListNode(0)
+        dummy.next = head
+        last = head                         # 已排序部分的最後一個節點
+        cur = head.next if head else None
+
+        while cur:
+            if last.val &lt;= cur.val:
+                last = last.next            # 已經有序 -&gt; 直接延伸，不用找位置
+            else:
+                p = dummy
+                while p.next.val &lt;= cur.val:
+                    p = p.next
+                last.next = cur.next        # 把 cur 從原位拔掉
+                cur.next = p.next           # 插到 p 後面
+                p.next = cur
+            cur = last.next
+
+        return dummy.next</div>
+        <h3>★ 一個判斷，讓「接近有序」的輸入變成 O(n)</h3>
+        <div class="code-block">if last.val &lt;= cur.val:
+    last = last.next        # 已經在正確位置 -&gt; 不用找，直接延伸
+else:
+    ...從頭找位置並插入...
+
+    last 是「已排序部分的最後一個」。
+
+    如果 cur &gt;= last，代表 cur 本來就該在最後面 ——
+    完全不用搜尋 ✔
+
+【效果】：
+
+    完全升序的輸入 [1,2,3,4,5]：
+        每次都走 if 分支 -&gt; O(1)
+        總共 O(n) ✔       （解法一是 O(n²)）
+
+    完全降序的輸入：
+        每次都走 else 分支，但都插在最前面 -&gt; O(1)
+        總共 O(n) ✔
+
+    隨機輸入：
+        平均還是 O(n²)，但常數小很多。
+
+【這個優化叫做「自然插入排序」的思路】——
+
+    真實世界的資料常常是「接近有序」的
+    （例如日誌、時間序列、部分更新過的清單）。
+
+    對這類輸入，插入排序反而比快速排序快 ——
+    這就是為什麼 Timsort（Python 的 sort）
+    在小分段上用的是插入排序。
+
+【★ 這個版本的 last.next = cur.next 那一行】
+
+    要把 cur 從【原本的位置】拔掉，
+    才能插到前面去。
+
+    解法一不用這一步，因為它是「一個一個從輸入取」，
+    而這個版本是「原地調整」。
+
+    兩種寫法的結構不同，不要混。</div>
+        <p><strong>最壞仍是 O(n²)，但對「接近有序」的輸入是 O(n)。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²) 最壞 / O(n) 接近有序</td><td>有序時不搜尋</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>倒進陣列排序（能過，但沒在解這題）</h3>
+        <div class="code-block">class Solution:
+    def insertionSortList(self, head: Optional[ListNode]) -&gt; Optional[ListNode]:
+        # 把值倒進陣列排序，再寫回去（能過，但沒在練這題想考的東西）
+        vals = []
+        cur = head
+        while cur:
+            vals.append(cur.val)
+            cur = cur.next
+
+        vals.sort()
+        cur = head
+        for v in vals:
+            cur.val = v
+            cur = cur.next
+
+        return head</div>
+        <div class="code-block">把值倒進 list、呼叫 sort()、再寫回去。
+
+    O(n log n) 時間、O(n) 空間 ——
+    【比插入排序還快】。
+
+【但這完全不是題目想要的】：
+
+    題目明確說「用插入排序」。
+
+    寫這個等於回答「我不做你要的事，我用內建函式」。
+
+【什麼時候這樣寫是對的？】
+
+    ✔ 真實工程裡（除非有特殊理由，用內建排序永遠是對的）
+    ✔ 題目沒有指定演算法（例如第 148 題只說「排序」）
+
+    ✘ 題目明確指定演算法（本題）
+    ✘ 面試官想看你會不會操作指標
+
+【放在這裡是為了指出這個區別】：
+
+    「能通過測試」和「解決了題目要考的問題」
+    是兩件不同的事。
+
+    第 148 題（排序串列）就允許這個做法，
+    但那題的進階要求是 O(1) 空間 —— 又把它排除了。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>內建排序</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>值的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>符合題意</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、虛擬頭 + 從頭找</td><td>O(n²)</td><td>O(1)</td><td>✔</td><td>標準答案</td></tr>
+            <tr><td>二、加上有序跳過</td><td>O(n²) / O(n)</td><td>O(1)</td><td>✔</td><td>接近有序時快很多</td></tr>
+            <tr><td>三、倒進陣列排序</td><td>O(n log n)</td><td>O(n)</td><td>✘</td><td>沒在解這題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空串列</strong>（題目保證不會）→ <code>dummy.next</code> 是 <code>None</code> ✔ 自然正確。</li>
+          <li><strong>單一節點</strong> → 不變。</li>
+          <li><strong>已經有序</strong> <code>[1,2,3]</code> → <strong>解法一是 O(n²)（最壞情況），解法二是 O(n)。</strong></li>
+          <li><strong>完全降序</strong> <code>[3,2,1]</code> → <strong>每次都插在最前面，兩個解法都是 O(n)。</strong></li>
+          <li><strong>全部相同</strong> <code>[1,1,1]</code> → <strong>用 <code>&lt;=</code> 的話走到最後才插（穩定）。</strong></li>
+          <li><strong>忘了先存 <code>nxt = cur.next</code></strong> → <strong>改完指標後跳進已排序的部分，無窮迴圈或亂序。本題第一名的 bug。</strong></li>
+          <li><strong>沒用 <code>dummy</code></strong> → 「插在最前面」要額外寫一段。</li>
+          <li><strong><code>while p.next.val &lt;= ...</code> 忘了檢查 <code>p.next</code></strong> → <code>AttributeError</code>。</li>
+          <li><strong>5000 個節點</strong> → 最壞 2500 萬次比較，在時限內。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果 <code>n</code> 是 5 × 10⁴ 呢？</h3>
+
+        <p><strong>O(n²) = 25 億，一定逾時。</strong><strong>那就是第 148 題（Sort List）—— 必須用 O(n log n) 的歸併排序。</strong></p>
+
+        <p><strong>為什麼是歸併而不是快排？</strong><strong>因為快排需要「隨機存取」來做 partition，而串列做不到；</strong><strong>歸併只需要「循序走訪」和「切一半」，正好適合串列。</strong></p>
+
+        <h3>追問二：插入排序什麼時候比 O(n log n) 的排序好？</h3>
+
+        <ul>
+          <li><strong>n 很小</strong>（通常 < 32）→ 常數小，實測更快。<strong>Timsort、introsort 都在小分段上切換成插入排序。</strong></li>
+          <li><strong>資料接近有序</strong> → 解法二是 O(n)，比任何 O(n log n) 都快。</li>
+          <li><strong>需要「穩定」而且不能用額外空間</strong> → 插入排序天然穩定且原地。</li>
+          <li><strong>線上（online）排序</strong> → 資料一筆一筆來，插入排序可以「邊來邊排」，而歸併/快排必須先看到全部。</li>
+        </ul>
+
+        <p><strong>「O(n²) 的演算法永遠比較差」是錯的</strong> —— <strong>漸進複雜度只描述「n 很大時」的行為。</strong></p>
+
+        <h3>追問三：這題的插入排序是穩定的嗎？</h3>
+
+        <div class="code-block">是的 —— 只要比較寫成 &lt;= 就穩定。
+
+    while p.next and p.next.val &lt;= cur.val:
+        p = p.next
+
+    「已排序部分裡和 cur 相等的元素」會被跳過，
+    所以 cur 插在它們【後面】——
+    保持了原本的相對順序 ✔
+
+    改成 &lt; 的話，cur 會插在相等元素的【前面】-&gt; 不穩定。
+
+【穩定性什麼時候重要？】
+
+    當你要「先按 A 排序，再按 B 排序」而且
+    希望 B 相同時保持 A 的順序時。
+
+    例如：先按姓名排，再按部門排
+    -&gt; 穩定排序能讓同部門的人仍然按姓名排好 ✔
+
+    Python 的 sorted 和 list.sort 都是穩定的（Timsort），
+    所以可以安心地「多次排序」。
+
+    C++ 的 std::sort【不保證穩定】（要用 stable_sort）。</div>
+
+        <h3>追問四：能不能在串列上做「二分插入排序」？</h3>
+
+        <p><strong>不行 —— 二分搜尋需要 O(1) 隨機存取，而串列沒有。</strong></p>
+
+        <p><strong>在陣列上，「二分找位置 + 線性搬移」可以把【比較次數】降到 O(n log n)，但【搬移次數】還是 O(n²) —— 所以總複雜度不變。</strong></p>
+
+        <p><strong>在串列上，「找位置」本來就是 O(n)，二分幫不上忙；</strong><strong>但「插入」是 O(1)（不用搬移）—— 剛好和陣列相反。</strong></p>
+
+        <p><strong>兩種結構的優缺點正好互補，這個對照值得記住。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 148 題 Sort List</strong> —— n 更大時要用歸併排序</li>
+          <li><strong>第 21 題 Merge Two Sorted Lists</strong> —— 虛擬頭 + tail 的原型</li>
+          <li><strong>第 86 題 Partition List</strong> —— 兩個虛擬頭</li>
+          <li><strong>第 708 題 Insert into a Sorted Circular Linked List</strong> —— 環狀版的插入</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼一定要先存 <code>nxt = cur.next</code>？</li>
+            <li><code>dummy</code> 省掉了什麼特判？</li>
+            <li>串列版的插入排序，最壞情況是「升序輸入」還是「降序輸入」？為什麼和陣列版相反？</li>
+            <li>比較寫成 <code>&lt;=</code> 還是 <code>&lt;</code>，對穩定性有什麼影響？</li>
+          </ol>
+        </div>

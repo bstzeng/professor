@@ -1,0 +1,502 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary tree, flatten the tree into a "linked list":</p>
+          <ul><li>The "linked list" should use the same <code>TreeNode</code> class where the <code>right</code> child pointer points to the next node in the list and the <code>left</code> child pointer is always <code>null</code>.</li><li>The "linked list" should be in the same order as a <strong>pre-order traversal</strong> of the binary tree.</li></ul>
+          <p><strong>Follow up:</strong> Can you flatten the tree in-place (with <code>O(1)</code> extra space)?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二元樹的根節點 <code>root</code>，把它<strong>原地展開成一條「鏈結串列」</strong>：</p>
+        <ul>
+          <li>串列仍然用 <code>TreeNode</code>，但<strong><code>right</code> 指向下一個節點</strong>，<strong><code>left</code> 一律是 <code>None</code></strong>。</li>
+          <li>串列的順序必須和這棵樹的<strong>前序走訪</strong>一致。</li>
+        </ul>
+          <p><strong>進階：</strong>你能用 <code>O(1)</code> 額外空間<strong>原地</strong>完成嗎？</p>
+        </div>
+
+        <div class="callout">
+          <h3>為什麼不能「一邊前序走訪一邊改指標」？</h3>
+        <div class="code-block">最直覺的想法：
+
+    def go(node):
+        if not node: return
+        接到串列尾端(node)
+        go(node.left)       ← 危險！
+        go(node.right)
+
+    問題：【你在走訪的同時，正在破壞要走的路。】
+
+        把 node 接到串列上時，會改掉 node.right。
+        但 node.right 正是你等一下要遞迴的地方 ——
+        它已經被覆蓋掉了。
+
+    所以要嘛：
+        (a) 先把 left / right 存到區域變數再改（可行）
+        (b) 【反過來走】（解法二：右 → 左 → 根）
+        (c) 先收集好順序，再一次改完（解法四）
+        (d) 完全不遞迴，用 Morris 的方式原地重接（解法一）
+
+【「邊走邊改」是所有指標題的共同陷阱】——
+    第 206 題（反轉串列）、第 143 題（重排串列）、
+    第 61 題（旋轉串列）都要小心同一件事。
+
+    反射動作：【動指標之前，先把要用的存起來。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,2,5,3,4,null,6]
+
+            1
+           / \
+          2   5
+         / \    \
+        3   4    6
+
+  輸出：[1,null,2,null,3,null,4,null,5,null,6]
+
+        1
+         \
+          2
+           \
+            3
+             \
+              4
+               \
+                5
+                 \
+                  6
+
+  說明：前序走訪是 1, 2, 3, 4, 5, 6。
+
+範例 2
+  輸入：root = []
+  輸出：[]
+
+範例 3
+  輸入：root = [0]
+  輸出：[0]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 2000]</code> 之間</li>
+          <li>−100 ≤ <code>Node.val</code> ≤ 100</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/flatten-binary-tree-to-linked-list/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 432" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">「展開成鏈結串列」= 全部掛在 right 上、left 全設 None，順序要等於【前序走訪】。</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="120" cy="70" r="17" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="120" y="75" fill="var(--gold)">1</text>
+              <circle cx="70" cy="126" r="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="70" y="131" fill="var(--accent)">2</text>
+              <circle cx="180" cy="126" r="17" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="180" y="131" fill="#ff8a65">5</text>
+              <circle cx="34" cy="182" r="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="34" y="187" fill="var(--accent)">3</text>
+              <circle cx="106" cy="182" r="17" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="106" y="187" fill="var(--accent)">4</text>
+              <circle cx="216" cy="182" r="17" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="216" y="187" fill="#ff8a65">6</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="108" y1="82" x2="82" y2="114"/><line x1="132" y1="82" x2="168" y2="114"/>
+              <line x1="58" y1="139" x2="46" y2="170"/><line x1="82" y1="139" x2="94" y2="170"/>
+              <line x1="192" y1="139" x2="204" y2="170"/>
+            </g>
+            <text x="120" y="222" fill="var(--text-muted)" font-size="11" text-anchor="middle">前序 = 1, 2, 3, 4, 5, 6</text>
+            <text x="290" y="130" fill="var(--gold)" font-size="24">→</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="360" cy="70" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="360" y="75" fill="var(--gold)">1</text>
+              <circle cx="400" cy="112" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="400" y="117" fill="var(--gold)">2</text>
+              <circle cx="440" cy="154" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="440" y="159" fill="var(--gold)">3</text>
+              <circle cx="480" cy="196" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="480" y="201" fill="var(--gold)">4</text>
+              <circle cx="520" cy="238" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="520" y="243" fill="var(--gold)">5</text>
+              <circle cx="560" cy="280" r="16" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="560" y="285" fill="var(--gold)">6</text>
+            </g>
+            <g stroke="var(--gold)" stroke-width="1.5">
+              <line x1="371" y1="81" x2="389" y2="101"/><line x1="411" y1="123" x2="429" y2="143"/>
+              <line x1="451" y1="165" x2="469" y2="185"/><line x1="491" y1="207" x2="509" y2="227"/>
+              <line x1="531" y1="249" x2="549" y2="269"/>
+            </g>
+            <text x="360" y="316" fill="var(--text-muted)" font-size="11" text-anchor="start">全部靠 right 串起來，left 都是 None</text>
+            <line x1="20" y1="338" x2="620" y2="338" stroke="var(--border)"/>
+            <text x="20" y="364" fill="var(--accent)" font-size="12">Morris 版的關鍵一步：把 cur 的右子樹，接到【左子樹的最右節點】後面。</text>
+            <text x="20" y="388" fill="var(--text-muted)" font-size="12">因為在前序裡，「左子樹的最後一個節點」的下一個，剛好就是「原本的右子樹」。</text>
+            <text x="20" y="414" fill="var(--text-muted)" font-size="12">接好之後把整個左子樹搬到 right、left 清空，然後 cur 往右走一步，重複。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【Morris 式原地重接（解法一）的核心觀察】
+
+    前序走訪的順序是：  根 → 左子樹全部 → 右子樹全部
+
+    所以「左子樹的【最後一個】節點」的下一個，
+    就是「原本的右子樹的第一個」。
+
+    而在前序裡，左子樹的最後一個節點
+    = 左子樹一路往右走到底的那個節點（最右節點）。
+
+    於是每一步只要做三件事：
+
+        pre = cur.left 一路往右走到底
+        pre.right = cur.right       把原本的右子樹接在後面
+        cur.right = cur.left        左子樹搬到右邊
+        cur.left  = None            清掉左指標
+
+        cur = cur.right             往右走一步，重複
+
+【為什麼這樣就對了？】
+
+    每一步都把「cur 的左子樹」整個插進
+    「cur」和「cur 原本的右子樹」之間 ——
+    這正是前序的順序 ✔
+
+    而且每一步之後，cur 以上的部分已經是正確的串列，
+    cur 以下的部分還是原本的樹（只是結構變了）。
+
+    走到底時整棵樹就被拉成一條線。
+
+【另一條路：反向後序（解法二）】
+
+    既然「邊走邊改」會破壞前序的路，
+    那就【倒過來走】：右 → 左 → 根
+
+    這正好是「前序的反序」。
+
+    倒著走的話，每次處理到 node 時，
+    node 之後的所有節點【都已經串好了】——
+    所以只要把 node 接到那一段前面即可 ✔
+
+    這和「反轉鏈結串列時用 prev 往前接」是同一個思路。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>Morris 式原地重接（O(1) 空間，滿足進階）</h3>
+        <div class="code-block">class Solution:
+    def flatten(self, root: Optional[TreeNode]) -&gt; None:
+        cur = root
+        while cur:
+            if cur.left:
+                # 找左子樹的【最右節點】——它是前序裡「左子樹的最後一個」
+                pre = cur.left
+                while pre.right:
+                    pre = pre.right
+
+                # 把原本的右子樹接到它後面，再把左子樹整個搬到右邊
+                pre.right = cur.right
+                cur.right = cur.left
+                cur.left = None
+
+            cur = cur.right</div>
+        <p><strong>八行，<code>O(1)</code> 額外空間，沒有遞迴也沒有堆疊。</strong><strong>這是本題的最佳解。</strong></p>
+        <h3>手動走一遍範例 1</h3>
+        <div class="code-block">            1
+           / \
+          2   5
+         / \    \
+        3   4    6
+
+cur = 1：
+    左子樹是 2，它的最右節點是 4
+    4.right = 5      （把 5 接到 4 後面）
+    1.right = 2      （左子樹搬到右邊）
+    1.left  = None
+
+        1
+         \
+          2
+         / \
+        3   4
+             \
+              5
+               \
+                6
+
+    cur = 2
+
+cur = 2：
+    左子樹是 3，它的最右節點就是 3 自己
+    3.right = 4
+    2.right = 3
+    2.left  = None
+
+        1 → 2 → 3 → 4 → 5 → 6  ✔
+
+    cur = 3, 4, 5, 6 都沒有左子樹 -&gt; 直接往右走
+
+完成。</div>
+        <h3>時間複雜度真的是 O(n) 嗎？</h3>
+        <div class="code-block">看起來有內層迴圈（找最右節點），會不會是 O(n²)？
+
+    不會。
+
+    關鍵：每一條「右邊緣」（right spine）
+    最多被「找最右節點」這個迴圈走過【一次】。
+
+    因為走過之後，那條右邊緣就被接到別的地方去了，
+    不會再被同一個 cur 重複掃描。
+
+    所有右邊緣的總長度是 O(n) -&gt; 總時間 O(n) ✔
+
+    【這和第 94、98、99 題的 Morris 走訪是同一個攤還分析。】
+
+    嚴格來說這題的「最右節點搜尋」總成本
+    等於「每條邊被走過的次數」，而每條邊最多被走 2 次。</div>
+        <p><strong>注意：這個解法會邊改邊走，所以絕對不能中途 return</strong> —— <strong>不過這題本來就沒有提早結束的需求。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>攤還每條邊常數次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>只有兩個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>反向後序遞迴（最短，八行）</h3>
+        <div class="code-block">class Solution:
+    def flatten(self, root: Optional[TreeNode]) -&gt; None:
+        self.prev = None                    # 已經串好的那一段的頭
+
+        def go(node):
+            if not node:
+                return
+            go(node.right)                  # 反向後序：右 → 左 → 根
+            go(node.left)
+            node.right = self.prev          # 把自己接到已串好的那段前面
+            node.left = None
+            self.prev = node
+
+        go(root)</div>
+        <h3>為什麼是「右 → 左 → 根」？</h3>
+        <div class="code-block">前序是      根 → 左 → 右
+它的反序是  右 → 左 → 根
+
+    倒著建串列，就像「反轉鏈結串列」時往前接一樣：
+
+        self.prev 永遠是「已經串好的那一段的頭」
+
+        處理 node 時：
+            node.right = self.prev      把自己接到那段前面
+            node.left  = None
+            self.prev  = node           自己變成新的頭
+
+    走訪順序是前序的【反序】，
+    所以串出來的結果剛好是【正序】✔
+
+【為什麼這樣就不會「破壞要走的路」？】
+
+    因為改 node.right 的時候，
+    go(node.right) 和 go(node.left) 都【已經執行完了】。
+
+    順序是：先遞迴，後修改 ——
+    這就是「後序」的本質。
+
+【三行程式碼，三個觀念】：
+    反向走訪、prev 指標、後序修改。
+    值得反覆看到熟。</div>
+        <p><strong>空間 <code>O(h)</code></strong>（遞迴堆疊）—— <strong>嚴格來說不滿足「O(1) 空間」的進階要求</strong>，但<strong>它是最好記、最不容易寫錯的版本</strong>。</p>
+        <p><strong>用 <code>nonlocal prev</code> 取代 <code>self.prev</code> 也可以</strong>，效果完全相同。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>前序 + 堆疊迭代</h3>
+        <div class="code-block">class Solution:
+    def flatten(self, root: Optional[TreeNode]) -&gt; None:
+        if not root:
+            return
+
+        stack = [root]
+        prev = None
+        while stack:
+            node = stack.pop()              # 前序：根 → 左 → 右
+            if prev:
+                prev.left = None
+                prev.right = node
+            if node.right:
+                stack.append(node.right)    # 先 push 右，左才會先被 pop
+            if node.left:
+                stack.append(node.left)
+            prev = node
+
+        prev.left = prev.right = None</div>
+        <p><strong>用堆疊模擬前序走訪，一邊走一邊把上一個節點接過來。</strong></p>
+        <h3>為什麼要「先 push right 再 push left」？</h3>
+        <p><strong>堆疊是後進先出</strong>，所以<strong>後 push 的會先被 pop</strong>。要讓 <code>left</code> 先被處理（前序是根→左→右），就得<strong>後 push 它</strong>。</p>
+        <h3>為什麼可以安全地邊走邊改？</h3>
+        <div class="code-block">因為在改 node 的指標之前，
+    它的 left 和 right 【已經被 push 進堆疊了】。
+
+    堆疊裡存的是「節點的參考」，
+    就算之後 node.left 被設成 None，
+    堆疊裡那個節點物件仍然好好的 ✔
+
+    【這就是「先把要用的存起來」這個反射動作的具體實現。】
+
+    注意 prev.left = None 要在 prev.right = node 之前或之後都行，
+    但【不能忘記】—— 題目要求 left 一律是 None。
+
+    最後一行 prev.left = prev.right = None 是在處理最後一個節點
+    （它沒有下一個，但 left/right 可能還留著舊值）。
+
+    ...其實迴圈裡每次都做了 prev.left = None，
+    只有最後一個節點沒被當成 prev 處理過，所以要補這一行。</div>
+        <p><strong>空間 O(h)</strong>（堆疊）。<strong>沒有遞迴深度問題。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點進出堆疊一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>顯式堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>先收集前序再重接（最直白）</h3>
+        <div class="code-block">class Solution:
+    def flatten(self, root: Optional[TreeNode]) -&gt; None:
+        # 最直白：先收集前序，再重新串起來
+        order = []
+
+        def pre(node):
+            if not node:
+                return
+            order.append(node)
+            pre(node.left)
+            pre(node.right)
+
+        pre(root)
+        for a, b in zip(order, order[1:]):
+            a.left = None
+            a.right = b
+        if order:
+            order[-1].left = order[-1].right = None</div>
+        <p><strong>完全不用擔心「邊走邊改」—— 因為走訪和修改是兩個獨立的階段。</strong></p>
+        <p><strong>面試時可以先講這個</strong>（三十秒寫完、一定對），<strong>再說「這用了 O(n) 空間，我可以做到 O(1)」然後寫解法一。</strong></p>
+        <div class="code-block">for a, b in zip(order, order[1:]):
+    a.left = None
+    a.right = b
+
+    zip(order, order[1:]) 產生相鄰的配對：
+        (order[0], order[1]), (order[1], order[2]), ...
+
+    【這是「處理相鄰元素」的 Python 慣用寫法】，
+    比 for i in range(len(order)-1) 好讀很多。
+
+    最後一個節點沒有 b，所以要另外清掉它的 left/right。</div>
+        <p><strong>O(n) 時間、O(n) 空間。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>走一遍 + 接一遍</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>存所有節點</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>行數</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、Morris 原地重接</td><td>O(n)</td><td>O(1)</td><td>8</td><td>唯一滿足進階要求</td></tr>
+            <tr><td>二、反向後序遞迴</td><td>O(n)</td><td>O(h)</td><td>8</td><td>最好記</td></tr>
+            <tr><td>三、堆疊迭代</td><td>O(n)</td><td>O(h)</td><td>14</td><td>沒有遞迴深度問題</td></tr>
+            <tr><td>四、收集後重接</td><td>O(n)</td><td>O(n)</td><td>12</td><td>最直白，先講這個</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code></strong> → 什麼都不做（不能 crash）。</li>
+          <li><strong>單一節點</strong> → <code>left</code> 和 <code>right</code> 都要是 <code>None</code>。</li>
+          <li><strong>只有左子樹</strong> <code>[1,2]</code> → 變成 <code>1 → 2</code>。</li>
+          <li><strong>只有右子樹</strong> <code>[1,null,2]</code> → 已經是對的，不能改壞。</li>
+          <li><strong>忘了把 <code>left</code> 設成 <code>None</code></strong> → <strong>判題器會判錯（題目明確要求 <code>left</code> 一律是 <code>null</code>）。</strong></li>
+          <li><strong>沒有先存起 <code>cur.right</code> 就覆蓋它</strong> → 右子樹整個遺失。</li>
+          <li><strong>接出一個環</strong>（例如 <code>pre.right = cur</code> 寫錯）→ <strong>後續任何走訪都會無窮迴圈。</strong></li>
+          <li><strong>解法三忘了處理最後一個節點的 <code>left</code></strong> → 最後一個節點的 <code>left</code> 沒清掉。</li>
+          <li><strong>2000 個節點的鏈狀樹</strong> → 解法二、三的遞迴／堆疊深度 2000。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要展開成「中序」或「後序」的順序呢？</h3>
+
+        <p><strong>中序</strong>：這其實比較簡單 —— <strong>就是第 897 題（遞增順序搜尋樹）</strong>，用中序走訪 + <code>prev</code> 指標即可。</p>
+
+        <p><strong>後序</strong>：用「反向前序」（根 → 右 → 左）倒著串，<strong>和解法二的技巧對稱</strong>。</p>
+
+        <div class="code-block">規律：要串出走訪順序 X，就用 X 的【反序】走訪 + 往前接。
+
+    要前序 (根左右)  -&gt; 走 右左根，往前接   （解法二）
+    要中序 (左根右)  -&gt; 走 右根左，往前接
+    要後序 (左右根)  -&gt; 走 根右左，往前接
+
+【「反著走 + 往前接」可以串出任何走訪順序，
+  而且都是 O(n) 時間、O(h) 空間。】</div>
+
+        <h3>追問二：能不能展開之後再「還原」成原來的樹？</h3>
+
+        <p><strong>不行 —— 資訊已經遺失了。</strong><strong>只有一條前序序列，無法唯一決定一棵樹</strong>（第 105 題講過）。</p>
+
+        <p><strong>如果要可逆，就必須在展開時額外記錄結構</strong>（例如每棵子樹的大小，或帶空節點記號的序列化）。<strong>這正是第 297 題（序列化與反序列化）在做的事。</strong></p>
+
+        <h3>追問三：Morris 版的攤還分析要怎麼講？</h3>
+
+        <div class="code-block">「找左子樹的最右節點」這個內層迴圈，
+每次都在走一條【右邊緣】。
+
+    關鍵：走過之後，那條右邊緣就被接到 cur.right 上，
+    變成主鏈的一部分 —— 【不會再被當成「某個左子樹的右邊緣」掃描】。
+
+    所以每條邊最多被內層迴圈走過一次。
+    總邊數是 n - 1 -&gt; 內層迴圈的總成本是 O(n) ✔
+
+    加上外層迴圈的 O(n) -&gt; 總共 O(n)
+
+【這種「單次昂貴、總量有界」的分析，
+  在 Morris 走訪、單調堆疊（第 84 題）、
+  並查集的路徑壓縮裡反覆出現。】
+
+    學會它，你就能正確評估一大類看起來像 O(n²) 的演算法。</div>
+
+        <h3>追問四：為什麼題目要求「原地」？</h3>
+
+        <p><strong>因為「先收集再重接」（解法四）太簡單了</strong> —— <strong>加上 O(1) 空間的限制，才逼出 Morris 那個真正有內容的想法。</strong></p>
+
+        <p><strong>在真實工程裡，原地操作的價值在於</strong>：<strong>（1）節點數極多時記憶體吃不消；（2）避免配置／回收的成本；</strong><strong>（3）保持指標穩定（外部可能還持有這些節點的參考）。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 94/144 題 中序／前序走訪</strong> —— Morris 技巧的來源</li>
+          <li><strong>第 99 題 Recover BST</strong> —— 另一個 Morris 的應用</li>
+          <li><strong>第 897 題 Increasing Order Search Tree</strong> —— 中序版的展開</li>
+          <li><strong>第 206 題 Reverse Linked List</strong> —— 「prev 往前接」的原型</li>
+          <li><strong>第 297 題 Serialize and Deserialize</strong> —— 為什麼展開後不可逆</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「一邊前序走訪一邊改 <code>right</code>」會出錯？有哪幾種修法？</li>
+            <li>Morris 版為什麼要找「左子樹的最右節點」？它在前序裡是什麼位置？</li>
+            <li>反向後序版的走訪順序是什麼？為什麼那樣串出來剛好是正序？</li>
+            <li>Morris 版的時間為什麼是 O(n) 而不是 O(n²)？</li>
+          </ol>
+        </div>

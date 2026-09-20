@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>174. Dungeon Game 地下城遊戲 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="為什麼一定要從終點倒著算回來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="174">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 174 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 174</div>
+          <h1>Dungeon Game<br>地下城遊戲</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The demons had captured the princess and imprisoned her in the bottom-right corner of a <code>dungeon</code>. The <code>dungeon</code> consists of <code>m x n</code> rooms laid out in a 2D grid. Our valiant knight was initially positioned in the top-left room and must fight his way through <code>dungeon</code> to rescue the princess.</p>
+          <p>The knight has an initial health point represented by a positive integer. If at any point his health point drops to <code>0</code> or below, he dies immediately.</p>
+          <p>Some of the rooms are guarded by demons (represented by negative integers), so the knight loses health upon entering these rooms; other rooms are either empty (represented as <code>0</code>) or contain magic orbs that increase the knight's health (represented by positive integers).</p>
+          <p>To reach the princess as quickly as possible, the knight decides to move only <strong>rightward</strong> or <strong>downward</strong> in each step.</p>
+          <p>Return <em>the knight's minimum initial health so that he can rescue the princess</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>騎士要從 <code>m × n</code> 地牢的<strong>左上角</strong>走到<strong>右下角</strong>救公主。</p>
+          <p>每一格的數字代表<strong>進入這一格時血量的變化</strong>（負數扣血、正數加血、0 不變）。</p>
+          <p><strong>騎士的血量只要降到 0 或以下就立刻死亡。</strong></p>
+          <p>每一步<strong>只能往右或往下</strong>。</p>
+          <p>回傳騎士<strong>最少需要多少初始血量</strong>才能成功救到公主。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題為什麼「只能倒著算」？</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】：從起點往終點算
+    def calculateMinimumHP(self, dungeon: List[List[int]]) -&gt; int:
+        m, n = len(dungeon), len(dungeon[0])
+        # 試圖記錄「走到 (i,j) 時的最大剩餘血量」—— 但這個目標是錯的
+        best = [[0] * n for _ in range(m)]
+        best[0][0] = dungeon[0][0]
+        for i in range(m):
+            for j in range(n):
+                if i == 0 and j == 0:
+                    continue
+                cands = []
+                if i: cands.append(best[i - 1][j])
+                if j: cands.append(best[i][j - 1])
+                best[i][j] = max(cands) + dungeon[i][j]
+        return max(1, 1 - best[m - 1][n - 1])</div>
+        <div class="code-block">【從起點正著算為什麼失敗？】
+
+    一條路徑的「好壞」需要【兩個數字】描述：
+
+        (a) 走到這裡時【剩下多少血】
+        (b) 一路上【最低需要多少初始血】
+
+    而這兩者【互相牽制】：
+
+        路徑 A：剩 10 血，但一路上最低需求是 8
+        路徑 B：剩 5 血， 但一路上最低需求是 3
+
+        哪一條比較好？
+
+        -&gt; 【看後面的路】！
+
+           如果後面全是加血的，A 比較好（血多）
+           如果後面有個 -6 的深坑，B 比較好（需求低）
+
+    【沒有單一的「最優」可以比較】
+    -&gt; 【最優子結構不成立】-&gt; DP 不能用 ✘
+
+【★ 倒著算為什麼就對了？】
+
+    dp[i][j] = 「站上 (i,j) 之前，至少要有多少血
+                才能活著走到終點」
+
+    這【只有一個數字】，而且【越小越好】——
+
+        比較兩個值時，小的那個一定不會更差
+        （需要的血少，選擇只會更多）✔
+
+    -&gt; 最優子結構成立 ✔
+
+【這是一個非常重要的 DP 設計教訓】：
+
+    【狀態的定義決定了 DP 能不能用。】
+
+    如果「最優」需要多個互相牽制的指標來描述，
+    那個狀態定義就是錯的 ——
+    換一個方向（或換一個定義）試試。
+
+    第 123 題（買賣股票 III）也是類似的情況：
+    「最優」需要「交易次數」這個維度來描述。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：dungeon = [[-2,-3,3],
+                   [-5,-10,1],
+                   [10,30,-5]]
+  輸出：7
+  說明：騎士帶 7 滴血，走「右 → 右 → 下 → 下」：
+        起始 7
+        進 (0,0) 的 -2 -&gt; 5
+        進 (0,1) 的 -3 -&gt; 2
+        進 (0,2) 的  3 -&gt; 5
+        進 (1,2) 的  1 -&gt; 6
+        進 (2,2) 的 -5 -&gt; 1  ✔ 活著
+
+        帶 6 滴血的話，在 (0,1) 之後只剩 1，
+        再吃 3 變 4，吃 1 變 5，吃 -5 變 0 -&gt; 死亡 ✘
+
+範例 2
+  輸入：dungeon = [[0]]
+  輸出：1
+  說明：血量至少要 1（不能是 0）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == dungeon.length</code></li>
+          <li><code>n == dungeon[i].length</code></li>
+          <li>1 ≤ <code>m</code>, <code>n</code> ≤ 200</li>
+          <li>−1000 ≤ <code>dungeon[i][j]</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/dungeon-game/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 456" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 這題【只能】從終點倒著算。原因：從起點正著算時，「目前血量」和「最低需求」會互相牽制。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">dungeon（負數是扣血，正數是加血）</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="60" y="70" width="60" height="40" fill="none" stroke="var(--border)"/><text x="90" y="95" fill="#ff8a65">−2</text>
+              <rect x="120" y="70" width="60" height="40" fill="none" stroke="var(--border)"/><text x="150" y="95" fill="#ff8a65">−3</text>
+              <rect x="180" y="70" width="60" height="40" fill="none" stroke="var(--border)"/><text x="210" y="95" fill="var(--accent)">3</text>
+              <rect x="60" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="90" y="135" fill="#ff8a65">−5</text>
+              <rect x="120" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="150" y="135" fill="#ff8a65">−10</text>
+              <rect x="180" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="210" y="135" fill="var(--accent)">1</text>
+              <rect x="60" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="90" y="175" fill="var(--accent)">10</text>
+              <rect x="120" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="150" y="175" fill="var(--accent)">30</text>
+              <rect x="180" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="210" y="175" fill="#ff8a65">−5</text>
+            </g>
+            <text x="290" y="130" fill="var(--gold)" font-size="20">→</text>
+            <text x="340" y="52" fill="var(--gold)" font-size="13">dp（站上這格【之前】至少要的血量）</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="340" y="70" width="60" height="40" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="370" y="95" fill="var(--gold)">7</text>
+              <rect x="400" y="70" width="60" height="40" fill="none" stroke="var(--border)"/><text x="430" y="95" fill="var(--text-muted)">5</text>
+              <rect x="460" y="70" width="60" height="40" fill="none" stroke="var(--border)"/><text x="490" y="95" fill="var(--text-muted)">2</text>
+              <rect x="340" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="370" y="135" fill="var(--text-muted)">6</text>
+              <rect x="400" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="430" y="135" fill="var(--text-muted)">11</text>
+              <rect x="460" y="110" width="60" height="40" fill="none" stroke="var(--border)"/><text x="490" y="135" fill="var(--text-muted)">5</text>
+              <rect x="340" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="370" y="175" fill="var(--text-muted)">1</text>
+              <rect x="400" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="430" y="175" fill="var(--text-muted)">1</text>
+              <rect x="460" y="150" width="60" height="40" fill="none" stroke="var(--border)"/><text x="490" y="175" fill="var(--text-muted)">6</text>
+            </g>
+            <text x="370" y="210" fill="var(--gold)" font-size="11" text-anchor="middle">答案 = 7</text>
+            <line x1="20" y1="234" x2="620" y2="234" stroke="var(--border)"/>
+            <text x="20" y="262" fill="#ff8a65" font-size="13">★ 為什麼「從起點正著算」會失敗？</text>
+            <text x="40" y="292" fill="var(--text-muted)" font-size="12">正著算時，一個格子的狀態需要【兩個數字】：「目前血量」和「一路上的最低需求」。</text>
+            <text x="40" y="318" fill="var(--text-muted)" font-size="12">而這兩者【互相牽制】—— 血量高的路徑，可能需求也高；沒有單一的「最優」可以比較。</text>
+            <text x="40" y="346" fill="#ff8a65" font-size="12">例如「剩 10 血但需求 8」和「剩 5 血但需求 3」，哪一條比較好？要看後面的路。</text>
+            <text x="20" y="380" fill="var(--gold)" font-size="13">★ 倒著算就只需要【一個】數字</text>
+            <text x="40" y="410" fill="var(--text-muted)" font-size="12">dp[i][j] = 「站上這格之前，至少要有多少血才能活著走到終點」。</text>
+            <text x="40" y="436" fill="var(--accent)" font-size="12">這個值【越小越好】—— 單一目標，可以直接比較 → 最優子結構成立 ✔</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【狀態】
+    dp[i][j] = 「站上 (i,j) 【之前】，至少要有多少血
+                才能從這裡活著走到終點」
+
+【轉移】
+    從 (i,j) 只能往右或往下，所以：
+
+        接下來需要的血 = min(dp[i+1][j], dp[i][j+1])
+
+    而進入 (i,j) 會加上 dungeon[i][j]，所以：
+
+        站上 (i,j) 之前需要的血
+          = min(下一步的需求) - dungeon[i][j]
+
+    【★ 但至少要 1】：
+
+        dp[i][j] = max(1, min(...) - dungeon[i][j])
+
+        因為「血量降到 0 就死」-&gt; 任何時候都要 &gt;= 1 ✔
+
+        如果這一格加很多血（dungeon[i][j] 很大），
+        算出來可能是負的 -&gt; 那就取 1（帶最少的血就好）✔
+
+【邊界】
+
+    多開一圈，全部設成 INF（不可到達），
+    然後把【終點的兩個鄰居】設成 1：
+
+        dp[m][n-1] = dp[m-1][n] = 1
+
+    這樣算 dp[m-1][n-1]（終點）時：
+        min(dp[m][n-1], dp[m-1][n]) = 1
+        dp[m-1][n-1] = max(1, 1 - dungeon[m-1][n-1]) ✔
+
+    【用「哨兵邊界」省掉所有 if i == m-1 的特判】——
+    這和第 1 題的 dummy head 是同一個精神。
+
+【答案】dp[0][0]
+
+【複雜度】：O(mn) 時間、O(mn) 空間（可壓成 O(n)）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>由終點倒推的二維 DP（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def calculateMinimumHP(self, dungeon: List[List[int]]) -&gt; int:
+        m, n = len(dungeon), len(dungeon[0])
+
+        # dp[i][j] = 「站上 (i,j) 之前」至少要有多少血才能走到終點
+        # 多開一圈邊界，初始化成無限大；終點的兩個鄰居設成 1
+        INF = float('inf')
+        dp = [[INF] * (n + 1) for _ in range(m + 1)]
+        dp[m][n - 1] = dp[m - 1][n] = 1
+
+        for i in range(m - 1, -1, -1):
+            for j in range(n - 1, -1, -1):
+                need = min(dp[i + 1][j], dp[i][j + 1]) - dungeon[i][j]
+                dp[i][j] = max(1, need)     # ★ 血量至少要 1（不能是 0 或負的）
+
+        return dp[0][0]</div>
+        <p><strong>十二行，O(mn) 時間、O(mn) 空間。</strong></p>
+        <h3>★ <code>max(1, ...)</code> 為什麼不可省？</h3>
+        <div class="code-block">考慮一格加很多血的情況：
+
+    dungeon[i][j] = 100，而下一步只需要 5 滴血。
+
+    need = 5 - 100 = -95
+
+    【但騎士不能帶 -95 滴血】——
+    血量至少要 1（題目說「降到 0 就死」）。
+
+    所以 dp[i][j] = max(1, -95) = 1 ✔
+
+【★ 這個 max(1, ...) 同時處理了兩件事】：
+
+    (a) 血量的下限是 1（不能是 0 或負的）
+    (b) 「多帶的血浪費掉了」——
+        這一格加的血超過後面需要的，多的部分不用算
+
+【忘了它會怎樣？】
+
+    dp 會出現負數，然後往上傳遞 -&gt;
+    答案可能是 0 或負數 ✘
+
+    而且它會【低估】需求 ——
+    因為「多餘的血」被錯誤地拿去抵銷前面的扣血。
+
+    範例 1 裡的 30 那一格就是這種情況。
+
+【這一行是本題除了「倒著算」之外的第二個關鍵。】</div>
+        <h3>哨兵邊界的設定</h3>
+        <div class="code-block">dp = [[INF] * (n+1) for _ in range(m+1)]
+dp[m][n-1] = dp[m-1][n] = 1
+
+    多開一列一欄，全部設成 INF（「走不到」）。
+
+    然後把【終點的右邊和下面】設成 1 ——
+    意思是「從終點『走出去』只需要 1 滴血」
+    （也就是「在終點活著」就好）。
+
+【為什麼不能全部設成 1？】
+
+    那樣的話，最後一列 / 最後一欄的格子
+    會誤以為「可以往右 / 往下走出去」✘
+
+    只有【終點的兩個鄰居】是合法的「出口」。
+
+【驗算終點 (m-1, n-1)】：
+
+    min(dp[m][n-1], dp[m-1][n]) = min(1, 1) = 1
+    dp[m-1][n-1] = max(1, 1 - dungeon[m-1][n-1]) ✔
+
+    如果終點是 -5：max(1, 1+5) = 6 ✔
+    如果終點是 +5：max(1, 1-5) = 1 ✔
+
+    兩種都對 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>每格 O(1)</td></tr>
+            <tr><td>空間</td><td>O(m × n)</td><td>二維 dp</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>滾動陣列（空間 O(n)）</h3>
+        <div class="code-block">class Solution:
+    def calculateMinimumHP(self, dungeon: List[List[int]]) -&gt; int:
+        m, n = len(dungeon), len(dungeon[0])
+        INF = float('inf')
+
+        dp = [INF] * (n + 1)
+        dp[n - 1] = 1                       # 終點右邊那格當作「需要 1 滴血」
+
+        for i in range(m - 1, -1, -1):
+            for j in range(n - 1, -1, -1):
+                # dp[j]   還是上一列（i+1）的值
+                # dp[j+1] 已經是這一列（i）的值
+                dp[j] = max(1, min(dp[j], dp[j + 1]) - dungeon[i][j])
+
+        return dp[0]</div>
+        <div class="code-block">dp[j] = max(1, min(dp[j], dp[j+1]) - dungeon[i][j])
+
+    dp[j]   還沒被這一列改到 -&gt; 它還是【下一列】的值（dp[i+1][j]）✔
+    dp[j+1] 這一列剛剛改過   -&gt; 它是【這一列】的值（dp[i][j+1]）✔
+
+    兩個需要的值剛好都在手邊 ✔
+
+【★ j 要從大到小走】
+
+    因為 dp[j] 依賴 dp[j+1]（右邊的，這一列的）——
+    所以要先算好右邊的 ✔
+
+    正著走的話，dp[j+1] 還是下一列的值 ✘
+
+【方向的判斷準則】（第 115、119、120 題都提過）：
+
+    依賴左邊（j-1）-&gt; 正著走
+    依賴右邊（j+1）-&gt; 倒著走
+    依賴上面（i-1）-&gt; i 正著走
+    依賴下面（i+1）-&gt; i 倒著走
+
+    這題兩個依賴都是「後面」-&gt; i 和 j 都倒著走 ✔
+
+【初始化】
+
+    dp = [INF] * (n+1)
+    dp[n-1] = 1
+
+    只設終點右邊那一格 ——
+    「終點下面那一格」在 i = m-1 那一輪會自動由
+    dp[j]（還是 INF）扮演... 
+
+    等等，i = m-1 時 dp[j] 還是初始值：
+        j = n-1: dp[n-1] = 1 ✔（我們設的）
+        j &lt; n-1: dp[j] = INF ✔（最後一列不能往下走）
+
+    剛好對 ✔
+
+    【一維版的初始化比二維版更需要驗算】——
+    因為「上一列」和「初始值」共用同一個陣列。</div>
+        <p><strong>O(mn) 時間、O(n) 空間。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m × n)</td><td>格數不變</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>一列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>方向</th><th>狀態需要幾個數字</th><th>最優子結構</th><th>能用 DP 嗎</th></tr></thead>
+          <tbody>
+            <tr><td>從起點往終點</td><td>2（剩餘血量 + 最低需求）</td><td>✘ 互相牽制</td><td>✘</td></tr>
+            <tr><td>從終點往起點</td><td>1（最低需求）</td><td>✔ 越小越好</td><td>✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>1×1 的地牢</strong> <code>[[0]]</code> → <code>1</code>（血量至少 1）。</li>
+          <li><strong><code>[[100]]</code></strong> → <code>1</code>（加血也只要帶 1 滴）。</li>
+          <li><strong><code>[[-200]]</code></strong> → <code>201</code>（扣 200 之後還要剩 1）。</li>
+          <li><strong>整條路都加血</strong> → 答案是 <code>1</code>。<strong>沒有 <code>max(1, ...)</code> 的話會算出負數。</strong></li>
+          <li><strong>只有一列或一欄</strong> → 沒有選擇，哨兵邊界要設對。</li>
+          <li><strong>從起點正著算</strong> → <strong>範例 1 會答錯 —— 本題的核心考點。</strong></li>
+          <li><strong>忘了 <code>max(1, ...)</code></strong> → <strong>「多餘的血」被錯誤地拿去抵銷，答案偏小。</strong></li>
+          <li><strong>200 × 200</strong> → 4 萬格，完全沒有效能壓力。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：怎麼判斷一個 DP 該「正著算」還是「倒著算」？</h3>
+
+        <div class="code-block">【問自己：狀態要怎麼定義，才能「用一個數字比較優劣」？】
+
+    正著算的狀態通常是「從起點走到這裡的最優值」
+    倒著算的狀態通常是「從這裡走到終點的最優值」
+
+【本題】：
+
+    正著：「走到這裡剩多少血」——
+          但「剩得多」不一定好（可能是靠高需求換來的）✘
+
+    倒著：「從這裡到終點最少要多少血」——
+          「需求少」一定好 ✔
+
+【第 120 題（三角形最小路徑和）】：
+
+    兩個方向都可以（因為狀態都是「路徑和」，單一目標）。
+    倒著算只是【邊界比較好寫】。
+
+【一般準則】：
+
+    如果「約束」是在【路徑上每一點】都要滿足的
+    （像本題的「血量 &gt; 0」），
+    那通常要【從約束的「終點」倒推】——
+
+    因為那樣才能把「一路上的最嚴格要求」
+    壓縮成一個數字。
+
+【類似的題目】：
+    第 134 題（加油站）的「一路上油箱不能空」也是
+    同一類約束 —— 那題的解法（找前綴和最低點）
+    本質上也是「從約束最緊的地方反推起點」。</div>
+
+        <h3>追問二：能不能用二分搜尋？</h3>
+
+        <div class="code-block">可以！而且那是本文的【參考實作】。
+
+    「初始血量 h 夠不夠」是一個【單調】的判定：
+        h 夠 -&gt; h+1 也夠 ✔
+
+    所以可以對 h 二分，
+    每次用一次 O(mn) 的模擬驗證可行性。
+
+    def ok(h):
+        用 h 滴血模擬，看能不能走到終點
+        （DP：best[i][j] = 走到這裡能保有的最大血量）
+
+    二分範圍：[1, 足夠大]
+    複雜度：O(mn log(最大血量))
+
+【比 DP 慢一個 log，但它有兩個價值】：
+
+    1. 【它是驗證 DP 的最好工具】——
+       本文的測試就是用它當參考實作 ✔
+
+    2. 【當 DP 的狀態不好設計時，「二分答案」常常是退路】
+
+       「求最小的 X 使得某件事可行」
+       + 「可行性是單調的」
+       -&gt; 二分答案 ✔
+
+    第 875、1011、410 題都是這一類。
+
+【注意 ok(h) 裡的模擬也要小心】：
+    「血量 &lt;= 0」的格子要標記成【不可到達】，
+    而不只是「血量很低」——
+    因為騎士已經死了，不能繼續走 ✔</div>
+
+        <h3>追問三：如果可以往四個方向走呢？</h3>
+
+        <p><strong>那就不是 DP 了 —— 因為可能繞圈。</strong></p>
+
+        <div class="code-block">「只能往右或往下」保證了【無環】——
+    格子圖變成一個 DAG，所以可以 DP ✔
+
+    四個方向的話，路徑可以繞圈 -&gt;
+    「從這裡到終點」的答案會依賴「怎麼走到這裡」✘
+
+【那要怎麼解？】
+
+    這變成一個【最短路徑問題】的變形：
+
+        用 Dijkstra，但「距離」定義成
+        「走這條路所需的最小初始血量」。
+
+        優先佇列裡放 (需要的血量, 位置)，
+        每次取出需求最小的。
+
+        O(mn log(mn))
+
+【第 778 題（水位上升的泳池）、
+  第 1631 題（最小體力消耗路徑）
+  用的就是這個技巧】——
+
+    「路徑的代價不是加總，而是取 max / min」
+    的最短路問題。
+
+【所以「只能往右或往下」不是為了簡化，
+  而是為了讓 DP 成立。】</div>
+
+        <h3>追問四：為什麼血量是「降到 0 就死」而不是「小於 0 才死」？</h3>
+
+        <div class="code-block">這個差別會讓答案差 1。
+
+    「&lt;= 0 死」-&gt; 任何時刻血量都要 &gt;= 1
+                -&gt; dp 的下限是 1 ✔（本題）
+
+    「&lt; 0 死」 -&gt; 任何時刻血量都要 &gt;= 0
+                -&gt; dp 的下限是 0
+
+    範例 2（[[0]]）：
+        「&lt;= 0 死」-&gt; 答案 1
+        「&lt; 0 死」 -&gt; 答案 0
+
+【讀題時要特別注意這種「邊界的開閉」】——
+
+    「大於」vs「大於等於」、
+    「降到 0」vs「小於 0」、
+    「至少」vs「超過」
+
+    差一個字，答案就差 1。
+
+【本題的 max(1, ...) 那個 1，
+  就是從「降到 0 就死」這句話來的。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 64 題 最小路徑和</strong> —— 同一個網格骨架，但可以正著算</li>
+          <li><strong>第 120 題 三角形最小路徑和</strong> —— 倒著算比較好寫</li>
+          <li><strong>第 1631 題 最小體力消耗路徑</strong> —— 四個方向，要用 Dijkstra</li>
+          <li><strong>第 875 題 愛吃香蕉的珂珂</strong> —— 「二分答案」的經典</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「從起點正著算」會失敗？那個狀態需要幾個互相牽制的數字？</li>
+            <li><code>max(1, ...)</code> 這一行在處理哪兩件事？</li>
+            <li>哨兵邊界為什麼只把「終點的兩個鄰居」設成 1，而不是全部？</li>
+            <li>「只能往右或往下」這個限制，讓什麼變得可能？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0173.html">← 上一題：173. 二元搜尋樹迭代器</a>
+          <a href="problem-0179.html">下一題：179. 最大數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

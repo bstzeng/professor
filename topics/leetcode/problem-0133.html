@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>133. Clone Graph 複製圖 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="用雜湊表記錄「原節點 → 新節點」來處理環。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="133">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 133 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 133</div>
+          <h1>Clone Graph<br>複製圖</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">圖</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a reference of a node in a <strong>connected</strong> undirected graph.</p>
+          <p>Return a <strong>deep copy</strong> (clone) of the graph.</p>
+          <p>Each node in the graph contains a value (<code>int</code>) and a list (<code>List[Node]</code>) of its neighbors.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>連通</strong>無向圖裡的某一個節點的參考，回傳整張圖的<strong>深拷貝</strong>。</p>
+          <p>每個節點有一個整數 <code>val</code> 和一個鄰居 list。</p>
+        </div>
+
+        <div class="callout">
+          <h3>題目給的節點定義，以及「深拷貝」是什麼意思</h3>
+        <div class="code-block">class Node {
+    public int val;
+    public List&lt;Node&gt; neighbors;
+}</div>
+        <p><strong>「深拷貝」的意思是：新圖裡的每一個節點都必須是<strong>新建的物件</strong>，不能有任何一個節點是原圖的。</strong></p>
+        <p>而且<strong>連接關係要和原圖一模一樣</strong>。</p>
+        <p><strong>淺拷貝</strong>（只複製第一層、鄰居直接指向原節點）<strong>是不合格的</strong> —— 改動新圖會影響到舊圖。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 圖有環，所以「照著邊遞迴」會無限繞</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】
+    def cloneGraph(self, node: 'Optional[Node]') -&gt; 'Optional[Node]':
+        if not node:
+            return None
+        copy = Node(node.val)
+        for nb in node.neighbors:
+            copy.neighbors.append(self.cloneGraph(nb))   # 沒有記錄，會無限遞迴
+        return copy</div>
+        <div class="code-block">這段程式碼看起來完全合理：
+    「建一個複本，然後遞迴複製每個鄰居。」
+
+但圖是【無向】的 —— 每條邊都是雙向的，
+所以【最簡單的兩個節點就構成一個環】：
+
+    1 —— 2
+
+    cloneGraph(1)
+      -&gt; 複製 1
+      -&gt; 遞迴 cloneGraph(2)
+           -&gt; 複製 2
+           -&gt; 遞迴 cloneGraph(1)      ← 又回來了！
+                -&gt; 複製 1（又一個新的）
+                -&gt; 遞迴 cloneGraph(2) ← ...
+
+    無限遞迴 -&gt; RecursionError ✘
+
+【樹沒有這個問題，圖有。】
+
+    這是「樹的題目」和「圖的題目」最根本的差別：
+        樹：往下走永遠不會回頭
+        圖：可能繞回來
+
+    所以【所有圖的走訪都必須有 visited 記錄】。
+
+【這題的 visited 還兼任第二個角色】：
+
+    old_to_new 不只記錄「走過了」，
+    還記錄「走過的那個節點，對應到哪個複本」。
+
+    一張表，兩個用途。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：adjList = [[2,4],[1,3],[2,4],[1,3]]
+
+        1 —— 2
+        |    |
+        4 —— 3
+
+  輸出：[[2,4],[1,3],[2,4],[1,3]]
+  說明：節點 1 的鄰居是 2 和 4，節點 2 的鄰居是 1 和 3，以此類推。
+
+範例 2
+  輸入：adjList = [[]]
+  輸出：[[]]
+  說明：只有一個節點，沒有任何邊。
+
+範例 3
+  輸入：adjList = []
+  輸出：[]
+  說明：空圖。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數在 <code>[0, 100]</code> 之間</li>
+          <li>1 ≤ <code>Node.val</code> ≤ 100</li>
+          <li><code>Node.val</code> <strong>互不相同</strong></li>
+          <li>沒有重複的邊，也沒有自環</li>
+          <li>圖是<strong>連通</strong>的，從任一節點都能走到所有節點</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/clone-graph/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 462" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 圖有【環】，所以「照著邊遞迴複製」會無限繞下去。解法：用一張表記住「誰已經複製過了」。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">原圖（節點 1 和 2 互為鄰居 —— 一個最小的環）</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="110" cy="110" r="22" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="110" y="115" fill="var(--accent)">1</text>
+              <circle cx="240" cy="110" r="22" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="240" y="115" fill="var(--accent)">2</text>
+            </g>
+            <line x1="132" y1="110" x2="218" y2="110" stroke="var(--border)" stroke-width="2"/>
+            <text x="20" y="168" fill="#ff8a65" font-size="12">沒有記錄表的話：複製 1 → 要複製鄰居 2 → 要複製 2 的鄰居 1 → 又要複製 1 …</text>
+            <text x="20" y="192" fill="#ff8a65" font-size="12">無限遞迴，直接 RecursionError。</text>
+            <line x1="20" y1="214" x2="620" y2="214" stroke="var(--border)"/>
+            <text x="20" y="242" fill="var(--accent)" font-size="13">★ 關鍵：先登記，再遞迴</text>
+            <text x="40" y="272" fill="var(--gold)" font-size="12">copy = Node(cur.val)　　　　　① 先把「殼」建好（鄰居還是空的）</text>
+            <text x="40" y="298" fill="var(--gold)" font-size="12">old_to_new[cur] = copy　　　　② 【立刻登記】——這一步絕不能晚</text>
+            <text x="40" y="324" fill="var(--text-muted)" font-size="12">for nb in cur.neighbors: …　　③ 再去遞迴鄰居，填 copy.neighbors</text>
+            <text x="20" y="360" fill="var(--text-muted)" font-size="12">這樣當 2 回頭要找 1 時，表裡已經有 1 的複本了 → 直接拿來用，不再遞迴 ✔</text>
+            <text x="20" y="390" fill="#ff8a65" font-size="12">如果把 ② 放到 ③ 後面（等鄰居都複製完才登記），環就又會無限繞回來。</text>
+            <text x="20" y="420" fill="var(--accent)" font-size="12">「先建殼、登記、再填內容」是所有「複製有環結構」問題的共同解法 ——</text>
+            <text x="20" y="444" fill="var(--accent)" font-size="12">第 138 題（複製帶隨機指標的串列）用的是一模一樣的手法。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">用一個字典 old_to_new: {原節點 -&gt; 新節點}，
+它同時扮演兩個角色：
+
+    ① visited 集合（有沒有走過）
+    ② 對照表（走過的話，複本是哪一個）
+
+【★★ 三個步驟的順序絕對不能變】
+
+    def dfs(cur):
+        if cur in old_to_new:
+            return old_to_new[cur]       # 已經複製過
+
+        copy = Node(cur.val)             # ① 先建「殼」
+        old_to_new[cur] = copy           # ② 【立刻】登記
+        for nb in cur.neighbors:         # ③ 再填鄰居
+            copy.neighbors.append(dfs(nb))
+        return copy
+
+【為什麼 ② 一定要在 ③ 之前？】
+
+    考慮 1 —— 2：
+
+        dfs(1): 建 copy1，登記 {1: copy1}
+            dfs(2): 建 copy2，登記 {2: copy2}
+                dfs(1): 【表裡有了】-&gt; 直接回 copy1 ✔ 不再遞迴
+            copy2.neighbors = [copy1]
+        copy1.neighbors = [copy2]
+
+        完成 ✔
+
+    如果 ② 在 ③ 之後（等鄰居都複製完才登記）：
+
+        dfs(1): 建 copy1
+            dfs(2): 建 copy2
+                dfs(1): 表裡【還沒有 1】-&gt; 又建一個 copy1' ...
+                    無限遞迴 ✘
+
+【「先把不完整的東西登記進去，再去填它」——
+  這是處理「循環參考」的通用手法。】
+
+    第 138 題（複製帶隨機指標的串列）、
+    物件序列化（pickle / JSON with refs）、
+    垃圾回收的標記階段 —— 用的都是這一招。
+
+【為什麼用「節點物件」當 key 而不是 val？】
+
+    這題保證 val 互不相同，所以用 val 當 key 也可以。
+
+    但用節點物件更通用（val 可能重複時也對），
+    而且 Python 的物件預設可雜湊（用 id），
+    所以直接當 key 完全沒問題 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>DFS + 對照表（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def cloneGraph(self, node: 'Optional[Node]') -&gt; 'Optional[Node]':
+        old_to_new = {}                     # 原節點 -&gt; 新節點
+
+        def dfs(cur):
+            if cur in old_to_new:
+                return old_to_new[cur]      # ★ 已經複製過，直接回傳（這樣才不會無限遞迴）
+
+            copy = Node(cur.val)
+            old_to_new[cur] = copy          # ★ 先登記，再遞迴鄰居
+            for nb in cur.neighbors:
+                copy.neighbors.append(dfs(nb))
+            return copy
+
+        return dfs(node) if node else None</div>
+        <p><strong>十行。<code>old_to_new</code> 一張表做兩件事。</strong></p>
+        <h3>空圖的處理</h3>
+        <p><code>return dfs(node) if node else None</code> —— <strong>題目說節點數可以是 0，所以 <code>node</code> 可能是 <code>None</code>。</strong></p>
+        <p><strong>不擋的話 <code>cur.val</code> 直接 crash。</strong></p>
+        <h3>複雜度</h3>
+        <div class="code-block">時間 O(V + E)：
+    每個節點被 dfs 呼叫一次（之後都直接查表），
+    每條邊被走一次（無向圖的話是兩次）。
+
+空間 O(V)：
+    對照表 O(V) + 遞迴堆疊最壞 O(V)
+
+    節點數 &lt;= 100，遞迴深度完全不是問題。
+
+【這是圖走訪的標準複雜度】——
+    看到 O(V + E) 就知道「每個節點和每條邊都只碰一次」。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(V + E)</td><td>每個節點和每條邊一次</td></tr>
+            <tr><td>空間</td><td>O(V)</td><td>對照表 + 遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>BFS + 對照表</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def cloneGraph(self, node: 'Optional[Node]') -&gt; 'Optional[Node]':
+        if not node:
+            return None
+
+        old_to_new = {node: Node(node.val)}
+        dq = deque([node])
+
+        while dq:
+            cur = dq.popleft()
+            for nb in cur.neighbors:
+                if nb not in old_to_new:
+                    old_to_new[nb] = Node(nb.val)   # 第一次看到，先建好
+                    dq.append(nb)
+                old_to_new[cur].neighbors.append(old_to_new[nb])
+
+        return old_to_new[node]</div>
+        <h3>和 DFS 版的結構差異</h3>
+        <div class="code-block">DFS 版：在遞迴時「順便」建立鄰居
+BFS 版：先把節點都建好，再連邊
+
+    while dq:
+        cur = dq.popleft()
+        for nb in cur.neighbors:
+            if nb not in old_to_new:
+                old_to_new[nb] = Node(nb.val)   # 建殼
+                dq.append(nb)
+            old_to_new[cur].neighbors.append(old_to_new[nb])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            這一行在【每次看到邊時】都執行，不只在第一次
+
+【注意這一行不能放進 if 裡面】
+
+    如果放進 if（只在「第一次看到 nb」時連邊），
+    那麼「已經建過的鄰居」就連不上了 ✘
+
+    例如三角形 1-2-3-1：
+        處理 1 時，2 和 3 都是新的 -&gt; 連上 ✔
+        處理 2 時，1 和 3 都已存在 -&gt; 如果在 if 裡就跳過 ✘
+                                      2 的鄰居會是空的
+
+    【「建節點」和「連邊」是兩件事，
+      前者要去重，後者不能去重。】
+
+    這是 BFS 版最常見的 bug。</div>
+        <p><strong>沒有遞迴深度問題</strong>（本題用不到，但習慣好）。<strong>複雜度和 DFS 版完全相同。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(V + E)</td><td>每個節點和每條邊一次</td></tr>
+            <tr><td>空間</td><td>O(V)</td><td>對照表 + 佇列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>遞迴？</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、DFS + 對照表</td><td>O(V+E)</td><td>O(V)</td><td>✔</td><td>最短，十行</td></tr>
+            <tr><td>二、BFS + 對照表</td><td>O(V+E)</td><td>O(V)</td><td>✘</td><td>注意連邊不能放進 if</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空圖</strong>（<code>node = None</code>）→ <code>None</code>。<strong>一定要擋。</strong></li>
+          <li><strong>單一節點、沒有邊</strong> → 一個新節點，<code>neighbors</code> 是空的。</li>
+          <li><strong>兩個節點互為鄰居</strong> → <strong>最小的環，沒有對照表就會無限遞迴。</strong></li>
+          <li><strong>完全圖</strong>（100 個節點兩兩相連）→ 4950 條邊，<code>O(V+E)</code> 輕鬆處理。</li>
+          <li><strong>沒有對照表</strong> → <strong><code>RecursionError</code>。本題的核心考點。</strong></li>
+          <li><strong>先遞迴鄰居、後登記</strong> → 一樣無限遞迴。</li>
+          <li><strong>BFS 版把「連邊」放進 <code>if</code> 裡</strong> → <strong>已經建過的鄰居連不上，鄰居表不完整。</strong></li>
+          <li><strong>回傳的是淺拷貝</strong>（<code>neighbors</code> 直接指向原節點）→ 判題會失敗。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果圖<strong>不連通</strong>呢？</h3>
+
+        <p><strong>題目保證連通，所以從任一節點都能走遍全圖。</strong></p>
+
+        <p><strong>如果不連通，光給一個節點是不夠的</strong> —— <strong>你根本碰不到其他連通塊。</strong><strong>那時題目必須給「所有節點的 list」，然後對每個還沒複製的節點都跑一次 DFS。</strong></p>
+
+        <h3>追問二：這和第 138 題（複製帶隨機指標的串列）有什麼關係？</h3>
+
+        <div class="code-block">完全同一招。
+
+    第 138 題的 random 指標可以指向串列裡的任何節點
+    -&gt; 形成任意的「環」和「交叉」
+
+    解法也是 {原節點 -&gt; 新節點} 的對照表：
+
+        1. 第一遍：建所有新節點，填好對照表
+        2. 第二遍：用對照表填 next 和 random
+
+    或者像本題一樣，用 DFS 一次做完。
+
+【第 138 題還有一個更漂亮的 O(1) 空間解】：
+
+    把新節點「交錯插入」原串列中間：
+        A -&gt; A' -&gt; B -&gt; B' -&gt; C -&gt; C'
+
+    這樣 A' 就是 A.next，
+    A'.random = A.random.next  ← 不用對照表了！
+
+    最後再把兩條串列拆開。
+
+    【那個技巧在圖上做不到 ——
+      因為圖沒有「插在中間」這個概念。】</div>
+
+        <h3>追問三：如果節點值可能重複呢？</h3>
+
+        <p><strong>本文的解法完全不受影響</strong> —— 因為 <strong>key 是「節點物件」而不是 <code>val</code></strong>。</p>
+
+        <p><strong>如果你圖方便用 <code>val</code> 當 key，那就會出錯</strong>：<strong>兩個 <code>val</code> 相同的不同節點會被當成同一個，複製出來的圖會少節點。</strong></p>
+
+        <p><strong>「用什麼當 key」是雜湊表題最容易忽略的設計決定。</strong></p>
+
+        <h3>追問四：能不能不用額外空間？</h3>
+
+        <p><strong>不行。</strong>輸出本身就有 <code>V</code> 個新節點 —— <strong>至少 O(V)。</strong></p>
+
+        <p><strong>而且「記住誰複製過」這個資訊也是必要的</strong>（除非你能在原節點上做記號，但題目沒給那樣的欄位）。</p>
+
+        <p><strong>如果允許修改原圖，可以像第 138 題那樣「把複本暫時掛在原節點上」</strong> —— <strong>但 <code>Node</code> 沒有多餘的欄位可用，所以這題做不到。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 138 題 Copy List with Random Pointer</strong> —— 一模一樣的手法</li>
+          <li><strong>第 200 題 Number of Islands</strong> —— 圖走訪的 visited</li>
+          <li><strong>第 207 題 Course Schedule</strong> —— 有向圖的環偵測</li>
+          <li><strong>第 297 題 Serialize and Deserialize Binary Tree</strong> —— 「複製結構」的另一種形式</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「照著邊直接遞迴複製」會無限遞迴？樹為什麼沒有這個問題？</li>
+            <li>「先登記、再遞迴鄰居」的順序為什麼不能反？</li>
+            <li><code>old_to_new</code> 這張表同時扮演哪兩個角色？</li>
+            <li>BFS 版的「連邊」那一行為什麼不能放進 <code>if</code> 裡？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0132.html">← 上一題：132. 分割回文串 II</a>
+          <a href="problem-0134.html">下一題：134. 加油站 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,524 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of <code>points</code> where <code>points[i] = [xi, yi]</code> represents a point on the <strong>X-Y</strong> plane, return <em>the maximum number of points that lie on the same straight line</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一組平面上的點 <code>points</code>，其中 <code>points[i] = [xi, yi]</code>。</p>
+          <p>回傳<strong>同一條直線上最多能有幾個點</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題唯一的難點：不要用浮點斜率</h3>
+        <div class="code-block">最直覺的做法：固定一個點，算出其他點對它的斜率 dy/dx，
+用雜湊表數「哪個斜率出現最多次」。
+
+【但浮點數會出事】：
+
+    (a) 精度誤差
+        兩條【不同】的直線，算出來的浮點斜率可能相同。
+
+        例如 (0,0)-(10^8, 10^8+1) 和 (0,0)-(2·10^8, 2·10^8+2)：
+            斜率分別是 1.00000001 和 1.00000001
+            —— double 的有效位數約 15~16 位，
+               這兩個數在浮點下【可能相等也可能不等】，
+               取決於實作。
+
+        本題座標只到 10^4，所以【實際上不會出錯】——
+        但這是運氣，不是設計。
+
+    (b) 垂直線
+        dx = 0 -&gt; 除以零 -&gt; 要特判成 inf
+
+    (c) 0.0 和 -0.0
+        在 Python 裡 0.0 == -0.0 是 True，
+        但在某些語言/雜湊實作裡它們是不同的 key ✘
+
+【正確做法：用「最簡分數」(dx, dy) 當 key】
+
+    全程整數，零誤差 ✔
+    垂直線自然變成 (0, 1)，不用特判 ✔
+
+【這是「用精確的表示法取代浮點」的經典例子】——
+
+    同樣的原則在：
+        分數運算 -&gt; 用 Fraction 或 (分子, 分母)
+        金額計算 -&gt; 用整數的「分」而不是浮點的「元」
+        角度比較 -&gt; 用向量外積而不是 atan2
+
+    【只要能用整數表達，就不要用浮點。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：points = [[1,1],[2,2],[3,3]]
+  輸出：3
+  說明：三個點都在 y = x 這條線上。
+
+範例 2
+  輸入：points = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
+  輸出：4
+  說明：(1,4), (2,3), (3,2), (4,1) 四個點在 x + y = 5 這條線上。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>points.length</code> ≤ 300</li>
+          <li><code>points[i].length == 2</code></li>
+          <li>−10⁴ ≤ <code>xi</code>, <code>yi</code> ≤ 10⁴</li>
+          <li><code>points</code> 裡的點<strong>互不相同</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/max-points-on-a-line/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>n ≤ 300 —— O(n²) 甚至 O(n³) 都可以</h3>
+        <p><strong>O(n²) = 9 萬</strong>（解法一）。</p>
+        <p><strong>O(n³) = 2700 萬</strong>（解法二）—— 也在時限內，只是慢一點。</p>
+        <p><strong>所以這題考的不是「怎麼變快」，而是「怎麼把共線判斷寫對」。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 450" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 兩個點決定一條線。固定一個點，看其他點相對它的「方向」—— 方向相同的就共線。</text>
+            <g stroke="var(--border)" stroke-width="1">
+              <line x1="60" y1="240" x2="330" y2="240"/><line x1="60" y1="60" x2="60" y2="240"/>
+            </g>
+            <g font-size="12" text-anchor="middle">
+              <circle cx="100" cy="200" r="6" fill="var(--gold)"/><text x="100" y="224" fill="var(--gold)">(1,1)</text>
+              <circle cx="180" cy="160" r="5" fill="var(--accent)"/><text x="180" y="146" fill="var(--accent)">(3,2)</text>
+              <circle cx="260" cy="120" r="5" fill="var(--accent)"/><text x="260" y="106" fill="var(--accent)">(5,3)</text>
+              <circle cx="220" cy="200" r="5" fill="var(--text-muted)"/><text x="228" y="224" fill="var(--text-muted)">(4,1)</text>
+              <circle cx="140" cy="120" r="5" fill="var(--text-muted)"/><text x="140" y="106" fill="var(--text-muted)">(2,3)</text>
+              <circle cx="100" cy="80" r="5" fill="var(--text-muted)"/><text x="100" y="68" fill="var(--text-muted)">(1,4)</text>
+            </g>
+            <line x1="90" y1="205" x2="290" y2="105" stroke="var(--gold)" stroke-width="2" stroke-dasharray="5 3"/>
+            <text x="20" y="272" fill="var(--gold)" font-size="12">固定 (1,1)：(3,2) 的方向是 (2,1)，(5,3) 的方向是 (4,2) → 約分後都是 (2,1) ✔ 共線</text>
+            <line x1="360" y1="40" x2="360" y2="260" stroke="var(--border)"/>
+            <text x="380" y="62" fill="#ff8a65" font-size="13" text-anchor="start">為什麼不能用浮點斜率？</text>
+            <text x="380" y="92" fill="var(--text-muted)" font-size="12" text-anchor="start">dy / dx 是浮點除法，會有誤差。</text>
+            <text x="380" y="118" fill="var(--text-muted)" font-size="12" text-anchor="start">座標到 10⁴ 時，兩條【不同】的線</text>
+            <text x="380" y="142" fill="var(--text-muted)" font-size="12" text-anchor="start">可能算出【完全相同】的浮點斜率。</text>
+            <text x="380" y="174" fill="var(--gold)" font-size="12" text-anchor="start">而且垂直線（dx = 0）要特判 inf。</text>
+            <text x="380" y="206" fill="var(--accent)" font-size="12" text-anchor="start">改用【最簡分數 (dx, dy)】當 key：</text>
+            <text x="380" y="230" fill="var(--accent)" font-size="12" text-anchor="start">全程整數，零誤差，也不用特判。</text>
+            <line x1="20" y1="292" x2="620" y2="292" stroke="var(--border)"/>
+            <text x="20" y="320" fill="#ff8a65" font-size="13">★ 兩個約分的細節</text>
+            <text x="40" y="348" fill="var(--text-muted)" font-size="12">① gcd(0, k) 在 Python 裡等於 abs(k) —— 所以垂直線 (0, 5) 會被約成 (0, 1) ✔</text>
+            <text x="40" y="374" fill="var(--text-muted)" font-size="12">　 水平線 (7, 0) 會被約成 (1, 0) ✔　兩種特例都自動處理好了。</text>
+            <text x="40" y="404" fill="var(--gold)" font-size="12">② 方向要正規化：(2,1) 和 (−2,−1) 是同一條線，必須算成同一個 key。</text>
+            <text x="60" y="430" fill="var(--text-muted)" font-size="12">規則：讓 dx &gt; 0；dx == 0 時讓 dy &gt; 0。沒做這步會把一條線拆成兩半。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【核心觀察】
+
+    一條直線至少需要兩個點決定。
+
+    所以：【固定一個點 i，看其他所有點相對它的「方向」】。
+
+    方向相同的那些點，就和 i 在同一條直線上 ✔
+
+    對每個 i 都做一次，取最大值。
+
+【怎麼表示「方向」？】
+
+    (dx, dy) = (xj - xi, yj - yi)
+
+    但 (2, 1) 和 (4, 2) 是同一個方向 ——
+    要【約分】成最簡分數：
+
+        g = gcd(dx, dy)
+        dx, dy = dx // g, dy // g
+
+    【Python 的 gcd 很貼心】：
+        gcd(0, 5) = 5    -&gt; 垂直線 (0, 5) 約成 (0, 1) ✔
+        gcd(7, 0) = 7    -&gt; 水平線 (7, 0) 約成 (1, 0) ✔
+
+        兩個特例都自動處理好了。
+
+        （gcd(0, 0) = 0 會除以零，但題目保證點互不相同，
+          所以 dx 和 dy 不會同時是 0。）
+
+【★ 方向要正規化】
+
+    (2, 1) 和 (-2, -1) 是【同一條線】的兩個方向，
+    但約分後是不同的 tuple ✘
+
+    所以要規定一個「標準方向」：
+
+        if dx &lt; 0 or (dx == 0 and dy &lt; 0):
+            dx, dy = -dx, -dy
+
+    「讓 dx &gt; 0；dx == 0 時讓 dy &gt; 0」
+
+    這樣一條線只會有一個 key ✔
+
+    【不做這一步的話，一條線上的點會被拆成兩組
+      -&gt; 答案偏小。】
+
+    （不過本文的解法一只看 j &gt; i，
+      所以其實不會同時遇到兩個相反方向...
+      但加上正規化更安全，而且改成 j 跑全部也不會錯。）
+
+【複雜度】：O(n²) 時間、O(n) 空間。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>固定一點 + 最簡分數當 key（標準答案）</h3>
+        <div class="code-block">from collections import defaultdict
+from math import gcd
+
+class Solution:
+    def maxPoints(self, points: List[List[int]]) -&gt; int:
+        n = len(points)
+        if n &lt;= 2:
+            return n
+
+        best = 1
+        for i in range(n):
+            x1, y1 = points[i]
+            slopes = defaultdict(int)
+            for j in range(i + 1, n):
+                dx = points[j][0] - x1
+                dy = points[j][1] - y1
+
+                # ★ 用「最簡分數」當 key，不要用浮點數 dy/dx
+                g = gcd(dx, dy)             # gcd(0, k) == abs(k)
+                dx, dy = dx // g, dy // g
+
+                # 正規化方向：讓 (1,2) 和 (-1,-2) 算同一個斜率
+                if dx &lt; 0 or (dx == 0 and dy &lt; 0):
+                    dx, dy = -dx, -dy
+
+                slopes[(dx, dy)] += 1
+                best = max(best, slopes[(dx, dy)] + 1)   # +1 是 points[i] 自己
+
+        return best</div>
+        <p><strong>O(n²) 時間、O(n) 空間。全程整數，沒有精度問題。</strong></p>
+        <h3>為什麼內層是 <code>range(i+1, n)</code> 而不是 <code>range(n)</code>？</h3>
+        <div class="code-block">因為「i 和 j 共線」這件事是對稱的 ——
+    固定 i=0 時已經考慮過所有經過 points[0] 的線。
+
+    等到 i=1 時，「經過 points[0] 和 points[1] 的線」
+    已經在 i=0 那一輪算過了，不用重算。
+
+    所以只看 j &gt; i 就夠了，省一半時間 ✔
+
+【但要注意 best 的初始值】
+
+    n == 1 時，迴圈裡的內層不跑，best 保持 1 ✔
+    （所以一開始要設 best = 1 而不是 0。）
+
+    題目開頭的 if n &lt;= 2: return n 也處理了這個。
+
+【+1 是什麼？】
+
+    slopes[(dx,dy)] 數的是「除了 points[i] 之外，
+    有幾個點在這個方向上」。
+
+    加上 points[i] 自己 -&gt; +1 ✔</div>
+        <h3>「點互不相同」這個條件很重要</h3>
+        <div class="code-block">如果允許重複的點：
+
+    (0,0) 和 (0,0) 的 dx, dy 都是 0
+    -&gt; gcd(0, 0) = 0 -&gt; 除以零 ✘
+
+    而且「重複的點」在任何線上都算 ——
+    要另外數「和 points[i] 完全相同的點有幾個」，
+    最後加上去。
+
+    LeetCode 這題【保證互不相同】，
+    所以不用處理。
+
+    但如果面試官問「如果有重複的點呢」，
+    要知道：
+        1. 先數重複的點 same
+        2. 其餘的照常算斜率
+        3. 答案 = max(斜率計數) + same
+
+【讀題時要注意「互不相同」這種條件】——
+    它常常是「某段程式碼可以省略」的理由。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>每一對點算一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>斜率雜湊表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>枚舉兩點定線 + 整數外積（最直白）</h3>
+        <div class="code-block">class Solution:
+    def maxPoints(self, points: List[List[int]]) -&gt; int:
+        n = len(points)
+        if n &lt;= 2:
+            return n
+
+        best = 2
+        for i in range(n):
+            for j in range(i + 1, n):
+                # 固定一條直線（過 points[i] 和 points[j]），數有幾個點在上面
+                x1, y1 = points[i]
+                x2, y2 = points[j]
+                cnt = 0
+                for k in range(n):
+                    x3, y3 = points[k]
+                    # 共線判斷：外積為 0（完全用整數，不會有精度問題）
+                    if (x2 - x1) * (y3 - y1) == (y2 - y1) * (x3 - x1):
+                        cnt += 1
+                best = max(best, cnt)
+
+        return best</div>
+        <h3>★ 外積判共線：完全用整數</h3>
+        <div class="code-block">三個點 A, B, C 共線
+  ⟺ 向量 AB 和 AC 平行
+  ⟺ 它們的【外積】為 0
+
+    AB = (x2-x1, y2-y1)
+    AC = (x3-x1, y3-y1)
+
+    外積（2D 的「叉積」）= (x2-x1)(y3-y1) - (y2-y1)(x3-x1)
+
+    等於 0 就共線 ✔
+
+【為什麼這樣最安全？】
+
+    ✔ 全程整數乘法和減法 —— 零誤差
+    ✔ 不用約分、不用處理垂直線
+    ✔ 不用正規化方向
+
+    這是計算幾何裡【判斷共線／方向】的標準工具。
+
+【外積的幾何意義】：
+
+    2D 外積 = 兩向量張成的平行四邊形的【有號面積】
+
+        &gt; 0 -&gt; C 在 AB 的左邊（逆時針）
+        = 0 -&gt; 三點共線
+        &lt; 0 -&gt; C 在 AB 的右邊（順時針）
+
+    這個「有號」的性質在凸包（第 587 題）、
+    線段相交判斷裡都是核心工具。
+
+【複雜度 O(n³)】
+
+    n = 300 -&gt; 2700 萬次 —— 在 Python 下大約幾秒，
+    可能會逾時（LeetCode 的 Python 時限通常比較寬鬆）。
+
+    但它【一定正確】，而且是驗證解法一的最好工具 ——
+    本文的測試就是用它當參考實作。</div>
+        <p><strong>面試時可以先講這個（思路最清楚），再優化到解法一。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n³)</td><td>每三個點檢查一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>不用額外空間</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>浮點斜率（示範它的風險）</h3>
+        <div class="code-block">class Solution:
+    # 【有精度風險，不建議】：用浮點斜率當 key
+    def maxPoints(self, points: List[List[int]]) -&gt; int:
+        n = len(points)
+        if n &lt;= 2:
+            return n
+
+        best = 1
+        for i in range(n):
+            slopes = {}
+            for j in range(n):
+                if i == j:
+                    continue
+                dx = points[j][0] - points[i][0]
+                dy = points[j][1] - points[i][1]
+                k = float('inf') if dx == 0 else dy / dx   # 垂直線特判
+                slopes[k] = slopes.get(k, 0) + 1
+                best = max(best, slopes[k] + 1)
+
+        return best</div>
+        <div class="code-block">【本題座標只到 10^4，所以這個版本實際上會過。】
+
+    但它有三個結構性的問題：
+
+    1. 【精度】
+       dy/dx 是浮點除法。
+       座標大一點（例如 10^8）時，
+       兩條不同的線可能算出相同的 double。
+
+       本文的測試裡有一組大座標的案例
+       （(0,0), (10^8, 10^8+1), (2·10^8, 2·10^8+2)），
+       解法一和二都對，浮點版就不保證。
+
+    2. 【垂直線】
+       dx = 0 要特判成 inf —— 多一個分支。
+
+    3. 【-0.0】
+       在 Python 裡 hash(0.0) == hash(-0.0)，所以沒事。
+       但在 C++ 的 unordered_map 裡，
+       0.0 和 -0.0 的 bit pattern 不同 -&gt;
+       如果用位元當 hash 就會變成兩個 key ✘
+
+【教訓】：
+
+    「這題的測資剛好過得了」
+    和「這個做法是對的」是兩件事。
+
+    面試時寫浮點版，面試官幾乎一定會問
+    「浮點誤差怎麼辦」——
+    能主動說出「我改用最簡分數」才是滿分答案。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>斜率雜湊表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>有精度問題嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、最簡分數當 key</td><td>O(n²)</td><td>O(n)</td><td>✘</td><td>標準答案</td></tr>
+            <tr><td>二、整數外積</td><td>O(n³)</td><td>O(1)</td><td>✘</td><td>最直白，驗證用</td></tr>
+            <tr><td>三、浮點斜率</td><td>O(n²)</td><td>O(n)</td><td>✔</td><td>本題能過，但有風險</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個點</strong> → <code>1</code>。</li>
+          <li><strong>只有兩個點</strong> → <code>2</code>（任兩點必共線）。</li>
+          <li><strong>垂直線</strong> <code>[[0,0],[0,1],[0,2]]</code> → <code>3</code>。<strong>浮點版要特判 <code>dx = 0</code>；分數版自動處理。</strong></li>
+          <li><strong>水平線</strong> → 同上，<code>(7,0)</code> 約成 <code>(1,0)</code>。</li>
+          <li><strong>沒有正規化方向</strong> → 一條線被拆成兩組，答案偏小。</li>
+          <li><strong>忘了 <code>+1</code>（<code>points[i]</code> 自己）</strong> → 答案少 1。</li>
+          <li><strong><code>best</code> 初始成 0</strong> → 單一點時回傳 0 而不是 1。</li>
+          <li><strong>用浮點斜率 + 大座標</strong> → 可能把不同的線算成同一條。</li>
+          <li><strong>300 個點</strong> → O(n²) 是 9 萬，O(n³) 是 2700 萬。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果點可以重複呢？</h3>
+
+        <div class="code-block">題目保證互不相同，但如果可以：
+
+    for i in range(n):
+        same = 0            # 和 points[i] 完全相同的點
+        slopes = defaultdict(int)
+        for j in range(n):
+            if i == j: continue
+            dx = xj - xi; dy = yj - yi
+            if dx == 0 and dy == 0:
+                same += 1           # ★ 重複的點單獨數
+                continue
+            ...約分、計數...
+        best = max(best, max(slopes.values(), default=0) + same + 1)
+
+【為什麼重複的點要單獨處理？】
+
+    (a) gcd(0, 0) = 0 -&gt; 除以零會 crash
+    (b) 重複的點在【任何】經過 points[i] 的線上都算
+
+【而且全部的點都重複時】：
+    答案是 n（它們都在同一個位置，任何線都能穿過）。
+
+    這種退化情況要特別驗證。</div>
+
+        <h3>追問二：能不能比 O(n²) 更快？</h3>
+
+        <div class="code-block">【一般情況下不行。】
+
+    這個問題和「3SUM 是否有解」屬於同一個複雜度類別
+    （3SUM-hard）。
+
+    「找出是否有三點共線」（degenerate triangle problem）
+    被證明是 3SUM-hard 的 ——
+    而 3SUM 目前最好的演算法是 O(n²/polylog n)，
+    沒有已知的 O(n^(2-ε)) 演算法。
+
+【所以 O(n²) 基本上就是這題的極限。】
+
+    （有一個「對偶變換」的 O(n²) 演算法，
+      把點轉成線、線轉成點，然後找「線段排列」中的交點 ——
+      同樣是 O(n²)，但概念很漂亮。）
+
+【面試時的回答】：
+    「這是 3SUM-hard 的問題，O(n²) 應該是最優的。」
+
+    能說出這句話會很加分 ——
+    它顯示你知道「什麼時候該停止優化」。</div>
+
+        <h3>追問三：外積還有哪些用途？</h3>
+
+        <ul>
+          <li><strong>判斷點在線的哪一邊</strong>（外積的符號）</li>
+          <li><strong>凸包演算法</strong>（Graham scan、Andrew monotone chain）—— 用外積判斷「是不是往左轉」</li>
+          <li><strong>線段相交判斷</strong> —— 四次外積</li>
+          <li><strong>多邊形面積</strong>（鞋帶公式）—— 外積的總和除以 2</li>
+          <li><strong>判斷多邊形的方向</strong>（順時針 / 逆時針）</li>
+          <li><strong>點在多邊形內</strong>（凸多邊形的話，看是否都在同一邊）</li>
+        </ul>
+
+        <p><strong>2D 外積是計算幾何的「瑞士刀」</strong> —— <strong>它是唯一一個「用整數就能表達方向關係」的工具，所以完全沒有精度問題。</strong></p>
+
+        <h3>追問四：為什麼要正規化方向？舉個會出錯的例子。</h3>
+
+        <div class="code-block">考慮三個點：A(0,0)、B(1,1)、C(-1,-1)
+
+    如果固定 i = A，內層跑【全部】的 j：
+
+        B 相對 A 的方向：(1, 1)   約分後 (1, 1)
+        C 相對 A 的方向：(-1, -1) 約分後 (-1, -1)
+
+        兩個不同的 key -&gt; 各算一次
+        -&gt; 最大計數是 1 -&gt; 答案 = 1 + 1 = 2 ✘
+
+        但 A, B, C 明明共線 -&gt; 答案應該是 3
+
+    加上正規化之後：
+        (-1, -1) -&gt; 翻轉成 (1, 1) ✔
+        兩個點都記在 (1,1) 這個 key 下 -&gt; 計數 2
+        -&gt; 答案 = 2 + 1 = 3 ✔
+
+【本文的解法一因為只跑 j &gt; i，
+  不會在同一輪遇到相反方向的兩個點嗎？】
+
+    會的！上面的例子裡，如果 points 的順序是 [A, B, C]，
+    i = 0（A）時 j 會跑到 B 和 C ——
+    正好是相反的兩個方向。
+
+    【所以正規化是必要的，不是可有可無的保險。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 587 題 Erect the Fence</strong> —— 凸包，同樣用外積</li>
+          <li><strong>第 15 題 3Sum</strong> —— 和本題同一個複雜度類別</li>
+          <li><strong>第 963 題 Minimum Area Rectangle II</strong> —— 另一個計算幾何題</li>
+          <li><strong>第 1232 題 Check If It Is a Straight Line</strong> —— 本題的簡化版</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼不能用浮點斜率 <code>dy/dx</code> 當雜湊表的 key？列出三個問題。</li>
+            <li><code>gcd(0, 5)</code> 等於多少？這讓垂直線的處理變得如何？</li>
+            <li>為什麼要「正規化方向」？請舉出一個不做會出錯的例子。</li>
+            <li>三點共線的整數判斷式是什麼？它的幾何意義是什麼？</li>
+          </ol>
+        </div>

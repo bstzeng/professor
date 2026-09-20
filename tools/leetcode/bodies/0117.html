@@ -1,0 +1,374 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a binary tree, populate each <code>next</code> pointer to point to its next right node. If there is no next right node, the <code>next</code> pointer should be set to <code>NULL</code>.</p>
+          <p>Initially, all <code>next</code> pointers are set to <code>NULL</code>.</p>
+          <p><strong>Follow up:</strong> You may only use constant extra space. The recursive approach is fine — implicit stack space does not count as extra space for this problem.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一棵<strong>任意的</strong>二元樹（<strong>不保證完美、也不保證完全</strong>），把每個節點的 <code>next</code> 指向同一層裡它右邊的那個節點；沒有的話設成 <code>None</code>。</p>
+          <p>一開始所有 <code>next</code> 都是 <code>None</code>。</p>
+          <p><strong>進階：</strong>只能用<strong>常數額外空間</strong>（遞迴的隱式堆疊不算）。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 第 116 題的兩行為什麼在這裡全部失效</h3>
+        <div class="code-block">第 116 題的核心兩行：
+
+    node.left.next  = node.right
+    node.right.next = node.next.left
+
+【失效原因一】：node.left 可能是 None
+    -&gt; AttributeError
+
+【失效原因二】：node.next.left 可能是 None
+    -&gt; 那 node.right 的右鄰居其實是 node.next.right，
+       甚至是「更右邊某個節點」的孩子。
+
+    反例：
+
+            1
+           / \
+          2   3
+         /     \
+        4       5
+
+        4 的右鄰居是 5 ——
+        但它們的父節點（2 和 3）之間隔著「2 沒有右孩子」
+        和「3 沒有左孩子」兩個洞。
+
+        「往右找，直到找到第一個存在的孩子」——
+        這個搜尋在第 116 題不需要，在這裡卻是必要的。
+
+【失效原因三】：leftmost = leftmost.left 不成立
+    -&gt; 下一層的第一個節點，不一定是這一層第一個節點的左孩子。
+
+    上面的例子裡，第 2 層的第一個是 2，
+    但第 3 層的第一個是 4（= 2.left，剛好對）；
+    如果 2 沒有孩子而 3 有，第 3 層的第一個就會是 3 的孩子。
+
+【三個問題，一個解法全部解決：虛擬頭 + tail 指標。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,2,3,4,5,null,7]
+
+            1
+           / \
+          2   3
+         / \    \
+        4   5    7
+
+  輸出：[1,#,2,3,#,4,5,7,#]
+
+        1 -&gt; None
+        2 -&gt; 3 -&gt; None
+        4 -&gt; 5 -&gt; 7 -&gt; None
+
+  說明：注意 5 -&gt; 7 這一條 ——
+        5 的父節點是 2，7 的父節點是 3，
+        而且 3 【沒有左孩子】。
+        第 116 題的 node.next.left 在這裡會拿到 None。
+
+範例 2
+  輸入：root = []
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[0, 6000]</code> 之間</li>
+          <li>−100 ≤ <code>Node.val</code> ≤ 100</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/populating-next-right-pointers-in-each-node-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【虛擬頭（dummy head）+ tail 指標】
+
+    cur = root                  # 目前這一層（next 已接好）
+    while cur:
+        dummy = Node(0)         # 下一層的「假頭」
+        tail = dummy            # 下一層目前串到哪裡
+
+        while cur:              # 沿著這一層的 next 走一遍
+            if cur.left:  tail.next = cur.left;  tail = tail.next
+            if cur.right: tail.next = cur.right; tail = tail.next
+            cur = cur.next
+
+        cur = dummy.next        # 下一層的第一個節點
+
+【為什麼這樣就解決了全部三個問題？】
+
+    問題一（孩子可能是 None）：
+        用 if 判斷，不存在就跳過 ✔
+
+    問題二（右鄰居可能隔很遠）：
+        我們不「找」右鄰居，而是【按順序串起來】——
+        tail 永遠指向「目前串好的最後一個」，
+        下一個出現的孩子自然就是它的右鄰居 ✔
+
+    問題三（下一層的第一個在哪）：
+        不用知道！dummy.next 會自動是它 ✔
+        這正是虛擬頭存在的理由。
+
+【虛擬頭是鏈結串列題的萬用技巧】：
+
+    它把「第一個節點」這個特例，
+    變成和其他節點一模一樣的普通情況。
+
+    第 2 題（兩數相加）、第 21 題（合併串列）、
+    第 24 題（兩兩交換）、第 82/83 題（刪除重複）、
+    第 148 題（排序串列）—— 全都用它。
+
+    【看到「可能要改動頭節點」就先開一個 dummy。】</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS 層序（最直覺，和第 116 題完全一樣）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def connect(self, root: 'Optional[Node]') -&gt; 'Optional[Node]':
+        if not root:
+            return None
+
+        dq = deque([root])
+        while dq:
+            n = len(dq)
+            for i in range(n):
+                node = dq.popleft()
+                if i &lt; n - 1:
+                    node.next = dq[0]
+                if node.left:
+                    dq.append(node.left)
+                if node.right:
+                    dq.append(node.right)
+
+        return root</div>
+        <p><strong>和第 116 題的解法一一字不差</strong> —— <strong>因為 BFS 根本不在乎樹的形狀。</strong></p>
+        <p><strong>這就是「通用解法」的價值</strong>：<strong>第 116 題的 O(1) 解法在這裡會爆炸，BFS 卻原封不動。</strong></p>
+        <p><strong>O(n) 時間、O(w) 空間</strong> —— 不滿足進階要求，但一定對。</p>
+        <p><strong>面試時先寫這個</strong>，再說「我可以用虛擬頭做到 O(1) 空間」。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(w)</td><td>佇列最大寬度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>虛擬頭 + tail（O(1) 空間，標準答案）</h3>
+        <div class="code-block">class Solution:
+    def connect(self, root: 'Optional[Node]') -&gt; 'Optional[Node]':
+        cur = root                             # 目前這一層（next 已經接好了）
+        while cur:
+            dummy = Node(0)                    # 下一層的虛擬頭
+            tail = dummy                       # 下一層目前串到哪裡
+
+            while cur:                         # 沿著這一層的 next 走一遍
+                if cur.left:
+                    tail.next = cur.left
+                    tail = tail.next
+                if cur.right:
+                    tail.next = cur.right
+                    tail = tail.next
+                cur = cur.next
+
+            cur = dummy.next                   # 下一層的第一個節點
+
+        return root</div>
+        <h3>三個變數的分工</h3>
+        <div class="code-block">cur    目前正在「掃描」的那一層的游標
+dummy  下一層的虛擬頭（每層重開一個）
+tail   下一層「已經串好的最後一個」
+
+    外層 while cur：處理一層
+    內層 while cur：沿著這一層的 next 掃過去，
+                    把看到的孩子一個一個接到 tail 後面
+
+    內層結束時 cur 是 None（走到這一層的尾巴），
+    然後 cur = dummy.next 跳到下一層的第一個 ✔
+
+【注意 cur 這個變數被兩層迴圈共用】——
+    內層把它走到 None，外層再用 dummy.next 重新賦值。
+
+    這個寫法很精簡，但第一次看會有點繞。
+    如果覺得不清楚，可以用兩個變數：
+
+        level_head = root
+        while level_head:
+            dummy = Node(0); tail = dummy
+            cur = level_head
+            while cur:
+                ...
+                cur = cur.next
+            level_head = dummy.next
+
+    兩者等價，後者比較好讀。</div>
+        <h3>為什麼每層都要重開一個 <code>dummy</code>？</h3>
+        <div class="code-block">因為 dummy.next 要指向「這一層的第一個節點」。
+
+    如果沿用上一層的 dummy，
+    dummy.next 還指著上一層的第一個 —— 拿到錯的東西 ✘
+
+    也可以只開一個 dummy，但每層開始時要 dummy.next = None：
+
+        dummy = Node(0)
+        while cur:
+            dummy.next = None      # 重置
+            tail = dummy
+            ...
+
+    兩種寫法都對。每層 new 一個比較不容易忘記重置，
+    而且 n 層只多配置 n 個小物件 —— 仍然是 O(1) 的「額外空間」
+    （嚴格說是 O(1) at a time，舊的會被回收）。
+
+【如果面試官很嚴格地追問「你配置了 h 個 Node」】，
+    就改用「一個 dummy + 每層重置」的寫法，
+    那樣真的只配置一個物件。</div>
+        <p><strong>O(n) 時間、O(1) 額外空間。</strong><strong>而且這個寫法對第 116 題也完全適用</strong> —— <strong>只要記這一個版本就夠了。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>一個 dummy + 兩個指標</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>對第 116 題也適用</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、BFS</td><td>O(n)</td><td>O(w)</td><td>✔</td><td>最直覺</td></tr>
+            <tr><td>二、虛擬頭 + tail</td><td>O(n)</td><td>O(1)</td><td>✔</td><td>標準答案，通用</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>第 116 題 vs 第 117 題：前提條件的價值</h3>
+        <div class="code-block">            第 116 題（完美）        第 117 題（任意）
+    接 next   兩行搞定                要處理 None、要用 tail
+    找下一層   leftmost.left           需要 dummy.next
+    程式行數   9                       14
+    通用性     只對完美樹              【對任何二元樹都對】
+
+【教訓】：
+    第 116 題的解法「更短」，但那是【買來的】——
+    代價是它依賴一個很強的前提。
+
+    第 117 題的解法長一點，但它【沒有前提】。
+
+    在真實工程裡，
+    「短但依賴強前提」的程式碼是技術債 ——
+    因為前提遲早會被打破（資料變了、需求變了），
+    而那時 bug 會出現在離修改點很遠的地方。
+
+【如果只想記一個版本，記第 117 題的。】
+
+    這也是為什麼很多面試官會直接問第 117 題：
+    它能同時檢驗你會不會第 116 題。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>root = None</code></strong> → <code>None</code>。</li>
+          <li><strong>單一節點</strong> → <code>next</code> 保持 <code>None</code>。</li>
+          <li><strong><code>[1,2,3,4,5,null,7]</code></strong> → <strong><code>5.next = 7</code>（跨越了一個「洞」）。這是本題的核心測資。</strong></li>
+          <li><strong>某一層只有一個節點</strong> → 它的 <code>next</code> 是 <code>None</code>。</li>
+          <li><strong>整棵樹是一條左鏈</strong> → 每層都只有一個節點，所有 <code>next</code> 都是 <code>None</code>。</li>
+          <li><strong>直接套用第 116 題的解法</strong> → <strong><code>node.left</code> 是 <code>None</code> 時 <code>AttributeError</code>。</strong></li>
+          <li><strong>忘了每層重置 <code>dummy.next</code></strong> → 跳到上一層去，無窮迴圈。</li>
+          <li><strong>6000 個節點的鏈狀樹</strong> → 解法二完全沒問題（沒有遞迴）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：能不能用遞迴做這題？</h3>
+
+        <p><strong>可以，但比第 116 題麻煩得多。</strong></p>
+
+        <div class="code-block">問題在於【遞迴的順序】：
+
+    要接第 k+1 層時，必須先確定第 k 層【整層】都接好了。
+
+    但一般的 DFS 是「深度優先」——
+    走到左子樹很深的地方時，右子樹連碰都還沒碰到。
+
+    所以要嘛：
+        (a) 先接好右子樹再接左子樹（反序 DFS），
+            並維護一個「每層目前最右節點」的陣列 -&gt; O(h) 空間
+        (b) 每次都從根往右找「第一個存在的孩子」-&gt; 最壞 O(n²)
+
+    兩個都不如迭代版乾淨。
+
+【這是少數「迭代明顯優於遞迴」的樹題】——
+    因為它的自然順序是【橫向】的，而遞迴天生是縱向的。</div>
+
+        <h3>追問二：<code>tail</code> 指標的技巧還能用在哪裡？</h3>
+
+        <ul>
+          <li><strong>第 2 題 兩數相加</strong> —— 邊算邊往 <code>tail</code> 後面接</li>
+          <li><strong>第 21 題 合併兩個有序串列</strong> —— 同上</li>
+          <li><strong>第 86 題 分隔串列</strong> —— 開兩個 <code>dummy</code>，最後接起來</li>
+          <li><strong>第 328 題 奇偶串列</strong> —— 同上</li>
+          <li><strong>任何「一邊走一邊建一條新串列」的題目</strong></li>
+        </ul>
+
+        <p><strong>共同模式</strong>：<code>dummy = Node(); tail = dummy; ... tail.next = x; tail = tail.next; ... return dummy.next</code>。<strong>把這六個字背下來，一整類題目就解決了。</strong></p>
+
+        <h3>追問三：如果樹非常寬（例如 10⁶ 個葉節點）呢？</h3>
+
+        <p><strong>解法二完全不受影響</strong> —— 它的空間是 <code>O(1)</code>，和寬度無關。</p>
+
+        <p><strong>解法一（BFS）的佇列會吃掉 <code>O(w)</code>，可能撐不住。</strong><strong>這就是「O(1) 空間」在實務上的價值 —— 它不只是面試題的花招。</strong></p>
+
+        <h3>追問四：接好 <code>next</code> 之後，怎麼做 O(1) 空間的層序走訪？</h3>
+
+        <div class="code-block">leftmost = root
+while leftmost:
+    node = leftmost
+    while node:
+        print(node.val)
+        node = node.next
+    # 找下一層的第一個：沿著這一層往右找第一個有孩子的
+    nxt = None
+    node = leftmost
+    while node and not nxt:
+        nxt = node.left or node.right
+        node = node.next
+    leftmost = nxt
+
+【完全不用佇列】——
+    這正是第 117 題把 next 接好之後的直接紅利。
+
+    B+ 樹的範圍掃描用的就是這個。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 116 題 Populating Next Right Pointers</strong> —— 有「完美」前提的版本</li>
+          <li><strong>第 102 題 Level Order Traversal</strong> —— 解法一的骨架</li>
+          <li><strong>第 21 題 Merge Two Sorted Lists</strong> —— 虛擬頭 + tail 的原型</li>
+          <li><strong>第 86 題 Partition List</strong> —— 兩個 dummy 的應用</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>第 116 題的兩行在這裡為什麼全部失效？請各舉一個反例。</li>
+            <li>虛擬頭 <code>dummy</code> 解決了「找下一層第一個節點」這個問題 —— 它是怎麼做到的？</li>
+            <li>為什麼每一層都要重開（或重置）<code>dummy</code>？</li>
+            <li>為什麼這題用遞迴反而比迭代麻煩？</li>
+          </ol>
+        </div>

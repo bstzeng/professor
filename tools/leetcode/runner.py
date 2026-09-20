@@ -51,12 +51,17 @@ NS = dict(globals())
 
 
 class Src(dict):
-    def load(self, key, name="Solution"):
+    def load(self, key, name="Solution", extra=None):
+        """extra 用來補上題目自帶、但頁面上不會顯示的型別（例如第 116 題的 Node）。"""
         ns = dict(NS)
+        if extra:
+            ns.update(extra)
         exec(compile(self[key], "<%s>" % key, "exec"), ns)
         return ns[name]()
 
-    def loadns(self, key):
+    def loadns(self, key, extra=None):
         ns = dict(NS)
+        if extra:
+            ns.update(extra)
         exec(compile(self[key], "<%s>" % key, "exec"), ns)
         return ns

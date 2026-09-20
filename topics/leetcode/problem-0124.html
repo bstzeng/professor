@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>124. Binary Tree Maximum Path Sum 二元樹中的最大路徑和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="「回傳給父節點的值」和「答案」為什麼是兩件事。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="124">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 124 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 124</div>
+          <h1>Binary Tree Maximum Path Sum<br>二元樹中的最大路徑和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A <strong>path</strong> in a binary tree is a sequence of nodes where each pair of adjacent nodes in the sequence has an edge connecting them. A node can only appear in the sequence <strong>at most once</strong>. Note that the path does not need to pass through the root.</p>
+          <p>The <strong>path sum</strong> of a path is the sum of the node's values in the path.</p>
+          <p>Given the <code>root</code> of a binary tree, return <em>the maximum <strong>path sum</strong> of any <strong>non-empty</strong> path</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>二元樹裡的一條<strong>路徑</strong>，是指一串節點，其中<strong>相鄰的兩個節點之間都有邊相連</strong>，而且<strong>每個節點最多出現一次</strong>。</p>
+          <p><strong>路徑不一定要經過根節點。</strong></p>
+          <p>一條路徑的<strong>路徑和</strong>，就是路徑上所有節點值的總和。</p>
+          <p>給你一個二元樹的根節點 <code>root</code>，回傳<strong>任意一條非空路徑</strong>的<strong>最大路徑和</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 先搞清楚「路徑」長什麼樣</h3>
+        <div class="code-block">合法的路徑：
+
+    (a) 單一節點                    5
+
+    (b) 一條往下的鏈                5
+                                     \
+                                      3
+                                       \
+                                        2
+
+    (c) 【在某個節點拐彎】           5
+                                   /   \
+                                  3     2      &lt;- 3 -&gt; 5 -&gt; 2
+
+【不合法的】：
+
+    (d) 有分岔的形狀                  5
+                                   /  |  \
+                                  3   2   7
+
+        因為那不是「一串相鄰節點」，
+        節點 5 會出現兩次（走到 3 再回來走 2 再回來走 7）。
+
+【所以每條路徑「最多在一個節點拐彎」】——
+
+    這個觀察是整題的關鍵：
+
+        每條路徑都有一個【最高點】（離根最近的那個節點），
+        在那個點左右兩邊各往下延伸（可以是空的）。
+
+    於是只要【對每個節點，算出「以它為最高點的最佳路徑」】，
+    再取全部的最大值，就是答案 ✔</div>
+        </div>
+
+        <div class="callout">
+          <h3>★★ 本題真正的考點：回傳值 ≠ 答案</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】
+    def maxPathSum(self, root: Optional[TreeNode]) -&gt; int:
+        def gain(node):
+            if not node:
+                return 0
+            left = max(gain(node.left), 0)
+            right = max(gain(node.right), 0)
+            return node.val + left + right   # ← 直接回傳「拐彎」的值
+        return gain(root)</div>
+        <div class="code-block">這段程式碼看起來很合理，但錯得很徹底。
+
+    它回傳 node.val + left + right（「拐彎」的值），
+    然後父節點又把這個值接上去 ——
+
+    結果就造出了「有分岔的形狀」，那不是路徑 ✘
+
+    而且它只回傳 gain(root)，
+    所以【只能找到「以根為最高點」的路徑】——
+
+    範例 2 的答案 42 完全不經過根，它根本找不到。
+
+【正確的做法要同時維護兩個量】：
+
+    ① 答案（全域）：node.val + left + right
+       —— 在這裡拐彎，左右都用上
+
+    ② 回傳值（給父節點）：node.val + max(left, right)
+       —— 只能選一邊，因為父節點要接上去
+
+    【把這兩件事分開，是這題（和第 543 題）的全部內容。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,2,3]
+
+          1
+         / \
+        2   3
+
+  輸出：6
+  說明：2 -&gt; 1 -&gt; 3，和 = 6（在節點 1 拐彎）。
+
+範例 2
+  輸入：root = [-10,9,20,null,null,15,7]
+
+          -10
+          /  \
+         9    20
+             /  \
+            15   7
+
+  輸出：42
+  說明：15 -&gt; 20 -&gt; 7 = 42。
+        【這條路徑完全不經過根節點 -10。】
+        如果硬要經過根：9 + (-10) + (20+15) = 34，比較差。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>樹的節點數在 <code>[1, 3 × 10⁴]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>節點值可以是負數 —— 這是本題的另一半難度</h3>
+        <p><strong>所以答案可能是負的</strong>（例如整棵樹只有一個 <code>-3</code>）。</p>
+        <p><strong><code>best</code> 一定要初始化成 <code>-inf</code> 而不是 0</strong> —— <strong>初始化成 0 的話，全負的樹會回傳 0（但題目要求「非空路徑」）。</strong></p>
+        <p>而且<strong>「子樹的貢獻是負的就不要」</strong>這個剪枝變得必要 —— 那就是 <code>max(gain(kid), 0)</code> 的那個 <code>0</code>。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 438" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 這題的核心：「回傳給父節點的值」和「答案」是兩件不同的東西。</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="180" cy="72" r="19" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="180" y="77" fill="#ff8a65">-10</text>
+              <circle cx="100" cy="142" r="19" fill="none" stroke="var(--text-muted)" stroke-width="2"/><text x="100" y="147" fill="var(--text-muted)">9</text>
+              <circle cx="260" cy="142" r="19" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="260" y="147" fill="var(--gold)">20</text>
+              <circle cx="205" cy="212" r="19" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="205" y="217" fill="var(--gold)">15</text>
+              <circle cx="315" cy="212" r="19" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="315" y="217" fill="var(--gold)">7</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="166" y1="86" x2="114" y2="128"/><line x1="194" y1="86" x2="246" y2="128"/>
+            </g>
+            <g stroke="var(--gold)" stroke-width="3">
+              <line x1="246" y1="156" x2="219" y2="198"/><line x1="274" y1="156" x2="301" y2="198"/>
+            </g>
+            <text x="380" y="150" fill="var(--gold)" font-size="12" text-anchor="start">答案 = 15 + 20 + 7 = 42</text>
+            <text x="380" y="176" fill="var(--text-muted)" font-size="12" text-anchor="start">這條路徑在 20 這裡【拐彎】，</text>
+            <text x="380" y="200" fill="var(--text-muted)" font-size="12" text-anchor="start">而且完全【不經過根節點】。</text>
+            <line x1="20" y1="250" x2="620" y2="250" stroke="var(--border)"/>
+            <text x="20" y="278" fill="var(--accent)" font-size="13">在節點 20 這裡，兩個值同時被算出來：</text>
+            <text x="40" y="306" fill="var(--gold)" font-size="12">① 更新答案： 20 + max(15,0) + max(7,0) = 42　　「左 + 我 + 右」，可以拐彎</text>
+            <text x="40" y="332" fill="var(--accent)" font-size="12">② 回傳給父： 20 + max(15, 7) = 35　　　　　　「我 + 較好的一邊」，不能拐彎</text>
+            <text x="20" y="366" fill="#ff8a65" font-size="12">為什麼回傳時只能選一邊？因為父節點要把它接到【自己這條路徑】上 ——</text>
+            <text x="20" y="390" fill="#ff8a65" font-size="12">如果回傳「左+我+右」，父節點接上去就會變成一個有分岔的形狀，那不是一條路徑。</text>
+            <text x="20" y="420" fill="var(--gold)" font-size="12">max(gain(kid), 0) 的 0：子樹的貢獻是負的話，寧可不走那一邊（路徑可以只有一個節點）。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">gain(node)：「從 node 往下延伸【一條】路徑，最大能拿多少？」
+
+    left  = max(gain(node.left),  0)      負的就不要
+    right = max(gain(node.right), 0)
+
+    ① 更新答案（在這裡拐彎）：
+        best = max(best, node.val + left + right)
+
+    ② 回傳給父節點（只能選一邊）：
+        return node.val + max(left, right)
+
+【為什麼 max(..., 0)？】
+
+    如果左子樹往下最多只能拿 -5，
+    那不如【不走左邊】（貢獻 0）。
+
+    因為路徑可以只有一個節點 ——
+    「不往那邊延伸」永遠是合法的。
+
+    注意這個 0 不代表「加上一個空節點」，
+    而是「這一邊不延伸」。
+
+【為什麼回傳時只能選一邊？】
+
+    父節點會把回傳值接到「自己這條路徑」上。
+
+    如果回傳「左 + 我 + 右」，
+    父節點接上去之後，我這個節點就會有三條邊 ——
+    那是分岔，不是路徑 ✘
+
+【為什麼 base case 回 0 而不是 -inf？】
+
+    gain(None) 代表「這一邊不延伸」，貢獻就是 0。
+
+    回 -inf 的話，max(gain(None), 0) 還是 0 ——
+    所以兩種寫法結果相同。
+
+    但回 0 比較直白：「空的那一邊貢獻 0」。
+
+【複雜度】：每個節點呼叫一次 gain -&gt; O(n) ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>後序遞迴，同時維護「答案」和「回傳值」（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -&gt; int:
+        self.best = float('-inf')
+
+        def gain(node) -&gt; int:
+            """回傳：從 node 往下延伸【一條】路徑能拿到的最大和（可以選擇不往下）"""
+            if not node:
+                return 0
+
+            # 負的貢獻不如不要，所以和 0 取 max
+            left = max(gain(node.left), 0)
+            right = max(gain(node.right), 0)
+
+            # 【答案】：在 node 這裡「拐彎」，左邊 + 自己 + 右邊
+            self.best = max(self.best, node.val + left + right)
+
+            # 【回傳值】：給父節點用的，只能選一邊（否則就不是一條路徑了）
+            return node.val + max(left, right)
+
+        gain(root)
+        return self.best</div>
+        <h3>逐行對照範例 2</h3>
+        <div class="code-block">          -10
+          /  \
+         9    20
+             /  \
+            15   7
+
+gain(9):
+    left = right = 0
+    best = max(-inf, 9+0+0) = 9
+    return 9
+
+gain(15):  best = 15, return 15
+gain(7):   best = 15, return 7
+
+gain(20):
+    left  = max(15, 0) = 15
+    right = max(7, 0)  = 7
+    best = max(15, 20+15+7) = 42      ★ 答案在這裡產生
+    return 20 + max(15, 7) = 35        ← 只選一邊
+
+gain(-10):
+    left  = max(9, 0)  = 9
+    right = max(35, 0) = 35
+    best = max(42, -10+9+35) = max(42, 34) = 42   ✔ 沒被 34 蓋掉
+    return -10 + 35 = 25
+
+答案 42 ✔
+
+【注意 gain(-10) 回傳 25，但那不是答案】——
+    答案早在 gain(20) 那一步就被記下來了。
+
+    這就是「全域變數 best」存在的理由：
+    答案可能在任何一個節點產生，
+    而不一定在最後回傳的那個值裡。</div>
+        <h3><code>self.best</code> vs <code>nonlocal best</code></h3>
+        <p><strong>兩者等價</strong>。<code>nonlocal</code>（解法二）比較乾淨，因為<strong>不會把狀態掛在物件上</strong>（LeetCode 的 <code>Solution</code> 實例可能被重用）。</p>
+        <p><strong>也可以讓 <code>gain</code> 回傳 tuple <code>(答案, 單邊最大)</code></strong>，完全避開共享狀態 —— <strong>那是最「函數式」的寫法，但程式碼會長一點。</strong></p>
+        <p><strong>時間 O(n)、空間 O(h)。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3><code>nonlocal</code> 版（推薦的寫法）</h3>
+        <div class="code-block">class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -&gt; int:
+        best = float('-inf')
+
+        def gain(node):
+            nonlocal best
+            if not node:
+                return 0
+            left = max(gain(node.left), 0)
+            right = max(gain(node.right), 0)
+            best = max(best, node.val + left + right)
+            return node.val + max(left, right)
+
+        gain(root)
+        return best</div>
+        <div class="code-block">和解法一完全相同，只是用 nonlocal 取代 self.best。
+
+【為什麼 nonlocal 比較好？】
+
+    LeetCode 會對同一個 Solution 實例呼叫多次
+    （不同的測資）。
+
+    用 self.best 的話，如果忘記在函式開頭重設，
+    上一筆測資的答案會殘留下來 ——
+    這是很隱密的 bug。
+
+    本文的解法一有在開頭寫 self.best = -inf，所以安全。
+    但 nonlocal 版【結構上就不可能出這個問題】。
+
+【一般原則】：
+    能用區域狀態就不要用物件狀態。
+    「作用域越小越好」是減少 bug 最有效的習慣之一。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個節點一次</td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>狀態放哪</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、self.best</td><td>O(n)</td><td>O(h)</td><td>物件屬性</td><td>要記得重設</td></tr>
+            <tr><td>二、nonlocal</td><td>O(n)</td><td>O(h)</td><td>閉包</td><td>結構上更安全</td></tr>
+          </tbody>
+        </table>
+
+        <div class="callout">
+          <h3>「回傳值 ≠ 答案」這個模式的其他題目</h3>
+        <div class="code-block">共同結構：
+
+    def go(node):
+        if not node: return &lt;單位元素&gt;
+        L = go(node.left)
+        R = go(node.right)
+        answer = max(answer, &lt;把 L 和 R 都用上的組合&gt;)   ← 全域答案
+        return &lt;只能選一邊的值&gt;                           ← 給父節點
+
+  124  最大路徑和    答案 = 左+根+右       回傳 = 根 + max(左,右)   （本題）
+  543  直徑          答案 = 左高+右高      回傳 = 1 + max(左,右)
+  687  最長同值路徑  答案 = 左長+右長      回傳 = 1 + max(左,右)
+  1373 BST 最大和    答案 = 整棵子樹的和   回傳 = (是否 BST, 和, min, max)
+
+【辨認訊號】：
+
+    「答案可以在任何一個節點『拐彎』，
+      但往上傳遞時只能走一條路」
+
+    看到這個形狀，就知道要分開兩個量。
+
+【最常見的錯誤】：
+    把「答案」直接回傳給父節點 ——
+    那會造出分岔的形狀，而且只找得到「經過根」的答案。</div>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一節點</strong> <code>[-3]</code> → <code>-3</code>。<strong><code>best</code> 初始成 0 會回傳 0 ✘（題目要求非空路徑）。</strong></li>
+          <li><strong>全部是負數</strong> <code>[-2,-1]</code> → <code>-1</code>（只取那個最大的單一節點）。</li>
+          <li><strong><code>[1,2,3]</code></strong> → <code>6</code>（在根拐彎）。</li>
+          <li><strong><code>[-10,9,20,null,null,15,7]</code></strong> → <code>42</code>。<strong>答案不經過根 —— 這是本題的核心測資。</strong></li>
+          <li><strong>直接回傳 <code>node.val + left + right</code></strong> → <strong>造出分岔形狀，而且只找得到經過根的路徑。本題第一名的 bug。</strong></li>
+          <li><strong>忘了 <code>max(gain(kid), 0)</code></strong> → 負的子樹會把答案拉低。</li>
+          <li><strong><code>best</code> 初始成 0</strong> → 全負樹回傳 0。</li>
+          <li><strong>3 × 10⁴ 個節點的鏈狀樹</strong> → 遞迴深度 3 萬，Python 會 <code>RecursionError</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要輸出「那條路徑」呢？</h3>
+
+        <p><strong>在更新 <code>best</code> 時，記下「是哪個節點、走了哪兩邊」</strong>，然後<strong>從那個節點往下追</strong>（每步選 <code>gain</code> 較大的孩子）。</p>
+
+        <p><strong>需要額外記錄每個節點的 <code>gain</code> 值</strong>（一個 dict），<strong>空間從 O(h) 變成 O(n)</strong>。</p>
+
+        <h3>追問二：這和第 543 題（直徑）有什麼關係？</h3>
+
+        <div class="code-block">第 543 題：求「任兩個節點之間最長路徑的【邊數】」
+
+    完全同一個骨架，只是：
+        gain 回傳的是「高度」而不是「路徑和」
+        答案是「左高 + 右高」而不是「左 + 根 + 右」
+
+    def height(node):
+        if not node: return 0
+        L, R = height(node.left), height(node.right)
+        self.best = max(self.best, L + R)      # 邊數 = 左高 + 右高
+        return 1 + max(L, R)
+
+【差別在於「節點值」】：
+    543 題每個節點的「值」固定是 1（算邊數），
+    而且一定是正的 -&gt; 不需要 max(..., 0) 這個剪枝。
+
+    124 題有負數 -&gt; 必須剪枝。
+
+【所以 543 是 124 的「全部值都是 1」的特例】。
+    先弄懂 543，再看 124 會容易很多。</div>
+
+        <h3>追問三：如果限制「路徑必須經過根節點」呢？</h3>
+
+        <p><strong>那就簡單多了 —— 答案直接就是 <code>root.val + left + right</code></strong>，<strong>不需要全域變數。</strong></p>
+
+        <p><strong>「不一定要經過根」這個條件，就是這題從 Medium 變 Hard 的原因。</strong><strong>它逼你意識到「答案可能在任何地方產生」。</strong></p>
+
+        <h3>追問四：如果是一般的圖而不是樹呢？</h3>
+
+        <div class="code-block">在一般的【有環】圖上，
+「最大路徑和」（不重複節點）是 NP-hard 的 ——
+它包含了「最長路徑問題」，而那個問題本身就是 NP-hard。
+
+    （取全部邊權為 1，就變成「找最長的簡單路徑」，
+      而那可以用來解漢米爾頓路徑問題。）
+
+【樹之所以可解，是因為「任兩點之間的路徑唯一」】——
+    沒有選擇，也就沒有搜尋空間。
+
+    如果是【有向無環圖（DAG）】，
+    最長路徑可以用拓撲排序 + DP 在 O(V+E) 解決。
+
+【「樹 -&gt; 容易、DAG -&gt; 還可以、一般圖 -&gt; NP-hard」
+  是圖論問題的常見階梯。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 543 題 Diameter of Binary Tree</strong> —— 本題的「值全是 1」版本，先學這個</li>
+          <li><strong>第 687 題 Longest Univalue Path</strong> —— 同一個骨架</li>
+          <li><strong>第 110 題 Balanced Binary Tree</strong> —— 「後序回傳一包」的入門</li>
+          <li><strong>第 53 題 Maximum Subarray</strong> —— 陣列上的同類問題</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「回傳給父節點的值」和「答案」為什麼是兩件事？各自的公式是什麼？</li>
+            <li><code>max(gain(kid), 0)</code> 裡的 <code>0</code> 代表什麼意思？</li>
+            <li>為什麼 <code>best</code> 不能初始化成 0？</li>
+            <li>這題和第 543 題（直徑）的骨架一樣，差別在哪裡？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0123.html">← 上一題：123. 買賣股票的最佳時機 III</a>
+          <a href="problem-0125.html">下一題：125. 驗證回文串 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

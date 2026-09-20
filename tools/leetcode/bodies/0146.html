@@ -1,0 +1,501 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Design a data structure that follows the constraints of a <strong>Least Recently Used (LRU) cache</strong>.</p>
+          <p>Implement the <code>LRUCache</code> class:</p>
+          <ul><li><code>LRUCache(int capacity)</code> Initialize the LRU cache with <strong>positive</strong> size <code>capacity</code>.</li><li><code>int get(int key)</code> Return the value of the <code>key</code> if the <code>key</code> exists, otherwise return <code>-1</code>.</li><li><code>void put(int key, int value)</code> Update the value of the <code>key</code> if the <code>key</code> exists. Otherwise, add the <code>key-value</code> pair to the cache. If the number of keys exceeds the <code>capacity</code> from this operation, <strong>evict</strong> the least recently used key.</li></ul>
+          <p>The functions <code>get</code> and <code>put</code> must each run in <code>O(1)</code> average time complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>設計一個<strong>最近最少使用（LRU）快取</strong>。</p>
+        <ul>
+          <li><code>LRUCache(capacity)</code>：用一個<strong>正整數</strong>容量初始化。</li>
+          <li><code>get(key)</code>：存在就回傳值，不存在回傳 <code>-1</code>。</li>
+          <li><code>put(key, value)</code>：key 存在就更新值；不存在就新增。如果因此超過容量，<strong>淘汰最久沒被使用的那一筆</strong>。</li>
+        </ul>
+          <p><strong><code>get</code> 和 <code>put</code> 都必須是平均 <code>O(1)</code>。</strong></p>
+        <div class="callout">
+          <h3>什麼算「使用過」？</h3>
+        <p><strong><code>get</code> 和 <code>put</code> 都算</strong> —— 只要碰到某個 key，它就變成「最近使用過」。</p>
+        <p><strong>包括「<code>put</code> 一個已存在的 key」</strong>（更新值也算使用）。</p>
+        <p><strong>失敗的 <code>get</code>（回傳 -1）不算</strong>，因為那個 key 根本不在快取裡。</p>
+        </div>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼要「兩個資料結構」？</h3>
+        <div class="code-block">需求有兩個，而且沒有單一結構能同時做到：
+
+    (a) 用 key 快速找到值           -&gt; 雜湊表 O(1) ✔
+                                       但雜湊表【沒有順序】✘
+
+    (b) 快速知道「誰最久沒用」+ 快速調整順序
+                                    -&gt; 鏈結串列有順序 ✔
+                                       但用 key 查找要 O(n) ✘
+
+【解法：兩個結構搭在一起】
+
+    雜湊表：key -&gt; 節點的【位址】
+    雙向鏈結串列：維護「使用順序」
+
+    get(key)：
+        1. 雜湊表 O(1) 找到節點
+        2. 把節點從串列裡拔出來，插到最前面（O(1)）
+
+    put 滿了：
+        1. 串列的最後一個就是「最久沒用的」
+        2. 拔掉它，並從雜湊表刪掉（O(1)）
+
+【★ 為什麼必須是「雙向」串列？】
+
+    要把節點從【中間】拔出來，需要改「前一個的 next」。
+
+    單向串列只知道 next，
+    要找前一個得從頭走 -&gt; O(n) ✘
+
+    雙向串列有 prev -&gt; O(1) ✔
+
+【★ 為什麼節點裡要存 key？】
+
+    淘汰時，我們是從【串列尾端】拿到節點的，
+    但還要 del table[key] ——
+
+    如果節點只存 value，就不知道該刪雜湊表的哪一筆 ✘
+
+    【這是本題最常見的漏寫。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：
+    ["LRUCache","put","put","get","put","get","put","get","get","get"]
+    [[2],[1,1],[2,2],[1],[3,3],[2],[4,4],[1],[3],[4]]
+
+  輸出：
+    [null,null,null,1,null,-1,null,-1,3,4]
+
+  說明（容量 = 2）：
+    put(1,1)   快取 = {1=1}
+    put(2,2)   快取 = {1=1, 2=2}
+    get(1)     回傳 1，  快取 = {2=2, 1=1}   （1 變成最近使用）
+    put(3,3)   超過容量 -&gt; 淘汰 key 2
+               快取 = {1=1, 3=3}
+    get(2)     回傳 -1（已被淘汰）
+    put(4,4)   淘汰 key 1，快取 = {3=3, 4=4}
+    get(1)     回傳 -1
+    get(3)     回傳 3
+    get(4)     回傳 4</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>capacity</code> ≤ 3000</li>
+          <li>0 ≤ <code>key</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>value</code> ≤ 10⁵</li>
+          <li>最多會呼叫 2 × 10⁵ 次 <code>get</code> 和 <code>put</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 490" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">雜湊表負責「O(1) 找到節點」，雙向鏈結串列負責「O(1) 搬動與刪除」—— 兩個結構各補對方的短處。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">雜湊表 table：key → 節點的位址</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="40" y="70" width="70" height="26" fill="none" stroke="var(--accent)"/><text x="75" y="88" fill="var(--accent)">1 → ●</text>
+              <rect x="118" y="70" width="70" height="26" fill="none" stroke="var(--accent)"/><text x="153" y="88" fill="var(--accent)">2 → ●</text>
+              <rect x="196" y="70" width="70" height="26" fill="none" stroke="var(--accent)"/><text x="231" y="88" fill="var(--accent)">3 → ●</text>
+            </g>
+            <text x="20" y="140" fill="var(--gold)" font-size="13">雙向鏈結串列：由「最近用過」排到「最久沒用」</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="40" y="158" width="58" height="34" fill="none" stroke="var(--text-muted)" stroke-dasharray="4 3"/><text x="69" y="180" fill="var(--text-muted)">head</text>
+              <rect x="120" y="158" width="58" height="34" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="149" y="180" fill="#ff8a65">3</text>
+              <rect x="200" y="158" width="58" height="34" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="229" y="180" fill="var(--accent)">1</text>
+              <rect x="280" y="158" width="58" height="34" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="309" y="180" fill="var(--accent)">2</text>
+              <rect x="360" y="158" width="58" height="34" fill="none" stroke="var(--text-muted)" stroke-dasharray="4 3"/><text x="389" y="180" fill="var(--text-muted)">tail</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="98" y1="170" x2="116" y2="170"/><line x1="116" y1="182" x2="98" y2="182"/>
+              <line x1="178" y1="170" x2="196" y2="170"/><line x1="196" y1="182" x2="178" y2="182"/>
+              <line x1="258" y1="170" x2="276" y2="170"/><line x1="276" y1="182" x2="258" y2="182"/>
+              <line x1="338" y1="170" x2="356" y2="170"/><line x1="356" y1="182" x2="338" y2="182"/>
+            </g>
+            <text x="149" y="214" fill="#ff8a65" font-size="11" text-anchor="middle">最近用過</text>
+            <text x="309" y="214" fill="var(--accent)" font-size="11" text-anchor="middle">最久沒用 → 滿了先丟它</text>
+            <line x1="20" y1="238" x2="620" y2="238" stroke="var(--border)"/>
+            <text x="20" y="266" fill="var(--accent)" font-size="13">為什麼非得是【雙向】串列？</text>
+            <text x="40" y="294" fill="var(--text-muted)" font-size="12">要把某個節點從中間「拔出來」，必須改它前一個的 next。</text>
+            <text x="40" y="320" fill="var(--text-muted)" font-size="12">單向串列只知道 next，要找前一個就得從頭走一遍 → O(n)。</text>
+            <text x="40" y="346" fill="var(--gold)" font-size="12">雙向串列有 prev，拔節點只要四行指標操作 → O(1) ✔</text>
+            <text x="20" y="382" fill="var(--accent)" font-size="13">為什麼要兩個虛擬節點（head / tail）？</text>
+            <text x="40" y="410" fill="var(--text-muted)" font-size="12">有了它們，任何真實節點都保證「前後都有東西」——</text>
+            <text x="40" y="436" fill="var(--gold)" font-size="12">_remove 和 _add_front 就完全不用判斷「是不是第一個 / 最後一個」。</text>
+            <text x="20" y="470" fill="#ff8a65" font-size="12">★ 節點裡為什麼要存 key？淘汰時只拿得到節點，但要 del table[key] —— 沒存 key 就找不回去。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【資料結構】
+
+    table: dict     key -&gt; Node
+    雙向串列：       head &lt;-&gt; ... &lt;-&gt; tail
+
+        head.next = 最近使用過的
+        tail.prev = 最久沒使用的
+
+【兩個虛擬節點（dummy head / tail）】
+
+    有了它們，任何真實節點都保證「前後都有東西」。
+
+    _remove(node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+        -&gt; 完全不用判斷「是不是第一個 / 最後一個」✔
+
+    沒有虛擬節點的話，這兩行會有四種特例要處理
+    （是頭 / 是尾 / 又是頭又是尾 / 都不是）。
+
+    【虛擬節點是鏈結串列題的萬用技巧】——
+    第 2、21、24、82、86、117、148 題全都用它。
+
+【get(key)】
+    不在 -&gt; -1
+    在   -&gt; 拔出來、插到最前面、回傳值
+
+【put(key, value)】
+    已存在 -&gt; 更新值、拔出來、插到最前面
+    不存在 -&gt; 若滿了先淘汰 tail.prev，再插到最前面
+
+【複雜度】：兩個操作都是 O(1) ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>雜湊表 + 雙向鏈結串列（標準答案）</h3>
+        <div class="code-block">class Node:
+    """雙向鏈結串列的節點"""
+    __slots__ = ("key", "val", "prev", "next")
+
+    def __init__(self, key=0, val=0):
+        self.key = key
+        self.val = val
+        self.prev = None
+        self.next = None
+
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.table = {}                     # key -&gt; Node
+
+        # 兩個虛擬節點，省掉所有「頭尾」的特判
+        self.head = Node()                  # head.next 是【最近用過的】
+        self.tail = Node()                  # tail.prev 是【最久沒用的】
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _remove(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _add_front(self, node):
+        node.next = self.head.next
+        node.prev = self.head
+        self.head.next.prev = node
+        self.head.next = node
+
+    def get(self, key: int) -&gt; int:
+        if key not in self.table:
+            return -1
+        node = self.table[key]
+        self._remove(node)                  # 用過了 -&gt; 搬到最前面
+        self._add_front(node)
+        return node.val
+
+    def put(self, key: int, value: int) -&gt; None:
+        if key in self.table:
+            node = self.table[key]
+            node.val = value
+            self._remove(node)
+            self._add_front(node)
+            return
+
+        if len(self.table) == self.cap:     # 滿了 -&gt; 淘汰最久沒用的
+            lru = self.tail.prev
+            self._remove(lru)
+            del self.table[lru.key]         # ★ 這就是節點要存 key 的理由
+
+        node = Node(key, value)
+        self.table[key] = node
+        self._add_front(node)</div>
+        <h3><code>_remove</code> 和 <code>_add_front</code> 的四行指標操作</h3>
+        <div class="code-block">def _remove(self, node):
+    node.prev.next = node.next
+    node.next.prev = node.prev
+
+    「讓前後兩個直接牽起手」——
+    node 就被跳過了。
+
+def _add_front(self, node):
+    node.next = self.head.next      ① node 指向原本的第一個
+    node.prev = self.head           ② node 指回 head
+    self.head.next.prev = node      ③ 原本的第一個指回 node
+    self.head.next = node           ④ head 指向 node
+
+    【★ ③ 一定要在 ④ 之前】——
+    ④ 執行之後 self.head.next 就變成 node 了，
+    ③ 就會變成 node.prev = node（自環）✘
+
+    這又是「動指標前先用完舊值」的鐵律。
+
+【背下這兩個四行函式】，
+    LRU、LFU、以及任何「要 O(1) 搬動元素」的設計題都用得上。</div>
+        <h3><code>__slots__</code> 這一行是做什麼的？</h3>
+        <div class="code-block">__slots__ = ("key", "val", "prev", "next")
+
+    告訴 Python「這個類別只有這四個屬性」，
+    於是它就【不用替每個實例建一個 __dict__】。
+
+    好處：
+        ✔ 記憶體省很多（每個實例省掉一個字典，約 50 bytes+）
+        ✔ 屬性存取略快
+
+    壞處：
+        ✘ 不能動態加屬性
+        ✘ 不能多重繼承有 __slots__ 的類別
+
+【本題最多 3000 個節點，其實不加也沒差】。
+
+    但在「會建立大量小物件」的場合
+    （例如圖的節點、遊戲的粒子），
+    __slots__ 是很划算的優化。
+
+    面試時加上它會顯示你在意實務細節。</div>
+        <h3><code>put</code> 的三種情況</h3>
+        <div class="code-block">1. key 已存在
+       -&gt; 更新 val、搬到最前面
+       【不會觸發淘汰】（總數沒變）
+
+2. key 不存在、還沒滿
+       -&gt; 直接新增到最前面
+
+3. key 不存在、已經滿了
+       -&gt; 先淘汰 tail.prev，再新增
+
+【常見的 bug】：
+    把「已存在」的情況也走「檢查是否滿了」的路徑
+    -&gt; 更新一個已存在的 key 時卻淘汰了別人 ✘
+
+    所以要用 return 提早結束（本文的寫法），
+    或者用 if/elif 分清楚。</div>
+        <p><strong>兩個操作都是 O(1)，空間 O(capacity)。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(1) 每次操作</td><td>雜湊 + 指標都是 O(1)</td></tr>
+            <tr><td>空間</td><td>O(capacity)</td><td>表 + 串列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3><code>OrderedDict</code>（Python 的捷徑）</h3>
+        <div class="code-block">from collections import OrderedDict
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.od = OrderedDict()             # 它本身就記得插入順序
+
+    def get(self, key: int) -&gt; int:
+        if key not in self.od:
+            return -1
+        self.od.move_to_end(key)            # 搬到尾端（代表最近用過）
+        return self.od[key]
+
+    def put(self, key: int, value: int) -&gt; None:
+        if key in self.od:
+            self.od.move_to_end(key)
+        self.od[key] = value
+        if len(self.od) &gt; self.cap:
+            self.od.popitem(last=False)     # 丟掉最前面（最久沒用的）</div>
+        <div class="code-block">collections.OrderedDict 本身就是
+【雜湊表 + 雙向鏈結串列】的組合 ——
+
+    它記得插入順序，而且提供：
+
+        move_to_end(key)        把某個 key 搬到尾端    O(1)
+        popitem(last=False)     彈出【最前面】的       O(1)
+
+    正好就是 LRU 需要的兩個操作 ✔
+
+【八行解完。】
+
+【面試時可以用嗎？】
+
+    要看情況：
+
+    ✔ 如果面試官想看「你會不會用工具」-&gt; 可以
+    ✘ 如果面試官想看「你懂不懂資料結構」-&gt; 不行
+
+    【最好的做法】：
+        先寫 OrderedDict 版（三十秒），
+        然後說「這底層就是雜湊表 + 雙向串列，
+        我可以手刻一個給你看」，
+        再寫解法一。
+
+    這樣兩邊都照顧到了。
+
+【Python 3.7+ 的普通 dict 也記得插入順序】，
+    但它【沒有 move_to_end 和 popitem(last=False)】——
+    所以還是要用 OrderedDict。
+
+    （普通 dict 可以用 del + 重新插入來模擬 move_to_end，
+      但那樣就沒有 O(1) 的保證了… 
+      實際上 CPython 的 dict 刪除+插入也是 O(1) 攤還，
+      所以也行，只是語意不清楚。）</div>
+        <p><strong>兩個操作都是 O(1)，程式碼只有解法一的三分之一。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(1) 每次操作</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(capacity)</td><td>OrderedDict</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>get</th><th>put</th><th>行數</th><th>面試評價</th></tr></thead>
+          <tbody>
+            <tr><td>一、手刻雜湊 + 雙向串列</td><td>O(1)</td><td>O(1)</td><td>45</td><td>★★★ 展示基本功</td></tr>
+            <tr><td>二、OrderedDict</td><td>O(1)</td><td>O(1)</td><td>15</td><td>★★☆ 要能說出底層</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>capacity = 1</code></strong> → 每次 <code>put</code> 新 key 都會淘汰前一個。</li>
+          <li><strong><code>get</code> 不存在的 key</strong> → <code>-1</code>，<strong>而且不改變任何順序。</strong></li>
+          <li><strong><code>put</code> 已存在的 key</strong> → <strong>更新值 + 變成最近使用，但【不淘汰任何東西】。</strong><strong>把這個情況也走「檢查滿了」的路徑是本題最常見的 bug。</strong></li>
+          <li><strong>淘汰時忘了 <code>del table[key]</code></strong> → <strong>雜湊表越積越大，而且會查到已經被拔掉的節點。</strong></li>
+          <li><strong>節點裡沒存 <code>key</code></strong> → 淘汰時不知道要刪雜湊表的哪一筆。</li>
+          <li><strong><code>_add_front</code> 的第 ③④ 行順序寫反</strong> → 產生自環。</li>
+          <li><strong>用單向串列</strong> → 拔節點要 O(n)，不滿足 O(1) 的要求。</li>
+          <li><strong>2 × 10⁵ 次操作</strong> → O(1) 每次，總共 20 萬次，輕鬆。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：LFU 快取（第 460 題）要怎麼做？</h3>
+
+        <div class="code-block">LRU：淘汰「最久沒用的」
+LFU：淘汰「使用次數最少的」（次數相同時淘汰最久沒用的）
+
+【LFU 的結構】：
+
+    table:  key -&gt; 節點
+    freq_map: 次數 -&gt; 一條雙向串列（那個次數的所有 key，按 LRU 排序）
+    min_freq: 目前最小的次數
+
+    get / put 時：
+        1. 把節點從 freq_map[f] 移到 freq_map[f+1]
+        2. 如果 freq_map[min_freq] 空了，min_freq += 1
+
+    淘汰時：
+        取 freq_map[min_freq] 的最後一個
+
+【關鍵洞察：min_freq 只會 +1 或在插入時歸 1】——
+    所以不用「找最小值」，O(1) 維護 ✔
+
+    LFU 比 LRU 難不少，但結構是同一套思路：
+    【用「多個串列 + 一個索引」維護複合的順序】。</div>
+
+        <h3>追問二：真實系統裡用的是 LRU 嗎？</h3>
+
+        <div class="code-block">很少用【精確】的 LRU，因為：
+
+    ✘ 每次讀取都要改鏈結串列 -&gt; 在多執行緒下要加鎖，
+       而那個鎖會變成瓶頸
+    ✘ 對「掃描型」存取很不利
+       （一次大掃描會把有用的東西全部擠出去）
+
+【實務上的替代方案】：
+
+    Clock / Second-Chance：
+        用一個環形陣列 + reference bit，近似 LRU，
+        但不用每次讀取都改結構。
+        （作業系統的分頁置換用這個。）
+
+    Segmented LRU / 2Q：
+        分成「新來的」和「常用的」兩區，
+        抗掃描能力強很多。
+
+    TinyLFU / W-TinyLFU：
+        用 Count-Min Sketch 估計頻率，
+        只有「比要被淘汰的那個更常用」才准進來。
+        （Caffeine、Redis 的近似 LRU 都是這一類。）
+
+【面試題是 LRU，真實系統是它的各種近似與改良】——
+    知道這個差距本身就是加分項。</div>
+
+        <h3>追問三：如果要支援「多執行緒」呢？</h3>
+
+        <p><strong>最簡單：整個 <code>get</code>/<code>put</code> 加一把大鎖</strong> —— 正確但吞吐量差（所有執行緒排隊）。</p>
+
+        <p><strong>更好的做法</strong>：<strong>分片（sharding）</strong> —— 把 key 依雜湊值分成 N 個獨立的 LRU，每個有自己的鎖。<strong>N 個執行緒可以同時操作不同的分片。</strong></p>
+
+        <p><strong>代價：淘汰不再是「全域最久沒用」，而是「該分片裡最久沒用」</strong> —— <strong>近似，但實務上完全可以接受。</strong></p>
+
+        <h3>追問四：為什麼用「雙向串列」而不是「陣列」或「堆」？</h3>
+
+        <div class="code-block">陣列：
+    搬到最前面要移動所有元素 -&gt; O(n) ✘
+
+堆（heap）：
+    如果用「時間戳」當優先權，
+    取最小是 O(1)，但【更新某個元素的優先權】要 O(log n)
+    而且要能「找到那個元素在堆裡的位置」（需要額外索引）
+    -&gt; O(log n)，不滿足 O(1) ✘
+
+雙向串列：
+    拔出 + 插入頭部都是 O(1) ✔
+    而且「最久沒用的」永遠在尾端，取出也是 O(1) ✔
+
+【選資料結構的思路】：
+
+    列出所有需要的操作，
+    然後找「每一個操作都夠快」的結構。
+
+    這題需要：
+        依 key 查找     -&gt; 雜湊表
+        調整順序        -&gt; 雙向串列
+        取出「最舊的」  -&gt; 雙向串列的尾端
+
+    沒有單一結構全包 -&gt; 組合兩個。
+
+    【「組合資料結構」是設計題的核心能力。】</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 460 題 LFU Cache</strong> —— 按使用次數淘汰，更難</li>
+          <li><strong>第 155 題 Min Stack</strong> —— 另一個「組合結構」的設計題</li>
+          <li><strong>第 380 題 O(1) 時間插入刪除和取隨機元素</strong> —— 雜湊表 + 陣列</li>
+          <li><strong>第 707 題 設計鏈結串列</strong> —— 雙向串列的基本操作</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼需要「雜湊表」和「雙向串列」兩個結構？各自解決什麼問題？</li>
+            <li>為什麼必須是<strong>雙向</strong>串列？單向會慢在哪裡？</li>
+            <li>節點裡為什麼要存 <code>key</code>？不存會在哪一步卡住？</li>
+            <li><code>put</code> 一個<strong>已存在</strong>的 key 時，會不會淘汰別人？</li>
+          </ol>
+        </div>

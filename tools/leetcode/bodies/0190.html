@@ -1,0 +1,522 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Reverse bits of a given 32 bits unsigned integer.</p>
+          <p><strong>Note:</strong> In some languages, such as Java, there is no unsigned integer type. In this case, both input and output will be given as a signed integer type. They should not affect your implementation, as the integer's internal binary representation is the same whether it is signed or unsigned.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>把一個 <strong>32 位元無號整數</strong>的二進位表示<strong>整個顛倒過來</strong>，回傳顛倒後的數字。</p>
+          <p><strong>注意：</strong>是把 32 個位元前後對調（第 0 位換到第 31 位、第 1 位換到第 30 位……），<strong>不是</strong>把 0 變 1、1 變 0。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題在 Python 裡有一個特別的坑</h3>
+        <div class="code-block">【Python 的整數是任意精度的】——
+    它沒有「32 位元」這個概念。
+
+    所以：
+        1. 【一定要自己固定跑 32 圈】
+
+           while n: 這種寫法在 C 裡可以（會自然停），
+           但在 Python 裡輸入 1 會只跑一圈 -&gt; 得到 1 ✘
+           正確答案是 1 &lt;&lt; 31 = 2147483648
+
+        2. 【左移之後要自己遮罩】
+
+           n &lt;&lt; 16 在 Python 不會溢位，
+           所以分治法最後一定要 &amp; 0xFFFFFFFF ✘ 否則答案超過 32 位
+
+        3. 【負數不會出現】
+
+           題目說是無號數，LeetCode 傳進來的就是 0 ~ 2^32-1。
+           （Java 版才要處理符號位。）
+
+【最短的「作弊解」】：
+
+    return int(format(n, '032b')[::-1], 2)
+
+    【面試官會說「不要用字串」】——
+    因為這題考的就是位元運算。
+
+    但把它當成【驗算用的參考解】很好用 ✔</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 00000010100101000001111010011100
+  輸出：   964176192 (00111001011110000010100101000000)
+  說明：輸入代表無號整數 43261596，
+        顛倒後代表無號整數 964176192。
+
+範例 2
+  輸入：n = 11111111111111111111111111111101
+  輸出：  3221225471 (10111111111111111111111111111111)
+
+範例 3（邊界）
+  輸入：n = 1        (00000000000000000000000000000001)
+  輸出：  2147483648 (10000000000000000000000000000000)
+  說明：★ 最低位跑到最高位。
+        如果你寫 while n: 這一題就會錯。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>輸入是一個長度為 32 的二進位字串（即 0 ≤ <code>n</code> &lt; 2³²）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/reverse-bits/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>追問：如果這個函式會被呼叫很多次呢？</h3>
+        <p><strong>題目明講了：「If this function is called many times, how would you optimize it?」</strong></p>
+        <p><strong>答案是查表法</strong> —— 預先算好 256 個位元組的反轉結果，<strong>每次呼叫只要四次查表加三次位移。</strong>見解法四。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 384" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 逐位反轉：像倒水一樣，把 n 的最低位一位一位「倒」進 res 的最低位。</text>
+            <g font-family="monospace" font-size="13">
+              <text x="20" y="54" fill="var(--text-muted)">n   = 1 0 1 1 ...</text>
+              <text x="320" y="54" fill="var(--text-muted)">res = 0</text>
+              <text x="20" y="82" fill="var(--accent)">取 n&amp;1 = 1 →</text>
+              <text x="320" y="82" fill="var(--gold)">res = 1</text>
+              <text x="20" y="110" fill="var(--accent)">取 n&amp;1 = 1 →</text>
+              <text x="320" y="110" fill="var(--gold)">res = 1 1</text>
+              <text x="20" y="138" fill="var(--accent)">取 n&amp;1 = 0 →</text>
+              <text x="320" y="138" fill="var(--gold)">res = 1 1 0</text>
+              <text x="20" y="166" fill="var(--accent)">取 n&amp;1 = 1 →</text>
+              <text x="320" y="166" fill="var(--gold)">res = 1 1 0 1</text>
+            </g>
+            <text x="20" y="200" fill="var(--text-muted)" font-size="12">res 每次先左移騰出一格，再把新的位塞進最低位 —— 先進來的被推到最高位 ✔</text>
+            <line x1="20" y1="220" x2="620" y2="220" stroke="var(--border)"/>
+            <text x="20" y="248" fill="#ff8a65" font-size="13">★ 分治版：交換相鄰 1 位 → 2 位 → 4 位 → 8 位 → 16 位，五步搞定</text>
+            <g font-family="monospace" font-size="12">
+              <text x="40" y="278" fill="var(--accent)">abcdefgh</text>
+              <text x="180" y="278" fill="var(--text-muted)">→ 兩兩交換 →</text>
+              <text x="340" y="278" fill="var(--gold)">badcfehg</text>
+              <text x="40" y="304" fill="var(--accent)">badcfehg</text>
+              <text x="180" y="304" fill="var(--text-muted)">→ 四四交換 →</text>
+              <text x="340" y="304" fill="var(--gold)">dcbahgfe</text>
+              <text x="40" y="330" fill="var(--accent)">dcbahgfe</text>
+              <text x="180" y="330" fill="var(--text-muted)">→ 八八交換 →</text>
+              <text x="340" y="330" fill="var(--gold)">hgfedcba ✔</text>
+            </g>
+            <text x="20" y="364" fill="var(--text-muted)" font-size="12">0x55555555 = 0101…（偶數位）、0x33333333 = 0011…（每 4 位的低 2 位）、0x0F0F0F0F = 每位元組的低 4 位。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【核心一行】
+
+    res = (res &lt;&lt; 1) | (n &amp; 1)
+    n &gt;&gt;= 1
+
+    讀法：
+        n &amp; 1      取出 n 的【最低位】
+        res &lt;&lt; 1   把 res 整個左移，最低位空出來
+        |          把剛取出的位填進去
+        n &gt;&gt;= 1    n 丟掉最低位，換下一位
+
+【為什麼這樣就是反轉？】
+
+    第一個被取出的（n 的第 0 位）
+    被後面 31 次左移推到最高位 -&gt; 第 31 位 ✔
+
+    最後一個被取出的（n 的第 31 位）
+    沒有再被推，停在最低位 -&gt; 第 0 位 ✔
+
+    【先進來的跑最遠 —— 這就是反轉。】
+
+【和「用堆疊反轉字串」是同一件事】：
+    push 進去、pop 出來，順序自然顛倒。
+    這裡 res 就是那個堆疊。
+
+【一定要跑滿 32 圈】
+
+    for _ in range(32):    ✔
+    while n:               ✘ 在 Python 裡會少補前導 0
+
+    例：n = 1
+        跑滿 32 圈 -&gt; res = 1 &lt;&lt; 31 ✔
+        while n 只跑 1 圈 -&gt; res = 1 ✘
+
+【複雜度】
+
+    O(32) = O(1) 時間、O(1) 空間。
+
+    這題的「優化」不是改變複雜度，
+    而是把【常數】從 32 降到 5（分治）或 4（查表）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>逐位反轉（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def reverseBits(self, n: int) -&gt; int:
+        res = 0
+        for _ in range(32):
+            res = (res &lt;&lt; 1) | (n &amp; 1)   # 把 n 的最低位推進 res 的最低位
+            n &gt;&gt;= 1
+        return res</div>
+        <p><strong>五行，一定要會背。</strong></p>
+        <h3>★ 為什麼 <code>range(32)</code> 不能換成 <code>while n</code>？</h3>
+        <div class="code-block">因為【前導 0 也要反轉】。
+
+    n = 1 的 32 位表示是
+        00000000000000000000000000000001
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ 這 31 個 0 也要跑到後面去
+
+    反轉後：
+        10000000000000000000000000000000 = 2^31 ✔
+
+    while n 在第一圈之後 n 就變 0 了 -&gt; 停 -&gt; res = 1 ✘
+
+【在 C/Java 裡也一樣】——
+    那邊 int 有固定 32 位，但迴圈次數還是要自己寫 32。
+
+【這是這題最常見的錯誤】，而且範例 1、2 都測不出來
+    （它們的最高位都不是 0），
+    只有 n = 1 這種小數字會露餡。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(32) = O(1)</td><td>固定 32 圈</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>提早結束（剩下全是 0 就補位）</h3>
+        <div class="code-block">class Solution:
+    def reverseBits(self, n: int) -&gt; int:
+        res = 0
+        for i in range(32):
+            if n == 0:                   # ★ 剩下全是 0，直接補位
+                return res &lt;&lt; (32 - i)
+            res = (res &lt;&lt; 1) | (n &amp; 1)
+            n &gt;&gt;= 1
+        return res</div>
+        <h3>省下來的是什麼？</h3>
+        <div class="code-block">如果 n 在第 i 圈就變成 0，
+    代表【剩下的 32-i 位全是 0】。
+
+    那些 0 反轉後還是 0，只要把 res 左移 (32-i) 位補齊就好 ✔
+
+【什麼時候有用？】
+
+    n 很小的時候（高位都是 0）。
+    n = 1 -&gt; 只跑 1 圈就結束。
+
+【什麼時候沒用？】
+
+    n 的最高位是 1 -&gt; 還是要跑滿 32 圈。
+
+【值不值得寫？】
+
+    最壞情況一樣是 32，
+    多了一個 if 判斷 ——
+
+    【面試時提一下就好，不用真的寫】。
+    真的要優化就直接跳到解法三或四。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(32) = O(1)</td><td>最壞 32 圈</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>分治交換（五步）</h3>
+        <div class="code-block">class Solution:
+    def reverseBits(self, n: int) -&gt; int:
+        # 分治：先兩兩交換，再四四、八八、十六十六
+        n = ((n &amp; 0xAAAAAAAA) &gt;&gt; 1) | ((n &amp; 0x55555555) &lt;&lt; 1)   # 相鄰 1 位
+        n = ((n &amp; 0xCCCCCCCC) &gt;&gt; 2) | ((n &amp; 0x33333333) &lt;&lt; 2)   # 相鄰 2 位
+        n = ((n &amp; 0xF0F0F0F0) &gt;&gt; 4) | ((n &amp; 0x0F0F0F0F) &lt;&lt; 4)   # 相鄰 4 位
+        n = ((n &amp; 0xFF00FF00) &gt;&gt; 8) | ((n &amp; 0x00FF00FF) &lt;&lt; 8)   # 相鄰 8 位
+        return ((n &gt;&gt; 16) | (n &lt;&lt; 16)) &amp; 0xFFFFFFFF             # 前後 16 位</div>
+        <h3>★ 怎麼讀那些魔術數字？</h3>
+        <div class="code-block">把它們寫成二進位就很清楚：
+
+    0x55555555 = 0101 0101 ... 【偶數位】（第 0, 2, 4, ... 位）
+    0xAAAAAAAA = 1010 1010 ... 【奇數位】
+    0x33333333 = 0011 0011 ... 【每 4 位的低 2 位】
+    0xCCCCCCCC = 1100 1100 ... 【每 4 位的高 2 位】
+    0x0F0F0F0F = 0000 1111 ... 【每個位元組的低 4 位】
+    0xF0F0F0F0 = 1111 0000 ... 【每個位元組的高 4 位】
+    0x00FF00FF = 每 16 位的低 8 位
+    0xFF00FF00 = 每 16 位的高 8 位
+
+【每一行在做什麼？】
+
+    ((n &amp; 高位遮罩) &gt;&gt; d) | ((n &amp; 低位遮罩) &lt;&lt; d)
+       ^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^^
+       高的搬到低             低的搬到高
+
+    = 【把每一對相鄰的 d 位互換】
+
+【為什麼交換 1,2,4,8,16 位就等於整個反轉？】
+
+    以 8 位 abcdefgh 為例：
+
+        兩兩交換：badcfehg
+        四四交換：dcbahgfe
+        八八交換：hgfedcba ✔
+
+    【每一步都把「區塊內已經反轉好的部分」
+      整塊搬到對稱位置】——
+    這是標準的分治：
+        reverse(X·Y) = reverse(Y)·reverse(X)
+
+    和第 189 題的三次反轉是【同一個恆等式】✔
+
+【★ 最後一定要 &amp; 0xFFFFFFFF】
+
+    Python 的 n &lt;&lt; 16 不會溢位，
+    高位會一路長出去 -&gt; 答案錯 ✘
+
+    C/Java 靠 uint32 自然截斷，Python 要自己來。
+
+【速度】
+
+    5 次運算 vs 32 次迴圈 -&gt; 快約 6 倍。
+    而且沒有分支，CPU 的管線很喜歡。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>5 步 = O(1)</td><td>無迴圈、無分支</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>幾個常數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法四</span>
+          <h3>查表（回答「呼叫很多次」的追問）</h3>
+        <div class="code-block">class Solution:
+    _table = None
+
+    def reverseBits(self, n: int) -&gt; int:
+        if Solution._table is None:      # 256 個位元組的反轉表，只算一次
+            Solution._table = [
+                int(format(b, '08b')[::-1], 2) for b in range(256)
+            ]
+        t = Solution._table
+        return (t[n &amp; 0xFF] &lt;&lt; 24 | t[(n &gt;&gt; 8) &amp; 0xFF] &lt;&lt; 16 |
+                t[(n &gt;&gt; 16) &amp; 0xFF] &lt;&lt; 8 | t[(n &gt;&gt; 24) &amp; 0xFF])</div>
+        <h3>★ 這才是追問要的答案</h3>
+        <div class="code-block">【把 32 位切成 4 個位元組】，
+    每個位元組的反轉結果【預先算好放進表裡】。
+
+    表的大小：256 個項目（每個位元組只有 256 種可能）。
+
+    查詢時：
+        4 次查表 + 3 次位移/或 -&gt; 【O(1) 且常數極小】✔
+
+【★ 位元組的順序要整個顛倒】
+
+    原本的第 0 個位元組（最低）
+    -&gt; 反轉後要放到【最高】
+
+    所以：
+        t[n &amp; 0xFF]        &lt;&lt; 24   最低位元組 -&gt; 最高
+        t[(n &gt;&gt; 8) &amp; 0xFF] &lt;&lt; 16
+        t[(n &gt;&gt; 16) &amp; 0xFF] &lt;&lt; 8
+        t[(n &gt;&gt; 24) &amp; 0xFF]        最高位元組 -&gt; 最低
+
+    【不只每個位元組內部要反轉，
+      位元組之間的順序也要反轉】——
+    這是最容易漏掉的一半 ✘
+
+【表要怎麼算？】
+
+    int(format(b, '08b')[::-1], 2)
+
+    建表時用字串沒關係 —— 只做 256 次，一次性成本。
+    【真正被反覆呼叫的那段沒有字串操作】 ✔
+
+【還可以更快嗎？】
+
+    切成 2 個 16 位 -&gt; 只要 2 次查表，
+    但表變成 65536 項（256 KB）——
+    【快取放不下，反而變慢】。
+
+    【256 項（1 KB 以內）剛好塞進 L1 快取】 ✔
+    這是「查表法」的甜蜜點。
+
+【一般化】：
+
+    這就是【空間換時間 + 分塊預算】的標準套路。
+    CRC32、Base64 編碼、UTF-8 解碼都用同樣的結構。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>建表 O(256)，之後 O(1)</td><td>4 次查表</td></tr>
+            <tr><td>空間</td><td>O(256)</td><td>1 KB 的表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>每次呼叫的運算量</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐位</td><td>32 圈</td><td>O(1)</td><td>標準答案 ✔</td></tr>
+            <tr><td>二、提早結束</td><td>最壞 32 圈</td><td>O(1)</td><td>小數字快一點</td></tr>
+            <tr><td>三、分治</td><td>5 步</td><td>O(1)</td><td>無分支，快 6 倍</td></tr>
+            <tr><td>四、查表</td><td>4 次查表</td><td>O(256)</td><td>回答追問用 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>n = 0</code></strong> → <code>0</code>。</li>
+          <li><strong><code>n = 1</code></strong> → <code>2³¹ = 2147483648</code>。<strong>用 <code>while n</code> 的寫法會在這裡錯成 1。</strong></li>
+          <li><strong><code>n = 2³¹</code></strong> → <code>1</code>（另一個方向）。</li>
+          <li><strong><code>n = 0xFFFFFFFF</code></strong> → <code>0xFFFFFFFF</code>（全 1，反轉還是自己）。</li>
+          <li><strong>分治法忘了 <code>&amp; 0xFFFFFFFF</code></strong> → <strong>Python 不會溢位，答案會大於 2³²。</strong></li>
+          <li><strong>查表法只反轉位元組內部、忘了顛倒位元組順序</strong> → 只做對了一半。</li>
+          <li><strong>反轉兩次要回到自己</strong> —— <code>reverseBits(reverseBits(n)) == n</code>，這是最好用的自我驗算。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果函式會被呼叫很多次，怎麼優化？</h3>
+
+        <div class="code-block">【這是題目明寫的追問，答案是查表法（解法四）】。
+
+    完整的回答應該包含三層：
+
+    1. 【分塊預算】：把 32 位切成 4 個位元組，
+       預先算好 256 項的反轉表。
+
+    2. 【為什麼是 256 項而不是 65536 項】：
+       1 KB 的表塞得進 L1 快取，
+       256 KB 的表會不斷 cache miss。
+
+    3. 【如果輸入有重複】：
+       再加一層 memoization（dict）——
+       但只在「同樣的輸入真的會重複出現」時才划算，
+       否則 dict 的雜湊成本比 4 次查表還高。
+
+【面試官想聽到的是第 2 點】——
+    「更大的表不一定更快」這個認知
+    比「我知道要查表」更有價值 ✔</div>
+
+        <h3>追問二：怎麼反轉任意 k 位（不是 32 位）？</h3>
+
+        <div class="code-block">【逐位法】：把 range(32) 換成 range(k) ✔
+
+    def reverseBits(n, k):
+        res = 0
+        for _ in range(k):
+            res = (res &lt;&lt; 1) | (n &amp; 1)
+            n &gt;&gt;= 1
+        return res
+
+【分治法】：k 必須是 2 的冪，
+    而且遮罩要跟著改 ——
+    不是 2 的冪的話最後一層會對不齊 ✘
+
+    所以【通用版只能用逐位法或查表法】。
+
+【一個常見需求：反轉 n 的「有效位數」】
+
+    例如 n = 0b1011 (11)，只反轉這 4 位 -&gt; 0b1101 (13)。
+
+    k = n.bit_length()
+
+    注意 n = 0 時 bit_length() 是 0 -&gt; 結果 0 ✔
+
+    【這和本題不同】——
+    本題一定要補滿 32 位的前導 0。</div>
+
+        <h3>追問三：Java 沒有無號整數，怎麼處理？</h3>
+
+        <div class="code-block">Java 的 int 是【有號 32 位】，
+    最高位是符號位。
+
+【兩個要點】：
+
+    1. 【右移要用 &gt;&gt;&gt; 而不是 &gt;&gt;】
+
+       &gt;&gt;  是算術右移，會複製符號位（負數的高位補 1）✘
+       &gt;&gt;&gt; 是邏輯右移，高位補 0 ✔
+
+    2. 【不用管溢位】
+
+       int 天生就是 32 位，
+       左移超出去的部分自動丟掉 ——
+       反而比 Python 省事（不用 &amp; 0xFFFFFFFF）✔
+
+    public int reverseBits(int n) {
+        int res = 0;
+        for (int i = 0; i &lt; 32; i++) {
+            res = (res &lt;&lt; 1) | (n &amp; 1);
+            n &gt;&gt;&gt;= 1;                  // 注意三個 &gt;
+        }
+        return res;
+    }
+
+【Python 的相反】：
+
+    Python 沒有 &gt;&gt;&gt; ——
+    因為它的整數沒有固定寬度，
+    正數右移本來就補 0 ✔
+    （負數在 Python 裡是「無限多個 1」的補數，
+      但本題輸入保證非負，不會遇到。）</div>
+
+        <h3>追問四：這題和第 191 題（數 1 的個數）有什麼關係？</h3>
+
+        <div class="code-block">【它們是同一個家族的兩種操作】：
+
+    190：位元的【位置】重排（反轉）
+    191：位元的【數量】統計（popcount）
+
+    兩題都有三種層次的解法：
+
+        逐位迴圈  -&gt; 32 步
+        分治      -&gt; 5 步（190 的遮罩交換 / 191 的 SWAR）
+        查表      -&gt; 4 次
+
+    【而且分治用的遮罩一模一樣】：
+        0x55555555, 0x33333333, 0x0F0F0F0F ...
+
+【差別】：
+
+    190 的分治是「交換」：(a &gt;&gt; d) | (b &lt;&lt; d)
+    191 的分治是「相加」：(a) + (b &gt;&gt; d)
+
+    【一個搬位置，一個做加法】——
+    但都是「把問題切成兩半、分別解決、再合併」✔
+
+【這組遮罩值得背起來】，
+    位元運算題有一半會用到它們。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 191 題 位元 1 的個數</strong> —— 同一組遮罩，把交換換成相加</li>
+          <li><strong>第 338 題 位元計數</strong> —— <code>dp[i] = dp[i &gt;&gt; 1] + (i &amp; 1)</code></li>
+          <li><strong>第 7 題 整數反轉</strong> —— 十進位版的反轉</li>
+          <li><strong>第 189 題 輪轉陣列</strong> —— 同一個 <code>reverse(A·B) = reverse(B)·reverse(A)</code></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼一定要跑滿 32 圈？<code>n = 1</code> 時 <code>while n</code> 會錯成什麼？</li>
+            <li><code>res = (res &lt;&lt; 1) | (n &amp; 1)</code> 為什麼能達成反轉？</li>
+            <li><code>0x55555555</code>、<code>0x33333333</code> 的二進位長什麼樣？</li>
+            <li>查表法為什麼用 256 項而不是 65536 項？</li>
+          </ol>
+        </div>

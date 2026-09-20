@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>119. Pascal's Triangle II 楊輝三角 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="O(k) 空間要倒著更新，以及用乘除直接算組合數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="119">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 119 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 119</div>
+          <h1>Pascal's Triangle II<br>楊輝三角 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge easy">Easy · 簡單</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer <code>rowIndex</code>, return the <code>rowIndex</code><sup>th</sup> (<strong>0-indexed</strong>) row of the <strong>Pascal's triangle</strong>.</p>
+          <p>In <strong>Pascal's triangle</strong>, each number is the sum of the two numbers directly above it.</p>
+          <p><strong>Follow up:</strong> Could you optimize your algorithm to use only <code>O(rowIndex)</code> extra space?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數 <code>rowIndex</code>，回傳楊輝三角的<strong>第 <code>rowIndex</code> 列</strong>（<strong>從 0 開始算</strong>）。</p>
+          <p><strong>進階：</strong>你能只用 <code>O(rowIndex)</code> 額外空間嗎？</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 這題的唯一考點：倒著更新</h3>
+        <div class="code-block">如果照第 118 題那樣做，要存整個三角形 -&gt; O(k²) 空間。
+
+    進階要求只用 O(k) —— 也就是【只保留一列，原地更新】。
+
+【但原地更新有陷阱】：
+
+    row[j] = row[j-1] + row[j]
+             ^^^^^^^^   ^^^^^^
+             需要「上一列」的值
+
+    正著走（j 從小到大）：
+        更新 row[1] 時用 row[0]  -&gt; row[0] 永遠是 1，沒問題
+        更新 row[2] 時用 row[1]  -&gt; row[1] 【已經被這一輪改掉了】✘
+
+        row = [1,1,1]，要變成 [1,2,1]
+        正著走：row[1] += row[0] -&gt; [1,2,1]
+                row[2] += row[1] -&gt; [1,2,3]  ✘ 應該是 [1,2,1]
+
+    倒著走（j 從大到小）：
+        更新 row[2] 時用 row[1]  -&gt; 還沒改 ✔
+        更新 row[1] 時用 row[0]  -&gt; 還沒改 ✔
+
+        row = [1,1,1]
+        倒著走：row[2] += row[1] -&gt; [1,1,2]
+                row[1] += row[0] -&gt; [1,2,2]
+
+        咦，這也不對？
+
+    ...因為 row 一開始就全填 1 了，
+    而第 2 列（i=2）只需要改 row[1]：
+
+        for j in range(i-1, 0, -1)  -&gt;  i=2 時 range(1,0,-1) = [1]
+        row[1] += row[0] -&gt; [1,2,1] ✔
+
+    【內層迴圈的上界是 i-1，不是 len(row)-1。】
+    因為第 i 列只有前 i+1 個是有效的，
+    而其中只有索引 1..i-1 需要更新。
+
+【這個「倒著走」和第 115 題（不同子序列）、
+  01 背包是完全同一件事。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：rowIndex = 3
+  輸出：[1,3,3,1]
+
+範例 2
+  輸入：rowIndex = 0
+  輸出：[1]
+
+範例 3
+  輸入：rowIndex = 1
+  輸出：[1,1]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>rowIndex</code> ≤ 33</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/pascals-triangle-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>為什麼上限是 33？</h3>
+        <div class="code-block">第 33 列的最大值是 C(33, 16) = 1166803110
+
+    C(34, 17) = 2333606220  &gt;  2^31 - 1 = 2147483647   溢位！
+
+所以 rowIndex &lt;= 33 是為了讓所有數字都裝得進
+32 位元有號整數。
+
+【和第 96 題的 n &lt;= 19、第 70 題的 n &lt;= 45 是同一種考量。】
+
+    看到這種「奇怪的上限」，
+    反射動作應該是「這大概是為了不溢位」。
+
+Python 的整數無限大，所以不受影響 ——
+但解法三（乘除法）在其他語言裡要特別小心：
+    【必須先乘後除】，而且中間值可能接近上限。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">三條路：
+
+【A. 原地倒著更新】（解法一）
+    只用一個長度 k+1 的陣列，倒著走避免覆蓋。
+    O(k²) 時間、O(k) 空間 ✔ 滿足進階。
+
+【B. 移位相加】（解法二）
+    每次造一條新的 list（第 118 題的解法二）。
+    O(k²) 時間，但空間嚴格說是 O(k) ——
+    因為同時只有兩條 list 存在（舊的會被回收）。
+
+【C. 直接用組合數遞推】（解法三）
+    C(n, k) = C(n, k-1) × (n - k + 1) / k
+
+    一路乘除算過去，O(k) 時間、O(k) 空間（就是輸出）。
+
+    【這是唯一一個 O(k) 時間的解法】——
+    比要求的 O(k²) 還快一個數量級。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>原地倒著更新（滿足進階要求）</h3>
+        <div class="code-block">class Solution:
+    def getRow(self, rowIndex: int) -&gt; List[int]:
+        row = [1] * (rowIndex + 1)
+        for i in range(2, rowIndex + 1):
+            # 【倒著走】：row[j] 要用到 row[j-1] 的「上一列」的值
+            for j in range(i - 1, 0, -1):
+                row[j] += row[j - 1]
+        return row</div>
+        <h3>兩個迴圈的邊界</h3>
+        <div class="code-block">for i in range(2, rowIndex + 1):        # 從第 2 列開始
+    for j in range(i - 1, 0, -1):      # j 從 i-1 倒數到 1
+
+    為什麼 i 從 2 開始？
+        第 0 列 [1]、第 1 列 [1,1] 都不用改
+        （全 1 就是答案）。
+
+    為什麼 j 的上界是 i-1？
+        第 i 列有 i+1 個元素（索引 0..i），
+        兩端是 1 不用改，所以要改的是 1..i-1。
+
+    為什麼 j 的下界是 1（不含 0）？
+        row[0] 永遠是 1。
+
+    驗算 rowIndex = 3：
+        初始 row = [1,1,1,1]
+        i=2: j=1  -&gt; row[1] += row[0] -&gt; [1,2,1,1]
+        i=3: j=2  -&gt; row[2] += row[1] -&gt; [1,2,3,1]
+             j=1  -&gt; row[1] += row[0] -&gt; [1,3,3,1] ✔</div>
+        <p><strong>O(k²) 時間、O(k) 空間（除了輸出之外是 O(1)）。</strong><strong>這就是進階要求的答案。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k²)</td><td>兩層迴圈</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>只有一列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>移位相加（最短）</h3>
+        <div class="code-block">class Solution:
+    def getRow(self, rowIndex: int) -&gt; List[int]:
+        row = [1]
+        for _ in range(rowIndex):
+            row = [a + b for a, b in zip([0] + row, row + [0])]
+        return row</div>
+        <p><strong>四行。和第 118 題的解法二完全一樣，只是不收集中間結果。</strong></p>
+        <p><strong>注意初始值是 <code>row = [1]</code> 而不是 <code>[]</code></strong> —— <strong>同樣的邊界陷阱。</strong></p>
+        <p><strong>迴圈跑 <code>rowIndex</code> 次</strong>（不是 <code>rowIndex + 1</code>）—— 因為初始的 <code>[1]</code> 就已經是第 0 列了。</p>
+        <div class="code-block">空間嚴格說是多少？
+
+    每一輪都建立一條新的 list，
+    但舊的立刻失去參考、會被回收。
+
+    所以【同時存在的記憶體】是 O(k) ✔
+
+    不過它確實比解法一多了「配置 + 回收」的成本，
+    在極端在意效能的場合（k 很大）會有差別。
+
+    對 k &lt;= 33 來說完全無所謂。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k²)</td><td>每輪建一條新 list</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>同時兩條列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>組合數遞推（O(k) 時間，最快）</h3>
+        <div class="code-block">class Solution:
+    def getRow(self, rowIndex: int) -&gt; List[int]:
+        # C(n, k) = C(n, k-1) * (n - k + 1) / k，一路乘除算過去
+        row = [1]
+        n = rowIndex
+        for k in range(1, n + 1):
+            row.append(row[-1] * (n - k + 1) // k)
+        return row</div>
+        <h3>推導 <code>C(n,k) = C(n,k-1) × (n-k+1) / k</code></h3>
+        <div class="code-block">C(n, k)     = n! / (k! (n-k)!)
+C(n, k-1)   = n! / ((k-1)! (n-k+1)!)
+
+    C(n,k) / C(n,k-1)
+      = [(k-1)! (n-k+1)!] / [k! (n-k)!]
+      = (n-k+1) / k                       ✔
+
+驗算 n = 4：
+    C(4,0) = 1
+    C(4,1) = 1 × (4-1+1)/1 = 4/1 = 4      ✔
+    C(4,2) = 4 × (4-2+1)/2 = 4×3/2 = 6    ✔
+    C(4,3) = 6 × (4-3+1)/3 = 6×2/3 = 4    ✔
+    C(4,4) = 4 × (4-4+1)/4 = 4×1/4 = 1    ✔
+
+【★ 必須先乘後除】：
+
+    row[-1] * (n - k + 1) // k     ✔
+    row[-1] // k * (n - k + 1)     ✘ 餘數會被丟掉
+
+    為什麼先乘後除一定整除？
+        因為 C(n,k-1) × (n-k+1) = C(n,k) × k，
+        而 C(n,k) 是整數 -&gt; 左邊一定被 k 整除 ✔
+
+    【這和第 96 題（卡塔蘭數遞推）、
+      第 62 題（手算組合數）的注意事項一模一樣。】</div>
+        <p><strong>O(k) 時間 —— 只跑一個迴圈。</strong><strong>比進階要求的 O(k²) 還快。</strong></p>
+        <p><strong>但要注意中間值</strong>：<code>row[-1] * (n-k+1)</code> 可能比最終答案大一個因子 <code>k</code>。<strong>在 C++ / Java 裡 <code>rowIndex = 33</code> 時這個中間值會超過 <code>int</code>，必須用 <code>long long</code>。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k)</td><td>一個迴圈</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>輸出本身</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>中間值會溢位嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、原地倒著更新</td><td>O(k²)</td><td>O(k)</td><td>✘</td><td>進階要求的標準答案</td></tr>
+            <tr><td>二、移位相加</td><td>O(k²)</td><td>O(k)</td><td>✘</td><td>最短</td></tr>
+            <tr><td>三、組合數遞推</td><td>O(k)</td><td>O(k)</td><td>✔ 其他語言要注意</td><td>最快</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>rowIndex = 0</code></strong> → <code>[1]</code>。<strong>三種解法的迴圈都一次都不跑。</strong></li>
+          <li><strong><code>rowIndex = 1</code></strong> → <code>[1,1]</code>。</li>
+          <li><strong><code>rowIndex = 33</code></strong> → 最大值 1166803110，剛好在 <code>INT_MAX</code> 內。</li>
+          <li><strong>解法一正著走 <code>j</code></strong> → <strong>答案全錯（用到被改過的值）—— 本題第一名的 bug。</strong></li>
+          <li><strong>解法一的 <code>j</code> 上界寫成 <code>rowIndex</code> 而不是 <code>i-1</code></strong> → 會提前把後面的格子加進去。</li>
+          <li><strong>解法二初始值寫成 <code>[]</code></strong> → 得到 <code>[0]</code>。</li>
+          <li><strong>解法三先除後乘</strong> → 餘數損失，答案錯。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果只要「第 n 列的第 k 項」呢？</h3>
+
+        <p><strong>直接 <code>math.comb(n, k)</code></strong>，或用解法三的遞推算 k 步 —— <strong>O(k) 時間、O(1) 空間。</strong></p>
+
+        <p><strong>不需要算出整列。</strong><strong>「只要一個值」時，永遠先問「能不能跳過中間過程」。</strong></p>
+
+        <h3>追問二：如果 <code>rowIndex</code> 很大（例如 10⁶）且要對質數取模呢？</h3>
+
+        <div class="code-block">C(n, k) mod p （p 是質數）：
+
+    方法 A：預處理階乘和反元素
+        fact[i] = i! mod p
+        inv_fact[i] = (i!)^(-1) mod p   用費馬小定理算
+        C(n,k) = fact[n] × inv_fact[k] × inv_fact[n-k] mod p
+
+        預處理 O(n)，之後每次查詢 O(1)。
+
+    方法 B：Lucas 定理（n 很大、p 很小時）
+        C(n,k) mod p = Π C(n_i, k_i) mod p
+        （n_i, k_i 是 n, k 在 p 進位下的每一位）
+
+        O(log_p n) 時間。
+
+【競賽裡幾乎所有組合數題目都長這樣】——
+    「對 10^9 + 7 取模」是標準設定，
+    因為 10^9+7 是質數，而且 2^31 裝得下它的平方的一半。</div>
+
+        <h3>追問三：解法三為什麼不會有精度問題？</h3>
+
+        <p><strong>因為全程都是整數運算（<code>//</code> 而不是 <code>/</code>）。</strong></p>
+
+        <p><strong>如果用浮點數（<code>/</code>），<code>C(33,16)</code> 這種九位數會開始累積誤差</strong>，<strong>最後可能差個 1。</strong><strong>「組合數一律用整數運算」是鐵律。</strong></p>
+
+        <h3>追問四：能不能 O(1) 空間？</h3>
+
+        <p><strong>如果「輸出」不算，那解法三已經是 O(1) 了</strong>（只需要記住上一項）。</p>
+
+        <p><strong>但輸出本身有 k+1 個數字，所以總空間至少 O(k)</strong> —— <strong>這是輸出規模的下界，無法突破。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 118 題 Pascal's Triangle</strong> —— 要整個三角形</li>
+          <li><strong>第 115 題 Distinct Subsequences</strong> —— 同樣的「倒著更新」</li>
+          <li><strong>第 62 題 Unique Paths</strong> —— 同一個組合數</li>
+          <li><strong>第 96 題 Unique Binary Search Trees</strong> —— 同樣的「先乘後除」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>原地更新為什麼一定要倒著走？正著走會算出什麼？</li>
+            <li>內層迴圈的上界為什麼是 <code>i-1</code> 而不是 <code>rowIndex</code>？</li>
+            <li><code>C(n,k) = C(n,k-1) × (n-k+1) / k</code> 怎麼推出來的？為什麼一定整除？</li>
+            <li>為什麼題目的上限是 33？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0118.html">← 上一題：118. 楊輝三角</a>
+          <a href="problem-0120.html">下一題：120. 三角形最小路徑和 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>153. Find Minimum in Rotated Sorted Array 尋找旋轉排序陣列中的最小值 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="和 nums[right] 比較而不是 nums[left]，以及原因。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="153">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 153 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 153</div>
+          <h1>Find Minimum in Rotated Sorted Array<br>尋找旋轉排序陣列中的最小值</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">二分搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Suppose an array of length <code>n</code> sorted in ascending order is <strong>rotated</strong> between <code>1</code> and <code>n</code> times. For example, the array <code>nums = [0,1,2,4,5,6,7]</code> might become:</p>
+          <ul><li><code>[4,5,6,7,0,1,2]</code> if it was rotated <code>4</code> times.</li><li><code>[0,1,2,4,5,6,7]</code> if it was rotated <code>7</code> times.</li></ul>
+          <p>Given the sorted rotated array <code>nums</code> of <strong>unique</strong> elements, return <em>the minimum element of this array</em>.</p>
+          <p>You must write an algorithm that runs in <code>O(log n)</code> time.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>一個升序排列的陣列被<strong>旋轉</strong>了若干次（把前面幾個元素搬到後面去）。</p>
+          <p>例如 <code>[0,1,2,4,5,6,7]</code> 旋轉 4 次會變成 <code>[4,5,6,7,0,1,2]</code>。</p>
+          <p>給你這個旋轉後的陣列（<strong>所有元素互不相同</strong>），找出<strong>最小值</strong>。</p>
+          <p><strong>必須是 <code>O(log n)</code> 的演算法。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 二分搜尋不一定要「已排序」</h3>
+        <div class="code-block">一般的二分搜尋需要「整個陣列有序」。
+
+但二分搜尋真正需要的其實只是：
+
+    【能在 O(1) 內判斷「答案在左半還是右半」】
+
+旋轉排序陣列雖然不是整體有序，
+但它有非常強的結構：
+
+    【它是「兩段各自遞增」的，而且左段的所有值都 &gt; 右段的所有值】
+
+        [4, 5, 6, 7 | 0, 1, 2]
+         \_左段_/    \_右段_/
+
+    最小值就是「右段的第一個」= 那個斷崖的底部。
+
+    只要能判斷 mid 落在哪一段，就能砍掉一半 ✔
+
+【這是「二分搜尋的一般化」】：
+
+    只要存在一個【單調的判定函式】
+    （前半都是 False、後半都是 True），
+    就能用二分搜尋找到那個分界點。
+
+    第 162 題（尋找峰值）更極端 ——
+    那個陣列完全沒有排序，但仍然能二分。</div>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼是和 <code>nums[hi]</code> 比，不是 <code>nums[lo]</code>？</h3>
+        <div class="code-block">class Solution:
+    # 【這是錯的，不要抄】：和 nums[lo] 比較
+    def findMin(self, nums: List[int]) -&gt; int:
+        lo, hi = 0, len(nums) - 1
+        while lo &lt; hi:
+            mid = (lo + hi) // 2
+            if nums[mid] &gt; nums[lo]:
+                lo = mid + 1
+            else:
+                hi = mid
+        return nums[lo]</div>
+        <div class="code-block">和 nums[lo] 比的版本【是錯的】。
+
+【原因：「完全沒旋轉」這個情況無法區分】
+
+    考慮 [1, 2, 3]（沒旋轉，答案是 nums[0] = 1）：
+        lo=0, hi=2, mid=1
+        nums[1]=2 &gt; nums[0]=1 -&gt; lo = mid+1 = 2
+        迴圈結束，回傳 nums[2] = 3 ✘
+
+    考慮 [3, 1, 2]（旋轉了）：
+        lo=0, hi=2, mid=1
+        nums[1]=1 &gt; nums[0]=3? 否 -&gt; hi = 1
+        lo=0, hi=1, mid=0
+        nums[0]=3 &gt; nums[0]=3? 否 -&gt; hi = 0
+        回傳 nums[0] = 3 ✘
+
+    兩個都錯。
+
+【和 nums[hi] 比就沒有這個問題】：
+
+    nums[mid] &gt; nums[hi]
+        -&gt; mid 一定在【左段】（因為左段的值都比右段大）
+        -&gt; 最小值在 mid 【右邊】 -&gt; lo = mid + 1 ✔
+
+    nums[mid] &lt; nums[hi]
+        -&gt; mid 在【右段】
+        -&gt; 最小值在 mid 或它左邊 -&gt; hi = mid ✔
+
+    （互不相同，所以不會相等。）
+
+    【驗證 [1,2,3]】：
+        mid=1: nums[1]=2 &gt; nums[2]=3? 否 -&gt; hi=1
+        mid=0: nums[0]=1 &gt; nums[1]=2? 否 -&gt; hi=0
+        回傳 nums[0] = 1 ✔
+
+【為什麼 hi 比較好用？】
+
+    因為【最小值永遠在「右段」（或就是整個陣列的開頭）】，
+    而 nums[hi] 永遠屬於右段（或者陣列沒旋轉時屬於唯一那段）。
+
+    拿它當「參考點」，比較的結果就永遠有意義。
+
+    nums[lo] 則可能屬於左段也可能屬於右段 —— 資訊不足 ✘</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [3,4,5,1,2]
+  輸出：1
+  說明：原本是 [1,2,3,4,5]，旋轉了 3 次。
+
+範例 2
+  輸入：nums = [4,5,6,7,0,1,2]
+  輸出：0
+  說明：原本是 [0,1,2,4,5,6,7]，旋轉了 4 次。
+
+範例 3
+  輸入：nums = [11,13,15,17]
+  輸出：11
+  說明：旋轉了 4 次（等於沒旋轉）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == nums.length</code></li>
+          <li>1 ≤ <code>n</code> ≤ 5000</li>
+          <li>−5000 ≤ <code>nums[i]</code> ≤ 5000</li>
+          <li><code>nums</code> 裡所有元素<strong>互不相同</strong></li>
+          <li><code>nums</code> 是一個升序陣列旋轉 1 到 <code>n</code> 次的結果</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 508" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">旋轉排序陣列長得像「兩段各自遞增」的階梯。最小值就是那個「斷崖」的底部。</text>
+            <text x="20" y="50" fill="var(--gold)" font-size="13">nums = [4, 5, 6, 7, 0, 1, 2]</text>
+            <g stroke="var(--border)" stroke-width="1"><line x1="60" y1="230" x2="560" y2="230"/></g>
+            <g font-size="12" text-anchor="middle">
+              <rect x="70" y="150" width="50" height="80" fill="none" stroke="var(--accent)"/><text x="95" y="250" fill="var(--accent)">4</text>
+              <rect x="140" y="130" width="50" height="100" fill="none" stroke="var(--accent)"/><text x="165" y="250" fill="var(--accent)">5</text>
+              <rect x="210" y="110" width="50" height="120" fill="none" stroke="var(--accent)"/><text x="235" y="250" fill="var(--accent)">6</text>
+              <rect x="280" y="90" width="50" height="140" fill="none" stroke="var(--accent)"/><text x="305" y="250" fill="var(--accent)">7</text>
+              <rect x="350" y="222" width="50" height="8" fill="none" stroke="var(--gold)" stroke-width="3"/><text x="375" y="250" fill="var(--gold)">0</text>
+              <rect x="420" y="206" width="50" height="24" fill="none" stroke="#ff8a65"/><text x="445" y="250" fill="#ff8a65">1</text>
+              <rect x="490" y="190" width="50" height="40" fill="none" stroke="#ff8a65"/><text x="515" y="250" fill="#ff8a65">2</text>
+            </g>
+            <text x="375" y="278" fill="var(--gold)" font-size="12" text-anchor="middle">↑ 最小值</text>
+            <text x="200" y="76" fill="var(--accent)" font-size="11" text-anchor="middle">左段（大的那半）</text>
+            <text x="450" y="176" fill="#ff8a65" font-size="11" text-anchor="middle">右段（小的那半）</text>
+            <line x1="20" y1="298" x2="620" y2="298" stroke="var(--border)"/>
+            <text x="20" y="326" fill="#ff8a65" font-size="13">★ 為什麼要和 nums[hi] 比，不能和 nums[lo] 比？</text>
+            <text x="40" y="354" fill="var(--text-muted)" font-size="12">和 nums[hi] 比：</text>
+            <text x="60" y="380" fill="var(--accent)" font-size="12">nums[mid] &gt; nums[hi]　→　mid 一定在【左段】，最小值在 mid 右邊 → lo = mid + 1</text>
+            <text x="60" y="404" fill="var(--accent)" font-size="12">nums[mid] ≤ nums[hi]　→　mid 在【右段】（或就是最小值）→ hi = mid</text>
+            <text x="40" y="436" fill="#ff8a65" font-size="12">和 nums[lo] 比就分不出來 ——「完全沒旋轉」和「旋轉很多」會長得一樣：</text>
+            <text x="60" y="462" fill="var(--text-muted)" font-size="12">[1,2,3]（沒旋轉）和 [3,1,2]（旋轉 2 格）的 nums[mid] 都不大於 nums[lo]，</text>
+            <text x="60" y="486" fill="var(--text-muted)" font-size="12">但前者的答案在左邊、後者在右邊 —— 同樣的判斷卻要走相反的方向 ✘</text>
+          </svg>
+        </div>
+
+        <div class="code-block">lo, hi = 0, n - 1
+while lo &lt; hi:
+    mid = (lo + hi) // 2
+    if nums[mid] &gt; nums[hi]:
+        lo = mid + 1        # mid 在左段，最小值嚴格在它右邊
+    else:
+        hi = mid            # mid 在右段（可能就是最小值）
+return nums[lo]
+
+【★ 三個容易寫錯的地方】
+
+1. 【迴圈條件是 lo &lt; hi 而不是 lo &lt;= hi】
+
+   我們要「收斂到一個位置」，不是「找某個值」。
+
+   lo &lt;= hi 的話，當 lo == hi 時還會算一次 mid = lo，
+   然後 hi = mid = lo -&gt; 無窮迴圈 ✘
+
+2. 【hi = mid 而不是 hi = mid - 1】
+
+   因為 nums[mid] &lt;= nums[hi] 只能推出
+   「最小值在 [lo, mid] 裡」——
+   mid【自己可能就是】最小值！
+
+   寫成 mid - 1 會跳過答案 ✘
+
+3. 【不需要單獨檢查 nums[mid]，也不需要 return mid】
+
+   迴圈結束時 lo == hi，那就是答案的位置 ✔
+
+   這種「收斂型二分」比「找特定值」的二分更常見，
+   也更容易寫對（沒有「找不到」的情況）。
+
+【為什麼一定會終止？】
+
+    每一輪 [lo, hi] 的長度都嚴格變小：
+        lo = mid + 1 -&gt; lo 增加
+        hi = mid     -&gt; 因為 mid &lt; hi（當 lo &lt; hi 時），所以 hi 減少 ✔
+
+    （mid = (lo+hi)//2 在 lo &lt; hi 時保證 mid &lt; hi。）
+
+【複雜度】：O(log n) 時間、O(1) 空間 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二分搜尋 + 和 <code>nums[hi]</code> 比較（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def findMin(self, nums: List[int]) -&gt; int:
+        lo, hi = 0, len(nums) - 1
+
+        while lo &lt; hi:
+            mid = (lo + hi) // 2
+            if nums[mid] &gt; nums[hi]:
+                lo = mid + 1        # mid 在「左半段（大的那半）」-&gt; 最小值在右邊
+            else:
+                hi = mid            # mid 可能就是最小值 -&gt; 不能寫 mid - 1
+
+        return nums[lo]</div>
+        <p><strong>八行，O(log n) 時間、O(1) 空間。</strong></p>
+        <h3>手動走一遍 <code>[4,5,6,7,0,1,2]</code></h3>
+        <div class="code-block">lo=0, hi=6
+    mid=3: nums[3]=7 &gt; nums[6]=2 ✔ -&gt; lo=4
+
+lo=4, hi=6
+    mid=5: nums[5]=1 &gt; nums[6]=2? 否 -&gt; hi=5
+
+lo=4, hi=5
+    mid=4: nums[4]=0 &gt; nums[5]=1? 否 -&gt; hi=4
+
+lo=4 == hi -&gt; 回傳 nums[4] = 0 ✔
+
+【三步就收斂，log₂(7) ≈ 2.8 ✔】</div>
+        <h3>為什麼可以直接 <code>return nums[lo]</code> 而不用檢查？</h3>
+        <p><strong>因為這是「收斂型」二分</strong> —— <strong>答案一定存在（陣列非空），而且不變量保證它一直在 <code>[lo, hi]</code> 裡。</strong></p>
+        <div class="code-block">【不變量】：最小值的索引永遠在 [lo, hi] 之內。
+
+    初始：[0, n-1] 涵蓋全部 ✔
+
+    每一步：
+        nums[mid] &gt; nums[hi] -&gt; mid 在左段
+            左段的所有值都 &gt; 右段 -&gt; 最小值不可能是 mid 或它左邊
+            -&gt; 可以安全地 lo = mid + 1 ✔
+
+        nums[mid] &lt; nums[hi] -&gt; mid 在右段
+            最小值是 mid 或在它左邊
+            -&gt; hi = mid（保留 mid）✔
+
+    結束時 lo == hi，區間只剩一個元素 -&gt; 那就是答案 ✔
+
+【「維護一個包含答案的區間，每次縮小一半」
+  是所有二分搜尋的共同骨架。】
+
+    寫二分時先問自己：
+        「我的不變量是什麼？每一步之後還成立嗎？」</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td>每次砍一半</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>兩個索引</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>比較對象</th><th>能區分左右段嗎</th><th>「沒旋轉」的情況</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>nums[hi]</td><td>✔</td><td>✔ 正確</td><td>標準做法</td></tr>
+            <tr><td>nums[lo]</td><td>✘</td><td>✘ 會答錯</td><td>常見的錯誤寫法</td></tr>
+            <tr><td>nums[0]</td><td>✘</td><td>✘ 同上</td><td>同樣的問題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一元素</strong> <code>[1]</code> → <code>1</code>。<strong>迴圈一次都不跑。</strong></li>
+          <li><strong>兩個元素</strong> <code>[2,1]</code> → <code>1</code>。</li>
+          <li><strong>完全沒旋轉</strong> <code>[11,13,15,17]</code> → <code>11</code>。<strong>和 <code>nums[lo]</code> 比的版本會在這裡答錯。</strong></li>
+          <li><strong>旋轉了 n−1 次</strong> <code>[2,3,4,5,1]</code> → <code>1</code>（答案在最後）。</li>
+          <li><strong><code>hi = mid - 1</code></strong> → <strong>跳過答案。</strong></li>
+          <li><strong>迴圈條件寫成 <code>lo &lt;= hi</code></strong> → <strong>無窮迴圈。</strong></li>
+          <li><strong>和 <code>nums[lo]</code> 比較</strong> → <strong>「沒旋轉」和「旋轉很多」分不出來，答案錯。</strong></li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果有重複元素呢？</h3>
+
+        <p><strong>第 154 題</strong>。<code>nums[mid] == nums[hi]</code> 時<strong>完全無法判斷 <code>mid</code> 在哪一段</strong>，<strong>只能保守地 <code>hi -= 1</code>。</strong></p>
+
+        <p><strong>最壞情況退化成 O(n)</strong>（例如 <code>[1,1,1,1,0,1]</code>）—— <strong>下一題會詳細講。</strong></p>
+
+        <h3>追問二：如果要找「旋轉了幾次」呢？</h3>
+
+        <p><strong>就是最小值的【索引】</strong> —— 把 <code>return nums[lo]</code> 改成 <code>return lo</code>。</p>
+
+        <p><strong>因為原陣列的第 0 個元素（最小值）被搬到了索引 <code>lo</code> 的位置</strong>，<strong>所以旋轉次數是 <code>n - lo</code>（或 <code>lo</code>，看你怎麼定義「旋轉」）。</strong></p>
+
+        <h3>追問三：如果要在旋轉陣列裡「搜尋某個值」呢？</h3>
+
+        <p><strong>第 33 題（搜尋旋轉排序陣列）</strong>。兩條路：</p>
+
+        <ul>
+          <li><strong>先用本題找出「斷點」<code>lo</code></strong>，再決定要在 <code>[0, lo-1]</code> 還是 <code>[lo, n-1]</code> 做標準二分。<strong>兩次二分，O(log n)。</strong></li>
+          <li><strong>一次二分</strong>：每一步先判斷「哪一半是有序的」，再看目標值在不在那一半的範圍內。<strong>程式碼較短但分支較多。</strong></li>
+        </ul>
+
+        <p><strong>「先找斷點」的版本比較好想也比較不容易錯</strong> —— <strong>它把一個複雜問題拆成兩個簡單的。</strong></p>
+
+        <h3>追問四：這個「不需要完全有序也能二分」的觀念還能用在哪？</h3>
+
+        <ul>
+          <li><strong>第 162 題 尋找峰值</strong>：完全沒排序，但「往高處走一定能到峰頂」</li>
+          <li><strong>第 852 題 山脈陣列的峰頂</strong>：先升後降</li>
+          <li><strong>第 875 題 愛吃香蕉的珂珂</strong>：對「答案」二分（判定函式單調）</li>
+          <li><strong>第 1011 題 在 D 天內送達包裹</strong>：同上</li>
+          <li><strong>第 4 題 兩個有序陣列的中位數</strong>：對「分割點」二分</li>
+        </ul>
+
+        <div class="code-block">【二分搜尋的一般條件】：
+
+    存在一個【單調的判定函式】 check(i)：
+        i &lt; 答案時 check(i) = False
+        i &gt;= 答案時 check(i) = True
+
+    （或者反過來。）
+
+    那就可以二分找到那個分界點。
+
+【不需要「陣列已排序」——
+  只需要「判定的結果是單調的」。】
+
+    這個觀念把二分搜尋從「查表」擴展到
+    「在答案空間裡搜尋」（binary search on answer），
+    是競賽程式設計最重要的技巧之一。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 154 題 …II</strong> —— 有重複元素的版本</li>
+          <li><strong>第 33 題 Search in Rotated Sorted Array</strong> —— 在旋轉陣列裡找值</li>
+          <li><strong>第 81 題 …II</strong> —— 第 33 題 + 重複元素</li>
+          <li><strong>第 162 題 Find Peak Element</strong> —— 完全沒排序也能二分</li>
+          <li><strong>第 852 題 Peak Index in a Mountain Array</strong> —— 類似的結構</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要和 <code>nums[hi]</code> 比而不是 <code>nums[lo]</code>？請舉出後者會錯的例子。</li>
+            <li><code>hi = mid</code> 為什麼不能寫成 <code>hi = mid - 1</code>？</li>
+            <li>迴圈條件為什麼是 <code>lo &lt; hi</code> 而不是 <code>lo &lt;= hi</code>？</li>
+            <li>這個二分搜尋的「不變量」是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0152.html">← 上一題：152. 乘積最大子陣列</a>
+          <a href="problem-0154.html">下一題：154. 尋找旋轉排序陣列中的最小值 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>155. Min Stack 最小堆疊 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="同步輔助堆疊、只存最小值、以及只用一個堆疊的差值法。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="155">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 155 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 155</div>
+          <h1>Min Stack<br>最小堆疊</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">堆疊</span>
+          <span class="lc-badge">設計</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.</p>
+          <p>Implement the <code>MinStack</code> class:</p>
+          <ul><li><code>MinStack()</code> initializes the stack object.</li><li><code>void push(int val)</code> pushes the element <code>val</code> onto the stack.</li><li><code>void pop()</code> removes the element on the top of the stack.</li><li><code>int top()</code> gets the top element of the stack.</li><li><code>int getMin()</code> retrieves the minimum element in the stack.</li></ul>
+          <p>You must implement a solution with <code>O(1)</code> time complexity for each function.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>設計一個堆疊，支援 <code>push</code>、<code>pop</code>、<code>top</code>，並且能在<strong>常數時間</strong>內取得<strong>堆疊裡的最小值</strong>。</p>
+        <ul>
+          <li><code>push(val)</code>：把 <code>val</code> 推進堆疊。</li>
+          <li><code>pop()</code>：移除堆疊頂的元素。</li>
+          <li><code>top()</code>：取得堆疊頂的元素。</li>
+          <li><code>getMin()</code>：取得堆疊裡的<strong>最小值</strong>。</li>
+        </ul>
+          <p><strong>每一個操作都必須是 <code>O(1)</code>。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 難點：pop 之後，最小值要怎麼「還原」？</h3>
+        <div class="code-block">最天真的做法：用一個變數記住最小值。
+
+    def push(v):
+        stack.append(v)
+        self.min = min(self.min, v)
+
+    push 沒問題 ✔
+
+    但 pop 呢？
+
+        如果 pop 掉的剛好【就是】最小值，
+        那新的最小值是多少？
+
+        -&gt; 只能重新掃描整個堆疊 -&gt; O(n) ✘
+
+【所以問題不在「維護最小值」，
+  而在「pop 之後怎麼【還原】到上一個最小值」。】
+
+【核心洞察】：
+
+    「最小值」不是一個單一的值，
+    而是一個【隨著堆疊變化的歷史】。
+
+    堆疊有 n 個狀態（每 push 一次就是一個新狀態），
+    每個狀態都有自己的最小值。
+
+    pop 就是「回到上一個狀態」——
+    所以要能「回到上一個最小值」。
+
+【三種存法】：
+
+    (a) 每一格都存「到這一格為止的最小值」（解法一）
+        -&gt; 最直白，空間 2n
+
+    (b) 只在「最小值改變時」才存（解法二）
+        -&gt; 空間更省（最好情況只有 1 格）
+
+    (c) 存「和當時最小值的差」（解法三）
+        -&gt; 只用一個堆疊，但要小心溢位
+
+【共同的想法：把「當下的最小值」綁在堆疊的某一層上，
+  這樣 pop 的時候那個資訊會【自動】被丟掉。】</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：
+    ["MinStack","push","push","push","getMin","pop","top","getMin"]
+    [[],[-2],[0],[-3],[],[],[],[]]
+
+  輸出：
+    [null,null,null,null,-3,null,0,-2]
+
+  說明：
+    MinStack minStack = new MinStack();
+    minStack.push(-2);
+    minStack.push(0);
+    minStack.push(-3);
+    minStack.getMin();   // 回傳 -3
+    minStack.pop();
+    minStack.top();      // 回傳 0
+    minStack.getMin();   // 回傳 -2</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>−2³¹ ≤ <code>val</code> ≤ 2³¹ − 1</li>
+          <li><code>pop</code>、<code>top</code>、<code>getMin</code> 只會在<strong>非空</strong>的堆疊上被呼叫</li>
+          <li>最多會呼叫 3 × 10⁴ 次 <code>push</code>、<code>pop</code>、<code>top</code>、<code>getMin</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/min-stack/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 494" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 核心想法：把「當下的最小值」和值一起存起來 —— 那個資訊會隨著 pop 自動被丟掉。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">解法一：每一格存 (值, 到這一格為止的最小值)</text>
+            <g font-size="12" text-anchor="middle">
+              <rect x="70" y="70" width="110" height="28" fill="none" stroke="var(--accent)"/><text x="125" y="89" fill="var(--accent)">(−2, −2)</text>
+              <rect x="70" y="98" width="110" height="28" fill="none" stroke="var(--accent)"/><text x="125" y="117" fill="var(--accent)">(0, −2)</text>
+              <rect x="70" y="126" width="110" height="28" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="125" y="145" fill="var(--gold)">(−3, −3)</text>
+            </g>
+            <text x="200" y="145" fill="var(--gold)" font-size="11" text-anchor="start">← 堆疊頂：getMin() 直接讀第二個欄位</text>
+            <text x="200" y="89" fill="var(--text-muted)" font-size="11" text-anchor="start">堆疊底</text>
+            <text x="20" y="182" fill="var(--text-muted)" font-size="12">pop 掉 (−3,−3) 之後，頂端變成 (0,−2) → getMin() 自動回到 −2 ✔ 完全不用重算。</text>
+            <line x1="20" y1="206" x2="620" y2="206" stroke="var(--border)"/>
+            <text x="20" y="234" fill="var(--gold)" font-size="13">解法二：主堆疊 + 輔助堆疊（只存「最小值的歷史」）</text>
+            <g font-size="12" text-anchor="middle">
+              <text x="120" y="262" fill="var(--text-muted)">主堆疊</text>
+              <rect x="70" y="272" width="100" height="26" fill="none" stroke="var(--accent)"/><text x="120" y="290" fill="var(--accent)">−2</text>
+              <rect x="70" y="298" width="100" height="26" fill="none" stroke="var(--accent)"/><text x="120" y="316" fill="var(--accent)">0</text>
+              <rect x="70" y="324" width="100" height="26" fill="none" stroke="var(--accent)"/><text x="120" y="342" fill="var(--accent)">−3</text>
+              <text x="330" y="262" fill="var(--text-muted)">輔助堆疊 mins</text>
+              <rect x="280" y="272" width="100" height="26" fill="none" stroke="#ff8a65"/><text x="330" y="290" fill="#ff8a65">−2</text>
+              <rect x="280" y="298" width="100" height="26" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="330" y="316" fill="#ff8a65">−3</text>
+            </g>
+            <text x="400" y="290" fill="var(--text-muted)" font-size="11" text-anchor="start">0 沒有比 −2 小 → 不 push</text>
+            <text x="400" y="316" fill="#ff8a65" font-size="11" text-anchor="start">−3 比 −2 小 → push</text>
+            <line x1="20" y1="366" x2="620" y2="366" stroke="var(--border)"/>
+            <text x="20" y="394" fill="#ff8a65" font-size="13">★ 解法二為什麼一定要用 &lt;= 而不是 &lt;？</text>
+            <text x="40" y="422" fill="var(--text-muted)" font-size="12">push(1), push(1)：用 &lt; 的話 mins 只有一個 1。</text>
+            <text x="40" y="446" fill="var(--text-muted)" font-size="12">第一次 pop 掉一個 1 時，發現它等於 mins 頂端 → 把 1 彈掉 →</text>
+            <text x="40" y="472" fill="#ff8a65" font-size="12">但堆疊裡還有一個 1！getMin() 就會回傳錯的值（或 mins 空掉）✘</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【解法一：每一格存 (值, 當下的最小值)】
+
+    push(v):
+        cur_min = v if 堆疊空 else min(v, stack[-1][1])
+        stack.append((v, cur_min))
+
+    getMin(): return stack[-1][1]
+
+    pop 時整個 tuple 被丟掉 -&gt;
+    頂端自動變回「上一個狀態的最小值」✔
+
+    【最直白，也最不容易錯。】
+
+【解法二：主堆疊 + 輔助堆疊】
+
+    mins 只記錄「最小值的歷史」：
+
+    push(v):
+        stack.append(v)
+        if not mins or v &lt;= mins[-1]:
+            mins.append(v)          ★ 一定要 &lt;=
+
+    pop():
+        v = stack.pop()
+        if v == mins[-1]:
+            mins.pop()
+
+    【★ 為什麼是 &lt;= 而不是 &lt;？】
+
+        push(1), push(1)：
+
+        用 &lt; 的話，第二個 1 不會被 push 進 mins
+        -&gt; mins = [1]
+
+        pop 一次：彈出的 1 == mins[-1] = 1 -&gt; mins.pop()
+        -&gt; mins = []
+
+        但 stack 裡還有一個 1！
+        getMin() 就會 IndexError（或回傳錯的值）✘
+
+        用 &lt;= 的話 mins = [1, 1]，兩次 pop 剛好對應 ✔
+
+    【這是本題第一名的 bug，而且只在「有重複的最小值」時才出現。】
+
+【解法三：只用一個堆疊，存「差值」】
+
+    stack 裡存的不是 val，而是 val - min（當時的 min）。
+
+    差值 &lt; 0 -&gt; 代表「push 的時候它變成了新的最小值」
+             -&gt; pop 時可以從差值反推出「上一個最小值」
+
+    空間最省（只有 n 個數 + 一個變數），
+    但要小心【差值可能溢位】（見解法三的說明）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>每一格存 (值, 當下最小值)（最推薦）</h3>
+        <div class="code-block">class MinStack:
+    def __init__(self):
+        # 每一格存 (值, 「到這一格為止」的最小值)
+        self.stack = []
+
+    def push(self, val: int) -&gt; None:
+        cur_min = val if not self.stack else min(val, self.stack[-1][1])
+        self.stack.append((val, cur_min))
+
+    def pop(self) -&gt; None:
+        self.stack.pop()
+
+    def top(self) -&gt; int:
+        return self.stack[-1][0]
+
+    def getMin(self) -&gt; int:
+        return self.stack[-1][1]</div>
+        <p><strong>四個方法各兩三行，每個都是 O(1)。</strong><strong>面試時寫這個 —— 最不容易錯。</strong></p>
+        <h3>為什麼「pop 自動還原」？</h3>
+        <div class="code-block">因為「當下的最小值」被【綁在那一格上】。
+
+    stack = [(-2,-2), (0,-2), (-3,-3)]
+
+    pop 掉 (-3,-3) 之後：
+        stack = [(-2,-2), (0,-2)]
+        stack[-1][1] = -2 ✔
+
+    完全不用重算 —— 那個資訊本來就存在那裡。
+
+【這是「用空間換簡單」的典型】：
+
+    空間從 n 變成 2n（每格多存一個數），
+    換來「完全不用思考還原邏輯」。
+
+    3 × 10^4 次操作 -&gt; 最多 6 萬個整數，
+    幾百 KB —— 完全可以接受。
+
+【一般原則】：
+
+    當「還原到上一個狀態」很麻煩時，
+    就把「那個狀態需要的資訊」跟著一起存。
+
+    這和「回溯時存快照」（第 113 題）、
+    「持久化資料結構」是同一個思路。</div>
+        <h3>Python 的 tuple 開銷</h3>
+        <p><strong>每個 tuple 物件約 56 bytes（比兩個 int 多）</strong> —— <strong>如果很在意，可以用兩個平行的 list（<code>vals</code> 和 <code>mins</code>）。</strong></p>
+        <p><strong>但那樣就變成解法二的「每次都 push」版本了，空間一樣是 2n。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(1) 每個操作</td><td>每格存兩個數</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>一個堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>主堆疊 + 輔助堆疊（空間較省）</h3>
+        <div class="code-block">class MinStack:
+    def __init__(self):
+        self.stack = []
+        self.mins = []                  # 輔助堆疊：只在「更小或相等」時 push
+
+    def push(self, val: int) -&gt; None:
+        self.stack.append(val)
+        if not self.mins or val &lt;= self.mins[-1]:
+            self.mins.append(val)       # ★ 一定要用 &lt;=，不能用 &lt;
+
+    def pop(self) -&gt; None:
+        v = self.stack.pop()
+        if v == self.mins[-1]:
+            self.mins.pop()
+
+    def top(self) -&gt; int:
+        return self.stack[-1]
+
+    def getMin(self) -&gt; int:
+        return self.mins[-1]</div>
+        <h3>★ <code>&lt;=</code> 是這個解法的命脈</h3>
+        <div class="code-block">if not mins or val &lt;= mins[-1]:
+    mins.append(val)
+                ^^
+                【一定是 &lt;=，不能是 &lt;】
+
+【用 &lt; 會在「重複的最小值」上出錯】：
+
+    push(1)   stack=[1]      mins=[1]
+    push(1)   stack=[1,1]    mins=[1]      ← 第二個 1 沒進去
+
+    pop()     stack=[1]
+              彈出的 1 == mins[-1]=1 -&gt; mins.pop() -&gt; mins=[]
+
+    getMin()  -&gt; IndexError ✘
+              （或者如果有防禦，會回傳錯的值）
+
+【用 &lt;= 就對了】：
+
+    push(1)   mins=[1]
+    push(1)   mins=[1,1]
+    pop()     mins=[1]       ✔
+    getMin()  -&gt; 1 ✔
+
+【對稱地，pop 時的比較也要一致】：
+
+    if v == mins[-1]: mins.pop()
+
+    這裡用 == 是對的 ——
+    因為 mins[-1] 永遠是「目前的最小值」，
+    而彈出的元素如果等於它，就代表 mins 裡那一份對應到它。
+
+【空間分析】
+
+    最好情況（遞增 push）：mins 只有 1 格 -&gt; O(1) 額外
+    最壞情況（遞減 push）：mins 有 n 格 -&gt; O(n)
+
+    平均比解法一省，但最壞一樣。
+
+【這個解法的價值】：
+    它展示了「只記錄變化」而不是「記錄每個狀態」——
+    在真實系統裡（例如版本控制、undo 堆疊）這是標準做法。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(1) 每個操作</td><td>只在最小值改變時 push</td></tr>
+            <tr><td>空間</td><td>O(n) 最壞 / O(1) 最好</td><td>兩個堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>只用一個堆疊，存差值（最省空間，但有溢位風險）</h3>
+        <div class="code-block">class MinStack:
+    def __init__(self):
+        self.stack = []                 # 存的是「和當時最小值的差」
+        self.min = 0
+
+    def push(self, val: int) -&gt; None:
+        if not self.stack:
+            self.stack.append(0)
+            self.min = val
+            return
+        self.stack.append(val - self.min)
+        if val &lt; self.min:
+            self.min = val              # 更新最小值
+
+    def pop(self) -&gt; None:
+        d = self.stack.pop()
+        if d &lt; 0:                       # 負的差代表「當時它就是新的最小值」
+            self.min -= d               # 還原成上一個最小值
+
+    def top(self) -&gt; int:
+        d = self.stack[-1]
+        return self.min if d &lt; 0 else self.min + d
+
+    def getMin(self) -&gt; int:
+        return self.min</div>
+        <h3>核心：用「負的差值」編碼「這裡換了最小值」</h3>
+        <div class="code-block">stack 裡存的是 val - min（push 當下的 min）。
+
+    如果 val &gt;= min：差值 &gt;= 0
+        -&gt; 這個元素不是新的最小值
+        -&gt; top() = min + 差值
+
+    如果 val &lt; min：差值 &lt; 0
+        -&gt; 這個元素【就是】新的最小值
+        -&gt; top() = min（更新後的 min，就是 val 自己）
+        -&gt; pop 時：min -= 差值 還原成舊的 min
+
+【驗證還原公式】
+
+    push 時：舊 min = m_old，新 min = val
+             差值 d = val - m_old &lt; 0
+
+    pop 時：目前 self.min = val
+            要還原成 m_old
+
+            m_old = val - d
+                  = self.min - d  ✔
+
+    所以 self.min -= d ✔
+
+【★ 溢位風險】
+
+    差值 val - min 可能達到
+        (2^31 - 1) - (-2^31) = 2^32 - 1
+
+    這【超過】32 位元有號整數的範圍 ✘
+
+    在 C++/Java 裡必須用 long 存差值。
+    Python 沒有這個問題（整數無限大）。
+
+    【這是「為了省空間而引入的風險」的典型例子】——
+    省了一個堆疊，卻多了一個溢位的坑。
+
+【實務上值得嗎？】
+
+    通常【不值得】：
+        ✘ 邏輯繞（要想清楚三個地方的還原）
+        ✘ 有溢位風險
+        ✔ 只省了一半的空間
+
+    但它是一個很漂亮的「編碼」技巧 ——
+    把「兩個資訊」壓進「一個數」裡。
+
+    類似的技巧：
+        - 用符號位當旗標
+        - 把兩個小整數打包進一個大整數
+        - 第 41 題（第一個缺失的正數）用「負號」當標記</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(1) 每個操作</td><td>只有一個堆疊</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>差值 + 一個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>空間</th><th>好寫嗎</th><th>有溢位風險</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、存 (值, 最小值)</td><td>2n</td><td>★★★</td><td>✘</td><td>最推薦</td></tr>
+            <tr><td>二、兩個堆疊</td><td>n + k</td><td>★★☆</td><td>✘</td><td>只記錄變化</td></tr>
+            <tr><td>三、存差值</td><td>n</td><td>★☆☆</td><td>✔ 其他語言</td><td>編碼技巧的展示</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只 push 一個元素</strong> → <code>getMin()</code> 就是它自己。</li>
+          <li><strong>遞增 push</strong> <code>1,2,3</code> → 解法二的 <code>mins</code> 只有一格。</li>
+          <li><strong>遞減 push</strong> <code>3,2,1</code> → 解法二的 <code>mins</code> 有三格（最壞情況）。</li>
+          <li><strong>★ 重複的最小值</strong> <code>push(1), push(1)</code> → <strong>解法二用 <code>&lt;</code> 會壞掉。本題第一名的 bug。</strong></li>
+          <li><strong>先 push 大的再 push 小的再 pop</strong> → 最小值要正確還原。</li>
+          <li><strong>值是 <code>-2³¹</code> 或 <code>2³¹-1</code></strong> → <strong>解法三的差值會超過 32 位元（Python 沒事，其他語言要用 long）。</strong></li>
+          <li><strong>3 × 10⁴ 次操作</strong> → 三種解法都是 O(1) 每次，輕鬆。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果還要支援 <code>getMax()</code> 呢？</h3>
+
+        <p><strong>再加一個對稱的結構</strong>（解法一的 tuple 變成三元組，或解法二再加一個 <code>maxs</code> 堆疊）。</p>
+
+        <p><strong>「同時追蹤最大和最小」的成本是線性疊加的 —— 不會互相干擾。</strong></p>
+
+        <h3>追問二：如果要「佇列」版的 <code>getMin()</code> 呢？</h3>
+
+        <div class="code-block">那難得多 —— 因為佇列是【從另一端】移除的。
+
+    堆疊：pop 掉的是「最後 push 的」
+          -&gt; 那一層的資訊自然失效 ✔
+
+    佇列：dequeue 掉的是「最早 enqueue 的」
+          -&gt; 它可能是目前的最小值，
+             而「下一個最小值」不在任何一層的記錄裡 ✘
+
+【兩種解法】：
+
+    (a) 【兩個堆疊模擬佇列】（第 232 題的技巧）
+        每個堆疊各自維護自己的 min，
+        整體的 min = min(兩個堆疊的 min)
+        -&gt; 攤還 O(1) ✔
+
+    (b) 【單調佇列】（第 239 題：滑動視窗最大值）
+        用一個雙端佇列維護「可能成為最小值的候選」，
+        保持遞增。
+        -&gt; 攤還 O(1) ✔
+
+【這個對比很有意思】：
+
+    「堆疊 + 最小值」是 Medium，
+    「佇列 + 最小值」要用到單調佇列，明顯更難。
+
+    差別只在「從哪一端移除」。</div>
+
+        <h3>追問三：如果要支援「取出最小值」（而不只是查詢）呢？</h3>
+
+        <p><strong>那就不是堆疊了，而是「優先佇列」（heap）</strong> —— <code>push</code> 和 <code>pop-min</code> 各 O(log n)。</p>
+
+        <p><strong>但那樣就失去了「後進先出」的語意。</strong></p>
+
+        <p><strong>如果兩個都要（LIFO 的 pop + 取出最小），就需要「堆 + 雙向串列 + 雜湊表」的組合</strong> —— <strong>和第 146 題（LRU）是同一類的「組合資料結構」設計。</strong></p>
+
+        <h3>追問四：這種「設計題」的通用思路是什麼？</h3>
+
+        <div class="code-block">1. 【列出所有需要的操作，以及它們的時間要求】
+
+       push O(1), pop O(1), top O(1), getMin O(1)
+
+2. 【找出「哪一個操作是瓶頸」】
+
+       getMin 如果每次重算是 O(n) -&gt; 這就是要解決的
+
+3. 【問：能不能「提前算好」？】
+
+       可以 -&gt; 用空間換時間（存起來）
+       不行 -&gt; 可能需要更複雜的結構
+
+4. 【問：狀態改變時，那個「算好的東西」怎麼更新？】
+
+       push：好更新（min(新值, 舊的最小)）
+       pop： 難更新（要「還原」）
+
+       -&gt; 所以要把「歷史」存起來
+
+5. 【選最簡單的存法】
+
+【這個流程適用於所有「設計資料結構」的題目】：
+
+    146 LRU、155 Min Stack、
+    232 用堆疊實現佇列、225 用佇列實現堆疊、
+    380 O(1) 插入刪除取隨機、
+    295 資料流的中位數
+
+    共同特徵：
+    「單一結構做不到，要組合 / 要預先算好」。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 146 題 LRU Cache</strong> —— 另一個「組合結構」的設計題</li>
+          <li><strong>第 232 題 用堆疊實現佇列</strong> —— 追問二的做法</li>
+          <li><strong>第 239 題 滑動視窗最大值</strong> —— 單調佇列</li>
+          <li><strong>第 84 題 柱狀圖中最大的矩形</strong> —— 單調堆疊</li>
+          <li><strong>第 716 題 Max Stack</strong> —— 還要支援「取出最大值」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「用一個變數記最小值」在 <code>pop</code> 時會壞掉？</li>
+            <li>解法二為什麼一定要用 <code>&lt;=</code>？請舉出用 <code>&lt;</code> 會壞的操作序列。</li>
+            <li>解法三的 <code>self.min -= d</code> 為什麼能還原成上一個最小值？</li>
+            <li>為什麼「佇列版的 getMin」比「堆疊版」難得多？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0154.html">← 上一題：154. 尋找旋轉排序陣列中的最小值 II</a>
+          <a href="problem-0160.html">下一題：160. 相交鏈結串列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

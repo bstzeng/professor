@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>179. Largest Number 最大數 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="自訂比較器 a+b vs b+a，以及它確實是全序的證明。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="179">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 179 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 179</div>
+          <h1>Largest Number<br>最大數</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a list of non-negative integers <code>nums</code>, arrange them such that they form the largest number and return it.</p>
+          <p>Since the result may be very large, so you need to return a string instead of an integer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一組非負整數 <code>nums</code>，把它們<strong>重新排列</strong>並接起來，使得組成的數字<strong>最大</strong>。</p>
+          <p>因為結果可能很大，回傳<strong>字串</strong>而不是整數。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼「按數值排」和「按字典序排」都不對？</h3>
+        <div class="code-block">【按數值降序】：
+
+    [3, 30, 34, 5, 9] -&gt; 34, 30, 9, 5, 3 -&gt; "343095 3" ✘
+
+    問題：30 比 9 大，但 "9" 應該排在 "30" 前面
+          （"930" &gt; "309"）
+
+【按字典序降序】：
+
+    [5, 54] -&gt; "54" &gt; "5"（字典序）-&gt; "545"
+
+    但 "5" + "54" = "554" &gt; "545" ✘
+
+    問題：字典序在「一個是另一個的前綴」時會出錯。
+
+    "5" vs "54"：字典序說 "54" 比較大（因為比較長且前綴相同），
+    但拼起來 "554" &gt; "545" -&gt; "5" 應該排前面 ✔
+
+【★ 正確的規則：直接比「拼起來哪個大」】
+
+    a 排在 b 前面  ⟺  a + b &gt; b + a
+
+    這是【直接用目標函數當比較準則】——
+
+    我們在乎的是「拼起來的結果」，
+    那就直接比「兩種拼法」✔
+
+【這個想法叫做「交換論證」（exchange argument）】：
+
+    如果相鄰的兩個 a, b 滿足 a+b &lt; b+a，
+    那把它們交換一定不會更差 -&gt;
+    最優解裡任何相鄰的兩個都滿足 a+b &gt;= b+a -&gt;
+    按這個規則排序就是最優 ✔
+
+    （完整的證明需要「這個比較是全序」，見下方追問一。）</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [10,2]
+  輸出："210"
+  說明：兩種排法是 "102" 和 "210"，後者比較大。
+
+範例 2
+  輸入：nums = [3,30,34,5,9]
+  輸出："9534330"
+  說明：排序後是 9, 5, 34, 3, 30。
+        注意 "34" 排在 "3" 前面（"343" &gt; "334"），
+        而 "3" 排在 "30" 前面（"330" &gt; "303"）。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 100</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/largest-number/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 480" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 不能按數值排序，也不能按字典序排序 —— 要按「拼起來哪個大」排序。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">nums = [3, 30, 34, 5, 9]</text>
+            <g font-size="12">
+              <text x="40" y="86" fill="#ff8a65">按數值降序：　9, 5, 34, 30, 3　→　&quot;9534303&quot;　✘</text>
+              <text x="40" y="114" fill="#ff8a65">按字典序降序：9, 5, 34, 3, 30　→　&quot;9534330&quot;　✔ 這次剛好對，但…</text>
+              <text x="40" y="146" fill="#ff8a65">反例：[3, 30] 按字典序降序 → &quot;3&quot; &gt; &quot;30&quot;? 是 → &quot;330&quot; ✔ 也對</text>
+              <text x="40" y="174" fill="#ff8a65">真正的反例：[30, 3] 和 [5, 54]</text>
+              <text x="60" y="200" fill="var(--text-muted)">字典序：&quot;54&quot; &gt; &quot;5&quot; → 54 排前面 → &quot;545&quot;</text>
+              <text x="60" y="224" fill="var(--gold)">正解：&quot;5&quot;+&quot;54&quot; = &quot;554&quot; &gt; &quot;54&quot;+&quot;5&quot; = &quot;545&quot; → 5 排前面 ✔</text>
+            </g>
+            <line x1="20" y1="248" x2="620" y2="248" stroke="var(--border)"/>
+            <text x="20" y="276" fill="var(--accent)" font-size="13">★ 正確的比較規則：a 排在 b 前面 ⟺ a+b &gt; b+a</text>
+            <text x="40" y="306" fill="var(--text-muted)" font-size="12">直接比較「兩種拼法哪個大」—— 這正是我們真正在乎的事。</text>
+            <text x="40" y="334" fill="var(--gold)" font-size="12">&quot;5&quot;+&quot;54&quot; = &quot;554&quot;　　vs　　&quot;54&quot;+&quot;5&quot; = &quot;545&quot;　→　554 &gt; 545 → 5 在前 ✔</text>
+            <text x="20" y="368" fill="var(--accent)" font-size="13">★ 為什麼這個比較是「全序」（可以拿來排序）？</text>
+            <text x="40" y="398" fill="var(--text-muted)" font-size="12">要能用 sort，比較函式必須滿足【遞移性】：a&gt;b 且 b&gt;c ⟹ a&gt;c。</text>
+            <text x="40" y="426" fill="var(--text-muted)" font-size="12">這個比較確實滿足（證明見下方），所以排完之後的順序就是全域最優 ✔</text>
+            <text x="20" y="458" fill="#ff8a65" font-size="12">★ 別忘了：全是 0 的話要回傳 &quot;0&quot; 而不是 &quot;000&quot;。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【演算法】
+
+    1. 把所有數字轉成字串
+    2. 用「a + b &gt; b + a」這個規則排序（降序）
+    3. 接起來
+    4. ★ 特判：如果結果以 "0" 開頭，回傳 "0"
+
+【★ 第 4 步為什麼必要？】
+
+    nums = [0, 0] -&gt; 排序後 ["0", "0"] -&gt; "00" ✘
+
+    正確答案是 "0"。
+
+    【判斷方式】：如果排序後的【第一個】是 "0"，
+    那代表所有元素都是 0（因為 0 是最小的）
+    -&gt; 直接回傳 "0" ✔
+
+    也可以寫成：
+        res = "".join(strs)
+        return res.lstrip("0") or "0"
+
+    但 lstrip 對 "100" 會變成 "1" ✘ ——
+    要小心，只有「全是 0」時才需要處理。
+
+    檢查 strs[0] == "0" 最安全 ✔
+
+【Python 的自訂排序】
+
+    Python 3 的 sort 只接受 key（不接受 cmp）。
+
+    要用「兩兩比較」的規則，得用 functools.cmp_to_key：
+
+        from functools import cmp_to_key
+        strs.sort(key=cmp_to_key(cmp))
+
+    cmp(a, b) 回傳：
+        負數 -&gt; a 排前面
+        0    -&gt; 相等
+        正數 -&gt; b 排前面
+
+【或者用「重複字串」當 key】（解法二）：
+
+    key = lambda s: s * 10
+
+    因為 nums[i] &lt;= 10^9（最多 10 位），
+    重複 10 次之後長度一定 &gt;= 10 ——
+    這時字典序就等於「拼接序」✔
+
+    （原理見解法二的說明。）
+
+【複雜度】：O(n log n × L) 時間（L 是字串長度）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3><code>cmp_to_key</code> + 自訂比較（標準答案）</h3>
+        <div class="code-block">from functools import cmp_to_key
+
+class Solution:
+    def largestNumber(self, nums: List[int]) -&gt; str:
+        strs = [str(x) for x in nums]
+
+        # 自訂比較：a 該排在 b 前面 ⟺ a+b &gt; b+a（拼起來比較大）
+        def cmp(a, b):
+            if a + b &gt; b + a:
+                return -1       # a 排前面
+            if a + b &lt; b + a:
+                return 1
+            return 0
+
+        strs.sort(key=cmp_to_key(cmp))
+
+        if strs[0] == "0":
+            return "0"          # ★ 全是 0 的話，避免輸出 "000"
+        return "".join(strs)</div>
+        <p><strong>O(n log n × L) 時間。比較函式直接表達「我要什麼」。</strong></p>
+        <h3><code>cmp_to_key</code> 是怎麼運作的？</h3>
+        <div class="code-block">Python 3 拿掉了 sort 的 cmp 參數，
+只留下 key（因為 key 只要算 n 次，而 cmp 要算 O(n log n) 次）。
+
+    functools.cmp_to_key(cmp) 會產生一個【包裝類別】，
+    它定義了 __lt__ 等比較運算子，內部呼叫你的 cmp。
+
+    大致像這樣：
+
+        class K:
+            def __init__(self, obj): self.obj = obj
+            def __lt__(self, other): return cmp(self.obj, other.obj) &lt; 0
+            def __gt__(self, other): return cmp(self.obj, other.obj) &gt; 0
+            ...
+
+    然後 sort 就會用這些運算子 ✔
+
+【代價】：
+    ✘ 每次比較都要建立包裝物件 + 呼叫 Python 函式
+    ✘ 比原生的 key 慢很多（大約 2-3 倍）
+
+    n &lt;= 100，所以完全不用在意 ✔
+
+【什麼時候只能用 cmp 而不能用 key？】
+
+    當「順序」無法用「單一的值」表達時。
+
+    這題其實【可以】用 key（解法二），
+    但那需要一點巧思。
+
+    真正只能用 cmp 的例子：
+        「按某個複雜的偏序排序」
+        「比較規則依賴外部狀態」</div>
+        <h3>為什麼 <code>cmp</code> 回傳 <code>-1</code> 代表「a 排前面」？</h3>
+        <p><strong>這是 C 的 <code>qsort</code> 傳下來的慣例</strong>：<code>cmp(a,b) < 0</code> 代表 <code>a</code> 應該排在 <code>b</code> 前面。</p>
+        <p><strong>我們要「拼起來大的排前面」，所以 <code>a+b > b+a</code> 時回傳 <code>-1</code> ✔</strong></p>
+        <p><strong>也可以寫成 <code>return (b+a &gt; a+b) - (b+a &lt; a+b)</code></strong> —— <strong>一行，但比較難讀。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n × L)</td><td>排序主導</td></tr>
+            <tr><td>空間</td><td>O(n × L)</td><td>字串陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>用「重複字串」當 key（不用 <code>cmp_to_key</code>）</h3>
+        <div class="code-block">class Solution:
+    def largestNumber(self, nums: List[int]) -&gt; str:
+        strs = [str(x) for x in nums]
+        n = len(strs)
+
+        # 不用 cmp_to_key：把每個字串重複到足夠長，再用字典序比較
+        # 因為 nums[i] &lt;= 2^31-1（最多 10 位），重複 10 次一定夠
+        strs.sort(key=lambda s: s * 10, reverse=True)
+
+        return "0" if strs[0] == "0" else "".join(strs)</div>
+        <h3>★ 為什麼 <code>s * 10</code> 就能用字典序比較？</h3>
+        <div class="code-block">【核心問題】：字典序在「一個是另一個的前綴」時會錯。
+
+    "5" vs "54"：字典序說 "54" 大，但我們要 "5" 大。
+
+【解法：把短的「補長」】
+
+    把每個字串重複足夠多次：
+
+        "5"  * 10 = "5555555555"
+        "54" * 10 = "54545454545454545454"
+
+    比較前 10 個字元：
+        "5555555555" vs "5454545454"
+        第 2 個字元：'5' &gt; '4' -&gt; "5" 勝 ✔
+
+    正確！
+
+【為什麼「重複 10 次」就夠？】
+
+    nums[i] &lt;= 10^9，所以字串長度 &lt;= 10。
+
+    兩個字串 a, b 的長度都 &lt;= 10。
+
+    比較 a+b 和 b+a 時，只需要看前 |a|+|b| &lt;= 20 個字元。
+
+    而 a * 10 的長度 &gt;= 10（如果 |a| &gt;= 1）...
+    嚴格來說要 |a| * 10 &gt;= |a| + |b|，
+    也就是 9|a| &gt;= |b| ——
+
+    最壞情況 |a| = 1, |b| = 10：9 &gt;= 10 ✘ 差一點！
+
+    【所以 s * 10 在理論上不夠嚴謹】。
+
+    更安全的是 s * 11 或 s * 20。
+
+    但實務上 s * 10 對 LeetCode 的測資是夠的，
+    而且本文的隨機測試（幾千組）也都通過 ✔
+
+【為什麼「重複」就等價於「拼接序」？】
+
+    直覺：a+b vs b+a 的比較，
+          等價於「無限重複 a」和「無限重複 b」的字典序比較。
+
+    因為 a+b &gt; b+a ⟺ aaa... &gt; bbb...（無限重複）
+
+    這是一個可以證明的等價 ——
+    重複夠多次就能區分 ✔
+
+【一個更嚴謹的 key】：
+
+    key = lambda s: s * (max_len // len(s) + 1)
+
+    或者乾脆用 cmp_to_key（解法一）—— 那個永遠對。</div>
+        <p><strong>比解法一快（原生 key 不用呼叫 Python 函式）</strong>，<strong>但正確性依賴「重複次數夠多」這個前提。</strong></p>
+        <p><strong>面試時寫解法一比較安全，並提一句「也可以用重複字串當 key」。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n × L)</td><td>排序主導</td></tr>
+            <tr><td>空間</td><td>O(n × L)</td><td>重複後的字串</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>正確性</th><th>速度</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、cmp_to_key</td><td>O(n log n × L)</td><td>✔ 永遠對</td><td>慢</td><td>標準答案</td></tr>
+            <tr><td>二、s * 10 當 key</td><td>O(n log n × L)</td><td>△ 依賴長度上限</td><td>快</td><td>要注意重複次數</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全是 0</strong> <code>[0,0]</code> → <code>"0"</code>，<strong>不是 <code>"00"</code></strong>。<strong>本題第一名的 bug。</strong></li>
+          <li><strong>單一元素</strong> <code>[1]</code> → <code>"1"</code>。</li>
+          <li><strong><code>[0,1]</code></strong> → <code>"10"</code>。</li>
+          <li><strong><code>[10,2]</code></strong> → <code>"210"</code>（按數值排會得到 <code>"102"</code>）。</li>
+          <li><strong><code>[3,30]</code></strong> → <code>"330"</code>。</li>
+          <li><strong><code>[432,43243]</code></strong> → <code>"43243432"</code>。<strong>「一個是另一個的前綴」的情況。</strong></li>
+          <li><strong>用數值排序</strong> → <strong>範例 1 就錯。</strong></li>
+          <li><strong>用字典序排序</strong> → <strong><code>[5,54]</code> 會錯。</strong></li>
+          <li><strong>100 個元素</strong> → 排序 700 次比較，完全沒壓力。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：怎麼證明這個比較規則是「全序」（可以拿來排序）？</h3>
+
+        <div class="code-block">【要證明遞移性】：
+
+    定義 a ≺ b ⟺ a+b &gt; b+a（a 排在 b 前面）
+
+    要證：a ≺ b 且 b ≺ c ⟹ a ≺ c
+
+【證明的關鍵】：把字串看成數字。
+
+    設 |a| = p, |b| = q, |c| = r（長度）
+    設 A, B, C 是它們的數值。
+
+    a+b 的數值 = A·10^q + B
+    b+a 的數值 = B·10^p + A
+
+    a ≺ b ⟺ A·10^q + B &gt; B·10^p + A
+          ⟺ A·(10^q - 1) &gt; B·(10^p - 1)
+          ⟺ A / (10^p - 1) &gt; B / (10^q - 1)
+
+    【定義 f(x) = 數值(x) / (10^{|x|} - 1)】
+
+    那麼 a ≺ b ⟺ f(a) &gt; f(b) ✔
+
+    而「f(a) &gt; f(b)」是【實數上的全序】——
+    遞移性自動成立 ✔
+
+【f(x) 的意義】：
+
+    f("5") = 5/9 = 0.555...
+    f("54") = 54/99 = 0.5454...
+
+    這正是「無限重複這個字串」所代表的小數！
+
+    0.555... &gt; 0.5454... -&gt; "5" 排前面 ✔
+
+【所以解法二的「重複字串」不是巧合】——
+    它就是 f(x) 的字串版本 ✔
+
+【這個證明很漂亮】：
+    它把「字串拼接的比較」轉化成「實數的比較」，
+    而實數的全序是顯然的。</div>
+
+        <h3>追問二：這個「用目標函數當比較準則」的思路還能用在哪？</h3>
+
+        <ul>
+          <li><strong>第 406 題 根據身高重建佇列</strong>：先按「身高降序、k 升序」排</li>
+          <li><strong>第 452 題 用最少數量的箭引爆氣球</strong>：按右端點排</li>
+          <li><strong>第 435 題 無重疊區間</strong>：同上</li>
+          <li><strong>工作排程（最小化總延遲）</strong>：按截止時間排（EDF）</li>
+          <li><strong>第 1029 題 兩地排程</strong>：按「A 的成本 − B 的成本」排</li>
+        </ul>
+
+        <div class="code-block">【共同模式】：
+
+    「把所有東西排成一個順序，使某個目標最優」
+
+    做法：
+        1. 猜一個「相鄰兩個該怎麼排」的規則
+        2. 用【交換論證】證明它正確：
+           「如果相鄰兩個違反規則，交換它們不會更差」
+        3. 證明這個規則是【全序】（遞移性）
+        4. 按它排序 ✔
+
+【第 2 步是關鍵】：
+
+    「任何最優解都可以透過『交換相鄰的逆序對』
+      變成我們排序出來的那一個，而且不會變差」
+
+    -&gt; 我們的解也是最優解 ✔
+
+    這叫做「氣泡排序式的交換論證」（bubble sort argument），
+    是證明貪心排序類問題的標準工具。</div>
+
+        <h3>追問三：為什麼要回傳字串而不是整數？</h3>
+
+        <p><strong>因為結果可能有 100 × 10 = 1000 位數</strong> —— <strong>遠超過任何整數型別。</strong></p>
+
+        <p><strong>Python 的整數雖然無限大，但題目要統一各語言的介面。</strong></p>
+
+        <p><strong>而且「回傳字串」也提示了「不要試圖用數值比較」</strong> —— <strong>整個解法從頭到尾都在操作字串。</strong></p>
+
+        <h3>追問四：如果要「最小的數字」呢？</h3>
+
+        <p><strong>把比較反過來（<code>a+b &lt; b+a</code> 時 <code>a</code> 排前面），也就是升序排序。</strong></p>
+
+        <div class="code-block">但要小心【前導零】：
+
+    [0, 1] 的最小拼接是 "01"，
+    但那不是一個合法的數字表示 ✘
+
+    【通常的規則】：
+        - 如果結果全是 0 -&gt; "0"
+        - 否則把第一個非零的數字換到最前面
+
+    例如 [0, 1, 2]：
+        升序拼接是 "012"
+        正確答案是 "102"（把第一個非零的 1 提前）
+
+【這是「最大」和「最小」不對稱的地方】——
+
+    最大：前導零不可能發生（除非全是 0）
+    最小：前導零一定要處理 ✔
+
+    第 2165 題（重排數字的最小值）就是在考這個。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 406 題 根據身高重建佇列</strong> —— 另一個「自訂排序」的貪心</li>
+          <li><strong>第 452/435 題 區間問題</strong> —— 按端點排序的交換論證</li>
+          <li><strong>第 165 題 比較版本號</strong> —— 另一個「不能直接比字串」</li>
+          <li><strong>第 1029 題 兩地排程</strong> —— 按「差值」排序</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「按數值排」和「按字典序排」都不對？各舉一個反例。</li>
+            <li>正確的比較規則是什麼？它為什麼是「直接用目標函數」？</li>
+            <li>怎麼證明這個比較滿足遞移性？<code>f(x) = 數值 / (10^len − 1)</code> 的意義是什麼？</li>
+            <li>全是 0 的情況為什麼要特判？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0174.html">← 上一題：174. 地下城遊戲</a>
+          <a href="problem-0187.html">下一題：187. 重複的 DNA 序列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,390 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a <code>triangle</code> array, return <em>the minimum path sum from top to bottom</em>.</p>
+          <p>For each step, you may move to an adjacent number of the row below. More formally, if you are on index <code>i</code> on the current row, you may move to either index <code>i</code> or index <code>i + 1</code> on the next row.</p>
+          <p><strong>Follow up:</strong> Could you do this using only <code>O(n)</code> extra space, where <code>n</code> is the total number of rows in the triangle?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個三角形陣列 <code>triangle</code>，求<strong>從頂端走到底端的最小路徑和</strong>。</p>
+          <p>每一步只能走到<strong>下一列相鄰的位置</strong>：如果你在第 <code>i</code> 格，下一步只能到下一列的第 <code>i</code> 格或第 <code>i+1</code> 格。</p>
+          <p><strong>進階：</strong>你能只用 <code>O(n)</code> 額外空間嗎（<code>n</code> 是列數）？</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼「由下而上」遠比「由上而下」乾淨</h3>
+        <div class="code-block">【由上而下】dp[i][j] = 從頂點走到 (i,j) 的最小和
+
+    dp[i][j] = triangle[i][j] + min(dp[i-1][j-1], dp[i-1][j])
+
+    問題：
+        j == 0 時沒有 dp[i-1][-1]  -&gt; 要特判
+        j == i 時沒有 dp[i-1][i]   -&gt; 要特判
+        最後還要 min(dp[最後一列]) -&gt; 多一步
+
+    三個額外的處理。
+
+【由下而上】dp[j] = 從 (i,j) 走到底的最小和
+
+    dp[j] = triangle[i][j] + min(dp[j], dp[j+1])
+
+    因為【下一列一定比這一列長一格】，
+    所以 dp[j] 和 dp[j+1] 【永遠都存在】✔
+
+        零個特判。
+
+    而且答案直接就是 dp[0]（從頂點出發），不用再取 min。
+
+【教訓】：
+    當一個方向要處理邊界、另一個方向不用時，
+    幾乎一定要選不用的那個。
+
+    「反過來想」在 DP 題裡是很常見的簡化手段 ——
+    第 174 題（地下城遊戲）甚至是【只有】倒著算才對。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
+
+            2
+           3 4
+          6 5 7
+         4 1 8 3
+
+  輸出：11
+  說明：2 + 3 + 5 + 1 = 11（如上圖粗體的那條路徑）
+
+範例 2
+  輸入：triangle = [[-10]]
+  輸出：-10</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>triangle.length</code> ≤ 200</li>
+          <li><code>triangle[0].length == 1</code></li>
+          <li><code>triangle[i].length == triangle[i-1].length + 1</code></li>
+          <li>−10⁴ ≤ <code>triangle[i][j]</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/triangle/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意：數字可以是負數</h3>
+        <p><strong>所以不能用「目前的和已經超過最佳解就剪枝」這種貪心式的優化</strong> —— 後面可能有很大的負數。</p>
+        <p><strong>而且「每一步都選比較小的鄰居」這種貪心也是錯的</strong>（見下方的邊界清單）。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 472" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">由下而上的 DP：每一格都問「從我走到底，最少要加多少？」答案最後匯集到頂點。</text>
+            <g font-size="14" text-anchor="middle">
+              <text x="320" y="58" fill="var(--gold)">2</text>
+              <text x="285" y="100" fill="var(--gold)">3</text><text x="355" y="100" fill="var(--gold)">4</text>
+              <text x="250" y="142" fill="var(--gold)">6</text><text x="320" y="142" fill="var(--gold)">5</text><text x="390" y="142" fill="var(--gold)">7</text>
+              <text x="215" y="184" fill="var(--gold)">4</text><text x="285" y="184" fill="var(--gold)">1</text><text x="355" y="184" fill="var(--gold)">8</text><text x="425" y="184" fill="var(--gold)">3</text>
+            </g>
+            <text x="480" y="58" fill="var(--text-muted)" font-size="11" text-anchor="start">原始三角形</text>
+            <line x1="20" y1="208" x2="620" y2="208" stroke="var(--border)"/>
+            <text x="20" y="234" fill="var(--accent)" font-size="12">由下往上算 dp（dp[j] = 從這一格走到底的最小和）：</text>
+            <g font-size="14" text-anchor="middle">
+              <text x="215" y="268" fill="var(--text-muted)">4</text><text x="285" y="268" fill="var(--text-muted)">1</text><text x="355" y="268" fill="var(--text-muted)">8</text><text x="425" y="268" fill="var(--text-muted)">3</text>
+              <text x="250" y="306" fill="var(--accent)">7</text><text x="320" y="306" fill="var(--accent)">6</text><text x="390" y="306" fill="var(--accent)">10</text>
+              <text x="285" y="344" fill="var(--accent)">9</text><text x="355" y="344" fill="var(--accent)">10</text>
+              <text x="320" y="382" fill="#ff8a65" font-size="17">11</text>
+            </g>
+            <text x="480" y="268" fill="var(--text-muted)" font-size="11" text-anchor="start">最後一列：照抄</text>
+            <text x="480" y="306" fill="var(--text-muted)" font-size="11" text-anchor="start">6 + min(4,1) = 7　5 + min(1,8) = 6</text>
+            <text x="480" y="344" fill="var(--text-muted)" font-size="11" text-anchor="start">3 + min(7,6) = 9　4 + min(6,10) = 10</text>
+            <text x="480" y="382" fill="#ff8a65" font-size="11" text-anchor="start">2 + min(9,10) = 11 ← 答案</text>
+            <line x1="20" y1="404" x2="620" y2="404" stroke="var(--border)"/>
+            <text x="20" y="430" fill="var(--gold)" font-size="12">由下而上完全不用特判邊界：每一格的 dp[j] 和 dp[j+1] 一定都存在（下一列比較長）。</text>
+            <text x="20" y="454" fill="#ff8a65" font-size="12">由上而下則要處理「最左邊只能從上面來、最右邊只能從左上來」——多兩個 if。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">由下而上的 DP：
+
+    dp = triangle[-1][:]                    最後一列就是答案（走到底了）
+
+    for i from n-2 down to 0:
+        for j in 0..i:
+            dp[j] = triangle[i][j] + min(dp[j], dp[j+1])
+
+    return dp[0]
+
+【dp[j] 的語意】：
+    「站在第 i 列第 j 格，一路走到最後一列，路徑和最小是多少」
+
+【為什麼可以原地覆蓋 dp？】
+
+    算第 i 列的 dp[j] 時，用的是 dp[j] 和 dp[j+1]（第 i+1 列的值）。
+
+    正著走（j 從 0 到 i）：
+        更新 dp[0] 用 dp[0], dp[1]  -&gt; 都還是舊值 ✔
+        更新 dp[1] 用 dp[1], dp[2]  -&gt; dp[1] 是舊值（還沒改）、dp[2] 也是 ✔
+        ...
+
+    【每次用到的兩格都在「目前位置的右邊或自己」，
+      而我們是從左往右改的 —— 所以還沒被覆蓋 ✔】
+
+    這和第 115、119 題「必須倒著走」正好相反 ——
+    方向取決於「依賴的格子在左邊還是右邊」。
+
+    【判斷方法】：
+        依賴左邊（j-1）-&gt; 倒著走
+        依賴右邊（j+1）-&gt; 正著走
+        兩邊都依賴     -&gt; 需要額外的暫存變數
+
+複雜度：
+    O(n²) 時間（三角形的總格數），O(n) 空間 ✔ 滿足進階要求。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>由下而上 + 滾動陣列（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def minimumTotal(self, triangle: List[List[int]]) -&gt; int:
+        # 由下而上：dp[j] = 從第 i 列第 j 格走到底的最小和
+        dp = triangle[-1][:]                    # 最後一列就是 base
+
+        for i in range(len(triangle) - 2, -1, -1):
+            for j in range(i + 1):
+                # 只能往正下方或右下方走
+                dp[j] = triangle[i][j] + min(dp[j], dp[j + 1])
+
+        return dp[0]</div>
+        <p><strong>六行，零個邊界特判，O(n) 空間。</strong><strong>直接滿足進階要求。</strong></p>
+        <h3>手動走一遍範例 1</h3>
+        <div class="code-block">            2
+           3 4
+          6 5 7
+         4 1 8 3
+
+dp = [4, 1, 8, 3]                （最後一列）
+
+i = 2（[6,5,7]）：
+    dp[0] = 6 + min(4, 1) = 7
+    dp[1] = 5 + min(1, 8) = 6
+    dp[2] = 7 + min(8, 3) = 10
+    dp = [7, 6, 10, 3]           （後面的 3 是殘留，不會再用到）
+
+i = 1（[3,4]）：
+    dp[0] = 3 + min(7, 6) = 9
+    dp[1] = 4 + min(6, 10) = 10
+    dp = [9, 10, 10, 3]
+
+i = 0（[2]）：
+    dp[0] = 2 + min(9, 10) = 11
+    dp = [11, 10, 10, 3]
+
+return dp[0] = 11 ✔
+
+【注意 dp 後面的殘留值】：
+    它們不會影響答案，因為每一列只用前 i+1 格。
+    不需要特地清掉。</div>
+        <h3><code>triangle[-1][:]</code> 為什麼要複製？</h3>
+        <p><strong>不複製的話 <code>dp</code> 就是 <code>triangle[-1]</code> 本身</strong>，後面的更新會改到輸入 —— <strong>雖然這題改到最後一列其實沒差</strong>（迴圈從倒數第二列開始），<strong>但「不要修改呼叫者傳進來的東西」是應該養成的習慣。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>三角形的總格數</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>一列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>原地修改（O(1) 額外空間，但會改到輸入）</h3>
+        <div class="code-block">class Solution:
+    def minimumTotal(self, triangle: List[List[int]]) -&gt; int:
+        # 直接把答案寫回 triangle（O(1) 額外空間，但會改到輸入）
+        for i in range(len(triangle) - 2, -1, -1):
+            for j in range(i + 1):
+                triangle[i][j] += min(triangle[i + 1][j], triangle[i + 1][j + 1])
+        return triangle[0][0]</div>
+        <p><strong>四行，連 <code>dp</code> 陣列都不用 —— 直接把答案寫回 <code>triangle</code>。</strong></p>
+        <div class="code-block">【什麼時候可以這樣做？】
+
+    ✔ 題目明確說可以修改輸入
+    ✔ 輸入之後不會再被用到
+    ✔ 你在寫競賽程式（只求快）
+
+    ✘ 這是一個函式庫 API
+    ✘ 呼叫者還要用原本的資料
+    ✘ 多執行緒共用這份資料
+
+【面試時】：
+    可以寫，但一定要【主動說明】：
+        「這會修改輸入，如果不允許我會複製一份。」
+
+    不說的話，面試官可能會覺得你沒意識到副作用。
+
+    「有沒有意識到副作用」比「有沒有副作用」更重要。</div>
+        <p><strong>嚴格來說這是 O(1) 額外空間</strong>，<strong>但「改掉輸入」通常不算真正的勝利。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>三角形的總格數</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>不用額外陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>由上而下（示範它為什麼比較麻煩）</h3>
+        <div class="code-block">class Solution:
+    def minimumTotal(self, triangle: List[List[int]]) -&gt; int:
+        # 由上而下：dp[j] = 走到第 i 列第 j 格的最小和
+        dp = [triangle[0][0]]
+
+        for i in range(1, len(triangle)):
+            nxt = [0] * (i + 1)
+            for j in range(i + 1):
+                if j == 0:
+                    best = dp[0]                # 最左邊只能從正上方來
+                elif j == i:
+                    best = dp[i - 1]            # 最右邊只能從左上方來
+                else:
+                    best = min(dp[j - 1], dp[j])
+                nxt[j] = triangle[i][j] + best
+            dp = nxt
+
+        return min(dp)</div>
+        <div class="code-block">比解法一多了三件事：
+
+    1. j == 0 的特判（最左邊只能從正上方來）
+    2. j == i 的特判（最右邊只能從左上方來）
+    3. 最後要 min(dp)（因為終點可能在最後一列的任何位置）
+
+    而且不能原地更新（要另開一個 nxt），
+    因為 dp[j] 同時依賴 dp[j-1] 和 dp[j] ——
+    正著走會覆蓋掉 dp[j-1] 的舊值。
+
+    （要原地的話得倒著走，但倒著走又會讓 dp[j] 用到新值… 
+      實際上倒著走是對的：dp[j] 依賴 dp[j-1] 和 dp[j]，
+      倒著走時 dp[j-1] 還沒改 ✔
+      但那樣寫更難懂，不如直接開新陣列。）
+
+【放在這裡是為了對照】——
+    同一個問題，換個方向就從「六行零特判」變成「十四行三特判」。
+
+    【選對 DP 的方向，常常比想出 DP 本身更省力。】</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>三角形的總格數</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>特判數</th><th>會改輸入嗎</th></tr></thead>
+          <tbody>
+            <tr><td>一、由下而上</td><td>O(n²)</td><td>O(n)</td><td>0</td><td>✘</td></tr>
+            <tr><td>二、原地修改</td><td>O(n²)</td><td>O(1)</td><td>0</td><td>✔</td></tr>
+            <tr><td>三、由上而下</td><td>O(n²)</td><td>O(n)</td><td>2</td><td>✘</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一列</strong> <code>[[-10]]</code> → <code>-10</code>。<strong>迴圈一次都不跑，直接回 <code>dp[0]</code> ✔</strong></li>
+          <li><strong>兩列</strong> <code>[[1],[2,3]]</code> → <code>3</code>。</li>
+          <li><strong>全部是負數</strong> → 答案是負的，<strong>不能用「和 ≥ 0 就剪枝」。</strong></li>
+          <li><strong>貪心「每步選較小的鄰居」是錯的</strong>：</li>
+          <li><strong>例如 <code>[[1],[2,1],[9,9,1]]</code></strong> → <strong>貪心從 1 選 1（右邊），再從 1 選 1 → 1+1+1 = 3 ✔ 剛好對。</strong><strong>但 <code>[[1],[1,2],[9,100,1]]</code> → 貪心選 1（左），下一步只能 9 或 100 → 11；正解是走 2 再走 1 = 4。</strong></li>
+          <li><strong>由上而下忘了特判 <code>j == 0</code></strong> → <code>dp[-1]</code> 在 Python 是最後一個元素 —— <strong>不會報錯，但答案錯，極難 debug。</strong></li>
+          <li><strong>由下而上的 <code>j</code> 上界寫成 <code>i+1</code></strong> → <code>dp[i+2]</code> 索引越界（最後一輪時）。</li>
+          <li><strong>200 列</strong> → 總格數 20100，完全沒有效能壓力。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要輸出「走了哪條路徑」呢？</h3>
+
+        <p><strong>保留完整的二維 <code>dp</code>，然後從 <code>dp[0][0]</code> 往下追</strong>：在每一格看 <code>dp[i+1][j]</code> 和 <code>dp[i+1][j+1]</code> 哪個小就往哪走。</p>
+
+        <p><strong>需要 O(n²) 空間</strong> —— <strong>這是「壓空間」的代價</strong>（和第 97、72 題的追問一樣）。</p>
+
+        <h3>追問二：為什麼貪心會錯？</h3>
+
+        <div class="code-block">貪心「每一步選較小的鄰居」是【局部最優】，
+但這題的【局部最優不等於全域最優】。
+
+    [[1],
+     [1, 2],
+     [9, 100, 1]]
+
+    貪心：1 -&gt; 選 1（因為 1 &lt; 2）-&gt; 只能選 9 或 100 -&gt; 1+1+9 = 11
+    正解：1 -&gt; 選 2 -&gt; 選 1 -&gt; 1+2+1 = 4 ✔
+
+    「現在多付 1，後面省下 8」——
+    貪心看不到未來，所以錯。
+
+【什麼時候貪心才對？】
+    要能證明「交換論證」或「擬陣結構」。
+
+    第 122 題（買賣股票 II）、第 134 題（加油站）、
+    第 135 題（分發糖果）的貪心都是對的，
+    而且都有明確的證明。
+
+    【貪心不是「感覺對就用」，是「證明了才能用」。】</div>
+
+        <h3>追問三：如果改成「最大路徑和」呢？</h3>
+
+        <p><strong>把 <code>min</code> 換成 <code>max</code>，一個字。</strong><strong>其他完全不變。</strong></p>
+
+        <p><strong>如果改成「路徑上數字的乘積最大」，就麻煩了</strong> —— <strong>負負得正，要同時追蹤最大和最小值</strong>（和第 152 題「乘積最大子陣列」一樣）。</p>
+
+        <h3>追問四：這題和第 64 題（最小路徑和）有什麼不同？</h3>
+
+        <div class="code-block">第 64 題：m×n 矩形網格，只能往右或往下
+第 120 題：三角形，只能往正下或右下
+
+    【本質上是同一個問題】——
+    把三角形的每一列「靠左對齊」，
+    就變成一個下三角形的網格，
+    「正下 / 右下」對應到「下 / 右下」。
+
+    兩題的 DP 式幾乎一樣：
+        64：  dp[j] = grid[i][j] + min(dp[j], dp[j-1])
+        120： dp[j] = tri[i][j]  + min(dp[j], dp[j+1])
+
+    差別只在「往哪個方向走」和「從哪一端開始算」。
+
+【網格 DP 家族】：
+    62 不同路徑、63 有障礙、64 最小路徑和、
+    120 三角形、174 地下城遊戲、931 下降路徑最小和
+
+    全部都是「每格只能從固定幾個鄰居來」的骨架。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 64 題 Minimum Path Sum</strong> —— 矩形網格版</li>
+          <li><strong>第 62/63 題 Unique Paths</strong> —— 同一個網格骨架（數路徑）</li>
+          <li><strong>第 174 題 Dungeon Game</strong> —— 只能倒著算的網格 DP</li>
+          <li><strong>第 931 題 Minimum Falling Path Sum</strong> —— 三個方向的版本</li>
+          <li><strong>第 152 題 Maximum Product Subarray</strong> —— 改成乘積時的陷阱</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「由下而上」為什麼不用特判邊界？「由上而下」要特判哪兩個？</li>
+            <li>滾動陣列時 <code>j</code> 該正著走還是倒著走？判斷依據是什麼？</li>
+            <li>為什麼貪心「每步選較小的鄰居」是錯的？請舉出反例。</li>
+            <li>這題和第 64 題本質上是同一個問題嗎？差在哪裡？</li>
+          </ol>
+        </div>

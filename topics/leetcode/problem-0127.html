@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>127. Word Ladder 單詞接龍 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="BFS 求最短路，萬用字元建圖與雙向 BFS 的加速。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="127">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 127 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 127</div>
+          <h1>Word Ladder<br>單詞接龍</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A <strong>transformation sequence</strong> from word <code>beginWord</code> to word <code>endWord</code> using a dictionary <code>wordList</code> is a sequence of words <code>beginWord -&gt; s₁ -&gt; s₂ -&gt; ... -&gt; sₖ</code> such that:</p>
+          <ul><li>Every adjacent pair of words differs by a single letter.</li><li>Every <code>sᵢ</code> for <code>1 &lt;= i &lt;= k</code> is in <code>wordList</code>. Note that <code>beginWord</code> does not need to be in <code>wordList</code>.</li><li><code>sₖ == endWord</code></li></ul>
+          <p>Given two words, <code>beginWord</code> and <code>endWord</code>, and a dictionary <code>wordList</code>, return <em>the <strong>number of words</strong> in the <strong>shortest transformation sequence</strong></em>, or <code>0</code> if no such sequence exists.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個單字 <code>beginWord</code>、<code>endWord</code> 和一個字典 <code>wordList</code>。</p>
+          <p>一個<strong>轉換序列</strong>是 <code>beginWord → s₁ → s₂ → … → sₖ</code>，其中：</p>
+        <ul>
+          <li><strong>相鄰兩個單字只差一個字母</strong>。</li>
+          <li>每一個 <code>sᵢ</code> 都必須在 <code>wordList</code> 裡（<strong><code>beginWord</code> 不需要在裡面</strong>）。</li>
+          <li><code>sₖ</code> 就是 <code>endWord</code>。</li>
+        </ul>
+          <p>回傳<strong>最短轉換序列裡的單字個數</strong>；如果不存在這樣的序列，回傳 <code>0</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>這是一個偽裝成字串題的圖論題</h3>
+        <div class="code-block">把每個單字看成【圖上的一個節點】，
+「只差一個字母」的兩個單字之間連一條【無權邊】。
+
+    問題就變成：求 beginWord 到 endWord 的最短路徑長度。
+
+【無權圖的最短路徑 = BFS】
+
+    因為 BFS 一層一層擴散，
+    第一次走到某個節點時，走的一定是最短路徑。
+
+    （有權重的話就要 Dijkstra，
+      有負權要 Bellman-Ford —— 但這題全部的邊都是「一步」。）
+
+【注意答案數的是「單字個數」不是「步數」】
+
+    hit -&gt; hot -&gt; dot -&gt; dog -&gt; cog
+    步數 4，單字 5 個 -&gt; 答案是 5
+
+    所以 step 從 1 開始，不是 0。
+
+【本題真正的難點不是 BFS，而是「怎麼快速找鄰居」。】
+    直接兩兩比對是 O(N²·L)，在 N = 5000 時會逾時。
+    下面會講三種做法。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：beginWord = "hit", endWord = "cog",
+        wordList = ["hot","dot","dog","lot","log","cog"]
+  輸出：5
+  說明：hit -&gt; hot -&gt; dot -&gt; dog -&gt; cog，共 5 個單字。
+
+範例 2
+  輸入：beginWord = "hit", endWord = "cog",
+        wordList = ["hot","dot","dog","lot","log"]
+  輸出：0
+  說明：endWord "cog" 不在字典裡，不可能到達。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>beginWord.length</code> ≤ 10</li>
+          <li><code>endWord.length == beginWord.length</code></li>
+          <li>1 ≤ <code>wordList.length</code> ≤ 5000</li>
+          <li><code>wordList[i].length == beginWord.length</code></li>
+          <li>所有單字只包含<strong>小寫英文字母</strong></li>
+          <li><code>beginWord != endWord</code></li>
+          <li><code>wordList</code> 裡<strong>沒有重複</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/word-ladder/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 420" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">把每個單字當成一個節點，「差一個字母」就連一條邊 —— 問題變成圖上的最短路徑。</text>
+            <g font-size="13" text-anchor="middle">
+              <ellipse cx="80" cy="80" rx="34" ry="19" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="80" y="85" fill="var(--gold)">hit</text>
+              <ellipse cx="210" cy="80" rx="34" ry="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="210" y="85" fill="var(--accent)">hot</text>
+              <ellipse cx="340" cy="46" rx="34" ry="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="340" y="51" fill="var(--accent)">dot</text>
+              <ellipse cx="340" cy="120" rx="34" ry="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="340" y="125" fill="var(--accent)">lot</text>
+              <ellipse cx="470" cy="46" rx="34" ry="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="470" y="51" fill="var(--accent)">dog</text>
+              <ellipse cx="470" cy="120" rx="34" ry="19" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="470" y="125" fill="var(--accent)">log</text>
+              <ellipse cx="580" cy="80" rx="34" ry="19" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="580" y="85" fill="#ff8a65">cog</text>
+            </g>
+            <g stroke="var(--border)" stroke-width="1.5">
+              <line x1="114" y1="80" x2="176" y2="80"/>
+              <line x1="240" y1="72" x2="308" y2="53"/><line x1="240" y1="88" x2="308" y2="113"/>
+              <line x1="374" y1="46" x2="436" y2="46"/><line x1="374" y1="120" x2="436" y2="120"/>
+              <line x1="340" y1="65" x2="340" y2="101"/><line x1="470" y1="65" x2="470" y2="101"/>
+              <line x1="504" y1="53" x2="548" y2="72"/><line x1="504" y1="113" x2="548" y2="88"/>
+            </g>
+            <text x="20" y="176" fill="var(--gold)" font-size="12">最短路徑：hit → hot → dot → dog → cog，共 5 個單字。</text>
+            <line x1="20" y1="198" x2="620" y2="198" stroke="var(--border)"/>
+            <text x="20" y="224" fill="var(--accent)" font-size="13">★ 怎麼找「鄰居」？兩個方法，複雜度差很多：</text>
+            <text x="40" y="252" fill="#ff8a65" font-size="12">方法 A：拿目前的字和字典裡【每一個】字比對　→　每次 O(N·L)，總共 O(N²·L)</text>
+            <text x="40" y="280" fill="var(--gold)" font-size="12">方法 B：枚舉「改第 i 位成 a..z」，檢查在不在集合裡　→　每次 O(26·L)，總共 O(N·26·L)</text>
+            <text x="40" y="308" fill="var(--text-muted)" font-size="12">N = 5000、L = 10 時：A 約 2.5 億次，B 約 130 萬次 —— 差了 200 倍。</text>
+            <text x="20" y="344" fill="var(--accent)" font-size="12">方法 C（萬用字元桶）：先把每個字拆成 h*t、*ot、ho* 建索引，查鄰居就是查一個 dict。</text>
+            <text x="40" y="368" fill="var(--text-muted)" font-size="12">預處理 O(N·L)，之後每次查 O(L)。當字母表很大（不只 26 個）時，這個比 B 好。</text>
+            <text x="20" y="402" fill="var(--gold)" font-size="12">雙向 BFS：從兩端同時擴展，搜尋樹的大小從 b^d 降到 2·b^(d/2) —— 常常快好幾倍。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">BFS 的標準骨架（第 102 題那個）+ 一個「找鄰居」的方法。
+
+    dq = deque([beginWord])
+    seen = {beginWord}
+    step = 1
+    while dq:
+        for _ in range(len(dq)):        # 處理一整層
+            w = dq.popleft()
+            if w == endWord: return step
+            for nxt in 鄰居(w):
+                if nxt not in seen:
+                    seen.add(nxt); dq.append(nxt)
+        step += 1
+    return 0
+
+【★ 三種「找鄰居」的方法】
+
+    A. 和字典裡每一個字比對
+       每次 O(N·L)，總共 O(N²·L)
+       N=5000, L=10 -&gt; 2.5 億 ✘ 太慢
+
+    B. 枚舉「把第 i 位改成 a..z」，查集合
+       每次 O(26·L)，總共 O(N·26·L)
+       N=5000, L=10 -&gt; 130 萬 ✔
+
+    C. 萬用字元桶：預先把每個字拆成 h*t, *ot, ho*
+       建索引 O(N·L)，查鄰居 O(L + 桶大小)
+
+    【B 是最常見的答案。】
+    C 在「字母表很大」時比較好（B 的 26 會變成字母表大小）。
+
+【★ seen 一定要在「入隊時」加，不是「出隊時」】
+
+    出隊時才加的話，同一個節點可能被重複放進佇列很多次 ——
+    最壞會退化成指數級。
+
+    這是 BFS 最常見的效能 bug。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS + 枚舉 26 個字母（標準答案）</h3>
+        <div class="code-block">from collections import deque
+
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -&gt; int:
+        words = set(wordList)
+        if endWord not in words:
+            return 0                        # 終點不在字典裡，直接不可能
+
+        L = len(beginWord)
+        dq = deque([beginWord])
+        seen = {beginWord}
+        step = 1
+
+        while dq:
+            for _ in range(len(dq)):
+                w = dq.popleft()
+                if w == endWord:
+                    return step
+                # 枚舉「改一個位置成 a..z」的所有鄰居
+                for i in range(L):
+                    for c in "abcdefghijklmnopqrstuvwxyz":
+                        nxt = w[:i] + c + w[i + 1:]
+                        if nxt in words and nxt not in seen:
+                            seen.add(nxt)
+                            dq.append(nxt)
+            step += 1
+
+        return 0</div>
+        <h3>為什麼一開始要檢查 <code>endWord not in words</code>？</h3>
+        <p>因為<strong>題目允許 <code>endWord</code> 不在字典裡</strong>，那樣就<strong>絕對不可能到達</strong>（序列的最後一個必須在字典裡）。</p>
+        <p><strong>不檢查的話 BFS 會白跑一整趟才回 0</strong> —— 答案正確，但浪費。</p>
+        <h3><code>w[:i] + c + w[i+1:]</code> 的成本</h3>
+        <div class="code-block">每次建立一個新字串是 O(L)。
+
+    總成本：N 個單字 × L 個位置 × 26 個字母 × O(L) 建字串
+          = O(N · L² · 26)
+
+    N=5000, L=10 -&gt; 1300 萬 —— 還行。
+
+【如果 L 很大，這個 L² 會變成瓶頸】，
+    那時可以改用「萬用字元桶」（解法三），
+    它把 26 這個因子換成「桶裡的單字數」。
+
+【Python 小技巧】：
+    "abcdefghijklmnopqrstuvwxyz" 可以寫成
+        import string; string.ascii_lowercase
+
+    後者比較清楚，但前者不用 import。</div>
+        <h3>為什麼 <code>step</code> 從 1 開始？</h3>
+        <p>因為答案數的是<strong>「單字個數」</strong>：只有 <code>beginWord</code> 一個字時就是 1。</p>
+        <p><strong>如果 <code>beginWord == endWord</code>（題目保證不會）應該回 1 —— 這個版本會正確處理。</strong></p>
+        <p><strong>時間 O(N · L² · 26)、空間 O(N · L)。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N·L²·26)</td><td>每個單字擴展一次</td></tr>
+            <tr><td>空間</td><td>O(N·L)</td><td>集合 + 佇列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>雙向 BFS（實測快很多）</h3>
+        <div class="code-block">class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -&gt; int:
+        words = set(wordList)
+        if endWord not in words:
+            return 0
+
+        L = len(beginWord)
+        front, back = {beginWord}, {endWord}    # 從兩端同時往中間搜
+        seen = {beginWord, endWord}
+        step = 1
+
+        while front and back:
+            if len(front) &gt; len(back):          # 永遠從比較小的那一邊擴展
+                front, back = back, front
+
+            nxt = set()
+            for w in front:
+                for i in range(L):
+                    for c in "abcdefghijklmnopqrstuvwxyz":
+                        cand = w[:i] + c + w[i + 1:]
+                        if cand in back:
+                            return step + 1     # 兩邊碰頭了
+                        if cand in words and cand not in seen:
+                            seen.add(cand)
+                            nxt.add(cand)
+            front = nxt
+            step += 1
+
+        return 0</div>
+        <h3>★ 為什麼雙向 BFS 會快這麼多？</h3>
+        <div class="code-block">設分支因子（每個節點的鄰居數）是 b，最短距離是 d。
+
+    單向 BFS：要展開 O(b^d) 個節點
+    雙向 BFS：兩邊各走 d/2 -&gt; O(2 · b^(d/2))
+
+    b = 10, d = 6：
+        單向：10^6 = 100 萬
+        雙向：2 × 10^3 = 2000        【差 500 倍】
+
+    【指數的一半，效果是天差地別。】
+
+    這也是為什麼「兩個人從兩端往中間挖隧道」
+    比「一個人從頭挖到尾」快得多。
+
+【★ 關鍵優化：永遠從比較小的那一邊擴展】
+
+    if len(front) &gt; len(back):
+        front, back = back, front
+
+    這樣可以避免「某一邊爆炸性成長」把優勢吃掉。
+
+    少了這一行，雙向 BFS 可能比單向還慢。
+
+【★ 相遇的判斷】
+
+    if cand in back:
+        return step + 1
+
+    注意是檢查【對面那一層】，不是檢查 seen。
+
+    step 是「front 這一邊已經走了幾個字」，
+    碰到 back 裡的字就是再加一個 -&gt; step + 1 ✔</div>
+        <h3>雙向 BFS 的適用條件</h3>
+        <ul>
+          <li><strong>必須知道終點</strong>（不能是「找任何一個滿足條件的」）。</li>
+          <li><strong>邊必須是無向的</strong>（或者你能反向走）。</li>
+          <li><strong>要能判斷「兩邊碰頭了」</strong>。</li>
+        </ul>
+        <p><strong>這三個條件在這題都滿足</strong>。<strong>第 126、752、773 題也都可以用雙向 BFS 加速。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N·L²·26) 最壞</td><td>實測常快數倍</td></tr>
+            <tr><td>空間</td><td>O(N·L)</td><td>兩個集合</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>萬用字元桶（字母表很大時最好）</h3>
+        <div class="code-block">from collections import deque, defaultdict
+
+class Solution:
+    def ladderLength(self, beginWord: str, endWord: str, wordList: List[str]) -&gt; int:
+        if endWord not in wordList:
+            return 0
+
+        L = len(beginWord)
+        # 先建「萬用字元桶」：h*t -&gt; [hot, hit, ...]
+        buckets = defaultdict(list)
+        for w in wordList:
+            for i in range(L):
+                buckets[w[:i] + "*" + w[i + 1:]].append(w)
+
+        dq = deque([(beginWord, 1)])
+        seen = {beginWord}
+        while dq:
+            w, step = dq.popleft()
+            if w == endWord:
+                return step
+            for i in range(L):
+                for nxt in buckets[w[:i] + "*" + w[i + 1:]]:
+                    if nxt not in seen:
+                        seen.add(nxt)
+                        dq.append((nxt, step + 1))
+
+        return 0</div>
+        <div class="code-block">預處理：把每個單字拆成 L 個「模式」
+
+    hot -&gt; "*ot", "h*t", "ho*"
+    dot -&gt; "*ot", "d*t", "do*"
+
+    buckets["*ot"] = ["hot", "dot", "lot"]
+
+    「差一個字母」⟺「至少共用一個模式」✔
+
+查鄰居：
+    for i in range(L):
+        for nxt in buckets[w[:i] + "*" + w[i+1:]]:
+            ...
+
+【複雜度】：
+    預處理 O(N · L²)（建 N·L 個長度 L 的字串）
+    查詢   O(L + 該模式下的單字數)
+
+    總共 O(N · L²)，【和字母表大小無關】✔
+
+【什麼時候比解法一好？】
+
+    解法一是 O(N · L² · 26)
+    解法三是 O(N · L²)
+
+    字母表越大，差距越明顯：
+        小寫英文（26）：解法三快約 26 倍（常數上）
+        Unicode：      解法一根本不可行
+
+    但解法三要多花 O(N·L²) 的記憶體存桶。
+
+【這是「預處理換查詢」的典型取捨】——
+    如果要多次查詢（例如第 126 題要重建路徑），
+    預處理的成本更划算。</div>
+        <p><strong>注意這個版本沒有「分層」</strong>（用 <code>(word, step)</code> 打包），<strong>兩種寫法都對</strong>。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N·L²)</td><td>與字母表大小無關</td></tr>
+            <tr><td>空間</td><td>O(N·L²)</td><td>萬用字元索引</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>實測速度</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、BFS + 枚舉 26 字母</td><td>O(N·L²·26)</td><td>O(N·L)</td><td>中</td><td>標準答案</td></tr>
+            <tr><td>二、雙向 BFS</td><td>O(N·L²·26) 最壞</td><td>O(N·L)</td><td>最快</td><td>指數減半</td></tr>
+            <tr><td>三、萬用字元桶</td><td>O(N·L²)</td><td>O(N·L²)</td><td>中</td><td>字母表大時最好</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>endWord</code> 不在字典裡</strong> → <code>0</code>。<strong>一定要先檢查，這是範例 2。</strong></li>
+          <li><strong><code>beginWord</code> 不在字典裡</strong> → 沒關係，題目允許。</li>
+          <li><strong>一步就到</strong>（<code>beginWord</code> 和 <code>endWord</code> 差一個字母）→ <code>2</code>。</li>
+          <li><strong>完全連不到</strong> → <code>0</code>。</li>
+          <li><strong>字典裡有 <code>beginWord</code></strong> → 要記得把它加進 <code>seen</code>，否則會繞回來。</li>
+          <li><strong><code>seen</code> 在出隊時才加</strong> → <strong>同一個節點被重複入隊，最壞退化成指數級。BFS 第一名的效能 bug。</strong></li>
+          <li><strong>用「兩兩比對」找鄰居</strong> → N = 5000 時 O(N²·L) = 2.5 億，逾時。</li>
+          <li><strong><code>step</code> 從 0 開始</strong> → 答案少 1（題目要的是單字數）。</li>
+          <li><strong>雙向 BFS 忘了「從小的那邊擴展」</strong> → 可能比單向還慢。</li>
+          <li><strong><code>beginWord == endWord</code></strong>（題目保證不會）→ <strong>單向 BFS 回 1，雙向 BFS 回 2 —— 兩者在這個輸入上不一致。</strong>雙向版是先擴展一層才檢查相遇，所以看不到「起點就是終點」。如果要讓它安全，開頭加一行 <code>if beginWord == endWord: return 1</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：如果要輸出「所有最短路徑」呢？</h3>
+
+        <p><strong>第 126 題（單詞接龍 II）</strong> —— 那是 Hard，<strong>要先用 BFS 建出「最短路徑 DAG」，再用 DFS 回溯列出所有路徑。</strong></p>
+
+        <p><strong>關鍵是不能在 BFS 時就記錄路徑</strong>（路徑數可能是指數級的），<strong>而要記錄「每個節點的所有前驅」。</strong></p>
+
+        <h3>追問二：為什麼不能用 DFS？</h3>
+
+        <div class="code-block">DFS 找到的第一條路徑【不保證最短】。
+
+    要用 DFS 求最短路，就得走遍所有路徑再取最小 ——
+    那是指數級的。
+
+【無權圖求最短路，BFS 是唯一合理的選擇。】
+
+    對照表：
+        無權圖       -&gt; BFS            O(V + E)
+        非負權重     -&gt; Dijkstra       O(E log V)
+        有負權       -&gt; Bellman-Ford   O(V·E)
+        全點對       -&gt; Floyd-Warshall O(V³)
+        有啟發函數   -&gt; A*             實務上最快
+
+    這題如果要用 A*，啟發函數可以是
+    「和 endWord 不同的字母數」——
+    那是一個可採納（admissible）的下界 ✔</div>
+
+        <h3>追問三：能不能估計一下這個圖有多少邊？</h3>
+
+        <div class="code-block">最壞情況：所有 N 個單字兩兩相差一個字母
+    -&gt; O(N²) 條邊
+
+    但實際上，一個單字最多只有 L × 25 個「差一個字母」的候選，
+    所以每個節點的度數 &lt;= 25L = 250（L=10）。
+
+    邊數 &lt;= N × 25L / 2 = 5000 × 250 / 2 = 62.5 萬
+
+【所以這個圖是「稀疏」的】——
+    這正是為什麼「枚舉 26 個字母」比「兩兩比對」好：
+    前者的成本和「可能的鄰居數」成正比，
+    後者和「所有節點數」成正比。
+
+    【在稀疏圖上，永遠不要用「檢查所有節點」的方式找鄰居。】</div>
+
+        <h3>追問四：如果單字可以有不同長度呢？</h3>
+
+        <p><strong>題目保證都一樣長</strong>。如果不一樣長，<strong>「差一個字母」的定義就要改成「編輯距離為 1」</strong>（允許插入、刪除、替換）。</p>
+
+        <p><strong>那時找鄰居要枚舉「插入一個字母」「刪除一個字母」「替換一個字母」</strong>，<strong>候選數變成 O(L·26 + L + (L+1)·26)</strong>。<strong>BFS 的骨架完全不用改 —— 這就是「把問題抽象成圖」的好處。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 126 題 Word Ladder II</strong> —— 輸出所有最短路徑</li>
+          <li><strong>第 433 題 Minimum Genetic Mutation</strong> —— 一模一樣的題，換成基因序列</li>
+          <li><strong>第 752 題 Open the Lock</strong> —— 同樣適合雙向 BFS</li>
+          <li><strong>第 102 題 Level Order Traversal</strong> —— BFS 分層的骨架</li>
+          <li><strong>第 200 題 Number of Islands</strong> —— 格子圖上的 BFS</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼答案是「單字個數」而不是「步數」？<code>step</code> 該從幾開始？</li>
+            <li>「兩兩比對找鄰居」和「枚舉 26 個字母」的複雜度差多少？</li>
+            <li><code>seen</code> 為什麼一定要在入隊時加而不是出隊時？</li>
+            <li>雙向 BFS 為什麼快？「從比較小的那一邊擴展」為什麼重要？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0126.html">← 上一題：126. 單詞接龍 II</a>
+          <a href="problem-0128.html">下一題：128. 最長連續序列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

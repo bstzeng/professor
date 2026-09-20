@@ -46,6 +46,12 @@ def blocks(items):
     return [blk(i) for i in items]
 
 
+def stmt_paras(items):
+    """題目敘述區的元素：字串當成一段散文，
+    tuple 則走一般的 DSL（程式碼區塊、清單、callout…）。"""
+    return [("blk", blk(x)) if isinstance(x, tuple) else x for x in items]
+
+
 def ap(tag, title, items, time=None, space=None,
        tnote="", snote="", optimal=False):
     """一個解法區塊；有給複雜度就自動補上複雜度小表。"""
@@ -58,8 +64,8 @@ def ap(tag, title, items, time=None, space=None,
 def emit(spec):
     """把一題的 spec 寫成 bodies/NNNN.html。"""
     P = []
-    P.append(B.stmt_en(*spec["en"]))
-    P.append(B.stmt_zh(*spec["zh"]))
+    P.append(B.stmt_en(*stmt_paras(spec["en"])))
+    P.append(B.stmt_zh(*stmt_paras(spec["zh"])))
     P += blocks(spec.get("pre", []))
 
     P.append(B.h2("範例"))

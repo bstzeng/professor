@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>166. Fraction to Recurring Decimal 分數到小數 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="用雜湊表記錄餘數出現的位置來抓出循環節。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="166">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 166 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 166</div>
+          <h1>Fraction to Recurring Decimal<br>分數到小數</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">字串</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given two integers representing the <code>numerator</code> and <code>denominator</code> of a fraction, return <em>the fraction in string format</em>.</p>
+          <p>If the fractional part is repeating, enclose the repeating part in parentheses.</p>
+          <p>If multiple answers are possible, return <strong>any of them</strong>.</p>
+          <p>It is <strong>guaranteed</strong> that the length of the answer string is less than <code>10⁴</code> for all the given inputs.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個分數的<strong>分子</strong>和<strong>分母</strong>，回傳它的<strong>小數形式（字串）</strong>。</p>
+          <p>如果小數部分<strong>會循環</strong>，就把<strong>循環的那一段用括號括起來</strong>。</p>
+          <p>題目保證答案的長度小於 <code>10⁴</code>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 核心洞察：餘數重複 ⟹ 數字開始循環</h3>
+        <div class="code-block">長除法的每一步：
+
+    下一位數字 = (r × 10) // d
+    新的餘數   = (r × 10) %  d
+
+    【完全由當前的餘數 r 決定】—— 和之前的歷史無關。
+
+    所以只要某個餘數 r 【第二次出現】，
+    接下來的所有數字就會和上次【一模一樣】✔
+
+    -&gt; 那就是循環的開始。
+
+【所以演算法是】：
+
+    用一個 dict 記錄「每個餘數第一次出現在小數的第幾位」。
+
+    每一步：
+        如果 r 已經在 dict 裡 -&gt; 找到循環節，從 dict[r] 開始加括號
+        如果 r == 0          -&gt; 除盡了，是有限小數
+        否則                  -&gt; 記下 r 的位置，繼續除
+
+【★ 為什麼循環一定會發生（除非整除）？】
+
+    餘數只有 0, 1, ..., d-1 共 d 種可能。
+
+    如果做了 d 步都還沒出現 0，
+    那 d 個非零餘數裡必然有重複（鴿籠原理）✔
+
+    -&gt; 循環節的長度最多是 d - 1
+
+【這同時證明了一個數學事實】：
+
+    【任何有理數的小數展開，不是有限的就是循環的。】
+
+    （反過來也成立：任何循環小數都是有理數。）
+
+    這題其實是在讓你「用程式重現」這個定理的證明。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：numerator = 1, denominator = 2
+  輸出："0.5"
+
+範例 2
+  輸入：numerator = 2, denominator = 1
+  輸出："2"
+
+範例 3
+  輸入：numerator = 4, denominator = 333
+  輸出："0.(012)"
+  說明：4/333 = 0.012012012...，循環節是 "012"。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>−2³¹ ≤ <code>numerator</code>, <code>denominator</code> ≤ 2³¹ − 1</li>
+          <li><code>denominator != 0</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/fraction-to-recurring-decimal/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>★ 注意這個數值範圍：<code>-2³¹</code> 除以 <code>-1</code> 會溢位</h3>
+        <div class="code-block">numerator = -2147483648 (= -2^31)
+denominator = -1
+
+    答案是 2147483648 = 2^31
+
+    但 32 位元有號整數的上限是 2^31 - 1 ——
+    【溢位！】
+
+【在 C++ / Java 裡】：
+    abs(-2147483648) 仍然是 -2147483648（溢位繞回）✘
+
+    必須先轉成 long：
+        long n = labs((long)numerator);
+
+【在 Python 裡完全沒問題】（整數無限大）——
+    但面試時要主動指出這個陷阱。
+
+【這是「32 位元整數的不對稱性」】：
+
+    範圍是 [-2^31, 2^31 - 1]
+    負數比正數多一個 -&gt;
+    「取絕對值」對最小的負數會溢位。
+
+    同樣的陷阱在第 7 題（整數反轉）、
+    第 29 題（兩數相除）也會出現。</div>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 484" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="20" fill="var(--text-muted)" font-size="12">★ 長除法時，只要【餘數重複出現】，接下來的數字就一定會完全重複 —— 那就是循環節的起點。</text>
+            <text x="20" y="52" fill="var(--gold)" font-size="13">4 ÷ 333 的長除法過程</text>
+            <g font-size="12">
+              <text x="60" y="86" fill="var(--text-muted)">餘數 r</text>
+              <text x="200" y="86" fill="var(--text-muted)">r × 10 ÷ 333</text>
+              <text x="380" y="86" fill="var(--text-muted)">商（小數位）</text>
+              <text x="520" y="86" fill="var(--text-muted)">新餘數</text>
+            </g>
+            <g font-size="12">
+              <text x="60" y="116" fill="var(--gold)">4</text>
+              <text x="200" y="116" fill="var(--text-muted)">40 ÷ 333</text>
+              <text x="380" y="116" fill="var(--accent)">0</text>
+              <text x="520" y="116" fill="var(--text-muted)">40</text>
+              <text x="60" y="144" fill="var(--text-muted)">40</text>
+              <text x="200" y="144" fill="var(--text-muted)">400 ÷ 333</text>
+              <text x="380" y="144" fill="var(--accent)">1</text>
+              <text x="520" y="144" fill="var(--text-muted)">67</text>
+              <text x="60" y="172" fill="var(--text-muted)">67</text>
+              <text x="200" y="172" fill="var(--text-muted)">670 ÷ 333</text>
+              <text x="380" y="172" fill="var(--accent)">2</text>
+              <text x="520" y="172" fill="var(--text-muted)">4</text>
+              <text x="60" y="200" fill="#ff8a65">4 ← 重複了！</text>
+              <text x="200" y="200" fill="#ff8a65">（接下來會一模一樣）</text>
+            </g>
+            <text x="20" y="236" fill="var(--gold)" font-size="13">餘數 4 在位置 0 出現過 → 從位置 0 開始都是循環節 → &quot;0.(012)&quot; ✔</text>
+            <line x1="20" y1="260" x2="620" y2="260" stroke="var(--border)"/>
+            <text x="20" y="288" fill="var(--accent)" font-size="13">為什麼「餘數重複」就代表「數字重複」？</text>
+            <text x="40" y="318" fill="var(--text-muted)" font-size="12">長除法的每一步，【完全由當前的餘數決定】：</text>
+            <text x="60" y="344" fill="var(--gold)" font-size="12">下一位數字 = (r × 10) ÷ d　　新餘數 = (r × 10) mod d</text>
+            <text x="40" y="374" fill="var(--text-muted)" font-size="12">所以只要 r 一樣，後面的一切就完全一樣 → 進入循環 ✔</text>
+            <text x="20" y="408" fill="#ff8a65" font-size="12">★ 而且循環【一定會發生】（除非整除）：餘數只有 0 到 d−1 共 d 種可能，</text>
+            <text x="20" y="432" fill="var(--text-muted)" font-size="12">做了 d 步之後必然有重複（鴿籠原理）—— 所以循環節長度最多 d−1。</text>
+            <text x="20" y="462" fill="var(--accent)" font-size="12">這也證明了：任何有理數的小數展開，不是有限的就是循環的。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【完整流程】
+
+    1. 特判 numerator == 0 -&gt; "0"
+       （不然會輸出 "-0" 或 "0." 之類的）
+
+    2. 決定符號
+       (numerator &lt; 0) != (denominator &lt; 0)
+       -&gt; 兩者【異號】才是負的
+
+       用 != 比較兩個布林值，等於 XOR ✔
+
+    3. 取絕對值，算整數部分和第一個餘數
+       q, r = divmod(abs(n), abs(d))
+
+    4. r == 0 -&gt; 整除，直接回傳
+
+    5. 長除法迴圈：
+       while r:
+           if r 在 seen 裡 -&gt; 找到循環節，加括號後回傳
+           seen[r] = 目前小數的長度
+           r *= 10
+           記下 r // d 這位數字
+           r %= d
+
+    6. 迴圈自然結束（r 變 0）-&gt; 有限小數
+
+【★ 三個容易錯的地方】
+
+  (a) numerator == 0 要特判
+      否則符號判斷會產生 "-0"（如果 denominator &lt; 0）
+
+  (b) 符號要用 XOR 判斷，不能用 n * d &lt; 0
+      （乘法可能溢位，而且 0 的情況要另外想）
+
+  (c) seen 記錄的是「位置」不是「有沒有出現過」
+      因為要知道「從哪裡開始加括號」</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>長除法 + 餘數雜湊表（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def fractionToDecimal(self, numerator: int, denominator: int) -&gt; str:
+        if numerator == 0:
+            return "0"
+
+        out = []
+        # 符號：兩者異號才是負的（用 ^ 判斷正負號是否不同）
+        if (numerator &lt; 0) != (denominator &lt; 0):
+            out.append("-")
+
+        n, d = abs(numerator), abs(denominator)
+
+        out.append(str(n // d))             # 整數部分
+        r = n % d
+        if r == 0:
+            return "".join(out)             # 整除，沒有小數
+
+        out.append(".")
+        seen = {}                           # 餘數 -&gt; 它在小數部分的位置
+        frac = []
+
+        while r:
+            if r in seen:                   # ★ 餘數重複出現 -&gt; 找到循環節
+                i = seen[r]
+                return "".join(out) + "".join(frac[:i]) + "(" + "".join(frac[i:]) + ")"
+            seen[r] = len(frac)
+            r *= 10
+            frac.append(str(r // d))
+            r %= d
+
+        return "".join(out) + "".join(frac)</div>
+        <p><strong>O(d) 時間（最多 d 步就會循環或除盡）、O(d) 空間。</strong></p>
+        <h3>★ 符號判斷：<code>(a &lt; 0) != (b &lt; 0)</code></h3>
+        <div class="code-block">這是「XOR」的寫法：兩者的正負【不同】時為 True。
+
+【為什麼不用 n * d &lt; 0？】
+
+    ✘ 乘法可能溢位（在 C++/Java 裡）
+    ✘ 其中一個是 0 時，乘積是 0（但這題 numerator 可能是 0）
+
+【為什麼不用 (n &lt; 0) ^ (d &lt; 0)？】
+
+    在 Python 裡 ^ 對 bool 也是 XOR，所以也可以 ✔
+    （bool 是 int 的子類別，True ^ False == 1）
+
+    但 != 更明確「這是在比較兩個布林值」。
+
+【★ numerator == 0 必須先特判】
+
+    如果 numerator = 0, denominator = -5：
+        符號判斷：(False) != (True) -&gt; True -&gt; 加上 "-"
+        整數部分：0 // 5 = 0
+        結果："-0" ✘
+
+    正確答案是 "0"。
+
+    【所以 if numerator == 0: return "0" 要放在最前面。】</div>
+        <h3><code>seen</code> 為什麼要記「位置」而不只是「有沒有出現過」？</h3>
+        <div class="code-block">因為找到循環時，要知道【從哪一位開始加括號】。
+
+    1/6 = 0.1666...
+
+        r=1: seen[1]=0, 數字 "1", r=4
+        r=4: seen[4]=1, 數字 "6", r=4
+        r=4: 【已經在 seen 裡，位置是 1】
+
+        -&gt; frac = ['1', '6']
+        -&gt; 前面不循環的是 frac[:1] = "1"
+        -&gt; 循環節是 frac[1:] = "6"
+        -&gt; 答案 "0.1(6)" ✔
+
+    如果 seen 只存「出現過」，
+    就不知道要從哪裡切 ——
+    會寫成 "0.(16)" ✘（那是 0.161616...）
+
+【這是「用 dict 存位置而不是用 set 存存在性」的典型理由】。
+
+    第 3 題（無重複字元的最長子字串）、
+    第 1 題（兩數之和）也都是存位置而不是存存在性。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(d)</td><td>最多 d 步就循環</td></tr>
+            <tr><td>空間</td><td>O(d)</td><td>餘數雜湊表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>用 <code>divmod</code> 的版本（結構更清楚）</h3>
+        <div class="code-block">class Solution:
+    def fractionToDecimal(self, numerator: int, denominator: int) -&gt; str:
+        if numerator == 0:
+            return "0"
+
+        sign = "-" if (numerator &lt; 0) != (denominator &lt; 0) else ""
+        n, d = abs(numerator), abs(denominator)
+
+        q, r = divmod(n, d)
+        if r == 0:
+            return sign + str(q)
+
+        frac, seen = [], {}
+        while r and r not in seen:
+            seen[r] = len(frac)
+            digit, r = divmod(r * 10, d)
+            frac.append(str(digit))
+
+        if r:                               # 因為「餘數重複」而停 -&gt; 有循環節
+            i = seen[r]
+            body = "".join(frac[:i]) + "(" + "".join(frac[i:]) + ")"
+        else:                               # 因為「餘數為 0」而停 -&gt; 有限小數
+            body = "".join(frac)
+
+        return sign + str(q) + "." + body</div>
+        <div class="code-block">把「除法」和「取餘」合成一次 divmod 呼叫：
+
+    q, r = divmod(n, d)             # 整數部分
+    digit, r = divmod(r * 10, d)    # 每一位小數
+
+【divmod 的好處】：
+    ✔ 一次運算同時得到商和餘數（底層只做一次除法）
+    ✔ 語意清楚：「這是一次帶餘除法」
+    ✔ 不會寫錯（用 // 和 % 分兩行時，容易忘記更新 r）
+
+【迴圈的結構也更清楚】：
+
+    while r and r not in seen:
+        ...
+
+    if r:   # 因為「重複」而停 -&gt; 有循環
+    else:   # 因為「r == 0」而停 -&gt; 有限小數
+
+    【把「為什麼停下來」明確分成兩種情況】，
+    比在迴圈裡 return 更好讀。
+
+【一般原則】：
+
+    「迴圈有兩種結束方式」時，
+    與其在迴圈裡 return，
+    不如讓迴圈自然結束，再用一個 if 分辨。
+
+    這樣比較容易看出「所有情況都被處理了」。</div>
+        <p><strong>複雜度和解法一完全相同。</strong><strong>挑一個順手的寫就好。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(d)</td><td>同解法一</td></tr>
+            <tr><td>空間</td><td>O(d)</td><td>餘數雜湊表</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>結構</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、迴圈裡 return</td><td>O(d)</td><td>O(d)</td><td>緊湊</td><td>標準寫法</td></tr>
+            <tr><td>二、divmod + 事後分辨</td><td>O(d)</td><td>O(d)</td><td>清楚</td><td>比較好讀</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong><code>numerator = 0</code></strong> → <code>"0"</code>。<strong>不特判的話，分母是負數時會輸出 <code>"-0"</code>。</strong></li>
+          <li><strong>整除</strong> <code>(2, 1)</code> → <code>"2"</code>（沒有小數點）。</li>
+          <li><strong>有限小數</strong> <code>(1, 2)</code> → <code>"0.5"</code>。</li>
+          <li><strong>純循環</strong> <code>(1, 3)</code> → <code>"0.(3)"</code>。</li>
+          <li><strong>混循環</strong> <code>(1, 6)</code> → <code>"0.1(6)"</code>。<strong>前面有不循環的部分 —— 所以 <code>seen</code> 要記位置。</strong></li>
+          <li><strong>負數</strong> <code>(7, -12)</code> → <code>"-0.58(3)"</code>。</li>
+          <li><strong>兩個都是負數</strong> <code>(-1, -2)</code> → <code>"0.5"</code>（正的）。</li>
+          <li><strong><code>(-2³¹, -1)</code></strong> → <code>"2147483648"</code>。<strong>在 C++/Java 裡 <code>abs</code> 會溢位。</strong></li>
+          <li><strong>用 <code>n * d &lt; 0</code> 判斷符號</strong> → 可能溢位，而且 0 的情況要另外處理。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：循環節的長度最多多少？</h3>
+
+        <div class="code-block">【最多是 d - 1】（d 是分母）。
+
+    因為餘數只有 1..d-1 這 d-1 種非零可能，
+    做了 d-1 步之後必然重複（鴿籠原理）。
+
+【實際的長度是多少？】
+
+    設 d = 2^a · 5^b · m（m 和 10 互質）。
+
+    - 「不循環的前綴」長度 = max(a, b)
+      （因為 2 和 5 是 10 的質因數，可以被「除盡」）
+
+    - 「循環節」的長度 = 【10 對 m 的乘法階】
+      也就是最小的 k 使得 10^k ≡ 1 (mod m)
+
+    例子：
+        1/6  = 1/(2·3)：前綴 1 位，循環節 1 位 -&gt; 0.1(6) ✔
+        1/7  ：m = 7，10^6 ≡ 1 (mod 7)，循環節 6 位
+               -&gt; 0.(142857) ✔
+        1/333：333 = 3^2 · 37，循環節 3 位 -&gt; 0.(003) ✔
+
+【1/7 = 0.(142857) 是最有名的例子】——
+    142857 這個數有很多神奇的性質
+    （乘以 1~6 都是同樣六個數字的循環排列）。
+
+【題目保證答案長度 &lt; 10^4】，
+    所以循環節不會太長 ——
+    但理論上 d 接近 2^31 時，循環節可以到 2^31 - 1。</div>
+
+        <h3>追問二：怎麼反過來（循環小數轉分數）？</h3>
+
+        <div class="code-block">【純循環】0.(abc) = abc / 999
+
+    設 x = 0.(abc)
+    1000x = abc.(abc)
+    1000x - x = abc
+    x = abc / 999 ✔
+
+【混循環】0.p(q)（p 是 k 位前綴，q 是 m 位循環節）
+
+    x = [pq - p] / [(10^m - 1) × 10^k]
+
+    例如 0.1(6)：
+        p = "1"（k=1），q = "6"（m=1）
+        x = (16 - 1) / (9 × 10) = 15/90 = 1/6 ✔
+
+【本文的測試就是用這個公式驗證的】：
+
+    把輸出的字串解析回 Fraction，
+    檢查它是否等於原本的 numerator/denominator ✔
+
+    【這種「往返驗證」（round-trip testing）比
+      「比對硬寫的期望字串」可靠得多】——
+
+    因為它驗證的是【語意】而不是【格式】。</div>
+
+        <h3>追問三：如果要求「最短的循環節」呢？</h3>
+
+        <p><strong>本文的演算法已經給出最短的了。</strong></p>
+
+        <div class="code-block">因為我們在【餘數第一次重複】時就停下來 ——
+    那個位置就是循環的最小起點。
+
+    如果繼續跑，會得到「循環節重複兩次」之類的答案
+    （例如 0.(3) 變成 0.(33)）——
+    那也是對的，但不是最短的。
+
+【題目說「如果有多個答案，回傳任何一個」】，
+    所以理論上 0.(33) 也算對。
+
+    但實務上一定要給最短的 ——
+    而本文的做法自然就是最短 ✔
+
+【為什麼「第一次重複」就是最短？】
+
+    因為「餘數序列」進入循環的第一個點，
+    就是「數字序列」開始循環的第一個點
+    （兩者一一對應）。
+
+    這其實是 Floyd 判圈法裡「環的入口」那個概念 ——
+    只是這裡我們用了 O(d) 空間的雜湊表，
+    而不是 O(1) 空間的快慢指標。
+
+    【理論上可以用 Floyd 把空間降到 O(1)】，
+    但那樣要重跑除法，而且程式碼複雜很多 ——
+    不值得。</div>
+
+        <h3>追問四：為什麼「有理數 ⟺ 有限或循環小數」？</h3>
+
+        <div class="code-block">【有理數 ⟹ 有限或循環】
+
+    就是本題的演算法：
+        餘數只有有限種（0 到 d-1），
+        所以要嘛碰到 0（有限），要嘛重複（循環）✔
+
+【有限或循環 ⟹ 有理數】
+
+    有限小數：0.abc = abc / 1000 ✔ 顯然是有理數
+
+    循環小數：用追問二的公式 ✔
+
+【所以無理數的小數展開既不有限也不循環】。
+
+    這給了一個「證明某個數是無理數」的方法：
+        證明它的小數展開不循環。
+
+    例如 Champernowne 常數
+        0.12345678910111213...
+    （把所有正整數接起來）
+    顯然不循環 -&gt; 無理數 ✔
+
+【這題把一個數學定理變成了可執行的程式碼】——
+    這是我覺得它最有趣的地方。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 29 題 兩數相除</strong> —— 同樣的溢位陷阱</li>
+          <li><strong>第 7 題 整數反轉</strong> —— 同樣的 32 位元邊界</li>
+          <li><strong>第 142 題 環形鏈結串列 II</strong> —— 「找循環的起點」的另一種形式</li>
+          <li><strong>第 3 題 無重複字元的最長子字串</strong> —— 同樣「用 dict 存位置」</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「餘數重複」就代表「數字開始循環」？</li>
+            <li>為什麼循環一定會發生（除非整除）？循環節最長多少？</li>
+            <li><code>seen</code> 為什麼要記「位置」而不只是「出現過」？</li>
+            <li><code>numerator = 0</code> 為什麼一定要特判？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0165.html">← 上一題：165. 比較版本號</a>
+          <a href="problem-0167.html">下一題：167. 兩數之和 II - 輸入有序陣列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

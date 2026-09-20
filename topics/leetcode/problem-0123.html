@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>123. Best Time to Buy and Sell Stock III 買賣股票的最佳時機 III ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="四個狀態變數，以及它和第 188 題的關係。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="123">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 123 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 123</div>
+          <h1>Best Time to Buy and Sell Stock III<br>買賣股票的最佳時機 III</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i</code><sup>th</sup> day.</p>
+          <p>Find the maximum profit you can achieve. You may complete <strong>at most two transactions</strong>.</p>
+          <p><strong>Note:</strong> You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個陣列 <code>prices</code>，<code>prices[i]</code> 是第 <code>i</code> 天的股價。</p>
+          <p>求你能獲得的最大利潤，但<strong>最多只能完成兩筆交易</strong>。</p>
+          <p><strong>注意：</strong>你不能同時持有多筆交易 —— <strong>必須先賣掉，才能再買</strong>。</p>
+        </div>
+
+        <div class="callout">
+          <h3>從「一次」「無限次」到「最多兩次」</h3>
+        <div class="code-block">121（一次）：    一趟掃描記最低價                O(n)
+122（無限次）：  貪心加漲幅                      O(n)
+123（最多兩次）：？                             ← 本題
+
+【為什麼這題突然變 Hard？】
+
+    121 之所以簡單，是因為「只有一次」讓問題退化成
+    「找最大差值」。
+
+    122 之所以簡單，是因為「無限次」讓每天的決定獨立。
+
+    123 卡在中間 ——
+        有限制（不能無限次）-&gt; 貪心失效
+        限制又不夠緊（不只一次）-&gt; 121 的技巧也不夠
+
+    【這是演算法題常見的模式：
+      「太鬆」和「太緊」都簡單，中間才難。】
+
+    解法有兩條路：
+        A. 四個狀態變數（推薦，也能推廣到 k 次）
+        B. 枚舉分割點，左右各做一次 121</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：prices = [3,3,5,0,0,3,1,4]
+  輸出：6
+  說明：第 4 天買（0）第 6 天賣（3），賺 3
+        第 7 天買（1）第 8 天賣（4），賺 3
+        總共 6。
+
+範例 2
+  輸入：prices = [1,2,3,4,5]
+  輸出：4
+  說明：一路上漲，只要做一筆（第 1 天買、第 5 天賣）就夠了。
+        【「最多兩次」不代表「一定要兩次」。】
+
+範例 3
+  輸入：prices = [7,6,4,3,1]
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>prices.length</code> ≤ 10⁵</li>
+          <li>0 ≤ <code>prices[i]</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【方法 A：四個狀態變數】
+
+    把「一筆交易」拆成「買」和「賣」兩個事件，
+    兩筆交易就是四個事件，按時間順序：
+
+        買1 -&gt; 賣1 -&gt; 買2 -&gt; 賣2
+
+    對每一天，維護「走到這一步時的最大現金」：
+
+        buy1  = max(buy1,  0     - p)     第一次買（本金 0）
+        sell1 = max(sell1, buy1  + p)     第一次賣
+        buy2  = max(buy2,  sell1 - p)     第二次買（用賣1 的錢）
+        sell2 = max(sell2, buy2  + p)     第二次賣
+
+    答案 = sell2
+
+【★ 為什麼可以在同一個迴圈裡依序更新？】
+
+    看起來有問題：buy1 剛更新完，sell1 就用了新的 buy1 ——
+    這不就是「同一天買又賣」嗎？
+
+    是的，但【同一天買又賣的利潤是 0】，
+    不會讓答案變大，所以無害 ✔
+
+    而且「允許同日買賣」剛好對應到
+    「其實只做一筆交易」的情況：
+        buy1 -&gt; sell1（真交易）-&gt; buy2 -&gt; sell2（同日，賺 0）
+
+    所以「最多兩次」自動涵蓋了「一次」和「零次」✔
+
+    【這個「順序更新其實安全」的論證值得想清楚 ——
+      面試官很可能會問。】
+
+【方法 B：枚舉分割點】
+
+    兩筆交易一定可以被一個分割點 i 分開：
+        第一筆完全在 [0, i]，第二筆完全在 [i, n-1]
+
+    left[i]  = [0..i] 裡做一次交易的最大利潤   （第 121 題，正著掃）
+    right[i] = [i..n-1] 裡做一次交易的最大利潤 （第 121 題，倒著掃）
+
+    答案 = max over i of (left[i] + right[i+1])
+
+    O(n) 時間、O(n) 空間。
+
+    【比較好想，但空間多了 O(n)，也不好推廣到 k 次。】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>四個狀態變數（標準答案）</h3>
+        <div class="code-block">class Solution:
+    def maxProfit(self, prices: List[int]) -&gt; int:
+        # 四個狀態：第一次買完 / 第一次賣完 / 第二次買完 / 第二次賣完 之後的最大現金
+        buy1 = buy2 = float('-inf')
+        sell1 = sell2 = 0
+
+        for p in prices:
+            buy1 = max(buy1, -p)            # 第一次買（本金 0）
+            sell1 = max(sell1, buy1 + p)    # 第一次賣
+            buy2 = max(buy2, sell1 - p)     # 第二次買（用第一次賣完的錢）
+            sell2 = max(sell2, buy2 + p)    # 第二次賣
+
+        return sell2</div>
+        <p><strong>八行，O(n) 時間、O(1) 空間。</strong></p>
+        <h3>初始值為什麼是這些？</h3>
+        <div class="code-block">buy1 = buy2 = -inf      一開始「不可能」已經買了
+sell1 = sell2 = 0       一開始「什麼都沒做」，現金 0
+
+    sell 初始成 0 的意思是「零筆交易」也是合法答案 ——
+    這自動處理了「一路下跌就不交易」的情況 ✔
+
+    buy 初始成 -inf 是為了讓第一次的 max 一定取到 -p。
+
+    【也可以初始成 -prices[0]，然後從第 1 天開始掃】——
+    但那樣要特判空陣列，不如用 -inf 乾淨。
+
+【驗算 prices = [1, 2]】：
+
+    p=1: buy1=max(-inf,-1)=-1
+         sell1=max(0,-1+1)=0
+         buy2=max(-inf,0-1)=-1
+         sell2=max(0,-1+1)=0
+
+    p=2: buy1=max(-1,-2)=-1
+         sell1=max(0,-1+2)=1     ✔ 賺 1
+         buy2=max(-1,1-2)=-1
+         sell2=max(0,-1+2)=1     ✔
+
+    答案 1 ✔</div>
+        <h3>為什麼答案是 <code>sell2</code> 而不是 <code>max(sell1, sell2)</code>？</h3>
+        <p>因為 <code>sell2 >= sell1</code> <strong>永遠成立</strong> —— <strong>「做完第一筆之後，第二筆可以同日買賣賺 0」</strong>，所以 <code>sell2</code> 至少能達到 <code>sell1</code> 的水準。</p>
+        <p><strong>寫 <code>max(sell1, sell2)</code> 也對，只是多餘。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>掃一遍，每天四次更新</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>四個變數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>枚舉分割點（最好想）</h3>
+        <div class="code-block">class Solution:
+    def maxProfit(self, prices: List[int]) -&gt; int:
+        n = len(prices)
+        if n &lt; 2:
+            return 0
+
+        # left[i]  = 在 prices[0..i] 裡只做一次交易的最大利潤
+        left = [0] * n
+        low = prices[0]
+        for i in range(1, n):
+            low = min(low, prices[i])
+            left[i] = max(left[i - 1], prices[i] - low)
+
+        # right[i] = 在 prices[i..n-1] 裡只做一次交易的最大利潤
+        right = [0] * (n + 1)
+        high = prices[-1]
+        for i in range(n - 2, -1, -1):
+            high = max(high, prices[i])
+            right[i] = max(right[i + 1], high - prices[i])
+
+        # 枚舉分割點：前半做一次、後半做一次
+        return max(left[i] + right[i + 1] for i in range(n))</div>
+        <h3>兩個方向各掃一次</h3>
+        <div class="code-block">left[i] = 在 [0..i] 裡做【一次】交易的最大利潤
+    -&gt; 正著掃，維護「歷史最低價」（就是第 121 題）
+
+right[i] = 在 [i..n-1] 裡做【一次】交易的最大利潤
+    -&gt; 倒著掃，維護「未來最高價」
+
+    注意 right 的長度是 n+1，
+    多出來的 right[n] = 0 代表「後半段是空的」——
+    這樣 left[n-1] + right[n] 就自然表示「只做一筆」✔
+
+    【多開一格當哨兵，省掉一個邊界特判 ——
+      這個技巧在前綴和、後綴陣列裡非常常見。】
+
+答案 = max over i of (left[i] + right[i+1])
+
+    i 代表「第一筆在 i 之前（含）完成，第二筆在 i 之後開始」。
+
+    因為 left[i] 和 right[i+1] 的區間不重疊，
+    所以兩筆交易一定合法 ✔</div>
+        <h3>為什麼「兩筆交易一定能被一個點分開」？</h3>
+        <p>因為題目說<strong>「必須先賣掉才能再買」</strong> —— <strong>所以兩筆交易的時間區間不重疊</strong>，<strong>一定存在一個分割點落在它們中間。</strong></p>
+        <p><strong>如果允許同時持有多筆（題目特別排除了），這個分解就不成立。</strong></p>
+        <p><strong>O(n) 時間、O(n) 空間。</strong><strong>思路最直白，但不好推廣到 k 次</strong>（k 次要枚舉 k-1 個分割點，變成 <code>O(n^(k-1))</code>）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>三趟掃描</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>兩個輔助陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>通用的 k 次版本（第 188 題的解法）</h3>
+        <div class="code-block">class Solution:
+    def maxProfit(self, prices: List[int], k: int = 2) -&gt; int:
+        # 通用版：2k 個狀態，k=2 就是本題
+        buy = [float('-inf')] * (k + 1)
+        sell = [0] * (k + 1)
+
+        for p in prices:
+            for j in range(1, k + 1):
+                buy[j] = max(buy[j], sell[j - 1] - p)
+                sell[j] = max(sell[j], buy[j] + p)
+
+        return sell[k]</div>
+        <div class="code-block">把四個變數換成兩個長度 k+1 的陣列：
+
+    buy[j]  = 完成 j-1 筆交易、且第 j 次已買入時的最大現金
+    sell[j] = 完成 j 筆交易時的最大現金
+
+    for j in 1..k:
+        buy[j]  = max(buy[j],  sell[j-1] - p)
+        sell[j] = max(sell[j], buy[j]    + p)
+
+    k = 2 時就是解法一（buy[1]=buy1, sell[1]=sell1, ...）。
+
+【★ j 為什麼要正著跑？】
+
+    buy[j] 用到 sell[j-1]（這一輪【已經更新過】的值）。
+
+    這代表「第 j-1 筆和第 j 筆可以在同一天完成」——
+    同樣地，那樣的利潤是 0，無害 ✔
+
+    倒著跑也對（那樣用的是上一輪的 sell[j-1]），
+    只是語意變成「不能同日」——答案一樣。
+
+【複雜度 O(nk)】
+
+    k = 2 時是 O(2n)，和解法一相同。
+
+    第 188 題的 k 可以很大，那時要加上優化：
+        if k &gt;= n // 2: 直接退化成第 122 題的貪心
+
+    因為最多也只能做 n//2 筆交易
+    （每筆至少佔兩天）。</div>
+        <p><strong>寫這個版本的好處是「一份程式碼解四題」</strong>（121 是 k=1、122 是 k=∞、123 是 k=2、188 是任意 k）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n·k)</td><td>每天跑 k 次</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>兩個長度 k 的陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>能推廣到 k 次</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、四個狀態</td><td>O(n)</td><td>O(1)</td><td>△ 要手動展開</td><td>標準答案</td></tr>
+            <tr><td>二、枚舉分割點</td><td>O(n)</td><td>O(n)</td><td>✘</td><td>最好想</td></tr>
+            <tr><td>三、通用 k 次</td><td>O(nk)</td><td>O(k)</td><td>✔</td><td>一份程式碼解四題</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一天</strong> → <code>0</code>。</li>
+          <li><strong>空陣列</strong>（題目保證不會）→ <code>0</code>。<strong>解法二要特判 <code>n &lt; 2</code>，解法一、三自然正確。</strong></li>
+          <li><strong>一路上漲</strong> <code>[1,2,3,4,5]</code> → <code>4</code>。<strong>「最多兩次」不代表要湊滿兩次。</strong></li>
+          <li><strong>一路下跌</strong> → <code>0</code>。<strong><code>sell</code> 初始成 <code>-inf</code> 會回傳負數。</strong></li>
+          <li><strong><code>[3,3,5,0,0,3,1,4]</code></strong> → <code>6</code>（要真的做兩筆）。</li>
+          <li><strong>兩段漲幅一大一小</strong>，例如 <code>[1,100,1,2]</code> → <code>100</code>（第二筆只賺 1，但不做也沒差）。</li>
+          <li><strong>把 <code>buy2</code> 的來源寫成 <code>-p</code> 而不是 <code>sell1 - p</code></strong> → <strong>變成「兩筆交易各自獨立、可以重疊」，答案偏大。</strong></li>
+          <li><strong>10⁵ 天</strong> → O(n) 和 O(2n) 都輕鬆。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：四個狀態依序更新，為什麼不會「同一天做完兩筆」而算錯？</h3>
+
+        <div class="code-block">會「同一天做完」，但那樣的利潤是 0，所以不會讓答案偏大。
+
+    嚴格地說：
+
+        sell2 = max(sell2, buy2 + p)
+              = max(sell2, max(buy2_old, sell1 - p) + p)
+              = max(sell2, buy2_old + p, sell1)
+
+    最後那一項 sell1 就是「第二筆同日買賣，賺 0」。
+
+    而 sell1 本來就是一個合法的答案（只做一筆），
+    所以把它納入 max 完全正確 ✔
+
+【這個論證的一般形式】：
+
+    「允許退化的選項」只要不會產生【非法】或【偏大】的值，
+    就可以放心納入 —— 它會自動涵蓋「用不滿限制」的情況。
+
+    第 188 題的 k 次版本、
+    背包問題的「可以不裝滿」版本，
+    用的都是同一個技巧。</div>
+
+        <h3>追問二：如果最多 k 次呢？</h3>
+
+        <p><strong>第 188 題</strong>，就是解法三。<strong>記得加上 <code>k >= n // 2</code> 時退化成貪心的優化</strong>，否則 <code>k = 10⁹</code> 時 <code>O(nk)</code> 會爆。</p>
+
+        <h3>追問三：如果要輸出「哪四天買賣」呢？</h3>
+
+        <p><strong>解法二比較容易</strong> —— 找到最佳分割點 <code>i</code> 之後，在 <code>[0,i]</code> 和 <code>[i+1,n-1]</code> 各跑一次第 121 題的「記錄買賣日」版本。</p>
+
+        <p><strong>解法一要輸出方案就麻煩了</strong> —— <strong>狀態機壓縮掉了「是在哪一天做的」這個資訊，要額外記錄。</strong><strong>「空間優化」和「能否回溯方案」常常是互相衝突的。</strong></p>
+
+        <h3>追問四：如果兩筆交易可以重疊（同時持有兩股）呢？</h3>
+
+        <p><strong>那就是「找兩段不一定不重疊的最大差」</strong> —— <strong>答案會變成「兩倍的第 121 題答案」</strong>（同一段最好的交易做兩次）。</p>
+
+        <p><strong>題目特別寫「必須先賣掉才能再買」，就是為了排除這個退化情況。</strong><strong>這又是一個「看起來是廢話的限制其實是核心」的例子。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 121 題 …I</strong> —— k = 1</li>
+          <li><strong>第 122 題 …II</strong> —— k = ∞，貪心</li>
+          <li><strong>第 188 題 …IV</strong> —— 任意 k，就是解法三</li>
+          <li><strong>第 309/714 題</strong> —— 冷凍期 / 手續費</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼「一次」和「無限次」都簡單，「最多兩次」反而難？</li>
+            <li>四個狀態依序更新，為什麼「同一天做完兩筆」不會讓答案出錯？</li>
+            <li><code>buy2</code> 的來源為什麼是 <code>sell1 - p</code> 而不是 <code>-p</code>？</li>
+            <li>解法二為什麼「兩筆交易一定能被一個分割點分開」？依賴哪個條件？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0122.html">← 上一題：122. 買賣股票的最佳時機 II</a>
+          <a href="problem-0124.html">下一題：124. 二元樹中的最大路徑和 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

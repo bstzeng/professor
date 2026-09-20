@@ -1,0 +1,472 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code> and a dictionary of strings <code>wordDict</code>, add spaces in <code>s</code> to construct a sentence where each word is a valid dictionary word. Return all such possible sentences in <strong>any order</strong>.</p>
+          <p><strong>Note</strong> that the same word in the dictionary may be reused multiple times in the segmentation.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code> 和一個單字字典 <code>wordDict</code>，在 <code>s</code> 裡加上空格，使得<strong>每一段都是字典裡的單字</strong>。</p>
+          <p>回傳<strong>所有可能的句子</strong>（順序不限）。</p>
+          <p><strong>注意：字典裡的單字可以重複使用。</strong></p>
+        </div>
+
+        <div class="callout">
+          <h3>★ 為什麼「直接回溯」會逾時</h3>
+        <div class="code-block">class Solution:
+    # 【會 TLE 的版本】：沒有剪枝、也沒有記憶化的純回溯
+    def wordBreak(self, s: str, wordDict: List[str]) -&gt; List[str]:
+        words = set(wordDict)
+        n = len(s)
+        res, path = [], []
+
+        def back(start):
+            if start == n:
+                res.append(" ".join(path))
+                return
+            for end in range(start + 1, n + 1):
+                if s[start:end] in words:
+                    path.append(s[start:end])
+                    back(end)
+                    path.pop()
+
+        back(0)
+        return res</div>
+        <div class="code-block">這段程式碼是對的，但會在某些測資上逾時。
+
+【致命的測資】：
+
+    s = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaab"   （30 個 a 加一個 b）
+    wordDict = ["a","aa","aaa","aaaa","aaaaa",...,"aaaaaaaaaa"]
+
+    答案是【空的】—— 因為結尾的 "b" 不在字典裡。
+
+    但回溯要把 30 個 a 的【所有切法】都試過
+    才發現「每一條路最後都卡在 b」。
+
+    30 個 a 的切法數是指數級的 -&gt; 直接 TLE ✘
+
+【★ 關鍵洞察】：
+
+    這些搜尋【全部都是白做的】——
+    只要一開始就知道「從某個位置開始走不通」，
+    就可以完全不進去。
+
+【解法：先用第 139 題的 DP 算出可行性】
+
+    ok[i] = s[i:] 能不能被拆開
+
+    然後回溯時只走 ok[end] 為 True 的分支 ——
+    保證【每一條走進去的路都一定會產出答案】✔
+
+    這樣總時間就變成 O(答案的大小)，
+    而不是 O(搜尋樹的大小)。
+
+【「先算可行性、再搜尋」是回溯剪枝最有效的一招。】
+
+    它的價值在於：把「可能白做的搜尋」
+    變成「保證有收穫的搜尋」。</div>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "catsanddog",
+        wordDict = ["cat","cats","and","sand","dog"]
+  輸出：["cats and dog","cat sand dog"]
+
+範例 2
+  輸入：s = "pineapplepenapple",
+        wordDict = ["apple","pen","applepen","pine","pineapple"]
+  輸出：["pine apple pen apple",
+        "pineapple pen apple",
+        "pine applepen apple"]
+
+範例 3
+  輸入：s = "catsandog",
+        wordDict = ["cats","dog","sand","and","cat"]
+  輸出：[]
+  說明：怎麼切都會剩下 "og"。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 20</li>
+          <li>1 ≤ <code>wordDict.length</code> ≤ 1000</li>
+          <li>1 ≤ <code>wordDict[i].length</code> ≤ 10</li>
+          <li><code>s</code> 和 <code>wordDict[i]</code> 只包含小寫英文字母</li>
+          <li><code>wordDict</code> 裡的單字<strong>互不相同</strong></li>
+          <li>輸入保證答案的<strong>總數不超過 10⁵</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/word-break-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>注意 s 的長度只有 20（第 139 題是 300）</h3>
+        <p><strong>因為這題的輸出可能是指數級的</strong>（最多 <code>2¹⁹</code> 種切法）。</p>
+        <p><strong>而且題目額外保證「答案總數不超過 10⁵」</strong> —— 這是在告訴你「輸出不會爆炸」。</p>
+        <p><strong>但你的演算法仍然不能在「中間搜尋」時爆炸</strong> —— <strong>那正是「先剪枝」要解決的問題。</strong></p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">兩階段：
+
+【階段一：算可行性（第 139 題的 DP）】
+
+    ok[i] = s[i:] 能不能被完全拆開
+
+    ok[n] = True
+    for i from n-1 down to 0:
+        ok[i] = any(s[i:j] in words and ok[j] for j in i+1..n)
+
+    如果 ok[0] 是 False -&gt; 直接回傳 []（連試都不用試）
+
+【階段二：回溯，但只走「走得通」的分支】
+
+    def back(start):
+        if start == n:
+            res.append(" ".join(path))
+            return
+        for end in start+1..n:
+            if s[start:end] in words and ok[end]:
+                                          ^^^^^^^  ★ 剪枝
+                path.append(s[start:end])
+                back(end)
+                path.pop()
+
+【★ 加上 ok[end] 這個條件之後的保證】：
+
+    每一次遞迴進去，都【一定】會產出至少一個答案。
+
+    -&gt; 搜尋樹的每一條路徑都對應到一個真實答案
+    -&gt; 總時間 = O(答案的總長度) ✔
+
+    沒有這個條件的話，搜尋樹可能有指數級的「死路」。
+
+【複雜度】
+
+    階段一：O(n² · k)
+    階段二：O(答案的總長度)，題目保證 &lt;= 10^5 × 20
+
+    兩者都可控 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>可行性 DP + 剪枝回溯（標準答案）</h3>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -&gt; List[str]:
+        words = set(wordDict)
+        n = len(s)
+
+        # ★ 先用第 139 題的 DP 做可行性剪枝：ok[i] = s[i:] 能不能拆開
+        ok = [False] * (n + 1)
+        ok[n] = True
+        for i in range(n - 1, -1, -1):
+            ok[i] = any(s[i:j] in words and ok[j] for j in range(i + 1, n + 1))
+
+        if not ok[0]:
+            return []
+
+        res, path = [], []
+
+        def back(start: int):
+            if start == n:
+                res.append(" ".join(path))
+                return
+            for end in range(start + 1, n + 1):
+                if s[start:end] in words and ok[end]:   # ★ 只走「後面走得通」的分支
+                    path.append(s[start:end])
+                    back(end)
+                    path.pop()
+
+        back(0)
+        return res</div>
+        <p><strong>兩階段，各十行。</strong><strong><code>ok[end]</code> 那一個條件就是這題從 TLE 變成 AC 的關鍵。</strong></p>
+        <h3>為什麼 <code>ok</code> 要「從後往前」算？</h3>
+        <div class="code-block">ok[i] 的定義是「s[i:] 能不能拆開」，
+它依賴 ok[j]，其中 j &gt; i（更後面的位置）。
+
+    所以要先算好後面的 -&gt; i 從大到小 ✔
+
+【對照第 139 題】：
+
+    那題的 dp[i] 是「s[:i] 能不能拆開」（前綴），
+    依賴 dp[j] 其中 j &lt; i -&gt; i 從小到大。
+
+    兩題的方向相反，因為狀態的定義相反。
+
+    【「從哪一端定義狀態」決定了迴圈的方向。】
+
+    這題用「後綴」是因為回溯是「從前往後切」的 ——
+    我們需要在位置 i 時知道「後面走不走得通」。</div>
+        <h3><code>if not ok[0]: return []</code> 這一行</h3>
+        <p><strong>不寫也對</strong>（回溯會找不到任何答案，自然回傳 <code>[]</code>），<strong>但寫了更清楚，而且省掉整趟回溯。</strong></p>
+        <h3>為什麼收集時是 <code>" ".join(path)</code> 而不是 <code>path[:]</code>？</h3>
+        <p><strong>因為題目要的是「句子字串」而不是「單字 list」。</strong></p>
+        <p><code>" ".join(path)</code> <strong>本身就產生一個新字串</strong>，所以<strong>不需要額外複製</strong> —— <strong>這和第 113 題的 <code>path[:]</code> 是同一個問題的不同解法。</strong></p>
+        <p><strong>時間 O(n²·k + 答案總長度)、空間 O(n)（不算輸出）。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²·k + 答案)</td><td>剪枝後不做白工</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>ok 陣列 + 路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>記憶化遞迴（回傳「所有句子」）</h3>
+        <div class="code-block">from functools import lru_cache
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -&gt; List[str]:
+        words = set(wordDict)
+
+        @lru_cache(maxsize=None)
+        def go(start: int):
+            """s[start:] 的所有拆法（每一種是一個字串）"""
+            if start == len(s):
+                return [""]                 # 空字串：一種拆法（什麼都不接）
+            out = []
+            for end in range(start + 1, len(s) + 1):
+                w = s[start:end]
+                if w in words:
+                    for rest in go(end):
+                        out.append(w if rest == "" else w + " " + rest)
+            return out
+
+        ans = list(go(0))
+        go.cache_clear()
+        return ans</div>
+        <h3>記憶化在這題真的有用嗎？</h3>
+        <div class="code-block">有用，但要看情況。
+
+    go(start) 只有 n 個不同的參數 -&gt; 最多算 n 次。
+
+    考慮 s = "aaaa...ab"（答案是空的）：
+
+        go(n-1) 會發現 "b" 不在字典 -&gt; 回 []
+        go(n-2) 呼叫 go(n-1) 得到 [] -&gt; 自己也是 []
+        ...
+
+        每個 go(i) 只算一次 ✔ 不會指數爆炸
+
+    【所以記憶化也能解決 TLE 問題】——
+    和「先算可行性再剪枝」達到同樣的效果。
+
+【兩者的差別】：
+
+    解法一：先算一張布林表，回溯時「看表決定要不要走」
+    解法二：直接快取「每個位置的所有答案」
+
+    空間：
+        解法一 O(n)
+        解法二 O(所有子答案的總大小) —— 可能很大
+
+    因為 go(i) 存的是「s[i:] 的所有拆法」，
+    而那本身可能是指數級的。
+
+    【但題目保證答案總數 &lt;= 10^5，所以還可以接受。】
+
+【base case 是 [""] 不是 []】
+
+    [""] 代表「空字串有一種拆法：空句子」
+    []   代表「空字串拆不開」✘
+
+    寫成 [] 的話所有答案都會消失 ——
+    和第 95、131 題是同一個坑。</div>
+        <h3><code>w if rest == "" else w + " " + rest</code></h3>
+        <p><strong>處理「最後一個單字後面不要加空格」。</strong></p>
+        <p><strong>也可以先收集成 list 再 <code>join</code></strong>（像解法一那樣），<strong>那樣就不用這個特判。</strong><strong>「用 list 收集、最後 join」通常比「邊走邊拼字串」乾淨。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²·k + 答案)</td><td>每個狀態算一次</td></tr>
+            <tr><td>空間</td><td>O(答案總大小)</td><td>快取所有子答案</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>純回溯（會 TLE，但值得看）</h3>
+        <div class="code-block">class Solution:
+    # 【會 TLE 的版本】：沒有剪枝、也沒有記憶化的純回溯
+    def wordBreak(self, s: str, wordDict: List[str]) -&gt; List[str]:
+        words = set(wordDict)
+        n = len(s)
+        res, path = [], []
+
+        def back(start):
+            if start == n:
+                res.append(" ".join(path))
+                return
+            for end in range(start + 1, n + 1):
+                if s[start:end] in words:
+                    path.append(s[start:end])
+                    back(end)
+                    path.pop()
+
+        back(0)
+        return res</div>
+        <div class="code-block">這段程式碼【邏輯完全正確】，只是會逾時。
+
+【它慢在哪裡？】
+
+    s = 30 個 a + "b"，字典 = {"a", "aa", ..., "aaaaaaaaaa"}
+
+    答案是空的，但回溯要走遍所有切法才知道。
+
+    30 個 a 的切法數 ≈ 2^29 ≈ 5 億條路徑 ✘
+
+【為什麼這個例子這麼有教育意義？】
+
+    因為「答案很小」（是空的），
+    但「搜尋樹很大」（指數級）。
+
+    【搜尋的成本和答案的大小【完全脫鉤】】——
+    這正是回溯類問題最危險的地方。
+
+    加上 ok[end] 剪枝之後：
+        每一條路徑都保證有收穫
+        -&gt; 搜尋成本 = 答案大小 ✔
+
+【一般原則】：
+
+    寫回溯時，永遠要問：
+        「有沒有可能走進一條【一定沒有答案】的路？」
+
+    如果有，就想辦法先算出來、提前擋掉。
+
+    這叫做【可行性剪枝】（feasibility pruning），
+    是回溯優化最有效的一招。</div>
+        <p><strong>放在這裡是為了對照</strong> —— <strong>它和解法一只差一個 <code>and ok[end]</code>。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ) 最壞</td><td>會走進死路</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>路徑</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>會 TLE 嗎</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、可行性 DP + 剪枝回溯</td><td>O(n²k + 答案)</td><td>O(n)</td><td>✘</td><td>標準答案</td></tr>
+            <tr><td>二、記憶化遞迴</td><td>O(n²k + 答案)</td><td>O(答案總大小)</td><td>✘</td><td>空間較大</td></tr>
+            <tr><td>三、純回溯</td><td>O(2ⁿ) 最壞</td><td>O(n)</td><td>✔</td><td>只差一個條件</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>無解</strong> <code>"catsandog"</code> → <code>[]</code>（不是 <code>None</code>）。</li>
+          <li><strong>單一字元</strong> <code>s="a", dict=["a"]</code> → <code>["a"]</code>。</li>
+          <li><strong>有多種拆法</strong> → 全部都要回傳，順序不限。</li>
+          <li><strong>致命測資</strong>：<code>"aaaa...ab"</code>（30 個 a）配上全是 a 的字典 → <strong>沒有剪枝的回溯要走 5 億條路，TLE。</strong></li>
+          <li><strong>記憶化版 base case 寫成 <code>[]</code></strong> → 所有答案消失。</li>
+          <li><strong>忘了 <code>path.pop()</code></strong> → 路徑越積越長。</li>
+          <li><strong>句子結尾多一個空格</strong> → 判題失敗（要用 <code>join</code> 或特判）。</li>
+          <li><strong>沒有把 <code>wordDict</code> 轉成 <code>set</code></strong> → 每次查詢慢 1000 倍。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問一：這題的複雜度到底怎麼算？</h3>
+
+        <div class="code-block">加了剪枝之後：
+
+    階段一（算 ok）：O(n² · k)
+        兩層迴圈，每次切片 + 查集合
+
+    階段二（回溯）：O(答案的總長度)
+        因為每條路徑都保證產出答案，
+        而產出一個答案的成本是 O(n)（join）
+
+    總共：O(n²·k + |答案| · n)
+
+【但要小心「答案總數」本身可能是指數級的】：
+
+    s = "aaaa...a"（20 個 a），字典 = {"a", "aa"}
+
+    切法數 = 費氏數列 F(21) = 10946 種
+
+    如果字典是 {"a","aa","aaa"}，就是三階費氏數列，
+    成長更快。
+
+    【題目保證「答案總數 &lt;= 10^5」，
+      就是在幫你把這個上界壓住。】
+
+    沒有這個保證的話，任何演算法都不可能在時限內完成 ——
+    因為光是輸出就做不完。</div>
+
+        <h3>追問二：剪枝和記憶化，哪一個比較好？</h3>
+
+        <div class="code-block">【剪枝（解法一）】
+    ✔ 空間只要 O(n)
+    ✔ 概念清楚：「先確認走得通，再走」
+    ✘ 要寫兩個階段
+
+【記憶化（解法二）】
+    ✔ 一個函式寫完
+    ✔ 從暴力解改過來只要加一行 @lru_cache
+    ✘ 空間是 O(所有子答案的總大小)，可能很大
+
+【實務上】：
+
+    如果「子答案」很小（例如只是一個數字、一個布林值）
+    -&gt; 記憶化很划算
+
+    如果「子答案」本身是一個大集合（像這題）
+    -&gt; 剪枝比較好，因為它只快取「布林值」
+
+    【這是一個很好的判斷準則：
+      看「要快取的東西有多大」。】</div>
+
+        <h3>追問三：如果字典非常大呢？</h3>
+
+        <p><strong>用 Trie 取代 <code>set</code></strong>（和第 139 題的追問一樣）。</p>
+
+        <p><strong>好處是「從位置 <code>start</code> 開始，一次走訪就能找出所有匹配的單字」</strong>，<strong>而不用對每個 <code>end</code> 都做一次切片 + 查詢。</strong></p>
+
+        <h3>追問四：「可行性剪枝」還能用在哪些題目？</h3>
+
+        <ul>
+          <li><strong>第 140 題</strong>：先算 <code>ok[]</code>，只走走得通的分支（本題）</li>
+          <li><strong>第 51 題 N 皇后</strong>：用「這一列還有沒有安全格」提前放棄</li>
+          <li><strong>第 37 題 解數獨</strong>：先算每格的候選數，從候選最少的開始填</li>
+          <li><strong>第 126 題 單詞接龍 II</strong>：先 BFS 算出最短距離，DFS 只走「距離剛好減一」的邊</li>
+          <li><strong>第 212 題 單字搜尋 II</strong>：用 Trie 提前判斷「這個前綴根本不存在」</li>
+        </ul>
+
+        <p><strong>共同模式：先用一個便宜的計算（DP / BFS / 預處理）算出「哪些分支一定沒有答案」，然後在搜尋時跳過它們。</strong></p>
+
+        <p><strong>剪枝不會改變「最壞情況」的漸進複雜度，但它常常讓「實際上會遇到的輸入」從 TLE 變成瞬間完成。</strong></p>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 139 題 Word Break</strong> —— 本題的可行性階段，先學那題</li>
+          <li><strong>第 131 題 Palindrome Partitioning</strong> —— 同一個回溯骨架</li>
+          <li><strong>第 126 題 Word Ladder II</strong> —— 同樣是「先算可行性、再列舉」</li>
+          <li><strong>第 93 題 Restore IP Addresses</strong> —— 另一個切字串的回溯</li>
+          <li><strong>第 472 題 Concatenated Words</strong> —— 本題的進階版</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>沒有剪枝的回溯，在什麼測資上會爆炸？為什麼「答案很小」也可能很慢？</li>
+            <li><code>ok[i]</code> 為什麼要從後往前算，而第 139 題的 <code>dp[i]</code> 從前往後？</li>
+            <li>記憶化版的 base case 為什麼是 <code>[""]</code> 而不是 <code>[]</code>？</li>
+            <li>「剪枝」和「記憶化」在這題各有什麼優缺點？</li>
+          </ol>
+        </div>
