@@ -1040,24 +1040,24 @@ emit({
    "Return a <strong>deep copy</strong> (clone) of the graph.",
    "Each node in the graph contains a value (<code>int</code>) and a list "
    "(<code>List[Node]</code>) of its neighbors.",
-   ("c", """class Node {
-    public int val;
-    public List<Node> neighbors;
-}"""),
  ],
  "zh": [
    "給你一個<strong>連通</strong>無向圖裡的某一個節點的參考，"
    "回傳整張圖的<strong>深拷貝</strong>。",
    "每個節點有一個整數 <code>val</code> 和一個鄰居 list。",
-   ("note", "「深拷貝」是什麼意思？", [
-     "<strong>新圖裡的每一個節點都必須是<strong>新建的物件</strong>，"
-     "不能有任何一個節點是原圖的。</strong>",
+ ],
+ "pre": [
+   ("note", "題目給的節點定義，以及「深拷貝」是什麼意思", [
+     ("c", """class Node {
+    public int val;
+    public List<Node> neighbors;
+}"""),
+     "<strong>「深拷貝」的意思是：新圖裡的每一個節點都必須是"
+     "<strong>新建的物件</strong>，不能有任何一個節點是原圖的。</strong>",
      "而且<strong>連接關係要和原圖一模一樣</strong>。",
      "<strong>淺拷貝</strong>（只複製第一層、鄰居直接指向原節點）"
      "<strong>是不合格的</strong> —— 改動新圖會影響到舊圖。",
    ]),
- ],
- "pre": [
    ("note", "★ 圖有環，所以「照著邊遞迴」會無限繞", [
      ("c", S["p133_wrong"]),
      ("c", """這段程式碼看起來完全合理：

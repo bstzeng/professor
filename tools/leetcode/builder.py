@@ -22,16 +22,27 @@ def code(text):
     return IND + '<div class="code-block">%s</div>' % esc(text.strip("\n"))
 
 
+def _stmt_inner(paras):
+    """paras 裡的元素可以是一段散文（原始 HTML，會被包成 <p>），
+    或是 ("blk", html) —— 已經由 authoring 的 DSL 產生好的完整區塊。"""
+    out = []
+    for x in paras:
+        if isinstance(x, tuple) and x and x[0] == "blk":
+            h = x[1]
+            out.append("\n" + (h if h.startswith(IND) else IND + "  " + h))
+        else:
+            out.append("\n%s  <p>%s</p>" % (IND, x))
+    return "".join(out)
+
+
 def stmt_en(*paras):
-    inner = "".join("\n%s  <p>%s</p>" % (IND, p) for p in paras)
     return (IND + '<div class="lc-statement is-en">\n'
-            + IND + '  <h3>Problem</h3>' + inner + "\n" + IND + "</div>")
+            + IND + '  <h3>Problem</h3>' + _stmt_inner(paras) + "\n" + IND + "</div>")
 
 
 def stmt_zh(*paras):
-    inner = "".join("\n%s  <p>%s</p>" % (IND, p) for p in paras)
     return (IND + '<div class="lc-statement">\n'
-            + IND + '  <h3>中文翻譯</h3>' + inner + "\n" + IND + "</div>")
+            + IND + '  <h3>中文翻譯</h3>' + _stmt_inner(paras) + "\n" + IND + "</div>")
 
 
 def h2(t):
