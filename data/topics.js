@@ -10183,6 +10183,343 @@ window.SITE_DATA = {
           ]
         }
       ]
+    },
+    {
+      id: "resident-evil",
+      category: "games",
+      title: "惡靈古堡全紀錄：病毒、保護傘與三十年的生存恐怖",
+      description:
+        "從 1966 年非洲那朵始祖之花講起，完整拆解病毒族譜、保護傘公司與它的後繼組織，再一代一代講完 0 代到 8 代、代號維若妮卡與啟示錄的劇情（含各重製版的改動）；另有安德森真人電影六部曲、2021 重啟、Netflix 影集與 CG 動畫的故事，最後以完整時間線與「恐怖與動作的鐘擺」收束。",
+      icon: "🧟",
+      url: "topics/resident-evil/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：系列導覽與創作背景",
+          courses: [
+            { title: "惡靈古堡是什麼：Capcom、三上真司與 1996 年", url: "topics/resident-evil/lesson-01.html" },
+            { title: "《Sweet Home》的血脈：生存恐怖如何誕生", url: "topics/resident-evil/lesson-02.html" },
+            { title: "兩個名字：Biohazard 與 Resident Evil", url: "topics/resident-evil/lesson-03.html" },
+            { title: "這門課怎麼讀：遊戲正史、外傳與電影的分層", url: "topics/resident-evil/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜設定①：病毒族譜",
+          courses: [
+            { title: "始祖病毒與始祖之花：一切的源頭", url: "topics/resident-evil/lesson-05.html" },
+            { title: "T 病毒與它的變種", url: "topics/resident-evil/lesson-06.html" },
+            { title: "G 病毒、T-Veronica 與 T-Abyss", url: "topics/resident-evil/lesson-07.html" },
+            { title: "不是病毒的那些：寄生蟲、C 病毒、黴菌與 Cadou", url: "topics/resident-evil/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜設定②：保護傘公司與它的敵人",
+          courses: [
+            { title: "三位創辦人：史賓賽、馬可斯、艾許佛", url: "topics/resident-evil/lesson-09.html" },
+            { title: "保護傘的組織結構與生化兵器產業", url: "topics/resident-evil/lesson-10.html" },
+            { title: "保護傘倒台之後：BSAA、TerraSave、FBC 與「連結」", url: "topics/resident-evil/lesson-11.html" },
+            { title: "模組總結：企業惡意作為系列的敘事引擎", url: "topics/resident-evil/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜前傳：惡靈古堡 0",
+          courses: [
+            { title: "始發列車：麗貝卡與比利", url: "topics/resident-evil/lesson-13.html" },
+            { title: "馬可斯的復仇與水蛭女王", url: "topics/resident-evil/lesson-14.html" },
+            { title: "模組總結：0 代在時間線上的位置", url: "topics/resident-evil/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 E｜一代：洋館事件",
+          courses: [
+            { title: "S.T.A.R.S. 與阿爾發小隊：事件的開端", url: "topics/resident-evil/lesson-16.html" },
+            { title: "史賓賽洋館的探索與 T 病毒的真相", url: "topics/resident-evil/lesson-17.html" },
+            { title: "威斯克的背叛與暴君", url: "topics/resident-evil/lesson-18.html" },
+            { title: "四個主角、四條路線與結局分歧", url: "topics/resident-evil/lesson-19.html" },
+            { title: "2002 重製版：麗莎・特雷弗與新增的內容", url: "topics/resident-evil/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 F｜二代：浣熊市的陷落",
+          courses: [
+            { title: "里昂與克萊兒：兩條交錯的路線", url: "topics/resident-evil/lesson-21.html" },
+            { title: "警察局的構造與艾妲・王的目的", url: "topics/resident-evil/lesson-22.html" },
+            { title: "威廉・柏金與 G 病毒", url: "topics/resident-evil/lesson-23.html" },
+            { title: "雪莉・柏金與親子主題", url: "topics/resident-evil/lesson-24.html" },
+            { title: "2019 重製版：改動、取捨與新的敘事", url: "topics/resident-evil/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 G｜三代：最後的逃脫",
+          courses: [
+            { title: "吉兒・華倫泰與追跡者", url: "topics/resident-evil/lesson-26.html" },
+            { title: "卡洛斯與傭兵部隊：另一個視角", url: "topics/resident-evil/lesson-27.html" },
+            { title: "浣熊市的毀滅與政府的決定", url: "topics/resident-evil/lesson-28.html" },
+            { title: "2020 重製版：被刪掉的內容與爭議", url: "topics/resident-evil/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜代號維若妮卡：艾許佛家的終局",
+          courses: [
+            { title: "洛克佛島與克萊兒的被捕", url: "topics/resident-evil/lesson-30.html" },
+            { title: "艾弗雷德與艾希莉亞：雙生子的瘋狂", url: "topics/resident-evil/lesson-31.html" },
+            { title: "T-Veronica 與南極基地", url: "topics/resident-evil/lesson-32.html" },
+            { title: "模組總結：家族衰亡作為系列的另一條主題線", url: "topics/resident-evil/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 I｜四代：歐洲村莊與寄生蟲",
+          courses: [
+            { title: "六年後的里昂：總統千金綁架案", url: "topics/resident-evil/lesson-34.html" },
+            { title: "村莊、城堡、島嶼：三段式的舞台", url: "topics/resident-evil/lesson-35.html" },
+            { title: "光明教會、薩德勒與寄生蟲的支配", url: "topics/resident-evil/lesson-36.html" },
+            { title: "克勞薩、艾妲與威斯克的佈局", url: "topics/resident-evil/lesson-37.html" },
+            { title: "遊戲設計的轉向：從恐怖到動作", url: "topics/resident-evil/lesson-38.html" },
+            { title: "2023 重製版：敘事重寫與角色重塑", url: "topics/resident-evil/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 J｜五代：非洲與威斯克的終局",
+          courses: [
+            { title: "克里斯與希娃：奇久州的任務", url: "topics/resident-evil/lesson-40.html" },
+            { title: "吉兒的失蹤與洗腦", url: "topics/resident-evil/lesson-41.html" },
+            { title: "尤洛波洛斯與威斯克的死", url: "topics/resident-evil/lesson-42.html" },
+            { title: "模組總結：系列如何處理長期反派的收束", url: "topics/resident-evil/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 K｜六代：四條戰線",
+          courses: [
+            { title: "四個劇本的結構與 C 病毒", url: "topics/resident-evil/lesson-44.html" },
+            { title: "里昂與海倫娜：陶德市與總統之死", url: "topics/resident-evil/lesson-45.html" },
+            { title: "克里斯與皮爾斯：中國與遂行部隊", url: "topics/resident-evil/lesson-46.html" },
+            { title: "傑克與雪莉：威斯克之子", url: "topics/resident-evil/lesson-47.html" },
+            { title: "艾妲線、卡菈・拉德梅斯與新保護傘", url: "topics/resident-evil/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 L｜啟示錄系列",
+          courses: [
+            { title: "啟示錄：吉兒、女王芝諾比亞號與 T-Abyss", url: "topics/resident-evil/lesson-49.html" },
+            { title: "啟示錄 2：克萊兒、摩伊拉與監視之島", url: "topics/resident-evil/lesson-50.html" },
+            { title: "艾利克斯・威斯克與「第三種威斯克」", url: "topics/resident-evil/lesson-51.html" },
+            { title: "模組總結：外傳如何補完主線的空白", url: "topics/resident-evil/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 M｜七代：貝克一家",
+          courses: [
+            { title: "伊森・溫特斯與杜爾維的農莊", url: "topics/resident-evil/lesson-53.html" },
+            { title: "貝克一家：傑克、瑪格麗特、路卡斯", url: "topics/resident-evil/lesson-54.html" },
+            { title: "伊芙琳、黴菌與「E 型」的真相", url: "topics/resident-evil/lesson-55.html" },
+            { title: "第一人稱的回歸：系列如何找回恐怖", url: "topics/resident-evil/lesson-56.html" },
+            { title: "克里斯的登場與藍色保護傘", url: "topics/resident-evil/lesson-57.html" },
+          ],
+        },
+        {
+          title: "模組 N｜八代：村莊",
+          courses: [
+            { title: "三年後：蘿絲的誘拐與東歐村莊", url: "topics/resident-evil/lesson-58.html" },
+            { title: "四大領主①：蒂米崔斯庫夫人的城堡", url: "topics/resident-evil/lesson-59.html" },
+            { title: "四大領主②：貝內維恩托的人偶之家", url: "topics/resident-evil/lesson-60.html" },
+            { title: "四大領主③：莫羅的水庫與海森堡的工廠", url: "topics/resident-evil/lesson-61.html" },
+            { title: "米蘭達之母、巨型真菌與伊森的結局", url: "topics/resident-evil/lesson-62.html" },
+            { title: "蘿絲的黃金線：DLC 與下一世代的預告", url: "topics/resident-evil/lesson-63.html" },
+          ],
+        },
+        {
+          title: "模組 O｜最新作與未來",
+          courses: [
+            { title: "惡靈古堡 Requiem：目前可以確定與尚待補充的部分", url: "topics/resident-evil/lesson-64.html" },
+            { title: "系列的下一步：三條可能的路線", url: "topics/resident-evil/lesson-65.html" },
+          ],
+        },
+        {
+          title: "模組 P｜電影①：安德森真人電影六部曲",
+          courses: [
+            { title: "真人電影版的定位：為什麼要創造愛麗絲", url: "topics/resident-evil/lesson-66.html" },
+            { title: "第一部（2002）：蜂巢與紅后", url: "topics/resident-evil/lesson-67.html" },
+            { title: "第二部（2004）：啟示錄——浣熊市與追跡者", url: "topics/resident-evil/lesson-68.html" },
+            { title: "第三、四部：大滅絕與陰陽界——荒漠、複製人與亞開迪亞", url: "topics/resident-evil/lesson-69.html" },
+            { title: "第五、六部：天譴日與最終章——模擬設施與愛麗絲的身世", url: "topics/resident-evil/lesson-70.html" },
+          ],
+        },
+        {
+          title: "模組 Q｜電影②：重啟、影集與 CG 動畫",
+          courses: [
+            { title: "浣熊市：歡迎光臨（2021）：回到遊戲一二代", url: "topics/resident-evil/lesson-71.html" },
+            { title: "Netflix 真人影集（2022）：改編的取捨與爭議", url: "topics/resident-evil/lesson-72.html" },
+            { title: "CG 動畫三部曲：惡化、詛咒與血仇", url: "topics/resident-evil/lesson-73.html" },
+            { title: "死亡之島（2023）與無限黑暗影集", url: "topics/resident-evil/lesson-74.html" },
+          ],
+        },
+        {
+          title: "模組 R｜橫向分析",
+          courses: [
+            { title: "完整時間線：從 1966 年到最新作", url: "topics/resident-evil/lesson-75.html" },
+            { title: "病毒族譜全表與生化兵器圖鑑", url: "topics/resident-evil/lesson-76.html" },
+            { title: "人物關係總表：S.T.A.R.S.、保護傘與 BSAA", url: "topics/resident-evil/lesson-77.html" },
+            { title: "遊戲、電影與小說的正史分層", url: "topics/resident-evil/lesson-78.html" },
+          ],
+        },
+        {
+          title: "模組 S｜主題論",
+          courses: [
+            { title: "恐怖與動作的鐘擺：系列三十年的路線擺盪", url: "topics/resident-evil/lesson-79.html" },
+            { title: "企業、政府與失控的科學", url: "topics/resident-evil/lesson-80.html" },
+            { title: "重製版的意義：什麼該改、什麼不該改", url: "topics/resident-evil/lesson-81.html" },
+          ],
+        },
+        {
+          title: "模組 T｜課程總結",
+          courses: [
+            { title: "全課程總結與遊玩順序建議", url: "topics/resident-evil/lesson-82.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "silent-hill",
+      category: "games",
+      title: "沈默之丘全解析：霧、罪與那座會回應你的小鎮",
+      description:
+        "從 Team Silent 與 1999 年講起，先建立小鎮的三層世界、教團的信仰與「怪物是症狀不是敵人」這套設計語法，再一代一代講完 1 到 4 代、西方工作室時期、P.T. 與 Silent Hill f 的劇情，另有三部電影的故事，最後以結局全表與心理恐怖的技藝收束。",
+      icon: "🌫️",
+      url: "topics/silent-hill/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：系列導覽與創作背景",
+          courses: [
+            { title: "沈默之丘是什麼：Konami、Team Silent 與 1999 年", url: "topics/silent-hill/lesson-01.html" },
+            { title: "心理恐怖與生存恐怖：和惡靈古堡的分道揚鑣", url: "topics/silent-hill/lesson-02.html" },
+            { title: "山岡晃的音樂與伊藤暢達的怪物設計", url: "topics/silent-hill/lesson-03.html" },
+            { title: "這門課怎麼讀：正史、外傳與電影的分層", url: "topics/silent-hill/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜設定①：小鎮本身",
+          courses: [
+            { title: "沈默之丘這個地方：地理、歷史與觀光鎮的表皮", url: "topics/silent-hill/lesson-05.html" },
+            { title: "霧之世界與裏世界：兩層現實的規則", url: "topics/silent-hill/lesson-06.html" },
+            { title: "教團的信仰：神、聖母與太陽的光輪", url: "topics/silent-hill/lesson-07.html" },
+            { title: "白色克勞蒂亞與 PTV：藥物、儀式與經濟", url: "topics/silent-hill/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜設定②：怪物的語法",
+          courses: [
+            { title: "怪物不是敵人，是症狀：象徵化的設計原則", url: "topics/silent-hill/lesson-09.html" },
+            { title: "三角頭：為什麼它只屬於二代", url: "topics/silent-hill/lesson-10.html" },
+            { title: "模組總結：這套語法在哪幾作成立、哪幾作失效", url: "topics/silent-hill/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜一代（1999）：哈利・梅森",
+          courses: [
+            { title: "失蹤的女兒：開場與小鎮的第一層", url: "topics/silent-hill/lesson-12.html" },
+            { title: "艾蕾莎・吉爾斯派：七年前的火與儀式", url: "topics/silent-hill/lesson-13.html" },
+            { title: "達莉亞、考夫曼與麗莎：三個大人的真相", url: "topics/silent-hill/lesson-14.html" },
+            { title: "神的誕生與多重結局", url: "topics/silent-hill/lesson-15.html" },
+            { title: "模組總結：一代確立了什麼", url: "topics/silent-hill/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜二代（2001）：詹姆斯・桑德蘭",
+          courses: [
+            { title: "死去三年的妻子寄來的信", url: "topics/silent-hill/lesson-17.html" },
+            { title: "瑪麗與瑪莉亞：同一張臉的兩種存在", url: "topics/silent-hill/lesson-18.html" },
+            { title: "安琪拉與艾迪：兩條平行的罪", url: "topics/silent-hill/lesson-19.html" },
+            { title: "三角頭與「懲罰」的自我投射", url: "topics/silent-hill/lesson-20.html" },
+            { title: "結局分歧：Leave、In Water、Maria 與其他", url: "topics/silent-hill/lesson-21.html" },
+            { title: "2024 重製版：Bloober Team 的改編與評價", url: "topics/silent-hill/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜三代（2003）：希瑟・梅森",
+          courses: [
+            { title: "十七年後：購物中心與另一個世界", url: "topics/silent-hill/lesson-23.html" },
+            { title: "希瑟＝雪柔＝艾蕾莎：身分的三重疊合", url: "topics/silent-hill/lesson-24.html" },
+            { title: "克勞蒂亞、文森與教團的分裂", url: "topics/silent-hill/lesson-25.html" },
+            { title: "神的降生與一代的正式收束", url: "topics/silent-hill/lesson-26.html" },
+            { title: "模組總結：三代作為續篇的完成度", url: "topics/silent-hill/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜四代（2004）：亨利・湯森",
+          courses: [
+            { title: "被封住的房間：從公寓看出去的世界", url: "topics/silent-hill/lesson-28.html" },
+            { title: "華特・蘇利文與二十一聖禮", url: "topics/silent-hill/lesson-29.html" },
+            { title: "沈默之丘之外：本作與小鎮的關係", url: "topics/silent-hill/lesson-30.html" },
+            { title: "模組總結：四代的爭議與再評價", url: "topics/silent-hill/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 H｜西方工作室時期",
+          courses: [
+            { title: "Origins（2007）：崔維斯與一代的前史", url: "topics/silent-hill/lesson-32.html" },
+            { title: "Homecoming（2008）：亞歷克斯與牧羊人之谷", url: "topics/silent-hill/lesson-33.html" },
+            { title: "Shattered Memories（2009）：心理側寫與一代的重構", url: "topics/silent-hill/lesson-34.html" },
+            { title: "Downpour（2012）：墨菲・潘德頓與贖罪", url: "topics/silent-hill/lesson-35.html" },
+            { title: "Book of Memories 與其他外傳", url: "topics/silent-hill/lesson-36.html" },
+            { title: "模組總結：為什麼這段時期普遍被認為走偏了", url: "topics/silent-hill/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 I｜空白與復活",
+          courses: [
+            { title: "P.T. 與被取消的《Silent Hills》", url: "topics/silent-hill/lesson-38.html" },
+            { title: "小島秀夫、吉勒摩・戴托羅與那條走廊", url: "topics/silent-hill/lesson-39.html" },
+            { title: "2022 年的復活宣言：一次公布的所有企劃", url: "topics/silent-hill/lesson-40.html" },
+            { title: "Ascension 與 The Short Message：兩次實驗", url: "topics/silent-hill/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 J｜Silent Hill f（2025）",
+          courses: [
+            { title: "1960 年代的日本：戎ヶ丘與時代背景", url: "topics/silent-hill/lesson-42.html" },
+            { title: "清水雛子與她的怪物", url: "topics/silent-hill/lesson-43.html" },
+            { title: "竜騎士 07 的劇本與「美しさ」的主題", url: "topics/silent-hill/lesson-44.html" },
+            { title: "模組總結：把小鎮搬離小鎮之後還成立嗎", url: "topics/silent-hill/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 K｜電影①：沈默之丘（2006）",
+          courses: [
+            { title: "克里斯多福・甘斯的改編策略", url: "topics/silent-hill/lesson-46.html" },
+            { title: "蘿絲、莎朗與艾蕾莎：電影版的故事", url: "topics/silent-hill/lesson-47.html" },
+            { title: "電影與一代的異同：哪些改動是對的", url: "topics/silent-hill/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 L｜電影②：啟示錄（2012）與重返（2026）",
+          courses: [
+            { title: "啟示錄：改編三代的得與失", url: "topics/silent-hill/lesson-49.html" },
+            { title: "重返沈默之丘：甘斯回歸與二代的改編", url: "topics/silent-hill/lesson-50.html" },
+            { title: "模組總結：為什麼沈默之丘特別難改編", url: "topics/silent-hill/lesson-51.html" },
+          ],
+        },
+        {
+          title: "模組 M｜橫向分析",
+          courses: [
+            { title: "完整時間線與作品關係圖", url: "topics/silent-hill/lesson-52.html" },
+            { title: "怪物圖鑑與象徵對照表", url: "topics/silent-hill/lesson-53.html" },
+            { title: "結局全表：每一作的所有結局與觸發條件", url: "topics/silent-hill/lesson-54.html" },
+          ],
+        },
+        {
+          title: "模組 N｜主題論",
+          courses: [
+            { title: "罪與罰：作品如何處理無法被原諒的事", url: "topics/silent-hill/lesson-55.html" },
+            { title: "小鎮到底是什麼：三種解釋與它們的證據", url: "topics/silent-hill/lesson-56.html" },
+            { title: "心理恐怖的技藝：聲音、留白與不解釋", url: "topics/silent-hill/lesson-57.html" },
+          ],
+        },
+        {
+          title: "模組 O｜課程總結",
+          courses: [
+            { title: "全課程總結與遊玩順序建議", url: "topics/silent-hill/lesson-58.html" },
+          ],
+        },
+      ],
     }
   ]
 };
