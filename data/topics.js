@@ -10789,6 +10789,97 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "electric-guitar",
+      category: "music",
+      title: "電吉他原理與彈奏：從拾音器到推弦揉弦的完整拆解",
+      description:
+        "從拾音器怎麼靠電磁感應把弦震動變成電訊號講起，一路拆解吉他機身結構、音箱前後級、效果器五大分類與排列邏輯，最後進入推弦、揉弦、點弦、掃弦、泛音等彈奏技巧，技巧課程額外附上 YouTube 搜尋連結輔助觀察真人示範動作。",
+      icon: "🎸",
+      url: "topics/electric-guitar/index.html",
+      modules: [
+        {
+          title: "模組 A｜電吉他發聲原理基礎",
+          courses: [
+            { title: "電吉他跟木吉他發聲差在哪：從弦震動到電訊號", url: "topics/electric-guitar/lesson-01.html" },
+            { title: "拾音器怎麼把震動變成電？電磁感應原理", url: "topics/electric-guitar/lesson-02.html" },
+            { title: "Single-coil vs Humbucker：構造、音色與抗噪差異", url: "topics/electric-guitar/lesson-03.html" },
+            { title: "拾音器位置的影響：Neck / Middle / Bridge 音色比較", url: "topics/electric-guitar/lesson-04.html" },
+            { title: "訊號路徑總覽：吉他→導線→效果器→音箱→喇叭", url: "topics/electric-guitar/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜吉他機身與硬體結構",
+          courses: [
+            { title: "琴身木料與共鳴：電吉他也受木頭影響嗎", url: "topics/electric-guitar/lesson-06.html" },
+            { title: "Bridge 橋座類型：Fixed / Tremolo / Floyd Rose", url: "topics/electric-guitar/lesson-07.html" },
+            { title: "弦距（Action）調整：太高太低的差別", url: "topics/electric-guitar/lesson-08.html" },
+            { title: "Intonation 音準校正是什麼、為什麼重要", url: "topics/electric-guitar/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜吉他本身的可調整項目",
+          courses: [
+            { title: "Volume 與 Tone 旋鈕：怎麼影響音色", url: "topics/electric-guitar/lesson-10.html" },
+            { title: "拾音器選擇開關的所有組合（3-way / 5-way）", url: "topics/electric-guitar/lesson-11.html" },
+            { title: "弦徑（Gauge）與材質對音色、手感的影響", url: "topics/electric-guitar/lesson-12.html" },
+            { title: "調弦法：Standard / Drop D / Open Tunings 簡介", url: "topics/electric-guitar/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜音箱原理與調整",
+          courses: [
+            { title: "音箱的角色：為什麼電吉他一定要插音箱", url: "topics/electric-guitar/lesson-14.html" },
+            { title: "真空管 Tube Amp vs 晶體 Solid State Amp", url: "topics/electric-guitar/lesson-15.html" },
+            { title: "Gain / EQ（Bass Mid Treble）怎麼調", url: "topics/electric-guitar/lesson-16.html" },
+            { title: "Clean、Overdrive、Distortion 音色差異", url: "topics/electric-guitar/lesson-17.html" },
+            { title: "Combo vs Head + Cabinet 音箱形式", url: "topics/electric-guitar/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜效果器與訊號鏈",
+          courses: [
+            { title: "效果器分類總覽：Dynamics / Gain / Modulation / Time / Filter", url: "topics/electric-guitar/lesson-19.html" },
+            { title: "Overdrive / Distortion / Fuzz 破音效果器差異", url: "topics/electric-guitar/lesson-20.html" },
+            { title: "Delay 與 Reverb：時間系效果器", url: "topics/electric-guitar/lesson-21.html" },
+            { title: "Chorus / Flanger / Phaser：調變系效果器", url: "topics/electric-guitar/lesson-22.html" },
+            { title: "Wah / EQ Pedal：濾波系效果器", url: "topics/electric-guitar/lesson-23.html" },
+            { title: "效果器排列順序（Signal Chain Order）的邏輯", url: "topics/electric-guitar/lesson-24.html" },
+            { title: "Pedalboard 與電源供應基礎", url: "topics/electric-guitar/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜基礎彈奏技巧",
+          courses: [
+            { title: "右手撥弦：Pick 種類與基本姿勢", url: "topics/electric-guitar/lesson-26.html" },
+            { title: "Alternate Picking 交替撥弦", url: "topics/electric-guitar/lesson-27.html" },
+            { title: "Palm Muting 悶音技巧", url: "topics/electric-guitar/lesson-28.html" },
+            { title: "左手按弦姿勢與換把位", url: "topics/electric-guitar/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜進階彈奏技巧與表現力",
+          courses: [
+            { title: "Bending 推弦：全音／半音推弦", url: "topics/electric-guitar/lesson-30.html" },
+            { title: "Vibrato 揉弦手法", url: "topics/electric-guitar/lesson-31.html" },
+            { title: "Hammer-on 與 Pull-off 連奏", url: "topics/electric-guitar/lesson-32.html" },
+            { title: "Legato 圓滑奏", url: "topics/electric-guitar/lesson-33.html" },
+            { title: "Tapping 點弦技巧", url: "topics/electric-guitar/lesson-34.html" },
+            { title: "Sweep Picking 掃弦", url: "topics/electric-guitar/lesson-35.html" },
+            { title: "Slide 滑音技巧", url: "topics/electric-guitar/lesson-36.html" },
+            { title: "泛音 Harmonics：自然泛音與人工泛音", url: "topics/electric-guitar/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜風格應用與總結",
+          courses: [
+            { title: "常見曲風音色設定（Blues / Rock / Metal / Funk）", url: "topics/electric-guitar/lesson-38.html" },
+            { title: "新手第一套器材建議", url: "topics/electric-guitar/lesson-39.html" },
+            { title: "課程總結：從發聲原理到彈奏表現力", url: "topics/electric-guitar/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
