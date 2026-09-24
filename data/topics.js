@@ -10880,6 +10880,123 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "diabolo",
+      category: "life",
+      title: "扯鈴招式大全：從基本功到雙鈴三鈴的招式收藏",
+      description:
+        "不講原理，直接收藏招式：從蓄力甩鈴等基本功，到金雞上架、螞蟻上樹等傳統基礎花式，再到軸類停控、繞繩甩鞭、過肢體、Suicide 類，最後進入雙鈴、三鈴與 Vertax、Cradle 等競技花式，每一招都附 YouTube 搜尋連結輔助觀察真人示範動作。",
+      icon: "🪀",
+      url: "topics/diabolo/index.html",
+      modules: [
+        {
+          title: "模組 A｜基本功",
+          courses: [
+            { title: "蓄力甩鈴：建立扯鈴的基礎手感", url: "topics/diabolo/lesson-01.html" },
+            { title: "上鈴與下鈴", url: "topics/diabolo/lesson-02.html" },
+            { title: "換手交接：讓扯鈴在雙手之間平順切換", url: "topics/diabolo/lesson-03.html" },
+            { title: "基礎水平面與垂直面控制", url: "topics/diabolo/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜基礎花式",
+          courses: [
+            { title: "金雞上架：讓扯鈴穩穩「站」在棍子上", url: "topics/diabolo/lesson-05.html" },
+            { title: "螞蟻上樹：讓扯鈴自己沿著繩子往上爬", url: "topics/diabolo/lesson-06.html" },
+            { title: "平沙落雁：讓扯鈴輕巧地落回繩上", url: "topics/diabolo/lesson-07.html" },
+            { title: "金蟬脫殼：讓扯鈴看似脫離、又順勢接回", url: "topics/diabolo/lesson-08.html" },
+            { title: "大鵬展翅：雙棍大幅展開的控制動作", url: "topics/diabolo/lesson-09.html" },
+            { title: "直上青雲：垂直方向的高拋控制", url: "topics/diabolo/lesson-10.html" },
+            { title: "蜘蛛結網：用繩子在扯鈴周圍織出交叉花紋", url: "topics/diabolo/lesson-11.html" },
+            { title: "關渡大橋：用身體或棍子架出一座「橋」", url: "topics/diabolo/lesson-12.html" },
+            { title: "左右望月：讓扯鈴在身體兩側來回轉換視角", url: "topics/diabolo/lesson-13.html" },
+            { title: "蜻蜓點水：讓扯鈴輕觸後立刻彈起", url: "topics/diabolo/lesson-14.html" },
+            { title: "猴子翻筋斗：讓扯鈴在空中翻轉一圈", url: "topics/diabolo/lesson-15.html" },
+            { title: "鯉躍龍門：讓扯鈴穿越一個障礙後接住", url: "topics/diabolo/lesson-16.html" },
+            { title: "扯鈴繞腳：讓繩子（或扯鈴）繞過腿部再接回", url: "topics/diabolo/lesson-17.html" },
+            { title: "金手指：用單一手指控制扯鈴的細膩動作", url: "topics/diabolo/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 C｜拋接類",
+          courses: [
+            { title: "高拋：垂直方向拋起再穩定接住", url: "topics/diabolo/lesson-19.html" },
+            { title: "背後拋接：讓扯鈴從身後飛出再接住", url: "topics/diabolo/lesson-20.html" },
+            { title: "胯下拋接：讓扯鈴從腿間穿過再接住", url: "topics/diabolo/lesson-21.html" },
+            { title: "手心接：不靠棍子，直接用手心接住扯鈴", url: "topics/diabolo/lesson-22.html" },
+            { title: "竹蜻蜓拋：讓扯鈴像竹蜻蜓一樣平轉著飛起", url: "topics/diabolo/lesson-23.html" },
+            { title: "Orbit：讓扯鈴沿繩滑到一端再拋接到另一端", url: "topics/diabolo/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜軸類／停控",
+          courses: [
+            { title: "手指軸：讓扯鈴穩定停在單一手指上自轉", url: "topics/diabolo/lesson-25.html" },
+            { title: "手掌軸：讓扯鈴平躺著在手掌上旋轉", url: "topics/diabolo/lesson-26.html" },
+            { title: "頭頂軸：讓扯鈴穩定停在頭頂", url: "topics/diabolo/lesson-27.html" },
+            { title: "腳背軸：讓扯鈴停在腳背上旋轉", url: "topics/diabolo/lesson-28.html" },
+            { title: "Coffee Grinder：連續三次軸類停留組成的組合技", url: "topics/diabolo/lesson-29.html" },
+            { title: "Backside：把繩子反向繞過中軸再回到正常控制", url: "topics/diabolo/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 E｜繞繩／甩鞭類",
+          courses: [
+            { title: "彩虹：讓繩子甩出一道弧形軌跡", url: "topics/diabolo/lesson-31.html" },
+            { title: "單手甩鞭：只靠一隻手完成繩子的甩動", url: "topics/diabolo/lesson-32.html" },
+            { title: "反手甩：用手腕反方向甩出繩子", url: "topics/diabolo/lesson-33.html" },
+            { title: "跳繩式扯鈴：讓扯鈴的繩子像跳繩一樣掄過身體", url: "topics/diabolo/lesson-34.html" },
+            { title: "Sun：讓扯鈴繞大圈一周，繩子多纏一圈", url: "topics/diabolo/lesson-35.html" },
+            { title: "Anti-Sun：反方向繞圈，把纏繞的繩子解開", url: "topics/diabolo/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 F｜過肢體類",
+          courses: [
+            { title: "繞頸：讓扯鈴的繩子繞過脖子再回到雙手", url: "topics/diabolo/lesson-37.html" },
+            { title: "繞腰：讓扯鈴繞過腰部一圈", url: "topics/diabolo/lesson-38.html" },
+            { title: "繞腿：讓扯鈴繞過單腿或雙腿之間", url: "topics/diabolo/lesson-39.html" },
+            { title: "跳過鈴：整個人從轉動中的扯鈴或繩子上方跳過", url: "topics/diabolo/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜高度花式＋Suicide 類",
+          courses: [
+            { title: "左右日月：雙棍交替扮演「太陽」與「月亮」的停留動作", url: "topics/diabolo/lesson-41.html" },
+            { title: "仰觀星月：抬頭望向高處的大幅度高拋動作", url: "topics/diabolo/lesson-42.html" },
+            { title: "紡棉花：讓扯鈴連續畫出多個連貫的圓圈", url: "topics/diabolo/lesson-43.html" },
+            { title: "金龍繞玉柱：讓繩子像龍一樣螺旋纏繞手臂", url: "topics/diabolo/lesson-44.html" },
+            { title: "二仙傳道：雙人合作傳遞扯鈴的搭配招式", url: "topics/diabolo/lesson-45.html" },
+            { title: "Trapeze / Stopover：把扯鈴掛上棍子再讓它盪回繩上", url: "topics/diabolo/lesson-46.html" },
+            { title: "Chinese Suicide：放開一根棍子，繞一圈後再接回", url: "topics/diabolo/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 H｜雙鈴",
+          courses: [
+            { title: "雙鈴拾起：一次把兩顆扯鈴帶動起來", url: "topics/diabolo/lesson-48.html" },
+            { title: "雙鈴纏繞拋接：讓兩顆扯鈴短暫纏繞後一起拋起", url: "topics/diabolo/lesson-49.html" },
+            { title: "雙鈴左轉／右轉拋接：讓兩顆扯鈴以不同方向拋接", url: "topics/diabolo/lesson-50.html" },
+            { title: "雙鈴跳繩：讓兩顆扯鈴的繩子一起掄過身體", url: "topics/diabolo/lesson-51.html" },
+            { title: "雙鈴反手撩水：用反方向的撩動手法控制兩顆扯鈴", url: "topics/diabolo/lesson-52.html" },
+            { title: "雙鈴外掛牌：讓兩顆扯鈴同時掛在棍子外側", url: "topics/diabolo/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 I｜三鈴與競技花式",
+          courses: [
+            { title: "三鈴疊控：同時讓三顆扯鈴維持轉動與平衡", url: "topics/diabolo/lesson-54.html" },
+            { title: "三鈴分接：讓三顆扯鈴各自被分別接住", url: "topics/diabolo/lesson-55.html" },
+            { title: "三鈴交叉拋接：讓三顆扯鈴的拋接路徑互相交錯", url: "topics/diabolo/lesson-56.html" },
+            { title: "Vertax：讓扯鈴以直立軸向高速旋轉", url: "topics/diabolo/lesson-57.html" },
+            { title: "Genocide：連續多次 Suicide 銜接而成的極限組合技", url: "topics/diabolo/lesson-58.html" },
+            { title: "Mach 5：高速連續甩鞭與拋接組成的快節奏套路", url: "topics/diabolo/lesson-59.html" },
+            { title: "UFO：讓扯鈴看起來像懸浮飛碟一樣移動", url: "topics/diabolo/lesson-60.html" },
+            { title: "Cradle：讓扯鈴被繩子交叉「搖籃」式接住", url: "topics/diabolo/lesson-61.html" },
+          ],
+        },
+      ],
     }
   ]
 };
