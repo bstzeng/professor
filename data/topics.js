@@ -10690,6 +10690,105 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "dj-turntable",
+      category: "music",
+      title: "DJ 器材與轉盤原理：從黑膠物理到現場混音的完整拆解",
+      description:
+        "從黑膠溝槽如何刻錄聲音、唱頭怎麼把震動變回電訊號講起，一路拆解轉盤馬達、混音台訊號路徑、抓拍與刷碟兩大核心技巧，再到 CDJ、Timecode Vinyl、MIDI 控制器的數位化演進，最後收在效果器、現場臨場判斷與一套入門器材建議。",
+      icon: "🎧",
+      url: "topics/dj-turntable/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：DJ 文化與器材的演化",
+          courses: [
+            { title: "什麼是「打碟」：從嘻哈街頭到舞廳 DJ 台", url: "topics/dj-turntable/lesson-01.html" },
+            { title: "器材演化史：從留聲機到 CDJ 與數位控制器", url: "topics/dj-turntable/lesson-02.html" },
+            { title: "認識一套完整的 DJ 系統：訊號流程總覽圖", url: "topics/dj-turntable/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜黑膠唱片的物理原理",
+          courses: [
+            { title: "聲音怎麼被刻進一條螺旋溝槽", url: "topics/dj-turntable/lesson-04.html" },
+            { title: "唱頭與唱針：怎麼把溝槽震動變回電訊號", url: "topics/dj-turntable/lesson-05.html" },
+            { title: "RIAA 等化：為什麼黑膠訊號要先「等化」才能放大", url: "topics/dj-turntable/lesson-06.html" },
+            { title: "轉速與直徑：33⅓、45 轉背後的取捨", url: "topics/dj-turntable/lesson-07.html" },
+            { title: "黑膠的天敵：跳針、靜電與磨損", url: "topics/dj-turntable/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜唱盤機械結構",
+          courses: [
+            { title: "直驅 vs 皮帶驅動：兩種轉盤馬達設計", url: "topics/dj-turntable/lesson-09.html" },
+            { title: "轉盤的心臟：扭力與抖動（Wow & Flutter）", url: "topics/dj-turntable/lesson-10.html" },
+            { title: "唱臂與循軌：怎麼讓唱針精準地待在溝槽裡", url: "topics/dj-turntable/lesson-11.html" },
+            { title: "止滑墊（Slipmat）與制動：手動介入唱盤運轉的關鍵", url: "topics/dj-turntable/lesson-12.html" },
+            { title: "音高推桿（Pitch Fader）：怎麼微調轉速去對拍", url: "topics/dj-turntable/lesson-13.html" },
+            { title: "Technics SL-1200：定義一個世代的傳奇轉盤", url: "topics/dj-turntable/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜混音台與訊號路徑",
+          courses: [
+            { title: "混音台的角色：訊號從哪裡進、從哪裡出", url: "topics/dj-turntable/lesson-15.html" },
+            { title: "Phono vs Line：輸入端切換為什麼那麼重要", url: "topics/dj-turntable/lesson-16.html" },
+            { title: "Channel EQ 與 Gain Staging：讓兩軌音量與音色一致", url: "topics/dj-turntable/lesson-17.html" },
+            { title: "Crossfader 與 Line Fader：切歌的兩種手法", url: "topics/dj-turntable/lesson-18.html" },
+            { title: "Cue 耳機系統：怎麼在吵雜舞池裡先「偷聽」下一首歌", url: "topics/dj-turntable/lesson-19.html" },
+            { title: "VU 表與訊號健康：怎麼避免削波失真", url: "topics/dj-turntable/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜核心技巧①：抓拍與節奏對齊",
+          courses: [
+            { title: "BPM 是什麼：用數字量化音樂的節奏", url: "topics/dj-turntable/lesson-21.html" },
+            { title: "Beatmatching by ear：用耳朵聽出兩首歌的節奏差", url: "topics/dj-turntable/lesson-22.html" },
+            { title: "用 Pitch Fader 微調轉速的實戰邏輯", url: "topics/dj-turntable/lesson-23.html" },
+            { title: "Phase 對齊：不只是速度一樣，拍點還要疊在一起", url: "topics/dj-turntable/lesson-24.html" },
+            { title: "從漸入漸出到 Blend：混音的基本過渡手法", url: "topics/dj-turntable/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜核心技巧②：刷碟 Scratching",
+          courses: [
+            { title: "刷碟是什麼：Grandmaster Flash 與嘻哈 DJ 怎麼把「跳針」變成樂器", url: "topics/dj-turntable/lesson-26.html" },
+            { title: "Baby Scratch 與 Forward/Backward Scratch：最基本的手部動作", url: "topics/dj-turntable/lesson-27.html" },
+            { title: "Crossfader Scratch：手怎麼配合切換器做出節奏", url: "topics/dj-turntable/lesson-28.html" },
+            { title: "Transform、Chirp、Flare：進階刷碟手法圖解", url: "topics/dj-turntable/lesson-29.html" },
+            { title: "Battle DJ 文化：DMC 世界賽與刷碟競技", url: "topics/dj-turntable/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜數位化浪潮",
+          courses: [
+            { title: "CDJ 是什麼：怎麼用光碟／USB 模擬轉盤的手感", url: "topics/dj-turntable/lesson-31.html" },
+            { title: "Jog Wheel：怎麼用一個轉輪同時模擬刷碟與快轉", url: "topics/dj-turntable/lesson-32.html" },
+            { title: "Timecode Vinyl 與 DVS：怎麼用一張特製黑膠控制電腦裡的 MP3", url: "topics/dj-turntable/lesson-33.html" },
+            { title: "rekordbox、Serato、Traktor：主流 DJ 軟體怎麼分工", url: "topics/dj-turntable/lesson-34.html" },
+            { title: "MIDI 控制器：沒有轉盤也能打碟的另一條路", url: "topics/dj-turntable/lesson-35.html" },
+            { title: "類比手感 vs 數位便利：業界的世代辯論", url: "topics/dj-turntable/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜效果器與現場演出",
+          courses: [
+            { title: "Echo、Filter、Reverb：DJ 效果器怎麼加進訊號鏈", url: "topics/dj-turntable/lesson-37.html" },
+            { title: "Loop 與 Sampler：即時重組一段音樂", url: "topics/dj-turntable/lesson-38.html" },
+            { title: "現場演出的臨場反應：怎麼讀舞池、抓氣氛", url: "topics/dj-turntable/lesson-39.html" },
+            { title: "DJ Mix 怎麼被錄下來與直播", url: "topics/dj-turntable/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結與入門建議",
+          courses: [
+            { title: "該從黑膠、CDJ 還是控制器入門？新手決策框架", url: "topics/dj-turntable/lesson-41.html" },
+            { title: "一套入門器材清單與預算分級", url: "topics/dj-turntable/lesson-42.html" },
+            { title: "課程總結：從機械原理到現場演出的完整拼圖", url: "topics/dj-turntable/lesson-43.html" },
+          ],
+        },
+      ],
     }
   ]
 };
