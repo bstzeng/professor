@@ -10997,6 +10997,75 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "meaning-of-time",
+      category: "life",
+      title: "時間的意義：從滑手機的空虛感，到有意識地選擇時間",
+      description:
+        "從「滑完短影音為什麼特別空虛」講起，拆解手遊與短影音的留人設計，再借塞內卡、斯多葛、佛學無常觀與心流、時間觀等心理學研究，重新理解時間為什麼珍貴、休息為什麼不是浪費，最後用時間審計、環境設計與每週回顧，找回屬於自己的時間意義。",
+      icon: "⏳",
+      url: "topics/meaning-of-time/index.html",
+      modules: [
+        {
+          title: "模組 A｜為什麼會覺得在「浪費時間」",
+          courses: [
+            { title: "滑手機時時間飛快，事後卻覺得空虛：這種落差是怎麼回事", url: "topics/meaning-of-time/lesson-01.html" },
+            { title: "短影音與手遊怎麼被設計來留住你", url: "topics/meaning-of-time/lesson-02.html" },
+            { title: "「浪費時間」是誰的標準？先搞清楚你在對誰的期待愧疚", url: "topics/meaning-of-time/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜時間為什麼珍貴：哲學怎麼看",
+          courses: [
+            { title: "塞內卡《論人生短促》：不是時間太少，是浪費太多", url: "topics/meaning-of-time/lesson-04.html" },
+            { title: "Memento Mori：記住終將一死，反而讓人活得更清楚", url: "topics/meaning-of-time/lesson-05.html" },
+            { title: "人生週曆：把 80 年畫成格子，直觀感受時間的有限", url: "topics/meaning-of-time/lesson-06.html" },
+            { title: "佛學的無常觀：與時間的流逝和解，而不是對抗它", url: "topics/meaning-of-time/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜心理學怎麼說：時間感、心流與幸福感",
+          courses: [
+            { title: "「忙碌卻充實」與「忙碌卻空虛」，差在哪裡", url: "topics/meaning-of-time/lesson-08.html" },
+            { title: "心流：全神貫注時，時間消失了，人卻更滿足", url: "topics/meaning-of-time/lesson-09.html" },
+            { title: "時間富足 vs 時間貧窮：研究說「買時間」比「買東西」更快樂", url: "topics/meaning-of-time/lesson-10.html" },
+            { title: "平衡的時間觀：過去、現在、未來，你偏向哪一種", url: "topics/meaning-of-time/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜不是所有「非生產性」時間都是浪費",
+          courses: [
+            { title: "休息與無聊的功能：大腦為什麼需要放空", url: "topics/meaning-of-time/lesson-12.html" },
+            { title: "娛樂還是逃避：分辨自己是在放鬆，還是在迴避某個感受", url: "topics/meaning-of-time/lesson-13.html" },
+            { title: "給自己不愧疚的休閒時間：重新框架的方法", url: "topics/meaning-of-time/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 E｜找到你自己的意義感",
+          courses: [
+            { title: "意義感沒有標準答案：從價值觀釐清開始", url: "topics/meaning-of-time/lesson-15.html" },
+            { title: "悔恨最小化：想像未來的自己回頭看現在", url: "topics/meaning-of-time/lesson-16.html" },
+            { title: "小型意義 vs 宏大意義：有意義的事不需要驚天動地", url: "topics/meaning-of-time/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實際的工具與習慣改造",
+          courses: [
+            { title: "時間審計：誠實記錄一週時間流向", url: "topics/meaning-of-time/lesson-18.html" },
+            { title: "環境設計：用「增加摩擦力」降低自動吸引力", url: "topics/meaning-of-time/lesson-19.html" },
+            { title: "找替代儀式：用別的行為填補同樣的心理需求", url: "topics/meaning-of-time/lesson-20.html" },
+            { title: "每週回顧：建立持續校準的反思習慣", url: "topics/meaning-of-time/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結：與時間重新和解",
+          courses: [
+            { title: "從「浪費時間的罪惡感」到「有意識地選擇時間」", url: "topics/meaning-of-time/lesson-22.html" },
+            { title: "這不是一次性的頓悟，是持續調整的練習", url: "topics/meaning-of-time/lesson-23.html" },
+          ],
+        },
+      ],
     }
   ]
 };
