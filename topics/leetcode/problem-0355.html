@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>355. Design Twitter 設計推特 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="每人的貼文依時間排序，動態牆用最大堆積多路合併取前 10 則。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="355">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 355 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 355</div>
+          <h1>Design Twitter<br>設計推特</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">鏈結串列</span>
+          <span class="lc-badge">設計</span>
+          <span class="lc-badge">堆積（優先佇列）</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Design a simplified version of Twitter where users can post tweets, follow/unfollow another user, and is able to see the <code>10</code> most recent tweets in the user's news feed.</p>
+          <p>Implement the <code>Twitter</code> class:</p>
+        <ul>
+          <li><code>Twitter()</code> Initializes your twitter object.</li>
+          <li><code>void postTweet(int userId, int tweetId)</code> Composes a new tweet with ID <code>tweetId</code> by the user <code>userId</code>. Each call to this function will be made with a unique <code>tweetId</code>.</li>
+          <li><code>List&lt;Integer&gt; getNewsFeed(int userId)</code> Retrieves the <code>10</code> most recent tweet IDs in the user's news feed. Each item in the news feed must be posted by users who the user followed or by the user themself. Tweets must be <strong>ordered from most recent to least recent</strong>.</li>
+          <li><code>void follow(int followerId, int followeeId)</code> The user with ID <code>followerId</code> started following the user with ID <code>followeeId</code>.</li>
+          <li><code>void unfollow(int followerId, int followeeId)</code> The user with ID <code>followerId</code> started unfollowing the user with ID <code>followeeId</code>.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>設計一個簡化版的 Twitter：使用者可以發文、追蹤／取消追蹤別人，並看到動態牆上最新的 <code>10</code> 則貼文。</p>
+        <ul>
+          <li><code>postTweet(userId, tweetId)</code>：使用者發一則新貼文（tweetId 不重複）。</li>
+          <li><code>getNewsFeed(userId)</code>：回傳動態牆上最新的 10 則貼文 ID——來自自己或自己追蹤的人，<strong>由新到舊</strong>。</li>
+          <li><code>follow(followerId, followeeId)</code>：開始追蹤。</li>
+          <li><code>unfollow(followerId, followeeId)</code>：取消追蹤。</li>
+        </ul>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  postTweet(1, 5)
+  getNewsFeed(1)   -&gt; [5]
+  follow(1, 2)
+  postTweet(2, 6)
+  getNewsFeed(1)   -&gt; [6, 5]
+  unfollow(1, 2)
+  getNewsFeed(1)   -&gt; [5]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>userId, followerId, followeeId</code> ≤ 500</li>
+          <li>0 ≤ <code>tweetId</code> ≤ 10⁴</li>
+          <li>所有 tweetId 互不相同</li>
+          <li>最多呼叫 3 × 10⁴ 次</li>
+          <li><code>followerId != followeeId</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/design-twitter/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【資料結構】
+    tweets[user]    = 這個人發過的貼文，依時間遞增（加上全域時間戳）
+    following[user] = 他追蹤的人（集合，追蹤／取消都是 O(1)）
+
+【getNewsFeed = 合併 k 個有序串列，只取前 10】
+    每個人的貼文串列都已依時間排序。
+    把每個人「最新的一則」放進最大堆積（以時間為鍵），
+    彈出最新的一則，再把同一個人的「上一則」放進去 ——
+    這就是第 23 題「合併 K 個有序串列」。
+    只需要彈 10 次。
+
+【細節】
+    - 自己的貼文也要出現在動態牆
+    - 不能追蹤自己（避免重複）
+    - 取消追蹤一個沒追蹤的人：discard 不會報錯
+
+【複雜度】
+    k = 追蹤人數
+    建堆 O(k)，彈 10 次 O(10 log k)。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>雜湊表 + 最大堆積多路合併</h3>
+        <div class="code-block">class Twitter:
+    def __init__(self):
+        self.time = 0
+        self.tweets = defaultdict(list)       # 使用者 -&gt; [(時間, tweetId), ...]（依時間遞增）
+        self.following = defaultdict(set)
+
+    def postTweet(self, userId: int, tweetId: int) -&gt; None:
+        self.time += 1
+        self.tweets[userId].append((self.time, tweetId))
+
+    def getNewsFeed(self, userId: int) -&gt; List[int]:
+        users = self.following[userId] | {userId}      # 自己的貼文也要算
+        # ★ 多路合併：每個人的貼文已經依時間排序，只取最新的 10 則
+        heap = []
+        for u in users:
+            if self.tweets[u]:
+                i = len(self.tweets[u]) - 1
+                t, tid = self.tweets[u][i]
+                heap.append((-t, tid, u, i))
+        heapq.heapify(heap)
+        feed = []
+        while heap and len(feed) &lt; 10:
+            t, tid, u, i = heapq.heappop(heap)
+            feed.append(tid)
+            if i &gt; 0:                                  # 同一人的上一則
+                t2, tid2 = self.tweets[u][i - 1]
+                heapq.heappush(heap, (-t2, tid2, u, i - 1))
+        return feed
+
+    def follow(self, followerId: int, followeeId: int) -&gt; None:
+        if followerId != followeeId:
+            self.following[followerId].add(followeeId)
+
+    def unfollow(self, followerId: int, followeeId: int) -&gt; None:
+        self.following[followerId].discard(followeeId)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>getNewsFeed O(k + 10 log k)</td><td></td></tr>
+            <tr><td>空間</td><td>O(使用者 + 貼文 + 追蹤關係)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>沒有追蹤任何人</strong> → 只看到自己的貼文。</li>
+          <li><strong>貼文少於 10 則</strong> → 回傳全部。</li>
+          <li><strong>取消追蹤不存在的關係</strong> → 不報錯。</li>
+          <li><strong>同一時間戳</strong> → 用全域遞增的計數器，保證唯一。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>真實世界：推模式 vs 拉模式</h3>
+
+        <div class="code-block">本解法是「拉（pull）」：讀取時才合併，寫入便宜、讀取貴。
+「推（push）」：發文時直接寫進每個追蹤者的動態牆，讀取便宜、寫入貴。
+真正的 Twitter 混合使用：一般使用者用推，名人（百萬粉絲）用拉，避免一則貼文要寫一百萬次。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 23 題 合併 K 個排序鏈結串列</strong></li>
+          <li><strong>第 373 題 查找和最小的 K 對數字</strong> —— 同樣的多路合併</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>getNewsFeed 為什麼可以看成「合併 K 個有序串列」？</li>
+            <li>為什麼需要全域的時間戳？</li>
+            <li>推模式和拉模式各有什麼優缺點？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0354.html">← 上一題：354. 俄羅斯套娃信封問題</a>
+          <a href="problem-0357.html">下一題：357. 統計各位數字都不同的數字個數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -10315,6 +10315,17 @@ window.SITE_DATA = {
             { title: "349. Intersection of Two Arrays 兩個陣列的交集", url: "topics/leetcode/problem-0349.html" },
             { title: "350. Intersection of Two Arrays II 兩個陣列的交集 II", url: "topics/leetcode/problem-0350.html" }
           ]
+        },
+        {
+          title: "第 351–375 題",
+          courses: [
+            { title: "352. Data Stream as Disjoint Intervals 將資料流變為多個不相交區間", url: "topics/leetcode/problem-0352.html" },
+            { title: "354. Russian Doll Envelopes 俄羅斯套娃信封問題", url: "topics/leetcode/problem-0354.html" },
+            { title: "355. Design Twitter 設計推特", url: "topics/leetcode/problem-0355.html" },
+            { title: "357. Count Numbers with Unique Digits 統計各位數字都不同的數字個數", url: "topics/leetcode/problem-0357.html" },
+            { title: "363. Max Sum of Rectangle No Larger Than K 矩形區域不超過 K 的最大數值和", url: "topics/leetcode/problem-0363.html" },
+            { title: "365. Water and Jug Problem 水壺問題", url: "topics/leetcode/problem-0365.html" }
+          ]
         }
       ]
     },
