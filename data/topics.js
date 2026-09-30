@@ -10458,7 +10458,11 @@ window.SITE_DATA = {
             { title: "492. Construct the Rectangle 構造矩形", url: "topics/leetcode/problem-0492.html" },
             { title: "493. Reverse Pairs 翻轉對", url: "topics/leetcode/problem-0493.html" },
             { title: "494. Target Sum 目標和", url: "topics/leetcode/problem-0494.html" },
-            { title: "495. Teemo Attacking 提莫攻擊", url: "topics/leetcode/problem-0495.html" }
+            { title: "495. Teemo Attacking 提莫攻擊", url: "topics/leetcode/problem-0495.html" },
+            { title: "496. Next Greater Element I 下一個更大元素 I", url: "topics/leetcode/problem-0496.html" },
+            { title: "497. Random Point in Non-overlapping Rectangles 非重疊矩形中的隨機點", url: "topics/leetcode/problem-0497.html" },
+            { title: "498. Diagonal Traverse 對角線遍歷", url: "topics/leetcode/problem-0498.html" },
+            { title: "500. Keyboard Row 鍵盤行", url: "topics/leetcode/problem-0500.html" }
           ]
         }
       ]

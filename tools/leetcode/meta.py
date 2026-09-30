@@ -3131,6 +3131,38 @@ PROBLEMS = [
         "tags": ["陣列", "模擬"],
         "desc": "每次攻擊貢獻 min(duration, 下次攻擊間隔)，最後一次完整計算。",
     },
+    {
+        "num": 496,
+        "en": "Next Greater Element I",
+        "zh": "下一個更大元素 I",
+        "difficulty": "Easy",
+        "tags": ["堆疊", "陣列", "雜湊表", "單調堆疊"],
+        "desc": "單調遞減堆疊：新數字比頂端大，頂端就找到下一個更大元素。",
+    },
+    {
+        "num": 497,
+        "en": "Random Point in Non-overlapping Rectangles",
+        "zh": "非重疊矩形中的隨機點",
+        "difficulty": "Medium",
+        "tags": ["水塘抽樣", "陣列", "數學", "二分搜尋", "有序集合", "前綴和", "隨機化"],
+        "desc": "以整數點數（不是面積）加權：前綴和 + 二分，再把編號轉成座標。",
+    },
+    {
+        "num": 498,
+        "en": "Diagonal Traverse",
+        "zh": "對角線遍歷",
+        "difficulty": "Medium",
+        "tags": ["陣列", "矩陣", "模擬"],
+        "desc": "同一條對角線 i + j 相同，依奇偶決定方向。",
+    },
+    {
+        "num": 500,
+        "en": "Keyboard Row",
+        "zh": "鍵盤行",
+        "difficulty": "Easy",
+        "tags": ["陣列", "雜湊表", "字串"],
+        "desc": "單字的字母集合（轉小寫）是某一排的子集。",
+    },
 ]
 
 DIFFICULTY_ZH = {"Easy": "簡單", "Medium": "中等", "Hard": "困難"}
