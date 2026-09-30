@@ -1,0 +1,115 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given two integer arrays <code>nums1</code> and <code>nums2</code> sorted in <strong>non-decreasing order</strong> and an integer <code>k</code>.</p>
+          <p>Define a pair <code>(u, v)</code> which consists of one element from the first array and one element from the second array.</p>
+          <p>Return <em>the</em> <code>k</code> <em>pairs</em> <code>(u<sub>1</sub>, v<sub>1</sub>), (u<sub>2</sub>, v<sub>2</sub>), ..., (u<sub>k</sub>, v<sub>k</sub>)</code> <em>with the smallest sums</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個<strong>非遞減排序</strong>的整數陣列 <code>nums1</code>、<code>nums2</code>，以及整數 <code>k</code>。</p>
+          <p>一個數對 <code>(u, v)</code> 由第一個陣列的一個元素和第二個陣列的一個元素組成。</p>
+          <p>回傳和最小的 <code>k</code> 個數對。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums1 = [1,7,11], nums2 = [2,4,6], k = 3
+  輸出：[[1,2],[1,4],[1,6]]
+
+範例 2
+  輸入：nums1 = [1,1,2], nums2 = [1,2,3], k = 2
+  輸出：[[1,1],[1,1]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums1.length, nums2.length</code> ≤ 10⁵</li>
+          <li>−10⁹ ≤ <code>nums1[i], nums2[i]</code> ≤ 10⁹</li>
+          <li>兩個陣列都是非遞減排序</li>
+          <li>1 ≤ <code>k</code> ≤ 10⁴，<code>k ≤ nums1.length × nums2.length</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/find-k-pairs-with-smallest-sums/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【所有數對排成一張表】
+          nums2 -&gt;
+    nums1  (0,0) (0,1) (0,2) ...
+      |    (1,0) (1,1) (1,2) ...
+      v    (2,0) (2,1) ...
+    每一列（固定 i）由左到右和遞增；每一欄由上到下也遞增。
+
+【多路合併（第 23 題的套路）】
+    把每一列看成一條有序串列。
+    堆積裡放每一列「目前最小的那一個」：
+        一開始是 (i, 0)，對所有 i
+        彈出 (i, j) 後，放入同一列的下一個 (i, j+1)
+    彈 k 次就是答案。
+
+【只需要前 k 列】
+    第 k 列之後的 (i, 0) 至少比 (0,0)..(k-1,0) 這 k 個都大，
+    不可能擠進前 k 名。
+    所以堆積大小最多 k -&gt; 每次 O(log k)。
+
+【為什麼不用 visited？】
+    有些寫法從 (0,0) 開始，同時往右、往下擴展，需要集合去重。
+    「每列一條串列、只往右走」的寫法每個格子只會被放入一次，不需要去重。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>最小堆積多路合併</h3>
+        <div class="code-block">class Solution:
+    def kSmallestPairs(self, nums1: List[int], nums2: List[int], k: int) -&gt; List[List[int]]:
+        # 把每個 nums1[i] 想成一條有序串列：(i,0), (i,1), (i,2), ...
+        # ★ 多路合併：一開始放每條串列的第一個（最多 k 條就夠）
+        heap = [(nums1[i] + nums2[0], i, 0) for i in range(min(k, len(nums1)))]
+        heapq.heapify(heap)
+        res = []
+        while heap and len(res) &lt; k:
+            _, i, j = heapq.heappop(heap)
+            res.append([nums1[i], nums2[j]])
+            if j + 1 &lt; len(nums2):              # 同一條串列的下一個
+                heapq.heappush(heap, (nums1[i] + nums2[j + 1], i, j + 1))
+        return res</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k log k)</td><td></td></tr>
+            <tr><td>空間</td><td>O(k)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>重複值</strong> → 不同位置的相同數對要分別算（範例 2）。</li>
+          <li><strong>k 大於某一個陣列的長度</strong> → 初始只放 min(k, len(nums1)) 列。</li>
+          <li><strong>負數</strong> → 不影響，排序關係照樣成立。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>k 很大時</h3>
+
+        <div class="code-block">對「和」二分搜尋：給定 x，用雙指標 O(m + n) 數出和 ≤ x 的數對有幾個，找到第 k 小的和，再收集答案。和第 378 題（有序矩陣第 K 小）是同一個想法。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 23 題 合併 K 個排序鏈結串列</strong></li>
+          <li><strong>第 378 題 有序矩陣中第 K 小的元素</strong></li>
+          <li><strong>第 719 題 找出第 K 小的數對距離</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼可以把數對看成多條有序串列？</li>
+            <li>為什麼只需要放前 k 列進堆積？</li>
+            <li>這個寫法為什麼不需要 visited 集合？</li>
+          </ol>
+        </div>

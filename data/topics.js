@@ -10324,7 +10324,13 @@ window.SITE_DATA = {
             { title: "355. Design Twitter 設計推特", url: "topics/leetcode/problem-0355.html" },
             { title: "357. Count Numbers with Unique Digits 統計各位數字都不同的數字個數", url: "topics/leetcode/problem-0357.html" },
             { title: "363. Max Sum of Rectangle No Larger Than K 矩形區域不超過 K 的最大數值和", url: "topics/leetcode/problem-0363.html" },
-            { title: "365. Water and Jug Problem 水壺問題", url: "topics/leetcode/problem-0365.html" }
+            { title: "365. Water and Jug Problem 水壺問題", url: "topics/leetcode/problem-0365.html" },
+            { title: "367. Valid Perfect Square 有效的完全平方數", url: "topics/leetcode/problem-0367.html" },
+            { title: "368. Largest Divisible Subset 最大整除子集", url: "topics/leetcode/problem-0368.html" },
+            { title: "371. Sum of Two Integers 兩整數之和", url: "topics/leetcode/problem-0371.html" },
+            { title: "372. Super Pow 超級次方", url: "topics/leetcode/problem-0372.html" },
+            { title: "373. Find K Pairs with Smallest Sums 查找和最小的 K 對數字", url: "topics/leetcode/problem-0373.html" },
+            { title: "374. Guess Number Higher or Lower 猜數字大小", url: "topics/leetcode/problem-0374.html" }
           ]
         }
       ]
