@@ -30,6 +30,7 @@ window.SITE_DATA = {
     { id: "tech", label: "科技與工程", icon: "💻" },
     { id: "math", label: "數學", icon: "📐" },
     { id: "science", label: "物理與宇宙學", icon: "🔭" },
+    { id: "biomed", label: "生命科學與醫學", icon: "🧬" },
     { id: "nobel", label: "諾貝爾獎", icon: "🏅" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
@@ -11063,6 +11064,134 @@ window.SITE_DATA = {
           courses: [
             { title: "從「浪費時間的罪惡感」到「有意識地選擇時間」", url: "topics/meaning-of-time/lesson-22.html" },
             { title: "這不是一次性的頓悟，是持續調整的練習", url: "topics/meaning-of-time/lesson-23.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "human-organs",
+      category: "biomed",
+      title: "人體器官運作機制：從細胞到全身系統",
+      description:
+        "從細胞膜、ATP 與恆定性打地基，逐一拆解循環、呼吸、消化、泌尿、神經、感覺、內分泌、免疫、運動與生殖系統——每個器官不只講它做什麼，更講它怎麼做到，最後用運動、一頓飯與老化，把各系統串回一個會合作的身體。",
+      icon: "🫀",
+      url: "topics/human-organs/index.html",
+      resources: [
+        {
+          title: "器官速查表",
+          description: "一頁查到主要器官的所屬系統、核心功能、關鍵激素與對應課程，另附重要正常值",
+          icon: "🗂️",
+          url: "topics/human-organs/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜打地基：身體怎麼組成的",
+          courses: [
+            { title: "從細胞到器官系統：身體的組織層級", url: "topics/human-organs/lesson-01.html" },
+            { title: "恆定性：身體的恆溫器原理", url: "topics/human-organs/lesson-02.html" },
+            { title: "細胞膜與物質運輸：擴散、滲透與鈉鉀幫浦", url: "topics/human-organs/lesson-03.html" },
+            { title: "能量貨幣 ATP：粒線體與細胞呼吸", url: "topics/human-organs/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜循環系統",
+          courses: [
+            { title: "心臟構造：四個腔室與血液的兩個循環", url: "topics/human-organs/lesson-05.html" },
+            { title: "心臟為什麼會自己跳：傳導系統與心電圖", url: "topics/human-organs/lesson-06.html" },
+            { title: "血管：動脈、靜脈、微血管與血壓", url: "topics/human-organs/lesson-07.html" },
+            { title: "血液：紅血球、白血球、血小板與血漿", url: "topics/human-organs/lesson-08.html" },
+            { title: "凝血機制：受傷後血為什麼會停", url: "topics/human-organs/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜呼吸系統",
+          courses: [
+            { title: "呼吸道之旅：從鼻子到肺泡", url: "topics/human-organs/lesson-10.html" },
+            { title: "肺泡的氣體交換：分壓與血紅素", url: "topics/human-organs/lesson-11.html" },
+            { title: "誰在控制呼吸：橫膈膜與腦幹", url: "topics/human-organs/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜消化系統",
+          courses: [
+            { title: "口腔與食道：消化的起點", url: "topics/human-organs/lesson-13.html" },
+            { title: "胃：胃酸為什麼不會把自己消化掉", url: "topics/human-organs/lesson-14.html" },
+            { title: "小腸：營養吸收的主戰場", url: "topics/human-organs/lesson-15.html" },
+            { title: "肝臟：身體的化學工廠", url: "topics/human-organs/lesson-16.html" },
+            { title: "胰臟與膽囊：消化酶與血糖的雙重角色", url: "topics/human-organs/lesson-17.html" },
+            { title: "大腸與腸道菌：水分回收與微生物組", url: "topics/human-organs/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜泌尿系統",
+          courses: [
+            { title: "腎臟與腎元：過濾、再吸收、分泌", url: "topics/human-organs/lesson-19.html" },
+            { title: "腎臟怎麼調節水分和血壓", url: "topics/human-organs/lesson-20.html" },
+            { title: "膀胱與排尿反射", url: "topics/human-organs/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜神經系統",
+          courses: [
+            { title: "神經元：動作電位是怎麼傳出去的", url: "topics/human-organs/lesson-22.html" },
+            { title: "突觸與神經傳導物質", url: "topics/human-organs/lesson-23.html" },
+            { title: "大腦分區：四個腦葉與邊緣系統", url: "topics/human-organs/lesson-24.html" },
+            { title: "小腦與腦幹：平衡、協調與生命中樞", url: "topics/human-organs/lesson-25.html" },
+            { title: "脊髓與反射弧", url: "topics/human-organs/lesson-26.html" },
+            { title: "自律神經：交感與副交感", url: "topics/human-organs/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜感覺器官",
+          courses: [
+            { title: "眼睛：光怎麼變成影像", url: "topics/human-organs/lesson-28.html" },
+            { title: "耳朵：聽覺與平衡", url: "topics/human-organs/lesson-29.html" },
+            { title: "鼻子與舌頭：嗅覺與味覺", url: "topics/human-organs/lesson-30.html" },
+            { title: "皮膚：觸覺、痛覺與體溫調節", url: "topics/human-organs/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 H｜內分泌系統",
+          courses: [
+            { title: "荷爾蒙怎麼傳訊：下視丘與腦下垂體", url: "topics/human-organs/lesson-32.html" },
+            { title: "甲狀腺：代謝的油門", url: "topics/human-organs/lesson-33.html" },
+            { title: "腎上腺：壓力反應與皮質醇", url: "topics/human-organs/lesson-34.html" },
+            { title: "胰島素與升糖素：血糖的蹺蹺板", url: "topics/human-organs/lesson-35.html" },
+            { title: "松果體與生理時鐘：褪黑激素與晝夜節律", url: "topics/human-organs/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 I｜免疫與淋巴系統",
+          courses: [
+            { title: "先天免疫：皮膚屏障、發炎與吞噬細胞", url: "topics/human-organs/lesson-37.html" },
+            { title: "後天免疫：B 細胞、T 細胞與抗體", url: "topics/human-organs/lesson-38.html" },
+            { title: "疫苗原理與免疫記憶", url: "topics/human-organs/lesson-39.html" },
+            { title: "淋巴系統、脾臟與胸腺", url: "topics/human-organs/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 J｜運動系統",
+          courses: [
+            { title: "骨骼：不只是支架", url: "topics/human-organs/lesson-41.html" },
+            { title: "肌肉收縮機制：肌動蛋白與肌凝蛋白的滑動", url: "topics/human-organs/lesson-42.html" },
+            { title: "關節與肌腱：槓桿原理", url: "topics/human-organs/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 K｜生殖系統",
+          courses: [
+            { title: "男性生殖系統與精子生成", url: "topics/human-organs/lesson-44.html" },
+            { title: "女性生殖系統與月經週期", url: "topics/human-organs/lesson-45.html" },
+            { title: "受精、懷孕與胎盤", url: "topics/human-organs/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 L｜整合：系統怎麼合作",
+          courses: [
+            { title: "跑一場 5 公里：全身系統如何同步反應", url: "topics/human-organs/lesson-47.html" },
+            { title: "飯後兩小時：身體裡發生了什麼事", url: "topics/human-organs/lesson-48.html" },
+            { title: "老化：器官會怎麼改變", url: "topics/human-organs/lesson-49.html" },
           ],
         },
       ],
