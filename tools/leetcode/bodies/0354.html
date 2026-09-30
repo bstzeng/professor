@@ -1,0 +1,146 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a 2D array of integers <code>envelopes</code> where <code>envelopes[i] = [w<sub>i</sub>, h<sub>i</sub>]</code> represents the width and the height of an envelope.</p>
+          <p>One envelope can fit into another if and only if both the width and height of one envelope are greater than the other envelope's width and height.</p>
+          <p>Return <em>the maximum number of envelopes you can Russian doll (i.e., put one inside the other)</em>.</p>
+          <p><strong>Note:</strong> You cannot rotate an envelope.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二維陣列 <code>envelopes</code>，<code>envelopes[i] = [w<sub>i</sub>, h<sub>i</sub>]</code> 是信封的寬和高。</p>
+          <p>一個信封能放進另一個信封，當且僅當它的寬和高都<strong>嚴格小於</strong>另一個。</p>
+          <p>回傳最多能有幾個信封像俄羅斯套娃一樣一層套一層。<strong>信封不能旋轉。</strong></p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：envelopes = [[5,4],[6,4],[6,7],[2,3]]
+  輸出：3
+  說明：[2,3] =&gt; [5,4] =&gt; [6,7]
+
+範例 2
+  輸入：envelopes = [[1,1],[1,1],[1,1]]
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>envelopes.length</code> ≤ 10⁵</li>
+          <li><code>envelopes[i].length == 2</code></li>
+          <li>1 ≤ <code>w<sub>i</sub>, h<sub>i</sub></code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/russian-doll-envelopes/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【二維的最長遞增子序列】
+    如果只有一個維度，就是第 300 題 LIS。
+    兩個維度都要嚴格遞增 -&gt; 先用排序處理掉一個維度。
+
+【按寬度排序，對高度做 LIS】
+    寬度遞增之後，只要高度也嚴格遞增就能套 ——
+    但寬度「相同」的信封不能互套！
+
+【關鍵技巧：寬度相同時，高度遞減排】
+    [6, 4], [6, 7]：寬度相同
+    如果高度遞增排：4, 7 -&gt; LIS 會把它們都選進去 ✘
+    如果高度遞減排：7, 4 -&gt; 遞減的兩個數不可能同時在遞增序列裡 ✔
+
+    這樣同寬度的信封最多只會被選一個，
+    剩下的問題就是純粹的一維 LIS，可以用 O(n log n) 的二分解法。</div>
+
+        <div class="code-block">  排序後（寬遞增、同寬時高遞減）：
+  [2,3] [5,4] [6,7] [6,4]
+  高度：  3     4     7     4
+  LIS：3, 4, 7 -&gt; 長度 3 ✔
+  若同寬時高度遞增排（[6,4] 在 [6,7] 前），高度 3, 4, 4, 7 可能把兩個寬 6 的都選進去 ✘</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序 + O(n²) DP</h3>
+        <div class="code-block">class Solution:
+    def maxEnvelopes(self, envelopes: List[List[int]]) -&gt; int:
+        envelopes.sort()
+        n = len(envelopes)
+        dp = [1] * n                              # dp[i]：以第 i 個信封為最外層的最多層數
+        for i in range(n):
+            for j in range(i):
+                if envelopes[j][0] &lt; envelopes[i][0] and envelopes[j][1] &lt; envelopes[i][1]:
+                    dp[i] = max(dp[i], dp[j] + 1)
+        return max(dp)</div>
+        <p>n = 10⁵ 時會超時。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>特殊排序 + 二分 LIS</h3>
+        <div class="code-block">class Solution:
+    def maxEnvelopes(self, envelopes: List[List[int]]) -&gt; int:
+        # ★ 寬度遞增；寬度相同時高度「遞減」—— 讓同寬度的信封不可能互相套
+        envelopes.sort(key=lambda e: (e[0], -e[1]))
+        tails = []                                # 對高度做 LIS（第 300 題）
+        for _, h in envelopes:
+            i = bisect.bisect_left(tails, h)
+            if i == len(tails):
+                tails.append(h)
+            else:
+                tails[i] = h
+        return len(tails)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、DP</td><td>O(n²)</td><td>O(n)</td></tr>
+            <tr><td>二、排序 + LIS</td><td>O(n log n)</td><td>O(n) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>寬度相同</strong> → 不能互套；排序技巧處理。</li>
+          <li><strong>高度相同</strong> → 不能互套；LIS 用 bisect_left（嚴格遞增）處理。</li>
+          <li><strong>完全相同的信封</strong> → 只能選一個。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>三維呢？</h3>
+
+        <div class="code-block">第 1691 題「堆疊長方體的最大高度」：長方體可以旋轉，每個先排序三個邊，再按一個維度排序後做 O(n²) DP。三維 LIS 沒有簡單的 O(n log n) 解（需要 CDQ 分治等進階技巧）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 300 題 最長遞增子序列</strong></li>
+          <li><strong>第 1691 題 堆疊長方體的最大高度</strong></li>
+          <li><strong>第 646 題 最長數對鏈</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>排序後為什麼可以只看高度？</li>
+            <li>寬度相同時為什麼要把高度遞減排序？</li>
+          </ol>
+        </div>

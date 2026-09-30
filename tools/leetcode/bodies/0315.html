@@ -1,0 +1,200 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, return <em>an integer array</em> <code>counts</code> <em>where</em> <code>counts[i]</code> <em>is the number of smaller elements to the right of</em> <code>nums[i]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，回傳陣列 <code>counts</code>，其中 <code>counts[i]</code> 是 <code>nums[i]</code> <strong>右邊</strong>比它<strong>小</strong>的元素個數。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [5,2,6,1]
+  輸出：[2,1,1,0]
+  說明：
+    5 的右邊有 2 個更小的（2 和 1）
+    2 的右邊有 1 個更小的（1）
+    6 的右邊有 1 個更小的（1）
+    1 的右邊有 0 個
+
+範例 2
+  輸入：nums = [-1,-1]
+  輸出：[0,0]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁵</li>
+          <li>−10⁴ ≤ <code>nums[i]</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/count-of-smaller-numbers-after-self/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【暴力 O(n²)：n = 10⁵ 太慢】
+
+【方法一：由右往左 + 樹狀陣列】
+    從最右邊開始，把看過的數「登記」起來。
+    處理 nums[i] 時，登記簿裡剛好是它右邊的所有數，
+    問：登記簿裡比 nums[i] 小的有幾個？
+
+    登記簿用樹狀陣列，以「值」為索引：
+        登記 x：tree 在位置 x 加 1
+        查詢比 x 小的個數：前綴和 [1, x-1]
+    值的範圍可能很大或有負數 -&gt; 先座標壓縮成名次 1..m。
+
+【方法二：合併排序】
+    這題本質上是「逆序數」問題的每個元素版本。
+    合併左右兩半時：
+        左半的元素 a 被放進結果時，
+        右半中已經被放進去的元素，都比 a 小、而且在 a 的右邊
+        -&gt; counts[a 的原索引] += 右半已放進去的個數
+    要排序的是「索引」，才能把答案加回原位置。
+
+【方法三：維持排序陣列 + 二分】
+    概念最簡單，但 list.insert 是 O(n)，最壞 O(n²)。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序陣列 + 二分</h3>
+        <div class="code-block">class Solution:
+    def countSmaller(self, nums: List[int]) -&gt; List[int]:
+        seen = []                             # 右邊的數，保持排序
+        res = []
+        for x in reversed(nums):
+            i = bisect.bisect_left(seen, x)   # 比 x 小的個數
+            res.append(i)
+            seen.insert(i, x)                 # list 插入 O(n)
+        return res[::-1]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>insert 的搬移在 C 層級，實務上不算太慢</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>座標壓縮 + 樹狀陣列</h3>
+        <div class="code-block">class Solution:
+    def countSmaller(self, nums: List[int]) -&gt; List[int]:
+        # 座標壓縮：把值換成名次 1..m
+        rank = {v: i + 1 for i, v in enumerate(sorted(set(nums)))}
+        m = len(rank)
+        tree = [0] * (m + 1)                  # 樹狀陣列：tree 以「名次」為索引
+
+        def add(i):
+            while i &lt;= m:
+                tree[i] += 1
+                i += i &amp; -i
+
+        def query(i):                         # 名次 1..i 已經出現幾次
+            s = 0
+            while i:
+                s += tree[i]
+                i -= i &amp; -i
+            return s
+
+        res = []
+        for x in reversed(nums):              # ★ 由右往左：樹裡放的都是「右邊」的數
+            r = rank[x]
+            res.append(query(r - 1))          # 比 x 小 = 名次 &lt; r
+            add(r)
+        return res[::-1]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>合併排序（排索引）</h3>
+        <div class="code-block">class Solution:
+    def countSmaller(self, nums: List[int]) -&gt; List[int]:
+        n = len(nums)
+        res = [0] * n
+        idx = list(range(n))                  # 對「索引」排序，才能知道答案該加到誰身上
+
+        def sort(lo: int, hi: int) -&gt; None:   # 排序 idx[lo:hi]（依 nums 值）
+            if hi - lo &lt;= 1:
+                return
+            mid = (lo + hi) // 2
+            sort(lo, mid)
+            sort(mid, hi)
+            merged = []
+            j = mid
+            for i in range(lo, mid):
+                # ★ 右半中比 nums[idx[i]] 小的，會在 i 之前被放進 merged
+                while j &lt; hi and nums[idx[j]] &lt; nums[idx[i]]:
+                    merged.append(idx[j])
+                    j += 1
+                res[idx[i]] += j - mid        # 右半已經放進去的個數
+                merged.append(idx[i])
+            merged.extend(idx[j:hi])
+            idx[lo:hi] = merged
+
+        sort(0, n)
+        return res</div>
+        <div class="code-block">【為什麼是嚴格小於 &lt;？】
+    右半中「等於」nums[idx[i]] 的元素不算比它小，
+    所以用 &lt; 讓左半的相等元素先放進去（這也保持了穩定排序）。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序陣列</td><td>O(n²)</td><td>O(n)</td><td>最短</td></tr>
+            <tr><td>二、樹狀陣列</td><td>O(n log n)</td><td>O(n)</td><td>最通用 ✔</td></tr>
+            <tr><td>三、合併排序</td><td>O(n log n)</td><td>O(n)</td><td>逆序數經典</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>重複值</strong> → 「更小」是嚴格小於，相等不算。</li>
+          <li><strong>負數</strong> → 座標壓縮解決。</li>
+          <li><strong>遞增陣列</strong> → 全部是 0。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>逆序數家族</h3>
+
+        <div class="code-block">把 counts 全部加起來，就是陣列的逆序數。第 493 題「翻轉對」（nums[i] &amp;gt; 2·nums[j]）、第 327 題「區間和的個數」都用同樣的兩種工具：合併排序或樹狀陣列。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 307 題 區域和檢索 - 陣列可修改</strong> —— 樹狀陣列</li>
+          <li><strong>第 327 題 區間和的個數</strong></li>
+          <li><strong>第 493 題 翻轉對</strong></li>
+          <li><strong>第 1649 題 通過指令創建有序陣列</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要由右往左處理？</li>
+            <li>樹狀陣列的索引代表什麼？為什麼需要座標壓縮？</li>
+            <li>合併排序時，counts 在什麼時候增加？增加多少？</li>
+          </ol>
+        </div>

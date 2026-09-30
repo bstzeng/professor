@@ -1,0 +1,128 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a 2D matrix <code>matrix</code>, handle multiple queries of the following type: calculate the <strong>sum</strong> of the elements of <code>matrix</code> inside the rectangle defined by its <strong>upper left corner</strong> <code>(row1, col1)</code> and <strong>lower right corner</strong> <code>(row2, col2)</code>.</p>
+          <p>Implement the <code>NumMatrix</code> class:</p>
+        <ul>
+          <li><code>NumMatrix(int[][] matrix)</code> Initializes the object with the integer matrix <code>matrix</code>.</li>
+          <li><code>int sumRegion(int row1, int col1, int row2, int col2)</code> Returns the sum of the elements of <code>matrix</code> inside the rectangle defined by its upper left corner <code>(row1, col1)</code> and lower right corner <code>(row2, col2)</code>.</li>
+        </ul>
+          <p>You must design an algorithm where <code>sumRegion</code> works on <code>O(1)</code> time complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個二維矩陣 <code>matrix</code>，要處理多次查詢：計算左上角 <code>(row1, col1)</code>、右下角 <code>(row2, col2)</code> 的矩形內所有元素的總和。</p>
+          <p><code>sumRegion</code> 必須是 <code>O(1)</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：["NumMatrix", "sumRegion", "sumRegion", "sumRegion"]
+        [[[[3, 0, 1, 4, 2], [5, 6, 3, 2, 1], [1, 2, 0, 1, 5], [4, 1, 0, 1, 7], [1, 0, 3, 0, 5]]],
+         [2, 1, 4, 3], [1, 1, 2, 2], [1, 2, 2, 4]]
+  輸出：[null, 8, 11, 12]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>m, n</code> ≤ 200</li>
+          <li>−10⁴ ≤ <code>matrix[i][j]</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>row1 ≤ row2</code> &lt; m，0 ≤ <code>col1 ≤ col2</code> &lt; n</li>
+          <li>最多呼叫 10⁴ 次 <code>sumRegion</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/range-sum-query-2d-immutable/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 234" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">二維前綴和：用四個「從左上角開始的矩形」拼出任意矩形</text>
+            <rect x="40" y="40" width="240" height="180" fill="var(--text-muted)" opacity="0.10" stroke="var(--border)"/>
+            <rect x="40" y="40" width="240" height="70" fill="#ff8a65" opacity="0.18"/>
+            <rect x="40" y="40" width="90" height="180" fill="var(--accent)" opacity="0.18"/>
+            <rect x="130" y="110" width="150" height="110" fill="none" stroke="var(--gold)" stroke-width="2.5"/>
+            <text x="205" y="170" text-anchor="middle" fill="var(--gold)" font-size="13">要求的區域</text>
+            <text x="200" y="80" text-anchor="middle" fill="#ff8a65" font-size="12">上方一條</text>
+            <text x="85" y="170" text-anchor="middle" fill="var(--accent)" font-size="12">左邊一條</text>
+            <text x="85" y="80" text-anchor="middle" fill="var(--text)" font-size="11">重疊</text>
+            <text x="310" y="60" fill="var(--text)" font-size="12">答案 = P(整個大矩形)</text>
+            <text x="310" y="84" fill="#ff8a65" font-size="12">　　　− P(上方一條)</text>
+            <text x="310" y="108" fill="var(--accent)" font-size="12">　　　− P(左邊一條)</text>
+            <text x="310" y="132" fill="var(--text)" font-size="12">　　　+ P(左上角重疊)  ← 被扣了兩次</text>
+            <text x="310" y="176" fill="var(--text-muted)" font-size="12">建表也是同一個排容原理：</text>
+            <text x="310" y="198" fill="var(--text-muted)" font-size="12">P = 上 + 左 − 左上 + 自己</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【第 303 題的二維版】
+    P[i][j] = 左上角 (0,0) 到 (i-1, j-1) 的矩形總和
+    （和一維一樣多開一圈 0，省掉邊界判斷）
+
+【建表：排容原理】
+    P[i+1][j+1] = P[i][j+1]        上方的矩形
+                + P[i+1][j]        左方的矩形
+                - P[i][j]          左上角被加了兩次
+                + matrix[i][j]     自己
+
+【查詢：也是排容原理】
+    sum = P[r2+1][c2+1] - P[r1][c2+1] - P[r2+1][c1] + P[r1][c1]</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>二維前綴和</h3>
+        <div class="code-block">class NumMatrix:
+    def __init__(self, matrix: List[List[int]]):
+        m, n = len(matrix), len(matrix[0])
+        # P[i][j] = 左上角 (0,0) 到 (i-1, j-1) 的矩形總和（多一圈 0）
+        self.P = P = [[0] * (n + 1) for _ in range(m + 1)]
+        for i in range(m):
+            for j in range(n):
+                # ★ 上 + 左 - 左上（重複算了一次）+ 自己
+                P[i + 1][j + 1] = P[i][j + 1] + P[i + 1][j] - P[i][j] + matrix[i][j]
+
+    def sumRegion(self, row1: int, col1: int, row2: int, col2: int) -&gt; int:
+        P = self.P
+        # 大矩形 - 上面一條 - 左邊一條 + 被扣兩次的左上角
+        return P[row2 + 1][col2 + 1] - P[row1][col2 + 1] - P[row2 + 1][col1] + P[row1][col1]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>建構 O(mn)，查詢 O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>row1 = 0 或 col1 = 0</strong> → 多開的一圈 0 讓公式不用特判。</li>
+          <li><strong>單一格子</strong> → 公式照樣成立。</li>
+          <li><strong>負數</strong> → 沒問題。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>二維差分</h3>
+
+        <div class="code-block">反過來：「對一個矩形區域全部加上 v」很多次，最後求整個矩陣——在四個角落做 +v、−v、−v、+v，最後做一次二維前綴和。第 2536 題就是這個。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 303 題 區域和檢索 - 陣列不可變</strong></li>
+          <li><strong>第 1314 題 矩陣區域和</strong></li>
+          <li><strong>第 221 題 最大正方形</strong></li>
+          <li><strong>第 308 題 二維區域和檢索 - 可變</strong>（付費）—— 二維樹狀陣列</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>P[i][j] 代表哪個矩形？</li>
+            <li>建表時為什麼要減掉 P[i][j]？</li>
+            <li>查詢公式中為什麼要加回 P[r1][c1]？</li>
+          </ol>
+        </div>

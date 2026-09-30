@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>324. Wiggle Sort II 擺動排序 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="排序後小半、大半各自反轉再交錯放，避免相等的中位數相鄰。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="324">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 324 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 324</div>
+          <h1>Wiggle Sort II<br>擺動排序 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">分治</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">排序</span>
+          <span class="lc-badge">快速選擇</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, reorder it such that <code>nums[0] &lt; nums[1] &gt; nums[2] &lt; nums[3]...</code>.</p>
+          <p>You may assume the input array always has a valid answer.</p>
+          <p><strong>Follow Up:</strong> Can you do it in <code>O(n)</code> time and/or <strong>in-place</strong> with <code>O(1)</code> extra space?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，把它重新排列成 <code>nums[0] &lt; nums[1] &gt; nums[2] &lt; nums[3]...</code>（嚴格的一小一大交錯）。</p>
+          <p>保證一定有合法的答案。</p>
+          <p><strong>進階：</strong>能在 <code>O(n)</code> 時間、<code>O(1)</code> 額外空間內原地完成嗎？</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,5,1,1,6,4]
+  輸出：[1,6,1,5,1,4]
+  說明：[1,4,1,5,1,6] 也可以。
+
+範例 2
+  輸入：nums = [1,3,2,2,3,1]
+  輸出：[2,3,1,3,1,2]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 5 × 10⁴</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 5000</li>
+          <li>保證有合法答案</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/wiggle-sort-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【直覺：小的放偶數位置、大的放奇數位置】
+    排序後切成兩半：小半 S、大半 L，交錯放 S L S L ...
+    每個 L 都 &gt;= 兩邊的 S。
+
+【陷阱：中位數重複】
+    nums = [4, 5, 5, 6]
+    小半 [4, 5]、大半 [5, 6]
+    順著放：4 5 5 6 -&gt; 5 和 5 相鄰，5 &lt; 5 不成立 ✘
+
+【解法：兩半都「反轉」再交錯】
+    小半反轉 [5, 4]、大半反轉 [6, 5]
+    交錯：5 6 4 5 ✔
+    反轉後，小半的中位數被放到最前面，大半的中位數被放到最後面，
+    相等的中位數在陣列中離得最遠，不會相鄰。
+
+【O(n) 時間】
+    值域只有 0..5000 -&gt; 計數排序。
+    （更一般的 O(n) + O(1) 空間做法：快速選擇找中位數 + 三向切分 + 虛擬索引映射，
+     非常精巧但不好寫。）</div>
+
+        <div class="code-block">  排序後   [1, 1, 1, 4, 5, 6]
+  小半反轉 [1, 1, 1]      大半反轉 [6, 5, 4]
+  交錯     1  6  1  5  1  4  ✔</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序 + 兩半反轉交錯</h3>
+        <div class="code-block">class Solution:
+    def wiggleSort(self, nums: List[int]) -&gt; None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        s = sorted(nums)
+        half = (len(nums) + 1) // 2
+        # ★ 小的一半、大的一半各自「反轉」後交錯放：避免相等的中位數相鄰
+        nums[::2] = s[:half][::-1]         # 偶數位置放較小的一半（由大到小）
+        nums[1::2] = s[half:][::-1]        # 奇數位置放較大的一半（由大到小）</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>計數排序（值域小）</h3>
+        <div class="code-block">class Solution:
+    def wiggleSort(self, nums: List[int]) -&gt; None:
+        cnt = [0] * 5001                   # 值域 0..5000：計數排序
+        for x in nums:
+            cnt[x] += 1
+        v = 5000
+        # 先填奇數位置（放大的），再填偶數位置，都從大到小取
+        for start in (1, 0):
+            for i in range(start, len(nums), 2):
+                while cnt[v] == 0:
+                    v -= 1
+                nums[i] = v
+                cnt[v] -= 1</div>
+        <p>從最大值開始，先填滿所有奇數位置，再填偶數位置——和解法一的「反轉交錯」是同一個排列。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n + V)</td><td>V = 值域大小 5001</td></tr>
+            <tr><td>空間</td><td>O(V)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序</td><td>O(n log n)</td><td>O(n)</td></tr>
+            <tr><td>二、計數排序</td><td>O(n + V)</td><td>O(V) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>中位數重複很多次</strong> → 一定要反轉，否則相等元素會相鄰。</li>
+          <li><strong>奇數長度</strong> → 小半比大半多一個（偶數位置比較多）。</li>
+          <li><strong>n = 1</strong> → 不變。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>第 280 題（付費）</h3>
+
+        <div class="code-block">Wiggle Sort I 允許相等（≤ ≥ ≤），只要一趟掃描：相鄰兩個不符合就交換，O(n)。嚴格版本就難多了。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 280 題 擺動排序</strong>（付費）</li>
+          <li><strong>第 215 題 陣列中的第 K 個最大元素</strong> —— 快速選擇</li>
+          <li><strong>第 75 題 顏色分類</strong> —— 三向切分</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼直接把小半、大半交錯放可能失敗？舉例。</li>
+            <li>兩半反轉後為什麼就不會有相等的元素相鄰？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0322.html">← 上一題：322. 零錢兌換</a>
+          <a href="problem-0326.html">下一題：326. 3 的冪 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

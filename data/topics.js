@@ -10269,6 +10269,99 @@ window.SITE_DATA = {
             { title: "299. Bulls and Cows 猜數字遊戲", url: "topics/leetcode/problem-0299.html" },
             { title: "300. Longest Increasing Subsequence 最長遞增子序列", url: "topics/leetcode/problem-0300.html" }
           ]
+        },
+        {
+          title: "第 301–325 題",
+          courses: [
+            { title: "301. Remove Invalid Parentheses 刪除無效的括號", url: "topics/leetcode/problem-0301.html" },
+            { title: "303. Range Sum Query - Immutable 區域和檢索 - 陣列不可變", url: "topics/leetcode/problem-0303.html" },
+            { title: "304. Range Sum Query 2D - Immutable 二維區域和檢索 - 矩陣不可變", url: "topics/leetcode/problem-0304.html" },
+            { title: "306. Additive Number 累加數", url: "topics/leetcode/problem-0306.html" },
+            { title: "307. Range Sum Query - Mutable 區域和檢索 - 陣列可修改", url: "topics/leetcode/problem-0307.html" },
+            { title: "309. Best Time to Buy and Sell Stock with Cooldown 買賣股票的最佳時機含冷凍期", url: "topics/leetcode/problem-0309.html" },
+            { title: "310. Minimum Height Trees 最小高度樹", url: "topics/leetcode/problem-0310.html" },
+            { title: "312. Burst Balloons 戳氣球", url: "topics/leetcode/problem-0312.html" },
+            { title: "313. Super Ugly Number 超級醜數", url: "topics/leetcode/problem-0313.html" },
+            { title: "315. Count of Smaller Numbers After Self 計算右側小於當前元素的個數", url: "topics/leetcode/problem-0315.html" },
+            { title: "316. Remove Duplicate Letters 去除重複字母", url: "topics/leetcode/problem-0316.html" },
+            { title: "318. Maximum Product of Word Lengths 最大單字長度乘積", url: "topics/leetcode/problem-0318.html" },
+            { title: "319. Bulb Switcher 燈泡開關", url: "topics/leetcode/problem-0319.html" },
+            { title: "321. Create Maximum Number 拼接最大數", url: "topics/leetcode/problem-0321.html" },
+            { title: "322. Coin Change 零錢兌換", url: "topics/leetcode/problem-0322.html" },
+            { title: "324. Wiggle Sort II 擺動排序 II", url: "topics/leetcode/problem-0324.html" }
+          ]
+        },
+        {
+          title: "第 326–350 題",
+          courses: [
+            { title: "326. Power of Three 3 的冪", url: "topics/leetcode/problem-0326.html" },
+            { title: "327. Count of Range Sum 區間和的個數", url: "topics/leetcode/problem-0327.html" },
+            { title: "328. Odd Even Linked List 奇偶鏈結串列", url: "topics/leetcode/problem-0328.html" },
+            { title: "329. Longest Increasing Path in a Matrix 矩陣中的最長遞增路徑", url: "topics/leetcode/problem-0329.html" },
+            { title: "330. Patching Array 按要求補齊陣列", url: "topics/leetcode/problem-0330.html" },
+            { title: "331. Verify Preorder Serialization of a Binary Tree 驗證二元樹的前序序列化", url: "topics/leetcode/problem-0331.html" },
+            { title: "332. Reconstruct Itinerary 重新安排行程", url: "topics/leetcode/problem-0332.html" },
+            { title: "334. Increasing Triplet Subsequence 遞增的三元子序列", url: "topics/leetcode/problem-0334.html" },
+            { title: "335. Self Crossing 路徑交叉", url: "topics/leetcode/problem-0335.html" },
+            { title: "336. Palindrome Pairs 回文對", url: "topics/leetcode/problem-0336.html" },
+            { title: "337. House Robber III 打家劫舍 III", url: "topics/leetcode/problem-0337.html" },
+            { title: "338. Counting Bits 位元計數", url: "topics/leetcode/problem-0338.html" },
+            { title: "341. Flatten Nested List Iterator 扁平化巢狀串列迭代器", url: "topics/leetcode/problem-0341.html" },
+            { title: "342. Power of Four 4 的冪", url: "topics/leetcode/problem-0342.html" },
+            { title: "343. Integer Break 整數拆分", url: "topics/leetcode/problem-0343.html" },
+            { title: "344. Reverse String 反轉字串", url: "topics/leetcode/problem-0344.html" },
+            { title: "345. Reverse Vowels of a String 反轉字串中的母音", url: "topics/leetcode/problem-0345.html" },
+            { title: "347. Top K Frequent Elements 前 K 個高頻元素", url: "topics/leetcode/problem-0347.html" },
+            { title: "349. Intersection of Two Arrays 兩個陣列的交集", url: "topics/leetcode/problem-0349.html" },
+            { title: "350. Intersection of Two Arrays II 兩個陣列的交集 II", url: "topics/leetcode/problem-0350.html" }
+          ]
+        },
+        {
+          title: "第 351–375 題",
+          courses: [
+            { title: "352. Data Stream as Disjoint Intervals 將資料流變為多個不相交區間", url: "topics/leetcode/problem-0352.html" },
+            { title: "354. Russian Doll Envelopes 俄羅斯套娃信封問題", url: "topics/leetcode/problem-0354.html" },
+            { title: "355. Design Twitter 設計推特", url: "topics/leetcode/problem-0355.html" },
+            { title: "357. Count Numbers with Unique Digits 統計各位數字都不同的數字個數", url: "topics/leetcode/problem-0357.html" },
+            { title: "363. Max Sum of Rectangle No Larger Than K 矩形區域不超過 K 的最大數值和", url: "topics/leetcode/problem-0363.html" },
+            { title: "365. Water and Jug Problem 水壺問題", url: "topics/leetcode/problem-0365.html" },
+            { title: "367. Valid Perfect Square 有效的完全平方數", url: "topics/leetcode/problem-0367.html" },
+            { title: "368. Largest Divisible Subset 最大整除子集", url: "topics/leetcode/problem-0368.html" },
+            { title: "371. Sum of Two Integers 兩整數之和", url: "topics/leetcode/problem-0371.html" },
+            { title: "372. Super Pow 超級次方", url: "topics/leetcode/problem-0372.html" },
+            { title: "373. Find K Pairs with Smallest Sums 查找和最小的 K 對數字", url: "topics/leetcode/problem-0373.html" },
+            { title: "374. Guess Number Higher or Lower 猜數字大小", url: "topics/leetcode/problem-0374.html" },
+            { title: "375. Guess Number Higher or Lower II 猜數字大小 II", url: "topics/leetcode/problem-0375.html" }
+          ]
+        },
+        {
+          title: "第 376–400 題",
+          courses: [
+            { title: "376. Wiggle Subsequence 擺動序列", url: "topics/leetcode/problem-0376.html" },
+            { title: "377. Combination Sum IV 組合總和 Ⅳ", url: "topics/leetcode/problem-0377.html" },
+            { title: "378. Kth Smallest Element in a Sorted Matrix 有序矩陣中第 K 小的元素", url: "topics/leetcode/problem-0378.html" },
+            { title: "380. Insert Delete GetRandom O(1) O(1) 時間插入、刪除和獲取隨機元素", url: "topics/leetcode/problem-0380.html" },
+            { title: "381. Insert Delete GetRandom O(1) - Duplicates allowed O(1) 時間插入、刪除和獲取隨機元素 - 允許重複", url: "topics/leetcode/problem-0381.html" },
+            { title: "382. Linked List Random Node 鏈結串列隨機節點", url: "topics/leetcode/problem-0382.html" },
+            { title: "383. Ransom Note 贖金信", url: "topics/leetcode/problem-0383.html" },
+            { title: "384. Shuffle an Array 打亂陣列", url: "topics/leetcode/problem-0384.html" },
+            { title: "385. Mini Parser 迷你語法分析器", url: "topics/leetcode/problem-0385.html" },
+            { title: "386. Lexicographical Numbers 字典序排數", url: "topics/leetcode/problem-0386.html" },
+            { title: "387. First Unique Character in a String 字串中的第一個唯一字元", url: "topics/leetcode/problem-0387.html" },
+            { title: "388. Longest Absolute File Path 檔案的最長絕對路徑", url: "topics/leetcode/problem-0388.html" },
+            { title: "389. Find the Difference 找不同", url: "topics/leetcode/problem-0389.html" },
+            { title: "390. Elimination Game 消除遊戲", url: "topics/leetcode/problem-0390.html" },
+            { title: "391. Perfect Rectangle 完美矩形", url: "topics/leetcode/problem-0391.html" },
+            { title: "392. Is Subsequence 判斷子序列", url: "topics/leetcode/problem-0392.html" },
+            { title: "393. UTF-8 Validation UTF-8 編碼驗證", url: "topics/leetcode/problem-0393.html" },
+            { title: "394. Decode String 字串解碼", url: "topics/leetcode/problem-0394.html" },
+            { title: "395. Longest Substring with At Least K Repeating Characters 至少有 K 個重複字元的最長子字串", url: "topics/leetcode/problem-0395.html" },
+            { title: "396. Rotate Function 旋轉函數", url: "topics/leetcode/problem-0396.html" },
+            { title: "397. Integer Replacement 整數替換", url: "topics/leetcode/problem-0397.html" },
+            { title: "398. Random Pick Index 隨機數索引", url: "topics/leetcode/problem-0398.html" },
+            { title: "399. Evaluate Division 除法求值", url: "topics/leetcode/problem-0399.html" },
+            { title: "400. Nth Digit 第 N 位數字", url: "topics/leetcode/problem-0400.html" }
+          ]
         }
       ]
     },

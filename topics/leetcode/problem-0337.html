@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>337. House Robber III 打家劫舍 III ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="樹形 DP：每個節點回傳（搶, 不搶）兩個值。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="337">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 337 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 337</div>
+          <h1>House Robber III<br>打家劫舍 III</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">二元樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The thief has found himself a new place for his thievery again. There is only one entrance to this area, called <code>root</code>.</p>
+          <p>Besides the <code>root</code>, each house has one and only one parent house. After a tour, the smart thief realized that all houses in this place form a binary tree. It will automatically contact the police if <strong>two directly-linked houses were broken into on the same night</strong>.</p>
+          <p>Given the <code>root</code> of the binary tree, return <em>the maximum amount of money the thief can rob <strong>without alerting the police</strong></em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>小偷又找到新的地區。這個地區的房子排成一棵<strong>二元樹</strong>，入口是根節點 <code>root</code>。</p>
+          <p>如果<strong>直接相連</strong>的兩間房子（父子）在同一晚都被偷，就會觸發警報。</p>
+          <p>回傳在不觸發警報的前提下，最多能偷到多少錢。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [3,2,3,null,3,null,1]
+  輸出：7
+  說明：3 + 3 + 1 = 7
+
+範例 2
+  輸入：root = [3,4,5,1,3,null,1]
+  輸出：9
+  說明：4 + 5 = 9</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數在 <code>[1, 10⁴]</code> 之間</li>
+          <li>0 ≤ <code>Node.val</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/house-robber-iii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【第 198 題（一排房子）搬到樹上】
+    每個節點只有兩種選擇：搶、不搶。
+
+【樹形 DP：每個節點回傳兩個值】
+    rob  = 搶這個節點時，子樹的最大收益
+    skip = 不搶這個節點時，子樹的最大收益
+
+    rob  = node.val + 左.skip + 右.skip        （搶自己 -&gt; 孩子都不能搶）
+    skip = max(左.rob, 左.skip) + max(右.rob, 右.skip)   （孩子可搶可不搶）
+
+    後序遍歷：先算孩子，再算自己。
+    答案 = max(根.rob, 根.skip)
+
+【常見錯誤：「只搶奇數層或偶數層」】
+    [2, 1, 3, null, 4]：
+           2
+          /          1   3
+                     4
+    偶數層 2 + 4 = 6，奇數層 1 + 3 = 4
+    但最佳是 3 + 4 = 7（3 的父親是 2、4 的父親是 1，互不相連）✔
+    最佳解可以跨層混搭。
+
+【記憶化版本】
+    best(node) = max(搶 node + 四個孫子的 best, 兩個孩子的 best)
+    需要雜湊表存結果；回傳兩個值的版本更乾淨。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>記憶化（孩子 vs 孫子）</h3>
+        <div class="code-block">class Solution:
+    def rob(self, root: Optional[TreeNode]) -&gt; int:
+        memo = {}
+
+        def best(node) -&gt; int:                   # 以 node 為根的子樹，最多能搶多少
+            if node is None:
+                return 0
+            if node in memo:
+                return memo[node]
+            # 搶 node：跳過孩子，從孫子開始
+            take = node.val
+            for child in (node.left, node.right):
+                if child:
+                    take += best(child.left) + best(child.right)
+            # 不搶 node：兩個孩子各自最佳
+            skip = best(node.left) + best(node.right)
+            memo[node] = max(take, skip)
+            return memo[node]
+
+        return best(root)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>樹形 DP：回傳（搶, 不搶）</h3>
+        <div class="code-block">class Solution:
+    def rob(self, root: Optional[TreeNode]) -&gt; int:
+        def dfs(node) -&gt; Tuple[int, int]:
+            # 回傳 (搶這個節點的最大收益, 不搶這個節點的最大收益)
+            if node is None:
+                return 0, 0
+            l_rob, l_skip = dfs(node.left)
+            r_rob, r_skip = dfs(node.right)
+            rob = node.val + l_skip + r_skip             # ★ 搶自己 -&gt; 孩子都不能搶
+            skip = max(l_rob, l_skip) + max(r_rob, r_skip)   # 不搶自己 -&gt; 孩子隨意
+            return rob, skip
+
+        return max(dfs(root))</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>暴力遞迴</td><td>指數</td><td>O(h)</td></tr>
+            <tr><td>一、記憶化</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>二、回傳兩個值</td><td>O(n)</td><td>O(h) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有根</strong> → 根的值。</li>
+          <li><strong>一條鏈</strong> → 退化成第 198 題。</li>
+          <li><strong>值為 0</strong> → 搶不搶都一樣。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>打家劫舍系列</h3>
+
+        <div class="code-block">第 198 題：一排。第 213 題：環形（拆成兩排）。第 337 題：樹（每個節點回傳兩個狀態）。第 2560 題：二分答案 + 貪心。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 198 題 打家劫舍</strong></li>
+          <li><strong>第 213 題 打家劫舍 II</strong></li>
+          <li><strong>第 968 題 監控二元樹</strong> —— 每個節點回傳三個狀態</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>每個節點回傳的兩個值分別代表什麼？</li>
+            <li>搶自己時，為什麼只能加孩子的 skip？</li>
+            <li>為什麼「只搶某些整層」是錯的？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0336.html">← 上一題：336. 回文對</a>
+          <a href="problem-0338.html">下一題：338. 位元計數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

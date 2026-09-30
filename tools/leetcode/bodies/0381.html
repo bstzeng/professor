@@ -1,0 +1,126 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p><code>RandomizedCollection</code> is a data structure that contains a collection of numbers, possibly duplicates (i.e., a multiset). It should support inserting and removing specific elements and also reporting a random element.</p>
+        <ul>
+          <li><code>bool insert(int val)</code> Inserts an item <code>val</code> into the multiset, even if the item is already present. Returns <code>true</code> if the item is not present, <code>false</code> otherwise.</li>
+          <li><code>bool remove(int val)</code> Removes an item <code>val</code> from the multiset if present. Returns <code>true</code> if the item is present, <code>false</code> otherwise. Note that if <code>val</code> has multiple occurrences in the multiset, we only remove one of them.</li>
+          <li><code>int getRandom()</code> Returns a random element from the current multiset of elements. The probability of each element being returned is <strong>linearly related</strong> to the number of the same values the multiset contains.</li>
+        </ul>
+          <p>You must implement the functions of the class such that each function works on <strong>average</strong> <code>O(1)</code> time complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>和第 380 題相同，但允許<strong>重複</strong>的值（多重集合）：</p>
+        <ul>
+          <li><code>insert(val)</code>：一定加入；如果之前不存在回傳 true，否則回傳 false。</li>
+          <li><code>remove(val)</code>：存在的話刪除<strong>其中一個</strong>並回傳 true。</li>
+          <li><code>getRandom()</code>：隨機回傳一個元素，機率和它的<strong>出現次數成正比</strong>。</li>
+        </ul>
+          <p>每個操作平均 <code>O(1)</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  insert(1)   -&gt; true
+  insert(1)   -&gt; false
+  insert(2)   -&gt; true
+  getRandom() -&gt; 1 的機率 2/3，2 的機率 1/3
+  remove(1)   -&gt; true
+  getRandom() -&gt; 1 或 2，各 1/2</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>−2³¹ ≤ <code>val</code> ≤ 2³¹ − 1</li>
+          <li>最多呼叫 2 × 10⁵ 次</li>
+          <li>呼叫 <code>getRandom</code> 時至少有一個元素</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/insert-delete-getrandom-o1-duplicates-allowed/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【第 380 題的推廣】
+    pos 從「值 -&gt; 一個索引」變成「值 -&gt; 索引的集合」。
+
+【remove(val)】
+    1. 從 pos[val] 任取一個索引 i
+    2. 把最後一個元素 last 搬到 i
+    3. 更新 pos[last]：加入 i、移除原本的最後位置
+    4. pop 尾巴
+
+【陷阱：i 就是最後一個位置】
+    last == val 且 i == len - 1：
+        如果先 discard(len-1) 再 add(i)，會把 i 加回去 ✘
+        先 add(i) 再 discard(len-1)：兩個是同一個數，最後被移除 ✔
+
+【getRandom 自動符合機率要求】
+    陣列中重複的值就佔多個位置，
+    random.choice 均勻選索引 -&gt; 機率和出現次數成正比。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>陣列 + 值到索引集合的雜湊表</h3>
+        <div class="code-block">class RandomizedCollection:
+    def __init__(self):
+        self.vals = []
+        self.pos = collections.defaultdict(set)   # ★ 值 -&gt; 所有出現位置的集合
+
+    def insert(self, val: int) -&gt; bool:
+        self.pos[val].add(len(self.vals))
+        self.vals.append(val)
+        return len(self.pos[val]) == 1            # 之前沒有才回傳 true
+
+    def remove(self, val: int) -&gt; bool:
+        if not self.pos[val]:
+            return False
+        i = self.pos[val].pop()                   # 任選 val 的一個位置
+        last = self.vals[-1]
+        self.vals[i] = last                       # 最後一個搬過來
+        self.pos[last].add(i)
+        self.pos[last].discard(len(self.vals) - 1)   # ★ 先 add 再 discard：i 可能就是最後一個
+        self.vals.pop()
+        return True
+
+    def getRandom(self) -&gt; int:
+        return random.choice(self.vals)           # 重複的值自然有較高機率</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>每個操作平均 O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>刪除的剛好是最後一個位置</strong> → add 與 discard 的順序很重要。</li>
+          <li><strong>刪光某個值</strong> → pos[val] 變成空集合，之後 insert 要回傳 true。</li>
+          <li><strong>重複值的機率</strong> → 陣列中佔幾格就有幾倍機率。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>為什麼用集合而不是串列存索引？</h3>
+
+        <div class="code-block">remove 時要從 pos[last] 刪掉「原本的最後位置」這個特定索引——串列刪特定值是 O(k)，集合是 O(1)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 380 題 O(1) 時間插入、刪除和獲取隨機元素</strong></li>
+          <li><strong>第 398 題 隨機數索引</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>pos 的結構和第 380 題有什麼不同？</li>
+            <li>刪除時 add 和 discard 的順序為什麼重要？</li>
+            <li>getRandom 為什麼自然符合「機率和出現次數成正比」？</li>
+          </ol>
+        </div>

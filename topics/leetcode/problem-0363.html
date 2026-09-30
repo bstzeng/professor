@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>363. Max Sum of Rectangle No Larger Than K 矩形區域不超過 K 的最大數值和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="枚舉上下邊壓成一維，再用有序前綴和二分找不超過 k 的最大子陣列和。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="363">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 363 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 363</div>
+          <h1>Max Sum of Rectangle No Larger Than K<br>矩形區域不超過 K 的最大數值和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">二分搜尋</span>
+          <span class="lc-badge">矩陣</span>
+          <span class="lc-badge">有序集合</span>
+          <span class="lc-badge">前綴和</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <code>m x n</code> matrix <code>matrix</code> and an integer <code>k</code>, return <em>the max sum of a rectangle in the matrix such that its sum is no larger than</em> <code>k</code>.</p>
+          <p>It is <strong>guaranteed</strong> that there will be a rectangle with a sum no larger than <code>k</code>.</p>
+          <p><strong>Follow up:</strong> What if the number of rows is much larger than the number of columns?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m x n</code> 的矩陣和整數 <code>k</code>，找出矩陣中總和<strong>不超過 <code>k</code></strong> 的矩形，回傳這種矩形的最大總和。</p>
+          <p>保證至少存在一個總和不超過 <code>k</code> 的矩形。</p>
+          <p><strong>進階：</strong>如果列數遠大於行數呢？</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：matrix = [[1,0,1],[0,-2,3]], k = 2
+  輸出：2
+  說明：矩形 [[0,1],[-2,3]] 的和是 2，是不超過 2 的最大值。
+
+範例 2
+  輸入：matrix = [[2,2,-1]], k = 3
+  輸出：3</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>m, n</code> ≤ 100</li>
+          <li>−100 ≤ <code>matrix[i][j]</code> ≤ 100</li>
+          <li>−10⁵ ≤ <code>k</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/max-sum-of-rectangle-no-larger-than-k/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【把二維壓成一維】
+    枚舉矩形的上邊 top 和下邊 bottom（O(m²) 種），
+    把這幾列「壓扁」：col[j] = matrix[top..bottom][j] 的和。
+    問題變成：一維陣列 col 中，和 &lt;= k 的最大子陣列和。
+
+【一維子問題：前綴和 + 有序集合】
+    子陣列和 = P[j] - P[i]（i &lt; j）
+    要 P[j] - P[i] &lt;= k 而且盡量大
+    &lt;=&gt; P[i] &gt;= P[j] - k，而且 P[i] 盡量小
+    -&gt; 在已出現的前綴和中，二分找「第一個 &gt;= P[j] - k」的。
+
+    Kadane（第 53 題）在這裡不能用 ——
+    它求的是「最大」，沒有「不超過 k」的限制。
+
+【進階：列數遠大於行數】
+    讓「枚舉的那一維」是比較小的那個。
+    m 小、n 大：枚舉上下邊 O(m²)，一維處理 O(n log n)
+    總共 O(m² · n log n)。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二維前綴和 + 枚舉所有矩形</h3>
+        <div class="code-block">class Solution:
+    def maxSumSubmatrix(self, matrix: List[List[int]], k: int) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+        P = [[0] * (n + 1) for _ in range(m + 1)]   # 二維前綴和（第 304 題）
+        for i in range(m):
+            for j in range(n):
+                P[i + 1][j + 1] = P[i][j + 1] + P[i + 1][j] - P[i][j] + matrix[i][j]
+        best = -float("inf")
+        for r1 in range(m):
+            for r2 in range(r1, m):
+                for c1 in range(n):
+                    for c2 in range(c1, n):
+                        s = P[r2 + 1][c2 + 1] - P[r1][c2 + 1] - P[r2 + 1][c1] + P[r1][c1]
+                        if s &lt;= k:
+                            best = max(best, s)
+        return best</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m² n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>壓縮成一維 + 有序前綴和</h3>
+        <div class="code-block">class Solution:
+    def maxSumSubmatrix(self, matrix: List[List[int]], k: int) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+        if m &gt; n:                                   # 讓 m 是較小的維度（枚舉的那一維）
+            matrix = [list(r) for r in zip(*matrix)]
+            m, n = n, m
+        best = -float("inf")
+        for top in range(m):
+            col = [0] * n                           # 第 top..bottom 列、每一欄的總和
+            for bottom in range(top, m):
+                for j in range(n):
+                    col[j] += matrix[bottom][j]
+                # ★ 一維問題：col 中和 &lt;= k 的最大子陣列和
+                seen = [0]                          # 已出現的前綴和（排序）
+                prefix = 0
+                for x in col:
+                    prefix += x
+                    # 要找最小的 P[i] &gt;= prefix - k，使 prefix - P[i] &lt;= k 且盡量大
+                    i = bisect.bisect_left(seen, prefix - k)
+                    if i &lt; len(seen):
+                        best = max(best, prefix - seen[i])
+                        if best == k:
+                            return k                # 不可能更好了
+                    bisect.insort(seen, prefix)
+        return best</div>
+        <p>Python 的 <code>insort</code> 插入是 O(n)，嚴格來說一維部分是 O(n²)；用平衡樹（或 <code>sortedcontainers</code>）才是 O(n log n)。n ≤ 100 時影響不大。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(min² · max · log max)</td><td></td></tr>
+            <tr><td>空間</td><td>O(max)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、枚舉所有矩形</td><td>O(m²n²)</td><td>O(mn)</td></tr>
+            <tr><td>二、壓縮 + 有序集合</td><td>O(m²·n log n)</td><td>O(n) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>剛好等於 k</strong> → 可以提早結束。</li>
+          <li><strong>全部是負數</strong> → 答案可能是某個單一格子。</li>
+          <li><strong>只有一列</strong> → 直接做一維。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>組合了哪些題</h3>
+
+        <div class="code-block">二維壓一維：第 85 題（最大矩形）、第 1074 題（元素和為目標值的子矩陣數量）。一維「不超過 k 的最大子陣列和」：前綴和 + 有序集合，和第 220 題、第 327 題同一套工具。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 53 題 最大子陣列和</strong></li>
+          <li><strong>第 304 題 二維區域和檢索</strong></li>
+          <li><strong>第 1074 題 元素和為目標值的子矩陣數量</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>怎麼把二維問題轉成一維？</li>
+            <li>一維時，為什麼要找「第一個 ≥ P[j] − k 的前綴和」？</li>
+            <li>為什麼 Kadane 演算法不適用？</li>
+            <li>列數遠大於行數時，應該枚舉哪一個維度？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0357.html">← 上一題：357. 統計各位數字都不同的數字個數</a>
+          <a href="problem-0365.html">下一題：365. 水壺問題 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
