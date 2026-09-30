@@ -10452,7 +10452,13 @@ window.SITE_DATA = {
             { title: "482. License Key Formatting 金鑰格式化", url: "topics/leetcode/problem-0482.html" },
             { title: "483. Smallest Good Base 最小好進位", url: "topics/leetcode/problem-0483.html" },
             { title: "485. Max Consecutive Ones 最大連續 1 的個數", url: "topics/leetcode/problem-0485.html" },
-            { title: "486. Predict the Winner 預測贏家", url: "topics/leetcode/problem-0486.html" }
+            { title: "486. Predict the Winner 預測贏家", url: "topics/leetcode/problem-0486.html" },
+            { title: "488. Zuma Game 祖瑪遊戲", url: "topics/leetcode/problem-0488.html" },
+            { title: "491. Non-decreasing Subsequences 非遞減子序列", url: "topics/leetcode/problem-0491.html" },
+            { title: "492. Construct the Rectangle 構造矩形", url: "topics/leetcode/problem-0492.html" },
+            { title: "493. Reverse Pairs 翻轉對", url: "topics/leetcode/problem-0493.html" },
+            { title: "494. Target Sum 目標和", url: "topics/leetcode/problem-0494.html" },
+            { title: "495. Teemo Attacking 提莫攻擊", url: "topics/leetcode/problem-0495.html" }
           ]
         }
       ]

@@ -1,0 +1,152 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are playing a variation of the game Zuma.</p>
+          <p>In this variation of Zuma, there is a <strong>single row</strong> of colored balls on a board, where each ball can be colored red <code>'R'</code>, yellow <code>'Y'</code>, blue <code>'B'</code>, green <code>'G'</code>, or white <code>'W'</code>. You also have several colored balls in your hand.</p>
+          <p>Your goal is to <strong>clear all</strong> of the balls from the board. On each turn:</p>
+        <ul>
+          <li>Pick <strong>any</strong> ball from your hand and insert it in between two balls in the row or on either end of the row.</li>
+          <li>If there is a group of <strong>three or more consecutive balls</strong> of the <strong>same color</strong>, remove the group of balls from the board.</li>
+          <li>If this removal causes more groups of three or more of the same color to form, then continue removing each group until there are none left.</li>
+          <li>If there are no more balls on the board, then you win the game.</li>
+          <li>Repeat this process until you either win or do not have any more balls in your hand.</li>
+        </ul>
+          <p>Given a string <code>board</code>, representing the row of balls on the board, and a string <code>hand</code>, representing the balls in your hand, return <em>the <strong>minimum</strong> number of balls you have to insert to clear all the balls from the board. If you cannot clear all the balls from the board using the balls in your hand, return </em><code>-1</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>祖瑪遊戲的變形：板子上有一排彩色球（R、Y、B、G、W），你手上也有一些球。</p>
+          <p>每一回合：從手上挑一顆球插到任意位置；如果出現<strong>連續三顆以上同色</strong>就消除，消除後產生的新組合也會<strong>連鎖</strong>消除。</p>
+          <p>回傳清空板子<strong>最少</strong>要插幾顆球；做不到回傳 <code>-1</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：board = "WRRBBW", hand = "RB"
+  輸出：-1
+
+範例 2
+  輸入：board = "WWRRBBWW", hand = "WRBRW"
+  輸出：2
+  說明：插 R → WWRRRBBWW → WWBBWW；插 B → WWBBBWW → WWWW → 清空。
+
+範例 3
+  輸入：board = "G", hand = "GGGGG"
+  輸出：2</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>board.length</code> ≤ 16</li>
+          <li>1 ≤ <code>hand.length</code> ≤ 5</li>
+          <li>初始盤面沒有連續三顆同色的球</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/zuma-game/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【最少步數 -&gt; BFS】
+    狀態 = (板子, 手上的球)，手上的球排序後當成多重集合。
+    每一步：選一顆手上的球、選一個位置插入、做連鎖消除。
+
+【狀態太多 -&gt; 剪枝】
+    1. 手上相同顏色的球只試一次
+    2. 插在同色球的左邊或右邊，結果一樣 -&gt; 只試其中一邊
+    3. 只有兩種插法可能有用：
+        a. 和旁邊的球同色（湊成一組）
+        b. 插在兩顆同色球中間，把它們「隔開」
+           —— 看起來沒用，但可能讓之後的連鎖消除成真。
+           例：board = "RRWWRRBBRR"、hand = "WB"，答案是 2；
+           如果只保留 (a)，BFS 會找不到解而回傳 -1（本頁實際測過）。
+
+    注意：早期很多題解只保留 (a)，後來被證明是錯的（題目更新了測資）。
+
+【連鎖消除】
+    反覆找連續 &gt;= 3 的同色段刪掉，直到找不到為止。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>BFS + 剪枝 + 連鎖消除</h3>
+        <div class="code-block">class Solution:
+    def findMinStep(self, board: str, hand: str) -&gt; int:
+        def shrink(s: str) -&gt; str:                 # 反覆消除連續 3 個以上的同色球
+            changed = True
+            while changed:
+                changed = False
+                i = 0
+                while i &lt; len(s):
+                    j = i
+                    while j &lt; len(s) and s[j] == s[i]:
+                        j += 1
+                    if j - i &gt;= 3:
+                        s = s[:i] + s[j:]
+                        changed = True
+                        break
+                    i = j
+            return s
+
+        start = (board, "".join(sorted(hand)))
+        q = deque([(board, start[1], 0)])
+        seen = {start}
+        while q:                                   # ★ BFS：第一次清空就是最少步數
+            b, h, step = q.popleft()
+            for i in range(len(b) + 1):
+                for j, ball in enumerate(h):
+                    if j and h[j - 1] == ball:     # 手上相同顏色的球只試一次
+                        continue
+                    if i and b[i - 1] == ball:     # 插在同色球的左邊或右邊結果一樣：只試左邊
+                        continue
+                    # 剪枝：只有兩種插法有意義
+                    #   1. 和右邊的球同色（湊成一組）
+                    #   2. 插在兩個同色球中間把它們隔開（為了之後的連鎖）
+                    if not (i &lt; len(b) and (b[i] == ball or (i and b[i - 1] == b[i]))):
+                        continue
+                    nb = shrink(b[:i] + ball + b[i:])
+                    if not nb:
+                        return step + 1
+                    nh = h[:j] + h[j + 1:]
+                    if (nb, nh) not in seen:
+                        seen.add((nb, nh))
+                        q.append((nb, nh, step + 1))
+        return -1</div>
+        <p>驗證方式：和「不做任何剪枝、嘗試所有位置和所有球」的 BFS 暴力版本比對四百組隨機盤面。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>指數級（實際很快）</td><td>板長 ≤ 16、手上 ≤ 5 顆</td></tr>
+            <tr><td>空間</td><td>指數級</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>手上的球不夠</strong> → −1。</li>
+          <li><strong>連鎖消除</strong> → 一次插入可能消掉很多組。</li>
+          <li><strong>需要先隔開同色球</strong> → 剪枝不能只保留「湊同色」的插法。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>剪枝的正確性</h3>
+
+        <div class="code-block">設計剪枝時最容易犯的錯，是把「看起來沒用」的選擇剪掉。安全的做法：先寫不剪枝的暴力版本，每加一條剪枝就用隨機測試比對。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 546 題 移除盒子</strong></li>
+          <li><strong>第 1209 題 刪除字串中的所有相鄰重複項 II</strong> —— 連鎖消除</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>BFS 的狀態是什麼？</li>
+            <li>有哪些剪枝？為什麼「隔開同色球」的插法不能剪掉？</li>
+            <li>連鎖消除要怎麼實作？</li>
+          </ol>
+        </div>

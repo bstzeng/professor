@@ -1,0 +1,153 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, return <em>the number of <strong>reverse pairs</strong> in the array</em>.</p>
+          <p>A <strong>reverse pair</strong> is a pair <code>(i, j)</code> where:</p>
+        <ul>
+          <li><code>0 &lt;= i &lt; j &lt; nums.length</code> and</li>
+          <li><code>nums[i] &gt; 2 * nums[j]</code>.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code>，回傳<strong>翻轉對</strong>的數量：<code>i &lt; j</code> 而且 <code>nums[i] &gt; 2 × nums[j]</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,3,2,3,1]
+  輸出：2
+  說明：(1, 4)：3 &gt; 2 × 1；(3, 4)：3 &gt; 2 × 1
+
+範例 2
+  輸入：nums = [2,4,3,5,1]
+  輸出：3</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 5 × 10⁴</li>
+          <li>−2³¹ ≤ <code>nums[i]</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/reverse-pairs/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【逆序數（第 315 題）的變形】
+    條件從 nums[i] &gt; nums[j] 變成 nums[i] &gt; 2 × nums[j]。
+
+【合併排序】
+    合併左右兩半之前，兩半各自已排序：
+    對左邊每個 nums[i]，右邊滿足 nums[i] &gt; 2 × nums[j] 的是一段前綴，
+    而且 nums[i] 越大，這段前綴越長 -&gt; 雙指標 O(n)。
+
+    注意：計數和合併要分開做 ——
+    合併的比較條件是 &lt;=，計數的條件是 &gt; 2×，兩者不同。
+
+【樹狀陣列】
+    從左往右，查詢「前面有幾個數 &gt; 2x」，
+    座標壓縮後用樹狀陣列。
+
+【溢位（其他語言）】
+    2 × nums[j] 可能超過 int 範圍，要用 long。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>合併排序 + 雙指標計數</h3>
+        <div class="code-block">class Solution:
+    def reversePairs(self, nums: List[int]) -&gt; int:
+        def sort(lo: int, hi: int) -&gt; int:          # 排序 nums[lo:hi]，回傳其中的翻轉對數
+            if hi - lo &lt;= 1:
+                return 0
+            mid = (lo + hi) // 2
+            count = sort(lo, mid) + sort(mid, hi)
+            # ★ 左右各自已排序：雙指標數「左邊 &gt; 2 × 右邊」的對數
+            j = mid
+            for i in range(lo, mid):
+                while j &lt; hi and nums[i] &gt; 2 * nums[j]:
+                    j += 1
+                count += j - mid
+            nums[lo:hi] = sorted(nums[lo:hi])       # 合併（用 sorted 簡化）
+            return count
+
+        return sort(0, len(nums))</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>座標壓縮 + 樹狀陣列</h3>
+        <div class="code-block">class Solution:
+    def reversePairs(self, nums: List[int]) -&gt; int:
+        vals = sorted(set(nums))                    # 座標壓縮
+        m = len(vals)
+        tree = [0] * (m + 1)
+        count = 0
+        for i, x in enumerate(nums):
+            # 前面有幾個數 &gt; 2x：總數 - (&lt;= 2x 的個數)
+            r = bisect.bisect_right(vals, 2 * x)    # 名次 1..r 的值 &lt;= 2x
+            s, k = 0, r
+            while k:
+                s += tree[k]
+                k -= k &amp; -k
+            count += i - s
+            k = bisect.bisect_left(vals, x) + 1
+            while k &lt;= m:
+                tree[k] += 1
+                k += k &amp; -k
+        return count</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>暴力</td><td>O(n²)</td><td>超時</td></tr>
+            <tr><td>一、合併排序</td><td>O(n log n)</td><td>✔</td></tr>
+            <tr><td>二、樹狀陣列</td><td>O(n log n)</td><td>邊掃邊查</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>負數</strong> → −3 &gt; 2 × (−2) = −4，成立；比較時不要用除法。</li>
+          <li><strong>2 × nums[j] 溢位</strong> → Python 沒問題，其他語言用 long。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>逆序數家族</h3>
+
+        <div class="code-block">第 315 題（每個元素右邊比它小的）、第 327 題（區間和的個數）、第 493 題（本題）——合併排序和樹狀陣列兩種工具都通用。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 315 題 計算右側小於當前元素的個數</strong></li>
+          <li><strong>第 327 題 區間和的個數</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>合併排序時，為什麼計數和合併要分開做？</li>
+            <li>左邊的數越大，右邊合格的範圍怎麼變化？</li>
+          </ol>
+        </div>
