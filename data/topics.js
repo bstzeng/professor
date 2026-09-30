@@ -10400,7 +10400,13 @@ window.SITE_DATA = {
             { title: "435. Non-overlapping Intervals 無重疊區間", url: "topics/leetcode/problem-0435.html" },
             { title: "436. Find Right Interval 尋找右區間", url: "topics/leetcode/problem-0436.html" },
             { title: "437. Path Sum III 路徑總和 III", url: "topics/leetcode/problem-0437.html" },
-            { title: "438. Find All Anagrams in a String 找到字串中所有字母異位詞", url: "topics/leetcode/problem-0438.html" }
+            { title: "438. Find All Anagrams in a String 找到字串中所有字母異位詞", url: "topics/leetcode/problem-0438.html" },
+            { title: "440. K-th Smallest in Lexicographical Order 字典序的第 K 小數字", url: "topics/leetcode/problem-0440.html" },
+            { title: "441. Arranging Coins 排列硬幣", url: "topics/leetcode/problem-0441.html" },
+            { title: "442. Find All Duplicates in an Array 陣列中重複的資料", url: "topics/leetcode/problem-0442.html" },
+            { title: "443. String Compression 壓縮字串", url: "topics/leetcode/problem-0443.html" },
+            { title: "445. Add Two Numbers II 兩數相加 II", url: "topics/leetcode/problem-0445.html" },
+            { title: "446. Arithmetic Slices II - Subsequence 等差數列劃分 II - 子序列", url: "topics/leetcode/problem-0446.html" }
           ]
         }
       ]
