@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>410. Split Array Largest Sum 分割陣列的最大值 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="對答案二分：給定上限時貪心數出最少段數，段數 ≤ k 就可行。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="410">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 410 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 410</div>
+          <h1>Split Array Largest Sum<br>分割陣列的最大值</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">二分搜尋</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">前綴和</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> and an integer <code>k</code>, split <code>nums</code> into <code>k</code> non-empty subarrays such that the largest sum of any subarray is <strong>minimized</strong>.</p>
+          <p>Return <em>the minimized largest sum of the split</em>.</p>
+          <p>A <strong>subarray</strong> is a contiguous part of the array.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個非負整數陣列 <code>nums</code> 和整數 <code>k</code>，把 <code>nums</code> 切成 <code>k</code> 個<strong>連續</strong>、非空的子陣列，使「各段和的最大值」<strong>最小</strong>。</p>
+          <p>回傳這個最小的最大段和。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [7,2,5,10,8], k = 2
+  輸出：18
+  說明：[7,2,5] 和 [10,8]，最大段和 18。
+
+範例 2
+  輸入：nums = [1,2,3,4,5], k = 2
+  輸出：9
+  說明：[1,2,3] 和 [4,5]。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 1000</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 10⁶</li>
+          <li>1 ≤ <code>k</code> ≤ min(50, <code>nums.length</code>)</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/split-array-largest-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【「最大值最小化」-&gt; 想到對答案二分】
+    與其直接求答案，不如問：
+    「如果每段和不能超過 limit，最少要切幾段？」
+
+    這個問題用貪心很好回答：
+    從左往右裝，裝不下就開新的一段。
+
+【單調性】
+    limit 越大 -&gt; 每段能裝越多 -&gt; 需要的段數越少。
+    找最小的 limit 使得「需要的段數 &lt;= k」。
+
+【二分範圍】
+    下界：max(nums)（最大的那個數自己就是一段）
+    上界：sum(nums)（整個陣列一段）
+
+【為什麼「段數 &lt;= k」就夠，不用剛好 k？】
+    段數比 k 少的話，可以把某段再切開（非空即可），
+    最大段和不會變大。
+
+【DP 做法】
+    dp[j][i] = 前 i 個數切成 j 段的最小最大段和
+    O(k · n²)，概念直接但比較慢。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>動態規劃</h3>
+        <div class="code-block">class Solution:
+    def splitArray(self, nums: List[int], k: int) -&gt; int:
+        n = len(nums)
+        P = [0]
+        for x in nums:
+            P.append(P[-1] + x)
+        INF = float("inf")
+        # dp[j][i]：前 i 個數切成 j 段時，最大段和的最小值
+        dp = [[INF] * (n + 1) for _ in range(k + 1)]
+        dp[0][0] = 0
+        for j in range(1, k + 1):
+            for i in range(1, n + 1):
+                for t in range(j - 1, i):        # 最後一段是 nums[t:i]
+                    dp[j][i] = min(dp[j][i], max(dp[j - 1][t], P[i] - P[t]))
+        return dp[k][n]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k · n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(k · n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>對答案二分 + 貪心檢查</h3>
+        <div class="code-block">class Solution:
+    def splitArray(self, nums: List[int], k: int) -&gt; int:
+        def pieces(limit: int) -&gt; int:           # 每段和 &lt;= limit 時，最少要切幾段
+            count, cur = 1, 0
+            for x in nums:
+                if cur + x &gt; limit:              # 放不下：開新的一段
+                    count += 1
+                    cur = 0
+                cur += x
+            return count
+
+        # ★ 對「答案」二分：答案越大，需要的段數越少（單調）
+        lo, hi = max(nums), sum(nums)
+        while lo &lt; hi:
+            mid = (lo + hi) // 2
+            if pieces(mid) &lt;= k:
+                hi = mid                         # mid 可行，試更小的
+            else:
+                lo = mid + 1
+        return lo</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log(sum))</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、DP</td><td>O(k·n²)</td><td>O(k·n)</td></tr>
+            <tr><td>二、二分答案</td><td>O(n log S)</td><td>O(1) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>k = n</strong> → 每個數一段，答案是 max(nums)。</li>
+          <li><strong>k = 1</strong> → 答案是 sum(nums)。</li>
+          <li><strong>有 0</strong> → 不影響。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>「二分答案」模板</h3>
+
+        <div class="code-block">第 875 題（愛吃香蕉的珂珂）、第 1011 題（在 D 天內送達包裹的能力）、第 1482 題（製作 m 束花所需的最少天數）——都是「給定答案能否達成」可以貪心檢查，而且有單調性。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1011 題 在 D 天內送達包裹的能力</strong> —— 幾乎相同</li>
+          <li><strong>第 875 題 愛吃香蕉的珂珂</strong></li>
+          <li><strong>第 1231 題 分享巧克力</strong>（付費）—— 最小值最大化</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>給定 limit，怎麼算出最少要切幾段？</li>
+            <li>為什麼可以對答案二分？單調性在哪裡？</li>
+            <li>二分的上下界是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0409.html">← 上一題：409. 最長回文串</a>
+          <a href="problem-0412.html">下一題：412. Fizz Buzz →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

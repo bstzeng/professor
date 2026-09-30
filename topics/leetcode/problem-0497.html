@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>497. Random Point in Non-overlapping Rectangles 非重疊矩形中的隨機點 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="以整數點數（不是面積）加權：前綴和 + 二分，再把編號轉成座標。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="497">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 497 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 497</div>
+          <h1>Random Point in Non-overlapping Rectangles<br>非重疊矩形中的隨機點</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">水塘抽樣</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">二分搜尋</span>
+          <span class="lc-badge">有序集合</span>
+          <span class="lc-badge">前綴和</span>
+          <span class="lc-badge">隨機化</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array of non-overlapping axis-aligned rectangles <code>rects</code> where <code>rects[i] = [a<sub>i</sub>, b<sub>i</sub>, x<sub>i</sub>, y<sub>i</sub>]</code> indicates that <code>(a<sub>i</sub>, b<sub>i</sub>)</code> is the bottom-left corner point of the <code>i<sup>th</sup></code> rectangle and <code>(x<sub>i</sub>, y<sub>i</sub>)</code> is the top-right corner point of the <code>i<sup>th</sup></code> rectangle. Design an algorithm to pick a random integer point inside the space covered by one of the given rectangles. A point on the perimeter of a rectangle is included in the space covered by the rectangle.</p>
+          <p>Any integer point inside the space covered by one of the given rectangles should be equally likely to be returned.</p>
+          <p><strong>Note</strong> that an integer point is a point that has integer coordinates.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一組<strong>互不重疊</strong>、邊與座標軸平行的矩形，<code>[a, b, x, y]</code> 代表左下角 <code>(a, b)</code>、右上角 <code>(x, y)</code>。</p>
+          <p>設計 <code>pick()</code>：在所有矩形覆蓋的範圍內（含邊界），<strong>均勻</strong>地隨機選一個<strong>整數座標點</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  Solution([[-2, -2, 1, 1], [2, 2, 4, 6]])
+  pick() -&gt; 例如 [1, -2]
+  pick() -&gt; 例如 [3, 4]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>rects.length</code> ≤ 100</li>
+          <li>−10⁹ ≤ <code>a<sub>i</sub> &lt; x<sub>i</sub></code> ≤ 10⁹</li>
+          <li><code>x<sub>i</sub> − a<sub>i</sub></code> ≤ 2000，<code>y<sub>i</sub> − b<sub>i</sub></code> ≤ 2000</li>
+          <li>最多呼叫 10⁴ 次 <code>pick</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/random-point-in-non-overlapping-rectangles/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【每個整數點機率相同 -&gt; 矩形被選中的機率 ∝ 它的點數】
+    矩形 [a, b, x, y] 的整數點數 = (x - a + 1) × (y - b + 1)
+    注意是「點數」，不是面積 (x-a)(y-b)！
+    1×1 的矩形有 4 個整數點，面積卻是 1。
+
+【依點數加權隨機選矩形（第 528 題）】
+    點數的前綴和，隨機一個 k ∈ [0, 總點數)，
+    二分找到它落在哪個矩形。
+
+【在矩形內定位】
+    k 減掉前面矩形的點數後，就是這個矩形內的編號，
+    編號 k -&gt; 座標 (a + k % 寬, b + k // 寬)。
+    一次隨機數同時決定了「哪個矩形」和「哪個點」。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>點數前綴和 + 二分 + 編號轉座標</h3>
+        <div class="code-block">class Solution:
+    def __init__(self, rects: List[List[int]]):
+        self.rects = rects
+        self.prefix = []                      # 每個矩形「整數點數」的前綴和
+        total = 0
+        for a, b, x, y in rects:
+            total += (x - a + 1) * (y - b + 1)   # ★ 算的是格點數，不是面積
+            self.prefix.append(total)
+
+    def pick(self) -&gt; List[int]:
+        k = random.randrange(self.prefix[-1])    # 在所有格點中均勻選第 k 個
+        i = bisect.bisect_right(self.prefix, k)  # 落在第 i 個矩形
+        a, b, x, y = self.rects[i]
+        k -= self.prefix[i - 1] if i else 0      # 在這個矩形內的編號
+        w = x - a + 1
+        return [a + k % w, b + k // w]</div>
+        <p>驗證方式：六萬次抽樣，每個整數點都被選到，而且次數都在期望值 ±25% 以內。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>建構 O(n)，pick O(log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>退化成一條線或一個點的矩形</strong> → 點數仍然 ≥ 1。</li>
+          <li><strong>用面積當權重</strong> → 錯誤：邊界上的點會被低估。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>加權隨機選擇</h3>
+
+        <div class="code-block">「依權重選」= 權重前綴和 + 均勻隨機 + 二分。第 528 題是最純粹的版本。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 528 題 按權重隨機選擇</strong></li>
+          <li><strong>第 478 題 在圓內隨機生成點</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要用整數點數而不是面積當權重？</li>
+            <li>一個隨機數怎麼同時決定矩形和點？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0496.html">← 上一題：496. 下一個更大元素 I</a>
+          <a href="problem-0498.html">下一題：498. 對角線遍歷 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

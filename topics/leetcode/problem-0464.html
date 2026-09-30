@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>464. Can I Win 我能贏嗎 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="位元遮罩記錄用過的數，記憶化判斷必勝態。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="464">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 464 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 464</div>
+          <h1>Can I Win<br>我能贏嗎</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">位元運算</span>
+          <span class="lc-badge">記憶化搜尋</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">位元遮罩</span>
+          <span class="lc-badge">博弈</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>In the "100 game" two players take turns adding, to a running total, any integer from <code>1</code> to <code>10</code>. The player who first causes the running total to <strong>reach or exceed</strong> 100 wins.</p>
+          <p>What if we change the game so that players <strong>cannot</strong> re-use integers?</p>
+          <p>For example, two players might take turns drawing from a common pool of numbers from 1 to 15 without replacement until they reach a total &gt;= 100.</p>
+          <p>Given two integers <code>maxChoosableInteger</code> and <code>desiredTotal</code>, return <code>true</code> if the first player to move can force a win, otherwise, return <code>false</code>. Assume both players play <strong>optimally</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>兩個玩家輪流從 <code>1</code> 到 <code>maxChoosableInteger</code> 中挑一個數加到累計總和上，<strong>每個數只能用一次</strong>。先讓總和<strong>達到或超過</strong> <code>desiredTotal</code> 的人獲勝。</p>
+          <p>假設雙方都採取最佳策略，判斷先手能不能必勝。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：maxChoosableInteger = 10, desiredTotal = 11
+  輸出：false
+  說明：不管先手選什麼 x，後手選 11 − x 就達標。
+
+範例 2
+  輸入：maxChoosableInteger = 10, desiredTotal = 0
+  輸出：true
+
+範例 3
+  輸入：maxChoosableInteger = 10, desiredTotal = 1
+  輸出：true</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>maxChoosableInteger</code> ≤ 20</li>
+          <li>0 ≤ <code>desiredTotal</code> ≤ 300</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/can-i-win/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【博弈 DP：必勝態 / 必敗態】
+    狀態 = 已經用過哪些數（位元遮罩）。
+    （剩下多少目標可以由 used 算出，放進參數只是方便。）
+
+    目前的玩家必勝 &lt;=&gt; 存在某個還沒用的 x：
+        x &gt;= 剩餘目標（直接贏），或
+        選了 x 之後，對手處於必敗態
+
+【狀態數】
+    2²⁰ ≈ 10⁶ 種 used，每個狀態試 20 個數 -&gt; 2×10⁷ 次，記憶化後可以接受。
+
+【特判】
+    desiredTotal &lt;= 0 -&gt; 先手直接贏
+    1 + 2 + ... + n &lt; desiredTotal -&gt; 沒有人能贏，先手不會贏 -&gt; false
+    （沒有這個特判，遞迴會把所有數用完都達不到，回傳 false 也對，
+      但要走完整個狀態空間，很慢。）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>位元遮罩 + 記憶化搜尋</h3>
+        <div class="code-block">class Solution:
+    def canIWin(self, maxChoosableInteger: int, desiredTotal: int) -&gt; bool:
+        n = maxChoosableInteger
+        if desiredTotal &lt;= 0:
+            return True
+        if n * (n + 1) // 2 &lt; desiredTotal:      # 全部加起來都不夠：沒有人能贏
+            return False
+
+        @functools.lru_cache(None)
+        def win(used: int, remain: int) -&gt; bool:
+            # used：已經用過的數（位元遮罩）；remain：還差多少。輪到「目前的玩家」
+            for x in range(1, n + 1):
+                if used &gt;&gt; x &amp; 1:
+                    continue
+                # ★ 選 x 直接達標，或選 x 之後對手必輸 -&gt; 我必勝
+                if x &gt;= remain or not win(used | 1 &lt;&lt; x, remain - x):
+                    return True
+            return False
+
+        return win(0, desiredTotal)</div>
+        <p>驗證方式：和「用集合表示剩餘數字、不記憶化」的直接遞迴，對 n ≤ 7、目標 0–29 全部比對。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ · n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(2ⁿ)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>desiredTotal = 0</strong> → true。</li>
+          <li><strong>總和不夠</strong> → false。</li>
+          <li><strong>最大數 ≥ 目標</strong> → 先手直接選它就贏。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>位元遮罩 DP</h3>
+
+        <div class="code-block">「從 n ≤ 20 個東西中挑子集」的狀態都可以用一個整數表示。第 698 題（劃分為 k 個相等的子集）、第 847 題（訪問所有節點的最短路徑）、第 1349 題（考試的最大學生數）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 292 題 Nim 遊戲</strong></li>
+          <li><strong>第 486 題 預測贏家</strong></li>
+          <li><strong>第 375 題 猜數字大小 II</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>狀態是什麼？為什麼用位元遮罩？</li>
+            <li>什麼時候目前的玩家必勝？</li>
+            <li>為什麼要先檢查總和夠不夠？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0463.html">← 上一題：463. 島嶼的周長</a>
+          <a href="problem-0466.html">下一題：466. 統計重複個數 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

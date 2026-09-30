@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>430. Flatten a Multilevel Doubly Linked List 扁平化多級雙向鏈結串列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="遇到 child 就把後半段推進堆疊，走到盡頭再接回來。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="430">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 430 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 430</div>
+          <h1>Flatten a Multilevel Doubly Linked List<br>扁平化多級雙向鏈結串列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">鏈結串列</span>
+          <span class="lc-badge">雙向鏈結串列</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a doubly linked list, which contains nodes that have a next pointer, a previous pointer, and an additional <strong>child pointer</strong>. This child pointer may or may not point to a separate doubly linked list, also containing these special nodes. These child lists may have one or more children of their own, and so on, to produce a <strong>multilevel data structure</strong>.</p>
+          <p>Given the <code>head</code> of the first level of the list, <strong>flatten</strong> the list so that all the nodes appear in a single-level, doubly linked list. Let <code>curr</code> be a node with a child list. The nodes in the child list should appear <strong>after</strong> <code>curr</code> and <strong>before</strong> <code>curr.next</code> in the flattened list.</p>
+          <p>Return <em>the</em> <code>head</code> <em>of the flattened list. The nodes in the list must have <strong>all</strong> of their child pointers set to</em> <code>null</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個雙向鏈結串列，節點除了 <code>next</code>、<code>prev</code> 之外還有一個 <code>child</code> 指標，可能指向另一條雙向串列（它的節點也可能有 child……形成多層結構）。</p>
+          <p>請把它<strong>攤平</strong>成單層的雙向串列：節點 <code>curr</code> 的子串列要放在 <code>curr</code> 之後、<code>curr.next</code> 之前。</p>
+          <p>回傳攤平後的頭節點，所有節點的 <code>child</code> 都要設成 <code>null</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：
+    1---2---3---4---5---6--NULL
+            |
+            7---8---9---10--NULL
+                |
+                11--12--NULL
+  輸出：1-2-3-7-8-11-12-9-10-4-5-6</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數不超過 1000</li>
+          <li>1 ≤ <code>Node.val</code> ≤ 10⁵</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【攤平的順序 = 前序遍歷】
+    把 child 看成「左孩子」、next 看成「右孩子」，
+    攤平後的順序就是這棵二元樹的前序遍歷（第 114 題的雙向串列版）。
+
+【用堆疊暫存「後半段」】
+    沿著串列走，遇到有 child 的節點 cur：
+        cur.next 那一段先推進堆疊（等一下再接）
+        把 child 串列接到 cur 後面（記得設 prev、清空 child）
+    走到某一層的結尾（next 為 None）而堆疊不空：
+        彈出一段，接在後面繼續走
+
+【雙向串列的細節】
+    每次接上都要同時設 next 和 prev。
+    child 必須設為 None。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>迭代 + 堆疊存後半段</h3>
+        <div class="code-block">"""
+class Node:
+    def __init__(self, val, prev, next, child): ...
+"""
+
+class Solution:
+    def flatten(self, head: 'Optional[Node]') -&gt; 'Optional[Node]':
+        stack = []                            # 暫存「被子串列打斷的後半段」
+        cur = head
+        while cur:
+            if cur.child:
+                if cur.next:
+                    stack.append(cur.next)    # ★ 後半段先存起來，等子串列走完再接
+                cur.next = cur.child          # 子串列接到 cur 後面
+                cur.child.prev = cur
+                cur.child = None
+            elif cur.next is None and stack:  # 走到某一層的結尾：接回之前存的後半段
+                nxt = stack.pop()
+                cur.next = nxt
+                nxt.prev = cur
+            cur = cur.next
+        return head</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(d)</td><td>d = 層數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空串列</strong> → None。</li>
+          <li><strong>有 child 的節點沒有 next</strong> → 不用推堆疊。</li>
+          <li><strong>多層巢狀</strong> → 堆疊依序接回。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>遞迴版本</h3>
+
+        <div class="code-block">寫一個 flatten_tail(node) 回傳攤平後的尾巴：遇到 child 就遞迴攤平它，拿到子串列的尾巴，接上原本的 next。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 114 題 二元樹展開為鏈結串列</strong></li>
+          <li><strong>第 341 題 扁平化巢狀串列迭代器</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>攤平的順序和哪種樹的遍歷相同？</li>
+            <li>遇到有 child 的節點時，原本的 next 要怎麼處理？</li>
+            <li>雙向串列接上時要設定哪些指標？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0429.html">← 上一題：429. N 叉樹的層序遍歷</a>
+          <a href="problem-0432.html">下一題：432. 全 O(1) 的資料結構 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
