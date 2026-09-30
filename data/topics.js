@@ -10446,7 +10446,13 @@ window.SITE_DATA = {
             { title: "476. Number Complement 數字的補數", url: "topics/leetcode/problem-0476.html" },
             { title: "477. Total Hamming Distance 漢明距離總和", url: "topics/leetcode/problem-0477.html" },
             { title: "478. Generate Random Point in a Circle 在圓內隨機生成點", url: "topics/leetcode/problem-0478.html" },
-            { title: "479. Largest Palindrome Product 最大回文數乘積", url: "topics/leetcode/problem-0479.html" }
+            { title: "479. Largest Palindrome Product 最大回文數乘積", url: "topics/leetcode/problem-0479.html" },
+            { title: "480. Sliding Window Median 滑動視窗中位數", url: "topics/leetcode/problem-0480.html" },
+            { title: "481. Magical String 神奇字串", url: "topics/leetcode/problem-0481.html" },
+            { title: "482. License Key Formatting 金鑰格式化", url: "topics/leetcode/problem-0482.html" },
+            { title: "483. Smallest Good Base 最小好進位", url: "topics/leetcode/problem-0483.html" },
+            { title: "485. Max Consecutive Ones 最大連續 1 的個數", url: "topics/leetcode/problem-0485.html" },
+            { title: "486. Predict the Winner 預測贏家", url: "topics/leetcode/problem-0486.html" }
           ]
         }
       ]

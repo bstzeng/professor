@@ -1,0 +1,185 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>The <strong>median</strong> is the middle value in an ordered integer list. If the size of the list is even, there is no middle value. So the median is the mean of the two middle values.</p>
+          <p>You are given an integer array <code>nums</code> and an integer <code>k</code>. There is a sliding window of size <code>k</code> which is moving from the very left of the array to the very right. You can only see the <code>k</code> numbers in the window. Each time the sliding window moves right by one position.</p>
+          <p>Return <em>the median array for each window in the original array</em>. Answers within <code>10<sup>-5</sup></code> of the actual value will be accepted.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code> 和整數 <code>k</code>，大小為 <code>k</code> 的滑動視窗從左移到右，每次移一格。</p>
+          <p>回傳每個視窗的<strong>中位數</strong>（個數為偶數時取中間兩個的平均）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,3,-1,-3,5,3,6,7], k = 3
+  輸出：[1.0,-1.0,-1.0,3.0,5.0,6.0]
+
+範例 2
+  輸入：nums = [1,2,3,4,2,3,1,4,2], k = 3
+  輸出：[2.0,3.0,3.0,3.0,2.0,3.0,2.0]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>k ≤ nums.length</code> ≤ 10⁵</li>
+          <li>−2³¹ ≤ <code>nums[i]</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/sliding-window-median/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【第 295 題（資料流中位數）+ 刪除】
+    兩個堆積：lo 存較小的一半（最大堆積）、hi 存較大的一半（最小堆積）。
+    但視窗滑動時要「刪除」離開的元素 —— 堆積不支援刪除任意元素。
+
+【延遲刪除】
+    要刪的元素先記在 delayed 裡，不真的刪；
+    等它跑到堆頂時，才把它彈出丟掉。
+    另外用 lo_size、hi_size 記錄「有效」元素的個數，
+    平衡時看的是有效個數，而不是堆積的實際長度。
+
+【每次操作】
+    加入：放進對應的一半，再平衡
+    刪除：記進 delayed、有效個數 -1，如果它剛好在堆頂就清理，再平衡
+    平衡後要清理堆頂（搬過去的可能露出被延遲刪除的元素）
+
+【更簡單的做法：排序陣列】
+    視窗保持排序，bisect 找位置插入、刪除，O(k) 搬移。
+    n = 10⁵、k 很大時較慢，但 Python 的 list 搬移很快，實務上常常夠用。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>排序視窗 + bisect</h3>
+        <div class="code-block">class Solution:
+    def medianSlidingWindow(self, nums: List[int], k: int) -&gt; List[float]:
+        window = sorted(nums[:k])               # 視窗保持排序
+        res = []
+        for i in range(k, len(nums) + 1):
+            m = window[k // 2]
+            res.append(float(m) if k % 2 else (window[k // 2 - 1] + m) / 2)
+            if i == len(nums):
+                break
+            window.pop(bisect.bisect_left(window, nums[i - k]))   # 移除離開的
+            bisect.insort(window, nums[i])                          # 加入新的
+        return res</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · k)</td><td>list 插入刪除的搬移</td></tr>
+            <tr><td>空間</td><td>O(k)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>雙堆積 + 延遲刪除</h3>
+        <div class="code-block">class Solution:
+    def medianSlidingWindow(self, nums: List[int], k: int) -&gt; List[float]:
+        lo, hi = [], []                 # lo：最大堆積（存負數），hi：最小堆積
+        delayed = collections.Counter() # ★ 延遲刪除：等它跑到堆頂才真正丟掉
+        lo_size = hi_size = 0           # 兩邊「有效」元素的個數
+
+        def prune(heap, sign):
+            while heap and delayed[sign * heap[0]]:
+                delayed[sign * heap[0]] -= 1
+                heapq.heappop(heap)
+
+        def rebalance():
+            nonlocal lo_size, hi_size
+            if lo_size &gt; hi_size + 1:                  # lo 多太多：搬一個到 hi
+                heapq.heappush(hi, -heapq.heappop(lo))
+                lo_size -= 1; hi_size += 1
+                prune(lo, -1)
+            elif lo_size &lt; hi_size:                    # hi 比較多：搬一個到 lo
+                heapq.heappush(lo, -heapq.heappop(hi))
+                lo_size += 1; hi_size -= 1
+                prune(hi, 1)
+
+        def add(x):
+            nonlocal lo_size, hi_size
+            if not lo or x &lt;= -lo[0]:
+                heapq.heappush(lo, -x); lo_size += 1
+            else:
+                heapq.heappush(hi, x); hi_size += 1
+            rebalance()
+
+        def remove(x):
+            nonlocal lo_size, hi_size
+            delayed[x] += 1
+            if x &lt;= -lo[0]:                            # x 屬於 lo 那一半
+                lo_size -= 1
+                if x == -lo[0]:
+                    prune(lo, -1)
+            else:
+                hi_size -= 1
+                if hi and x == hi[0]:
+                    prune(hi, 1)
+            rebalance()
+
+        def median():
+            return float(-lo[0]) if k % 2 else (-lo[0] + hi[0]) / 2
+
+        res = []
+        for i, x in enumerate(nums):
+            add(x)
+            if i &gt;= k:
+                remove(nums[i - k])
+            if i &gt;= k - 1:
+                res.append(median())
+        return res</div>
+        <p>驗證方式：和 <code>statistics.median</code> 對每個視窗直接計算的結果比對兩千組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>延遲刪除的元素可能暫時留在堆積中</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、排序視窗</td><td>O(n·k)</td><td>程式短</td></tr>
+            <tr><td>二、雙堆積 + 延遲刪除</td><td>O(n log n)</td><td>最快 ✔</td></tr>
+            <tr><td>有序集合（SortedList）</td><td>O(n log k)</td><td>需要第三方套件</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>k = 1</strong> → 每個元素自己就是中位數。</li>
+          <li><strong>重複值</strong> → delayed 用計數，不能用集合。</li>
+          <li><strong>大數相加</strong>（兩個 2³¹−1 取平均）→ Python 沒有溢位；其他語言要先轉 double 或 long。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>延遲刪除</h3>
+
+        <div class="code-block">堆積刪除任意元素很貴，但「等它浮到頂端再處理」幾乎沒有額外成本。第 218 題（天際線）、第 239 題（滑動視窗最大值的堆積解）都用到。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 295 題 資料流的中位數</strong></li>
+          <li><strong>第 239 題 滑動視窗最大值</strong></li>
+          <li><strong>第 218 題 天際線問題</strong> —— 延遲刪除</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼需要延遲刪除？</li>
+            <li>平衡時為什麼要看「有效元素個數」而不是堆積長度？</li>
+            <li>什麼時候要清理堆頂？</li>
+          </ol>
+        </div>
