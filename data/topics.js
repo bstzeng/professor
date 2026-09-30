@@ -12015,6 +12015,111 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "macos-guide",
+      category: "tech",
+      title: "macOS 使用邏輯:給 Windows 老手的完整轉換指南",
+      description:
+        "從作業系統架構開始,幫 Windows 老手換一套思路正確使用 Mac:檔案結構與路徑、副檔名、找程式裝程式、⌘ 快捷鍵與觸控板、視窗與多工、系統設定與備份、和 iPhone 的整合,以及疑難排解。附 Windows→Mac 對照速查表與互動快捷鍵練習器。",
+      icon: "🍎",
+      url: "topics/macos-guide/index.html",
+      resources: [
+        {
+          title: "Windows → Mac 對照速查表",
+          description: "軟體、快捷鍵、名詞三張對照表,加上七個最重要的心態轉換,給 Windows 老手快速查閱",
+          icon: "🍎",
+          url: "topics/macos-guide/cheatsheet.html"
+        },
+        {
+          title: "互動快捷鍵練習器",
+          description: "用選擇題練習 Mac 的常用快捷鍵:看情境、選按鍵,立刻知道對錯,幫你把 ⌘ 的習慣練成肌肉記憶",
+          icon: "⌨️",
+          url: "topics/macos-guide/shortcut-quiz.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜先建立正確的心智模型",
+          courses: [
+            { title: "為什麼你會不習慣:Windows 和 Mac 的哲學差異", url: "topics/macos-guide/lesson-01.html" },
+            { title: "macOS 的身世:一個來自 Unix 的作業系統", url: "topics/macos-guide/lesson-02.html" },
+            { title: "一台 Mac 的三層:硬體、macOS、App 各管什麼", url: "topics/macos-guide/lesson-03.html" },
+            { title: "「應用程式」不是「視窗」:App 的生命週期", url: "topics/macos-guide/lesson-04.html" },
+            { title: "選單列在螢幕最上方:為什麼選單不在視窗裡", url: "topics/macos-guide/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜檔案系統與副檔名",
+          courses: [
+            { title: "Mac 的檔案結構:一棵樹,沒有 C 槽 D 槽", url: "topics/macos-guide/lesson-06.html" },
+            { title: "Finder 就是檔案總管:但邏輯不太一樣", url: "topics/macos-guide/lesson-07.html" },
+            { title: "副檔名去哪了:Mac 怎麼判斷檔案類型", url: "topics/macos-guide/lesson-08.html" },
+            { title: ".app 其實是一個資料夾:App 是怎麼包起來的", url: "topics/macos-guide/lesson-09.html" },
+            { title: ".dmg、.pkg:Mac 的安裝檔怎麼運作", url: "topics/macos-guide/lesson-10.html" },
+            { title: "iCloud 雲碟、桌面與文件同步:檔案到底存在哪", url: "topics/macos-guide/lesson-11.html" },
+            { title: "隱藏檔案與系統保護:為什麼有些地方進不去", url: "topics/macos-guide/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜找程式、開程式、裝程式",
+          courses: [
+            { title: "你要找的「記事本」:Mac 的內建文字工具", url: "topics/macos-guide/lesson-13.html" },
+            { title: "Windows 常用軟體的 Mac 對應表", url: "topics/macos-guide/lesson-14.html" },
+            { title: "Spotlight:什麼都用搜尋的「開始功能表」", url: "topics/macos-guide/lesson-15.html" },
+            { title: "Launchpad 與 Dock:擺放常用 App 的兩種方式", url: "topics/macos-guide/lesson-16.html" },
+            { title: "App Store vs. 網路下載:兩種安裝來源與安全性", url: "topics/macos-guide/lesson-17.html" },
+            { title: "移除 App:為什麼不是「解除安裝程式」", url: "topics/macos-guide/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜鍵盤、觸控板與快捷鍵",
+          courses: [
+            { title: "Command 不是 Ctrl:四個修飾鍵與它們的角色", url: "topics/macos-guide/lesson-19.html" },
+            { title: "最該先背的 20 個快捷鍵", url: "topics/macos-guide/lesson-20.html" },
+            { title: "觸控板手勢:Mac 體驗的核心", url: "topics/macos-guide/lesson-21.html" },
+            { title: "輸入法與中文:注音、拼音與特殊符號", url: "topics/macos-guide/lesson-22.html" },
+            { title: "鍵盤上的怪符號:⌘⌥⌃⇧ 到底怎麼看", url: "topics/macos-guide/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜視窗、桌面與多工",
+          courses: [
+            { title: "視窗管理:沒有「最大化」,但有更好的方式", url: "topics/macos-guide/lesson-24.html" },
+            { title: "三個綠燈:全螢幕、分割視窗與縮放", url: "topics/macos-guide/lesson-25.html" },
+            { title: "多重桌面(Spaces)與 Mission Control", url: "topics/macos-guide/lesson-26.html" },
+            { title: "App 切換與視窗切換:⌘Tab 的正確用法", url: "topics/macos-guide/lesson-27.html" },
+            { title: "幕前調度(Stage Manager):新的視窗整理方式", url: "topics/macos-guide/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜系統設定與日常維護",
+          courses: [
+            { title: "系統設定:Windows「控制台」的對應", url: "topics/macos-guide/lesson-29.html" },
+            { title: "帳號、密碼與鑰匙圈:Mac 怎麼管你的密碼", url: "topics/macos-guide/lesson-30.html" },
+            { title: "Touch ID、Apple ID 與螢幕解鎖", url: "topics/macos-guide/lesson-31.html" },
+            { title: "通知、專注模式與勿擾", url: "topics/macos-guide/lesson-32.html" },
+            { title: "備份就是 Time Machine:一鍵還原的安心感", url: "topics/macos-guide/lesson-33.html" },
+            { title: "更新、儲存空間與電池健康", url: "topics/macos-guide/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜和 iPhone／iPad 的整合",
+          courses: [
+            { title: "生態系的威力:接力、隔空投送、通用剪貼簿", url: "topics/macos-guide/lesson-35.html" },
+            { title: "訊息、電話與 FaceTime 都在 Mac 上", url: "topics/macos-guide/lesson-36.html" },
+            { title: "照片、iCloud 與跨裝置同步", url: "topics/macos-guide/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜進階與疑難排解",
+          courses: [
+            { title: "認識終端機:Mac 底層其實是 Unix", url: "topics/macos-guide/lesson-38.html" },
+            { title: "當機、卡住、App 沒回應:Mac 版的工作管理員", url: "topics/macos-guide/lesson-39.html" },
+            { title: "常見疑難排解與給 Windows 老手的最後叮嚀", url: "topics/macos-guide/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
