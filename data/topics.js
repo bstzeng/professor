@@ -10278,7 +10278,13 @@ window.SITE_DATA = {
             { title: "304. Range Sum Query 2D - Immutable 二維區域和檢索 - 矩陣不可變", url: "topics/leetcode/problem-0304.html" },
             { title: "306. Additive Number 累加數", url: "topics/leetcode/problem-0306.html" },
             { title: "307. Range Sum Query - Mutable 區域和檢索 - 陣列可修改", url: "topics/leetcode/problem-0307.html" },
-            { title: "309. Best Time to Buy and Sell Stock with Cooldown 買賣股票的最佳時機含冷凍期", url: "topics/leetcode/problem-0309.html" }
+            { title: "309. Best Time to Buy and Sell Stock with Cooldown 買賣股票的最佳時機含冷凍期", url: "topics/leetcode/problem-0309.html" },
+            { title: "310. Minimum Height Trees 最小高度樹", url: "topics/leetcode/problem-0310.html" },
+            { title: "312. Burst Balloons 戳氣球", url: "topics/leetcode/problem-0312.html" },
+            { title: "313. Super Ugly Number 超級醜數", url: "topics/leetcode/problem-0313.html" },
+            { title: "315. Count of Smaller Numbers After Self 計算右側小於當前元素的個數", url: "topics/leetcode/problem-0315.html" },
+            { title: "316. Remove Duplicate Letters 去除重複字母", url: "topics/leetcode/problem-0316.html" },
+            { title: "318. Maximum Product of Word Lengths 最大單字長度乘積", url: "topics/leetcode/problem-0318.html" }
           ]
         }
       ]
