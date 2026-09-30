@@ -1,0 +1,178 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code> which represents an expression, evaluate this expression and return its value.</p>
+          <p>The expression consists of non-negative integers, <code>'+'</code>, <code>'-'</code>, <code>'*'</code>, <code>'/'</code> operators and spaces. The integer division should <strong>truncate toward zero</strong>. The given expression is always valid.</p>
+          <p>You are not allowed to use any built-in function which evaluates strings as expressions, such as <code>eval()</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個代表算式的字串 <code>s</code>，計算並回傳它的值。</p>
+          <p>算式由非負整數、<code>'+'</code>、<code>'-'</code>、<code>'*'</code>、<code>'/'</code> 和空白組成（<strong>沒有括號</strong>）。整數除法<strong>向零取整</strong>。算式一定合法。</p>
+          <p>不能使用 <code>eval()</code> 之類的內建函式。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "3+2*2"
+  輸出：7
+
+範例 2
+  輸入：s = " 3/2 "
+  輸出：1
+
+範例 3
+  輸入：s = " 3+5 / 2 "
+  輸出：5</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 3 × 10⁵</li>
+          <li><code>s</code> 只包含整數與 <code>'+'</code>、<code>'-'</code>、<code>'*'</code>、<code>'/'</code>、空白</li>
+          <li>所有整數都是非負的，而且在 [0, 2³¹ − 1] 之間</li>
+          <li>答案保證在 32 位元有號整數範圍內</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/basic-calculator-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【把算式看成「若干項相加」】
+    3 + 5 / 2 - 4 * 2
+    = (+3) + (+5/2) + (-4*2)
+    每一項由乘除組成；項與項之間用加減連接。
+
+【堆疊存「項」】
+    讀完一個數字 num，看它【前面】的運算子 op：
+        +  -&gt; 新的一項 +num，推進堆疊
+        -  -&gt; 新的一項 -num，推進堆疊
+        *  -&gt; 和上一項合併：堆疊頂端 × num
+        /  -&gt; 和上一項合併：堆疊頂端 ÷ num（向零取整）
+    最後把堆疊全部加總。
+
+【為什麼看「前面」的運算子？】
+    讀到數字的當下還不知道後面是什麼，
+    但前面的運算子已經讀過了 -&gt; 用變數 op 記住。
+
+【向零取整的陷阱】
+    Python 的 // 是向下取整：-3 // 2 = -2 ✘（題目要 -1）
+    用 int(a / b) ✔（數值在 2³¹ 內，浮點數精度足夠）
+
+【最後一個數字】
+    字串結尾沒有運算子觸發結算 -&gt;
+    判斷 i == len(s) - 1 時也要處理。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>堆疊存每一項</h3>
+        <div class="code-block">class Solution:
+    def calculate(self, s: str) -&gt; int:
+        stack = []            # 存放「要相加的項」
+        num = 0
+        op = "+"              # ★ num 前面的運算子（第一個數字視為 +）
+        for i, ch in enumerate(s):
+            if ch.isdigit():
+                num = num * 10 + int(ch)
+            if (not ch.isdigit() and ch != " ") or i == len(s) - 1:
+                # 讀完一個數字：依照它「前面」的運算子處理
+                if op == "+":
+                    stack.append(num)
+                elif op == "-":
+                    stack.append(-num)
+                elif op == "*":
+                    stack.append(stack.pop() * num)
+                else:                                   # "/"：向零取整
+                    stack.append(int(stack.pop() / num))
+                op, num = ch, 0
+        return sum(stack)</div>
+        <div class="code-block">【模擬】s = "3+5/2"
+
+    讀 3，遇到 '+'   op='+' -&gt; push 3          stack=[3]      op='+'
+    讀 5，遇到 '/'   op='+' -&gt; push 5          stack=[3,5]    op='/'
+    讀 2（結尾）     op='/' -&gt; pop 5, 5/2=2    stack=[3,2]
+    sum = 5 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>只保留最後一項（O(1) 空間）</h3>
+        <div class="code-block">class Solution:
+    def calculate(self, s: str) -&gt; int:
+        total = 0             # 已經確定的項的總和
+        last = 0              # 最後一項（可能還會被乘除）
+        num, op = 0, "+"
+        for i, ch in enumerate(s):
+            if ch.isdigit():
+                num = num * 10 + int(ch)
+            if (not ch.isdigit() and ch != " ") or i == len(s) - 1:
+                if op in "+-":
+                    total += last                       # 上一項確定了
+                    last = num if op == "+" else -num
+                elif op == "*":
+                    last *= num
+                else:
+                    last = int(last / num)
+                op, num = ch, 0
+        return total + last</div>
+        <div class="code-block">【觀察】乘除只會影響「最後一項」
+    更早的項已經不會再變了 -&gt; 直接加進 total。
+    所以不需要整個堆疊，一個變數 last 就夠。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊</td><td>O(n)</td><td>O(n) ✔（最好擴充）</td></tr>
+            <tr><td>二、只存最後一項</td><td>O(n)</td><td>O(1)</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>負數除法</strong>（<code>"1-5/2"</code>）→ 項是 −5/2，向零取整 = −2，答案 −1。</li>
+          <li><strong>結尾有空白</strong> → 最後一個字元是空白時，要確保最後一個數字仍被結算。本解法中 <code>i == len(s)-1</code> 也涵蓋空白字元，此時 op 是前一個運算子、num 是剛讀完的數字 ✔</li>
+          <li><strong>連續乘除</strong>（<code>"2*3*4"</code>）→ 同一項一直被更新。</li>
+          <li><strong>只有一個數字</strong> → 直接回傳。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：加上括號呢？</h3>
+
+        <div class="code-block">第 772 題（付費）：把本題的做法放進第 224 題的遞迴——遇到 '(' 就遞迴算出一個數字。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 224 題 基本計算器</strong> —— 加減與括號</li>
+          <li><strong>第 150 題 逆波蘭表示法求值</strong></li>
+          <li><strong>第 282 題 給表達式添加運算子</strong> —— 同樣用「最後一項」處理乘法優先順序</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼處理一個數字時，要看的是「前面」的運算子？</li>
+            <li>Python 中負數的整數除法要怎麼寫才會向零取整？</li>
+            <li>解法二為什麼只需要保留最後一項？</li>
+          </ol>
+        </div>
