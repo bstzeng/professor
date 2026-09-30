@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>218. The Skyline Problem 天際線問題 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="掃描線加最大堆積，用延遲刪除處理已結束的建築。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="218">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 218 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 218</div>
+          <h1>The Skyline Problem<br>天際線問題</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">分治</span>
+          <span class="lc-badge">樹狀陣列</span>
+          <span class="lc-badge">線段樹</span>
+          <span class="lc-badge">掃描線</span>
+          <span class="lc-badge">堆積（優先佇列）</span>
+          <span class="lc-badge">有序集合</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A city's <em>skyline</em> is the outer contour formed by all its buildings when viewed from far away. Each building is given as <code>buildings[i] = [left<sub>i</sub>, right<sub>i</sub>, height<sub>i</sub>]</code>: a rectangle standing on flat ground at height <code>0</code>, spanning x-coordinates <code>left<sub>i</sub></code> to <code>right<sub>i</sub></code>.</p>
+          <p>Return the skyline as a list of <em>key points</em> <code>[x, y]</code> sorted by <code>x</code>. Each key point is the left end of a horizontal segment of the skyline; the final key point always has <code>y = 0</code> and marks where the rightmost building ends.</p>
+          <p>The output must not contain consecutive horizontal segments of equal height — for example <code>[...,[2,3],[4,5],[7,5],[11,5],[12,7],...]</code> is invalid and should be <code>[...,[2,3],[4,5],[12,7],...]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>城市的<strong>天際線</strong>是從遠處看所有建築物時，形成的外輪廓。每棟建築以 <code>[left<sub>i</sub>, right<sub>i</sub>, height<sub>i</sub>]</code> 表示：一個立在高度 0 的地面上、從 x = <code>left<sub>i</sub></code> 延伸到 x = <code>right<sub>i</sub></code> 的矩形。</p>
+          <p>請以<strong>關鍵點</strong> <code>[x, y]</code> 的列表回傳天際線，依 <code>x</code> 排序。每個關鍵點是天際線中一段水平線段的左端點；最後一個關鍵點的 <code>y</code> 一定是 0，標示最右邊的建築在哪裡結束。</p>
+          <p>輸出中<strong>不能有連續兩段高度相同的水平線段</strong>，高度相同的要合併成一段。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+  輸出：[[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]
+
+範例 2
+  輸入：buildings = [[0,2,3],[2,5,3]]
+  輸出：[[0,3],[5,0]]
+  說明：兩棟等高的建築緊鄰，x = 2 處高度沒有改變，不產生關鍵點。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>buildings.length</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>left<sub>i</sub></code> &lt; <code>right<sub>i</sub></code> ≤ 2³¹ − 1</li>
+          <li>1 ≤ <code>height<sub>i</sub></code> ≤ 2³¹ − 1</li>
+          <li><code>buildings</code> 依 <code>left<sub>i</sub></code> 非遞減排序</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/the-skyline-problem/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 264" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">範例 1：天際線只在「最高高度改變」的地方留下關鍵點</text>
+            <line x1="30" y1="220" x2="620" y2="220" stroke="var(--text-muted)"/>
+            <g fill="var(--accent)" fill-opacity="0.12" stroke="var(--accent)" stroke-opacity="0.5">
+              <rect x="60" y="120" width="140" height="100"/>
+              <rect x="80" y="70" width="80" height="150"/>
+              <rect x="130" y="100" width="140" height="120"/>
+              <rect x="330" y="120" width="100" height="100"/>
+              <rect x="410" y="140" width="100" height="80"/>
+            </g>
+            <path d="M60 220 V120 H80 V70 H160 V100 H270 V220 H330 V120 H430 V140 H510 V220" fill="none" stroke="#ff8a65" stroke-width="2.5"/>
+            <g fill="#ff8a65">
+              <circle cx="60" cy="120" r="4"/><circle cx="80" cy="70" r="4"/><circle cx="160" cy="100" r="4"/>
+              <circle cx="270" cy="220" r="4"/><circle cx="330" cy="120" r="4"/><circle cx="430" cy="140" r="4"/><circle cx="510" cy="220" r="4"/>
+            </g>
+            <g font-size="11" fill="var(--text)">
+              <text x="36" y="114">[2,10]</text><text x="84" y="64">[3,15]</text><text x="166" y="96">[7,12]</text>
+              <text x="276" y="212">[12,0]</text><text x="336" y="114">[15,10]</text><text x="436" y="134">[20,8]</text><text x="516" y="212">[24,0]</text>
+            </g>
+            <text x="20" y="250" fill="var(--gold)" font-size="12">★ 關鍵點 = 每一個「目前最高高度」改變的 x 座標，以及新的高度。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【天際線只會在建築的左右邊界改變】
+    所以只需要在每個邊界 x 上問一個問題：
+        「此刻還『站著』的建築裡，最高的是多高？」
+    這個最高值和前一個不同 -&gt; 新的關鍵點。
+
+【掃描線 + 最大堆積】
+    從左到右掃過所有邊界：
+        碰到左邊界 -&gt; 這棟建築加入「站著的集合」
+        碰到右邊界 -&gt; 這棟建築離開
+    需要隨時知道集合中的最大高度 -&gt; 最大堆積。
+
+【堆積不能刪除中間的元素怎麼辦？延遲刪除】
+    堆裡存 (高度, 結束位置)。
+    不急著刪已經結束的建築，
+    只在「它跑到堆頂」時才檢查：結束位置 &lt;= x 就彈掉。
+    堆頂以下的過期建築不影響最大值，可以晚點再處理 ✔
+
+【同一個 x 上的事件順序很重要】
+    範例：[[1,2,1],[1,2,2],[1,2,3]] 三棟同起同止。
+    如果先處理低的，會產生 [1,1],[1,2],[1,3] 三個點 ✘
+    事件排序鍵 (x, -h)：同一個 x 高的先進 -&gt; 只產生 [1,3] ✔
+    「進」的 -h 是負數，「出」是 0 -&gt; 同一個 x 先進後出，
+    範例 2 在 x = 2 不會先掉到 0 再升回 3 ✔</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>逐點計算最大高度（O(n²)）</h3>
+        <div class="code-block">class Solution:
+    def getSkyline(self, buildings: List[List[int]]) -&gt; List[List[int]]:
+        xs = sorted({x for L, R, _ in buildings for x in (L, R)})
+        res = []
+        for x in xs:
+            # 在 x 這一點，涵蓋 [L, R) 的建築中最高的
+            h = max((H for L, R, H in buildings if L &lt;= x &lt; R), default=0)
+            if not res or res[-1][1] != h:
+                res.append([x, h])
+        return res</div>
+        <p>對每個邊界座標，掃過所有建築算最大高度。<strong>n = 10⁴ 時是 2×10⁸ 次，會超時</strong>，但它是驗證正確性的好工具。</p>
+        <p>注意區間是 <code>[L, R)</code>：在 <code>x = R</code> 這一點建築已經結束了。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>掃描線 + 最大堆積（延遲刪除）</h3>
+        <div class="code-block">class Solution:
+    def getSkyline(self, buildings: List[List[int]]) -&gt; List[List[int]]:
+        # 事件：左邊界 (x, -h, right) 代表「開始」；右邊界 (x, 0, 0) 代表「檢查要不要結束」
+        events = [(L, -H, R) for L, R, H in buildings]
+        events += [(R, 0, 0) for _, R, _ in buildings]
+        events.sort()                        # ★ 同一個 x：高的先進，進的先於出
+
+        res = []
+        heap = [(0, float("inf"))]           # (−高度, 結束位置)，放一個永遠在的地面
+        for x, neg_h, R in events:
+            if neg_h:                        # 建築開始
+                heapq.heappush(heap, (neg_h, R))
+            while heap[0][1] &lt;= x:           # ★ 延遲刪除：已經結束的從堆頂清掉
+                heapq.heappop(heap)
+            h = -heap[0][0]
+            if not res or res[-1][1] != h:   # 高度改變才記錄
+                res.append([x, h])
+        return res</div>
+        <div class="code-block">【堆裡為什麼先放一個 (0, inf)？】
+    代表地面，永遠不會過期。
+    所有建築都結束時，堆頂就是它 -&gt; 高度 0，
+    也不用擔心對空堆取 heap[0] ✔
+
+【while heap[0][1] &lt;= x】
+    結束位置 &lt;= x 的建築在 x 已經不算數（區間是 [L, R)）。
+
+【複雜度】
+    2n 個事件，每棟建築進堆出堆各一次 -&gt; O(n log n)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐點計算</td><td>O(n²)</td><td>O(n)</td><td>超時，但好驗證</td></tr>
+            <tr><td>二、掃描線 + 堆積</td><td>O(n log n)</td><td>O(n)</td><td>標準解 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>兩棟等高建築緊鄰</strong>（範例 2）→ 中間不能產生關鍵點。</li>
+          <li><strong>多棟建築同一個 x 開始</strong> → 只能產生一個關鍵點（高的先處理）。</li>
+          <li><strong>一棟建築完全被更高的包住</strong> → 它不產生任何關鍵點。</li>
+          <li><strong>建築之間有空隙</strong> → 要產生高度 0 的關鍵點。</li>
+          <li><strong>座標到 2³¹ − 1</strong> → 不能開一個以座標為索引的陣列。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：有沒有不用堆積的做法？</h3>
+
+        <div class="code-block">【分治】：把建築分成左右兩半，各自求天際線，再像合併排序那樣合併兩條天際線。
+合併時同時掃兩條線，記住兩邊「目前高度」，取 max 即可。
+同樣是 O(n log n)。
+
+【有序容器】：用可以刪除任意元素的有序集合（例如 sortedcontainers.SortedList）
+代替堆積，就不需要延遲刪除。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 253 題 會議室 II</strong>（付費）—— 掃描線 + 堆積</li>
+          <li><strong>第 699 題 掉落的方塊</strong> —— 區間最大高度</li>
+          <li><strong>第 850 題 矩形面積 II</strong> —— 掃描線</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼天際線只會在建築的左右邊界改變？</li>
+            <li>什麼是延遲刪除？為什麼可以只清除堆頂的過期元素？</li>
+            <li>同一個 x 上的事件要用什麼順序處理？為什麼？</li>
+            <li>堆裡預先放的 <code>(0, inf)</code> 有什麼作用？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0217.html">← 上一題：217. 存在重複元素</a>
+          <a href="problem-0219.html">下一題：219. 存在重複元素 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

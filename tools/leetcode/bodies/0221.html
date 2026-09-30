@@ -1,0 +1,215 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <code>m x n</code> binary matrix filled with <code>'0'</code> and <code>'1'</code>, find the largest square that contains only <code>'1'</code>s and return its <strong>area</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個由 <code>'0'</code> 和 <code>'1'</code> 組成的 <code>m x n</code> 矩陣，找出<strong>只包含 <code>'1'</code> 的最大正方形</strong>，回傳它的<strong>面積</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：matrix = [["1","0","1","0","0"],
+                  ["1","0","1","1","1"],
+                  ["1","1","1","1","1"],
+                  ["1","0","0","1","0"]]
+  輸出：4
+
+範例 2
+  輸入：matrix = [["0","1"],["1","0"]]
+  輸出：1
+
+範例 3
+  輸入：matrix = [["0"]]
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == matrix.length</code>，<code>n == matrix[i].length</code></li>
+          <li>1 ≤ <code>m, n</code> ≤ 300</li>
+          <li><code>matrix[i][j]</code> 是 <code>'0'</code> 或 <code>'1'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/maximal-square/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 214" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">dp[i][j] = min(上, 左, 左上) + 1：以 (i, j) 為右下角的最大正方形邊長</text>
+            <g font-size="14" text-anchor="middle">
+              <rect x="60" y="45" width="50" height="50" fill="none" stroke="var(--accent)"/><text x="85" y="75" fill="var(--accent)">2</text>
+              <rect x="110" y="45" width="50" height="50" fill="none" stroke="var(--accent)"/><text x="135" y="75" fill="var(--accent)">2</text>
+              <rect x="60" y="95" width="50" height="50" fill="none" stroke="var(--accent)"/><text x="85" y="125" fill="var(--accent)">3</text>
+              <rect x="110" y="95" width="50" height="50" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="135" y="125" fill="#ff8a65">?</text>
+            </g>
+            <text x="70" y="40" fill="var(--text-muted)" font-size="11">左上</text><text x="124" y="40" fill="var(--text-muted)" font-size="11">上</text>
+            <text x="36" y="125" fill="var(--text-muted)" font-size="11">左</text>
+            <text x="200" y="70" fill="var(--text)" font-size="12">? = min(2, 2, 3) + 1 = 3</text>
+            <text x="200" y="100" fill="var(--text)" font-size="12">★ 為什麼是「最小值」？</text>
+            <text x="200" y="124" fill="var(--text-muted)" font-size="12">要以 ? 為右下角擴成 k×k，上、左、左上三個方向</text>
+            <text x="200" y="146" fill="var(--text-muted)" font-size="12">都必須至少能撐出 (k−1)×(k−1)。</text>
+            <text x="200" y="168" fill="var(--text-muted)" font-size="12">三者中最弱的那個決定了能擴多大 —— 木桶原理。</text>
+            <text x="20" y="200" fill="var(--gold)" font-size="12">★ 最後回傳的是「面積」= 最大邊長的平方，不是邊長。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【狀態】
+    dp[i][j] = 以 (i, j) 為「右下角」的全 1 正方形，最大邊長。
+
+【轉移】
+    matrix[i][j] == '0' -&gt; dp = 0
+    matrix[i][j] == '1' -&gt; dp = min(上, 左, 左上) + 1
+
+【為什麼是 min？】
+    要以 (i, j) 為右下角擴成 k×k 的正方形，需要：
+        上方那格能撐出 (k-1)×(k-1)
+        左方那格能撐出 (k-1)×(k-1)
+        左上那格能撐出 (k-1)×(k-1)
+    三個條件同時成立 -&gt; k - 1 &lt;= 三者的最小值。
+    反過來，三者都 &gt;= k-1 時，四塊拼起來剛好覆蓋 k×k 的每一格 ✔
+
+【邊界】多開一列一行的 0，就不用特別判斷 i = 0 或 j = 0。
+
+【常見錯誤】
+    - 回傳邊長而不是面積 ✘
+    - 矩陣元素是字串 '1'，寫成 == 1 永遠不成立 ✘</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力擴張</h3>
+        <div class="code-block">class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+        best = 0
+        for i in range(m):
+            for j in range(n):
+                k = 0                            # 以 (i, j) 為左上角，邊長一直加大
+                while i + k &lt; m and j + k &lt; n and all(
+                        matrix[i + k][c] == "1" for c in range(j, j + k + 1)) and all(
+                        matrix[r][j + k] == "1" for r in range(i, i + k + 1)):
+                    k += 1
+                best = max(best, k)
+        return best * best</div>
+        <p>每個格子當左上角，邊長一格一格加大，每次檢查新增的一列一行。最壞 O((mn)·min(m,n)²)。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn · min(m,n)²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>二維 DP</h3>
+        <div class="code-block">class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+        # dp[i][j]：以 (i-1, j-1) 為「右下角」的最大正方形邊長（多一圈 0 當邊界）
+        dp = [[0] * (n + 1) for _ in range(m + 1)]
+        best = 0
+        for i in range(1, m + 1):
+            for j in range(1, n + 1):
+                if matrix[i - 1][j - 1] == "1":
+                    # ★ 上、左、左上三個方向的最小值 + 1
+                    dp[i][j] = min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]) + 1
+                    best = max(best, dp[i][j])
+        return best * best                       # ★ 回傳面積</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>一維 DP（滾動陣列）</h3>
+        <div class="code-block">class Solution:
+    def maximalSquare(self, matrix: List[List[str]]) -&gt; int:
+        n = len(matrix[0])
+        dp = [0] * (n + 1)                       # 上一列的結果，原地更新成這一列
+        best = 0
+        for row in matrix:
+            diag = 0                             # dp[i-1][j-1]
+            for j in range(1, n + 1):
+                up = dp[j]                       # 還沒被覆蓋：上一列的 dp[j]
+                if row[j - 1] == "1":
+                    dp[j] = min(up, dp[j - 1], diag) + 1
+                    best = max(best, dp[j])
+                else:
+                    dp[j] = 0
+                diag = up                        # 下一格的左上角 = 這一格的上面
+        return best * best</div>
+        <div class="code-block">【dp[j] 在更新前後代表什麼？】
+    更新前：上一列的 dp[j]（= 「上」）
+    dp[j-1] 已經更新過：這一列的左邊（= 「左」）
+    「左上」是上一列的 dp[j-1]，已經被覆蓋了 -&gt;
+    所以要在覆蓋之前用 diag 暫存。
+
+【每一格結束時 diag = up】
+    下一格 (j+1) 的左上，就是這一格 (j) 的上 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>只保留一列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力擴張</td><td>O(mn·min(m,n)²)</td><td>O(1)</td><td>慢</td></tr>
+            <tr><td>二、二維 DP</td><td>O(mn)</td><td>O(mn)</td><td>最直觀 ✔</td></tr>
+            <tr><td>三、一維 DP</td><td>O(mn)</td><td>O(n)</td><td>要小心左上角</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全部是 '0'</strong> → 0。</li>
+          <li><strong>只有一個 '1'</strong> → 面積 1。</li>
+          <li><strong>元素是字串</strong> → 要和 <code>'1'</code> 比，不是 <code>1</code>。</li>
+          <li><strong>回傳面積</strong> → 邊長要平方。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：如果要「最大矩形」而不是正方形？</h3>
+
+        <div class="code-block">第 85 題（Hard）：對每一列計算「往上連續 1 的高度」，
+把問題轉成每一列上的第 84 題「直方圖中最大的矩形」，用單調堆疊 O(n) 解。</div>
+
+        <h3>追問：要數「所有」全 1 正方形的個數？</h3>
+
+        <div class="code-block">第 1277 題：同一個 DP，把所有 dp[i][j] 加總即可——以 (i,j) 為右下角的正方形共有 dp[i][j] 個。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 85 題 最大矩形</strong></li>
+          <li><strong>第 1277 題 統計全為 1 的正方形子矩陣</strong></li>
+          <li><strong>第 84 題 柱狀圖中最大的矩形</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li><code>dp[i][j]</code> 的定義是什麼？</li>
+            <li>轉移為什麼取三者的最小值？</li>
+            <li>一維 DP 中為什麼需要 <code>diag</code> 變數？</li>
+            <li>最後為什麼要平方？</li>
+          </ol>
+        </div>

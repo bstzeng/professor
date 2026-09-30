@@ -1,0 +1,198 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Two strings <code>s</code> and <code>t</code> of equal length are called <em>isomorphic</em> if the characters of <code>s</code> can be replaced to produce <code>t</code>.</p>
+          <p>Every occurrence of a character must be replaced by the same character, keeping the order of characters unchanged. Two different characters may not map to the same character, but a character is allowed to map to itself.</p>
+          <p>Return <code>true</code> if <code>s</code> and <code>t</code> are isomorphic.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>兩個等長字串 <code>s</code> 和 <code>t</code>，如果可以把 <code>s</code> 的字元替換成別的字元而得到 <code>t</code>，就稱它們<strong>同構</strong>。</p>
+          <p>規則：同一個字元的每次出現都必須換成同一個字元，字元的順序不能改變；<strong>兩個不同的字元不能對應到同一個字元</strong>，但一個字元可以對應到它自己。</p>
+          <p>如果 <code>s</code> 和 <code>t</code> 同構，回傳 <code>true</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "egg", t = "add"
+  輸出：true
+  說明：e -&gt; a、g -&gt; d。
+
+範例 2
+  輸入：s = "foo", t = "bar"
+  輸出：false
+  說明：o 要同時對應 a 和 r，不行。
+
+範例 3
+  輸入：s = "paper", t = "title"
+  輸出：true
+
+範例 4
+  輸入：s = "badc", t = "baba"
+  輸出：false
+  說明：b -&gt; b、d -&gt; b，兩個不同的字元對應到同一個 b，不行。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 5 × 10⁴</li>
+          <li><code>t.length == s.length</code></li>
+          <li><code>s</code> 和 <code>t</code> 由任意有效的 ASCII 字元組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/isomorphic-strings/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【同構 = 字元之間存在一個「一對一」的對應（雙射）】
+
+    兩個條件缺一不可：
+    1. s 的同一個字元，永遠對到 t 的同一個字元（是函數）
+    2. s 的不同字元，不能對到 t 的同一個字元（是單射）
+
+【最常見的錯誤：只檢查第一個條件】
+
+    s = "badc", t = "baba"
+        b -&gt; b, a -&gt; a, d -&gt; b, c -&gt; a
+    只看 s -&gt; t 的方向，每個 s 字元都只對一個 t 字元 ✔
+    但 b 和 d 都對到 b ✘
+
+    所以要同時維護 s -&gt; t 和 t -&gt; s 兩張表。
+
+【另一個角度：比較「形狀」】
+
+    "paper" -&gt; 第幾個新字元：[0, 1, 0, 2, 3]
+    "title" -&gt; 第幾個新字元：[0, 1, 0, 2, 3]
+    形狀一樣 -&gt; 同構 ✔</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>雙向雜湊表</h3>
+        <div class="code-block">class Solution:
+    def isIsomorphic(self, s: str, t: str) -&gt; bool:
+        s2t, t2s = {}, {}
+        for a, b in zip(s, t):
+            if s2t.get(a, b) != b or t2s.get(b, a) != a:   # ★ 兩個方向都要一致
+                return False
+            s2t[a] = b
+            t2s[b] = a
+        return True</div>
+        <div class="code-block">【s2t.get(a, b) != b 的意思】
+
+    如果 a 還沒有對應 -&gt; get 回傳 b -&gt; 相等，不衝突
+    如果 a 已經對應 x  -&gt; 看 x 是不是 b
+
+    一行同時處理「第一次出現」和「已經出現」兩種情況。</div>
+        <h3>只檢查單向為什麼會錯</h3>
+        <div class="code-block">class Solution:
+    def isIsomorphic(self, s: str, t: str) -&gt; bool:
+        s2t = {}
+        for a, b in zip(s, t):
+            if a in s2t and s2t[a] != b:
+                return False
+            s2t[a] = b
+        return True          # ✘ 只檢查了一個方向</div>
+        <p>上面這個版本在 <code>s = "badc", t = "baba"</code> 會回傳 <code>true</code>——錯。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(k)</td><td>k 是字元種類數（ASCII 最多 128）</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>比較首次出現的「形狀」</h3>
+        <div class="code-block">class Solution:
+    def isIsomorphic(self, s: str, t: str) -&gt; bool:
+        def pattern(x: str) -&gt; List[int]:
+            first = {}
+            return [first.setdefault(c, len(first)) for c in x]   # 第幾個出現的字元
+        return pattern(s) == pattern(t)</div>
+        <p>把每個字元換成「它是第幾種出現的字元」，兩個字串的形狀相同就同構。<strong>這個想法可以直接推廣到第 290 題單詞規律。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>形狀陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>集合計數（一行）</h3>
+        <div class="code-block">class Solution:
+    def isIsomorphic(self, s: str, t: str) -&gt; bool:
+        return len(set(s)) == len(set(t)) == len(set(zip(s, t)))</div>
+        <div class="code-block">【為什麼三個集合大小相等就代表同構？】
+
+    set(zip(s, t)) 是所有出現過的「配對」。
+    - 如果某個 s 字元對到兩種 t 字元，
+      配對數 &gt; s 的字元種類數。
+    - 如果兩個 s 字元對到同一個 t 字元，
+      配對數 &gt; t 的字元種類數。
+
+    三者相等 -&gt; 既是函數又是單射 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、雙向雜湊表</td><td>O(n)</td><td>O(k)</td><td>可以提早結束 ✔</td></tr>
+            <tr><td>二、形狀比較</td><td>O(n)</td><td>O(n)</td><td>好推廣</td></tr>
+            <tr><td>三、集合計數</td><td>O(n)</td><td>O(n)</td><td>一行，但要解釋為什麼對</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>長度 1</strong> → 一定同構。</li>
+          <li><strong>字元對應到自己</strong>（<code>"ab", "ab"</code>）→ 允許。</li>
+          <li><strong>兩個不同字元對應同一個</strong>（<code>"ab", "aa"</code>）→ 不同構。</li>
+          <li><strong>只檢查單向</strong> → <code>"badc", "baba"</code> 會誤判。</li>
+          <li><strong>字元不只英文字母</strong> → 題目說是任意 ASCII，別用長度 26 的陣列。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：怎麼把一堆字串依「同構」分組？</h3>
+
+        <div class="code-block">把每個字串轉成它的「形狀」當作 key：
+
+    groups = defaultdict(list)
+    for w in words:
+        groups[tuple(pattern(w))].append(w)
+
+形狀相同的字串就在同一組 —— 和第 49 題字母異位詞分組是同一個套路。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 290 題 單詞規律</strong> —— 字元對單詞的同構</li>
+          <li><strong>第 890 題 查找和替換模式</strong> —— 形狀比較</li>
+          <li><strong>第 49 題 字母異位詞分組</strong> —— 「找 key」的分組套路</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>同構需要滿足哪兩個條件？</li>
+            <li>為什麼只維護 <code>s → t</code> 一張表會錯？舉一個反例。</li>
+            <li>「形狀」的想法是什麼？</li>
+            <li>三個集合大小相等為什麼就代表同構？</li>
+          </ol>
+        </div>

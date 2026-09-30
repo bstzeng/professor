@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>282. Expression Add Operators 給表達式添加運算子 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="回溯時記住最後一項，乘法撤銷上一項再乘；注意前導零。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="282">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 282 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 282</div>
+          <h1>Expression Add Operators<br>給表達式添加運算子</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>num</code> that contains only digits and an integer <code>target</code>, return <em><strong>all possibilities</strong> to insert the binary operators </em><code>'+'</code><em>, </em><code>'-'</code><em>, and/or </em><code>'*'</code><em> between the digits of </em><code>num</code><em> so that the resultant expression evaluates to the </em><code>target</code><em> value</em>.</p>
+          <p>Note that operands in the returned expressions <strong>should not</strong> contain leading zeros.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個只包含數字的字串 <code>num</code> 和整數 <code>target</code>。在數字之間插入 <code>'+'</code>、<code>'-'</code>、<code>'*'</code>（也可以不插，讓相鄰數字合成多位數），回傳<strong>所有</strong>計算結果等於 <code>target</code> 的算式。</p>
+          <p>運算元<strong>不能有前導零</strong>（例如 <code>"05"</code> 不合法，但單獨的 <code>"0"</code> 可以）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：num = "123", target = 6
+  輸出：["1*2*3","1+2+3"]
+
+範例 2
+  輸入：num = "232", target = 8
+  輸出：["2*3+2","2+3*2"]
+
+範例 3
+  輸入：num = "3456237490", target = 9191
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>num.length</code> ≤ 10</li>
+          <li><code>num</code> 只包含數字</li>
+          <li>−2³¹ ≤ <code>target</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/expression-add-operators/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【回溯：每一步決定「下一個運算元有多長」和「前面放什麼運算子」】
+    num = "123"：
+        1 | 2 | 3、12 | 3、1 | 23、123
+    每個切點之間可以放 + - *。
+
+【難點：乘法的優先順序】
+    邊走邊算 value 時，遇到乘法不能直接 value * x：
+        1 + 2 * 3 ≠ (1 + 2) * 3
+    解法：多記一個 last = 最後一「項」的值（含正負號）。
+        1 + 2       value = 3, last = 2
+        1 + 2 * 3   撤銷 last：value - last = 1
+                    新的 last = 2 * 3 = 6
+                    value = 1 + 6 = 7 ✔
+
+    減法：last = -x，所以 1 - 2 * 3 也正確：
+        value = -1, last = -2 -&gt; value = -1 - (-2) + (-6) = -5 ✔
+
+【前導零】
+    從 num[i] 開始切，如果 num[i] == '0'，只能切出單獨的 "0"。
+
+【複雜度】
+    n-1 個切點，每個有 4 種選擇（不切、+、-、*）-&gt; O(4ⁿ)，
+    再乘上每次組字串 O(n)。n ≤ 10 -&gt; 4¹⁰ ≈ 10⁶，可以接受。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>回溯 + 記錄最後一項</h3>
+        <div class="code-block">class Solution:
+    def addOperators(self, num: str, target: int) -&gt; List[str]:
+        res = []
+        n = len(num)
+
+        def dfs(i: int, expr: str, value: int, last: int):
+            # value：目前算式的值；last：最後一「項」（乘法會改到它）
+            if i == n:
+                if value == target:
+                    res.append(expr)
+                return
+            for j in range(i, n):
+                if j &gt; i and num[i] == "0":            # ★ 不能有前導零（"05" 不是合法數字）
+                    break
+                s = num[i:j + 1]
+                x = int(s)
+                if i == 0:                             # 第一個數字前面不能放運算子
+                    dfs(j + 1, s, x, x)
+                else:
+                    dfs(j + 1, expr + "+" + s, value + x, x)
+                    dfs(j + 1, expr + "-" + s, value - x, -x)
+                    # ★ 乘法：撤銷上一項，改成 上一項 × x
+                    dfs(j + 1, expr + "*" + s, value - last + last * x, last * x)
+
+        dfs(0, "", 0, 0)
+        return res</div>
+        <div class="code-block">【模擬】num = "232", target = 8
+
+    2                      value=2,  last=2
+    2+3                    value=5,  last=3
+    2+3*2                  value=5-3+6=8 ✔
+    2*3                    value=2-2+6=6, last=6
+    2*3+2                  value=8 ✔
+    23                     value=23, last=23
+    ...</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · 4ⁿ)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度，不計輸出</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>前導零</strong>（<code>"105"</code>）→ "1*05" 不合法，但 "1*0+5" 可以。</li>
+          <li><strong>全是 0</strong>（<code>"00"</code>, 0）→ "0+0"、"0-0"、"0*0"；"00" 不合法。</li>
+          <li><strong>大數</strong>（"9999999999"）→ Python 沒有溢位問題；其他語言用 long。</li>
+          <li><strong>只有一位數</strong> → 只有它本身。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>為什麼只需要記「最後一項」？</h3>
+
+        <div class="code-block">乘法只會和緊鄰在它左邊的那一項結合；更早的項已經被 + 或 − 隔開，不會再改變。這和第 227 題「只保留最後一項」的想法相同。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 227 題 基本計算器 II</strong> —— 同樣的「最後一項」技巧</li>
+          <li><strong>第 241 題 為運算式設計優先順序</strong></li>
+          <li><strong>第 494 題 目標和</strong> —— 只有 + 和 −</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼遇到乘法不能直接 value × x？</li>
+            <li><code>last</code> 代表什麼？做乘法時怎麼更新？</li>
+            <li>前導零要怎麼處理？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0279.html">← 上一題：279. 完全平方數</a>
+          <a href="problem-0283.html">下一題：283. 移動零 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

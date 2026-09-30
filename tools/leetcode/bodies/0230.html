@@ -1,0 +1,182 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary search tree, and an integer <code>k</code>, return the <code>k<sup>th</sup></code> smallest value (<strong>1-indexed</strong>) of all the values of the nodes in the tree.</p>
+          <p><strong>Follow up:</strong> If the BST is modified often (i.e., we can do insert and delete operations) and you need to find the kth smallest frequently, how would you optimize?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一棵<strong>二元搜尋樹</strong>的根節點 <code>root</code> 和整數 <code>k</code>，回傳樹中第 <code>k</code> 小的值（<strong>從 1 開始</strong>數）。</p>
+          <p><strong>進階：</strong>如果這棵樹經常被修改（插入、刪除），而且需要頻繁查詢第 k 小，要怎麼優化？</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [3,1,4,null,2], k = 1
+  輸出：1
+
+範例 2
+  輸入：root = [5,3,6,2,4,null,null,1], k = 3
+  輸出：3</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數為 <code>n</code></li>
+          <li>1 ≤ <code>k</code> ≤ <code>n</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>Node.val</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/kth-smallest-element-in-a-bst/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【BST 的中序遍歷 = 由小到大排序】
+    左子樹 &lt; 根 &lt; 右子樹
+    中序（左 -&gt; 根 -&gt; 右）走出來就是遞增序列。
+    第 k 個拜訪到的節點 = 第 k 小 ✔
+
+【提早停止】
+    不用走完整棵樹，數到 k 就回傳。
+    用迭代的中序（手動堆疊），時間 O(h + k)：
+        先往左走到底花 O(h)，之後每 pop 一次就前進一個。
+
+【進階：樹常常變動】
+    每個節點多存一個「子樹大小」size。
+    在節點 node：
+        left = 左子樹大小
+        k &lt;= left      -&gt; 答案在左子樹
+        k == left + 1  -&gt; 就是 node
+        否則           -&gt; 去右子樹找第 (k - left - 1) 小
+    每次查詢 O(h)；插入、刪除時沿路更新 size，也是 O(h)。
+    搭配平衡樹（紅黑樹、AVL）h = O(log n)。
+    這種樹叫「順序統計樹」(order statistic tree)。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>中序遍歷（產生器，提早停止）</h3>
+        <div class="code-block">class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -&gt; int:
+        def inorder(node):
+            if node:
+                yield from inorder(node.left)
+                yield node.val
+                yield from inorder(node.right)
+
+        for i, v in enumerate(inorder(root), 1):   # 產生器：拿到第 k 個就停
+            if i == k:
+                return v</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(h + k)</td><td></td></tr>
+            <tr><td>空間</td><td>O(h)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>迭代中序（手動堆疊）</h3>
+        <div class="code-block">class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -&gt; int:
+        stack = []
+        node = root
+        while True:
+            while node:                  # 一路往左，沿途推進堆疊
+                stack.append(node)
+                node = node.left
+            node = stack.pop()           # ★ 中序的下一個（由小到大）
+            k -= 1
+            if k == 0:
+                return node.val          # 第 k 個就停，不必走完整棵樹
+            node = node.right</div>
+        <div class="code-block">【迭代中序的模板】
+    1. 一路往左，沿途推進堆疊
+    2. pop 出來 = 下一個最小的
+    3. 轉到它的右子樹，回到步驟 1</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(h + k)</td><td></td></tr>
+            <tr><td>空間</td><td>O(h)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>子樹大小（進階問題）</h3>
+        <div class="code-block">class Solution:
+    def kthSmallest(self, root: Optional[TreeNode], k: int) -&gt; int:
+        size = {}                        # 節點 -&gt; 子樹大小（樹常常變動時，存在節點上維護）
+
+        def count(node):
+            if node is None:
+                return 0
+            size[node] = 1 + count(node.left) + count(node.right)
+            return size[node]
+
+        count(root)
+        node = root
+        while node:
+            left = size.get(node.left, 0)
+            if k &lt;= left:                # 在左子樹
+                node = node.left
+            elif k == left + 1:          # 就是自己
+                return node.val
+            else:                        # 在右子樹：扣掉左子樹和自己
+                k -= left + 1
+                node = node.right</div>
+        <p>這裡為了示範，先 O(n) 算出所有子樹大小；實際應用中 size 存在節點上，隨插入刪除維護，每次查詢只要 O(h)。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>查詢 O(h)</td><td>預處理 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>適合</th></tr></thead>
+          <tbody>
+            <tr><td>一、遞迴中序</td><td>O(h + k)</td><td>O(h)</td><td>單次查詢</td></tr>
+            <tr><td>二、迭代中序</td><td>O(h + k)</td><td>O(h)</td><td>單次查詢 ✔</td></tr>
+            <tr><td>三、子樹大小</td><td>O(h) / 次</td><td>O(n)</td><td>樹常變動、查詢頻繁</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>k = 1</strong> → 最左邊的節點。</li>
+          <li><strong>k = n</strong> → 最右邊的節點，要走完整棵樹。</li>
+          <li><strong>樹是一條鏈</strong> → h = n，堆疊深度 n。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：第 k 大？</h3>
+
+        <div class="code-block">反向中序（右 → 根 → 左），或找第 n − k + 1 小。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 94 題 二元樹的中序遍歷</strong></li>
+          <li><strong>第 173 題 二元搜尋樹迭代器</strong> —— 同一個迭代中序模板</li>
+          <li><strong>第 671 題 二元樹中第二小的節點</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 BST 的中序遍歷是遞增的？</li>
+            <li>迭代中序的時間為什麼是 O(h + k) 而不是 O(n)？</li>
+            <li>子樹大小的方法中，走到右子樹時 k 要怎麼調整？</li>
+          </ol>
+        </div>

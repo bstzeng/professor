@@ -1,0 +1,172 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Design an iterator that supports the <code>peek</code> operation on an existing iterator in addition to the <code>hasNext</code> and the <code>next</code> operations.</p>
+          <p>Implement the <code>PeekingIterator</code> class:</p>
+        <ul>
+          <li><code>PeekingIterator(Iterator&lt;int&gt; nums)</code> Initializes the object with the given integer iterator <code>iterator</code>.</li>
+          <li><code>int next()</code> Returns the next element in the array and moves the pointer to the next element.</li>
+          <li><code>boolean hasNext()</code> Returns <code>true</code> if there are still elements in the array.</li>
+          <li><code>int peek()</code> Returns the next element in the array <strong>without</strong> moving the pointer.</li>
+        </ul>
+          <p><strong>Follow up:</strong> How would you extend your design to be generic and work with all types, not just integer?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個只支援 <code>hasNext</code>、<code>next</code> 的迭代器，請包裝出一個額外支援 <code>peek</code> 的迭代器。</p>
+        <ul>
+          <li><code>PeekingIterator(iterator)</code>：用給定的迭代器初始化。</li>
+          <li><code>next()</code>：回傳下一個元素，並前進。</li>
+          <li><code>hasNext()</code>：還有沒有元素。</li>
+          <li><code>peek()</code>：回傳下一個元素，但<strong>不前進</strong>。</li>
+        </ul>
+          <p><strong>進階：</strong>怎麼讓設計適用於任何型別，而不只是整數？</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：["PeekingIterator","next","peek","next","next","hasNext"]
+        [[[1,2,3]],[],[],[],[],[]]
+  輸出：[null,1,2,2,3,false]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 1000</li>
+          <li>1 ≤ <code>nums[i]</code> ≤ 1000</li>
+          <li>所有 <code>next</code>、<code>peek</code> 呼叫都是合法的</li>
+          <li>最多呼叫 1000 次</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/peeking-iterator/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【原本的迭代器只能「拿」不能「看」】
+    一旦呼叫 next()，元素就被消耗了，沒辦法放回去。
+
+【解法：自己多存一個元素（快取）】
+    偷看的時候其實已經拿出來了，
+    存在自己身上；下次 next() 直接給這個存著的值。
+
+【兩種策略】
+    預先拿（eager）：建構時就拿好第一個，
+        之後每次 next() 都順便補下一個。
+        peek 永遠 O(1)，邏輯簡單。
+    需要才拿（lazy）：用一個旗標 cached 記錄「是否已偷看」。
+        如果底層迭代器很昂貴（讀檔、網路），可以少拿一個。
+
+【hasNext 要把快取算進去】
+    快取裡有東西 -&gt; 還有下一個，
+    即使底層迭代器已經 hasNext() == False。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>預先拿好下一個（eager）</h3>
+        <div class="code-block"># Below is the interface for Iterator, which is already defined for you.
+#
+# class Iterator:
+#     def __init__(self, nums): ...
+#     def hasNext(self) -&gt; bool: ...
+#     def next(self) -&gt; int: ...
+
+class PeekingIterator:
+    def __init__(self, iterator):
+        self.it = iterator
+        self.has = iterator.hasNext()
+        self.nxt = iterator.next() if self.has else None   # ★ 永遠預先拿好下一個
+
+    def peek(self):
+        return self.nxt
+
+    def next(self):
+        val = self.nxt
+        self.has = self.it.hasNext()
+        self.nxt = self.it.next() if self.has else None     # 補上下一個
+        return val
+
+    def hasNext(self):
+        return self.has</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>每個操作 O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>需要時才偷看（lazy）</h3>
+        <div class="code-block">class PeekingIterator:
+    def __init__(self, iterator):
+        self.it = iterator
+        self.cached = False              # 有沒有「偷看過、但還沒被 next 拿走」的元素
+        self.value = None
+
+    def peek(self):
+        if not self.cached:              # 需要時才偷看
+            self.value = self.it.next()
+            self.cached = True
+        return self.value
+
+    def next(self):
+        if self.cached:
+            self.cached = False
+            return self.value
+        return self.it.next()
+
+    def hasNext(self):
+        return self.cached or self.it.hasNext()</div>
+        <p>用旗標 <code>cached</code> 區分「沒有快取」和「快取的值剛好是 None」，所以這個寫法對任何型別（包含 None）都成立——這就是進階問題的答案。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>每個操作 O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、eager</td><td>O(1)</td><td>建構時就消耗一個元素</td></tr>
+            <tr><td>二、lazy + 旗標</td><td>O(1)</td><td>泛型安全 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>連續 peek 多次</strong> → 都回傳同一個值，不前進。</li>
+          <li><strong>peek 之後 hasNext</strong> → 快取中還有值，要回傳 true。</li>
+          <li><strong>元素可能是 None / null</strong>（泛型）→ 不能用「值是否為 None」判斷有沒有快取，要用旗標。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>設計模式</h3>
+
+        <div class="code-block">這是「裝飾器（Decorator）」模式：包住一個現有物件，介面不變，再加上新功能。Python 的 &lt;code&gt;itertools&lt;/code&gt; 沒有內建 peek，常見的做法就是自己包一層；&lt;code&gt;more_itertools.peekable&lt;/code&gt; 也是同樣原理。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 173 題 二元搜尋樹迭代器</strong></li>
+          <li><strong>第 251 題 展開二維向量</strong>（付費）</li>
+          <li><strong>第 341 題 扁平化巢狀列表迭代器</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼需要自己多存一個元素？</li>
+            <li>hasNext 為什麼要考慮快取？</li>
+            <li>泛型版本為什麼要用旗標，而不是檢查值是否為 None？</li>
+          </ol>
+        </div>

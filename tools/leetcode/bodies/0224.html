@@ -1,0 +1,204 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code> representing a valid arithmetic expression, evaluate it and return the result.</p>
+          <p>The expression contains non-negative integers, <code>'+'</code>, <code>'-'</code>, <code>'('</code>, <code>')'</code>, and spaces. <code>'-'</code> may be used as a unary minus (for example <code>"-1"</code> or <code>"-(2 + 3)"</code>), but <code>'+'</code> is never unary.</p>
+          <p>You may not use any built-in function that evaluates strings as expressions, such as <code>eval()</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code>，代表一個<strong>合法的</strong>算式，請計算並回傳結果。</p>
+          <p>算式只包含非負整數、<code>'+'</code>、<code>'-'</code>、<code>'('</code>、<code>')'</code> 和空白。<code>'-'</code> 可以當作<strong>一元負號</strong>（例如 <code>"-1"</code>、<code>"-(2 + 3)"</code>），但 <code>'+'</code> 不會是一元的。</p>
+          <p><strong>不能使用 <code>eval()</code></strong> 這類直接計算字串的內建函式。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "1 + 1"
+  輸出：2
+
+範例 2
+  輸入：s = " 2-1 + 2 "
+  輸出：3
+
+範例 3
+  輸入：s = "(1+(4+5+2)-3)+(6+8)"
+  輸出：23</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 3 × 10⁵</li>
+          <li><code>s</code> 由數字、<code>'+'</code>、<code>'-'</code>、<code>'('</code>、<code>')'</code>、<code>' '</code> 組成</li>
+          <li><code>s</code> 是合法的算式</li>
+          <li>不會出現連續兩個運算子</li>
+          <li>所有數字與運算過程的結果都在 32 位元有號整數範圍內</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/basic-calculator/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【沒有括號時】
+    只有加減，由左到右：每個數字帶著它前面的正負號加總。
+        "2 - 1 + 2" = (+2) + (-1) + (+2) = 3
+
+    一元負號自然成立："-1" 就是 (sign = -1) × 1。
+
+【有括號時】
+    一對括號 = 一個小算式，它的值要整體帶著前面的正負號：
+        "3 - (4 - 5)" = 3 + (-1) × (4 - 5) = 4
+
+【用堆疊暫存外層的狀態】
+    遇到 '(' ：
+        把目前的 result 和括號前的 sign 推進堆疊，
+        括號內從 result = 0、sign = +1 重新開始。
+    遇到 ')' ：
+        結算括號內的值 inner，
+        彈出外層的 (prev_result, prev_sign)：
+            result = prev_result + prev_sign × inner
+
+【最容易漏的】
+    ')' 之前的最後一個數字、字串結尾的最後一個數字，
+    都要記得 result += sign × num。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>一次掃描 + 堆疊</h3>
+        <div class="code-block">class Solution:
+    def calculate(self, s: str) -&gt; int:
+        result = 0          # 目前這一層括號內的累計結果
+        num = 0             # 正在讀的數字
+        sign = 1            # 這個數字前面的正負號
+        stack = []          # 進入括號時，存下外層的 (result, sign)
+        for ch in s:
+            if ch.isdigit():
+                num = num * 10 + int(ch)
+            elif ch in "+-":
+                result += sign * num         # 前一個數字結算
+                num = 0
+                sign = 1 if ch == "+" else -1
+            elif ch == "(":
+                stack.append((result, sign)) # ★ 暫存外層，括號內從 0 重新開始
+                result, sign = 0, 1
+            elif ch == ")":
+                result += sign * num         # 括號內最後一個數字
+                num = 0
+                prev_result, prev_sign = stack.pop()
+                result = prev_result + prev_sign * result   # ★ 括號整體帶著前面的符號
+            # 空白直接略過
+        return result + sign * num</div>
+        <div class="code-block">【模擬】s = "1 - (2 + 3)"
+
+    讀 1          num = 1
+    讀 '-'        result = 1, sign = -1
+    讀 '('        push (1, -1)；result = 0, sign = 1
+    讀 2, '+'     result = 2, sign = 1
+    讀 3, ')'     result = 2 + 3 = 5；pop (1, -1)
+                  result = 1 + (-1) × 5 = -4
+    結尾          -4 + 1 × 0 = -4 ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>堆疊深度 = 括號層數</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>遞迴下降</h3>
+        <div class="code-block">class Solution:
+    def calculate(self, s: str) -&gt; int:
+        i = 0
+
+        def expr() -&gt; int:                  # 讀到 ')' 或字串結尾為止
+            nonlocal i
+            total, sign, num = 0, 1, 0
+            while i &lt; len(s):
+                ch = s[i]
+                i += 1
+                if ch.isdigit():
+                    num = num * 10 + int(ch)
+                elif ch in "+-":
+                    total += sign * num
+                    num, sign = 0, (1 if ch == "+" else -1)
+                elif ch == "(":
+                    num = expr()            # ★ 遞迴算出括號的值，當成一個數字
+                elif ch == ")":
+                    break
+            return total + sign * num
+
+        return expr()</div>
+        <div class="code-block">【遇到 '(' 就遞迴呼叫 expr()】
+    它會讀到對應的 ')' 為止，回傳括號內的值，
+    這個值被當成一個普通數字 num，接著由外層的 sign 處理。
+
+【nonlocal i】
+    所有層級共用同一個讀取位置，
+    內層讀過的字元，外層不會再讀一次。
+
+【遞迴深度】
+    = 括號巢狀層數。極端情況（上萬層括號）會超過遞迴上限。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊</td><td>O(n)</td><td>O(n)</td><td>不怕深層括號 ✔</td></tr>
+            <tr><td>二、遞迴下降</td><td>O(n)</td><td>O(n)</td><td>容易擴充到乘除</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>開頭就是負號</strong>（<code>"-1"</code>）→ sign 一開始變成 −1，自然處理。</li>
+          <li><strong>括號前的負號</strong>（<code>"-(2+3)"</code>）→ 整個括號取負。</li>
+          <li><strong>括號內開頭是負號</strong>（<code>"1-(-2)"</code>）→ 括號內 sign 重新從 +1 開始，才能正確處理。</li>
+          <li><strong>多位數</strong> → <code>num = num * 10 + d</code>。</li>
+          <li><strong>大量空白</strong> → 直接略過。</li>
+          <li><strong>忘了結算最後一個數字</strong> → 答案少一項。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：如果加上乘除（第 227 題）？</h3>
+
+        <div class="code-block">乘除優先順序比加減高 ——
+遇到加減時把數字（帶正負號）推進堆疊；
+遇到乘除時彈出堆疊頂端，算完再推回去；
+最後把堆疊全部加總。</div>
+
+        <h3>追問：加減乘除再加括號（第 772 題，付費）？</h3>
+
+        <div class="code-block">把第 227 題的做法放進遞迴下降：每遇到 '(' 就遞迴，括號內用堆疊處理乘除。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 227 題 基本計算器 II</strong> —— 加減乘除，沒有括號</li>
+          <li><strong>第 150 題 逆波蘭表示法求值</strong></li>
+          <li><strong>第 394 題 字串解碼</strong> —— 同樣的「括號 = 堆疊」套路</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>遇到 <code>'('</code> 時要把什麼推進堆疊？為什麼？</li>
+            <li>遇到 <code>')'</code> 時怎麼和外層合併？</li>
+            <li>一元負號為什麼不需要特別處理？</li>
+            <li>有哪兩個地方容易忘記結算最後一個數字？</li>
+          </ol>
+        </div>

@@ -1,0 +1,206 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an array of positive integers <code>nums</code> and a positive integer <code>target</code>, find the length of the shortest contiguous subarray whose sum is <strong>greater than or equal to</strong> <code>target</code>. If no such subarray exists, return <code>0</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>正整數</strong>陣列 <code>nums</code> 和一個正整數 <code>target</code>，找出總和<strong>大於等於</strong> <code>target</code> 的<strong>最短連續子陣列</strong>，回傳它的長度。如果不存在這樣的子陣列，回傳 <code>0</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：target = 7, nums = [2,3,1,2,4,3]
+  輸出：2
+  說明：子陣列 [4,3] 的和是 7，長度 2 是最短的。
+
+範例 2
+  輸入：target = 4, nums = [1,4,4]
+  輸出：1
+
+範例 3
+  輸入：target = 11, nums = [1,1,1,1,1,1,1,1]
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>target</code> ≤ 10⁹</li>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁵</li>
+          <li>1 ≤ <code>nums[i]</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/minimum-size-subarray-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <div class="callout">
+          <h3>題目的追問</h3>
+        <p><strong>「If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log n).」</strong></p>
+        <p>少見的「做出最佳解之後，請再做一個比較慢的」——目的是練習前綴和 + 二分搜尋。</p>
+        </div>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【關鍵：所有元素都是正數】
+
+    正數代表：
+        視窗往右擴 -&gt; 和一定變大
+        視窗左邊縮 -&gt; 和一定變小
+
+    這個「單調性」讓滑動視窗成立：
+        右指標一路往右加；
+        一旦和 &gt;= target，就記錄長度，然後盡量縮左邊。
+
+【為什麼左指標不需要往回走？】
+
+    假設以 right 結尾時，最短合法的起點是 left。
+    right 往右移之後，新的最短起點只會 &gt;= left
+    （往右擴只會讓和變大，起點不需要往左）。
+    所以 left 只會往右，總共最多移動 n 次 -&gt; O(n) ✔
+
+【如果有負數呢？】
+    單調性消失，滑動視窗不成立 -&gt;
+    要改用「前綴和 + 單調佇列」（第 862 題，Hard）。
+
+【模擬】target = 7, nums = [2,3,1,2,4,3]
+
+    right=3：[2,3,1,2]=8 ≥ 7，長度 4；縮掉 2 -&gt; [3,1,2]=6
+    right=4：[3,1,2,4]=10 ≥ 7，長度 4；縮掉 3 -&gt; [1,2,4]=7，長度 3；
+             縮掉 1 -&gt; [2,4]=6
+    right=5：[2,4,3]=9 ≥ 7，長度 3；縮掉 2 -&gt; [4,3]=7，長度 2 ✔</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力列舉起點</h3>
+        <div class="code-block">class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -&gt; int:
+        best = float("inf")
+        for i in range(len(nums)):
+            total = 0
+            for j in range(i, len(nums)):
+                total += nums[j]
+                if total &gt;= target:
+                    best = min(best, j - i + 1)
+                    break                              # 再往右只會更長
+        return 0 if best == float("inf") else best</div>
+        <p>每個起點往右加到夠為止。<strong>最壞 O(n²)</strong>，n = 10⁵ 時是 10¹⁰ 次，超時。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>前綴和 + 二分搜尋（追問要求的 O(n log n)）</h3>
+        <div class="code-block">class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -&gt; int:
+        pre = [0]
+        for x in nums:
+            pre.append(pre[-1] + x)                  # 前綴和嚴格遞增（元素都 &gt; 0）
+        best = float("inf")
+        for i in range(len(nums)):
+            # 找最小的 j 使 pre[j] - pre[i] &gt;= target
+            j = bisect.bisect_left(pre, pre[i] + target)
+            if j &lt;= len(nums):
+                best = min(best, j - i)
+        return 0 if best == float("inf") else best</div>
+        <div class="code-block">【前綴和】pre[k] = nums[0] + … + nums[k-1]
+    子陣列 nums[i..j-1] 的和 = pre[j] - pre[i]
+
+【要找】最小的 j，使 pre[j] &gt;= pre[i] + target
+    因為元素都是正數，pre 嚴格遞增 -&gt; 可以二分 ✔
+
+【bisect_left 回傳 len(pre) 代表找不到】
+    這時 j = n + 1 &gt; n，要跳過。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td>n 次二分</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>前綴和陣列</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>滑動視窗</h3>
+        <div class="code-block">class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -&gt; int:
+        best = float("inf")
+        total = left = 0
+        for right, x in enumerate(nums):
+            total += x
+            while total &gt;= target:                   # ★ 夠了就試著縮左邊
+                best = min(best, right - left + 1)
+                total -= nums[left]
+                left += 1
+        return 0 if best == float("inf") else best</div>
+        <div class="code-block">【內層 while 看起來是巢狀迴圈，為什麼是 O(n)？】
+
+    left 在整個過程中只往右移，最多移 n 次。
+    所以 while 的「總」執行次數 ≤ n，
+    加上外層 n 次 -&gt; O(2n) = O(n) ✔
+
+【為什麼是 while 而不是 if？】
+    加進一個大數之後，可能可以一次縮掉好幾個左邊的元素。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>每個元素進出視窗各一次</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>O(n²)</td><td>O(1)</td><td>超時 ✘</td></tr>
+            <tr><td>二、前綴和 + 二分</td><td>O(n log n)</td><td>O(n)</td><td>追問要求</td></tr>
+            <tr><td>三、滑動視窗</td><td>O(n)</td><td>O(1)</td><td>最佳 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全部加起來都不夠</strong> → 回傳 0（別回傳 <code>inf</code>）。</li>
+          <li><strong>單一元素就夠</strong> → 回傳 1。</li>
+          <li><strong>「大於等於」而不是「等於」</strong> → 別寫成 <code>== target</code>。</li>
+          <li><strong>用 <code>if</code> 代替 <code>while</code> 縮左邊</strong> → 會漏掉更短的答案。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：如果陣列裡有負數？</h3>
+
+        <div class="code-block">滑動視窗失效，因為縮左邊不一定讓和變小。
+正確做法：前綴和 + 單調遞增的雙端佇列（第 862 題）：
+    對每個 j，從佇列前端彈出所有 pre[j] - pre[front] &gt;= target 的 i 並更新答案；
+    從佇列後端彈出所有 pre[back] &gt;= pre[j] 的 i（它們不可能比 j 更好）。
+整體 O(n)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 862 題 和至少為 K 的最短子陣列</strong> —— 有負數的版本</li>
+          <li><strong>第 3 題 無重複字元的最長子字串</strong> —— 滑動視窗</li>
+          <li><strong>第 76 題 最小覆蓋子字串</strong> —— 滑動視窗找最短</li>
+          <li><strong>第 713 題 乘積小於 K 的子陣列</strong> —— 同樣靠正數的單調性</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「所有元素都是正數」對滑動視窗為什麼重要？</li>
+            <li>滑動視窗中的 <code>while</code> 為什麼不會讓複雜度變成 O(n²)？</li>
+            <li>前綴和 + 二分的做法中，為什麼前綴和可以二分？</li>
+            <li>如果有負數，要改用什麼方法？</li>
+          </ol>
+        </div>

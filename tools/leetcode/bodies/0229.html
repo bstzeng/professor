@@ -1,0 +1,163 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array of size <code>n</code>, find all elements that appear more than <code>⌊ n/3 ⌋</code> times.</p>
+          <p><strong>Follow up:</strong> Could you solve the problem in linear time and in <code>O(1)</code> space?</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個長度為 <code>n</code> 的整數陣列，找出所有出現次數<strong>超過 <code>⌊ n/3 ⌋</code></strong> 的元素。</p>
+          <p><strong>進階：</strong>能用線性時間、<code>O(1)</code> 額外空間解決嗎？</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [3,2,3]
+  輸出：[3]
+
+範例 2
+  輸入：nums = [1]
+  輸出：[1]
+
+範例 3
+  輸入：nums = [1,2]
+  輸出：[1,2]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 5 × 10⁴</li>
+          <li>−10⁹ ≤ <code>nums[i]</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/majority-element-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">摩爾投票推廣：每次拿掉「三個互不相同」的數</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="40" y="40" width="36" height="30" fill="none" stroke="var(--accent)"/><text x="58" y="60" fill="var(--accent)">A</text>
+              <rect x="80" y="40" width="36" height="30" fill="none" stroke="var(--gold)"/><text x="98" y="60" fill="var(--gold)">B</text>
+              <rect x="120" y="40" width="36" height="30" fill="none" stroke="#ff8a65"/><text x="138" y="60" fill="#ff8a65">C</text>
+            </g>
+            <text x="170" y="60" fill="var(--text)" font-size="12">一次抵銷 3 個數，其中每一種值最多只少 1 個</text>
+            <text x="40" y="100" fill="var(--text)" font-size="12">若 x 出現 &gt; n/3 次：抵銷最多 n/3 輪（每輪用掉 3 個），x 最多被扣 n/3 次</text>
+            <text x="40" y="122" fill="var(--text)" font-size="12">→ x 一定會留到最後，成為兩個候選人之一。</text>
+            <text x="40" y="154" fill="var(--gold)" font-size="12">★ 但留下來的候選人不一定超過 n/3（例如 [1,2,3]），所以要再數一次確認。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【答案最多幾個？】
+    超過 n/3 的元素如果有 3 個，總數就 &gt; n ✘
+    -&gt; 最多 2 個。
+
+【第 169 題的摩爾投票：1 個候選人】
+    不同的兩個數互相抵銷，超過一半的那個一定留下來。
+
+【推廣：2 個候選人】
+    每遇到一個數 x：
+        x 等於某個候選人    -&gt; 那個候選人的票 +1
+        某個候選人票數為 0  -&gt; x 取代它，票數 1
+        否則                -&gt; 兩個候選人的票都 -1
+                               （x、c1、c2 三個不同的值互相抵銷）
+
+【為什麼一定要第二趟？】
+    保證：真正超過 n/3 的元素一定是候選人。
+    不保證：候選人一定超過 n/3。
+    [1, 2, 3] -&gt; 候選人可能是 3 和 2，但都只出現一次。
+
+【判斷順序很重要】
+    先檢查「等於 c1 / c2」，再檢查「票數為 0」。
+    反過來的話，c1 票數 0 時遇到 c2 的值，
+    會讓 c1 和 c2 變成同一個值 ✘</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>雜湊計數</h3>
+        <div class="code-block">class Solution:
+    def majorityElement(self, nums: List[int]) -&gt; List[int]:
+        cnt = collections.Counter(nums)
+        return [x for x, c in cnt.items() if c &gt; len(nums) // 3]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>摩爾投票（兩個候選人）</h3>
+        <div class="code-block">class Solution:
+    def majorityElement(self, nums: List[int]) -&gt; List[int]:
+        # ★ 超過 n/3 的元素最多 2 個 -&gt; 保留 2 個候選人
+        c1, c2, n1, n2 = None, None, 0, 0
+        for x in nums:
+            if x == c1:
+                n1 += 1
+            elif x == c2:
+                n2 += 1
+            elif n1 == 0:
+                c1, n1 = x, 1
+            elif n2 == 0:
+                c2, n2 = x, 1
+            else:                     # 三個不同的值互相抵銷
+                n1 -= 1
+                n2 -= 1
+        # 第二趟：候選人不一定真的超過 n/3，要重新計數確認
+        return [c for c in (c1, c2) if c is not None and nums.count(c) &gt; len(nums) // 3]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td>兩趟掃描</td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、雜湊計數</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>二、摩爾投票</td><td>O(n)</td><td>O(1) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1 或 2</strong> → 每個不同的元素都超過 ⌊n/3⌋ = 0。</li>
+          <li><strong>沒有任何答案</strong>（<code>[1,2,3]</code>）→ 第二趟全部篩掉。</li>
+          <li><strong>候選人初始值</strong> → 用 None，避免和陣列中的值（例如 0）混淆。</li>
+          <li><strong>兩個候選人相同</strong> → 判斷順序正確就不會發生。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>推廣：超過 n/k 的元素？</h3>
+
+        <div class="code-block">保留 k−1 個候選人，遇到新值且沒有空位時全部 −1。時間 O(nk)、空間 O(k)。這個演算法叫 Misra–Gries，是串流資料中找「熱門項目」的經典方法。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 169 題 多數元素</strong> —— 超過 n/2</li>
+          <li><strong>第 1150 題 檢查一個數是否在陣列中佔絕大多數</strong>（付費）</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>超過 n/3 的元素最多有幾個？為什麼？</li>
+            <li>三個不同的數互相抵銷，為什麼不會把真正的答案消掉？</li>
+            <li>為什麼需要第二趟重新計數？</li>
+            <li>候選人判斷中，為什麼要先檢查「等於候選人」再檢查「票數為 0」？</li>
+          </ol>
+        </div>

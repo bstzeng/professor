@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>212. Word Search II 單詞搜尋 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="把所有單字建成字典樹，一次網格 DFS 同時找全部，找到就剪掉分支。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="212">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 212 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 212</div>
+          <h1>Word Search II<br>單詞搜尋 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">回溯</span>
+          <span class="lc-badge">字典樹</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an <code>m x n</code> grid of letters <code>board</code> and a list of distinct strings <code>words</code>. Return every word from the list that can be found on the board.</p>
+          <p>A word is formed by a path of horizontally or vertically adjacent cells. Each cell may be used at most once within the same word. The answer can be returned in any order.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m x n</code> 的字母網格 <code>board</code>，以及一個由不重複字串組成的清單 <code>words</code>。請回傳所有<strong>能在網格中找到</strong>的單字。</p>
+          <p>單字必須由<strong>上下左右相鄰</strong>的格子依序組成，<strong>同一個單字中每個格子最多用一次</strong>。答案順序不限。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：board = [["o","a","a","n"],
+                 ["e","t","a","e"],
+                 ["i","h","k","r"],
+                 ["i","f","l","v"]],
+        words = ["oath","pea","eat","rain"]
+  輸出：["eat","oath"]
+
+範例 2
+  輸入：board = [["a","b"],["c","d"]], words = ["abcb"]
+  輸出：[]
+  說明：b 要用兩次，不行。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == board.length</code>，<code>n == board[i].length</code></li>
+          <li>1 ≤ <code>m, n</code> ≤ 12</li>
+          <li><code>board[i][j]</code> 是小寫英文字母</li>
+          <li>1 ≤ <code>words.length</code> ≤ 3 × 10⁴</li>
+          <li>1 ≤ <code>words[i].length</code> ≤ 10</li>
+          <li><code>words[i]</code> 只包含小寫英文字母，且所有單字<strong>互不相同</strong></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/word-search-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【第 79 題（單詞搜尋）一次找一個單字】
+    對 3×10^4 個單字各做一次網格 DFS -&gt;
+    每次最多 12×12 個起點 × 4^10 條路 ✘ 超時
+
+【關鍵想法：一次 DFS 同時找所有單字】
+    把所有單字建成字典樹。
+    網格 DFS 的時候，同時沿著字典樹往下走：
+        - 目前的路徑不是任何單字的前綴 -&gt; 立刻停（剪枝）
+        - 走到結束節點 -&gt; 找到一個單字
+
+    這樣共同前綴只會被探索一次，
+    而且「不可能的方向」在第一個字母就被砍掉 ✔
+
+【三個讓它真的夠快的細節】
+    1. 結束節點直接存整個單字 -&gt; 找到時不用重建字串
+    2. 找到後把單字從字典樹拿掉 -&gt; 不會重複加入，也不會重複搜尋
+    3. 回溯時，如果子節點已經空了，就從父節點刪掉 -&gt;
+       已經找完的分支再也不會被走進去（這個剪枝讓速度差非常多）</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>每個單字各跑一次第 79 題（超時）</h3>
+        <div class="code-block">class Solution:
+    def findWords(self, board: List[List[str]], words: List[str]) -&gt; List[str]:
+        m, n = len(board), len(board[0])
+
+        def exist(word: str) -&gt; bool:        # 第 79 題的解法，每個單字各做一次
+            def dfs(r, c, i):
+                if i == len(word):
+                    return True
+                if not (0 &lt;= r &lt; m and 0 &lt;= c &lt; n) or board[r][c] != word[i]:
+                    return False
+                board[r][c] = "#"
+                ok = any(dfs(r + dr, c + dc, i + 1)
+                         for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+                board[r][c] = word[i]
+                return ok
+            return any(dfs(r, c, 0) for r in range(m) for c in range(n))
+
+        return [w for w in words if exist(w)]</div>
+        <p>邏輯正確，但單字多時會重複探索大量相同的前綴。<strong>3×10⁴ 個單字時會超時。</strong></p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(W · m·n · 4^L)</td><td>W = 單字數，L = 單字長度</td></tr>
+            <tr><td>空間</td><td>O(L)</td><td>遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>字典樹 + 回溯 + 剪枝</h3>
+        <div class="code-block">class Solution:
+    def findWords(self, board: List[List[str]], words: List[str]) -&gt; List[str]:
+        root = {}
+        for w in words:                      # 1. 把所有單字建成字典樹
+            node = root
+            for ch in w:
+                node = node.setdefault(ch, {})
+            node["$"] = w                    # ★ 結束節點直接存整個單字
+
+        m, n = len(board), len(board[0])
+        found = []
+
+        def dfs(r: int, c: int, parent: dict) -&gt; None:
+            ch = board[r][c]
+            node = parent[ch]
+            if "$" in node:
+                found.append(node.pop("$"))  # ★ 找到就拿掉，避免重複加入
+            board[r][c] = "#"                # 標記走過
+            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nr, nc = r + dr, c + dc
+                if 0 &lt;= nr &lt; m and 0 &lt;= nc &lt; n and board[nr][nc] in node:
+                    dfs(nr, nc, node)
+            board[r][c] = ch                 # 回溯：還原
+            if not node:                     # ★ 剪枝：這個分支已經沒有單字了
+                parent.pop(ch)
+
+        for r in range(m):
+            for c in range(n):
+                if board[r][c] in root:
+                    dfs(r, c, root)
+        return found</div>
+        <div class="code-block">【dfs(r, c, parent) 為什麼傳「父節點」？】
+    因為最後要能從父節點把空掉的子節點刪掉（剪枝），
+    所以需要父節點的參照。
+
+【進入 dfs 之前就檢查 board[nr][nc] in node】
+    不在字典樹裡的方向根本不進遞迴，
+    也順便排除了已經走過的格子（'#' 不在字典樹裡）。
+
+【回溯時一定要還原 board[r][c]】
+    否則其他起點的搜尋會看到被改掉的棋盤 ✘</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m·n · 4 · 3^(L−1))</td><td>每條路徑第一步 4 個方向，之後最多 3 個</td></tr>
+            <tr><td>空間</td><td>O(總字元數)</td><td>字典樹</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、逐一單字</td><td>O(W · m·n · 4^L)</td><td>超時 ✘</td></tr>
+            <tr><td>二、字典樹 + 剪枝</td><td>O(m·n · 4 · 3^(L−1))</td><td>與單字數量無關 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>同一個單字在網格中出現好幾次</strong> → 只能回傳一次（找到後從字典樹拿掉）。</li>
+          <li><strong>單字需要重複使用格子</strong>（範例 2）→ 找不到。</li>
+          <li><strong>一個單字是另一個的前綴</strong>（<code>"a"</code> 和 <code>"aa"</code>）→ 兩個都要找到，不能找到第一個就停。</li>
+          <li><strong>忘了還原棋盤</strong> → 後續搜尋出錯。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：為什麼「刪除空掉的分支」能讓速度差那麼多？</h3>
+
+        <div class="code-block">網格常常很「重複」（例如整片都是 'a'），
+而單字清單可能有很多共同前綴。
+沒有刪除分支時，已經找完的單字所在的路徑，
+每個起點都還會再走一次。
+刪除之後，找完的部分從字典樹上消失，
+之後的起點在第一步就被擋下。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 79 題 單詞搜尋</strong> —— 只找一個單字</li>
+          <li><strong>第 208 題 實作字典樹</strong></li>
+          <li><strong>第 211 題 添加與搜尋單字</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要先把所有單字建成字典樹，而不是每個單字各搜一次？</li>
+            <li>找到單字後為什麼要把它從字典樹拿掉？</li>
+            <li>回溯時刪除空分支有什麼效果？</li>
+            <li>為什麼 DFS 結束時一定要還原棋盤？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0211.html">← 上一題：211. 添加與搜尋單字</a>
+          <a href="problem-0213.html">下一題：213. 打家劫舍 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
