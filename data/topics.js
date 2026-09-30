@@ -10284,7 +10284,18 @@ window.SITE_DATA = {
             { title: "313. Super Ugly Number 超級醜數", url: "topics/leetcode/problem-0313.html" },
             { title: "315. Count of Smaller Numbers After Self 計算右側小於當前元素的個數", url: "topics/leetcode/problem-0315.html" },
             { title: "316. Remove Duplicate Letters 去除重複字母", url: "topics/leetcode/problem-0316.html" },
-            { title: "318. Maximum Product of Word Lengths 最大單字長度乘積", url: "topics/leetcode/problem-0318.html" }
+            { title: "318. Maximum Product of Word Lengths 最大單字長度乘積", url: "topics/leetcode/problem-0318.html" },
+            { title: "319. Bulb Switcher 燈泡開關", url: "topics/leetcode/problem-0319.html" },
+            { title: "321. Create Maximum Number 拼接最大數", url: "topics/leetcode/problem-0321.html" },
+            { title: "322. Coin Change 零錢兌換", url: "topics/leetcode/problem-0322.html" },
+            { title: "324. Wiggle Sort II 擺動排序 II", url: "topics/leetcode/problem-0324.html" }
+          ]
+        },
+        {
+          title: "第 326–350 題",
+          courses: [
+            { title: "326. Power of Three 3 的冪", url: "topics/leetcode/problem-0326.html" },
+            { title: "327. Count of Range Sum 區間和的個數", url: "topics/leetcode/problem-0327.html" }
           ]
         }
       ]

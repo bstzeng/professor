@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>327. Count of Range Sum 區間和的個數 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="轉成前綴和配對計數：合併排序加雙指標，或座標壓縮加樹狀陣列。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="327">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 327 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 327</div>
+          <h1>Count of Range Sum<br>區間和的個數</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">樹狀陣列</span>
+          <span class="lc-badge">線段樹</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">二分搜尋</span>
+          <span class="lc-badge">分治</span>
+          <span class="lc-badge">有序集合</span>
+          <span class="lc-badge">合併排序</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> and two integers <code>lower</code> and <code>upper</code>, return <em>the number of range sums that lie in</em> <code>[lower, upper]</code> <em>inclusive</em>.</p>
+          <p>Range sum <code>S(i, j)</code> is defined as the sum of the elements in <code>nums</code> between indices <code>i</code> and <code>j</code> inclusive, where <code>i &lt;= j</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>nums</code> 和兩個整數 <code>lower</code>、<code>upper</code>，回傳有幾個<strong>區間和</strong>落在 <code>[lower, upper]</code> 之間（包含兩端）。</p>
+          <p>區間和 <code>S(i, j)</code> 是 <code>nums[i] + ... + nums[j]</code>（<code>i ≤ j</code>）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [-2,5,-1], lower = -2, upper = 2
+  輸出：3
+  說明：[0,0]、[2,2]、[0,2] 的和分別是 -2、-1、2。
+
+範例 2
+  輸入：nums = [0], lower = 0, upper = 0
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 10⁵</li>
+          <li>−2³¹ ≤ <code>nums[i]</code> ≤ 2³¹ − 1</li>
+          <li>−10⁵ ≤ <code>lower ≤ upper</code> ≤ 10⁵</li>
+          <li>答案保證在 32 位元整數範圍內</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/count-of-range-sum/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【前綴和轉換】
+    P[0] = 0，P[k] = nums[0] + ... + nums[k-1]
+    區間和 S(i, j) = P[j+1] - P[i]
+    問題變成：有幾對 a &lt; b，使得 lower &lt;= P[b] - P[a] &lt;= upper？
+
+    也就是：對每個 P[b]，
+    前面有幾個 P[a] 落在 [P[b] - upper, P[b] - lower]？
+
+【方法一：樹狀陣列（和第 315 題同一個套路）】
+    由左到右掃過 P，
+    查詢「已經看過的前綴和中，落在某個值域的有幾個」，
+    再把 P[b] 加進去。
+    值很大（可到 10¹⁴）-&gt; 座標壓縮。
+
+【方法二：合併排序】
+    排序 P 的過程中，左半、右半各自已排序。
+    所有「a 在左半、b 在右半」的配對：
+        對左邊每個 P[a]，右邊合格的 P[b] 是一段連續區間 [l, r)，
+        而且 P[a] 變大時，l、r 只會往右 -&gt; 雙指標 O(n)。
+    左半內部、右半內部的配對由遞迴處理。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>前綴和 + 座標壓縮 + 樹狀陣列</h3>
+        <div class="code-block">class Solution:
+    def countRangeSum(self, nums: List[int], lower: int, upper: int) -&gt; int:
+        P = [0]
+        for x in nums:
+            P.append(P[-1] + x)
+        vals = sorted(set(P))                   # 座標壓縮
+        m = len(vals)
+        tree = [0] * (m + 1)
+
+        def add(i):
+            while i &lt;= m:
+                tree[i] += 1
+                i += i &amp; -i
+
+        def query(i):                           # 名次 1..i 的個數
+            s = 0
+            while i:
+                s += tree[i]
+                i -= i &amp; -i
+            return s
+
+        count = 0
+        for p in P:
+            # 之前的 P[i] 要落在 [p - upper, p - lower]
+            lo = bisect.bisect_left(vals, p - upper)       # 名次 &gt; lo 的
+            hi = bisect.bisect_right(vals, p - lower)      # 名次 &lt;= hi 的
+            count += query(hi) - query(lo)
+            add(bisect.bisect_left(vals, p) + 1)
+        return count</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>前綴和 + 合併排序</h3>
+        <div class="code-block">class Solution:
+    def countRangeSum(self, nums: List[int], lower: int, upper: int) -&gt; int:
+        # 前綴和：區間和 = P[j] - P[i]；要數有幾對 i &lt; j 使 lower &lt;= P[j] - P[i] &lt;= upper
+        P = [0]
+        for x in nums:
+            P.append(P[-1] + x)
+
+        def sort(lo: int, hi: int) -&gt; int:      # 排序 P[lo:hi] 並回傳跨左右的對數
+            if hi - lo &lt;= 1:
+                return 0
+            mid = (lo + hi) // 2
+            count = sort(lo, mid) + sort(mid, hi)
+            # ★ 左右兩半各自已排序：對每個左邊的 P[i]，右邊合格的 P[j] 是一段連續區間
+            l = r = mid
+            for i in range(lo, mid):
+                while l &lt; hi and P[l] - P[i] &lt; lower:
+                    l += 1
+                while r &lt; hi and P[r] - P[i] &lt;= upper:
+                    r += 1
+                count += r - l
+            P[lo:hi] = sorted(P[lo:hi])         # 合併（這裡用 sorted 簡化，仍是 O(n log n)）
+            return count
+
+        return sort(0, len(P))</div>
+        <div class="code-block">【為什麼排序不會破壞「a &lt; b」的關係？】
+    計數時只配對「a 在左半、b 在右半」，
+    左半的原始索引都小於右半 —— 在各自內部怎麼排序都不影響這個事實。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>暴力</td><td>O(n²)</td><td>O(1)</td></tr>
+            <tr><td>一、樹狀陣列</td><td>O(n log n)</td><td>O(n)</td></tr>
+            <tr><td>二、合併排序</td><td>O(n log n)</td><td>O(n) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>前綴和很大</strong>（10⁵ × 2³¹）→ Python 沒有溢位；其他語言用 64 位元。</li>
+          <li><strong>lower = upper</strong> → 數「和剛好等於某值」的區間。</li>
+          <li><strong>別忘了 P[0] = 0</strong> → 從索引 0 開始的區間要靠它。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>簡化版</h3>
+
+        <div class="code-block">第 560 題「和為 K 的子陣列」：lower = upper = k，而且可以用雜湊表 O(n)——因為只需要「剛好等於」，不需要值域查詢。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 315 題 計算右側小於當前元素的個數</strong></li>
+          <li><strong>第 493 題 翻轉對</strong></li>
+          <li><strong>第 560 題 和為 K 的子陣列</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>區間和怎麼用前綴和表示？問題轉換成什麼？</li>
+            <li>合併排序中，為什麼合格的 P[b] 是連續的一段？</li>
+            <li>排序為什麼不會影響 a &lt; b 的條件？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0326.html">← 上一題：326. 3 的冪</a>
+          <a href="index.html">回題目總覽</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

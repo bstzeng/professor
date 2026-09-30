@@ -1,0 +1,180 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an integer array <code>coins</code> representing coins of different denominations and an integer <code>amount</code> representing a total amount of money.</p>
+          <p>Return <em>the fewest number of coins that you need to make up that amount</em>. If that amount of money cannot be made up by any combination of the coins, return <code>-1</code>.</p>
+          <p>You may assume that you have an infinite number of each kind of coin.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個代表不同面額硬幣的陣列 <code>coins</code>，以及總金額 <code>amount</code>。</p>
+          <p>回傳湊出總金額所需的<strong>最少硬幣數</strong>。如果無法湊出，回傳 <code>-1</code>。</p>
+          <p>每種硬幣的數量都是無限的。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：coins = [1,2,5], amount = 11
+  輸出：3
+  說明：11 = 5 + 5 + 1
+
+範例 2
+  輸入：coins = [2], amount = 3
+  輸出：-1
+
+範例 3
+  輸入：coins = [1], amount = 0
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>coins.length</code> ≤ 12</li>
+          <li>1 ≤ <code>coins[i]</code> ≤ 2³¹ − 1</li>
+          <li>0 ≤ <code>amount</code> ≤ 10⁴</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/coin-change/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【貪心為什麼不行？】
+    coins = [1, 3, 4]，amount = 6
+    貪心：4 + 1 + 1 = 3 枚
+    最佳：3 + 3     = 2 枚 ✘
+    （台幣、美元這種面額設計剛好讓貪心成立，但一般情況不成立。）
+
+【完全背包 DP】
+    dp[x] = 湊出 x 的最少硬幣數
+    dp[0] = 0
+    dp[x] = min(dp[x - c] + 1)  對每個 c &lt;= x
+    「最後一枚是 c」-&gt; 剩下 x - c 用最少的方式湊。
+
+【不可能的標記】
+    用 amount + 1 當作「無限大」：
+    就算全用 1 元也只要 amount 枚，所以 amount + 1 不可能是真的答案。
+
+【BFS 觀點】
+    金額是節點，加一枚硬幣是一條邊，
+    從 0 走到 amount 的最短路徑 = 最少硬幣數。</div>
+
+        <table>
+          <thead><tr><th>x</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th></tr></thead>
+          <tbody>
+            <tr><td>dp[x]</td><td>0</td><td>1</td><td>1</td><td>2</td><td>2</td><td>1</td><td>2</td><td>2</td><td>3</td><td>3</td><td>2</td><td>3</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">錯誤示範</span>
+          <h3>貪心（每次拿最大面額）</h3>
+        <div class="code-block">class Solution:
+    def coinChange(self, coins: List[int], amount: int) -&gt; int:
+        # ✘ 錯誤示範：每次拿最大的面額
+        count = 0
+        for c in sorted(coins, reverse=True):
+            count += amount // c
+            amount %= c
+        return count if amount == 0 else -1</div>
+        <p>coins = [1, 3, 4]、amount = 6 時回傳 3，正確答案是 2。</p>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS 最短路徑</h3>
+        <div class="code-block">class Solution:
+    def coinChange(self, coins: List[int], amount: int) -&gt; int:
+        if amount == 0:
+            return 0
+        seen = {0}
+        frontier = [0]
+        steps = 0
+        while frontier:                       # BFS：第幾層 = 用了幾枚
+            steps += 1
+            nxt = []
+            for s in frontier:
+                for c in coins:
+                    t = s + c
+                    if t == amount:
+                        return steps
+                    if t &lt; amount and t not in seen:
+                        seen.add(t)
+                        nxt.append(t)
+            frontier = nxt
+        return -1</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(amount · k)</td><td>k = 硬幣種類數</td></tr>
+            <tr><td>空間</td><td>O(amount)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>完全背包 DP</h3>
+        <div class="code-block">class Solution:
+    def coinChange(self, coins: List[int], amount: int) -&gt; int:
+        INF = amount + 1                       # 不可能的值（最多用 amount 個 1 元）
+        dp = [0] + [INF] * amount              # dp[x]：湊出 x 最少要幾枚
+        for x in range(1, amount + 1):
+            for c in coins:
+                if c &lt;= x:
+                    # ★ 最後一枚是 c：剩下的 x - c 用最少的方式湊
+                    dp[x] = min(dp[x], dp[x - c] + 1)
+        return dp[amount] if dp[amount] &lt; INF else -1</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(amount · k)</td><td></td></tr>
+            <tr><td>空間</td><td>O(amount)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>貪心</td><td>O(k log k)</td><td>O(1)</td><td>錯誤</td></tr>
+            <tr><td>一、BFS</td><td>O(amount·k)</td><td>O(amount)</td><td>找到就停</td></tr>
+            <tr><td>二、DP</td><td>O(amount·k)</td><td>O(amount)</td><td>標準 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>amount = 0</strong> → 0。</li>
+          <li><strong>無法湊出</strong> → −1。</li>
+          <li><strong>硬幣面額大於 amount</strong> → 直接跳過。</li>
+          <li><strong>面額很大</strong>（2³¹ − 1）→ <code>c &lt;= x</code> 的判斷避免負索引。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：有幾種湊法？</h3>
+
+        <div class="code-block">第 518 題「零錢兌換 II」：dp[x] += dp[x − c]。
+但要注意迴圈順序：外層硬幣、內層金額 → 算「組合數」（1+2 和 2+1 算同一種）；
+外層金額、內層硬幣 → 算「排列數」（第 377 題）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 518 題 零錢兌換 II</strong></li>
+          <li><strong>第 279 題 完全平方數</strong> —— 同一個完全背包</li>
+          <li><strong>第 377 題 組合總和 IV</strong> —— 排列數</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>舉一個貪心會出錯的例子。</li>
+            <li>dp[x] 的轉移式是什麼？</li>
+            <li>為什麼用 amount + 1 表示無法湊出？</li>
+          </ol>
+        </div>

@@ -1,0 +1,131 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given two integer arrays <code>nums1</code> and <code>nums2</code> of lengths <code>m</code> and <code>n</code> respectively. <code>nums1</code> and <code>nums2</code> represent the digits of two numbers. You are also given an integer <code>k</code>.</p>
+          <p>Create the maximum number of length <code>k &lt;= m + n</code> from digits of the two numbers. The relative order of the digits from the same array must be preserved.</p>
+          <p>Return an array of the <code>k</code> digits representing the answer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你兩個整數陣列 <code>nums1</code>、<code>nums2</code>（長度 <code>m</code>、<code>n</code>），各自代表一個數字的各位數，以及整數 <code>k</code>。</p>
+          <p>從兩個陣列中挑出共 <code>k</code> 位數字（<code>k ≤ m + n</code>），拼成<strong>最大</strong>的數。來自同一個陣列的數字必須保持原本的相對順序。</p>
+          <p>回傳這 <code>k</code> 位數字組成的陣列。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums1 = [3,4,6,5], nums2 = [9,1,2,5,8,3], k = 5
+  輸出：[9,8,6,5,3]
+
+範例 2
+  輸入：nums1 = [6,7], nums2 = [6,0,4], k = 5
+  輸出：[6,7,6,0,4]
+
+範例 3
+  輸入：nums1 = [3,9], nums2 = [8,9], k = 3
+  輸出：[9,8,9]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == nums1.length</code>，<code>n == nums2.length</code></li>
+          <li>1 ≤ <code>m, n</code> ≤ 500</li>
+          <li>0 ≤ <code>nums1[i], nums2[i]</code> ≤ 9</li>
+          <li>1 ≤ <code>k</code> ≤ <code>m + n</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/create-maximum-number/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【拆成三個子問題】
+    1. 枚舉從 nums1 拿 i 個、nums2 拿 k - i 個
+    2. 從一個陣列中保持順序挑 t 個，使結果最大
+    3. 把兩個結果合併成最大的數
+    所有 i 的結果取最大。
+
+【子問題 2：單調堆疊（第 402 題的反面）】
+    可以丟掉 len - t 個數字。
+    從左到右，遇到比堆疊頂端大的數字，
+    而且還有丟棄額度 -&gt; 把頂端丟掉（讓大的數字往前）。
+
+【子問題 3：合併 —— 陷阱在相等的時候】
+    像合併排序一樣每次取較大的，
+    但兩邊開頭相同時要看後面：
+        a = [6, 7]，b = [6, 0, 4]
+        開頭都是 6。取 a 的 6 -&gt; 下一步能拿到 7 ✔
+                    取 b 的 6 -&gt; 下一步是 max(6, 0) = 6 ✘
+    正確做法：比較「整段剩下的序列」的字典序，取較大的那邊的開頭。
+
+【複雜度】
+    枚舉 i 共 O(k) 種；每種挑選 O(m + n)，合併最壞 O(k²)（逐段比較）
+    -&gt; O(k · (m + n + k²))，實際上很快。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>枚舉分配 + 單調堆疊 + 字典序合併</h3>
+        <div class="code-block">class Solution:
+    def maxNumber(self, nums1: List[int], nums2: List[int], k: int) -&gt; List[int]:
+        def pick(nums: List[int], t: int) -&gt; List[int]:
+            # 從 nums 中保持順序挑 t 個，使結果最大（單調遞減堆疊）
+            drop = len(nums) - t                     # 可以丟掉幾個
+            stack = []
+            for x in nums:
+                while drop and stack and stack[-1] &lt; x:
+                    stack.pop()
+                    drop -= 1
+                stack.append(x)
+            return stack[:t]
+
+        def merge(a: List[int], b: List[int]) -&gt; List[int]:
+            # ★ 比較「剩下的整段」而不是只比第一位（Python 串列比較就是字典序）
+            return [max(a, b).pop(0) for _ in range(len(a) + len(b))]
+
+        best = []
+        for i in range(max(0, k - len(nums2)), min(k, len(nums1)) + 1):
+            best = max(best, merge(pick(nums1, i), pick(nums2, k - i)))
+        return best</div>
+        <div class="code-block">【merge 那一行在做什麼？】
+    max(a, b) 用 Python 串列的字典序比較，選出「剩下的部分比較大」的那個串列，
+    pop(0) 取出它的開頭。重複 len(a)+len(b) 次。
+    （pop(0) 是 O(n)，要更快可以改用索引，但長度只有幾百，不影響。）</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(k · (m + n + k²))</td><td></td></tr>
+            <tr><td>空間</td><td>O(m + n + k)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>開頭相同</strong> → 一定要比較後續，不能只看第一位。</li>
+          <li><strong>i 的範圍</strong> → 至少 max(0, k − n)，最多 min(k, m)。</li>
+          <li><strong>一個陣列全部都要拿</strong> → 單調堆疊不會丟任何東西。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>拆解成已知題</h3>
+
+        <div class="code-block">「挑 t 個使結果最大」= 第 402 題（移掉 K 位數字，最小）的反向；「兩個序列合併成最大」= 第 1754 題（構造字典序最大的合併字串）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 402 題 移掉 K 位數字</strong></li>
+          <li><strong>第 316 題 去除重複字母</strong></li>
+          <li><strong>第 1754 題 構造字典序最大的合併字串</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>這題可以拆成哪三個子問題？</li>
+            <li>單調堆疊什麼時候可以丟掉頂端？</li>
+            <li>合併時兩邊開頭相同，為什麼要比較後面？</li>
+          </ol>
+        </div>
