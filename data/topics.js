@@ -12120,6 +12120,109 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "national-debt",
+      category: "life",
+      title: "國債是什麼:美國國債為什麼一直創新高",
+      description:
+        "用中立、重機制的方式,拆解國債到底是什麼、赤字與債務的差別、錢花去哪、為什麼一直創新高(歷史、政治、人口、利率),以及聯準會、美元霸權、真正的風險與 r vs. g。最後談它和你的關係、破解常見迷思。附速查表與互動債務計算機。",
+      icon: "💵",
+      url: "topics/national-debt/index.html",
+      resources: [
+        {
+          title: "國債關鍵名詞速查表",
+          description: "赤字、債務、殖利率、QE、債務上限、r vs. g… 一頁看懂國債的關鍵名詞,加上三個重點與五個迷思",
+          icon: "💵",
+          url: "topics/national-debt/cheatsheet.html"
+        },
+        {
+          title: "互動債務計算機",
+          description: "拉動利率、成長率、赤字的滑桿,看未來 30 年債務佔 GDP 的走勢怎麼變,直觀感受「r vs. g」的關鍵",
+          icon: "🧮",
+          url: "topics/national-debt/debt-calculator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜先建立最基本的觀念",
+          courses: [
+            { title: "國債到底是什麼:政府跟誰借錢、借的是什麼", url: "topics/national-debt/lesson-01.html" },
+            { title: "赤字 vs. 債務:一個是今年,一個是累積", url: "topics/national-debt/lesson-02.html" },
+            { title: "政府為什麼要借錢,而不是印錢就好", url: "topics/national-debt/lesson-03.html" },
+            { title: "一個家庭的比喻,以及它哪裡對、哪裡錯", url: "topics/national-debt/lesson-04.html" },
+            { title: "看懂那個一直跳的數字:36 兆美元到底多大", url: "topics/national-debt/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜國債怎麼運作:公債的一生",
+          courses: [
+            { title: "美國公債是什麼:T-Bill、T-Note、T-Bond", url: "topics/national-debt/lesson-06.html" },
+            { title: "一張公債怎麼發行:財政部拍賣、誰來買", url: "topics/national-debt/lesson-07.html" },
+            { title: "殖利率、價格與利率:債券世界的翹翹板", url: "topics/national-debt/lesson-08.html" },
+            { title: "國債的兩本帳:公眾持有 vs. 政府內部持有", url: "topics/national-debt/lesson-09.html" },
+            { title: "誰持有美國國債:本國人、外國政府、聯準會", url: "topics/national-debt/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜赤字從哪來:錢花去哪了",
+          courses: [
+            { title: "聯邦政府的收入:稅收怎麼來", url: "topics/national-debt/lesson-11.html" },
+            { title: "聯邦政府的支出:強制性 vs. 可裁量", url: "topics/national-debt/lesson-12.html" },
+            { title: "三大巨獸:社會安全、醫療保險、國防", url: "topics/national-debt/lesson-13.html" },
+            { title: "利息本身也是支出:債滾債的雪球", url: "topics/national-debt/lesson-14.html" },
+            { title: "為什麼支出總是大於收入:結構性赤字", url: "topics/national-debt/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜為什麼會一直創新高:歷史與結構",
+          courses: [
+            { title: "一張圖看懂:美國國債佔 GDP 的百年走勢", url: "topics/national-debt/lesson-16.html" },
+            { title: "戰爭、金融海嘯、疫情:債務跳升的轉折點", url: "topics/national-debt/lesson-17.html" },
+            { title: "減稅與增支:兩黨都推高債務的政治現實", url: "topics/national-debt/lesson-18.html" },
+            { title: "人口老化:為什麼未來的赤字更難解", url: "topics/national-debt/lesson-19.html" },
+            { title: "債務上限:那個每隔一陣子就吵的戲碼", url: "topics/national-debt/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜聯準會、印鈔與利率",
+          courses: [
+            { title: "聯準會是誰:和財政部的分工", url: "topics/national-debt/lesson-21.html" },
+            { title: "「印鈔買債」是什麼:量化寬鬆(QE)白話解釋", url: "topics/national-debt/lesson-22.html" },
+            { title: "貨幣化債務:政府會不會直接印錢還債?", url: "topics/national-debt/lesson-23.html" },
+            { title: "升息的代價:利率一升,利息支出暴增", url: "topics/national-debt/lesson-24.html" },
+            { title: "通膨和國債的微妙關係", url: "topics/national-debt/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜為什麼美國能借這麼多:美元霸權",
+          courses: [
+            { title: "為什麼全世界搶著借錢給美國:避風港", url: "topics/national-debt/lesson-26.html" },
+            { title: "美元霸權:石油、貿易與 SWIFT", url: "topics/national-debt/lesson-27.html" },
+            { title: "「無風險利率」:美債為什麼是全球定價基準", url: "topics/national-debt/lesson-28.html" },
+            { title: "別的國家能這樣玩嗎:美國的「過度特權」", url: "topics/national-debt/lesson-29.html" },
+            { title: "日本債務佔 GDP 更高,為什麼沒事?", url: "topics/national-debt/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜這樣下去會怎樣:風險與情境",
+          courses: [
+            { title: "國家會「破產」嗎:主權債務違約是什麼", url: "topics/national-debt/lesson-31.html" },
+            { title: "真正的風險:不是違約,而是這幾件事", url: "topics/national-debt/lesson-32.html" },
+            { title: "債務的可持續性:關鍵是利率 vs. 成長率(r＜g)", url: "topics/national-debt/lesson-33.html" },
+            { title: "信用評等下調:標普、惠譽下調美債代表什麼", url: "topics/national-debt/lesson-34.html" },
+            { title: "幾種可能的結局:成長、通膨、緊縮、違約", url: "topics/national-debt/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜這和你有什麼關係",
+          courses: [
+            { title: "國債如何影響你:利率、房貸、通膨、稅", url: "topics/national-debt/lesson-36.html" },
+            { title: "台灣、你的投資組合與美債的關聯", url: "topics/national-debt/lesson-37.html" },
+            { title: "破解常見迷思與最後總結", url: "topics/national-debt/lesson-38.html" },
+          ],
+        },
+      ],
     }
   ]
 };

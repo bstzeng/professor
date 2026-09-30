@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互動債務計算機 ｜ 國債是什麼 ｜ 博雅書院</title>
+<meta name="description" content="拉動利率、成長率、赤字的滑桿,看未來 30 年債務佔 GDP 的走勢怎麼變,直觀感受「r vs. g」的關鍵">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">國債是什麼</a>
+      <span class="sep">/</span>
+      <span>互動債務計算機</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>互動債務計算機:玩玩看 r、g 與赤字的威力</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <p>
+        這個簡化的教學模型,讓你親手體會為什麼「利率 vs. 成長率」(<a href="lesson-33.html">第 33 課</a>)那麼關鍵。試試看:把利率 r 調到高於成長率 g,看債務怎麼失控;再把 g 調高,看它怎麼被稀釋。
+      </p>
+
+      <div class="content-figure" style="text-align:left">
+        <p style="margin:0 0 12px">拉動下面的滑桿,看未來 30 年<strong>債務佔 GDP</strong>的走勢會怎麼變。
+        這是一個<strong>簡化的教學模型</strong>,用來體會「r vs. g」和赤字的威力,不是精確預測。</p>
+        <div style="display:grid;grid-template-columns:1fr;gap:14px;max-width:520px">
+          <label>名目經濟成長率 g:<b id="dc-g-v">4.0%</b>
+            <input type="range" id="dc-g" min="0" max="8" step="0.1" value="4" style="width:100%"></label>
+          <label>公債平均利率 r:<b id="dc-r-v">3.0%</b>
+            <input type="range" id="dc-r" min="0" max="8" step="0.1" value="3" style="width:100%"></label>
+          <label>基本赤字(不含利息)佔 GDP:<b id="dc-d-v">3.0%</b>
+            <input type="range" id="dc-d" min="-3" max="8" step="0.1" value="3" style="width:100%"></label>
+          <label>起始債務/GDP:<b id="dc-s-v">120%</b>
+            <input type="range" id="dc-s" min="40" max="160" step="1" value="120" style="width:100%"></label>
+        </div>
+        <div id="dc-chart" style="margin-top:16px"></div>
+        <p id="dc-msg" style="margin:10px 0 0;font-weight:bold"></p>
+      </div>
+      <script>
+      (function () {
+        var ids = ['g', 'r', 'd', 's'];
+        function val(id) { return parseFloat(document.getElementById('dc-' + id).value); }
+        function project() {
+          var g = val('g') / 100, r = val('r') / 100, prim = val('d') / 100, debt = val('s') / 100;
+          var pts = [debt];
+          for (var yr = 1; yr <= 30; yr++) {
+            // 債務/GDP 動態:d_{t+1} = d_t * (1+r)/(1+g) + 基本赤字/GDP
+            debt = debt * (1 + r) / (1 + g) + prim;
+            if (debt < 0) debt = 0;
+            pts.push(debt);
+          }
+          return pts;
+        }
+        function draw() {
+          document.getElementById('dc-g-v').textContent = val('g').toFixed(1) + '%';
+          document.getElementById('dc-r-v').textContent = val('r').toFixed(1) + '%';
+          document.getElementById('dc-d-v').textContent = val('d').toFixed(1) + '%';
+          document.getElementById('dc-s-v').textContent = val('s').toFixed(0) + '%';
+          var pts = project();
+          var maxV = Math.max(200, Math.ceil(Math.max.apply(null, pts) * 100 / 50) * 50);
+          var W = 520, H = 220, padL = 44, padB = 28, padT = 10, padR = 10;
+          var pw = W - padL - padR, ph = H - padT - padB;
+          function sx(i) { return padL + i / 30 * pw; }
+          function sy(v) { return padT + ph - (v * 100 / maxV) * ph; }
+          var path = 'M' + pts.map(function (v, i) { return sx(i).toFixed(1) + ' ' + sy(v).toFixed(1); }).join(' L');
+          var grid = '';
+          for (var y = 0; y <= maxV; y += 50) {
+            grid += '<line x1="' + padL + '" y1="' + sy(y / 100) + '" x2="' + (W - padR) + '" y2="' + sy(y / 100) + '" stroke="var(--border)" stroke-width="0.6"/>';
+            grid += '<text x="' + (padL - 6) + '" y="' + (sy(y / 100) + 3) + '" text-anchor="end" font-size="9" fill="var(--text-muted)">' + y + '%</text>';
+          }
+          var last = pts[pts.length - 1] * 100;
+          var col = last > pts[0] * 100 ? '#e0605a' : '#5aa469';
+          var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:520px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">' +
+            grid +
+            '<line x1="' + padL + '" y1="' + (H - padB) + '" x2="' + (W - padR) + '" y2="' + (H - padB) + '" stroke="var(--text-muted)" stroke-width="1"/>' +
+            '<text x="' + padL + '" y="' + (H - 6) + '" font-size="9" fill="var(--text-muted)">現在</text>' +
+            '<text x="' + (W - padR) + '" y="' + (H - 6) + '" text-anchor="end" font-size="9" fill="var(--text-muted)">30 年後</text>' +
+            '<path d="' + path + '" fill="none" stroke="' + col + '" stroke-width="2.5"/>' +
+            '</svg>';
+          document.getElementById('dc-chart').innerHTML = svg;
+          var msg = document.getElementById('dc-msg');
+          var gap = val('r') - val('g');
+          if (last > pts[0] * 100 + 2) {
+            msg.innerHTML = '<span style="color:#e0605a">30 年後債務/GDP 升到約 ' + last.toFixed(0) + '%——走勢往上。</span>' +
+              (gap > 0 ? '（利率 r 高於成長 g,債務自我推升）' : '（赤字太大,即使 g>r 也壓不住）');
+          } else if (last < pts[0] * 100 - 2) {
+            msg.innerHTML = '<span style="color:#5aa469">30 年後債務/GDP 降到約 ' + last.toFixed(0) + '%——走勢往下!</span>（成長與紀律讓債務被稀釋）';
+          } else {
+            msg.innerHTML = '30 年後債務/GDP 約 ' + last.toFixed(0) + '%——大致穩住。';
+          }
+        }
+        ids.forEach(function (id) { document.getElementById('dc-' + id).addEventListener('input', draw); });
+        draw();
+      })();
+      </script>
+
+      <h2>幾個值得試的情境</h2>
+
+      <ul>
+        <li><strong>g > r 且赤字小</strong>:債務/GDP 會慢慢下降——這是最健康的組合(<a href="lesson-33.html">第 33 課</a>)。</li>
+        <li><strong>r > g</strong>:即使基本赤字為零,債務/GDP 也會自我推升(<a href="lesson-24.html">第 24 課</a>)。</li>
+        <li><strong>赤字很大</strong>:就算 g > r,龐大的赤字仍可能讓債務持續上升(<a href="lesson-15.html">第 15 課</a>)。</li>
+        <li>把 r 從 3% 慢慢拉高,感受「利率一升,走勢就翻轉」——這正是近年的擔憂所在。</li>
+      </ul>
+
+      <p>
+        提醒:這是<strong>教學用的簡化模型</strong>(用債務動態方程式 d′＝d×(1+r)/(1+g)＋基本赤字),真實世界還有通膨、政策反應、經濟循環等許多因素。它的價值在於<strong>建立直覺</strong>,不是精確預測。
+      </p>
+
+      <p style="color:var(--text-muted);font-size:0.9em">📊 本課用來理解<strong>機制與概念</strong>,呈現不同觀點,不偏袒任何政黨或立場;文中的金額、比率是<strong>概略值</strong>,實際數字每天變動,請以官方最新資料(如美國財政部)為準。</p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
