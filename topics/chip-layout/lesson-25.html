@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="時脈是整顆晶片的心跳，而且必須在同一瞬間傳到每一個角落">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜後端（二）：時脈與繞線 · 第 25 課</div>
+      <h1>時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解時脈樹的目的與結構</li>
+          <li>說出 CTS 的主要目標</li>
+          <li>認識 H-tree、時脈網格等不同的時脈架構</li>
+        </ul>
+      </div>
+
+      <p>
+        同步數位電路中，所有正反器都在時脈的邊緣一起動作（<a href="lesson-11.html">第 11 課</a>）。一顆晶片可能有數百萬個正反器，時脈訊號必須從一個源頭（通常是 PLL，<a href="lesson-36.html">第 36 課</a>）出發，<strong>幾乎同時</strong>抵達每一個正反器。完成這件事的步驟叫做<strong>時脈樹合成</strong>（Clock Tree Synthesis，CTS）。
+      </p>
+
+      <h2>1. 為什麼需要一棵「樹」</h2>
+
+      <p>
+        一個時脈源不可能直接推動數百萬個正反器，所以要用<strong>一層層的時脈緩衝器</strong>，像樹枝一樣分岔下去，每一個緩衝器只負責推動一小群下游。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 265" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">時脈樹：讓時脈同時抵達每一個正反器</text>
+                <rect x="270" y="34" width="100" height="36" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="48.5" text-anchor="middle" font-size="10" fill="#ff8a65">時脈源</text><text x="320" y="61.5" text-anchor="middle" font-size="8" fill="var(--text-muted)">PLL</text>
+                <path d="M320 70 L320 90 M160 90 L480 90 M160 90 L160 110 M480 90 L480 110" fill="none" stroke="#4a90c2" stroke-width="2.5"/>
+                <rect x="145" y="110" width="30" height="20" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="465" y="110" width="30" height="20" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <path d="M160 130 L160 150 M80 150 L240 150 M80 150 L80 170 M240 150 L240 170 M480 130 L480 150 M400 150 L560 150 M400 150 L400 170 M560 150 L560 170" fill="none" stroke="#4a90c2" stroke-width="2"/>
+                <rect x="68" y="170" width="24" height="16" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="228" y="170" width="24" height="16" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="388" y="170" width="24" height="16" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="548" y="170" width="24" height="16" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <path d="M80 186 L80 200 M50 200 L110 200 M240 186 L240 200 M210 200 L270 200 M400 186 L400 200 M370 200 L430 200 M560 186 L560 200 M530 200 L590 200" fill="none" stroke="#4a90c2" stroke-width="1.5"/>
+                <rect x="42" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="102" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="202" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="262" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="362" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="422" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="522" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="582" y="200" width="16" height="14" rx="1" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1"/>
+                <text x="620" y="124" text-anchor="end" font-size="9" fill="#4a90c2">時脈緩衝器</text>
+                <text x="620" y="226" text-anchor="end" font-size="9" fill="var(--gold)">正反器（實際上有數百萬個）</text>
+                <text x="320" y="252" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">對稱的 H 型樹是理想；實際上工具依正反器的真實分布建樹，再調整讓延遲平衡</text>
+        </svg>
+        <figcaption>時脈樹示意：一層層緩衝器把時脈分送到大量正反器。</figcaption>
+      </div>
+
+      <h2>2. CTS 的目標</h2>
+
+      <table>
+        <thead>
+          <tr><th>目標</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>低 skew</td><td>各正反器收到時脈的時間差要小（<a href="lesson-26.html">第 26 課</a>）</td></tr>
+          <tr><td>合理的 latency</td><td>從源頭到正反器的延遲不要太長</td></tr>
+          <tr><td>好的轉換時間</td><td>時脈邊緣要陡峭，避免延遲不確定</td></tr>
+          <tr><td>低功耗</td><td>時脈網路每個週期都在切換，是耗電大戶</td></tr>
+          <tr><td>抗雜訊與變異</td><td>時脈線常加寬、加屏蔽（<a href="lesson-37.html">第 37 課</a>）</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 時脈架構</h2>
+
+      <table>
+        <thead>
+          <tr><th>架構</th><th>特性</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>時脈樹</td><td>最常見；由工具依正反器分布建構，面積與功耗較省</td></tr>
+          <tr><td>H-tree</td><td>對稱的 H 形結構，天生平衡；常用在上層</td></tr>
+          <tr><td>時脈網格（mesh）</td><td>把時脈鋪成一張網，skew 極小、抗變異，但功耗大；常見於高效能 CPU</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. 時脈閘控</h2>
+
+      <p>
+        不需要工作的區塊，可以用<strong>時脈閘控</strong>（clock gating）暫時切斷它的時脈，讓那裡的正反器停止切換，大幅降低動態功耗。這是現代低功耗設計最常用的技巧，CTS 必須把這些閘控元件也納入時脈樹中。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          CTS 通常在擺放之後、繞線之前進行，因為時脈樹需要知道正反器的位置，而時脈線又需要優先佔用好的繞線資源。時脈設計不好，常常是整個專案時序無法收斂的主因。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼時脈需要用「樹」來分配？</li>
+          <li>CTS 的主要目標有哪些？</li>
+          <li>時脈閘控如何降低功耗？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Skew 與 latency：時脈是晶片的心跳，也是最難的部分</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：擺放後最佳化：修時序、加緩衝器、調尺寸</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：Skew 與 latency：時脈是晶片的心跳，也是最難的部分 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

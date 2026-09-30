@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：多種工作條件：製程飄移、電壓、溫度與 OCV ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="晶片不只要在實驗室裡能跑，還要在冬天、夏天、電池快沒電時都能跑">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜簽核：交出去之前的所有檢查 · 第 31 課</div>
+      <h1>多種工作條件：製程飄移、電壓、溫度與 OCV</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解多重情境多重角落（MCMM）分析</li>
+          <li>理解晶片內變異（OCV）</li>
+          <li>認識先進製程中的時序分析挑戰</li>
+        </ul>
+      </div>
+
+      <p>
+        在<a href="lesson-12.html">第 12 課</a>我們提過 PVT：製程、電壓、溫度會讓元件變快或變慢。簽核時，晶片必須在<strong>所有</strong>可能遇到的條件與工作模式下都通過時序檢查。
+      </p>
+
+      <h2>1. 多重情境多重角落</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">多重情境多重角落（MCMM）</text>
+                <rect x="120" y="50" width="400" height="170" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="80" y="40" text-anchor="start" font-size="9.5" fill="var(--text-muted)">工作模式 →</text>
+                <text x="110" y="76" text-anchor="end" font-size="9.5" fill="var(--text-muted)">PVT ↓</text>
+                <text x="220" y="70" text-anchor="middle" font-size="9.5" fill="var(--accent)">正常運作</text>
+                <text x="320" y="70" text-anchor="middle" font-size="9.5" fill="var(--accent)">低功耗模式</text>
+                <text x="420" y="70" text-anchor="middle" font-size="9.5" fill="var(--accent)">測試模式</text>
+                <text x="160" y="104" text-anchor="end" font-size="9" fill="var(--text)">SS／低壓／高溫</text>
+                <text x="160" y="144" text-anchor="end" font-size="9" fill="var(--text)">TT／標準</text>
+                <text x="160" y="184" text-anchor="end" font-size="9" fill="var(--text)">FF／高壓／低溫</text>
+                <text x="220" y="104" text-anchor="middle" font-size="10" fill="#e0605a">setup</text>
+                <text x="320" y="104" text-anchor="middle" font-size="10" fill="#e0605a">setup</text>
+                <text x="420" y="104" text-anchor="middle" font-size="10" fill="#e0605a">setup</text>
+                <text x="220" y="144" text-anchor="middle" font-size="10" fill="var(--gold)">功耗</text>
+                <text x="320" y="144" text-anchor="middle" font-size="10" fill="var(--gold)">功耗</text>
+                <text x="420" y="144" text-anchor="middle" font-size="10" fill="var(--text-muted)">—</text>
+                <text x="220" y="184" text-anchor="middle" font-size="10" fill="#ff8a65">hold</text>
+                <text x="320" y="184" text-anchor="middle" font-size="10" fill="#ff8a65">hold</text>
+                <text x="420" y="184" text-anchor="middle" font-size="10" fill="#ff8a65">hold</text>
+                <text x="320" y="246" text-anchor="middle" font-size="10" fill="var(--text)">每一格都是一次完整的分析；先進製程可能有數十到上百個情境</text>
+                <text x="320" y="266" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">再加上 OCV：同一顆晶片上，不同位置的電晶體也有快有慢</text>
+        </svg>
+        <figcaption>每一種工作模式與 PVT 條件的組合，都是一次獨立的時序分析（示意）。</figcaption>
+      </div>
+
+      <p>
+        <strong>Corner</strong> 指一組 PVT 條件；<strong>Mode</strong> 指晶片的工作模式（全速、省電、測試等，時脈設定不同）。兩者的每一種組合都是一個要檢查的情境，稱為 <strong>MCMM</strong>（multi-corner multi-mode）分析。一般而言，setup 在最慢的條件下最嚴苛，hold 在最快的條件下最嚴苛。
+      </p>
+
+      <h2>2. 晶片內變異（OCV）</h2>
+
+      <p>
+        即使在同一顆晶片上，不同位置的電晶體也不會完全一樣：製程在晶圓上有微小的不均勻、局部的溫度與電壓也不同。所以分析時要假設：<strong>發射資料的那條時脈路徑可能比較慢，而捕捉資料的那條時脈路徑可能比較快</strong>（或反過來），取最悲觀的組合。這叫 <strong>OCV</strong>（on-chip variation）分析。
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>方法</th><th>做法</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>固定比例 OCV</td><td>所有延遲一律乘上一個加減比例</td><td>簡單，但過度悲觀</td></tr>
+          <tr><td>AOCV</td><td>依路徑深度與距離調整比例</td><td>較精確</td></tr>
+          <tr><td>POCV／LVF</td><td>用統計分布描述每個元件的變異</td><td>先進製程主流，最精確</td></tr>
+        </tbody>
+      </table>
+
+      <h2>3. 先進製程的新問題</h2>
+
+      <ul>
+        <li><strong>溫度反轉</strong>：在低電壓下，某些製程的元件反而在低溫時比較慢，最差的 corner 不再直覺</li>
+        <li><strong>動態 IR drop</strong>：局部電壓瞬間下降讓元件變慢，需要和時序一起分析（<a href="lesson-22.html">第 22 課</a>）</li>
+        <li><strong>老化</strong>：電晶體使用數年後特性會劣化，時序要預留老化的餘量</li>
+      </ul>
+
+      <p>
+        每多一個要考慮的因素，就要多留一點安全餘量（margin），晶片就要跑得更保守。精準的分析能減少不必要的悲觀，讓晶片在同樣的製程上跑得更快、更省電。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          高階手機晶片常把同一批晶片依實測速度分級：速度好的調高頻率當旗艦版，其他的則用在較低階的產品。這種「分級」（binning）就是利用製程變異造成的晶片差異。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是 MCMM 分析？</li>
+          <li>為什麼即使在同一顆晶片上，也要考慮元件的快慢差異？</li>
+          <li>為什麼更精確的變異模型可以讓晶片跑得更快？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>DRC：設計規則檢查</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：靜態時序分析（STA）：setup、hold 與關鍵路徑</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：DRC：設計規則檢查 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

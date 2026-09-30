@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：繞線（一）：全域繞線與細部繞線 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="數百萬條線要在十幾層金屬中找到路，而且不能互相碰到">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜後端（二）：時脈與繞線 · 第 27 課</div>
+      <h1>繞線（一）：全域繞線與細部繞線</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>分辨全域繞線與細部繞線</li>
+          <li>理解繞線軌道與偏好方向</li>
+          <li>理解繞線失敗的原因</li>
+        </ul>
+      </div>
+
+      <p>
+        元件和時脈樹都放好之後，最後要把 netlist 上的所有連線真正畫出來。這是一個巨大的搜尋問題：數百萬條線，每一條都要在多層金屬中找到一條不違反任何規則、又不和其他線衝突的路徑。
+      </p>
+
+      <h2>1. 兩階段繞線</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 265" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">繞線：全域繞線規劃路線，細部繞線畫出真實的線</text>
+                <rect x="20" y="44" width="280" height="180" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="160" y="36" text-anchor="middle" font-size="10" fill="var(--accent)">① 全域繞線：在格子上規劃</text>
+                <path d="M20 104 L300 104 M20 164 L300 164 M113 44 L113 224 M206 44 L206 224" fill="none" stroke="var(--border)" stroke-width="1" stroke-dasharray="3 3"/>
+                <path d="M66 74 L66 134 L253 134 L253 194" fill="none" stroke="var(--accent)" stroke-width="3"/>
+                <circle cx="66" cy="74" r="5" fill="#e0605a" stroke="#e0605a" stroke-width="1.5"/>
+                <circle cx="253" cy="194" r="5" fill="#e0605a" stroke="#e0605a" stroke-width="1.5"/>
+                <rect x="340" y="44" width="280" height="180" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="480" y="36" text-anchor="middle" font-size="10" fill="var(--accent)">② 細部繞線：落在軌道上</text>
+                <rect x="370" y="80" width="100" height="10" rx="2" fill="#4a90c2" fill-opacity="0.4" stroke="#4a90c2" stroke-width="1.2"/>
+                <rect x="462" y="80" width="10" height="10" rx="1" fill="#333333" fill-opacity="0.9" stroke="#333333" stroke-width="1"/>
+                <rect x="462" y="80" width="10" height="100" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <rect x="462" y="170" width="10" height="10" rx="1" fill="#333333" fill-opacity="0.9" stroke="#333333" stroke-width="1"/>
+                <rect x="462" y="170" width="130" height="10" rx="2" fill="#4a90c2" fill-opacity="0.4" stroke="#4a90c2" stroke-width="1.2"/>
+                <rect x="370" y="120" width="80" height="10" rx="2" fill="#4a90c2" fill-opacity="0.4" stroke="#4a90c2" stroke-width="1.2"/>
+                <rect x="490" y="120" width="110" height="10" rx="2" fill="#4a90c2" fill-opacity="0.4" stroke="#4a90c2" stroke-width="1.2"/>
+                <rect x="520" y="60" width="10" height="50" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <rect x="400" y="140" width="10" height="70" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <text x="620" y="250" text-anchor="end" font-size="9.5" fill="var(--text-muted)">Metal 1 水平、Metal 2 垂直；換方向就要打 via</text>
+                <rect x="28" y="241" width="12" height="12" rx="2" fill="#4a90c2" fill-opacity="0.4" stroke="#4a90c2" stroke-width="1.2"/><text x="46" y="251" text-anchor="start" font-size="9" fill="var(--text-muted)">Metal 1</text><rect x="128" y="241" width="12" height="12" rx="1" fill="#333333" fill-opacity="0.9" stroke="#333333" stroke-width="1"/><text x="146" y="251" text-anchor="start" font-size="9" fill="var(--text-muted)">Via</text><rect x="228" y="241" width="12" height="12" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/><text x="246" y="251" text-anchor="start" font-size="9" fill="var(--text-muted)">Metal 2</text>
+        </svg>
+        <figcaption>左：全域繞線在格子上規劃路線；右：細部繞線把線畫在各層的軌道上。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>階段</th><th>做什麼</th><th>比喻</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>全域繞線</td><td>把晶片切成格子，決定每條線大致經過哪些格子、用哪幾層</td><td>規劃開車路線要走哪幾條高速公路</td></tr>
+          <tr><td>軌道分配</td><td>決定每段線落在哪一條繞線軌道上</td><td>決定要開哪一個車道</td></tr>
+          <tr><td>細部繞線</td><td>畫出真正的線段與 via，並修正所有的規則違反</td><td>實際開車、變換車道</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 軌道與偏好方向</h2>
+
+      <p>
+        每一層金屬都有固定間距的<strong>繞線軌道</strong>，線只能畫在軌道上；而且每一層有<strong>偏好方向</strong>，例如奇數層水平、偶數層垂直（<a href="lesson-03.html">第 3 課</a>）。一條線要轉彎，就得用 via 換到另一層。先進製程中，下層金屬常被嚴格限制只能走單一方向。
+      </p>
+
+      <h2>3. 繞線資源的分配</h2>
+
+      <ul>
+        <li><strong>下層金屬</strong>：元件內部與附近元件之間的短連線</li>
+        <li><strong>中層金屬</strong>：一般訊號</li>
+        <li><strong>上層金屬</strong>：電源、時脈、長距離的關鍵訊號</li>
+        <li><strong>預先繞線</strong>：電源網路（<a href="lesson-22.html">第 22 課</a>）與時脈（<a href="lesson-25.html">第 25 課</a>）通常先繞，一般訊號再用剩下的資源</li>
+      </ul>
+
+      <h2>4. 繞不過去怎麼辦</h2>
+
+      <p>
+        如果某些區域的連線需求超過軌道數（擁擠，<a href="lesson-23.html">第 23 課</a>），繞線器會嘗試繞遠路，或反覆「拆掉重繞」（rip-up and reroute）。如果還是不行，就會留下<strong>短路或開路</strong>的違規。這時通常要回到擺放甚至 floorplan 階段調整。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          繞線完成後，一個大型區塊可能有數百萬到數千萬條線段與 via。「繞線零違規」是交付前的基本要求，最後殘留的少數違規有時需要工程師手動修正。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>全域繞線和細部繞線各在做什麼？</li>
+          <li>為什麼相鄰的金屬層通常走不同方向？</li>
+          <li>為什麼電源和時脈要在一般訊號之前先繞？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>繞線（二）：via、線寬線距與天線效應</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：Skew 與 latency：時脈是晶片的心跳，也是最難的部分</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：繞線（二）：via、線寬線距與天線效應 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：繞線後最佳化：寄生電阻電容萃取與修正 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="線畫好之後，才知道它真正的電阻和電容——最後一輪修正從這裡開始">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜後端（二）：時脈與繞線 · 第 29 課</div>
+      <h1>繞線後最佳化：寄生電阻電容萃取與修正</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解寄生參數萃取的目的</li>
+          <li>理解耦合電容與串擾</li>
+          <li>認識繞線後的最佳化手法與 ECO</li>
+        </ul>
+      </div>
+
+      <p>
+        繞線前，工具只能估計導線的長度與位置；繞線後，每一條線的寬度、長度、所在層、鄰居是誰都確定了。這時可以精確計算導線的<strong>寄生電阻與電容</strong>，這個步驟叫做<strong>萃取</strong>（extraction），結果通常存成 SPEF 檔案，交給時序分析使用（<a href="lesson-30.html">第 30 課</a>）。
+      </p>
+
+      <h2>1. 寄生參數</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 265" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">寄生電阻與電容：導線不是理想的</text>
+                <rect x="60" y="60" width="520" height="20" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <rect x="60" y="110" width="520" height="20" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <rect x="60" y="160" width="520" height="20" rx="2" fill="#9c89d6" fill-opacity="0.4" stroke="#9c89d6" stroke-width="1.2"/>
+                <text x="40" y="124" text-anchor="end" font-size="9.5" fill="#9c89d6">訊號線</text>
+                <path d="M200 80 L200 110 M190 92 L210 92 M190 98 L210 98" fill="none" stroke="#e0605a" stroke-width="1.5"/>
+                <text x="215" y="98" text-anchor="start" font-size="9" fill="#e0605a">耦合電容</text>
+                <path d="M420 130 L420 200 M410 190 L430 190 M410 196 L430 196" fill="none" stroke="#ff8a65" stroke-width="1.5"/>
+                <text x="435" y="210" text-anchor="start" font-size="9" fill="#ff8a65">對地電容</text>
+                <path d="M100 120 L120 112 L130 128 L140 112 L150 128 L160 112 L170 120" fill="none" stroke="var(--text)" stroke-width="1.5"/>
+                <text x="135" y="146" text-anchor="middle" font-size="9" fill="var(--text)">電阻</text>
+                <text x="320" y="232" text-anchor="middle" font-size="10" fill="var(--accent)">萃取工具算出每條線的 R 與 C → 時序分析用它們計算真實延遲</text>
+                <text x="320" y="252" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">耦合電容還會造成串擾：鄰居一跳，自己也被拉一下</text>
+        </svg>
+        <figcaption>導線的寄生電阻、對地電容與耦合電容，決定了訊號的真實延遲。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>參數</th><th>來源</th><th>影響</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>電阻 R</td><td>導線越細越長越大；via 也有電阻</td><td>訊號變慢、IR drop</td></tr>
+          <tr><td>對地電容</td><td>導線與上下層、基板之間</td><td>訊號變慢、功耗增加</td></tr>
+          <tr><td>耦合電容</td><td>與同層相鄰導線之間</td><td>延遲變化、串擾雜訊</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 串擾：被鄰居拉一把</h2>
+
+      <p>
+        兩條平行的長線之間有耦合電容。當旁邊的線（攻擊者）快速切換時，會透過電容在自己這條線（受害者）上產生雜訊：
+      </p>
+
+      <ul>
+        <li><strong>延遲變化</strong>：兩條線反向切換時，自己的訊號被「拖慢」；同向切換時被「加速」</li>
+        <li><strong>雜訊脈衝</strong>：自己本來不動，卻被鄰居拉出一個尖峰，嚴重時可能讓正反器存錯值</li>
+      </ul>
+
+      <p>
+        修正方式包括：拉開間距、插入屏蔽線、換層、在受害者上加大驅動力。
+      </p>
+
+      <h2>3. 繞線後最佳化與 ECO</h2>
+
+      <p>
+        根據精確的寄生參數，工具再做最後一輪時序與電氣規則修正。此時元件和線大多已經固定，修改必須很小心，只做局部的調整，例如換元件尺寸、插入少量緩衝器、重繞少數線。
+      </p>
+
+      <p>
+        如果在很後期才發現功能錯誤，工程師會做 <strong>ECO</strong>（Engineering Change Order）：只修改極少數元件與連線，而不是從頭跑一次流程。晶片甚至會預先散布一些<strong>備用元件</strong>（spare cells），讓 tape-out 之後的小修改只需要改幾層金屬光罩（<a href="lesson-40.html">第 40 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          在先進製程中，導線的電阻與耦合電容影響越來越大，萃取的準確度直接決定簽核的可信度。晶圓廠會提供經過驗證的萃取技術檔，確保工具算出的數值與矽上的實際結果一致。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼要在繞線後才做精確的寄生參數萃取？</li>
+          <li>什麼是串擾？它可能造成哪兩種問題？</li>
+          <li>什麼是 ECO？備用元件有什麼用途？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>靜態時序分析（STA）：setup、hold 與關鍵路徑</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：繞線（二）：via、線寬線距與天線效應</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：靜態時序分析（STA）：setup、hold 與關鍵路徑 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

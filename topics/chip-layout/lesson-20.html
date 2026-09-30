@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：實體設計流程總覽：從 netlist 到 GDSII ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="前端交出一份「誰跟誰相連」的清單，後端要把它變成真實的幾何圖形">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜後端（一）：規劃與擺放 · 第 20 課</div>
+      <h1>實體設計流程總覽：從 netlist 到 GDSII</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出實體設計的主要步驟與順序</li>
+          <li>理解後端需要哪些輸入檔案</li>
+          <li>理解實體設計為什麼是反覆迭代的過程</li>
+        </ul>
+      </div>
+
+      <p>
+        合成後的 netlist（<a href="lesson-17.html">第 17 課</a>）只描述了「有哪些元件、誰跟誰相連」，完全沒有位置資訊。<strong>實體設計</strong>（physical design，也稱後端或 APR）的任務，就是決定每一個元件放在晶片上的哪裡、每一條連線走哪一層金屬、經過哪些路徑，最後產生 GDSII。
+      </p>
+
+      <h2>1. 流程總覽</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 255" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">實體設計流程：從 netlist 到 GDSII</text>
+                <rect x="20" y="36" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="85.25" y="55" text-anchor="middle" font-size="11" fill="var(--accent)">讀入</text><text x="85.25" y="69" text-anchor="middle" font-size="9" fill="var(--text-muted)">netlist、SDC</text><text x="85.25" y="82" text-anchor="middle" font-size="9" fill="var(--text-muted)">LEF、.lib</text><line x1="153.5" y1="65.0" x2="166.5" y2="65.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,65.0 166.5,68.5 166.5,61.5" fill="var(--border)"/><rect x="176.5" y="36" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="241.75" y="61" text-anchor="middle" font-size="11" fill="#5aa469">Floorplan</text><text x="241.75" y="75" text-anchor="middle" font-size="9" fill="var(--text-muted)">大小、區塊</text><line x1="310.0" y1="65.0" x2="323.0" y2="65.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,65.0 323.0,68.5 323.0,61.5" fill="var(--border)"/><rect x="333" y="36" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="398.25" y="68.85" text-anchor="middle" font-size="11" fill="var(--gold)">電源網路</text><line x1="466.5" y1="65.0" x2="479.5" y2="65.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,65.0 479.5,68.5 479.5,61.5" fill="var(--border)"/><rect x="489.5" y="36" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="554.75" y="61" text-anchor="middle" font-size="11" fill="#5aa469">Placement</text><text x="554.75" y="75" text-anchor="middle" font-size="9" fill="var(--text-muted)">擺放元件</text>
+                <rect x="20" y="130" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="85.25" y="155" text-anchor="middle" font-size="11" fill="#4a90c2">CTS</text><text x="85.25" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">時脈樹</text><line x1="153.5" y1="159.0" x2="166.5" y2="159.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,159.0 166.5,162.5 166.5,155.5" fill="var(--border)"/><rect x="176.5" y="130" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="155" text-anchor="middle" font-size="11" fill="#4a90c2">Routing</text><text x="241.75" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">繞線</text><line x1="310.0" y1="159.0" x2="323.0" y2="159.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,159.0 323.0,162.5 323.0,155.5" fill="var(--border)"/><rect x="333" y="130" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="398.25" y="155" text-anchor="middle" font-size="11" fill="#ff8a65">最佳化</text><text x="398.25" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">修時序</text><line x1="466.5" y1="159.0" x2="479.5" y2="159.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,159.0 479.5,162.5 479.5,155.5" fill="var(--border)"/><rect x="489.5" y="130" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="554.75" y="155" text-anchor="middle" font-size="11" fill="#e0605a">簽核</text><text x="554.75" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">→ GDSII</text>
+                <line x1="580.0" y1="96.0" x2="580.0" y2="103.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="580.0,110.0 576.5,103.0 583.5,103.0" fill="var(--text-muted)"/>
+                <path d="M580 110 L60 110 L60 128" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+                <text x="320" y="222" text-anchor="middle" font-size="10" fill="var(--text)">每一步之後都做時序分析；不達標就回頭調整——實際上是一個反覆迭代的過程</text>
+                <text x="320" y="244" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這一整段又稱 APR（自動擺放與繞線）或 PnR</text>
+        </svg>
+        <figcaption>實體設計的主要步驟；實務上每一步都會反覆迭代。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>輸入</th><th>內容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Netlist</td><td>元件與連線（Verilog 格式）</td></tr>
+          <tr><td>SDC</td><td>時脈與時序限制（<a href="lesson-17.html">第 17 課</a>）</td></tr>
+          <tr><td>LEF 與 .lib</td><td>元件的抽象圖與時序模型（<a href="lesson-12.html">第 12 課</a>）</td></tr>
+          <tr><td>技術檔</td><td>每一層金屬的寬度、間距、電阻電容等製程資訊</td></tr>
+          <tr><td>Floorplan 與電源規劃</td><td>通常由工程師規劃，或以腳本產生</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 工具做大部分的事，工程師做決策</h2>
+
+      <p>
+        擺放數百萬個元件、繞數百萬條線，都是由 EDA 工具自動完成的。工程師的工作是：規劃 floorplan、設定參數與策略、分析每一步的結果、找出時序或擁擠的問題並想辦法解決。一個大型區塊跑完一輪可能需要數小時到數天，工程師的經驗決定了要跑幾輪才能「收斂」。
+      </p>
+
+      <h2>3. 階層式設計</h2>
+
+      <p>
+        整顆 SoC 太大，無法一次處理。常見做法是把晶片切成多個<strong>區塊</strong>（block／partition），每個區塊由不同的工程師或團隊獨立完成實體設計，最後在<strong>頂層</strong>把它們組合起來。區塊之間的介面時序與位置，需要事先協調好預算。
+      </p>
+
+      <h2>4. 中間格式：DEF</h2>
+
+      <p>
+        在後端流程中，設計的實體狀態（元件位置、繞線）常用 <strong>DEF</strong> 格式或工具自己的資料庫保存；最後才把所有元件的 GDS 與繞線合併，輸出成完整的 GDSII（<a href="lesson-02.html">第 2 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          業界主要的 APR 工具是 Synopsys 的 IC Compiler II／Fusion Compiler 與 Cadence 的 Innovus。在台灣，「APR 工程師」「實體設計工程師」是 IC 設計公司需求量很大的職位。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>實體設計的輸入有哪些檔案？</li>
+          <li>在實體設計中，工具和工程師各負責什麼？</li>
+          <li>為什麼大型晶片要採用階層式設計？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Floorplan：決定晶片大小、區塊與 I/O 的位置</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：FPGA：不用做晶片也能把程式碼變成硬體</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：Floorplan：決定晶片大小、區塊與 I/O 的位置 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

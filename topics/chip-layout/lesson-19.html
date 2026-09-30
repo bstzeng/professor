@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：FPGA：不用做晶片也能把程式碼變成硬體 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="一顆可以重新「接線」的晶片，讓硬體設計像軟體一樣可以反覆修改">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜前端：從規格到邏輯電路 · 第 19 課</div>
+      <h1>FPGA：不用做晶片也能把程式碼變成硬體</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 FPGA 的基本結構：LUT、正反器、可程式化繞線</li>
+          <li>說出 FPGA 的設計流程</li>
+          <li>比較 FPGA 與 ASIC 的優缺點</li>
+        </ul>
+      </div>
+
+      <p>
+        前面的流程最後都要做光罩、製造一顆新晶片，這叫做 <strong>ASIC</strong>（特定應用積體電路）。<strong>FPGA</strong>（Field-Programmable Gate Array，現場可程式化邏輯閘陣列）則是另一條路：它是一顆已經做好的晶片，裡面有大量通用的邏輯單元與可程式化的連線，載入一份設定檔，它就「變成」你設計的電路。
+      </p>
+
+      <h2>1. FPGA 裡面有什麼</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 265" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">FPGA：一片可以重新接線的晶片</text>
+                <rect x="40" y="40" width="330" height="210" rx="6" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+                <rect x="60" y="60" width="60" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="90" y="81.5" text-anchor="middle" font-size="10" fill="var(--accent)">LUT</text><text x="90" y="94.5" text-anchor="middle" font-size="8" fill="var(--text-muted)">+FF</text>
+                <rect x="160" y="60" width="60" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="190" y="81.5" text-anchor="middle" font-size="10" fill="var(--accent)">LUT</text><text x="190" y="94.5" text-anchor="middle" font-size="8" fill="var(--text-muted)">+FF</text>
+                <rect x="260" y="60" width="60" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="290" y="81.5" text-anchor="middle" font-size="10" fill="var(--accent)">LUT</text><text x="290" y="94.5" text-anchor="middle" font-size="8" fill="var(--text-muted)">+FF</text>
+                <rect x="60" y="170" width="60" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="90" y="198.5" text-anchor="middle" font-size="10" fill="var(--gold)">DSP</text>
+                <rect x="160" y="170" width="60" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="190" y="198.5" text-anchor="middle" font-size="10" fill="#5aa469">BRAM</text>
+                <rect x="260" y="170" width="60" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="290" y="191.5" text-anchor="middle" font-size="10" fill="var(--accent)">LUT</text><text x="290" y="204.5" text-anchor="middle" font-size="8" fill="var(--text-muted)">+FF</text>
+                <path d="M120 85 L160 85 M220 85 L260 85 M90 110 L90 170 M190 110 L190 170 M290 110 L290 170 M120 195 L160 195 M220 195 L260 195" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+                <circle cx="140" cy="85" r="4" fill="#e0605a" stroke="#e0605a" stroke-width="1.5"/>
+                <circle cx="240" cy="195" r="4" fill="#e0605a" stroke="#e0605a" stroke-width="1.5"/>
+                <circle cx="190" cy="140" r="4" fill="#e0605a" stroke="#e0605a" stroke-width="1.5"/>
+                <text x="205" y="145" text-anchor="start" font-size="8.5" fill="#e0605a">可程式化開關</text>
+                <text x="510" y="60" text-anchor="middle" font-size="11" fill="var(--accent)">流程</text>
+                <text x="510" y="86" text-anchor="middle" font-size="10" fill="var(--text)">Verilog／HLS</text>
+                <text x="510" y="104" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">↓ 合成</text>
+                <text x="510" y="122" text-anchor="middle" font-size="10" fill="var(--text)">對應到 LUT、DSP、BRAM</text>
+                <text x="510" y="140" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">↓ 擺放繞線</text>
+                <text x="510" y="158" text-anchor="middle" font-size="10" fill="var(--text)">產生位元流（bitstream）</text>
+                <text x="510" y="176" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">↓ 載入</text>
+                <text x="510" y="194" text-anchor="middle" font-size="10" fill="#5aa469">晶片變成你的電路</text>
+                <text x="510" y="228" text-anchor="middle" font-size="9.5" fill="var(--gold)">不需要做新的光罩</text>
+        </svg>
+        <figcaption>FPGA 由大量可程式化的邏輯單元與繞線組成，載入位元流就變成指定的電路。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>元件</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>LUT（查找表）</td><td>一個小記憶體，存下一個任意邏輯函數的真值表；例如 6 輸入 LUT 能實現任何 6 輸入的邏輯</td></tr>
+          <tr><td>正反器</td><td>緊鄰 LUT，用來存狀態</td></tr>
+          <tr><td>可程式化繞線</td><td>大量導線與開關，決定誰連到誰</td></tr>
+          <tr><td>DSP 區塊</td><td>硬體乘法器與累加器，專門加速數學運算</td></tr>
+          <tr><td>BRAM</td><td>晶片內的記憶體區塊</td></tr>
+          <tr><td>高速收發器、處理器核心</td><td>部分 FPGA 內建，組成完整系統</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. FPGA 的設計流程</h2>
+
+      <p>
+        流程和 ASIC 很像，只是目標不同：Verilog 或 HLS 產生的 RTL（<a href="lesson-18.html">第 18 課</a>）→ 合成，對應到 LUT、DSP、BRAM →擺放與繞線，決定用哪些單元、開哪些開關 → 產生<strong>位元流（bitstream）</strong>→ 載入 FPGA。整個過程從幾分鐘到數小時，改了設計就能重新載入，<strong>不需要製造新晶片</strong>。
+      </p>
+
+      <h2>3. FPGA vs ASIC</h2>
+
+      <table>
+        <thead>
+          <tr><th></th><th>FPGA</th><th>ASIC</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>一次性開發成本</td><td>低（不用做光罩）</td><td>非常高（光罩與設計成本）</td></tr>
+          <tr><td>單顆成本</td><td>高</td><td>大量生產時很低</td></tr>
+          <tr><td>效能與功耗</td><td>較差（通用結構有額外開銷）</td><td>最好</td></tr>
+          <tr><td>修改彈性</td><td>隨時重新載入</td><td>做出來就不能改</td></tr>
+          <tr><td>上市時間</td><td>快</td><td>慢</td></tr>
+          <tr><td>適合</td><td>原型驗證、少量產品、通訊與網路設備、需要常常更新的應用</td><td>大量生產的消費性產品</td></tr>
+        </tbody>
+      </table>
+
+      <h2>4. FPGA 在晶片設計中的角色</h2>
+
+      <p>
+        對 ASIC 專案來說，FPGA 最重要的用途是<strong>原型驗證</strong>（<a href="lesson-16.html">第 16 課</a>）：把設計放到 FPGA 上以接近真實的速度執行，讓軟體團隊提早開發、提早發現錯誤。對學生與愛好者來說，FPGA 開發板則是最容易親手「把程式碼變成電路」的方式。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          FPGA 的兩大廠商是 AMD（併購 Xilinx）與 Altera（曾被 Intel 併購，後來再度獨立運作）。在資料中心中，FPGA 也被用於網路加速、金融交易等需要低延遲、又需要彈性的場合。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LUT 如何實現任意的邏輯函數？</li>
+          <li>FPGA 的設計流程最後產生的是什麼？</li>
+          <li>在什麼情況下選擇 FPGA 會比 ASIC 更合適？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>實體設計流程總覽：從 netlist 到 GDSII</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：高階合成（HLS）：C 語言怎麼變成電路</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：實體設計流程總覽：從 netlist 到 GDSII →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

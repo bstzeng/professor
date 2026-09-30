@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：可測試性設計（DFT）：掃描鏈與內建自我測試 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="每一顆出廠的晶片都要被測試——但晶片內部數十億個點，要怎麼檢查？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜交出晶片：tape-out 之後 · 第 42 課</div>
+      <h1>可測試性設計（DFT）：掃描鏈與內建自我測試</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解製造缺陷與測試的目的</li>
+          <li>理解掃描鏈與 ATPG 的原理</li>
+          <li>認識記憶體內建自我測試（MBIST）</li>
+        </ul>
+      </div>
+
+      <p>
+        即使設計完全正確，製造過程中的微粒、缺陷也會讓一部分晶片壞掉。每一顆晶片出廠前都要經過測試，把壞的篩掉。問題是：晶片內部的數十億個節點，外面根本碰不到。<strong>可測試性設計</strong>（Design for Testability，DFT）就是在設計時預先加入讓測試變容易的電路。
+      </p>
+
+      <h2>1. 掃描鏈</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">掃描鏈：把正反器串成一條長長的移位暫存器</text>
+                <rect x="40" y="70" width="70" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="75" y="98.5" text-anchor="middle" font-size="10" fill="var(--gold)">FF</text>
+                <rect x="170" y="70" width="70" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="205" y="98.5" text-anchor="middle" font-size="10" fill="var(--gold)">FF</text>
+                <rect x="300" y="70" width="70" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="335" y="98.5" text-anchor="middle" font-size="10" fill="var(--gold)">FF</text>
+                <rect x="430" y="70" width="70" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="465" y="98.5" text-anchor="middle" font-size="10" fill="var(--gold)">FF</text>
+                <path d="M110 95 L170 95 M240 95 L300 95 M370 95 L430 95" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <text x="140" y="88" text-anchor="middle" font-size="9" fill="var(--text-muted)">邏輯</text>
+                <text x="270" y="88" text-anchor="middle" font-size="9" fill="var(--text-muted)">邏輯</text>
+                <text x="400" y="88" text-anchor="middle" font-size="9" fill="var(--text-muted)">邏輯</text>
+                <path d="M20 140 L20 110 L40 110 M110 110 L140 110 L140 140 L160 140 L160 110 L170 110 M240 110 L270 110 L270 140 L290 140 L290 110 L300 110 M370 110 L400 110 L400 140 L420 140 L420 110 L430 110 M500 110 L560 110" fill="none" stroke="#5aa469" stroke-width="2"/>
+                <text x="20" y="158" text-anchor="middle" font-size="9.5" fill="#5aa469">scan in</text>
+                <text x="560" y="128" text-anchor="end" font-size="9.5" fill="#5aa469">scan out</text>
+                <text x="320" y="196" text-anchor="middle" font-size="9.5" fill="var(--text)">① 測試模式：把測試資料一位一位「移」進所有正反器</text>
+                <text x="320" y="216" text-anchor="middle" font-size="9.5" fill="var(--text)">② 切回正常模式跑一個週期　③ 再把結果「移」出來比對</text>
+                <text x="320" y="244" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">ATPG 工具自動產生測試圖樣，以極少的向量涵蓋絕大多數可能的製造缺陷</text>
+        </svg>
+        <figcaption>掃描鏈：測試模式下，正反器串成移位暫存器，讓測試資料可以移入與移出。</figcaption>
+      </div>
+
+      <p>
+        最核心的 DFT 技術是<strong>掃描鏈</strong>：把一般的正反器換成可以切換模式的<strong>掃描正反器</strong>，在測試模式下把所有正反器串成一條（或數百條）長長的移位暫存器。這樣測試機就能控制每一個正反器的值，並觀察每一個正反器的結果——把一個難以測試的序向電路，變成容易測試的組合邏輯。
+      </p>
+
+      <h2>2. ATPG：自動產生測試圖樣</h2>
+
+      <p>
+        <strong>ATPG</strong>（Automatic Test Pattern Generation）工具會根據<strong>故障模型</strong>自動產生測試資料。最基本的模型是「某條線卡在 0 或 1」（stuck-at），另外還有檢查速度是否正常的轉換延遲故障等。工具的目標是用最少的測試圖樣，達到極高的<strong>故障涵蓋率</strong>。
+      </p>
+
+      <h2>3. 記憶體內建自我測試</h2>
+
+      <p>
+        記憶體陣列太大又太規則，不適合用掃描鏈測試。通常會加入 <strong>MBIST</strong> 電路：晶片自己產生一連串讀寫圖樣，檢查每一個位元是否正常，找到壞位元後再用備用的列或行修復（<a href="lesson-38.html">第 38 課</a>）。
+      </p>
+
+      <h2>4. DFT 對 layout 的影響</h2>
+
+      <ul>
+        <li>掃描正反器比一般正反器大一點，DFT 電路會增加一些面積</li>
+        <li>掃描鏈需要依正反器位置重新排序，縮短線長（<a href="lesson-23.html">第 23 課</a>）</li>
+        <li>測試模式下大量正反器同時切換，功耗與 IR drop 可能比正常運作時更嚴重</li>
+        <li><strong>JTAG</strong> 介面讓測試機與除錯工具能存取晶片內部</li>
+      </ul>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          晶片測試分成晶圓階段（用探針卡直接接觸每一顆 die）與封裝後的最終測試。台灣的京元電子等測試廠，是全球半導體測試產業的重要成員。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼需要在設計時加入可測試性電路？</li>
+          <li>掃描鏈如何讓序向電路變得容易測試？</li>
+          <li>為什麼記憶體通常使用內建自我測試而不是掃描鏈？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>回片與除錯：第一顆晶片回來之後</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：光罩與光學鄰近修正（OPC）：畫的和印出來的不一樣</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：回片與除錯：第一顆晶片回來之後 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

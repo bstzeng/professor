@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：電源網路：power ring、stripe 與 IR drop ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="數十億個電晶體同時開關，每一個都要拿到穩定的電壓">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜後端（一）：規劃與擺放 · 第 22 課</div>
+      <h1>電源網路：power ring、stripe 與 IR drop</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識電源網路的結構</li>
+          <li>理解 IR drop 的成因與影響</li>
+          <li>理解電遷移對可靠度的威脅</li>
+        </ul>
+      </div>
+
+      <p>
+        一顆高效能晶片可能消耗數十甚至上百瓦的功率，在不到 1 伏特的電壓下，電流可達數十到上百安培。要把這麼大的電流均勻地送到每一個元件，需要一套精心設計的<strong>電源網路</strong>（power delivery network，PDN）。
+      </p>
+
+      <h2>1. 電源網路的結構</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">電源網路：環、條紋與元件列上的電源軌</text>
+                <rect x="40" y="36" width="360" height="230" rx="2" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+                <rect x="50" y="46" width="340" height="210" rx="0" fill="none" stroke="#9c89d6" stroke-width="8"/>
+                <path d="M130 46 L130 256 M220 46 L220 256 M310 46 L310 256" fill="none" stroke="#9c89d6" stroke-width="6"/>
+                <path d="M50 90 L390 90 M50 140 L390 140 M50 190 L390 190 M50 240 L390 240" fill="none" stroke="#4a90c2" stroke-width="2"/>
+                <circle cx="130" cy="90" r="4" fill="#333" stroke="#333" stroke-width="1.5"/>
+                <circle cx="220" cy="140" r="4" fill="#333" stroke="#333" stroke-width="1.5"/>
+                <circle cx="310" cy="190" r="4" fill="#333" stroke="#333" stroke-width="1.5"/>
+                <text x="460" y="60" text-anchor="start" font-size="10" fill="#9c89d6">上層粗金屬：power ring 與 stripe</text>
+                <text x="460" y="84" text-anchor="start" font-size="10" fill="#4a90c2">下層細金屬：每一列的電源軌</text>
+                <text x="460" y="108" text-anchor="start" font-size="10" fill="var(--text)">兩者靠 via 堆疊連起來</text>
+                <text x="460" y="146" text-anchor="start" font-size="10.5" fill="#e0605a">IR drop：</text>
+                <text x="460" y="166" text-anchor="start" font-size="9.5" fill="var(--text)">電流流過有電阻的導線 → 電壓下降</text>
+                <text x="460" y="184" text-anchor="start" font-size="9.5" fill="var(--text)">→ 元件拿到的電壓不足 → 變慢</text>
+                <text x="460" y="214" text-anchor="start" font-size="10.5" fill="#ff8a65">電遷移（EM）：</text>
+                <text x="460" y="234" text-anchor="start" font-size="9.5" fill="var(--text)">電流密度太高 → 原子被推走</text>
+                <text x="460" y="252" text-anchor="start" font-size="9.5" fill="var(--text)">→ 久了可能斷線</text>
+        </svg>
+        <figcaption>電源網路：上層粗金屬組成環與條紋，再經 via 送到每一列的電源軌。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>結構</th><th>所在位置</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Power ring</td><td>區塊或 macro 周圍的粗金屬環</td><td>把電源從外部引進來、分配到四周</td></tr>
+          <tr><td>Power stripe／mesh</td><td>上層粗金屬，橫豎交錯成網</td><td>把電源鋪滿整個區域</td></tr>
+          <tr><td>Rail（電源軌）</td><td>每一列標準元件的上下邊（<a href="lesson-10.html">第 10 課</a>）</td><td>最後一哩：送到每個元件</td></tr>
+          <tr><td>Via 堆疊</td><td>連接各層</td><td>讓電流從上層一路流到底層</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. IR drop：電壓在路上掉了</h2>
+
+      <p>
+        導線有電阻，電流流過就會產生電壓降（V = I × R）。離電源越遠、同時開關的元件越多，元件實際拿到的電壓就越低。電壓不足會讓元件變慢（<a href="lesson-12.html">第 12 課</a>的 PVT），嚴重時造成時序錯誤。
+      </p>
+
+      <table>
+        <thead>
+          <tr><th>類型</th><th>成因</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>靜態 IR drop</td><td>平均電流造成的壓降</td></tr>
+          <tr><td>動態 IR drop</td><td>大量元件在同一瞬間切換，造成瞬間的電流尖峰</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        對策包括：加密、加粗電源網路，在電流需求大的地方放<strong>去耦電容</strong>（<a href="lesson-11.html">第 11 課</a>），以及避免太多高耗電的元件擠在一起。
+      </p>
+
+      <h2>3. 電遷移：導線會「被電流推走」</h2>
+
+      <p>
+        當電流密度太高，電子會把金屬原子一點點推離原位，長時間下來導線變薄、出現空洞，最後斷線或短路。這叫<strong>電遷移</strong>（electromigration，EM），會讓晶片用了幾年後才失效。所以電源線與大電流的訊號線，寬度都必須滿足 EM 規則（<a href="lesson-34.html">第 34 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          電源網路常佔用上層金屬相當大的比例，和訊號繞線搶資源。這也是業界推動「背面供電」的原因之一（<a href="lesson-03.html">第 3 課</a>）：把電源網路搬到晶圓背面，正面就能全部留給訊號。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>電源網路由哪幾個部分組成？</li>
+          <li>什麼是動態 IR drop？它和靜態 IR drop 有什麼不同？</li>
+          <li>電遷移為什麼會讓晶片在使用一段時間後才失效？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Placement：數百萬個元件怎麼自動擺放</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：Floorplan：決定晶片大小、區塊與 I/O 的位置</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：Placement：數百萬個元件怎麼自動擺放 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

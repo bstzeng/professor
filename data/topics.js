@@ -11377,6 +11377,128 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chip-layout",
+      category: "tech",
+      title: "晶片是怎麼畫出來的：從電路到 Layout 的完整旅程",
+      description:
+        "從一顆電晶體的俯視圖畫起，經過標準元件、Verilog、邏輯合成、HLS 與 FPGA，走完 floorplan、擺放、時脈樹、繞線與時序／DRC／LVS 簽核，再到類比 layout、tape-out、光罩與測試，最後看 EDA、先進封裝、AI 與台灣產業鏈。",
+      icon: "🔲",
+      url: "topics/chip-layout/index.html",
+      resources: [
+        {
+          title: "晶片設計速查表",
+          description: "常見術語中英對照、設計流程總表，以及各階段的工具與檔案格式",
+          icon: "🗂️",
+          url: "topics/chip-layout/cheatsheet.html"
+        },
+        {
+          title: "互動 layout 觀察器",
+          description: "逐層開關 N-well、Active、Poly、Contact、Metal 1，看反相器與 NAND2 是怎麼疊出來的",
+          icon: "🔍",
+          url: "topics/chip-layout/layout-viewer.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜先看懂：layout 到底是什麼",
+          courses: [
+            { title: "從一顆晶片說起：晶圓、晶粒與數百億個電晶體", url: "topics/chip-layout/lesson-01.html" },
+            { title: "Layout 是什麼：一疊透明投影片", url: "topics/chip-layout/lesson-02.html" },
+            { title: "晶片的剖面：電晶體層與十幾層金屬導線", url: "topics/chip-layout/lesson-03.html" },
+            { title: "設計流程總覽：前端、後端與產業分工", url: "topics/chip-layout/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜從電晶體畫起",
+          courses: [
+            { title: "MOSFET 的俯視圖：Active、Poly、Contact 怎麼疊出一顆電晶體", url: "topics/chip-layout/lesson-05.html" },
+            { title: "畫一個反相器：NMOS＋PMOS、電源軌與 N-well", url: "topics/chip-layout/lesson-06.html" },
+            { title: "NAND、NOR 與串並聯：從電路圖到 layout", url: "topics/chip-layout/lesson-07.html" },
+            { title: "設計規則：最小寬度、間距與包覆", url: "topics/chip-layout/lesson-08.html" },
+            { title: "從平面電晶體到 FinFET 與 GAA", url: "topics/chip-layout/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜標準元件庫：數位設計的樂高積木",
+          courses: [
+            { title: "什麼是標準元件（standard cell）", url: "topics/chip-layout/lesson-10.html" },
+            { title: "元件庫裡有什麼：邏輯閘、正反器、緩衝器與填充元件", url: "topics/chip-layout/lesson-11.html" },
+            { title: "元件的規格書：時序模型、抽象圖與 PVT", url: "topics/chip-layout/lesson-12.html" },
+            { title: "為什麼同一個 AND 閘要做十種大小：驅動能力的取捨", url: "topics/chip-layout/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜前端：從規格到邏輯電路",
+          courses: [
+            { title: "規格與架構：決定要做什麼、分成哪些區塊", url: "topics/chip-layout/lesson-14.html" },
+            { title: "RTL 設計：用 Verilog 描述硬體", url: "topics/chip-layout/lesson-15.html" },
+            { title: "功能驗證：為什麼驗證工程師比設計工程師多", url: "topics/chip-layout/lesson-16.html" },
+            { title: "邏輯合成：Verilog 怎麼變成數百萬個邏輯閘", url: "topics/chip-layout/lesson-17.html" },
+            { title: "高階合成（HLS）：C 語言怎麼變成電路", url: "topics/chip-layout/lesson-18.html" },
+            { title: "FPGA：不用做晶片也能把程式碼變成硬體", url: "topics/chip-layout/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜後端（一）：規劃與擺放",
+          courses: [
+            { title: "實體設計流程總覽：從 netlist 到 GDSII", url: "topics/chip-layout/lesson-20.html" },
+            { title: "Floorplan：決定晶片大小、區塊與 I/O 的位置", url: "topics/chip-layout/lesson-21.html" },
+            { title: "電源網路：power ring、stripe 與 IR drop", url: "topics/chip-layout/lesson-22.html" },
+            { title: "Placement：數百萬個元件怎麼自動擺放", url: "topics/chip-layout/lesson-23.html" },
+            { title: "擺放後最佳化：修時序、加緩衝器、調尺寸", url: "topics/chip-layout/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜後端（二）：時脈與繞線",
+          courses: [
+            { title: "時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器", url: "topics/chip-layout/lesson-25.html" },
+            { title: "Skew 與 latency：時脈是晶片的心跳，也是最難的部分", url: "topics/chip-layout/lesson-26.html" },
+            { title: "繞線（一）：全域繞線與細部繞線", url: "topics/chip-layout/lesson-27.html" },
+            { title: "繞線（二）：via、線寬線距與天線效應", url: "topics/chip-layout/lesson-28.html" },
+            { title: "繞線後最佳化：寄生電阻電容萃取與修正", url: "topics/chip-layout/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜簽核：交出去之前的所有檢查",
+          courses: [
+            { title: "靜態時序分析（STA）：setup、hold 與關鍵路徑", url: "topics/chip-layout/lesson-30.html" },
+            { title: "多種工作條件：製程飄移、電壓、溫度與 OCV", url: "topics/chip-layout/lesson-31.html" },
+            { title: "DRC：設計規則檢查", url: "topics/chip-layout/lesson-32.html" },
+            { title: "LVS：確認畫出來的就是設計的", url: "topics/chip-layout/lesson-33.html" },
+            { title: "功耗與可靠度簽核：IR drop、電遷移與 ESD", url: "topics/chip-layout/lesson-34.html" },
+            { title: "可製造性設計（DFM）：填充金屬、CMP 與多重曝光", url: "topics/chip-layout/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜類比與客製化 layout",
+          courses: [
+            { title: "類比電路為什麼要手工畫：匹配、對稱與共質心", url: "topics/chip-layout/lesson-36.html" },
+            { title: "雜訊與隔離：guard ring、屏蔽與數位類比分開", url: "topics/chip-layout/lesson-37.html" },
+            { title: "記憶體與 SRAM：編譯器產生的高密度陣列", url: "topics/chip-layout/lesson-38.html" },
+            { title: "I/O、ESD 與 pad ring：晶片和外界接觸的邊界", url: "topics/chip-layout/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 I｜交出晶片：tape-out 之後",
+          courses: [
+            { title: "Tape-out：交出 GDSII 的那一刻，以及光罩為什麼這麼貴", url: "topics/chip-layout/lesson-40.html" },
+            { title: "光罩與光學鄰近修正（OPC）：畫的和印出來的不一樣", url: "topics/chip-layout/lesson-41.html" },
+            { title: "可測試性設計（DFT）：掃描鏈與內建自我測試", url: "topics/chip-layout/lesson-42.html" },
+            { title: "回片與除錯：第一顆晶片回來之後", url: "topics/chip-layout/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 J｜產業與趨勢",
+          courses: [
+            { title: "EDA 工具與產業：三大廠商與開源的 OpenROAD", url: "topics/chip-layout/lesson-44.html" },
+            { title: "先進封裝與 chiplet：當 layout 不再只在一顆晶片上", url: "topics/chip-layout/lesson-45.html" },
+            { title: "AI 進入晶片設計：機器學習幫忙擺放與繞線", url: "topics/chip-layout/lesson-46.html" },
+            { title: "台灣的 IC 設計產業地圖與 layout 工程師的職涯", url: "topics/chip-layout/lesson-47.html" },
+          ],
+        },
+      ],
     }
   ]
 };

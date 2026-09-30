@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：擺放後最佳化：修時序、加緩衝器、調尺寸 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="元件放好之後，線長變成真實的數字，時序問題才真正浮上檯面">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜後端（一）：規劃與擺放 · 第 24 課</div>
+      <h1>擺放後最佳化：修時序、加緩衝器、調尺寸</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼擺放後需要最佳化</li>
+          <li>說出常用的最佳化手法</li>
+          <li>理解最佳化之間的連鎖影響</li>
+        </ul>
+      </div>
+
+      <p>
+        合成時的線長只是估計值（<a href="lesson-17.html">第 17 課</a>）。擺放完成後，工具知道了每個元件的真實位置，能更準確地估計延遲，這時通常會發現一些路徑來不及（時序違規）。接下來就要進行<strong>擺放後最佳化</strong>。
+      </p>
+
+      <h2>1. 常用手法</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">擺放後最佳化的常用手法</text>
+                <rect x="20" y="40" width="190" height="70" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="115" y="71" text-anchor="middle" font-size="11" fill="var(--accent)">元件尺寸調整</text><text x="115" y="85" text-anchor="middle" font-size="9" fill="var(--text-muted)">慢的換大、閒的換小</text>
+                <rect x="225" y="40" width="190" height="70" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="320" y="65" text-anchor="middle" font-size="11" fill="#5aa469">插入緩衝器</text><text x="320" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">長線中間加 buffer</text><text x="320" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">大扇出拆成樹狀</text>
+                <rect x="430" y="40" width="190" height="70" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="525" y="65" text-anchor="middle" font-size="11" fill="var(--gold)">換臨界電壓</text><text x="525" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">關鍵路徑用低 Vt（快）</text><text x="525" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">其他用高 Vt（省漏電）</text>
+                <rect x="20" y="130" width="190" height="70" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="115" y="155" text-anchor="middle" font-size="11" fill="#9c89d6">邏輯重組</text><text x="115" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">把晚到的訊號</text><text x="115" y="182" text-anchor="middle" font-size="9" fill="var(--text-muted)">移到靠近輸出的位置</text>
+                <rect x="225" y="130" width="190" height="70" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="320" y="161" text-anchor="middle" font-size="11" fill="#4a90c2">移動元件</text><text x="320" y="175" text-anchor="middle" font-size="9" fill="var(--text-muted)">縮短關鍵路徑的距離</text>
+                <rect x="430" y="130" width="190" height="70" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="525" y="155" text-anchor="middle" font-size="11" fill="#e0605a">修電氣規則</text><text x="525" y="169" text-anchor="middle" font-size="9" fill="var(--text-muted)">最大轉換時間</text><text x="525" y="182" text-anchor="middle" font-size="9" fill="var(--text-muted)">最大電容、最大扇出</text>
+                <text x="320" y="236" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每一次修改都可能讓別處變差——所以工具會反覆迭代，直到所有指標收斂</text>
+        </svg>
+        <figcaption>擺放後最佳化的六種常用手法。</figcaption>
+      </div>
+
+      <h2>2. 緩衝器：長線的中繼站</h2>
+
+      <p>
+        導線的延遲大約和長度的平方成正比（電阻和電容都隨長度增加）。一條很長的線，在中間插入幾個<strong>緩衝器</strong>（repeater），把它切成幾段，總延遲反而會變小。一個訊號如果要推動很多個元件（<strong>大扇出</strong>），工具也會插入一棵緩衝器樹來分攤負載。
+      </p>
+
+      <h2>3. 電氣規則</h2>
+
+      <p>
+        除了時序，還有幾條電氣規則必須遵守，稱為 DRV（design rule violations，這裡指電氣而非幾何規則）：
+      </p>
+
+      <ul>
+        <li><strong>最大轉換時間</strong>：訊號的上升下降不能太慢，否則延遲與功耗都會變差、雜訊容限下降</li>
+        <li><strong>最大負載電容</strong>：一個元件不能推超過它能力的負載</li>
+        <li><strong>最大扇出</strong>：一個輸出不能接太多輸入</li>
+      </ul>
+
+      <h2>4. 連鎖影響</h2>
+
+      <p>
+        每一個修改都可能讓別處變差：換大元件會增加面積、影響鄰居的擺放；插入緩衝器會佔空間、增加擁擠度。工具會在時序、面積、功耗、擁擠度之間反覆權衡，工程師則依結果調整策略。這個反覆修正直到所有指標達標的過程，業界稱為<strong>時序收斂</strong>（timing closure）。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          「修時序」是後端工程師最主要的日常工作之一。遇到怎麼修都修不好的路徑，常常需要和前端工程師討論修改 RTL，例如多切一級管線——這也是前後端必須緊密合作的原因。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼擺放後才能比較準確地評估時序？</li>
+          <li>為什麼在長線中間插入緩衝器可以減少延遲？</li>
+          <li>什麼是時序收斂？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：Placement：數百萬個元件怎麼自動擺放</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

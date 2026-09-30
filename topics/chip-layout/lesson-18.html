@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：高階合成（HLS）：C 語言怎麼變成電路 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="不寫 Verilog，直接從 C／C++ 產生硬體——可以，但不是魔法">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜前端：從規格到邏輯電路 · 第 18 課</div>
+      <h1>高階合成（HLS）：C 語言怎麼變成電路</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解高階合成的流程：排程、配置、綁定</li>
+          <li>認識 HLS 指示（pragma）如何影響硬體結構</li>
+          <li>知道 HLS 適合與不適合的場合</li>
+        </ul>
+      </div>
+
+      <p>
+        RTL 必須精確描述每一個時脈週期發生什麼事，寫起來費時又容易出錯。<strong>高階合成</strong>（High-Level Synthesis，HLS）讓工程師用 C／C++ 等高階語言描述演算法，由工具自動產生 RTL。常見的工具包括 AMD（Xilinx）的 Vitis HLS、Siemens 的 Catapult、Cadence 的 Stratus。
+      </p>
+
+      <h2>1. HLS 在做什麼</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 255" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">高階合成（HLS）：C 程式 → RTL</text>
+                <rect x="20" y="40" width="180" height="90" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="110" y="75" text-anchor="middle" font-size="11" fill="var(--accent)">C／C++</text><text x="110" y="89" text-anchor="middle" font-size="9" fill="var(--text-muted)">for (i=0;i&lt;N;i++)</text><text x="110" y="102" text-anchor="middle" font-size="9" fill="var(--text-muted)">  y[i]=a*x[i]+b;</text>
+                <rect x="230" y="40" width="180" height="90" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="320" y="69" text-anchor="middle" font-size="11" fill="var(--gold)">HLS 工具</text><text x="320" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">排程：哪一步在哪個週期</text><text x="320" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">配置：用幾個乘法器</text><text x="320" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">綁定：資料放哪個記憶體</text>
+                <rect x="440" y="40" width="180" height="90" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="530" y="75" text-anchor="middle" font-size="11" fill="#5aa469">RTL（Verilog）</text><text x="530" y="89" text-anchor="middle" font-size="9" fill="var(--text-muted)">狀態機＋資料路徑</text><text x="530" y="102" text-anchor="middle" font-size="9" fill="var(--text-muted)">→ 接著走一般合成流程</text>
+                <line x1="202.0" y1="85.0" x2="221.0" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="228.0,85.0 221.0,88.5 221.0,81.5" fill="var(--border)"/>
+                <line x1="412.0" y1="85.0" x2="431.0" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="438.0,85.0 431.0,88.5 431.0,81.5" fill="var(--border)"/>
+                <text x="320" y="162" text-anchor="middle" font-size="10.5" fill="var(--accent)">工程師用「指示（pragma）」告訴工具要怎麼做</text>
+                <text x="180" y="188" text-anchor="middle" font-size="9.5" fill="var(--text)">PIPELINE：管線化，每週期進一筆</text>
+                <text x="460" y="188" text-anchor="middle" font-size="9.5" fill="var(--text)">UNROLL：展開迴圈，複製硬體</text>
+                <text x="180" y="208" text-anchor="middle" font-size="9.5" fill="var(--text)">ARRAY_PARTITION：拆開陣列</text>
+                <text x="460" y="208" text-anchor="middle" font-size="9.5" fill="var(--text)">INTERFACE：定義對外介面</text>
+                <text x="320" y="240" text-anchor="middle" font-size="10" fill="#e0605a">同一段 C，下不同的指示 → 速度與面積差距可以很大</text>
+        </svg>
+        <figcaption>高階合成把 C／C++ 轉成 RTL；工程師用指示控制產生的硬體結構。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>步驟</th><th>要回答的問題</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>排程（scheduling）</td><td>每一個運算在第幾個時脈週期執行？</td></tr>
+          <tr><td>配置（allocation）</td><td>需要幾個乘法器、加法器、記憶體埠？</td></tr>
+          <tr><td>綁定（binding）</td><td>每一個運算交給哪一個硬體單元？變數放在哪個暫存器或記憶體？</td></tr>
+          <tr><td>控制產生</td><td>產生一個狀態機，依序指揮資料路徑</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 同一段 C，不同的硬體</h2>
+
+      <div class="code-block">for (int i = 0; i &lt; 64; i++) {
+  #pragma HLS PIPELINE II=1
+  y[i] = a * x[i] + b;
+}</div>
+
+      <p>
+        不加任何指示，工具可能只放一個乘法器，一筆一筆慢慢算；加上 <code>PIPELINE</code>，工具會把運算切成管線，每個週期處理一筆新資料；改用 <code>UNROLL</code>，則會複製 64 份硬體同時計算。<strong>程式碼幾乎一樣，產生的電路在速度與面積上可以相差數十倍。</strong>
+      </p>
+
+      <h2>3. HLS 的限制</h2>
+
+      <ul>
+        <li><strong>不是任何 C 程式都能轉</strong>：動態記憶體配置、遞迴、指標的任意操作、系統呼叫通常不支援</li>
+        <li><strong>硬體思維仍然必要</strong>：要寫出好的 HLS 程式碼，必須了解它會產生什麼樣的硬體</li>
+        <li><strong>品質差距</strong>：在最講究效能與面積的地方，手寫 RTL 通常仍然更好</li>
+        <li><strong>驗證更方便</strong>：好處是可以直接用 C 的測試程式驗證演算法，速度比 RTL 模擬快得多</li>
+      </ul>
+
+      <h2>4. 適合的場合</h2>
+
+      <p>
+        HLS 特別適合<strong>資料密集、規則的運算</strong>：影像與訊號處理、濾波器、AI 推論加速器、加密運算，以及在 FPGA 上快速開發加速器（下一課）。控制邏輯複雜、需要精確時序的部分，則通常仍用 RTL 撰寫。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          越來越多 AI 加速器與影像處理晶片的部分區塊採用 HLS 開發，因為演算法變化快，用 C++ 修改與驗證比改 RTL 快得多。但產出的 RTL 最後仍要走完一般的合成與後端流程。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>HLS 的排程、配置、綁定各在決定什麼？</li>
+          <li>為什麼同一段 C 程式碼可以產生速度差很多的硬體？</li>
+          <li>舉出兩個 HLS 難以處理的 C 語言特性</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>FPGA：不用做晶片也能把程式碼變成硬體</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：邏輯合成：Verilog 怎麼變成數百萬個邏輯閘</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：FPGA：不用做晶片也能把程式碼變成硬體 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

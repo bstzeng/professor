@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：靜態時序分析（STA）：setup、hold 與關鍵路徑 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="不用模擬任何輸入，就能確認數十億條路徑都趕得上時脈">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜簽核：交出去之前的所有檢查 · 第 30 課</div>
+      <h1>靜態時序分析（STA）：setup、hold 與關鍵路徑</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解時序路徑的組成</li>
+          <li>分辨 setup 與 hold 檢查</li>
+          <li>理解 slack 與關鍵路徑</li>
+        </ul>
+      </div>
+
+      <p>
+        晶片的時脈頻率決定了效能：3 GHz 代表每個週期只有約 333 皮秒。<strong>靜態時序分析</strong>（Static Timing Analysis，STA）要確認：晶片中的每一條路徑，在每一個週期內都能把資料正確地送到下一個正反器。
+      </p>
+
+      <h2>1. 時序路徑</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一條時序路徑：從發射端到捕捉端</text>
+                <rect x="40" y="90" width="60" height="60" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/>
+                <text x="70" y="124" text-anchor="middle" font-size="10" fill="var(--gold)">FF A</text>
+                <rect x="150" y="95" width="80" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="190" y="123.5" text-anchor="middle" font-size="10" fill="var(--accent)">邏輯</text>
+                <rect x="260" y="95" width="80" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="300" y="123.5" text-anchor="middle" font-size="10" fill="var(--accent)">邏輯</text>
+                <rect x="370" y="95" width="80" height="50" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="410" y="123.5" text-anchor="middle" font-size="10" fill="var(--accent)">邏輯</text>
+                <rect x="500" y="90" width="60" height="60" rx="4" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/>
+                <text x="530" y="124" text-anchor="middle" font-size="10" fill="var(--gold)">FF B</text>
+                <line x1="100.0" y1="120.0" x2="141.0" y2="120.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="148.0,120.0 141.0,123.5 141.0,116.5" fill="var(--border)"/>
+                <line x1="230.0" y1="120.0" x2="251.0" y2="120.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="258.0,120.0 251.0,123.5 251.0,116.5" fill="var(--border)"/>
+                <line x1="340.0" y1="120.0" x2="361.0" y2="120.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="368.0,120.0 361.0,123.5 361.0,116.5" fill="var(--border)"/>
+                <line x1="450.0" y1="120.0" x2="491.0" y2="120.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="498.0,120.0 491.0,123.5 491.0,116.5" fill="var(--border)"/>
+                <path d="M20 190 L600 190" fill="none" stroke="#4a90c2" stroke-width="1.5"/>
+                <path d="M70 190 L70 152 M530 190 L530 152" fill="none" stroke="#4a90c2" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <text x="310" y="206" text-anchor="middle" font-size="9.5" fill="#4a90c2">時脈</text>
+                <text x="320" y="44" text-anchor="middle" font-size="10" fill="#e0605a">Setup：資料必須在「下一個」時脈邊緣之前，提早一點點到達 B</text>
+                <text x="320" y="64" text-anchor="middle" font-size="10" fill="#ff8a65">Hold：資料在「同一個」時脈邊緣之後，不能太快改變</text>
+                <text x="320" y="236" text-anchor="middle" font-size="10" fill="var(--text)">Slack ＝ 要求到達時間 − 實際到達時間；負的 slack 就是時序違規</text>
+                <text x="320" y="256" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">STA 不用輸入向量，而是把所有路徑都算一遍</text>
+        </svg>
+        <figcaption>一條時序路徑：資料從 FF A 出發，經過邏輯，必須在正確的時間窗內抵達 FF B。</figcaption>
+      </div>
+
+      <p>
+        一條典型路徑是：時脈觸發正反器 A 送出資料 → 經過一連串邏輯閘與導線 → 抵達正反器 B，在下一個時脈邊緣被 B 存下來。路徑延遲＝各個元件的延遲（<a href="lesson-12.html">第 12 課</a>）＋各段導線的延遲（<a href="lesson-29.html">第 29 課</a>）。
+      </p>
+
+      <h2>2. Setup 與 Hold</h2>
+
+      <table>
+        <thead>
+          <tr><th>檢查</th><th>問的問題</th><th>違反時的後果</th><th>通常在哪種條件最嚴苛</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Setup</td><td>資料會不會太晚到？</td><td>B 存到舊的或錯的值</td><td>最慢的條件（<a href="lesson-31.html">第 31 課</a>）</td></tr>
+          <tr><td>Hold</td><td>資料會不會太早變？</td><td>B 還沒存好，新資料就衝進來</td><td>最快的條件</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        兩者的修法不同：setup 違規要讓路徑變快（換大元件、減少邏輯、甚至降頻）；hold 違規則要讓路徑變慢一點（插入延遲元件）。特別注意：<strong>setup 違規可以靠降低時脈頻率解決，hold 違規不行</strong>——它和頻率無關，一旦做進晶片就無法挽回。
+      </p>
+
+      <h2>3. Slack 與關鍵路徑</h2>
+
+      <p>
+        <strong>Slack</strong>＝要求到達的時間 − 實際到達的時間。正的 slack 代表還有餘裕，負的就是違規。slack 最小（或最負）的路徑稱為<strong>關鍵路徑</strong>，它決定了晶片能跑多快。時序報告中常見的指標是 WNS（最差的負 slack）與 TNS（所有負 slack 的總和）。
+      </p>
+
+      <h2>4. 為什麼叫「靜態」</h2>
+
+      <p>
+        STA 不需要輸入測試向量，而是把電路當成一張圖，把每一條可能的路徑延遲都算出來。它比模擬快得多、也完整得多——但前提是限制條件（SDC）寫對了。例如某些實際上不會發生的路徑（false path），或是允許花多個週期的路徑（multicycle path），必須正確標示。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          業界的簽核級 STA 工具主要是 Synopsys PrimeTime 與 Cadence Tempus。「PT 乾淨了沒？」是許多後端團隊在 tape-out 前最常問的一句話。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Setup 和 hold 檢查各在防止什麼問題？</li>
+          <li>為什麼 hold 違規不能靠降低時脈頻率解決？</li>
+          <li>什麼是 slack？什麼是關鍵路徑？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>多種工作條件：製程飄移、電壓、溫度與 OCV</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：繞線後最佳化：寄生電阻電容萃取與修正</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：多種工作條件：製程飄移、電壓、溫度與 OCV →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
