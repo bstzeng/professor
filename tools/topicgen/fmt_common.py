@@ -8,7 +8,7 @@
 from gen import Lesson
 from ho_common import (T, R, C, E, P, A, box, flow, title,
                        RED, BLUE, GREEN, ORANGE, ACC, GOLD, MUTED, LINE, TXT)
-from hr_common import svg, bars, PURPLE, TEAL, GRAY
+from hr_common import svg, bars, line_chart, PURPLE, TEAL, GRAY
 
 
 def lesson(title_, desc, goals, body, tryit, check, fig=None, nxt=None):
