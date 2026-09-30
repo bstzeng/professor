@@ -1,0 +1,130 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Suppose we have a file system that stores both files and directories. The file system is represented as a string where <code>'\n'</code> separates entries and the number of <code>'\t'</code> characters before a name indicates its depth. For example:</p>
+        <div class="code-block">dir
+    subdir1
+        file1.ext
+        subsubdir1
+    subdir2
+        subsubdir2
+            file2.ext</div>
+          <p>Every file and directory has a unique <strong>absolute path</strong> in the file system, which is the order of directories that must be opened to reach the file/directory itself, all concatenated by <code>'/'s</code>. In the example above, the absolute path to <code>file2.ext</code> is <code>"dir/subdir2/subsubdir2/file2.ext"</code>. Each directory name consists of letters, digits, and/or spaces. Each file name is of the form <code>name.extension</code>, where <code>name</code> and <code>extension</code> consist of letters, digits, and/or spaces.</p>
+          <p>Given a string <code>input</code> representing the file system in the explained format, return <em>the length of the <strong>longest absolute path</strong> to a <strong>file</strong> in the abstracted file system</em>. If there is no file in the system, return <code>0</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>一個檔案系統用字串表示：<code>'\n'</code> 分隔每一項，名稱前面 <code>'\t'</code> 的個數代表它的深度。</p>
+          <p>每個檔案或目錄都有唯一的<strong>絕對路徑</strong>：從根開始經過的目錄名稱用 <code>'/'</code> 串起來。例如上面 <code>file2.ext</code> 的絕對路徑是 <code>"dir/subdir2/subsubdir2/file2.ext"</code>。</p>
+          <p>檔案名稱的格式是 <code>name.extension</code>（有 <code>.</code>）；目錄名稱沒有 <code>.</code>。</p>
+          <p>回傳<strong>檔案</strong>最長的絕對路徑長度；沒有任何檔案時回傳 <code>0</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：input = "dir\n\tsubdir1\n\tsubdir2\n\t\tfile.ext"
+  輸出：20
+  說明："dir/subdir2/file.ext" 長度 20。
+
+範例 2
+  輸入：input = "dir\n\tsubdir1\n\t\tfile1.ext\n\t\tsubsubdir1\n\tsubdir2\n\t\tsubsubdir2\n\t\t\tfile2.ext"
+  輸出：32
+  說明："dir/subdir2/subsubdir2/file2.ext" 長度 32。
+
+範例 3
+  輸入：input = "a"
+  輸出：0
+  說明：沒有檔案。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>input.length</code> ≤ 10⁴</li>
+          <li><code>input</code> 可能包含英文字母、數字、<code>'\n'</code>、<code>'\t'</code>、<code>'.'</code>、空白</li>
+          <li>所有檔案和目錄名稱的長度都是正數</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/longest-absolute-file-path/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【一行一行讀：深度 = 開頭的 \t 個數】
+    讀到深度 d 的項目時，它的父目錄一定是「最近一個深度 d-1 的目錄」。
+    這正是堆疊的性質：深度變淺時，比它深的目錄都已經結束了。
+
+【只需要記住每個深度的「路徑前綴長度」】
+    depth_len[d] = 深度 d 的項目，前面的路徑長度（例如 "dir/subdir2/" 是 12）
+    目錄：depth_len[d + 1] = depth_len[d] + len(名稱) + 1（加上 '/'）
+    檔案：候選答案 = depth_len[d] + len(名稱)
+
+    同一個深度的新目錄會直接覆蓋舊值 ——
+    舊的那個目錄已經結束了，它底下不會再有東西。
+
+【判斷檔案】
+    名稱中有 '.' 就是檔案。</div>
+
+        <table>
+          <thead><tr><th>行</th><th>深度</th><th>類型</th><th>depth_len 更新</th><th>候選</th></tr></thead>
+          <tbody>
+            <tr><td>dir</td><td>0</td><td>目錄</td><td>[1] = 4（"dir/"）</td><td></td></tr>
+            <tr><td>\tsubdir1</td><td>1</td><td>目錄</td><td>[2] = 12</td><td></td></tr>
+            <tr><td>\tsubdir2</td><td>1</td><td>目錄</td><td>[2] = 12（覆蓋）</td><td></td></tr>
+            <tr><td>\t\tfile.ext</td><td>2</td><td>檔案</td><td></td><td>12 + 8 = 20</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>逐行 + 每個深度的前綴長度</h3>
+        <div class="code-block">class Solution:
+    def lengthLongestPath(self, input: str) -&gt; int:
+        depth_len = {0: 0}           # depth_len[d]：深度 d 的「父目錄路徑」長度（含結尾的 /）
+        best = 0
+        for line in input.split("\n"):
+            name = line.lstrip("\t")
+            depth = len(line) - len(name)          # 前面有幾個 \t = 深度
+            if "." in name:                        # 檔案：計算完整路徑長度
+                best = max(best, depth_len[depth] + len(name))
+            else:                                  # ★ 目錄：記錄下一層的前綴長度（覆蓋同深度的舊值）
+                depth_len[depth + 1] = depth_len[depth] + len(name) + 1
+        return best</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(d)</td><td>d = 最大深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>沒有檔案</strong> → 0。</li>
+          <li><strong>檔案在根目錄</strong>（深度 0）→ 路徑就是檔名本身。</li>
+          <li><strong>名稱包含空白</strong> → 空白算長度，不影響判斷。</li>
+          <li><strong>深度變淺</strong> → 用覆蓋的方式自動「彈出」舊目錄。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>相關題</h3>
+
+        <div class="code-block">第 71 題「簡化路徑」：用堆疊處理 '..' 和 '.'；第 588 題（付費）設計記憶體檔案系統。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 71 題 簡化路徑</strong></li>
+          <li><strong>第 609 題 在系統中查找重複檔案</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>怎麼從一行字判斷它的深度？</li>
+            <li>depth_len[d] 代表什麼？</li>
+            <li>為什麼同深度的新目錄可以直接覆蓋舊值？</li>
+          </ol>
+        </div>

@@ -10347,7 +10347,13 @@ window.SITE_DATA = {
             { title: "384. Shuffle an Array 打亂陣列", url: "topics/leetcode/problem-0384.html" },
             { title: "385. Mini Parser 迷你語法分析器", url: "topics/leetcode/problem-0385.html" },
             { title: "386. Lexicographical Numbers 字典序排數", url: "topics/leetcode/problem-0386.html" },
-            { title: "387. First Unique Character in a String 字串中的第一個唯一字元", url: "topics/leetcode/problem-0387.html" }
+            { title: "387. First Unique Character in a String 字串中的第一個唯一字元", url: "topics/leetcode/problem-0387.html" },
+            { title: "388. Longest Absolute File Path 檔案的最長絕對路徑", url: "topics/leetcode/problem-0388.html" },
+            { title: "389. Find the Difference 找不同", url: "topics/leetcode/problem-0389.html" },
+            { title: "390. Elimination Game 消除遊戲", url: "topics/leetcode/problem-0390.html" },
+            { title: "391. Perfect Rectangle 完美矩形", url: "topics/leetcode/problem-0391.html" },
+            { title: "392. Is Subsequence 判斷子序列", url: "topics/leetcode/problem-0392.html" },
+            { title: "393. UTF-8 Validation UTF-8 編碼驗證", url: "topics/leetcode/problem-0393.html" }
           ]
         }
       ]

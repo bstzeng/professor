@@ -1,0 +1,149 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>data</code> representing the data, return whether it is a valid <strong>UTF-8</strong> encoding (i.e. it translates to a sequence of valid UTF-8 encoded characters).</p>
+          <p>A character in <strong>UTF-8</strong> can be from <strong>1 to 4 bytes</strong> long, subjected to the following rules:</p>
+        <ol>
+          <li>For a <strong>1-byte</strong> character, the first bit is a <code>0</code>, followed by its Unicode code.</li>
+          <li>For an <strong>n-bytes</strong> character, the first <code>n</code> bits are all one's, the <code>n + 1</code> bit is <code>0</code>, followed by <code>n - 1</code> bytes with the most significant <code>2</code> bits being <code>10</code>.</li>
+        </ol>
+          <p><strong>Note:</strong> The input is an array of integers. Only the <strong>least significant 8 bits</strong> of each integer is used to store the data. This means each integer represents only 1 byte of data.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數陣列 <code>data</code>，判斷它是不是合法的 <strong>UTF-8</strong> 編碼。</p>
+          <p>UTF-8 的一個字元佔 <strong>1 到 4 個位元組</strong>，規則是：</p>
+        <ol>
+          <li><strong>1 位元組</strong>的字元：最高位是 <code>0</code>。</li>
+          <li><strong>n 位元組</strong>的字元：第一個位元組的前 <code>n</code> 位都是 1、第 <code>n+1</code> 位是 0；後面接 <code>n − 1</code> 個位元組，每個的最高兩位都是 <code>10</code>。</li>
+        </ol>
+          <p>每個整數只使用<strong>最低 8 位</strong>，代表一個位元組。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：data = [197,130,1]
+  輸出：true
+  說明：11000101 10000010 00000001
+        一個 2 位元組字元 + 一個 1 位元組字元。
+
+範例 2
+  輸入：data = [235,140,4]
+  輸出：false
+  說明：11101011 10001100 00000100
+        第一個位元組說是 3 位元組字元，但第三個不是 10 開頭。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>data.length</code> ≤ 2 × 10⁴</li>
+          <li>0 ≤ <code>data[i]</code> ≤ 255</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/utf-8-validation/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 236" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">UTF-8 的四種長度（x 是實際資料位元）</text>
+            <g font-family="monospace" font-size="13">
+              <text x="30" y="56" fill="var(--text-muted)">1 位元組</text><text x="130" y="56" fill="var(--accent)">0</text><text x="139" y="56" fill="var(--text)">xxxxxxx</text>
+              <text x="30" y="84" fill="var(--text-muted)">2 位元組</text><text x="130" y="84" fill="var(--accent)">110</text><text x="157" y="84" fill="var(--text)">xxxxx</text><text x="230" y="84" fill="#ff8a65">10</text><text x="248" y="84" fill="var(--text)">xxxxxx</text>
+              <text x="30" y="112" fill="var(--text-muted)">3 位元組</text><text x="130" y="112" fill="var(--accent)">1110</text><text x="166" y="112" fill="var(--text)">xxxx</text><text x="230" y="112" fill="#ff8a65">10</text><text x="248" y="112" fill="var(--text)">xxxxxx</text><text x="330" y="112" fill="#ff8a65">10</text><text x="348" y="112" fill="var(--text)">xxxxxx</text>
+              <text x="30" y="140" fill="var(--text-muted)">4 位元組</text><text x="130" y="140" fill="var(--accent)">11110</text><text x="175" y="140" fill="var(--text)">xxx</text><text x="230" y="140" fill="#ff8a65">10</text><text x="248" y="140" fill="var(--text)">xxxxxx</text><text x="330" y="140" fill="#ff8a65">10</text><text x="348" y="140" fill="var(--text)">xxxxxx</text><text x="430" y="140" fill="#ff8a65">10</text><text x="448" y="140" fill="var(--text)">xxxxxx</text>
+            </g>
+            <text x="30" y="176" fill="var(--accent)" font-size="12">第一個位元組：開頭有幾個 1，這個字元就佔幾個位元組（0 個 1 = 單一位元組）</text>
+            <text x="30" y="198" fill="#ff8a65" font-size="12">後面的延續位元組一律以 10 開頭</text>
+            <text x="30" y="222" fill="var(--text-muted)" font-size="12">例：「中」= E4 B8 AD = 1110 0100 | 10 111000 | 10 101101</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【狀態機：need = 還需要幾個延續位元組】
+    need == 0（等待新字元的第一個位元組）：
+        0xxxxxxx -&gt; 單一位元組，need 保持 0
+        110xxxxx -&gt; need = 1
+        1110xxxx -&gt; need = 2
+        11110xxx -&gt; need = 3
+        其他（10xxxxxx 或 11111xxx）-&gt; 不合法
+    need &gt; 0（等待延續位元組）：
+        必須是 10xxxxxx，need -= 1
+
+    結束時 need 必須是 0（不能字元只寫了一半）。
+
+【用右移判斷前綴】
+    byte &gt;&gt; 5 == 0b110   &lt;=&gt;  前三位是 110
+    byte &gt;&gt; 6 == 0b10    &lt;=&gt;  前兩位是 10
+
+【注意】
+    這題只檢查「結構」。真正的 UTF-8 還禁止過長編碼（例如用兩個位元組表示 'A'）、
+    代理區 D800–DFFF、以及大於 U+10FFFF 的碼位 ——
+    Python 的 bytes.decode 會拒絕這些，但本題不要求。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>狀態機逐位元組檢查</h3>
+        <div class="code-block">class Solution:
+    def validUtf8(self, data: List[int]) -&gt; bool:
+        need = 0                              # 還需要幾個「延續位元組」（10xxxxxx）
+        for byte in data:
+            byte &amp;= 0xFF                      # 只看最低 8 位
+            if need == 0:
+                if byte &gt;&gt; 7 == 0b0:          # 0xxxxxxx：1 位元組字元
+                    continue
+                elif byte &gt;&gt; 5 == 0b110:      # 110xxxxx：後面還有 1 個
+                    need = 1
+                elif byte &gt;&gt; 4 == 0b1110:     # 1110xxxx：後面還有 2 個
+                    need = 2
+                elif byte &gt;&gt; 3 == 0b11110:    # 11110xxx：後面還有 3 個
+                    need = 3
+                else:                         # 10xxxxxx 開頭，或 11111xxx：不合法
+                    return False
+            else:
+                if byte &gt;&gt; 6 != 0b10:         # ★ 延續位元組必須是 10xxxxxx
+                    return False
+                need -= 1
+        return need == 0                      # 最後不能還缺位元組</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>以 10xxxxxx 開頭</strong> → 延續位元組不能當字元開頭，false。</li>
+          <li><strong>11111xxx</strong> → 超過 4 位元組，false。</li>
+          <li><strong>最後字元不完整</strong> → need 不為 0，false。</li>
+          <li><strong>data[i] 超過 255</strong>（其他版本的題目）→ 只看最低 8 位。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>為什麼 UTF-8 這樣設計？</h3>
+
+        <div class="code-block">1. 相容 ASCII：0–127 的編碼和 ASCII 完全一樣。
+2. 自我同步：延續位元組都以 10 開頭，從任何位置往回找，最多 3 步就能找到字元的開頭。
+3. 不會出現 0x00（除了真的 NUL 字元），C 語言的字串函式可以直接用。
+這是 Ken Thompson 和 Rob Pike 在 1992 年一個晚上設計出來的。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 468 題 驗證 IP 位址</strong> —— 另一題格式驗證</li>
+          <li><strong>第 190 題 顛倒二進位位</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>第一個位元組怎麼決定這個字元佔幾個位元組？</li>
+            <li>延續位元組長什麼樣？</li>
+            <li>為什麼最後還要檢查 need == 0？</li>
+          </ol>
+        </div>
