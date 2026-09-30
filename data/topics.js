@@ -10353,7 +10353,14 @@ window.SITE_DATA = {
             { title: "390. Elimination Game 消除遊戲", url: "topics/leetcode/problem-0390.html" },
             { title: "391. Perfect Rectangle 完美矩形", url: "topics/leetcode/problem-0391.html" },
             { title: "392. Is Subsequence 判斷子序列", url: "topics/leetcode/problem-0392.html" },
-            { title: "393. UTF-8 Validation UTF-8 編碼驗證", url: "topics/leetcode/problem-0393.html" }
+            { title: "393. UTF-8 Validation UTF-8 編碼驗證", url: "topics/leetcode/problem-0393.html" },
+            { title: "394. Decode String 字串解碼", url: "topics/leetcode/problem-0394.html" },
+            { title: "395. Longest Substring with At Least K Repeating Characters 至少有 K 個重複字元的最長子字串", url: "topics/leetcode/problem-0395.html" },
+            { title: "396. Rotate Function 旋轉函數", url: "topics/leetcode/problem-0396.html" },
+            { title: "397. Integer Replacement 整數替換", url: "topics/leetcode/problem-0397.html" },
+            { title: "398. Random Pick Index 隨機數索引", url: "topics/leetcode/problem-0398.html" },
+            { title: "399. Evaluate Division 除法求值", url: "topics/leetcode/problem-0399.html" },
+            { title: "400. Nth Digit 第 N 位數字", url: "topics/leetcode/problem-0400.html" }
           ]
         }
       ]
