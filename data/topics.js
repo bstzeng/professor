@@ -10417,7 +10417,13 @@ window.SITE_DATA = {
           title: "第 451–475 題",
           courses: [
             { title: "451. Sort Characters By Frequency 根據字元出現頻率排序", url: "topics/leetcode/problem-0451.html" },
-            { title: "452. Minimum Number of Arrows to Burst Balloons 用最少數量的箭引爆氣球", url: "topics/leetcode/problem-0452.html" }
+            { title: "452. Minimum Number of Arrows to Burst Balloons 用最少數量的箭引爆氣球", url: "topics/leetcode/problem-0452.html" },
+            { title: "453. Minimum Moves to Equal Array Elements 最小操作次數使陣列元素相等", url: "topics/leetcode/problem-0453.html" },
+            { title: "454. 4Sum II 四數相加 II", url: "topics/leetcode/problem-0454.html" },
+            { title: "455. Assign Cookies 分發餅乾", url: "topics/leetcode/problem-0455.html" },
+            { title: "456. 132 Pattern 132 模式", url: "topics/leetcode/problem-0456.html" },
+            { title: "457. Circular Array Loop 環形陣列是否存在循環", url: "topics/leetcode/problem-0457.html" },
+            { title: "458. Poor Pigs 可憐的小豬", url: "topics/leetcode/problem-0458.html" }
           ]
         }
       ]
