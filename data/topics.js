@@ -10341,7 +10341,13 @@ window.SITE_DATA = {
             { title: "377. Combination Sum IV 組合總和 Ⅳ", url: "topics/leetcode/problem-0377.html" },
             { title: "378. Kth Smallest Element in a Sorted Matrix 有序矩陣中第 K 小的元素", url: "topics/leetcode/problem-0378.html" },
             { title: "380. Insert Delete GetRandom O(1) O(1) 時間插入、刪除和獲取隨機元素", url: "topics/leetcode/problem-0380.html" },
-            { title: "381. Insert Delete GetRandom O(1) - Duplicates allowed O(1) 時間插入、刪除和獲取隨機元素 - 允許重複", url: "topics/leetcode/problem-0381.html" }
+            { title: "381. Insert Delete GetRandom O(1) - Duplicates allowed O(1) 時間插入、刪除和獲取隨機元素 - 允許重複", url: "topics/leetcode/problem-0381.html" },
+            { title: "382. Linked List Random Node 鏈結串列隨機節點", url: "topics/leetcode/problem-0382.html" },
+            { title: "383. Ransom Note 贖金信", url: "topics/leetcode/problem-0383.html" },
+            { title: "384. Shuffle an Array 打亂陣列", url: "topics/leetcode/problem-0384.html" },
+            { title: "385. Mini Parser 迷你語法分析器", url: "topics/leetcode/problem-0385.html" },
+            { title: "386. Lexicographical Numbers 字典序排數", url: "topics/leetcode/problem-0386.html" },
+            { title: "387. First Unique Character in a String 字串中的第一個唯一字元", url: "topics/leetcode/problem-0387.html" }
           ]
         }
       ]
