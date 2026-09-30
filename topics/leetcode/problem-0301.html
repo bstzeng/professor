@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>301. Remove Invalid Parentheses 刪除無效的括號 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="BFS 依刪除個數分層；或先算出要刪幾個左右括號，再回溯剪枝。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="301">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 301 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 301</div>
+          <h1>Remove Invalid Parentheses<br>刪除無效的括號</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">回溯</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>s</code> that contains parentheses and letters, remove the minimum number of invalid parentheses to make the input string valid.</p>
+          <p>Return <em>a list of <strong>unique strings</strong> that are valid with the minimum number of removals</em>. You may return the answer in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個包含括號和字母的字串 <code>s</code>，刪除<strong>最少數量</strong>的無效括號，使字串變成合法的。</p>
+          <p>回傳所有可能的結果（<strong>不重複</strong>），順序不限。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "()())()"
+  輸出：["(())()","()()()"]
+
+範例 2
+  輸入：s = "(a)())()"
+  輸出：["(a())()","(a)()()"]
+
+範例 3
+  輸入：s = ")("
+  輸出：[""]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>s.length</code> ≤ 25</li>
+          <li><code>s</code> 由小寫英文字母和 <code>'('</code>、<code>')'</code> 組成</li>
+          <li><code>s</code> 中最多有 20 個括號</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/remove-invalid-parentheses/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【合法括號的判斷】
+    從左到右維護 bal（未配對的左括號數）：
+        ( -&gt; +1，) -&gt; -1
+        途中 bal &lt; 0 -&gt; 不合法（右括號多了）
+        結尾 bal != 0 -&gt; 不合法（左括號多了）
+
+【方法一：BFS 按「刪除個數」分層】
+    第 0 層：原字串
+    第 k 層：刪掉 k 個括號的所有字串（用集合去重）
+    第一次在某一層找到合法字串 -&gt; 這一層所有合法的就是答案。
+    BFS 天然保證「最少」。
+
+【方法二：先算出要刪幾個，再 DFS】
+    掃一遍：
+        遇到 ( -&gt; 待配對 +1
+        遇到 ) -&gt; 有待配對的就配對；沒有就是「多餘的 )」，必須刪
+    最後剩下沒配對的 ( 也必須刪。
+    -&gt; 知道恰好要刪 rm_l 個 (、rm_r 個 )。
+    DFS 時每個括號選「刪」或「留」，
+    刪的額度用完、或 bal &lt; 0 就剪枝。</div>
+
+        <div class="code-block">  "()())()"
+   bal: 1 0 1 0 -1  ← 第 5 個字元的 ) 多餘
+  rm_l = 0，rm_r = 1：恰好刪一個 )
+  刪第 2 個 ) -&gt; "(())()"
+  刪第 4 個 ) -&gt; "()()()"
+  刪第 5 個 ) -&gt; "()()()"（重複，集合去掉）</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>BFS 分層</h3>
+        <div class="code-block">class Solution:
+    def removeInvalidParentheses(self, s: str) -&gt; List[str]:
+        def valid(t: str) -&gt; bool:
+            bal = 0
+            for ch in t:
+                if ch == "(":
+                    bal += 1
+                elif ch == ")":
+                    bal -= 1
+                    if bal &lt; 0:
+                        return False
+            return bal == 0
+
+        level = {s}
+        while level:
+            ok = [t for t in level if valid(t)]
+            if ok:                               # ★ BFS：第一層出現合法字串 = 刪除最少
+                return ok
+            nxt = set()                          # 每個字串再多刪一個括號
+            for t in level:
+                for i, ch in enumerate(t):
+                    if ch in "()":
+                        nxt.add(t[:i] + t[i + 1:])
+            level = nxt
+        return [""]</div>
+        <p>最壞情況下每一層的字串數是組合數 C(n, k)，但因為答案層很淺，而且有集合去重，實際上很快。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · 2ⁿ)</td><td>最壞情況</td></tr>
+            <tr><td>空間</td><td>O(n · 2ⁿ)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>計算刪除數 + 回溯剪枝</h3>
+        <div class="code-block">class Solution:
+    def removeInvalidParentheses(self, s: str) -&gt; List[str]:
+        # 先算出「至少要刪幾個左括號、幾個右括號」
+        rm_l = rm_r = 0
+        for ch in s:
+            if ch == "(":
+                rm_l += 1
+            elif ch == ")":
+                if rm_l:
+                    rm_l -= 1           # 和前面的 ( 配對
+                else:
+                    rm_r += 1           # 多出來的 )，一定要刪
+
+        res = set()
+
+        def dfs(i: int, bal: int, rl: int, rr: int, path: List[str]):
+            if bal &lt; 0 or rl &lt; 0 or rr &lt; 0:          # 剪枝
+                return
+            if i == len(s):
+                if bal == 0 and rl == 0 and rr == 0:
+                    res.add("".join(path))
+                return
+            ch = s[i]
+            if ch == "(":
+                dfs(i + 1, bal, rl - 1, rr, path)    # 刪掉這個 (
+                path.append(ch)
+                dfs(i + 1, bal + 1, rl, rr, path)    # 保留
+                path.pop()
+            elif ch == ")":
+                dfs(i + 1, bal, rl, rr - 1, path)    # 刪掉這個 )
+                path.append(ch)
+                dfs(i + 1, bal - 1, rl, rr, path)    # 保留
+                path.pop()
+            else:                                    # 字母一定保留
+                path.append(ch)
+                dfs(i + 1, bal, rl, rr, path)
+                path.pop()
+
+        dfs(0, 0, rm_l, rm_r, [])
+        return list(res)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · 2ⁿ)</td><td>剪枝後實際快很多</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>遞迴深度</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間（最壞）</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、BFS</td><td>O(n·2ⁿ)</td><td>最直觀，保證最少</td></tr>
+            <tr><td>二、DFS + 剪枝</td><td>O(n·2ⁿ)</td><td>剪枝效果好 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>已經合法</strong> → 回傳原字串。</li>
+          <li><strong>全部都得刪</strong>（<code>")("</code>）→ <code>[""]</code>。</li>
+          <li><strong>字母</strong> → 永遠保留，不影響 bal。</li>
+          <li><strong>重複結果</strong> → 刪相鄰的相同括號會得到相同字串，要去重。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>DFS 避免重複的技巧</h3>
+
+        <div class="code-block">連續相同的括號（例如 "))"）中刪哪一個結果都一樣；可以規定「只刪連續段的第一個」來避免產生重複，就不需要集合去重。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 20 題 有效的括號</strong></li>
+          <li><strong>第 22 題 括號生成</strong></li>
+          <li><strong>第 921 題 使括號有效的最少添加</strong></li>
+          <li><strong>第 1249 題 移除無效的括號</strong> —— 只要一個答案</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>怎麼判斷一個字串的括號是否合法？</li>
+            <li>BFS 為什麼能保證刪除數最少？</li>
+            <li>怎麼事先算出至少要刪幾個左括號、幾個右括號？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0300.html">← 上一題：300. 最長遞增子序列</a>
+          <a href="problem-0303.html">下一題：303. 區域和檢索 - 陣列不可變 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

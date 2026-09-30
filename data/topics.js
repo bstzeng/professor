@@ -10269,6 +10269,17 @@ window.SITE_DATA = {
             { title: "299. Bulls and Cows 猜數字遊戲", url: "topics/leetcode/problem-0299.html" },
             { title: "300. Longest Increasing Subsequence 最長遞增子序列", url: "topics/leetcode/problem-0300.html" }
           ]
+        },
+        {
+          title: "第 301–325 題",
+          courses: [
+            { title: "301. Remove Invalid Parentheses 刪除無效的括號", url: "topics/leetcode/problem-0301.html" },
+            { title: "303. Range Sum Query - Immutable 區域和檢索 - 陣列不可變", url: "topics/leetcode/problem-0303.html" },
+            { title: "304. Range Sum Query 2D - Immutable 二維區域和檢索 - 矩陣不可變", url: "topics/leetcode/problem-0304.html" },
+            { title: "306. Additive Number 累加數", url: "topics/leetcode/problem-0306.html" },
+            { title: "307. Range Sum Query - Mutable 區域和檢索 - 陣列可修改", url: "topics/leetcode/problem-0307.html" },
+            { title: "309. Best Time to Buy and Sell Stock with Cooldown 買賣股票的最佳時機含冷凍期", url: "topics/leetcode/problem-0309.html" }
+          ]
         }
       ]
     },

@@ -1,0 +1,187 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i<sup>th</sup></code> day.</p>
+          <p>Find the maximum profit you can achieve. You may complete as many transactions as you like (i.e., buy one and sell one share of the stock multiple times) with the following restrictions:</p>
+        <ul>
+          <li>After you sell your stock, you cannot buy stock on the next day (i.e., cooldown one day).</li>
+        </ul>
+          <p><strong>Note:</strong> You may not engage in multiple transactions simultaneously (i.e., you must sell the stock before you buy again).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你陣列 <code>prices</code>，<code>prices[i]</code> 是股票第 <code>i</code> 天的價格。</p>
+          <p>可以進行任意多次交易，但有限制：</p>
+        <ul>
+          <li>賣出股票之後，<strong>隔天不能買入</strong>（冷凍期一天）。</li>
+        </ul>
+          <p>同一時間最多只能持有一股（必須先賣再買）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：prices = [1,2,3,0,2]
+  輸出：3
+  說明：買、賣、冷凍、買、賣 -&gt; (2-1) + (2-0) = 3
+
+範例 2
+  輸入：prices = [1]
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>prices.length</code> ≤ 5000</li>
+          <li>0 ≤ <code>prices[i]</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">三個狀態的狀態機（每天結束時處於哪個狀態）</text>
+            <g font-size="13" text-anchor="middle">
+              <circle cx="120" cy="120" r="38" fill="none" stroke="var(--accent)" stroke-width="2"/><text x="120" y="118" fill="var(--accent)">hold</text><text x="120" y="136" fill="var(--text-muted)" font-size="10">持有</text>
+              <circle cx="330" cy="70" r="38" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="330" y="68" fill="#ff8a65">sold</text><text x="330" y="86" fill="var(--text-muted)" font-size="10">剛賣出</text>
+              <circle cx="330" cy="190" r="38" fill="none" stroke="var(--gold)" stroke-width="2"/><text x="330" y="188" fill="var(--gold)">rest</text><text x="330" y="206" fill="var(--text-muted)" font-size="10">空手可買</text>
+            </g>
+            <g stroke="var(--text-muted)" fill="none">
+              <path d="M156 106 L292 78"/><path d="M330 108 L330 152"/><path d="M292 180 L158 132"/>
+              <path d="M90 96 C 60 60, 110 50, 112 82"/>
+              <path d="M360 214 C 400 250, 400 170, 366 180"/>
+            </g>
+            <g fill="var(--text-muted)">
+              <polygon points="292,78 282,76 285,85"/><polygon points="330,152 325,142 335,142"/><polygon points="158,132 166,127 163,138"/>
+              <polygon points="112,82 107,74 117,74"/><polygon points="366,180 376,176 373,186"/>
+            </g>
+            <g font-size="12">
+              <text x="200" y="80" fill="var(--text)">賣出 +p</text>
+              <text x="340" y="134" fill="var(--text)">冷凍一天</text>
+              <text x="190" y="176" fill="var(--text)">買入 −p</text>
+              <text x="40" y="54" fill="var(--text-muted)">繼續持有</text>
+              <text x="400" y="220" fill="var(--text-muted)">繼續休息</text>
+            </g>
+            <text x="440" y="70" fill="#ff8a65" font-size="12">sold 不能直接買</text>
+            <text x="440" y="90" fill="#ff8a65" font-size="12">→ 這就是冷凍期</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【股票系列的通用方法：狀態機 DP】
+    每天結束時處於某個「狀態」，列出狀態之間怎麼轉移。
+
+【三個狀態】
+    hold：手上有股票
+    sold：今天剛賣掉（明天冷凍，不能買）
+    rest：手上沒股票，而且明天可以買
+
+【轉移】
+    hold 今天 = max(昨天 hold 繼續持有, 昨天 rest 今天買入 − p)
+    sold 今天 = 昨天 hold 今天賣出 + p
+    rest 今天 = max(昨天 rest 繼續休息, 昨天 sold 今天解凍)
+
+    注意：買入只能從 rest 來，不能從 sold 來 —— 這就是冷凍期。
+
+【答案】
+    最後一天不能持有股票：max(sold, rest)
+
+【初始】
+    第 0 天之前：hold = −∞（不可能持有），sold = rest = 0</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>兩個陣列：buy / sell</h3>
+        <div class="code-block">class Solution:
+    def maxProfit(self, prices: List[int]) -&gt; int:
+        n = len(prices)
+        # buy[i]：第 i 天結束時持有；sell[i]：第 i 天結束時不持有
+        buy, sell = [0] * n, [0] * n
+        buy[0] = -prices[0]
+        for i in range(1, n):
+            # 買入前一天不能是「賣出日」-&gt; 從 sell[i-2] 買
+            buy[i] = max(buy[i - 1], (sell[i - 2] if i &gt;= 2 else 0) - prices[i])
+            sell[i] = max(sell[i - 1], buy[i - 1] + prices[i])
+        return sell[-1]</div>
+        <p>冷凍期的效果：買入時要從「前天就不持有」的狀態 sell[i−2] 轉移，而不是 sell[i−1]。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>三狀態機（O(1) 空間）</h3>
+        <div class="code-block">class Solution:
+    def maxProfit(self, prices: List[int]) -&gt; int:
+        hold = -float("inf")    # 今天結束時「持有股票」的最大收益
+        sold = 0                # 今天剛賣出（明天是冷凍期）
+        rest = 0                # 今天結束時「不持有、也不在冷凍期」
+        for p in prices:
+            # ★ 三個狀態同時轉移（右邊都用昨天的值）
+            hold, sold, rest = (
+                max(hold, rest - p),     # 繼續持有，或從「可以買」的狀態買入
+                hold + p,                # 賣出
+                max(rest, sold),         # 繼續休息，或昨天賣的今天解凍
+            )
+        return max(sold, rest)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、兩個陣列</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>二、狀態機</td><td>O(n)</td><td>O(1) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一天</strong> → 0。</li>
+          <li><strong>價格一直下跌</strong> → 0，不交易。</li>
+          <li><strong>三個狀態同時更新</strong> → 右邊都要用「昨天」的值；Python 的多重賦值自然做到。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>股票系列整理</h3>
+
+        <div class="code-block">第 121 題：只能交易一次。
+第 122 題：無限次。
+第 123 題：最多兩次（四個狀態）。
+第 188 題：最多 k 次（2k 個狀態）。
+第 309 題：無限次 + 冷凍期（本題，三個狀態）。
+第 714 題：無限次 + 手續費（兩個狀態，賣出時扣費）。
+全部都是同一個狀態機框架。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 122 題 買賣股票的最佳時機 II</strong></li>
+          <li><strong>第 714 題 買賣股票的最佳時機含手續費</strong></li>
+          <li><strong>第 188 題 買賣股票的最佳時機 IV</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>三個狀態分別代表什麼？</li>
+            <li>冷凍期在轉移式中怎麼體現？</li>
+            <li>為什麼答案是 max(sold, rest)？</li>
+          </ol>
+        </div>
