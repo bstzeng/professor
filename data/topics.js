@@ -10371,7 +10371,13 @@ window.SITE_DATA = {
             { title: "403. Frog Jump 青蛙過河", url: "topics/leetcode/problem-0403.html" },
             { title: "404. Sum of Left Leaves 左葉子之和", url: "topics/leetcode/problem-0404.html" },
             { title: "405. Convert a Number to Hexadecimal 數字轉換為十六進位數", url: "topics/leetcode/problem-0405.html" },
-            { title: "406. Queue Reconstruction by Height 根據身高重建佇列", url: "topics/leetcode/problem-0406.html" }
+            { title: "406. Queue Reconstruction by Height 根據身高重建佇列", url: "topics/leetcode/problem-0406.html" },
+            { title: "407. Trapping Rain Water II 接雨水 II", url: "topics/leetcode/problem-0407.html" },
+            { title: "409. Longest Palindrome 最長回文串", url: "topics/leetcode/problem-0409.html" },
+            { title: "410. Split Array Largest Sum 分割陣列的最大值", url: "topics/leetcode/problem-0410.html" },
+            { title: "412. Fizz Buzz Fizz Buzz", url: "topics/leetcode/problem-0412.html" },
+            { title: "413. Arithmetic Slices 等差數列劃分", url: "topics/leetcode/problem-0413.html" },
+            { title: "414. Third Maximum Number 第三大的數", url: "topics/leetcode/problem-0414.html" }
           ]
         }
       ]
