@@ -38,6 +38,7 @@ window.SITE_DATA = {
     { id: "anime", label: "動漫", icon: "🍥" },
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
     { id: "mythology", label: "神話與傳說", icon: "🏺" },
+    { id: "divination", label: "命理與占卜", icon: "🔮" },
     { id: "history", label: "歷史", icon: "📜" }
   ],
   topics: [
@@ -1392,7 +1393,7 @@ window.SITE_DATA = {
     },
     {
       id: "zodiac",
-      category: "life",
+      category: "divination",
       title: "星座學：起源、十二星座個性與相性",
       description:
         "從巴比倫星空觀測與希臘化占星學的起源出發，依火土風水四元素完整解析十二星座的個性特質，深入星座相性與三方四正的配對邏輯，進一步認識本命盤、十大行星與十二宮位的完整占星系統，最後誠實檢視科學怎麼看占星（巴納姆效應、雙盲實驗）。這是文化與歷史脈絡的完整介紹，不是命運預測或人生決策指南。",
@@ -11496,6 +11497,218 @@ window.SITE_DATA = {
             { title: "先進封裝與 chiplet：當 layout 不再只在一顆晶片上", url: "topics/chip-layout/lesson-45.html" },
             { title: "AI 進入晶片設計：機器學習幫忙擺放與繞線", url: "topics/chip-layout/lesson-46.html" },
             { title: "台灣的 IC 設計產業地圖與 layout 工程師的職涯", url: "topics/chip-layout/lesson-47.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "i-ching",
+      category: "divination",
+      title: "易經占卜：卦是怎麼起、怎麼解的",
+      description:
+        "從陰陽、八卦到六十四卦，學會讀懂卦辭爻辭；親手用蓍草、銅錢與梅花易數起卦，依朱熹規則解卦，再認識六爻納甲的推算方式；最後看易經對文化的影響，以及從心理學角度理解它為什麼「感覺很準」。",
+      icon: "☯️",
+      url: "topics/i-ching/index.html",
+      resources: [
+        {
+          title: "六十四卦速查表",
+          description: "依文王卦序列出六十四卦的卦象、全名、上下卦與一句話卦意，另附八卦對照",
+          icon: "☯️",
+          url: "topics/i-ching/cheatsheet.html"
+        },
+        {
+          title: "互動起卦器",
+          description: "模擬擲三枚銅錢六次，自動畫出本卦、標出變爻、求出之卦，並提示朱熹的讀法",
+          icon: "🪙",
+          url: "topics/i-ching/iching-caster.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識易經",
+          courses: [
+            { title: "易經是什麼：《周易》的經與傳", url: "topics/i-ching/lesson-01.html" },
+            { title: "成書與流傳：三聖傳說與現代研究", url: "topics/i-ching/lesson-02.html" },
+            { title: "「易」的三層意思：變易、簡易、不易", url: "topics/i-ching/lesson-03.html" },
+            { title: "占卜書還是哲學書：象數派與義理派", url: "topics/i-ching/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜符號系統",
+          courses: [
+            { title: "陰陽與爻：一條實線、一條斷線", url: "topics/i-ching/lesson-05.html" },
+            { title: "從兩儀、四象到八卦：二進位的組合", url: "topics/i-ching/lesson-06.html" },
+            { title: "八卦的象徵：自然、家人、方位與身體", url: "topics/i-ching/lesson-07.html" },
+            { title: "先天八卦與後天八卦：兩種排列方式", url: "topics/i-ching/lesson-08.html" },
+            { title: "六十四卦怎麼組成：上卦、下卦與卦序", url: "topics/i-ching/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜讀懂一個卦",
+          courses: [
+            { title: "卦辭與爻辭：一個卦的文字結構", url: "topics/i-ching/lesson-10.html" },
+            { title: "六爻的位置：當位、中、應、比", url: "topics/i-ching/lesson-11.html" },
+            { title: "吉凶的語言：元亨利貞、悔吝與無咎", url: "topics/i-ching/lesson-12.html" },
+            { title: "十翼導讀：彖、象、繫辭、文言", url: "topics/i-ching/lesson-13.html" },
+            { title: "範例精讀：乾卦與坤卦", url: "topics/i-ching/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜起卦方法",
+          courses: [
+            { title: "大衍筮法：用 49 根蓍草起卦", url: "topics/i-ching/lesson-15.html" },
+            { title: "三枚銅錢法：最普及的起卦方式", url: "topics/i-ching/lesson-16.html" },
+            { title: "老陰、老陽、少陰、少陽：什麼是變爻", url: "topics/i-ching/lesson-17.html" },
+            { title: "機率比較：蓍草法和銅錢法有什麼不同", url: "topics/i-ching/lesson-18.html" },
+            { title: "梅花易數起卦：用時間、數字與文字起卦", url: "topics/i-ching/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜解卦的規則",
+          courses: [
+            { title: "本卦與之卦：變爻讓一個卦變成另一個卦", url: "topics/i-ching/lesson-20.html" },
+            { title: "變爻數目怎麼看：朱熹的 0～6 爻規則", url: "topics/i-ching/lesson-21.html" },
+            { title: "互卦、錯卦、綜卦：從同一個卦延伸出的其他卦", url: "topics/i-ching/lesson-22.html" },
+            { title: "問題怎麼問：好問題與壞問題", url: "topics/i-ching/lesson-23.html" },
+            { title: "解卦實例（一）：工作與決策", url: "topics/i-ching/lesson-24.html" },
+            { title: "解卦實例（二）：人際與感情", url: "topics/i-ching/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜六爻納甲：另一套算法",
+          courses: [
+            { title: "京房與納甲：把天干地支配到每一爻", url: "topics/i-ching/lesson-26.html" },
+            { title: "世爻與應爻：誰代表自己、誰代表對方", url: "topics/i-ching/lesson-27.html" },
+            { title: "六親：父母、兄弟、子孫、妻財、官鬼", url: "topics/i-ching/lesson-28.html" },
+            { title: "用神與五行生剋：六爻判斷的核心", url: "topics/i-ching/lesson-29.html" },
+            { title: "旺衰、動靜與應期：六爻怎麼推算「什麼時候」", url: "topics/i-ching/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜梅花易數",
+          courses: [
+            { title: "體卦與用卦：先分出自己和所問之事", url: "topics/i-ching/lesson-31.html" },
+            { title: "五行生剋與體用關係", url: "topics/i-ching/lesson-32.html" },
+            { title: "外應：邵雍的故事與「觸機」", url: "topics/i-ching/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 H｜六十四卦導讀",
+          courses: [
+            { title: "上經一：乾、坤到泰、否（第 1～12 卦）", url: "topics/i-ching/lesson-34.html" },
+            { title: "上經二：同人到坎、離（第 13～30 卦）", url: "topics/i-ching/lesson-35.html" },
+            { title: "下經一：咸、恆到革、鼎（第 31～50 卦）", url: "topics/i-ching/lesson-36.html" },
+            { title: "下經二：震到既濟、未濟（第 51～64 卦）", url: "topics/i-ching/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 I｜文化影響與理性看待",
+          courses: [
+            { title: "易經與中國文化：儒、道、醫、風水與兵法", url: "topics/i-ching/lesson-38.html" },
+            { title: "走向世界：萊布尼茲、二進位與榮格的共時性", url: "topics/i-ching/lesson-39.html" },
+            { title: "為什麼感覺很準：模糊文字、主動詮釋與確認偏誤", url: "topics/i-ching/lesson-40.html" },
+            { title: "把易經當成思考工具：反思、換角度與做決定", url: "topics/i-ching/lesson-41.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "tarot",
+      category: "divination",
+      title: "塔羅牌占卜：牌是怎麼抽、怎麼讀的",
+      description:
+        "從 15 世紀義大利的紙牌遊戲談起，認識 78 張牌的結構、愚人之旅與四種花色；學會設定問題、洗牌抽牌、正逆位與各種牌陣，練習位置、組合、統計與敘事的解牌技巧；最後從心理學角度理解它為什麼「感覺很準」，以及如何健康地使用。",
+      icon: "🃏",
+      url: "topics/tarot/index.html",
+      resources: [
+        {
+          title: "78 張牌速查表",
+          description: "大阿爾克那與四種花色小牌的正位、逆位關鍵字，以及數字與宮廷牌速記",
+          icon: "🃏",
+          url: "topics/tarot/cheatsheet.html"
+        },
+        {
+          title: "互動抽牌器",
+          description: "選擇單張、三張、二選一或凱爾特十字，洗牌後逐張翻開，顯示位置、牌名、正逆位與關鍵字",
+          icon: "🔮",
+          url: "topics/tarot/tarot-reader.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜塔羅的歷史",
+          courses: [
+            { title: "從紙牌遊戲開始：15 世紀義大利的凱旋牌", url: "topics/tarot/lesson-01.html" },
+            { title: "被創造出來的神祕起源：古埃及起源說", url: "topics/tarot/lesson-02.html" },
+            { title: "黃金黎明協會與偉特-史密斯牌", url: "topics/tarot/lesson-03.html" },
+            { title: "三大系統比較：馬賽牌、偉特牌、托特牌", url: "topics/tarot/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜一副牌的結構",
+          courses: [
+            { title: "78 張牌：22 張大阿爾克那與 56 張小阿爾克那", url: "topics/tarot/lesson-05.html" },
+            { title: "四種花色與四元素", url: "topics/tarot/lesson-06.html" },
+            { title: "牌面怎麼讀：顏色、人物、方向與符號", url: "topics/tarot/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜大阿爾克那：愚人之旅",
+          courses: [
+            { title: "愚人之旅總覽：22 張牌是一段成長故事", url: "topics/tarot/lesson-08.html" },
+            { title: "0～4：愚人、魔術師、女祭司、皇后、皇帝", url: "topics/tarot/lesson-09.html" },
+            { title: "5～9：教皇、戀人、戰車、力量、隱者", url: "topics/tarot/lesson-10.html" },
+            { title: "10～14：命運之輪、正義、吊人、死神、節制", url: "topics/tarot/lesson-11.html" },
+            { title: "15～19：惡魔、高塔、星星、月亮、太陽", url: "topics/tarot/lesson-12.html" },
+            { title: "20～21：審判、世界，以及大牌的整體結構", url: "topics/tarot/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜小阿爾克那",
+          courses: [
+            { title: "數字牌的邏輯：從王牌到十", url: "topics/tarot/lesson-14.html" },
+            { title: "權杖：行動、熱情、事業", url: "topics/tarot/lesson-15.html" },
+            { title: "聖杯：情感、關係、直覺", url: "topics/tarot/lesson-16.html" },
+            { title: "寶劍：思考、衝突、溝通", url: "topics/tarot/lesson-17.html" },
+            { title: "錢幣：物質、工作、身體", url: "topics/tarot/lesson-18.html" },
+            { title: "宮廷牌：侍者、騎士、皇后、國王", url: "topics/tarot/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜占卜流程",
+          courses: [
+            { title: "占卜前：怎麼設定一個好問題", url: "topics/tarot/lesson-20.html" },
+            { title: "洗牌、切牌與抽牌", url: "topics/tarot/lesson-21.html" },
+            { title: "正位與逆位：要不要用、怎麼解讀", url: "topics/tarot/lesson-22.html" },
+            { title: "基礎牌陣：單張、三張與二選一", url: "topics/tarot/lesson-23.html" },
+            { title: "經典牌陣：凱爾特十字", url: "topics/tarot/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜解牌技巧",
+          courses: [
+            { title: "位置優先：同一張牌在不同位置意思不同", url: "topics/tarot/lesson-25.html" },
+            { title: "牌與牌的對話：組合、呼應與矛盾", url: "topics/tarot/lesson-26.html" },
+            { title: "整體統計：大牌比例、花色與數字", url: "topics/tarot/lesson-27.html" },
+            { title: "從象徵到故事：把一組牌串成一段敘事", url: "topics/tarot/lesson-28.html" },
+            { title: "解牌實例：完整走一次凱爾特十字", url: "topics/tarot/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜其他牌陣與占卜卡",
+          courses: [
+            { title: "感情牌陣、年度牌陣與其他常見牌陣", url: "topics/tarot/lesson-30.html" },
+            { title: "雷諾曼卡：36 張牌的另一套系統", url: "topics/tarot/lesson-31.html" },
+            { title: "神諭卡與現代創作牌：塔羅的延伸", url: "topics/tarot/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 H｜心理與理性看待",
+          courses: [
+            { title: "為什麼感覺很準：巴納姆效應、冷讀術與確認偏誤", url: "topics/tarot/lesson-33.html" },
+            { title: "心理學的用法：投射、自我對話與敘事", url: "topics/tarot/lesson-34.html" },
+            { title: "占卜的倫理：不取代專業、不製造恐懼", url: "topics/tarot/lesson-35.html" },
+            { title: "把塔羅當成反思工具：日記、每日一張與創作", url: "topics/tarot/lesson-36.html" },
           ],
         },
       ],

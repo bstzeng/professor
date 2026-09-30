@@ -79,10 +79,16 @@ INDEX_BODY = u"""    <nav class="breadcrumb">
       <h1 id="topic-title">{title}</h1>
       <p id="topic-description"></p>
     </section>
-
+{resources}
     <section id="modules-container">
       <!-- 由 js/topic.js 依據 data/topics.js 動態產生模組與課程列表 -->
     </section>"""
+
+RESOURCES_SECTION = u"""
+    <section class="resources-section">
+      <div id="resources-container"></div>
+    </section>
+"""
 
 INDEX_SCRIPTS = u"""<script>window.SITE_BASE = "../../";</script>
 <script src="../../data/topics.js"></script>
@@ -281,7 +287,8 @@ def build(modname):
     idx = PAGE.format(title=u"%s ｜ 博雅書院" % B.esc(t["title"]),
                       desc=B.attr(t["description"]),
                       bodyattr=u' data-topic-id="%s"' % t["id"],
-                      body=INDEX_BODY.format(crumb=t["crumb"], title=B.esc(t["title"])),
+                      body=INDEX_BODY.format(crumb=t["crumb"], title=B.esc(t["title"]),
+                                             resources=RESOURCES_SECTION if getattr(spec, "REFERENCES", None) else ""),
                       scripts=INDEX_SCRIPTS)
     io.open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(idx)
 
