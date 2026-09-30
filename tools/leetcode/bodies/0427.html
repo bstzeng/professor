@@ -1,0 +1,131 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a <code>n * n</code> matrix <code>grid</code> of <code>0's</code> and <code>1's</code> only. We want to represent <code>grid</code> with a Quad-Tree.</p>
+          <p>Return <em>the root of the Quad-Tree representing</em> <code>grid</code>.</p>
+          <p>A Quad-Tree is a tree data structure in which each internal node has exactly four children. Besides, each node has two attributes:</p>
+        <ul>
+          <li><code>val</code>: True if the node represents a grid of 1's or False if the node represents a grid of 0's. Notice that you can assign the <code>val</code> to True or False when <code>isLeaf</code> is False, and both are accepted in the answer.</li>
+          <li><code>isLeaf</code>: True if the node is a leaf node on the tree or False if the node has four children.</li>
+        </ul>
+          <p>We can construct a Quad-Tree from a two-dimensional area using the following steps:</p>
+        <ol>
+          <li>If the current grid has the same value (i.e all <code>1's</code> or all <code>0's</code>) set <code>isLeaf</code> True and set <code>val</code> to the value of the grid and set the four children to Null and stop.</li>
+          <li>If the current grid has different values, set <code>isLeaf</code> to False and set <code>val</code> to any value and divide the current grid into four sub-grids.</li>
+          <li>Recurse for each of the children with the proper sub-grid.</li>
+        </ol>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個只含 0 和 1 的 <code>n x n</code> 矩陣（n 是 2 的冪），用<strong>四元樹</strong>表示它，回傳根節點。</p>
+          <p>四元樹的每個內部節點恰好有四個孩子（左上、右上、左下、右下），節點有兩個屬性：<code>val</code>（這塊全是 1 則 True，全是 0 則 False）、<code>isLeaf</code>（是否為葉子）。</p>
+          <p>建構規則：</p>
+        <ol>
+          <li>目前的區塊如果全部相同 → 葉節點，<code>val</code> 設為該值。</li>
+          <li>否則 → 內部節點（<code>val</code> 任意），把區塊切成四等份，分別遞迴。</li>
+        </ol>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：grid = [[0,1],[1,0]]
+  輸出：根不是葉子，四個孩子分別是 0、1、1、0 的葉子。
+
+範例 2
+  輸入：8 × 8 的格子，左半全 1、右上 4×4 全 0、右下有混合
+  輸出：只有混合的區塊會繼續分割。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == grid.length == grid[i].length</code></li>
+          <li><code>n == 2<sup>x</sup></code>，0 ≤ x ≤ 6</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/construct-quad-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【分治】
+    build(區塊)：
+        全部相同 -&gt; 葉子
+        否則     -&gt; 切四塊，分別 build
+
+【怎麼快速判斷一塊是否全部相同？】
+    直接掃描：每一層都要掃一次整塊 -&gt; O(n² log n)
+    二維前綴和（第 304 題）：O(1) 算出區塊總和
+        總和 = 0         -&gt; 全 0
+        總和 = size²     -&gt; 全 1
+        其他             -&gt; 混合
+    -&gt; 總時間 O(n²)（前綴和）+ 節點數
+
+【另一種 O(n²)：由下往上】
+    先遞迴建四個孩子，
+    如果四個孩子都是葉子而且值相同 -&gt; 合併成一個葉子。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>分治 + 二維前綴和</h3>
+        <div class="code-block">"""
+class Node:
+    def __init__(self, val, isLeaf, topLeft, topRight, bottomLeft, bottomRight): ...
+"""
+
+class Solution:
+    def construct(self, grid: List[List[int]]) -&gt; 'Node':
+        n = len(grid)
+        # 二維前綴和：O(1) 算出任一區塊的總和
+        P = [[0] * (n + 1) for _ in range(n + 1)]
+        for i in range(n):
+            for j in range(n):
+                P[i + 1][j + 1] = P[i][j + 1] + P[i + 1][j] - P[i][j] + grid[i][j]
+
+        def build(r: int, c: int, size: int) -&gt; 'Node':
+            total = P[r + size][c + size] - P[r][c + size] - P[r + size][c] + P[r][c]
+            if total == 0 or total == size * size:          # ★ 全 0 或全 1：葉節點
+                return Node(total &gt; 0, True, None, None, None, None)
+            h = size // 2
+            return Node(True, False,
+                        build(r, c, h), build(r, c + h, h),
+                        build(r + h, c, h), build(r + h, c + h, h))
+
+        return build(0, 0, n)</div>
+        <p>驗證方式：把建好的四元樹「畫回」矩陣，確認和原矩陣相同，而且沒有四個相同的葉子沒被合併。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>1 × 1</strong> → 一個葉子。</li>
+          <li><strong>整塊相同</strong> → 根就是葉子。</li>
+          <li><strong>非葉節點的 val</strong> → 任意值都可以。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>四元樹的應用</h3>
+
+        <div class="code-block">影像壓縮（大片相同顏色只存一個節點）、2D 碰撞偵測、地圖的空間索引。第 558 題是兩棵四元樹的 OR 運算。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 558 題 四元樹交集</strong></li>
+          <li><strong>第 304 題 二維區域和檢索</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>怎麼用前綴和判斷一塊是否全部相同？</li>
+            <li>分治的遞迴終止條件是什麼？</li>
+          </ol>
+        </div>

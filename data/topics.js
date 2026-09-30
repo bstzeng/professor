@@ -10383,7 +10383,18 @@ window.SITE_DATA = {
             { title: "417. Pacific Atlantic Water Flow 太平洋大西洋水流問題", url: "topics/leetcode/problem-0417.html" },
             { title: "419. Battleships in a Board 甲板上的戰艦", url: "topics/leetcode/problem-0419.html" },
             { title: "420. Strong Password Checker 強密碼檢驗器", url: "topics/leetcode/problem-0420.html" },
-            { title: "421. Maximum XOR of Two Numbers in an Array 陣列中兩個數的最大異或值", url: "topics/leetcode/problem-0421.html" }
+            { title: "421. Maximum XOR of Two Numbers in an Array 陣列中兩個數的最大異或值", url: "topics/leetcode/problem-0421.html" },
+            { title: "423. Reconstruct Original Digits from English 從英文中重建數字", url: "topics/leetcode/problem-0423.html" },
+            { title: "424. Longest Repeating Character Replacement 替換後的最長重複字元", url: "topics/leetcode/problem-0424.html" }
+          ]
+        },
+        {
+          title: "第 426–450 題",
+          courses: [
+            { title: "427. Construct Quad Tree 建立四元樹", url: "topics/leetcode/problem-0427.html" },
+            { title: "429. N-ary Tree Level Order Traversal N 叉樹的層序遍歷", url: "topics/leetcode/problem-0429.html" },
+            { title: "430. Flatten a Multilevel Doubly Linked List 扁平化多級雙向鏈結串列", url: "topics/leetcode/problem-0430.html" },
+            { title: "432. All O`one Data Structure 全 O(1) 的資料結構", url: "topics/leetcode/problem-0432.html" }
           ]
         }
       ]
