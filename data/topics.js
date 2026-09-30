@@ -10435,7 +10435,18 @@ window.SITE_DATA = {
             { title: "468. Validate IP Address 驗證 IP 位址", url: "topics/leetcode/problem-0468.html" },
             { title: "470. Implement Rand10() Using Rand7() 用 Rand7() 實作 Rand10()", url: "topics/leetcode/problem-0470.html" },
             { title: "472. Concatenated Words 連接詞", url: "topics/leetcode/problem-0472.html" },
-            { title: "473. Matchsticks to Square 火柴拼正方形", url: "topics/leetcode/problem-0473.html" }
+            { title: "473. Matchsticks to Square 火柴拼正方形", url: "topics/leetcode/problem-0473.html" },
+            { title: "474. Ones and Zeroes 一和零", url: "topics/leetcode/problem-0474.html" },
+            { title: "475. Heaters 供暖器", url: "topics/leetcode/problem-0475.html" }
+          ]
+        },
+        {
+          title: "第 476–500 題",
+          courses: [
+            { title: "476. Number Complement 數字的補數", url: "topics/leetcode/problem-0476.html" },
+            { title: "477. Total Hamming Distance 漢明距離總和", url: "topics/leetcode/problem-0477.html" },
+            { title: "478. Generate Random Point in a Circle 在圓內隨機生成點", url: "topics/leetcode/problem-0478.html" },
+            { title: "479. Largest Palindrome Product 最大回文數乘積", url: "topics/leetcode/problem-0479.html" }
           ]
         }
       ]
