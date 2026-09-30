@@ -10423,7 +10423,13 @@ window.SITE_DATA = {
             { title: "455. Assign Cookies 分發餅乾", url: "topics/leetcode/problem-0455.html" },
             { title: "456. 132 Pattern 132 模式", url: "topics/leetcode/problem-0456.html" },
             { title: "457. Circular Array Loop 環形陣列是否存在循環", url: "topics/leetcode/problem-0457.html" },
-            { title: "458. Poor Pigs 可憐的小豬", url: "topics/leetcode/problem-0458.html" }
+            { title: "458. Poor Pigs 可憐的小豬", url: "topics/leetcode/problem-0458.html" },
+            { title: "459. Repeated Substring Pattern 重複的子字串", url: "topics/leetcode/problem-0459.html" },
+            { title: "460. LFU Cache LFU 快取", url: "topics/leetcode/problem-0460.html" },
+            { title: "461. Hamming Distance 漢明距離", url: "topics/leetcode/problem-0461.html" },
+            { title: "462. Minimum Moves to Equal Array Elements II 最小操作次數使陣列元素相等 II", url: "topics/leetcode/problem-0462.html" },
+            { title: "463. Island Perimeter 島嶼的周長", url: "topics/leetcode/problem-0463.html" },
+            { title: "464. Can I Win 我能贏嗎", url: "topics/leetcode/problem-0464.html" }
           ]
         }
       ]

@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>460. LFU Cache LFU 快取 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="依次數分組的 OrderedDict + min_freq，淘汰最小次數組中最久沒用的。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="460">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 460 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 460</div>
+          <h1>LFU Cache<br>LFU 快取</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">鏈結串列</span>
+          <span class="lc-badge">設計</span>
+          <span class="lc-badge">雙向鏈結串列</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Design and implement a data structure for a <a href="https://en.wikipedia.org/wiki/Least_frequently_used">Least Frequently Used (LFU)</a> cache.</p>
+          <p>Implement the <code>LFUCache</code> class:</p>
+        <ul>
+          <li><code>LFUCache(int capacity)</code> Initializes the object with the <code>capacity</code> of the data structure.</li>
+          <li><code>int get(int key)</code> Gets the value of the <code>key</code> if the <code>key</code> exists in the cache. Otherwise, returns <code>-1</code>.</li>
+          <li><code>void put(int key, int value)</code> Update the value of the <code>key</code> if present, or inserts the <code>key</code> if not already present. When the cache reaches its <code>capacity</code>, it should invalidate and remove the <strong>least frequently used</strong> key before inserting a new item. For this problem, when there is a <strong>tie</strong> (i.e., two or more keys with the same frequency), the <strong>least recently used</strong> <code>key</code> would be invalidated.</li>
+        </ul>
+          <p>To determine the least frequently used key, a <strong>use counter</strong> is maintained for each key in the cache. The key with the smallest <strong>use counter</strong> is the least frequently used key. When a key is first inserted into the cache, its <strong>use counter</strong> is set to <code>1</code> (due to the <code>put</code> operation). The <strong>use counter</strong> for a key in the cache is incremented either a <code>get</code> or <code>put</code> operation is called on it.</p>
+          <p>The functions <code>get</code> and <code>put</code> must each run in <code>O(1)</code> average time complexity.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>設計一個 <strong>LFU（最不常使用）快取</strong>：</p>
+        <ul>
+          <li><code>get(key)</code>：存在就回傳值，否則回傳 −1。</li>
+          <li><code>put(key, value)</code>：存在就更新值，否則插入。快取滿了的時候，先淘汰<strong>使用次數最少</strong>的 key；次數相同時，淘汰<strong>最久沒被使用</strong>的那個。</li>
+        </ul>
+          <p>每個 key 有一個使用次數：插入時設為 1，之後每次 <code>get</code> 或 <code>put</code> 都 +1。</p>
+          <p><code>get</code> 和 <code>put</code> 的平均時間都必須是 <code>O(1)</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  LFUCache(2)
+  put(1, 1), put(2, 2)
+  get(1)    -&gt; 1      （1 的次數 2，2 的次數 1）
+  put(3, 3)           （淘汰次數最少的 2）
+  get(2)    -&gt; -1
+  get(3)    -&gt; 3      （1 和 3 的次數都是 2）
+  put(4, 4)           （次數相同，淘汰最久沒用的 1）
+  get(1)    -&gt; -1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>capacity</code> ≤ 10⁴</li>
+          <li>0 ≤ <code>key</code> ≤ 10⁵，0 ≤ <code>value</code> ≤ 10⁹</li>
+          <li>最多呼叫 2 × 10⁵ 次</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/lfu-cache/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 234" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">依「使用次數」分組；每一組內再依「最近使用時間」排序</text>
+            <g font-size="12">
+              <text x="30" y="62" fill="var(--accent)">次數 1</text>
+              <rect x="100" y="46" width="44" height="26" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="122" y="64" text-anchor="middle" fill="#ff8a65">k3</text>
+              <rect x="150" y="46" width="44" height="26" fill="none" stroke="var(--border)"/><text x="172" y="64" text-anchor="middle" fill="var(--text)">k5</text>
+              <text x="30" y="106" fill="var(--accent)">次數 2</text>
+              <rect x="100" y="90" width="44" height="26" fill="none" stroke="var(--border)"/><text x="122" y="108" text-anchor="middle" fill="var(--text)">k1</text>
+              <text x="30" y="150" fill="var(--accent)">次數 4</text>
+              <rect x="100" y="134" width="44" height="26" fill="none" stroke="var(--border)"/><text x="122" y="152" text-anchor="middle" fill="var(--text)">k2</text>
+              <rect x="150" y="134" width="44" height="26" fill="none" stroke="var(--border)"/><text x="172" y="152" text-anchor="middle" fill="var(--text)">k4</text>
+            </g>
+            <text x="100" y="186" fill="var(--text-muted)" font-size="11">← 最久沒用　　最近使用 →</text>
+            <text x="250" y="62" fill="#ff8a65" font-size="12">滿了要淘汰：min_freq = 1 那一組的第一個 → k3</text>
+            <text x="250" y="106" fill="var(--text)" font-size="12">get(k1)：k1 從「次數 2」搬到「次數 3」組的最後面</text>
+            <text x="250" y="150" fill="var(--text)" font-size="12">put 新 key：放進「次數 1」組，min_freq 重設為 1</text>
+            <text x="20" y="220" fill="var(--gold)" font-size="12">★ 次數每次只 +1，所以只會搬到相鄰的組；min_freq 只會 +1 或重設為 1 —— 全部 O(1)。</text>
+          </svg>
+        </div>
+
+        <div class="code-block">【需要同時知道兩件事】
+    1. 哪些 key 的次數最少？
+    2. 同樣次數中，哪個最久沒用？
+
+【結構：次數 -&gt; 一條「依使用時間排序」的串列】
+    groups[f] = 所有次數為 f 的 key，最舊的在前面（就是一個小 LRU）
+    min_freq  = 目前最小的次數
+
+    使用一次 key（get 或 put 已存在的 key）：
+        從 groups[f] 移除，加到 groups[f+1] 的最後面
+        如果 groups[f] 空了而且 f == min_freq -&gt; min_freq += 1
+    淘汰：
+        groups[min_freq] 的第一個（最舊的）
+    插入新 key：
+        放進 groups[1]，min_freq = 1
+
+【Python 的 OrderedDict】
+    有序字典本身就是「雜湊表 + 雙向鏈結串列」：
+    刪除任意 key、在尾端加入、從頭部彈出都是 O(1)。
+
+【和第 432 題（All O`one）的結構一樣】</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>次數分組的 OrderedDict + min_freq</h3>
+        <div class="code-block">class LFUCache:
+    def __init__(self, capacity: int):
+        self.cap = capacity
+        self.val = {}                                   # key -&gt; value
+        self.freq = {}                                  # key -&gt; 使用次數
+        self.groups = collections.defaultdict(collections.OrderedDict)  # 次數 -&gt; 依使用時間排序的 keys
+        self.min_freq = 0
+
+    def _touch(self, key: int) -&gt; None:                 # 使用一次：次數 +1，搬到下一組
+        f = self.freq[key]
+        del self.groups[f][key]
+        if not self.groups[f]:
+            del self.groups[f]
+            if self.min_freq == f:
+                self.min_freq = f + 1
+        self.freq[key] = f + 1
+        self.groups[f + 1][key] = None                  # 放在這一組的最後（最新）
+
+    def get(self, key: int) -&gt; int:
+        if key not in self.val:
+            return -1
+        self._touch(key)
+        return self.val[key]
+
+    def put(self, key: int, value: int) -&gt; None:
+        if self.cap == 0:
+            return
+        if key in self.val:
+            self.val[key] = value
+            self._touch(key)
+            return
+        if len(self.val) == self.cap:
+            # ★ 淘汰：次數最少的那一組裡，最久沒用的（OrderedDict 的第一個）
+            old, _ = self.groups[self.min_freq].popitem(last=False)
+            if not self.groups[self.min_freq]:
+                del self.groups[self.min_freq]
+            del self.val[old], self.freq[old]
+        self.val[key] = value
+        self.freq[key] = 1
+        self.groups[1][key] = None
+        self.min_freq = 1                               # 新 key 的次數一定是最少的</div>
+        <p>驗證方式：和一個「直接用 (次數, 最後使用時間) 找最小值」的 O(n) 參考實作，隨機比對五百組操作序列。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>get / put O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(capacity)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>capacity = 0</strong> → 什麼都不存（原題 capacity ≥ 1，但寫法仍應處理）。</li>
+          <li><strong>put 已存在的 key</strong> → 更新值，而且次數 +1。</li>
+          <li><strong>次數相同</strong> → 淘汰最久沒用的。</li>
+          <li><strong>min_freq 什麼時候更新</strong> → 只有「最小那一組被搬空」或「插入新 key」時。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>LRU vs LFU</h3>
+
+        <div class="code-block">LRU（第 146 題）只看「最近一次什麼時候用」，對突發的大量掃描很敏感；LFU 看「用了幾次」，能保留長期熱門的資料，但新資料很容易被淘汰。實務上常用兩者的混合（例如 Redis 的 LFU 會讓次數隨時間衰減）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 146 題 LRU 快取</strong></li>
+          <li><strong>第 432 題 全 O(1) 的資料結構</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>淘汰時要找哪一個 key？</li>
+            <li>min_freq 在什麼時候改變？</li>
+            <li>為什麼 OrderedDict 適合用在這裡？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0459.html">← 上一題：459. 重複的子字串</a>
+          <a href="problem-0461.html">下一題：461. 漢明距離 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
