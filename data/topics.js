@@ -12579,6 +12579,145 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "taoism",
+      category: "religion",
+      title: "道教入門:從老莊思想到台灣的廟宇",
+      description:
+        "先分清道家、道教與民間信仰;讀老子《道德經》的無為、上善若水、反者道之動,莊子的逍遙與齊物;認識三清與神仙、陰陽五行、內丹、善惡報應、齋醮科儀與重要經典,走過兩千年的道教史;再走進台灣的廟宇,認識媽祖、關公、土地公、城隍、保生大帝、王爺等神明,以及拜拜、擲筊、節慶與三教交融。附名詞速查、可篩選的台灣常見神明速查與《道德經》精選章節。",
+      icon: "☯️",
+      url: "topics/taoism/index.html",
+      resources: [
+        {
+          title: "道教名詞速查表",
+          description: "無為、三清、內丹、齋醮、承負、分靈、擲筊、安太歲… 一頁查完本課的關鍵名詞",
+          icon: "📇",
+          url: "topics/taoism/cheatsheet.html"
+        },
+        {
+          title: "台灣常見神明速查",
+          description: "媽祖、關公、土地公、城隍、保生大帝、文昌、月老…可依「求學、求財、姻緣、健康」等篩選,查職司、誕辰與代表廟宇",
+          icon: "🏮",
+          url: "topics/taoism/deities.html"
+        },
+        {
+          title: "《道德經》精選章節",
+          description: "《道德經》十多個最常被引用的章節,原文、白話對照,並連到對應課程",
+          icon: "📜",
+          url: "topics/taoism/daodejing.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜先分清楚:道、道家、道教",
+          courses: [
+            { title: "「道」是什麼:一個字,很多層意思", url: "topics/taoism/lesson-01.html" },
+            { title: "道家 vs 道教 vs 民間信仰:最常被混在一起的三件事", url: "topics/taoism/lesson-02.html" },
+            { title: "道教的源頭:巫祝、方士、神仙思想與陰陽五行", url: "topics/taoism/lesson-03.html" },
+            { title: "黃老之學:漢初的治國思想", url: "topics/taoism/lesson-04.html" },
+            { title: "道教的誕生:張道陵與五斗米道、太平道與黃巾之亂", url: "topics/taoism/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜老子與《道德經》",
+          courses: [
+            { title: "老子其人,以及《道德經》的成書", url: "topics/taoism/lesson-06.html" },
+            { title: "「道可道,非常道」:說不出來的道", url: "topics/taoism/lesson-07.html" },
+            { title: "無為:不是什麼都不做", url: "topics/taoism/lesson-08.html" },
+            { title: "上善若水:柔弱勝剛強", url: "topics/taoism/lesson-09.html" },
+            { title: "反者道之動:相反相成的智慧", url: "topics/taoism/lesson-10.html" },
+            { title: "知足、不爭、少私寡欲", url: "topics/taoism/lesson-11.html" },
+            { title: "治國的道理:「治大國若烹小鮮」", url: "topics/taoism/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜莊子",
+          courses: [
+            { title: "莊子其人與《莊子》這本書", url: "topics/taoism/lesson-13.html" },
+            { title: "〈逍遙遊〉:大鵬與小鳥,什麼是真正的自由", url: "topics/taoism/lesson-14.html" },
+            { title: "〈齊物論〉:莊周夢蝶與萬物齊一", url: "topics/taoism/lesson-15.html" },
+            { title: "〈養生主〉:庖丁解牛的智慧", url: "topics/taoism/lesson-16.html" },
+            { title: "莊子的生死觀:妻死鼓盆而歌", url: "topics/taoism/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜道教的核心信仰",
+          courses: [
+            { title: "最高神:三清與「道」的神格化", url: "topics/taoism/lesson-18.html" },
+            { title: "神仙的世界:神、仙、八仙", url: "topics/taoism/lesson-19.html" },
+            { title: "陰陽、五行、太極、八卦:道教的宇宙觀", url: "topics/taoism/lesson-20.html" },
+            { title: "氣與身體:道教怎麼看生命", url: "topics/taoism/lesson-21.html" },
+            { title: "長生與成仙:從外丹到內丹", url: "topics/taoism/lesson-22.html" },
+            { title: "善惡報應:承負說、功過格與《太上感應篇》", url: "topics/taoism/lesson-23.html" },
+            { title: "齋醮科儀:道士在儀式中做什麼", url: "topics/taoism/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜道教的經典",
+          courses: [
+            { title: "《道藏》:道教的「大藏經」", url: "topics/taoism/lesson-25.html" },
+            { title: "《太上感應篇》:勸善書的代表", url: "topics/taoism/lesson-26.html" },
+            { title: "《清靜經》逐句讀:道教的日常誦經", url: "topics/taoism/lesson-27.html" },
+            { title: "《黃庭經》與《周易參同契》:修煉的經典", url: "topics/taoism/lesson-28.html" },
+            { title: "葛洪《抱朴子》:神仙可學嗎?", url: "topics/taoism/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜道教的歷史發展",
+          courses: [
+            { title: "魏晉南北朝:上清派、靈寶派與陶弘景", url: "topics/taoism/lesson-30.html" },
+            { title: "唐朝:皇帝自稱老子後代", url: "topics/taoism/lesson-31.html" },
+            { title: "宋朝:道教與皇室,以及內丹的興盛", url: "topics/taoism/lesson-32.html" },
+            { title: "金元:王重陽、丘處機與全真教", url: "topics/taoism/lesson-33.html" },
+            { title: "明清:正一派與全真派兩大主流", url: "topics/taoism/lesson-34.html" },
+            { title: "佛道之間:互相影響,也互相論爭", url: "topics/taoism/lesson-35.html" },
+            { title: "近代:衰落、轉型與復興", url: "topics/taoism/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜廟裡的神明",
+          courses: [
+            { title: "神明的「組織圖」:天庭、地方神、家神", url: "topics/taoism/lesson-37.html" },
+            { title: "玉皇大帝(天公)與三官大帝:天、地、水", url: "topics/taoism/lesson-38.html" },
+            { title: "媽祖:從湄洲林默娘到台灣最受崇敬的海神", url: "topics/taoism/lesson-39.html" },
+            { title: "關聖帝君:從三國名將到忠義之神", url: "topics/taoism/lesson-40.html" },
+            { title: "土地公(福德正神)與城隍爺:守護地方的神", url: "topics/taoism/lesson-41.html" },
+            { title: "保生大帝、王爺:醫神與「代天巡狩」", url: "topics/taoism/lesson-42.html" },
+            { title: "文昌帝君、月下老人、註生娘娘:求學、求姻緣、求子", url: "topics/taoism/lesson-43.html" },
+            { title: "玄天上帝、中壇元帥、五路財神、虎爺", url: "topics/taoism/lesson-44.html" },
+            { title: "觀世音菩薩、灶君與地藏王:廟裡常見的「跨界」神明", url: "topics/taoism/lesson-45.html" },
+            { title: "一個神明是怎麼形成的:從真實人物到分靈與進香", url: "topics/taoism/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜道教在台灣",
+          courses: [
+            { title: "台灣道教從哪裡來:閩粵移民與正一派道士", url: "topics/taoism/lesson-47.html" },
+            { title: "走進一間廟:建築、神明配置與參拜動線", url: "topics/taoism/lesson-48.html" },
+            { title: "拜拜的禮儀:上香、擲筊、求籤", url: "topics/taoism/lesson-49.html" },
+            { title: "一年的節慶:天公生、中元普渡、建醮", url: "topics/taoism/lesson-50.html" },
+            { title: "符籙、收驚、安太歲、點光明燈:這些儀式的由來", url: "topics/taoism/lesson-51.html" },
+            { title: "道教、佛教、民間信仰在台灣的交融", url: "topics/taoism/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 I｜道家、道教與文化",
+          courses: [
+            { title: "養生文化:太極拳、八段錦、導引", url: "topics/taoism/lesson-53.html" },
+            { title: "風水、命理與道教的關係", url: "topics/taoism/lesson-54.html" },
+            { title: "山水畫、詩詞與隱逸:道家的美學", url: "topics/taoism/lesson-55.html" },
+            { title: "道家思想在現代:管理、心理與人與自然", url: "topics/taoism/lesson-56.html" },
+          ],
+        },
+        {
+          title: "模組 J｜綜合",
+          courses: [
+            { title: "常見迷思:道教就是拜拜?道家是消極避世?", url: "topics/taoism/lesson-57.html" },
+            { title: "總整理:一張圖串起道、道家、道教", url: "topics/taoism/lesson-58.html" },
+          ],
+        },
+      ],
     }
   ]
 };
