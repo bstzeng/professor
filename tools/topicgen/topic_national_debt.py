@@ -4,7 +4,7 @@ import nd_a, nd_b, nd_c, nd_d, nd_e, nd_f, nd_g, nd_h, nd_ref
 
 TOPIC = {
     "id": "national-debt",
-    "category": "life",
+    "category": "finance",
     "title": "國債是什麼:美國國債為什麼一直創新高",
     "short": "國債是什麼",
     "crumb": "國債是什麼",
