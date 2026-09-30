@@ -1,0 +1,166 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>An <strong>ugly number</strong> is a positive integer whose prime factors are limited to <code>2</code>, <code>3</code>, and <code>5</code>.</p>
+          <p>Given an integer <code>n</code>, return <em>the</em> <code>n<sup>th</sup></code> <em><strong>ugly number</strong></em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><strong>醜數</strong>是質因數只包含 <code>2</code>、<code>3</code>、<code>5</code> 的正整數。</p>
+          <p>給你整數 <code>n</code>，回傳第 <code>n</code> 個醜數。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 10
+  輸出：12
+  說明：前 10 個醜數是 [1, 2, 3, 4, 5, 6, 8, 9, 10, 12]
+
+範例 2
+  輸入：n = 1
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>n</code> ≤ 1690</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/ugly-number-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【不要逐一檢查每個整數】
+    第 1690 個醜數是 2,123,366,400 ——
+    逐一判斷要檢查二十多億個數 ✘
+
+【直接「產生」醜數】
+    除了 1 以外，每個醜數都是某個更小的醜數 × 2、× 3 或 × 5。
+    所以醜數序列 = 1 + 三條序列的合併：
+        ugly × 2：2, 4, 6, 8, 10, ...
+        ugly × 3：3, 6, 9, 12, 15, ...
+        ugly × 5：5, 10, 15, 20, 25, ...
+    這三條本身都是遞增的 -&gt; 用三個指標做多路合併（像合併 k 個有序串列）。
+
+【去重】
+    6 = 2 × 3 = 3 × 2，會同時出現在兩條序列中。
+    取出最小值後，所有「等於它」的指標都要前進 -&gt;
+    用三個獨立的 if，不能用 elif ✘</div>
+
+        <div class="content-figure">
+          <svg class="content-diagram" viewBox="0 0 640 208" xmlns="http://www.w3.org/2000/svg">
+            <text x="20" y="22" fill="var(--text-muted)" font-size="12">三個指標合併三條「醜數 × 2 / × 3 / × 5」的有序序列</text>
+            <g font-size="13" text-anchor="middle">
+              <rect x="40" y="40" width="40" height="30" fill="none" stroke="var(--text-muted)"/><text x="60" y="60" fill="var(--text)">1</text>
+              <rect x="80" y="40" width="40" height="30" fill="none" stroke="var(--text-muted)"/><text x="100" y="60" fill="var(--text)">2</text>
+              <rect x="120" y="40" width="40" height="30" fill="none" stroke="var(--text-muted)"/><text x="140" y="60" fill="var(--text)">3</text>
+              <rect x="160" y="40" width="40" height="30" fill="none" stroke="var(--text-muted)"/><text x="180" y="60" fill="var(--text)">4</text>
+              <rect x="200" y="40" width="40" height="30" fill="none" stroke="var(--text-muted)"/><text x="220" y="60" fill="var(--text)">5</text>
+              <rect x="240" y="40" width="40" height="30" fill="none" stroke="#ff8a65" stroke-width="2"/><text x="260" y="60" fill="#ff8a65">?</text>
+            </g>
+            <g font-size="11" text-anchor="middle">
+              <text x="140" y="88" fill="var(--accent)">↑ i2</text>
+              <text x="100" y="88" fill="var(--gold)">↑ i3</text>
+              <text x="100" y="104" fill="#8e7cc3">i5</text>
+            </g>
+            <text x="320" y="50" fill="var(--accent)" font-size="12">ugly[i2] × 2 = 3 × 2 = 6</text>
+            <text x="320" y="72" fill="var(--gold)" font-size="12">ugly[i3] × 3 = 2 × 3 = 6</text>
+            <text x="320" y="94" fill="#8e7cc3" font-size="12">ugly[i5] × 5 = 2 × 5 = 10</text>
+            <text x="20" y="136" fill="var(--text)" font-size="12">（i2 已經用過 1、2 產生 2、4；i3 用過 1 產生 3；i5 用過 1 產生 5。）</text>
+            <text x="20" y="160" fill="var(--text)" font-size="12">下一個 = min(6, 6, 10) = 6，而且 6 同時由 i2、i3 產生 → 兩個指標都要前進，避免 6 重複。</text>
+            <text x="20" y="190" fill="var(--gold)" font-size="12">★ 每個醜數的 ×2、×3、×5 都會被考慮到；每次取最小，就能依序產生所有醜數。</text>
+          </svg>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>最小堆積 + 集合去重</h3>
+        <div class="code-block">class Solution:
+    def nthUglyNumber(self, n: int) -&gt; int:
+        heap, seen = [1], {1}
+        for _ in range(n - 1):
+            x = heapq.heappop(heap)           # 目前最小的醜數
+            for p in (2, 3, 5):
+                if x * p not in seen:          # 去重
+                    seen.add(x * p)
+                    heapq.heappush(heap, x * p)
+        return heap[0]</div>
+        <p>每次取出最小的醜數 x，把 2x、3x、5x 放進堆積。用集合避免重複放入。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>三指標 DP</h3>
+        <div class="code-block">class Solution:
+    def nthUglyNumber(self, n: int) -&gt; int:
+        ugly = [1]
+        i2 = i3 = i5 = 0                   # 三個指標：下一個要乘 2 / 3 / 5 的醜數位置
+        while len(ugly) &lt; n:
+            a, b, c = ugly[i2] * 2, ugly[i3] * 3, ugly[i5] * 5
+            nxt = min(a, b, c)
+            ugly.append(nxt)
+            # ★ 所有產生出 nxt 的指標都要前進（例如 6 = 2×3 = 3×2），才不會重複
+            if nxt == a:
+                i2 += 1
+            if nxt == b:
+                i3 += 1
+            if nxt == c:
+                i5 += 1
+        return ugly[-1]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆積</td><td>O(n log n)</td><td>O(n)</td></tr>
+            <tr><td>二、三指標</td><td>O(n)</td><td>O(n) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → 1。</li>
+          <li><strong>重複值</strong>（6、10、15、30…）→ 所有相等的指標都要前進。</li>
+          <li><strong>n = 1690</strong> → 2,123,366,400，超過 32 位元有號整數上限（其他語言用 long）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>推廣：質因數集合是任意給定的 k 個質數？</h3>
+
+        <div class="code-block">第 313 題「超級醜數」：k 個指標，每一步取 k 個候選的最小值，O(nk)；或用堆積 O(n log k)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 263 題 醜數</strong></li>
+          <li><strong>第 313 題 超級醜數</strong></li>
+          <li><strong>第 23 題 合併 K 個排序鏈結串列</strong> —— 多路合併</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼每個醜數（除了 1）都是更小的醜數乘以 2、3 或 5？</li>
+            <li>三個指標各自代表什麼？</li>
+            <li>為什麼要用三個獨立的 if，而不是 if / elif？</li>
+          </ol>
+        </div>

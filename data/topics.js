@@ -10237,6 +10237,17 @@ window.SITE_DATA = {
             { title: "241. Different Ways to Add Parentheses 為運算式設計優先順序", url: "topics/leetcode/problem-0241.html" },
             { title: "242. Valid Anagram 有效的字母異位詞", url: "topics/leetcode/problem-0242.html" }
           ]
+        },
+        {
+          title: "第 251–275 題",
+          courses: [
+            { title: "257. Binary Tree Paths 二元樹的所有路徑", url: "topics/leetcode/problem-0257.html" },
+            { title: "258. Add Digits 各位相加", url: "topics/leetcode/problem-0258.html" },
+            { title: "260. Single Number III 只出現一次的數字 III", url: "topics/leetcode/problem-0260.html" },
+            { title: "263. Ugly Number 醜數", url: "topics/leetcode/problem-0263.html" },
+            { title: "264. Ugly Number II 醜數 II", url: "topics/leetcode/problem-0264.html" },
+            { title: "268. Missing Number 遺失的數字", url: "topics/leetcode/problem-0268.html" }
+          ]
         }
       ]
     },
