@@ -11195,6 +11195,188 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "disease-mechanisms",
+      category: "biomed",
+      title: "疾病是怎麼形成的：致病機制與各器官常見疾病",
+      description:
+        "第一部拆解疾病的共同機制：細胞受傷、發炎、免疫失調、感染、遺傳、癌症、血流障礙與代謝退化，並用高血壓、肝病與預防醫學串起來；第二部逐一走過各器官的常見疾病，標出它們的致病機制、症狀與需要就醫的警訊。",
+      icon: "🦠",
+      url: "topics/disease-mechanisms/index.html",
+      resources: [
+        {
+          title: "疾病速查表",
+          description: "「器官 × 常見疾病 × 主要機制」總表，以及常見檢驗數值的意義，每項都連回對應課程",
+          icon: "🗂️",
+          url: "topics/disease-mechanisms/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜打地基：怎麼看疾病",
+          courses: [
+            { title: "什麼是疾病：病因、致病機轉、病理變化與症狀", url: "topics/disease-mechanisms/lesson-01.html" },
+            { title: "恆定性失守：代償與失代償", url: "topics/disease-mechanisms/lesson-02.html" },
+            { title: "風險因子與病因：基因與環境", url: "topics/disease-mechanisms/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜細胞受傷與死亡",
+          courses: [
+            { title: "細胞怎麼受傷：缺氧、自由基、毒物與物理傷害", url: "topics/disease-mechanisms/lesson-04.html" },
+            { title: "可逆與不可逆的傷害：腫脹、脂肪變性與壞死", url: "topics/disease-mechanisms/lesson-05.html" },
+            { title: "細胞凋亡：該死不死、不該死卻死", url: "topics/disease-mechanisms/lesson-06.html" },
+            { title: "細胞的適應：肥大、增生、萎縮與化生", url: "topics/disease-mechanisms/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜發炎與修復",
+          courses: [
+            { title: "急性發炎：從一根刺到膿瘍", url: "topics/disease-mechanisms/lesson-08.html" },
+            { title: "慢性發炎：為什麼發炎關不掉", url: "topics/disease-mechanisms/lesson-09.html" },
+            { title: "組織修復與纖維化：疤痕為什麼會讓器官失去功能", url: "topics/disease-mechanisms/lesson-10.html" },
+            { title: "全身性發炎：發燒、敗血症與細胞激素風暴", url: "topics/disease-mechanisms/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜免疫失調",
+          courses: [
+            { title: "過敏：IgE 與肥大細胞", url: "topics/disease-mechanisms/lesson-12.html" },
+            { title: "自體免疫：免疫耐受怎麼被打破", url: "topics/disease-mechanisms/lesson-13.html" },
+            { title: "免疫缺乏：先天缺陷與 HIV", url: "topics/disease-mechanisms/lesson-14.html" },
+            { title: "移植排斥與輸血反應", url: "topics/disease-mechanisms/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 E｜感染：病原體怎麼致病",
+          courses: [
+            { title: "細菌：毒素、入侵與抗生素的作用原理", url: "topics/disease-mechanisms/lesson-16.html" },
+            { title: "病毒：急性、潛伏與慢性感染", url: "topics/disease-mechanisms/lesson-17.html" },
+            { title: "黴菌與寄生蟲：伺機性感染", url: "topics/disease-mechanisms/lesson-18.html" },
+            { title: "傳染病的傳播：傳播途徑與 R₀", url: "topics/disease-mechanisms/lesson-19.html" },
+            { title: "抗藥性：細菌怎麼演化出抵抗力", url: "topics/disease-mechanisms/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 F｜遺傳與基因",
+          courses: [
+            { title: "單基因疾病：顯性、隱性與性聯遺傳", url: "topics/disease-mechanisms/lesson-21.html" },
+            { title: "染色體異常：唐氏症與其他數目、結構的異常", url: "topics/disease-mechanisms/lesson-22.html" },
+            { title: "多基因疾病：家族史的意義", url: "topics/disease-mechanisms/lesson-23.html" },
+            { title: "表觀遺傳：環境在 DNA 上留下的記號", url: "topics/disease-mechanisms/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 G｜癌症",
+          courses: [
+            { title: "癌細胞的特徵：細胞怎麼變成失控的腫瘤", url: "topics/disease-mechanisms/lesson-25.html" },
+            { title: "致癌基因與抑癌基因：油門卡住、煞車失靈", url: "topics/disease-mechanisms/lesson-26.html" },
+            { title: "致癌因子：菸、酒、紫外線、病毒與輻射", url: "topics/disease-mechanisms/lesson-27.html" },
+            { title: "侵犯、轉移與分期", url: "topics/disease-mechanisms/lesson-28.html" },
+            { title: "癌症治療的機制：從化療到免疫治療", url: "topics/disease-mechanisms/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜血流障礙",
+          courses: [
+            { title: "動脈粥狀硬化：斑塊怎麼形成", url: "topics/disease-mechanisms/lesson-30.html" },
+            { title: "血栓與栓塞：血塊長錯地方", url: "topics/disease-mechanisms/lesson-31.html" },
+            { title: "缺血與梗塞：心肌梗塞與腦中風", url: "topics/disease-mechanisms/lesson-32.html" },
+            { title: "水腫與休克：體液分布失衡", url: "topics/disease-mechanisms/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 I｜代謝、退化與環境",
+          courses: [
+            { title: "胰島素阻抗與代謝症候群", url: "topics/disease-mechanisms/lesson-34.html" },
+            { title: "蛋白質錯誤摺疊與神經退化", url: "topics/disease-mechanisms/lesson-35.html" },
+            { title: "營養失衡與環境毒物", url: "topics/disease-mechanisms/lesson-36.html" },
+            { title: "心理壓力如何變成身體疾病", url: "topics/disease-mechanisms/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 J｜整合：看懂一個疾病",
+          courses: [
+            { title: "案例拆解：高血壓如何牽動心、腦、腎、眼", url: "topics/disease-mechanisms/lesson-38.html" },
+            { title: "案例拆解：肝病三部曲——從脂肪肝、肝炎到肝癌", url: "topics/disease-mechanisms/lesson-39.html" },
+            { title: "預防醫學：三段五級預防與篩檢", url: "topics/disease-mechanisms/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 K｜各器官常見疾病：心臟、血管與血液",
+          courses: [
+            { title: "心臟疾病：冠心病、心衰竭、心律不整與瓣膜疾病", url: "topics/disease-mechanisms/lesson-41.html" },
+            { title: "血管疾病：高血壓、動脈瘤、周邊動脈疾病與靜脈曲張", url: "topics/disease-mechanisms/lesson-42.html" },
+            { title: "血液疾病：貧血、白血病與凝血異常", url: "topics/disease-mechanisms/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 L｜各器官常見疾病：呼吸系統",
+          courses: [
+            { title: "呼吸道疾病：感冒、流感、過敏性鼻炎、鼻竇炎與氣喘", url: "topics/disease-mechanisms/lesson-44.html" },
+            { title: "肺部疾病：肺炎、結核、COPD、肺癌與睡眠呼吸中止", url: "topics/disease-mechanisms/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 M｜各器官常見疾病：消化系統",
+          courses: [
+            { title: "食道與胃：胃食道逆流、消化性潰瘍與胃癌", url: "topics/disease-mechanisms/lesson-46.html" },
+            { title: "腸道疾病：腸躁症、發炎性腸病、闌尾炎、痔瘡與大腸癌", url: "topics/disease-mechanisms/lesson-47.html" },
+            { title: "肝膽胰：肝炎、脂肪肝、肝硬化、膽結石與胰臟炎", url: "topics/disease-mechanisms/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 N｜各器官常見疾病：泌尿系統",
+          courses: [
+            { title: "腎臟疾病：慢性腎臟病、腎絲球腎炎、腎結石與急性腎損傷", url: "topics/disease-mechanisms/lesson-49.html" },
+            { title: "膀胱與攝護腺：泌尿道感染、膀胱過動、攝護腺肥大與尿失禁", url: "topics/disease-mechanisms/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 O｜各器官常見疾病：神經系統與心理健康",
+          courses: [
+            { title: "腦血管與發作性疾病：中風、癲癇與偏頭痛", url: "topics/disease-mechanisms/lesson-51.html" },
+            { title: "神經退化疾病：阿茲海默症、帕金森氏症、漸凍症與多發性硬化症", url: "topics/disease-mechanisms/lesson-52.html" },
+            { title: "心理健康：憂鬱症、焦慮症與失眠的生理機制", url: "topics/disease-mechanisms/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 P｜各器官常見疾病：感覺器官與皮膚",
+          courses: [
+            { title: "眼睛：近視、青光眼、白內障、黃斑部病變與乾眼症", url: "topics/disease-mechanisms/lesson-54.html" },
+            { title: "耳鼻喉：中耳炎、聽力損失、耳鳴與眩暈", url: "topics/disease-mechanisms/lesson-55.html" },
+            { title: "皮膚：異位性皮膚炎、乾癬、痤瘡、帶狀皰疹與皮膚癌", url: "topics/disease-mechanisms/lesson-56.html" },
+          ],
+        },
+        {
+          title: "模組 Q｜各器官常見疾病：內分泌系統",
+          courses: [
+            { title: "糖尿病：第 1 型、第 2 型、妊娠糖尿病與併發症", url: "topics/disease-mechanisms/lesson-57.html" },
+            { title: "甲狀腺與其他內分泌疾病：亢進、低下、結節、腎上腺與腦下垂體", url: "topics/disease-mechanisms/lesson-58.html" },
+          ],
+        },
+        {
+          title: "模組 R｜各器官常見疾病：免疫與淋巴系統",
+          courses: [
+            { title: "淋巴瘤、全身性自體免疫疾病與脾臟疾病", url: "topics/disease-mechanisms/lesson-59.html" },
+          ],
+        },
+        {
+          title: "模組 S｜各器官常見疾病：骨骼、肌肉與關節",
+          courses: [
+            { title: "骨與關節：骨質疏鬆、退化性關節炎、類風濕性關節炎與痛風", url: "topics/disease-mechanisms/lesson-60.html" },
+            { title: "肌肉與脊椎：肌少症、椎間盤突出、肌腱炎與五十肩", url: "topics/disease-mechanisms/lesson-61.html" },
+          ],
+        },
+        {
+          title: "模組 T｜各器官常見疾病：生殖系統與乳房",
+          courses: [
+            { title: "男性生殖系統：攝護腺癌、睪丸疾病、不孕與勃起功能障礙", url: "topics/disease-mechanisms/lesson-62.html" },
+            { title: "女性生殖系統與乳房：子宮肌瘤、子宮內膜異位、多囊性卵巢、子宮頸癌與乳癌", url: "topics/disease-mechanisms/lesson-63.html" },
+          ],
+        },
+      ],
     }
   ]
 };
