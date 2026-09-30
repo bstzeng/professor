@@ -10257,7 +10257,13 @@ window.SITE_DATA = {
           courses: [
             { title: "278. First Bad Version 第一個錯誤的版本", url: "topics/leetcode/problem-0278.html" },
             { title: "279. Perfect Squares 完全平方數", url: "topics/leetcode/problem-0279.html" },
-            { title: "282. Expression Add Operators 給表達式添加運算子", url: "topics/leetcode/problem-0282.html" }
+            { title: "282. Expression Add Operators 給表達式添加運算子", url: "topics/leetcode/problem-0282.html" },
+            { title: "283. Move Zeroes 移動零", url: "topics/leetcode/problem-0283.html" },
+            { title: "284. Peeking Iterator 窺視迭代器", url: "topics/leetcode/problem-0284.html" },
+            { title: "287. Find the Duplicate Number 尋找重複數", url: "topics/leetcode/problem-0287.html" },
+            { title: "289. Game of Life 生命遊戲", url: "topics/leetcode/problem-0289.html" },
+            { title: "290. Word Pattern 單字規律", url: "topics/leetcode/problem-0290.html" },
+            { title: "292. Nim Game Nim 遊戲", url: "topics/leetcode/problem-0292.html" }
           ]
         }
       ]
