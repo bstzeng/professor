@@ -1,0 +1,174 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a nested list of integers <code>nestedList</code>. Each element is either an integer or a list whose elements may also be integers or other lists. Implement an iterator to flatten it.</p>
+          <p>Implement the <code>NestedIterator</code> class:</p>
+        <ul>
+          <li><code>NestedIterator(List&lt;NestedInteger&gt; nestedList)</code> Initializes the iterator with the nested list <code>nestedList</code>.</li>
+          <li><code>int next()</code> Returns the next integer in the nested list.</li>
+          <li><code>boolean hasNext()</code> Returns <code>true</code> if there are still some integers in the nested list and <code>false</code> otherwise.</li>
+        </ul>
+          <p>If <code>res</code> matches the expected flattened list, then your code will be judged as correct.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個巢狀的整數串列 <code>nestedList</code>：每個元素要嘛是整數，要嘛是另一個串列（裡面又可以是整數或串列）。請實作一個迭代器，把它<strong>攤平</strong>後依序輸出。</p>
+        <ul>
+          <li><code>next()</code>：回傳下一個整數。</li>
+          <li><code>hasNext()</code>：還有沒有整數。</li>
+        </ul>
+          <p>元素是透過題目提供的 <code>NestedInteger</code> 介面存取：<code>isInteger()</code>、<code>getInteger()</code>、<code>getList()</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nestedList = [[1,1],2,[1,1]]
+  輸出：[1,1,2,1,1]
+
+範例 2
+  輸入：nestedList = [1,[4,[6]]]
+  輸出：[1,4,6]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nestedList.length</code> ≤ 500</li>
+          <li>整數的值在 <code>[−10⁶, 10⁶]</code> 之間</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/flatten-nested-list-iterator/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【最簡單：建構時整個攤平存進陣列】
+    寫起來短，但如果巢狀結構很大、只需要前幾個元素，就浪費了。
+
+【惰性展開：用堆疊】
+    堆疊存「還沒處理的元素」，頂端是下一個要處理的。
+    需要下一個整數時：
+        頂端是串列 -&gt; 彈出來，把它的元素「反過來」推回去
+        重複直到頂端是整數
+    反過來推，才能讓串列的第一個元素在頂端。
+
+【hasNext 要負責展開】
+    陷阱：[[]] 或 [[], [[]]] —— 堆疊不是空的，但其實沒有任何整數。
+    所以 hasNext 必須先把頂端展開到整數為止，
+    再判斷堆疊是否為空。
+
+【產生器版本】
+    Python 的 yield from 可以把遞迴寫成惰性的迭代器，
+    再加上「預先拿一個」就能實作 hasNext。</div>
+
+        <div class="code-block">  堆疊（頂端在右）       動作
+  [ [1,1]  2  [1,1] ]  -&gt; 反放：[ [1,1]  2  [1,1] ] 的反序
+  頂端 [1,1] 是串列     -&gt; 展開：...  2  1  1
+  頂端 1 是整數          -&gt; next() 回傳 1</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>堆疊惰性展開</h3>
+        <div class="code-block"># class NestedInteger:
+#    def isInteger(self) -&gt; bool: ...
+#    def getInteger(self) -&gt; int: ...
+#    def getList(self) -&gt; [NestedInteger]: ...
+
+class NestedIterator:
+    def __init__(self, nestedList: [NestedInteger]):
+        self.stack = nestedList[::-1]          # 反過來放，pop() 拿到的是最前面的
+
+    def _settle(self) -&gt; None:
+        # ★ 把頂端的串列展開，直到頂端是整數（或堆疊空了）
+        while self.stack and not self.stack[-1].isInteger():
+            self.stack.extend(self.stack.pop().getList()[::-1])
+
+    def next(self) -&gt; int:
+        self._settle()
+        return self.stack.pop().getInteger()
+
+    def hasNext(self) -&gt; bool:
+        self._settle()                          # 空串列 [] 要在這裡被跳過
+        return bool(self.stack)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>攤銷 O(1)</td><td>每個元素進出堆疊常數次</td></tr>
+            <tr><td>空間</td><td>O(深度 + 寬度)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>產生器（yield from）</h3>
+        <div class="code-block">class NestedIterator:
+    def __init__(self, nestedList: [NestedInteger]):
+        def walk(lst):                          # 產生器：遞迴地逐一吐出整數
+            for x in lst:
+                if x.isInteger():
+                    yield x.getInteger()
+                else:
+                    yield from walk(x.getList())
+        self.gen = walk(nestedList)
+        self._advance()
+
+    def _advance(self):
+        self.peeked = next(self.gen, None)       # 預先拿一個（整數不會是 None）
+
+    def next(self) -&gt; int:
+        val = self.peeked
+        self._advance()
+        return val
+
+    def hasNext(self) -&gt; bool:
+        return self.peeked is not None</div>
+        <p>這裡用 None 當作「已經結束」的標記是安全的，因為元素一定是整數。如果元素可能是任意型別，要改用第 284 題的旗標技巧。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>攤銷 O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(深度)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>全部先攤平</td><td>O(N)</td><td>O(N)</td><td>最簡單但不惰性</td></tr>
+            <tr><td>一、堆疊</td><td>攤銷 O(1)</td><td>O(D + W)</td><td>標準 ✔</td></tr>
+            <tr><td>二、產生器</td><td>攤銷 O(1)</td><td>O(D)</td><td>Python 特有的優雅</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空的巢狀串列</strong>（<code>[[]]</code>、<code>[[], [[]]]</code>）→ hasNext 必須是 false。</li>
+          <li><strong>很深的巢狀</strong> → 堆疊版本不受遞迴限制。</li>
+          <li><strong>連續呼叫 hasNext</strong> → 展開只做一次，不能消耗元素。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>迭代器三部曲</h3>
+
+        <div class="code-block">第 173 題（BST 迭代器）、第 284 題（窺視迭代器）、第 341 題（本題）都用同一個想法：用堆疊把「遞迴走訪」改寫成「按需前進」。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 173 題 二元搜尋樹迭代器</strong></li>
+          <li><strong>第 284 題 窺視迭代器</strong></li>
+          <li><strong>第 385 題 迷你語法分析器</strong> —— 建立 NestedInteger</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼串列展開時要反過來推進堆疊？</li>
+            <li>hasNext 為什麼要先展開？舉一個不展開會出錯的例子。</li>
+          </ol>
+        </div>

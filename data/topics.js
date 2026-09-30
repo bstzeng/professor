@@ -10301,7 +10301,13 @@ window.SITE_DATA = {
             { title: "330. Patching Array 按要求補齊陣列", url: "topics/leetcode/problem-0330.html" },
             { title: "331. Verify Preorder Serialization of a Binary Tree 驗證二元樹的前序序列化", url: "topics/leetcode/problem-0331.html" },
             { title: "332. Reconstruct Itinerary 重新安排行程", url: "topics/leetcode/problem-0332.html" },
-            { title: "334. Increasing Triplet Subsequence 遞增的三元子序列", url: "topics/leetcode/problem-0334.html" }
+            { title: "334. Increasing Triplet Subsequence 遞增的三元子序列", url: "topics/leetcode/problem-0334.html" },
+            { title: "335. Self Crossing 路徑交叉", url: "topics/leetcode/problem-0335.html" },
+            { title: "336. Palindrome Pairs 回文對", url: "topics/leetcode/problem-0336.html" },
+            { title: "337. House Robber III 打家劫舍 III", url: "topics/leetcode/problem-0337.html" },
+            { title: "338. Counting Bits 位元計數", url: "topics/leetcode/problem-0338.html" },
+            { title: "341. Flatten Nested List Iterator 扁平化巢狀串列迭代器", url: "topics/leetcode/problem-0341.html" },
+            { title: "342. Power of Four 4 的冪", url: "topics/leetcode/problem-0342.html" }
           ]
         }
       ]
