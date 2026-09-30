@@ -10223,7 +10223,13 @@ window.SITE_DATA = {
             { title: "227. Basic Calculator II 基本計算器 II", url: "topics/leetcode/problem-0227.html" },
             { title: "228. Summary Ranges 彙總區間", url: "topics/leetcode/problem-0228.html" },
             { title: "229. Majority Element II 多數元素 II", url: "topics/leetcode/problem-0229.html" },
-            { title: "230. Kth Smallest Element in a BST 二元搜尋樹中第 K 小的元素", url: "topics/leetcode/problem-0230.html" }
+            { title: "230. Kth Smallest Element in a BST 二元搜尋樹中第 K 小的元素", url: "topics/leetcode/problem-0230.html" },
+            { title: "231. Power of Two 2 的冪", url: "topics/leetcode/problem-0231.html" },
+            { title: "232. Implement Queue using Stacks 用堆疊實作佇列", url: "topics/leetcode/problem-0232.html" },
+            { title: "233. Number of Digit One 數字 1 的個數", url: "topics/leetcode/problem-0233.html" },
+            { title: "234. Palindrome Linked List 回文鏈結串列", url: "topics/leetcode/problem-0234.html" },
+            { title: "235. Lowest Common Ancestor of a Binary Search Tree 二元搜尋樹的最近公共祖先", url: "topics/leetcode/problem-0235.html" },
+            { title: "236. Lowest Common Ancestor of a Binary Tree 二元樹的最近公共祖先", url: "topics/leetcode/problem-0236.html" }
           ]
         }
       ]

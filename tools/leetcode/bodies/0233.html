@@ -1,0 +1,182 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer <code>n</code>, count the total number of digit <code>1</code> appearing in all non-negative integers less than or equal to <code>n</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個整數 <code>n</code>，計算 <code>0</code> 到 <code>n</code> 的所有整數中，數字 <code>1</code> 一共出現了幾次。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 13
+  輸出：6
+  說明：1, 10, 11(兩個), 12, 13 -&gt; 1 + 1 + 2 + 1 + 1 = 6
+
+範例 2
+  輸入：n = 0
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>n</code> ≤ 10⁹</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/number-of-digit-one/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【換個角度：一位一位地數】
+    不要數「每個數字有幾個 1」，
+    改成數「個位是 1 的數有幾個」+「十位是 1 的數有幾個」+ ...
+
+【以 n = 3141592，看百位（p = 100）】
+    把 n 切成三段：high = 3141 | cur = 5 | low = 92
+
+    百位是 1 的數長這樣：[左邊 L] 1 [右邊 R]，R 是 00..99
+    - L = 0..3140：右邊隨便填 -&gt; 3141 × 100 個
+    - L = 3141：百位 1 比 cur = 5 小，右邊也隨便填 -&gt; 再 100 個
+    總共 (high + 1) × p
+
+【cur 的三種情況】
+    cur == 0：L 只能取 0..high-1         -&gt; high × p
+              （L = high 時，百位 1 &gt; 0，超過 n）
+    cur == 1：L 取 0..high-1 -&gt; high × p
+              L = high 時，R 只能 0..low  -&gt; low + 1
+    cur &gt;= 2：L 可以取 0..high           -&gt; (high + 1) × p
+
+【複雜度】
+    n 有 log₁₀ n 位，每一位 O(1) -&gt; O(log n)</div>
+
+        <table>
+          <thead><tr><th>位數 p</th><th>high</th><th>cur</th><th>low</th><th>這一位是 1 的個數</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>1</td><td>3</td><td>0</td><td>(1+1)×1 = 2（1, 11）</td></tr>
+            <tr><td>10</td><td>0</td><td>1</td><td>3</td><td>0×10 + 3+1 = 4（10–13）</td></tr>
+            <tr><td>合計</td><td></td><td></td><td></td><td>6 ✔（n = 13）</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力：每個數字轉字串數 1</h3>
+        <div class="code-block">class Solution:
+    def countDigitOne(self, n: int) -&gt; int:
+        return sum(str(x).count("1") for x in range(1, n + 1))</div>
+        <p>n = 10⁹ 時要跑十億次，超時。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>數位 DP</h3>
+        <div class="code-block">class Solution:
+    def countDigitOne(self, n: int) -&gt; int:
+        digits = list(map(int, str(n)))
+
+        @functools.lru_cache(None)
+        def dfs(i: int, ones: int, tight: bool) -&gt; int:
+            # 從第 i 位開始填，前面已經有 ones 個 1；tight = 前面每一位都貼著 n
+            if i == len(digits):
+                return ones
+            limit = digits[i] if tight else 9
+            return sum(dfs(i + 1, ones + (d == 1), tight and d == limit)
+                       for d in range(limit + 1))
+
+        return dfs(0, 0, True)</div>
+        <div class="code-block">【數位 DP 的通用模板】
+    從最高位往低位一位一位填，
+    tight 表示「目前為止每一位都和 n 相同」——
+    這時下一位最多只能填 n 的那一位；否則 0..9 都可以。
+
+    這個模板能解一大類「1 到 n 之間有多少數滿足某條件」的題目。
+    本題狀態數 ≈ 位數 × 1 的個數 × 2，很小。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log² n · 10)</td><td></td></tr>
+            <tr><td>空間</td><td>O(log² n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>逐位計算（數學）</h3>
+        <div class="code-block">class Solution:
+    def countDigitOne(self, n: int) -&gt; int:
+        count = 0
+        p = 1                                   # 目前處理的位數：1, 10, 100, ...
+        while p &lt;= n:
+            high = n // (p * 10)                # 這一位左邊的數字
+            cur = n // p % 10                   # 這一位的數字
+            low = n % p                         # 這一位右邊的數字
+            if cur == 0:
+                count += high * p               # ★ 左邊只能取 0..high-1
+            elif cur == 1:
+                count += high * p + low + 1     # ★ 左邊取 high 時，右邊只能取 0..low
+            else:
+                count += (high + 1) * p         # ★ 左邊可以取 0..high，右邊任意
+            p *= 10
+        return count</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>O(n log n)</td><td>O(1)</td><td>超時</td></tr>
+            <tr><td>二、數位 DP</td><td>O(log² n · 10)</td><td>O(log² n)</td><td>模板通用</td></tr>
+            <tr><td>三、逐位計算</td><td>O(log n)</td><td>O(1)</td><td>最快 ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 0</strong> → 0（迴圈一次都不跑）。</li>
+          <li><strong>n 的某一位是 0</strong>（例如 n = 105 的十位）→ 用 high × p。</li>
+          <li><strong>n = 10⁹</strong> → 答案 900,000,001；其他語言注意溢位。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>推廣：數字 d（0–9）出現幾次？</h3>
+
+        <div class="code-block">把 cur == 1 換成 cur == d 的比較即可；但 d = 0 要特別處理——
+不能有前導零，所以 high 要從 1 開始算（high × p 改成 (high − 1) × p 等）。
+這正是面試題 17.06 / 第 1067 題（付費）的內容。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 902 題 最大為 N 的數字組合</strong> —— 數位 DP</li>
+          <li><strong>第 1067 題 範圍內的數字計數</strong>（付費）</li>
+          <li><strong>第 2376 題 統計特殊整數</strong> —— 數位 DP</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼改成「每一位分別數」會比較容易？</li>
+            <li>cur 分別是 0、1、≥2 時，公式為什麼不同？</li>
+            <li>數位 DP 中 <code>tight</code> 代表什麼？</li>
+          </ol>
+        </div>
