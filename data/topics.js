@@ -10307,7 +10307,13 @@ window.SITE_DATA = {
             { title: "337. House Robber III 打家劫舍 III", url: "topics/leetcode/problem-0337.html" },
             { title: "338. Counting Bits 位元計數", url: "topics/leetcode/problem-0338.html" },
             { title: "341. Flatten Nested List Iterator 扁平化巢狀串列迭代器", url: "topics/leetcode/problem-0341.html" },
-            { title: "342. Power of Four 4 的冪", url: "topics/leetcode/problem-0342.html" }
+            { title: "342. Power of Four 4 的冪", url: "topics/leetcode/problem-0342.html" },
+            { title: "343. Integer Break 整數拆分", url: "topics/leetcode/problem-0343.html" },
+            { title: "344. Reverse String 反轉字串", url: "topics/leetcode/problem-0344.html" },
+            { title: "345. Reverse Vowels of a String 反轉字串中的母音", url: "topics/leetcode/problem-0345.html" },
+            { title: "347. Top K Frequent Elements 前 K 個高頻元素", url: "topics/leetcode/problem-0347.html" },
+            { title: "349. Intersection of Two Arrays 兩個陣列的交集", url: "topics/leetcode/problem-0349.html" },
+            { title: "350. Intersection of Two Arrays II 兩個陣列的交集 II", url: "topics/leetcode/problem-0350.html" }
           ]
         }
       ]
