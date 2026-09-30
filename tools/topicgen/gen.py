@@ -8,6 +8,9 @@
 規格模組要提供：
     TOPIC = {"id","category","title","short","description","icon","crumb"}
     MODULES = [(模組標題, [Lesson, ...]), ...]
+選填：
+    REFERENCES = [{"file","title","description","icon","h1","body"}, ...]
+        每一項產生一頁獨立參考頁（例如速查表），並寫進 topics.js 的 resources。
 """
 import io, os, sys, json, importlib
 import builder as B
@@ -141,6 +144,38 @@ def lesson_html(spec, mod_title, num, lesson, prev_l, next_l):
         desc=B.attr(lesson.desc), bodyattr="", body=body, scripts=LESSON_SCRIPTS)
 
 
+def reference_html(spec, ref):
+    parts = "\n\n".join(B.blk(x) for x in ref["body"])
+    body = u"""    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">{crumb}</a>
+      <span class="sep">/</span>
+      <span>{title}</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>{h1}</h1>
+    </header>
+
+    <article class="lesson-content">
+
+{parts}
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>""".format(crumb=spec.TOPIC["crumb"], title=B.esc(ref["title"]),
+                     h1=B.esc(ref["h1"]), parts=parts)
+    return PAGE.format(
+        title=u"%s ｜ %s ｜ 博雅書院" % (B.esc(ref["title"]), spec.TOPIC["short"]),
+        desc=B.attr(ref["description"]), bodyattr="", body=body, scripts=LESSON_SCRIPTS)
+
+
 def topics_entry(spec, flat):
     """產生 data/topics.js 裡的主題物件（字串），格式比照檔案既有風格。"""
     t = spec.TOPIC
@@ -151,8 +186,17 @@ def topics_entry(spec, flat):
          u"      description:",
          u"        %s," % json.dumps(t["description"], ensure_ascii=False),
          u'      icon: "%s",' % t["icon"],
-         u'      url: "topics/%s/index.html",' % t["id"],
-         u"      modules: ["]
+         u'      url: "topics/%s/index.html",' % t["id"]]
+    refs = getattr(spec, "REFERENCES", [])
+    if refs:
+        L.append(u"      resources: [")
+        L.append(u",\n".join(
+            u"        {\n          title: %s,\n          description: %s,\n          icon: %s,\n"
+            u'          url: "topics/%s/%s"\n        }'
+            % (json.dumps(r["title"], ensure_ascii=False), json.dumps(r["description"], ensure_ascii=False),
+               json.dumps(r["icon"], ensure_ascii=False), t["id"], r["file"]) for r in refs))
+        L.append(u"      ],")
+    L.append(u"      modules: [")
     n = 0
     mods = []
     for mod_title, lessons in spec.MODULES:
@@ -240,6 +284,9 @@ def build(modname):
                       body=INDEX_BODY.format(crumb=t["crumb"], title=B.esc(t["title"])),
                       scripts=INDEX_SCRIPTS)
     io.open(os.path.join(out, "index.html"), "w", encoding="utf-8").write(idx)
+
+    for ref in getattr(spec, "REFERENCES", []):
+        io.open(os.path.join(out, ref["file"]), "w", encoding="utf-8").write(reference_html(spec, ref))
 
     note = inject_topics_js(topics_entry(spec, flat), t["id"])
     print("%s: %d lessons written, topics.js %s" % (t["id"], len(flat), note))
