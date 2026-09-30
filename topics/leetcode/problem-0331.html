@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>331. Verify Preorder Serialization of a Binary Tree 驗證二元樹的前序序列化 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="數空位：每個節點佔一個，非空節點再提供兩個，最後要剛好用完。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="331">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 331 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 331</div>
+          <h1>Verify Preorder Serialization of a Binary Tree<br>驗證二元樹的前序序列化</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">堆疊</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">二元樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>One way to serialize a binary tree is to use <strong>preorder traversal</strong>. When we encounter a non-null node, we record the node's value. If it is a null node, we record using a sentinel value such as <code>'#'</code>.</p>
+          <p>Given a string of comma-separated values <code>preorder</code>, return <code>true</code> if it is a correct preorder traversal serialization of a binary tree.</p>
+          <p>It is <strong>guaranteed</strong> that each comma-separated value in the string must be either an integer or a character <code>'#'</code> representing null pointer. You may assume that the input format is always valid.</p>
+          <p><strong>Note:</strong> You are not allowed to reconstruct the tree.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>二元樹的一種序列化方式是<strong>前序遍歷</strong>：遇到非空節點記下它的值，遇到空節點記下 <code>'#'</code>。</p>
+          <p>給你一個以逗號分隔的字串 <code>preorder</code>，判斷它是不是某棵二元樹<strong>正確的</strong>前序序列化結果。</p>
+          <p>每個值保證是整數或 <code>'#'</code>，格式一定正確。</p>
+          <p><strong>注意：</strong>不能把樹重建出來。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：preorder = "9,3,4,#,#,1,#,#,2,#,6,#,#"
+  輸出：true
+
+範例 2
+  輸入：preorder = "1,#"
+  輸出：false
+
+範例 3
+  輸入：preorder = "9,#,#,1"
+  輸出：false</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>preorder.length</code> ≤ 10⁴</li>
+          <li><code>preorder</code> 由 [0, 100] 的整數和 <code>'#'</code> 以逗號分隔組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/verify-preorder-serialization-of-a-binary-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【數「空位」（slots）】
+    想像一棵樹是一個一個「位置」被填上去的：
+        一開始只有 1 個空位（根的位置）
+        每讀一個 token，佔掉 1 個空位
+        如果是非空節點，它又提供 2 個新空位（左孩子、右孩子）
+        如果是 #，不提供新空位
+
+    合法 &lt;=&gt;
+        途中每次要放節點時都還有空位（slots &gt; 0）
+        而且最後空位剛好用完（slots == 0）
+
+【範例 "1,#"】
+    slots: 1 -&gt; 讀 1：0 + 2 = 2 -&gt; 讀 #：1
+    結束時 slots = 1 != 0 -&gt; 還有一個右孩子的位置沒填 ✘
+
+【範例 "9,#,#,1"】
+    slots: 1 -&gt; 9：2 -&gt; #：1 -&gt; #：0 -&gt; 讀 1 時 slots = 0 ✘
+
+【另一個角度：出度 = 入度】
+    樹中 非空節點數 + 1 = 空節點數（每個非空節點有 2 條往下的邊）。
+    slots 就是在即時追蹤這個差。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>堆疊化簡</h3>
+        <div class="code-block">class Solution:
+    def isValidSerialization(self, preorder: str) -&gt; bool:
+        stack = []
+        for tok in preorder.split(","):
+            stack.append(tok)
+            # 「數字, #, #」代表一棵完整的葉子子樹 -&gt; 化簡成一個 #
+            while len(stack) &gt;= 3 and stack[-1] == stack[-2] == "#" and stack[-3] != "#":
+                del stack[-3:]
+                stack.append("#")
+        return stack == ["#"]</div>
+        <p>每當堆疊頂端是「數字, #, #」，就代表一棵完整的小子樹，把它化簡成一個 #。合法的序列最後會只剩一個 #。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>計算空位</h3>
+        <div class="code-block">class Solution:
+    def isValidSerialization(self, preorder: str) -&gt; bool:
+        slots = 1                              # ★ 目前有幾個「空位」可以放節點（一開始留給根）
+        for tok in preorder.split(","):
+            if slots == 0:                     # 沒有空位了卻還有節點
+                return False
+            slots -= 1                         # 每個節點（含 #）佔掉一個空位
+            if tok != "#":
+                slots += 2                     # 非空節點帶來兩個新空位（左、右孩子）
+        return slots == 0                      # 所有空位剛好填滿</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td>不計 split</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、堆疊化簡</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>二、計算空位</td><td>O(n)</td><td>O(1) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>"#"</strong> → 空樹，true。</li>
+          <li><strong>提早用完空位</strong>（"#,1"）→ false。</li>
+          <li><strong>多位數的值</strong> → 用逗號切開，不能逐字元處理。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>相關題</h3>
+
+        <div class="code-block">第 297 題用同樣的格式真正地序列化與還原；本題只驗證格式，不需要建樹。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 297 題 二元樹的序列化與反序列化</strong></li>
+          <li><strong>第 449 題 序列化和反序列化二元搜尋樹</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>「空位」一開始有幾個？每種 token 讓它怎麼變化？</li>
+            <li>合法序列要滿足哪兩個條件？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0330.html">← 上一題：330. 按要求補齊陣列</a>
+          <a href="problem-0332.html">下一題：332. 重新安排行程 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

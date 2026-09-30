@@ -10295,7 +10295,13 @@ window.SITE_DATA = {
           title: "第 326–350 題",
           courses: [
             { title: "326. Power of Three 3 的冪", url: "topics/leetcode/problem-0326.html" },
-            { title: "327. Count of Range Sum 區間和的個數", url: "topics/leetcode/problem-0327.html" }
+            { title: "327. Count of Range Sum 區間和的個數", url: "topics/leetcode/problem-0327.html" },
+            { title: "328. Odd Even Linked List 奇偶鏈結串列", url: "topics/leetcode/problem-0328.html" },
+            { title: "329. Longest Increasing Path in a Matrix 矩陣中的最長遞增路徑", url: "topics/leetcode/problem-0329.html" },
+            { title: "330. Patching Array 按要求補齊陣列", url: "topics/leetcode/problem-0330.html" },
+            { title: "331. Verify Preorder Serialization of a Binary Tree 驗證二元樹的前序序列化", url: "topics/leetcode/problem-0331.html" },
+            { title: "332. Reconstruct Itinerary 重新安排行程", url: "topics/leetcode/problem-0332.html" },
+            { title: "334. Increasing Triplet Subsequence 遞增的三元子序列", url: "topics/leetcode/problem-0334.html" }
           ]
         }
       ]

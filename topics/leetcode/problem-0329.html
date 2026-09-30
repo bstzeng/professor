@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>329. Longest Increasing Path in a Matrix 矩陣中的最長遞增路徑 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="嚴格遞增不會有環，記憶化 DFS 每格只算一次；或拓樸排序數層數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="329">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 329 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 329</div>
+          <h1>Longest Increasing Path in a Matrix<br>矩陣中的最長遞增路徑</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">圖</span>
+          <span class="lc-badge">拓樸排序</span>
+          <span class="lc-badge">記憶化搜尋</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an <code>m x n</code> integers <code>matrix</code>, return <em>the length of the longest increasing path in</em> <code>matrix</code>.</p>
+          <p>From each cell, you can either move in four directions: left, right, up, or down. You <strong>may not</strong> move <strong>diagonally</strong> or move <strong>outside the boundary</strong> (i.e., wrap-around is not allowed).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m x n</code> 的整數矩陣，回傳其中<strong>最長嚴格遞增路徑</strong>的長度。</p>
+          <p>每一步可以往上下左右四個方向移動，不能斜走，也不能走出邊界。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：matrix = [[9,9,4],[6,6,8],[2,1,1]]
+  輸出：4
+  說明：1 → 2 → 6 → 9
+
+範例 2
+  輸入：matrix = [[3,4,5],[3,2,6],[2,2,1]]
+  輸出：4
+  說明：3 → 4 → 5 → 6</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>m, n</code> ≤ 200</li>
+          <li>0 ≤ <code>matrix[i][j]</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/longest-increasing-path-in-a-matrix/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【一般的「最長路徑」是 NP 困難的】
+    但這題有一個關鍵：路徑必須【嚴格遞增】。
+
+【嚴格遞增 -&gt; 不會有環】
+    沿著路徑值一直變大，不可能回到走過的格子。
+    所以：
+    - 不需要 visited 集合
+    - 「從 (i, j) 出發的最長路徑」只和 (i, j) 有關 -&gt; 可以記憶化！
+
+【記憶化 DFS】
+    dfs(i, j) = 1 + max(dfs(鄰居))，只看比自己大的鄰居。
+    每個格子只算一次 -&gt; O(mn)。
+
+【拓樸排序觀點】
+    把「小 -&gt; 大」當成有向邊，整張圖是 DAG。
+    DAG 上的最長路徑 = 拓樸排序的層數。
+    從沒有更大鄰居的格子（終點）開始，一層一層往回剝。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>記憶化 DFS</h3>
+        <div class="code-block">class Solution:
+    def longestIncreasingPath(self, matrix: List[List[int]]) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+
+        # ★ 嚴格遞增 -&gt; 不可能繞回原點，不需要 visited，可以直接記憶化
+        @functools.lru_cache(None)
+        def dfs(i: int, j: int) -&gt; int:           # 從 (i, j) 出發的最長遞增路徑
+            best = 1
+            for x, y in ((i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)):
+                if 0 &lt;= x &lt; m and 0 &lt;= y &lt; n and matrix[x][y] &gt; matrix[i][j]:
+                    best = max(best, 1 + dfs(x, y))
+            return best
+
+        return max(dfs(i, j) for i in range(m) for j in range(n))</div>
+        <p>40000 個格子時遞迴深度可能很深（例如蛇形遞增），Python 需要調高遞迴上限；拓樸排序版本沒有這個問題。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>拓樸排序（BFS 剝層）</h3>
+        <div class="code-block">class Solution:
+    def longestIncreasingPath(self, matrix: List[List[int]]) -&gt; int:
+        m, n = len(matrix), len(matrix[0])
+        dirs = ((1, 0), (-1, 0), (0, 1), (0, -1))
+        outdeg = [[0] * n for _ in range(m)]      # 有幾個鄰居比我大
+        for i in range(m):
+            for j in range(n):
+                for dx, dy in dirs:
+                    x, y = i + dx, j + dy
+                    if 0 &lt;= x &lt; m and 0 &lt;= y &lt; n and matrix[x][y] &gt; matrix[i][j]:
+                        outdeg[i][j] += 1
+        # 從「局部最大值」（沒有更大的鄰居）開始，一層一層往回剝
+        layer = [(i, j) for i in range(m) for j in range(n) if outdeg[i][j] == 0]
+        depth = 0
+        while layer:
+            depth += 1
+            nxt = []
+            for i, j in layer:
+                for dx, dy in dirs:
+                    x, y = i + dx, j + dy
+                    if 0 &lt;= x &lt; m and 0 &lt;= y &lt; n and matrix[x][y] &lt; matrix[i][j]:
+                        outdeg[x][y] -= 1
+                        if outdeg[x][y] == 0:
+                            nxt.append((x, y))
+            layer = nxt
+        return depth                              # 層數 = 最長路徑的長度</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(mn)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>暴力 DFS</td><td>指數</td><td>O(mn)</td><td>沒有記憶化</td></tr>
+            <tr><td>一、記憶化 DFS</td><td>O(mn)</td><td>O(mn)</td><td>最直觀 ✔</td></tr>
+            <tr><td>二、拓樸排序</td><td>O(mn)</td><td>O(mn)</td><td>不用遞迴</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全部相同</strong> → 1（嚴格遞增，無法移動）。</li>
+          <li><strong>1 × 1</strong> → 1。</li>
+          <li><strong>蛇形遞增</strong> → 路徑長 mn，遞迴深度也是 mn。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>記憶化的前提</h3>
+
+        <div class="code-block">能記憶化的條件：子問題的答案不依賴「怎麼走到這裡的」。如果允許走相等的值，就可能繞圈，子問題會依賴 visited 狀態，記憶化就不成立了。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 300 題 最長遞增子序列</strong></li>
+          <li><strong>第 2328 題 網格圖中遞增路徑的數目</strong> —— 同一個記憶化 DFS，改成計數</li>
+          <li><strong>第 207 題 課程表</strong> —— 拓樸排序</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼這一題不需要 visited？</li>
+            <li>為什麼可以記憶化？</li>
+            <li>拓樸排序版本的層數為什麼等於最長路徑長度？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0328.html">← 上一題：328. 奇偶鏈結串列</a>
+          <a href="problem-0330.html">下一題：330. 按要求補齊陣列 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
