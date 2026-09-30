@@ -10246,7 +10246,18 @@ window.SITE_DATA = {
             { title: "260. Single Number III 只出現一次的數字 III", url: "topics/leetcode/problem-0260.html" },
             { title: "263. Ugly Number 醜數", url: "topics/leetcode/problem-0263.html" },
             { title: "264. Ugly Number II 醜數 II", url: "topics/leetcode/problem-0264.html" },
-            { title: "268. Missing Number 遺失的數字", url: "topics/leetcode/problem-0268.html" }
+            { title: "268. Missing Number 遺失的數字", url: "topics/leetcode/problem-0268.html" },
+            { title: "273. Integer to English Words 整數轉換英文表示", url: "topics/leetcode/problem-0273.html" },
+            { title: "274. H-Index H 指數", url: "topics/leetcode/problem-0274.html" },
+            { title: "275. H-Index II H 指數 II", url: "topics/leetcode/problem-0275.html" }
+          ]
+        },
+        {
+          title: "第 276–300 題",
+          courses: [
+            { title: "278. First Bad Version 第一個錯誤的版本", url: "topics/leetcode/problem-0278.html" },
+            { title: "279. Perfect Squares 完全平方數", url: "topics/leetcode/problem-0279.html" },
+            { title: "282. Expression Add Operators 給表達式添加運算子", url: "topics/leetcode/problem-0282.html" }
           ]
         }
       ]
