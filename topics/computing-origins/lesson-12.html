@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：CPU 的心跳:抓取→解碼→執行的循環 ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="程式進了記憶體,CPU 到底如何「一條一條」把它跑起來?">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜沒有作業系統的年代:怎麼寫、怎麼跑程式 · 第 12 課</div>
+      <h1>CPU 的心跳:抓取→解碼→執行的循環</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識取指-解碼-執行循環</li>
+          <li>理解程式計數器的角色</li>
+          <li>建立「CPU 在跑程式」的具體圖像</li>
+        </ul>
+      </div>
+
+      <p>
+        程式住進了記憶體(<a href="lesson-11.html">第 11 課</a>),CPU 怎麼把它<strong>一條一條執行</strong>起來?答案是一個簡單、卻永不停歇的循環,可以說是<strong>CPU 的心跳</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 228" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">CPU 的心跳:抓取→解碼→執行,不斷重複</text>
+                <rect x="50" y="66" width="150" height="72" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="125" y="92" text-anchor="middle" font-size="11" fill="#4a90c2">① 抓取 Fetch</text><text x="125" y="106" text-anchor="middle" font-size="9" fill="var(--text-muted)">從記憶體讀</text><text x="125" y="119" text-anchor="middle" font-size="9" fill="var(--text-muted)">下一條指令</text>
+                <rect x="245" y="66" width="150" height="72" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="92" text-anchor="middle" font-size="11" fill="#9c89d6">② 解碼 Decode</text><text x="320" y="106" text-anchor="middle" font-size="9" fill="var(--text-muted)">看懂這個</text><text x="320" y="119" text-anchor="middle" font-size="9" fill="var(--text-muted)">數字要做什麼</text>
+                <rect x="440" y="66" width="150" height="72" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="515" y="92" text-anchor="middle" font-size="11" fill="#5aa469">③ 執行 Execute</text><text x="515" y="106" text-anchor="middle" font-size="9" fill="var(--text-muted)">實際做動作</text><text x="515" y="119" text-anchor="middle" font-size="9" fill="var(--text-muted)">算數/存取/跳躍</text>
+                <line x1="203.0" y1="102.0" x2="236.0" y2="102.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="243.0,102.0 236.0,105.5 236.0,98.5" fill="var(--border)"/>
+                <line x1="398.0" y1="102.0" x2="431.0" y2="102.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="438.0,102.0 431.0,105.5 431.0,98.5" fill="var(--border)"/>
+                <path d="M515 140 V172 H125 V140" fill="none" stroke="var(--accent)" stroke-width="1.8"/>
+                <line x1="125.0" y1="150.0" x2="125.0" y2="147.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="125.0,140.0 128.5,147.0 121.5,147.0" fill="var(--accent)"/>
+                <text x="320" y="190" text-anchor="middle" font-size="10" fill="var(--accent)">程式計數器指到哪,就抓哪一條;做完自動加一,指向下一條——如此每秒重複數十億次</text>
+                <text x="320" y="214" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這個永不停歇的循環,就是電腦「在跑」的真正含意</text>
+        </svg>
+        <figcaption>抓取→解碼→執行,做完自動指向下一條,如此每秒重複數十億次。</figcaption>
+      </div>
+
+      <h2>1. 三個步驟,不斷重複</h2>
+
+      <ol>
+        <li><strong>抓取(Fetch)</strong>:從記憶體讀出「下一條指令」(一串數字)。</li>
+        <li><strong>解碼(Decode)</strong>:看懂這個數字要做什麼(查指令集,<a href="lesson-09.html">第 9 課</a>)。</li>
+        <li><strong>執行(Execute)</strong>:實際動作——算數、讀寫記憶體,或跳到別處。</li>
+      </ol>
+
+      <h2>2. 程式計數器:一根「指到哪跑到哪」的指標</h2>
+
+      <p>
+        CPU 裡有一個特別的暫存器叫<strong>程式計數器</strong>(program counter),它記著「下一條指令在記憶體的哪個位置」。每執行完一條,它就<strong>自動加一</strong>,指向下一條;遇到「跳躍」指令(如 <code>JMP</code>)時,則直接改成別的位置——這就是程式能<strong>轉彎、重複、做選擇</strong>的原理。
+      </p>
+
+      <h2>3. 這就是「電腦在跑」的真義</h2>
+
+      <p>
+        你電腦此刻正在做的<strong>所有事</strong>——播影片、跑遊戲、開網頁——對 CPU 來說都只是這個<strong>抓取-解碼-執行</strong>循環,以每秒數十億次的速度重複著。沒有魔法,只有一個轉得極快的簡單迴圈。
+      </p>
+
+      <p>
+        到這裡,模組 B 回答了「沒有作業系統時,怎麼寫、怎麼跑程式」。但還有個更基本的謎題沒解:<strong>開機那一刻,記憶體空空如也,這個循環要抓的「第一條指令」從哪來?</strong>下個模組專門破解這個開機的雞生蛋問題(<a href="lesson-13.html">第 13 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「程式計數器加一,指向下一條」——這麼樸素的機制,卻讓電腦能執行任何程式。當程式「當掉」或「卡住」,往往就是這根指標跑到了不該去的地方。理解這個循環,你就抓住了電腦運作的心臟。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>取指-解碼-執行三步各做什麼?</li>
+          <li>程式計數器的作用是什麼?</li>
+          <li>「跳躍」指令為什麼讓程式能重複或做選擇?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>沒程式怎麼載入程式?開機自舉(bootstrap)的由來</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：最關鍵的一步:程式本身也是資料(儲存程式架構)</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：沒程式怎麼載入程式?開機自舉(bootstrap)的由來 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

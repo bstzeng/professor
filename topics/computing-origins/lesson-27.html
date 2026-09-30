@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：INT 21h:程式怎麼請 DOS 幫忙(系統呼叫) ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="應用程式想讀檔、印字,不必自己碰硬體——喊一聲 DOS 就好">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜DOS 是怎麼做出來的 · 第 27 課</div>
+      <h1>INT 21h:程式怎麼請 DOS 幫忙(系統呼叫)</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解系統呼叫的概念</li>
+          <li>認識 INT 21h 的運作方式</li>
+          <li>連結到中斷機制</li>
+        </ul>
+      </div>
+
+      <p>
+        一支 DOS 程式想「讀一個檔」或「在螢幕印字」,它<strong>不必自己去操作磁碟或顯卡</strong>——那太麻煩又危險(<a href="lesson-19.html">第 19 課</a>)。它只要<strong>請 DOS 代勞</strong>。DOS 提供的這個求助窗口,最有名的就是 <strong>INT 21h</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">INT 21h:程式向 DOS 求助的窗口</text>
+                <rect x="40" y="54" width="250" height="100" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="165" y="82" text-anchor="middle" font-size="11" fill="#4a90c2">應用程式</text><text x="165" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">想做:在螢幕印一個字</text><text x="165" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">在 AH 放「功能編號」</text><text x="165" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">在 DL 放要印的字</text><text x="165" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">然後喊:INT 21h</text>
+                <rect x="350" y="54" width="260" height="100" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="480" y="82" text-anchor="middle" font-size="11" fill="#5aa469">DOS(中斷處理)</text><text x="480" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">收到 INT 21h</text><text x="480" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">看 AH 是哪個功能</text><text x="480" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">幫你去操作硬體</text><text x="480" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">做完把結果交回</text>
+                <line x1="292.0" y1="104.0" x2="341.0" y2="104.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="348.0,104.0 341.0,107.5 341.0,100.5" fill="var(--accent)"/>
+                <text x="320" y="94" text-anchor="middle" font-size="9" fill="var(--accent)">求助</text>
+                <text x="320" y="180" text-anchor="middle" font-size="10" fill="var(--accent)">程式不必自己碰硬體,只要「填好參數、喊一聲 INT 21h」,剩下交給 DOS</text>
+                <text x="320" y="204" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這正是模組 D 講的「軟體中斷呼叫系統服務」的實例</text>
+        </svg>
+        <figcaption>程式把功能編號與參數填好,喊一聲 INT 21h,DOS 就代為操作硬體並交回結果。</figcaption>
+      </div>
+
+      <h2>1. 這其實就是「軟體中斷」</h2>
+
+      <p>
+        還記得模組 D 說,程式可以<strong>主動觸發中斷</strong>來呼叫作業系統服務嗎(<a href="lesson-21.html">第 21 課</a>)?<code>INT 21h</code> 正是這個機制的招牌實例:<code>INT</code> 是「觸發中斷」的指令,<code>21h</code>(十六進位的 21)是 DOS 服務所在的<strong>編號</strong>。
+      </p>
+
+      <h2>2. 怎麼用:填好參數,喊一聲</h2>
+
+      <p>
+        用法像去櫃台辦事——先<strong>填單</strong>,再<strong>喊號</strong>:
+      </p>
+
+      <ol>
+        <li>在暫存器 <code>AH</code> 裡放<strong>功能編號</strong>(想做哪件事,例如「印一個字」是某個號)。</li>
+        <li>在其他暫存器放<strong>需要的資料</strong>(例如 <code>DL</code> 放要印的那個字)。</li>
+        <li>執行 <code>INT 21h</code>——DOS 接手,看 <code>AH</code> 是哪個功能,幫你做完,把結果放回暫存器。</li>
+      </ol>
+
+      <h2>3. 為什麼這樣設計很好</h2>
+
+      <ul>
+        <li>程式<strong>不必知道硬體細節</strong>,換一台機器也能跑(只要都有 DOS)。</li>
+        <li>DOS 可以<strong>統一管理</strong>對硬體的存取,比較不會亂。</li>
+        <li>這就是作業系統當「中間人」的具體實現——<strong>提供一套標準服務</strong>給所有程式用。</li>
+      </ul>
+
+      <p>
+        (小補充:對<strong>速度</strong>要求極高的程式——如遊戲——有時會略過 DOS、<strong>直接操作硬體</strong>以求快。這帶來相容與穩定的隱憂,也埋下 DOS 侷限的伏筆。)
+      </p>
+
+      <p>
+        了解程式怎麼和 DOS 互動後,我們來面對 DOS 最著名的一個限制:那個神祕的<strong>640K 記憶體</strong>(<a href="lesson-28.html">第 28 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「填好表單、喊個號,剩下交給櫃台」——系統呼叫的精神,和你去公家機關辦事一模一樣。你不需要懂公務系統內部怎麼運作,只要按格式提出請求。今天手機 App 呼叫系統服務,骨子裡還是這套模式。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>程式為什麼要透過 INT 21h,而不自己操作硬體?</li>
+          <li>使用 INT 21h 的三個步驟大致是什麼?</li>
+          <li>INT 21h 和「中斷」機制有什麼關係?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>單工與 640K:一次一個程式,還只能用一點記憶體</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：FAT 檔案系統:檔案在磁碟上怎麼被找到</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：單工與 640K:一次一個程式,還只能用一點記憶體 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

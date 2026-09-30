@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：中斷:硬體怎麼「舉手」找 CPU ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="CPU 怎麼知道鍵盤被按了、資料到了?靠一個聰明的機制">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜作業系統是什麼、為什麼非要不可 · 第 21 課</div>
+      <h1>中斷:硬體怎麼「舉手」找 CPU</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解輪詢與中斷的差別</li>
+          <li>認識中斷的運作流程</li>
+          <li>知道中斷也用來呼叫系統服務</li>
+        </ul>
+      </div>
+
+      <p>
+        這一課補上一個貫穿作業系統與硬體溝通的核心機制:<strong>中斷</strong>(interrupt)。它回答一個問題:CPU 正埋頭跑程式,怎麼<strong>及時知道</strong>「鍵盤被按了」「磁碟資料好了」?
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 216" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">中斷:硬體「舉手」打斷 CPU</text>
+                <rect x="40" y="54" width="170" height="96" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="125" y="86" text-anchor="middle" font-size="11" fill="#4a90c2">CPU 正在工作</text><text x="125" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">埋頭跑程式</text><text x="125" y="113" text-anchor="middle" font-size="9" fill="var(--text-muted)">不必一直盯著</text><text x="125" y="126" text-anchor="middle" font-size="9" fill="var(--text-muted)">每個裝置</text>
+                <rect x="250" y="54" width="150" height="96" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="325" y="86" text-anchor="middle" font-size="11" fill="#ff8a65">裝置有事</text><text x="325" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">鍵盤被按下</text><text x="325" y="113" text-anchor="middle" font-size="9" fill="var(--text-muted)">資料到了</text><text x="325" y="126" text-anchor="middle" font-size="9" fill="var(--text-muted)">「舉手」發中斷</text>
+                <rect x="440" y="54" width="170" height="96" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="525" y="86" text-anchor="middle" font-size="11" fill="#5aa469">CPU 的反應</text><text x="525" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">暫停手邊工作</text><text x="525" y="113" text-anchor="middle" font-size="9" fill="var(--text-muted)">跳去處理(中斷程式)</text><text x="525" y="126" text-anchor="middle" font-size="9" fill="var(--text-muted)">處理完回原點續跑</text>
+                <line x1="212.0" y1="102.0" x2="241.0" y2="102.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="248.0,102.0 241.0,105.5 241.0,98.5" fill="var(--border)"/>
+                <line x1="402.0" y1="102.0" x2="431.0" y2="102.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="438.0,102.0 431.0,105.5 431.0,98.5" fill="var(--border)"/>
+                <text x="320" y="176" text-anchor="middle" font-size="10" fill="var(--accent)">不必讓 CPU 一直「輪流問」每個裝置有沒有事——裝置有事會自己舉手,效率高得多</text>
+                <text x="320" y="200" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">DOS 就大量用「中斷」讓程式呼叫系統服務(下個模組會看到 INT 21h)</text>
+        </svg>
+        <figcaption>裝置有事就「舉手」發中斷,CPU 暫停手邊工作去處理,處理完再回原點續跑。</figcaption>
+      </div>
+
+      <h2>1. 笨方法:一直問(輪詢)</h2>
+
+      <p>
+        一種做法是讓 CPU <strong>不停地輪流問</strong>每個裝置:「你有事嗎?你呢?」這叫<strong>輪詢</strong>(polling)。但這很浪費:大部分時間裝置都沒事,CPU 卻要一直問,問的時間根本沒法拿去算正事。
+      </p>
+
+      <h2>2. 聰明方法:讓裝置「舉手」</h2>
+
+      <p>
+        更好的辦法是<strong>中斷</strong>:平常 CPU 專心跑程式,<strong>不管</strong>裝置;哪個裝置有事了,就自己<strong>發出一個訊號「舉手」</strong>。CPU 收到後:
+      </p>
+
+      <ol>
+        <li><strong>暫停</strong>手邊的工作,記住做到哪。</li>
+        <li>跳去執行對應的<strong>中斷處理程式</strong>(例如把剛按下的鍵讀進來)。</li>
+        <li>處理完,<strong>回到原點</strong>,繼續剛才被打斷的工作。</li>
+      </ol>
+
+      <p>
+        這樣 CPU 就能<strong>專心做事,有事再說</strong>,效率高得多。
+      </p>
+
+      <h2>3. 中斷還能用來「呼叫系統服務」</h2>
+
+      <p>
+        中斷不只給硬體用。程式也能<strong>主動觸發</strong>一個中斷,對 OS 說「請幫我做某件事」(例如讀檔)。這叫<strong>軟體中斷</strong>,是應用程式<strong>呼叫作業系統服務</strong>的經典方式。下個模組你會看到 DOS 最著名的 <strong>INT 21h</strong>——程式就是靠它請 DOS 幫忙的(<a href="lesson-27.html">第 27 課</a>)。
+      </p>
+
+      <p>
+        到這裡,「作業系統是什麼、怎麼跟硬體與程式打交道」的觀念齊備了。接著把鏡頭轉向歷史:第一批個人電腦的 OS 長什麼樣?我們的主角 DOS 又從何而來?(<a href="lesson-22.html">第 22 課</a>)
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「中斷」的智慧在日常也常見:你不會每分鐘檢查一次信箱有沒有信,而是讓它「有信再通知你」,這樣你才能專心做事。CPU 對待硬體,用的正是這種「別打擾我,有事再舉手」的高效策略。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>「輪詢」為什麼浪費?</li>
+          <li>中斷發生時,CPU 依序做哪三件事?</li>
+          <li>程式如何用中斷來「呼叫作業系統服務」?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>DOS 的前輩:CP/M 與微電腦時代</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：作業系統到底在管什麼:四大工作</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：DOS 的前輩:CP/M 與微電腦時代 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

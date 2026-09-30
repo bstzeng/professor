@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：FAT 檔案系統:檔案在磁碟上怎麼被找到 ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="磁碟只是一大片格子,DOS 怎麼把你的檔案存進去又找回來?">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜DOS 是怎麼做出來的 · 第 26 課</div>
+      <h1>FAT 檔案系統:檔案在磁碟上怎麼被找到</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解磁碟被切成「格子」(叢集)</li>
+          <li>認識 FAT 這張「接續對照表」</li>
+          <li>看懂檔案為何不必連續存放</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課 DOS 要「去磁碟找程式檔」(<a href="lesson-25.html">第 25 課</a>)。但磁碟本身只是<strong>一大片能記 0/1 的空間</strong>,它怎麼知道「GAME.EXE 這個檔存在哪、有多大」?這要靠 DOS 的檔案系統:<strong>FAT</strong>(File Allocation Table,檔案配置表)。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 216" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">FAT 檔案系統:怎麼在磁碟上找到一個檔</text>
+                <rect x="30" y="56" width="180" height="90" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="120" y="85" text-anchor="middle" font-size="11" fill="#4a90c2">目錄項</text><text x="120" y="99" text-anchor="middle" font-size="9" fill="var(--text-muted)">檔名:GAME.EXE</text><text x="120" y="112" text-anchor="middle" font-size="9" fill="var(--text-muted)">大小、日期</text><text x="120" y="125" text-anchor="middle" font-size="9" fill="var(--text-muted)">起始位置:第 5 格</text>
+                <rect x="240" y="56" width="180" height="90" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="330" y="85" text-anchor="middle" font-size="11" fill="#9c89d6">FAT 對照表</text><text x="330" y="99" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 5 格 → 接第 6 格</text><text x="330" y="112" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 6 格 → 接第 9 格</text><text x="330" y="125" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 9 格 → 結束</text>
+                <rect x="450" y="56" width="160" height="90" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="530" y="85" text-anchor="middle" font-size="11" fill="#5aa469">實際資料(磁碟格子)</text><text x="530" y="99" text-anchor="middle" font-size="9" fill="var(--text-muted)">5→6→9 這幾格</text><text x="530" y="112" text-anchor="middle" font-size="9" fill="var(--text-muted)">串起來就是</text><text x="530" y="125" text-anchor="middle" font-size="9" fill="var(--text-muted)">完整的檔案</text>
+                <line x1="212.0" y1="101.0" x2="231.0" y2="101.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="238.0,101.0 231.0,104.5 231.0,97.5" fill="var(--border)"/>
+                <line x1="422.0" y1="101.0" x2="441.0" y2="101.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="448.0,101.0 441.0,104.5 441.0,97.5" fill="var(--border)"/>
+                <text x="320" y="172" text-anchor="middle" font-size="10" fill="var(--accent)">檔案不一定連續存放。FAT 像一張「藏寶圖」,記著每一塊接著跳到哪一塊</text>
+                <text x="320" y="196" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">照著 FAT 一格接一格讀,就能把散落各處的檔案內容,完整拼回來</text>
+        </svg>
+        <figcaption>目錄項記著檔名與起點,FAT 像藏寶圖記著每一格接著跳到哪,串起來就是完整檔案。</figcaption>
+      </div>
+
+      <h2>1. 先把磁碟切成「格子」</h2>
+
+      <p>
+        DOS 把磁碟空間切成許多固定大小的<strong>格子</strong>(叢集,cluster)。存檔時,一個檔案可能佔好幾格。麻煩的是:這些格子<strong>不一定連在一起</strong>(可能這裡放一格、那裡放一格,尤其磁碟用久、東西刪刪補補之後)。
+      </p>
+
+      <h2>2. FAT:記錄「一格接一格」的藏寶圖</h2>
+
+      <p>
+        那怎麼知道一個檔案佔了哪些格、順序如何?靠兩樣東西:
+      </p>
+
+      <ul>
+        <li><strong>目錄項</strong>:記著<strong>檔名、大小、以及「第一格」在哪</strong>。</li>
+        <li><strong>FAT 表</strong>:像一張<strong>接續圖</strong>——查第 5 格,它告訴你「接著去第 6 格」;查第 6 格,它說「接著去第 9 格」;查第 9 格,它說「結束」。</li>
+      </ul>
+
+      <p>
+        於是 DOS 從目錄項拿到起點(第 5 格),再<strong>照著 FAT 一格接一格跳</strong>(5→6→9),就能把<strong>散落各處的內容完整拼回來</strong>。
+      </p>
+
+      <h2>3. 這解釋了幾個熟悉的現象</h2>
+
+      <ul>
+        <li><strong>「磁碟重組」</strong>:把散開的格子搬到連續位置,讀取更快——就是在整理這些跳來跳去的鏈。</li>
+        <li><strong>刪檔很快</strong>:常常只是把目錄項標成「已刪」、把 FAT 鏈放掉,<strong>資料其實還在</strong>(所以有機會「救回」誤刪的檔)。</li>
+        <li><strong>FAT 壞掉很嚴重</strong>:藏寶圖亂了,就算資料還在也拼不回來。</li>
+      </ul>
+
+      <p>
+        FAT 簡單可靠,影響深遠——直到今天,<strong>隨身碟、記憶卡</strong>仍常用它的後代(FAT32、exFAT)。DOS 把「找檔」這件事做好之後,程式要真正「請 DOS 做事」,還需要一個正式的求助窗口(<a href="lesson-27.html">第 27 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「刪掉的檔案其實還在,只是被標記為可覆蓋」——這個 FAT 的特性,是資料救援與資料安全的關鍵。想真正抹掉敏感檔案,光按刪除不夠。理解檔案系統怎麼運作,你對「刪除」的認知會完全不同。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼檔案在磁碟上可能「不連續」?</li>
+          <li>FAT 表扮演什麼角色?</li>
+          <li>為什麼「刪除」的檔案常常還能被救回?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>INT 21h:程式怎麼請 DOS 幫忙(系統呼叫)</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：命令列 C:\ :你打的每個指令發生了什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：INT 21h:程式怎麼請 DOS 幫忙(系統呼叫) →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

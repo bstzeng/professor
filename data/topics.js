@@ -12223,6 +12223,114 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "computing-origins",
+      category: "tech",
+      title: "電腦是怎麼從零開始的:從開機、DOS 到視窗 3.1",
+      description:
+        "在還沒有作業系統、沒有視窗、連寫程式的介面都沒有的年代,電腦是怎麼啟動的?從一個開關、邏輯閘、CPU 的心跳講起,一路走過開機的雞生蛋問題(BIOS、POST、開機磁區)、DOS 怎麼做出來與怎麼運作(命令列、FAT、INT 21h、640K),再到圖形介面的觀念、以及 Windows 3.1 如何在 DOS 之上蓋出視窗(GDI、訊息迴圈、保護模式、多工)。重機制、講原理,附名詞年表速查與互動開機流程。",
+      icon: "💾",
+      url: "topics/computing-origins/index.html",
+      resources: [
+        {
+          title: "名詞與年表速查表",
+          description: "位元、邏輯閘、BIOS、開機磁區、DOS、GDI、保護模式… 一頁看懂本課關鍵名詞,加上大致時間軸與常見迷思",
+          icon: "📇",
+          url: "topics/computing-origins/cheatsheet.html"
+        },
+        {
+          title: "互動開機流程",
+          description: "從按下電源到進入系統,點「下一步」逐步看每一棒發生什麼:reset vector、BIOS、POST、開機磁區、載入 OS、啟動 Windows",
+          icon: "⚙️",
+          url: "topics/computing-origins/boot-sequence.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電腦最底層:從開關到會算數的機器",
+          courses: [
+            { title: "電腦其實只懂開與關:電、電晶體與 0 與 1", url: "topics/computing-origins/lesson-01.html" },
+            { title: "用開關做出「判斷」:AND、OR、NOT 三種邏輯閘", url: "topics/computing-origins/lesson-02.html" },
+            { title: "邏輯閘怎麼變成會加法的電路", url: "topics/computing-origins/lesson-03.html" },
+            { title: "電腦怎麼「記住」:正反器與記憶的原理", url: "topics/computing-origins/lesson-04.html" },
+            { title: "把它們組成一台機器:CPU、記憶體與匯流排", url: "topics/computing-origins/lesson-05.html" },
+            { title: "時脈:讓所有零件對齊步伐的節拍器", url: "topics/computing-origins/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜沒有作業系統的年代:怎麼寫、怎麼跑程式",
+          courses: [
+            { title: "最早的「寫程式」:動手接線與扳開關", url: "topics/computing-origins/lesson-07.html" },
+            { title: "把程式存在紙上:打孔卡與紙帶", url: "topics/computing-origins/lesson-08.html" },
+            { title: "CPU 真正讀的語言:機器碼", url: "topics/computing-origins/lesson-09.html" },
+            { title: "給人看的機器碼:組合語言", url: "topics/computing-origins/lesson-10.html" },
+            { title: "最關鍵的一步:程式本身也是資料(儲存程式架構)", url: "topics/computing-origins/lesson-11.html" },
+            { title: "CPU 的心跳:抓取→解碼→執行的循環", url: "topics/computing-origins/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜開機的雞生蛋問題:電腦怎麼把自己叫醒",
+          courses: [
+            { title: "沒程式怎麼載入程式?開機自舉(bootstrap)的由來", url: "topics/computing-origins/lesson-13.html" },
+            { title: "燒死在晶片裡的第一段程式:ROM 與 BIOS", url: "topics/computing-origins/lesson-14.html" },
+            { title: "電腦一通電,CPU 從哪裡開始跑?(reset vector)", url: "topics/computing-origins/lesson-15.html" },
+            { title: "開機自檢 POST:先確認硬體會動再說", url: "topics/computing-origins/lesson-16.html" },
+            { title: "512 位元組的接力棒:開機磁區(boot sector)", url: "topics/computing-origins/lesson-17.html" },
+            { title: "從電源到作業系統:把開機一條龍串起來", url: "topics/computing-origins/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜作業系統是什麼、為什麼非要不可",
+          courses: [
+            { title: "沒有作業系統的世界:每個程式自己管硬體有多痛", url: "topics/computing-origins/lesson-19.html" },
+            { title: "作業系統到底在管什麼:四大工作", url: "topics/computing-origins/lesson-20.html" },
+            { title: "中斷:硬體怎麼「舉手」找 CPU", url: "topics/computing-origins/lesson-21.html" },
+            { title: "DOS 的前輩:CP/M 與微電腦時代", url: "topics/computing-origins/lesson-22.html" },
+            { title: "IBM PC 的誕生,以及它為什麼急需一套 OS", url: "topics/computing-origins/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜DOS 是怎麼做出來的",
+          courses: [
+            { title: "從 QDOS 到 MS-DOS:一套 OS 的緊湊來歷", url: "topics/computing-origins/lesson-24.html" },
+            { title: "命令列 C:\\ :你打的每個指令發生了什麼", url: "topics/computing-origins/lesson-25.html" },
+            { title: "FAT 檔案系統:檔案在磁碟上怎麼被找到", url: "topics/computing-origins/lesson-26.html" },
+            { title: "INT 21h:程式怎麼請 DOS 幫忙(系統呼叫)", url: "topics/computing-origins/lesson-27.html" },
+            { title: "單工與 640K:一次一個程式,還只能用一點記憶體", url: "topics/computing-origins/lesson-28.html" },
+            { title: "DOS 的天花板:沒有多工、沒有保護、沒有圖形", url: "topics/computing-origins/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜從文字到圖形:視窗的觀念從哪來",
+          courses: [
+            { title: "純文字介面的極限,以及它其實很強的地方", url: "topics/computing-origins/lesson-30.html" },
+            { title: "圖形介面的起點:Xerox PARC、滑鼠與桌面隱喻", url: "topics/computing-origins/lesson-31.html" },
+            { title: "螢幕怎麼從「印字」變成「畫圖」:字元模式與點陣模式", url: "topics/computing-origins/lesson-32.html" },
+            { title: "事件驅動:程式從「跑到底」變成「等你動作」", url: "topics/computing-origins/lesson-33.html" },
+            { title: "為什麼圖形介面又難又吃資源", url: "topics/computing-origins/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜Windows 3.1 怎麼在 DOS 上蓋出視窗",
+          courses: [
+            { title: "關鍵真相:早期 Windows 其實是「跑在 DOS 上的一支程式」", url: "topics/computing-origins/lesson-35.html" },
+            { title: "怎麼把視窗畫出來:GDI 圖形裝置介面", url: "topics/computing-origins/lesson-36.html" },
+            { title: "視窗程式的心臟:訊息迴圈(message loop)", url: "topics/computing-origins/lesson-37.html" },
+            { title: "突破 640K:真實模式、保護模式與記憶體", url: "topics/computing-origins/lesson-38.html" },
+            { title: "合作式多工:好幾個程式怎麼「輪流」用一顆 CPU", url: "topics/computing-origins/lesson-39.html" },
+            { title: "為什麼是 3.1 讓視窗真正普及", url: "topics/computing-origins/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜綜合、遺產與迷思",
+          courses: [
+            { title: "完整時間軸:從電源鍵到 Windows 桌面的每一步", url: "topics/computing-origins/lesson-41.html" },
+            { title: "這些老東西,為什麼今天還在你的電腦裡", url: "topics/computing-origins/lesson-42.html" },
+            { title: "破解迷思與總整理:電腦如何無中生有啟動自己", url: "topics/computing-origins/lesson-43.html" },
+          ],
+        },
+      ],
     }
   ]
 };

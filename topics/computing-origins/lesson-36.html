@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：怎麼把視窗畫出來:GDI 圖形裝置介面 ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="每支程式都自己畫圖太亂,Windows 用一個「繪圖中間人」統一處理">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜Windows 3.1 怎麼在 DOS 上蓋出視窗 · 第 36 課</div>
+      <h1>怎麼把視窗畫出來:GDI 圖形裝置介面</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 GDI 的角色</li>
+          <li>理解它如何隱藏顯卡差異</li>
+          <li>連結到作業系統「中間人」的精神</li>
+        </ul>
+      </div>
+
+      <p>
+        Windows 要顯示視窗、按鈕、文字,就得<strong>畫圖</strong>。但如果<strong>每支程式都自己去驅動顯卡</strong>畫,會像沒有 OS 的年代一樣亂(<a href="lesson-19.html">第 19 課</a>)。Windows 的解法是提供一個<strong>統一的繪圖中間人</strong>:<strong>GDI</strong>(圖形裝置介面)。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">怎麼把視窗畫出來:GDI 繪圖介面</text>
+                <rect x="40" y="54" width="250" height="100" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="165" y="82" text-anchor="middle" font-size="11" fill="#4a90c2">應用程式</text><text x="165" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">不必管是哪張顯卡</text><text x="165" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">只說:「畫一條線」</text><text x="165" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">「寫幾個字」「畫個框」</text><text x="165" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">用統一的繪圖指令</text>
+                <rect x="350" y="54" width="260" height="100" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="480" y="82" text-anchor="middle" font-size="11" fill="#5aa469">GDI 圖形裝置介面</text><text x="480" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">接收繪圖指令</text><text x="480" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">換算成實際像素</text><text x="480" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">處理不同顯卡的差異</text><text x="480" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">讓畫面長得一致</text>
+                <line x1="292.0" y1="104.0" x2="341.0" y2="104.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="348.0,104.0 341.0,107.5 341.0,100.5" fill="var(--accent)"/>
+                <text x="320" y="94" text-anchor="middle" font-size="9" fill="var(--accent)">我要畫…</text>
+                <text x="320" y="180" text-anchor="middle" font-size="10" fill="var(--accent)">GDI 當「繪圖的中間人」:程式用一套標準指令畫圖,GDI 負責在各種硬體上實現</text>
+                <text x="320" y="204" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這正是作業系統精神的延伸——把硬體差異藏起來,讓程式好寫、畫面一致</text>
+        </svg>
+        <figcaption>程式用一套標準指令對 GDI 說「畫一條線」「寫幾個字」,GDI 負責在各種顯卡上實現。</figcaption>
+      </div>
+
+      <h2>1. 程式只管「要畫什麼」</h2>
+
+      <p>
+        有了 GDI,應用程式<strong>不必知道</strong>使用者裝的是哪張顯卡、解析度多少。它只要用一套<strong>標準的繪圖指令</strong>對 GDI 說:「幫我畫一條線」「在這裡寫幾個字」「畫一個矩形框」。<strong>怎麼畫</strong>是 GDI 的事。
+      </p>
+
+      <h2>2. GDI 管「怎麼畫到硬體上」</h2>
+
+      <p>
+        GDI 收到這些指令後,負責<strong>換算成實際的像素</strong>(<a href="lesson-32.html">第 32 課</a>),並<strong>處理不同顯卡的差異</strong>,把畫面真的呈現出來。換一張顯卡,只要有對應的驅動,程式<strong>完全不用改</strong>,畫出來還是一致。
+      </p>
+
+      <h2>3. 這就是「中間人」精神的延伸</h2>
+
+      <p>
+        你會發現,GDI 做的事,和 DOS 用 INT 21h 當「系統服務中間人」是<strong>同一種智慧</strong>(<a href="lesson-27.html">第 27 課</a>):
+      </p>
+
+      <ul>
+        <li><strong>統一介面</strong>:大家用同一套指令,不必各自為政。</li>
+        <li><strong>隱藏硬體差異</strong>:程式好寫,還能跨不同硬體。</li>
+        <li><strong>集中管理</strong>:由系統統一協調畫面,比較不會打架。</li>
+      </ul>
+
+      <p>
+        畫得出視窗之後,還有一個問題:使用者<strong>點了、按了</strong>,程式怎麼<strong>知道並回應</strong>?這要靠視窗程式的心臟——<strong>訊息迴圈</strong>(<a href="lesson-37.html">第 37 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          GDI 的思路——「你說要畫什麼,我來處理怎麼畫」——至今仍是所有圖形系統的基礎。它讓成千上萬的軟體開發者,不必去懂每一張顯卡。看到這種「加一層中間人、隱藏底層複雜」的設計反覆出現,你就摸到了軟體工程的一條主線。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>GDI 解決了什麼問題?</li>
+          <li>有了 GDI,應用程式為什麼不必管顯卡型號?</li>
+          <li>GDI 和 DOS 的 INT 21h 在精神上有什麼共通?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>視窗程式的心臟:訊息迴圈(message loop)</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：關鍵真相:早期 Windows 其實是「跑在 DOS 上的一支程式」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：視窗程式的心臟:訊息迴圈(message loop) →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

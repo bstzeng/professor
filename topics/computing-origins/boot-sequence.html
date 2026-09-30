@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互動開機流程 ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="從按下電源到進入系統,點「下一步」逐步看每一棒發生什麼:reset vector、BIOS、POST、開機磁區、載入 OS、啟動 Windows">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>互動開機流程</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>互動開機流程:一步步看電腦怎麼把自己叫醒</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <p>
+        開機看似一瞬間,其實是一連串「小程式載入大程式」的接力(<a href="lesson-13.html">第 13 課</a>)。這個互動小工具,讓你<strong>逐步</strong>走過每一棒,把<a href="lesson-18.html">第 18 課</a>的流程看得更清楚。
+      </p>
+
+      <div class="content-figure" style="text-align:left">
+        <p style="margin:0 0 12px">點<strong>下一步</strong>,一步步看電腦從按下電源到進入系統,每一棒發生了什麼。
+        這是把<a href="lesson-18.html">第 18 課</a>的開機一條龍,做成可以逐步點看的版本。</p>
+        <div id="bs-stage" style="display:flex;flex-direction:column;gap:8px;max-width:560px"></div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button id="bs-prev" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer">← 上一步</button>
+          <button id="bs-next" style="padding:7px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer">下一步 →</button>
+          <button id="bs-reset" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer">重來</button>
+          <span id="bs-count" style="color:var(--text-muted);font-size:0.9em"></span>
+        </div>
+        <div id="bs-detail" style="margin-top:14px;padding:14px 16px;border:1px solid var(--border);border-radius:10px;background:var(--surface);min-height:64px"></div>
+      </div>
+      <script>
+      (function () {
+        var steps = [
+          {t: '① 按下電源 / CPU 重置', d: '供電穩定後 CPU 重置,程式計數器指向一個「出廠寫死」的固定位址(reset vector)。這一步不靠任何軟體——起點是硬體本身規定的。'},
+          {t: '② BIOS 起跑', d: 'reset vector 對應到 ROM,於是燒在晶片裡的 BIOS 成為全機第一段被執行的程式。ROM 斷電不消失,所以開機瞬間它就在那裡。'},
+          {t: '③ POST 開機自檢', d: 'BIOS 先幫硬體做體檢:CPU、記憶體、顯示、鍵盤是否正常。早期螢幕可能還沒好,所以用「嗶」聲回報——一聲代表一切正常。'},
+          {t: '④ 尋找可開機的磁碟', d: 'BIOS 依設定的順序,找一顆「可以開機」的裝置(硬碟、軟碟、隨身碟…)。'},
+          {t: '⑤ 讀取開機磁區(512 位元組)', d: '把該磁碟最前面的 512 位元組(開機磁區)讀進記憶體,檢查結尾是不是暗號 55 AA。是,才相信「這顆碟真的能開機」。'},
+          {t: '⑥ 開機載入器接棒', d: '這一小段程式(開機載入器)接手,去把真正龐大的作業系統核心載入記憶體——典型的「小程式載入大程式」。'},
+          {t: '⑦ 作業系統接管(DOS)', d: 'OS 完成載入、接管全機。你看到 C:\> ,能用命令列、檔案系統與系統服務。到這裡,電腦才算真正「醒來」。'},
+          {t: '⑧ 啟動圖形環境(Windows)', d: '在 DOS 之上再啟動 Windows:用 GDI 畫視窗、用訊息迴圈回應操作、用保護模式掙脫 640K、用多工並存程式。最後你看見桌面。'}
+        ];
+        var cur = 0;
+        var stage = document.getElementById('bs-stage');
+        var detail = document.getElementById('bs-detail');
+        var count = document.getElementById('bs-count');
+        function render() {
+          stage.innerHTML = steps.map(function (s, i) {
+            var on = i <= cur;
+            var isNow = i === cur;
+            var bg = isNow ? 'var(--accent)' : (on ? 'var(--surface)' : 'var(--surface)');
+            var col = isNow ? '#fff' : (on ? 'var(--text)' : 'var(--text-muted)');
+            var bd = isNow ? 'var(--accent)' : 'var(--border)';
+            var op = on ? '1' : '0.5';
+            return '<div style="padding:9px 13px;border:1px solid ' + bd + ';border-radius:8px;background:' + bg +
+              ';color:' + col + ';opacity:' + op + ';font-size:0.95em;transition:all .15s">' + s.t + '</div>';
+          }).join('');
+          detail.innerHTML = '<strong>' + steps[cur].t + '</strong><br><span style="color:var(--text-muted)">' + steps[cur].d + '</span>';
+          count.textContent = '第 ' + (cur + 1) + ' / ' + steps.length + ' 步';
+          document.getElementById('bs-prev').disabled = (cur === 0);
+          document.getElementById('bs-next').disabled = (cur === steps.length - 1);
+        }
+        document.getElementById('bs-next').addEventListener('click', function () { if (cur < steps.length - 1) { cur++; render(); } });
+        document.getElementById('bs-prev').addEventListener('click', function () { if (cur > 0) { cur--; render(); } });
+        document.getElementById('bs-reset').addEventListener('click', function () { cur = 0; render(); });
+        render();
+      })();
+      </script>
+
+      <h2>看的時候可以留意</h2>
+
+      <ul>
+        <li><strong>前兩棒是「硬體起頭」</strong>:reset vector 與 BIOS 都不靠軟體,這正是雞生蛋問題的解法(<a href="lesson-15.html">第 15 課</a>)。</li>
+        <li><strong>中間每一棒都在「載入下一棒」</strong>:小而可靠的先跑,把大而複雜的逐步喚醒(<a href="lesson-17.html">第 17 課</a>)。</li>
+        <li><strong>最後兩棒才是我們熟悉的畫面</strong>:DOS 接管、再疊上 Windows 桌面(<a href="lesson-35.html">第 35 課</a>)。</li>
+      </ul>
+
+      <p>
+        提醒:這是<strong>簡化的示意流程</strong>,對應傳統 BIOS + DOS + Windows 的年代。現代電腦改用 UEFI、開機細節不同,但「一棒接一棒把自己叫醒」的大原則不變(<a href="lesson-42.html">第 42 課</a>)。
+      </p>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：512 位元組的接力棒:開機磁區(boot sector) ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="BIOS 這麼小,怎麼把龐大的作業系統搬進記憶體?靠一段中間人">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜開機的雞生蛋問題:電腦怎麼把自己叫醒 · 第 17 課</div>
+      <h1>512 位元組的接力棒:開機磁區(boot sector)</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識開機磁區與開機載入器</li>
+          <li>理解 512 位元組與 55 AA 標記</li>
+          <li>看懂「小程式載入大程式」的接力</li>
+        </ul>
+      </div>
+
+      <p>
+        POST 通過(<a href="lesson-16.html">第 16 課</a>),BIOS 準備載入作業系統。但這裡有個現實落差:<strong>作業系統很龐大,而 BIOS 很小、也不懂各種作業系統的細節</strong>。BIOS 的辦法是:不自己搬 OS,而是先讀一段<strong>「中間人」</strong>程式來接棒。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">512 位元組的接力棒:開機磁區</text>
+                <rect x="40" y="54" width="250" height="100" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="165" y="82" text-anchor="middle" font-size="11" fill="#5aa469">開機磁區 Boot Sector</text><text x="165" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">磁碟「最前面」的一小塊</text><text x="165" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">剛好 512 位元組</text><text x="165" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">裝著一小段開機程式</text><text x="165" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">結尾有標記 55 AA</text>
+                <rect x="350" y="54" width="260" height="100" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="480" y="82" text-anchor="middle" font-size="11" fill="#4a90c2">BIOS 怎麼用它</text><text x="480" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">POST 後,BIOS 找可開機的碟</text><text x="480" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">把這 512 位元組讀進記憶體</text><text x="480" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">檢查結尾是不是 55 AA</text><text x="480" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">是就跳過去執行它</text>
+                <text x="320" y="180" text-anchor="middle" font-size="10" fill="var(--accent)">這一小段程式(開機載入器)接棒,再去把「更大的作業系統」載入記憶體</text>
+                <text x="320" y="204" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">55 AA 像一個暗號:BIOS 靠它確認「這顆碟真的能開機」,不是隨便一塊資料</text>
+        </svg>
+        <figcaption>BIOS 把磁碟最前面 512 位元組(開機磁區)讀進記憶體,確認 55 AA 後跳去執行它。</figcaption>
+      </div>
+
+      <h2>1. 磁碟最前面的一小塊</h2>
+
+      <p>
+        每顆可開機的磁碟,<strong>最前面</strong>都有一塊特別的區域叫<strong>開機磁區</strong>(boot sector),傳統上大小剛好是 <strong>512 位元組</strong>。裡面裝著一小段程式,叫<strong>開機載入器</strong>(boot loader)。
+      </p>
+
+      <h2>2. BIOS 怎麼用它</h2>
+
+      <ol>
+        <li>BIOS 找到可開機的磁碟,把它的<strong>開機磁區(512 位元組)讀進記憶體</strong>。</li>
+        <li>檢查這 512 位元組的<strong>結尾是不是 <code>55 AA</code></strong> 這個特定標記。</li>
+        <li>是,就代表「這確實是一段開機程式」,BIOS 便<strong>跳過去執行它</strong>。</li>
+      </ol>
+
+      <h2>3. 為什麼要 55 AA 這個「暗號」</h2>
+
+      <p>
+        因為 BIOS 不能隨便把一塊資料當程式來跑——萬一那顆碟根本不能開機,就會出亂子。<strong><code>55 AA</code> 就像一個暗號</strong>:有這個標記,BIOS 才相信「這塊真的能開機」。沒有,就換下一顆碟試,或報「找不到開機裝置」。
+      </p>
+
+      <p>
+        這段小小的開機載入器接棒後,它的任務就是去把<strong>真正龐大的作業系統核心</strong>載入記憶體並交棒——於是 DOS、Windows 或其他 OS 才終於<strong>接管整台電腦</strong>。下一課,把這整條接力鏈從頭到尾串一次(<a href="lesson-18.html">第 18 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「小程式載入大程式」的接力,在生活裡也很常見:你先下載一個幾 MB 的「安裝器」,它再去下載幾 GB 的本體。為什麼不一步到位?因為「起頭的那一棒」必須小而可靠,才能保證一定跑得起來。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>開機磁區有多大?裡面放什麼?</li>
+          <li>BIOS 靠什麼標記確認「這顆碟能開機」?</li>
+          <li>為什麼要用「小程式載入大程式」的接力,而不直接載入 OS?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>從電源到作業系統:把開機一條龍串起來</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：開機自檢 POST:先確認硬體會動再說</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：從電源到作業系統:把開機一條龍串起來 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
