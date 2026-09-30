@@ -33,6 +33,7 @@ window.SITE_DATA = {
     { id: "biomed", label: "生命科學與醫學", icon: "🧬" },
     { id: "nobel", label: "諾貝爾獎", icon: "🏅" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
+    { id: "finance", label: "金融與經濟", icon: "💰" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
     { id: "anime", label: "動漫", icon: "🍥" },
@@ -12123,7 +12124,7 @@ window.SITE_DATA = {
     },
     {
       id: "national-debt",
-      category: "life",
+      category: "finance",
       title: "國債是什麼:美國國債為什麼一直創新高",
       description:
         "用中立、重機制的方式,拆解國債到底是什麼、赤字與債務的差別、錢花去哪、為什麼一直創新高(歷史、政治、人口、利率),以及聯準會、美元霸權、真正的風險與 r vs. g。最後談它和你的關係、破解常見迷思。附速查表與互動債務計算機。",
@@ -12328,6 +12329,126 @@ window.SITE_DATA = {
             { title: "完整時間軸:從電源鍵到 Windows 桌面的每一步", url: "topics/computing-origins/lesson-41.html" },
             { title: "這些老東西,為什麼今天還在你的電腦裡", url: "topics/computing-origins/lesson-42.html" },
             { title: "破解迷思與總整理:電腦如何無中生有啟動自己", url: "topics/computing-origins/lesson-43.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "stock-investing",
+      category: "finance",
+      title: "股票的本質:為什麼多數人會賠錢,以及怎麼建立正確的投資觀",
+      description:
+        "股票是公司的一小塊所有權。從股價怎麼來、三張財報、估值與安全邊際、市場怎麼運作講起,拆解多數人賠錢的原因(追高殺低、頻繁交易、明牌、槓桿、處分效應),建立投資、投機、賭博的界線與風險、複利、分散的觀念,再介紹指數化、定期定額、資產配置、價值與成長投資、存股等策略的優缺點。投資教育,非投資建議。附名詞速查與互動複利與成本計算機。",
+      icon: "📈",
+      url: "topics/stock-investing/index.html",
+      resources: [
+        {
+          title: "股票名詞速查表",
+          description: "EPS、本益比、殖利率、ROE、安全邊際、再平衡、費用率… 一頁看懂本課關鍵名詞,加上重點與常見迷思",
+          icon: "📇",
+          url: "topics/stock-investing/cheatsheet.html"
+        },
+        {
+          title: "互動複利與成本計算機",
+          description: "拉動投入金額、報酬率、費用率與年數,看複利如何累積、費用又會在長期吃掉多少",
+          icon: "🧮",
+          url: "topics/stock-investing/compound-calculator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜股票到底是什麼",
+          courses: [
+            { title: "股票=公司的一小塊所有權", url: "topics/stock-investing/lesson-01.html" },
+            { title: "公司為什麼要上市賣股票:募資與股東權利", url: "topics/stock-investing/lesson-02.html" },
+            { title: "股東賺錢只有兩種方式:股利與價差", url: "topics/stock-investing/lesson-03.html" },
+            { title: "股價怎麼決定:買賣雙方的撮合", url: "topics/stock-investing/lesson-04.html" },
+            { title: "股價 vs 公司價值:短期是投票機,長期是秤重機", url: "topics/stock-investing/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜看懂財報:公司的價值從哪來",
+          courses: [
+            { title: "三張財報總覽:一家公司的健康檢查報告", url: "topics/stock-investing/lesson-06.html" },
+            { title: "損益表:營收、毛利、營業利益、淨利", url: "topics/stock-investing/lesson-07.html" },
+            { title: "EPS 與本益比:判斷股價貴不貴的第一把尺", url: "topics/stock-investing/lesson-08.html" },
+            { title: "資產負債表:公司有多少家當、欠多少錢", url: "topics/stock-investing/lesson-09.html" },
+            { title: "現金流量表:帳上的獲利是真的嗎", url: "topics/stock-investing/lesson-10.html" },
+            { title: "ROE 與杜邦分析:公司用股東的錢賺得多有效率", url: "topics/stock-investing/lesson-11.html" },
+            { title: "常見財報警訊:哪些數字值得追問", url: "topics/stock-investing/lesson-12.html" },
+            { title: "護城河:好公司為什麼能一直賺", url: "topics/stock-investing/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜估值:多少錢才算便宜",
+          courses: [
+            { title: "本益比的陷阱:最賺錢的時候最危險", url: "topics/stock-investing/lesson-14.html" },
+            { title: "股價淨值比與殖利率:另外兩把尺與它們的陷阱", url: "topics/stock-investing/lesson-15.html" },
+            { title: "現金流折現的直覺:一家公司值多少錢", url: "topics/stock-investing/lesson-16.html" },
+            { title: "安全邊際:為估錯留下緩衝", url: "topics/stock-investing/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜市場怎麼運作",
+          courses: [
+            { title: "一筆交易的旅程:交易所、券商、下單與交割", url: "topics/stock-investing/lesson-18.html" },
+            { title: "大盤指數是什麼:加權指數、台灣 50、S&P 500", url: "topics/stock-investing/lesson-19.html" },
+            { title: "多頭、空頭與景氣循環", url: "topics/stock-investing/lesson-20.html" },
+            { title: "利率、通膨與股市的關係", url: "topics/stock-investing/lesson-21.html" },
+            { title: "市場有效嗎?為什麼消息很快就反映在股價上", url: "topics/stock-investing/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜為什麼很多人買了會賠錢",
+          courses: [
+            { title: "數據怎麼說:為什麼多數人跑輸大盤", url: "topics/stock-investing/lesson-23.html" },
+            { title: "追高殺低:恐懼與貪婪的循環", url: "topics/stock-investing/lesson-24.html" },
+            { title: "過度自信與頻繁交易:成本和錯誤一路累積", url: "topics/stock-investing/lesson-25.html" },
+            { title: "聽明牌、跟風與資訊落差", url: "topics/stock-investing/lesson-26.html" },
+            { title: "槓桿陷阱:融資、當沖、期貨與選擇權", url: "topics/stock-investing/lesson-27.html" },
+            { title: "損失趨避與處分效應:賺的急著賣、賠的死抱著", url: "topics/stock-investing/lesson-28.html" },
+            { title: "把投資當賭博:沒有計畫、沒有紀律", url: "topics/stock-investing/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜建立正確的價值觀",
+          courses: [
+            { title: "投資、投機、賭博:先把界線劃清楚", url: "topics/stock-investing/lesson-30.html" },
+            { title: "風險與報酬:沒有免費的午餐", url: "topics/stock-investing/lesson-31.html" },
+            { title: "複利:時間是最大的朋友", url: "topics/stock-investing/lesson-32.html" },
+            { title: "分散:不要把雞蛋放在同一個籃子", url: "topics/stock-investing/lesson-33.html" },
+            { title: "先顧好基本盤:預備金、保險、還清高利債", url: "topics/stock-investing/lesson-34.html" },
+            { title: "你的目標、投資期限與風險承受度", url: "topics/stock-investing/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜投資策略",
+          courses: [
+            { title: "指數化投資:買下整個市場", url: "topics/stock-investing/lesson-36.html" },
+            { title: "定期定額:不去猜高低點", url: "topics/stock-investing/lesson-37.html" },
+            { title: "資產配置與再平衡:股債比例怎麼決定", url: "topics/stock-investing/lesson-38.html" },
+            { title: "價值投資實作:用便宜的價格買好公司", url: "topics/stock-investing/lesson-39.html" },
+            { title: "成長投資:押注未來,以及它的代價", url: "topics/stock-investing/lesson-40.html" },
+            { title: "存股與股利策略:優點,以及「除權息不是白賺」", url: "topics/stock-investing/lesson-41.html" },
+            { title: "主動選股 vs 被動投資:成本與勝率", url: "topics/stock-investing/lesson-42.html" },
+            { title: "看懂「回測」與倖存者偏差", url: "topics/stock-investing/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜工具、成本與風險管理",
+          courses: [
+            { title: "ETF 是什麼:優點、費用率、追蹤誤差", url: "topics/stock-investing/lesson-44.html" },
+            { title: "成本會吃掉報酬:手續費、稅、內扣費用", url: "topics/stock-investing/lesson-45.html" },
+            { title: "風險管理:部位大小、停損的角色、不借錢投資", url: "topics/stock-investing/lesson-46.html" },
+            { title: "怎麼判斷資訊:財報、新聞與投顧話術", url: "topics/stock-investing/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜綜合",
+          courses: [
+            { title: "寫出你自己的投資計畫書", url: "topics/stock-investing/lesson-48.html" },
+            { title: "市場大跌時該怎麼辦", url: "topics/stock-investing/lesson-49.html" },
+            { title: "破解常見迷思與總整理", url: "topics/stock-investing/lesson-50.html" },
           ],
         },
       ],

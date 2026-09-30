@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互動複利與成本計算機 ｜ 股票的本質 ｜ 博雅書院</title>
+<meta name="description" content="拉動投入金額、報酬率、費用率與年數,看複利如何累積、費用又會在長期吃掉多少">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">股票的本質</a>
+      <span class="sep">/</span>
+      <span>互動複利與成本計算機</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>互動複利與成本計算機:時間與費用的威力</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <p>
+        這個簡化的教學模型,讓你親手體會兩件事:<strong>時間</strong>如何讓複利越滾越大(<a href="lesson-32.html">第 32 課</a>),以及看似很小的<strong>費用率</strong>,長期會吃掉多少(<a href="lesson-45.html">第 45 課</a>)。
+      </p>
+
+      <div class="content-figure" style="text-align:left">
+        <p style="margin:0 0 12px">拉動下面的滑桿,看<strong>時間、報酬率和費用</strong>如何影響最後的金額。
+        這是<strong>教學用的簡化模型</strong>:假設每年報酬固定,實際市場每年漲跌不一,也沒有計入稅與通膨。</p>
+        <div style="display:grid;grid-template-columns:1fr;gap:14px;max-width:520px">
+          <label>一開始投入:<b id="cc-p-v"></b>
+            <input type="range" id="cc-p" min="0" max="300" step="5" value="0" style="width:100%"></label>
+          <label>每月投入:<b id="cc-m-v"></b>
+            <input type="range" id="cc-m" min="0" max="30000" step="1000" value="5000" style="width:100%"></label>
+          <label>假設年報酬率(扣費用前):<b id="cc-r-v"></b>
+            <input type="range" id="cc-r" min="0" max="12" step="0.5" value="6" style="width:100%"></label>
+          <label>每年費用率:<b id="cc-f-v"></b>
+            <input type="range" id="cc-f" min="0" max="3" step="0.1" value="1" style="width:100%"></label>
+          <label>投資年數:<b id="cc-y-v"></b>
+            <input type="range" id="cc-y" min="1" max="40" step="1" value="30" style="width:100%"></label>
+        </div>
+        <div id="cc-chart" style="margin-top:16px"></div>
+        <div id="cc-out" style="margin-top:10px;line-height:1.9"></div>
+      </div>
+      <script>
+      (function () {
+        function v(id) { return parseFloat(document.getElementById('cc-' + id).value); }
+        function wan(x) { return (x / 10000).toFixed(x >= 1000000 ? 0 : 1) + ' 萬'; }
+        function run(rate) {
+          var bal = v('p') * 10000, m = v('m'), yrs = v('y');
+          var rm = Math.pow(1 + rate, 1 / 12) - 1;
+          var pts = [bal];
+          for (var k = 1; k <= yrs * 12; k++) {
+            bal = bal * (1 + rm) + m;
+            if (k % 12 === 0) pts.push(bal);
+          }
+          return pts;
+        }
+        function draw() {
+          var r = v('r') / 100, f = v('f') / 100, yrs = v('y');
+          document.getElementById('cc-p-v').textContent = v('p') + ' 萬';
+          document.getElementById('cc-m-v').textContent = v('m').toLocaleString() + ' 元';
+          document.getElementById('cc-r-v').textContent = v('r').toFixed(1) + '%';
+          document.getElementById('cc-f-v').textContent = v('f').toFixed(1) + '%';
+          document.getElementById('cc-y-v').textContent = yrs + ' 年';
+          var gross = run(r), net = run(r - f), paid = [];
+          for (var i = 0; i <= yrs; i++) paid.push(v('p') * 10000 + v('m') * 12 * i);
+          var top = Math.max(gross[yrs], paid[yrs], 1);
+          var W = 520, H = 230, L = 58, B = 26, T = 12, Rr = 12;
+          var pw = W - L - Rr, ph = H - T - B;
+          function sx(i) { return L + (yrs === 0 ? 0 : i / yrs * pw); }
+          function sy(x) { return T + ph - x / top * ph; }
+          function path(a) { return 'M' + a.map(function (x, i) { return sx(i).toFixed(1) + ' ' + sy(x).toFixed(1); }).join(' L'); }
+          var grid = '';
+          for (var g = 0; g <= 4; g++) {
+            var val = top * g / 4;
+            grid += '<line x1="' + L + '" y1="' + sy(val) + '" x2="' + (W - Rr) + '" y2="' + sy(val) + '" stroke="var(--border)" stroke-width="0.6"/>';
+            grid += '<text x="' + (L - 6) + '" y="' + (sy(val) + 3) + '" text-anchor="end" font-size="9" fill="var(--text-muted)">' + Math.round(val / 10000) + '萬</text>';
+          }
+          var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;max-width:520px;border:1px solid var(--border);border-radius:8px;background:var(--surface)">' + grid +
+            '<path d="' + path(paid) + '" fill="none" stroke="#8a8f98" stroke-width="2" stroke-dasharray="5 4"/>' +
+            '<path d="' + path(gross) + '" fill="none" stroke="#5aa469" stroke-width="2.5"/>' +
+            '<path d="' + path(net) + '" fill="none" stroke="#e0605a" stroke-width="2.5"/>' +
+            '<text x="' + L + '" y="' + (H - 7) + '" font-size="9" fill="var(--text-muted)">現在</text>' +
+            '<text x="' + (W - Rr) + '" y="' + (H - 7) + '" text-anchor="end" font-size="9" fill="var(--text-muted)">' + yrs + ' 年後</text>' +
+            '</svg>';
+          document.getElementById('cc-chart').innerHTML = svg;
+          var lost = gross[yrs] - net[yrs];
+          document.getElementById('cc-out').innerHTML =
+            '<span style="color:#8a8f98">▬ 自己投入的本金:<b>' + wan(paid[yrs]) + '</b></span><br>' +
+            '<span style="color:#5aa469">▬ 沒有費用時:<b>' + wan(gross[yrs]) + '</b></span><br>' +
+            '<span style="color:#e0605a">▬ 扣掉 ' + v('f').toFixed(1) + '% 年費用後:<b>' + wan(net[yrs]) + '</b></span><br>' +
+            '費用總共讓你少了約 <b>' + wan(lost) + '</b>' +
+            (gross[yrs] > 0 ? '(約 ' + (lost / gross[yrs] * 100).toFixed(0) + '%)' : '') + '。';
+        }
+        ['p', 'm', 'r', 'f', 'y'].forEach(function (id) { document.getElementById('cc-' + id).addEventListener('input', draw); });
+        draw();
+      })();
+      </script>
+
+      <h2>幾個值得試的情境</h2>
+
+      <ul>
+        <li><strong>只改年數</strong>:把 20 年拉到 30 年、40 年,看最後十年多出多少——複利的後段加速(<a href="lesson-32.html">第 32 課</a>)。</li>
+        <li><strong>只改費用率</strong>:從 0.2% 拉到 1.5%,看 30 年後差多少(<a href="lesson-42.html">第 42 課</a>)。</li>
+        <li><strong>晚十年開始</strong>:把年數減少 10 年,但每月投入加倍,看能不能追上(<a href="lesson-32.html">第 32 課</a>)。</li>
+        <li><strong>報酬率調低</strong>:試試 3%~4% 的保守假設,檢查你的計畫在較差情況下是否仍可接受(<a href="lesson-35.html">第 35 課</a>)。</li>
+      </ul>
+
+      <p>
+        提醒:真實市場<strong>每年報酬都不同</strong>,可能連續虧損好幾年;本工具使用固定報酬率,只用來建立直覺,<strong>不是報酬預測</strong>,也不構成投資建議。
+      </p>
+
+      <p style="color:var(--text-muted);font-size:0.9em">📈 本課為<strong>投資教育,不是投資建議</strong>,不推薦任何個股或金融商品;文中的報酬率、稅費與數字是<strong>概略值或歷史示意</strong>,過去績效不代表未來,稅制與交易規則請以主管機關與券商最新公告為準。投資有風險,請依自身狀況判斷。</p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
