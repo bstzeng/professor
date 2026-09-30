@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：邏輯合成：Verilog 怎麼變成數百萬個邏輯閘 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="這一步回答了「程式碼能不能直接變成電路」——可以，而且每天都在發生">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜前端：從規格到邏輯電路 · 第 17 課</div>
+      <h1>邏輯合成：Verilog 怎麼變成數百萬個邏輯閘</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出邏輯合成的主要步驟</li>
+          <li>理解限制條件（SDC）的角色</li>
+          <li>理解 PPA 的取捨與等價性檢查</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>邏輯合成</strong>是把 RTL 自動轉換成由標準元件組成的電路（<strong>gate-level netlist</strong>）的過程。它是讓現代大型數位晶片成為可能的關鍵自動化步驟之一。
+      </p>
+
+      <h2>1. 合成的步驟</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">邏輯合成：RTL → 最佳化 → 對應到元件庫</text>
+                <rect x="20" y="36" width="99.2" height="56" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="69.6" y="60" text-anchor="middle" font-size="11" fill="var(--accent)">RTL</text><text x="69.6" y="74" text-anchor="middle" font-size="9" fill="var(--text-muted)">Verilog</text><line x1="122.2" y1="64.0" x2="135.2" y2="64.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="142.2,64.0 135.2,67.5 135.2,60.5" fill="var(--border)"/><rect x="145.2" y="36" width="99.2" height="56" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="194.8" y="60" text-anchor="middle" font-size="11" fill="var(--accent)">轉譯</text><text x="194.8" y="74" text-anchor="middle" font-size="9" fill="var(--text-muted)">通用邏輯</text><line x1="247.4" y1="64.0" x2="260.4" y2="64.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="267.4,64.0 260.4,67.5 260.4,60.5" fill="var(--border)"/><rect x="270.4" y="36" width="99.2" height="56" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="320" y="60" text-anchor="middle" font-size="11" fill="var(--gold)">邏輯最佳化</text><text x="320" y="74" text-anchor="middle" font-size="9" fill="var(--text-muted)">化簡、共用</text><line x1="372.6" y1="64.0" x2="385.6" y2="64.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="392.6,64.0 385.6,67.5 385.6,60.5" fill="var(--border)"/><rect x="395.6" y="36" width="99.2" height="56" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="445.2" y="60" text-anchor="middle" font-size="11" fill="var(--gold)">技術對應</text><text x="445.2" y="74" text-anchor="middle" font-size="9" fill="var(--text-muted)">挑選 .lib 元件</text><line x1="497.8" y1="64.0" x2="510.8" y2="64.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="517.8,64.0 510.8,67.5 510.8,60.5" fill="var(--border)"/><rect x="520.8" y="36" width="99.2" height="56" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="570.4" y="60" text-anchor="middle" font-size="11" fill="#5aa469">Netlist</text><text x="570.4" y="74" text-anchor="middle" font-size="9" fill="var(--text-muted)">元件＋連線</text>
+                <text x="320" y="128" text-anchor="middle" font-size="9.5" fill="var(--text)">輸入：RTL ＋ 元件庫（.lib）＋ 限制條件（SDC：時脈頻率、I/O 延遲…）</text>
+                <text x="320" y="156" text-anchor="middle" font-size="11" fill="var(--accent)">工具在三個目標之間取捨：PPA</text>
+                <text x="140" y="184" text-anchor="middle" font-size="10" fill="#e0605a">Performance 效能</text>
+                <text x="320" y="184" text-anchor="middle" font-size="10" fill="var(--gold)">Power 功耗</text>
+                <text x="500" y="184" text-anchor="middle" font-size="10" fill="#4a90c2">Area 面積</text>
+                <text x="320" y="216" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">一行 a*b，合成後可能變成上千個邏輯閘</text>
+        </svg>
+        <figcaption>邏輯合成：從 RTL 經過最佳化與技術對應，產生標準元件的 netlist。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>步驟</th><th>做什麼</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>轉譯（elaboration）</td><td>讀懂 RTL，轉成通用的邏輯表示（還沒對應到具體元件）</td></tr>
+          <tr><td>邏輯最佳化</td><td>化簡布林式（<a href="../electronics/lesson-51.html">《電子電路完整課程》第 51 課</a>）、合併重複的邏輯、移除用不到的電路</td></tr>
+          <tr><td>技術對應（mapping）</td><td>從元件庫中挑選實際的元件來實現邏輯</td></tr>
+          <tr><td>時序最佳化</td><td>調整元件尺寸、重組邏輯結構，讓關鍵路徑趕得上時脈</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 限制條件：告訴工具你的目標</h2>
+
+      <p>
+        同一段 RTL 可以合成出無數種電路。工具需要知道目標，這些資訊寫在 <strong>SDC</strong>（Synopsys Design Constraints）檔案中：時脈週期是多少、輸入訊號多晚才會到、輸出要多早準備好、哪些路徑不用檢查等。SDC 會一路被沿用到後端與簽核，是整個流程中非常關鍵的檔案。
+      </p>
+
+      <h2>3. PPA：三個互相拉扯的目標</h2>
+
+      <p>
+        合成的核心是在 <strong>Performance（效能）、Power（功耗）、Area（面積）</strong>之間取捨。例如一個 32 位元加法器，可以用面積小但慢的漣波進位結構，也可以用又大又快的超前進位結構——工具會根據時序要求自動選擇。
+      </p>
+
+      <h2>4. 合成後的檢查</h2>
+
+      <p>
+        合成完成後，會用<strong>等價性檢查</strong>（<a href="lesson-16.html">第 16 課</a>）確認 netlist 的邏輯與 RTL 完全相同，再做初步的時序分析。此時還沒有真實的擺放與繞線，工具只能用估計的線長來算延遲，所以合成階段的時序結果只是參考，真正的考驗在後端（<a href="lesson-20.html">第 20 課</a>）。
+      </p>
+
+      <p>
+        近年的合成工具也會考慮實體資訊（例如大致的擺放位置），讓估計更準，稱為<strong>實體感知合成</strong>。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          業界最主要的合成工具包括 Synopsys 的 Design Compiler／Fusion Compiler、Cadence 的 Genus；開源領域則有 Yosys，常與 OpenROAD 搭配用於學術與開源晶片專案。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>邏輯合成的輸入與輸出分別是什麼？</li>
+          <li>SDC 檔案裡描述了什麼？</li>
+          <li>為什麼合成階段的時序結果只是參考？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>高階合成（HLS）：C 語言怎麼變成電路</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：功能驗證：為什麼驗證工程師比設計工程師多</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：高階合成（HLS）：C 語言怎麼變成電路 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

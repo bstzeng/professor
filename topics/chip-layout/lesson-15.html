@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：RTL 設計：用 Verilog 描述硬體 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="Verilog 看起來像程式，但它描述的是同時存在的電路">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜前端：從規格到邏輯電路 · 第 15 課</div>
+      <h1>RTL 設計：用 Verilog 描述硬體</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 RTL（暫存器傳輸層級）的意思</li>
+          <li>分辨軟體程式與硬體描述語言的根本差異</li>
+          <li>認識可合成的 Verilog 基本寫法</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>RTL</strong>（Register Transfer Level）描述的是：資料在每一個時脈週期，如何從一組暫存器（正反器）經過組合邏輯，傳到下一組暫存器。最常用的語言是 <strong>Verilog／SystemVerilog</strong> 與 <strong>VHDL</strong>。
+      </p>
+
+      <h2>1. 程式與電路的根本差異</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 255" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">軟體 vs 硬體描述：同樣的 a + b</text>
+                <rect x="20" y="40" width="290" height="170" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="165" y="62" text-anchor="middle" font-size="11" fill="var(--accent)">C 程式：依序執行的指令</text>
+                <text x="40" y="92" text-anchor="start" font-size="10" fill="var(--text)">sum = a + b;</text>
+                <text x="40" y="116" text-anchor="start" font-size="9.5" fill="var(--text-muted)">→ CPU 在某個時間點</text>
+                <text x="40" y="134" text-anchor="start" font-size="9.5" fill="var(--text-muted)">   用它的 ALU 算一次加法</text>
+                <text x="40" y="162" text-anchor="start" font-size="10" fill="var(--text)">for 迴圈 100 次</text>
+                <text x="40" y="184" text-anchor="start" font-size="9.5" fill="var(--text-muted)">→ 同一個 ALU 算 100 次</text>
+                <rect x="330" y="40" width="290" height="170" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="475" y="62" text-anchor="middle" font-size="11" fill="#5aa469">Verilog：同時存在的電路</text>
+                <text x="350" y="92" text-anchor="start" font-size="10" fill="var(--text)">always @(posedge clk)</text>
+                <text x="350" y="108" text-anchor="start" font-size="10" fill="var(--text)">  sum &lt;= a + b;</text>
+                <text x="350" y="134" text-anchor="start" font-size="9.5" fill="var(--text-muted)">→ 晶片上放一個實體加法器</text>
+                <text x="350" y="162" text-anchor="start" font-size="10" fill="var(--text)">generate 迴圈 100 次</text>
+                <text x="350" y="184" text-anchor="start" font-size="9.5" fill="var(--text-muted)">→ 放 100 個加法器，同時運算</text>
+                <text x="320" y="238" text-anchor="middle" font-size="10" fill="var(--accent)">寫 RTL 的人腦中想的是電路；程式碼只是用文字來「畫」它</text>
+        </svg>
+        <figcaption>同樣的 a + b：軟體是執行一次加法，硬體是放一個加法器。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th></th><th>軟體（C、Python）</th><th>硬體描述（Verilog）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>描述的是</td><td>一步一步的指令</td><td>同時存在的電路結構</td></tr>
+          <tr><td>執行</td><td>CPU 依序執行</td><td>所有電路同時在運作</td></tr>
+          <tr><td>a + b</td><td>執行一次加法</td><td>放一個實體的加法器</td></tr>
+          <tr><td>迴圈</td><td>重複執行</td><td>通常代表複製很多份電路</td></tr>
+          <tr><td>變數</td><td>記憶體中的值</td><td>一條線或一組正反器</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 兩種基本寫法</h2>
+
+      <div class="code-block">// 組合邏輯：輸出隨時跟著輸入變
+assign y = (a &amp; b) | c;
+
+// 序向邏輯：在時脈上升緣更新
+always @(posedge clk) begin
+  if (reset) count &lt;= 0;
+  else       count &lt;= count + 1;
+end</div>
+
+      <p>
+        第一段會被合成成幾個邏輯閘；第二段會變成一組正反器加上一個加法器——一個計數器。
+      </p>
+
+      <h2>3. 可合成的子集</h2>
+
+      <p>
+        Verilog 原本也用來寫測試與模擬，其中有些語法（例如 <code>#10</code> 這種延遲、檔案讀寫、某些迴圈寫法）在真實電路中沒有對應物，<strong>不能被合成</strong>。設計者必須遵守可合成的寫法與團隊的程式規範，否則可能出現「模擬時對、做成電路卻錯」的情況。
+      </p>
+
+      <h2>4. 好的 RTL 決定好的 layout</h2>
+
+      <p>
+        RTL 寫法直接影響後端：過深的組合邏輯會讓時序難以收斂，龐大的多工器會讓繞線擁擠。有經驗的 RTL 設計者會「想著 layout 寫程式碼」，例如適當地切割管線、避免不必要的大扇出。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          AI 產生 Verilog 是近年熱門的研究方向，大型語言模型已能寫出簡單的模組；但在正確性、時序與可驗證性上仍有很大挑戰，目前主要作為工程師的輔助工具。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RTL 中的「R」和「T」代表什麼？</li>
+          <li>用「迴圈」說明軟體和硬體描述的差異</li>
+          <li>為什麼有些 Verilog 語法不能被合成？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>功能驗證：為什麼驗證工程師比設計工程師多</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：規格與架構：決定要做什麼、分成哪些區塊</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：功能驗證：為什麼驗證工程師比設計工程師多 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

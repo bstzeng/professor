@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：元件的規格書：時序模型、抽象圖與 PVT ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="工具不看電晶體，只看元件的「規格書」——而這份規格書有好幾種版本">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜標準元件庫：數位設計的樂高積木 · 第 12 課</div>
+      <h1>元件的規格書：時序模型、抽象圖與 PVT</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識標準元件的各種視圖：GDS、LEF、.lib</li>
+          <li>理解時序模型如何描述延遲</li>
+          <li>理解 PVT corner 的意義</li>
+        </ul>
+      </div>
+
+      <p>
+        一個標準元件不只是一張 layout。為了讓不同階段的工具使用，它會有好幾種「視圖」，每一種只保留該工具需要的資訊。
+      </p>
+
+      <h2>1. 元件的多種視圖</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 280" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個標準元件庫包含的「視圖」</text>
+                <circle cx="320" cy="140" r="50" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="320" y="136" text-anchor="middle" font-size="11" fill="var(--accent)">一個元件</text>
+                <text x="320" y="152" text-anchor="middle" font-size="9" fill="var(--text-muted)">NAND2_X1</text>
+                <rect x="20" y="40" width="190" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="115" y="61" text-anchor="middle" font-size="11" fill="#5aa469">Layout（GDS）</text><text x="115" y="75" text-anchor="middle" font-size="9" fill="var(--text-muted)">完整的多邊形，給製造用</text>
+                <rect x="430" y="40" width="190" height="50" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="525" y="61" text-anchor="middle" font-size="11" fill="#4a90c2">抽象圖（LEF）</text><text x="525" y="75" text-anchor="middle" font-size="9" fill="var(--text-muted)">外框、pin 位置、擋住的區域</text>
+                <rect x="20" y="190" width="190" height="50" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="115" y="211" text-anchor="middle" font-size="11" fill="var(--gold)">時序／功耗（.lib）</text><text x="115" y="225" text-anchor="middle" font-size="9" fill="var(--text-muted)">延遲、功耗、輸入電容表</text>
+                <rect x="430" y="190" width="190" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="525" y="211" text-anchor="middle" font-size="11" fill="#9c89d6">電路與模擬模型</text><text x="525" y="225" text-anchor="middle" font-size="9" fill="var(--text-muted)">SPICE netlist、Verilog 模型</text>
+                <line x1="212.0" y1="70.0" x2="266.5" y2="113.6" stroke="var(--border)" stroke-width="1.5"/><polygon points="272.0,118.0 264.3,116.4 268.7,110.9" fill="var(--border)"/>
+                <line x1="428.0" y1="70.0" x2="373.5" y2="113.6" stroke="var(--border)" stroke-width="1.5"/><polygon points="368.0,118.0 371.3,110.9 375.7,116.4" fill="var(--border)"/>
+                <line x1="212.0" y1="210.0" x2="266.5" y2="166.4" stroke="var(--border)" stroke-width="1.5"/><polygon points="272.0,162.0 268.7,169.1 264.3,163.6" fill="var(--border)"/>
+                <line x1="428.0" y1="210.0" x2="373.5" y2="166.4" stroke="var(--border)" stroke-width="1.5"/><polygon points="368.0,162.0 375.7,163.6 371.3,169.1" fill="var(--border)"/>
+                <text x="320" y="268" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">不同工具只需要其中一部分：合成看 .lib、擺放繞線看 LEF、最後合併 GDS</text>
+        </svg>
+        <figcaption>同一個元件的多種視圖，分別給不同的工具使用。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>檔案</th><th>內容</th><th>誰在用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>GDS</td><td>完整的 layout 多邊形</td><td>最後合併成整顆晶片的 GDSII</td></tr>
+          <tr><td>LEF</td><td>元件外框大小、pin 的位置與層、內部不能走線的區域</td><td>擺放與繞線工具</td></tr>
+          <tr><td>.lib（Liberty）</td><td>邏輯功能、延遲、轉換時間、功耗、輸入電容</td><td>合成、時序分析、功耗分析</td></tr>
+          <tr><td>Verilog 模型</td><td>邏輯行為</td><td>邏輯模擬</td></tr>
+          <tr><td>SPICE netlist</td><td>電晶體層級電路</td><td>LVS 檢查、電路模擬</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 延遲不是一個數字</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">.lib 裡的延遲表：輸入轉換時間 × 輸出負載</text>
+                <rect x="120" y="60" width="400" height="150" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="90" y="50" text-anchor="start" font-size="9.5" fill="var(--text-muted)">輸入轉換時間 →</text>
+                <text x="100" y="100" text-anchor="end" font-size="9.5" fill="var(--text-muted)">輸出負載 ↓</text>
+                <text x="210" y="80" text-anchor="middle" font-size="9.5" fill="var(--accent)">10 ps</text>
+                <text x="310" y="80" text-anchor="middle" font-size="9.5" fill="var(--accent)">50 ps</text>
+                <text x="410" y="80" text-anchor="middle" font-size="9.5" fill="var(--accent)">200 ps</text>
+                <text x="150" y="120" text-anchor="middle" font-size="9.5" fill="var(--accent)">1 fF</text>
+                <text x="150" y="155" text-anchor="middle" font-size="9.5" fill="var(--accent)">5 fF</text>
+                <text x="150" y="190" text-anchor="middle" font-size="9.5" fill="var(--accent)">20 fF</text>
+                <text x="210" y="120" text-anchor="middle" font-size="10" fill="var(--text-muted)">12</text>
+                <text x="310" y="120" text-anchor="middle" font-size="10" fill="var(--text-muted)">18</text>
+                <text x="410" y="120" text-anchor="middle" font-size="10" fill="var(--text-muted)">40</text>
+                <text x="210" y="155" text-anchor="middle" font-size="10" fill="var(--text-muted)">20</text>
+                <text x="310" y="155" text-anchor="middle" font-size="10" fill="var(--text-muted)">26</text>
+                <text x="410" y="155" text-anchor="middle" font-size="10" fill="var(--text-muted)">49</text>
+                <text x="210" y="190" text-anchor="middle" font-size="10" fill="#e0605a">52</text>
+                <text x="310" y="190" text-anchor="middle" font-size="10" fill="#e0605a">58</text>
+                <text x="410" y="190" text-anchor="middle" font-size="10" fill="#e0605a">85</text>
+                <text x="320" y="236" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">延遲（ps）隨輸入越慢、負載越重而變大（數值為示意）；工具在格點之間做內插</text>
+                <text x="320" y="256" text-anchor="middle" font-size="9.5" fill="var(--gold)">同一張表會為每一種 PVT 條件各做一份</text>
+        </svg>
+        <figcaption>延遲表（NLDM）示意：工具依實際的輸入轉換時間與負載內插出延遲。</figcaption>
+      </div>
+
+      <p>
+        一個邏輯閘的延遲，取決於兩件事：輸入訊號變化得多快（<strong>轉換時間</strong>），以及輸出要推動多少電容（<strong>負載</strong>）。所以 .lib 用一張二維表格描述延遲，工具再根據實際情況內插。
+      </p>
+
+      <h2>3. PVT：同一個元件，不同的世界</h2>
+
+      <table>
+        <thead>
+          <tr><th>變數</th><th>意思</th><th>影響</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>P（Process）製程</td><td>同一批晶圓上，電晶體會有快有慢</td><td>分成 fast、typical、slow 等 corner</td></tr>
+          <tr><td>V（Voltage）電壓</td><td>供電電壓會有波動</td><td>電壓低 → 變慢</td></tr>
+          <tr><td>T（Temperature）溫度</td><td>從低溫到高溫</td><td>傳統上高溫較慢；先進製程有時低溫反而更慢</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        晶片必須在<strong>所有可能的條件組合</strong>下都能正常工作，所以元件庫要為多個 PVT 條件（corner）各做一份 .lib。時序分析時，工具會在最慢的條件下檢查「來不來得及」，在最快的條件下檢查「會不會太快」（<a href="lesson-31.html">第 31 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          Liberty（.lib）格式最早由 Synopsys 制定，後來成為業界通用的開放格式；LEF／DEF 則源自 Cadence。這些格式是不同公司的工具能互相搭配的基礎。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LEF 和 GDS 有什麼不同？為什麼繞線工具只需要 LEF？</li>
+          <li>為什麼元件的延遲要用一張表格而不是一個數字來描述？</li>
+          <li>PVT 的三個字母各代表什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>為什麼同一個 AND 閘要做十種大小：驅動能力的取捨</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：元件庫裡有什麼：邏輯閘、正反器、緩衝器與填充元件</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：為什麼同一個 AND 閘要做十種大小：驅動能力的取捨 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

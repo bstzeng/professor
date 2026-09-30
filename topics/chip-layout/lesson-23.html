@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：Placement：數百萬個元件怎麼自動擺放 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="把數百萬個積木放進格子裡，還要讓相連的積木盡量靠近">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜後端（一）：規劃與擺放 · 第 23 課</div>
+      <h1>Placement：數百萬個元件怎麼自動擺放</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出擺放的主要階段</li>
+          <li>理解擺放的目標與彼此的衝突</li>
+          <li>理解擁擠度（congestion）的意義</li>
+        </ul>
+      </div>
+
+      <p>
+        Floorplan 決定了大方向之後，接著要把 netlist 裡數百萬到上億個標準元件，放進一列列的元件列中。這是一個極大規模的最佳化問題，靠的是數十年發展出來的演算法。
+      </p>
+
+      <h2>1. 三個階段</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Placement：從全域擺放到合法化</text>
+                <rect x="20" y="44" width="180" height="160" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="110" y="36" text-anchor="middle" font-size="10" fill="var(--accent)">① 全域擺放</text>
+                <circle cx="60" cy="80" r="5" fill="var(--accent)" fill-opacity="0.6" stroke="var(--accent)" stroke-width="1.5"/>
+                <circle cx="72" cy="86" r="5" fill="var(--accent)" fill-opacity="0.6" stroke="var(--accent)" stroke-width="1.5"/>
+                <circle cx="66" cy="96" r="5" fill="var(--accent)" fill-opacity="0.6" stroke="var(--accent)" stroke-width="1.5"/>
+                <circle cx="140" cy="150" r="5" fill="#5aa469" fill-opacity="0.6" stroke="#5aa469" stroke-width="1.5"/>
+                <circle cx="150" cy="160" r="5" fill="#5aa469" fill-opacity="0.6" stroke="#5aa469" stroke-width="1.5"/>
+                <circle cx="160" cy="146" r="5" fill="#5aa469" fill-opacity="0.6" stroke="#5aa469" stroke-width="1.5"/>
+                <circle cx="110" cy="120" r="5" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1.5"/>
+                <circle cx="100" cy="112" r="5" fill="var(--gold)" fill-opacity="0.6" stroke="var(--gold)" stroke-width="1.5"/>
+                <text x="110" y="222" text-anchor="middle" font-size="9" fill="var(--text-muted)">相連的元件拉近，允許重疊</text>
+                <rect x="230" y="44" width="180" height="160" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="320" y="36" text-anchor="middle" font-size="10" fill="var(--accent)">② 合法化</text>
+                <path d="M230 84 L410 84 M230 124 L410 124 M230 164 L410 164" fill="none" stroke="var(--border)" stroke-width="1"/>
+                <rect x="250" y="64" width="14" height="20" rx="0" fill="var(--accent)" fill-opacity="0.5" stroke="var(--accent)" stroke-width="1"/>
+                <rect x="264" y="64" width="14" height="20" rx="0" fill="var(--accent)" fill-opacity="0.5" stroke="var(--accent)" stroke-width="1"/>
+                <rect x="278" y="64" width="14" height="20" rx="0" fill="var(--accent)" fill-opacity="0.5" stroke="var(--accent)" stroke-width="1"/>
+                <rect x="310" y="104" width="20" height="20" rx="0" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="330" y="104" width="14" height="20" rx="0" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="360" y="144" width="14" height="20" rx="0" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <rect x="374" y="144" width="14" height="20" rx="0" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <rect x="388" y="144" width="14" height="20" rx="0" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <text x="320" y="222" text-anchor="middle" font-size="9" fill="var(--text-muted)">對齊元件列、不重疊</text>
+                <rect x="440" y="44" width="180" height="160" rx="4" fill="var(--surface)" stroke="var(--border)" stroke-width="1.2"/>
+                <text x="530" y="36" text-anchor="middle" font-size="10" fill="var(--accent)">③ 擁擠度地圖</text>
+                <rect x="450" y="54" width="50" height="45" rx="0" fill="#5aa469" fill-opacity="0.25" stroke="#5aa469" stroke-width="0"/>
+                <rect x="500" y="54" width="50" height="45" rx="0" fill="var(--gold)" fill-opacity="0.35" stroke="var(--gold)" stroke-width="0"/>
+                <rect x="550" y="54" width="60" height="45" rx="0" fill="#5aa469" fill-opacity="0.25" stroke="#5aa469" stroke-width="0"/>
+                <rect x="450" y="99" width="50" height="45" rx="0" fill="var(--gold)" fill-opacity="0.35" stroke="var(--gold)" stroke-width="0"/>
+                <rect x="500" y="99" width="50" height="45" rx="0" fill="#e0605a" fill-opacity="0.5" stroke="#e0605a" stroke-width="0"/>
+                <rect x="550" y="99" width="60" height="45" rx="0" fill="var(--gold)" fill-opacity="0.35" stroke="var(--gold)" stroke-width="0"/>
+                <rect x="450" y="144" width="50" height="50" rx="0" fill="#5aa469" fill-opacity="0.25" stroke="#5aa469" stroke-width="0"/>
+                <rect x="500" y="144" width="50" height="50" rx="0" fill="var(--gold)" fill-opacity="0.35" stroke="var(--gold)" stroke-width="0"/>
+                <rect x="550" y="144" width="60" height="50" rx="0" fill="#5aa469" fill-opacity="0.25" stroke="#5aa469" stroke-width="0"/>
+                <text x="530" y="222" text-anchor="middle" font-size="9" fill="#e0605a">紅色＝繞線需求超過容量</text>
+                <text x="320" y="254" text-anchor="middle" font-size="10" fill="var(--text)">目標：總線長短、時序好、不擁擠——三者常常互相衝突</text>
+        </svg>
+        <figcaption>擺放的三個畫面：全域擺放、合法化，以及用來評估的擁擠度地圖。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>階段</th><th>做什麼</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>全域擺放</td><td>用數學最佳化（常以類似彈簧或電荷互斥的模型）決定每個元件的大致位置，相連的元件互相吸引、太密的地方互相推開</td></tr>
+          <tr><td>合法化</td><td>把元件移到合法的位置：對齊元件列、不重疊、符合各種規則</td></tr>
+          <tr><td>細部擺放</td><td>在小範圍內交換、移動元件，進一步縮短線長</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. 目標與衝突</h2>
+
+      <ul>
+        <li><strong>總線長最短</strong>：線越短，延遲越小、功耗越低</li>
+        <li><strong>時序</strong>：關鍵路徑上的元件要特別靠近</li>
+        <li><strong>擁擠度</strong>：不能讓某個區域的連線需求超過金屬能提供的繞線軌道</li>
+        <li><strong>功耗與熱</strong>：避免高耗電元件過度集中</li>
+      </ul>
+
+      <p>
+        這些目標常常衝突：為了縮短線長，工具傾向把元件擠在一起，結果造成擁擠、無法繞線。
+      </p>
+
+      <h2>3. 擁擠度</h2>
+
+      <p>
+        工具會把晶片切成一格一格，估計每一格需要多少條繞線、能提供多少條軌道，畫成<strong>擁擠度地圖</strong>。擁擠的地方（圖中的紅色）之後很可能繞不過去，或被迫繞遠路讓時序變差。解法包括：降低該區的元件密度、調整 macro 位置、甚至回頭修改 RTL 的結構（<a href="lesson-15.html">第 15 課</a>）。
+      </p>
+
+      <h2>4. 掃描鏈重排</h2>
+
+      <p>
+        為了測試，數位電路中的正反器會串成<strong>掃描鏈</strong>（<a href="lesson-42.html">第 42 課</a>）。合成時的串接順序是任意的，擺放完後工具會依正反器的實際位置重新排序，大幅縮短掃描鏈的線長。
+      </p>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          擺放演算法是 EDA 研究中最熱門的領域之一，國際上有定期的擺放演算法競賽。台灣的大學在 EDA 演算法研究與競賽中表現相當突出，也培養了許多 EDA 公司的研發人才。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>全域擺放、合法化、細部擺放各在做什麼？</li>
+          <li>為什麼「總線長最短」和「不擁擠」這兩個目標會互相衝突？</li>
+          <li>擁擠度地圖上的紅色區域代表什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>擺放後最佳化：修時序、加緩衝器、調尺寸</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：電源網路：power ring、stripe 與 IR drop</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：擺放後最佳化：修時序、加緩衝器、調尺寸 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

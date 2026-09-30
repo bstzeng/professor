@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：Skew 與 latency：時脈是晶片的心跳，也是最難的部分 ｜ 晶片 Layout 設計 ｜ 博雅書院</title>
+<meta name="description" content="時脈早到或晚到幾十皮秒，可能就是晶片正常和出錯的差別">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">晶片 Layout 設計</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜後端（二）：時脈與繞線 · 第 26 課</div>
+      <h1>Skew 與 latency：時脈是晶片的心跳，也是最難的部分</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 skew 與 latency 的定義</li>
+          <li>理解 skew 如何影響 setup 與 hold 時序</li>
+          <li>認識有用的 skew（useful skew）</li>
+        </ul>
+      </div>
+
+      <p>
+        理想中，時脈同時抵達所有正反器；實際上一定有時間差。這一課仔細看這個時間差怎麼影響電路。
+      </p>
+
+      <h2>1. 定義</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Skew：時脈到達的時間差</text>
+                <path d="M60 60 L160 60 L160 30 L260 30 L260 60 L360 60 L360 30 L460 30 L460 60 L560 60" fill="none" stroke="#4a90c2" stroke-width="2"/>
+                <text x="40" y="48" text-anchor="end" font-size="10" fill="#4a90c2">FF1</text>
+                <path d="M60 130 L190 130 L190 100 L290 100 L290 130 L390 130 L390 100 L490 100 L490 130 L560 130" fill="none" stroke="#ff8a65" stroke-width="2"/>
+                <text x="40" y="118" text-anchor="end" font-size="10" fill="#ff8a65">FF2</text>
+                <path d="M160 30 L160 150 M190 100 L190 150" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="3 3"/>
+                <line x1="160.0" y1="150.0" x2="183.0" y2="150.0" stroke="#e0605a" stroke-width="1.5"/><polygon points="190.0,150.0 183.0,153.5 183.0,146.5" fill="#e0605a"/>
+                <text x="175" y="168" text-anchor="middle" font-size="10" fill="#e0605a">skew</text>
+                <text x="320" y="196" text-anchor="middle" font-size="10" fill="var(--text)">Skew 太大：資料可能「來不及」（setup）或「跑太快」（hold）</text>
+                <text x="320" y="216" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">Latency：時脈從源頭到正反器的總延遲；越長越容易受雜訊與變異影響</text>
+                <text x="320" y="236" text-anchor="middle" font-size="9.5" fill="var(--gold)">時脈網路常佔整顆晶片動態功耗的相當大一部分</text>
+        </svg>
+        <figcaption>兩個正反器收到的時脈邊緣有時間差，就是 skew。</figcaption>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>名詞</th><th>意思</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Latency（插入延遲）</td><td>時脈從源頭到某個正反器的總延遲</td></tr>
+          <tr><td>Skew（時脈偏移）</td><td>兩個正反器的 latency 差</td></tr>
+          <tr><td>Jitter（抖動）</td><td>同一個正反器，每個週期時脈到達時間的隨機變化</td></tr>
+        </tbody>
+      </table>
+
+      <h2>2. Skew 對時序的影響</h2>
+
+      <p>
+        考慮資料從正反器 A 經過組合邏輯送到正反器 B（<a href="lesson-30.html">第 30 課</a>會詳細說明）：
+      </p>
+
+      <ul>
+        <li>如果 B 的時脈<strong>比 A 晚到</strong>，資料多了一點時間到達，對 setup 有利，但對 hold 不利</li>
+        <li>如果 B 的時脈<strong>比 A 早到</strong>，資料可用的時間變少，setup 更緊</li>
+      </ul>
+
+      <p>
+        所以 skew 不一定都是壞事，但必須被精確控制與計算。
+      </p>
+
+      <h2>3. 有用的 skew</h2>
+
+      <p>
+        既然 skew 會把時間從一段路徑「借」給另一段，工具可以<strong>刻意</strong>讓某些正反器的時脈晚一點或早一點，把寬裕路徑的時間讓給緊繃的路徑。這叫<strong>有用的 skew</strong>（useful skew），是現代時序收斂的重要手段。
+      </p>
+
+      <h2>4. 為什麼時脈這麼難</h2>
+
+      <ul>
+        <li>時脈線很長，最容易受 IR drop、串擾與製程變異的影響（<a href="lesson-31.html">第 31 課</a>）</li>
+        <li>一個時脈錯誤會影響整個區塊</li>
+        <li>晶片常有多個時脈域，跨時脈域的訊號需要特殊的同步電路</li>
+        <li>時脈網路可能佔整顆晶片動態功耗的相當大一部分</li>
+      </ul>
+
+      <div class="callout">
+        <h3>產業現場</h3>
+        <p>
+          跨時脈域（CDC）的錯誤是晶片中最難除錯的問題之一：它可能只在極少數的時間巧合下才發生，模擬很難抓到。業界有專門的 CDC 檢查工具在 RTL 階段就找出風險。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Skew 與 latency 的差別是什麼？</li>
+          <li>當接收端正反器的時脈晚到，對 setup 和 hold 各有什麼影響？</li>
+          <li>什麼是有用的 skew？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>繞線（一）：全域繞線與細部繞線</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：時脈樹合成（CTS）：讓時脈同時抵達數百萬個正反器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：繞線（一）：全域繞線與細部繞線 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
