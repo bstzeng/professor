@@ -10429,7 +10429,13 @@ window.SITE_DATA = {
             { title: "461. Hamming Distance 漢明距離", url: "topics/leetcode/problem-0461.html" },
             { title: "462. Minimum Moves to Equal Array Elements II 最小操作次數使陣列元素相等 II", url: "topics/leetcode/problem-0462.html" },
             { title: "463. Island Perimeter 島嶼的周長", url: "topics/leetcode/problem-0463.html" },
-            { title: "464. Can I Win 我能贏嗎", url: "topics/leetcode/problem-0464.html" }
+            { title: "464. Can I Win 我能贏嗎", url: "topics/leetcode/problem-0464.html" },
+            { title: "466. Count The Repetitions 統計重複個數", url: "topics/leetcode/problem-0466.html" },
+            { title: "467. Unique Substrings in Wraparound String 環繞字串中唯一的子字串", url: "topics/leetcode/problem-0467.html" },
+            { title: "468. Validate IP Address 驗證 IP 位址", url: "topics/leetcode/problem-0468.html" },
+            { title: "470. Implement Rand10() Using Rand7() 用 Rand7() 實作 Rand10()", url: "topics/leetcode/problem-0470.html" },
+            { title: "472. Concatenated Words 連接詞", url: "topics/leetcode/problem-0472.html" },
+            { title: "473. Matchsticks to Square 火柴拼正方形", url: "topics/leetcode/problem-0473.html" }
           ]
         }
       ]
