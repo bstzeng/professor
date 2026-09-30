@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：CreateProcess：作業系統建立「行程」與專屬記憶體 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="程式要跑起來，作業系統先給它一個專屬的小世界">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜雙擊之後發生什麼（從頭到尾） · 第 11 課</div>
+      <h1>CreateProcess：作業系統建立「行程」與專屬記憶體</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「行程」是什麼</li>
+          <li>說明專屬記憶體空間的意義</li>
+          <li>知道行程隔離對安全的作用</li>
+        </ul>
+      </div>
+
+      <p>
+        安全關卡都過了，作業系統開始<strong>建立行程</strong>（Windows 叫 CreateProcess）。<strong>行程</strong>（process）就是「一個<strong>執行中</strong>的程式」——檔案是靜態的，行程是它活起來的樣子。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 222" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">建立行程：給程式一個專屬的世界</text>
+                <rect x="30" y="46" width="250" height="108" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="155" y="78" text-anchor="middle" font-size="11" fill="#4a90c2">CreateProcess 做的事</text><text x="155" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">① 建立「行程」這個容器</text><text x="155" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">② 配一塊專屬記憶體空間</text><text x="155" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">③ 建立第一條執行緒</text><text x="155" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">④ 準備好就從進入點開跑</text>
+                <rect x="350" y="46" width="250" height="108" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="475" y="78" text-anchor="middle" font-size="11" fill="#5aa469">專屬記憶體空間</text><text x="475" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">每個程式看到的是</text><text x="475" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">「自己獨占整台電腦」的假象</text><text x="475" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">彼此看不到對方的記憶體</text><text x="475" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">（虛擬記憶體）</text>
+                <text x="320" y="178" text-anchor="middle" font-size="9.5" fill="var(--accent)">行程（process）＝一個執行中的程式，加上它專屬的記憶體、資源與至少一條執行緒</text>
+                <text x="320" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">隔離是安全與穩定的基石：一個程式當掉或被入侵，不會直接波及其他程式</text>
+        </svg>
+        <figcaption>建立行程＝配一個容器、一塊專屬記憶體、一條執行緒，準備從進入點開跑。</figcaption>
+      </div>
+
+      <h2>1. 建立行程做的事</h2>
+
+      <ol>
+        <li>建立一個<strong>行程</strong>容器（記帳、權限、資源都掛在它底下）。</li>
+        <li>配一塊<strong>專屬的記憶體空間</strong>。</li>
+        <li>建立第一條<strong>執行緒</strong>（實際執行指令的單位）。</li>
+        <li>準備好，就從<strong>進入點</strong>（<a href="lesson-05.html">第 5 課</a>）開始跑。</li>
+      </ol>
+
+      <h2>2. 專屬記憶體：獨占整台電腦的假象</h2>
+
+      <p>
+        關鍵是每個行程都有<strong>自己的一套記憶體位址</strong>（虛擬記憶體）：每個程式都以為「<strong>我獨占整台電腦的記憶體</strong>」，看不到也碰不到別的程式的記憶體。作業系統再暗中把這些虛擬位址對應到真實的實體記憶體。
+      </p>
+
+      <h2>3. 隔離的價值</h2>
+
+      <p>
+        這種<strong>隔離</strong>是穩定與安全的基石：一個程式當掉或被入侵，不會直接讀寫、破壞其他程式的記憶體。這也是為什麼瀏覽器會把每個分頁放進不同行程——一個網頁崩潰，不會拖垮整個瀏覽器。
+      </p>
+
+      <p>
+        有了空間，下一步就是把程式的內容真正<strong>搬進</strong>這塊記憶體（<a href="lesson-12.html">第 12 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          打開工作管理員（Ctrl+Shift+Esc）看「詳細資料」分頁，每一列就是一個行程，各有自己的 PID（行程編號）、記憶體用量與權限。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>「行程」和「檔案」的差別是什麼？</li>
+          <li>為什麼每個行程都以為自己獨占整台電腦的記憶體？</li>
+          <li>行程隔離對穩定與安全有什麼好處？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>把檔案搬進記憶體：分頁、區段權限與 ASLR</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：安全關卡：下載標記、SmartScreen、簽章與 UAC</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：把檔案搬進記憶體：分頁、區段權限與 ASLR →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

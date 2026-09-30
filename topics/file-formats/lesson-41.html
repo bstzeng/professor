@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：MP4 結構：box（atom）樹狀結構、moov 與 mdat ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="打開 MP4，看到的是一個個叫 box 的積木，一層層疊起來">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜影片：容器與編碼、串流 · 第 41 課</div>
+      <h1>MP4 結構：box（atom）樹狀結構、moov 與 mdat</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明 MP4 的 box 結構</li>
+          <li>區分 moov 與 mdat 的角色</li>
+          <li>理解「快速啟動」為什麼把 moov 移到前面</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>MP4</strong> 是最通用的影片容器。它由一個個 <strong>box</strong>（早期叫 atom）組成，又是我們熟悉的<strong>區塊結構</strong>（<a href="lesson-05.html">第 5 課</a>）——每個 box 前面是長度和名稱。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 256" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">MP4 結構：一層層的 box（atom）</text>
+                <rect x="20" y="44" width="90.75" height="50" rx="4" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="1.2"/>
+                <text x="65.375" y="67" text-anchor="middle" font-size="9.5" fill="var(--text)">ftyp</text>
+                <text x="65.375" y="81" text-anchor="middle" font-size="8" fill="var(--text-muted)">檔案型別</text>
+                <rect x="113.75" y="44" width="222" height="50" rx="4" fill="#4a90c2" fill-opacity="0.22" stroke="#4a90c2" stroke-width="1.2"/>
+                <text x="224.75" y="67" text-anchor="middle" font-size="9.5" fill="var(--text)">moov</text>
+                <text x="224.75" y="81" text-anchor="middle" font-size="8" fill="var(--text-muted)">目錄：軌道、時間、索引</text>
+                <rect x="338.75" y="44" width="278.25" height="50" rx="4" fill="#5aa469" fill-opacity="0.22" stroke="#5aa469" stroke-width="1.2"/>
+                <text x="477.875" y="67" text-anchor="middle" font-size="9.5" fill="var(--text)">mdat</text>
+                <text x="477.875" y="81" text-anchor="middle" font-size="8" fill="var(--text-muted)">實際的影音資料</text>
+                <text x="320" y="112" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每個 box：前 4 位元組長度、接 4 位元組名稱，再來內容——又是區塊結構</text>
+                <rect x="90" y="130" width="300" height="86" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="240" y="150" text-anchor="middle" font-size="9.5" fill="var(--accent)">box 可以層層巢狀</text>
+                <text x="110" y="172" text-anchor="start" font-size="9.5" fill="#4a90c2" font-family="ui-monospace,Menlo,Consolas,monospace">moov</text>
+                <text x="140" y="190" text-anchor="start" font-size="9" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">└ trak（影像軌）</text>
+                <text x="140" y="206" text-anchor="start" font-size="9" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">└ trak（聲音軌）</text>
+                <text x="470" y="150" text-anchor="middle" font-size="9.5" fill="var(--accent)">moov 是目錄：</text>
+                <text x="470" y="170" text-anchor="middle" font-size="9" fill="var(--text-muted)">每格畫面在檔案</text>
+                <text x="470" y="186" text-anchor="middle" font-size="9" fill="var(--text-muted)">的第幾個位元組。</text>
+                <text x="470" y="206" text-anchor="middle" font-size="9" fill="#e0605a">放檔尾就要全下載</text>
+                <text x="320" y="240" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">線上影片會把 moov 移到檔案開頭，播放器才能邊下載邊播（快速啟動）</text>
+        </svg>
+        <figcaption>MP4 由 box 組成，可層層巢狀；moov 是目錄、mdat 是實際資料。</figcaption>
+      </div>
+
+      <h2>1. 三個關鍵 box</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>box</th><th>角色</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ftyp</td><td>檔案型別：宣告這是哪種 MP4（相容性資訊）</td></tr>
+          <tr><td>moov</td><td>目錄（後設資料）：有幾條軌、每條用什麼編碼、每一格畫面在檔案的第幾個位元組</td></tr>
+          <tr><td>mdat</td><td>實際的影音資料本體，通常最大</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. box 會巢狀</h2>
+
+      <p>
+        box 可以包 box：<code>moov</code> 裡有多個 <code>trak</code>（一條影像軌、一條聲音軌），每個 trak 裡又有描述時間與位置的子 box。這種樹狀結構讓 MP4 能容納很複雜的內容。
+      </p>
+
+      <h2>3. 快速啟動</h2>
+
+      <p>
+        <code>moov</code> 是播放的「目錄」，播放器<strong>必須先讀到它</strong>才知道怎麼解碼。問題是製作影片時 <code>moov</code> 常被放在<strong>檔尾</strong>（因為要全部壓完才知道每格位置）。這樣線上播放就得<strong>整支下載完</strong>才能開始播。
+      </p>
+
+      <p>
+        所以串流用的 MP4 會做<strong>快速啟動</strong>處理，把 <code>moov</code> 搬到檔案<strong>開頭</strong>，播放器一拿到目錄就能邊下載邊播（<a href="lesson-43.html">第 43 課</a>會看更進階的分段串流）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          用支援的工具（如 MP4Box、FFmpeg 的 faststart）處理一支影片，把 moov 移到前面，比較線上播放的啟動速度差別。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>MP4 的基本組成單位叫什麼？</li>
+          <li>moov 和 mdat 分別放什麼？</li>
+          <li>為什麼串流影片要把 moov 移到檔案開頭？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>字幕：SRT 與 ASS 檔案</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：影片壓縮：I、P、B 影格與動態預測</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：字幕：SRT 與 ASS 檔案 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：匯入表：程式怎麼借用 DLL 的函式 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="為什麼一個能跳出視窗的 Windows 程式，本身可以只有幾 KB？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜exe 裡面有什麼 · 第 7 課</div>
+      <h1>匯入表：程式怎麼借用 DLL 的函式</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Windows 程式為何要透過 DLL</li>
+          <li>說明匯入表的作用</li>
+          <li>對比 Linux 的動態連結</li>
+        </ul>
+      </div>
+
+      <p>
+        Linux 程式可以直接 <code>syscall</code> 叫作業系統（<a href="lesson-03.html">第 3 課</a>），但 <strong>Windows 程式不行</strong>——它必須透過 <strong>DLL</strong>（動態連結函式庫）裡的函式。程式怎麼知道去哪找這些函式？靠<strong>匯入表</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">匯入表：程式怎麼借用 DLL 的函式</text>
+                <rect x="60" y="50" width="200" height="100" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="160" y="78" text-anchor="middle" font-size="11" fill="#4a90c2">你的程式</text><text x="160" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">想跳出一個訊息視窗</text><text x="160" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">但自己沒有這個功能</text><text x="160" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">→ 記下「我要借</text><text x="160" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">user32.dll 的 MessageBox」</text>
+                <line x1="268.0" y1="100.0" x2="313.0" y2="100.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="320.0,100.0 313.0,103.5 313.0,96.5" fill="var(--accent)"/>
+                <rect x="340" y="50" width="250" height="100" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="465" y="78" text-anchor="middle" font-size="11" fill="#5aa469">匯入表（在檔案裡）</text><text x="465" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">user32.dll：MessageBoxA</text><text x="465" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">kernel32.dll：ExitProcess</text><text x="465" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">載入時，作業系統把真正</text><text x="465" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">的函式位址填進來</text>
+                <text x="320" y="176" text-anchor="middle" font-size="9.5" fill="var(--accent)">Windows 程式不能直接叫作業系統（不像 Linux 的 syscall），要透過 DLL 裡的函式</text>
+                <text x="320" y="200" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">所以 exe 常常很小——真正的功能在系統的 DLL 裡，程式只是「借來用」</text>
+        </svg>
+        <figcaption>程式在匯入表列出「我要借哪個 DLL 的哪個函式」，載入時由系統填上真正位址。</figcaption>
+      </div>
+
+      <h2>1. 借來的功能</h2>
+
+      <p>
+        想跳出訊息視窗？程式自己沒這功能，但 <code>user32.dll</code> 有 <code>MessageBoxA</code>。於是程式在匯入表裡<strong>記一筆</strong>：「我要用 user32.dll 的 MessageBoxA」。要結束自己？記「我要用 kernel32.dll 的 ExitProcess」。
+      </p>
+
+      <h2>2. 載入時填入真正位址</h2>
+
+      <p>
+        程式被載入時，作業系統的<strong>載入器</strong>（<a href="lesson-13.html">第 13 課</a>）會：找到這些 DLL、載入它們、查出每個被借用函式的<strong>真正記憶體位址</strong>，填進匯入表。填完，程式呼叫 MessageBoxA 時就能正確跳到 user32.dll 裡那段程式碼。
+      </p>
+
+      <h2>3. 為什麼 exe 可以很小</h2>
+
+      <p>
+        因為真正的功能大多在系統的 DLL 裡，程式只是<strong>借來用</strong>，所以一個功能豐富的 exe 可能只有幾 KB。這也是<strong>動態連結</strong>的好處：許多程式共用同一份 DLL，省記憶體、也方便統一更新（例如修補安全漏洞）。
+      </p>
+
+      <p>
+        Linux 也有一樣的機制（.so 檔、動態連結器），概念相通，只是名字不同。這個「借用外部函式」的設計，是現代程式能小巧又強大的關鍵。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在 PE 檢視工具裡看 Import Table，你會看到這個程式依賴哪些 DLL、各借用了哪些函式——像 kernel32.dll、user32.dll 幾乎每個程式都會用到。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 Windows 程式不能像 Linux 那樣直接叫作業系統？</li>
+          <li>匯入表記錄了什麼？</li>
+          <li>動態連結（共用 DLL）有什麼好處？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>匯出表、資源區段與資訊清單</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：區段與位址：.text、.data 與檔案位置 vs 記憶體位址</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：匯出表、資源區段與資訊清單 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

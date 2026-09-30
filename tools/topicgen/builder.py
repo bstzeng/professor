@@ -59,8 +59,9 @@ def table(head, rows, n=6):
     th = "".join("<th>%s</th>" % c for c in head)
     body = "\n".join("    <tr>%s</tr>" % "".join("<td>%s</td>" % c for c in r)
                      for r in rows)
-    return _ind("<table>\n  <thead>\n    <tr>%s</tr>\n  </thead>\n"
-                "  <tbody>\n%s\n  </tbody>\n</table>" % (th, body), n)
+    return _ind('<div class="table-wrap" style="overflow-x:auto">\n'
+                "<table>\n  <thead>\n    <tr>%s</tr>\n  </thead>\n"
+                "  <tbody>\n%s\n  </tbody>\n</table>\n</div>" % (th, body), n)
 
 
 def code(text, n=6):

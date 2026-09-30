@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：SQLite：手機與瀏覽器都在用的單檔資料庫 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="你手機裡的訊息、瀏覽紀錄、App 設定，多半躺在一個個 .db 檔裡">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜資料、憑證、醫學影像與磁碟 · 第 53 課</div>
+      <h1>SQLite：手機與瀏覽器都在用的單檔資料庫</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SQLite 把整個資料庫放進一個檔案</li>
+          <li>讀懂 SQLite 的檔頭與分頁概念</li>
+          <li>知道它為什麼無所不在</li>
+        </ul>
+      </div>
+
+      <p>
+        講完文件，來看<strong>資料</strong>。你可能以為資料庫是龐大的伺服器，但最普及的資料庫其實是<strong>SQLite</strong>——它把整個資料庫<strong>裝進單一一個檔案</strong>，就在你的手機和瀏覽器裡默默運作。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 156" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">SQLite 檔案的開頭 32 位元組</text>
+                <text x="58" y="36" text-anchor="end" font-size="8.5" fill="var(--text-muted)">位移</text>
+                <text x="83.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">0</text>
+                <text x="110.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">1</text>
+                <text x="137.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">2</text>
+                <text x="164.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">3</text>
+                <text x="191.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">4</text>
+                <text x="218.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">5</text>
+                <text x="245.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">6</text>
+                <text x="272.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">7</text>
+                <text x="299.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">8</text>
+                <text x="326.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">9</text>
+                <text x="353.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">A</text>
+                <text x="380.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">B</text>
+                <text x="407.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">C</text>
+                <text x="434.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">D</text>
+                <text x="461.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">E</text>
+                <text x="488.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">F</text>
+                <text x="562" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ASCII</text>
+                <text x="58" y="60" text-anchor="end" font-size="9" fill="var(--text-muted)">0000</text>
+                <rect x="71" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="83.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">53</text>
+                <rect x="98" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="110.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">51</text>
+                <rect x="125" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="137.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4C</text>
+                <rect x="152" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="164.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <rect x="179" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="191.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <rect x="206" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="218.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">65</text>
+                <rect x="233" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="245.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">20</text>
+                <rect x="260" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="272.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">66</text>
+                <rect x="287" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="299.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">6F</text>
+                <rect x="314" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="326.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">72</text>
+                <rect x="341" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="353.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">6D</text>
+                <rect x="368" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="380.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">61</text>
+                <rect x="395" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="407.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <rect x="422" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="434.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">20</text>
+                <rect x="449" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="461.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">33</text>
+                <rect x="476" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="488.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="60" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">SQLite format 3·</text>
+                <text x="58" y="86" text-anchor="end" font-size="9" fill="var(--text-muted)">0010</text>
+                <rect x="71" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="98" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="152" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="179" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="233" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">20</text>
+                <rect x="260" y="71" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">20</text>
+                <rect x="287" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="299.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="326.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="353.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="380.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <rect x="395" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="407.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="434.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="461.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="71" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="488.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <text x="516" y="86" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">·····@  ········</text>
+                <rect x="24" y="110" width="12" height="12" rx="2" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <text x="42" y="120" text-anchor="start" font-size="9.5" fill="var(--text)">「SQLite format 3\0」：魔術字串</text>
+                <rect x="324" y="110" width="12" height="12" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <text x="342" y="120" text-anchor="start" font-size="9.5" fill="var(--text)">每一頁多大（常 4096）</text>
+                <rect x="24" y="130" width="12" height="12" rx="2" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <text x="42" y="140" text-anchor="start" font-size="9.5" fill="var(--text)">檔案格式版本、保留空間</text>
+                <rect x="324" y="130" width="12" height="12" rx="2" fill="#9c89d6" fill-opacity="0.5" stroke="#9c89d6" stroke-width="1"/>
+                <text x="342" y="140" text-anchor="start" font-size="9.5" fill="var(--text)">變更計數、資料庫大小（頁數）</text>
+        </svg>
+        <figcaption>開頭就是可讀的「SQLite format 3」，接著是分頁大小等參數。</figcaption>
+      </div>
+
+      <h2>1. 一個檔案就是一個資料庫</h2>
+
+      <p>
+        開頭 16 個位元組是可讀的魔術字串 <code>SQLite format 3</code>（<a href="lesson-02.html">第 2 課</a>）。整個資料庫——所有的表格、索引、資料——全在這一個檔案裡。要備份或搬移，複製這個檔就好。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 226" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">SQLite：整個資料庫就是一個檔案</text>
+                <rect x="40" y="46" width="560" height="120" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+                <rect x="56" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.2"/>
+                <rect x="146" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.2"/>
+                <rect x="236" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="#5aa469" stroke-width="1.2"/>
+                <rect x="326" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.2"/>
+                <rect x="416" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.2"/>
+                <rect x="506" y="62" width="82" height="88" rx="5" fill="var(--surface)" stroke="#5fa8a8" stroke-width="1.2"/>
+                <text x="97" y="82" text-anchor="middle" font-size="9" fill="var(--gold)">第 1 頁</text>
+                <text x="97" y="100" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">檔頭＋</text>
+                <text x="97" y="114" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">結構表</text>
+                <text x="187" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 2 頁</text>
+                <text x="277" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 3 頁</text>
+                <text x="367" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 4 頁</text>
+                <text x="457" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 5 頁</text>
+                <text x="547" y="100" text-anchor="middle" font-size="9" fill="var(--text-muted)">第 6 頁</text>
+                <text x="320" y="186" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">檔案切成固定大小的「頁」（常 4096 位元組）；表格、索引都用 B-tree 存在這些頁裡</text>
+                <text x="320" y="210" text-anchor="middle" font-size="9.5" fill="var(--accent)">手機 App、瀏覽器的資料（訊息、瀏覽紀錄、設定）大多存在 SQLite——一個 .db 就是一個資料庫</text>
+        </svg>
+        <figcaption>SQLite 把檔案切成固定大小的「頁」，用 B-tree 組織表格與索引。</figcaption>
+      </div>
+
+      <h2>2. 分頁與 B-tree</h2>
+
+      <p>
+        檔案被切成固定大小的<strong>頁</strong>（常是 4096 位元組）。表格和索引用一種叫 <strong>B-tree</strong> 的樹狀結構存在這些頁裡，讓查詢即使資料很多也很快。這和硬碟、資料庫的分頁概念一脈相承。
+      </p>
+
+      <h2>3. 為什麼無所不在</h2>
+
+      <ul>
+        <li><strong>免安裝</strong>：不需要伺服器，一個檔案、一個函式庫就能用。</li>
+        <li><strong>可靠</strong>：斷電也不易損毀（有交易機制）。</li>
+        <li><strong>夠用</strong>：對單一 App 的資料量綽綽有餘。</li>
+      </ul>
+
+      <p>
+        所以手機 App 的訊息、瀏覽器的歷史紀錄與 Cookie、許多桌面軟體的設定，背後多半是 SQLite。它被認為是世界上部署最廣的資料庫引擎之一。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          用免費的「DB Browser for SQLite」打開一個 .db 檔（例如某些 App 的資料檔），你能直接看到裡面的表格與每一筆資料。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>SQLite 和一般印象中的資料庫最大的不同是什麼？</li>
+          <li>SQLite 檔案開頭的魔術字串是什麼？</li>
+          <li>為什麼 SQLite 被那麼多 App 採用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Parquet：資料分析用的「欄式」儲存</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：電子郵件（.eml）：附件怎麼變成文字寄出去</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：Parquet：資料分析用的「欄式」儲存 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

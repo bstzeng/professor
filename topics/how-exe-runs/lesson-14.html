@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：從進入點到 main：C 執行期環境做了哪些準備 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="你以為程式從 main 開始？其實 main 之前還有一段路">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜雙擊之後發生什麼（從頭到尾） · 第 14 課</div>
+      <h1>從進入點到 main：C 執行期環境做了哪些準備</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解進入點與 main 的差別</li>
+          <li>說明 C 執行期啟動碼做的準備</li>
+          <li>知道 main 回傳後發生什麼</li>
+        </ul>
+      </div>
+
+      <p>
+        載入器把控制權交給<strong>進入點</strong>。但這裡有個常見誤會：<strong>進入點不是你寫的 main</strong>，中間還隔著一段<strong>C 執行期啟動碼</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 216" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">從進入點到 main：開跑前的準備</text>
+                <rect x="20" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="85.25" y="69" text-anchor="middle" font-size="11" fill="#e0605a">進入點</text><text x="85.25" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">啟動碼</text><line x1="153.5" y1="73.0" x2="166.5" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,73.0 166.5,76.5 166.5,69.5" fill="var(--border)"/><rect x="176.5" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="241.75" y="69" text-anchor="middle" font-size="11" fill="#ff8a65">C 執行期</text><text x="241.75" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">設定環境</text><line x1="310.0" y1="73.0" x2="323.0" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,73.0 323.0,76.5 323.0,69.5" fill="var(--border)"/><rect x="333" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="398.25" y="69" text-anchor="middle" font-size="11" fill="#5aa469">呼叫 main</text><text x="398.25" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">你的程式</text><line x1="466.5" y1="73.0" x2="479.5" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,73.0 479.5,76.5 479.5,69.5" fill="var(--border)"/><rect x="489.5" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="554.75" y="69" text-anchor="middle" font-size="11" fill="#4a90c2">main 回傳</text><text x="554.75" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">清理</text>
+                <text x="320" y="126" text-anchor="middle" font-size="10" fill="var(--accent)">進入點不是 main！中間隔著一段「C 執行期啟動碼」（CRT startup）</text>
+                <text x="320" y="150" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">它先做好準備：整理命令列參數、設定全域變數、初始化標準輸入輸出、堆積…</text>
+                <text x="320" y="172" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">準備完才呼叫你寫的 main；main 結束後，再由它負責清理、把結束代碼交回系統</text>
+                <text x="320" y="198" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這解釋了「進入點 ≠ main」：你以為程式從 main 開始，其實前面還有一段</text>
+        </svg>
+        <figcaption>進入點先跑 C 執行期啟動碼做準備，才呼叫 main；main 結束再清理。</figcaption>
+      </div>
+
+      <h2>1. main 之前的準備</h2>
+
+      <p>
+        進入點其實是一段由編譯器附上的<strong>啟動碼</strong>（C runtime startup）。它在呼叫你的 main 之前，先幫你把環境準備好：
+      </p>
+
+      <ul>
+        <li>整理<strong>命令列參數</strong>，變成 main 收到的 argc、argv。</li>
+        <li>初始化<strong>全域變數</strong>與 C++ 的全域物件。</li>
+        <li>設定<strong>標準輸入輸出</strong>（讓你能 printf、cin）。</li>
+        <li>準備好<strong>堆積</strong>，讓你之後能動態配置記憶體。</li>
+      </ul>
+
+      <h2>2. 才輪到 main</h2>
+
+      <p>
+        這些都就緒，啟動碼才呼叫你寫的 <strong>main</strong>，你的程式邏輯這時才真正開始。所以「程式從 main 開始」只是我們寫程式時的方便說法，底層還有一段前置作業。
+      </p>
+
+      <h2>3. main 回傳之後</h2>
+
+      <p>
+        當 main <strong>回傳</strong>（或你呼叫 exit），控制權交回啟動碼，它負責<strong>清理</strong>：跑完該做的收尾、把 main 的<strong>回傳值</strong>當成整個程式的<strong>結束代碼</strong>交給作業系統（0 通常代表成功）。這部分<a href="lesson-17.html">第 17 課</a>會再細講。
+      </p>
+
+      <p>
+        如果是<strong>圖形介面</strong>程式，main（或 WinMain）裡通常會進入一個<strong>訊息迴圈</strong>，讓視窗持續運作，這就是下一課的主題（<a href="lesson-15.html">第 15 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          寫一個簡單的 C 程式，在 main 第一行印一句話。用除錯器從「進入點」開始單步執行，你會看到在到達你的 main 之前，先跑了一堆啟動碼。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>進入點和 main 是同一個東西嗎？</li>
+          <li>C 執行期啟動碼在呼叫 main 前做了哪些準備？</li>
+          <li>main 的回傳值最後變成什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>視窗出現：訊息迴圈與事件驅動</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：載入器登場：載入 DLL、填好匯入表、執行初始化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：視窗出現：訊息迴圈與事件驅動 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

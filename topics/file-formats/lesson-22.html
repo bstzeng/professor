@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：JPG 檔案結構：SOI、DQT、SOF、DHT、SOS 標記逐一拆解 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="把理論放一邊，直接打開一個真正的 JPG，看它由哪些「標記」組成">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜JPG：有損影像壓縮全解 · 第 22 課</div>
+      <h1>JPG 檔案結構：SOI、DQT、SOF、DHT、SOS 標記逐一拆解</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>讀懂 JPG 的標記（marker）結構</li>
+          <li>認得 SOI、DQT、SOF0、DHT、SOS、EOI</li>
+          <li>知道壓縮資料放在檔案的哪一段</li>
+        </ul>
+      </div>
+
+      <p>
+        前面拆解了 JPG 的壓縮<strong>原理</strong>，這一課看它的<strong>檔案結構</strong>。JPG 由一連串<strong>標記</strong>組成，每個標記都以 <code>FF</code> 開頭。下面是一個真正的 16×16 JPG（品質 80，共 670 位元組）的標記清單。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">JPG 檔案結構：一連串以 FF 開頭的「標記」</text>
+                <rect x="20" y="44" width="67.5882" height="52" rx="4" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="1.2"/>
+                <text x="53.7941" y="68" text-anchor="middle" font-size="9" fill="var(--text)">SOI</text>
+                <text x="53.7941" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">FF D8</text>
+                <rect x="90.5882" y="44" width="95.8235" height="52" rx="4" fill="#9c89d6" fill-opacity="0.22" stroke="#9c89d6" stroke-width="1.2"/>
+                <text x="138.5" y="68" text-anchor="middle" font-size="9" fill="var(--text)">APP0</text>
+                <text x="138.5" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">JFIF</text>
+                <rect x="189.412" y="44" width="88.7647" height="52" rx="4" fill="#4a90c2" fill-opacity="0.22" stroke="#4a90c2" stroke-width="1.2"/>
+                <text x="233.794" y="68" text-anchor="middle" font-size="9" fill="var(--text)">DQT</text>
+                <text x="233.794" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">量化表</text>
+                <rect x="281.176" y="44" width="102.882" height="52" rx="4" fill="#5aa469" fill-opacity="0.22" stroke="#5aa469" stroke-width="1.2"/>
+                <text x="332.618" y="68" text-anchor="middle" font-size="9" fill="var(--text)">SOF0</text>
+                <text x="332.618" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">寬高</text>
+                <rect x="387.059" y="44" width="88.7647" height="52" rx="4" fill="#5fa8a8" fill-opacity="0.22" stroke="#5fa8a8" stroke-width="1.2"/>
+                <text x="431.441" y="68" text-anchor="middle" font-size="9" fill="var(--text)">DHT</text>
+                <text x="431.441" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">霍夫曼表</text>
+                <rect x="478.824" y="44" width="74.6471" height="52" rx="4" fill="#ff8a65" fill-opacity="0.22" stroke="#ff8a65" stroke-width="1.2"/>
+                <text x="516.147" y="68" text-anchor="middle" font-size="9" fill="var(--text)">SOS→</text>
+                <text x="516.147" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">壓縮資料</text>
+                <rect x="556.471" y="44" width="60.5294" height="52" rx="4" fill="#e0605a" fill-opacity="0.22" stroke="#e0605a" stroke-width="1.2"/>
+                <text x="586.735" y="68" text-anchor="middle" font-size="9" fill="var(--text)">EOI</text>
+                <text x="586.735" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">FF D9</text>
+                <text x="320" y="116" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每個標記都以 FF 開頭，後面一個位元組說明類型；除了 SOI/EOI 外，接著是 2 位元組長度</text>
+                <text x="320" y="140" text-anchor="middle" font-size="9.5" fill="var(--accent)">SOS 之後直到 EOI，就是實際的壓縮影像資料（量化係數的霍夫曼位元流）</text>
+        </svg>
+        <figcaption>JPG 由標記串成：開頭 SOI、中間各種表與參數、SOS 之後是壓縮資料、結尾 EOI。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>位移</th><th>標記</th><th>長度</th><th>名稱</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0x0000</td><td>FF D8</td><td>—</td><td>SOI</td><td>影像開始</td></tr>
+          <tr><td>0x0002</td><td>FF E0</td><td>16</td><td>APP0</td><td>JFIF 應用標記</td></tr>
+          <tr><td>0x0014</td><td>FF DB</td><td>67</td><td>DQT</td><td>量化表</td></tr>
+          <tr><td>0x0059</td><td>FF DB</td><td>67</td><td>DQT</td><td>量化表</td></tr>
+          <tr><td>0x009E</td><td>FF C0</td><td>17</td><td>SOF0</td><td>畫格開始：寬高、色彩分量、抽樣</td></tr>
+          <tr><td>0x00B1</td><td>FF C4</td><td>31</td><td>DHT</td><td>霍夫曼表</td></tr>
+          <tr><td>0x00D2</td><td>FF C4</td><td>181</td><td>DHT</td><td>霍夫曼表</td></tr>
+          <tr><td>0x0189</td><td>FF C4</td><td>31</td><td>DHT</td><td>霍夫曼表</td></tr>
+          <tr><td>0x01AA</td><td>FF C4</td><td>181</td><td>DHT</td><td>霍夫曼表</td></tr>
+          <tr><td>0x0261</td><td>FF DA</td><td>12</td><td>SOS</td><td>掃描開始：之後就是壓縮資料</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>1. 幾個關鍵標記</h2>
+
+      <ul>
+        <li><strong>SOI</strong>（FF D8）：影像開始，也是 JPG 的魔術數字。</li>
+        <li><strong>DQT</strong>：量化表（<a href="lesson-20.html">第 20 課</a>）。彩色圖通常有兩張：亮度一張、色度一張。</li>
+        <li><strong>SOF0</strong>：畫格開始，記錄寬、高、有幾個色彩分量、以及色度抽樣方式。</li>
+        <li><strong>DHT</strong>：霍夫曼表（<a href="lesson-21.html">第 21 課</a>），解碼時要用。</li>
+        <li><strong>SOS</strong>：掃描開始。<strong>它之後直到 EOI，就是實際的壓縮影像資料。</strong></li>
+        <li><strong>EOI</strong>（FF D9）：影像結束。</li>
+      </ul>
+
+      <h2>2. 整數用大端</h2>
+
+      <p>
+        每個標記（除了 SOI、EOI）後面接 2 個位元組的<strong>長度</strong>，用大端（<a href="lesson-03.html">第 3 課</a>）。讀取程式靠這個長度，就能一個標記一個標記跳著讀，直接找到它要的資訊。
+      </p>
+
+      <p>
+        下一課看一個常被忽略、卻藏著隱私的標記：APP1 裡的 EXIF（<a href="lesson-23.html">第 23 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          用 Hex 檢視器打開任何一張 JPG，開頭一定是 FF D8。往後找找看 FF DB（DQT）、FF C0（SOF0）、FF DA（SOS），最後檔案結尾是 FF D9。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>JPG 的每個標記都以哪個位元組開頭？</li>
+          <li>SOI 和 EOI 分別是哪兩個位元組？</li>
+          <li>實際的壓縮影像資料放在哪個標記之後？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>EXIF：照片裡藏的相機資訊、時間與 GPS 位置</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：之字形掃描與霍夫曼編碼：把係數打包成位元</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：EXIF：照片裡藏的相機資訊、時間與 GPS 位置 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

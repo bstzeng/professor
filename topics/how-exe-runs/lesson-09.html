@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：雙擊的那一刻：檔案總管、副檔名關聯與 ShellExecute ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="你點兩下，到程式開始跑，中間發生的第一件事">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜雙擊之後發生什麼（從頭到尾） · 第 9 課</div>
+      <h1>雙擊的那一刻：檔案總管、副檔名關聯與 ShellExecute</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解雙擊後系統如何決定用什麼開</li>
+          <li>區分「執行檔」與「資料檔」的處理</li>
+          <li>連結副檔名關聯的安全意義</li>
+        </ul>
+      </div>
+
+      <p>
+        整個模組要追一件事：<strong>從你雙擊，到程式結束</strong>，作業系統到底做了什麼。先看全景，再一步步拆。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">雙擊到結束：一條完整的時間線</text>
+                <rect x="30" y="44" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="30" y="70" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#e0605a" stroke-width="1"/>
+                <rect x="30" y="96" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="30" y="122" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#5aa469" stroke-width="1"/>
+                <rect x="30" y="148" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#ff8a65" stroke-width="1"/>
+                <rect x="30" y="174" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#9c89d6" stroke-width="1"/>
+                <rect x="30" y="200" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#5fa8a8" stroke-width="1"/>
+                <rect x="30" y="226" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#8a8f98" stroke-width="1"/>
+                <rect x="30" y="252" width="580" height="22" rx="4" fill="var(--surface)" fill-opacity="0.18" stroke="#e0605a" stroke-width="1"/>
+                <text x="44" y="60" text-anchor="start" font-size="10" fill="var(--accent)">9</text>
+                <text x="44" y="86" text-anchor="start" font-size="10" fill="var(--accent)">10</text>
+                <text x="44" y="112" text-anchor="start" font-size="10" fill="var(--accent)">11</text>
+                <text x="44" y="138" text-anchor="start" font-size="10" fill="var(--accent)">12</text>
+                <text x="44" y="164" text-anchor="start" font-size="10" fill="var(--accent)">13</text>
+                <text x="44" y="190" text-anchor="start" font-size="10" fill="var(--accent)">14</text>
+                <text x="44" y="216" text-anchor="start" font-size="10" fill="var(--accent)">15</text>
+                <text x="44" y="242" text-anchor="start" font-size="10" fill="var(--accent)">16</text>
+                <text x="44" y="268" text-anchor="start" font-size="10" fill="var(--accent)">17</text>
+                <text x="70" y="60" text-anchor="start" font-size="9.5" fill="var(--text)">雙擊：檔案總管找出用哪個程式開</text>
+                <text x="70" y="86" text-anchor="start" font-size="9.5" fill="var(--text)">安全關卡：下載標記、SmartScreen、簽章、UAC</text>
+                <text x="70" y="112" text-anchor="start" font-size="9.5" fill="var(--text)">建立行程：核心配一個專屬記憶體空間</text>
+                <text x="70" y="138" text-anchor="start" font-size="9.5" fill="var(--text)">把檔案搬進記憶體：分頁、權限、ASLR 隨機化</text>
+                <text x="70" y="164" text-anchor="start" font-size="9.5" fill="var(--text)">載入器：載入 DLL、填好匯入表、跑初始化</text>
+                <text x="70" y="190" text-anchor="start" font-size="9.5" fill="var(--text)">從進入點到 main：C 執行期做準備</text>
+                <text x="70" y="216" text-anchor="start" font-size="9.5" fill="var(--text)">視窗出現：訊息迴圈、事件驅動</text>
+                <text x="70" y="242" text-anchor="start" font-size="9.5" fill="var(--text)">執行中：堆疊、堆積、執行緒、系統呼叫</text>
+                <text x="70" y="268" text-anchor="start" font-size="9.5" fill="var(--text)">結束：ExitProcess、回收資源、結束代碼</text>
+                <text x="320" y="288" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這一整個模組，就是把這 9 步一步一步拆開講</text>
+        </svg>
+        <figcaption>從雙擊到結束的九個階段，就是這個模組的九課。</figcaption>
+      </div>
+
+      <h2>1. 第一步：決定用什麼開</h2>
+
+      <p>
+        你雙擊一個檔案，<strong>檔案總管</strong>（或桌面）先問一個問題：<strong>這要用什麼開？</strong>
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">雙擊的那一刻：系統怎麼知道用什麼開</text>
+                <rect x="40" y="46" width="250" height="104" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="165" y="82" text-anchor="middle" font-size="11" fill="#e0605a">如果是 .exe</text><text x="165" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">本身就是程式</text><text x="165" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">直接交給系統啟動</text><text x="165" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">（走後面的流程）</text>
+                <rect x="350" y="46" width="250" height="104" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="475" y="76" text-anchor="middle" font-size="11" fill="#4a90c2">如果是 .docx／.jpg</text><text x="475" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">查「副檔名關聯」</text><text x="475" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">.docx → Word</text><text x="475" y="116" text-anchor="middle" font-size="9" fill="var(--text-muted)">.jpg → 看圖程式</text><text x="475" y="129" text-anchor="middle" font-size="9" fill="var(--text-muted)">再請那個程式來開</text>
+                <text x="320" y="176" text-anchor="middle" font-size="9.5" fill="var(--accent)">檔案總管透過 ShellExecute 處理雙擊：先看副檔名，決定「自己執行」還是「叫別的程式來開」</text>
+                <text x="320" y="200" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">所以副檔名關聯若被惡意程式竄改，雙擊文件可能被導去執行惡意程式——這是下一課安全關卡的重要性</text>
+        </svg>
+        <figcaption>exe 直接執行；資料檔則查副檔名關聯，找對應的程式來開。</figcaption>
+      </div>
+
+      <ul>
+        <li>如果是 <strong>.exe</strong>：它本身就是程式，直接交給系統啟動。</li>
+        <li>如果是 <strong>.docx、.jpg</strong> 這類資料檔：查<strong>副檔名關聯</strong>表（.docx → Word、.jpg → 看圖程式），再請那個程式來開它。</li>
+      </ul>
+
+      <p>
+        Windows 用一個叫 <strong>ShellExecute</strong> 的機制處理雙擊，背後就是這套判斷。
+      </p>
+
+      <h2>2. 為什麼這關乎安全</h2>
+
+      <p>
+        副檔名關聯若被惡意程式<strong>竄改</strong>，雙擊一個看似無害的文件，可能被導去執行惡意程式。這也是為什麼下一課的<strong>安全關卡</strong>很重要（<a href="lesson-10.html">第 10 課</a>）：在真正執行陌生程式前，系統要多幾道確認。
+      </p>
+
+      <p>
+        接下來八課，就沿著上面那條時間線，一步步看程式怎麼被載入、啟動、執行、結束。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在 Windows 的「設定 → 應用程式 → 預設應用程式」，可以看到各種副檔名目前關聯到哪個程式——這就是雙擊時系統查的表。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>雙擊一個 .jpg 時，系統怎麼決定用什麼程式開？</li>
+          <li>雙擊 .exe 和雙擊 .docx 的處理有什麼不同？</li>
+          <li>副檔名關聯被竄改可能造成什麼風險？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>安全關卡：下載標記、SmartScreen、簽章與 UAC</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：匯出表、資源區段與資訊清單</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：安全關卡：下載標記、SmartScreen、簽章與 UAC →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

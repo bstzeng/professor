@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：動手：用 184 個位元組手寫一個執行檔 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="不用編譯器、不用組譯器，直接寫出一個能跑的 Linux 程式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜exe 裡面有什麼 · 第 3 課</div>
+      <h1>動手：用 184 個位元組手寫一個執行檔</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>逐區段讀懂一個最小 ELF 執行檔</li>
+          <li>理解檔頭、程式標頭、機器碼的分工</li>
+          <li>親眼看到「程式只是位元組」</li>
+        </ul>
+      </div>
+
+      <p>
+        理論講完，來真的。下面是一個<strong>完整、只有 184 位元組、手工打造</strong>的 Linux 執行檔（ELF 格式），它會印出一句話然後結束。這是真的能跑的程式——<a download="hello.elf" href="data:application/octet-stream;base64,f0VMRgIBAQAAAAAAAAAAAAIAPgABAAAAeABAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAEAAOAABAAAAAAAAAAEAAAAFAAAAAAAAAAAAAAAAAEAAAAAAAAAAQAAAAAAAuAAAAAAAAAC4AAAAAAAAAAAQAAAAAAAAuAEAAAC/AQAAAEiNNRAAAAC6HwAAAA8FuDwAAAAx/w8F5L2g5aW977yM5oiR5piv5omL5a+r55qE56iL5byPCg==">下載它</a>（在 Linux 上 <code>chmod +x</code> 後執行）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 436" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">184 位元組、手寫、真的能執行的 ELF</text>
+                <text x="58" y="36" text-anchor="end" font-size="8.5" fill="var(--text-muted)">位移</text>
+                <text x="83.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">0</text>
+                <text x="110.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">1</text>
+                <text x="137.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">2</text>
+                <text x="164.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">3</text>
+                <text x="191.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">4</text>
+                <text x="218.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">5</text>
+                <text x="245.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">6</text>
+                <text x="272.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">7</text>
+                <text x="299.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">8</text>
+                <text x="326.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">9</text>
+                <text x="353.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">A</text>
+                <text x="380.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">B</text>
+                <text x="407.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">C</text>
+                <text x="434.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">D</text>
+                <text x="461.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">E</text>
+                <text x="488.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">F</text>
+                <text x="562" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ASCII</text>
+                <text x="58" y="60" text-anchor="end" font-size="9" fill="var(--text-muted)">0000</text>
+                <rect x="71" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="83.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">7F</text>
+                <rect x="98" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="110.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">45</text>
+                <rect x="125" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="137.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4C</text>
+                <rect x="152" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="164.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">46</text>
+                <rect x="179" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="191.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <rect x="206" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="218.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="233" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="245.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="260" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="272.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="299.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="326.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="353.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="380.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="407.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="434.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="461.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="488.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="60" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">·ELF············</text>
+                <text x="58" y="86" text-anchor="end" font-size="9" fill="var(--text-muted)">0010</text>
+                <rect x="71" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <rect x="98" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3E</text>
+                <rect x="152" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="206" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">78</text>
+                <rect x="314" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="368" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="86" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">··&gt;·····x·@·····</text>
+                <text x="58" y="112" text-anchor="end" font-size="9" fill="var(--text-muted)">0020</text>
+                <rect x="71" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="98" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="112" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">@···············</text>
+                <text x="58" y="138" text-anchor="end" font-size="9" fill="var(--text-muted)">0030</text>
+                <rect x="71" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="206" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">38</text>
+                <rect x="260" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="314" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="138" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">····@·8·········</text>
+                <text x="58" y="164" text-anchor="end" font-size="9" fill="var(--text-muted)">0040</text>
+                <rect x="71" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="83.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="98" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="110.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">05</text>
+                <rect x="206" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="299.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="326.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="353.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="380.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="407.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="434.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="461.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="488.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="164" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="190" text-anchor="end" font-size="9" fill="var(--text-muted)">0050</text>
+                <rect x="71" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="83.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="110.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="152" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="299.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="326.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="353.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">40</text>
+                <rect x="368" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="380.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="407.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="434.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="461.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="175" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="488.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="190" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">··@·······@·····</text>
+                <text x="58" y="216" text-anchor="end" font-size="9" fill="var(--text-muted)">0060</text>
+                <rect x="71" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="83.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">B8</text>
+                <rect x="98" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="110.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="299.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">B8</text>
+                <rect x="314" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="326.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="353.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="380.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="407.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="434.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="461.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="201" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="488.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="216" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="242" text-anchor="end" font-size="9" fill="var(--text-muted)">0070</text>
+                <rect x="71" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="83.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="110.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="125" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="227" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="299.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">B8</text>
+                <rect x="314" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="326.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="341" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="353.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="368" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="380.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="407.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="434.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BF</text>
+                <rect x="449" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="461.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="476" y="227" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="488.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="242" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="268" text-anchor="end" font-size="9" fill="var(--text-muted)">0080</text>
+                <rect x="71" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="83.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="110.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="137.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">48</text>
+                <rect x="152" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="164.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">8D</text>
+                <rect x="179" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="191.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">35</text>
+                <rect x="206" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="218.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="233" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="245.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="272.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="299.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="326.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BA</text>
+                <rect x="341" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="353.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">1F</text>
+                <rect x="368" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="380.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="407.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="434.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="461.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0F</text>
+                <rect x="476" y="253" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="488.5" y="268" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">05</text>
+                <text x="516" y="268" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">··H·5···········</text>
+                <text x="58" y="294" text-anchor="end" font-size="9" fill="var(--text-muted)">0090</text>
+                <rect x="71" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="83.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">B8</text>
+                <rect x="98" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="110.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3C</text>
+                <rect x="125" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="137.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="164.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="191.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="218.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">31</text>
+                <rect x="233" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="245.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="260" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="272.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0F</text>
+                <rect x="287" y="279" width="25" height="22" rx="3" fill="#ff8a65" fill-opacity="0.28" stroke="#ff8a65" stroke-width="1"/>
+                <text x="299.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">05</text>
+                <rect x="314" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="326.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E4</text>
+                <rect x="341" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="353.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BD</text>
+                <rect x="368" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="380.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">A0</text>
+                <rect x="395" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="407.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E5</text>
+                <rect x="422" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="434.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">A5</text>
+                <rect x="449" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="461.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BD</text>
+                <rect x="476" y="279" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="488.5" y="294" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">EF</text>
+                <text x="516" y="294" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">·&lt;···1··········</text>
+                <text x="58" y="320" text-anchor="end" font-size="9" fill="var(--text-muted)">00A0</text>
+                <rect x="71" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="83.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BC</text>
+                <rect x="98" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="110.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">8C</text>
+                <rect x="125" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="137.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E6</text>
+                <rect x="152" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="164.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">88</text>
+                <rect x="179" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="191.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">91</text>
+                <rect x="206" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="218.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E6</text>
+                <rect x="233" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="245.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">98</text>
+                <rect x="260" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="272.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">AF</text>
+                <rect x="287" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="299.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E6</text>
+                <rect x="314" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="326.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">89</text>
+                <rect x="341" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="353.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">8B</text>
+                <rect x="368" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="380.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E5</text>
+                <rect x="395" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="407.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">AF</text>
+                <rect x="422" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="434.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">AB</text>
+                <rect x="449" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="461.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E7</text>
+                <rect x="476" y="305" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="488.5" y="320" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">9A</text>
+                <text x="516" y="320" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="346" text-anchor="end" font-size="9" fill="var(--text-muted)">00B0</text>
+                <rect x="71" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="83.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">84</text>
+                <rect x="98" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="110.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E7</text>
+                <rect x="125" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="137.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">A8</text>
+                <rect x="152" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="164.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">8B</text>
+                <rect x="179" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="191.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">E5</text>
+                <rect x="206" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="218.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">BC</text>
+                <rect x="233" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="245.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">8F</text>
+                <rect x="260" y="331" width="25" height="22" rx="3" fill="#5fa8a8" fill-opacity="0.28" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="272.5" y="346" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0A</text>
+                <text x="516" y="346" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">········</text>
+                <rect x="24" y="370" width="12" height="12" rx="2" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <text x="42" y="380" text-anchor="start" font-size="9.5" fill="var(--text)">7F 45 4C 46（.ELF）：魔術數字</text>
+                <rect x="324" y="370" width="12" height="12" rx="2" fill="#9c89d6" fill-opacity="0.5" stroke="#9c89d6" stroke-width="1"/>
+                <text x="342" y="380" text-anchor="start" font-size="9.5" fill="var(--text)">64 位元、小端、System V</text>
+                <rect x="24" y="390" width="12" height="12" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <text x="42" y="400" text-anchor="start" font-size="9.5" fill="var(--text)">ELF 檔頭其餘：進入點、程式標頭位置</text>
+                <rect x="324" y="390" width="12" height="12" rx="2" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <text x="342" y="400" text-anchor="start" font-size="9.5" fill="var(--text)">程式標頭：載到記憶體哪、權限</text>
+                <rect x="24" y="410" width="12" height="12" rx="2" fill="#ff8a65" fill-opacity="0.5" stroke="#ff8a65" stroke-width="1"/>
+                <text x="42" y="420" text-anchor="start" font-size="9.5" fill="var(--text)">機器碼：33 個位元組的 CPU 指令</text>
+                <rect x="324" y="410" width="12" height="12" rx="2" fill="#5fa8a8" fill-opacity="0.5" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="342" y="420" text-anchor="start" font-size="9.5" fill="var(--text)">要印出的那句話（UTF-8）</text>
+        </svg>
+        <figcaption>魔術數字、ELF 檔頭、程式標頭、機器碼、要印的字串。</figcaption>
+      </div>
+
+      <h2>1. 三大部分</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>部分</th><th>大小</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ELF 檔頭</td><td>64 位元組</td><td>魔術數字 7F ELF、64 位元、進入點位址、程式標頭在哪</td></tr>
+          <tr><td>程式標頭</td><td>56 位元組</td><td>告訴作業系統：把這個檔載到記憶體哪、給什麼權限（可讀可執行）</td></tr>
+          <tr><td>機器碼＋字串</td><td>64 位元組</td><td>33 位元組的 CPU 指令，加上要印的那句話</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. 那 33 個位元組在做什麼</h2>
+
+      <p>
+        就是上一課的兩次系統呼叫：
+      </p>
+
+      <ul>
+        <li><code>B8 01…／BF 01…</code>：設定「功能＝寫出」「目標＝螢幕」。</li>
+        <li><code>0F 05</code>：<code>syscall</code>，請作業系統把字串印出來。</li>
+        <li><code>B8 3C…／0F 05</code>：功能 60＝結束程式，乾淨地離開。</li>
+      </ul>
+
+      <h2>3. Windows 的 .exe 呢</h2>
+
+      <p>
+        Windows 的 PE 格式（<a href="lesson-04.html">第 4 課</a>）道理相同，只是檔頭更囉嗦（要有 MZ 檔頭、匯入表等），手寫更麻煩，而且極小的手寫 exe 常被防毒軟體當成可疑檔案。所以這門課提供 <strong>Linux 版</strong>讓你實際下載執行，Windows 版只拆解結構、不提供下載。
+      </p>
+
+      <p>
+        這一課的重點不是要你以後手寫程式，而是<strong>破除「執行檔很神祕」的迷思</strong>：它就是一串你能看懂、甚至能親手寫出的位元組。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在 Linux（或 WSL）下載 hello.elf，執行 chmod +x hello.elf 再 ./hello.elf，它會印出一句中文。再用 readelf -h hello.elf 或 xxd hello.elf，對照上圖的每一個位元組。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>這個 ELF 的三大部分是什麼？</li>
+          <li>程式標頭告訴作業系統什麼事？</li>
+          <li>為什麼這門課的 Windows 版 exe 不提供下載？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PE 格式總覽：MZ 檔頭、DOS stub 與 PE 簽章</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：機器碼與組合語言：CPU 真正讀的東西</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：PE 格式總覽：MZ 檔頭、DOS stub 與 PE 簽章 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

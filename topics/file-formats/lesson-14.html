@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：PNG 的祕訣：逐列預測過濾器加 DEFLATE ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="為什麼 PNG 能無損又壓得不錯？關鍵在壓縮前先「重新排列」">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜點陣圖：像素、BMP、PNG、GIF、TIFF、RAW · 第 14 課</div>
+      <h1>PNG 的祕訣：逐列預測過濾器加 DEFLATE</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明 PNG 的過濾（預測）步驟</li>
+          <li>理解過濾為什麼讓資料更好壓</li>
+          <li>知道過濾是無損的</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課看到 IDAT 是 DEFLATE 壓縮的結果。但 PNG 在壓縮<strong>之前</strong>還做了一步聰明的處理，叫做<strong>過濾</strong>，這是它壓縮率不錯的關鍵。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">PNG 的祕訣：先「預測」再壓縮</text>
+                <text x="320" y="44" text-anchor="middle" font-size="10.5" fill="var(--text)">一列像素若是漸層，相鄰像素很接近：</text>
+                <text x="70" y="72" text-anchor="start" font-size="11" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">原始： 100  102  104  106  108</text>
+                <line x1="320.0" y1="84.0" x2="320.0" y2="97.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,104.0 316.5,97.0 323.5,97.0" fill="var(--text-muted)"/>
+                <text x="70" y="128" text-anchor="start" font-size="11" fill="#5aa469" font-family="ui-monospace,Menlo,Consolas,monospace">改存「和左邊的差」： 100  +2  +2  +2  +2</text>
+                <text x="320" y="162" text-anchor="middle" font-size="10" fill="var(--accent)">一堆重複的「+2」對 DEFLATE 來說超好壓（見上一模組）</text>
+                <text x="320" y="188" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每一列開頭 1 位元組，標明這列用了哪種預測（不預測／減左／減上／平均／Paeth）</text>
+                <text x="320" y="212" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這一步叫「過濾」；它不改變資料，只是重新排列成更好壓的樣子（無損）</text>
+        </svg>
+        <figcaption>把像素改存成「與鄰居的差」，製造大量重複，DEFLATE 就更好壓。</figcaption>
+      </div>
+
+      <h2>1. 用鄰居來預測</h2>
+
+      <p>
+        照片裡相鄰的像素通常很接近。與其存原始值，不如存「和左邊（或上面）像素的<strong>差</strong>」。平滑漸層變成一堆小小的、重複的差值，而重複正是 DEFLATE 最愛（<a href="lesson-07.html">第 7 課</a>）。
+      </p>
+
+      <h2>2. 每列可選不同方式</h2>
+
+      <p>
+        PNG 每一列像素的開頭都有 1 個位元組，標明這列用了哪種預測方式：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>編號</th><th>過濾方式</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>不過濾（原值）</td></tr>
+          <tr><td>1</td><td>減左邊的像素</td></tr>
+          <tr><td>2</td><td>減上面的像素</td></tr>
+          <tr><td>3</td><td>減「左與上的平均」</td></tr>
+          <tr><td>4</td><td>Paeth：挑左、上、左上中最接近的來預測</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        編碼器會替每一列挑最好壓的方式。我們前面那個 2×2 的例子太小，用的是「0 不過濾」，所以在 Hex 裡能看到每列開頭有個 <code>00</code>。
+      </p>
+
+      <h2>3. 過濾是無損的</h2>
+
+      <p>
+        重點：過濾只是<strong>重新表示</strong>資料（存差值而不是原值），解碼時把差值一路加回去就完全還原，<strong>一個位元都不會少</strong>。這和 JPG 的「量化」丟資料完全不同（<a href="lesson-20.html">第 20 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          想像一條由 50、51、52、53 組成的漸層。用「減左邊」過濾後會變成什麼？為什麼這樣更好壓？
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>PNG 過濾的基本想法是什麼？</li>
+          <li>每一列開頭的那個位元組代表什麼？</li>
+          <li>過濾會讓影像失真嗎？為什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>GIF：256 色調色盤、LZW 壓縮與動畫</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：PNG 結構：簽章與 IHDR、IDAT、IEND 區塊</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：GIF：256 色調色盤、LZW 壓縮與動畫 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

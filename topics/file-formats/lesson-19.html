@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：8×8 區塊與離散餘弦轉換（DCT）：把圖變成頻率 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="JPG 不看「這個點多亮」，而是看「這一小塊有多少粗紋路、多少細紋路」">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜JPG：有損影像壓縮全解 · 第 19 課</div>
+      <h1>8×8 區塊與離散餘弦轉換（DCT）：把圖變成頻率</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 JPG 為什麼切成 8×8 區塊</li>
+          <li>說明 DCT 把像素轉成頻率的意義</li>
+          <li>知道能量為什麼集中在低頻</li>
+        </ul>
+      </div>
+
+      <p>
+        處理完顏色後，JPG 把亮度影像切成一塊塊 <strong>8×8 像素</strong>的小方格，一塊一塊分開處理。對每一塊，它做一件很巧妙的事：<strong>離散餘弦轉換（DCT）</strong>。
+      </p>
+
+      <h2>1. 從「亮度」到「頻率」</h2>
+
+      <p>
+        DCT 不改變資訊，只是換個角度看：它把 8×8 的亮度值，換算成 64 個<strong>頻率</strong>成分。左上角代表「整塊大致多亮」（低頻），越往右下代表「越細的明暗變化」（高頻）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 288" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">DCT＋量化：把 8×8 區塊變成頻率，再丟掉細節</text>
+                <text x="134" y="38" text-anchor="middle" font-size="9.5" fill="var(--accent)">① 原始 8×8 亮度</text>
+                <rect x="30" y="46" width="26" height="26" rx="0" fill="#343434" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">52</text>
+                <rect x="56" y="46" width="26" height="26" rx="0" fill="#373737" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">55</text>
+                <rect x="82" y="46" width="26" height="26" rx="0" fill="#3d3d3d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">61</text>
+                <rect x="108" y="46" width="26" height="26" rx="0" fill="#424242" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">66</text>
+                <rect x="134" y="46" width="26" height="26" rx="0" fill="#464646" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">70</text>
+                <rect x="160" y="46" width="26" height="26" rx="0" fill="#3d3d3d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">61</text>
+                <rect x="186" y="46" width="26" height="26" rx="0" fill="#404040" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">64</text>
+                <rect x="212" y="46" width="26" height="26" rx="0" fill="#494949" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">73</text>
+                <rect x="30" y="72" width="26" height="26" rx="0" fill="#3f3f3f" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">63</text>
+                <rect x="56" y="72" width="26" height="26" rx="0" fill="#3b3b3b" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">59</text>
+                <rect x="82" y="72" width="26" height="26" rx="0" fill="#373737" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">55</text>
+                <rect x="108" y="72" width="26" height="26" rx="0" fill="#5a5a5a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">90</text>
+                <rect x="134" y="72" width="26" height="26" rx="0" fill="#6d6d6d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="88.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">109</text>
+                <rect x="160" y="72" width="26" height="26" rx="0" fill="#555555" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">85</text>
+                <rect x="186" y="72" width="26" height="26" rx="0" fill="#454545" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <rect x="212" y="72" width="26" height="26" rx="0" fill="#484848" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">72</text>
+                <rect x="30" y="98" width="26" height="26" rx="0" fill="#3e3e3e" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">62</text>
+                <rect x="56" y="98" width="26" height="26" rx="0" fill="#3b3b3b" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">59</text>
+                <rect x="82" y="98" width="26" height="26" rx="0" fill="#444444" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="108" y="98" width="26" height="26" rx="0" fill="#717171" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="114.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">113</text>
+                <rect x="134" y="98" width="26" height="26" rx="0" fill="#909090" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="114.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">144</text>
+                <rect x="160" y="98" width="26" height="26" rx="0" fill="#686868" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="114.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">104</text>
+                <rect x="186" y="98" width="26" height="26" rx="0" fill="#424242" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">66</text>
+                <rect x="212" y="98" width="26" height="26" rx="0" fill="#494949" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">73</text>
+                <rect x="30" y="124" width="26" height="26" rx="0" fill="#3f3f3f" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">63</text>
+                <rect x="56" y="124" width="26" height="26" rx="0" fill="#3a3a3a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">58</text>
+                <rect x="82" y="124" width="26" height="26" rx="0" fill="#474747" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">71</text>
+                <rect x="108" y="124" width="26" height="26" rx="0" fill="#7a7a7a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="140.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">122</text>
+                <rect x="134" y="124" width="26" height="26" rx="0" fill="#9a9a9a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="140.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">154</text>
+                <rect x="160" y="124" width="26" height="26" rx="0" fill="#6a6a6a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="140.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">106</text>
+                <rect x="186" y="124" width="26" height="26" rx="0" fill="#464646" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">70</text>
+                <rect x="212" y="124" width="26" height="26" rx="0" fill="#454545" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <rect x="30" y="150" width="26" height="26" rx="0" fill="#434343" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">67</text>
+                <rect x="56" y="150" width="26" height="26" rx="0" fill="#3d3d3d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">61</text>
+                <rect x="82" y="150" width="26" height="26" rx="0" fill="#444444" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="108" y="150" width="26" height="26" rx="0" fill="#686868" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="166.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">104</text>
+                <rect x="134" y="150" width="26" height="26" rx="0" fill="#7e7e7e" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="166.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">126</text>
+                <rect x="160" y="150" width="26" height="26" rx="0" fill="#585858" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">88</text>
+                <rect x="186" y="150" width="26" height="26" rx="0" fill="#444444" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="212" y="150" width="26" height="26" rx="0" fill="#464646" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">70</text>
+                <rect x="30" y="176" width="26" height="26" rx="0" fill="#4f4f4f" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">79</text>
+                <rect x="56" y="176" width="26" height="26" rx="0" fill="#414141" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">65</text>
+                <rect x="82" y="176" width="26" height="26" rx="0" fill="#3c3c3c" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">60</text>
+                <rect x="108" y="176" width="26" height="26" rx="0" fill="#464646" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">70</text>
+                <rect x="134" y="176" width="26" height="26" rx="0" fill="#4d4d4d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">77</text>
+                <rect x="160" y="176" width="26" height="26" rx="0" fill="#444444" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="186" y="176" width="26" height="26" rx="0" fill="#3a3a3a" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">58</text>
+                <rect x="212" y="176" width="26" height="26" rx="0" fill="#4b4b4b" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">75</text>
+                <rect x="30" y="202" width="26" height="26" rx="0" fill="#555555" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">85</text>
+                <rect x="56" y="202" width="26" height="26" rx="0" fill="#474747" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">71</text>
+                <rect x="82" y="202" width="26" height="26" rx="0" fill="#404040" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">64</text>
+                <rect x="108" y="202" width="26" height="26" rx="0" fill="#3b3b3b" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">59</text>
+                <rect x="134" y="202" width="26" height="26" rx="0" fill="#373737" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">55</text>
+                <rect x="160" y="202" width="26" height="26" rx="0" fill="#3d3d3d" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">61</text>
+                <rect x="186" y="202" width="26" height="26" rx="0" fill="#414141" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">65</text>
+                <rect x="212" y="202" width="26" height="26" rx="0" fill="#535353" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">83</text>
+                <rect x="30" y="228" width="26" height="26" rx="0" fill="#575757" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="43" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">87</text>
+                <rect x="56" y="228" width="26" height="26" rx="0" fill="#4f4f4f" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="69" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">79</text>
+                <rect x="82" y="228" width="26" height="26" rx="0" fill="#454545" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="95" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <rect x="108" y="228" width="26" height="26" rx="0" fill="#444444" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="121" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="134" y="228" width="26" height="26" rx="0" fill="#414141" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="147" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">65</text>
+                <rect x="160" y="228" width="26" height="26" rx="0" fill="#4c4c4c" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="173" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">76</text>
+                <rect x="186" y="228" width="26" height="26" rx="0" fill="#4e4e4e" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="199" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">78</text>
+                <rect x="212" y="228" width="26" height="26" rx="0" fill="#5e5e5e" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="225" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">94</text>
+                <line x1="252.0" y1="130.0" x2="285.0" y2="130.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="292.0,130.0 285.0,133.5 285.0,126.5" fill="var(--text-muted)"/>
+                <text x="404" y="38" text-anchor="middle" font-size="9.5" fill="var(--accent)">② DCT 後（左上＝整體亮度）</text>
+                <rect x="300" y="46" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="62.5" text-anchor="middle" font-size="8" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-415</text>
+                <rect x="326" y="46" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-30</text>
+                <rect x="352" y="46" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-61</text>
+                <rect x="378" y="46" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">27</text>
+                <rect x="404" y="46" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">56</text>
+                <rect x="430" y="46" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-20</text>
+                <rect x="456" y="46" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-2</text>
+                <rect x="482" y="46" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="62.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="300" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4</text>
+                <rect x="326" y="72" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-22</text>
+                <rect x="352" y="72" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-61</text>
+                <rect x="378" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="404" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">13</text>
+                <rect x="430" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-7</text>
+                <rect x="456" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-9</text>
+                <rect x="482" y="72" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="88.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">5</text>
+                <rect x="300" y="98" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-47</text>
+                <rect x="326" y="98" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">7</text>
+                <rect x="352" y="98" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">77</text>
+                <rect x="378" y="98" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-25</text>
+                <rect x="404" y="98" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-29</text>
+                <rect x="430" y="98" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="456" y="98" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">5</text>
+                <rect x="482" y="98" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="114.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-6</text>
+                <rect x="300" y="124" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-49</text>
+                <rect x="326" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">12</text>
+                <rect x="352" y="124" width="26" height="26" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">34</text>
+                <rect x="378" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-15</text>
+                <rect x="404" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-10</text>
+                <rect x="430" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">6</text>
+                <rect x="456" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <rect x="482" y="124" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="140.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <rect x="300" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">12</text>
+                <rect x="326" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-7</text>
+                <rect x="352" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-13</text>
+                <rect x="378" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-4</text>
+                <rect x="404" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-2</text>
+                <rect x="430" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <rect x="456" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-3</text>
+                <rect x="482" y="150" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="166.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3</text>
+                <rect x="300" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-8</text>
+                <rect x="326" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3</text>
+                <rect x="352" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <rect x="378" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-6</text>
+                <rect x="404" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-2</text>
+                <rect x="430" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">1</text>
+                <rect x="456" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4</text>
+                <rect x="482" y="176" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="192.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <rect x="300" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-1</text>
+                <rect x="326" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="352" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="378" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-2</text>
+                <rect x="404" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-1</text>
+                <rect x="430" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-3</text>
+                <rect x="456" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4</text>
+                <rect x="482" y="202" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="218.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-1</text>
+                <rect x="300" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="313" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="326" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="339" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="352" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="365" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-1</text>
+                <rect x="378" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="391" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-4</text>
+                <rect x="404" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="417" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">-1</text>
+                <rect x="430" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="443" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0</text>
+                <rect x="456" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="469" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">1</text>
+                <rect x="482" y="228" width="26" height="26" rx="0" fill="var(--surface)" fill-opacity="0.5" stroke="var(--border)" stroke-width="0.6"/>
+                <text x="495" y="244.5" text-anchor="middle" font-size="9" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2</text>
+                <text x="165" y="268" text-anchor="middle" font-size="9" fill="var(--text-muted)">左上角是低頻（大範圍明暗），右下角是高頻（細節）</text>
+                <text x="470" y="268" text-anchor="middle" font-size="9" fill="var(--text-muted)">能量集中在左上角——大部分格子已經很小</text>
+        </svg>
+        <figcaption>左：原始 8×8 亮度；右：DCT 後的係數，能量集中在左上角。</figcaption>
+      </div>
+
+      <h2>2. 關鍵觀察：能量集中</h2>
+
+      <p>
+        看右邊那張圖：DCT 之後，<strong>大部分的「能量」都跑到左上角</strong>，右下角的高頻係數大多很小、接近 0。這反映一個事實：真實影像大多是平滑的，細碎的高頻變化很少。
+      </p>
+
+      <h2>3. 為什麼這很有用</h2>
+
+      <p>
+        這正是壓縮的機會。既然高頻係數又小、人眼又不敏感，下一步就可以<strong>大膽地把它們丟掉或粗略化</strong>，這就是量化（<a href="lesson-20.html">第 20 課</a>）。DCT 本身還是無損的——真正丟資料的是下一步。
+      </p>
+
+      <p>
+        上圖的 8×8 亮度區塊是 JPEG 教科書的經典範例，右邊的係數是實際算出來的。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          想像一塊純色的 8×8 方格（每個像素都一樣亮）。做 DCT 後，除了左上角那一個數字，其他 63 個會是多少？為什麼？
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>JPG 把影像切成多大的區塊？</li>
+          <li>DCT 後，左上角和右下角分別代表什麼？</li>
+          <li>為什麼 DCT 後能量會集中在左上角？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>量化：真正丟資料的地方，也就是「品質 80」的意思</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：為什麼 JPG 不直接存 RGB：YCbCr 與色度抽樣</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：量化：真正丟資料的地方，也就是「品質 80」的意思 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

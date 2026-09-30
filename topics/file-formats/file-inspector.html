@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互動檔案解剖器 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="在瀏覽器裡選一個本機檔案（不會上傳），辨識它的真實格式、比對副檔名、顯示開頭 64 位元組的十六進位">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>互動檔案解剖器</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>互動檔案解剖器：拆解你自己的檔案</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <p>
+        這個工具讓你把課堂上學的「用魔術數字辨識格式」實際用在自己的檔案上。<strong>檔案只在你的瀏覽器裡讀取，不會上傳到任何伺服器。</strong>
+      </p>
+
+      <div class="content-figure" style="text-align:left">
+        <p style="margin:0 0 10px">選一個你電腦裡的檔案（圖片、聲音、壓縮檔、文件都行）。
+        <strong>檔案完全不會上傳</strong>，所有分析都在你的瀏覽器裡進行。</p>
+        <input type="file" id="fi-file" style="font:inherit">
+        <div id="fi-out" style="margin-top:14px"></div>
+      </div>
+      <script>
+      (function () {
+        var SIGS = [
+          {n:"PNG 影像", b:[0x89,0x50,0x4E,0x47], why:"區塊結構：IHDR/IDAT/IEND"},
+          {n:"JPG 照片", b:[0xFF,0xD8,0xFF], why:"標記結構：SOI…SOS…EOI"},
+          {n:"GIF 動圖", b:[0x47,0x49,0x46,0x38], why:"調色盤 + LZW"},
+          {n:"BMP 點陣圖", b:[0x42,0x4D], why:"幾乎不壓縮，由下往上、BGR"},
+          {n:"PDF 文件", b:[0x25,0x50,0x44,0x46], why:"物件 + 交叉參照表"},
+          {n:"ZIP / docx / epub / apk", b:[0x50,0x4B,0x03,0x04], why:"DEFLATE 壓縮，或當作容器"},
+          {n:"gzip", b:[0x1F,0x8B], why:"DEFLATE"},
+          {n:"7z", b:[0x37,0x7A,0xBC,0xAF], why:"固實壓縮"},
+          {n:"RAR", b:[0x52,0x61,0x72,0x21], why:"有修復記錄"},
+          {n:"MP3（有 ID3）", b:[0x49,0x44,0x33], why:"影格 + ID3 標籤"},
+          {n:"MP3（無標籤）", b:[0xFF,0xFB], why:"影格 + ID3 標籤"},
+          {n:"WAV / AVI", b:[0x52,0x49,0x46,0x46], why:"RIFF 容器"},
+          {n:"FLAC 無損聲音", b:[0x66,0x4C,0x61,0x43], why:"無損壓縮"},
+          {n:"MIDI 樂譜", b:[0x4D,0x54,0x68,0x64], why:"事件 + 可變長度時間"},
+          {n:"OLE（舊版 Office）", b:[0xD0,0xCF,0x11,0xE0], why:"檔中檔（複合文件）"},
+          {n:"SQLite 資料庫", b:[0x53,0x51,0x4C,0x69,0x74,0x65], why:"分頁 + B-tree"},
+          {n:"Java class", b:[0xCA,0xFE,0xBA,0xBE], why:"位元組碼，給虛擬機"},
+          {n:"ELF（Linux 執行檔）", b:[0x7F,0x45,0x4C,0x46], why:"見姊妹課程"},
+          {n:"EXE（Windows 執行檔）", b:[0x4D,0x5A], why:"見姊妹課程"}
+        ];
+        var input = document.getElementById('fi-file'), out = document.getElementById('fi-out');
+        function hex(b) { return ('0' + b.toString(16).toUpperCase()).slice(-2); }
+        function esc(s) { return s.replace(/[&<>]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]; }); }
+        function match(bytes) {
+          // MP4 的 ftyp 在第 4 位元組
+          if (bytes.length >= 8 && bytes[4]===0x66 && bytes[5]===0x74 && bytes[6]===0x79 && bytes[7]===0x70)
+            return {n:"MP4 / MOV 影片", why:"box 結構：moov / mdat"};
+          for (var i = 0; i < SIGS.length; i++) {
+            var s = SIGS[i], ok = true;
+            for (var j = 0; j < s.b.length; j++) if (bytes[j] !== s.b[j]) { ok = false; break; }
+            if (ok) return s;
+          }
+          return null;
+        }
+        input.addEventListener('change', function () {
+          var f = input.files[0];
+          if (!f) return;
+          var r = new FileReader();
+          r.onload = function () {
+            var all = new Uint8Array(r.result);
+            var bytes = all.subarray(0, 64);
+            var m = match(all);
+            var ext = (f.name.split('.').pop() || '').toLowerCase();
+            var html = '<div style="border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--surface)">';
+            html += '<div style="margin-bottom:8px"><strong>' + esc(f.name) + '</strong>（' + all.length.toLocaleString() + ' 位元組）</div>';
+            if (m) {
+              html += '<div style="font-size:1.05em;color:var(--accent);margin-bottom:4px">辨識結果：<strong>' + esc(m.n) + '</strong></div>';
+              html += '<div style="color:var(--text-muted);margin-bottom:8px">結構重點：' + esc(m.why) + '</div>';
+            } else {
+              html += '<div style="color:var(--text-muted);margin-bottom:8px">開頭位元組不在速查表中——可能是純文字，或本課未收錄的格式。</div>';
+            }
+            // 副檔名是否相符
+            var extMap = {png:'PNG',jpg:'JPG',jpeg:'JPG',gif:'GIF',bmp:'BMP',pdf:'PDF',zip:'ZIP',docx:'ZIP',xlsx:'ZIP',pptx:'ZIP',epub:'ZIP',apk:'ZIP',gz:'gzip',mp3:'MP3',wav:'WAV',flac:'FLAC',mid:'MIDI',midi:'MIDI',mp4:'MP4',mov:'MP4',db:'SQLite',sqlite:'SQLite',exe:'EXE'};
+            if (m && extMap[ext] && m.n.indexOf(extMap[ext]) === -1 && !(extMap[ext]==='ZIP' && m.n.indexOf('ZIP')>=0)) {
+              html += '<div style="color:#e0605a;margin-bottom:8px">⚠ 副檔名是 .' + esc(ext) + '，但內容看起來是「' + esc(m.n) + '」——名不符實，請提高警覺。</div>';
+            }
+            // hex dump 前 64 位元組
+            html += '<div style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:0.82em;line-height:1.6;white-space:pre;overflow-x:auto">';
+            for (var off = 0; off < bytes.length; off += 16) {
+              var hexpart = '', asc = '';
+              for (var k = 0; k < 16; k++) {
+                if (off + k < bytes.length) {
+                  var bv = bytes[off + k];
+                  hexpart += hex(bv) + ' ';
+                  asc += (bv >= 32 && bv < 127) ? String.fromCharCode(bv) : '·';
+                } else hexpart += '   ';
+              }
+              html += ('000' + off.toString(16)).slice(-4).toUpperCase() + '  ' + hexpart + ' ' + esc(asc) + '\n';
+            }
+            html += '</div></div>';
+            out.innerHTML = html;
+          };
+          r.readAsArrayBuffer(f.size > 8388608 ? f.slice(0, 8388608) : f);
+        });
+      })();
+      </script>
+
+      <h2>它會告訴你什麼</h2>
+
+      <ul>
+        <li><strong>真實格式</strong>：依開頭的魔術數字判斷，而不是看副檔名（<a href="lesson-02.html">第 2 課</a>）。</li>
+        <li><strong>名不符實的警告</strong>：如果副檔名和內容對不上（例如 .jpg 其實是執行檔），會特別提醒（<a href="lesson-62.html">第 62 課</a>）。</li>
+        <li><strong>十六進位</strong>：顯示開頭 64 個位元組，就像一個小型 Hex 檢視器（<a href="lesson-01.html">第 1 課</a>）。</li>
+      </ul>
+
+      <p>
+        試試看：把一個 <code>.docx</code> 丟進來，它會被辨識成 ZIP（<a href="lesson-45.html">第 45 課</a>）；把一張照片改名成 <code>.txt</code> 再丟進來，它仍會認出真正的格式。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

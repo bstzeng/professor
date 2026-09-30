@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：ZIP：本地檔頭、中央目錄與為什麼從檔尾開始讀 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="最重要的封裝格式：不只壓縮，還是無數其他格式的外殼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜文件與封裝格式 · 第 44 課</div>
+      <h1>ZIP：本地檔頭、中央目錄與為什麼從檔尾開始讀</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>讀懂 ZIP 的三種關鍵結構</li>
+          <li>理解為什麼 ZIP 要從檔尾讀起</li>
+          <li>知道 ZIP 用哪種壓縮</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>ZIP</strong> 是最重要的封裝格式，因為它不只用來壓縮，還是 docx、epub、apk 等一大堆格式的<strong>外殼</strong>（<a href="lesson-45.html">第 45 課</a>）。它內部用的正是模組 B 的 DEFLATE（<a href="lesson-09.html">第 9 課</a>）。下面是一個真正的 ZIP，裡面只裝了一個小文字檔。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 312" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個 126 位元組的 ZIP</text>
+                <text x="58" y="36" text-anchor="end" font-size="8.5" fill="var(--text-muted)">位移</text>
+                <text x="83.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">0</text>
+                <text x="110.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">1</text>
+                <text x="137.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">2</text>
+                <text x="164.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">3</text>
+                <text x="191.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">4</text>
+                <text x="218.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">5</text>
+                <text x="245.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">6</text>
+                <text x="272.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">7</text>
+                <text x="299.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">8</text>
+                <text x="326.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">9</text>
+                <text x="353.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">A</text>
+                <text x="380.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">B</text>
+                <text x="407.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">C</text>
+                <text x="434.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">D</text>
+                <text x="461.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">E</text>
+                <text x="488.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">F</text>
+                <text x="562" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ASCII</text>
+                <text x="58" y="60" text-anchor="end" font-size="9" fill="var(--text-muted)">0000</text>
+                <rect x="71" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="83.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">50</text>
+                <rect x="98" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="110.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4B</text>
+                <rect x="125" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="137.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">03</text>
+                <rect x="152" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="164.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">04</text>
+                <rect x="179" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">14</text>
+                <rect x="206" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">08</text>
+                <rect x="314" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">79</text>
+                <rect x="368" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">39</text>
+                <rect x="395" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3E</text>
+                <rect x="422" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">5D</text>
+                <rect x="449" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">A2</text>
+                <rect x="476" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">11</text>
+                <text x="516" y="60" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">PK········y9&gt;]··</text>
+                <text x="58" y="86" text-anchor="end" font-size="9" fill="var(--text-muted)">0010</text>
+                <rect x="71" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">14</text>
+                <rect x="98" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">62</text>
+                <rect x="125" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="152" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2C</text>
+                <rect x="260" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">06</text>
+                <rect x="368" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <rect x="476" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <text x="516" y="86" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">·b····,·······hi</text>
+                <text x="58" y="112" text-anchor="end" font-size="9" fill="var(--text-muted)">0020</text>
+                <rect x="71" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2E</text>
+                <rect x="98" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <rect x="125" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">78</text>
+                <rect x="152" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <rect x="179" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">F3</text>
+                <rect x="206" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">48</text>
+                <rect x="233" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">CD</text>
+                <rect x="260" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">C9</text>
+                <rect x="287" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">C9</text>
+                <rect x="314" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">57</text>
+                <rect x="341" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">88</text>
+                <rect x="368" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">F2</text>
+                <rect x="395" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0C</text>
+                <rect x="422" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">50</text>
+                <rect x="449" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">54</text>
+                <rect x="476" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">F0</text>
+                <text x="516" y="112" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">.txt·H···W···PT·</text>
+                <text x="58" y="138" text-anchor="end" font-size="9" fill="var(--text-muted)">0030</text>
+                <rect x="71" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">20</text>
+                <rect x="98" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">C4</text>
+                <rect x="125" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">04</text>
+                <rect x="152" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">50</text>
+                <rect x="206" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4B</text>
+                <rect x="233" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="260" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <text x="299.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">14</text>
+                <text x="326.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">03</text>
+                <text x="353.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">14</text>
+                <text x="380.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="407.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="434.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="461.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">08</text>
+                <text x="488.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="138" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace"> ···PK··········</text>
+                <text x="58" y="164" text-anchor="end" font-size="9" fill="var(--text-muted)">0040</text>
+                <text x="83.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">79</text>
+                <text x="110.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">39</text>
+                <text x="137.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">3E</text>
+                <text x="164.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">5D</text>
+                <text x="191.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">A2</text>
+                <text x="218.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">11</text>
+                <text x="245.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">14</text>
+                <text x="272.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">62</text>
+                <text x="299.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <text x="326.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="353.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="380.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="407.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2C</text>
+                <text x="434.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="461.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="488.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="164" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">y9&gt;]···b····,···</text>
+                <text x="58" y="190" text-anchor="end" font-size="9" fill="var(--text-muted)">0050</text>
+                <text x="83.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">06</text>
+                <text x="110.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="137.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="164.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="191.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="218.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="245.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="272.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="299.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="326.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="353.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="380.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="407.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">80</text>
+                <text x="434.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <text x="461.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="488.5" y="190" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="190" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="216" text-anchor="end" font-size="9" fill="var(--text-muted)">0060</text>
+                <text x="83.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="110.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="137.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">68</text>
+                <text x="164.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">69</text>
+                <text x="191.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">2E</text>
+                <text x="218.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <text x="245.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">78</text>
+                <text x="272.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">74</text>
+                <rect x="287" y="201" width="25" height="22" rx="3" fill="#e0605a" fill-opacity="0.28" stroke="#e0605a" stroke-width="1"/>
+                <text x="299.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">50</text>
+                <rect x="314" y="201" width="25" height="22" rx="3" fill="#e0605a" fill-opacity="0.28" stroke="#e0605a" stroke-width="1"/>
+                <text x="326.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4B</text>
+                <rect x="341" y="201" width="25" height="22" rx="3" fill="#e0605a" fill-opacity="0.28" stroke="#e0605a" stroke-width="1"/>
+                <text x="353.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">05</text>
+                <rect x="368" y="201" width="25" height="22" rx="3" fill="#e0605a" fill-opacity="0.28" stroke="#e0605a" stroke-width="1"/>
+                <text x="380.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">06</text>
+                <text x="407.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="434.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="461.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="488.5" y="216" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="216" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">··hi.txtPK······</text>
+                <text x="58" y="242" text-anchor="end" font-size="9" fill="var(--text-muted)">0070</text>
+                <text x="83.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <text x="110.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="137.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <text x="164.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="191.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">34</text>
+                <text x="218.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="245.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="272.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="299.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">34</text>
+                <text x="326.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="353.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="380.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="407.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="434.5" y="242" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="242" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">····4···4·····</text>
+                <rect x="24" y="266" width="12" height="12" rx="2" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <text x="42" y="276" text-anchor="start" font-size="9.5" fill="var(--text)">PK\x03\x04：本地檔頭（每個檔案前）</text>
+                <rect x="324" y="266" width="12" height="12" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <text x="342" y="276" text-anchor="start" font-size="9.5" fill="var(--text)">檔名 hi.txt ＋ 壓縮後的內容</text>
+                <rect x="24" y="286" width="12" height="12" rx="2" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <text x="42" y="296" text-anchor="start" font-size="9.5" fill="var(--text)">PK\x01\x02：中央目錄（檔案清單）</text>
+                <rect x="324" y="286" width="12" height="12" rx="2" fill="#e0605a" fill-opacity="0.5" stroke="#e0605a" stroke-width="1"/>
+                <text x="342" y="296" text-anchor="start" font-size="9.5" fill="var(--text)">PK\x05\x06：目錄結束（從檔尾往前找）</text>
+        </svg>
+        <figcaption>本地檔頭（PK\x03\x04）、中央目錄（PK\x01\x02）、目錄結束（PK\x05\x06）。</figcaption>
+      </div>
+
+      <h2>1. 三種結構</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 224" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">ZIP 結構：從檔尾開始讀</text>
+                <rect x="20" y="44" width="89.3077" height="52" rx="4" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="1.2"/>
+                <text x="64.6538" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">本地檔頭</text>
+                <text x="64.6538" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">檔案 A</text>
+                <rect x="112.308" y="44" width="89.3077" height="52" rx="4" fill="#4a90c2" fill-opacity="0.22" stroke="#4a90c2" stroke-width="1.2"/>
+                <text x="156.962" y="74" text-anchor="middle" font-size="8.5" fill="var(--text)">檔案 A 內容</text>
+                <rect x="204.615" y="44" width="89.3077" height="52" rx="4" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="1.2"/>
+                <text x="249.269" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">本地檔頭</text>
+                <text x="249.269" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">檔案 B</text>
+                <rect x="296.923" y="44" width="89.3077" height="52" rx="4" fill="#4a90c2" fill-opacity="0.22" stroke="#4a90c2" stroke-width="1.2"/>
+                <text x="341.577" y="74" text-anchor="middle" font-size="8.5" fill="var(--text)">檔案 B 內容</text>
+                <rect x="389.231" y="44" width="144.692" height="52" rx="4" fill="#5aa469" fill-opacity="0.22" stroke="#5aa469" stroke-width="1.2"/>
+                <text x="461.577" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">中央目錄</text>
+                <text x="461.577" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">完整檔案清單</text>
+                <rect x="536.923" y="44" width="80.0769" height="52" rx="4" fill="#e0605a" fill-opacity="0.22" stroke="#e0605a" stroke-width="1.2"/>
+                <text x="576.962" y="68" text-anchor="middle" font-size="8.5" fill="var(--text)">目錄結束</text>
+                <text x="576.962" y="82" text-anchor="middle" font-size="8" fill="var(--text-muted)">EOCD</text>
+                <text x="320" y="116" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每個被壓縮的檔案各有一個「本地檔頭＋內容」；最後才是整份「目錄」</text>
+                <rect x="90" y="134" width="460" height="82" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="320" y="156" text-anchor="middle" font-size="10" fill="var(--accent)">為什麼從檔尾讀？</text>
+                <text x="320" y="178" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">「目錄結束」在最後，記錄「中央目錄在哪」；中央目錄再指向每個檔案</text>
+                <text x="320" y="198" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">好處：要加／刪檔案，只要改檔尾的目錄，不必重寫整個壓縮檔</text>
+        </svg>
+        <figcaption>每個檔案有本地檔頭＋內容，最後是中央目錄與目錄結束。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>結構</th><th>開頭</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>本地檔頭</td><td>PK 03 04</td><td>每個被壓縮的檔案前面，記檔名、壓縮方式、大小</td></tr>
+          <tr><td>中央目錄</td><td>PK 01 02</td><td>整份壓縮檔的檔案清單（目錄）</td></tr>
+          <tr><td>目錄結束（EOCD）</td><td>PK 05 06</td><td>在最後，記錄中央目錄的位置</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. 為什麼從檔尾讀</h2>
+
+      <p>
+        解壓縮軟體打開 ZIP 時，<strong>先跳到檔尾</strong>找「目錄結束」，它會告訴你「中央目錄在哪」，再由中央目錄指向每個檔案的位置。這樣設計的好處是：要在壓縮檔裡<strong>增加或刪除</strong>一個檔案，只要改檔尾的目錄，不必重寫整個檔。
+      </p>
+
+      <h2>3. PK 是誰</h2>
+
+      <p>
+        所有 ZIP 的區塊都以 <code>PK</code> 開頭，這是發明者 <strong>Phil Katz</strong> 的姓名縮寫（<a href="lesson-02.html">第 2 課</a>）。看到一個檔案開頭是 <code>50 4B 03 04</code>，不管副檔名是什麼，它骨子裡就是個 ZIP。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          把一個 .zip 用 Hex 檢視器打開，開頭一定是 50 4B 03 04（PK..）。再找找看檔案接近結尾處的 50 4B 01 02（中央目錄）。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>ZIP 的三種關鍵結構是什麼？</li>
+          <li>為什麼 ZIP 要從檔尾開始讀？</li>
+          <li>ZIP 區塊開頭的「PK」是怎麼來的？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>docx、xlsx、epub、apk：其實都是 ZIP 包 XML</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：HLS 串流：把影片切成幾秒一段的小檔案</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：docx、xlsx、epub、apk：其實都是 ZIP 包 XML →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

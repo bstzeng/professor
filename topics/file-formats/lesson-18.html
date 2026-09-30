@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：為什麼 JPG 不直接存 RGB：YCbCr 與色度抽樣 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="JPG 的第一刀，就砍在「人眼對顏色沒那麼敏感」這件事上">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜JPG：有損影像壓縮全解 · 第 18 課</div>
+      <h1>為什麼 JPG 不直接存 RGB：YCbCr 與色度抽樣</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明 YCbCr 色彩空間的用意</li>
+          <li>理解色度抽樣（4:2:0）如何省掉一半資料</li>
+          <li>知道它為什麼幾乎看不出來</li>
+        </ul>
+      </div>
+
+      <p>
+        你上一個模組（<a href="lesson-16.html">第 16 課</a>、<a href="lesson-11.html">第 11 課</a>）看到的點陣圖都存 RGB。JPG 第一件事就是<strong>不存 RGB</strong>，而是先把顏色換個表示法，好丟掉人眼不在意的部分。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 225" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">為什麼不直接存 RGB：拆成亮度與色彩</text>
+                <rect x="30" y="44" width="175" height="84" rx="8" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.5"/><text x="117.5" y="70" text-anchor="middle" font-size="11" fill="var(--text-muted)">RGB</text><text x="117.5" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">紅、綠、藍</text><text x="117.5" y="97" text-anchor="middle" font-size="9" fill="var(--text-muted)">三者地位相同</text><text x="117.5" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">人眼分不出哪個重要</text>
+                <line x1="210.0" y1="86.0" x2="243.0" y2="86.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="250.0,86.0 243.0,89.5 243.0,82.5" fill="var(--accent)"/>
+                <text x="230" y="76" text-anchor="middle" font-size="8.5" fill="var(--accent)">轉換</text>
+                <rect x="255" y="44" width="160" height="84" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="335" y="70" text-anchor="middle" font-size="11" fill="#5aa469">Y（亮度）</text><text x="335" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">明暗、輪廓</text><text x="335" y="97" text-anchor="middle" font-size="9" fill="var(--text-muted)">眼睛非常敏感</text><text x="335" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">完整保留</text>
+                <rect x="425" y="44" width="185" height="84" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="517.5" y="70" text-anchor="middle" font-size="11" fill="#ff8a65">Cb、Cr（色彩）</text><text x="517.5" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">藍、紅的色度</text><text x="517.5" y="97" text-anchor="middle" font-size="9" fill="var(--text-muted)">眼睛較不敏感</text><text x="517.5" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">可以減半！</text>
+                <text x="320" y="158" text-anchor="middle" font-size="10.5" fill="var(--accent)">色度抽樣 4:2:0：每 4 個像素只存 1 組顏色，亮度全保留</text>
+                <text x="320" y="182" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">影像資料立刻少掉一半，肉眼卻幾乎看不出來——有損壓縮的第一刀</text>
+                <text x="320" y="208" text-anchor="middle" font-size="9" fill="var(--text-muted)">這也是為什麼純紅、純藍的細線在 JPG 裡特別容易糊掉</text>
+        </svg>
+        <figcaption>把 RGB 拆成「亮度 Y」與「色彩 Cb、Cr」，色彩部分可以大膽減量。</figcaption>
+      </div>
+
+      <h2>1. 拆成亮度與色彩</h2>
+
+      <p>
+        RGB 裡紅綠藍三者地位相同，但人眼其實對<strong>明暗（亮度）</strong>遠比對<strong>顏色（色度）</strong>敏感。所以 JPG 先把每個像素換算成 <strong>Y</strong>（亮度）加上 <strong>Cb、Cr</strong>（藍、紅的色度）。
+      </p>
+
+      <h2>2. 色度抽樣 4:2:0</h2>
+
+      <p>
+        既然眼睛對顏色不敏感，那顏色就不必每個像素都存。<strong>4:2:0 抽樣</strong>把每 2×2＝4 個像素的顏色合併成一組，只有<strong>亮度</strong>保留每個像素。這一步影像資料立刻少掉約一半，肉眼卻幾乎看不出差別。
+      </p>
+
+      <h2>3. 代價</h2>
+
+      <p>
+        這一刀砍在顏色上，所以副作用也出現在顏色的細節：純紅字、純藍細線在 JPG 裡容易糊掉、出現色暈。這也是為什麼<strong>螢幕截圖、文字圖、線條圖不該存 JPG</strong>（該用 PNG）。
+      </p>
+
+      <p>
+        接下來三課處理亮度資料本身：先用 DCT 變成頻率（<a href="lesson-19.html">第 19 課</a>），再量化丟細節（<a href="lesson-20.html">第 20 課</a>），最後編碼（<a href="lesson-21.html">第 21 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          找一張有紅色文字的圖，分別存成 PNG 和 JPG，放大看紅字邊緣：JPG 會出現一圈髒髒的色暈，PNG 則乾淨——這就是色度抽樣的代價。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>YCbCr 把顏色拆成哪幾個部分？</li>
+          <li>人眼對亮度和色度，哪一個比較敏感？</li>
+          <li>4:2:0 色度抽樣大約省掉多少資料？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>8×8 區塊與離散餘弦轉換（DCT）：把圖變成頻率</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：RAW：相機感光元件的原始資料與拜耳陣列</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：8×8 區塊與離散餘弦轉換（DCT）：把圖變成頻率 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

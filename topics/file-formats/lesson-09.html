@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：DEFLATE：ZIP、PNG、gzip 共用的壓縮引擎 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="學會這一個演算法，等於一次看懂好幾種格式的壓縮">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜壓縮的原理 · 第 9 課</div>
+      <h1>DEFLATE：ZIP、PNG、gzip 共用的壓縮引擎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出 DEFLATE 結合了哪兩種技巧</li>
+          <li>知道哪些常見格式使用 DEFLATE</li>
+          <li>理解為什麼標準化的壓縮引擎很重要</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>DEFLATE</strong> 把前兩課的兩招疊在一起，成為業界最通用的無損壓縮演算法。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 225" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">DEFLATE：先字典、再霍夫曼，一套引擎通吃</text>
+                <rect x="20" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.5"/><text x="85.25" y="76.85" text-anchor="middle" font-size="11" fill="var(--text-muted)">原始資料</text><line x1="153.5" y1="73.0" x2="166.5" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,73.0 166.5,76.5 166.5,69.5" fill="var(--border)"/><rect x="176.5" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="241.75" y="69" text-anchor="middle" font-size="11" fill="#ff8a65">LZ77</text><text x="241.75" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">消除重複</text><line x1="310.0" y1="73.0" x2="323.0" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,73.0 323.0,76.5 323.0,69.5" fill="var(--border)"/><rect x="333" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="398.25" y="69" text-anchor="middle" font-size="11" fill="#5aa469">霍夫曼</text><text x="398.25" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">常見的用短碼</text><line x1="466.5" y1="73.0" x2="479.5" y2="73.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,73.0 479.5,76.5 479.5,69.5" fill="var(--border)"/><rect x="489.5" y="44" width="130.5" height="58" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="554.75" y="76.85" text-anchor="middle" font-size="11" fill="var(--accent)">壓縮後位元流</text>
+                <text x="320" y="130" text-anchor="middle" font-size="10" fill="var(--text-muted)">兩種技巧疊起來：先把重複折疊掉，剩下的符號再依頻率縮短</text>
+                <rect x="90" y="150" width="460" height="66" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="320" y="174" text-anchor="middle" font-size="10.5" fill="var(--accent)">這套 DEFLATE 演算法被 ZIP、gzip、PNG、HTTP 傳輸共用</text>
+                <text x="320" y="196" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">所以學會它，等於一次看懂好幾種格式的壓縮部分</text>
+        </svg>
+        <figcaption>DEFLATE ＝ LZ77 消除重複 ＋ 霍夫曼縮短符號。</figcaption>
+      </div>
+
+      <h2>1. 兩步驟</h2>
+
+      <ol>
+        <li><strong>LZ77</strong>：先把重複的片段換成「往回幾格、複製幾個」的指標。</li>
+        <li><strong>霍夫曼</strong>：把剩下的位元組和指標，依出現頻率換成長短不一的碼。</li>
+      </ol>
+
+      <h2>2. 一次通吃很多格式</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>格式／用途</th><th>怎麼用 DEFLATE</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ZIP</td><td>每個被壓縮的檔案內容（<a href="lesson-41.html">第 41 課</a>）</td></tr>
+          <tr><td>gzip（.gz）</td><td>整個檔案外面包一層 DEFLATE</td></tr>
+          <tr><td>PNG</td><td>影像資料（IDAT 區塊）用 DEFLATE 壓（<a href="lesson-13.html">第 13 課</a>）</td></tr>
+          <tr><td>HTTP 網頁傳輸</td><td>伺服器把 HTML 壓縮後再傳，瀏覽器解開</td></tr>
+          <tr><td>docx、xlsx、epub、apk</td><td>其實都是 ZIP，內部用 DEFLATE（<a href="lesson-42.html">第 42 課</a>）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        因為它被寫進了公開標準（zlib 函式庫幾乎無所不在），大家不必各自發明壓縮法，檔案也能在不同軟體之間互通。這是「標準化」威力的好例子。
+      </p>
+
+      <h2>3. 更新的演算法</h2>
+
+      <p>
+        DEFLATE 是 1990 年代的設計，至今仍非常普及。近年出現壓得更小或更快的替代品，例如 Google 的 Brotli（網頁用）和 Facebook 的 Zstandard（<a href="lesson-44.html">第 44 課</a>），但 DEFLATE 因為相容性好，短期內不會消失。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          如果你的電腦有 gzip 指令，把一個文字檔壓成 .gz，再用 Hex 檢視器看它的開頭：1F 8B 就是 gzip 的魔術數字。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>DEFLATE 結合了哪兩種壓縮技巧？</li>
+          <li>列出三種使用 DEFLATE 的格式或場合。</li>
+          <li>為什麼有一個標準化的壓縮引擎很重要？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>有損壓縮的思路：丟掉人類感覺不到的部分</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：無損壓縮二：霍夫曼編碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：有損壓縮的思路：丟掉人類感覺不到的部分 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
