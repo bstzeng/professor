@@ -89,3 +89,32 @@ def hexdump(data, regions, y0=34, cell=27, legend_cols=3, heading=None):
         out.append(T(cx + 18, cy + 10, lab, 9.5, TXT, "start"))
     h = ly + ((len(regions) + legend_cols - 1) // legend_cols) * 20 + 6
     return out, h
+
+
+def hexfig(data, regions, heading, cap, legend_cols=2):
+    """直接回傳可放進 body 的圖：("FIGX", svg, viewBox, 圖說)。"""
+    parts, h = hexdump(data, regions, legend_cols=legend_cols, heading=heading)
+    return ("FIGX", svg(parts), "0 0 640 %d" % h, cap)
+
+
+def fig(svgtext, h, cap):
+    return ("FIGX", svgtext, "0 0 640 %d" % h, cap)
+
+
+def layout(y, parts, x0=20, x1=620, h=46, size=10, sub=9):
+    """橫向分段條：parts = [(寬度權重, 標題, 副標, 顏色)]，用來畫「檔案由哪幾段組成」。"""
+    tot = float(sum(p[0] for p in parts))
+    out, x = [], x0
+    for wgt, t, s, c in parts:
+        w = (x1 - x0) * wgt / tot
+        out.append(R(x, y, w - 3, h, c, c, 4, 1.2, op=0.22))
+        out.append(T(x + w / 2.0 - 1.5, y + (h / 2.0 - 2 if s else h / 2.0 + 4), t, size, TXT))
+        if s:
+            out.append(T(x + w / 2.0 - 1.5, y + h / 2.0 + 12, s, sub, MUTED))
+        x += w
+    return out
+
+
+def mono(x, y, s, size=10, color=TXT, anchor="start"):
+    return ('<text x="%g" y="%g" text-anchor="%s" font-size="%g" fill="%s" '
+            'font-family="ui-monospace,Menlo,Consolas,monospace">%s</text>' % (x, y, anchor, size, color, s))
