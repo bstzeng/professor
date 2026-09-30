@@ -10330,7 +10330,18 @@ window.SITE_DATA = {
             { title: "371. Sum of Two Integers 兩整數之和", url: "topics/leetcode/problem-0371.html" },
             { title: "372. Super Pow 超級次方", url: "topics/leetcode/problem-0372.html" },
             { title: "373. Find K Pairs with Smallest Sums 查找和最小的 K 對數字", url: "topics/leetcode/problem-0373.html" },
-            { title: "374. Guess Number Higher or Lower 猜數字大小", url: "topics/leetcode/problem-0374.html" }
+            { title: "374. Guess Number Higher or Lower 猜數字大小", url: "topics/leetcode/problem-0374.html" },
+            { title: "375. Guess Number Higher or Lower II 猜數字大小 II", url: "topics/leetcode/problem-0375.html" }
+          ]
+        },
+        {
+          title: "第 376–400 題",
+          courses: [
+            { title: "376. Wiggle Subsequence 擺動序列", url: "topics/leetcode/problem-0376.html" },
+            { title: "377. Combination Sum IV 組合總和 Ⅳ", url: "topics/leetcode/problem-0377.html" },
+            { title: "378. Kth Smallest Element in a Sorted Matrix 有序矩陣中第 K 小的元素", url: "topics/leetcode/problem-0378.html" },
+            { title: "380. Insert Delete GetRandom O(1) O(1) 時間插入、刪除和獲取隨機元素", url: "topics/leetcode/problem-0380.html" },
+            { title: "381. Insert Delete GetRandom O(1) - Duplicates allowed O(1) 時間插入、刪除和獲取隨機元素 - 允許重複", url: "topics/leetcode/problem-0381.html" }
           ]
         }
       ]
