@@ -1,0 +1,143 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A frog is crossing a river. The river is divided into some number of units, and at each unit, there may or may not exist a stone. The frog can jump on a stone, but it must not jump into the water.</p>
+          <p>Given a list of <code>stones</code> positions (in units) in sorted <strong>ascending order</strong>, determine if the frog can cross the river by landing on the last stone. Initially, the frog is on the first stone and assumes the first jump must be <code>1</code> unit.</p>
+          <p>If the frog's last jump was <code>k</code> units, its next jump must be either <code>k - 1</code>, <code>k</code>, or <code>k + 1</code> units. The frog can only jump in the forward direction.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>一隻青蛙要過河。河被分成許多格，有些格子上有石頭。青蛙只能跳到石頭上，不能掉進水裡。</p>
+          <p>給你遞增排序的石頭位置 <code>stones</code>，判斷青蛙能不能跳到最後一顆石頭。青蛙一開始在第一顆石頭（位置 0），<strong>第一跳必須是 1 格</strong>。</p>
+          <p>如果上一跳是 <code>k</code> 格，下一跳只能是 <code>k − 1</code>、<code>k</code> 或 <code>k + 1</code> 格，而且只能往前跳。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：stones = [0,1,3,5,6,8,12,17]
+  輸出：true
+  說明：0 →1→ 1 →2→ 3 →2→ 5 →3→ 8 →4→ 12 →5→ 17
+
+範例 2
+  輸入：stones = [0,1,2,3,4,8,9,11]
+  輸出：false
+  說明：4 和 8 之間的空隙太大。</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>2 ≤ <code>stones.length</code> ≤ 2000</li>
+          <li>0 ≤ <code>stones[i]</code> ≤ 2³¹ − 1</li>
+          <li><code>stones[0] == 0</code>，而且嚴格遞增</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/frog-jump/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【狀態 = (在哪顆石頭, 上一跳多遠)】
+    只知道位置不夠：同一顆石頭，上一跳 2 和上一跳 5 能到的地方不同。
+
+【方法一：由前往後推（DP）】
+    reach[s] = 能到達石頭 s 時，「最後一跳」可能的距離集合
+    從第一顆石頭（上一跳視為 0）開始，
+    對每個 (s, k)，嘗試跳 k-1、k、k+1，落在石頭上就記錄。
+    最後看最後一顆石頭的集合是否非空。
+
+【方法二：記憶化 DFS】
+    dfs(s, k) = 從石頭 s、上一跳 k 出發能不能到終點。
+
+【狀態數】
+    第 i 顆石頭的跳躍距離最多 i（每跳最多比上一跳多 1）
+    -&gt; 狀態數 O(n²)，n = 2000 可以接受。
+
+【第一跳必須是 1】
+    從 (0, 0) 出發：k-1 = -1、k = 0 都不合法，只剩 1 ✔</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>記憶化 DFS</h3>
+        <div class="code-block">class Solution:
+    def canCross(self, stones: List[int]) -&gt; bool:
+        pos = set(stones)
+        last = stones[-1]
+
+        @functools.lru_cache(None)
+        def dfs(s: int, k: int) -&gt; bool:           # 在石頭 s、上一跳是 k
+            if s == last:
+                return True
+            return any(step &gt; 0 and s + step in pos and dfs(s + step, step)
+                       for step in (k + 1, k, k - 1))   # 先試大步，通常更快到終點
+        return dfs(0, 0)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>雜湊表 DP（由前往後推）</h3>
+        <div class="code-block">class Solution:
+    def canCross(self, stones: List[int]) -&gt; bool:
+        # reach[s]：能以哪些「最後一跳的距離」到達石頭 s
+        reach = {s: set() for s in stones}
+        reach[0].add(0)
+        for s in stones:
+            for k in reach[s]:
+                for step in (k - 1, k, k + 1):     # ★ 下一跳可以是 k-1、k、k+1
+                    if step &gt; 0 and s + step in reach:
+                        reach[s + step].add(step)
+        return bool(reach[stones[-1]])</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>一、記憶化 DFS</td><td>O(n²)</td><td>O(n²)</td></tr>
+            <tr><td>二、DP</td><td>O(n²)</td><td>O(n²) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>第二顆石頭不在位置 1</strong> → false。</li>
+          <li><strong>石頭間距很大</strong> → 第 i 跳最多 i 格，可以提早判斷。</li>
+          <li><strong>位置很大</strong>（2³¹）→ 用集合/字典存，不能開陣列。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>剪枝</h3>
+
+        <div class="code-block">若 stones[i] − stones[i−1] &amp;gt; i，第 i 顆石頭一定到不了（到第 i−1 顆最多跳了 i−1 格）→ 直接 false。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 55 題 跳躍遊戲</strong></li>
+          <li><strong>第 1340 題 跳躍遊戲 V</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼狀態必須包含「上一跳的距離」？</li>
+            <li>狀態總數大約是多少？</li>
+            <li>第一跳必須是 1 格的限制怎麼自然地被處理？</li>
+          </ol>
+        </div>

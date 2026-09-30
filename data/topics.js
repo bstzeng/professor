@@ -10362,6 +10362,17 @@ window.SITE_DATA = {
             { title: "399. Evaluate Division 除法求值", url: "topics/leetcode/problem-0399.html" },
             { title: "400. Nth Digit 第 N 位數字", url: "topics/leetcode/problem-0400.html" }
           ]
+        },
+        {
+          title: "第 401–425 題",
+          courses: [
+            { title: "401. Binary Watch 二進位手錶", url: "topics/leetcode/problem-0401.html" },
+            { title: "402. Remove K Digits 移掉 K 位數字", url: "topics/leetcode/problem-0402.html" },
+            { title: "403. Frog Jump 青蛙過河", url: "topics/leetcode/problem-0403.html" },
+            { title: "404. Sum of Left Leaves 左葉子之和", url: "topics/leetcode/problem-0404.html" },
+            { title: "405. Convert a Number to Hexadecimal 數字轉換為十六進位數", url: "topics/leetcode/problem-0405.html" },
+            { title: "406. Queue Reconstruction by Height 根據身高重建佇列", url: "topics/leetcode/problem-0406.html" }
+          ]
         }
       ]
     },
