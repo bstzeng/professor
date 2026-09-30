@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>214. Shortest Palindrome 最短回文串 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="找最長回文前綴：KMP 前綴函數作用在 s + '#' + reverse(s)。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="214">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 214 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 214</div>
+          <h1>Shortest Palindrome<br>最短回文串</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">滾動雜湊</span>
+          <span class="lc-badge">字串匹配</span>
+          <span class="lc-badge">雜湊函數</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a string <code>s</code>. You may only add characters to the <strong>front</strong> of it to turn it into a palindrome.</p>
+          <p>Return the shortest palindrome that can be obtained this way.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個字串 <code>s</code>，你只能在它的<strong>前面</strong>加字元，把它變成回文。</p>
+          <p>請回傳用這種方式能得到的<strong>最短回文</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "aacecaaa"
+  輸出："aaacecaaa"
+
+範例 2
+  輸入：s = "abcd"
+  輸出："dcbabcd"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>0 ≤ <code>s.length</code> ≤ 5 × 10⁴</li>
+          <li><code>s</code> 只包含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/shortest-palindrome/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【問題轉換】
+    只能在前面加字元 -&gt;
+    s 的某個「前綴」會成為回文的中心部分，
+    剩下的後綴反轉後補到前面。
+
+    s = "aacecaaa"
+          最長回文前綴 = "aacecaa"（長度 7）
+          剩下的後綴   = "a"
+          答案 = reverse("a") + s = "a" + "aacecaaa" ✔
+
+【所以這題 = 找 s 的「最長回文前綴」】
+    保留得越長，前面要補的就越少。
+
+【怎麼快速找最長回文前綴？】
+
+    s[:k] 是回文  &lt;=&gt;  s[:k] == reverse(s)[n-k:]
+                   &lt;=&gt;  s 的前綴 等於 reverse(s) 的後綴
+
+    「一個字串的前綴 = 另一個字串的後綴」
+    正是 KMP 前綴函數擅長的事：
+        t = s + "#" + reverse(s)
+        pi[最後] = t 的「最長相等前後綴」長度
+                 = s 的最長回文前綴長度 ✔
+
+【為什麼要加 '#'？】
+    如果沒有分隔字元，前後綴的匹配可能跨過 s 的邊界，
+    例如 s = "aa" 時 t = "aaaa"，pi[-1] = 3 &gt; len(s) ✘</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>暴力找最長回文前綴</h3>
+        <div class="code-block">class Solution:
+    def shortestPalindrome(self, s: str) -&gt; str:
+        r = s[::-1]
+        for i in range(len(s) + 1):
+            # s[:n-i] 是回文 &lt;=&gt; 它等於 r[i:]
+            if s.startswith(r[i:]):
+                return r[:i] + s
+        return ""</div>
+        <div class="code-block">【s.startswith(r[i:]) 在檢查什麼？】
+    r = reverse(s)，r[i:] 的長度是 n - i。
+    s 以 r[i:] 開頭 &lt;=&gt; s[:n-i] == reverse(s[:n-i]) 的樣子
+                   &lt;=&gt; s[:n-i] 是回文。
+    i 從 0 開始 -&gt; 第一個成立的就是最長的回文前綴。
+
+【最壞情況】s = "aaaa…ab"：每次比較都要 O(n)，總共 O(n²)。
+    n = 5×10^4 時，Python 的 startswith 是 C 實作，
+    其實勉強能過，但不是面試想要的答案。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>KMP 前綴函數</h3>
+        <div class="code-block">class Solution:
+    def shortestPalindrome(self, s: str) -&gt; str:
+        t = s + "#" + s[::-1]               # ★ '#' 不會出現在 s 裡，防止匹配跨界
+        pi = [0] * len(t)                   # KMP 的失敗函數（前綴函數）
+        for i in range(1, len(t)):
+            k = pi[i - 1]
+            while k and t[i] != t[k]:
+                k = pi[k - 1]
+            if t[i] == t[k]:
+                k += 1
+            pi[i] = k
+        keep = pi[-1]                       # s 的「最長回文前綴」長度
+        return s[keep:][::-1] + s</div>
+        <div class="code-block">【前綴函數 pi[i]】
+    t[0..i] 中，「既是前綴、又是後綴」的最長真子字串長度。
+
+【模擬】s = "abab"
+    t = "abab#baba"
+    pi = [0,0,1,2,0,0,1,2,3]
+    pi[-1] = 3 -&gt; 最長回文前綴 "aba"
+    答案 = reverse("b") + "abab" = "babab" ✔</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法三</span>
+          <h3>滾動雜湊</h3>
+        <div class="code-block">class Solution:
+    def shortestPalindrome(self, s: str) -&gt; str:
+        B, M = 131, (1 &lt;&lt; 61) - 1
+        fwd = bwd = 0                        # s[:i+1] 的正向雜湊、反向雜湊
+        power = 1
+        best = 0
+        for i, ch in enumerate(s):
+            c = ord(ch)
+            fwd = (fwd * B + c) % M
+            bwd = (bwd + c * power) % M
+            power = power * B % M
+            if fwd == bwd:                   # 可能是回文前綴（雜湊可能碰撞）
+                best = i + 1
+        return s[best:][::-1] + s</div>
+        <div class="code-block">【同時維護兩個雜湊】
+    fwd = s[0..i] 從左往右的雜湊
+    bwd = s[0..i] 從右往左的雜湊（新字元放在最高位）
+    兩者相等 -&gt; s[0..i] 很可能是回文。
+
+【碰撞】
+    雜湊相等不保證字串相等。
+    模數取 2^61 - 1 這種大質數，碰撞機率極低；
+    要絕對保險，可以在最後用切片確認一次。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td>輸出字串</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、暴力</td><td>O(n²)</td><td>簡單</td></tr>
+            <tr><td>二、KMP</td><td>O(n)</td><td>確定性、最佳 ✔</td></tr>
+            <tr><td>三、滾動雜湊</td><td>O(n)</td><td>機率性，好寫</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空字串</strong> → 回傳空字串。</li>
+          <li><strong>本身就是回文</strong> → 原樣回傳。</li>
+          <li><strong>全部相同字元</strong>（<code>"aaaa"</code>）→ 原樣回傳。</li>
+          <li><strong>KMP 沒加分隔字元</strong> → 保留長度可能超過 <code>len(s)</code>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：如果只能在「後面」加字元呢？</h3>
+
+        <div class="code-block">對稱的問題：找 s 的「最長回文後綴」，把前面剩下的反轉補到後面。
+把 s 反轉之後，就變成本題。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 28 題 找出字串中第一個匹配項的索引</strong> —— KMP</li>
+          <li><strong>第 5 題 最長回文子字串</strong></li>
+          <li><strong>第 336 題 回文對</strong> —— 回文前綴／後綴的組合</li>
+          <li><strong>第 459 題 重複的子字串</strong> —— 前綴函數的另一個應用</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼這題可以轉換成「找最長回文前綴」？</li>
+            <li><code>s[:k]</code> 是回文，等價於 <code>s</code> 和 <code>reverse(s)</code> 之間的什麼關係？</li>
+            <li>KMP 解法中為什麼要加 <code>'#'</code>？</li>
+            <li>滾動雜湊怎麼同時算正向和反向的雜湊？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0213.html">← 上一題：213. 打家劫舍 II</a>
+          <a href="problem-0215.html">下一題：215. 陣列中的第 K 個最大元素 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

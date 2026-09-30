@@ -10200,7 +10200,13 @@ window.SITE_DATA = {
             { title: "209. Minimum Size Subarray Sum 長度最小的子陣列", url: "topics/leetcode/problem-0209.html" },
             { title: "210. Course Schedule II 課程表 II", url: "topics/leetcode/problem-0210.html" },
             { title: "211. Design Add and Search Words Data Structure 添加與搜尋單字", url: "topics/leetcode/problem-0211.html" },
-            { title: "212. Word Search II 單詞搜尋 II", url: "topics/leetcode/problem-0212.html" }
+            { title: "212. Word Search II 單詞搜尋 II", url: "topics/leetcode/problem-0212.html" },
+            { title: "213. House Robber II 打家劫舍 II", url: "topics/leetcode/problem-0213.html" },
+            { title: "214. Shortest Palindrome 最短回文串", url: "topics/leetcode/problem-0214.html" },
+            { title: "215. Kth Largest Element in an Array 陣列中的第 K 個最大元素", url: "topics/leetcode/problem-0215.html" },
+            { title: "216. Combination Sum III 組合總和 III", url: "topics/leetcode/problem-0216.html" },
+            { title: "217. Contains Duplicate 存在重複元素", url: "topics/leetcode/problem-0217.html" },
+            { title: "218. The Skyline Problem 天際線問題", url: "topics/leetcode/problem-0218.html" }
           ]
         }
       ]
