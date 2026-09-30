@@ -10263,7 +10263,11 @@ window.SITE_DATA = {
             { title: "287. Find the Duplicate Number 尋找重複數", url: "topics/leetcode/problem-0287.html" },
             { title: "289. Game of Life 生命遊戲", url: "topics/leetcode/problem-0289.html" },
             { title: "290. Word Pattern 單字規律", url: "topics/leetcode/problem-0290.html" },
-            { title: "292. Nim Game Nim 遊戲", url: "topics/leetcode/problem-0292.html" }
+            { title: "292. Nim Game Nim 遊戲", url: "topics/leetcode/problem-0292.html" },
+            { title: "295. Find Median from Data Stream 資料流的中位數", url: "topics/leetcode/problem-0295.html" },
+            { title: "297. Serialize and Deserialize Binary Tree 二元樹的序列化與反序列化", url: "topics/leetcode/problem-0297.html" },
+            { title: "299. Bulls and Cows 猜數字遊戲", url: "topics/leetcode/problem-0299.html" },
+            { title: "300. Longest Increasing Subsequence 最長遞增子序列", url: "topics/leetcode/problem-0300.html" }
           ]
         }
       ]

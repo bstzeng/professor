@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>297. Serialize and Deserialize Binary Tree 二元樹的序列化與反序列化 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="前序遍歷並寫出空節點標記，反序列化用同樣的順序遞迴讀回。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="297">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 297 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 297</div>
+          <h1>Serialize and Deserialize Binary Tree<br>二元樹的序列化與反序列化</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">樹</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">設計</span>
+          <span class="lc-badge">二元樹</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or another computer environment.</p>
+          <p>Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a string and this string can be deserialized to the original tree structure.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><strong>序列化</strong>是把資料結構轉成一串字元（或位元），方便存檔或透過網路傳送，之後再<strong>反序列化</strong>還原回來。</p>
+          <p>請設計一套演算法，把二元樹序列化成字串，並能從字串還原成<strong>完全相同</strong>的樹。格式由你自己決定。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,2,3,null,null,4,5]
+  輸出：[1,2,3,null,null,4,5]
+
+範例 2
+  輸入：root = []
+  輸出：[]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數在 <code>[0, 10⁴]</code> 之間</li>
+          <li>−1000 ≤ <code>Node.val</code> ≤ 1000</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/serialize-and-deserialize-binary-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【只存前序或中序不夠 —— 要把「空節點」也寫進去】
+    只有前序 [1, 2, 3]：
+        1 的左孩子是 2 還是右孩子是 2？無法確定 ✘
+    加上空節點標記 "#"：
+        1,2,#,#,3,#,#  -&gt; 唯一確定 ✔
+
+【前序 + 空標記】
+    serialize：根、左、右，空節點寫 "#"
+    deserialize：用同一個順序讀：
+        讀一個 token：
+            "#" -&gt; 回傳 None
+            數字 -&gt; 建節點，遞迴建左子樹，再遞迴建右子樹
+    左子樹的遞迴會「剛好」消耗掉屬於它的所有 token，
+    接下來讀到的自然就是右子樹的開頭。
+
+【層序（BFS）+ 空標記】
+    就是 LeetCode 自己用的格式 [1,2,3,null,null,4,5]。
+    反序列化時用佇列，每個節點依序讀出兩個孩子。
+
+【為什麼需要分隔符號？】
+    值可能是多位數或負數（-1000）-&gt; 用逗號分隔。</div>
+
+        <div class="code-block">        1
+       / \
+      2   3        前序：1,2,#,#,3,4,#,#,5,#,#
+         / \       層序：1,2,3,#,#,4,5,#,#,#,#
+        4   5</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>前序 DFS + 空節點標記</h3>
+        <div class="code-block">class Codec:
+    def serialize(self, root):
+        out = []
+
+        def dfs(node):                       # 前序：根、左、右；空節點寫 "#"
+            if node is None:
+                out.append("#")
+                return
+            out.append(str(node.val))
+            dfs(node.left)
+            dfs(node.right)
+
+        dfs(root)
+        return ",".join(out)
+
+    def deserialize(self, data):
+        tokens = iter(data.split(","))
+
+        def build():                         # ★ 用同樣的前序順序讀回來
+            tok = next(tokens)
+            if tok == "#":
+                return None
+            node = TreeNode(int(tok))
+            node.left = build()              # 左子樹會「剛好」讀完它自己的 token
+            node.right = build()
+            return node
+
+        return build()</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>層序 BFS + 空節點標記</h3>
+        <div class="code-block">class Codec:
+    def serialize(self, root):
+        if root is None:
+            return ""
+        out, q = [], deque([root])
+        while q:                                     # 層序；空節點寫 "#"
+            node = q.popleft()
+            if node is None:
+                out.append("#")
+                continue
+            out.append(str(node.val))
+            q.append(node.left)
+            q.append(node.right)
+        return ",".join(out)
+
+    def deserialize(self, data):
+        if not data:
+            return None
+        vals = data.split(",")
+        root = TreeNode(int(vals[0]))
+        q, i = deque([root]), 1
+        while q:
+            node = q.popleft()
+            for side in ("left", "right"):          # 依序讀出左、右孩子
+                if vals[i] != "#":
+                    child = TreeNode(int(vals[i]))
+                    setattr(node, side, child)
+                    q.append(child)
+                i += 1
+        return root</div>
+        <p>樹很深（一條鏈，一萬層）時，前序遞迴在 Python 會超過遞迴上限；層序版本沒有這個問題。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、前序</td><td>O(n)</td><td>O(n)</td><td>程式最短 ✔</td></tr>
+            <tr><td>二、層序</td><td>O(n)</td><td>O(n)</td><td>不怕深樹</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>空樹</strong> → 前序版是 "#"；層序版是空字串。</li>
+          <li><strong>負數、多位數</strong> → 要有分隔符號。</li>
+          <li><strong>深度一萬的鏈</strong> → 遞迴版要調高遞迴上限或改用迭代。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>如果是 BST？</h3>
+
+        <div class="code-block">第 449 題：BST 只存前序就夠了（不用空標記）——因為值的大小就能決定左右。反序列化時帶著上下界遞迴。</div>
+
+        <h3>只有前序 + 中序能不能還原？</h3>
+
+        <div class="code-block">可以（第 105 題），前提是值不重複。但序列化要存兩份，而且重建比較複雜；加空標記的單一遍歷更簡單。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 449 題 序列化和反序列化二元搜尋樹</strong></li>
+          <li><strong>第 105 題 從前序與中序遍歷序列構造二元樹</strong></li>
+          <li><strong>第 331 題 驗證二元樹的前序序列化</strong></li>
+          <li><strong>第 428 題 序列化和反序列化 N 元樹</strong>（付費）</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼只存前序遍歷的值無法還原樹？</li>
+            <li>前序反序列化時，為什麼遞迴建完左子樹後，下一個 token 一定屬於右子樹？</li>
+            <li>什麼情況下要選層序版本？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0295.html">← 上一題：295. 資料流的中位數</a>
+          <a href="problem-0299.html">下一題：299. 猜數字遊戲 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1891,6 +1891,38 @@ PROBLEMS = [
         "tags": ["腦筋急轉彎", "數學", "博弈"],
         "desc": "4 的倍數是必敗態：對手拿 k 顆，我就拿 4 − k 顆。",
     },
+    {
+        "num": 295,
+        "en": "Find Median from Data Stream",
+        "zh": "資料流的中位數",
+        "difficulty": "Hard",
+        "tags": ["雙指標", "設計", "排序", "堆積（優先佇列）", "資料流"],
+        "desc": "最大堆積存較小的一半、最小堆積存較大的一半，中位數永遠在堆頂。",
+    },
+    {
+        "num": 297,
+        "en": "Serialize and Deserialize Binary Tree",
+        "zh": "二元樹的序列化與反序列化",
+        "difficulty": "Hard",
+        "tags": ["字串", "樹", "深度優先搜尋", "廣度優先搜尋", "設計", "二元樹"],
+        "desc": "前序遍歷並寫出空節點標記，反序列化用同樣的順序遞迴讀回。",
+    },
+    {
+        "num": 299,
+        "en": "Bulls and Cows",
+        "zh": "猜數字遊戲",
+        "difficulty": "Medium",
+        "tags": ["雜湊表", "字串", "計數"],
+        "desc": "A 逐位比對；B = 共同數字總數（次數取最小）− A。",
+    },
+    {
+        "num": 300,
+        "en": "Longest Increasing Subsequence",
+        "zh": "最長遞增子序列",
+        "difficulty": "Medium",
+        "tags": ["陣列", "二分搜尋", "動態規劃"],
+        "desc": "O(n²) DP，或維護每個長度的最小結尾 tails 並二分替換，O(n log n)。",
+    },
 ]
 
 DIFFICULTY_ZH = {"Easy": "簡單", "Medium": "中等", "Hard": "困難"}
