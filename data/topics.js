@@ -34,6 +34,7 @@ window.SITE_DATA = {
     { id: "nobel", label: "諾貝爾獎", icon: "🏅" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "finance", label: "金融與經濟", icon: "💰" },
+    { id: "religion", label: "宗教與哲學", icon: "🪷" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
     { id: "anime", label: "動漫", icon: "🍥" },
@@ -12449,6 +12450,132 @@ window.SITE_DATA = {
             { title: "寫出你自己的投資計畫書", url: "topics/stock-investing/lesson-48.html" },
             { title: "市場大跌時該怎麼辦", url: "topics/stock-investing/lesson-49.html" },
             { title: "破解常見迷思與總整理", url: "topics/stock-investing/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "buddhism",
+      category: "religion",
+      title: "佛教入門:教義、歷史,以及《心經》《大悲咒》解說",
+      description:
+        "從佛陀的生平與時代講起,介紹四聖諦、八正道、緣起、五蘊、業與輪迴、涅槃等核心教義;走過部派、南傳與大乘,佛教傳入中國與天台、華嚴、淨土、禪,藏傳與台灣佛教;再逐句解說《心經》,並介紹《大悲咒》的出處、結構與梵文研究。以介紹與理解為目的,並列傳統說法與學術觀點。附名詞速查、互動《心經》逐句讀與《大悲咒》分段對照。",
+      icon: "🪷",
+      url: "topics/buddhism/index.html",
+      resources: [
+        {
+          title: "佛教名詞速查表",
+          description: "四聖諦、八正道、五蘊、緣起、空、六度、般若、陀羅尼… 一頁查完本課的關鍵名詞",
+          icon: "📇",
+          url: "topics/buddhism/cheatsheet.html"
+        },
+        {
+          title: "互動《心經》逐句讀",
+          description: "《般若波羅蜜多心經》玄奘譯本全文,點選任一句即可看白話與要點,並連到對應課程",
+          icon: "📜",
+          url: "topics/buddhism/heart-sutra.html"
+        },
+        {
+          title: "《大悲咒》分段對照",
+          description: "《大悲咒》八十四句全文,依段落列出學者的梵文還原擬音與概略大意",
+          icon: "🪷",
+          url: "topics/buddhism/great-compassion-mantra.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜佛陀與佛教的起源",
+          courses: [
+            { title: "兩千五百年前的印度:婆羅門傳統與沙門思潮", url: "topics/buddhism/lesson-01.html" },
+            { title: "悉達多太子:出生、四門遊觀與出家", url: "topics/buddhism/lesson-02.html" },
+            { title: "從苦行到菩提樹下:為什麼是「中道」", url: "topics/buddhism/lesson-03.html" },
+            { title: "初轉法輪與僧團的建立", url: "topics/buddhism/lesson-04.html" },
+            { title: "佛陀入滅與第一次結集:經典是怎麼留下來的", url: "topics/buddhism/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜核心教義(一):佛陀在解決什麼問題",
+          courses: [
+            { title: "四聖諦:苦、集、滅、道", url: "topics/buddhism/lesson-06.html" },
+            { title: "「苦」不只是痛苦:苦苦、壞苦、行苦", url: "topics/buddhism/lesson-07.html" },
+            { title: "八正道:戒、定、慧三學", url: "topics/buddhism/lesson-08.html" },
+            { title: "三法印:無常、無我、涅槃寂靜", url: "topics/buddhism/lesson-09.html" },
+            { title: "五蘊:佛教怎麼拆解「我」", url: "topics/buddhism/lesson-10.html" },
+            { title: "緣起:「此有故彼有」", url: "topics/buddhism/lesson-11.html" },
+            { title: "十二因緣:一條生命的因果環", url: "topics/buddhism/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜核心教義(二):業、輪迴與修行",
+          courses: [
+            { title: "業到底是什麼:重點在意圖,不是宿命", url: "topics/buddhism/lesson-13.html" },
+            { title: "輪迴與六道:如果無我,是誰在輪迴?", url: "topics/buddhism/lesson-14.html" },
+            { title: "五戒與十善:佛教的倫理基礎", url: "topics/buddhism/lesson-15.html" },
+            { title: "禪修:止與觀", url: "topics/buddhism/lesson-16.html" },
+            { title: "涅槃是什麼,不是什麼", url: "topics/buddhism/lesson-17.html" },
+            { title: "常見誤解:佛教是消極、悲觀、宿命論嗎?", url: "topics/buddhism/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜部派佛教與大乘",
+          courses: [
+            { title: "部派分裂:佛教為什麼分成很多派", url: "topics/buddhism/lesson-19.html" },
+            { title: "南傳上座部佛教:今天的斯里蘭卡、緬甸、泰國", url: "topics/buddhism/lesson-20.html" },
+            { title: "大乘佛教的興起:從自己解脫到普度眾生", url: "topics/buddhism/lesson-21.html" },
+            { title: "菩薩道與六度波羅蜜", url: "topics/buddhism/lesson-22.html" },
+            { title: "空與中觀:龍樹的「空」不是「什麼都沒有」", url: "topics/buddhism/lesson-23.html" },
+            { title: "唯識:「萬法唯識」在說什麼", url: "topics/buddhism/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜佛教在中國,以及漢傳宗派",
+          courses: [
+            { title: "佛教傳入中國:從絲路到譯經", url: "topics/buddhism/lesson-25.html" },
+            { title: "佛教的本土化:和儒、道的相遇", url: "topics/buddhism/lesson-26.html" },
+            { title: "天台宗與華嚴宗:中國人自己建構的佛學體系", url: "topics/buddhism/lesson-27.html" },
+            { title: "淨土宗:阿彌陀佛與念佛法門", url: "topics/buddhism/lesson-28.html" },
+            { title: "禪宗:從達摩到六祖惠能", url: "topics/buddhism/lesson-29.html" },
+            { title: "藏傳佛教簡介:另一條傳承路線", url: "topics/buddhism/lesson-30.html" },
+            { title: "台灣佛教:從寺廟信仰到人間佛教", url: "topics/buddhism/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜《心經》(一):背景與結構",
+          courses: [
+            { title: "《心經》是什麼:260 字濃縮的般若智慧", url: "topics/buddhism/lesson-32.html" },
+            { title: "版本與譯本:玄奘本、大本與小本", url: "topics/buddhism/lesson-33.html" },
+            { title: "全經結構一覽:從觀照到咒語", url: "topics/buddhism/lesson-34.html" },
+            { title: "關鍵詞先懂:般若、波羅蜜多、觀自在、菩薩", url: "topics/buddhism/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜《心經》(二):逐句解說",
+          courses: [
+            { title: "「觀自在菩薩……度一切苦厄」", url: "topics/buddhism/lesson-36.html" },
+            { title: "「色不異空,空不異色……受想行識,亦復如是」", url: "topics/buddhism/lesson-37.html" },
+            { title: "「是諸法空相,不生不滅,不垢不淨,不增不減」", url: "topics/buddhism/lesson-38.html" },
+            { title: "「是故空中無色……無苦集滅道,無智亦無得」", url: "topics/buddhism/lesson-39.html" },
+            { title: "「以無所得故……究竟涅槃」與「三世諸佛……三藐三菩提」", url: "topics/buddhism/lesson-40.html" },
+            { title: "「故知般若波羅蜜多是大神咒……揭諦揭諦」", url: "topics/buddhism/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜《大悲咒》",
+          courses: [
+            { title: "出處:《千手千眼觀世音菩薩大悲心陀羅尼經》", url: "topics/buddhism/lesson-42.html" },
+            { title: "咒語/陀羅尼是什麼?為什麼傳統上「不翻譯」", url: "topics/buddhism/lesson-43.html" },
+            { title: "觀世音菩薩與千手千眼的象徵", url: "topics/buddhism/lesson-44.html" },
+            { title: "梵文還原:學者怎麼理解大悲咒的原意", url: "topics/buddhism/lesson-45.html" },
+            { title: "分段大意:歸敬、讚頌、祈請、致敬、圓滿", url: "topics/buddhism/lesson-46.html" },
+            { title: "持誦的傳統意義:心態比字音更重要", url: "topics/buddhism/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜綜合",
+          courses: [
+            { title: "佛教智慧和現代生活:正念、慈悲、面對無常", url: "topics/buddhism/lesson-48.html" },
+            { title: "常見迷思:佛教=拜拜?一定要吃素?出家才能修行?", url: "topics/buddhism/lesson-49.html" },
+            { title: "總整理:一張圖串起佛教的核心", url: "topics/buddhism/lesson-50.html" },
           ],
         },
       ],
