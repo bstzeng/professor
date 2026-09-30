@@ -10377,7 +10377,13 @@ window.SITE_DATA = {
             { title: "410. Split Array Largest Sum 分割陣列的最大值", url: "topics/leetcode/problem-0410.html" },
             { title: "412. Fizz Buzz Fizz Buzz", url: "topics/leetcode/problem-0412.html" },
             { title: "413. Arithmetic Slices 等差數列劃分", url: "topics/leetcode/problem-0413.html" },
-            { title: "414. Third Maximum Number 第三大的數", url: "topics/leetcode/problem-0414.html" }
+            { title: "414. Third Maximum Number 第三大的數", url: "topics/leetcode/problem-0414.html" },
+            { title: "415. Add Strings 字串相加", url: "topics/leetcode/problem-0415.html" },
+            { title: "416. Partition Equal Subset Sum 分割等和子集", url: "topics/leetcode/problem-0416.html" },
+            { title: "417. Pacific Atlantic Water Flow 太平洋大西洋水流問題", url: "topics/leetcode/problem-0417.html" },
+            { title: "419. Battleships in a Board 甲板上的戰艦", url: "topics/leetcode/problem-0419.html" },
+            { title: "420. Strong Password Checker 強密碼檢驗器", url: "topics/leetcode/problem-0420.html" },
+            { title: "421. Maximum XOR of Two Numbers in an Array 陣列中兩個數的最大異或值", url: "topics/leetcode/problem-0421.html" }
           ]
         }
       ]

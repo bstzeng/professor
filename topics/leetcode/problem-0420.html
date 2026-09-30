@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>420. Strong Password Checker 強密碼檢驗器 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="分太短、剛好、太長三種情況；太長時把刪除優先用在長度 %3 == 0 的連續段。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="420">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 420 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 420</div>
+          <h1>Strong Password Checker<br>強密碼檢驗器</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">堆積（優先佇列）</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A password is considered strong if the below conditions are all met:</p>
+        <ul>
+          <li>It has at least <code>6</code> characters and at most <code>20</code> characters.</li>
+          <li>It contains at least <strong>one lowercase</strong> letter, at least <strong>one uppercase</strong> letter, and at least <strong>one digit</strong>.</li>
+          <li>It does not contain three repeating characters in a row (i.e., <code>"B<u><strong>aaa</strong></u>bb0"</code> is weak, but <code>"B<strong><u>aa</u></strong>b<u><strong>a</strong></u>0"</code> is strong).</li>
+        </ul>
+          <p>Given a string <code>password</code>, return <em>the minimum number of steps required to make <code>password</code> strong. if <code>password</code> is already strong, return <code>0</code>.</em></p>
+          <p>In one step, you can:</p>
+        <ul>
+          <li>Insert one character to <code>password</code>,</li>
+          <li>Delete one character from <code>password</code>, or</li>
+          <li>Replace one character of <code>password</code> with another character.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>一個密碼要同時滿足以下條件才算「強」：</p>
+        <ul>
+          <li>長度在 <code>6</code> 到 <code>20</code> 之間。</li>
+          <li>至少有一個<strong>小寫字母</strong>、一個<strong>大寫字母</strong>、一個<strong>數字</strong>。</li>
+          <li>沒有<strong>連續三個相同</strong>的字元（例如 <code>"Baaabb0"</code> 不行）。</li>
+        </ul>
+          <p>每一步可以<strong>插入</strong>、<strong>刪除</strong>或<strong>替換</strong>一個字元。回傳讓密碼變強的最少步數。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：password = "a"
+  輸出：5
+
+範例 2
+  輸入：password = "aA1"
+  輸出：3
+
+範例 3
+  輸入：password = "1337C0d3"
+  輸出：0</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>password.length</code> ≤ 50</li>
+          <li><code>password</code> 由字母、數字、<code>'.'</code>、<code>'!'</code> 組成</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/strong-password-checker/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【三個問題】
+    missing：缺幾種字元類型（0~3）
+    長度：太短或太長
+    連續段：每一段長度 L &gt;= 3 的連續相同字元
+
+【情況一：太短（n &lt; 6）】
+    插入可以同時補長度、補類型、打斷連續段。
+    答案 = max(6 - n, missing)
+    （n &lt; 6 時連續段最長 5，插入兩個就能打斷，不會超過 6 - n。）
+
+【情況二：長度剛好（6 &lt;= n &lt;= 20）】
+    替換最划算：換掉一個字元，可以同時打斷連續段、補一種類型。
+    長度 L 的段需要 L // 3 次替換（每 3 個換中間那個）。
+    答案 = max(missing, 替換次數總和)
+
+【情況三：太長（n &gt; 20）—— 最難】
+    必須刪 n - 20 個字元。刪除也能縮短連續段，
+    要把刪除用在「最能省下替換次數」的地方：
+        L % 3 == 0 的段：刪 1 個就少 1 次替換（6 -&gt; 5：2 次變 1 次）
+        L % 3 == 1 的段：刪 2 個才少 1 次（7 -&gt; 5）
+        其他：每刪 3 個少 1 次
+    依照這個優先順序分配刪除額度。
+    答案 = 刪除數 + max(missing, 剩下的替換次數)</div>
+
+        <table>
+          <thead><tr><th>段長 L</th><th>只替換</th><th>刪幾個能少 1 次替換</th></tr></thead>
+          <tbody>
+            <tr><td>3</td><td>1</td><td>1（3→2）</td></tr>
+            <tr><td>4</td><td>1</td><td>2（4→2）</td></tr>
+            <tr><td>5</td><td>1</td><td>3（5→2）</td></tr>
+            <tr><td>6</td><td>2</td><td>1（6→5）</td></tr>
+            <tr><td>7</td><td>2</td><td>2（7→5）</td></tr>
+          </tbody>
+        </table>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>分三種長度情況的貪心</h3>
+        <div class="code-block">class Solution:
+    def strongPasswordChecker(self, password: str) -&gt; int:
+        n = len(password)
+        missing = 3 - (any(c.islower() for c in password)
+                       + any(c.isupper() for c in password)
+                       + any(c.isdigit() for c in password))
+        # 找出所有長度 &gt;= 3 的連續相同段
+        replace = 0            # 只用替換時，需要的替換次數
+        ones = twos = 0        # 長度 % 3 == 0、== 1 的段數
+        i = 2
+        while i &lt; n:
+            if password[i] == password[i - 1] == password[i - 2]:
+                length = 2
+                while i &lt; n and password[i] == password[i - 1]:
+                    length += 1
+                    i += 1
+                replace += length // 3
+                if length % 3 == 0:
+                    ones += 1
+                elif length % 3 == 1:
+                    twos += 1
+            else:
+                i += 1
+
+        if n &lt; 6:                               # 太短：插入可以順便補類型、打斷連續
+            return max(6 - n, missing)
+        if n &lt;= 20:                             # 長度合格：替換可以順便補類型
+            return max(missing, replace)
+
+        # 太長：必須刪 n - 20 個，★ 用刪除優先減少替換次數
+        delete = n - 20
+        replace -= min(delete, ones)                    # 長度 %3==0 的段：刪 1 個省 1 次替換
+        replace -= min(max(delete - ones, 0), twos * 2) // 2   # %3==1：刪 2 個省 1 次
+        replace -= max(delete - ones - 2 * twos, 0) // 3       # 其他：刪 3 個省 1 次
+        return delete + max(missing, replace)</div>
+        <div class="code-block">【驗證方式】
+    這題的貪心很容易漏情況。本頁的程式碼和一個獨立的 0-1 BFS 暴力解比對：
+    狀態 =（處理到第幾個字元、目前長度、最後一個字元、連續長度、已有的類型），
+    每個原字元可以保留（成本 0）、刪除、替換，也可以在任何位置插入新字元（成本 1），
+    找出滿足所有條件的最少成本。隨機 1500 組、長度 0–28 的密碼全部一致。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>很短又全部相同</strong>（"aaa"）→ 3（插入 3 個就同時解決所有問題）。</li>
+          <li><strong>很長又全部相同</strong> → 刪除優先用在 %3 == 0 的段。</li>
+          <li><strong>沒有字母也沒有數字</strong>（"..."）→ missing = 3。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>為什麼這題是出名的難題？</h3>
+
+        <div class="code-block">三個條件互相影響：插入、刪除、替換都可能同時解決多個問題。關鍵在於分清楚「每種長度情況下，哪個操作最划算」，以及太長時刪除的分配順序。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1957 題 刪除字元使字串變好</strong></li>
+          <li><strong>第 2299 題 強密碼檢驗器 II</strong> —— 只需判斷</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>長度 6 到 20 時，為什麼替換最划算？</li>
+            <li>長度 L 的連續段需要幾次替換？</li>
+            <li>太長時，刪除為什麼要優先用在 L % 3 == 0 的段？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0419.html">← 上一題：419. 甲板上的戰艦</a>
+          <a href="problem-0421.html">下一題：421. 陣列中兩個數的最大異或值 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

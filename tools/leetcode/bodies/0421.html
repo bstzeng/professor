@@ -1,0 +1,146 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code>, return <em>the maximum result of</em> <code>nums[i] XOR nums[j]</code>, where <code>0 &lt;= i &lt;= j &lt; n</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個非負整數陣列 <code>nums</code>，回傳 <code>nums[i] XOR nums[j]</code> 的最大值（<code>0 ≤ i ≤ j &lt; n</code>）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [3,10,5,25,2,8]
+  輸出：28
+  說明：5 XOR 25 = 28。
+
+範例 2
+  輸入：nums = [14,70,53,83,49,91,36,80,92,51,66,70]
+  輸出：127</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>nums.length</code> ≤ 2 × 10⁵</li>
+          <li>0 ≤ <code>nums[i]</code> ≤ 2³¹ − 1</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/maximum-xor-of-two-numbers-in-an-array/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【XOR 的大小由最高位決定】
+    只要能讓較高的位元是 1，後面的位元不管怎樣都比較大。
+    -&gt; 從最高位開始，貪心地讓每一位盡量是 1。
+
+【方法一：二進位字典樹（Trie）】
+    把每個數的位元（從高到低）插入 Trie。
+    對每個 x，從根往下走，每一層盡量走「和 x 這一位相反」的分支
+    （相反才能讓 XOR 的這一位是 1）。
+    O(n · 31)。
+
+【方法二：逐位確定答案 + 雜湊集合】
+    假設答案的高位已經確定為 ans。
+    試試看下一位能不能是 1：want = ans | (1 &lt;&lt; b)
+    把所有數只保留高位（x &amp; mask）放進集合，
+    問：有沒有兩個前綴 p、q 使 p ^ q = want？
+    &lt;=&gt; 對某個 p，p ^ want 也在集合裡（XOR 的性質：a ^ b = c &lt;=&gt; a ^ c = b）</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>二進位字典樹</h3>
+        <div class="code-block">class Solution:
+    def findMaximumXOR(self, nums: List[int]) -&gt; int:
+        H = max(nums).bit_length()
+        trie = {}
+        for x in nums:                                  # 建二進位字典樹（高位在上）
+            node = trie
+            for b in range(H - 1, -1, -1):
+                node = node.setdefault(x &gt;&gt; b &amp; 1, {})
+        best = 0
+        for x in nums:
+            node, cur = trie, 0
+            for b in range(H - 1, -1, -1):
+                bit = x &gt;&gt; b &amp; 1
+                if 1 - bit in node:                     # 盡量走相反的位元，讓 XOR 這一位是 1
+                    cur |= 1 &lt;&lt; b
+                    node = node[1 - bit]
+                else:
+                    node = node[bit]
+            best = max(best, cur)
+        return best</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · L)</td><td>L = 位元數</td></tr>
+            <tr><td>空間</td><td>O(n · L)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>逐位貪心 + 雜湊集合</h3>
+        <div class="code-block">class Solution:
+    def findMaximumXOR(self, nums: List[int]) -&gt; int:
+        ans = 0
+        mask = 0
+        for b in range(max(nums).bit_length() - 1, -1, -1):   # ★ 從最高位開始決定答案
+            mask |= 1 &lt;&lt; b
+            prefixes = {x &amp; mask for x in nums}                 # 所有數的前綴（高位部分）
+            want = ans | (1 &lt;&lt; b)                               # 希望這一位是 1
+            # a ^ b = want  &lt;=&gt;  a ^ want = b：看有沒有兩個前綴能湊出 want
+            if any(p ^ want in prefixes for p in prefixes):
+                ans = want
+        return ans</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · L)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>空間</th></tr></thead>
+          <tbody>
+            <tr><td>暴力</td><td>O(n²)</td><td>O(1)</td></tr>
+            <tr><td>一、Trie</td><td>O(n·L)</td><td>O(n·L)</td></tr>
+            <tr><td>二、逐位 + 集合</td><td>O(n·L)</td><td>O(n) ✔</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個數</strong> → 0（自己 XOR 自己）。</li>
+          <li><strong>全部是 0</strong> → 0。</li>
+          <li><strong>位元數</strong> → 只需要看到最大值的最高位。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>XOR Trie 的延伸</h3>
+
+        <div class="code-block">第 1707 題（和陣列中元素的最大異或值，帶上限的離線查詢）、第 1938 題（查詢最大基因差，DFS + 可刪除的 Trie）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1707 題 與陣列中元素的最大異或值</strong></li>
+          <li><strong>第 208 題 實作 Trie</strong></li>
+          <li><strong>第 1803 題 統計異或值在範圍內的數對有多少</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼可以從最高位開始貪心？</li>
+            <li>在 Trie 中為什麼要走相反的分支？</li>
+            <li>a ^ b = c 和 a ^ c = b 為什麼等價？</li>
+          </ol>
+        </div>
