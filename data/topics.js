@@ -10394,7 +10394,13 @@ window.SITE_DATA = {
             { title: "427. Construct Quad Tree 建立四元樹", url: "topics/leetcode/problem-0427.html" },
             { title: "429. N-ary Tree Level Order Traversal N 叉樹的層序遍歷", url: "topics/leetcode/problem-0429.html" },
             { title: "430. Flatten a Multilevel Doubly Linked List 扁平化多級雙向鏈結串列", url: "topics/leetcode/problem-0430.html" },
-            { title: "432. All O`one Data Structure 全 O(1) 的資料結構", url: "topics/leetcode/problem-0432.html" }
+            { title: "432. All O`one Data Structure 全 O(1) 的資料結構", url: "topics/leetcode/problem-0432.html" },
+            { title: "433. Minimum Genetic Mutation 最小基因變化", url: "topics/leetcode/problem-0433.html" },
+            { title: "434. Number of Segments in a String 字串中的單字數", url: "topics/leetcode/problem-0434.html" },
+            { title: "435. Non-overlapping Intervals 無重疊區間", url: "topics/leetcode/problem-0435.html" },
+            { title: "436. Find Right Interval 尋找右區間", url: "topics/leetcode/problem-0436.html" },
+            { title: "437. Path Sum III 路徑總和 III", url: "topics/leetcode/problem-0437.html" },
+            { title: "438. Find All Anagrams in a String 找到字串中所有字母異位詞", url: "topics/leetcode/problem-0438.html" }
           ]
         }
       ]
