@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：程式結束：ExitProcess、資源回收與結束代碼 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="程式怎麼乾淨地離開，以及「當機」到底是怎麼一回事">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 K｜雙擊之後發生什麼（從頭到尾） · 第 17 課</div>
+      <h1>程式結束：ExitProcess、資源回收與結束代碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明程式正常結束的流程</li>
+          <li>理解結束代碼的意義</li>
+          <li>區分正常結束與當機</li>
+        </ul>
+      </div>
+
+      <p>
+        旅程的最後一站：程式<strong>結束</strong>。無論是你按了關閉、程式跑完，還是它出錯，作業系統都要負責讓它乾淨地離場。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">程式結束：乾淨地離開</text>
+                <rect x="20" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="85.25" y="70" text-anchor="middle" font-size="11" fill="#5aa469">main 回傳</text><text x="85.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">或呼叫 exit</text><line x1="153.5" y1="74.0" x2="166.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,74.0 166.5,77.5 166.5,70.5" fill="var(--border)"/><rect x="176.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="70" text-anchor="middle" font-size="11" fill="#4a90c2">執行清理</text><text x="241.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">關檔、跑收尾</text><line x1="310.0" y1="74.0" x2="323.0" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,74.0 323.0,77.5 323.0,70.5" fill="var(--border)"/><rect x="333" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="398.25" y="70" text-anchor="middle" font-size="11" fill="#ff8a65">ExitProcess</text><text x="398.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">通知作業系統</text><line x1="466.5" y1="74.0" x2="479.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,74.0 479.5,77.5 479.5,70.5" fill="var(--border)"/><rect x="489.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="554.75" y="70" text-anchor="middle" font-size="11" fill="#e0605a">回收資源</text><text x="554.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">記憶體全還</text>
+                <text x="320" y="128" text-anchor="middle" font-size="10" fill="var(--accent)">程式結束時會回傳一個「結束代碼」：0 通常代表成功，非 0 代表出錯</text>
+                <text x="320" y="152" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">作業系統會收回它用的全部記憶體與資源——就算程式有記憶體洩漏，結束後也一筆勾銷</text>
+                <text x="320" y="176" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">當機（crash）＝非自願的結束：程式做了非法的事，被作業系統強制中止</text>
+                <text x="320" y="202" text-anchor="middle" font-size="9.5" fill="var(--accent)">至此，一個程式從雙擊到結束的完整旅程就走完了</text>
+        </svg>
+        <figcaption>main 回傳 → 清理 → ExitProcess → 作業系統回收全部資源。</figcaption>
+      </div>
+
+      <h2>1. 正常結束</h2>
+
+      <p>
+        程式正常結束時：main 回傳（或呼叫 exit）→ 執行清理（關檔案、跑收尾程式）→ 呼叫 <strong>ExitProcess</strong> 通知作業系統 → 作業系統<strong>回收它用的全部資源</strong>。
+      </p>
+
+      <h2>2. 結束代碼</h2>
+
+      <p>
+        程式離開時會留下一個<strong>結束代碼</strong>：慣例上 <strong>0 代表成功</strong>，非 0 代表某種錯誤。你平常看不到它，但它對<strong>自動化</strong>很重要——例如批次腳本會看前一個程式的結束代碼，決定要不要繼續。
+      </p>
+
+      <h2>3. 作業系統會全部收回</h2>
+
+      <p>
+        重要的是：程式結束後，作業系統會<strong>回收它的全部記憶體與資源</strong>。所以就算程式執行期間有<strong>記憶體洩漏</strong>（<a href="lesson-16.html">第 16 課</a>忘了還記憶體），一旦結束也<strong>一筆勾銷</strong>——這是行程隔離（<a href="lesson-11.html">第 11 課</a>）的又一個好處。
+      </p>
+
+      <h2>4. 當機：非自願的結束</h2>
+
+      <p>
+        <strong>當機</strong>（crash）是「被迫結束」：程式做了非法的事（例如存取不屬於它的記憶體、除以零），被作業系統<strong>強制中止</strong>，通常還會產生一份「當機報告」。因為有行程隔離，一個程式當掉不會拖垮整台電腦。
+      </p>
+
+      <p>
+        到這裡，一個執行檔<strong>從雙擊到結束</strong>的完整旅程就走完了。最後一個模組帶你看看其他系統的做法，以及實際觀察這一切的工具（<a href="lesson-18.html">第 18 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在命令列執行一個程式後，Windows 打 echo %errorlevel%、Linux/Mac 打 echo $? ，就能看到它剛剛的結束代碼——成功的程式通常回傳 0。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>程式正常結束的流程是什麼？</li>
+          <li>結束代碼 0 和非 0 分別代表什麼？</li>
+          <li>「當機」和正常結束差在哪裡？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Linux ELF 與 macOS Mach-O 的對照</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：程式執行中：堆疊、堆積、執行緒與系統呼叫</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：Linux ELF 與 macOS Mach-O 的對照 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

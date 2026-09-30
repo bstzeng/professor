@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：位元組碼：.class、.pyc、.wasm 與虛擬機 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="介於原始碼和機器碼之間的「半成品」，換來跨平台的能力">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 L｜延伸與實作 · 第 20 課</div>
+      <h1>位元組碼：.class、.pyc、.wasm 與虛擬機</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解位元組碼與機器碼的差別</li>
+          <li>說明虛擬機的角色</li>
+          <li>認識 WebAssembly 的意義</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課提到 Java、.NET 編譯成<strong>位元組碼</strong>。這是個重要概念，值得單獨一課。位元組碼是介於「原始碼」和「機器碼」之間的<strong>半成品</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 218" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">位元組碼：給「虛擬機」讀的半成品</text>
+                <rect x="20" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="85.25" y="70" text-anchor="middle" font-size="11" fill="#5aa469">原始碼</text><text x="85.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">Java／C#／…</text><line x1="153.5" y1="74.0" x2="166.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,74.0 166.5,77.5 166.5,70.5" fill="var(--border)"/><rect x="176.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="70" text-anchor="middle" font-size="11" fill="#4a90c2">位元組碼</text><text x="241.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">.class／.pyc／.wasm</text><line x1="310.0" y1="74.0" x2="323.0" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,74.0 323.0,77.5 323.0,70.5" fill="var(--border)"/><rect x="333" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="398.25" y="70" text-anchor="middle" font-size="11" fill="#ff8a65">虛擬機</text><text x="398.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">JVM／CLR／瀏覽器</text><line x1="466.5" y1="74.0" x2="479.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,74.0 479.5,77.5 479.5,70.5" fill="var(--border)"/><rect x="489.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="554.75" y="70" text-anchor="middle" font-size="11" fill="#e0605a">當場翻成</text><text x="554.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">機器碼執行</text>
+                <text x="320" y="128" text-anchor="middle" font-size="10" fill="var(--accent)">位元組碼不是給某顆 CPU 的，而是給一台「虛擬的機器」——所以同一個檔能跨平台跑</text>
+                <text x="320" y="152" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">Java 的 .class 開頭是 CA FE BA BE（cafe babe）；Python 的 .pyc、WebAssembly 的 .wasm 同理</text>
+                <text x="320" y="176" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">代價：中間多一層翻譯，通常比原生機器碼稍慢（但有 JIT 即時編譯拉近差距）</text>
+                <text x="320" y="200" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">WebAssembly 讓瀏覽器也能跑接近原生速度的程式，是這個概念的新應用</text>
+        </svg>
+        <figcaption>位元組碼給「虛擬機」讀，虛擬機當場翻成該平台的機器碼。</figcaption>
+      </div>
+
+      <h2>1. 給虛擬機讀，而非 CPU</h2>
+
+      <p>
+        機器碼是給<strong>特定 CPU</strong>讀的（<a href="lesson-02.html">第 2 課</a>），所以綁定平台。位元組碼不同——它是給一台<strong>虛擬的機器</strong>（JVM、CLR）讀的。真正執行時，虛擬機再把位元組碼<strong>當場翻成</strong>目前這台電腦的機器碼。
+      </p>
+
+      <h2>2. 換來跨平台</h2>
+
+      <p>
+        好處是<strong>一次編譯、到處執行</strong>：同一個 .class 檔，只要對方裝了 JVM，在 Windows、Linux、Mac 都能跑，不必為每個平台各編一次。代價是中間多一層翻譯，通常比原生機器碼<strong>稍慢</strong>（但有 JIT 即時編譯把常跑的部分優化成原生碼，差距已經不大）。
+      </p>
+
+      <h2>3. 各自的招牌</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>位元組碼</th><th>用於</th><th>魔術數字</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>.class</td><td>Java</td><td>CA FE BA BE（cafe babe）</td></tr>
+          <tr><td>.pyc</td><td>Python 的編譯快取</td><td>版本相關的標頭</td></tr>
+          <tr><td>.wasm</td><td>WebAssembly</td><td>00 61 73 6D（\0asm）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        <strong>WebAssembly</strong>（.wasm）特別值得一提：它讓<strong>瀏覽器</strong>也能跑接近原生速度的程式（遊戲、影像處理、甚至桌面軟體移植到網頁），是「位元組碼＋虛擬機」這個老概念的新舞台。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          如果你寫過 Python，資料夾裡的 __pycache__ 中就是 .pyc 檔（位元組碼）。用 Hex 檢視器看 Java 的 .class 檔，開頭一定是 CA FE BA BE。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>位元組碼和機器碼最大的差別是什麼？</li>
+          <li>虛擬機在執行位元組碼時做了什麼？</li>
+          <li>WebAssembly 讓瀏覽器多了什麼能力？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>腳本：.sh、.bat、.ps1 為什麼純文字也能執行</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：.NET、Java、Python 打包的 exe 有什麼不同</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：腳本：.sh、.bat、.ps1 為什麼純文字也能執行 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

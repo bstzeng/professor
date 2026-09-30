@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 1 課：從原始碼到 exe：編譯、組譯、連結 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="你寫的 C 或 Rust，是怎麼一步步變成一個能雙擊執行的檔案的">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 1 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜exe 裡面有什麼 · 第 1 課</div>
+      <h1>從原始碼到 exe：編譯、組譯、連結</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出從原始碼到執行檔的主要階段</li>
+          <li>區分編譯器、組譯器、連結器的角色</li>
+          <li>理解「手寫執行檔」為什麼可行卻沒人做</li>
+        </ul>
+      </div>
+
+      <p>
+        歡迎來到姊妹課程。前一門（<a href="../file-formats/lesson-01.html">檔案格式解剖學</a>）拆解「資料」怎麼存，這門課專攻一種特別的檔案——<strong>執行檔</strong>：它不只是資料，而是能被 CPU「跑起來」的指令。
+      </p>
+
+      <p>
+        先看一個程式的一生：從你打的原始碼，到能雙擊的 exe，中間經過三道翻譯。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 226" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">從原始碼到 exe：三道翻譯</text>
+                <rect x="20" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="85.25" y="70" text-anchor="middle" font-size="11" fill="#5aa469">原始碼</text><text x="85.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">C / Rust</text><line x1="153.5" y1="74.0" x2="166.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,74.0 166.5,77.5 166.5,70.5" fill="var(--border)"/><rect x="176.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="70" text-anchor="middle" font-size="11" fill="#4a90c2">組合語言</text><text x="241.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">mov、call…</text><line x1="310.0" y1="74.0" x2="323.0" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,74.0 323.0,77.5 323.0,70.5" fill="var(--border)"/><rect x="333" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="398.25" y="70" text-anchor="middle" font-size="11" fill="#ff8a65">目的檔</text><text x="398.25" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">.o / .obj</text><line x1="466.5" y1="74.0" x2="479.5" y2="74.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,74.0 479.5,77.5 479.5,70.5" fill="var(--border)"/><rect x="489.5" y="44" width="130.5" height="60" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="554.75" y="70" text-anchor="middle" font-size="11" fill="#e0605a">執行檔</text><text x="554.75" y="84" text-anchor="middle" font-size="9" fill="var(--text-muted)">.exe / ELF</text>
+                <text x="150" y="128" text-anchor="middle" font-size="9" fill="#4a90c2">編譯器</text>
+                <text x="320" y="128" text-anchor="middle" font-size="9" fill="#ff8a65">組譯器</text>
+                <text x="470" y="128" text-anchor="middle" font-size="9" fill="#e0605a">連結器</text>
+                <text x="320" y="158" text-anchor="middle" font-size="10" fill="var(--accent)">每一步都把「較好懂的」翻成「較底層的」，最後變成 CPU 能直接執行的位元組</text>
+                <text x="320" y="184" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">連結器還負責把多個目的檔、函式庫拼起來，並產生檔頭與匯入表</text>
+                <text x="320" y="210" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">用 Hex 手寫執行檔，等於跳過全部工具、直接寫最後那串位元組——可行，但沒人這樣做</text>
+        </svg>
+        <figcaption>原始碼 → 組合語言 → 目的檔 → 執行檔，每一步都往更底層翻譯。</figcaption>
+      </div>
+
+      <h2>1. 三道翻譯</h2>
+
+      <ol>
+        <li><strong>編譯器</strong>：把 C、Rust 等高階語言，翻成該 CPU 的<strong>組合語言</strong>。</li>
+        <li><strong>組譯器</strong>：把組合語言翻成真正的<strong>機器碼</strong>，產生<strong>目的檔</strong>（.o／.obj）。</li>
+        <li><strong>連結器</strong>：把多個目的檔和用到的函式庫<strong>拼起來</strong>，補上檔頭與匯入表，變成完整的<strong>執行檔</strong>。</li>
+      </ol>
+
+      <h2>2. 每一步都在「往下翻譯」</h2>
+
+      <p>
+        這條流水線的精神，和<a href="../file-formats/lesson-19.html">晶片課從 Verilog 到電路</a>、或前一門課「高階格式最後變成位元組」一脈相承：<strong>人容易懂的，一層層翻成機器能執行的</strong>。
+      </p>
+
+      <h2>3. 可以手寫嗎？</h2>
+
+      <p>
+        可以。既然執行檔最後只是一串位元組，理論上能用 Hex 編輯器<strong>直接手寫</strong>。這門課第 3 課就會給你一個真的、只有 184 位元組、手工打造、而且真的能執行的 Linux 程式（<a href="lesson-03.html">第 3 課</a>）。但現實中沒人這樣寫程式——因為每條指令、每個位址都要自己算，改一行就得重算一堆，這正是編譯器、組譯器、連結器存在的意義：把這件苦差事自動化。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          如果你裝了 gcc，試試 gcc -S hello.c 產生組合語言（.s 檔）、gcc -c 產生目的檔（.o）、gcc 產生執行檔，觀察同一支程式在不同階段的樣子。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>從原始碼到執行檔，中間有哪三道翻譯？</li>
+          <li>編譯器和組譯器的輸出各是什麼？</li>
+          <li>連結器除了拼接，還負責產生什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>機器碼與組合語言：CPU 真正讀的東西</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled">← 上一課</span>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-02.html">下一課：機器碼與組合語言：CPU 真正讀的東西 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

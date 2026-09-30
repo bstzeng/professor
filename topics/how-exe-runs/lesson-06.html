@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 6 課：區段與位址：.text、.data 與檔案位置 vs 記憶體位址 ｜ 執行檔是怎麼跑起來的 ｜ 博雅書院</title>
+<meta name="description" content="程式的不同部分分區存放，各有各的權限——這也是一道資安防線">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">執行檔是怎麼跑起來的</a>
+      <span class="sep">/</span>
+      <span>第 6 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜exe 裡面有什麼 · 第 6 課</div>
+      <h1>區段與位址：.text、.data 與檔案位置 vs 記憶體位址</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出常見區段的用途</li>
+          <li>理解區段的權限（可讀/寫/執行）</li>
+          <li>區分檔案位置與記憶體位址</li>
+        </ul>
+      </div>
+
+      <p>
+        執行檔把內容分成好幾個<strong>區段</strong>，每個放不同東西、給不同權限。這既是為了組織，也是重要的資安設計。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 222" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">區段：程式的不同部分，各有權限</text>
+                <rect x="20" y="46" width="145" height="108" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="92.5" y="78" text-anchor="middle" font-size="11" fill="#e0605a">.text</text><text x="92.5" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">程式碼</text><text x="92.5" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">可讀、可執行</text><text x="92.5" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">不可寫</text><text x="92.5" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">（防被竄改）</text>
+                <rect x="178" y="46" width="145" height="108" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="250.5" y="84" text-anchor="middle" font-size="11" fill="#4a90c2">.data</text><text x="250.5" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">可變全域資料</text><text x="250.5" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">可讀、可寫</text><text x="250.5" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">不可執行</text>
+                <rect x="336" y="46" width="145" height="108" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="408.5" y="78" text-anchor="middle" font-size="11" fill="#5aa469">.rdata</text><text x="408.5" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">唯讀資料</text><text x="408.5" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">常數、字串</text><text x="408.5" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">匯入表也在這</text><text x="408.5" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">可讀不可寫</text>
+                <rect x="494" y="46" width="126" height="108" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="557" y="78" text-anchor="middle" font-size="11" fill="#9c89d6">.bss</text><text x="557" y="92" text-anchor="middle" font-size="9" fill="var(--text-muted)">未初始化</text><text x="557" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">變數空間</text><text x="557" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">檔案裡不占</text><text x="557" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">位元組</text>
+                <text x="320" y="178" text-anchor="middle" font-size="9.5" fill="var(--accent)">檔案位置（在磁碟第幾位元組）≠ 記憶體位址（載入後在記憶體哪）——載入器負責換算</text>
+                <text x="320" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">「可寫的不可執行、可執行的不可寫」是重要的資安防線（防止把資料當程式跑）</text>
+        </svg>
+        <figcaption>.text 放程式碼、.data 放可變資料、.rdata 放唯讀資料，各有權限。</figcaption>
+      </div>
+
+      <h2>1. 常見區段</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>區段</th><th>放什麼</th><th>權限</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>.text</td><td>程式碼（機器指令）</td><td>可讀、可執行、<strong>不可寫</strong></td></tr>
+          <tr><td>.data</td><td>可變的全域變數</td><td>可讀、可寫、不可執行</td></tr>
+          <tr><td>.rdata</td><td>唯讀資料：常數、字串、匯入表</td><td>可讀、不可寫</td></tr>
+          <tr><td>.bss</td><td>未初始化的變數（檔案裡不占空間）</td><td>可讀、可寫</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. 「可寫」與「可執行」互斥是道防線</h2>
+
+      <p>
+        注意一個原則：<strong>可寫的區段不可執行、可執行的區段不可寫</strong>。這叫 W^X（Write XOR eXecute）。它能擋掉一大類攻擊——駭客常想把惡意資料塞進可寫的區域再讓 CPU 去執行它，這道規則正好堵死這條路。
+      </p>
+
+      <h2>3. 檔案位置 ≠ 記憶體位址</h2>
+
+      <p>
+        同一個東西有兩個「地址」：在<strong>磁碟檔案</strong>裡的第幾個位元組，和載入後在<strong>記憶體</strong>裡的位址。兩者<strong>通常不一樣</strong>（檔案排得緊湊、記憶體則按頁對齊）。把檔案位置換算成記憶體位址，是<strong>載入器</strong>的工作（<a href="lesson-12.html">第 12 課</a>）。
+      </p>
+
+      <p>
+        這個「檔案裡一套位址、記憶體裡另一套位址」的概念，是理解程式怎麼跑起來的關鍵，下個模組會反覆用到。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在 PE 檢視工具裡看區段表（Section Headers），你會看到每個區段有「檔案偏移」和「虛擬位址」兩欄不同的數字，以及一組權限旗標。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔧 本課用最小範例與觀察工具，說明執行檔的<strong>結構與載入原理</strong>，屬於系統知識與資安基礎；不含惡意程式技術。手工打造的極小執行檔常被防毒軟體視為可疑，請只在自己的環境、用自己的檔案練習。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>.text 和 .data 分別放什麼？權限有何不同？</li>
+          <li>「可寫的不可執行」這道規則能防什麼？</li>
+          <li>檔案位置和記憶體位址為什麼不一樣？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>匯入表：程式怎麼借用 DLL 的函式</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-05.html">← 上一課：檔頭裡的關鍵欄位：進入點、映像基底、子系統</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-07.html">下一課：匯入表：程式怎麼借用 DLL 的函式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

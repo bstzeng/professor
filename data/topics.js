@@ -11952,6 +11952,69 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "how-exe-runs",
+      category: "tech",
+      title: "執行檔是怎麼跑起來的：從雙擊到程式結束",
+      description:
+        "從原始碼到 exe 的編譯、組譯、連結，親手拆解一個 184 位元組、真的能執行的手寫程式，再一步步追蹤雙擊之後作業系統做的每一件事——安全關卡、建立行程、載入記憶體、接上函式、跑到 main、執行到結束，最後對照 Linux／macOS 並介紹觀察工具。",
+      icon: "⚙️",
+      url: "topics/how-exe-runs/index.html",
+      resources: [
+        {
+          title: "執行檔速查表",
+          description: "PE/ELF/Mach-O 對照、從原始碼到執行的階段、雙擊到結束的九步，以及重要的資安機制",
+          icon: "🗂️",
+          url: "topics/how-exe-runs/cheatsheet.html"
+        },
+        {
+          title: "開啟流程時間軸",
+          description: "把一個程式從被雙擊到結束的九個階段串成一條時間軸，每一步對應到課程的一課",
+          icon: "🧭",
+          url: "topics/how-exe-runs/boot-timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 J｜exe 裡面有什麼",
+          courses: [
+            { title: "從原始碼到 exe：編譯、組譯、連結", url: "topics/how-exe-runs/lesson-01.html" },
+            { title: "機器碼與組合語言：CPU 真正讀的東西", url: "topics/how-exe-runs/lesson-02.html" },
+            { title: "動手：用 184 個位元組手寫一個執行檔", url: "topics/how-exe-runs/lesson-03.html" },
+            { title: "PE 格式總覽：MZ 檔頭、DOS stub 與 PE 簽章", url: "topics/how-exe-runs/lesson-04.html" },
+            { title: "檔頭裡的關鍵欄位：進入點、映像基底、子系統", url: "topics/how-exe-runs/lesson-05.html" },
+            { title: "區段與位址：.text、.data 與檔案位置 vs 記憶體位址", url: "topics/how-exe-runs/lesson-06.html" },
+            { title: "匯入表：程式怎麼借用 DLL 的函式", url: "topics/how-exe-runs/lesson-07.html" },
+            { title: "匯出表、資源區段與資訊清單", url: "topics/how-exe-runs/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 K｜雙擊之後發生什麼（從頭到尾）",
+          courses: [
+            { title: "雙擊的那一刻：檔案總管、副檔名關聯與 ShellExecute", url: "topics/how-exe-runs/lesson-09.html" },
+            { title: "安全關卡：下載標記、SmartScreen、簽章與 UAC", url: "topics/how-exe-runs/lesson-10.html" },
+            { title: "CreateProcess：作業系統建立「行程」與專屬記憶體", url: "topics/how-exe-runs/lesson-11.html" },
+            { title: "把檔案搬進記憶體：分頁、區段權限與 ASLR", url: "topics/how-exe-runs/lesson-12.html" },
+            { title: "載入器登場：載入 DLL、填好匯入表、執行初始化", url: "topics/how-exe-runs/lesson-13.html" },
+            { title: "從進入點到 main：C 執行期環境做了哪些準備", url: "topics/how-exe-runs/lesson-14.html" },
+            { title: "視窗出現：訊息迴圈與事件驅動", url: "topics/how-exe-runs/lesson-15.html" },
+            { title: "程式執行中：堆疊、堆積、執行緒與系統呼叫", url: "topics/how-exe-runs/lesson-16.html" },
+            { title: "程式結束：ExitProcess、資源回收與結束代碼", url: "topics/how-exe-runs/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 L｜延伸與實作",
+          courses: [
+            { title: "Linux ELF 與 macOS Mach-O 的對照", url: "topics/how-exe-runs/lesson-18.html" },
+            { title: ".NET、Java、Python 打包的 exe 有什麼不同", url: "topics/how-exe-runs/lesson-19.html" },
+            { title: "位元組碼：.class、.pyc、.wasm 與虛擬機", url: "topics/how-exe-runs/lesson-20.html" },
+            { title: "腳本：.sh、.bat、.ps1 為什麼純文字也能執行", url: "topics/how-exe-runs/lesson-21.html" },
+            { title: "安裝程式：.msi、.deb、.rpm 到底做了什麼", url: "topics/how-exe-runs/lesson-22.html" },
+            { title: "動手觀察：看穿執行檔的工具箱", url: "topics/how-exe-runs/lesson-23.html" },
+          ],
+        },
+      ],
     }
   ]
 };
