@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：SoundFont 與音色庫：MIDI 的聲音到底從哪來 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="回答 MIDI 課留下的問題：檔案裡沒有聲音，那聲音是誰發出來的？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜聲音檔：WAV、MP3、AAC、FLAC、MIDI · 第 36 課</div>
+      <h1>SoundFont 與音色庫：MIDI 的聲音到底從哪來</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SoundFont 補足了 MIDI 的哪一塊</li>
+          <li>說明音色庫裡存了什麼</li>
+          <li>解釋同一個 MIDI 為何音質差很多</li>
+        </ul>
+      </div>
+
+      <p>
+        MIDI（<a href="lesson-38.html">第 38 課</a>）只存樂譜、不存聲音，真正發聲靠播放端的「音源」。那個音源，最常見的形式就是 <strong>SoundFont</strong>（副檔名 .sf2）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">SoundFont：MIDI 缺的那塊——真正的聲音從哪來</text>
+                <rect x="30" y="44" width="250" height="96" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="155" y="76" text-anchor="middle" font-size="11" fill="#4a90c2">MIDI 檔</text><text x="155" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">只有樂譜：何時彈哪個音</text><text x="155" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">不含任何聲音</text><text x="155" y="116" text-anchor="middle" font-size="9" fill="var(--text-muted)">幾十 KB</text>
+                <line x1="285.0" y1="92.0" x2="333.0" y2="92.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="340.0,92.0 333.0,95.5 333.0,88.5" fill="var(--accent)"/>
+                <text x="312" y="82" text-anchor="middle" font-size="8.5" fill="var(--accent)">配上</text>
+                <rect x="345" y="44" width="275" height="96" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="482.5" y="76" text-anchor="middle" font-size="11" fill="#5aa469">SoundFont（.sf2）</text><text x="482.5" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">每個樂器的真實錄音取樣</text><text x="482.5" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">加上：音高範圍、迴圈點、包絡</text><text x="482.5" y="116" text-anchor="middle" font-size="9" fill="var(--text-muted)">合成器照樂譜「查表」發聲</text>
+                <text x="320" y="168" text-anchor="middle" font-size="10" fill="var(--accent)">同一個 MIDI 配不同 SoundFont，鋼琴可以像平台鋼琴，也可以像玩具電子琴</text>
+                <text x="320" y="194" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這就是為什麼同一首 MIDI 在不同裝置上音質天差地遠</text>
+        </svg>
+        <figcaption>MIDI 提供樂譜，SoundFont 提供每個樂器的真實取樣，合成器把兩者組合成聲音。</figcaption>
+      </div>
+
+      <h2>1. 音色庫裡有什麼</h2>
+
+      <p>
+        SoundFont 是一個<strong>音色庫</strong>：它為每種樂器存了一段或多段<strong>真實錄音的取樣</strong>（例如鋼琴按下中央 C 的聲音），再附上一堆參數：
+      </p>
+
+      <ul>
+        <li>這個取樣涵蓋哪些音高範圍（不可能每個音都錄，靠變速填補）。</li>
+        <li><strong>迴圈點</strong>：長音怎麼把中段無縫重複，好持續發聲。</li>
+        <li><strong>包絡</strong>：音量怎麼起（敲下）、怎麼衰減（放開）。</li>
+      </ul>
+
+      <h2>2. 合成器把樂譜和音色組起來</h2>
+
+      <p>
+        播放 MIDI 時，合成器讀到「彈中央 C、鋼琴」，就去 SoundFont 裡<strong>查出鋼琴的取樣</strong>，調到正確音高與音量播出來。所以聲音的品質完全取決於<strong>音色庫做得好不好</strong>。
+      </p>
+
+      <h2>3. 為什麼同一個 MIDI 差那麼多</h2>
+
+      <p>
+        這就解答了 MIDI 課的疑問：同一個 MIDI 檔，配上高品質的管弦樂音色庫，可以像真的交響樂團；配上作業系統內建的陽春音源，就像早期電子琴。<strong>樂譜一樣，音色庫不同，結果天差地遠。</strong>
+      </p>
+
+      <p>
+        專業編曲用的音色庫（如 VST 音源）比 SoundFont 更龐大精細，動輒好幾 GB，但原理相同：存真實取樣＋演奏規則，再依 MIDI 指令組合發聲。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          下載一個免費的鋼琴 SoundFont 和一個管弦樂 SoundFont，用同一個 MIDI 檔分別播放，親耳聽聽看差多少。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>SoundFont 補足了 MIDI 缺少的什麼？</li>
+          <li>音色庫裡除了取樣，還存了哪些參數？</li>
+          <li>為什麼同一個 MIDI 檔在不同裝置上聽起來差很多？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>音樂追蹤器：MOD、XM 把樂譜和取樣裝在一起</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：AAC、Opus 與 FLAC：更好的有損格式，以及無損壓縮</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：音樂追蹤器：MOD、XM 把樂譜和取樣裝在一起 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

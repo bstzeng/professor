@@ -11814,6 +11814,144 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "file-formats",
+      category: "tech",
+      title: "檔案格式解剖學：JPG、MP3、ZIP 裡面到底存了什麼",
+      description:
+        "用十六進位檢視器，一個位元組一個位元組拆開常見檔案：JPG 怎麼壓縮、PNG 與 ZIP 的區塊結構、MP3 的心理聲學、字型與 3D 模型、影片的容器與編碼、docx 其實是 ZIP、憑證與醫學影像，最後談檔案損壞、偽裝與資安。每課都有可下載的範例檔。",
+      icon: "🗂️",
+      url: "topics/file-formats/index.html",
+      resources: [
+        {
+          title: "格式速查表",
+          description: "常見格式的魔術數字、用途、結構重點與壓縮分類，加上反覆出現的設計概念與安全備忘",
+          icon: "🗂️",
+          url: "topics/file-formats/cheatsheet.html"
+        },
+        {
+          title: "互動檔案解剖器",
+          description: "在瀏覽器裡選一個本機檔案（不會上傳），辨識它的真實格式、比對副檔名、顯示開頭 64 位元組的十六進位",
+          icon: "🔬",
+          url: "topics/file-formats/file-inspector.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜共同基礎：所有檔案都只是一串位元組",
+          courses: [
+            { title: "檔案是什麼：位元組、十六進位與 Hex 檢視器", url: "topics/file-formats/lesson-01.html" },
+            { title: "附檔名只是名字：真正決定格式的魔術數字", url: "topics/file-formats/lesson-02.html" },
+            { title: "整數怎麼存：大端與小端、有號與無號", url: "topics/file-formats/lesson-03.html" },
+            { title: "文字怎麼存：ASCII、Big5、UTF-8 與亂碼的由來", url: "topics/file-formats/lesson-04.html" },
+            { title: "檔案的共同骨架：檔頭、區塊、索引與校驗碼", url: "topics/file-formats/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜壓縮的原理",
+          courses: [
+            { title: "為什麼檔案能壓縮：重複與可預測性", url: "topics/file-formats/lesson-06.html" },
+            { title: "無損壓縮一：連續重複編碼（RLE）與字典法（LZ77）", url: "topics/file-formats/lesson-07.html" },
+            { title: "無損壓縮二：霍夫曼編碼", url: "topics/file-formats/lesson-08.html" },
+            { title: "DEFLATE：ZIP、PNG、gzip 共用的壓縮引擎", url: "topics/file-formats/lesson-09.html" },
+            { title: "有損壓縮的思路：丟掉人類感覺不到的部分", url: "topics/file-formats/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜點陣圖：像素、BMP、PNG、GIF、TIFF、RAW",
+          courses: [
+            { title: "像素與色彩：RGB、位元深度、透明度、調色盤", url: "topics/file-formats/lesson-11.html" },
+            { title: "BMP：最直白的圖片格式，逐位元組拆解", url: "topics/file-formats/lesson-12.html" },
+            { title: "PNG 結構：簽章與 IHDR、IDAT、IEND 區塊", url: "topics/file-formats/lesson-13.html" },
+            { title: "PNG 的祕訣：逐列預測過濾器加 DEFLATE", url: "topics/file-formats/lesson-14.html" },
+            { title: "GIF：256 色調色盤、LZW 壓縮與動畫", url: "topics/file-formats/lesson-15.html" },
+            { title: "TIFF：多頁、多種壓縮的專業影像格式", url: "topics/file-formats/lesson-16.html" },
+            { title: "RAW：相機感光元件的原始資料與拜耳陣列", url: "topics/file-formats/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜JPG：有損影像壓縮全解",
+          courses: [
+            { title: "為什麼 JPG 不直接存 RGB：YCbCr 與色度抽樣", url: "topics/file-formats/lesson-18.html" },
+            { title: "8×8 區塊與離散餘弦轉換（DCT）：把圖變成頻率", url: "topics/file-formats/lesson-19.html" },
+            { title: "量化：真正丟資料的地方，也就是「品質 80」的意思", url: "topics/file-formats/lesson-20.html" },
+            { title: "之字形掃描與霍夫曼編碼：把係數打包成位元", url: "topics/file-formats/lesson-21.html" },
+            { title: "JPG 檔案結構：SOI、DQT、SOF、DHT、SOS 標記逐一拆解", url: "topics/file-formats/lesson-22.html" },
+            { title: "EXIF：照片裡藏的相機資訊、時間與 GPS 位置", url: "topics/file-formats/lesson-23.html" },
+            { title: "為什麼 JPG 會有方塊雜訊，以及為什麼越存越糊", url: "topics/file-formats/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜新影像、向量、字型與 3D",
+          courses: [
+            { title: "WebP、HEIC、AVIF：借用影片壓縮技術的新格式", url: "topics/file-formats/lesson-25.html" },
+            { title: "SVG：用文字描述的向量圖", url: "topics/file-formats/lesson-26.html" },
+            { title: "字型：TTF、OTF、WOFF2 怎麼描述每個字", url: "topics/file-formats/lesson-27.html" },
+            { title: "3D 模型：STL、OBJ、glTF 怎麼描述立體物體", url: "topics/file-formats/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜聲音檔：WAV、MP3、AAC、FLAC、MIDI",
+          courses: [
+            { title: "聲音的數位化：取樣率、位元深度與 PCM", url: "topics/file-formats/lesson-29.html" },
+            { title: "WAV：一個檔頭加上原始波形資料", url: "topics/file-formats/lesson-30.html" },
+            { title: "心理聲學：遮蔽效應與人耳聽不到的部分", url: "topics/file-formats/lesson-31.html" },
+            { title: "MP3 壓縮原理：分頻、MDCT 與位元分配", url: "topics/file-formats/lesson-32.html" },
+            { title: "MP3 檔案結構：影格、影格標頭與 ID3 標籤", url: "topics/file-formats/lesson-33.html" },
+            { title: "位元率：CBR、VBR，以及 128k 和 320k 差在哪", url: "topics/file-formats/lesson-34.html" },
+            { title: "AAC、Opus 與 FLAC：更好的有損格式，以及無損壓縮", url: "topics/file-formats/lesson-35.html" },
+            { title: "SoundFont 與音色庫：MIDI 的聲音到底從哪來", url: "topics/file-formats/lesson-36.html" },
+            { title: "音樂追蹤器：MOD、XM 把樂譜和取樣裝在一起", url: "topics/file-formats/lesson-37.html" },
+            { title: "MIDI：不存聲音，只存「誰在何時彈了哪個音」", url: "topics/file-formats/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜影片：容器與編碼、串流",
+          courses: [
+            { title: "容器不等於編碼：MP4、MKV 與 H.264、H.265、AV1", url: "topics/file-formats/lesson-39.html" },
+            { title: "影片壓縮：I、P、B 影格與動態預測", url: "topics/file-formats/lesson-40.html" },
+            { title: "MP4 結構：box（atom）樹狀結構、moov 與 mdat", url: "topics/file-formats/lesson-41.html" },
+            { title: "字幕：SRT 與 ASS 檔案", url: "topics/file-formats/lesson-42.html" },
+            { title: "HLS 串流：把影片切成幾秒一段的小檔案", url: "topics/file-formats/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜文件與封裝格式",
+          courses: [
+            { title: "ZIP：本地檔頭、中央目錄與為什麼從檔尾開始讀", url: "topics/file-formats/lesson-44.html" },
+            { title: "docx、xlsx、epub、apk：其實都是 ZIP 包 XML", url: "topics/file-formats/lesson-45.html" },
+            { title: "舊版 .doc／.xls：檔案裡藏著一個小檔案系統", url: "topics/file-formats/lesson-46.html" },
+            { title: "RAR 與 7z：和 ZIP 的差異、固實壓縮", url: "topics/file-formats/lesson-47.html" },
+            { title: "tar.gz 與 ISO：為什麼 Linux 要「先打包再壓縮」", url: "topics/file-formats/lesson-48.html" },
+            { title: "現代壓縮演算法：zstd、xz、bz2 的取捨", url: "topics/file-formats/lesson-49.html" },
+            { title: "PDF：物件、交叉參照表與增量更新", url: "topics/file-formats/lesson-50.html" },
+            { title: "純文字格式：TXT、CSV、JSON、XML、YAML", url: "topics/file-formats/lesson-51.html" },
+            { title: "電子郵件（.eml）：附件怎麼變成文字寄出去", url: "topics/file-formats/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 I｜資料、憑證、醫學影像與磁碟",
+          courses: [
+            { title: "SQLite：手機與瀏覽器都在用的單檔資料庫", url: "topics/file-formats/lesson-53.html" },
+            { title: "Parquet：資料分析用的「欄式」儲存", url: "topics/file-formats/lesson-54.html" },
+            { title: "憑證：.pem、.crt 與 HTTPS 的身分證", url: "topics/file-formats/lesson-55.html" },
+            { title: "DICOM：X 光、CT 影像怎麼連病歷一起存", url: "topics/file-formats/lesson-56.html" },
+            { title: "高動態範圍影像：EXR、HDR 與浮點數亮度", url: "topics/file-formats/lesson-57.html" },
+            { title: "磁碟映像：一個檔案裝著一整顆硬碟", url: "topics/file-formats/lesson-58.html" },
+            { title: "種子檔（.torrent）：用雜湊指紋分享大檔案", url: "topics/file-formats/lesson-59.html" },
+            { title: "NES 遊戲 ROM：16 位元組檔頭的迷你格式", url: "topics/file-formats/lesson-60.html" },
+          ],
+        },
+        {
+          title: "模組 M｜實戰與安全",
+          courses: [
+            { title: "檔案損壞與修復：哪些位元組壞了還救得回來", url: "topics/file-formats/lesson-61.html" },
+            { title: "偽裝附檔名與惡意檔案：為什麼「打開檔案」也可能中毒", url: "topics/file-formats/lesson-62.html" },
+            { title: "隱寫術：把資料藏在圖片裡，與整門課的回顧", url: "topics/file-formats/lesson-63.html" },
+          ],
+        },
+      ],
     }
   ]
 };

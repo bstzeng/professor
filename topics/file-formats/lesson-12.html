@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：BMP：最直白的圖片格式，逐位元組拆解 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="幾乎不壓縮、結構透明——最適合第一次動手拆的圖檔">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜點陣圖：像素、BMP、PNG、GIF、TIFF、RAW · 第 12 課</div>
+      <h1>BMP：最直白的圖片格式，逐位元組拆解</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>讀懂 BMP 的檔案標頭與資訊標頭</li>
+          <li>理解像素為什麼由下往上、用 BGR 排列</li>
+          <li>了解「每列補齊 4 的倍數」的規則</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>BMP</strong> 是 Windows 的點陣圖格式，特色是幾乎不壓縮、結構單純，很適合拿來練習拆檔。下面是一個真正的 <strong>2×2 像素</strong> BMP，只有 70 個位元組，畫面是「紅、綠 / 藍、白」四格。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 234" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個 70 位元組的 2×2 BMP</text>
+                <text x="58" y="36" text-anchor="end" font-size="8.5" fill="var(--text-muted)">位移</text>
+                <text x="83.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">0</text>
+                <text x="110.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">1</text>
+                <text x="137.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">2</text>
+                <text x="164.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">3</text>
+                <text x="191.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">4</text>
+                <text x="218.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">5</text>
+                <text x="245.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">6</text>
+                <text x="272.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">7</text>
+                <text x="299.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">8</text>
+                <text x="326.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">9</text>
+                <text x="353.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">A</text>
+                <text x="380.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">B</text>
+                <text x="407.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">C</text>
+                <text x="434.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">D</text>
+                <text x="461.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">E</text>
+                <text x="488.5" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">F</text>
+                <text x="562" y="36" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">ASCII</text>
+                <text x="58" y="60" text-anchor="end" font-size="9" fill="var(--text-muted)">0000</text>
+                <rect x="71" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="83.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">42</text>
+                <rect x="98" y="45" width="25" height="22" rx="3" fill="var(--gold)" fill-opacity="0.28" stroke="var(--gold)" stroke-width="1"/>
+                <text x="110.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">4D</text>
+                <rect x="125" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="137.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">46</text>
+                <rect x="152" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="164.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="191.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="218.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="245.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="260" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="272.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="299.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="326.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="353.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">36</text>
+                <rect x="368" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="380.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="407.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="45" width="25" height="22" rx="3" fill="#9c89d6" fill-opacity="0.28" stroke="#9c89d6" stroke-width="1"/>
+                <text x="434.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">28</text>
+                <rect x="476" y="45" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="60" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="60" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">BMF·······6···(·</text>
+                <text x="58" y="86" text-anchor="end" font-size="9" fill="var(--text-muted)">0010</text>
+                <rect x="71" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <rect x="152" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">02</text>
+                <rect x="260" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">01</text>
+                <rect x="368" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="395" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">18</text>
+                <rect x="422" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="71" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="86" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="86" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="112" text-anchor="end" font-size="9" fill="var(--text-muted)">0020</text>
+                <rect x="71" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">10</text>
+                <rect x="152" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="245.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">13</text>
+                <rect x="260" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="272.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0B</text>
+                <rect x="287" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="299.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="326.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="341" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="353.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">13</text>
+                <rect x="368" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="380.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">0B</text>
+                <rect x="395" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="407.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="434.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="461.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="97" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="488.5" y="112" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="112" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="138" text-anchor="end" font-size="9" fill="var(--text-muted)">0030</text>
+                <rect x="71" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="83.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="98" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="110.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="137.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="152" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="164.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="191.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="123" width="25" height="22" rx="3" fill="#4a90c2" fill-opacity="0.28" stroke="#4a90c2" stroke-width="1"/>
+                <text x="218.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="233" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="245.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="260" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="272.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="287" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="299.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="314" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="326.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="341" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="353.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="368" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="380.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="395" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="407.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="422" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="434.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="449" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="461.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="476" y="123" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="488.5" y="138" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="138" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">················</text>
+                <text x="58" y="164" text-anchor="end" font-size="9" fill="var(--text-muted)">0040</text>
+                <rect x="71" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="83.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="98" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="110.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="125" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="137.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">FF</text>
+                <rect x="152" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="164.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="179" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="191.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <rect x="206" y="149" width="25" height="22" rx="3" fill="#5aa469" fill-opacity="0.28" stroke="#5aa469" stroke-width="1"/>
+                <text x="218.5" y="164" text-anchor="middle" font-size="10" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">00</text>
+                <text x="516" y="164" font-size="10" fill="var(--text-muted)" font-family="ui-monospace,Menlo,Consolas,monospace">······</text>
+                <rect x="24" y="188" width="12" height="12" rx="2" fill="var(--gold)" fill-opacity="0.5" stroke="var(--gold)" stroke-width="1"/>
+                <text x="42" y="198" text-anchor="start" font-size="9.5" fill="var(--text)">「BM」：BMP 魔術數字</text>
+                <rect x="324" y="188" width="12" height="12" rx="2" fill="#9c89d6" fill-opacity="0.5" stroke="#9c89d6" stroke-width="1"/>
+                <text x="342" y="198" text-anchor="start" font-size="9.5" fill="var(--text)">檔案標頭：總大小、像素起點（54）</text>
+                <rect x="24" y="208" width="12" height="12" rx="2" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <text x="42" y="218" text-anchor="start" font-size="9.5" fill="var(--text)">DIB 資訊標頭：寬 2、高 2、24 位元</text>
+                <rect x="324" y="208" width="12" height="12" rx="2" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <text x="342" y="218" text-anchor="start" font-size="9.5" fill="var(--text)">像素資料：由下往上、BGR、每列補滿 4 的倍數</text>
+        </svg>
+        <figcaption>四個區段：魔術數字、兩個標頭、像素資料。</figcaption>
+      </div>
+
+      <h2>1. 兩個標頭</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>位移</th><th>位元組</th><th>意思</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>00–01</td><td>42 4D</td><td>「BM」魔術數字</td></tr>
+          <tr><td>02–05</td><td>46 00 00 00</td><td>整個檔案大小 ＝ 70（小端！）</td></tr>
+          <tr><td>0A–0D</td><td>36 00 00 00</td><td>像素資料從第 54 位元組開始</td></tr>
+          <tr><td>12–15</td><td>02 00 00 00</td><td>寬度 ＝ 2</td></tr>
+          <tr><td>16–19</td><td>02 00 00 00</td><td>高度 ＝ 2</td></tr>
+          <tr><td>1C–1D</td><td>18 00</td><td>每像素 24 位元（0x18 ＝ 24）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        注意檔案大小 <code>46 00 00 00</code> 是<strong>小端</strong>（<a href="lesson-03.html">第 3 課</a>）：低位在前，所以是 0x46 ＝ 70。
+      </p>
+
+      <h2>2. 像素的三個怪規則</h2>
+
+      <ol>
+        <li><strong>由下往上</strong>：BMP 的第一列像素其實是圖的<strong>最底列</strong>。這是歷史因素。</li>
+        <li><strong>用 BGR 不是 RGB</strong>：藍在前、紅在後。所以純紅像素存成 <code>00 00 FF</code>。</li>
+        <li><strong>每列補齊 4 的倍數</strong>：我們的圖一列 2 像素 × 3 ＝ 6 位元組，要補 2 個 <code>00</code> 湊成 8。</li>
+      </ol>
+
+      <p>
+        把這三個規則搞懂，你就能親手在 Hex 編輯器裡改一個像素的顏色。BMP 沒有壓縮，改了立刻生效。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          用小畫家存一張 2×2 的 BMP，用 Hex 檢視器打開，找出寬、高欄位，再試著把某個像素的 BGR 三位元組改成別的顏色，存檔打開看看。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>BMP 的魔術數字是哪兩個字母？</li>
+          <li>純紅色像素在 BMP 裡存成哪三個位元組？</li>
+          <li>為什麼 BMP 的每列要補齊到 4 的倍數？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PNG 結構：簽章與 IHDR、IDAT、IEND 區塊</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：像素與色彩：RGB、位元深度、透明度、調色盤</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：PNG 結構：簽章與 IHDR、IDAT、IEND 區塊 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

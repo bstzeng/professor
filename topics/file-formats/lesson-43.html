@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：HLS 串流：把影片切成幾秒一段的小檔案 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="YouTube、Netflix、直播的祕密：影片不是一個大檔，是幾百個小檔">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜影片：容器與編碼、串流 · 第 43 課</div>
+      <h1>HLS 串流：把影片切成幾秒一段的小檔案</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明分段串流的運作方式</li>
+          <li>理解 m3u8 播放清單與 ts 片段的關係</li>
+          <li>知道自動切換畫質的原理</li>
+        </ul>
+      </div>
+
+      <p>
+        線上看影片時，其實你下載的<strong>不是一個大檔</strong>，而是幾百個幾秒鐘的<strong>小片段</strong>。這套技術叫 <strong>HLS</strong>（HTTP Live Streaming），YouTube、Netflix、各種直播都用類似做法。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 232" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">HLS 串流：把影片切成幾秒一段的小檔案</text>
+                <rect x="30" y="46" width="150" height="70" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="105" y="71" text-anchor="middle" font-size="11" fill="#9c89d6">播放清單</text><text x="105" y="85" text-anchor="middle" font-size="9" fill="var(--text-muted)">.m3u8（純文字）</text><text x="105" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">列出每一段的網址</text>
+                <line x1="185.0" y1="80.0" x2="218.0" y2="80.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="225.0,80.0 218.0,83.5 218.0,76.5" fill="var(--accent)"/>
+                <rect x="230" y="58" width="58" height="44" rx="6" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <rect x="296" y="58" width="58" height="44" rx="6" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <rect x="362" y="58" width="58" height="44" rx="6" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <rect x="428" y="58" width="58" height="44" rx="6" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <rect x="494" y="58" width="58" height="44" rx="6" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <text x="259" y="84" text-anchor="middle" font-size="9.5" fill="#5aa469">2s</text>
+                <text x="325" y="84" text-anchor="middle" font-size="9.5" fill="#5aa469">4s</text>
+                <text x="391" y="84" text-anchor="middle" font-size="9.5" fill="#5aa469">6s</text>
+                <text x="457" y="84" text-anchor="middle" font-size="9.5" fill="#5aa469">8s</text>
+                <text x="523" y="84" text-anchor="middle" font-size="9.5" fill="#5aa469">10s</text>
+                <text x="400" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">.ts 小片段（每段約 2～10 秒）</text>
+                <text x="320" y="152" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">播放器先抓清單，再一段一段下載播放；快轉就跳去抓對應的那幾段</text>
+                <rect x="90" y="168" width="460" height="54" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="320" y="188" text-anchor="middle" font-size="10" fill="var(--accent)">自動切換畫質：清單裡有多種畫質版本，網路變慢就自動換低畫質那組片段</text>
+                <text x="320" y="208" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">YouTube、Netflix、直播都用這類「分段串流」（HLS／DASH）</text>
+        </svg>
+        <figcaption>影片切成許多幾秒的小片段，由一份純文字播放清單串起來。</figcaption>
+      </div>
+
+      <h2>1. 播放清單＋片段</h2>
+
+      <ul>
+        <li><strong>.m3u8 播放清單</strong>：一個<strong>純文字</strong>檔，裡面按順序列出「每一小段影片的網址」。</li>
+        <li><strong>.ts 片段</strong>：每個約 2～10 秒的影片小檔。</li>
+      </ul>
+
+      <p>
+        播放器先抓清單，然後<strong>一段一段</strong>下載、接著播。你快轉時，它就去清單裡找對應時間的那幾段來抓，不必下載整支影片。
+      </p>
+
+      <h2>2. 自動切換畫質</h2>
+
+      <p>
+        清單裡通常同時列出<strong>好幾種畫質</strong>的片段（1080p、720p、480p…）。播放器會<strong>偵測你的網速</strong>：網路好就抓高畫質那組片段，一變慢就自動換成低畫質，所以影片不會卡住，只是畫質偷偷降了。這叫<strong>自適應串流</strong>。
+      </p>
+
+      <h2>3. 為什麼這樣設計</h2>
+
+      <ul>
+        <li>用一般的 HTTP 就能傳（和下載網頁一樣），不需特殊伺服器，還能用 CDN 快取加速。</li>
+        <li>能無縫切換畫質，適應各種網路。</li>
+        <li>直播也能做：一邊錄一邊產生新片段、更新清單。</li>
+      </ul>
+
+      <p>
+        另一套類似技術叫 <strong>DASH</strong>，原理相同。這也是為什麼線上影片很難「右鍵另存」成單一檔案——它本來就是散成幾百個小片段串流過來的。到這裡，影片模組結束。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          在電腦瀏覽器用開發者工具的「網路」分頁看一支串流影片，你會看到它不斷下載一小段一小段的檔案（.ts 或類似），而不是一個大檔。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>HLS 把影片拆成什麼？用什麼把它們串起來？</li>
+          <li>m3u8 檔案裡放的是什麼？</li>
+          <li>自動切換畫質是怎麼運作的？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>ZIP：本地檔頭、中央目錄與為什麼從檔尾開始讀</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：字幕：SRT 與 ASS 檔案</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：ZIP：本地檔頭、中央目錄與為什麼從檔尾開始讀 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

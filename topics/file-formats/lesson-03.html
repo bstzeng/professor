@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：整數怎麼存：大端與小端、有號與無號 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="同樣四個位元組，擺放順序不同，可以差到幾十億">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜共同基礎：所有檔案都只是一串位元組 · 第 3 課</div>
+      <h1>整數怎麼存：大端與小端、有號與無號</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出大端與小端的差別</li>
+          <li>知道常見格式各用哪一種</li>
+          <li>理解有號整數如何表示負數</li>
+        </ul>
+      </div>
+
+      <p>
+        一個位元組只能存 0～255。要存更大的數字（例如圖片寬度 1920），就得用好幾個位元組。問題來了：這幾個位元組，該把「高位」放前面還是後面？這就是<strong>位元組順序</strong>（endianness）。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 235" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">大端與小端：多位元組整數的兩種擺法</text>
+                <text x="320" y="44" text-anchor="middle" font-size="10.5" fill="var(--text)">要存的數字：1000（十進位）＝ 00 00 03 E8（四個位元組）</text>
+                <rect x="70" y="66" width="220" height="70" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="180" y="91" text-anchor="middle" font-size="11" fill="#4a90c2">大端（Big-Endian）</text><text x="180" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">00 00 03 E8</text><text x="180" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">高位在前，像人讀數字</text>
+                <rect x="350" y="66" width="220" height="70" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="460" y="91" text-anchor="middle" font-size="11" fill="#ff8a65">小端（Little-Endian）</text><text x="460" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">E8 03 00 00</text><text x="460" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">低位在前</text>
+                <text x="180" y="156" text-anchor="middle" font-size="9" fill="#4a90c2">PNG、JPG、MP4、網路封包</text>
+                <text x="460" y="156" text-anchor="middle" font-size="9" fill="#ff8a65">BMP、ZIP、x86 的 exe、大多數 PC</text>
+                <text x="320" y="190" text-anchor="middle" font-size="10" fill="#e0605a">讀錯順序，1000 會被當成 3,892,314,112</text>
+                <text x="320" y="214" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">有號整數還要看最高位元：當作正負號，這就是為什麼會有 −1 這種「全部 FF」的值</text>
+        </svg>
+        <figcaption>同一個數字 1000，大端與小端的位元組排列剛好相反。</figcaption>
+      </div>
+
+      <h2>1. 大端 vs. 小端</h2>
+
+      <ul>
+        <li><strong>大端</strong>：高位在前，跟我們寫數字的習慣一樣（先寫千位再寫個位）。網路傳輸、PNG、JPG、MP4 用大端。</li>
+        <li><strong>小端</strong>：低位在前。Intel／AMD 的 x86 處理器用小端，所以 BMP、ZIP、Windows 的 exe 也是小端。</li>
+      </ul>
+
+      <p>
+        讀檔案時一定要知道它用哪一種，否則 <code>00 00 03 E8</code>（大端的 1000）會被小端讀成 3,892,314,112。這是初學者拆檔案時最常見的錯誤。
+      </p>
+
+      <h2>2. 有號與無號</h2>
+
+      <p>
+        如果一個數字可能是負的（例如音訊的波形、座標），就要用一個位元當「正負號」。最常見的做法叫<strong>二補數</strong>：最高位元是 1 就代表負數。所以一個位元組若當成「無號」是 0～255，當成「有號」則是 −128～127。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>位元組</th><th>當成無號</th><th>當成有號（二補數）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>00</td><td>0</td><td>0</td></tr>
+          <tr><td>7F</td><td>127</td><td>127</td></tr>
+          <tr><td>80</td><td>128</td><td>−128</td></tr>
+          <tr><td>FF</td><td>255</td><td>−1</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這就是為什麼你有時會在檔案裡看到一整排 <code>FF</code>：它常常代表 −1，或代表「全部位元都是 1」的旗標。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          用 Hex 檢視器找一個 BMP 檔（小端）的寬度欄位，和一個 PNG（大端）的寬度欄位，比較同樣的數字兩種排法。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>大端和小端哪一個「高位在前」？</li>
+          <li>x86 電腦（一般 PC）用哪一種？</li>
+          <li>位元組 FF 當成有號整數（二補數）是多少？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>文字怎麼存：ASCII、Big5、UTF-8 與亂碼的由來</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：附檔名只是名字：真正決定格式的魔術數字</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：文字怎麼存：ASCII、Big5、UTF-8 與亂碼的由來 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：檔案的共同骨架：檔頭、區塊、索引與校驗碼 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="看過幾種格式後你會發現，它們的組織方式其實大同小異">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜共同基礎：所有檔案都只是一串位元組 · 第 5 課</div>
+      <h1>檔案的共同骨架：檔頭、區塊、索引與校驗碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出多數格式共有的結構元素</li>
+          <li>理解區塊（chunk）結構為什麼利於相容</li>
+          <li>知道校驗碼（CRC）的用途</li>
+        </ul>
+      </div>
+
+      <p>
+        接下來幾個模組會拆解十幾種格式。先把它們的<strong>共同套路</strong>講清楚，之後就會越看越熟。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">很多格式的共同骨架：一串「區塊」</text>
+                <rect x="20" y="44" width="101.762" height="54" rx="4" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="1.2"/>
+                <text x="70.881" y="69" text-anchor="middle" font-size="10" fill="var(--text)">檔頭</text>
+                <text x="70.881" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">魔術數字＋版本</text>
+                <rect x="124.762" y="44" width="130.333" height="54" rx="4" fill="#4a90c2" fill-opacity="0.22" stroke="#4a90c2" stroke-width="1.2"/>
+                <text x="189.929" y="69" text-anchor="middle" font-size="10" fill="var(--text)">區塊 1</text>
+                <text x="189.929" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">長度＋類型＋資料</text>
+                <rect x="258.095" y="44" width="158.905" height="54" rx="4" fill="#5aa469" fill-opacity="0.22" stroke="#5aa469" stroke-width="1.2"/>
+                <text x="337.548" y="69" text-anchor="middle" font-size="10" fill="var(--text)">區塊 2</text>
+                <text x="337.548" y="83" text-anchor="middle" font-size="9" fill="var(--text-muted)">長度＋類型＋資料</text>
+                <rect x="420" y="44" width="92.2381" height="54" rx="4" fill="var(--text-muted)" fill-opacity="0.22" stroke="var(--text-muted)" stroke-width="1.2"/>
+                <text x="466.119" y="75" text-anchor="middle" font-size="10" fill="var(--text)">…</text>
+                <rect x="515.238" y="44" width="101.762" height="54" rx="4" fill="#e0605a" fill-opacity="0.22" stroke="#e0605a" stroke-width="1.2"/>
+                <text x="566.119" y="75" text-anchor="middle" font-size="10" fill="var(--text)">結束區塊</text>
+                <rect x="120" y="120" width="400" height="96" rx="8" fill="var(--accent-soft)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="320" y="142" text-anchor="middle" font-size="10" fill="var(--accent)">一個區塊（chunk）的典型長相</text>
+                <text x="150" y="166" text-anchor="start" font-size="9.5" fill="var(--text)" font-family="ui-monospace,Menlo,Consolas,monospace">[ 長度 4 位元組 ][ 類型 4 位元組 ][ 資料 … ][ CRC 校驗 4 位元組 ]</text>
+                <text x="320" y="202" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">讀到不認識的區塊，就依「長度」跳過去——所以格式能往後相容、加新功能</text>
+                <text x="320" y="234" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">CRC 是用資料算出的校驗碼；下載壞了一個位元組，重算對不上就知道檔案毀了</text>
+        </svg>
+        <figcaption>檔頭、一連串區塊、結束標記——這是非常多格式共用的骨架。</figcaption>
+      </div>
+
+      <h2>1. 檔頭</h2>
+
+      <p>
+        檔案開頭通常有<strong>檔頭</strong>：魔術數字（<a href="lesson-02.html">第 2 課</a>）、版本號、以及一些整體資訊（例如圖片的寬高）。
+      </p>
+
+      <h2>2. 區塊</h2>
+
+      <p>
+        主體常切成一個個<strong>區塊</strong>，每個區塊自己寫明「我有多長、我是什麼類型」。這樣設計有兩個大好處：
+      </p>
+
+      <ul>
+        <li><strong>可略過</strong>：程式遇到不認識的區塊，依長度跳過即可，不會整個檔案讀不了。</li>
+        <li><strong>可擴充</strong>：未來要加新功能，只要定義一種新區塊，舊程式自動忽略它——這叫向後相容。</li>
+      </ul>
+
+      <p>
+        PNG、MIDI、MP4、WAV 都是這種區塊結構，只是名字不同（PNG 叫 chunk、MP4 叫 box、WAV／AVI 叫 chunk）。
+      </p>
+
+      <h2>3. 索引與校驗碼</h2>
+
+      <ul>
+        <li><strong>索引</strong>：有些格式（ZIP、MP4、PDF）會在某處放一張目錄，記錄「哪個東西在檔案的第幾個位元組」，方便快速跳著讀，不必從頭掃到尾。</li>
+        <li><strong>校驗碼</strong>：像 <strong>CRC</strong> 這種用資料算出來的短數字，附在區塊後面。重新算一次對不上，就代表資料損壞了。ZIP、PNG 都用 CRC。</li>
+      </ul>
+
+      <p>
+        帶著這個骨架的概念，我們就可以開始拆真正的檔案了。下一個模組先講所有壓縮的原理，因為現代格式幾乎都會壓縮（<a href="lesson-06.html">第 6 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          回想你用過的檔案，猜猜看哪些可能用了「區塊」結構、哪些有「索引」。學完後面幾課再回來對照。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>區塊結構為什麼有利於向後相容？</li>
+          <li>索引（目錄）的用途是什麼？</li>
+          <li>CRC 校驗碼怎麼幫忙偵測檔案損壞？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>為什麼檔案能壓縮：重複與可預測性</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：文字怎麼存：ASCII、Big5、UTF-8 與亂碼的由來</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：為什麼檔案能壓縮：重複與可預測性 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：現代壓縮演算法：zstd、xz、bz2 的取捨 ｜ 檔案格式解剖學 ｜ 博雅書院</title>
+<meta name="description" content="DEFLATE 之後，壓縮演算法在「壓得小」和「壓得快」之間各有選擇">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">檔案格式解剖學</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜文件與封裝格式 · 第 49 課</div>
+      <h1>現代壓縮演算法：zstd、xz、bz2 的取捨</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解壓縮的速度與比率取捨</li>
+          <li>認識 xz、bzip2、zstd 的定位</li>
+          <li>知道為什麼 zstd 越來越流行</li>
+        </ul>
+      </div>
+
+      <p>
+        模組 B 的 DEFLATE（<a href="lesson-09.html">第 9 課</a>）是 1990 年代的經典，但不是唯一。之後出現許多新演算法，各自在<strong>壓縮率</strong>和<strong>速度</strong>之間做不同取捨。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">現代壓縮演算法：壓得小 vs. 壓得快</text>
+                <path d="M90 44 V194 H560" fill="none" stroke="var(--text-muted)" stroke-width="1.2"/>
+                <text x="137" y="208" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">快</text>
+                <text x="513" y="208" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">慢</text>
+                <text x="85" y="182" text-anchor="end" font-size="8.5" fill="var(--text-muted)">普通</text>
+                <text x="85" y="62" text-anchor="end" font-size="8.5" fill="var(--text-muted)">很小</text>
+                <text x="56" y="119" text-anchor="middle" font-size="9.5" fill="var(--text-muted)" transform="rotate(-90 56 119)">壓縮率</text>
+                <path d="M513.0 119.0" fill="none" stroke="var(--text-muted)" stroke-width="2.2"/>
+                <circle cx="184" cy="149" r="5" fill="#ff8a65" stroke="#ff8a65" stroke-width="1"/>
+                <circle cx="466" cy="74" r="5" fill="#e0605a" stroke="#e0605a" stroke-width="1"/>
+                <circle cx="254.5" cy="89" r="5" fill="#4a90c2" stroke="#4a90c2" stroke-width="1"/>
+                <circle cx="419" cy="119" r="5" fill="#5aa469" stroke="#5aa469" stroke-width="1"/>
+                <text x="184" y="139" text-anchor="middle" font-size="9" fill="#ff8a65">gzip</text>
+                <text x="466" y="64" text-anchor="middle" font-size="9" fill="#e0605a">xz</text>
+                <text x="254.5" y="79" text-anchor="middle" font-size="9" fill="#4a90c2">bzip2</text>
+                <text x="439" y="119" text-anchor="start" font-size="9" fill="#5aa469">zstd</text>
+                <text x="320" y="214" text-anchor="middle" font-size="8.5" fill="var(--text-muted)">← 壓縮速度 →</text>
+                <text x="320" y="236" text-anchor="middle" font-size="9.5" fill="var(--accent)">xz 壓最小但最慢；zstd（Facebook）在「夠小」與「很快」間取得絕佳平衡，正快速普及</text>
+        </svg>
+        <figcaption>不同演算法在「壓得小」與「壓得快」之間各佔一角。</figcaption>
+      </div>
+
+      <h2>1. 沒有最好，只有取捨</h2>
+
+      <p>
+        壓縮演算法的核心矛盾是：<strong>壓得越小，通常花的時間越多</strong>。該選哪個，取決於用途——是要長期存檔（重壓縮率）還是即時傳輸（重速度）？
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>演算法</th><th>定位</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>gzip（DEFLATE）</td><td>快、普通壓縮率、無所不在</td></tr>
+          <tr><td>bzip2（.bz2）</td><td>壓縮率比 gzip 好，但較慢</td></tr>
+          <tr><td>xz（LZMA）</td><td>壓縮率很高，但慢、吃記憶體；適合長期存檔</td></tr>
+          <tr><td>zstd（Zstandard）</td><td>速度接近 gzip、壓縮率接近 xz，可調</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. 為什麼 zstd 崛起</h2>
+
+      <p>
+        <strong>zstd</strong>（Facebook 開發）的厲害之處是<strong>平衡</strong>：它可以壓得幾乎和 xz 一樣小，速度卻快得多，而且能用一個「等級」旋鈕在快與小之間調整。因此近年被大量採用：Linux 核心、檔案系統、各種軟體的封裝都改用它。
+      </p>
+
+      <p>
+        這一課的重點不是背哪個演算法最好，而是理解：<strong>壓縮永遠是速度、大小、記憶體之間的取捨</strong>，選型要看場景。網頁傳輸另有 Brotli（<a href="lesson-27.html">第 27 課</a>提過），也是同樣的思路。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <p>
+          如果你的系統有 zstd、xz、gzip 指令，把同一個大檔案分別壓一次，比較「花的時間」和「壓出來的大小」，親自感受這個取捨。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>壓縮演算法的核心矛盾是什麼？</li>
+          <li>xz 和 zstd 的定位差別是什麼？</li>
+          <li>為什麼 zstd 近年越來越流行？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PDF：物件、交叉參照表與增量更新</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：tar.gz 與 ISO：為什麼 Linux 要「先打包再壓縮」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：PDF：物件、交叉參照表與增量更新 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
