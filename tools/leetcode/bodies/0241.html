@@ -1,0 +1,170 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>expression</code> of numbers and operators, return all possible results from computing all the different possible ways to group numbers and operators. You may return the answer in <strong>any order</strong>.</p>
+          <p>The test cases are generated such that the output values fit in a 32-bit integer and the number of different results does not exceed <code>10<sup>4</sup></code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個由數字和運算子組成的字串 <code>expression</code>，用所有不同的方式加上括號（決定運算順序），回傳所有可能的計算結果，順序不限。</p>
+          <p>保證結果在 32 位元整數範圍內，而且結果的個數不超過 <code>10<sup>4</sup></code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：expression = "2-1-1"
+  輸出：[0,2]
+  說明：
+    ((2-1)-1) = 0
+    (2-(1-1)) = 2
+
+範例 2
+  輸入：expression = "2*3-4*5"
+  輸出：[-34,-14,-10,-10,10]
+  說明：
+    (2*(3-(4*5))) = -34
+    ((2*3)-(4*5)) = -14
+    ((2*(3-4))*5) = -10
+    (2*((3-4)*5)) = -10
+    (((2*3)-4)*5) = 10</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>1 ≤ <code>expression.length</code> ≤ 20</li>
+          <li><code>expression</code> 由數字與 <code>'+'</code>、<code>'-'</code>、<code>'*'</code> 組成</li>
+          <li>所有整數都在 [0, 99] 之間</li>
+          <li>整數不會有前導的 <code>'-'</code> 或 <code>'+'</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/different-ways-to-add-parentheses/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【分治：選一個運算子「最後才算」】
+    任何一種加括號的方式，總有一個運算子是「最外層」、最後才算的。
+    2 * 3 - 4 * 5
+          ^ 如果 '-' 最後算：
+    (2 * 3 的所有可能結果) - (4 * 5 的所有可能結果)
+
+    左半、右半各自是同樣的子問題 -&gt; 遞迴。
+    兩邊的結果兩兩組合。
+
+【結果的個數】
+    n 個數字的加括號方式有 Catalan(n-1) 種：
+        1, 1, 2, 5, 14, 42, 132, 429, ...
+    題目說結果不超過 10⁴，所以可以全部列出來。
+
+【重複的結果要保留】
+    範例 2 中 -10 出現兩次（兩種不同的括號方式）。
+
+【記憶化】
+    同一個子字串可能被算很多次 -&gt;
+    用 lru_cache 或以 (i, j) 為狀態的區間 DP。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>分治遞迴 + 記憶化</h3>
+        <div class="code-block">class Solution:
+    def diffWaysToCompute(self, expression: str) -&gt; List[int]:
+        @functools.lru_cache(None)
+        def solve(expr: str) -&gt; List[int]:
+            if expr.isdigit():                        # 純數字：只有一種結果
+                return [int(expr)]
+            res = []
+            for i, ch in enumerate(expr):
+                if ch in "+-*":
+                    # ★ 把 ch 當作「最後才算」的運算子，左右兩邊分別遞迴
+                    for a in solve(expr[:i]):
+                        for b in solve(expr[i + 1:]):
+                            res.append(a + b if ch == "+" else a - b if ch == "-" else a * b)
+            return res
+
+        return solve(expression)</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(Catalan 數)</td><td>輸出本身就這麼多</td></tr>
+            <tr><td>空間</td><td>O(Catalan 數)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>區間 DP</h3>
+        <div class="code-block">class Solution:
+    def diffWaysToCompute(self, expression: str) -&gt; List[int]:
+        nums, ops = [], []                        # 先切成數字與運算子
+        for tok in re.findall(r"\d+|[-+*]", expression):
+            (ops if tok in "+-*" else nums).append(tok)
+        nums = list(map(int, nums))
+        n = len(nums)
+        # dp[i][j]：第 i 到第 j 個數字之間，所有可能的結果
+        dp = [[[] for _ in range(n)] for _ in range(n)]
+        for i in range(n):
+            dp[i][i] = [nums[i]]
+        for length in range(2, n + 1):
+            for i in range(n - length + 1):
+                j = i + length - 1
+                for k in range(i, j):              # ops[k] 是最後算的
+                    op = ops[k]
+                    for a in dp[i][k]:
+                        for b in dp[k + 1][j]:
+                            dp[i][j].append(a + b if op == "+" else a - b if op == "-" else a * b)
+        return dp[0][n - 1]</div>
+        <div class="code-block">【和第 312 題戳氣球、矩陣連乘是同一類】
+    dp[i][j] = 第 i..j 個數字能算出的所有結果
+    枚舉最後算的運算子 k（介於第 k 和 k+1 個數字之間）：
+        dp[i][j] += dp[i][k] ⊗ dp[k+1][j]
+    按區間長度由短到長填表。</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(Catalan 數)</td><td></td></tr>
+            <tr><td>空間</td><td>O(Catalan 數)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>解法對照</h2>
+
+        <table>
+          <thead><tr><th>解法</th><th>時間</th><th>備註</th></tr></thead>
+          <tbody>
+            <tr><td>一、分治 + 記憶化</td><td>O(Catalan)</td><td>最自然 ✔</td></tr>
+            <tr><td>二、區間 DP</td><td>O(Catalan)</td><td>先切 token，避免字串切片</td></tr>
+          </tbody>
+        </table>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個數字</strong>（<code>"11"</code>）→ <code>[11]</code>。</li>
+          <li><strong>多位數</strong> → 遞迴基底用 <code>isdigit()</code> 判斷整段都是數字。</li>
+          <li><strong>重複結果</strong> → 要保留，不能去重。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>追問：如果只要最大值？</h3>
+
+        <div class="code-block">區間 DP 只存每段的最大值與最小值（減法和乘法遇到負數時，最小值可能變最大值）——這就是很多「加括號求最大值」問題的套路。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 95 題 不同的二元搜尋樹 II</strong> —— 同一種「選根 / 選最後的運算子」分治</li>
+          <li><strong>第 282 題 給表達式添加運算子</strong></li>
+          <li><strong>第 312 題 戳氣球</strong> —— 區間 DP</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼要選一個「最後才算」的運算子？</li>
+            <li>n 個數字共有幾種加括號的方式？</li>
+            <li>為什麼重複的結果不能去掉？</li>
+          </ol>
+        </div>

@@ -10229,7 +10229,13 @@ window.SITE_DATA = {
             { title: "233. Number of Digit One 數字 1 的個數", url: "topics/leetcode/problem-0233.html" },
             { title: "234. Palindrome Linked List 回文鏈結串列", url: "topics/leetcode/problem-0234.html" },
             { title: "235. Lowest Common Ancestor of a Binary Search Tree 二元搜尋樹的最近公共祖先", url: "topics/leetcode/problem-0235.html" },
-            { title: "236. Lowest Common Ancestor of a Binary Tree 二元樹的最近公共祖先", url: "topics/leetcode/problem-0236.html" }
+            { title: "236. Lowest Common Ancestor of a Binary Tree 二元樹的最近公共祖先", url: "topics/leetcode/problem-0236.html" },
+            { title: "237. Delete Node in a Linked List 刪除鏈結串列中的節點", url: "topics/leetcode/problem-0237.html" },
+            { title: "238. Product of Array Except Self 除自身以外陣列的乘積", url: "topics/leetcode/problem-0238.html" },
+            { title: "239. Sliding Window Maximum 滑動視窗最大值", url: "topics/leetcode/problem-0239.html" },
+            { title: "240. Search a 2D Matrix II 搜尋二維矩陣 II", url: "topics/leetcode/problem-0240.html" },
+            { title: "241. Different Ways to Add Parentheses 為運算式設計優先順序", url: "topics/leetcode/problem-0241.html" },
+            { title: "242. Valid Anagram 有效的字母異位詞", url: "topics/leetcode/problem-0242.html" }
           ]
         }
       ]
