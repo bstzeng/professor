@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：電腦一通電,CPU 從哪裡開始跑?(reset vector) ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="CPU 怎麼「知道」開機要先去執行 BIOS?這其實是硬體規定死的">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜開機的雞生蛋問題:電腦怎麼把自己叫醒 · 第 15 課</div>
+      <h1>電腦一通電,CPU 從哪裡開始跑?(reset vector)</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 CPU 重置後跳到固定位址</li>
+          <li>知道 reset vector 由硬體決定</li>
+          <li>看出這如何徹底解決雞生蛋問題</li>
+        </ul>
+      </div>
+
+      <p>
+        BIOS 放在 ROM 裡了(<a href="lesson-14.html">第 14 課</a>)。但還有最後一道關卡:電腦一通電,CPU 要開始執行程式,它怎麼<strong>知道</strong>「第一條指令」在哪裡?這個答案,乾脆俐落地解決了整個雞生蛋問題。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 214" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">電腦一通電,CPU 從哪開始跑?</text>
+                <rect x="20" y="60" width="130.5" height="52" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="85.25" y="82" text-anchor="middle" font-size="11" fill="#ff8a65">按下電源</text><text x="85.25" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">供電穩定</text><line x1="153.5" y1="86.0" x2="166.5" y2="86.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,86.0 166.5,89.5 166.5,82.5" fill="var(--border)"/><rect x="176.5" y="60" width="130.5" height="52" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="82" text-anchor="middle" font-size="11" fill="#4a90c2">CPU 重置</text><text x="241.75" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">暫存器歸零</text><line x1="310.0" y1="86.0" x2="323.0" y2="86.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,86.0 323.0,89.5 323.0,82.5" fill="var(--border)"/><rect x="333" y="60" width="130.5" height="52" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="398.25" y="82" text-anchor="middle" font-size="11" fill="#9c89d6">跳到固定位址</text><text x="398.25" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">reset vector</text><line x1="466.5" y1="86.0" x2="479.5" y2="86.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,86.0 479.5,89.5 479.5,82.5" fill="var(--border)"/><rect x="489.5" y="60" width="130.5" height="52" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="554.75" y="82" text-anchor="middle" font-size="11" fill="#5aa469">執行 ROM 裡的碼</text><text x="554.75" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">BIOS 起跑</text>
+                <text x="320" y="150" text-anchor="middle" font-size="10" fill="var(--accent)">CPU 被設計成:一通電,程式計數器就指向一個「出廠就決定好」的固定位址</text>
+                <text x="320" y="174" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這個位址(reset vector)剛好對應到 ROM,於是 BIOS 成為全機第一段被執行的程式</text>
+                <text x="320" y="198" text-anchor="middle" font-size="9.5" fill="var(--accent)">這解決了雞生蛋:第一條指令的位置,是「硬體本身」規定死的,不靠任何軟體</text>
+        </svg>
+        <figcaption>CPU 一通電就跳到出廠決定好的固定位址(reset vector),那裡對應到 ROM 的 BIOS。</figcaption>
+      </div>
+
+      <h2>1. 硬體幫你決定「第一條在哪」</h2>
+
+      <p>
+        CPU 被<strong>設計成</strong>:一通電、完成重置後,它的程式計數器(<a href="lesson-12.html">第 12 課</a>)會自動指向一個<strong>固定的、出廠就決定好的位址</strong>。這個位址叫 <strong>reset vector</strong>(重置向量)。它不是任何軟體設定的,而是<strong>刻在 CPU 電路裡</strong>的。
+      </p>
+
+      <h2>2. 這個位址剛好對應到 ROM</h2>
+
+      <p>
+        主機板的設計會讓這個固定位址<strong>對應到 ROM</strong>(BIOS 所在)。於是,通電後 CPU 抓的第一條指令,自然就是 <strong>BIOS 的開頭</strong>——BIOS 因此成為全機<strong>第一段被執行</strong>的程式。
+      </p>
+
+      <h2>3. 為什麼這徹底解決了雞生蛋</h2>
+
+      <p>
+        回顧一下這個漂亮的組合:
+      </p>
+
+      <ul>
+        <li>「第一段程式放哪」→ 放在<strong>斷電不消失的 ROM</strong>(<a href="lesson-14.html">第 14 課</a>)。</li>
+        <li>「CPU 怎麼知道去執行它」→ 由<strong>硬體規定的 reset vector</strong>指過去。</li>
+        <li>兩者都<strong>不依賴任何軟體</strong>——所以一台空機器,也能純靠硬體把第一段程式跑起來。</li>
+      </ul>
+
+      <p>
+        雞生蛋問題到此正式破解:硬體負責<strong>「起頭第一棒」</strong>,之後就交給軟體的接力(<a href="lesson-13.html">第 13 課</a>)。BIOS 起跑後做的第一件正事,是幫硬體做個體檢——這叫 POST(<a href="lesson-16.html">第 16 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          這一課最妙的地方是:困擾我們兩課的「第一條指令從哪來」,最後不是靠更聰明的軟體解決,而是靠「在 CPU 電路裡寫死一個起點」。有時候,最底層的問題,答案就在硬體本身。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>CPU 重置後,程式計數器會指向哪裡?</li>
+          <li>reset vector 是由軟體還是硬體決定的?</li>
+          <li>ROM + reset vector 如何一起解決雞生蛋問題?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>開機自檢 POST:先確認硬體會動再說</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：燒死在晶片裡的第一段程式:ROM 與 BIOS</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：開機自檢 POST:先確認硬體會動再說 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

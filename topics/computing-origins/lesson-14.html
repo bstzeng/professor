@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：燒死在晶片裡的第一段程式:ROM 與 BIOS ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="那「一定已經在那裡」的第一段程式,放在一種斷電也不會消失的記憶體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜開機的雞生蛋問題:電腦怎麼把自己叫醒 · 第 14 課</div>
+      <h1>燒死在晶片裡的第一段程式:ROM 與 BIOS</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>分清 RAM 與 ROM 的差別</li>
+          <li>理解為何第一段程式要放 ROM</li>
+          <li>認識 BIOS 的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課說,開機要靠「一小段一定已經在那裡的程式」。問題是:<strong>RAM 斷電就全空了</strong>,它顯然不能放這段程式。那要放哪?答案是另一種記憶體:<strong>ROM</strong>。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 224" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">燒死在晶片裡的第一段程式:ROM 與 BIOS</text>
+                <rect x="30" y="54" width="270" height="104" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="165" y="84" text-anchor="middle" font-size="11" fill="#4a90c2">RAM 主記憶體</text><text x="165" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">可讀可寫、速度快</text><text x="165" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">斷電就「全部消失」</text><text x="165" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">開機瞬間裡面是空的</text><text x="165" y="137" text-anchor="middle" font-size="9" fill="var(--text-muted)">放「正在跑」的程式</text>
+                <rect x="340" y="54" width="270" height="104" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="475" y="84" text-anchor="middle" font-size="11" fill="#5aa469">ROM 唯讀記憶體</text><text x="475" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">出廠就燒好、不會消失</text><text x="475" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">斷電也還在</text><text x="475" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">存放開機第一段程式(BIOS)</text><text x="475" y="137" text-anchor="middle" font-size="9" fill="var(--text-muted)">電腦一通電就能執行它</text>
+                <text x="320" y="184" text-anchor="middle" font-size="10" fill="var(--accent)">關鍵:RAM 斷電就空,所以「第一段程式」不能放 RAM——要放永遠都在的 ROM</text>
+                <text x="320" y="208" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">這段燒在晶片裡的程式,在傳統 PC 上叫 BIOS(基本輸入輸出系統)</text>
+        </svg>
+        <figcaption>RAM 斷電就空,所以開機的第一段程式要放「永遠都在」的 ROM;它在 PC 上叫 BIOS。</figcaption>
+      </div>
+
+      <h2>1. RAM vs ROM</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>RAM 主記憶體</th><th>ROM 唯讀記憶體</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>能不能寫</td><td>可讀可寫</td><td>主要只能讀(出廠燒好)</td></tr>
+          <tr><td>斷電之後</td><td>內容全部消失</td><td>內容永久保留</td></tr>
+          <tr><td>開機瞬間</td><td>空的</td><td>裡面已有程式</td></tr>
+          <tr><td>用途</td><td>放「正在執行」的程式與資料</td><td>放開機第一段程式</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>2. 為什麼第一段程式非 ROM 不可</h2>
+
+      <p>
+        邏輯很直接:開機時 RAM 是空的,所以那段<strong>啟動用的程式</strong>必須放在<strong>斷電也不會消失</strong>的地方。ROM(唯讀記憶體)正是如此——它在工廠就把程式<strong>燒</strong>進去,電腦一通電就能立刻執行,不必等任何人載入。
+      </p>
+
+      <h2>3. 這段程式叫 BIOS</h2>
+
+      <p>
+        在傳統 PC 上,這段燒在 ROM 裡的開機程式叫 <strong>BIOS</strong>(Basic Input/Output System,基本輸入輸出系統)。它負責:喚醒並檢查硬體、提供最基本的鍵盤/螢幕/磁碟存取,然後去<strong>找作業系統來載入</strong>。(現代電腦多半換成了功能更強的 <strong>UEFI</strong>,但角色類似,後面會談,<a href="lesson-42.html">第 42 課</a>。)
+      </p>
+
+      <p>
+        好,程式放在 ROM 了。但還有一個更細的問題:電腦一通電,CPU 怎麼<strong>知道</strong>要「先去執行 ROM 裡的這段」,而不是別的地方?這由硬體規定死(<a href="lesson-15.html">第 15 課</a>)。
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          分清 RAM 和 ROM 很關鍵:RAM 快但「健忘」(斷電就忘),ROM 慢但「長記性」(斷電還在)。你的檔案要存到硬碟(也是斷電不忘)而不是只留在 RAM,道理相同。記憶的「揮發 vs 非揮發」,是理解電腦儲存的一把鑰匙。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RAM 和 ROM 最關鍵的差別是什麼?</li>
+          <li>為什麼開機的第一段程式要放在 ROM?</li>
+          <li>BIOS 大致負責哪些事?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>電腦一通電,CPU 從哪裡開始跑?(reset vector)</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：沒程式怎麼載入程式?開機自舉(bootstrap)的由來</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：電腦一通電,CPU 從哪裡開始跑?(reset vector) →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：視窗程式的心臟:訊息迴圈(message loop) ｜ 電腦從零開始 ｜ 博雅書院</title>
+<meta name="description" content="你點一下、按一下,程式是怎麼收到並反應的?">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電腦從零開始</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜Windows 3.1 怎麼在 DOS 上蓋出視窗 · 第 37 課</div>
+      <h1>視窗程式的心臟:訊息迴圈(message loop)</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解訊息與訊息佇列</li>
+          <li>認識訊息迴圈與視窗程序</li>
+          <li>看懂事件驅動的具體實作</li>
+        </ul>
+      </div>
+
+      <p>
+        上一課畫出了視窗(<a href="lesson-36.html">第 36 課</a>),但視窗要能<strong>互動</strong>才有意義。你點按鈕、打字、拖視窗,程式怎麼<strong>知道</strong>並做出反應?答案是每個視窗程式的心臟:<strong>訊息迴圈</strong>。它正是「事件驅動」(<a href="lesson-33.html">第 33 課</a>)的具體實作。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 224" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">視窗程式的心臟:訊息迴圈</text>
+                <rect x="30" y="56" width="150" height="84" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="105" y="82" text-anchor="middle" font-size="11" fill="#ff8a65">你的動作</text><text x="105" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">點擊、按鍵</text><text x="105" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">移動、關閉</text><text x="105" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">變成「訊息」</text>
+                <rect x="210" y="56" width="150" height="84" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="285" y="82" text-anchor="middle" font-size="11" fill="#9c89d6">訊息佇列</text><text x="285" y="96" text-anchor="middle" font-size="9" fill="var(--text-muted)">排隊等處理</text><text x="285" y="109" text-anchor="middle" font-size="9" fill="var(--text-muted)">一則一則</text><text x="285" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">送給對的視窗</text>
+                <rect x="390" y="56" width="220" height="84" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="500" y="76" text-anchor="middle" font-size="11" fill="#5aa469">訊息迴圈 + 視窗程序</text><text x="500" y="90" text-anchor="middle" font-size="9" fill="var(--text-muted)">不停地:取出一則訊息</text><text x="500" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">分派給該視窗</text><text x="500" y="116" text-anchor="middle" font-size="9" fill="var(--text-muted)">視窗依訊息做反應</text><text x="500" y="129" text-anchor="middle" font-size="9" fill="var(--text-muted)">處理完,再取下一則</text>
+                <line x1="182.0" y1="98.0" x2="201.0" y2="98.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="208.0,98.0 201.0,101.5 201.0,94.5" fill="var(--border)"/>
+                <line x1="362.0" y1="98.0" x2="381.0" y2="98.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="388.0,98.0 381.0,101.5 381.0,94.5" fill="var(--border)"/>
+                <path d="M500 140 V166 H105 V140" fill="none" stroke="var(--accent)" stroke-width="1.6"/>
+                <line x1="105.0" y1="150.0" x2="105.0" y2="147.0" stroke="var(--accent)" stroke-width="1.5"/><polygon points="105.0,140.0 108.5,147.0 101.5,147.0" fill="var(--accent)"/>
+                <text x="320" y="186" text-anchor="middle" font-size="10" fill="var(--accent)">迴圈不停地「取訊息→分派→反應」,程式就這樣一直待命、回應你——這就是事件驅動的實作</text>
+                <text x="320" y="208" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每個視窗有自己的「視窗程序」,決定收到某種訊息時要做什麼</text>
+        </svg>
+        <figcaption>你的動作變成訊息、進入佇列;訊息迴圈不停「取出→分派→反應」,程式就一直待命回應你。</figcaption>
+      </div>
+
+      <h2>1. 你的每個動作,都變成一則「訊息」</h2>
+
+      <p>
+        在 Windows 裡,你的<strong>每一個動作</strong>都被包裝成一則<strong>訊息</strong>(message):滑鼠點擊是一則、按下某鍵是一則、視窗被關是一則。這些訊息會排進一個<strong>訊息佇列</strong>(排隊等候處理),並標明「要送給哪個視窗」。
+      </p>
+
+      <h2>2. 訊息迴圈:不停地取、分派</h2>
+
+      <p>
+        程式裡有一段<strong>永不停歇的迴圈</strong>(呼應 CPU 的取指循環,<a href="lesson-12.html">第 12 課</a>),它不停地做:
+      </p>
+
+      <ol>
+        <li>從佇列<strong>取出一則訊息</strong>。</li>
+        <li>把它<strong>分派</strong>給該去的視窗。</li>
+        <li>該視窗<strong>依訊息內容做反應</strong>,做完再回來取下一則。</li>
+      </ol>
+
+      <p>
+        因為這個迴圈一直轉,程式才能<strong>持續待命、隨時回應</strong>你——這就是視窗程式「開好視窗後就等你動作」的真正機制。
+      </p>
+
+      <h2>3. 視窗程序:每個視窗的「反應手冊」</h2>
+
+      <p>
+        那「怎麼反應」寫在哪?每個視窗都有一段<strong>視窗程序</strong>(window procedure):它像一本<strong>反應手冊</strong>,規定「收到<strong>點擊</strong>訊息就做什麼」「收到<strong>重畫</strong>訊息就把自己畫一遍」(<a href="lesson-34.html">第 34 課</a>的重畫,就是收到這種訊息)。訊息迴圈負責<strong>把訊息送到</strong>,視窗程序負責<strong>決定怎麼做</strong>。
+      </p>
+
+      <p>
+        到這裡,「畫得出」加上「反應得了」,一個能互動的視窗就成立了。但別忘了 DOS 的 640K 天花板還在——Windows 是怎麼掙脫它、讓程式用到更多記憶體的?(<a href="lesson-38.html">第 38 課</a>)
+      </p>
+
+      <div class="callout">
+        <h3>想一想</h3>
+        <p>
+          「取訊息→分派→反應」這個迴圈,是幾乎所有互動軟體的骨架——從當年的 Windows 3.1 到今天的手機 App、網頁。理解它,你等於拿到一把萬用鑰匙:任何「等你操作、再回應」的程式,骨子裡都在跑某種訊息迴圈。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧭 本課重在理解<strong>原理與機制</strong>,而非背年份或型號;歷史事件(如公司併購、產品發表)只作陳述、不加立場,細節請以權威資料為準;部分技術描述為<strong>簡化示意</strong>,真實硬體/系統更複雜,目的是先建立正確直覺。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>你的動作在 Windows 裡被包裝成什麼?</li>
+          <li>訊息迴圈不停地做哪三件事?</li>
+          <li>「視窗程序」負責什麼?</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>突破 640K:真實模式、保護模式與記憶體</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：怎麼把視窗畫出來:GDI 圖形裝置介面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：突破 640K:真實模式、保護模式與記憶體 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
