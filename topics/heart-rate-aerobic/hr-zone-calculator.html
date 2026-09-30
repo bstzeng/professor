@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>心率區間計算器 ｜ 心率與有氧運動 ｜ 博雅書院</title>
+<meta name="description" content="輸入年齡與靜止心率（可選填實測最大心率、乳酸閾值心率），算出五區間並比較不同公式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">心率與有氧運動</a>
+      <span class="sep">/</span>
+      <span>心率區間計算器</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>心率區間計算器：三種算法一次比較</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <p>
+        輸入你的資料後按「計算」。靜止心率請用連續幾天早上醒來時的平均值（<a href="lesson-04.html">第 4 課</a>）；沒有實測最大心率時，會用 Tanaka 公式估計（<a href="lesson-05.html">第 5 課</a>）。
+      </p>
+
+      <div class="content-figure" style="text-align:left">
+        <div style="display:flex;flex-wrap:wrap;gap:12px 20px;align-items:flex-end">
+          <label>年齡<br><input type="number" id="hz-age" min="10" max="100" value="40" style="font:inherit;width:6.5em;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)"></label>
+          <label>靜止心率<br><input type="number" id="hz-rest" min="30" max="120" value="60" style="font:inherit;width:6.5em;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)"></label>
+          <label>實測最大心率（選填）<br><input type="number" id="hz-max" min="100" max="230" placeholder="—" style="font:inherit;width:6.5em;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)"></label>
+          <label>乳酸閾值心率（選填）<br><input type="number" id="hz-lt" min="90" max="220" placeholder="—" style="font:inherit;width:6.5em;padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)"></label>
+        </div>
+        <div style="margin-top:10px">
+          <button type="button" id="hz-calc" style="font:inherit;padding:8px 16px;margin:4px 8px 4px 0;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)">計算</button>
+          <button type="button" id="hz-reset" style="font:inherit;padding:8px 16px;margin:4px 8px 4px 0;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text)">還原範例</button>
+        </div>
+        <p id="hz-msg" style="margin:10px 0 0;color:var(--text-muted)"></p>
+        <div id="hz-out" style="overflow-x:auto"></div>
+      </div>
+      <script>
+      (function () {
+        var D = {"zones": [["Z1 恢復", 50, 60, "非常輕鬆，可以唱歌"], ["Z2 有氧基礎", 60, 70, "輕鬆，可以完整聊天"], ["Z3 節奏", 70, 80, "有點喘，只能說短句"], ["Z4 閾值", 80, 90, "吃力，只能說幾個字"], ["Z5 最大攝氧", 90, 100, "非常吃力，說不出話"]], "lt": [["Z1", 0, 85], ["Z2", 85, 90], ["Z3", 90, 95], ["Z4", 95, 100], ["Z5", 100, 106]], "colors": ["#8a8f98", "#4a90c2", "#5aa469", "#ff8a65", "#e0605a"], "formulas": ["Fox（220 − 年齡）", "Tanaka（208 − 0.7 × 年齡）", "Gellish（207 − 0.7 × 年齡）", "Nes（211 − 0.64 × 年齡）"]};
+        var $ = function (id) { return document.getElementById(id); };
+        var out = $('hz-out'), msg = $('hz-msg');
+        function num(id) { var v = parseFloat($(id).value); return isNaN(v) ? null : v; }
+        function r(x) { return Math.round(x); }
+        function table(head, rows) {
+          var h = '<table><thead><tr>' + head.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>';
+          rows.forEach(function (row) { h += '<tr>' + row.map(function (c) { return '<td>' + c + '</td>'; }).join('') + '</tr>'; });
+          return h + '</tbody></table>';
+        }
+        function chip(i, name) {
+          return '<span style="display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;background:' + D.colors[i] + '"></span>' + name;
+        }
+        function calc() {
+          var age = num('hz-age'), rest = num('hz-rest'), mmax = num('hz-max'), lt = num('hz-lt');
+          if (age === null || age < 10 || age > 100) { msg.textContent = '請輸入 10～100 之間的年齡。'; out.innerHTML = ''; return; }
+          if (rest === null || rest < 30 || rest > 120) { msg.textContent = '請輸入 30～120 之間的靜止心率。'; out.innerHTML = ''; return; }
+          var est = [220 - age, 208 - 0.7 * age, 207 - 0.7 * age, 211 - 0.64 * age];
+          var maxhr = mmax !== null ? mmax : r(est[1]);
+          if (maxhr <= rest + 20) { msg.textContent = '最大心率必須明顯高於靜止心率，請檢查輸入。'; out.innerHTML = ''; return; }
+          msg.textContent = '使用的最大心率：' + maxhr + (mmax !== null ? '（實測）' : '（Tanaka 公式估計）') +
+            '；儲備心率：' + (maxhr - rest) + '。';
+          var h = '<h3>最大心率公式比較</h3>' +
+            table(['公式', '估計值'], D.formulas.map(function (f, i) { return [f, r(est[i])]; }));
+          h += '<h3>最大心率百分比法</h3>' + table(['區間', '% 最大心率', '心率範圍', '感受'],
+            D.zones.map(function (z, i) { return [chip(i, z[0]), z[1] + '～' + z[2] + '%', r(maxhr * z[1] / 100) + '～' + r(maxhr * z[2] / 100), z[3]]; }));
+          h += '<h3>儲備心率法（Karvonen）</h3>' + table(['區間', '% 儲備心率', '心率範圍'],
+            D.zones.map(function (z, i) {
+              return [chip(i, z[0]), z[1] + '～' + z[2] + '%',
+                r(rest + (maxhr - rest) * z[1] / 100) + '～' + r(rest + (maxhr - rest) * z[2] / 100)];
+            }));
+          if (lt !== null) {
+            if (lt >= maxhr || lt <= rest) {
+              h += '<p>乳酸閾值心率應介於靜止心率與最大心率之間，請檢查輸入。</p>';
+            } else {
+              h += '<h3>乳酸閾值心率法（LTHR ' + lt + '）</h3>' + table(['區間', '% LTHR', '心率範圍'],
+                D.lt.map(function (z, i) {
+                  var lo = i === 0 ? '—' : r(lt * z[1] / 100);
+                  var hi = i === 4 ? Math.min(maxhr, r(lt * z[2] / 100)) : r(lt * z[2] / 100) - 1;
+                  var pct = i === 0 ? '低於 ' + z[2] + '%' : (i === 4 ? z[1] + '% 以上' : z[1] + '～' + (z[2] - 1) + '%');
+                  return [chip(i, z[0]), pct, (i === 0 ? '低於 ' + hi : lo + '～' + hi)];
+                }));
+            }
+          } else {
+            h += '<p style="color:var(--text-muted)">填入乳酸閾值心率（見第 31 課的 30 分鐘測試），可再得到以閾值為基準的區間。</p>';
+          }
+          h += '<p style="color:var(--text-muted)">三種方法的同名區間不會完全一樣；選一種固定使用，並用談話測試確認（能完整說句子＝大約在 Z2 以內）。</p>';
+          out.innerHTML = h;
+        }
+        $('hz-calc').addEventListener('click', calc);
+        $('hz-reset').addEventListener('click', function () {
+          $('hz-age').value = 40; $('hz-rest').value = 60; $('hz-max').value = ''; $('hz-lt').value = ''; calc();
+        });
+        ['hz-age', 'hz-rest', 'hz-max', 'hz-lt'].forEach(function (id) {
+          $(id).addEventListener('keydown', function (e) { if (e.key === 'Enter') calc(); });
+        });
+        calc();
+      })();
+      </script>
+
+      <h2>使用提醒</h2>
+
+      <ul>
+        <li>公式估計的最大心率，個人誤差約 ±10 次；有實測值時請優先使用（<a href="lesson-31.html">第 31 課</a>）。</li>
+        <li>服用 β 阻斷劑等影響心率的藥物、懷孕或有心臟疾病時，這些區間不適用，請以自覺強度與醫師建議為準（<a href="lesson-29.html">第 29 課</a>、<a href="lesson-37.html">第 37 課</a>）。</li>
+        <li>區間是訓練的指引，不是精密的界線；天氣、睡眠、疲勞都會讓心率偏移（<a href="lesson-26.html">第 26 課</a>～<a href="lesson-28.html">第 28 課</a>）。</li>
+      </ul>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🩺 本課為一般運動生理與訓練知識，<strong>不能取代醫師或專業教練的個別評估</strong>。有心臟病、高血壓、糖尿病、懷孕或正在服藥，開始新的運動計畫前請先諮詢醫師；運動中出現胸痛、昏厥、異常喘或心悸，請立即停止並就醫。</p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

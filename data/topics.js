@@ -11712,6 +11712,108 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "heart-rate-aerobic",
+      category: "biomed",
+      title: "心率與有氧運動：從心臟生理到心率區間訓練",
+      description:
+        "心臟怎麼調整心率、有氧與無氧能量系統如何分工、為什麼心率能代表運動強度；學會計算最大心率與五個心率區間，理解 Zone 2、間歇與 80/20 訓練，看懂天氣、藥物與穿戴裝置對心率的影響，最後設計自己的有氧計畫並掌握安全警訊。",
+      icon: "🏃",
+      url: "topics/heart-rate-aerobic/index.html",
+      resources: [
+        {
+          title: "心率與有氧速查表",
+          description: "公式、五區間的感受與訓練目的、談話測試對照、常見正常值與警訊，一頁查完",
+          icon: "🗂️",
+          url: "topics/heart-rate-aerobic/cheatsheet.html"
+        },
+        {
+          title: "心率區間計算器",
+          description: "輸入年齡與靜止心率（可選填實測最大心率、乳酸閾值心率），算出五區間並比較不同公式",
+          icon: "🧮",
+          url: "topics/heart-rate-aerobic/hr-zone-calculator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜心臟怎麼跳：心率的生理基礎",
+          courses: [
+            { title: "心率是什麼：每分鐘心跳數、脈搏與心電圖", url: "topics/heart-rate-aerobic/lesson-01.html" },
+            { title: "心臟的電路：竇房結與自律神經如何調整心率", url: "topics/heart-rate-aerobic/lesson-02.html" },
+            { title: "心輸出量 ＝ 心率 × 每搏輸出量：心臟怎麼加大供血", url: "topics/heart-rate-aerobic/lesson-03.html" },
+            { title: "靜止心率：為什麼運動員的心率可以只有 40 多下", url: "topics/heart-rate-aerobic/lesson-04.html" },
+            { title: "最大心率：220 − 年齡的由來、誤差與更準的估法", url: "topics/heart-rate-aerobic/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜有氧的「氧」：能量系統",
+          courses: [
+            { title: "ATP：肌肉唯一能直接用的能量貨幣", url: "topics/heart-rate-aerobic/lesson-06.html" },
+            { title: "三大能量系統：磷酸肌酸、無氧醣解、有氧氧化", url: "topics/heart-rate-aerobic/lesson-07.html" },
+            { title: "有氧與無氧不是開關，而是比例：運動強度的連續光譜", url: "topics/heart-rate-aerobic/lesson-08.html" },
+            { title: "燃脂還是燃醣：「燃脂區」的真相", url: "topics/heart-rate-aerobic/lesson-09.html" },
+            { title: "粒線體：有氧能力的發電廠", url: "topics/heart-rate-aerobic/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜心率與攝氧量：為什麼心率能代表有氧強度",
+          courses: [
+            { title: "攝氧量與菲克方程式：心臟、血液與肌肉的接力", url: "topics/heart-rate-aerobic/lesson-11.html" },
+            { title: "心率與攝氧量的線性關係：心率為什麼能當強度指標", url: "topics/heart-rate-aerobic/lesson-12.html" },
+            { title: "最大攝氧量（VO₂max）：有氧能力的天花板", url: "topics/heart-rate-aerobic/lesson-13.html" },
+            { title: "乳酸閾值與通氣閾值：從「輕鬆」到「吃力」的轉折點", url: "topics/heart-rate-aerobic/lesson-14.html" },
+            { title: "談話測試與自覺強度（RPE）：不看錶也能判斷強度", url: "topics/heart-rate-aerobic/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜心率區間：怎麼算、怎麼用",
+          courses: [
+            { title: "三種算法：最大心率百分比、儲備心率、乳酸閾值心率", url: "topics/heart-rate-aerobic/lesson-16.html" },
+            { title: "五區間模型：每一區的生理意義與訓練效果", url: "topics/heart-rate-aerobic/lesson-17.html" },
+            { title: "Zone 2 為什麼流行：低強度長時間訓練的科學根據", url: "topics/heart-rate-aerobic/lesson-18.html" },
+            { title: "高強度間歇（HIIT）：短時間拉高心率帶來什麼", url: "topics/heart-rate-aerobic/lesson-19.html" },
+            { title: "極化訓練：80/20 原則與強度分配", url: "topics/heart-rate-aerobic/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜身體如何適應：有氧訓練的長期效果",
+          courses: [
+            { title: "心臟變大變強：運動員心臟與每搏輸出量", url: "topics/heart-rate-aerobic/lesson-21.html" },
+            { title: "血液與微血管：血量、紅血球與肌肉的運輸網", url: "topics/heart-rate-aerobic/lesson-22.html" },
+            { title: "靜止心率下降與心率恢復：體能進步的指標", url: "topics/heart-rate-aerobic/lesson-23.html" },
+            { title: "心率變異度（HRV）：自律神經與恢復狀態", url: "topics/heart-rate-aerobic/lesson-24.html" },
+            { title: "停練會退步多快：有氧能力的流失時間表", url: "topics/heart-rate-aerobic/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響心率的變數：心率不準的時候",
+          courses: [
+            { title: "心率飄移：長時間運動中心率為什麼會慢慢上升", url: "topics/heart-rate-aerobic/lesson-26.html" },
+            { title: "天氣、脫水與海拔：熱、渴、缺氧如何推高心率", url: "topics/heart-rate-aerobic/lesson-27.html" },
+            { title: "咖啡因、睡眠、壓力與生病：日常因素對心率的影響", url: "topics/heart-rate-aerobic/lesson-28.html" },
+            { title: "藥物與心率：當心率區間失準的時候", url: "topics/heart-rate-aerobic/lesson-29.html" },
+            { title: "穿戴裝置原理：光學心率與胸帶的差別與誤差", url: "topics/heart-rate-aerobic/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜實戰：設計自己的有氧計畫",
+          courses: [
+            { title: "自我測試：靜止心率、最大心率與閾值的簡易測法", url: "topics/heart-rate-aerobic/lesson-31.html" },
+            { title: "初學者計畫：從快走到慢跑的 8 週心率安排", url: "topics/heart-rate-aerobic/lesson-32.html" },
+            { title: "不同運動的心率差異：跑步、單車、游泳", url: "topics/heart-rate-aerobic/lesson-33.html" },
+            { title: "減脂、健康、比賽：不同目標怎麼分配心率區間", url: "topics/heart-rate-aerobic/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 H｜安全與特殊族群",
+          courses: [
+            { title: "過度訓練的警訊：心率異常、HRV 下降與疲勞", url: "topics/heart-rate-aerobic/lesson-35.html" },
+            { title: "運動中的心臟風險：心律不整、胸痛與何時該就醫", url: "topics/heart-rate-aerobic/lesson-36.html" },
+            { title: "年長者、孕期與慢性病患者的心率運動建議", url: "topics/heart-rate-aerobic/lesson-37.html" },
+          ],
+        },
+      ],
     }
   ]
 };
