@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：2D 繪圖：精靈、圖集、圖層 ｜ 遊戲的程式架構 ｜ 博雅書院</title>
+<meta name="description" content="像素遊戲的畫面怎麼組成">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">遊戲架構</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜子系統（上） · 第 19 課</div>
+      <h1>2D 繪圖：精靈、圖集、圖層</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識精靈與圖集</li>
+          <li>理解圖層與排序</li>
+          <li>知道瓦片地圖</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 222" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">圖集：把很多小圖拼成一張大圖</text>
+                <rect x="40" y="40" width="200" height="160" rx="4" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+                <rect x="44" y="44" width="45" height="46" rx="3" fill="#4a90c2" fill-opacity="0.35" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="93" y="44" width="45" height="46" rx="3" fill="#e0605a" fill-opacity="0.35" stroke="#e0605a" stroke-width="1"/>
+                <rect x="142" y="44" width="45" height="46" rx="3" fill="#5aa469" fill-opacity="0.35" stroke="#5aa469" stroke-width="1"/>
+                <rect x="191" y="44" width="45" height="46" rx="3" fill="#ff8a65" fill-opacity="0.35" stroke="#ff8a65" stroke-width="1"/>
+                <rect x="44" y="94" width="45" height="46" rx="3" fill="#9c89d6" fill-opacity="0.35" stroke="#9c89d6" stroke-width="1"/>
+                <rect x="93" y="94" width="45" height="46" rx="3" fill="#5fa8a8" fill-opacity="0.35" stroke="#5fa8a8" stroke-width="1"/>
+                <rect x="142" y="94" width="45" height="46" rx="3" fill="var(--gold)" fill-opacity="0.35" stroke="var(--gold)" stroke-width="1"/>
+                <rect x="191" y="94" width="45" height="46" rx="3" fill="#4a90c2" fill-opacity="0.35" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="44" y="144" width="45" height="46" rx="3" fill="#e0605a" fill-opacity="0.35" stroke="#e0605a" stroke-width="1"/>
+                <rect x="93" y="144" width="45" height="46" rx="3" fill="#5aa469" fill-opacity="0.35" stroke="#5aa469" stroke-width="1"/>
+                <rect x="142" y="144" width="45" height="46" rx="3" fill="#ff8a65" fill-opacity="0.35" stroke="#ff8a65" stroke-width="1"/>
+                <rect x="191" y="144" width="45" height="46" rx="3" fill="#9c89d6" fill-opacity="0.35" stroke="#9c89d6" stroke-width="1"/>
+                <text x="140" y="218" text-anchor="middle" font-size="9.5" fill="var(--text)">一張貼圖、多個區塊</text>
+                <rect x="300" y="50" width="320" height="140" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="460" y="98" text-anchor="middle" font-size="11" fill="#4a90c2">好處</text><text x="460" y="112" text-anchor="middle" font-size="9" fill="var(--text-muted)">同一張貼圖的精靈可以一次畫完</text><text x="460" y="125" text-anchor="middle" font-size="9" fill="var(--text-muted)">繪製呼叫從幾百次降到個位數</text><text x="460" y="138" text-anchor="middle" font-size="9" fill="var(--text-muted)">載入一個檔案而不是幾百個</text><text x="460" y="151" text-anchor="middle" font-size="9" fill="var(--text-muted)">動畫影格也放在同一張</text>
+        </svg>
+        <figcaption>圖集。</figcaption>
+      </div>
+
+      <ul>
+        <li><strong>精靈（Sprite）</strong>：一張貼圖上的一塊矩形區域，加上位置、旋轉、縮放。</li>
+        <li><strong>圖層與排序</strong>：背景、地形、角色、特效、UI 各自一層；同一層用 y 座標決定前後（俯視角遊戲）。</li>
+        <li><strong>瓦片地圖（Tilemap）</strong>：用格子拼出關卡，每格只存一個編號，節省記憶體也方便編輯。</li>
+        <li><strong>攝影機</strong>：2D 遊戲也有攝影機，決定畫面看到世界的哪一塊。</li>
+      </ul>
+
+      <div class="code-block">// 每畫格：把所有精靈交給批次器
+for (auto&amp; s : sprites) batcher.Add(s.texture, s.uvRect, s.transform, s.layer);
+batcher.Flush();   // 依圖層與貼圖排序，合併成少數幾次繪製</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          2D 畫面由精靈、圖集、圖層與瓦片地圖組成；圖集讓大量精靈能被一次畫完。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎮 本課以通用的遊戲引擎架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（類 C++／C# 虛擬碼），不是特定引擎的實際原始碼；各引擎的實作細節以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>精靈是什麼？</li>
+          <li>瓦片地圖為什麼省記憶體？</li>
+          <li>俯視角遊戲怎麼決定前後順序？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>3D 繪圖的架構概念</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：繪圖管線的架構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：3D 繪圖的架構概念 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

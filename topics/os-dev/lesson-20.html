@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：核心堆積：kmalloc 與 slab ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="配置小塊記憶體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶體管理 · 第 20 課</div>
+      <h1>核心堆積：kmalloc 與 slab</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解核心堆積的需求</li>
+          <li>認識 slab 配置器</li>
+          <li>實作簡單的 kmalloc</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 222" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">slab 配置器：同樣大小的物件放在一起</text>
+                <rect x="20" y="46" width="180" height="140" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="110" y="106" text-anchor="middle" font-size="11" fill="#4a90c2">kmalloc(48)</text><text x="110" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">從 64 位元組</text><text x="110" y="133" text-anchor="middle" font-size="9" fill="var(--text-muted)">的快取拿一格</text>
+                <rect x="240" y="50" width="380" height="40" rx="4" fill="none" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="244" y="54" width="42" height="32" rx="3" fill="#5aa469" fill-opacity="0.3" stroke="#5aa469" stroke-width="1"/>
+                <rect x="290" y="54" width="42" height="32" rx="3" fill="#5aa469" fill-opacity="0.3" stroke="#5aa469" stroke-width="1"/>
+                <rect x="336" y="54" width="42" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="382" y="54" width="42" height="32" rx="3" fill="#5aa469" fill-opacity="0.3" stroke="#5aa469" stroke-width="1"/>
+                <rect x="428" y="54" width="42" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="474" y="54" width="42" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="520" y="54" width="42" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="566" y="54" width="42" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="430" y="104" text-anchor="middle" font-size="9" fill="var(--text-muted)">64 位元組物件的 slab（一頁切成 64 格）</text>
+                <rect x="240" y="120" width="380" height="40" rx="4" fill="none" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="244" y="124" width="88" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="336" y="124" width="88" height="32" rx="3" fill="#ff8a65" fill-opacity="0.3" stroke="#ff8a65" stroke-width="1"/>
+                <rect x="428" y="124" width="88" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="520" y="124" width="88" height="32" rx="3" fill="none" fill-opacity="0.3" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="430" y="174" text-anchor="middle" font-size="9" fill="var(--text-muted)">task_struct 專用的 slab</text>
+                <text x="320" y="210" text-anchor="middle" font-size="9.5" fill="var(--accent)">頁框配置器只會給整頁；slab 把頁切成小格，配置與釋放都只要 O(1)</text>
+        </svg>
+        <figcaption>slab 配置器。</figcaption>
+      </div>
+
+      <div class="code-block">// 依大小分級：8、16、32、64……2048 位元組各一個快取
+struct cache { size_t obj_size; void* free_list; };
+static struct cache caches[9];
+
+void* kmalloc(size_t n) {
+    struct cache* c = pick_cache(n);              // 找到 &gt;= n 的最小級距
+    if (!c-&gt;free_list) refill(c);                 // 從頁框配置器拿一頁，切成小格串起來
+    void* obj = c-&gt;free_list;
+    c-&gt;free_list = *(void**)obj;                  // 空閒格的開頭存著下一個空閒格
+    return obj;
+}
+void kfree(void* p) { struct cache* c = cache_of(p); *(void**)p = c-&gt;free_list; c-&gt;free_list = p; }</div>
+
+      <p>
+        Linux 為常用的核心物件（行程描述、inode、網路封包）各建專用快取，配置與釋放都非常快，也減少碎片。這個想法最早由 Sun 的 Solaris 提出。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          頁框配置器只給整頁；slab 把頁切成固定大小的格子，提供快速的 kmalloc／kfree。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼需要 kmalloc？</li>
+          <li>slab 的空閒串列存在哪裡？</li>
+          <li>為什麼要為常用物件建專用快取？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>每個行程獨立的位址空間</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：核心的位址空間</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：每個行程獨立的位址空間 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

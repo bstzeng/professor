@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：鍵盤驅動 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="從按鍵到字元">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜中斷與例外 · 第 15 課</div>
+      <h1>鍵盤驅動</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解掃描碼</li>
+          <li>寫出鍵盤中斷處理</li>
+          <li>認識環形緩衝區</li>
+        </ul>
+      </div>
+
+      <div class="code-block">// PS/2 鍵盤：IRQ1；從連接埠 0x60 讀掃描碼
+static const char keymap[128] = { 0, 27, '1','2','3','4','5','6','7','8','9','0','-','=','\b',
+                                  '\t','q','w','e','r','t','y','u','i','o','p','[',']','\n', /* … */ };
+
+static char buf[256]; static uint8_t head, tail;     // 環形緩衝區
+
+void keyboard_irq(struct regs* r) {
+    uint8_t sc = inb(0x60);
+    if (!(sc &amp; 0x80)) {                 // 最高位元 1 表示放開，0 表示按下
+        char c = keymap[sc];
+        if (c) buf[head++] = c;          // uint8_t 自動在 256 繞回
+    }
+    send_eoi(1);
+}
+
+int kbd_getc(void) {                     // 給終端機用（第 39 課）
+    while (head == tail) asm volatile("hlt");   // 沒有字就睡到下一次中斷
+    return buf[tail++];
+}</div>
+
+      <p>
+        中斷處理程式要<strong>越短越好</strong>：只把資料放進緩衝區就返回，真正的處理留給之後的程式。這個「上半部／下半部」的分工在 Linux 驅動中非常普遍。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          鍵盤中斷讀取掃描碼放進環形緩衝區；中斷處理程式只做最少的事。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>掃描碼和字元有什麼不同？</li>
+          <li>環形緩衝區的優點是什麼？</li>
+          <li>為什麼中斷處理程式要越短越好？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>實體記憶體地圖</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：計時器中斷</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：實體記憶體地圖 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

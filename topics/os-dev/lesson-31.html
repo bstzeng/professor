@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：驅動程式模型 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="裝置、匯流排、驅動">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜檔案系統與裝置 · 第 31 課</div>
+      <h1>驅動程式模型</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解驅動程式的分層</li>
+          <li>認識裝置的三種類型</li>
+          <li>知道驅動與裝置的配對</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 232" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">驅動程式模型</text>
+                <rect x="40" y="44" width="560" height="34" rx="6" fill="#4a90c2" fill-opacity="0.14" stroke="#4a90c2" stroke-width="1.5"/>
+                <text x="54" y="65" text-anchor="start" font-size="11" fill="#4a90c2">子系統介面：區塊裝置、字元裝置、網路裝置</text>
+                <text x="588" y="65" text-anchor="end" font-size="9.5" fill="var(--text)">上層只認識介面</text>
+                <rect x="40" y="84" width="560" height="34" rx="6" fill="#ff8a65" fill-opacity="0.14" stroke="#ff8a65" stroke-width="1.5"/>
+                <text x="54" y="105" text-anchor="start" font-size="11" fill="#ff8a65">驅動程式：NVMe、AHCI、e1000、virtio</text>
+                <text x="588" y="105" text-anchor="end" font-size="9.5" fill="var(--text)">把介面翻譯成硬體操作</text>
+                <rect x="40" y="124" width="560" height="34" rx="6" fill="#5fa8a8" fill-opacity="0.14" stroke="#5fa8a8" stroke-width="1.5"/>
+                <text x="54" y="145" text-anchor="start" font-size="11" fill="#5fa8a8">匯流排：PCI Express、USB</text>
+                <text x="588" y="145" text-anchor="end" font-size="9.5" fill="var(--text)">列舉裝置、配對驅動</text>
+                <rect x="40" y="164" width="560" height="34" rx="6" fill="#8a8f98" fill-opacity="0.14" stroke="#8a8f98" stroke-width="1.5"/>
+                <text x="54" y="185" text-anchor="start" font-size="11" fill="#8a8f98">硬體</text>
+                <text x="588" y="185" text-anchor="end" font-size="9.5" fill="var(--text)">暫存器、DMA、中斷</text>
+                <text x="320" y="222" text-anchor="middle" font-size="9.5" fill="var(--accent)">匯流排發現裝置 → 依廠商／裝置 ID 找到驅動 → 驅動向子系統登錄</text>
+        </svg>
+        <figcaption>驅動程式模型。</figcaption>
+      </div>
+
+      <div class="code-block">struct block_device_ops {                // 區塊裝置介面：上層只認識這些函式
+    int (*read)(struct block_dev*, uint64_t lba, void* buf, size_t count);
+    int (*write)(struct block_dev*, uint64_t lba, const void* buf, size_t count);
+};
+
+struct pci_driver nvme_driver = {
+    .name = "nvme",
+    .class_code = 0x010802,              // 大容量儲存／非揮發性記憶體／NVMe
+    .probe = nvme_probe,                 // 找到符合的裝置時呼叫
+};</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>類型</th><th>特點</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>字元裝置</td><td>一個位元組一個位元組地讀寫</td><td>鍵盤、序列埠、終端機</td></tr>
+          <tr><td>區塊裝置</td><td>以固定大小的區塊隨機存取</td><td>硬碟、SSD</td></tr>
+          <tr><td>網路裝置</td><td>收發封包</td><td>網卡</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          驅動程式把各種硬體翻譯成統一的介面；匯流排負責發現裝置並找到對應的驅動。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>三種裝置類型各是什麼？</li>
+          <li>probe 函式什麼時候被呼叫？</li>
+          <li>為什麼上層只認識介面？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PCI 與裝置探索</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：同步：鎖、信號量與死結</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：PCI 與裝置探索 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

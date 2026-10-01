@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：延遲與預測 ｜ 遊戲的程式架構 ｜ 博雅書院</title>
+<meta name="description" content="按下按鍵，角色立刻動">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">遊戲架構</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜連線遊戲 · 第 36 課</div>
+      <h1>延遲與預測</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解網路延遲的影響</li>
+          <li>認識客戶端預測與校正</li>
+          <li>知道延遲補償</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 238" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">客戶端預測與伺服器校正</text>
+                <text x="40" y="84" text-anchor="start" font-size="10" fill="#4a90c2">客戶端</text>
+                <text x="40" y="194" text-anchor="start" font-size="10" fill="#5aa469">伺服器</text>
+                <path d="M100 80 H620 M100 190 H620" fill="none" stroke="var(--text-muted)" stroke-width="1"/>
+                <line x1="140.0" y1="84.0" x2="254.7" y2="181.5" stroke="#4a90c2" stroke-width="1.5"/><polygon points="260.0,186.0 252.4,184.1 256.9,178.8" fill="#4a90c2"/>
+                <text x="150" y="124" text-anchor="start" font-size="9" fill="#4a90c2">送出「往右」</text>
+                <rect x="140" y="62" width="120" height="12" rx="2" fill="#4a90c2" fill-opacity="0.3" stroke="#4a90c2" stroke-width="1"/>
+                <text x="200" y="56" text-anchor="middle" font-size="9" fill="#4a90c2">立刻在本地移動（預測）</text>
+                <line x1="300.0" y1="186.0" x2="414.7" y2="88.5" stroke="#5aa469" stroke-width="1.5"/><polygon points="420.0,84.0 416.9,91.2 412.4,85.9" fill="#5aa469"/>
+                <text x="380" y="134" text-anchor="start" font-size="9" fill="#5aa469">回傳權威位置</text>
+                <rect x="420" y="62" width="120" height="12" rx="2" fill="#ff8a65" fill-opacity="0.3" stroke="#ff8a65" stroke-width="1"/>
+                <text x="480" y="56" text-anchor="middle" font-size="9" fill="#ff8a65">若不同：校正並重播</text>
+                <text x="320" y="226" text-anchor="middle" font-size="9.5" fill="var(--accent)">玩家不必等來回延遲就看到反應；伺服器仍是最後的裁判</text>
+        </svg>
+        <figcaption>客戶端預測。</figcaption>
+      </div>
+
+      <ul>
+        <li><strong>客戶端預測</strong>：自己的角色先在本地移動，不等伺服器。</li>
+        <li><strong>伺服器校正</strong>：伺服器回傳權威結果，若不一致，客戶端拉回並重播之後的輸入。</li>
+        <li><strong>其他玩家插值</strong>：別人的位置故意晚一點顯示，在兩個已知位置之間插值（<a href="lesson-08.html">第 8 課</a>）。</li>
+        <li><strong>延遲補償</strong>：射擊判定時，伺服器把時間「倒回」射擊者看到的那一刻。</li>
+      </ul>
+
+      <div class="code-block">// 客戶端：送出輸入並立刻套用
+Input in = Sample(); in.seq = ++seq;
+pending.push_back(in);  Send(in);  Simulate(player, in);
+
+// 收到伺服器狀態（已處理到 ackSeq）
+player = serverState;
+for (auto&amp; in : pending) if (in.seq &gt; ackSeq) Simulate(player, in);  // 重播</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          客戶端預測讓操作立即回應，伺服器校正保證一致；其他玩家則靠插值顯示。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎮 本課以通用的遊戲引擎架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（類 C++／C# 虛擬碼），不是特定引擎的實際原始碼；各引擎的實作細節以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>客戶端預測是什麼？</li>
+          <li>校正時為什麼要重播輸入？</li>
+          <li>延遲補償解決什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>狀態同步與鎖步</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：主從式與點對點</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：狀態同步與鎖步 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

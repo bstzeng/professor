@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：效能預算 ｜ 遊戲的程式架構 ｜ 博雅書院</title>
+<meta name="description" content="每一畫格只有 16.6 毫秒">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">遊戲架構</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜遊戲迴圈與時間 · 第 9 課</div>
+      <h1>效能預算</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解畫格預算的分配</li>
+          <li>認識 CPU 與 GPU 的平行</li>
+          <li>知道常見的效能瓶頸</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 266" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一畫格 16.6 毫秒的預算（示意）</text>
+                <rect x="150" y="44.275" width="233.333" height="15.2" rx="3" fill="#9c89d6" fill-opacity="0.75" stroke="#9c89d6" stroke-width="1"/>
+                <text x="144" y="55.375" text-anchor="end" font-size="9.5" fill="var(--text-muted)">遊戲邏輯</text>
+                <text x="388.333" y="55.375" text-anchor="start" font-size="9.5" fill="#9c89d6">2.5 ms</text>
+                <rect x="150" y="68.025" width="233.333" height="15.2" rx="3" fill="#5fa8a8" fill-opacity="0.75" stroke="#5fa8a8" stroke-width="1"/>
+                <text x="144" y="79.125" text-anchor="end" font-size="9.5" fill="var(--text-muted)">物理</text>
+                <text x="388.333" y="79.125" text-anchor="start" font-size="9.5" fill="#5fa8a8">2.5 ms</text>
+                <rect x="150" y="91.775" width="140" height="15.2" rx="3" fill="#4a90c2" fill-opacity="0.75" stroke="#4a90c2" stroke-width="1"/>
+                <text x="144" y="102.875" text-anchor="end" font-size="9.5" fill="var(--text-muted)">動畫</text>
+                <text x="295" y="102.875" text-anchor="start" font-size="9.5" fill="#4a90c2">1.5 ms</text>
+                <rect x="150" y="115.525" width="140" height="15.2" rx="3" fill="#5aa469" fill-opacity="0.75" stroke="#5aa469" stroke-width="1"/>
+                <text x="144" y="126.625" text-anchor="end" font-size="9.5" fill="var(--text-muted)">AI</text>
+                <text x="295" y="126.625" text-anchor="start" font-size="9.5" fill="#5aa469">1.5 ms</text>
+                <rect x="150" y="139.275" width="373.333" height="15.2" rx="3" fill="#ff8a65" fill-opacity="0.75" stroke="#ff8a65" stroke-width="1"/>
+                <text x="144" y="150.375" text-anchor="end" font-size="9.5" fill="var(--text-muted)">繪圖準備</text>
+                <text x="528.333" y="150.375" text-anchor="start" font-size="9.5" fill="#ff8a65">4.0 ms</text>
+                <rect x="150" y="163.025" width="56" height="15.2" rx="3" fill="var(--gold)" fill-opacity="0.75" stroke="var(--gold)" stroke-width="1"/>
+                <text x="144" y="174.125" text-anchor="end" font-size="9.5" fill="var(--text-muted)">音效</text>
+                <text x="211" y="174.125" text-anchor="start" font-size="9.5" fill="var(--gold)">0.6 ms</text>
+                <rect x="150" y="186.775" width="93.3333" height="15.2" rx="3" fill="#8a8f98" fill-opacity="0.75" stroke="#8a8f98" stroke-width="1"/>
+                <text x="144" y="197.875" text-anchor="end" font-size="9.5" fill="var(--text-muted)">UI</text>
+                <text x="248.333" y="197.875" text-anchor="start" font-size="9.5" fill="#8a8f98">1.0 ms</text>
+                <rect x="150" y="210.525" width="280" height="15.2" rx="3" fill="var(--border)" fill-opacity="0.75" stroke="var(--border)" stroke-width="1"/>
+                <text x="144" y="221.625" text-anchor="end" font-size="9.5" fill="var(--text-muted)">餘裕</text>
+                <text x="435" y="221.625" text-anchor="start" font-size="9.5" fill="var(--border)">3.0 ms</text>
+                <text x="320" y="254" text-anchor="middle" font-size="9.5" fill="var(--accent)">任何一個系統超支，整個畫格就會延遲；120 FPS 時預算只剩 8.3 ms</text>
+        </svg>
+        <figcaption>一畫格的時間預算（示意）。</figcaption>
+      </div>
+
+      <h2>CPU 與 GPU 同時工作</h2>
+
+      <p>
+        CPU 準備第 N+1 格的資料時，GPU 正在畫第 N 格。整體速度取決於比較慢的那一方：CPU 瓶頸時降低畫質沒有用，GPU 瓶頸時優化遊戲邏輯也沒有用。
+      </p>
+
+      <h2>常見瓶頸</h2>
+
+      <ul>
+        <li>繪製呼叫太多（CPU 端）。</li>
+        <li>像素太多、特效太重（GPU 端）。</li>
+        <li>記憶體配置與快取未命中（見 <a href="lesson-13.html">第 13 課</a>）。</li>
+        <li>物理物體太多、尋路太頻繁。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          每個系統都分到一塊畫格預算；先量測找出是 CPU 還是 GPU 瓶頸，再對症優化。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎮 本課以通用的遊戲引擎架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（類 C++／C# 虛擬碼），不是特定引擎的實際原始碼；各引擎的實作細節以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>60 FPS 的畫格預算是多少毫秒？</li>
+          <li>CPU 瓶頸時降低解析度有用嗎？</li>
+          <li>有哪些常見的效能瓶頸？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>繼承地獄</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：插值與外推</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：繼承地獄 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

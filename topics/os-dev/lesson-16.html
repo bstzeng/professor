@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：實體記憶體地圖 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="哪些記憶體可以用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶體管理 · 第 16 課</div>
+      <h1>實體記憶體地圖</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解記憶體地圖</li>
+          <li>知道保留區域的來源</li>
+          <li>讀取開機程式提供的地圖</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 172" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">開機時的實體記憶體地圖（示意）</text>
+                <rect x="30" y="50" width="580" height="40" rx="0" fill="none" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="30" y="50" width="40" height="40" rx="0" fill="#8a8f98" fill-opacity="0.5" stroke="#8a8f98" stroke-width="1"/>
+                <rect x="70" y="50" width="30" height="40" rx="0" fill="#ff8a65" fill-opacity="0.5" stroke="#ff8a65" stroke-width="1"/>
+                <rect x="100" y="50" width="320" height="40" rx="0" fill="#5aa469" fill-opacity="0.4" stroke="#5aa469" stroke-width="1"/>
+                <rect x="420" y="50" width="50" height="40" rx="0" fill="#e0605a" fill-opacity="0.4" stroke="#e0605a" stroke-width="1"/>
+                <rect x="470" y="50" width="140" height="40" rx="0" fill="#5aa469" fill-opacity="0.4" stroke="#5aa469" stroke-width="1"/>
+                <text x="50" y="110" text-anchor="middle" font-size="8.5" fill="var(--text)">低位保留</text>
+                <text x="85" y="128" text-anchor="middle" font-size="8.5" fill="var(--text)">BIOS/ACPI</text>
+                <text x="260" y="110" text-anchor="middle" font-size="9" fill="#5aa469">可用（核心也在這）</text>
+                <text x="445" y="128" text-anchor="middle" font-size="8.5" fill="#e0605a">裝置映射</text>
+                <text x="540" y="110" text-anchor="middle" font-size="9" fill="#5aa469">可用</text>
+                <text x="320" y="160" text-anchor="middle" font-size="9.5" fill="var(--accent)">開機程式從韌體取得這張表（E820 或 UEFI 記憶體地圖），核心只能使用標示「可用」的區域</text>
+        </svg>
+        <figcaption>實體記憶體地圖（示意）。</figcaption>
+      </div>
+
+      <div class="code-block">struct limine_memmap_response* mm = memmap_req.response;
+for (uint64_t i = 0; i &lt; mm-&gt;entry_count; i++) {
+    struct limine_memmap_entry* e = mm-&gt;entries[i];
+    kprintf("%x - %x  %s\n", e-&gt;base, e-&gt;base + e-&gt;length, type_name(e-&gt;type));
+    if (e-&gt;type == LIMINE_MEMMAP_USABLE) pmm_add_region(e-&gt;base, e-&gt;length);
+}</div>
+
+      <p>
+        實體位址空間裡有很多「洞」：韌體資料、ACPI 表、裝置的記憶體映射 I/O（<a href="lesson-09.html">第 9 課</a>）。核心絕不能把這些地方當成一般記憶體使用，否則會覆蓋韌體資料或寫進裝置暫存器。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          核心從開機程式取得記憶體地圖，只把「可用」區域交給實體記憶體配置器。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>實體位址空間為什麼有「洞」？</li>
+          <li>記憶體地圖從哪裡來？</li>
+          <li>核心誤用保留區域會發生什麼事？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>實體頁框配置器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：鍵盤驅動</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：實體頁框配置器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

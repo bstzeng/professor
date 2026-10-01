@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：磁碟驅動 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="區塊、扇區與 DMA">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜檔案系統與裝置 · 第 33 課</div>
+      <h1>磁碟驅動</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解區塊與 LBA</li>
+          <li>認識 AHCI、NVMe、virtio</li>
+          <li>知道 DMA 的作用</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>介面</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>AHCI（SATA）</td><td>一個命令佇列、最多 32 個命令</td></tr>
+          <tr><td>NVMe</td><td>為 SSD 設計：最多 65535 個佇列，每個 CPU 可以有自己的佇列</td></tr>
+          <tr><td>virtio-blk</td><td>虛擬機專用：QEMU 等模擬器提供的簡化介面，最適合教學核心</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">// 概念：送出一個讀取請求（以 NVMe 風格的佇列為例）
+struct cmd c = { .opcode = READ, .lba = 2048, .count = 8, .dma_addr = virt_to_phys(buf) };
+sq[sq_tail] = c;                     // 放進「提交佇列」
+sq_tail = (sq_tail + 1) % QSIZE;
+mmio_write(doorbell, sq_tail);       // 按門鈴：通知控制器
+// ……控制器用 DMA 把資料直接寫進 buf，完成後在「完成佇列」放一筆記錄並發出中斷</div>
+
+      <ul>
+        <li><strong>LBA</strong>：以區塊編號定位，不再用磁頭、磁柱這些物理概念。區塊常見 512 或 4096 位元組。</li>
+        <li><strong>DMA</strong>：裝置直接讀寫記憶體，CPU 不必一個個位元組搬運，可以去做別的事。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          磁碟以 LBA 區塊存取；現代控制器用命令佇列＋門鈴＋DMA＋完成中斷運作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是 LBA？</li>
+          <li>NVMe 為什麼適合多核心？</li>
+          <li>DMA 讓 CPU 省下什麼工作？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>虛擬檔案系統（VFS）</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：PCI 與裝置探索</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：虛擬檔案系統（VFS） →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：每個行程獨立的位址空間 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="同一個位址，不同的記憶體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶體管理 · 第 21 課</div>
+      <h1>每個行程獨立的位址空間</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解行程隔離的實現</li>
+          <li>知道切換位址空間的方式</li>
+          <li>認識 TLB 與 PCID</li>
+        </ul>
+      </div>
+
+      <p>
+        兩個程式都可以使用位址 <code>0x400000</code>，卻看到不同的內容——因為它們有<strong>各自的頁表</strong>。核心只要在切換行程時更換 CR3 暫存器（指向 PML4），整個位址空間就換掉了。
+      </p>
+
+      <div class="code-block">uint64_t* create_address_space(void) {
+    uint64_t* pml4 = phys_to_virt(pmm_alloc());
+    memset(pml4, 0, 4096);
+    memcpy(pml4 + 256, kernel_pml4 + 256, 256 * 8);   // 上半部：共用核心映射
+    return pml4;                                     // 下半部：空的，之後載入程式時填
+}
+
+void switch_address_space(uint64_t* pml4) {
+    asm volatile("mov %0, %%cr3" :: "r"(virt_to_phys(pml4)) : "memory");
+}</div>
+
+      <ul>
+        <li>使用者頁面設定 <code>PTE_USER</code>；核心頁面不設，使用者模式存取就會觸發分頁錯誤。</li>
+        <li>換 CR3 會清空 TLB，代價不小；PCID 功能讓 TLB 項目帶著「位址空間編號」，切換時不必全部清空。</li>
+        <li>2018 年的 Meltdown 漏洞讓許多系統改成使用者模式時連核心映射都拿掉（KPTI），PCID 因此變得更重要。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          每個行程有自己的頁表，切換 CR3 就切換整個位址空間；核心映射在每個行程中共用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>兩個程式為什麼可以用同一個位址？</li>
+          <li>切換位址空間要改哪個暫存器？</li>
+          <li>PCID 解決什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>分頁錯誤的妙用</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：核心堆積：kmalloc 與 slab</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：分頁錯誤的妙用 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：在螢幕上印字 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="VGA 文字模式與 framebuffer">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜開機 · 第 9 課</div>
+      <h1>在螢幕上印字</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解記憶體映射 I/O</li>
+          <li>寫出 VGA 文字輸出</li>
+          <li>知道 framebuffer 的做法</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 148" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">VGA 文字模式：顯示記憶體在 0xB8000</text>
+                <rect x="40" y="50" width="60" height="30" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="70" y="69" text-anchor="middle" font-size="10" fill="var(--text)">H</text>
+                <rect x="100" y="50" width="60" height="30" rx="0" fill="#ff8a65" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="130" y="69" text-anchor="middle" font-size="10" fill="var(--text)">07</text>
+                <rect x="160" y="50" width="60" height="30" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="190" y="69" text-anchor="middle" font-size="10" fill="var(--text)">i</text>
+                <rect x="220" y="50" width="60" height="30" rx="0" fill="#ff8a65" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="250" y="69" text-anchor="middle" font-size="10" fill="var(--text)">07</text>
+                <rect x="280" y="50" width="60" height="30" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="310" y="69" text-anchor="middle" font-size="10" fill="var(--text)">!</text>
+                <rect x="340" y="50" width="60" height="30" rx="0" fill="#ff8a65" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="370" y="69" text-anchor="middle" font-size="10" fill="var(--text)">4F</text>
+                <text x="70" y="102" text-anchor="middle" font-size="9" fill="#4a90c2">字元</text>
+                <text x="190" y="102" text-anchor="middle" font-size="9" fill="#4a90c2">字元</text>
+                <text x="310" y="102" text-anchor="middle" font-size="9" fill="#4a90c2">字元</text>
+                <text x="130" y="102" text-anchor="middle" font-size="9" fill="#ff8a65">顏色</text>
+                <text x="250" y="102" text-anchor="middle" font-size="9" fill="#ff8a65">顏色</text>
+                <text x="370" y="102" text-anchor="middle" font-size="9" fill="#ff8a65">顏色</text>
+                <text x="440" y="64" text-anchor="start" font-size="10" fill="var(--text)">每格 2 位元組：</text>
+                <text x="440" y="80" text-anchor="start" font-size="10" fill="var(--text)">字元＋前景／背景色</text>
+                <text x="320" y="136" text-anchor="middle" font-size="9.5" fill="var(--accent)">80×25 格，寫進這塊記憶體，字就出現在螢幕上；UEFI 開機則改用像素 framebuffer</text>
+        </svg>
+        <figcaption>VGA 文字模式的記憶體配置。</figcaption>
+      </div>
+
+      <div class="code-block">// 傳統 BIOS 開機：寫入 0xB8000 就會出現在螢幕上
+static volatile uint16_t* const vga = (uint16_t*)0xB8000;
+static int col = 0, row = 0;
+
+void vga_putc(char c) {
+    if (c == '\n') { col = 0; row++; return; }
+    vga[row * 80 + col] = (uint16_t)c | (0x07 &lt;&lt; 8);   // 0x07：黑底灰字
+    if (++col == 80) { col = 0; row++; }
+}</div>
+
+      <p>
+        這叫<strong>記憶體映射 I/O</strong>：某段實體位址其實不是 RAM，而是連到顯示卡。UEFI 開機時沒有文字模式，開機程式會給我們一塊像素 framebuffer（位址、寬、高、每列位元組數），核心需要自己畫字型點陣。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          寫入特定的記憶體位址就能控制硬體（記憶體映射 I/O）；文字模式最簡單，framebuffer 更通用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是記憶體映射 I/O？</li>
+          <li>VGA 文字模式每格幾個位元組？</li>
+          <li>UEFI 開機時要怎麼顯示文字？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>序列埠與 kprintf</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：第一行核心程式碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：序列埠與 kprintf →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

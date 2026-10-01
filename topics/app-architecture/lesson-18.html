@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：大型檔案與虛擬化 ｜ 套裝應用程式的架構 ｜ 博雅書院</title>
+<meta name="description" content="打開 1 GB 的記錄檔">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">應用程式架構</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜文件與編輯 · 第 18 課</div>
+      <h1>大型檔案與虛擬化</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解大型資料的挑戰</li>
+          <li>認識虛擬化清單</li>
+          <li>知道分頁載入與記憶體映射</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">虛擬化清單：一百萬列只建立看得到的那幾十列</text>
+                <rect x="220" y="40" width="200" height="160" rx="4" fill="none" stroke="#4a90c2" stroke-width="2"/>
+                <text x="430" y="50" text-anchor="start" font-size="10" fill="#4a90c2">可見區域</text>
+                <rect x="230" y="46" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="68" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="90" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="112" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="134" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="156" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <rect x="230" y="178" width="180" height="18" rx="2" fill="var(--border)" fill-opacity="0.5" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="320" y="59" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5001 列</text>
+                <text x="320" y="81" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5002 列</text>
+                <text x="320" y="103" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5003 列</text>
+                <text x="320" y="125" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5004 列</text>
+                <text x="320" y="147" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5005 列</text>
+                <text x="320" y="169" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5006 列</text>
+                <text x="320" y="191" text-anchor="middle" font-size="9.5" fill="var(--text)">第 5007 列</text>
+                <text x="120" y="60" text-anchor="middle" font-size="10" fill="var(--text-muted)">第 1～5000 列</text>
+                <text x="120" y="76" text-anchor="middle" font-size="9" fill="var(--text-muted)">（沒有元件，只有高度）</text>
+                <text x="520" y="180" text-anchor="middle" font-size="10" fill="var(--text-muted)">第 5008～1000000 列</text>
+                <text x="520" y="196" text-anchor="middle" font-size="9" fill="var(--text-muted)">（沒有元件）</text>
+                <text x="320" y="228" text-anchor="middle" font-size="9.5" fill="var(--accent)">捲動時重複使用同一批列元件，只換內容；記憶體與速度都和總列數無關</text>
+        </svg>
+        <figcaption>虛擬化清單。</figcaption>
+      </div>
+
+      <ul>
+        <li><strong>虛擬化（窗口化）</strong>：只為看得到的列建立元件，捲動時重複使用。</li>
+        <li><strong>分頁載入</strong>：只讀取目前需要的區段，其餘留在磁碟。</li>
+        <li><strong>記憶體映射檔</strong>：把檔案映射到位址空間，由作業系統按需載入（見 <a href="../os-dev/lesson-22.html">〈作業系統是怎麼寫出來的〉第 22 課</a>）。</li>
+        <li><strong>增量處理</strong>：語法上色、搜尋分批進行，不一次處理全部。</li>
+      </ul>
+
+      <p>
+        同樣的原則適用於試算表、相簿、聊天記錄：<strong>成本應該和「看得到的量」成正比，而不是和「總量」成正比</strong>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          處理大型資料的關鍵是只處理看得到的部分：虛擬化、分頁載入、記憶體映射。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧰 本課以通用的軟體架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（以 TypeScript 為主），重點在設計思路而非特定框架的完整寫法。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>虛擬化清單怎麼節省記憶體？</li>
+          <li>記憶體映射檔的好處是什麼？</li>
+          <li>「成本與看得到的量成正比」是什麼意思？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>協同編輯</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：自動儲存與當機復原</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：協同編輯 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

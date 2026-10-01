@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：PCI 與裝置探索 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="電腦裡插了什麼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜檔案系統與裝置 · 第 32 課</div>
+      <h1>PCI 與裝置探索</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 PCI 設定空間</li>
+          <li>寫出列舉 PCI 裝置的程式</li>
+          <li>認識 BAR</li>
+        </ul>
+      </div>
+
+      <div class="code-block">// 每個 PCI 功能有 256 位元組（PCIe 為 4 KB）的設定空間
+// 0x00：廠商 ID   0x02：裝置 ID   0x0B：類別碼   0x10～0x24：BAR0～BAR5
+for (int bus = 0; bus &lt; 256; bus++)
+  for (int dev = 0; dev &lt; 32; dev++)
+    for (int fn = 0; fn &lt; 8; fn++) {
+        uint16_t vendor = pci_read16(bus, dev, fn, 0x00);
+        if (vendor == 0xFFFF) continue;          // 這個位置沒有裝置
+        uint16_t device = pci_read16(bus, dev, fn, 0x02);
+        uint32_t cls    = pci_read32(bus, dev, fn, 0x08) &gt;&gt; 8;
+        kprintf("%x:%x.%x  %x:%x  class %x\n", bus, dev, fn, vendor, device, cls);
+        match_driver(bus, dev, fn, vendor, device, cls);
+    }</div>
+
+      <ul>
+        <li><strong>BAR（基底位址暫存器）</strong>：告訴我們裝置的暫存器被映射到哪段實體位址，驅動再把它映射到核心位址空間（記憶體映射 I/O）。</li>
+        <li><strong>PCIe 的 ECAM</strong>：設定空間本身也映射到記憶體，位址來自 ACPI 的 MCFG 表。</li>
+        <li><strong>MSI 中斷</strong>：現代裝置用寫入特定記憶體位址的方式發出中斷，不再依賴共用的中斷線。</li>
+      </ul>
+
+      <p>
+        Linux 的 <code>lspci</code> 指令就是讀這些資訊。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          列舉 PCI 設定空間就能找到所有裝置；BAR 告訴驅動裝置暫存器在哪裡。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>廠商 ID 為 0xFFFF 代表什麼？</li>
+          <li>BAR 的用途是什麼？</li>
+          <li>什麼是 MSI？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>磁碟驅動</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：驅動程式模型</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：磁碟驅動 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

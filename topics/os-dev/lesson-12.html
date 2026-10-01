@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：中斷描述表（IDT） ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="告訴 CPU 每種中斷該跳去哪">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜中斷與例外 · 第 12 課</div>
+      <h1>中斷描述表（IDT）</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 IDT 的結構</li>
+          <li>寫出 IDT 入口</li>
+          <li>知道中斷處理程式的骨架</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">中斷描述表（IDT）：256 個入口</text>
+                <rect x="30" y="50" width="58" height="28" rx="0" fill="#e0605a" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="59" y="68" text-anchor="middle" font-size="10" fill="var(--text)">0</text>
+                <rect x="88" y="50" width="58" height="28" rx="0" fill="#e0605a" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="117" y="68" text-anchor="middle" font-size="10" fill="var(--text)">1</text>
+                <rect x="146" y="50" width="58" height="28" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="175" y="68" text-anchor="middle" font-size="10" fill="var(--text)">…</text>
+                <rect x="204" y="50" width="58" height="28" rx="0" fill="#e0605a" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="233" y="68" text-anchor="middle" font-size="10" fill="var(--text)">13</text>
+                <rect x="262" y="50" width="58" height="28" rx="0" fill="#e0605a" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="291" y="68" text-anchor="middle" font-size="10" fill="var(--text)">14</text>
+                <rect x="320" y="50" width="58" height="28" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="349" y="68" text-anchor="middle" font-size="10" fill="var(--text)">…</text>
+                <rect x="378" y="50" width="58" height="28" rx="0" fill="#5aa469" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="407" y="68" text-anchor="middle" font-size="10" fill="var(--text)">32</text>
+                <rect x="436" y="50" width="58" height="28" rx="0" fill="#5aa469" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="465" y="68" text-anchor="middle" font-size="10" fill="var(--text)">33</text>
+                <rect x="494" y="50" width="58" height="28" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="523" y="68" text-anchor="middle" font-size="10" fill="var(--text)">…</text>
+                <rect x="552" y="50" width="58" height="28" rx="0" fill="#9c89d6" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="581" y="68" text-anchor="middle" font-size="10" fill="var(--text)">255</text>
+                <text x="118" y="100" text-anchor="middle" font-size="9.5" fill="#e0605a">0～31：CPU 例外</text>
+                <text x="400" y="100" text-anchor="middle" font-size="9.5" fill="#5aa469">32 以後：硬體中斷（重新對應後）</text>
+                <text x="320" y="130" text-anchor="middle" font-size="9.5" fill="var(--accent)">每個入口記錄：處理程式的位址、程式碼區段、權限等級、類型</text>
+                <text x="320" y="148" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">用 lidt 指令把整張表的位址交給 CPU</text>
+        </svg>
+        <figcaption>中斷描述表。</figcaption>
+      </div>
+
+      <div class="code-block">struct idt_entry {               // 長模式下每個入口 16 位元組
+    uint16_t offset_lo;
+    uint16_t selector;          // 核心程式碼區段
+    uint8_t  ist;               // 中斷堆疊表索引（雙重錯誤用）
+    uint8_t  type_attr;         // 0x8E：存在、權限 0、中斷閘
+    uint16_t offset_mid;
+    uint32_t offset_hi;
+    uint32_t zero;
+} __attribute__((packed));
+
+static struct idt_entry idt[256];
+
+void idt_set(int n, void* handler) {
+    uint64_t a = (uint64_t)handler;
+    idt[n] = (struct idt_entry){ a &amp; 0xFFFF, KERNEL_CS, 0, 0x8E, (a &gt;&gt; 16) &amp; 0xFFFF, a &gt;&gt; 32, 0 };
+}</div>
+
+      <div class="code-block">; 每個向量一小段組合語言：保存暫存器後呼叫共同的 C 處理函式
+isr_stub_14:
+    ; 分頁錯誤：CPU 已經推了錯誤碼
+    push 14                     ; 向量編號
+    jmp isr_common
+isr_common:
+    push rax
+    push rcx                    ; ……保存所有通用暫存器
+    mov rdi, rsp                ; 第一個參數：指向保存的暫存器
+    call interrupt_dispatch
+    ; ……還原暫存器
+    add rsp, 16                 ; 丟掉向量編號與錯誤碼
+    iretq</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          IDT 有 256 個入口，每個指向一段處理程式；組合語言樁保存暫存器後交給 C 處理。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>IDT 有幾個入口？</li>
+          <li>為什麼需要組合語言樁？</li>
+          <li>iretq 做什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>例外處理與核心恐慌</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：中斷是什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：例外處理與核心恐慌 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

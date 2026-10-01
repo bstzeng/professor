@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：C 標準函式庫怎麼接到系統呼叫 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="printf 背後是 write">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜讓它能用 · 第 42 課</div>
+      <h1>C 標準函式庫怎麼接到系統呼叫</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 libc 的角色</li>
+          <li>認識 crt0 與 _start</li>
+          <li>知道緩衝的影響</li>
+        </ul>
+      </div>
+
+      <div class="code-block">// libc/crt0.S：使用者程式真正的進入點
+_start:
+    mov rdi, [rsp]          ; argc
+    lea rsi, [rsp + 8]      ; argv
+    call main
+    mov rdi, rax            ; main 的回傳值
+    call exit               ; 先清空緩衝區，再呼叫 sys_exit
+
+// libc/syscall.c
+long write(int fd, const void* buf, size_t n) {
+    long r;
+    asm volatile("syscall" : "=a"(r) : "a"(1), "D"(fd), "S"(buf), "d"(n) : "rcx", "r11", "memory");
+    return r;
+}</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>層次</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>高階函式</td><td>printf、fopen、malloc（用使用者空間緩衝與記憶體池）</td></tr>
+          <tr><td>系統呼叫包裝</td><td>write、open、mmap、fork</td></tr>
+          <tr><td>核心</td><td>sys_write、sys_open</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        <code>printf</code> 不會每次都呼叫 write：它先寫進緩衝區，滿了或遇到換行（終端機）才真的系統呼叫。所以程式當掉時，最後幾行 printf 可能來不及出現。<code>malloc</code> 則向核心要大塊記憶體（brk、mmap）後自己切。常見的 libc 實作有 glibc、musl。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          libc 提供 _start、系統呼叫包裝與緩衝等高階功能，是使用者程式和核心之間的橋樑。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>使用者程式真正的進入點是什麼？</li>
+          <li>為什麼 printf 的輸出可能在當機時遺失？</li>
+          <li>malloc 怎麼向核心要記憶體？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>網路堆疊概觀</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：管線與重新導向</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：網路堆疊概觀 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

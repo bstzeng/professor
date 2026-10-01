@@ -13942,6 +13942,326 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "game-architecture",
+      category: "tech",
+      title: "遊戲的程式架構：從遊戲迴圈到引擎設計",
+      description:
+        "遊戲是每秒跑 60 次的即時模擬。從引擎分層、遊戲迴圈與固定時間步長，到元件式設計、ECS、資料導向、事件與狀態機；再看輸入、繪圖、物理、動畫、音效、AI、UI、資源、腳本等子系統，資料驅動、存檔與工具鏈，連線遊戲的預測與同步，最後拆解 Unity、Unreal、Godot 的架構。附時間步長、ECS、碰撞、狀態機、A* 尋路等互動實驗。",
+      icon: "🎮",
+      url: "topics/game-architecture/index.html",
+      resources: [
+        {
+          title: "遊戲架構速查表",
+          description: "引擎分層、常用設計模式、子系統與術語中英對照，一頁查完",
+          icon: "🗂️",
+          url: "topics/game-architecture/cheatsheet.html"
+        },
+        {
+          title: "遊戲架構互動實驗室",
+          description: "時間步長、ECS、碰撞、狀態機、A* 尋路，五個互動實驗",
+          icon: "🕹️",
+          url: "topics/game-architecture/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜遊戲程式和一般程式的差別",
+          courses: [
+            { title: "遊戲是一個每秒跑 60 次的模擬", url: "topics/game-architecture/lesson-01.html" },
+            { title: "一款遊戲由什麼組成", url: "topics/game-architecture/lesson-02.html" },
+            { title: "引擎的分層架構", url: "topics/game-architecture/lesson-03.html" },
+            { title: "商用引擎概覽", url: "topics/game-architecture/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜遊戲迴圈與時間",
+          courses: [
+            { title: "遊戲迴圈", url: "topics/game-architecture/lesson-05.html" },
+            { title: "時間步長：可變還是固定", url: "topics/game-architecture/lesson-06.html" },
+            { title: "畫格率、垂直同步與卡頓", url: "topics/game-architecture/lesson-07.html" },
+            { title: "插值與外推", url: "topics/game-architecture/lesson-08.html" },
+            { title: "效能預算", url: "topics/game-architecture/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜遊戲物件怎麼組織",
+          courses: [
+            { title: "繼承地獄", url: "topics/game-architecture/lesson-10.html" },
+            { title: "元件式設計", url: "topics/game-architecture/lesson-11.html" },
+            { title: "實體元件系統（ECS）", url: "topics/game-architecture/lesson-12.html" },
+            { title: "資料導向設計", url: "topics/game-architecture/lesson-13.html" },
+            { title: "場景圖與父子座標", url: "topics/game-architecture/lesson-14.html" },
+            { title: "事件與觀察者模式", url: "topics/game-architecture/lesson-15.html" },
+            { title: "狀態機", url: "topics/game-architecture/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜子系統（上）",
+          courses: [
+            { title: "輸入系統", url: "topics/game-architecture/lesson-17.html" },
+            { title: "繪圖管線的架構", url: "topics/game-architecture/lesson-18.html" },
+            { title: "2D 繪圖：精靈、圖集、圖層", url: "topics/game-architecture/lesson-19.html" },
+            { title: "3D 繪圖的架構概念", url: "topics/game-architecture/lesson-20.html" },
+            { title: "物理：碰撞偵測與回應", url: "topics/game-architecture/lesson-21.html" },
+            { title: "寬階段與窄階段", url: "topics/game-architecture/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜子系統（下）",
+          courses: [
+            { title: "動畫系統", url: "topics/game-architecture/lesson-23.html" },
+            { title: "音效系統", url: "topics/game-architecture/lesson-24.html" },
+            { title: "AI：狀態機、行為樹、尋路", url: "topics/game-architecture/lesson-25.html" },
+            { title: "UI 系統", url: "topics/game-architecture/lesson-26.html" },
+            { title: "資源管理", url: "topics/game-architecture/lesson-27.html" },
+            { title: "腳本語言", url: "topics/game-architecture/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜資料與流程",
+          courses: [
+            { title: "資料驅動設計", url: "topics/game-architecture/lesson-29.html" },
+            { title: "存檔系統", url: "topics/game-architecture/lesson-30.html" },
+            { title: "關卡與場景切換", url: "topics/game-architecture/lesson-31.html" },
+            { title: "編輯器與工具鏈", url: "topics/game-architecture/lesson-32.html" },
+            { title: "建置流程與多平台", url: "topics/game-architecture/lesson-33.html" },
+            { title: "除錯工具與效能分析", url: "topics/game-architecture/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜連線遊戲",
+          courses: [
+            { title: "主從式與點對點", url: "topics/game-architecture/lesson-35.html" },
+            { title: "延遲與預測", url: "topics/game-architecture/lesson-36.html" },
+            { title: "狀態同步與鎖步", url: "topics/game-architecture/lesson-37.html" },
+            { title: "防作弊的架構原則", url: "topics/game-architecture/lesson-38.html" },
+            { title: "伺服器架構", url: "topics/game-architecture/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜實例拆解",
+          courses: [
+            { title: "Unity 的架構", url: "topics/game-architecture/lesson-40.html" },
+            { title: "Unreal 的架構", url: "topics/game-architecture/lesson-41.html" },
+            { title: "Godot 的架構", url: "topics/game-architecture/lesson-42.html" },
+            { title: "拆解一個小遊戲", url: "topics/game-architecture/lesson-43.html" },
+            { title: "總結：遊戲架構的設計取捨", url: "topics/game-architecture/lesson-44.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "app-architecture",
+      category: "tech",
+      title: "套裝應用程式的架構：從事件迴圈到自動更新",
+      description:
+        "Word、Photoshop、VS Code、聊天軟體這類桌面應用程式是怎麼組織的？從分層架構、事件迴圈、MVC／MVVM／單向資料流、主執行緒與非同步，到文件模型、文字緩衝區、復原重做、檔案格式、自動儲存、協同編輯；再看外掛、指令、設定、主題、本機資料庫、離線同步、網路、授權、安全與隱私，以及測試、封裝、自動更新、當機回報與效能。附事件迴圈、復原重做、Piece Table 互動實驗。",
+      icon: "🧰",
+      url: "topics/app-architecture/index.html",
+      resources: [
+        {
+          title: "應用程式架構速查表",
+          description: "分層、介面模式、常用設計模式、資料與交付的重點與術語，一頁查完",
+          icon: "🗂️",
+          url: "topics/app-architecture/cheatsheet.html"
+        },
+        {
+          title: "應用程式架構互動實驗室",
+          description: "事件迴圈、復原重做、Piece Table 三個互動實驗",
+          icon: "🕹️",
+          url: "topics/app-architecture/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜一個應用程式由什麼組成",
+          courses: [
+            { title: "從畫面到程式的層次", url: "topics/app-architecture/lesson-01.html" },
+            { title: "分層架構", url: "topics/app-architecture/lesson-02.html" },
+            { title: "原生、跨平台、網頁技術", url: "topics/app-architecture/lesson-03.html" },
+            { title: "三個案例預覽", url: "topics/app-architecture/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜介面怎麼運作",
+          courses: [
+            { title: "事件迴圈", url: "topics/app-architecture/lesson-05.html" },
+            { title: "視窗、元件樹與版面配置", url: "topics/app-architecture/lesson-06.html" },
+            { title: "MVC：模型、視圖、控制器", url: "topics/app-architecture/lesson-07.html" },
+            { title: "MVP、MVVM 與資料繫結", url: "topics/app-architecture/lesson-08.html" },
+            { title: "單向資料流", url: "topics/app-architecture/lesson-09.html" },
+            { title: "主執行緒為什麼不能卡", url: "topics/app-architecture/lesson-10.html" },
+            { title: "無障礙、深色模式與多語系", url: "topics/app-architecture/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜文件與編輯",
+          courses: [
+            { title: "文件模型", url: "topics/app-architecture/lesson-12.html" },
+            { title: "文字編輯器的資料結構", url: "topics/app-architecture/lesson-13.html" },
+            { title: "復原與重做：命令模式", url: "topics/app-architecture/lesson-14.html" },
+            { title: "選取、剪貼簿與拖放", url: "topics/app-architecture/lesson-15.html" },
+            { title: "檔案格式設計", url: "topics/app-architecture/lesson-16.html" },
+            { title: "自動儲存與當機復原", url: "topics/app-architecture/lesson-17.html" },
+            { title: "大型檔案與虛擬化", url: "topics/app-architecture/lesson-18.html" },
+            { title: "協同編輯", url: "topics/app-architecture/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜擴充與設定",
+          courses: [
+            { title: "外掛系統", url: "topics/app-architecture/lesson-20.html" },
+            { title: "指令系統與快捷鍵", url: "topics/app-architecture/lesson-21.html" },
+            { title: "設定檔", url: "topics/app-architecture/lesson-22.html" },
+            { title: "主題與外觀", url: "topics/app-architecture/lesson-23.html" },
+            { title: "腳本與巨集", url: "topics/app-architecture/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜資料、網路與安全",
+          courses: [
+            { title: "本機資料庫", url: "topics/app-architecture/lesson-25.html" },
+            { title: "快取與同步：離線優先", url: "topics/app-architecture/lesson-26.html" },
+            { title: "網路層", url: "topics/app-architecture/lesson-27.html" },
+            { title: "帳號、授權與序號", url: "topics/app-architecture/lesson-28.html" },
+            { title: "安全：沙盒、權限、程式碼簽章", url: "topics/app-architecture/lesson-29.html" },
+            { title: "敏感資料：密碼與金鑰怎麼存", url: "topics/app-architecture/lesson-30.html" },
+            { title: "隱私與遙測", url: "topics/app-architecture/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜從開發到使用者手上",
+          courses: [
+            { title: "專案結構與模組化", url: "topics/app-architecture/lesson-32.html" },
+            { title: "測試金字塔", url: "topics/app-architecture/lesson-33.html" },
+            { title: "建置與封裝", url: "topics/app-architecture/lesson-34.html" },
+            { title: "自動更新", url: "topics/app-architecture/lesson-35.html" },
+            { title: "當機回報與記錄檔", url: "topics/app-architecture/lesson-36.html" },
+            { title: "效能：啟動、記憶體、耗電", url: "topics/app-architecture/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜案例拆解",
+          courses: [
+            { title: "拆解一個文字編輯器", url: "topics/app-architecture/lesson-38.html" },
+            { title: "拆解一個繪圖軟體", url: "topics/app-architecture/lesson-39.html" },
+            { title: "拆解一個聊天軟體；總結", url: "topics/app-architecture/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "os-dev",
+      category: "tech",
+      title: "作業系統是怎麼寫出來的：從開機到 Shell",
+      description:
+        "跟著一個極簡的教學用 x86-64 核心，從按下電源、BIOS／UEFI、開機程式、進入 64 位元長模式，到中斷與例外、計時器、鍵盤；實體記憶體、四層頁表、核心堆積、寫入時複製；行程、情境切換、排程、系統呼叫、ELF 載入、fork／exec、同步與死結；驅動程式、PCI、磁碟、VFS、檔案系統與日誌；最後完成終端機、Shell、管線與 libc，並對照 Linux、Windows、macOS。附頁表、排程、競爭條件等互動實驗。",
+      icon: "🖥️",
+      url: "topics/os-dev/index.html",
+      resources: [
+        {
+          title: "作業系統開發速查表",
+          description: "x86-64 重要暫存器、例外向量、頁表位元、系統呼叫慣例與術語中英對照，一頁查完",
+          icon: "🗂️",
+          url: "topics/os-dev/cheatsheet.html"
+        },
+        {
+          title: "作業系統互動實驗室",
+          description: "開機流程、頁框配置、位址轉換、排程、系統呼叫、競爭條件，六個互動實驗",
+          icon: "🕹️",
+          url: "topics/os-dev/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜開始之前",
+          courses: [
+            { title: "作業系統要做哪些事", url: "topics/os-dev/lesson-01.html" },
+            { title: "核心架構：單體式、微核心、混合式", url: "topics/os-dev/lesson-02.html" },
+            { title: "開發環境", url: "topics/os-dev/lesson-03.html" },
+            { title: "專案結構", url: "topics/os-dev/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜開機",
+          courses: [
+            { title: "按下電源之後：BIOS 與 UEFI", url: "topics/os-dev/lesson-05.html" },
+            { title: "開機載入程式", url: "topics/os-dev/lesson-06.html" },
+            { title: "CPU 模式：真實、保護、長模式", url: "topics/os-dev/lesson-07.html" },
+            { title: "第一行核心程式碼", url: "topics/os-dev/lesson-08.html" },
+            { title: "在螢幕上印字", url: "topics/os-dev/lesson-09.html" },
+            { title: "序列埠與 kprintf", url: "topics/os-dev/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜中斷與例外",
+          courses: [
+            { title: "中斷是什麼", url: "topics/os-dev/lesson-11.html" },
+            { title: "中斷描述表（IDT）", url: "topics/os-dev/lesson-12.html" },
+            { title: "例外處理與核心恐慌", url: "topics/os-dev/lesson-13.html" },
+            { title: "計時器中斷", url: "topics/os-dev/lesson-14.html" },
+            { title: "鍵盤驅動", url: "topics/os-dev/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜記憶體管理",
+          courses: [
+            { title: "實體記憶體地圖", url: "topics/os-dev/lesson-16.html" },
+            { title: "實體頁框配置器", url: "topics/os-dev/lesson-17.html" },
+            { title: "分頁與頁表", url: "topics/os-dev/lesson-18.html" },
+            { title: "核心的位址空間", url: "topics/os-dev/lesson-19.html" },
+            { title: "核心堆積：kmalloc 與 slab", url: "topics/os-dev/lesson-20.html" },
+            { title: "每個行程獨立的位址空間", url: "topics/os-dev/lesson-21.html" },
+            { title: "分頁錯誤的妙用", url: "topics/os-dev/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜行程與排程",
+          courses: [
+            { title: "行程與執行緒的資料結構", url: "topics/os-dev/lesson-23.html" },
+            { title: "情境切換", url: "topics/os-dev/lesson-24.html" },
+            { title: "排程器", url: "topics/os-dev/lesson-25.html" },
+            { title: "使用者模式與核心模式", url: "topics/os-dev/lesson-26.html" },
+            { title: "系統呼叫", url: "topics/os-dev/lesson-27.html" },
+            { title: "載入第一個使用者程式", url: "topics/os-dev/lesson-28.html" },
+            { title: "fork、exec、wait、exit", url: "topics/os-dev/lesson-29.html" },
+            { title: "同步：鎖、信號量與死結", url: "topics/os-dev/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜檔案系統與裝置",
+          courses: [
+            { title: "驅動程式模型", url: "topics/os-dev/lesson-31.html" },
+            { title: "PCI 與裝置探索", url: "topics/os-dev/lesson-32.html" },
+            { title: "磁碟驅動", url: "topics/os-dev/lesson-33.html" },
+            { title: "虛擬檔案系統（VFS）", url: "topics/os-dev/lesson-34.html" },
+            { title: "設計一個簡單的檔案系統", url: "topics/os-dev/lesson-35.html" },
+            { title: "真實檔案系統比較", url: "topics/os-dev/lesson-36.html" },
+            { title: "緩衝快取與頁快取", url: "topics/os-dev/lesson-37.html" },
+            { title: "日誌式檔案系統與當機一致性", url: "topics/os-dev/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜讓它能用",
+          courses: [
+            { title: "終端機與 TTY", url: "topics/os-dev/lesson-39.html" },
+            { title: "寫一個 Shell", url: "topics/os-dev/lesson-40.html" },
+            { title: "管線與重新導向", url: "topics/os-dev/lesson-41.html" },
+            { title: "C 標準函式庫怎麼接到系統呼叫", url: "topics/os-dev/lesson-42.html" },
+            { title: "網路堆疊概觀", url: "topics/os-dev/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜真實世界",
+          courses: [
+            { title: "Linux 核心原始碼地圖", url: "topics/os-dev/lesson-44.html" },
+            { title: "Windows NT 與 macOS XNU", url: "topics/os-dev/lesson-45.html" },
+            { title: "多核心、安全機制與總結", url: "topics/os-dev/lesson-46.html" },
+          ],
+        },
+      ],
     }
   ]
 };

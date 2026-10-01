@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：終端機與 TTY ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="打字到程式之間發生什麼事">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜讓它能用 · 第 39 課</div>
+      <h1>終端機與 TTY</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 TTY 的角色</li>
+          <li>認識行規與標準模式</li>
+          <li>知道 Ctrl+C 怎麼變成訊號</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">終端機的層次</text>
+                <rect x="20" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="115.333" y="88.85" text-anchor="middle" font-size="11" fill="#8a8f98">鍵盤驅動</text><line x1="213.7" y1="85.0" x2="214.7" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="221.7,85.0 214.7,88.5 214.7,81.5" fill="var(--border)"/><rect x="224.667" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="81" text-anchor="middle" font-size="11" fill="#ff8a65">TTY 行規</text><text x="320" y="95" text-anchor="middle" font-size="9" fill="var(--text-muted)">line discipline</text><line x1="418.3" y1="85.0" x2="419.3" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="426.3,85.0 419.3,88.5 419.3,81.5" fill="var(--border)"/><rect x="429.333" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="524.667" y="88.85" text-anchor="middle" font-size="11" fill="#4a90c2">前景行程 read()</text>
+                <text x="320" y="140" text-anchor="middle" font-size="9.5" fill="var(--accent)">行規負責：回顯、退格、整行緩衝，以及把 Ctrl+C 變成 SIGINT 訊號</text>
+                <text x="320" y="158" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">終端機模擬器（Terminal、iTerm）則透過虛擬終端（pty）扮演鍵盤與螢幕</text>
+        </svg>
+        <figcaption>終端機的層次。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>功能</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>標準模式（canonical）</td><td>按 Enter 才把整行交給程式；退格在行規裡處理</td></tr>
+          <tr><td>原始模式（raw）</td><td>每個按鍵立刻交給程式（vim、遊戲）</td></tr>
+          <tr><td>回顯</td><td>打的字自動顯示在螢幕上（輸入密碼時關閉）</td></tr>
+          <tr><td>訊號</td><td>Ctrl+C → SIGINT、Ctrl+Z → SIGTSTP、Ctrl+\ → SIGQUIT</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        名稱 TTY 來自電傳打字機（teletypewriter）。今天的終端機視窗是一個<strong>虛擬終端（pty）</strong>：一端給終端機程式，一端給 shell，中間仍經過核心的行規。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          TTY 行規處理回顯、行編輯與控制字元；終端機模擬器透過 pty 與 shell 溝通。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>標準模式和原始模式有什麼不同？</li>
+          <li>Ctrl+C 是怎麼終止程式的？</li>
+          <li>什麼是 pty？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>寫一個 Shell</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：日誌式檔案系統與當機一致性</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：寫一個 Shell →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

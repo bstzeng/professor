@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：資料導向設計 ｜ 遊戲的程式架構 ｜ 博雅書院</title>
+<meta name="description" content="讓 CPU 快取開心">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">遊戲架構</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜遊戲物件怎麼組織 · 第 13 課</div>
+      <h1>資料導向設計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解快取與記憶體延遲</li>
+          <li>比較 AoS 與 SoA</li>
+          <li>知道為什麼 ECS 快</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 196" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">資料排列：物件陣列（AoS） vs 欄位陣列（SoA）</text>
+                <text x="20" y="50" text-anchor="start" font-size="10" fill="var(--text)">AoS：每個物件的欄位放一起</text>
+                <rect x="20" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="44" y="74" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="68" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="92" y="74" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="116" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="140" y="74" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="164" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="188" y="74" text-anchor="middle" font-size="10" fill="var(--text)">名</text>
+                <rect x="212" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="236" y="74" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="260" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="284" y="74" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="308" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="332" y="74" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="356" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="380" y="74" text-anchor="middle" font-size="10" fill="var(--text)">名</text>
+                <rect x="404" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="428" y="74" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="452" y="58" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="476" y="74" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="500" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="524" y="74" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="548" y="58" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="572" y="74" text-anchor="middle" font-size="10" fill="var(--text)">名</text>
+                <text x="20" y="120" text-anchor="start" font-size="10" fill="var(--text)">SoA：同一個欄位放一起</text>
+                <rect x="20" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="44" y="144" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="68" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="92" y="144" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="116" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="140" y="144" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="164" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="188" y="144" text-anchor="middle" font-size="10" fill="var(--text)">x</text>
+                <rect x="212" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="236" y="144" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="260" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="284" y="144" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="308" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="332" y="144" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="356" y="128" width="48" height="24" rx="0" fill="#4a90c2" fill-opacity="1" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="380" y="144" text-anchor="middle" font-size="10" fill="var(--text)">y</text>
+                <rect x="404" y="128" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="428" y="144" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="452" y="128" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="476" y="144" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="500" y="128" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="524" y="144" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <rect x="548" y="128" width="48" height="24" rx="0" fill="var(--border)" fill-opacity="0.25" stroke="var(--text-muted)" stroke-width="1"/>
+                <text x="572" y="144" text-anchor="middle" font-size="10" fill="var(--text)">hp</text>
+                <text x="320" y="186" text-anchor="middle" font-size="9.5" fill="var(--accent)">移動系統只需要 x、y（藍色）：SoA 讀進快取的資料幾乎全部用得到，AoS 有一半是浪費</text>
+        </svg>
+        <figcaption>兩種資料排列。</figcaption>
+      </div>
+
+      <p>
+        CPU 從主記憶體讀資料比做運算慢上百倍，所以它一次會把一整塊（快取列，常見 64 位元組）讀進快取。如果接下來要用的資料剛好就在那一塊裡，速度就很快。
+      </p>
+
+      <div class="code-block">// AoS：物件導向的自然寫法
+struct Monster { Vec2 pos; Vec2 vel; int hp; char name[32]; ... };
+Monster monsters[10000];
+
+// SoA：資料導向
+struct Monsters {
+    Vec2 pos[10000];
+    Vec2 vel[10000];
+    int  hp[10000];
+};</div>
+
+      <p>
+        移動系統只需要 pos 與 vel。用 SoA 排列時，讀進快取的每個位元組都有用；用 AoS 時，name 等無關資料佔掉了大部分快取。數萬個物件時差距可達數倍。這種「以資料怎麼被使用來設計結構」的思考，就叫<strong>資料導向設計</strong>。
+      </p>
+
+      <p>
+        快取與記憶體階層的原理，見 <a href="../computer-science/index.html">〈計算機概論〉</a>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          資料導向設計依照資料的使用方式排列記憶體，讓快取命中率最高；這是 ECS 快的原因。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎮 本課以通用的遊戲引擎架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（類 C++／C# 虛擬碼），不是特定引擎的實際原始碼；各引擎的實作細節以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是快取列？</li>
+          <li>AoS 和 SoA 有什麼不同？</li>
+          <li>為什麼 SoA 對移動系統比較快？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>場景圖與父子座標</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：實體元件系統（ECS）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：場景圖與父子座標 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
