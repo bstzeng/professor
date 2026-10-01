@@ -13824,6 +13824,124 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "train-driver",
+      category: "tech",
+      title: "駕駛台灣的火車：從出勤點呼到進站停車",
+      description:
+        "以臺鐵區間車為主線，認識台灣的鐵道系統、火車怎麼加速與煞車、駕駛台的設備、色燈號誌與 ATP，再跟著司機員從出勤點呼、出庫檢查、指差確認、出發、運轉到進站停車；也談平交道、異常處置、重大事故的教訓，並比較高鐵的車內號誌與捷運的自動駕駛。附駕駛模擬器、號誌測驗、煞車距離計算器、指差確認練習與運行圖。",
+      icon: "🚆",
+      url: "topics/train-driver/index.html",
+      resources: [
+        {
+          title: "火車駕駛速查表",
+          description: "號誌現示、常見標誌、駕駛台儀表、縮寫與重要觀念，一頁查完",
+          icon: "🗂️",
+          url: "topics/train-driver/cheatsheet.html"
+        },
+        {
+          title: "火車駕駛模擬器",
+          description: "駕駛模擬器、號誌測驗、煞車距離計算器、指差確認練習、運行圖",
+          icon: "🕹️",
+          url: "topics/train-driver/simulator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識台灣的鐵道",
+          courses: [
+            { title: "台灣有哪些鐵道", url: "topics/train-driver/lesson-01.html" },
+            { title: "司機員是什麼工作", url: "topics/train-driver/lesson-02.html" },
+            { title: "軌距與路線", url: "topics/train-driver/lesson-03.html" },
+            { title: "臺鐵的車種", url: "topics/train-driver/lesson-04.html" },
+            { title: "火車和汽車有什麼不一樣", url: "topics/train-driver/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜火車怎麼動、怎麼停",
+          courses: [
+            { title: "電從哪裡來", url: "topics/train-driver/lesson-06.html" },
+            { title: "加速：牽引力與黏著力", url: "topics/train-driver/lesson-07.html" },
+            { title: "空氣煞車的原理", url: "topics/train-driver/lesson-08.html" },
+            { title: "再生煞車與電氣煞車", url: "topics/train-driver/lesson-09.html" },
+            { title: "煞車距離有多長", url: "topics/train-driver/lesson-10.html" },
+            { title: "曲線、坡道與限速", url: "topics/train-driver/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜駕駛室圖解",
+          courses: [
+            { title: "駕駛室全景", url: "topics/train-driver/lesson-12.html" },
+            { title: "主控制器與煞車把手", url: "topics/train-driver/lesson-13.html" },
+            { title: "駕駛台的儀表", url: "topics/train-driver/lesson-14.html" },
+            { title: "列車自動防護（ATP）顯示", url: "topics/train-driver/lesson-15.html" },
+            { title: "警醒裝置", url: "topics/train-driver/lesson-16.html" },
+            { title: "其他開關與設備", url: "topics/train-driver/lesson-17.html" },
+            { title: "動手試試：駕駛模擬器", url: "topics/train-driver/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜看懂號誌",
+          courses: [
+            { title: "號誌的目的：閉塞", url: "topics/train-driver/lesson-19.html" },
+            { title: "色燈號誌的現示", url: "topics/train-driver/lesson-20.html" },
+            { title: "車站的號誌", url: "topics/train-driver/lesson-21.html" },
+            { title: "路旁標誌", url: "topics/train-driver/lesson-22.html" },
+            { title: "手訊號與旗號", url: "topics/train-driver/lesson-23.html" },
+            { title: "ATP 怎麼運作", url: "topics/train-driver/lesson-24.html" },
+            { title: "轉轍器與進路", url: "topics/train-driver/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜司機員的一天",
+          courses: [
+            { title: "出勤點呼", url: "topics/train-driver/lesson-26.html" },
+            { title: "行車命令與注意事項", url: "topics/train-driver/lesson-27.html" },
+            { title: "出庫檢查", url: "topics/train-driver/lesson-28.html" },
+            { title: "指差確認、呼喚應答", url: "topics/train-driver/lesson-29.html" },
+            { title: "開車前的流程", url: "topics/train-driver/lesson-30.html" },
+            { title: "運轉中：看號誌、守時刻", url: "topics/train-driver/lesson-31.html" },
+            { title: "進站與停車", url: "topics/train-driver/lesson-32.html" },
+            { title: "交班與收車", url: "topics/train-driver/lesson-33.html" },
+            { title: "看懂運行圖", url: "topics/train-driver/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜異常與安全",
+          courses: [
+            { title: "平交道", url: "topics/train-driver/lesson-35.html" },
+            { title: "障礙物與人員闖入", url: "topics/train-driver/lesson-36.html" },
+            { title: "車輛故障", url: "topics/train-driver/lesson-37.html" },
+            { title: "天候與地震", url: "topics/train-driver/lesson-38.html" },
+            { title: "從事故學到的事", url: "topics/train-driver/lesson-39.html" },
+            { title: "行控中心", url: "topics/train-driver/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜高鐵的駕駛",
+          courses: [
+            { title: "高鐵和臺鐵哪裡不同", url: "topics/train-driver/lesson-41.html" },
+            { title: "車內號誌與自動列車控制（ATC）", url: "topics/train-driver/lesson-42.html" },
+            { title: "高鐵司機員的工作與訓練", url: "topics/train-driver/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜捷運的駕駛",
+          courses: [
+            { title: "自動運轉與 CBTC", url: "topics/train-driver/lesson-44.html" },
+            { title: "有司機與無人駕駛", url: "topics/train-driver/lesson-45.html" },
+            { title: "捷運司機員做什麼", url: "topics/train-driver/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜成為司機員",
+          courses: [
+            { title: "在台灣怎麼成為司機員", url: "topics/train-driver/lesson-47.html" },
+            { title: "總結：一列火車安全到站的防線", url: "topics/train-driver/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
