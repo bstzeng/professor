@@ -13229,6 +13229,235 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "ancient-daily-life",
+      category: "history",
+      title: "穿越古代過一天：中國歷代百姓的生活、新事物與娛樂",
+      description:
+        "從周代農夫、秦代小吏、唐代長安的賣餅郎，到宋代開封的夜市、明代江南的織戶、晚清上海的職員：用史料重建各朝百姓從早到晚的一天，看每個朝代多了哪些食物、器物與娛樂，再把吃、住、穿、夜晚、錢的三千年演變串起來。附時辰換算器、餐桌時間軸、穿越日程模擬器與「哪朝有」小測驗。",
+      icon: "🏮",
+      url: "topics/ancient-daily-life/index.html",
+      resources: [
+        {
+          title: "古代生活速查表",
+          description: "各朝代的新事物、娛樂、節日，以及時辰、餐數、錢幣的對照，一頁查完",
+          icon: "🗂️",
+          url: "topics/ancient-daily-life/cheatsheet.html"
+        },
+        {
+          title: "穿越日程模擬器",
+          description: "選一個朝代、一個身分，看看那個人從早到晚在做什麼",
+          icon: "⏳",
+          url: "topics/ancient-daily-life/simulator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜出發前的準備",
+          courses: [
+            { title: "我們怎麼知道古人怎麼過日子", url: "topics/ancient-daily-life/lesson-01.html" },
+            { title: "古人的時間：十二時辰、更鼓與一天幾頓飯", url: "topics/ancient-daily-life/lesson-02.html" },
+            { title: "不變的底色：農業社會、一家人、賦稅與勞役", url: "topics/ancient-daily-life/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜先秦：商、周、春秋戰國",
+          courses: [
+            { title: "一天：周代農夫的一年四季", url: "topics/ancient-daily-life/lesson-04.html" },
+            { title: "周代多了什麼：青銅、禮樂與坐在地上的「席」", url: "topics/ancient-daily-life/lesson-05.html" },
+            { title: "一天：戰國臨淄的市集", url: "topics/ancient-daily-life/lesson-06.html" },
+            { title: "先秦的娛樂：吹竽鼓瑟、鬥雞走犬、六博、投壺", url: "topics/ancient-daily-life/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜秦漢",
+          courses: [
+            { title: "一天：從睡虎地秦簡看秦朝的小吏與農民", url: "topics/ancient-daily-life/lesson-08.html" },
+            { title: "秦朝多了什麼：統一的度量衡、錢、文字，以及服役的日子", url: "topics/ancient-daily-life/lesson-09.html" },
+            { title: "一天：漢代農家的兩頓飯與男耕女織", url: "topics/ancient-daily-life/lesson-10.html" },
+            { title: "一天：漢代長安城的「市」", url: "topics/ancient-daily-life/lesson-11.html" },
+            { title: "漢朝多了什麼：紙、絲路物產、胡餅，以及豆腐的爭議", url: "topics/ancient-daily-life/lesson-12.html" },
+            { title: "漢代的娛樂：百戲、說唱、六博與蹴鞠", url: "topics/ancient-daily-life/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜魏晉南北朝",
+          courses: [
+            { title: "一天：戰亂中的塢堡", url: "topics/ancient-daily-life/lesson-14.html" },
+            { title: "魏晉南北朝多了什麼：胡床、佛寺與南方的茶", url: "topics/ancient-daily-life/lesson-15.html" },
+            { title: "魏晉南北朝的娛樂：清談、圍棋、樗蒲與廟會", url: "topics/ancient-daily-life/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜隋唐",
+          courses: [
+            { title: "一天：長安的里坊與宵禁", url: "topics/ancient-daily-life/lesson-17.html" },
+            { title: "一天：西市的胡人商人與賣餅郎", url: "topics/ancient-daily-life/lesson-18.html" },
+            { title: "一天：唐代農家的均田制與租庸調", url: "topics/ancient-daily-life/lesson-19.html" },
+            { title: "唐朝多了什麼：飲茶、胡服胡食、雕版印刷、科舉", url: "topics/ancient-daily-life/lesson-20.html" },
+            { title: "唐代的娛樂：馬球、拔河、參軍戲與上元燈會", url: "topics/ancient-daily-life/lesson-21.html" },
+            { title: "唐代女性的日常：騎馬、胡服、化妝與家庭", url: "topics/ancient-daily-life/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜宋",
+          courses: [
+            { title: "一天：開封城，從五更早市到三更夜市", url: "topics/ancient-daily-life/lesson-23.html" },
+            { title: "一天：《清明上河圖》裡的人們", url: "topics/ancient-daily-life/lesson-24.html" },
+            { title: "一天：江南的稻作農家", url: "topics/ancient-daily-life/lesson-25.html" },
+            { title: "飲食革命：一日三餐、炒菜、餐館與外送", url: "topics/ancient-daily-life/lesson-26.html" },
+            { title: "宋朝多了什麼：高腳桌椅、煤、交子、活字與指南針", url: "topics/ancient-daily-life/lesson-27.html" },
+            { title: "宋代的娛樂：瓦舍勾欄、說書、雜劇、相撲、蹴鞠", url: "topics/ancient-daily-life/lesson-28.html" },
+            { title: "宋代的節日：上元、清明、端午、七夕、中秋、除夕", url: "topics/ancient-daily-life/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜元",
+          courses: [
+            { title: "一天：大都的多民族街坊、驛站與運河", url: "topics/ancient-daily-life/lesson-30.html" },
+            { title: "元朝多了什麼：棉花、燒酒、青花瓷與紙幣", url: "topics/ancient-daily-life/lesson-31.html" },
+            { title: "元代的娛樂：元雜劇的黃金時代", url: "topics/ancient-daily-life/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 H｜明",
+          courses: [
+            { title: "一天：江南市鎮的織戶", url: "topics/ancient-daily-life/lesson-33.html" },
+            { title: "一天：北京的小商販，以及科舉考生的苦讀", url: "topics/ancient-daily-life/lesson-34.html" },
+            { title: "明朝多了什麼：美洲作物、白銀、眼鏡", url: "topics/ancient-daily-life/lesson-35.html" },
+            { title: "明代的娛樂：小說、崑曲、紙牌、蟋蟀與風箏", url: "topics/ancient-daily-life/lesson-36.html" },
+            { title: "明代生活的另一面：纏足、日用百科與旅遊", url: "topics/ancient-daily-life/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 I｜清",
+          courses: [
+            { title: "一天：北京胡同裡的旗人與茶館", url: "topics/ancient-daily-life/lesson-38.html" },
+            { title: "一天：人口暴增的農村", url: "topics/ancient-daily-life/lesson-39.html" },
+            { title: "清朝多了什麼：鐘錶、鼻煙、玻璃窗、鴉片，以及晚清的火車與照相", url: "topics/ancient-daily-life/lesson-40.html" },
+            { title: "清代的娛樂：京劇、相聲、麻將、遛鳥、鬥蛐蛐", url: "topics/ancient-daily-life/lesson-41.html" },
+            { title: "晚清上海一天：洋貨、報紙、電燈", url: "topics/ancient-daily-life/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 J｜主題縱覽：把三千年串起來",
+          courses: [
+            { title: "餐桌上的演變：吃幾頓、吃什麼、怎麼煮", url: "topics/ancient-daily-life/lesson-43.html" },
+            { title: "從坐地上到坐椅子：居住空間怎麼改變", url: "topics/ancient-daily-life/lesson-44.html" },
+            { title: "穿什麼：從麻布到棉布", url: "topics/ancient-daily-life/lesson-45.html" },
+            { title: "夜晚：從宵禁到夜市", url: "topics/ancient-daily-life/lesson-46.html" },
+            { title: "錢與買東西：貝殼、銅錢、紙幣、白銀", url: "topics/ancient-daily-life/lesson-47.html" },
+            { title: "如果你穿越：常見的時代錯誤，以及全主題總結", url: "topics/ancient-daily-life/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "emperor-life",
+      category: "history",
+      title: "皇帝的一天：中國歷代帝王的生活",
+      description:
+        "根據起居注、實錄、奏摺硃批、膳底檔與回憶錄，重建歷代皇帝從起床到就寢的一天：秦始皇的一百二十斤竹簡、唐太宗與魏徵、宋仁宗忍住的宵夜、朱元璋的奏章山、萬曆的罷工、雍正的硃批、溥儀的自行車。也談稱號、宮殿、御膳、後宮、皇子教育與御醫，並分清正史、野史與戲劇。附稱號解碼器、日程對照表與「皇帝 vs 百姓」。",
+      icon: "👑",
+      url: "topics/emperor-life/index.html",
+      resources: [
+        {
+          title: "皇帝的一天速查表",
+          description: "重要皇帝一句話介紹、各朝宮殿、稱號慣例、清代一日作息與後宮位階，一頁查完",
+          icon: "🗂️",
+          url: "topics/emperor-life/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜當皇帝是一份什麼樣的工作",
+          courses: [
+            { title: "我們怎麼知道皇帝怎麼過日子", url: "topics/emperor-life/lesson-01.html" },
+            { title: "皇帝的稱呼解碼：年號、廟號、諡號，「朕」與「萬歲」", url: "topics/emperor-life/lesson-02.html" },
+            { title: "皇帝的一生：怎麼上位、活多久、怎麼死", url: "topics/emperor-life/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜秦漢：制度的開端",
+          courses: [
+            { title: "秦始皇的一天：一百二十斤竹簡、巡遊天下、追求長生", url: "topics/emperor-life/lesson-04.html" },
+            { title: "秦朝建立的皇帝規矩：稱號、玉璽、避諱、三公九卿", url: "topics/emperor-life/lesson-05.html" },
+            { title: "漢高祖到漢文帝：從草莽出身到節儉皇帝", url: "topics/emperor-life/lesson-06.html" },
+            { title: "漢武帝的一天：上林苑打獵、求仙方士、朝會與內朝", url: "topics/emperor-life/lesson-07.html" },
+            { title: "漢代宮廷：未央宮、皇后與外戚、宦官登場", url: "topics/emperor-life/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜魏晉南北朝：亂世的皇帝",
+          courses: [
+            { title: "曹操、曹丕與「禪讓」：亂世的皇帝怎麼工作", url: "topics/emperor-life/lesson-09.html" },
+            { title: "荒唐皇帝列傳：「何不食肉糜」與南朝的昏君們", url: "topics/emperor-life/lesson-10.html" },
+            { title: "北魏孝文帝：一個皇帝主導的生活大改造", url: "topics/emperor-life/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜隋唐：盛世宮廷",
+          courses: [
+            { title: "隋煬帝：開運河、坐龍舟下江南", url: "topics/emperor-life/lesson-12.html" },
+            { title: "唐太宗的一天：上朝、聽魏徵進諫、讀書、打獵", url: "topics/emperor-life/lesson-13.html" },
+            { title: "唐代宮殿：太極宮、大明宮與含元殿上朝", url: "topics/emperor-life/lesson-14.html" },
+            { title: "唐玄宗與楊貴妃：梨園、霓裳羽衣舞、千里送荔枝", url: "topics/emperor-life/lesson-15.html" },
+            { title: "武則天：唯一的女皇帝", url: "topics/emperor-life/lesson-16.html" },
+            { title: "唐代皇帝的娛樂：馬球、鬥雞、宴樂，以及服丹藥中毒", url: "topics/emperor-life/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜宋：文人皇帝",
+          courses: [
+            { title: "宋太祖：杯酒釋兵權與「不殺士大夫」", url: "topics/emperor-life/lesson-18.html" },
+            { title: "宋仁宗的一天：忍住宵夜、被罵也不生氣", url: "topics/emperor-life/lesson-19.html" },
+            { title: "宋代上朝與經筵：皇帝也要上課", url: "topics/emperor-life/lesson-20.html" },
+            { title: "宋徽宗：瘦金體、花鳥畫、蹴鞠與花石綱", url: "topics/emperor-life/lesson-21.html" },
+            { title: "宋代御膳與宮廷生活：比想像中節儉", url: "topics/emperor-life/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜元：草原上的皇帝",
+          courses: [
+            { title: "忽必烈的一天：夏天住上都，冬天住大都", url: "topics/emperor-life/lesson-23.html" },
+            { title: "蒙古宮廷：質孫宴、狩獵與馬奶酒", url: "topics/emperor-life/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 G｜明：勤政與怠政的兩個極端",
+          courses: [
+            { title: "朱元璋的一天：從乞丐到皇帝的工作狂", url: "topics/emperor-life/lesson-25.html" },
+            { title: "紫禁城：一座城裡的生活", url: "topics/emperor-life/lesson-26.html" },
+            { title: "永樂皇帝：遷都北京、鄭和下西洋、《永樂大典》", url: "topics/emperor-life/lesson-27.html" },
+            { title: "正德皇帝：豹房、自封大將軍的愛玩皇帝", url: "topics/emperor-life/lesson-28.html" },
+            { title: "萬曆皇帝：將近三十年不上朝，他到底在做什麼", url: "topics/emperor-life/lesson-29.html" },
+            { title: "天啟皇帝的木工活，以及崇禎皇帝的最後一天", url: "topics/emperor-life/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 H｜清：史料最完整的宮廷",
+          courses: [
+            { title: "清代皇帝的一天：寅時起床到翻牌子", url: "topics/emperor-life/lesson-31.html" },
+            { title: "康熙：每天上朝、學西洋數學、六下江南", url: "topics/emperor-life/lesson-32.html" },
+            { title: "雍正：每天睡不到幾小時的硃批狂人", url: "topics/emperor-life/lesson-33.html" },
+            { title: "乾隆：四萬首詩、六下江南、在名畫上蓋印章", url: "topics/emperor-life/lesson-34.html" },
+            { title: "御膳房：一餐上百道菜，皇帝真正吃的只有幾道", url: "topics/emperor-life/lesson-35.html" },
+            { title: "後宮制度：位階、選秀，以及「翻牌子」的真相", url: "topics/emperor-life/lesson-36.html" },
+            { title: "皇子教育：五點上課，一年只放五天假", url: "topics/emperor-life/lesson-37.html" },
+            { title: "慈禧與末代皇帝溥儀：紫禁城最後的日子", url: "topics/emperor-life/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 I｜主題縱覽",
+          courses: [
+            { title: "皇帝吃什麼：歷代御膳、試毒制度與皇帝的口味", url: "topics/emperor-life/lesson-39.html" },
+            { title: "皇帝的健康與醫療：御醫怎麼看診", url: "topics/emperor-life/lesson-40.html" },
+            { title: "皇帝的娛樂演變：從打獵、馬球、書畫到看戲、玩鐘錶", url: "topics/emperor-life/lesson-41.html" },
+            { title: "皇帝和百姓的同一天，以及全主題總結", url: "topics/emperor-life/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
