@@ -13585,6 +13585,245 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "flight-ops",
+      category: "tech",
+      title: "一趟航班的幕後：機師、塔台與空服的工作",
+      description:
+        "跟著一班從桃園飛往成田的航班，從機師報到、簽派簡報、駕駛艙準備、推出滑行、起飛、巡航、下降進場、落地到下機講評，逐一看機師的每一個動作；再看塔台與航管各單位如何接力指揮天空，以及空服員在客艙的安全與服務工作。附無線電對話、檢查單、V1 決斷與三方時間軸等互動元件。",
+      icon: "✈️",
+      url: "topics/flight-ops/index.html",
+      resources: [
+        {
+          title: "航班速查表",
+          description: "音標字母、常用無線電用語、特殊應答機代碼、航管單位與飛行階段，一頁查完",
+          icon: "🗂️",
+          url: "topics/flight-ops/cheatsheet.html"
+        },
+        {
+          title: "三方時間軸",
+          description: "同一時刻，駕駛艙、航管與客艙各在做什麼",
+          icon: "⏱️",
+          url: "topics/flight-ops/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜出發前的基礎",
+          courses: [
+            { title: "一趟航班的全貌：有哪些人參與", url: "topics/flight-ops/lesson-01.html" },
+            { title: "駕駛艙導覽：機長與副機長怎麼分工", url: "topics/flight-ops/lesson-02.html" },
+            { title: "無線電的語言：音標字母、數字與標準用語", url: "topics/flight-ops/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜機師：起飛前",
+          courses: [
+            { title: "報到與簽派簡報：飛行計畫、天氣、航行公告、油量", url: "topics/flight-ops/lesson-04.html" },
+            { title: "機組簡報：機師與空服員要對齊哪些事", url: "topics/flight-ops/lesson-05.html" },
+            { title: "進入駕駛艙：安全檢查與駕駛艙準備", url: "topics/flight-ops/lesson-06.html" },
+            { title: "輸入飛航管理電腦：航路、重量、起飛速度", url: "topics/flight-ops/lesson-07.html" },
+            { title: "外部繞機檢查：飛機外面要看哪些地方", url: "topics/flight-ops/lesson-08.html" },
+            { title: "起飛前簡報：如果起飛時出事，我們怎麼做", url: "topics/flight-ops/lesson-09.html" },
+            { title: "取得航管許可", url: "topics/flight-ops/lesson-10.html" },
+            { title: "關門、推出、啟動引擎", url: "topics/flight-ops/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜滑行與起飛",
+          courses: [
+            { title: "滑行：照指定路線走，在跑道外等候", url: "topics/flight-ops/lesson-12.html" },
+            { title: "進跑道前：起飛前檢查單與客艙確認", url: "topics/flight-ops/lesson-13.html" },
+            { title: "起飛滾行：推力、80 節確認、V1、抬頭", url: "topics/flight-ops/lesson-14.html" },
+            { title: "初始爬升：收起落架、收襟翼、照離場程序飛", url: "topics/flight-ops/lesson-15.html" },
+            { title: "起飛時出事怎麼辦：中止起飛與引擎失效", url: "topics/flight-ops/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜巡航",
+          courses: [
+            { title: "爬升到巡航高度：轉換高度與高度表撥定", url: "topics/flight-ops/lesson-17.html" },
+            { title: "巡航時機師在做什麼", url: "topics/flight-ops/lesson-18.html" },
+            { title: "天氣與亂流：繞雷雨、改高度", url: "topics/flight-ops/lesson-19.html" },
+            { title: "長途飛行：加派機師與輪流休息", url: "topics/flight-ops/lesson-20.html" },
+            { title: "巡航中的緊急狀況：轉降、醫療、特殊代碼", url: "topics/flight-ops/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜下降與降落",
+          courses: [
+            { title: "下降前準備：天氣、跑道、進場簡報", url: "topics/flight-ops/lesson-22.html" },
+            { title: "開始下降：下降頂點與標準到場程序", url: "topics/flight-ops/lesson-23.html" },
+            { title: "進場：雷達引導與儀器降落系統", url: "topics/flight-ops/lesson-24.html" },
+            { title: "最後進場：穩定進場與落地檢查單", url: "topics/flight-ops/lesson-25.html" },
+            { title: "落地與重飛", url: "topics/flight-ops/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜落地之後",
+          courses: [
+            { title: "脫離跑道與滑回停機位", url: "topics/flight-ops/lesson-27.html" },
+            { title: "停機、關車與開門", url: "topics/flight-ops/lesson-28.html" },
+            { title: "離開飛機之前：飛航日誌與講評", url: "topics/flight-ops/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜塔台與航管",
+          courses: [
+            { title: "航管全貌：誰在管這架飛機", url: "topics/flight-ops/lesson-30.html" },
+            { title: "許可頒發席：飛行開始前的第一通電話", url: "topics/flight-ops/lesson-31.html" },
+            { title: "地面管制：機場裡的交通警察", url: "topics/flight-ops/lesson-32.html" },
+            { title: "塔台管制：跑道是最珍貴的資源", url: "topics/flight-ops/lesson-33.html" },
+            { title: "尾流：為什麼大飛機後面要等", url: "topics/flight-ops/lesson-34.html" },
+            { title: "近場管制：把飛機排成一列", url: "topics/flight-ops/lesson-35.html" },
+            { title: "區域管制：高空的長途旅程", url: "topics/flight-ops/lesson-36.html" },
+            { title: "流量管理：為什麼飛機會被延誤", url: "topics/flight-ops/lesson-37.html" },
+            { title: "管制員的一天：輪班、休息與壓力", url: "topics/flight-ops/lesson-38.html" },
+            { title: "緊急時航管做什麼；台灣的航管體系", url: "topics/flight-ops/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜空服員",
+          courses: [
+            { title: "空服員的第一任務是安全", url: "topics/flight-ops/lesson-40.html" },
+            { title: "報到與簡報：座艙長分派任務", url: "topics/flight-ops/lesson-41.html" },
+            { title: "登機前：客艙安全檢查", url: "topics/flight-ops/lesson-42.html" },
+            { title: "登機到起飛：安全示範與滑梯預位", url: "topics/flight-ops/lesson-43.html" },
+            { title: "飛行中：服務、亂流與駕駛艙門", url: "topics/flight-ops/lesson-44.html" },
+            { title: "機上緊急狀況：醫療、火災、失壓、撤離", url: "topics/flight-ops/lesson-45.html" },
+            { title: "落地後：解除滑梯、送客、交接", url: "topics/flight-ops/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜綜合",
+          courses: [
+            { title: "三方同步的時間軸", url: "topics/flight-ops/lesson-47.html" },
+            { title: "常見迷思", url: "topics/flight-ops/lesson-48.html" },
+            { title: "在台灣怎麼成為機師、航管員、空服員", url: "topics/flight-ops/lesson-49.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cockpit-panels",
+      category: "tech",
+      title: "駕駛艙儀表全圖解：飛機上每一塊面板在做什麼",
+      description:
+        "用一張可以點擊的駕駛艙地圖，逐區認識客機駕駛艙：六大儀表、主飛行顯示器、導航顯示器（氣象雷達、TCAS、地形）、引擎與中央警告系統、自動駕駛面板、中央操縱台與頭頂面板的電力、液壓、燃油、空調、防冰、火警、氧氣。附六大儀表、PFD、ND、ECAM 與自動駕駛面板的互動模擬器；圖為通用示意，不代表特定機型。",
+      icon: "🎛️",
+      url: "topics/cockpit-panels/index.html",
+      resources: [
+        {
+          title: "駕駛艙速查表",
+          description: "縮寫中英對照、顏色規則、重要語音警告與每塊面板的位置，一頁查完",
+          icon: "🗂️",
+          url: "topics/cockpit-panels/cheatsheet.html"
+        },
+        {
+          title: "儀表模擬器",
+          description: "六大儀表、主飛行顯示器、導航顯示器、引擎警告顯示與自動駕駛面板，全部可以操作",
+          icon: "🕹️",
+          url: "topics/cockpit-panels/simulator.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜駕駛艙地圖",
+          courses: [
+            { title: "駕駛艙全景：每一區叫什麼", url: "topics/cockpit-panels/lesson-01.html" },
+            { title: "從錶盤到螢幕：玻璃座艙", url: "topics/cockpit-panels/lesson-02.html" },
+            { title: "側桿與駕駛盤：電傳操縱", url: "topics/cockpit-panels/lesson-03.html" },
+            { title: "顏色與燈號：暗座艙的哲學", url: "topics/cockpit-panels/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜六大儀表",
+          courses: [
+            { title: "空速表：飛機飛多快", url: "topics/cockpit-panels/lesson-05.html" },
+            { title: "姿態儀：飛機現在的姿勢", url: "topics/cockpit-panels/lesson-06.html" },
+            { title: "高度表：離海平面多高", url: "topics/cockpit-panels/lesson-07.html" },
+            { title: "轉彎協調儀：轉得有多快、有沒有側滑", url: "topics/cockpit-panels/lesson-08.html" },
+            { title: "航向儀：機頭指向哪裡", url: "topics/cockpit-panels/lesson-09.html" },
+            { title: "垂直速度表：上升還是下降、多快", url: "topics/cockpit-panels/lesson-10.html" },
+            { title: "六大儀表怎麼運作、怎麼一起看", url: "topics/cockpit-panels/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜主飛行顯示器（PFD）",
+          courses: [
+            { title: "主飛行顯示器總覽", url: "topics/cockpit-panels/lesson-12.html" },
+            { title: "速度帶：目標速度、限制速度、趨勢箭頭", url: "topics/cockpit-panels/lesson-13.html" },
+            { title: "姿態區：飛行導引指示與坡度刻度", url: "topics/cockpit-panels/lesson-14.html" },
+            { title: "高度帶、垂直速度與無線電高度", url: "topics/cockpit-panels/lesson-15.html" },
+            { title: "航向與儀器降落系統偏差指示", url: "topics/cockpit-panels/lesson-16.html" },
+            { title: "飛行模式顯示：自動飛行在做什麼", url: "topics/cockpit-panels/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜導航顯示器（ND）",
+          courses: [
+            { title: "導航顯示器的模式：弧形、圓形、計畫", url: "topics/cockpit-panels/lesson-18.html" },
+            { title: "航路與航路點", url: "topics/cockpit-panels/lesson-19.html" },
+            { title: "氣象雷達：綠、黃、紅、洋紅", url: "topics/cockpit-panels/lesson-20.html" },
+            { title: "空中防撞系統（TCAS）", url: "topics/cockpit-panels/lesson-21.html" },
+            { title: "地形顯示與近地警告", url: "topics/cockpit-panels/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜引擎與系統顯示",
+          courses: [
+            { title: "引擎顯示：N1、N2、EGT、燃油流量", url: "topics/cockpit-panels/lesson-23.html" },
+            { title: "中央警告系統：ECAM 與 EICAS", url: "topics/cockpit-panels/lesson-24.html" },
+            { title: "系統頁：液壓與電力", url: "topics/cockpit-panels/lesson-25.html" },
+            { title: "系統頁：燃油與引氣空調", url: "topics/cockpit-panels/lesson-26.html" },
+            { title: "系統頁：艙門、起落架、飛行操縱", url: "topics/cockpit-panels/lesson-27.html" },
+            { title: "主警告燈與主注意燈", url: "topics/cockpit-panels/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜遮光板：自動駕駛面板",
+          courses: [
+            { title: "自動駕駛面板：四個旋鈕", url: "topics/cockpit-panels/lesson-29.html" },
+            { title: "自動駕駛與自動油門", url: "topics/cockpit-panels/lesson-30.html" },
+            { title: "顯示器控制面板（EFIS 控制）", url: "topics/cockpit-panels/lesson-31.html" },
+            { title: "遮光板上的主警告燈與其他按鈕", url: "topics/cockpit-panels/lesson-32.html" },
+            { title: "動手操作：用面板讓飛機轉彎、爬升", url: "topics/cockpit-panels/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜中央操縱台",
+          courses: [
+            { title: "油門與反推力", url: "topics/cockpit-panels/lesson-34.html" },
+            { title: "減速板與襟翼手柄", url: "topics/cockpit-panels/lesson-35.html" },
+            { title: "飛航管理電腦的操作單元（MCDU／CDU）", url: "topics/cockpit-panels/lesson-36.html" },
+            { title: "無線電與應答機面板", url: "topics/cockpit-panels/lesson-37.html" },
+            { title: "引擎啟動、停留剎車、配平", url: "topics/cockpit-panels/lesson-38.html" },
+            { title: "中央操縱台的其他設備", url: "topics/cockpit-panels/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜頭頂面板",
+          courses: [
+            { title: "頭頂面板總覽", url: "topics/cockpit-panels/lesson-40.html" },
+            { title: "電力面板", url: "topics/cockpit-panels/lesson-41.html" },
+            { title: "液壓面板", url: "topics/cockpit-panels/lesson-42.html" },
+            { title: "燃油面板", url: "topics/cockpit-panels/lesson-43.html" },
+            { title: "空調、增壓與引氣面板", url: "topics/cockpit-panels/lesson-44.html" },
+            { title: "防冰、燈光、雨刷與告示燈", url: "topics/cockpit-panels/lesson-45.html" },
+            { title: "火警面板與輔助動力單元", url: "topics/cockpit-panels/lesson-46.html" },
+            { title: "氧氣系統", url: "topics/cockpit-panels/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜綜合",
+          courses: [
+            { title: "備用儀表與其他操縱裝置", url: "topics/cockpit-panels/lesson-48.html" },
+            { title: "機師的目光掃描", url: "topics/cockpit-panels/lesson-49.html" },
+            { title: "儀表故障：空速不可靠與交叉比對；總結", url: "topics/cockpit-panels/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
