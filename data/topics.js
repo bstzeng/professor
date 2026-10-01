@@ -12997,6 +12997,125 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "body-manual",
+      category: "biomed",
+      title: "人體使用手冊：吃、睡、動、休息的日常操作指南",
+      description:
+        "把身體機制落到每天的生活：怎麼睡飽、一餐怎麼配、外食怎麼選、從零開始運動與肌力訓練、日常保養與健康檢查、壓力與心理照顧，以及不同年齡的重點；每課最後一個「本週就做這一件事」，搭配睡眠計算器、蛋白質與喝水計算器、運動課表產生器和習慣檢核表。",
+      icon: "🩺",
+      url: "topics/body-manual/index.html",
+      resources: [
+        {
+          title: "人體使用手冊速查表",
+          description: "睡眠、飲食、喝水、運動、篩檢與求助專線的關鍵數字，一頁查完",
+          icon: "🗂️",
+          url: "topics/body-manual/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜開始之前：為什麼知道了還做不到",
+          courses: [
+            { title: "為什麼懂很多健康知識，生活卻沒改變", url: "topics/body-manual/lesson-01.html" },
+            { title: "健康的優先順序：先抓大的", url: "topics/body-manual/lesson-02.html" },
+            { title: "怎麼讀健康新聞：相關不等於因果、相對風險 vs 絕對風險", url: "topics/body-manual/lesson-03.html" },
+            { title: "先量一次自己的數字：你的身體儀表板", url: "topics/body-manual/lesson-04.html" },
+            { title: "習慣怎麼養成：讓正確的事變得簡單", url: "topics/body-manual/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜睡眠：最被低估的健康工具",
+          courses: [
+            { title: "一個晚上發生了什麼：睡眠週期與它在修復什麼", url: "topics/body-manual/lesson-06.html" },
+            { title: "要睡多久？怎麼判斷自己睡夠了", url: "topics/body-manual/lesson-07.html" },
+            { title: "生理時鐘：光線是最強的調整鈕", url: "topics/body-manual/lesson-08.html" },
+            { title: "睡前兩小時：螢幕、咖啡因、酒精、晚餐", url: "topics/body-manual/lesson-09.html" },
+            { title: "臥室設定：溫度、光線、噪音、床墊與枕頭", url: "topics/body-manual/lesson-10.html" },
+            { title: "睡不著、半夜醒、太早醒怎麼辦", url: "topics/body-manual/lesson-11.html" },
+            { title: "輪班、時差、熬夜之後怎麼調回來", url: "topics/body-manual/lesson-12.html" },
+            { title: "午睡、補眠、週末睡到中午的利弊", url: "topics/body-manual/lesson-13.html" },
+            { title: "什麼時候該看醫生：打鼾、睡眠呼吸中止、長期失眠", url: "topics/body-manual/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜飲食：每天吃什麼、吃多少",
+          courses: [
+            { title: "餐盤法：一餐怎麼配", url: "topics/body-manual/lesson-15.html" },
+            { title: "熱量與體重：能量平衡，以及節食為什麼會反彈", url: "topics/body-manual/lesson-16.html" },
+            { title: "蛋白質：吃多少、從哪裡來、怎麼分到三餐", url: "topics/body-manual/lesson-17.html" },
+            { title: "碳水化合物：精緻澱粉 vs 全穀、血糖與含糖飲料", url: "topics/body-manual/lesson-18.html" },
+            { title: "脂肪：好油、壞油、反式脂肪、油炸食物", url: "topics/body-manual/lesson-19.html" },
+            { title: "蔬菜、水果與纖維：一天要多少、怎麼吃得到", url: "topics/body-manual/lesson-20.html" },
+            { title: "喝水：喝多少、喝什麼、咖啡和茶算不算", url: "topics/body-manual/lesson-21.html" },
+            { title: "鹽、糖、加工食品：看懂營養標示", url: "topics/body-manual/lesson-22.html" },
+            { title: "外食族生存指南：便當、自助餐、便利商店、手搖飲", url: "topics/body-manual/lesson-23.html" },
+            { title: "自己煮的最低門檻：一週備餐與簡單組合", url: "topics/body-manual/lesson-24.html" },
+            { title: "什麼時候吃、怎麼吃：吃飯速度、宵夜、間歇性斷食", url: "topics/body-manual/lesson-25.html" },
+            { title: "保健食品：哪些有證據、哪些多半不需要", url: "topics/body-manual/lesson-26.html" },
+            { title: "酒精：為什麼「少一點比多一點好」", url: "topics/body-manual/lesson-27.html" },
+            { title: "常見飲食迷思：排毒、鹼性水、超級食物、極端飲食法", url: "topics/body-manual/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 D｜運動：從零開始動起來",
+          courses: [
+            { title: "運動的四個成分與 WHO 建議量", url: "topics/body-manual/lesson-29.html" },
+            { title: "從零開始：久坐族的第一個月計畫", url: "topics/body-manual/lesson-30.html" },
+            { title: "走路與日常活動：步數到底重不重要", url: "topics/body-manual/lesson-31.html" },
+            { title: "有氧運動：心率區間與「還能講話」測試", url: "topics/body-manual/lesson-32.html" },
+            { title: "肌力訓練入門：六個基本動作", url: "topics/body-manual/lesson-33.html" },
+            { title: "在家就能做的徒手訓練菜單", url: "topics/body-manual/lesson-34.html" },
+            { title: "第一次上健身房：重量、組數次數、循序加重", url: "topics/body-manual/lesson-35.html" },
+            { title: "伸展與關節活動度：什麼時候做、做什麼", url: "topics/body-manual/lesson-36.html" },
+            { title: "熱身、收操與避免受傷", url: "topics/body-manual/lesson-37.html" },
+            { title: "肌肉痠痛 vs 受傷疼痛：什麼時候該停", url: "topics/body-manual/lesson-38.html" },
+            { title: "恢復：休息日、睡眠、蛋白質", url: "topics/body-manual/lesson-39.html" },
+            { title: "一週運動課表範例（忙碌版、標準版、進階版）", url: "topics/body-manual/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 E｜身體的日常保養",
+          courses: [
+            { title: "久坐與姿勢：桌椅螢幕怎麼擺、每 30 分鐘動一動", url: "topics/body-manual/lesson-41.html" },
+            { title: "眼睛：3C 用眼與 20-20-20 法則", url: "topics/body-manual/lesson-42.html" },
+            { title: "口腔：刷牙、牙線、定期洗牙", url: "topics/body-manual/lesson-43.html" },
+            { title: "皮膚與防曬", url: "topics/body-manual/lesson-44.html" },
+            { title: "腸胃與排便：怎樣算正常", url: "topics/body-manual/lesson-45.html" },
+            { title: "健康檢查：各年齡該做哪些篩檢、怎麼看懂體檢報告", url: "topics/body-manual/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 F｜壓力與心理",
+          courses: [
+            { title: "壓力怎麼影響身體：短期壓力 vs 長期壓力", url: "topics/body-manual/lesson-47.html" },
+            { title: "馬上能用的減壓工具：呼吸、散步、寫下來", url: "topics/body-manual/lesson-48.html" },
+            { title: "人際連結與孤獨：被低估的健康因素", url: "topics/body-manual/lesson-49.html" },
+            { title: "手機與注意力：通知、滑手機、專注力", url: "topics/body-manual/lesson-50.html" },
+            { title: "情緒低落與焦慮：自我照顧，以及什麼時候該找專業協助", url: "topics/body-manual/lesson-51.html" },
+          ],
+        },
+        {
+          title: "模組 G｜不同年齡與特殊情況",
+          courses: [
+            { title: "20～30 歲：打好基礎", url: "topics/body-manual/lesson-52.html" },
+            { title: "40～50 歲：肌肉流失、代謝變慢、慢性病早期警訊", url: "topics/body-manual/lesson-53.html" },
+            { title: "60 歲以上：防跌倒、肌少症、骨質疏鬆", url: "topics/body-manual/lesson-54.html" },
+            { title: "女性生理週期、懷孕前後的生活調整（概要）", url: "topics/body-manual/lesson-55.html" },
+            { title: "生病或受傷時，作息和飲食怎麼調整", url: "topics/body-manual/lesson-56.html" },
+          ],
+        },
+        {
+          title: "模組 H｜把它們組合起來",
+          courses: [
+            { title: "一天的作息範例（上班族、學生、輪班族）", url: "topics/body-manual/lesson-57.html" },
+            { title: "一週計畫範本與自我檢核表", url: "topics/body-manual/lesson-58.html" },
+            { title: "卡關了怎麼辦：破功、出差旅行、忙碌期的最低標準", url: "topics/body-manual/lesson-59.html" },
+            { title: "總結：人體使用手冊一頁版", url: "topics/body-manual/lesson-60.html" },
+          ],
+        },
+      ],
     }
   ]
 };
