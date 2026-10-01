@@ -13116,6 +13116,119 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "seeing-a-doctor",
+      category: "biomed",
+      title: "看病指南：從描述症狀到看懂報告",
+      description:
+        "不舒服了，接下來怎麼做：怎麼用一句話說出主訴、用八個面向描述症狀、準備病史與看診小抄；聽懂醫生的說明、問對問題、一起做決定；知道該看哪一科、什麼時候去急診；看懂檢查報告與藥袋，了解健保、自費、住院與病人權利，以及帶孩子、陪長輩看病的重點。",
+      icon: "🏥",
+      url: "topics/seeing-a-doctor/index.html",
+      resources: [
+        {
+          title: "看病指南速查表",
+          description: "急診警訊、描述症狀的八個面向、六個必問問題、檢查與用藥重點、常用專線，一頁查完",
+          icon: "🗂️",
+          url: "topics/seeing-a-doctor/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜開始之前：看病是一種技能",
+          courses: [
+            { title: "為什麼看病時常常講不清楚、聽不懂、忘了問", url: "topics/seeing-a-doctor/lesson-01.html" },
+            { title: "一次門診的流程：從掛號到領藥", url: "topics/seeing-a-doctor/lesson-02.html" },
+            { title: "醫生怎麼想：問診、身體檢查與鑑別診斷", url: "topics/seeing-a-doctor/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜怎麼跟醫生描述症狀",
+          courses: [
+            { title: "開場第一句：主訴怎麼說", url: "topics/seeing-a-doctor/lesson-04.html" },
+            { title: "描述症狀的萬用框架", url: "topics/seeing-a-doctor/lesson-05.html" },
+            { title: "疼痛怎麼形容：性質與分數", url: "topics/seeing-a-doctor/lesson-06.html" },
+            { title: "畫出時間軸：開始、頻率、持續與變化", url: "topics/seeing-a-doctor/lesson-07.html" },
+            { title: "伴隨症狀，以及「沒有」的症狀", url: "topics/seeing-a-doctor/lesson-08.html" },
+            { title: "常見症狀怎麼講：頭痛、胸痛、腹痛、咳嗽、頭暈、疲倦、皮疹", url: "topics/seeing-a-doctor/lesson-09.html" },
+            { title: "拍照、錄影、量數字：帶給醫生看的證據", url: "topics/seeing-a-doctor/lesson-10.html" },
+            { title: "病史怎麼報：疾病、過敏、用藥、家族史", url: "topics/seeing-a-doctor/lesson-11.html" },
+            { title: "不好意思說出口的事", url: "topics/seeing-a-doctor/lesson-12.html" },
+            { title: "看診前 10 分鐘：做一張一頁的看診小抄", url: "topics/seeing-a-doctor/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜聽懂醫生在說什麼",
+          courses: [
+            { title: "一定要問的六個問題", url: "topics/seeing-a-doctor/lesson-14.html" },
+            { title: "聽不懂的時候：換句話說、複述確認、寫下來", url: "topics/seeing-a-doctor/lesson-15.html" },
+            { title: "「先觀察」「排除」「疑似」：診斷的不確定性", url: "topics/seeing-a-doctor/lesson-16.html" },
+            { title: "醫病共享決策：一起做出適合你的選擇", url: "topics/seeing-a-doctor/lesson-17.html" },
+            { title: "第二意見：什麼時候需要、怎麼開口", url: "topics/seeing-a-doctor/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜該去哪裡看",
+          courses: [
+            { title: "分級醫療：診所、地區醫院、區域醫院、醫學中心", url: "topics/seeing-a-doctor/lesson-19.html" },
+            { title: "什麼症狀看哪一科", url: "topics/seeing-a-doctor/lesson-20.html" },
+            { title: "為什麼值得有一位固定的家庭醫師", url: "topics/seeing-a-doctor/lesson-21.html" },
+            { title: "急診還是門診：哪些情況要直接去急診", url: "topics/seeing-a-doctor/lesson-22.html" },
+            { title: "晚上和假日不舒服怎麼辦", url: "topics/seeing-a-doctor/lesson-23.html" },
+            { title: "網路查症狀、線上諮詢與遠距醫療", url: "topics/seeing-a-doctor/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜檢查與報告",
+          courses: [
+            { title: "常見檢查在做什麼", url: "topics/seeing-a-doctor/lesson-25.html" },
+            { title: "檢查前的準備：空腹、停藥、顯影劑", url: "topics/seeing-a-doctor/lesson-26.html" },
+            { title: "看懂抽血報告：參考範圍、H 和 L", url: "topics/seeing-a-doctor/lesson-27.html" },
+            { title: "影像報告的用語：「無明顯異常」「建議追蹤」「結節」", url: "topics/seeing-a-doctor/lesson-28.html" },
+            { title: "偽陽性、偽陰性，以及「意外發現」", url: "topics/seeing-a-doctor/lesson-29.html" },
+            { title: "健康存摺：在手機上查自己的就醫紀錄", url: "topics/seeing-a-doctor/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜用藥",
+          courses: [
+            { title: "看懂藥袋", url: "topics/seeing-a-doctor/lesson-31.html" },
+            { title: "怎麼吃藥：飯前飯後、忘記吃、能不能磨粉", url: "topics/seeing-a-doctor/lesson-32.html" },
+            { title: "抗生素：為什麼要照指示吃完、什麼時候不需要", url: "topics/seeing-a-doctor/lesson-33.html" },
+            { title: "多重用藥：用藥清單、藥師諮詢與廢棄藥品", url: "topics/seeing-a-doctor/lesson-34.html" },
+            { title: "保健食品、中藥和西藥一起吃要注意什麼", url: "topics/seeing-a-doctor/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜健保、費用與病人權益",
+          courses: [
+            { title: "健保怎麼運作：保費、部分負擔與自費", url: "topics/seeing-a-doctor/lesson-36.html" },
+            { title: "自費醫材與自費檢查：怎麼評估值不值得", url: "topics/seeing-a-doctor/lesson-37.html" },
+            { title: "住院：入院、病房、陪病與出院準備", url: "topics/seeing-a-doctor/lesson-38.html" },
+            { title: "病人的權利：知情同意、病歷複本、隱私", url: "topics/seeing-a-doctor/lesson-39.html" },
+            { title: "對醫療不滿意時：溝通與申訴管道", url: "topics/seeing-a-doctor/lesson-40.html" },
+            { title: "申請保險理賠：診斷書、收據與病歷摘要", url: "topics/seeing-a-doctor/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜特殊情況",
+          courses: [
+            { title: "帶小孩看病：家長怎麼替孩子描述", url: "topics/seeing-a-doctor/lesson-42.html" },
+            { title: "陪長輩看病：多種慢性病、記憶力或聽力不好時", url: "topics/seeing-a-doctor/lesson-43.html" },
+            { title: "慢性病長期追蹤：連續處方箋與自我監測", url: "topics/seeing-a-doctor/lesson-44.html" },
+            { title: "心理健康要看哪裡：身心科、精神科與心理諮商", url: "topics/seeing-a-doctor/lesson-45.html" },
+            { title: "預立醫療決定與安寧緩和醫療", url: "topics/seeing-a-doctor/lesson-46.html" },
+            { title: "出國前的旅遊醫學，以及在國外生病怎麼辦", url: "topics/seeing-a-doctor/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜綜合",
+          courses: [
+            { title: "三個完整案例：從症狀到回診", url: "topics/seeing-a-doctor/lesson-48.html" },
+            { title: "總結：看病指南一頁版", url: "topics/seeing-a-doctor/lesson-49.html" },
+          ],
+        },
+      ],
     }
   ]
 };
