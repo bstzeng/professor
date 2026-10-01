@@ -13458,6 +13458,133 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "go-basics",
+      category: "life",
+      title: "圍棋入門：從會規則到會下棋",
+      description:
+        "給已經知道規則、卻不知道怎麼下的人：從吃子技巧（征子、枷、倒撲、接不歸）、連接與切斷、死活（真假眼、直三彎三、刀把五、雙活、對殺），到好形、布局、定石、中盤攻防與官子。每課都有可以點擊作答的棋盤練習，所有題目的答案都經過程式搜尋驗證；附互動棋盤與速查表。",
+      icon: "⚫",
+      url: "topics/go-basics/index.html",
+      resources: [
+        {
+          title: "圍棋速查表",
+          description: "術語、基本死活形狀、吃子手筋、格言與官子順序，一頁查完",
+          icon: "🗂️",
+          url: "topics/go-basics/cheatsheet.html"
+        },
+        {
+          title: "互動棋盤",
+          description: "9 路、13 路、19 路的自由擺棋盤：自動提子、打劫判定、悔棋與數子",
+          icon: "⚫",
+          url: "topics/go-basics/board.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從規則到第一盤棋",
+          courses: [
+            { title: "規則快速複習：氣、提子、禁著點、打劫", url: "topics/go-basics/lesson-01.html" },
+            { title: "怎麼算輸贏：數子、數目與貼目", url: "topics/go-basics/lesson-02.html" },
+            { title: "在 9 路棋盤下第一盤", url: "topics/go-basics/lesson-03.html" },
+            { title: "看懂棋譜：座標與記譜", url: "topics/go-basics/lesson-04.html" },
+            { title: "圍棋術語小辭典", url: "topics/go-basics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜吃子技巧",
+          courses: [
+            { title: "叫吃以後往哪裡逃", url: "topics/go-basics/lesson-06.html" },
+            { title: "征子：一路追到底，以及引征", url: "topics/go-basics/lesson-07.html" },
+            { title: "枷：不用追，一手把它關起來", url: "topics/go-basics/lesson-08.html" },
+            { title: "倒撲：先送一子，再吃回一大塊", url: "topics/go-basics/lesson-09.html" },
+            { title: "接不歸：明明能接，接了還是被吃", url: "topics/go-basics/lesson-10.html" },
+            { title: "撲與破眼：先犧牲、再收網", url: "topics/go-basics/lesson-11.html" },
+            { title: "雙叫吃與一子兩用", url: "topics/go-basics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜連接與切斷",
+          courses: [
+            { title: "棋子之間的六種連法", url: "topics/go-basics/lesson-13.html" },
+            { title: "找出斷點", url: "topics/go-basics/lesson-14.html" },
+            { title: "該不該切斷：斷了以後誰比較弱", url: "topics/go-basics/lesson-15.html" },
+            { title: "竹節、虎口、雙：最有效率的連接", url: "topics/go-basics/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜死活：一塊棋活不活",
+          courses: [
+            { title: "眼是什麼：真眼與假眼", url: "topics/go-basics/lesson-17.html" },
+            { title: "為什麼兩隻眼就能活", url: "topics/go-basics/lesson-18.html" },
+            { title: "直三、彎三：一手決定死活", url: "topics/go-basics/lesson-19.html" },
+            { title: "直四、曲四、方四：哪些不用補也活", url: "topics/go-basics/lesson-20.html" },
+            { title: "刀把五、梅花五、葡萄六：殺棋的「點」在哪裡", url: "topics/go-basics/lesson-21.html" },
+            { title: "角上的特殊性", url: "topics/go-basics/lesson-22.html" },
+            { title: "雙活：誰都吃不掉誰", url: "topics/go-basics/lesson-23.html" },
+            { title: "對殺：數清楚氣", url: "topics/go-basics/lesson-24.html" },
+            { title: "死活題練習：做眼與破眼", url: "topics/go-basics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜好形與壞形",
+          courses: [
+            { title: "愚形：空三角為什麼不好", url: "topics/go-basics/lesson-26.html" },
+            { title: "好形：虎口、二子頭、鐵柱", url: "topics/go-basics/lesson-27.html" },
+            { title: "圍棋格言：二子頭必扳、敵之要點即我之要點", url: "topics/go-basics/lesson-28.html" },
+            { title: "實戰選擇：哪一手的形狀比較好", url: "topics/go-basics/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜布局：開局下哪裡",
+          courses: [
+            { title: "金角、銀邊、草肚皮", url: "topics/go-basics/lesson-30.html" },
+            { title: "星位、小目、三三：各自的優缺點", url: "topics/go-basics/lesson-31.html" },
+            { title: "守角與掛角", url: "topics/go-basics/lesson-32.html" },
+            { title: "拆邊：立二拆三、立三拆四", url: "topics/go-basics/lesson-33.html" },
+            { title: "大場與急所：哪裡大、哪裡急", url: "topics/go-basics/lesson-34.html" },
+            { title: "用 9 路和 13 路練習開局", url: "topics/go-basics/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜定石入門：不要死背",
+          courses: [
+            { title: "定石是什麼", url: "topics/go-basics/lesson-36.html" },
+            { title: "星位小飛掛角的基本變化", url: "topics/go-basics/lesson-37.html" },
+            { title: "點三三：AI 時代最常見的下法", url: "topics/go-basics/lesson-38.html" },
+            { title: "小目的守角，以及「定石之後該下哪裡」", url: "topics/go-basics/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜中盤：真正的戰鬥",
+          courses: [
+            { title: "判斷形勢：實地與厚勢", url: "topics/go-basics/lesson-40.html" },
+            { title: "攻擊：目的不是吃掉", url: "topics/go-basics/lesson-41.html" },
+            { title: "打入與侵消：破壞對方的大模樣", url: "topics/go-basics/lesson-42.html" },
+            { title: "治孤：弱棋怎麼辦", url: "topics/go-basics/lesson-43.html" },
+            { title: "厚與薄：看不見的力量", url: "topics/go-basics/lesson-44.html" },
+            { title: "先手與後手：誰掌握下一個大場", url: "topics/go-basics/lesson-45.html" },
+            { title: "手順：先後順序決定結果", url: "topics/go-basics/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜官子：最後的計算",
+          courses: [
+            { title: "官子的大小怎麼算", url: "topics/go-basics/lesson-47.html" },
+            { title: "先手官子、後手官子、逆收官子", url: "topics/go-basics/lesson-48.html" },
+            { title: "收官的順序與常見的損目", url: "topics/go-basics/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 J｜實戰與進步",
+          courses: [
+            { title: "一盤 13 路對局解說", url: "topics/go-basics/lesson-50.html" },
+            { title: "初學者最常犯的十個錯誤", url: "topics/go-basics/lesson-51.html" },
+            { title: "進步之路：段級位、做題、線上對弈與 AI 覆盤", url: "topics/go-basics/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };

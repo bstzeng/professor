@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 6 課：叫吃以後往哪裡逃 ｜ 圍棋入門 ｜ 博雅書院</title>
+<meta name="description" content="往氣多的方向，遠離對方的子">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">圍棋入門</a>
+      <span class="sep">/</span>
+      <span>第 6 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜吃子技巧 · 第 6 課</div>
+      <h1>叫吃以後往哪裡逃</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>判斷逃跑的方向</li>
+          <li>理解「長出去以後的氣數」</li>
+          <li>避免自己往牆上撞</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__goLib) return; window.__goLib = 1;
+        var L = 'ABCDEFGHJKLMNOPQRST', WOOD = '#dcb35c', LC = '#3a2a10';
+        function P(s) { return [s.charCodeAt(0) - 97, s.charCodeAt(1) - 97]; }
+        function K(x, y) { return x + ',' + y; }
+        function opp(c) { return c === 'b' ? 'w' : 'b'; }
+        function Board(n) { this.n = n; this.g = {}; this.prev = null; }
+        Board.prototype.copy = function () { var o = new Board(this.n); for (var k in this.g) o.g[k] = this.g[k]; o.prev = this.prev; return o; };
+        Board.prototype.key = function () { return Object.keys(this.g).sort().map(function (k) { return k + this.g[k]; }, this).join(';'); };
+        Board.prototype.nb = function (x, y) { var r = [], n = this.n; [[x-1,y],[x+1,y],[x,y-1],[x,y+1]].forEach(function (q) { if (q[0] >= 0 && q[0] < n && q[1] >= 0 && q[1] < n) r.push(q); }); return r; };
+        Board.prototype.group = function (x, y) {
+          var c = this.g[K(x, y)], seen = {}, libs = {}, st = [[x, y]], self = this; seen[K(x, y)] = 1;
+          while (st.length) { var q = st.pop(); self.nb(q[0], q[1]).forEach(function (r) { var k = K(r[0], r[1]), v = self.g[k];
+            if (!v) libs[k] = 1; else if (v === c && !seen[k]) { seen[k] = 1; st.push(r); } }); }
+          return { s: Object.keys(seen), l: Object.keys(libs).length };
+        };
+        Board.prototype.play = function (x, y, c) {
+          var k = K(x, y); if (this.g[k]) return null;
+          var before = this.key(), self = this, cap = [];
+          this.g[k] = c;
+          this.nb(x, y).forEach(function (q) { var kk = K(q[0], q[1]);
+            if (self.g[kk] === opp(c)) { var gr = self.group(q[0], q[1]); if (!gr.l) gr.s.forEach(function (s) { if (self.g[s]) { cap.push(s); delete self.g[s]; } }); } });
+          if (!this.group(x, y).l || (this.prev !== null && this.key() === this.prev)) {
+            delete this.g[k]; cap.forEach(function (s) { self.g[s] = opp(c); }); return null; }
+          this.prev = before; return cap;
+        };
+        Board.prototype.load = function (b, w) { var self = this;
+          (b || '').split(' ').forEach(function (s) { if (s) { var p = P(s); self.g[K(p[0], p[1])] = 'b'; } });
+          (w || '').split(' ').forEach(function (s) { if (s) { var p = P(s); self.g[K(p[0], p[1])] = 'w'; } }); return this; };
+        Board.prototype.area = function () {
+          var sc = { b: 0, w: 0 }, seen = {}, self = this, n = this.n;
+          for (var k in this.g) sc[this.g[k]]++;
+          for (var x = 0; x < n; x++) for (var y = 0; y < n; y++) { var kk = K(x, y); if (this.g[kk] || seen[kk]) continue;
+            var reg = [kk], bor = {}, st = [[x, y]]; seen[kk] = 1;
+            while (st.length) { var q = st.pop(); self.nb(q[0], q[1]).forEach(function (r) { var k2 = K(r[0], r[1]), v = self.g[k2];
+              if (!v && !seen[k2]) { seen[k2] = 1; reg.push(k2); st.push(r); } else if (v) bor[v] = 1; }); }
+            var bs = Object.keys(bor); if (bs.length === 1) sc[bs[0]] += reg.length; }
+          return sc;
+        };
+        var NS = 'http://www.w3.org/2000/svg';
+        function el(tag, at, txt) { var e = document.createElementNS(NS, tag); for (var a in at) e.setAttribute(a, at[a]); if (txt !== undefined) e.textContent = txt; return e; }
+        function draw(svg, bd, v, opt) {
+          opt = opt || {}; var n = bd.n, cell = 30, m = 30, x0 = v[0], y0 = v[1], x1 = v[2], y1 = v[3];
+          var W = (x1 - x0) * cell + 2 * m, H = (y1 - y0) * cell + 2 * m;
+          svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); while (svg.firstChild) svg.removeChild(svg.firstChild);
+          function X(x) { return m + (x - x0) * cell; } function Y(y) { return m + (y - y0) * cell; }
+          svg.appendChild(el('rect', { x: 0, y: 0, width: W, height: H, rx: 6, fill: WOOD }));
+          var ext = cell * 0.3;
+          for (var x = x0; x <= x1; x++) svg.appendChild(el('line', { x1: X(x), x2: X(x), y1: Y(y0) - (y0 > 0 ? ext : 0), y2: Y(y1) + (y1 < n - 1 ? ext : 0), stroke: LC, 'stroke-width': (x === 0 || x === n - 1) ? 1.6 : 0.9 }));
+          for (var y = y0; y <= y1; y++) svg.appendChild(el('line', { y1: Y(y), y2: Y(y), x1: X(x0) - (x0 > 0 ? ext : 0), x2: X(x1) + (x1 < n - 1 ? ext : 0), stroke: LC, 'stroke-width': (y === 0 || y === n - 1) ? 1.6 : 0.9 }));
+          var st = { 9: [[2,2],[6,2],[2,6],[6,6],[4,4]], 13: [3,6,9], 19: [3,9,15] }[n] || [];
+          if (n !== 9) { var t = []; st.forEach(function (a) { st.forEach(function (b) { t.push([a, b]); }); }); st = t; }
+          st.forEach(function (s) { if (s[0] >= x0 && s[0] <= x1 && s[1] >= y0 && s[1] <= y1) svg.appendChild(el('circle', { cx: X(s[0]), cy: Y(s[1]), r: 3, fill: LC })); });
+          for (x = x0; x <= x1; x++) { svg.appendChild(el('text', { x: X(x), y: m - 12, 'font-size': 10, 'text-anchor': 'middle', fill: LC }, L[x])); }
+          for (y = y0; y <= y1; y++) { svg.appendChild(el('text', { x: m - 19, y: Y(y) + 3.5, 'font-size': 10, 'text-anchor': 'middle', fill: LC }, String(n - y))); }
+          for (var k in bd.g) { var p = k.split(',').map(Number); if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) continue;
+            var b = bd.g[k] === 'b';
+            svg.appendChild(el('circle', { cx: X(p[0]), cy: Y(p[1]), r: cell * 0.47, fill: b ? '#1d1d1d' : '#f8f8f4', stroke: b ? '#000' : '#444', 'stroke-width': 0.9 }));
+            var lab = opt.nums && opt.nums[k];
+            if (lab) svg.appendChild(el('text', { x: X(p[0]), y: Y(p[1]) + 4.3, 'font-size': 12, 'font-weight': 'bold', 'text-anchor': 'middle', fill: b ? '#fff' : '#111' }, String(lab)));
+            if (opt.last === k) svg.appendChild(el('circle', { cx: X(p[0]), cy: Y(p[1]), r: cell * 0.18, fill: 'none', stroke: b ? '#fff' : '#b3261e', 'stroke-width': 2 })); }
+          (opt.marks || []).forEach(function (mk) { svg.appendChild(el('text', { x: X(mk[0]), y: Y(mk[1]) + 4.3, 'font-size': 13, 'font-weight': 'bold', 'text-anchor': 'middle', fill: mk[3] || '#b3261e' }, mk[2])); });
+          if (opt.click) { var hit = el('rect', { x: 0, y: 0, width: W, height: H, fill: 'transparent', style: 'cursor:pointer' });
+            hit.addEventListener('click', function (ev) { var r = svg.getBoundingClientRect(), sx = W / r.width;
+              var gx = Math.round(((ev.clientX - r.left) * sx - m) / cell) + x0, gy = Math.round(((ev.clientY - r.top) * sx - m) / cell) + y0;
+              if (gx >= x0 && gx <= x1 && gy >= y0 && gy <= y1) opt.click(gx, gy); });
+            svg.appendChild(hit); }
+          return [W, H];
+        }
+        function btn(t) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t;
+          b.style.cssText = 'padding:4px 12px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit'; return b; }
+        function frame(root, cfg, maxw) {
+          if (cfg.q) { var h = document.createElement('p'); h.style.margin = '0 0 8px'; h.innerHTML = cfg.q; root.appendChild(h); }
+          var svg = el('svg', { xmlns: NS }); svg.setAttribute('style', 'width:100%;max-width:' + maxw + 'px;display:block;margin:0 auto;touch-action:manipulation');
+          root.appendChild(svg); var msg = document.createElement('p'); msg.style.cssText = 'margin:8px 0 0;min-height:1.6em;line-height:1.7';
+          var bar = document.createElement('div'); bar.style.textAlign = 'center'; root.appendChild(bar); root.appendChild(msg);
+          return { svg: svg, msg: msg, bar: bar };
+        }
+        function maxw(v) { return Math.min(460, Math.round(((v[2] - v[0]) * 30 + 60) * 1.35)); }
+        function initProb(root, cfg) {
+          root.style.textAlign = 'left'; var f = frame(root, cfg, maxw(cfg.v)), bd, done, nums, timer;
+          var who = cfg.p === 'b' ? '黑' : '白';
+          function reset() { clearTimeout(timer); bd = new Board(cfg.n).load(cfg.b, cfg.w); done = false; nums = {}; f.msg.innerHTML = '<span style="color:var(--text-muted)">輪到' + who + '下，請點選棋盤。</span>'; render(); }
+          function render(last) { draw(f.svg, bd, cfg.v, { nums: nums, last: last, click: done ? null : click }); }
+          function playSeq(seq, c, i, after) { var mv = seq.split(' ').filter(Boolean); var j = 0;
+            function step() { if (j >= mv.length) { after(); return; } var p = P(mv[j]); var k = K(p[0], p[1]);
+              if (mv[j] !== 'pass') { bd.play(p[0], p[1], c); nums[k] = i + j + 1; render(k); } c = opp(c); j++; timer = setTimeout(step, 550); }
+            timer = setTimeout(step, 450); }
+          function click(x, y) { if (done) return; var k = K(x, y), s = String.fromCharCode(97 + x) + String.fromCharCode(97 + y);
+            var test = bd.copy(); if (test.play(x, y, cfg.p) === null) { f.msg.textContent = '這裡不能下（已有棋子、自殺或打劫禁著）。'; return; }
+            done = true; bd.play(x, y, cfg.p); nums[k] = 1; render(k);
+            var hit = cfg.ok[s] || cfg.ng[s], good = !!cfg.ok[s];
+            if (!hit) { f.msg.innerHTML = '❌ ' + cfg.other; return; }
+            f.msg.innerHTML = good ? '✅ 正確！<span style="color:var(--text-muted)">（看看後續變化）</span>' : '❌ 不對喔，看看對方怎麼應⋯⋯';
+            playSeq(hit[0], opp(cfg.p), 1, function () { f.msg.innerHTML = (good ? '✅ 正確！' : '❌ ') + hit[1]; render(); });
+          }
+          var r = btn('重來'); r.addEventListener('click', reset); f.bar.appendChild(r);
+          var a = btn('看答案'); a.addEventListener('click', function () { reset(); var s = Object.keys(cfg.ok)[0], p = P(s); click(p[0], p[1]); }); f.bar.appendChild(a);
+          reset();
+        }
+        function initReplay(root, cfg) {
+          root.style.textAlign = 'left'; var f = frame(root, cfg, maxw(cfg.v)), i = 0;
+          function show() { var bd = new Board(cfg.n).load(cfg.b, cfg.w), c = cfg.f, nums = {}, last = null;
+            for (var j = 0; j < i; j++) { var mv = cfg.m[j][0]; if (mv !== 'pass') { var p = P(mv), k = K(p[0], p[1]); bd.play(p[0], p[1], c); nums[k] = j + 1; last = k; } c = opp(c); }
+            for (var kk in nums) if (!bd.g[kk]) delete nums[kk];
+            draw(f.svg, bd, cfg.v, { nums: nums, last: last });
+            f.msg.innerHTML = '<b>' + i + ' / ' + cfg.m.length + '</b>　' + (i ? cfg.m[i - 1][1] : '按「下一手」開始。'); }
+          var b0 = btn('⏮'), b1 = btn('◀ 上一手'), b2 = btn('下一手 ▶'), b3 = btn('⏭');
+          b0.addEventListener('click', function () { i = 0; show(); }); b1.addEventListener('click', function () { if (i > 0) i--; show(); });
+          b2.addEventListener('click', function () { if (i < cfg.m.length) i++; show(); }); b3.addEventListener('click', function () { i = cfg.m.length; show(); });
+          [b0, b1, b2, b3].forEach(function (b) { f.bar.appendChild(b); }); show();
+        }
+        function initSand(root, cfg) {
+          root.style.textAlign = 'left'; var n = cfg.n, v = [0, 0, n - 1, n - 1], f = frame(root, cfg, maxw(v)), hist, bd, c, caps;
+          function reset() { bd = new Board(n).load(cfg.b, cfg.w); c = 'b'; hist = []; caps = { b: 0, w: 0 }; render(); }
+          function render(last) { draw(f.svg, bd, v, { last: last, click: click });
+            var sc = bd.area();
+            f.msg.innerHTML = '輪到：<b>' + (c === 'b' ? '黑' : '白') + '</b>　提子：黑 ' + caps.b + '、白 ' + caps.w +
+              '<br><span style="color:var(--text-muted);font-size:0.9em">目前數子（假設盤上沒有死子）：黑 ' + sc.b + '、白 ' + sc.w + '</span>'; }
+          function click(x, y) { var snap = bd.copy(), r = bd.play(x, y, c);
+            if (r === null) { f.msg.innerHTML += '<br>這裡不能下（已有棋子、自殺或打劫禁著）。'; return; }
+            hist.push([snap, c, { b: caps.b, w: caps.w }]); caps[c] += r.length; c = opp(c); render(K(x, y)); }
+          var u = btn('悔棋'); u.addEventListener('click', function () { if (!hist.length) return; var h = hist.pop(); bd = h[0]; c = h[1]; caps = h[2]; render(); });
+          var p = btn('虛手（pass）'); p.addEventListener('click', function () { hist.push([bd.copy(), c, { b: caps.b, w: caps.w }]); bd.prev = null; c = opp(c); render(); });
+          var r = btn('清空'); r.addEventListener('click', reset);
+          [u, p, r].forEach(function (b) { f.bar.appendChild(b); }); reset();
+        }
+        function initCount(root, cfg) {
+          root.style.textAlign = 'left'; var n = cfg.n, v = [0, 0, n - 1, n - 1], f = frame(root, cfg, maxw(v));
+          var bd = new Board(n).load(cfg.b, cfg.w); draw(f.svg, bd, v, {});
+          var box = document.createElement('div'); box.style.cssText = 'text-align:center;margin-top:6px';
+          box.innerHTML = '你算黑棋有幾點？ <input type="number" style="width:5em;font:inherit;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text)">';
+          var b = btn('對答案'); box.appendChild(b); f.bar.appendChild(box);
+          b.addEventListener('click', function () { var g = parseInt(box.querySelector('input').value, 10), sc = bd.area(), marks = [];
+            var seen = {}; for (var x = 0; x < n; x++) for (var y = 0; y < n; y++) { var k = K(x, y); if (bd.g[k]) continue;
+              var bor = {}; bd.nb(x, y).forEach(function (q) { var vv = bd.g[K(q[0], q[1])]; if (vv) bor[vv] = 1; }); }
+            var tot = n * n, diff = sc.b - (tot / 2), res = sc.b - sc.w - cfg.k;
+            f.msg.innerHTML = (g === sc.b ? '✅ 答對了！' : '答案是 <b>' + sc.b + '</b>。') + '黑 ' + sc.b + ' 點、白 ' + sc.w + ' 點（共 ' + tot + ' 點）。' +
+              '<br>白貼 ' + cfg.k + ' 目（數子法相當於貼 ' + (cfg.k / 2) + ' 子）：' + (res > 0 ? '黑勝 ' + res + ' 目' : '白勝 ' + (-res) + ' 目') + '。'; });
+        }
+        function initAll() { var ws = document.querySelectorAll('.go-w'); for (var i = 0; i < ws.length; i++) { var w = ws[i]; if (w.__done) continue; w.__done = 1;
+          var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ prob: initProb, replay: initReplay, sand: initSand, count: initCount })[cfg.t](w, cfg); } }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <p>
+        被叫吃（只剩一口氣）或氣很緊的時候，長出去要先數一數：<strong>長出去之後，會有幾口氣？</strong>少於兩口，就是送死。
+      </p>
+
+      <div class="go-w content-figure" data-cfg="{&quot;t&quot;: &quot;prob&quot;, &quot;n&quot;: 9, &quot;b&quot;: &quot;ee&quot;, &quot;w&quot;: &quot;de ed ge fd ff&quot;, &quot;p&quot;: &quot;b&quot;, &quot;v&quot;: [1, 1, 7, 7], &quot;q&quot;: &quot;&lt;b&gt;練習：&lt;/b&gt;黑 E5 只剩兩口氣，白準備叫吃。黑要往哪邊長？&quot;, &quot;ok&quot;: {&quot;ef&quot;: [&quot;&quot;, &quot;往下長，黑兩子有三口氣（D4、E3、F5），暫時安全。&quot;]}, &quot;ng&quot;: {&quot;fe&quot;: [&quot;ef&quot;, &quot;往右長撞上白子：黑兩子只剩一口氣，白在 E4 一口氣提掉兩子。&quot;]}, &quot;other&quot;: &quot;這一手不是最好的。再想想看！&quot;}"></div>
+
+      <h2>1. 逃跑三原則</h2>
+
+      <ol>
+        <li><strong>往空曠的地方跑</strong>：遠離對方的子。</li>
+        <li><strong>往自己的子靠近</strong>：連上以後氣會一起增加。</li>
+        <li><strong>別往邊線跑</strong>：邊線少一口氣，越跑越窄。</li>
+      </ol>
+
+      <h2>2. 什麼時候不該逃</h2>
+
+      <p>
+        如果長出去以後氣還是很少、只是被追著吃，不如乾脆放棄這顆子，去下別的地方。不值錢的子（例如只是一顆孤子、又不切斷什麼）可以「捨棄」。
+      </p>
+
+      <div class="callout">
+        <h3>💡 下棋時記得</h3>
+        <p>
+          長之前先數氣：長出去之後少於三口氣，就要很小心。
+        </p>
+      </div>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>逃跑的三個原則是什麼？</li>
+          <li>為什麼往邊線逃通常不好？</li>
+          <li>什麼時候應該放棄被叫吃的子？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>征子：一路追到底，以及引征</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-05.html">← 上一課：圍棋術語小辭典</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-07.html">下一課：征子：一路追到底，以及引征 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
