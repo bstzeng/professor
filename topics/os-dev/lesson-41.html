@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：管線與重新導向 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="ls | grep txt &gt; out.txt">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜讓它能用 · 第 41 課</div>
+      <h1>管線與重新導向</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解檔案描述元</li>
+          <li>實作重新導向</li>
+          <li>實作管線</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 182" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">管線：ls | grep txt</text>
+                <rect x="20" y="60" width="160" height="70" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="100" y="91" text-anchor="middle" font-size="11" fill="#4a90c2">ls</text><text x="100" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">stdout → 管線寫端</text>
+                <rect x="230" y="80" width="180" height="30" rx="15" fill="#ff8a65" fill-opacity="0.2" stroke="#ff8a65" stroke-width="1.5"/>
+                <text x="320" y="100" text-anchor="middle" font-size="10" fill="#ff8a65">核心中的管線緩衝區</text>
+                <rect x="460" y="60" width="160" height="70" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="540" y="91" text-anchor="middle" font-size="11" fill="#5aa469">grep txt</text><text x="540" y="105" text-anchor="middle" font-size="9" fill="var(--text-muted)">stdin ← 管線讀端</text>
+                <line x1="180.0" y1="95.0" x2="221.0" y2="95.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="228.0,95.0 221.0,98.5 221.0,91.5" fill="var(--text-muted)"/>
+                <line x1="410.0" y1="95.0" x2="451.0" y2="95.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="458.0,95.0 451.0,98.5 451.0,91.5" fill="var(--text-muted)"/>
+                <text x="320" y="166" text-anchor="middle" font-size="9.5" fill="var(--accent)">shell 用 pipe() 建立管線，fork 兩次，各自用 dup2() 把 0 或 1 號描述元換成管線的一端</text>
+        </svg>
+        <figcaption>管線。</figcaption>
+      </div>
+
+      <div class="code-block">// 重新導向：cmd &gt; out.txt
+if (fork() == 0) {
+    int fd = open("out.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    dup2(fd, 1);          // 讓 1 號（stdout）指向 out.txt
+    close(fd);
+    execvp(cmd[0], cmd);  // 程式完全不知道輸出被導向檔案了
+}
+
+// 管線：ls | grep txt
+int p[2]; pipe(p);        // p[0] 讀端、p[1] 寫端
+if (fork() == 0) { dup2(p[1], 1); close(p[0]); close(p[1]); execlp("ls", "ls", NULL); }
+if (fork() == 0) { dup2(p[0], 0); close(p[0]); close(p[1]); execlp("grep", "grep", "txt", NULL); }
+close(p[0]); close(p[1]); wait(NULL); wait(NULL);</div>
+
+      <p>
+        關鍵：fork 會複製檔案描述元表，exec 會保留它。shell 在 fork 之後、exec 之前調整描述元，程式本身完全不需要知道輸入輸出從哪裡來——這是 Unix「小工具組合」哲學的基礎。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          重新導向與管線都是在 fork 與 exec 之間用 dup2 調整檔案描述元。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>0、1、2 號描述元分別是什麼？</li>
+          <li>dup2 做什麼？</li>
+          <li>為什麼管線的兩端在父行程裡都要關掉？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>C 標準函式庫怎麼接到系統呼叫</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：寫一個 Shell</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：C 標準函式庫怎麼接到系統呼叫 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

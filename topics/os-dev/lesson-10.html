@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：序列埠與 kprintf ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="核心的除錯工具">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜開機 · 第 10 課</div>
+      <h1>序列埠與 kprintf</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解連接埠 I/O</li>
+          <li>寫出序列埠輸出</li>
+          <li>實作簡化的 kprintf</li>
+        </ul>
+      </div>
+
+      <div class="code-block">// 連接埠 I/O：x86 另一種和裝置溝通的方式
+static inline void outb(uint16_t port, uint8_t v) {
+    asm volatile("outb %0, %1" :: "a"(v), "Nd"(port));
+}
+static inline uint8_t inb(uint16_t port) {
+    uint8_t v; asm volatile("inb %1, %0" : "=a"(v) : "Nd"(port)); return v;
+}
+
+#define COM1 0x3F8
+void serial_putc(char c) {
+    while (!(inb(COM1 + 5) &amp; 0x20)) ;   // 等待傳送緩衝區空出來
+    outb(COM1, c);
+}</div>
+
+      <div class="code-block">void kprintf(const char* fmt, ...) {      // 只支援 %s %d %x 的迷你版
+    va_list ap; va_start(ap, fmt);
+    for (; *fmt; fmt++) {
+        if (*fmt != '%') { serial_putc(*fmt); continue; }
+        switch (*++fmt) {
+            case 's': puts(va_arg(ap, char*)); break;
+            case 'd': print_dec(va_arg(ap, int)); break;
+            case 'x': print_hex(va_arg(ap, uint64_t)); break;
+        }
+    }
+    va_end(ap);
+}</div>
+
+      <p>
+        用 QEMU 的 <code>-serial stdio</code>，核心的輸出會直接出現在主機的終端機裡，可以複製、搜尋，當機前的最後訊息也不會消失。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          序列埠用連接埠 I/O 輸出文字，是核心開發最可靠的除錯管道；kprintf 是自己實作的 printf。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>連接埠 I/O 和記憶體映射 I/O 有什麼不同？</li>
+          <li>為什麼要等待傳送緩衝區？</li>
+          <li>為什麼核心不能直接用 printf？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>中斷是什麼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：在螢幕上印字</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：中斷是什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

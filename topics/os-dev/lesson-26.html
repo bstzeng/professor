@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：使用者模式與核心模式 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="特權等級與 TSS">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜行程與排程 · 第 26 課</div>
+      <h1>使用者模式與核心模式</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Ring 0 與 Ring 3</li>
+          <li>知道從使用者模式進入核心的時機</li>
+          <li>認識 TSS 的作用</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 254" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">特權等級：Ring 0 與 Ring 3</text>
+                <circle cx="320" cy="130" r="90" fill="none" stroke="#4a90c2" stroke-width="2"/>
+                <circle cx="320" cy="130" r="40" fill="#e0605a" fill-opacity="0.2" stroke="#e0605a" stroke-width="2"/>
+                <text x="320" y="134" text-anchor="middle" font-size="11" fill="#e0605a">Ring 0</text>
+                <text x="320" y="150" text-anchor="middle" font-size="9" fill="#e0605a">核心</text>
+                <text x="320" y="200" text-anchor="middle" font-size="10" fill="#4a90c2">Ring 3：使用者程式</text>
+                <rect x="450" y="60" width="180" height="140" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="540" y="108" text-anchor="middle" font-size="11" fill="#ff8a65">Ring 3 不能做的事</text><text x="540" y="122" text-anchor="middle" font-size="9" fill="var(--text-muted)">執行 cli、hlt、lidt</text><text x="540" y="135" text-anchor="middle" font-size="9" fill="var(--text-muted)">修改 CR3</text><text x="540" y="148" text-anchor="middle" font-size="9" fill="var(--text-muted)">直接 in／out 連接埠</text><text x="540" y="161" text-anchor="middle" font-size="9" fill="var(--text-muted)">存取沒有 USER 位元的頁</text>
+                <text x="320" y="240" text-anchor="middle" font-size="9.5" fill="var(--accent)">x86 有 4 個等級，但主流作業系統只用 0（核心）和 3（使用者）</text>
+        </svg>
+        <figcaption>特權等級。</figcaption>
+      </div>
+
+      <p>
+        CPU 目前的特權等級記錄在程式碼區段選擇子的最低兩位。使用者程式在 Ring 3 執行，只能透過三種方式進入核心：<strong>系統呼叫、例外、硬體中斷</strong>。
+      </p>
+
+      <div class="code-block">// 從 Ring 3 被中斷時，CPU 必須換到核心堆疊——它從 TSS 讀取 rsp0
+struct tss { uint32_t r0; uint64_t rsp0, rsp1, rsp2; uint64_t r1; uint64_t ist[7]; /* … */ } __attribute__((packed));
+
+void set_kernel_stack(void* top) { tss.rsp0 = (uint64_t)top; }   // 每次切換行程都要更新</div>
+
+      <div class="code-block">; 第一次進入使用者模式：偽造一個「從中斷返回」的堆疊框架
+    push USER_DS | 3      ; ss
+    push user_stack_top   ; rsp
+    push 0x202            ; rflags（IF=1：開中斷）
+    push USER_CS | 3      ; cs
+    push user_entry       ; rip
+    iretq                 ; CPU 以為要「返回」Ring 3</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          使用者程式在 Ring 3 執行，只能經由系統呼叫、例外、中斷進入核心；TSS 提供核心堆疊位址。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>使用者程式有哪三種方式進入核心？</li>
+          <li>TSS 的 rsp0 是做什麼的？</li>
+          <li>第一次進入使用者模式為什麼用 iretq？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>系統呼叫</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：排程器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：系統呼叫 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

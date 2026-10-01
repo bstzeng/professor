@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：自動儲存與當機復原 ｜ 套裝應用程式的架構 ｜ 博雅書院</title>
+<meta name="description" content="讓使用者不會失去工作">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">應用程式架構</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜文件與編輯 · 第 17 課</div>
+      <h1>自動儲存與當機復原</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>學會安全的存檔流程</li>
+          <li>認識自動儲存的設計</li>
+          <li>知道當機復原的機制</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">安全存檔：先寫暫存檔，再一次取代</text>
+                <rect x="20" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="115.333" y="88.85" text-anchor="middle" font-size="11" fill="#ff8a65">寫入 doc.tmp</text><line x1="213.7" y1="85.0" x2="214.7" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="221.7,85.0 214.7,88.5 214.7,81.5" fill="var(--border)"/><rect x="224.667" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#5fa8a8" stroke-width="1.5"/><text x="320" y="88.85" text-anchor="middle" font-size="11" fill="#5fa8a8">確認寫完（fsync）</text><line x1="418.3" y1="85.0" x2="419.3" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="426.3,85.0 419.3,88.5 419.3,81.5" fill="var(--border)"/><rect x="429.333" y="60" width="190.667" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="524.667" y="88.85" text-anchor="middle" font-size="11" fill="#5aa469">把 doc.tmp 改名為 doc</text>
+                <text x="320" y="140" text-anchor="middle" font-size="9.5" fill="var(--accent)">改名在大多數檔案系統上是「原子」操作：要嘛是舊檔、要嘛是新檔，不會只寫一半</text>
+                <text x="320" y="158" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">自動儲存另存在復原資料夾；程式當掉後下次啟動時詢問是否復原</text>
+        </svg>
+        <figcaption>安全存檔流程。</figcaption>
+      </div>
+
+      <div class="code-block">async function safeSave(path: string, bytes: Uint8Array) {
+  const tmp = path + ".tmp";
+  await fs.writeFile(tmp, bytes);
+  await fsync(tmp);              // 確保真的寫進磁碟，不只停在快取
+  await fs.rename(tmp, path);    // 原子取代
+}</div>
+
+      <ul>
+        <li><strong>自動儲存</strong>：定時或閒置時，在背景把文件存到復原資料夾，不覆蓋使用者的檔案。</li>
+        <li><strong>當機偵測</strong>：啟動時放一個「執行中」標記，正常結束時刪除；下次啟動若標記還在，就知道上次當掉了。</li>
+        <li><strong>版本歷史</strong>：有些軟體保留多個自動版本，讓使用者回到過去。</li>
+      </ul>
+
+      <p>
+        為什麼寫入不一定立刻到磁碟？見 <a href="../os-dev/lesson-37.html">〈作業系統是怎麼寫出來的〉第 37 課</a> 的頁快取。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          安全存檔＝寫暫存檔、fsync、原子改名；自動儲存與當機標記讓意外不至於丟失工作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧰 本課以通用的軟體架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（以 TypeScript 為主），重點在設計思路而非特定框架的完整寫法。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼不直接覆寫原檔？</li>
+          <li>fsync 的作用是什麼？</li>
+          <li>程式怎麼知道上次是當機結束的？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>大型檔案與虛擬化</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：檔案格式設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：大型檔案與虛擬化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

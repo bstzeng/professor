@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：計時器中斷 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="作業系統的心跳">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜中斷與例外 · 第 14 課</div>
+      <h1>計時器中斷</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識計時器硬體</li>
+          <li>理解中斷控制器</li>
+          <li>實作系統時鐘</li>
+        </ul>
+      </div>
+
+      <div class="code-block">// 舊式 PIT（8254）：輸入頻率約 1.193182 MHz，除以 N 得到中斷頻率
+void pit_init(int hz) {
+    uint16_t div = 1193182 / hz;
+    outb(0x43, 0x36);              // 通道 0，方波模式
+    outb(0x40, div &amp; 0xFF);
+    outb(0x40, div &gt;&gt; 8);
+}
+
+volatile uint64_t ticks;
+void timer_irq(struct regs* r) {
+    ticks++;
+    send_eoi(0);                   // 通知中斷控制器：處理完了
+    schedule_tick();               // 讓排程器決定要不要換行程（第 25 課）
+}</div>
+
+      <ul>
+        <li><strong>中斷控制器</strong>：舊的 8259 PIC 預設把 IRQ 0～7 對應到向量 8～15，正好和 CPU 例外重疊，所以第一件事是把它<strong>重新對應</strong>到 32 以後。現代系統改用 APIC。</li>
+        <li><strong>EOI</strong>：每次處理完都要告訴中斷控制器，否則不會再收到同一條線的中斷。</li>
+        <li><strong>現代做法</strong>：每顆 CPU 有自己的 Local APIC 計時器；Linux 也支援「無滴答」模式，閒置時不產生定時中斷以省電。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          計時器中斷提供時間來源並讓核心定期取回控制權；記得重新對應 PIC 並送出 EOI。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼要重新對應 PIC？</li>
+          <li>EOI 是什麼？</li>
+          <li>無滴答模式有什麼好處？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>鍵盤驅動</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：例外處理與核心恐慌</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：鍵盤驅動 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

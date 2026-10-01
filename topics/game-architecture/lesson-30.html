@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：存檔系統 ｜ 遊戲的程式架構 ｜ 博雅書院</title>
+<meta name="description" content="序列化與版本相容">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">遊戲架構</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜資料與流程 · 第 30 課</div>
+      <h1>存檔系統</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解序列化</li>
+          <li>知道要存什麼、不存什麼</li>
+          <li>處理存檔的版本相容</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">存檔：把執行中的狀態變成位元組</text>
+                <rect x="20" y="60" width="141" height="50" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="90.5" y="81" text-anchor="middle" font-size="11" fill="#4a90c2">遊戲狀態</text><text x="90.5" y="95" text-anchor="middle" font-size="9" fill="var(--text-muted)">物件、元件</text><line x1="164.0" y1="85.0" x2="163.0" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="170.0,85.0 163.0,88.5 163.0,81.5" fill="var(--border)"/><rect x="173" y="60" width="141" height="50" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="243.5" y="88.85" text-anchor="middle" font-size="11" fill="#ff8a65">序列化</text><line x1="317.0" y1="85.0" x2="316.0" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="323.0,85.0 316.0,88.5 316.0,81.5" fill="var(--border)"/><rect x="326" y="60" width="141" height="50" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="396.5" y="88.85" text-anchor="middle" font-size="11" fill="#8a8f98">位元組／JSON</text><line x1="470.0" y1="85.0" x2="469.0" y2="85.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="476.0,85.0 469.0,88.5 469.0,81.5" fill="var(--border)"/><rect x="479" y="60" width="141" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="549.5" y="88.85" text-anchor="middle" font-size="11" fill="#5aa469">檔案或雲端</text>
+                <text x="320" y="140" text-anchor="middle" font-size="9.5" fill="var(--accent)">讀檔則反過來：反序列化，重建物件，重新連接彼此之間的參考</text>
+                <text x="320" y="158" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">只存「必要的狀態」：位置、血量、任務進度；貼圖、模型不用存</text>
+        </svg>
+        <figcaption>存檔的流程。</figcaption>
+      </div>
+
+      <div class="code-block">struct SaveData {
+    int version = 3;
+    Vec2 playerPos;
+    int  hp;
+    std::vector&lt;std::string&gt; inventory;
+    std::map&lt;std::string, bool&gt; questFlags;
+};
+// 讀到 version 2 的存檔：inventory 欄位不存在 → 給預設值</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>議題</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>物件之間的參考</td><td>存 ID 而不是記憶體位址，讀檔後再連回去</td></tr>
+          <tr><td>版本更新</td><td>存版本號，讀檔時逐版升級</td></tr>
+          <tr><td>防止損毀</td><td>先寫到暫存檔，成功後再取代舊檔</td></tr>
+          <tr><td>防作弊</td><td>簽章或加密（單機遊戲通常不必太在意）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        檔案格式設計的一般原則，見 <a href="../file-formats/index.html">〈檔案格式解剖學〉</a>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          存檔就是序列化必要狀態；記得處理參考、版本與寫入失敗。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎮 本課以通用的遊戲引擎架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（類 C++／C# 虛擬碼），不是特定引擎的實際原始碼；各引擎的實作細節以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼存檔裡要存 ID 而不是指標？</li>
+          <li>版本號有什麼用？</li>
+          <li>怎麼避免存檔寫到一半損毀？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>關卡與場景切換</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：資料驅動設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：關卡與場景切換 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

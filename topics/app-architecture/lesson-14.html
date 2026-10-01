@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：復原與重做：命令模式 ｜ 套裝應用程式的架構 ｜ 博雅書院</title>
+<meta name="description" content="Ctrl+Z 是怎麼做到的">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">應用程式架構</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜文件與編輯 · 第 14 課</div>
+      <h1>復原與重做：命令模式</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解命令模式</li>
+          <li>認識復原與重做堆疊</li>
+          <li>知道合併與分組</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__saLib) return; window.__saLib = 1;
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function tx(x, y, s, sz, c, anc, ex) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '" ' + (ex || '') + '>' + s + '</text>'; }
+        function rc(x, y, w, h, f, s, ex) { return '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(w) + '" height="' + n1(h) + '" fill="' + (f || 'none') + '" stroke="' + (s || 'none') + '" ' + (ex || '') + '/>'; }
+        function ci(x, y, r, f, s) { return '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="' + n1(r) + '" fill="' + f + '" stroke="' + (s || 'none') + '"/>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, cb, k) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k);
+          l.appendChild(s); root.appendChild(l); var b = l.querySelector('b'); function u() { b.textContent = cb(+s.value); } s.addEventListener('input', u); u(); return s; }
+        var COL = ['#3a6ea5', '#e0605a', '#5aa469', '#e8a33d', '#8e6bbf', '#2a9d8f', '#d17a9b', '#7d8590'];
+
+        /* ---------- 逐步說明 ---------- */
+        function initSteps(root, cfg) {
+          head(root, cfg.q); var i = 0, B = cfg.b || [];
+          var bx = el('div', 'display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px'); if (B.length) root.appendChild(bx);
+          var out = el('div', 'border:1px solid var(--border);border-radius:8px;padding:10px 12px;min-height:4.5em'); root.appendChild(out);
+          var bar = el('div'); root.appendChild(bar); var b1 = btn('◀ 上一步', 'prev'), b2 = btn('下一步 ▶', 'next'); bar.appendChild(b1); bar.appendChild(b2);
+          var cnt = el('span', 'font-size:0.88em;color:var(--text-muted);margin-left:6px'); bar.appendChild(cnt);
+          function draw() { var s = cfg.i[i], on = s[2] === undefined || s[2] === null ? [] : [].concat(s[2]);
+            bx.innerHTML = B.map(function (n, k) { var a = on.indexOf(k) >= 0; return '<span style="padding:4px 10px;border-radius:6px;font-size:0.88em;border:1px solid ' + (a ? '#3a6ea5' : 'var(--border)') + ';background:' + (a ? '#3a6ea5' : 'transparent') + ';color:' + (a ? '#fff' : 'var(--text-muted)') + '">' + n + '</span>'; }).join('');
+            out.innerHTML = '<b>' + (i + 1) + '. ' + s[0] + '</b><div style="margin-top:4px">' + s[1] + '</div>'; cnt.textContent = (i + 1) + ' / ' + cfg.i.length; }
+          b1.addEventListener('click', function () { if (i > 0) i--; draw(); }); b2.addEventListener('click', function () { if (i < cfg.i.length - 1) i++; draw(); }); draw();
+        }
+
+        /* ---------- 遊戲迴圈：固定 vs 可變時間步長 ---------- */
+        function initLoop(root, cfg) {
+          head(root, cfg.q); var view = el('div'); root.appendChild(view);
+          var ft = 16, W = 600, wall = 470, speed = 600, TH = 24, st;
+          function reset() { st = { a: { x: 20, v: speed, hit: 0 }, b: { x: 20, v: speed, hit: 0, acc: 0 }, frames: 0, upd: 0 }; }
+          reset();
+          var s1 = slider(root, '每一畫格耗時（模擬電腦變慢）', 8, 120, 1, ft, function (v) { ft = v; return v + ' ms（約 ' + Math.round(1000 / v) + ' FPS）'; }, 'ft');
+          var bar = el('div'); root.appendChild(bar); var br = btn('↺ 重來', 'reset'); bar.appendChild(br); br.addEventListener('click', reset);
+          var info = el('p', 'margin:6px 0 0;font-size:0.92em'); root.appendChild(info);
+          var STEP = 1 / 120;
+          function stepBall(b, dt) { var nx = b.x + b.v * dt;
+            if (b.v > 0 && b.x < wall && nx >= wall && nx <= wall + TH) { nx = wall - (nx - wall); b.v = -b.v; b.hit++; }
+            else if (b.v < 0 && nx <= 20) { nx = 20 + (20 - nx); b.v = -b.v; }
+            if (nx > W + 40) { nx = 20; b.lost = (b.lost || 0) + 1; }
+            b.x = nx; }
+          function frame() { var dt = ft / 1000; st.frames++;
+            stepBall(st.a, dt);
+            st.b.acc += dt; var n = 0; while (st.b.acc >= STEP) { stepBall(st.b, STEP); st.b.acc -= STEP; n++; } st.upd = n;
+            var o = rc(0, 0, 640, 150, 'var(--surface)', 'none');
+            [[st.a, 50, '可變時間步長', '#e0605a'], [st.b, 110, '固定時間步長（每秒 120 次更新）', '#3a6ea5']].forEach(function (r) {
+              o += ln(10, r[1] + 14, 630, r[1] + 14, '#999', 1) + rc(wall, r[1] - 22, TH, 36, '#555') + tx(14, r[1] - 26, r[2], 11, r[3], 'start') + ci(r[0].x, r[1], 9, r[3]);
+              o += tx(630, r[1] - 26, '反彈 ' + r[0].hit + ' 次｜穿牆 ' + (r[0].lost || 0) + ' 次', 10, r[3], 'end'); });
+            view.innerHTML = svgw('0 0 640 150', o);
+            info.innerHTML = '這一畫格：可變步長移動了 <b>' + Math.round(speed * dt) + '</b> 像素（一次跳過去）；固定步長分成 <b>' + n + '</b> 次小更新，每次只移動 ' + Math.round(speed * STEP) + ' 像素。牆有 ' + TH + ' 像素厚，程式只檢查「這一步落在牆裡面嗎」——把畫格耗時拉到 40 ms 以上，看看誰會穿牆。';
+            setTimeout(frame, ft); }
+          frame();
+        }
+
+        /* ---------- ECS 視覺化 ---------- */
+        function initECS(root, cfg) {
+          head(root, cfg.q);
+          var comps = ['Position', 'Velocity', 'Sprite', 'Health', 'AI', 'Input'];
+          var ents = [['玩家', [1, 1, 1, 1, 0, 1]], ['史萊姆', [1, 1, 1, 1, 1, 0]], ['樹', [1, 0, 1, 0, 0, 0]], ['子彈', [1, 1, 1, 0, 0, 0]], ['觸發區', [1, 0, 0, 0, 0, 0]], ['寶箱', [1, 0, 1, 1, 0, 0]]];
+          var systems = [['MovementSystem', [0, 1], 'Position += Velocity × dt'], ['RenderSystem', [0, 2], '在 Position 畫出 Sprite'], ['DamageSystem', [3], '處理 Health 歸零'],
+            ['AISystem', [0, 1, 4], '決定 Velocity'], ['InputSystem', [1, 5], '把按鍵變成 Velocity']], sel = 0;
+          var bar = el('div'); root.appendChild(bar); var tbl = el('div', 'overflow-x:auto;margin-top:8px'); root.appendChild(tbl); var info = el('p', 'margin:8px 0 0'); root.appendChild(info);
+          systems.forEach(function (s, k) { var b = btn(s[0], 'sys' + k); b.addEventListener('click', function () { sel = k; draw(); }); bar.appendChild(b); });
+          function match(e) { return systems[sel][1].every(function (c) { return e[1][c]; }); }
+          function draw() { bar.querySelectorAll('button').forEach(function (b, k) { b.style.background = k === sel ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = k === sel ? 'bold' : 'normal'; });
+            var need = systems[sel][1], h = '<table style="border-collapse:collapse;font-size:0.88em;width:100%"><tr><th style="text-align:left;padding:4px">實體</th>' +
+              comps.map(function (c, k) { return '<th style="padding:4px;' + (need.indexOf(k) >= 0 ? 'color:#3a6ea5' : '') + '">' + c + '</th>'; }).join('') + '</tr>';
+            ents.forEach(function (e, i) { var m = match(e); h += '<tr style="background:' + (m ? 'rgba(58,110,165,0.15)' : 'transparent') + '"><td style="padding:4px;font-weight:' + (m ? 'bold' : 'normal') + '">' + (m ? '✔ ' : '') + e[0] + '</td>' +
+              e[1].map(function (v, k) { return '<td data-e="' + i + '" data-c="' + k + '" style="text-align:center;cursor:pointer;padding:4px;border:1px solid var(--border)">' + (v ? '●' : '·') + '</td>'; }).join('') + '</tr>'; });
+            tbl.innerHTML = h + '</table>';
+            tbl.querySelectorAll('td[data-e]').forEach(function (td) { td.addEventListener('click', function () { var e = ents[+td.dataset.e]; e[1][+td.dataset.c] = e[1][+td.dataset.c] ? 0 : 1; draw(); }); });
+            var n = ents.filter(match).length;
+            info.innerHTML = '<b>' + systems[sel][0] + '</b> 需要 ' + need.map(function (c) { return '<code>' + comps[c] + '</code>'; }).join(' ＋ ') + '：' + systems[sel][2] + '。這一畫格它處理 <b>' + n + '</b> 個實體。<br><span style="color:var(--text-muted);font-size:0.9em">點格子可以幫實體加上或拿掉元件——行為跟著改變，不用改任何類別。</span>'; }
+          draw();
+        }
+
+        /* ---------- 碰撞偵測 ---------- */
+        function initColl(root, cfg) {
+          head(root, cfg.q); var mode = 'aabb', v = { x: 260, y: 90 };
+          var bar = el('div'); root.appendChild(bar); var view = el('div'); root.appendChild(view);
+          [['aabb', '方框 vs 方框（AABB）'], ['circle', '圓 vs 圓']].forEach(function (m) { var b = btn(m[1], m[0]); b.addEventListener('click', function () { mode = m[0]; draw(); }); bar.appendChild(b); });
+          var info = el('p', 'margin:6px 0 0;font-size:0.92em');
+          slider(root, '物體 B 的 x', 60, 560, 1, v.x, function (a) { v.x = a; draw(); return a; }, 'bx'); slider(root, '物體 B 的 y', 20, 200, 1, v.y, function (a) { v.y = a; draw(); return a; }, 'by'); root.appendChild(info);
+          function draw() { var o = rc(0, 0, 640, 220, 'var(--surface)', 'none'), A = { x: 320, y: 110 };
+            if (mode === 'aabb') { var aw = 140, ah = 80, bw = 100, bh = 60, ax0 = A.x - aw / 2, ay0 = A.y - ah / 2, bx0 = v.x - bw / 2, by0 = v.y - bh / 2;
+              var ox = Math.min(ax0 + aw, bx0 + bw) - Math.max(ax0, bx0), oy = Math.min(ay0 + ah, by0 + bh) - Math.max(ay0, by0), hit = ox > 0 && oy > 0;
+              o += rc(ax0, ay0, aw, ah, 'rgba(58,110,165,0.2)', '#3a6ea5', 'stroke-width="2"') + rc(bx0, by0, bw, bh, hit ? 'rgba(224,96,90,0.25)' : 'rgba(90,164,105,0.2)', hit ? '#e0605a' : '#5aa469', 'stroke-width="2"');
+              o += tx(A.x, A.y + 4, 'A', 14, '#3a6ea5') + tx(v.x, v.y + 4, 'B', 14, hit ? '#e0605a' : '#5aa469');
+              if (hit) o += rc(Math.max(ax0, bx0), Math.max(ay0, by0), ox, oy, 'rgba(224,96,90,0.45)');
+              info.innerHTML = hit ? '💥 <b>碰撞！</b>重疊 x = ' + Math.round(ox) + '、y = ' + Math.round(oy) + '。碰撞回應通常沿重疊<b>較小</b>的軸（這裡是 ' + (ox < oy ? 'x' : 'y') + ' 軸）把 B 推開 ' + Math.round(Math.min(ox, oy)) + ' 像素。' :
+                '沒有碰撞：只要在 x 或 y 任一軸上分開，兩個方框就不相交（分離軸）。判斷只需要 4 次比較。'; }
+            else { var ra = 60, rb = 40, dx = v.x - A.x, dy = v.y - A.y, d = Math.sqrt(dx * dx + dy * dy), hit2 = d < ra + rb;
+              o += ci(A.x, A.y, ra, 'rgba(58,110,165,0.2)', '#3a6ea5') + ci(v.x, v.y, rb, hit2 ? 'rgba(224,96,90,0.25)' : 'rgba(90,164,105,0.2)', hit2 ? '#e0605a' : '#5aa469') + ln(A.x, A.y, v.x, v.y, '#999', 1, 'stroke-dasharray="4 3"');
+              info.innerHTML = '圓心距離 ' + Math.round(d) + '，半徑和 ' + (ra + rb) + '：' + (hit2 ? '💥 <b>碰撞！</b>沿兩圓心連線推開 ' + Math.round(ra + rb - d) + ' 像素。' : '沒有碰撞。') + '（實務上比較距離的平方，省去開根號。）'; }
+            view.innerHTML = svgw('0 0 640 220', o); }
+          draw();
+        }
+
+        /* ---------- A* 尋路 ---------- */
+        function initAstar(root, cfg) {
+          head(root, cfg.q); var W = 22, H = 12, S = [1, 6], G = [20, 6], wall = {}, res = null, algo = 'astar';
+          [[8, 2], [8, 3], [8, 4], [8, 5], [8, 6], [8, 7], [8, 8], [14, 4], [14, 5], [14, 6], [14, 7], [14, 8], [14, 9], [14, 10], [14, 11], [14, 3]].forEach(function (p) { wall[p[0] + ',' + p[1]] = 1; });
+          var view = el('div'); root.appendChild(view); var bar = el('div'); root.appendChild(bar); var info = el('p', 'margin:6px 0 0;font-size:0.92em'); root.appendChild(info);
+          var b1 = btn('▶ A* 尋路', 'astar'), b2 = btn('▶ 廣度優先（BFS）', 'bfs'), b3 = btn('清除牆', 'clear'); [b1, b2, b3].forEach(function (b) { bar.appendChild(b); });
+          b1.addEventListener('click', function () { algo = 'astar'; run(); }); b2.addEventListener('click', function () { algo = 'bfs'; run(); }); b3.addEventListener('click', function () { wall = {}; res = null; draw(); });
+          function run() { var open = [[S[0], S[1]]], g = {}, came = {}, closed = {}, order = [], k = function (p) { return p[0] + ',' + p[1]; };
+            g[k(S)] = 0; var hf = function (p) { return algo === 'astar' ? Math.abs(p[0] - G[0]) + Math.abs(p[1] - G[1]) : 0; };
+            while (open.length) { var bi = 0; for (var i = 1; i < open.length; i++) { var fi = g[k(open[i])] + hf(open[i]), fb = g[k(open[bi])] + hf(open[bi]); if (fi < fb || (algo === 'bfs' && false)) bi = i; }
+              if (algo === 'bfs') bi = 0; var c = open.splice(bi, 1)[0]; if (closed[k(c)]) continue; closed[k(c)] = 1; order.push(c); if (c[0] === G[0] && c[1] === G[1]) break;
+              [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var n = [c[0] + d[0], c[1] + d[1]]; if (n[0] < 0 || n[1] < 0 || n[0] >= W || n[1] >= H || wall[k(n)] || closed[k(n)]) return;
+                var ng = g[k(c)] + 1; if (g[k(n)] === undefined || ng < g[k(n)]) { g[k(n)] = ng; came[k(n)] = c; open.push(n); } }); }
+            var path = [], cur = G; if (came[k(G)]) { while (cur) { path.unshift(cur); cur = came[k(cur)]; } }
+            res = { order: order, path: path, shown: 0 }; anim(); }
+          function anim() { if (!res) return; res.shown = Math.min(res.order.length, res.shown + 4); draw(); if (res.shown < res.order.length) setTimeout(anim, 30); else draw(true); }
+          function draw(done) { var cs = 26, o = '', vis = {}, onp = {};
+            if (res) { res.order.slice(0, res.shown).forEach(function (p) { vis[p[0] + ',' + p[1]] = 1; }); if (done || res.shown >= res.order.length) res.path.forEach(function (p) { onp[p[0] + ',' + p[1]] = 1; }); }
+            for (var y = 0; y < H; y++) for (var x = 0; x < W; x++) { var kk = x + ',' + y, f = wall[kk] ? '#4a5160' : onp[kk] ? '#e8a33d' : vis[kk] ? 'rgba(58,110,165,0.3)' : 'var(--surface)';
+              o += '<rect data-x="' + x + '" data-y="' + y + '" x="' + (x * cs + 4) + '" y="' + (y * cs + 4) + '" width="' + (cs - 1) + '" height="' + (cs - 1) + '" fill="' + f + '" stroke="var(--border)" style="cursor:pointer"/>'; }
+            o += tx(S[0] * cs + 17, S[1] * cs + 22, 'S', 14, '#5aa469') + tx(G[0] * cs + 17, G[1] * cs + 22, 'G', 14, '#e0605a');
+            view.innerHTML = svgw('0 0 ' + (W * cs + 8) + ' ' + (H * cs + 8), o);
+            view.querySelectorAll('rect[data-x]').forEach(function (r) { r.addEventListener('click', function () { var kk = r.dataset.x + ',' + r.dataset.y; if (kk === S.join(',') || kk === G.join(',')) return; if (wall[kk]) delete wall[kk]; else wall[kk] = 1; res = null; draw(); }); });
+            info.innerHTML = res ? (algo === 'astar' ? 'A*' : 'BFS') + '：檢查了 <b>' + res.order.length + '</b> 格，' + (res.path.length ? '路徑長度 <b>' + (res.path.length - 1) + '</b> 步。' : '<b>找不到路徑</b>。') + '（藍色＝檢查過的格子，橘色＝路徑）'
+              : '點格子可以放牆或拆牆，再按按鈕比較兩種演算法。A* 用「到終點的估計距離」優先往目標方向找，檢查的格子通常少很多。'; }
+          draw();
+        }
+
+        /* ---------- 狀態機 ---------- */
+        function initFSM(root, cfg) {
+          head(root, cfg.q); var S = cfg.s, T = cfg.tr, cur = cfg.start, log = [];
+          var view = el('div'); root.appendChild(view); var bar = el('div'); root.appendChild(bar); var info = el('p', 'margin:6px 0 0;font-size:0.92em;min-height:2.6em'); root.appendChild(info);
+          var evs = []; T.forEach(function (t) { if (evs.indexOf(t[1]) < 0) evs.push(t[1]); });
+          evs.forEach(function (e, i) { var b = btn(e, 'ev' + i); b.addEventListener('click', function () { var t = T.filter(function (x) { return x[0] === cur && x[1] === e; })[0];
+            if (t) { log.unshift(cur + ' —「' + e + '」→ ' + t[2]); cur = t[2]; info.innerHTML = '✅ 轉換到 <b>' + cur + '</b>。' + (t[3] || ''); } else info.innerHTML = '⛔ 在「' + cur + '」狀態下，「' + e + '」<b>不會發生任何事</b>——狀態機只允許定義好的轉換，所以不會出現「跳到一半又攻擊」這種錯誤。'; draw(); }); bar.appendChild(b); });
+          function draw() { var o = rc(0, 0, 640, 210, 'var(--surface)', 'none'), pos = {};
+            S.forEach(function (s, i) { var a = Math.PI * 2 * i / S.length - Math.PI / 2; pos[s] = [320 + 230 * Math.cos(a), 105 + 78 * Math.sin(a)]; });
+            T.forEach(function (t) { var p = pos[t[0]], q = pos[t[2]]; if (!p || !q || t[0] === t[2]) return; var dx = q[0] - p[0], dy = q[1] - p[1], L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L, k1 = Math.min(48 / Math.max(Math.abs(ux), 0.01), 17 / Math.max(Math.abs(uy), 0.01)), ox = -uy * 4, oy = ux * 4;
+              o += ln(p[0] + ux * k1 + ox, p[1] + uy * k1 + oy, q[0] - ux * (k1 + 2) + ox, q[1] - uy * (k1 + 2) + oy, '#999', 1.2, 'marker-end="url(#ar' + cfg.id + ')"'); });
+            o = '<defs><marker id="ar' + cfg.id + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#aaa"/></marker></defs>' + o;
+            S.forEach(function (s) { var p = pos[s], on = s === cur; o += rc(p[0] - 46, p[1] - 15, 92, 30, on ? '#3a6ea5' : 'var(--surface)', on ? '#3a6ea5' : '#999', 'rx="15"') + tx(p[0], p[1] + 5, s, 12, on ? '#fff' : 'currentColor'); });
+            view.innerHTML = svgw('0 0 640 210', o) + '<div style="font-size:0.85em;color:var(--text-muted)">紀錄：' + (log.slice(0, 4).join('　') || '（尚無）') + '</div>'; }
+          draw();
+        }
+
+        /* ---------- 事件迴圈 ---------- */
+        function initEvq(root, cfg) {
+          head(root, cfg.q); var q = [], busy = 0, worker = 0, bg = false, tick = 0, done = [], spin = 0;
+          var view = el('div'); root.appendChild(view); var bar = el('div'); root.appendChild(bar); var info = el('p', 'margin:6px 0 0;font-size:0.92em;min-height:2.6em'); root.appendChild(info);
+          [['🖱️ 點按鈕', 'click', 1], ['⌨️ 打字', 'key', 1], ['⏰ 計時器', 'timer', 1], ['🌐 網路回應', 'net', 1], ['🐢 重運算（30 格）', 'heavy', 30]].forEach(function (d) {
+            var b = btn(d[0], d[1]); b.addEventListener('click', function () { q.push({ n: d[0], c: d[2], k: d[1] }); }); bar.appendChild(b); });
+          var tg = btn('重運算放到背景執行緒：關', 'bg'); tg.addEventListener('click', function () { bg = !bg; tg.textContent = '重運算放到背景執行緒：' + (bg ? '開' : '關'); }); bar.appendChild(tg);
+          setInterval(function () { tick++;
+            if (busy > 0) { busy--; } else if (q.length) { var e = q.shift(); if (e.k === 'heavy' && bg) { worker = e.c; done.unshift(e.n + '→ 交給背景'); } else { busy = e.c - 1; done.unshift(e.n); } }
+            if (worker > 0) { worker--; if (!worker) q.push({ n: '✅ 背景完成通知', c: 1, k: 'done' }); }
+            if (busy === 0) spin++;
+            var o = rc(0, 0, 640, 150, 'var(--surface)', 'none') + tx(14, 22, '事件佇列', 11, 'currentColor', 'start');
+            q.slice(0, 8).forEach(function (e, i) { o += rc(14 + i * 76, 32, 70, 30, 'rgba(58,110,165,0.15)', '#3a6ea5', 'rx="5"') + tx(49 + i * 76, 52, e.n.replace(/（.*）/, ''), 10); });
+            if (q.length > 8) o += tx(630, 52, '+' + (q.length - 8), 11, '#e0605a', 'end');
+            o += tx(14, 92, '主執行緒（UI）', 11, 'currentColor', 'start') + rc(130, 78, 200, 22, busy ? 'rgba(224,96,90,0.35)' : 'rgba(90,164,105,0.25)', 'none', 'rx="4"') + tx(230, 93, busy ? '忙碌中… 剩 ' + busy + ' 格' : '空閒（等事件）', 11);
+            o += tx(14, 128, '背景執行緒', 11, 'currentColor', 'start') + rc(130, 114, 200, 22, worker ? 'rgba(232,163,61,0.35)' : 'rgba(125,133,144,0.15)', 'none', 'rx="4"') + tx(230, 129, worker ? '運算中… 剩 ' + worker + ' 格' : '閒置', 11);
+            var a = spin * 0.5; o += ci(520, 104, 26, 'none', '#999') + ln(520, 104, 520 + 22 * Math.cos(a), 104 + 22 * Math.sin(a), busy ? '#e0605a' : '#5aa469', 4) + tx(520, 146, busy ? '畫面凍結！' : '動畫順暢', 11, busy ? '#e0605a' : '#5aa469');
+            view.innerHTML = svgw('0 0 640 150', o);
+            info.innerHTML = '最近處理：' + (done.slice(0, 5).join('、') || '（按上面的按鈕產生事件）') + (busy > 3 ? '<br>⚠️ 主執行緒被重運算佔住：其他事件只能排隊，轉圈圖示也停了——這就是「程式沒有回應」。' : ''); }, 200);
+        }
+
+        /* ---------- 復原／重做 ---------- */
+        function initUndo(root, cfg) {
+          head(root, cfg.q); var doc = ['你好'], U = [], Rr = [];
+          var view = el('div'); root.appendChild(view); var bar = el('div'); root.appendChild(bar);
+          var inp = el('input', 'font:inherit;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:8em;margin-right:6px'); inp.value = '世界';
+          bar.appendChild(inp);
+          function exec(cmd) { cmd.do(); U.push(cmd); Rr = []; draw(); }
+          var cmds = [['插入文字', 'ins', function () { var t = inp.value || '字'; return { n: '插入「' + t + '」', do: function () { doc.push(t); }, undo: function () { doc.pop(); } }; }],
+            ['刪除最後一段', 'del', function () { if (!doc.length) return null; var t; return { n: '刪除', do: function () { t = doc.pop(); this.n = '刪除「' + t + '」'; }, undo: function () { doc.push(t); } }; }],
+            ['全部加上【】', 'wrap', function () { var old; return { n: '加上【】', do: function () { old = doc.slice(); doc = doc.map(function (s) { return '【' + s + '】'; }); }, undo: function () { doc = old; } }; }]];
+          cmds.forEach(function (c) { var b = btn(c[0], c[1]); b.addEventListener('click', function () { var x = c[2](); if (x) exec(x); }); bar.appendChild(b); });
+          var bu = btn('↶ 復原', 'undo'), bre = btn('↷ 重做', 'redo'); bar.appendChild(bu); bar.appendChild(bre);
+          bu.addEventListener('click', function () { var c = U.pop(); if (c) { c.undo(); Rr.push(c); } draw(); });
+          bre.addEventListener('click', function () { var c = Rr.pop(); if (c) { c.do(); U.push(c); } draw(); });
+          function stack(t, a, col) { return '<div style="flex:1;min-width:160px"><div style="font-size:0.85em;color:var(--text-muted)">' + t + '（' + a.length + '）</div>' +
+            a.slice().reverse().map(function (c, i) { return '<div style="margin:3px 0;padding:3px 8px;border-radius:5px;border:1px solid ' + col + ';' + (i === 0 ? 'font-weight:bold' : 'opacity:0.75') + '">' + esc(c.n) + '</div>'; }).join('') + '</div>'; }
+          function draw() { view.innerHTML = '<div style="padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:1.1em">📄 ' + (esc(doc.join(' ')) || '<span style="color:var(--text-muted)">（空白文件）</span>') + '</div>' +
+            '<div style="display:flex;gap:12px;flex-wrap:wrap">' + stack('復原堆疊（Undo）', U, '#3a6ea5') + stack('重做堆疊（Redo）', Rr, '#e8a33d') + '</div>'; }
+          draw();
+        }
+
+        /* ---------- Piece Table ---------- */
+        function initPiece(root, cfg) {
+          head(root, cfg.q); var orig = cfg.text || '今天天氣很好', add = '', pieces = [{ b: 'o', s: 0, l: orig.length }];
+          var view = el('div'); root.appendChild(view); var bar = el('div', 'display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px'); root.appendChild(bar);
+          function inpt(w, v) { var i = el('input', 'font:inherit;padding:3px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:' + w); i.value = v; return i; }
+          var pos = inpt('4em', '2'), txt = inpt('6em', '下午'), dp = inpt('4em', '0'), dl = inpt('4em', '2');
+          bar.appendChild(el('span', '', '在位置')); bar.appendChild(pos); bar.appendChild(el('span', '', '插入')); bar.appendChild(txt); var bi = btn('插入', 'ins'); bar.appendChild(bi);
+          bar.appendChild(el('span', 'margin-left:10px', '從位置')); bar.appendChild(dp); bar.appendChild(el('span', '', '刪除')); bar.appendChild(dl); bar.appendChild(el('span', '', '字')); var bd = btn('刪除', 'del'); bar.appendChild(bd);
+          var br = btn('↺ 重來', 'reset'); bar.appendChild(br);
+          function text() { return pieces.map(function (p) { return (p.b === 'o' ? orig : add).substr(p.s, p.l); }).join(''); }
+          function split(at) { var c = 0; for (var i = 0; i < pieces.length; i++) { var p = pieces[i]; if (at === c) return i; if (at < c + p.l) { var a = { b: p.b, s: p.s, l: at - c }, b = { b: p.b, s: p.s + at - c, l: p.l - (at - c) }; pieces.splice(i, 1, a, b); return i + 1; } c += p.l; } return pieces.length; }
+          bi.addEventListener('click', function () { var at = Math.max(0, Math.min(text().length, +pos.value || 0)), t = txt.value; if (!t) return; var i = split(at); pieces.splice(i, 0, { b: 'a', s: add.length, l: t.length }); add += t; draw(); });
+          bd.addEventListener('click', function () { var at = Math.max(0, +dp.value || 0), n = Math.max(0, +dl.value || 0), L = text().length; if (at >= L || !n) return; n = Math.min(n, L - at); var i = split(at), j = split(at + n); pieces.splice(i, j - i); draw(); });
+          br.addEventListener('click', function () { add = ''; pieces = [{ b: 'o', s: 0, l: orig.length }]; draw(); });
+          function draw() { var h = '<div style="font-size:1.15em;padding:8px 12px;border:1px solid var(--border);border-radius:8px">📄 ' + pieces.map(function (p) { var s = (p.b === 'o' ? orig : add).substr(p.s, p.l); return '<span style="background:' + (p.b === 'o' ? 'rgba(58,110,165,0.18)' : 'rgba(232,163,61,0.3)') + ';border-radius:3px;padding:0 1px">' + esc(s) + '</span>'; }).join('') + '</div>';
+            h += '<div style="font-family:ui-monospace,monospace;font-size:0.85em;margin-top:8px;line-height:1.8">原始緩衝區（唯讀）：<span style="background:rgba(58,110,165,0.18)">' + esc(orig) + '</span><br>新增緩衝區（只會往後加）：<span style="background:rgba(232,163,61,0.3)">' + (esc(add) || '（空）') + '</span><br>片段表：' +
+              pieces.map(function (p) { return '[' + (p.b === 'o' ? '原始' : '新增') + ', 起點 ' + p.s + ', 長度 ' + p.l + ']'; }).join(' → ') + '</div>';
+            view.innerHTML = h; }
+          draw();
+        }
+
+        /* ---------- 實體頁框配置 ---------- */
+        function initFrames(root, cfg) {
+          head(root, cfg.q); var N = 64, f = [], owner = 0; for (var i = 0; i < N; i++) f.push(i < 4 ? -1 : 0);
+          var view = el('div'); root.appendChild(view); var bar = el('div'); root.appendChild(bar); var info = el('p', 'margin:6px 0 0;font-size:0.92em;min-height:2.6em'); root.appendChild(info);
+          function alloc(n) { var run = 0; for (var i = 0; i < N; i++) { run = f[i] ? 0 : run + 1; if (run === n) { owner++; for (var j = i - n + 1; j <= i; j++) f[j] = owner; return i - n + 1; } } return -1; }
+          [[1, 'a1'], [4, 'a4'], [8, 'a8']].forEach(function (d) { var b = btn('配置 ' + d[0] + ' 頁', d[1]); b.addEventListener('click', function () { var r = alloc(d[0]); info.innerHTML = r < 0 ? '❌ <b>找不到 ' + d[0] + ' 個連續的空閒頁框</b>——雖然總空閒數可能夠，但被切碎了（外部碎片）。這就是為什麼核心多半只配置單一頁，再靠分頁讓它們「看起來」連續。' : '✅ 配置頁框 ' + r + (d[0] > 1 ? '～' + (r + d[0] - 1) : '') + '（每頁 4 KB）。'; draw(); }); bar.appendChild(b); });
+          var bf = btn('隨機釋放一塊', 'free'); bf.addEventListener('click', function () { var ids = []; f.forEach(function (x) { if (x > 0 && ids.indexOf(x) < 0) ids.push(x); }); if (!ids.length) return; var id = ids[Math.floor(Math.random() * ids.length)]; f = f.map(function (x) { return x === id ? 0 : x; }); info.innerHTML = '釋放了第 ' + id + ' 次配置的頁框。'; draw(); }); bar.appendChild(bf);
+          var br = btn('↺ 重來', 'reset'); br.addEventListener('click', function () { f = f.map(function (x, i) { return i < 4 ? -1 : 0; }); owner = 0; info.innerHTML = ''; draw(); }); bar.appendChild(br);
+          function draw() { var o = '', cs = 38; f.forEach(function (x, i) { var c = x < 0 ? '#4a5160' : x ? COL[x % COL.length] : 'var(--surface)';
+              o += rc((i % 16) * cs + 4, Math.floor(i / 16) * 34 + 4, cs - 3, 30, c, 'var(--border)', 'rx="3"') + tx((i % 16) * cs + 4 + (cs - 3) / 2, Math.floor(i / 16) * 34 + 24, i, 9, x ? '#fff' : 'var(--text-muted)'); });
+            var free = f.filter(function (x) { return x === 0; }).length, bits = f.map(function (x) { return x ? 1 : 0; }).join('');
+            view.innerHTML = svgw('0 0 616 144', o) + '<div style="font-family:ui-monospace,monospace;font-size:0.78em;word-break:break-all;margin-top:4px">點陣圖：' + bits + '</div><div style="font-size:0.85em;color:var(--text-muted)">空閒 ' + free + ' / ' + N + ' 頁（灰色＝保留給核心與硬體）</div>'; }
+          draw();
+        }
+
+        /* ---------- 位址轉換 ---------- */
+        function initXlate(root, cfg) {
+          head(root, cfg.q); var pt = cfg.pt || [5, 9, -1, 2, -1, 7, -1, -1, 12, -1, -1, -1, -1, -1, -1, 3];
+          var inp = el('input', 'font:inherit;font-family:ui-monospace,monospace;padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:8em'); inp.value = '0x1A2C';
+          root.appendChild(el('span', '', '虛擬位址（16 位元，0x0000～0xFFFF）：')); root.appendChild(inp);
+          var pre = el('div'); root.appendChild(pre); ['0x1A2C', '0x3004', '0x2FFF', '0xF123', '0x0000'].forEach(function (v) { var b = btn(v); b.addEventListener('click', function () { inp.value = v; draw(); }); pre.appendChild(b); });
+          var view = el('div', 'margin-top:8px'); root.appendChild(view); inp.addEventListener('input', draw);
+          function draw() { var v = parseInt(inp.value, 16); if (isNaN(v) || v < 0 || v > 0xFFFF) { view.innerHTML = '請輸入 0x0000～0xFFFF 的十六進位數。'; return; }
+            var vpn = v >> 12, off = v & 0xFFF, bits = ('0000000000000000' + v.toString(2)).slice(-16), fr = pt[vpn];
+            var h = '<div style="font-family:ui-monospace,monospace;font-size:1.05em"><span style="background:rgba(58,110,165,0.25);padding:2px 4px;border-radius:3px">' + bits.slice(0, 4) + '</span><span style="background:rgba(90,164,105,0.25);padding:2px 4px;border-radius:3px;margin-left:2px">' + bits.slice(4) + '</span></div>';
+            h += '<div style="font-size:0.88em;margin:4px 0 8px"><span style="color:#3a6ea5">頁號 ' + vpn + '</span>（前 4 位元）＋ <span style="color:#5aa469">頁內偏移 0x' + off.toString(16).toUpperCase() + '</span>（後 12 位元，每頁 4 KB）</div>';
+            h += '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:0.82em;font-family:ui-monospace,monospace"><tr><td style="padding:2px 6px">頁表</td>' + pt.map(function (x, i) { return '<td style="padding:2px 5px;border:1px solid var(--border);text-align:center;' + (i === vpn ? 'background:rgba(58,110,165,0.3);font-weight:bold' : '') + '">' + i + '<br>' + (x < 0 ? '✗' : '→' + x) + '</td>'; }).join('') + '</tr></table></div>';
+            h += fr < 0 ? '<p style="margin:8px 0 0">💥 <b>分頁錯誤（page fault）</b>：頁 ' + vpn + ' 不在記憶體裡（存在位元＝0）。CPU 跳到核心的分頁錯誤處理程式，由核心決定是配置新頁、從磁碟載入，還是終止程式（segmentation fault）。</p>'
+              : '<p style="margin:8px 0 0">✅ 頁 ' + vpn + ' → 頁框 ' + fr + '：實體位址 ＝ ' + fr + ' × 0x1000 ＋ 0x' + off.toString(16).toUpperCase() + ' ＝ <b style="font-family:ui-monospace,monospace">0x' + (fr * 4096 + off).toString(16).toUpperCase() + '</b></p>';
+            view.innerHTML = h; }
+          draw();
+        }
+
+        /* ---------- 排程模擬 ---------- */
+        function initSched(root, cfg) {
+          head(root, cfg.q); var P = cfg.p || [['A', 0, 6, 2], ['B', 1, 2, 1], ['C', 2, 8, 3], ['D', 3, 3, 1]], alg = 'fcfs', qn = 2;
+          var bar = el('div'); root.appendChild(bar); var view = el('div'); root.appendChild(view);
+          [['fcfs', '先到先服務'], ['sjf', '最短工作優先'], ['rr', '輪流（RR）'], ['prio', '優先權']].forEach(function (a) { var b = btn(a[1], a[0]); b.addEventListener('click', function () { alg = a[0]; draw(); }); bar.appendChild(b); });
+          slider(root, 'RR 時間片', 1, 6, 1, qn, function (v) { qn = v; if (view.innerHTML) draw(); return v; }, 'q');
+          function sim() { var t = 0, rem = {}, done = {}, out = [], rq = [], arrived = {}, last = null, cnt = 0;
+            P.forEach(function (p) { rem[p[0]] = p[2]; });
+            function arrive() { P.forEach(function (p) { if (!arrived[p[0]] && p[1] <= t) { arrived[p[0]] = 1; rq.push(p); } }); }
+            arrive(); var guard = 0;
+            while (Object.keys(done).length < P.length && guard++ < 500) {
+              if (!rq.length) { t++; arrive(); out.push(['', t - 1, t]); continue; }
+              var pick;
+              if (alg === 'fcfs' || alg === 'rr') pick = rq[0];
+              else if (alg === 'sjf') pick = rq.slice().sort(function (a, b) { return rem[a[0]] - rem[b[0]] || a[1] - b[1]; })[0];
+              else pick = rq.slice().sort(function (a, b) { return a[3] - b[3] || a[1] - b[1]; })[0];
+              rq.splice(rq.indexOf(pick), 1);
+              var run = alg === 'rr' ? Math.min(qn, rem[pick[0]]) : rem[pick[0]];
+              for (var k = 0; k < run; k++) { t++; arrive(); }
+              rem[pick[0]] -= run; out.push([pick[0], t - run, t]);
+              if (rem[pick[0]] === 0) done[pick[0]] = t; else rq.push(pick); }
+            return { seg: out, done: done }; }
+          function draw() { bar.querySelectorAll('button').forEach(function (b) { var on = b.dataset.k === alg; b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; });
+            var r = sim(), end = r.seg[r.seg.length - 1][2], sc = 600 / Math.max(end, 1), o = '', ci2 = {};
+            P.forEach(function (p, i) { ci2[p[0]] = COL[i]; });
+            r.seg.forEach(function (s) { if (!s[0]) return; o += rc(20 + s[1] * sc, 20, (s[2] - s[1]) * sc - 1, 34, ci2[s[0]], 'none', 'rx="3"') + tx(20 + (s[1] + s[2]) / 2 * sc, 42, s[0], 13, '#fff'); });
+            for (var t = 0; t <= end; t++) o += ln(20 + t * sc, 56, 20 + t * sc, 61, '#999') + (t % 2 === 0 || end < 14 ? tx(20 + t * sc, 74, t, 9) : '');
+            var wt = 0, h = '<table style="border-collapse:collapse;font-size:0.85em;margin-top:4px"><tr><th style="padding:3px 8px">行程</th><th style="padding:3px 8px">到達</th><th style="padding:3px 8px">需要</th><th style="padding:3px 8px">優先權</th><th style="padding:3px 8px">完成</th><th style="padding:3px 8px">等待</th></tr>';
+            P.forEach(function (p) { var w = r.done[p[0]] - p[1] - p[2]; wt += w; h += '<tr><td style="padding:3px 8px;color:' + ci2[p[0]] + ';font-weight:bold">' + p[0] + '</td><td style="text-align:center">' + p[1] + '</td><td style="text-align:center">' + p[2] + '</td><td style="text-align:center">' + p[3] + '</td><td style="text-align:center">' + r.done[p[0]] + '</td><td style="text-align:center">' + w + '</td></tr>'; });
+            h += '</table><p style="margin:6px 0 0">平均等待時間：<b>' + (wt / P.length).toFixed(2) + '</b>（優先權數字越小越優先；圖為非搶占式，RR 依時間片輪流）</p>';
+            view.innerHTML = svgw('0 0 640 80', o) + h; }
+          draw();
+        }
+
+        /* ---------- 競爭條件 ---------- */
+        function initRace(root, cfg) {
+          head(root, cfg.q); var lock = false;
+          var bar = el('div'); root.appendChild(bar); var view = el('div', 'margin-top:6px'); root.appendChild(view);
+          var tg = btn('使用鎖：關', 'lock'); tg.addEventListener('click', function () { lock = !lock; tg.textContent = '使用鎖：' + (lock ? '開' : '關'); }); bar.appendChild(tg);
+          var b1 = btn('▶ 跑一次（兩個執行緒各加 1）', 'once'), b2 = btn('▶ 跑 1000 次', 'many'); bar.appendChild(b1); bar.appendChild(b2);
+          function once() { var mem = 0, th = [{ r: 0, pc: 0 }, { r: 0, pc: 0 }], owner = -1, tr = [];
+            while (th[0].pc < 3 || th[1].pc < 3) { var i = th[0].pc >= 3 ? 1 : th[1].pc >= 3 ? 0 : (Math.random() < 0.5 ? 0 : 1);
+              if (lock) { if (owner === -1) { owner = i; tr.push('T' + (i + 1) + ' 取得鎖'); } else i = owner; }
+              var t = th[i];
+              if (t.pc === 0) { t.r = mem; tr.push('T' + (i + 1) + '：讀取 counter = ' + mem); } else if (t.pc === 1) { t.r++; tr.push('T' + (i + 1) + '：暫存器加 1 → ' + t.r); } else { mem = t.r; tr.push('T' + (i + 1) + '：寫回 counter = ' + mem); }
+              t.pc++; if (lock && t.pc === 3) { owner = -1; tr.push('T' + (i + 1) + ' 釋放鎖'); } }
+            return { v: mem, tr: tr }; }
+          b1.addEventListener('click', function () { var r = once(); view.innerHTML = '<div style="font-family:ui-monospace,monospace;font-size:0.85em;line-height:1.7">' + r.tr.join('<br>') + '</div><p style="margin:6px 0 0">結果 counter = <b style="color:' + (r.v === 2 ? '#5aa469' : '#e0605a') + '">' + r.v + '</b>' + (r.v === 2 ? '（正確）' : '（<b>錯了！</b>兩個執行緒都讀到 0，其中一次加法被覆蓋）') + '</p>'; });
+          b2.addEventListener('click', function () { var bad = 0; for (var k = 0; k < 1000; k++) if (once().v !== 2) bad++; view.innerHTML = '<p style="margin:0">1000 次中有 <b style="color:' + (bad ? '#e0605a' : '#5aa469') + '">' + bad + '</b> 次結果錯誤。' + (lock ? '加了鎖，讀－改－寫成為不可分割的一段，永遠正確。' : '沒有鎖時，錯誤是「偶爾」發生——這正是競爭條件難以除錯的原因。') + '</p>'; });
+        }
+
+        function initAll() { document.querySelectorAll('.sa-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ steps: initSteps, loop: initLoop, ecs: initECS, coll: initColl, astar: initAstar, fsm: initFSM, evq: initEvq, undo: initUndo, piece: initPiece,
+             frames: initFrames, xlate: initXlate, sched: initSched, race: initRace })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <div class="sa-w content-figure" style="text-align:left;max-width:660px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;undo&quot;, &quot;q&quot;: &quot;&lt;b&gt;復原／重做&lt;/b&gt;：執行幾個命令，再按復原、重做，觀察兩個堆疊。&quot;}"></div>
+
+      <div class="code-block">interface Command { do(): void; undo(): void; label: string; }
+
+class InsertText implements Command {
+  constructor(private doc: Doc, private pos: number, private text: string) {}
+  label = "輸入文字";
+  do()   { this.doc.insert(this.pos, this.text); }
+  undo() { this.doc.delete(this.pos, this.text.length); }
+}
+
+function execute(c: Command) { c.do(); undoStack.push(c); redoStack.length = 0; }</div>
+
+      <ul>
+        <li><strong>新操作會清空重做堆疊</strong>：歷史分岔後，舊的未來就消失了。</li>
+        <li><strong>合併</strong>：連續打的字合併成一個「輸入文字」命令，不然要按幾十次復原。</li>
+        <li><strong>分組</strong>：「取代全部」包含上百次修改，要包成一個命令一次復原。</li>
+        <li><strong>另一種做法</strong>：保存整份狀態的快照（單向資料流常用，<a href="lesson-09.html">第 9 課</a>）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          每個操作封裝成有 do／undo 的命令物件，放進堆疊即可復原與重做。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧰 本課以通用的軟體架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（以 TypeScript 為主），重點在設計思路而非特定框架的完整寫法。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼新操作要清空重做堆疊？</li>
+          <li>連續打字為什麼要合併成一個命令？</li>
+          <li>快照式復原和命令式復原各有什麼優缺點？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>選取、剪貼簿與拖放</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：文字編輯器的資料結構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：選取、剪貼簿與拖放 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：快取與同步：離線優先 ｜ 套裝應用程式的架構 ｜ 博雅書院</title>
+<meta name="description" content="沒有網路也能用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">應用程式架構</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜資料、網路與安全 · 第 26 課</div>
+      <h1>快取與同步：離線優先</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解離線優先的設計</li>
+          <li>認識同步佇列</li>
+          <li>知道衝突處理的策略</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 186" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">離線優先：先寫本機，再背景同步</text>
+                <rect x="20" y="60" width="160" height="80" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="100" y="96" text-anchor="middle" font-size="11" fill="#4a90c2">介面</text><text x="100" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">立即顯示</text>
+                <rect x="240" y="60" width="160" height="80" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="90" text-anchor="middle" font-size="11" fill="#9c89d6">本機資料庫</text><text x="320" y="104" text-anchor="middle" font-size="9" fill="var(--text-muted)">SQLite</text><text x="320" y="117" text-anchor="middle" font-size="9" fill="var(--text-muted)">＋待同步佇列</text>
+                <rect x="460" y="60" width="160" height="80" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="540" y="96" text-anchor="middle" font-size="11" fill="#5aa469">伺服器</text><text x="540" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">權威資料</text>
+                <line x1="180.0" y1="100.0" x2="231.0" y2="100.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="238.0,100.0 231.0,103.5 231.0,96.5" fill="var(--text-muted)"/>
+                <path d="M400 90 H458" fill="none" stroke="#ff8a65" stroke-width="1.5" stroke-dasharray="5 3"/>
+                <path d="M458 112 H400" fill="none" stroke="#ff8a65" stroke-width="1.5" stroke-dasharray="5 3"/>
+                <text x="430" y="82" text-anchor="middle" font-size="9" fill="#ff8a65">背景同步</text>
+                <text x="320" y="172" text-anchor="middle" font-size="9.5" fill="var(--accent)">使用者操作永遠先成功（寫本機），網路恢復時再上傳，衝突依規則合併</text>
+        </svg>
+        <figcaption>離線優先架構。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>衝突策略</th><th>做法</th><th>適合</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>最後寫入者勝</td><td>以時間戳較新的為準</td><td>設定、簡單欄位</td></tr>
+          <tr><td>合併</td><td>欄位層級合併，或用 CRDT（<a href="lesson-19.html">第 19 課</a>）</td><td>文件、筆記</td></tr>
+          <tr><td>詢問使用者</td><td>保留兩份，讓使用者選</td><td>重要且難自動合併的資料</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        離線優先讓介面永遠快：操作先寫本機、立即顯示，再由背景同步處理網路的不確定性。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          離線優先：先寫本機、立即回應，背景同步並依策略解決衝突。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧰 本課以通用的軟體架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（以 TypeScript 為主），重點在設計思路而非特定框架的完整寫法。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>離線優先的好處是什麼？</li>
+          <li>同步佇列存的是什麼？</li>
+          <li>「最後寫入者勝」有什麼風險？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>網路層</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：本機資料庫</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：網路層 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

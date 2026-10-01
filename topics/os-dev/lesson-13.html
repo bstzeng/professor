@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：例外處理與核心恐慌 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="除以零、分頁錯誤、雙重錯誤">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜中斷與例外 · 第 13 課</div>
+      <h1>例外處理與核心恐慌</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識常見的 CPU 例外</li>
+          <li>理解分頁錯誤的資訊</li>
+          <li>知道核心恐慌的處理</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>向量</th><th>例外</th><th>常見原因</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0</td><td>除以零（#DE）</td><td>整數除以 0</td></tr>
+          <tr><td>6</td><td>無效指令（#UD）</td><td>跳到錯誤位址執行</td></tr>
+          <tr><td>13</td><td>一般保護錯誤（#GP）</td><td>權限不足、非正規位址</td></tr>
+          <tr><td>14</td><td>分頁錯誤（#PF）</td><td>存取沒有映射或權限不符的頁；CR2 存著出錯位址</td></tr>
+          <tr><td>8</td><td>雙重錯誤（#DF）</td><td>處理例外時又發生例外</td></tr>
+          <tr><td>—</td><td>三重錯誤</td><td>連雙重錯誤都處理不了 → CPU 直接重新開機</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">void interrupt_dispatch(struct regs* r) {
+    if (r-&gt;vector == 14) {
+        uint64_t addr; asm volatile("mov %%cr2, %0" : "=r"(addr));
+        if (handle_page_fault(addr, r-&gt;error_code)) return;   // 可處理的情況（第 22 課）
+    }
+    if (r-&gt;vector &lt; 32) {
+        if (from_user_mode(r)) { kill_current_process(); return; }   // 使用者程式的錯：只殺它
+        panic("exception %d at %p", r-&gt;vector, r-&gt;rip);              // 核心的錯：停機
+    }
+    // ……硬體中斷
+}</div>
+
+      <p>
+        同樣是除以零：發生在使用者程式，核心只要終止那個程式；發生在核心裡，代表核心本身有錯，只能停機並印出資訊——Linux 的 kernel panic、Windows 的藍色畫面就是這個。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          CPU 例外會跳到核心；使用者程式的錯誤就終止該程式，核心自己的錯誤只能恐慌停機。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>分頁錯誤時 CR2 存了什麼？</li>
+          <li>什麼是三重錯誤？</li>
+          <li>使用者程式和核心發生例外時的處理有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>計時器中斷</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：中斷描述表（IDT）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：計時器中斷 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

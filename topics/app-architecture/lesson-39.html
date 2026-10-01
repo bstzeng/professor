@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：拆解一個繪圖軟體 ｜ 套裝應用程式的架構 ｜ 博雅書院</title>
+<meta name="description" content="圖層、濾鏡、非破壞性編輯">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">應用程式架構</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜案例拆解 · 第 39 課</div>
+      <h1>拆解一個繪圖軟體</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解圖層合成</li>
+          <li>認識非破壞性編輯</li>
+          <li>知道大型影像的記憶體管理</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 232" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">繪圖軟體：非破壞性編輯</text>
+                <rect x="40" y="44" width="560" height="34" rx="6" fill="#9c89d6" fill-opacity="0.14" stroke="#9c89d6" stroke-width="1.5"/>
+                <text x="54" y="65" text-anchor="start" font-size="11" fill="#9c89d6">調整圖層：曲線、色相（只存參數）</text>
+                <text x="588" y="65" text-anchor="end" font-size="9.5" fill="var(--text)">隨時可改、可刪</text>
+                <rect x="40" y="84" width="560" height="34" rx="6" fill="#4a90c2" fill-opacity="0.14" stroke="#4a90c2" stroke-width="1.5"/>
+                <text x="54" y="105" text-anchor="start" font-size="11" fill="#4a90c2">圖層 2：文字（向量）</text>
+                <text x="588" y="105" text-anchor="end" font-size="9.5" fill="var(--text)">可再編輯</text>
+                <rect x="40" y="124" width="560" height="34" rx="6" fill="#5fa8a8" fill-opacity="0.14" stroke="#5fa8a8" stroke-width="1.5"/>
+                <text x="54" y="145" text-anchor="start" font-size="11" fill="#5fa8a8">圖層 1：照片 ＋ 遮色片</text>
+                <text x="588" y="145" text-anchor="end" font-size="9.5" fill="var(--text)">遮色片隱藏而不刪除像素</text>
+                <rect x="40" y="164" width="560" height="34" rx="6" fill="#8a8f98" fill-opacity="0.14" stroke="#8a8f98" stroke-width="1.5"/>
+                <text x="54" y="185" text-anchor="start" font-size="11" fill="#8a8f98">背景</text>
+                <text x="588" y="185" text-anchor="end" font-size="9.5" fill="var(--text)">原始像素不變</text>
+                <text x="320" y="222" text-anchor="middle" font-size="9.5" fill="var(--accent)">最終畫面＝由下往上合成的結果；只有髒區塊需要重新合成</text>
+        </svg>
+        <figcaption>非破壞性編輯。</figcaption>
+      </div>
+
+      <ul>
+        <li><strong>圖塊（Tile）</strong>：大圖切成小塊，只載入、只重算需要的塊；記憶體不夠時換到暫存磁碟。</li>
+        <li><strong>非破壞性</strong>：調整圖層、智慧型物件、遮色片都只存參數，原始像素保留。</li>
+        <li><strong>歷史紀錄</strong>：像素操作的復原成本高，常只保存被修改的圖塊（<a href="lesson-14.html">第 14 課</a>）。</li>
+        <li><strong>GPU 加速</strong>：濾鏡與合成交給 GPU，介面保持流暢。</li>
+        <li><strong>外掛濾鏡</strong>：透過外掛 API 接收像素資料（<a href="lesson-20.html">第 20 課</a>）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          繪圖軟體用圖塊管理大影像、用非破壞性圖層保留可編輯性，並把重運算交給 GPU 與背景執行緒。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧰 本課以通用的軟體架構說明概念，程式碼為<strong>教學用的簡化片段</strong>（以 TypeScript 為主），重點在設計思路而非特定框架的完整寫法。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是非破壞性編輯？</li>
+          <li>為什麼要把影像切成圖塊？</li>
+          <li>繪圖軟體的復原為什麼特別耗記憶體？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>拆解一個聊天軟體；總結</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：拆解一個文字編輯器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：拆解一個聊天軟體；總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

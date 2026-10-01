@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：第一行核心程式碼 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="從組合語言跳到 C">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜開機 · 第 8 課</div>
+      <h1>第一行核心程式碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出核心進入點</li>
+          <li>理解堆疊的設定</li>
+          <li>知道核心停機的方式</li>
+        </ul>
+      </div>
+
+      <div class="code-block">; arch/x86_64/entry.asm
+section .bss
+align 16
+stack_bottom: resb 16384         ; 16 KB 的核心堆疊
+stack_top:
+
+section .text
+global _start
+extern kmain
+_start:
+    cli                          ; 先關中斷：還沒有中斷表
+    mov rsp, stack_top           ; 設定堆疊——C 函式需要它
+    call kmain
+.hang:
+    hlt                          ; 讓 CPU 休眠
+    jmp .hang</div>
+
+      <div class="code-block">// kernel/main.c
+void kmain(void) {
+    serial_init();
+    kprintf("Hello from myos!\n");
+    for (;;) asm volatile("hlt");
+}</div>
+
+      <ul>
+        <li>C 語言需要堆疊才能呼叫函式、存區域變數；在設定 <code>rsp</code> 之前不能呼叫任何 C 函式。</li>
+        <li><code>.bss</code> 區段不佔核心檔案的空間，開機程式會把它清成 0。</li>
+        <li><code>kmain</code> 永遠不應該回傳——回到哪裡呢？所以最後停在 <code>hlt</code> 迴圈。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          進入點用組合語言設定堆疊後呼叫 kmain；核心的主函式永遠不回傳。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼要先 cli？</li>
+          <li>為什麼 C 函式之前必須設定堆疊？</li>
+          <li>kmain 回傳會發生什麼事？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>在螢幕上印字</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：CPU 模式：真實、保護、長模式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：在螢幕上印字 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

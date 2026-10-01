@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：Linux 核心原始碼地圖 ｜ 作業系統是怎麼寫出來的 ｜ 博雅書院</title>
+<meta name="description" content="三千萬行程式碼從哪裡讀起">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">作業系統開發</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜真實世界 · 第 44 課</div>
+      <h1>Linux 核心原始碼地圖</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Linux 原始碼的組織</li>
+          <li>對照本主題的教學核心</li>
+          <li>知道閱讀原始碼的入口</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 212" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Linux 原始碼樹（主要資料夾）</text>
+                <rect x="20" y="40" width="145" height="58" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="92.5" y="65" text-anchor="middle" font-size="11" fill="#ff8a65">arch/</text><text x="92.5" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">各 CPU 架構</text>
+                <rect x="175" y="40" width="145" height="58" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="247.5" y="65" text-anchor="middle" font-size="11" fill="#e0605a">init/</text><text x="247.5" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">start_kernel()</text>
+                <rect x="330" y="40" width="145" height="58" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="402.5" y="65" text-anchor="middle" font-size="11" fill="#4a90c2">kernel/</text><text x="402.5" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">排程、訊號、時間</text>
+                <rect x="485" y="40" width="145" height="58" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="557.5" y="65" text-anchor="middle" font-size="11" fill="#4a90c2">mm/</text><text x="557.5" y="79" text-anchor="middle" font-size="9" fill="var(--text-muted)">記憶體管理</text>
+                <rect x="20" y="110" width="145" height="58" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="92.5" y="135" text-anchor="middle" font-size="11" fill="#5aa469">fs/</text><text x="92.5" y="149" text-anchor="middle" font-size="9" fill="var(--text-muted)">VFS 與檔案系統</text>
+                <rect x="175" y="110" width="145" height="58" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="247.5" y="135" text-anchor="middle" font-size="11" fill="#9c89d6">drivers/</text><text x="247.5" y="149" text-anchor="middle" font-size="9" fill="var(--text-muted)">驅動（佔一大半）</text>
+                <rect x="330" y="110" width="145" height="58" rx="8" fill="var(--surface)" stroke="#5fa8a8" stroke-width="1.5"/><text x="402.5" y="135" text-anchor="middle" font-size="11" fill="#5fa8a8">net/</text><text x="402.5" y="149" text-anchor="middle" font-size="9" fill="var(--text-muted)">網路堆疊</text>
+                <rect x="485" y="110" width="145" height="58" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="557.5" y="135" text-anchor="middle" font-size="11" fill="#8a8f98">include/</text><text x="557.5" y="149" text-anchor="middle" font-size="9" fill="var(--text-muted)">標頭檔</text>
+                <text x="320" y="200" text-anchor="middle" font-size="9.5" fill="var(--accent)">init/main.c 的 start_kernel() 是架構無關的起點，相當於我們的 kmain()</text>
+        </svg>
+        <figcaption>Linux 原始碼的主要資料夾。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>本主題</th><th>Linux 對應</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>kmain（<a href="lesson-08.html">第 8 課</a>）</td><td>init/main.c：start_kernel()</td></tr>
+          <tr><td>IDT 與例外（<a href="lesson-12.html">第 12 課</a>）</td><td>arch/x86/kernel/idt.c、traps.c</td></tr>
+          <tr><td>頁框配置（<a href="lesson-17.html">第 17 課</a>）</td><td>mm/page_alloc.c（夥伴系統）</td></tr>
+          <tr><td>slab（<a href="lesson-20.html">第 20 課</a>）</td><td>mm/slub.c</td></tr>
+          <tr><td>情境切換（<a href="lesson-24.html">第 24 課</a>）</td><td>arch/x86/entry/entry_64.S：__switch_to_asm</td></tr>
+          <tr><td>排程（<a href="lesson-25.html">第 25 課</a>）</td><td>kernel/sched/</td></tr>
+          <tr><td>系統呼叫表（<a href="lesson-27.html">第 27 課</a>）</td><td>arch/x86/entry/syscalls/syscall_64.tbl</td></tr>
+          <tr><td>VFS（<a href="lesson-34.html">第 34 課</a>）</td><td>fs/namei.c、fs/read_write.c</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        drivers/ 佔了原始碼的一大半——作業系統最龐大的部分往往不是核心演算法，而是支援成千上萬種硬體。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Linux 的結構和教學核心相同，只是每個部分都深入了無數倍；drivers 佔了最多的程式碼。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的核心程式碼為<strong>教學用的極簡範例</strong>（C 與 x86-64 組合語言），省略了許多錯誤處理與邊界情況；真實作業系統（Linux、Windows、macOS）的實作複雜得多，細節以其原始碼與文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Linux 的 start_kernel 在哪個檔案？</li>
+          <li>Linux 的情境切換程式碼在哪裡？</li>
+          <li>為什麼 drivers 資料夾最大？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Windows NT 與 macOS XNU</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：網路堆疊概觀</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：Windows NT 與 macOS XNU →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
