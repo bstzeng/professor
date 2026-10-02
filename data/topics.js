@@ -14262,6 +14262,142 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "tech-history",
+      category: "tech",
+      title: "人類科技發展史：從用火到 AI",
+      description:
+        "從約 330 萬年前的第一把石器、掌握火、農業革命，到青銅、文字、輪子、鐵器；希臘、羅馬、秦漢的古典技術；造紙、印刷、火藥、指南針與伊斯蘭黃金時代；印刷機、大航海與科學革命；蒸汽機與兩次工業革命；原子、太空、電晶體，一直到網際網路、智慧型手機與生成式 AI。每課分析「為什麼在這時候、這裡出現」，附可縮放的總時間軸、蒸汽機動畫與前置技術關係圖。",
+      icon: "🔥",
+      url: "topics/tech-history/index.html",
+      resources: [
+        {
+          title: "科技總時間軸",
+          description: "可縮放的互動時間軸、前置技術關係圖與時代比較表",
+          icon: "⏳",
+          url: "topics/tech-history/timeline.html"
+        },
+        {
+          title: "科技史速查表",
+          description: "重要發明的年代、地點與課程，一頁查完",
+          icon: "🗂️",
+          url: "topics/tech-history/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜科技是什麼",
+          courses: [
+            { title: "科技的定義：工具、技術、科學", url: "topics/tech-history/lesson-01.html" },
+            { title: "學習地圖：一條時間軸看完兩、三百萬年", url: "topics/tech-history/lesson-02.html" },
+            { title: "科技演進的規律：累積、加速、組合", url: "topics/tech-history/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜石器時代：從工具到農業",
+          courses: [
+            { title: "第一把石器", url: "topics/tech-history/lesson-04.html" },
+            { title: "掌握火", url: "topics/tech-history/lesson-05.html" },
+            { title: "弓箭、骨針與衣服", url: "topics/tech-history/lesson-06.html" },
+            { title: "藝術與符號：資訊第一次被記錄下來", url: "topics/tech-history/lesson-07.html" },
+            { title: "農業革命", url: "topics/tech-history/lesson-08.html" },
+            { title: "陶器、紡織與磨製石器", url: "topics/tech-history/lesson-09.html" },
+            { title: "聚落與城市", url: "topics/tech-history/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜文明的誕生：青銅、文字、輪子",
+          courses: [
+            { title: "冶金：從銅到青銅", url: "topics/tech-history/lesson-11.html" },
+            { title: "文字", url: "topics/tech-history/lesson-12.html" },
+            { title: "輪子、車與帆船", url: "topics/tech-history/lesson-13.html" },
+            { title: "數字與曆法", url: "topics/tech-history/lesson-14.html" },
+            { title: "巨型工程", url: "topics/tech-history/lesson-15.html" },
+            { title: "鐵器時代", url: "topics/tech-history/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜古典時代：希臘、羅馬、秦漢",
+          courses: [
+            { title: "希臘：幾何、邏輯與阿基米德", url: "topics/tech-history/lesson-17.html" },
+            { title: "古代的機械", url: "topics/tech-history/lesson-18.html" },
+            { title: "羅馬工程：混凝土、拱與道路", url: "topics/tech-history/lesson-19.html" },
+            { title: "秦漢的大一統技術", url: "topics/tech-history/lesson-20.html" },
+            { title: "造紙術", url: "topics/tech-history/lesson-21.html" },
+            { title: "古代的醫學與天文", url: "topics/tech-history/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜中世紀與東方的高峰",
+          courses: [
+            { title: "中國四大發明總覽", url: "topics/tech-history/lesson-23.html" },
+            { title: "印刷術：雕版與活字", url: "topics/tech-history/lesson-24.html" },
+            { title: "伊斯蘭黃金時代", url: "topics/tech-history/lesson-25.html" },
+            { title: "零與印度—阿拉伯數字", url: "topics/tech-history/lesson-26.html" },
+            { title: "中世紀歐洲的技術", url: "topics/tech-history/lesson-27.html" },
+            { title: "宋代科技", url: "topics/tech-history/lesson-28.html" },
+            { title: "火藥：從煙火到大砲", url: "topics/tech-history/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜科學革命與大航海",
+          courses: [
+            { title: "古騰堡印刷機", url: "topics/tech-history/lesson-30.html" },
+            { title: "大航海時代", url: "topics/tech-history/lesson-31.html" },
+            { title: "望遠鏡與顯微鏡", url: "topics/tech-history/lesson-32.html" },
+            { title: "科學方法", url: "topics/tech-history/lesson-33.html" },
+            { title: "牛頓：用數學描述宇宙", url: "topics/tech-history/lesson-34.html" },
+            { title: "精密計時與經度問題", url: "topics/tech-history/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜第一次工業革命：蒸汽與機器",
+          courses: [
+            { title: "為什麼是英國", url: "topics/tech-history/lesson-36.html" },
+            { title: "蒸汽機", url: "topics/tech-history/lesson-37.html" },
+            { title: "紡織機械與工廠制度", url: "topics/tech-history/lesson-38.html" },
+            { title: "鐵路與蒸汽船", url: "topics/tech-history/lesson-39.html" },
+            { title: "工業化的代價", url: "topics/tech-history/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜第二次工業革命：電與化學",
+          courses: [
+            { title: "電：從實驗室到發電廠", url: "topics/tech-history/lesson-41.html" },
+            { title: "電燈與電網", url: "topics/tech-history/lesson-42.html" },
+            { title: "電報、電話、無線電", url: "topics/tech-history/lesson-43.html" },
+            { title: "內燃機、汽車與飛機", url: "topics/tech-history/lesson-44.html" },
+            { title: "化學工業與鋼鐵", url: "topics/tech-history/lesson-45.html" },
+            { title: "醫學革命", url: "topics/tech-history/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜二十世紀：原子、太空、資訊",
+          courses: [
+            { title: "世界大戰與科技", url: "topics/tech-history/lesson-47.html" },
+            { title: "原子能", url: "topics/tech-history/lesson-48.html" },
+            { title: "電晶體與積體電路", url: "topics/tech-history/lesson-49.html" },
+            { title: "太空時代", url: "topics/tech-history/lesson-50.html" },
+            { title: "綠色革命與 DNA", url: "topics/tech-history/lesson-51.html" },
+          ],
+        },
+        {
+          title: "模組 J｜資訊時代到 AI 時代",
+          courses: [
+            { title: "電腦與網際網路", url: "topics/tech-history/lesson-52.html" },
+            { title: "行動時代", url: "topics/tech-history/lesson-53.html" },
+            { title: "AI 的三起三落", url: "topics/tech-history/lesson-54.html" },
+            { title: "大型語言模型與生成式 AI", url: "topics/tech-history/lesson-55.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "回望三百萬年：科技的規律與未來", url: "topics/tech-history/lesson-56.html" },
+          ],
+        },
+      ],
     }
   ]
 };
