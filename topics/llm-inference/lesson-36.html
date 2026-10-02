@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：記憶體階層 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="HBM、SRAM 與資料搬運">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體 · 第 36 課</div>
+      <h1>記憶體階層</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 GPU 的記憶體階層</li>
+          <li>理解 HBM 的角色</li>
+          <li>理解為什麼搬資料比算還貴</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">GPU 記憶體階層（以 H100 為例，數量級）</text>
+                <rect x="40" y="44" width="560" height="34" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="320" y="64.85" text-anchor="middle" font-size="11" fill="#e0605a">暫存器：每個 SM 256 KB，延遲約 1 個週期</text>
+                <rect x="90" y="88" width="460" height="34" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="108.85" text-anchor="middle" font-size="11" fill="#ff8a65">SRAM（L1／共享記憶體）：每 SM 約 228 KB，總計約 30 MB 級</text>
+                <rect x="140" y="132" width="360" height="34" rx="8" fill="var(--surface)" stroke="var(--gold)" stroke-width="1.5"/><text x="320" y="152.85" text-anchor="middle" font-size="11" fill="var(--gold)">L2 快取：50 MB，數 TB/s 以上</text>
+                <rect x="190" y="176" width="260" height="34" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="320" y="196.85" text-anchor="middle" font-size="11" fill="#4a90c2">HBM：80 GB，3.35 TB/s</text>
+                <rect x="240" y="220" width="160" height="34" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="240.85" text-anchor="middle" font-size="11" fill="#8a8f98">主機記憶體（PCIe）</text>
+                <text x="30" y="232" text-anchor="start" font-size="10" fill="#e0605a">↑ 越往上：越小、越快</text>
+                <text x="30" y="250" text-anchor="start" font-size="10" fill="#8a8f98">↓ 越往下：越大、越慢</text>
+        </svg>
+        <figcaption>GPU 記憶體階層：越上層越小越快。</figcaption>
+      </div>
+
+      <p>
+        推論的所有權重和 KV Cache 都放在 <strong>HBM</strong>（高頻寬記憶體）中。HBM 是把多層 DRAM 晶片堆疊起來、透過矽中介層緊貼著 GPU 晶片，提供每秒數 TB 的頻寬——比一般電腦的 DDR5 記憶體快數十倍。
+      </p>
+
+      <p>
+        但即使如此，HBM 和晶片上的 SRAM 相比仍然很慢。每次運算都要把資料從 HBM 搬到 SRAM、暫存器，算完再寫回。一個經驗法則是：<strong>搬一個位元組的能量和時間，遠超過對它做一次運算</strong>。
+      </p>
+
+      <p>
+        這解釋了很多最佳化技術的共同邏輯：
+      </p>
+
+      <ul>
+        <li><strong>FlashAttention</strong>：在 SRAM 裡把注意力算完，不把中間結果寫回 HBM</li>
+        <li><strong>Kernel 融合</strong>：把多個小運算合成一個 kernel，資料只讀寫一次</li>
+        <li><strong>量化</strong>：讓要搬的位元組變少</li>
+        <li><strong>Batching</strong>：讓搬來的每個位元組被用更多次</li>
+      </ul>
+
+      <p>
+        HBM 的容量也是推論的硬限制：H100 80 GB、H200 141 GB、B200 與 MI300X 192 GB。模型權重加上 KV Cache 必須放得下，否則就要用多張卡。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          GPU 記憶體從暫存器、SRAM、L2 到 HBM 越來越大越慢；權重與 KV Cache 放在 HBM，搬資料比運算昂貴；FlashAttention、融合、量化與 batching 都在減少或攤提搬運。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>HBM 為什麼比一般記憶體快？</li>
+          <li>為什麼說搬資料比運算貴？</li>
+          <li>舉兩個減少資料搬運的最佳化。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>多卡平行</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：GPU 的結構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：多卡平行 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

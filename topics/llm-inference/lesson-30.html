@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：Prefix caching ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="相同的開頭不用算第二次">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜加速技術 · 第 30 課</div>
+      <h1>Prefix caching</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 prefix caching 的原理</li>
+          <li>認識它的應用場景</li>
+          <li>了解它對成本的影響</li>
+        </ul>
+      </div>
+
+      <p>
+        因果遮罩保證：<strong>相同的前綴，KV Cache 一定相同</strong>。如果很多請求都以同一段系統提示開頭，或者同一段對話的下一輪要重送所有歷史，那麼前面那一段的 KV Cache 根本不必重算。
+      </p>
+
+      <p>
+        <strong>Prefix caching</strong> 把算過的 KV 區塊依內容（雜湊）保存下來。新的請求進來時，先找出最長的已快取前綴，只需要 prefill 剩下的部分。
+      </p>
+
+      <ul>
+        <li><strong>系統提示</strong>：數千 token 的系統提示只算一次，所有使用者共用</li>
+        <li><strong>多輪對話</strong>：每一輪只需 prefill 新增的使用者訊息</li>
+        <li><strong>長文件問答</strong>：對同一份文件問多個問題</li>
+        <li><strong>agent</strong>：工具呼叫的迴圈中，前面的步驟每次都相同</li>
+      </ul>
+
+      <p>
+        SGLang 的 <strong>RadixAttention</strong> 用基數樹（radix tree）管理快取的前綴，能高效地找出最長共同前綴；vLLM 則以區塊雜湊實作自動前綴快取。許多 API 服務也提供「提示快取」功能，對命中快取的輸入 token 收取較低的費用。
+      </p>
+
+      <div class="callout">
+        <h3>實用建議</h3>
+        <p>
+          想讓快取命中，就把<strong>不變的內容放前面</strong>（系統提示、工具定義、文件），把會變的內容（使用者問題、時間戳記）放後面。任何前面的改動，都會讓後面的快取全部失效。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          相同前綴的 KV Cache 必然相同，prefix caching 依內容保存 KV 區塊，新請求只需 prefill 未命中的部分；適用於系統提示、多輪對話、文件問答與 agent。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼相同前綴可以重複使用 KV Cache？</li>
+          <li>舉出三個 prefix caching 的應用情境。</li>
+          <li>為什麼要把不變的內容放在 prompt 前面？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>量化</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：PagedAttention 與 vLLM</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：量化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

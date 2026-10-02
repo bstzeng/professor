@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：FlashAttention ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="不把大矩陣寫回記憶體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜Prefill 階段 · 第 19 課</div>
+      <h1>FlashAttention</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解標準注意力的記憶體問題</li>
+          <li>理解 FlashAttention 的核心想法</li>
+          <li>認識它的演進</li>
+        </ul>
+      </div>
+
+      <p>
+        標準的注意力實作會先算出完整的 N × N 分數矩陣、寫回 GPU 的主記憶體（HBM），再讀出來做 softmax、再寫回、再讀出來乘 V。N 很大時，這個矩陣非常巨大，而且大量的讀寫讓注意力變成了<strong>頻寬受限</strong>。
+      </p>
+
+      <p>
+        2022 年，Tri Dao 等人提出 <strong>FlashAttention</strong>，核心想法是：
+      </p>
+
+      <ul>
+        <li><strong>分塊（tiling）</strong>：把 Q、K、V 切成小塊，每次只載入能放進 GPU 晶片上高速 SRAM 的大小</li>
+        <li><strong>線上 softmax</strong>：用一個數學技巧，邊算邊更新 softmax 的最大值與總和，不需要先看到整列</li>
+        <li><strong>不寫回中間結果</strong>：N × N 的分數矩陣從來不會完整地出現在 HBM 中</li>
+      </ul>
+
+      <p>
+        結果是：計算量完全相同（是精確計算，不是近似），但記憶體讀寫大幅減少，速度提升數倍，而且記憶體用量從 N² 變成 N，讓長上下文成為可能。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>版本</th><th>年份</th><th>重點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>FlashAttention</td><td>2022</td><td>分塊＋線上 softmax</td></tr>
+          <tr><td>FlashAttention-2</td><td>2023</td><td>更好的平行化與工作分配</td></tr>
+          <tr><td>FlashAttention-3</td><td>2024</td><td>針對 Hopper（H100）的非同步與 FP8 最佳化</td></tr>
+          <tr><td>FlashDecoding</td><td>2023</td><td>針對 decode 階段：把長 KV Cache 切開平行讀取</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          標準注意力需讀寫巨大的 N×N 矩陣；FlashAttention 以分塊、線上 softmax 與不寫回中間結果，在相同計算量下大幅減少記憶體讀寫，讓長上下文可行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>標準注意力有什麼記憶體問題？</li>
+          <li>FlashAttention 的三個核心想法是什麼？</li>
+          <li>FlashAttention 是近似計算嗎？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Chunked prefill</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：為什麼 prefill 是算力受限</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：Chunked prefill →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

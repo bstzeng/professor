@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：Continuous batching ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="不等整批結束就換人">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜加速技術 · 第 28 課</div>
+      <h1>Continuous batching</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解靜態 batching 的問題</li>
+          <li>理解 continuous batching 的做法</li>
+          <li>了解它帶來的效益</li>
+        </ul>
+      </div>
+
+      <p>
+        最早的 batching 是<strong>靜態</strong>的：湊齊一批請求，一起 prefill、一起 decode，等全部結束再換下一批。問題是每個請求的輸出長度差很多：一個請求寫 20 個字就結束了，另一個寫 2000 個字，前者的位置在剩下的時間裡就<strong>空轉</strong>。
+      </p>
+
+      <p>
+        2022 年的 <strong>Orca</strong>（OSDI 2022）提出 <strong>iteration-level scheduling</strong>，後來通稱 <strong>continuous batching</strong>：
+      </p>
+
+      <ul>
+        <li>排程的單位從「一批請求」變成「一步 decode」</li>
+        <li>每一步結束時，已完成的請求立刻離開，新的請求立刻加入</li>
+        <li>新請求的 prefill 可以和其他請求的 decode 合在同一步（搭配 chunked prefill）</li>
+      </ul>
+
+      <p>
+        結果是 GPU 幾乎永遠滿載，吞吐量可以比靜態 batching 高出數倍，同時新請求不必等整批結束，TTFT 也大幅改善。
+      </p>
+
+      <p>
+        Continuous batching 現在是所有主流推論框架的標準做法。它的實現依賴兩件事：能處理長度不一的序列的注意力 kernel，以及能動態配置與釋放的 KV Cache 管理（下一課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          靜態 batching 讓已完成的請求空轉；continuous batching 以每一步 decode 為排程單位，完成的請求立刻離開、新請求立刻加入，大幅提升吞吐量與 TTFT。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>靜態 batching 有什麼問題？</li>
+          <li>Continuous batching 的排程單位是什麼？</li>
+          <li>它依賴哪兩項技術？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PagedAttention 與 vLLM</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：Batching</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：PagedAttention 與 vLLM →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

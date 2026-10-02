@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：多卡平行 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="張量、管線與專家平行">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體 · 第 37 課</div>
+      <h1>多卡平行</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼需要多卡</li>
+          <li>認識三種平行方式</li>
+          <li>了解它們的通訊需求</li>
+        </ul>
+      </div>
+
+      <p>
+        一張 H100 只有 80 GB，放不下 BF16 的 70B 模型（140 GB），更不用說 671B 的 DeepSeek-V3。而且即使放得下，多張卡的總頻寬也能讓 decode 更快。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 236" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">三種切模型的方法</text>
+                <rect x="20" y="46" width="190" height="150" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="115" y="93" text-anchor="middle" font-size="11" fill="#4a90c2">張量平行（TP）</text><text x="115" y="107" text-anchor="middle" font-size="9" fill="var(--text-muted)">每一層的矩陣切成 N 份</text><text x="115" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">每張卡算一部分</text><text x="115" y="133" text-anchor="middle" font-size="9" fill="var(--text-muted)">每層都要同步（all-reduce）</text><text x="115" y="146" text-anchor="middle" font-size="9" fill="var(--text-muted)">需要極快互連</text><text x="115" y="159" text-anchor="middle" font-size="9" fill="var(--text-muted)">通常限於單機 8 卡</text>
+                <rect x="225" y="46" width="190" height="150" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="320" y="93" text-anchor="middle" font-size="11" fill="#5aa469">管線平行（PP）</text><text x="320" y="107" text-anchor="middle" font-size="9" fill="var(--text-muted)">把層切成幾段</text><text x="320" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">每張卡負責幾層</text><text x="320" y="133" text-anchor="middle" font-size="9" fill="var(--text-muted)">只在段落之間傳遞</text><text x="320" y="146" text-anchor="middle" font-size="9" fill="var(--text-muted)">通訊少，延遲加長</text><text x="320" y="159" text-anchor="middle" font-size="9" fill="var(--text-muted)">可以跨機器</text>
+                <rect x="430" y="46" width="190" height="150" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="525" y="93" text-anchor="middle" font-size="11" fill="#ff8a65">專家平行（EP）</text><text x="525" y="107" text-anchor="middle" font-size="9" fill="var(--text-muted)">MoE 的專家分到各卡</text><text x="525" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">token 被送到對應專家</text><text x="525" y="133" text-anchor="middle" font-size="9" fill="var(--text-muted)">all-to-all 通訊</text><text x="525" y="146" text-anchor="middle" font-size="9" fill="var(--text-muted)">適合大型 MoE</text><text x="525" y="159" text-anchor="middle" font-size="9" fill="var(--text-muted)">負載平衡是難題</text>
+                <text x="320" y="220" text-anchor="middle" font-size="10" fill="var(--accent)">實務上常組合使用，例如單機內 TP＋跨機 PP 或 EP</text>
+        </svg>
+        <figcaption>三種平行方式。</figcaption>
+      </div>
+
+      <ul>
+        <li><strong>張量平行（TP）</strong>：Megatron-LM 的做法，把每個矩陣按行或列切開。每一層都需要一到兩次 all-reduce 同步，通訊量大且頻繁，所以只適合在 NVLink 相連的同一台機器內（通常 2～8 卡）</li>
+        <li><strong>管線平行（PP）</strong>：第 1～20 層在卡 1、第 21～40 層在卡 2……每個 token 依序穿過。通訊只發生在段落邊界，可以跨機器，但單一請求的延遲不會降低</li>
+        <li><strong>專家平行（EP）</strong>：MoE 的專家分散到不同卡上，需要 all-to-all 通訊</li>
+        <li><strong>資料平行（DP）</strong>：每組 GPU 放一份完整模型，各自服務不同請求——最簡單的擴充方式</li>
+      </ul>
+
+      <p>
+        實際部署往往是組合：例如 70B 模型在一台 8 卡機器內用 TP=4 或 TP=8，再用多台機器做資料平行；超大的 MoE 模型則用 EP 跨數十張卡，注意力部分再搭配 TP 或 DP。選擇平行策略，就是在延遲、吞吐量與通訊成本之間找平衡。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          模型放不下或需要更多頻寬時用多卡：張量平行切矩陣、每層同步、限機器內；管線平行切層、可跨機；專家平行分散 MoE 專家；資料平行複製模型。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>張量平行為什麼通常限於同一台機器內？</li>
+          <li>管線平行能降低單一請求的延遲嗎？</li>
+          <li>什麼是資料平行？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>互連</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：記憶體階層</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：互連 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

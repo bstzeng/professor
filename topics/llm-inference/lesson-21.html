@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：自回歸生成 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="一次只能生一個 token">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Decode 階段 · 第 21 課</div>
+      <h1>自回歸生成</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解自回歸生成的迴圈</li>
+          <li>理解為什麼 decode 無法平行</li>
+          <li>知道 decode 每一步讀了什麼</li>
+        </ul>
+      </div>
+
+      <p>
+        Prefill 產出第一個 token 後，進入 <strong>decode 迴圈</strong>：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">自回歸迴圈：每一步的輸出變成下一步的輸入</text>
+                <rect x="30" y="80" width="120" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="90" y="106" text-anchor="middle" font-size="11" fill="#4a90c2">新 token</text><text x="90" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">（上一步的輸出）</text>
+                <rect x="200" y="60" width="170" height="100" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="285" y="94" text-anchor="middle" font-size="11" fill="#9c89d6">穿過所有層</text><text x="285" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">讀全部權重</text><text x="285" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">讀 KV Cache</text><text x="285" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">寫入新的 K、V</text>
+                <rect x="420" y="80" width="90" height="60" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="465" y="106" text-anchor="middle" font-size="11" fill="#ff8a65">logits</text><text x="465" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">詞彙表分數</text>
+                <rect x="540" y="80" width="80" height="60" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="580" y="106" text-anchor="middle" font-size="11" fill="#5aa469">抽樣</text><text x="580" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">選一個</text>
+                <line x1="150.0" y1="110.0" x2="191.0" y2="110.0" stroke="var(--text-muted)" stroke-width="1.4"/><polygon points="198.0,110.0 191.0,113.5 191.0,106.5" fill="var(--text-muted)"/>
+                <line x1="370.0" y1="110.0" x2="411.0" y2="110.0" stroke="var(--text-muted)" stroke-width="1.4"/><polygon points="418.0,110.0 411.0,113.5 411.0,106.5" fill="var(--text-muted)"/>
+                <line x1="510.0" y1="110.0" x2="531.0" y2="110.0" stroke="var(--text-muted)" stroke-width="1.4"/><polygon points="538.0,110.0 531.0,113.5 531.0,106.5" fill="var(--text-muted)"/>
+                <path d="M580 140 L580 190 L90 190 L90 142" fill="none" stroke="#5aa469" stroke-width="1.4" stroke-dasharray="5 3"/>
+                <text x="335" y="206" text-anchor="middle" font-size="10" fill="#5aa469">重複，直到生成結束符號或達到長度上限</text>
+        </svg>
+        <figcaption>自回歸生成的迴圈。</figcaption>
+      </div>
+
+      <p>
+        關鍵在於：第 n+1 個 token 取決於第 n 個 token 是什麼，而第 n 個 token 要等這一步算完、抽樣之後才知道。所以<strong>同一個請求的 decode 步驟只能一步一步來</strong>，無法像 prefill 那樣把所有位置一起算。
+      </p>
+
+      <p>
+        每一步 decode 要做的事：
+      </p>
+
+      <ol>
+        <li>把新 token 的 embedding 送進第一層</li>
+        <li>在每一層，為這一個 token 算 Q、K、V，把 K、V 寫入快取，用 Q 對整個 KV Cache 做注意力，再過 MLP</li>
+        <li>最後一層的輸出乘上 unembedding 得到 logits</li>
+        <li>從 logits 抽樣出下一個 token</li>
+      </ol>
+
+      <p>
+        一個回答有 500 個 token，就要跑這個迴圈 500 次，每次都要把整個模型的權重讀一遍。這就是為什麼長回答總是比長問題花更多時間。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Decode 迴圈每步把上一個 token 送進所有層、讀 KV Cache、算 logits 並抽樣；下一個 token 取決於上一個，所以同一請求的 decode 無法平行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 decode 不能像 prefill 一樣平行？</li>
+          <li>Decode 每一步要做哪些事？</li>
+          <li>為什麼輸出長度比輸入長度更影響總時間？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>為什麼 decode 是頻寬受限</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：Chunked prefill</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：為什麼 decode 是頻寬受限 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

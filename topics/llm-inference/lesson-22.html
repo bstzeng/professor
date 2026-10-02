@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：為什麼 decode 是頻寬受限 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="每生一個字都要讀整個模型">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Decode 階段 · 第 22 課</div>
+      <h1>為什麼 decode 是頻寬受限</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>計算 decode 的算術強度</li>
+          <li>理解頻寬受限的意義</li>
+          <li>估算 decode 的速度</li>
+        </ul>
+      </div>
+
+      <p>
+        回顧第 18 課：prefill 的算術強度約等於 token 數 N。Decode 每一步只有一個 token，N = 1：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{算術強度}_\text{decode} \approx \frac{2 d^2 \times 1}{2 d^2} = 1\ \text{FLOP/byte}\]</div>
+
+      <p>
+        H100 的轉折點約 295 FLOP/byte，decode 的強度只有 1——運算單元有 99% 以上的時間在<strong>等資料</strong>。這就是 <strong>memory-bound（頻寬受限）</strong>。
+      </p>
+
+      <p>
+        這時候決定速度的不是算力，而是「把整個模型從 HBM 讀一遍要多久」：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{每步時間} \gtrsim \frac{\text{權重大小} + \text{KV Cache 大小}}{\text{記憶體頻寬}}\]</div>
+
+      <p>
+        以 Llama 3 8B（BF16，16 GB）在 H100（3.35 TB/s）上為例：16 ÷ 3350 ≈ 4.8 毫秒，也就是單一請求最多約 <strong>每秒 210 個 token</strong>。實際上還有 kernel 啟動等開銷，通常能達到理論值的 60%～80%。
+      </p>
+
+      <div class="callout">
+        <h3>一個反直覺的結論</h3>
+        <p>
+          在 decode 階段，換一張算力強一倍但頻寬相同的 GPU，單一請求幾乎不會變快；換一張頻寬大一倍的 GPU，速度幾乎翻倍。這就是為什麼新一代 GPU 都拚命增加 HBM 頻寬。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Decode 每步只處理 1 個 token，算術強度約 1，遠低於轉折點，因此受記憶體頻寬限制；每步時間至少是權重加 KV Cache 大小除以頻寬。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Decode 的算術強度大約是多少？</li>
+          <li>Llama 3 8B 在 H100 上的 decode 理論上限約多少 token/s？</li>
+          <li>為什麼提高算力對單一請求的 decode 幫助不大？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Roofline 模型</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：自回歸生成</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：Roofline 模型 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

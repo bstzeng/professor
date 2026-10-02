@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：抽樣 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="從 logits 到下一個 token">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜Decode 階段 · 第 25 課</div>
+      <h1>抽樣</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 softmax 與溫度</li>
+          <li>認識 top-k 與 top-p</li>
+          <li>了解抽樣參數對輸出的影響</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__lfLib) return; window.__lfLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var GPUS = [
+          { n: 'NVIDIA H100 SXM', f: 989, bw: 3.35, mem: 80 }, { n: 'NVIDIA H200', f: 989, bw: 4.8, mem: 141 }, { n: 'NVIDIA B200', f: 2250, bw: 8.0, mem: 192 },
+          { n: 'NVIDIA A100 80GB', f: 312, bw: 2.04, mem: 80 }, { n: 'AMD MI300X', f: 1307, bw: 5.3, mem: 192 }, { n: 'NVIDIA RTX 4090', f: 165, bw: 1.01, mem: 24 }];
+        var MODELS = [
+          { n: 'Llama 2 7B（MHA）', p: 6.7, L: 32, kvh: 32, hd: 128 }, { n: 'Llama 3 8B（GQA）', p: 8.0, L: 32, kvh: 8, hd: 128 }, { n: 'Mistral 7B（GQA）', p: 7.2, L: 32, kvh: 8, hd: 128 },
+          { n: 'Llama 3 70B（GQA）', p: 70.6, L: 80, kvh: 8, hd: 128 }, { n: 'Llama 3.1 405B（GQA）', p: 405, L: 126, kvh: 8, hd: 128 },
+          { n: 'DeepSeek-V3（MLA，MoE）', p: 671, act: 37, L: 61, mla: 576 }];
+        function sel(root, lab, opts, val, cb) { var w = el('label', 'display:inline-block;margin:4px 10px 4px 0;font-size:0.9em', lab + ' '), s = document.createElement('select');
+          s.style.cssText = 'padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit';
+          opts.forEach(function (o, i) { var op = document.createElement('option'); op.value = i; op.textContent = o; s.appendChild(op); }); s.value = val; s.addEventListener('change', function () { cb(+s.value); }); w.appendChild(s); root.appendChild(w); return s; }
+        function fmtB(b) { return b >= 1 << 30 ? f2(b / (1 << 30)) + ' GiB' : b >= 1 << 20 ? f1(b / (1 << 20)) + ' MiB' : f1(b / 1024) + ' KiB'; }
+        function fmtN(v) { return v >= 1e4 ? Math.round(v).toLocaleString() : v >= 100 ? Math.round(v) : f1(v); }
+        function kvPerTok(m, bytes) { return m.mla ? m.L * m.mla * bytes : 2 * m.L * m.kvh * m.hd * bytes; }
+        function info(root) { var p = el('p', 'margin:6px 0 0;line-height:1.65'); root.appendChild(p); return p; }
+
+        /* ---------- 簡化 tokenizer ---------- */
+        var VOC = ('the,of,and,to,in,is,that,for,it,as,was,with,be,by,on,not,he,this,are,or,his,from,at,which,but,have,an,they,you,were,her,she,there,can,all,would,one,will,my,what,so,out,if,about,who,get,go,me,when,make,like,time,no,just,him,know,take,people,into,year,your,good,some,could,them,see,other,than,then,now,look,only,come,its,over,think,also,back,after,use,two,how,our,work,first,well,way,even,new,want,because,any,these,give,day,most,us,hello,world,model,language,large,token,tokens,inference,transform,er,ers,ing,ed,ly,tion,s,es,un,re,pre,fill,de,code,att,ention,learn,machine,comput,GPU,cache,'
+          + '的,是,在,一,了,不,我,有,人,這,他,們,中,大,來,上,個,國,到,說,時,要,就,出,會,也,你,對,生,能,而,子,那,得,於,著,下,自,之,年,過,發,後,作,裡,用,道,行,所,然,家,種,事,成,方,多,經,麼,去,法,學,如,都,同,現,當,沒,動,面,起,看,定,天,分,還,進,好,小,部,其,些,主,樣,理,心,她,本,前,開,但,因,只,從,想,實,模型,語言,推論').split(',');
+        var VS = {}; VOC.forEach(function (v) { VS[v] = 1; VS[v.toLowerCase()] = 1; });
+        function tokenize(s) { var out = [], i = 0; while (i < s.length) { var ch = s[i];
+            if (ch === ' ') { var j = i + 1, best = 0; for (var k = Math.min(s.length, i + 14); k > j; k--) { if (VS[s.slice(j, k).toLowerCase()]) { best = k; break; } } if (best) { out.push({ t: s.slice(i, best), k: 'w' }); i = best; continue; } out.push({ t: ' ', k: 'b' }); i++; continue; }
+            var found = 0; for (var k2 = Math.min(s.length, i + 14); k2 > i; k2--) { if (VS[s.slice(i, k2).toLowerCase()]) { found = k2; break; } }
+            if (found) { out.push({ t: s.slice(i, found), k: 'w' }); i = found; continue; }
+            var code = s.charCodeAt(i); if (code < 128) { out.push({ t: ch, k: 'c' }); i++; continue; }
+            var nb = unescape(encodeURIComponent(ch)).length; for (var b = 0; b < nb; b++) out.push({ t: b === 0 ? ch : '·', k: 'x', part: b + 1, of: nb }); i++; }
+          return out; }
+        function initTok(root, cfg) {
+          head(root, cfg.q); var ta = document.createElement('textarea'); ta.value = cfg.s || 'Hello world! Large language model inference has two phases: prefill and decode.\n大型語言模型的推論分成兩個階段，龍與鳳凰的「饕餮」很少見。';
+          ta.style.cssText = 'width:100%;box-sizing:border-box;height:70px;padding:6px;border:1px solid var(--border);border-radius:8px;background:var(--surface);color:var(--text);font:inherit';
+          var view = el('div', 'margin-top:8px;line-height:2.1'), p = info(root); root.appendChild(ta); root.appendChild(view); root.appendChild(p); ta.addEventListener('input', draw);
+          var cols = ['#e8f0fa', '#fdf1e3', '#e9f5ec', '#f4ecf8', '#fbeaea'];
+          function draw() { var t = tokenize(ta.value), o = '', bytes = unescape(encodeURIComponent(ta.value)).length, cjk = 0, cjkTok = 0;
+            t.forEach(function (x, i) { var c = x.k === 'x' ? '#fbeaea' : cols[i % 4]; o += '<span style="background:' + c + ';color:#222;border:1px solid #ccc;border-radius:4px;padding:1px 3px;display:inline-block;line-height:1.5;margin:1px;font-size:0.9em;white-space:pre">' + (x.t === '\n' ? '⏎' : x.t.replace(/</g, '&lt;')) + (x.k === 'x' ? '<sub style="color:#a33">' + x.part + '/' + x.of + '</sub>' : '') + '</span>'; if (x.k === 'x') cjkTok++; });
+            view.innerHTML = o; p.innerHTML = '共 <b>' + ta.value.length + '</b> 個字元、' + bytes + ' 個 UTF-8 位元組，切成 <b>' + t.length + '</b> 個 token。紅色的是詞彙表裡沒有的字，只好拆成 UTF-8 位元組（中文字通常 3 個位元組），一個字就花掉好幾個 token。' +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">這是教學用的簡化 tokenizer（只有幾百個詞），真實的 BPE 詞彙表有數萬到二十多萬個 token，常用中文字多半是一個 token。</span>'; }
+          draw();
+        }
+
+        /* ---------- 注意力熱圖 ---------- */
+        function initAttn(root, cfg) {
+          head(root, cfg.q); var words = (cfg.w || '貓,坐,在,墊子,上,，,牠,很,舒服').split(','), n = words.length, causal = true, row = n - 1, bar = el('div'), view = el('div'), p = info(root);
+          root.appendChild(bar); root.appendChild(view); root.appendChild(p);
+          var b1 = btn('因果遮罩：開', 'c'); b1.addEventListener('click', function () { causal = !causal; b1.textContent = '因果遮罩：' + (causal ? '開' : '關'); draw(); }); bar.appendChild(b1);
+          var S = []; for (var i = 0; i < n; i++) { S.push([]); for (var j = 0; j < n; j++) { var x = Math.sin(i * 12.9898 + j * 78.233) * 43758.5453; S[i].push((x - Math.floor(x)) * 2 + (i === j ? 1.2 : 0) + (words[j] === '貓' && words[i] === '牠' ? 4 : 0) + (words[j] === '墊子' && words[i] === '舒服' ? 2.5 : 0)); } }
+          function weights(i) { var e = [], s = 0; for (var j = 0; j < n; j++) { var v = (causal && j > i) ? 0 : Math.exp(S[i][j]); e.push(v); s += v; } return e.map(function (v) { return v / s; }); }
+          function draw() { var cs = Math.min(52, 520 / n), x0 = 90, y0 = 40, o = '';
+            for (var j = 0; j < n; j++) o += tx(x0 + j * cs + cs / 2, y0 - 8, words[j], 11, 'currentColor');
+            for (var i = 0; i < n; i++) { var w = weights(i); o += '<g data-r="' + i + '" style="cursor:pointer">' + tx(x0 - 8, y0 + i * cs + cs / 2 + 4, words[i], 11, i === row ? '#d0564f' : 'currentColor', 'end');
+              for (var j2 = 0; j2 < n; j2++) { var masked = causal && j2 > i; o += '<rect x="' + (x0 + j2 * cs) + '" y="' + (y0 + i * cs) + '" width="' + (cs - 2) + '" height="' + (cs - 2) + '" fill="' + (masked ? 'var(--border)' : 'rgba(58,110,165,' + n1(0.1 + 0.9 * w[j2]) + ')') + '" stroke="' + (i === row ? '#d0564f' : 'none') + '"/>'; } o += '</g>'; }
+            view.innerHTML = svgw('0 0 640 ' + (y0 + n * cs + 10), o);
+            view.querySelectorAll('g[data-r]').forEach(function (g) { g.addEventListener('click', function () { row = +g.getAttribute('data-r'); draw(); }); });
+            var w = weights(row), top = w.map(function (v, j) { return [v, j]; }).sort(function (a, b) { return b[0] - a[0]; }).slice(0, 3);
+            p.innerHTML = '點任一列：第 <b>' + (row + 1) + '</b> 個 token「' + words[row] + '」的注意力最集中在：' + top.map(function (t) { return '「' + words[t[1]] + '」' + Math.round(t[0] * 100) + '%'; }).join('、') + '。' +
+              (causal ? '灰色格子被<b>因果遮罩</b>擋住——每個 token 只能看自己和前面的 token，這正是 decode 可以一次只算一列的原因。' : '關掉遮罩後每個 token 都能看到後面的字，這是 BERT 這類「雙向」模型的做法，不能用來逐字生成。') +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">權重是示意用的（刻意讓「牠」注意「貓」），真實模型有數十層、每層數十個注意力頭。</span>'; }
+          draw();
+        }
+
+        /* ---------- KV Cache 計算器 ---------- */
+        function initKV(root, cfg) {
+          head(root, cfg.q); var mi = cfg.m === undefined ? 1 : cfg.m, prec = 2, ctx = 8192, bs = 1, gi = 0, view = el('div'), p;
+          var row = el('div'); root.appendChild(row);
+          sel(row, '模型', MODELS.map(function (m) { return m.n; }), mi, function (v) { mi = v; draw(); });
+          sel(row, 'KV 精度', ['BF16（2 bytes）', 'FP8（1 byte）'], 0, function (v) { prec = v ? 1 : 2; draw(); });
+          sel(row, 'GPU', GPUS.map(function (g) { return g.n + '（' + g.mem + ' GB）'; }), gi, function (v) { gi = v; draw(); });
+          var u1 = slider(root, '上下文長度', 9, 17.97, 0.01, Math.log2(ctx), function (v) { return Math.round(Math.pow(2, v)).toLocaleString() + ' tokens'; }, 'ctx', function (v) { ctx = Math.round(Math.pow(2, v)); draw(); });
+          var u2 = slider(root, '同時服務的請求數（batch）', 1, 256, 1, bs, function (v) { return v; }, 'bs', function (v) { bs = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function draw() { var m = MODELS[mi], per = kvPerTok(m, prec), tot = per * ctx * bs, w = m.p * 1e9 * 2, g = GPUS[gi], cap = g.mem * 1e9;
+            var parts = [[w, '#8a8a8a', '模型權重（BF16）'], [tot, '#d9822b', 'KV Cache']], sum = w + tot, scale = Math.max(sum, cap) / 600, o = '', x = 20;
+            parts.forEach(function (q) { var wd = Math.max(1, q[0] / scale); o += '<rect x="' + n1(x) + '" y="30" width="' + n1(wd) + '" height="34" fill="' + q[1] + '" opacity="0.85"/>'; if (wd > 70) o += tx(x + wd / 2, 52, q[2], 10, '#fff'); x += wd; });
+            o += ln(20 + cap / scale, 20, 20 + cap / scale, 74, '#d0564f', 2, 'stroke-dasharray="4 3"') + tx(20 + cap / scale + (cap / scale > 420 ? -4 : 4), 88, '一張 ' + g.n.replace('NVIDIA ', '') + ' 的記憶體 ' + g.mem + ' GB', 9.5, '#d0564f', cap / scale > 420 ? 'end' : 'start');
+            view.innerHTML = svgw('0 0 640 96', o);
+            p.innerHTML = (m.mla ? '每個 token、每層存一個壓縮後的 576 維潛在向量（MLA）' : '每個 token 要存 2（K 和 V）× ' + m.L + ' 層 × ' + m.kvh + ' 個 KV 頭 × ' + m.hd + ' 維 × ' + prec + ' bytes') +
+              ' ＝ <b>' + fmtB(per) + '</b>。<br>' + ctx.toLocaleString() + ' tokens × ' + bs + ' 個請求 ＝ KV Cache <b>' + fmtB(tot) + '</b>；模型權重約 ' + f1(w / 1e9) + ' GB。' +
+              (sum > cap ? '<b style="color:#d0564f">超過一張卡的記憶體，需要多張卡或縮短上下文、減少批次。</b>' : '一張卡放得下。') +
+              (mi === 0 ? '<br>試著切換到 Llama 3 8B：它用 GQA，KV 頭從 32 個減到 8 個，KV Cache 直接變成四分之一。' : ''); }
+          u1(); u2();
+        }
+
+        /* ---------- Roofline ---------- */
+        function initRoof(root, cfg) {
+          head(root, cfg.q); var gi = 0, ai = cfg.ai || 1, view = el('div'), p;
+          var row = el('div'); root.appendChild(row); sel(row, 'GPU', GPUS.map(function (g) { return g.n; }), 0, function (v) { gi = v; draw(); });
+          var u = slider(root, '算術強度（每讀 1 byte 做幾次運算）', 0, 4, 0.01, Math.log10(ai), function (v) { return f1(Math.pow(10, v)) + ' FLOP/byte'; }, 'ai', function (v) { ai = Math.pow(10, v); draw(); });
+          root.appendChild(view); p = info(root);
+          function draw() { var g = GPUS[gi], ridge = g.f / g.bw, W = 640, H = 260, L = 56, B = 34, T = 16, R = 16;
+            function sx(v) { return L + (Math.log10(v) - 0) / 4 * (W - L - R); } function sy(v) { return H - B - (Math.log10(v) - 0) / 4 * (H - T - B); }
+            var o = ''; [1, 10, 100, 1000, 10000].forEach(function (v) { o += ln(sx(v), T, sx(v), H - B, 'var(--border)', 0.6) + tx(sx(v), H - B + 14, v, 9, 'var(--text-muted)') + ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6) + tx(L - 6, sy(v) + 3, v, 9, 'var(--text-muted)', 'end'); });
+            var pts = []; for (var e = 0; e <= 4; e += 0.02) { var a = Math.pow(10, e); pts.push(n1(sx(a)) + ',' + n1(sy(Math.min(g.f, g.bw * a)))); }
+            o += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="#3a6ea5" stroke-width="2.5"/>';
+            o += ln(sx(ridge), sy(g.f), sx(ridge), H - B, '#999', 1, 'stroke-dasharray="4 3"') + tx(sx(ridge) + 4, H - B - 6, '轉折點 ' + Math.round(ridge), 9, '#666', 'start');
+            var perf = Math.min(g.f, g.bw * ai); o += '<circle cx="' + n1(sx(ai)) + '" cy="' + n1(sy(perf)) + '" r="6" fill="#d0564f"/>';
+            [[1, 'decode, batch 1'], [Math.max(1, ridge * 4), 'prefill 長輸入']].forEach(function (q) { o += tx(sx(q[0]) + 6, sy(Math.min(g.f, g.bw * q[0])) - 8, q[1], 9, '#8a5cb8', 'start'); });
+            o += tx(W / 2, H - 2, '算術強度（FLOP / byte，對數）', 9.5, 'var(--text-muted)') + tx(L - 50, T - 4, '可達 TFLOPS（對數）', 9.5, 'var(--text-muted)', 'start');
+            view.innerHTML = svgw('0 0 640 ' + H, o);
+            p.innerHTML = g.n + '：算力 ' + g.f + ' TFLOPS、記憶體頻寬 ' + g.bw + ' TB/s，轉折點約 <b>' + Math.round(ridge) + '</b> FLOP/byte。目前強度 ' + f1(ai) + '，最多能用到 <b>' + fmtN(perf) + '</b> TFLOPS（' + (perf / g.f * 100 < 10 ? f1(perf / g.f * 100) : Math.round(perf / g.f * 100)) + '% 的算力）——' +
+              (ai < ridge ? '<b>頻寬受限</b>：晶片大部分時間在等資料從記憶體送來。' : '<b>算力受限</b>：資料夠用，瓶頸是運算單元。') +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">BF16 權重每個 2 bytes、每個權重對每個 token 做 2 次運算，所以矩陣乘法的強度大約等於「一次處理的 token 數」：decode batch 1 ≈ 1，prefill 一段 2000 token 的輸入 ≈ 2000。</span>'; }
+          u();
+        }
+
+        /* ---------- 速度上限 ---------- */
+        function initSpeed(root, cfg) {
+          head(root, cfg.q); var gi = 0, mi = 1, bits = 16, ng = 1, view = el('div'), p;
+          var row = el('div'); root.appendChild(row);
+          sel(row, 'GPU', GPUS.map(function (g) { return g.n; }), 0, function (v) { gi = v; draw(); });
+          sel(row, '模型', MODELS.map(function (m) { return m.n; }), 1, function (v) { mi = v; draw(); });
+          sel(row, '權重精度', ['16-bit（BF16）', '8-bit（FP8／INT8）', '4-bit（INT4）'], 0, function (v) { bits = [16, 8, 4][v]; draw(); });
+          var u = slider(root, 'GPU 數量（張量平行）', 1, 8, 1, 1, function (v) { return v + ' 張'; }, 'ng', function (v) { ng = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function draw() { var g = GPUS[gi], m = MODELS[mi], act = m.act || m.p, wb = m.p * 1e9 * bits / 8, rb = act * 1e9 * bits / 8, bw = g.bw * 1e12 * ng, tps = bw / rb, fits = wb <= g.mem * 1e9 * ng * 0.9;
+            var pre = 2 * act * 1e9 * 2000 / (g.f * 1e12 * ng * 0.5);
+            view.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">' + [['Decode 上限（batch 1）', fmtN(tps) + ' tokens/s', '#3a6ea5'], ['每個 token 至少', f1(1000 / tps) + ' ms', '#d9822b'], ['Prefill 2000 tokens', f1(pre * 1000) + ' ms', '#4a9a5e']].map(function (c) {
+              return '<div style="flex:1;min-width:150px;padding:10px;border-radius:8px;border:1px solid var(--border);border-top:4px solid ' + c[2] + '"><div style="font-size:0.85em;color:var(--text-muted)">' + c[0] + '</div><div style="font-size:1.4em;font-weight:bold">' + c[1] + '</div></div>'; }).join('') + '</div>';
+            p.innerHTML = '每生成一個 token，都要把' + (m.act ? '這次被啟用的約 ' + act + 'B 參數（MoE）' : '全部 ' + m.p + 'B 參數') + '從 HBM 讀一遍：' + f1(rb / 1e9) + ' GB ÷ ' + f1(bw / 1e12) + ' TB/s ＝ 上限 <b>' + fmtN(tps) + ' tokens/s</b>。' +
+              (fits ? '' : '<br><b style="color:#d0564f">模型權重 ' + f1(wb / 1e9) + ' GB 裝不進 ' + ng + ' 張卡（' + g.mem * ng + ' GB），要增加 GPU 或降低精度。</b>') +
+              '<br>Prefill 用的是算力：2 × 參數 × token 數 ÷（算力 × 50% 利用率）。可以看到 prefill 兩千個 token 的時間，和 decode 幾個 token 差不多——這就是兩個階段的根本差異。' +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">未計 KV Cache 讀取、多卡通訊與軟體開銷，實際速度通常是上限的 50%～80%。</span>'; }
+          u();
+        }
+
+        /* ---------- 時間軸 ---------- */
+        function initTimeline(root, cfg) {
+          head(root, cfg.q); var pin = 2000, pout = 200, view = el('div'), p, t0 = 0, run = false, raf;
+          var u1 = slider(root, '輸入長度', 100, 32000, 100, pin, function (v) { return v.toLocaleString() + ' tokens'; }, 'in', function (v) { pin = v; draw(1); });
+          var u2 = slider(root, '輸出長度', 10, 1000, 10, pout, function (v) { return v + ' tokens'; }, 'out', function (v) { pout = v; draw(1); });
+          var bar = el('div'), b = btn('▶ 播放', 'go'); bar.appendChild(b); root.appendChild(bar); root.appendChild(view); p = info(root);
+          b.addEventListener('click', function () { t0 = performance.now(); run = true; tick(); });
+          var F = 989e12 * 0.5, BW = 3.35e12, P = 8e9;
+          function times() { var pre = 2 * P * pin / F + 0.02, kv = 131072 * (pin + pout / 2), tpot = (P * 2 + kv) / BW; return { pre: pre, tpot: tpot, tot: pre + tpot * pout }; }
+          function draw(stat, el2) { var t = times(), W = 600, sc = W / t.tot, now = el2 === undefined ? t.tot : el2, o = '';
+            o += '<rect x="20" y="30" width="' + n1(Math.min(t.pre, now) * sc) + '" height="30" fill="#4a9a5e"/>';
+            var nTok = Math.max(0, Math.floor((now - t.pre) / t.tpot)); for (var i = 0; i < Math.min(nTok, pout); i++) { var x = 20 + (t.pre + i * t.tpot) * sc; o += '<rect x="' + n1(x) + '" y="30" width="' + Math.max(0.6, n1(t.tpot * sc - 0.5)) + '" height="30" fill="#3a6ea5" opacity="' + (i % 2 ? 0.7 : 1) + '"/>'; }
+            o += tx(20 + t.pre * sc / 2, 80, 'Prefill', 10, '#4a9a5e') + tx(20 + (t.pre + t.tot) / 2 * sc, 80, 'Decode：一個一個 token', 10, '#3a6ea5') + ln(20 + t.pre * sc, 22, 20 + t.pre * sc, 66, '#d0564f', 1.5) + tx(20 + t.pre * sc, 16, 'TTFT', 9.5, '#d0564f');
+            view.innerHTML = svgw('0 0 640 90', o);
+            p.innerHTML = '以一張 H100 跑 Llama 3 8B（BF16、batch 1）估算：<b>TTFT</b>（第一個 token 出現的時間）約 <b>' + Math.round(t.pre * 1000) + ' ms</b>，之後每個 token 約 <b>' + f1(t.tpot * 1000) + ' ms</b>（TPOT），整個回答約 <b>' + f1(t.tot) + ' 秒</b>。' +
+              '<br>拉長輸入，主要拉長的是綠色的 prefill；拉長輸出，則是藍色的 decode 線性增加——而且 decode 通常佔了大部分的時間。'; }
+          function tick() { if (!run || !root.isConnected) return; var t = times(), e = (performance.now() - t0) / 1000 * Math.max(1, t.tot / 4); if (e >= t.tot) { run = false; draw(1); return; } draw(0, e); raf = requestAnimationFrame(tick); }
+          u1(); u2();
+        }
+
+        /* ---------- 抽樣 ---------- */
+        function initSample(root, cfg) {
+          head(root, cfg.q); var C = cfg.c || [['貓', 3.2], ['狗', 2.6], ['兔子', 1.9], ['老虎', 1.2], ['鸚鵡', 0.8], ['烏龜', 0.5], ['恐龍', -0.3], ['冰箱', -1.5]];
+          var T = 1, K = C.length, TP = 1, view = el('div'), out = el('div', 'margin-top:6px;font-size:1.05em'), p, hist = [];
+          root.appendChild(el('div', 'margin:4px 0', '提示：「我家養了一隻＿＿」，模型對下一個 token 輸出的 logits：'));
+          var u1 = slider(root, 'Temperature', 0, 2, 0.05, 1, f2, 'T', function (v) { T = v; draw(); });
+          var u2 = slider(root, 'Top-k', 1, C.length, 1, C.length, function (v) { return v; }, 'k', function (v) { K = v; draw(); });
+          var u3 = slider(root, 'Top-p', 0.05, 1, 0.05, 1, f2, 'p', function (v) { TP = v; draw(); });
+          var bar = el('div'), b = btn('🎲 抽 20 次', 's'); bar.appendChild(b); root.appendChild(view); root.appendChild(bar); root.appendChild(out); p = info(root);
+          function probs() { var srt = C.map(function (c, i) { return [c[1], i]; }).sort(function (a, b) { return b[0] - a[0]; }), keep = {};
+            if (T < 0.01) { keep[srt[0][1]] = 1; return C.map(function (c, i) { return keep[i] ? 1 : 0; }); }
+            var e = C.map(function (c) { return Math.exp(c[1] / T); }), s = e.reduce(function (a, b) { return a + b; }, 0), pr = e.map(function (v) { return v / s; });
+            var cum = 0; for (var r = 0; r < srt.length; r++) { if (r >= K) break; keep[srt[r][1]] = 1; cum += pr[srt[r][1]]; if (cum >= TP) break; }
+            var s2 = 0; pr = pr.map(function (v, i) { return keep[i] ? v : 0; }); pr.forEach(function (v) { s2 += v; }); return pr.map(function (v) { return v / s2; }); }
+          b.addEventListener('click', function () { var pr = probs(); hist = []; for (var n = 0; n < 20; n++) { var r = Math.random(), c = 0; for (var i = 0; i < pr.length; i++) { c += pr[i]; if (r <= c) { hist.push(C[i][0]); break; } } } draw(); });
+          function draw() { var pr = probs(), o = ''; C.forEach(function (c, i) { var y = 6 + i * 26, w = pr[i] * 420; o += tx(80, y + 16, c[0], 12, pr[i] ? 'currentColor' : 'var(--text-muted)', 'end') + tx(130, y + 16, 'logit ' + c[1], 9, 'var(--text-muted)', 'end') +
+              '<rect x="140" y="' + y + '" width="' + n1(Math.max(w, 0.5)) + '" height="20" rx="3" fill="' + (pr[i] ? '#3a6ea5' : 'var(--border)') + '"/>' + tx(146 + w, y + 15, (pr[i] * 100).toFixed(1) + '%', 10, 'currentColor', 'start'); });
+            view.innerHTML = svgw('0 0 640 ' + (C.length * 26 + 10), o);
+            out.innerHTML = hist.length ? '抽樣結果：' + hist.join('、') : '';
+            p.innerHTML = 'Logits 先除以 temperature 再做 softmax。<b>T 趨近 0</b> 時總是選機率最高的（貪婪解碼，結果固定）；<b>T 大於 1</b> 會讓分布變平、更有「創意」也更容易胡言亂語。Top-k 只保留前 k 名；top-p 保留累積機率達到 p 的最小集合。'; }
+          u1(); u2(); u3();
+        }
+
+        /* ---------- Batching ---------- */
+        function initBatch(root, cfg) {
+          head(root, cfg.q); var ctx = 4096, view = el('div'), p;
+          var u = slider(root, '每個請求的上下文長度', 512, 32768, 512, ctx, function (v) { return v.toLocaleString() + ' tokens'; }, 'ctx', function (v) { ctx = v; draw(); }); root.appendChild(view); p = info(root);
+          var P = 8e9, F = 989e12 * 0.6, BW = 3.35e12, KV = 131072, MEM = 80e9;
+          function step(b) { var bytes = P * 2 + b * ctx * KV, flops = 2 * P * b; return Math.max(bytes / BW, flops / F); }
+          function draw() { var thr = [], lat = [], maxB = Math.floor((MEM * 0.9 - P * 2) / (ctx * KV)), best = 1;
+            for (var b = 1; b <= 512; b *= 1.25) { var bb = Math.round(b); if (bb > maxB) break; var s = step(bb); thr.push([Math.log2(bb), bb / s]); lat.push([Math.log2(bb), s * 1000]); best = bb; }
+            var mt = Math.max.apply(null, thr.map(function (x) { return x[1]; }));
+            view.innerHTML = chart(640, 220, [{ d: thr, c: '#4a9a5e', n: '總吞吐量（tokens/s）' }], { x0: 0, x1: 9, y0: 0, xl: 'batch 大小（log₂：0=1、3=8、6=64、9=512）' }) +
+              chart(640, 160, [{ d: lat, c: '#d0564f', n: '每一步的時間（ms）＝每位使用者的 TPOT' }], { x0: 0, x1: 9, y0: 0, xl: 'batch 大小（log₂）' });
+            p.innerHTML = 'H100、Llama 3 8B。batch 從 1 增加時，每一步的時間幾乎不變（反正都要把權重讀一遍），吞吐量卻幾乎<b>等比例增加</b>——這就是 batching 的魔法。直到 KV Cache 的讀取或算力成為瓶頸，每步時間才開始上升。' +
+              '<br>上下文 ' + ctx.toLocaleString() + ' tokens 時，80 GB 記憶體最多放得下約 <b>' + maxB + '</b> 個請求的 KV Cache，最高吞吐量約 <b>' + fmtN(mt) + ' tokens/s</b>。拉長上下文，能同時服務的人數就變少了。'; }
+          u();
+        }
+
+        /* ---------- 推測解碼 ---------- */
+        function initSpec(root, cfg) {
+          head(root, cfg.q); var a = 0.7, g = 4, c = 0.05, view = el('div'), bar = el('div'), out = el('div', 'margin-top:6px;line-height:2'), p;
+          var u1 = slider(root, '接受率 α（草稿 token 被大模型接受的機率）', 0.1, 0.95, 0.05, a, f2, 'a', function (v) { a = v; draw(); });
+          var u2 = slider(root, '草稿長度 γ', 1, 12, 1, g, function (v) { return v; }, 'g', function (v) { g = v; draw(); });
+          var u3 = slider(root, '小模型成本 c（相對大模型一步）', 0.01, 0.5, 0.01, c, f2, 'c', function (v) { c = v; draw(); });
+          var b = btn('▶ 模擬一段生成', 'sim'); bar.appendChild(b); root.appendChild(view); root.appendChild(bar); root.appendChild(out); p = info(root);
+          function sp(gg) { return (1 - Math.pow(a, gg + 1)) / ((1 - a) * (gg * c + 1)); }
+          b.addEventListener('click', function () { var o = '', tok = 0, steps = 0; while (tok < 40) { steps++; var k = 0; while (k < g && Math.random() < a) k++;
+              for (var i = 0; i < k; i++) o += '<span style="background:#e9f5ec;color:#222;border-radius:3px;padding:1px 4px;margin:1px">✓</span>'; if (k < g) o += '<span style="background:#fbeaea;color:#222;border-radius:3px;padding:1px 4px;margin:1px">✗</span>';
+              o += '<span style="background:#e8f0fa;color:#222;border-radius:3px;padding:1px 4px;margin:1px">＋</span><span style="color:var(--text-muted)"> | </span>'; tok += k + 1; }
+            out.innerHTML = o + '<br>大模型驗證了 <b>' + steps + '</b> 次，生成了 <b>' + tok + '</b> 個 token（平均每次 ' + f2(tok / steps) + ' 個）。綠色是被接受的草稿、紅色是被拒絕的、藍色是大模型自己補上的一個 token。'; });
+          function draw() { out.innerHTML = ''; var d = []; for (var gg = 1; gg <= 12; gg++) d.push([gg, sp(gg)]);
+            view.innerHTML = chart(640, 200, [{ d: d, c: '#8a5cb8', n: '理論加速比' }], { x0: 1, x1: 12, y0: 0, xl: '草稿長度 γ', hl: [{ y: 1, c: '#999', n: '不加速' }], pts: [{ x: g, y: sp(g), c: '#d0564f', n: f2(sp(g)) + '×' }] });
+            var et = (1 - Math.pow(a, g + 1)) / (1 - a);
+            p.innerHTML = '小模型先猜 γ 個 token，大模型<b>一次平行驗證</b>（像一次小型 prefill）。每次驗證平均產出 ' + f2(et) + ' 個 token，扣掉小模型的成本，理論加速 <b>' + f2(sp(g)) + ' 倍</b>（Leviathan 等人 2023 的公式）。' +
+              '接受規則經過設計，<b>輸出的機率分布和大模型自己生成完全相同</b>——只是更快。草稿太長時，後面的猜測越來越可能被拒，反而浪費。'; }
+          u1(); u2(); u3();
+        }
+
+        function initAll() { document.querySelectorAll('.lf-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ tok: initTok, attn: initAttn, kv: initKV, roof: initRoof, speed: initSpeed, timeline: initTimeline, sample: initSample, batch: initBatch, spec: initSpec })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <p>
+        模型每一步輸出的是詞彙表中每個 token 的分數（logits）。要決定下一個 token，需要先把分數轉成機率：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[p_i = \frac{e^{z_i / T}}{\sum_j e^{z_j / T}}\]</div>
+
+      <ul>
+        <li><strong>溫度 T</strong>：T < 1 讓分布更尖銳（更保守、更確定），T > 1 讓分布更平坦（更有創意、更容易出錯）；T → 0 等於永遠選最高分（貪婪解碼）</li>
+        <li><strong>Top-k</strong>：只保留分數最高的 k 個候選，其他機率設為 0</li>
+        <li><strong>Top-p（nucleus）</strong>：由高到低累加機率，保留累積達到 p 的最小集合</li>
+        <li><strong>重複懲罰</strong>：降低已經出現過的 token 的分數，避免鬼打牆</li>
+      </ul>
+
+      <div class="lf-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;sample&quot;, &quot;q&quot;: &quot;「我家養了一隻＿＿」的下一個詞：調整溫度、top-k、top-p，然後抽樣看看：&quot;}"></div>
+
+      <p>
+        抽樣本身的計算量很小，但它讓同一個問題每次的回答都不同。寫程式、做數學時常用低溫度追求穩定；寫故事、腦力激盪時用較高溫度。
+      </p>
+
+      <div class="callout">
+        <h3>為什麼溫度 0 也可能不一樣？</h3>
+        <p>
+          理論上貪婪解碼是確定的，但實際伺服器中，同一批次裡的其他請求會改變矩陣運算的切分與加總順序，浮點數的捨入差異偶爾會讓兩個分數接近的 token 互換。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Logits 經溫度調整的 softmax 變成機率；top-k 保留前 k 個、top-p 保留累積機率達 p 的集合；溫度越低越保守，越高越多樣。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>溫度如何影響分布？</li>
+          <li>Top-k 和 top-p 有什麼不同？</li>
+          <li>為什麼溫度設 0 也可能得到不同結果？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>停止條件與結構化輸出</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：Decode 速度的上限</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：停止條件與結構化輸出 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
