@@ -16261,6 +16261,224 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "bazi",
+      category: "divination",
+      title: "八字命理：一套關於時間的符號系統",
+      description:
+        "四柱八字的完整導讀：歷史與文化角色；陰陽五行、天干地支、藏干、六十甲子與合沖刑害；以立春與節氣排年月、五虎遁五鼠遁、真太陽時與夏令時間、大運流年；十神與六親；日主強弱、格局、用神、十二長生、神煞、宮位；合婚、擇日、取名；雙胞胎、巴納姆效應、時間雙胞胎研究等理性檢視；東亞比較與消費提醒。附天文公式節氣排盤器（已與萬年曆程式交叉驗證）。",
+      icon: "☯️",
+      url: "topics/bazi/index.html",
+      resources: [
+        {
+          title: "八字互動工具箱",
+          description: "排盤器、干支年份、十神查詢、地支關係、時辰與真太陽時",
+          icon: "🧮",
+          url: "topics/bazi/guide.html"
+        },
+        {
+          title: "八字名詞速查",
+          description: "術語、口訣與對照表",
+          icon: "📖",
+          url: "topics/bazi/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識八字",
+          courses: [
+            { title: "什麼是八字", url: "topics/bazi/lesson-01.html" },
+            { title: "八字的歷史", url: "topics/bazi/lesson-02.html" },
+            { title: "八字在華人社會", url: "topics/bazi/lesson-03.html" },
+            { title: "學習地圖與學習態度", url: "topics/bazi/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜基礎元件",
+          courses: [
+            { title: "陰陽與五行", url: "topics/bazi/lesson-05.html" },
+            { title: "十天干", url: "topics/bazi/lesson-06.html" },
+            { title: "十二地支", url: "topics/bazi/lesson-07.html" },
+            { title: "地支藏干", url: "topics/bazi/lesson-08.html" },
+            { title: "六十甲子與納音", url: "topics/bazi/lesson-09.html" },
+            { title: "干支紀年、紀月、紀日、紀時", url: "topics/bazi/lesson-10.html" },
+            { title: "地支的關係：合、會、沖、刑、害", url: "topics/bazi/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜排盤",
+          courses: [
+            { title: "年柱：以立春為界", url: "topics/bazi/lesson-12.html" },
+            { title: "月柱：節氣與五虎遁", url: "topics/bazi/lesson-13.html" },
+            { title: "日柱：六十甲子日", url: "topics/bazi/lesson-14.html" },
+            { title: "時柱：五鼠遁與子時之爭", url: "topics/bazi/lesson-15.html" },
+            { title: "真太陽時、經度與夏令時間", url: "topics/bazi/lesson-16.html" },
+            { title: "大運與流年", url: "topics/bazi/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜十神",
+          courses: [
+            { title: "十神：以日主為中心", url: "topics/bazi/lesson-18.html" },
+            { title: "正官與七殺", url: "topics/bazi/lesson-19.html" },
+            { title: "正印與偏印", url: "topics/bazi/lesson-20.html" },
+            { title: "正財與偏財", url: "topics/bazi/lesson-21.html" },
+            { title: "食神與傷官", url: "topics/bazi/lesson-22.html" },
+            { title: "比肩、劫財與六親", url: "topics/bazi/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜論命的方法",
+          courses: [
+            { title: "日主強弱", url: "topics/bazi/lesson-24.html" },
+            { title: "格局", url: "topics/bazi/lesson-25.html" },
+            { title: "用神與喜忌", url: "topics/bazi/lesson-26.html" },
+            { title: "十二長生", url: "topics/bazi/lesson-27.html" },
+            { title: "神煞", url: "topics/bazi/lesson-28.html" },
+            { title: "宮位", url: "topics/bazi/lesson-29.html" },
+            { title: "一個完整的分析流程", url: "topics/bazi/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜大運流年與應用",
+          courses: [
+            { title: "大運與流年的互動", url: "topics/bazi/lesson-31.html" },
+            { title: "合婚", url: "topics/bazi/lesson-32.html" },
+            { title: "擇日", url: "topics/bazi/lesson-33.html" },
+            { title: "八字與取名", url: "topics/bazi/lesson-34.html" },
+            { title: "古籍命例賞析", url: "topics/bazi/lesson-35.html" },
+            { title: "現代命理師的工作方式", url: "topics/bazi/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜理性檢視",
+          courses: [
+            { title: "雙胞胎與同八字的人", url: "topics/bazi/lesson-37.html" },
+            { title: "巴納姆效應與冷讀術", url: "topics/bazi/lesson-38.html" },
+            { title: "確認偏誤與事後解釋", url: "topics/bazi/lesson-39.html" },
+            { title: "統計研究怎麼說", url: "topics/bazi/lesson-40.html" },
+            { title: "八字背後真正的天文學", url: "topics/bazi/lesson-41.html" },
+            { title: "命理的心理功能", url: "topics/bazi/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜文化與總結",
+          courses: [
+            { title: "八字與其他術數", url: "topics/bazi/lesson-43.html" },
+            { title: "文學與歷史中的算命", url: "topics/bazi/lesson-44.html" },
+            { title: "日本與韓國的四柱推命", url: "topics/bazi/lesson-45.html" },
+            { title: "台灣的命理產業與消費糾紛", url: "topics/bazi/lesson-46.html" },
+            { title: "如何理性地看待命理", url: "topics/bazi/lesson-47.html" },
+            { title: "總結：一套關於時間的符號系統", url: "topics/bazi/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "name-study",
+      category: "divination",
+      title: "姓名學：筆畫、五格與好名字的語言學",
+      description:
+        "姓名學完整導讀：古代名字號與避諱、五格剖象法的日本起源與台灣改名潮；康熙筆畫、部首還原、數字字與複姓；天人地外總五格、八十一數理、三才與內部矛盾；八字、生肖、字音、字形等流派；聲調、諧音、典故、冷僻字等好名字的語言學；取名流程、改名法規、英文名與品牌命名；名字效應研究與理性檢視。附一萬三千字康熙筆畫的五格計算器。",
+      icon: "✍️",
+      url: "topics/name-study/index.html",
+      resources: [
+        {
+          title: "姓名學互動工具箱",
+          description: "五格計算器、康熙筆畫查詢、八十一數理",
+          icon: "🧮",
+          url: "topics/name-study/guide.html"
+        },
+        {
+          title: "姓名學速查表",
+          description: "五格算法、部首還原、數字五行",
+          icon: "📖",
+          url: "topics/name-study/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識姓名學",
+          courses: [
+            { title: "什麼是姓名學", url: "topics/name-study/lesson-01.html" },
+            { title: "古代的命名文化", url: "topics/name-study/lesson-02.html" },
+            { title: "五格剖象法的起源", url: "topics/name-study/lesson-03.html" },
+            { title: "台灣的改名潮", url: "topics/name-study/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜筆畫的計算",
+          courses: [
+            { title: "為什麼用《康熙字典》的筆畫", url: "topics/name-study/lesson-05.html" },
+            { title: "部首還原", url: "topics/name-study/lesson-06.html" },
+            { title: "數字字的筆畫", url: "topics/name-study/lesson-07.html" },
+            { title: "繁體、簡體與異體字", url: "topics/name-study/lesson-08.html" },
+            { title: "複姓與單名", url: "topics/name-study/lesson-09.html" },
+            { title: "常見的算錯案例", url: "topics/name-study/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜五格剖象法",
+          courses: [
+            { title: "五格的計算方法", url: "topics/name-study/lesson-11.html" },
+            { title: "八十一數理", url: "topics/name-study/lesson-12.html" },
+            { title: "五格的五行", url: "topics/name-study/lesson-13.html" },
+            { title: "三才配置", url: "topics/name-study/lesson-14.html" },
+            { title: "五格之間的生剋", url: "topics/name-study/lesson-15.html" },
+            { title: "實例：完整分析一個名字", url: "topics/name-study/lesson-16.html" },
+            { title: "五格法的內部矛盾", url: "topics/name-study/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜其他流派",
+          courses: [
+            { title: "八字姓名學", url: "topics/name-study/lesson-18.html" },
+            { title: "生肖姓名學", url: "topics/name-study/lesson-19.html" },
+            { title: "字音與聲調", url: "topics/name-study/lesson-20.html" },
+            { title: "字形與字義", url: "topics/name-study/lesson-21.html" },
+            { title: "九宮與其他派別", url: "topics/name-study/lesson-22.html" },
+            { title: "各派互相矛盾時怎麼辦", url: "topics/name-study/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜好名字的語言學",
+          courses: [
+            { title: "聲調搭配", url: "topics/name-study/lesson-24.html" },
+            { title: "諧音與聯想", url: "topics/name-study/lesson-25.html" },
+            { title: "字義與典故", url: "topics/name-study/lesson-26.html" },
+            { title: "冷僻字的困擾", url: "topics/name-study/lesson-27.html" },
+            { title: "性別印象與時代流行字", url: "topics/name-study/lesson-28.html" },
+            { title: "熱門名字與統計", url: "topics/name-study/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實務",
+          courses: [
+            { title: "新生兒取名的流程", url: "topics/name-study/lesson-30.html" },
+            { title: "改名的法律規定", url: "topics/name-study/lesson-31.html" },
+            { title: "英文名與外文名", url: "topics/name-study/lesson-32.html" },
+            { title: "公司與品牌命名", url: "topics/name-study/lesson-33.html" },
+            { title: "筆名、藝名與法號", url: "topics/name-study/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜理性檢視",
+          courses: [
+            { title: "同名同姓的人命運相同嗎？", url: "topics/name-study/lesson-35.html" },
+            { title: "為什麼覺得「很準」", url: "topics/name-study/lesson-36.html" },
+            { title: "名字對人的真實影響", url: "topics/name-study/lesson-37.html" },
+            { title: "姓名學的商業化", url: "topics/name-study/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "東亞的命名文化", url: "topics/name-study/lesson-39.html" },
+            { title: "總結：名字是祝福，不是密碼", url: "topics/name-study/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
