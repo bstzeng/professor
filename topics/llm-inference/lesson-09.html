@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：一個 Transformer 層裡有什麼 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="注意力、MLP、殘差、正規化">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜從文字到向量 · 第 9 課</div>
+      <h1>一個 Transformer 層裡有什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Transformer 層的結構</li>
+          <li>理解注意力與 MLP 的分工</li>
+          <li>知道參數主要在哪裡</li>
+        </ul>
+      </div>
+
+      <p>
+        現代的 LLM 幾乎都是 <strong>decoder-only Transformer</strong>：由數十個結構相同的「層」疊起來。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 236" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一個 Transformer 層（decoder-only）</text>
+                <rect x="250" y="196" width="140" height="30" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="214.85" text-anchor="middle" font-size="11" fill="#8a8f98">輸入向量 x</text>
+                <rect x="250" y="146" width="140" height="32" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="320" y="165.85" text-anchor="middle" font-size="11" fill="#4a90c2">RMSNorm → 注意力</text>
+                <rect x="250" y="92" width="140" height="32" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="111.85" text-anchor="middle" font-size="11" fill="#ff8a65">RMSNorm → MLP</text>
+                <rect x="250" y="40" width="140" height="30" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="58.85" text-anchor="middle" font-size="11" fill="#8a8f98">輸出到下一層</text>
+                <line x1="320.0" y1="196.0" x2="320.0" y2="187.0" stroke="var(--text-muted)" stroke-width="1.3"/><polygon points="320.0,180.0 323.5,187.0 316.5,187.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="146.0" x2="320.0" y2="133.0" stroke="var(--text-muted)" stroke-width="1.3"/><polygon points="320.0,126.0 323.5,133.0 316.5,133.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="92.0" x2="320.0" y2="79.0" stroke="var(--text-muted)" stroke-width="1.3"/><polygon points="320.0,72.0 323.5,79.0 316.5,79.0" fill="var(--text-muted)"/>
+                <path d="M250 210 L210 210 L210 130 L248 130" fill="none" stroke="#9c89d6" stroke-width="1.2" stroke-dasharray="4 3"/>
+                <text x="204" y="172" text-anchor="end" font-size="9.5" fill="#9c89d6">殘差</text>
+                <path d="M390 140 L430 140 L430 78 L392 78" fill="none" stroke="#9c89d6" stroke-width="1.2" stroke-dasharray="4 3"/>
+                <text x="436" y="110" text-anchor="start" font-size="9.5" fill="#9c89d6">殘差</text>
+                <text x="470" y="166" text-anchor="start" font-size="9.5" fill="#4a90c2">注意力：token 之間交換資訊</text>
+                <text x="470" y="112" text-anchor="start" font-size="9.5" fill="#ff8a65">MLP：每個 token 各自加工</text>
+                <text x="110" y="60" text-anchor="middle" font-size="11" fill="var(--accent)">重複數十層</text>
+                <text x="110" y="78" text-anchor="middle" font-size="9" fill="var(--text-muted)">（8B 模型 32 層，70B 模型 80 層）</text>
+        </svg>
+        <figcaption>一個 Transformer 層的結構。</figcaption>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元件</th><th>作用</th><th>參數量（Llama 3 8B 每層）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>RMSNorm</td><td>把向量的大小正規化，讓訓練穩定</td><td>很少</td></tr>
+          <tr><td>注意力</td><td>讓每個 token 從前面的 token 收集資訊</td><td>約 4,200 萬（Q、K、V、O 四個投影）</td></tr>
+          <tr><td>MLP（SwiGLU）</td><td>對每個 token 各自做非線性的加工，被認為儲存了大量「知識」</td><td>約 1.76 億（三個矩陣，中間維度 14,336）</td></tr>
+          <tr><td>殘差連接</td><td>把輸入直接加到輸出，讓資訊與梯度可以穿過很多層</td><td>無</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        可以看到，<strong>大約三分之二的參數在 MLP</strong>。32 層加起來約 70 億，再加上 embedding 與輸出層，就是「8B」。
+      </p>
+
+      <p>
+        從推論的角度，每一層都是一串<strong>矩陣乘法</strong>：輸入向量乘上權重矩陣。無論是 prefill 還是 decode，每生成一個 token，所有層的所有權重都要參與計算一次——這是理解推論成本的關鍵。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Decoder-only Transformer 由數十個相同的層組成，每層有正規化、注意力、MLP 與殘差；約三分之二參數在 MLP；每個 token 都要經過所有權重的矩陣乘法。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>注意力和 MLP 的分工是什麼？</li>
+          <li>Llama 3 8B 的參數主要在哪裡？</li>
+          <li>為什麼說每個 token 都要用到所有權重？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Q、K、V：注意力的直覺</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：位置資訊：RoPE</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：Q、K、V：注意力的直覺 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

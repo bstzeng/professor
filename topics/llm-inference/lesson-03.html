@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：兩個階段：Prefill 與 Decode ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="讀題與寫答案">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜全景 · 第 3 課</div>
+      <h1>兩個階段：Prefill 與 Decode</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 prefill 與 decode</li>
+          <li>理解兩者的根本差異</li>
+          <li>預覽後面的內容</li>
+        </ul>
+      </div>
+
+      <p>
+        把 LLM 想成一個考生：<strong>prefill</strong> 是把整張考卷讀一遍，<strong>decode</strong> 是一個字一個字地寫答案。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 226" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩個階段：讀題與寫答案</text>
+                <rect x="20" y="46" width="290" height="140" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="165" y="94" text-anchor="middle" font-size="11" fill="#5aa469">Prefill（預填）</text><text x="165" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">輸入：整段提示（數百到數十萬 token）</text><text x="165" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">一次平行處理所有 token</text><text x="165" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">產出：KV Cache ＋ 第一個 token</text><text x="165" y="147" text-anchor="middle" font-size="9" fill="var(--text-muted)">瓶頸：算力（compute-bound）</text>
+                <rect x="330" y="46" width="290" height="140" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="475" y="94" text-anchor="middle" font-size="11" fill="#4a90c2">Decode（解碼）</text><text x="475" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">輸入：上一步剛生成的 1 個 token</text><text x="475" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">每一步只處理 1 個 token</text><text x="475" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">讀取整個模型＋整個 KV Cache</text><text x="475" y="147" text-anchor="middle" font-size="9" fill="var(--text-muted)">瓶頸：記憶體頻寬（memory-bound）</text>
+                <text x="320" y="212" text-anchor="middle" font-size="10" fill="var(--accent)">同一個模型、同一批權重，兩個階段的效能特性卻截然不同</text>
+        </svg>
+        <figcaption>Prefill 與 decode 的對比。</figcaption>
+      </div>
+
+      <p>
+        為什麼讀題快、寫字慢？因為讀題時所有字都已經在眼前，可以「一起看」；寫答案時，下一個字取決於上一個字，只能一個一個來。
+      </p>
+
+      <p>
+        在 GPU 上，這個差異變成了兩種完全不同的瓶頸：
+      </p>
+
+      <ul>
+        <li><strong>Prefill</strong>：數千個 token 一起做矩陣乘法，GPU 的運算單元忙得不可開交——瓶頸是<strong>算力</strong></li>
+        <li><strong>Decode</strong>：每一步只處理一個 token，卻要把整個模型（數十 GB）從記憶體讀一遍——瓶頸是<strong>記憶體頻寬</strong></li>
+      </ul>
+
+      <p>
+        這個差異貫穿整門課：模組 D 專講 prefill，模組 E 專講 decode，模組 F 的各種加速技術，幾乎都是在想辦法讓 decode 不那麼浪費。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Prefill 像一次讀完整張考卷，平行處理、受算力限制；decode 像一字一字寫答案，每步只有一個 token 卻要讀整個模型，受頻寬限制。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用考試比喻 prefill 與 decode。</li>
+          <li>prefill 的瓶頸是什麼？decode 呢？</li>
+          <li>為什麼 decode 不能平行？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>使用者感受到的指標</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：訓練 vs 推論</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：使用者感受到的指標 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：PagedAttention 與 vLLM ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="像作業系統一樣管理 KV Cache">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜加速技術 · 第 29 課</div>
+      <h1>PagedAttention 與 vLLM</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 KV Cache 的碎片化問題</li>
+          <li>理解 PagedAttention 的做法</li>
+          <li>認識 vLLM</li>
+        </ul>
+      </div>
+
+      <p>
+        早期系統為每個請求預先配置一塊<strong>連續</strong>的 KV Cache 空間，大小按最大長度預留。但大多數請求遠遠用不到最大長度，加上不同大小的空間來來去去造成碎片，研究發現<strong>六到八成的 KV Cache 記憶體被浪費</strong>。
+      </p>
+
+      <p>
+        2023 年，UC Berkeley 團隊在 SOSP 發表 <strong>PagedAttention</strong>，靈感直接來自作業系統的虛擬記憶體：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>作業系統</th><th>PagedAttention</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>程序</td><td>請求</td></tr>
+          <tr><td>虛擬頁面</td><td>邏輯 KV 區塊（例如每 16 個 token 一塊）</td></tr>
+          <tr><td>實體頁框</td><td>GPU 記憶體中的實體區塊</td></tr>
+          <tr><td>頁表</td><td>區塊表</td></tr>
+          <tr><td>寫入時複製</td><td>多個請求共用相同前綴的區塊</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <ul>
+        <li><strong>按需配置</strong>：每生成 16 個 token 才配置一個新區塊，浪費最多只有最後一塊</li>
+        <li><strong>不需連續</strong>：區塊可以散落在記憶體任何地方，注意力 kernel 透過區塊表找到它們</li>
+        <li><strong>可以共用</strong>：平行抽樣多個回答、或多個請求有相同的系統提示時，共用的部分只存一份</li>
+      </ul>
+
+      <p>
+        同一團隊開源的 <strong>vLLM</strong> 以 PagedAttention 為核心，把記憶體浪費降到 4% 以下，吞吐量比當時的系統高出 2～4 倍，迅速成為最廣泛使用的開源推論引擎之一。SGLang、TensorRT-LLM 等其他框架也都採用了類似的分頁管理。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          連續預留 KV Cache 造成大量浪費與碎片；PagedAttention 借用虛擬記憶體的分頁概念，按需配置不連續的區塊並允許共用，vLLM 以此大幅提升吞吐量。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>早期 KV Cache 管理浪費在哪裡？</li>
+          <li>PagedAttention 和作業系統的哪個概念對應？</li>
+          <li>區塊共用在什麼情況下有用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Prefix caching</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：Continuous batching</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：Prefix caching →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

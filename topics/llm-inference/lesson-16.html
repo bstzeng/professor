@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：Prefill 做了什麼 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="一次平行處理整段輸入">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜Prefill 階段 · 第 16 課</div>
+      <h1>Prefill 做了什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 prefill 的計算過程</li>
+          <li>理解為什麼 prefill 可以平行</li>
+          <li>認識 prefill 的輸出</li>
+        </ul>
+      </div>
+
+      <p>
+        Prefill 階段，整段輸入的 N 個 token 被排成一個 N × d 的矩陣，<strong>一起</strong>穿過每一層。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 226" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Prefill：所有 token 一起穿過每一層</text>
+                <rect x="40" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="68" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="96" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="124" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="152" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="180" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="208" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="236" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="264" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="292" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="320" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <rect x="348" y="60" width="24" height="120" rx="3" fill="rgba(74,154,94,0.18)" stroke="#5aa469" stroke-width="1"/>
+                <text x="200" y="50" text-anchor="middle" font-size="10" fill="#5aa469">N 個輸入 token 排成一個大矩陣</text>
+                <line x1="390.0" y1="120.0" x2="433.0" y2="120.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="440.0,120.0 433.0,123.5 433.0,116.5" fill="var(--text-muted)"/>
+                <rect x="450" y="70" width="170" height="100" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="535" y="104" text-anchor="middle" font-size="11" fill="#9c89d6">矩陣 × 矩陣（GEMM）</text><text x="535" y="118" text-anchor="middle" font-size="9" fill="var(--text-muted)">[N × d] × [d × d]</text><text x="535" y="131" text-anchor="middle" font-size="9" fill="var(--text-muted)">每讀一次權重</text><text x="535" y="144" text-anchor="middle" font-size="9" fill="var(--text-muted)">就用 N 次</text>
+                <text x="320" y="210" text-anchor="middle" font-size="10" fill="var(--accent)">權重讀一次、算 N 次 → 算術強度高 → GPU 的算力被充分使用</text>
+        </svg>
+        <figcaption>Prefill 以矩陣乘矩陣的方式處理所有 token。</figcaption>
+      </div>
+
+      <p>
+        為什麼可以一起算？因為輸入的所有 token 都已經知道了，而因果遮罩保證每個 token 只依賴前面的 token——這和訓練時的「teacher forcing」完全相同。所以 prefill 的計算方式和訓練的前向傳播幾乎一模一樣。
+      </p>
+
+      <p>
+        Prefill 結束時產出兩樣東西：
+      </p>
+
+      <ol>
+        <li><strong>整段輸入的 KV Cache</strong>：每一層、每個 token 的 K 和 V</li>
+        <li><strong>第一個輸出 token</strong>：只需要用最後一個 token 位置的輸出向量算 logits</li>
+      </ol>
+
+      <p>
+        注意第 2 點：雖然 prefill 為每個位置都算了輸出向量，但只有最後一個位置會被拿來預測下一個 token。前面位置的輸出只用來產生下一層需要的 K、V。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Prefill 把 N 個輸入 token 排成矩陣一起穿過每層，因所有 token 已知且有因果遮罩，與訓練前向傳播相同；產出整段 KV Cache 與第一個輸出 token。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 prefill 可以平行處理？</li>
+          <li>Prefill 產出哪兩樣東西？</li>
+          <li>為什麼只有最後一個位置的輸出被用來預測？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>矩陣乘法與 FLOPs</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：長上下文的代價</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：矩陣乘法與 FLOPs →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：KV Cache ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="用記憶體換計算">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜注意力與 KV Cache · 第 12 課</div>
+      <h1>KV Cache</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 KV Cache 存了什麼</li>
+          <li>理解它省下了多少計算</li>
+          <li>理解 prefill 與 KV Cache 的關係</li>
+        </ul>
+      </div>
+
+      <p>
+        生成第 n 個 token 時，它的 Query 需要和前面所有 n−1 個 token 的 Key、Value 做注意力。如果每次都重新計算前面所有 token，計算量會隨長度平方成長。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 226" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">沒有 KV Cache vs 有 KV Cache</text>
+                <rect x="20" y="46" width="290" height="140" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="165" y="94" text-anchor="middle" font-size="11" fill="#e0605a">沒有快取</text><text x="165" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">生第 n 個 token 時</text><text x="165" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">要重算前面 n−1 個 token 的 K、V</text><text x="165" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">總計算量 ∝ n²</text><text x="165" y="147" text-anchor="middle" font-size="9" fill="var(--text-muted)">生 1000 個字 ≈ 重算 50 萬次</text>
+                <rect x="330" y="46" width="290" height="140" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="475" y="94" text-anchor="middle" font-size="11" fill="#5aa469">有 KV Cache</text><text x="475" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">前面 token 的 K、V 存在記憶體裡</text><text x="475" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">每步只算新 token 的 Q、K、V</text><text x="475" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">每步計算量 ∝ 1（注意力讀取 ∝ n）</text><text x="475" y="147" text-anchor="middle" font-size="9" fill="var(--text-muted)">代價：大量記憶體</text>
+                <text x="320" y="212" text-anchor="middle" font-size="10" fill="var(--accent)">用記憶體換計算——這個取捨決定了整個推論系統的設計</text>
+        </svg>
+        <figcaption>KV Cache 的取捨。</figcaption>
+      </div>
+
+      <p>
+        <strong>KV Cache</strong> 的做法是：每算出一個 token 在每一層的 K 和 V，就存在 GPU 記憶體裡。之後的每一步只需要：
+      </p>
+
+      <ol>
+        <li>為新的 token 計算它的 Q、K、V（只有一個 token）</li>
+        <li>把新的 K、V 加進快取</li>
+        <li>用新的 Q 和快取中所有的 K、V 做注意力</li>
+      </ol>
+
+      <p>
+        現在可以更精確地定義兩個階段了：
+      </p>
+
+      <ul>
+        <li><strong>Prefill</strong> ＝ 為整段輸入一次建立 KV Cache（並算出第一個輸出 token）</li>
+        <li><strong>Decode</strong> ＝ 每一步讀取 KV Cache、加入一個新 token 的 K、V</li>
+      </ul>
+
+      <p>
+        KV Cache 是推論系統中最重要、也最麻煩的資料結構：它讓 decode 變得可行，卻佔用大量記憶體，而且大小隨著上下文長度與同時服務的人數不斷增長（下一課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          KV Cache 存下每個 token 在每層的 K、V，讓 decode 每步只算新 token；prefill 是為整段輸入建立快取，decode 是讀取並擴充快取；它以大量記憶體換取計算。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>KV Cache 存了什麼？</li>
+          <li>沒有 KV Cache 時計算量如何成長？</li>
+          <li>用 KV Cache 重新定義 prefill 與 decode。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>KV Cache 有多大</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：因果遮罩</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：KV Cache 有多大 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

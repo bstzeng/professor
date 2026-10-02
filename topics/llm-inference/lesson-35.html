@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：GPU 的結構 ｜ LLM 推論 ｜ 博雅書院</title>
+<meta name="description" content="成千上萬個運算單元">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LLM 推論</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體 · 第 35 課</div>
+      <h1>GPU 的結構</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 GPU 的基本組成</li>
+          <li>理解 Tensor Core 的角色</li>
+          <li>理解為什麼 GPU 適合矩陣運算</li>
+        </ul>
+      </div>
+
+      <p>
+        GPU 是為大量平行計算設計的處理器。以 NVIDIA H100 SXM 為例：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元件</th><th>數量</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>SM（串流多處理器）</td><td>132 個</td><td>GPU 的基本運算單位，每個有自己的排程器、暫存器與共享記憶體</td></tr>
+          <tr><td>CUDA Core</td><td>每 SM 128 個</td><td>一般的浮點與整數運算</td></tr>
+          <tr><td>Tensor Core</td><td>每 SM 4 個</td><td>專門做小矩陣乘加，提供絕大部分的 AI 算力</td></tr>
+          <tr><td>HBM3</td><td>80 GB</td><td>主記憶體，堆疊在晶片旁</td></tr>
+          <tr><td>L2 快取</td><td>50 MB</td><td>所有 SM 共用</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        <strong>Tensor Core</strong> 是 AI 推論的主角：它在一個時脈內完成一個小矩陣塊的乘加（例如 BF16 的 16×16 區塊），速度比 CUDA Core 快一個數量級以上。989 TFLOPS 的 BF16 算力幾乎全部來自 Tensor Core。
+      </p>
+
+      <p>
+        程式透過 <strong>kernel</strong> 在 GPU 上執行：一個 kernel 被分成成千上萬個執行緒區塊，分配到各個 SM 上。推論引擎的效能很大一部分取決於 kernel 寫得好不好——FlashAttention、各種量化 GEMM、融合（fusion）多個運算以減少記憶體讀寫，都是 kernel 層級的最佳化。
+      </p>
+
+      <p>
+        另一個常見的瓶頸是 <strong>kernel 啟動開銷</strong>：decode 每一步要啟動數百個小 kernel，每個都有幾微秒的開銷。<strong>CUDA Graphs</strong> 把整個 decode 步驟錄製起來一次重播，可以明顯降低小 batch 時的延遲。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          GPU 由上百個 SM 組成，Tensor Core 提供幾乎全部 AI 算力；程式以 kernel 執行，kernel 品質與融合決定效能；CUDA Graphs 降低 decode 的 kernel 啟動開銷。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚡ 文中的硬體規格取自廠商公開資料（稠密運算、未計稀疏加速），速度與記憶體計算都是理論估算，實際數字會因軟體實作、批次與排程而不同。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>H100 有多少個 SM？</li>
+          <li>Tensor Core 和 CUDA Core 有什麼差別？</li>
+          <li>CUDA Graphs 解決什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>記憶體階層</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：MoE 模型的推論</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：記憶體階層 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

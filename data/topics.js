@@ -16479,6 +16479,115 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "llm-inference",
+      category: "tech",
+      title: "一次 LLM 推論到底發生什麼：Prefill 與 Decode",
+      description:
+        "從按下 Enter 到看到文字：tokenizer、chat template、embedding、RoPE 與 Transformer 層；Q、K、V、因果遮罩、KV Cache 的大小與 GQA／MLA；prefill 的 FLOPs、算力受限與 FlashAttention；decode 的頻寬受限、roofline、速度上限與抽樣；batching、continuous batching、PagedAttention、prefix cache、量化、推測解碼、分離部署與 MoE；GPU、記憶體階層、多卡平行與互連；排程、成本、benchmark 與本地推論。附九個互動計算器。",
+      icon: "⚡",
+      url: "topics/llm-inference/index.html",
+      resources: [
+        {
+          title: "LLM 推論互動工具箱",
+          description: "Tokenizer、注意力、KV Cache 計算器、roofline、速度估算、時間軸、抽樣、batching、推測解碼",
+          icon: "🧮",
+          url: "topics/llm-inference/guide.html"
+        },
+        {
+          title: "LLM 推論速查",
+          description: "名詞、公式與硬體數字",
+          icon: "📖",
+          url: "topics/llm-inference/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜全景",
+          courses: [
+            { title: "從按下 Enter 到看到第一個字", url: "topics/llm-inference/lesson-01.html" },
+            { title: "訓練 vs 推論", url: "topics/llm-inference/lesson-02.html" },
+            { title: "兩個階段：Prefill 與 Decode", url: "topics/llm-inference/lesson-03.html" },
+            { title: "使用者感受到的指標", url: "topics/llm-inference/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜從文字到向量",
+          courses: [
+            { title: "Tokenizer", url: "topics/llm-inference/lesson-05.html" },
+            { title: "Chat template 與系統提示", url: "topics/llm-inference/lesson-06.html" },
+            { title: "Embedding", url: "topics/llm-inference/lesson-07.html" },
+            { title: "位置資訊：RoPE", url: "topics/llm-inference/lesson-08.html" },
+            { title: "一個 Transformer 層裡有什麼", url: "topics/llm-inference/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜注意力與 KV Cache",
+          courses: [
+            { title: "Q、K、V：注意力的直覺", url: "topics/llm-inference/lesson-10.html" },
+            { title: "因果遮罩", url: "topics/llm-inference/lesson-11.html" },
+            { title: "KV Cache", url: "topics/llm-inference/lesson-12.html" },
+            { title: "KV Cache 有多大", url: "topics/llm-inference/lesson-13.html" },
+            { title: "MHA、MQA、GQA、MLA", url: "topics/llm-inference/lesson-14.html" },
+            { title: "長上下文的代價", url: "topics/llm-inference/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜Prefill 階段",
+          courses: [
+            { title: "Prefill 做了什麼", url: "topics/llm-inference/lesson-16.html" },
+            { title: "矩陣乘法與 FLOPs", url: "topics/llm-inference/lesson-17.html" },
+            { title: "為什麼 prefill 是算力受限", url: "topics/llm-inference/lesson-18.html" },
+            { title: "FlashAttention", url: "topics/llm-inference/lesson-19.html" },
+            { title: "Chunked prefill", url: "topics/llm-inference/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜Decode 階段",
+          courses: [
+            { title: "自回歸生成", url: "topics/llm-inference/lesson-21.html" },
+            { title: "為什麼 decode 是頻寬受限", url: "topics/llm-inference/lesson-22.html" },
+            { title: "Roofline 模型", url: "topics/llm-inference/lesson-23.html" },
+            { title: "Decode 速度的上限", url: "topics/llm-inference/lesson-24.html" },
+            { title: "抽樣", url: "topics/llm-inference/lesson-25.html" },
+            { title: "停止條件與結構化輸出", url: "topics/llm-inference/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜加速技術",
+          courses: [
+            { title: "Batching", url: "topics/llm-inference/lesson-27.html" },
+            { title: "Continuous batching", url: "topics/llm-inference/lesson-28.html" },
+            { title: "PagedAttention 與 vLLM", url: "topics/llm-inference/lesson-29.html" },
+            { title: "Prefix caching", url: "topics/llm-inference/lesson-30.html" },
+            { title: "量化", url: "topics/llm-inference/lesson-31.html" },
+            { title: "推測解碼", url: "topics/llm-inference/lesson-32.html" },
+            { title: "Prefill／Decode 分離", url: "topics/llm-inference/lesson-33.html" },
+            { title: "MoE 模型的推論", url: "topics/llm-inference/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜硬體",
+          courses: [
+            { title: "GPU 的結構", url: "topics/llm-inference/lesson-35.html" },
+            { title: "記憶體階層", url: "topics/llm-inference/lesson-36.html" },
+            { title: "多卡平行", url: "topics/llm-inference/lesson-37.html" },
+            { title: "互連", url: "topics/llm-inference/lesson-38.html" },
+            { title: "TPU 與其他加速器", url: "topics/llm-inference/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜系統與實務",
+          courses: [
+            { title: "排程：延遲與吞吐量的取捨", url: "topics/llm-inference/lesson-40.html" },
+            { title: "成本結構", url: "topics/llm-inference/lesson-41.html" },
+            { title: "怎麼測推論效能", url: "topics/llm-inference/lesson-42.html" },
+            { title: "本地推論", url: "topics/llm-inference/lesson-43.html" },
+            { title: "總結：一次推論的全貌", url: "topics/llm-inference/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
