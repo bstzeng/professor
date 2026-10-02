@@ -16034,6 +16034,233 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "narnia",
+      category: "fantasy",
+      title: "納尼亞傳奇：衣櫥後面的世界",
+      description:
+        "C·S·路易斯七部曲完整導讀：路易斯生平、托爾金與墨水會、閱讀順序之爭、納尼亞的地圖與時間；《獅子·女巫·魔衣櫥》《賈思潘王子》《黎明行者號》《銀椅》《奇幻馬和傳說》《魔法師的外甥》《最後的戰役》逐部解析；寓言與假想、七行星理論、蘇珊問題、卡羅門與東方主義、戰爭與死亡；BBC 影集、迪士尼電影與 Netflix 新版。附地圖、年表與人物卡。",
+      icon: "🦁",
+      url: "topics/narnia/index.html",
+      resources: [
+        {
+          title: "納尼亞互動圖鑑",
+          description: "閱讀順序、納尼亞年表、地圖、人物卡、七行星理論、改編年表",
+          icon: "🗺️",
+          url: "topics/narnia/guide.html"
+        },
+        {
+          title: "納尼亞名詞表",
+          description: "人物、地名與物品中英對照",
+          icon: "📖",
+          url: "topics/narnia/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識納尼亞",
+          courses: [
+            { title: "什麼是《納尼亞傳奇》", url: "topics/narnia/lesson-01.html" },
+            { title: "C·S·路易斯", url: "topics/narnia/lesson-02.html" },
+            { title: "托爾金與墨水會", url: "topics/narnia/lesson-03.html" },
+            { title: "七部曲與閱讀順序之爭", url: "topics/narnia/lesson-04.html" },
+            { title: "納尼亞的地圖與時間", url: "topics/narnia/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜《獅子·女巫·魔衣櫥》",
+          courses: [
+            { title: "衣櫥與永遠的冬天", url: "topics/narnia/lesson-06.html" },
+            { title: "愛德蒙的背叛", url: "topics/narnia/lesson-07.html" },
+            { title: "石桌：更深的魔法", url: "topics/narnia/lesson-08.html" },
+            { title: "凱爾帕拉維爾的四王", url: "topics/narnia/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜《賈思潘王子》",
+          courses: [
+            { title: "一千三百年後", url: "topics/narnia/lesson-10.html" },
+            { title: "賈思潘的身世", url: "topics/narnia/lesson-11.html" },
+            { title: "只有露西看見亞斯蘭", url: "topics/narnia/lesson-12.html" },
+            { title: "決鬥與勝利", url: "topics/narnia/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜《黎明行者號》",
+          courses: [
+            { title: "討人厭的表弟尤斯提", url: "topics/narnia/lesson-14.html" },
+            { title: "群島冒險", url: "topics/narnia/lesson-15.html" },
+            { title: "尤斯提變成龍", url: "topics/narnia/lesson-16.html" },
+            { title: "世界盡頭", url: "topics/narnia/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜《銀椅》",
+          courses: [
+            { title: "吉兒與四個指示", url: "topics/narnia/lesson-18.html" },
+            { title: "沼澤怪普德格倫", url: "topics/narnia/lesson-19.html" },
+            { title: "地底世界與銀椅", url: "topics/narnia/lesson-20.html" },
+            { title: "「即使沒有納尼亞」", url: "topics/narnia/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜《奇幻馬和傳說》",
+          courses: [
+            { title: "沙斯塔與會說話的馬", url: "topics/narnia/lesson-22.html" },
+            { title: "阿拉維斯與赫雯", url: "topics/narnia/lesson-23.html" },
+            { title: "沙斯塔的奔跑", url: "topics/narnia/lesson-24.html" },
+            { title: "驢子王子與失散的王子", url: "topics/narnia/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 G｜《魔法師的外甥》",
+          courses: [
+            { title: "迪哥里、波莉與魔戒", url: "topics/narnia/lesson-26.html" },
+            { title: "世界之間的森林與恰恩", url: "topics/narnia/lesson-27.html" },
+            { title: "創世之歌", url: "topics/narnia/lesson-28.html" },
+            { title: "蘋果與衣櫥的由來", url: "topics/narnia/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜《最後的戰役》",
+          courses: [
+            { title: "假亞斯蘭", url: "topics/narnia/lesson-30.html" },
+            { title: "提里安王與最後的盟友", url: "topics/narnia/lesson-31.html" },
+            { title: "馬廄之門", url: "topics/narnia/lesson-32.html" },
+            { title: "更高更深處", url: "topics/narnia/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 I｜主題分析",
+          courses: [
+            { title: "亞斯蘭與基督教：寓言還是假想？", url: "topics/narnia/lesson-34.html" },
+            { title: "七行星理論", url: "topics/narnia/lesson-35.html" },
+            { title: "蘇珊問題", url: "topics/narnia/lesson-36.html" },
+            { title: "卡羅門與東方主義", url: "topics/narnia/lesson-37.html" },
+            { title: "戰爭、死亡與成長", url: "topics/narnia/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 J｜改編",
+          courses: [
+            { title: "早期改編與 BBC 影集", url: "topics/narnia/lesson-39.html" },
+            { title: "迪士尼與華登媒體的電影", url: "topics/narnia/lesson-40.html" },
+            { title: "Netflix 與葛莉塔·潔薇", url: "topics/narnia/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "總結：更高更深處", url: "topics/narnia/lesson-42.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "earthsea",
+      category: "fantasy",
+      title: "地海：真名、平衡與陰影",
+      description:
+        "娥蘇拉·勒瑰恩六部曲完整導讀：勒瑰恩生平、地海群島與閱讀順序；真名、平衡、柔克學院九師傅、女人的魔法與龍；《地海巫師》的陰影、《地海古墓》的自由、《地海彼岸》的死亡；《地海孤雛》《地海故事集》《地海奇風》的重新看見；道家思想、有色人種主角、女性主義的重寫、死亡與不朽、榮格的陰影；迷你劇、吉卜力《地海戰記》與對奇幻文學的影響。",
+      icon: "🐉",
+      url: "topics/earthsea/index.html",
+      resources: [
+        {
+          title: "地海互動圖鑑",
+          description: "閱讀順序、群島地圖、柔克九師傅、人物卡、地海歷史年表",
+          icon: "🗺️",
+          url: "topics/earthsea/guide.html"
+        },
+        {
+          title: "地海名詞表",
+          description: "人物、地名與術語中英對照",
+          icon: "📖",
+          url: "topics/earthsea/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識地海",
+          courses: [
+            { title: "什麼是《地海》", url: "topics/earthsea/lesson-01.html" },
+            { title: "娥蘇拉·勒瑰恩", url: "topics/earthsea/lesson-02.html" },
+            { title: "地海群島", url: "topics/earthsea/lesson-03.html" },
+            { title: "六部作品與閱讀順序", url: "topics/earthsea/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜地海的魔法",
+          courses: [
+            { title: "真名", url: "topics/earthsea/lesson-05.html" },
+            { title: "平衡", url: "topics/earthsea/lesson-06.html" },
+            { title: "柔克學院與九師傅", url: "topics/earthsea/lesson-07.html" },
+            { title: "巫師、女巫與「女人的魔法」", url: "topics/earthsea/lesson-08.html" },
+            { title: "龍與太古語", url: "topics/earthsea/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜《地海巫師》",
+          courses: [
+            { title: "雀鷹的少年時代", url: "topics/earthsea/lesson-10.html" },
+            { title: "柔克學院與傲慢", url: "topics/earthsea/lesson-11.html" },
+            { title: "逃亡與彭德之龍", url: "topics/earthsea/lesson-12.html" },
+            { title: "從獵物到獵人", url: "topics/earthsea/lesson-13.html" },
+            { title: "說出陰影之名", url: "topics/earthsea/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜《地海古墓》",
+          courses: [
+            { title: "阿兒哈：被吞食者", url: "topics/earthsea/lesson-15.html" },
+            { title: "黑暗的迷宮", url: "topics/earthsea/lesson-16.html" },
+            { title: "厄瑞亞拜之環", url: "topics/earthsea/lesson-17.html" },
+            { title: "自由的重量", url: "topics/earthsea/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜《地海彼岸》",
+          courses: [
+            { title: "魔法正在消失", url: "topics/earthsea/lesson-19.html" },
+            { title: "亞刃王子", url: "topics/earthsea/lesson-20.html" },
+            { title: "喀布與旱域", url: "topics/earthsea/lesson-21.html" },
+            { title: "格得失去力量與新王登基", url: "topics/earthsea/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜後期三部：重新看見地海",
+          courses: [
+            { title: "《地海孤雛》：十八年後", url: "topics/earthsea/lesson-23.html" },
+            { title: "瑟魯", url: "topics/earthsea/lesson-24.html" },
+            { title: "失去力量的男人", url: "topics/earthsea/lesson-25.html" },
+            { title: "凱拉辛與恬哈弩", url: "topics/earthsea/lesson-26.html" },
+            { title: "《地海故事集》", url: "topics/earthsea/lesson-27.html" },
+            { title: "《地海奇風》：死者之牆", url: "topics/earthsea/lesson-28.html" },
+            { title: "龍與人的分歧", url: "topics/earthsea/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜主題分析",
+          courses: [
+            { title: "道家思想", url: "topics/earthsea/lesson-30.html" },
+            { title: "有色人種的主角", url: "topics/earthsea/lesson-31.html" },
+            { title: "女性主義的重寫", url: "topics/earthsea/lesson-32.html" },
+            { title: "死亡與不朽", url: "topics/earthsea/lesson-33.html" },
+            { title: "成長與陰影", url: "topics/earthsea/lesson-34.html" },
+            { title: "勒瑰恩的語言與文體", url: "topics/earthsea/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜改編與影響",
+          courses: [
+            { title: "2004 年的電視迷你劇", url: "topics/earthsea/lesson-36.html" },
+            { title: "吉卜力的《地海戰記》", url: "topics/earthsea/lesson-37.html" },
+            { title: "柔克與霍格華茲", url: "topics/earthsea/lesson-38.html" },
+            { title: "對奇幻文學的影響", url: "topics/earthsea/lesson-39.html" },
+            { title: "總結：說出自己的名字", url: "topics/earthsea/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
