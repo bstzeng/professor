@@ -15117,6 +15117,232 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "statistical-physics",
+      category: "science",
+      title: "統計物理與相變：從原子的亂到宏觀的序",
+      description:
+        "大數法則、隨機漫步與布朗運動；熵 S = k ln W、時間之箭、馬克士威妖與蘭道爾原理、自由能；統計系綜、波茲曼因子、配分函數、負溫度、速度分布與漲落；費米—狄拉克、玻色—愛因斯坦、BEC、超流；相圖、序參量與對稱性破缺、伊辛模型、昂薩格解、臨界現象與普適性；重整化群；滲流、玻璃、AI 與湧現。附八個互動模擬。",
+      icon: "🎲",
+      url: "topics/statistical-physics/index.html",
+      resources: [
+        {
+          title: "統計物理互動實驗室",
+          description: "隨機漫步、自由膨脹、速度分布、負溫度、量子統計、伊辛模型、區塊自旋、滲流",
+          icon: "🧪",
+          url: "topics/statistical-physics/lab.html"
+        },
+        {
+          title: "統計物理公式速查",
+          description: "常數、核心公式與臨界指數",
+          icon: "🗂️",
+          url: "topics/statistical-physics/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼需要統計物理",
+          courses: [
+            { title: "一杯水有 10²⁴ 個分子", url: "topics/statistical-physics/lesson-01.html" },
+            { title: "微觀與巨觀", url: "topics/statistical-physics/lesson-02.html" },
+            { title: "機率複習", url: "topics/statistical-physics/lesson-03.html" },
+            { title: "隨機漫步與擴散", url: "topics/statistical-physics/lesson-04.html" },
+            { title: "布朗運動", url: "topics/statistical-physics/lesson-05.html" },
+            { title: "學習地圖", url: "topics/statistical-physics/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜熵與熱力學",
+          courses: [
+            { title: "熱力學四大定律", url: "topics/statistical-physics/lesson-07.html" },
+            { title: "微觀狀態與巨觀狀態", url: "topics/statistical-physics/lesson-08.html" },
+            { title: "波茲曼的熵", url: "topics/statistical-physics/lesson-09.html" },
+            { title: "為什麼熵會增加", url: "topics/statistical-physics/lesson-10.html" },
+            { title: "時間之箭", url: "topics/statistical-physics/lesson-11.html" },
+            { title: "溫度的真正定義", url: "topics/statistical-physics/lesson-12.html" },
+            { title: "馬克士威妖與資訊的代價", url: "topics/statistical-physics/lesson-13.html" },
+            { title: "自由能", url: "topics/statistical-physics/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜統計系綜",
+          courses: [
+            { title: "微正則系綜", url: "topics/statistical-physics/lesson-15.html" },
+            { title: "正則系綜與波茲曼因子", url: "topics/statistical-physics/lesson-16.html" },
+            { title: "配分函數", url: "topics/statistical-physics/lesson-17.html" },
+            { title: "二能階系統與負溫度", url: "topics/statistical-physics/lesson-18.html" },
+            { title: "能量均分定理", url: "topics/statistical-physics/lesson-19.html" },
+            { title: "馬克士威—波茲曼速度分布", url: "topics/statistical-physics/lesson-20.html" },
+            { title: "漲落", url: "topics/statistical-physics/lesson-21.html" },
+            { title: "巨正則系綜與化學勢", url: "topics/statistical-physics/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜量子統計",
+          courses: [
+            { title: "全同粒子：費米子與玻色子", url: "topics/statistical-physics/lesson-23.html" },
+            { title: "費米—狄拉克分布", url: "topics/statistical-physics/lesson-24.html" },
+            { title: "玻色—愛因斯坦分布與黑體輻射", url: "topics/statistical-physics/lesson-25.html" },
+            { title: "玻色—愛因斯坦凝聚", url: "topics/statistical-physics/lesson-26.html" },
+            { title: "固體的比熱", url: "topics/statistical-physics/lesson-27.html" },
+            { title: "超流氦與超導", url: "topics/statistical-physics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜相變",
+          courses: [
+            { title: "什麼是相變", url: "topics/statistical-physics/lesson-29.html" },
+            { title: "相圖、三相點與臨界點", url: "topics/statistical-physics/lesson-30.html" },
+            { title: "一階與連續相變", url: "topics/statistical-physics/lesson-31.html" },
+            { title: "序參量與對稱性破缺", url: "topics/statistical-physics/lesson-32.html" },
+            { title: "伊辛模型", url: "topics/statistical-physics/lesson-33.html" },
+            { title: "平均場理論與朗道理論", url: "topics/statistical-physics/lesson-34.html" },
+            { title: "昂薩格的精確解", url: "topics/statistical-physics/lesson-35.html" },
+            { title: "臨界現象", url: "topics/statistical-physics/lesson-36.html" },
+            { title: "臨界指數與普適性", url: "topics/statistical-physics/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜重整化群",
+          courses: [
+            { title: "尺度不變與碎形", url: "topics/statistical-physics/lesson-38.html" },
+            { title: "卡丹諾夫的區塊自旋", url: "topics/statistical-physics/lesson-39.html" },
+            { title: "威爾森的重整化群", url: "topics/statistical-physics/lesson-40.html" },
+            { title: "普適類", url: "topics/statistical-physics/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜延伸與應用",
+          courses: [
+            { title: "滲流", url: "topics/statistical-physics/lesson-42.html" },
+            { title: "非平衡統計物理", url: "topics/statistical-physics/lesson-43.html" },
+            { title: "玻璃與自旋玻璃", url: "topics/statistical-physics/lesson-44.html" },
+            { title: "統計物理與人工智慧", url: "topics/statistical-physics/lesson-45.html" },
+            { title: "社會與生物中的相變", url: "topics/statistical-physics/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "從微觀到巨觀：湧現", url: "topics/statistical-physics/lesson-47.html" },
+            { title: "總結與延伸閱讀", url: "topics/statistical-physics/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "plasma-physics",
+      category: "science",
+      title: "電漿（等離子體）物理：物質的第四態",
+      description:
+        "物質的第四態：電離、德拜屏蔽、電漿頻率；迴旋、漂移、磁鏡、輻射帶與極光；磁流體力學、凍結定理、阿爾芬波、磁重聯、發電機；朗道阻尼與不穩定性；日冕、太陽風、太空天氣、黑洞吸積盤；核融合：勞森判據、托卡馬克、仿星器、NIF 點火、ITER 與民營公司；半導體蝕刻、照明、冷電漿醫療與電漿推進。附六個互動模擬。",
+      icon: "⚡",
+      url: "topics/plasma-physics/index.html",
+      resources: [
+        {
+          title: "電漿互動實驗室",
+          description: "薩哈電離、德拜屏蔽、迴旋與漂移、磁鏡、電離層截止頻率、勞森判據",
+          icon: "🧪",
+          url: "topics/plasma-physics/lab.html"
+        },
+        {
+          title: "電漿物理速查",
+          description: "公式、典型參數與術語",
+          icon: "🗂️",
+          url: "topics/plasma-physics/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是電漿",
+          courses: [
+            { title: "物質的第四態", url: "topics/plasma-physics/lesson-01.html" },
+            { title: "生活中的電漿", url: "topics/plasma-physics/lesson-02.html" },
+            { title: "電離與薩哈方程式", url: "topics/plasma-physics/lesson-03.html" },
+            { title: "德拜屏蔽與準中性", url: "topics/plasma-physics/lesson-04.html" },
+            { title: "電漿頻率", url: "topics/plasma-physics/lesson-05.html" },
+            { title: "學習地圖", url: "topics/plasma-physics/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜單一帶電粒子的運動",
+          courses: [
+            { title: "勞侖茲力複習", url: "topics/plasma-physics/lesson-07.html" },
+            { title: "迴旋運動", url: "topics/plasma-physics/lesson-08.html" },
+            { title: "E×B 漂移", url: "topics/plasma-physics/lesson-09.html" },
+            { title: "梯度漂移與曲率漂移", url: "topics/plasma-physics/lesson-10.html" },
+            { title: "磁鏡效應", url: "topics/plasma-physics/lesson-11.html" },
+            { title: "范艾倫輻射帶", url: "topics/plasma-physics/lesson-12.html" },
+            { title: "極光是怎麼形成的", url: "topics/plasma-physics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜電漿作為流體：磁流體力學",
+          courses: [
+            { title: "從粒子到流體", url: "topics/plasma-physics/lesson-14.html" },
+            { title: "磁流體力學方程式", url: "topics/plasma-physics/lesson-15.html" },
+            { title: "凍結的磁力線", url: "topics/plasma-physics/lesson-16.html" },
+            { title: "磁壓力與磁張力", url: "topics/plasma-physics/lesson-17.html" },
+            { title: "阿爾芬波", url: "topics/plasma-physics/lesson-18.html" },
+            { title: "磁重聯", url: "topics/plasma-physics/lesson-19.html" },
+            { title: "發電機理論", url: "topics/plasma-physics/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜電漿中的波與不穩定性",
+          courses: [
+            { title: "電漿振盪與朗繆爾波", url: "topics/plasma-physics/lesson-21.html" },
+            { title: "電磁波在電漿中的傳播", url: "topics/plasma-physics/lesson-22.html" },
+            { title: "朗道阻尼", url: "topics/plasma-physics/lesson-23.html" },
+            { title: "雙流不穩定性", url: "topics/plasma-physics/lesson-24.html" },
+            { title: "瑞利—泰勒與扭曲不穩定性", url: "topics/plasma-physics/lesson-25.html" },
+            { title: "電漿紊流", url: "topics/plasma-physics/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜太空與天文電漿",
+          courses: [
+            { title: "太陽：日冕之謎", url: "topics/plasma-physics/lesson-27.html" },
+            { title: "太陽風與帕克螺旋", url: "topics/plasma-physics/lesson-28.html" },
+            { title: "閃焰與日冕物質拋射", url: "topics/plasma-physics/lesson-29.html" },
+            { title: "太空天氣", url: "topics/plasma-physics/lesson-30.html" },
+            { title: "地球磁層與電離層", url: "topics/plasma-physics/lesson-31.html" },
+            { title: "吸積盤與噴流", url: "topics/plasma-physics/lesson-32.html" },
+            { title: "星際介質與宇宙磁場", url: "topics/plasma-physics/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜核融合",
+          courses: [
+            { title: "融合反應與庫侖障壁", url: "topics/plasma-physics/lesson-34.html" },
+            { title: "勞森判據與三重積", url: "topics/plasma-physics/lesson-35.html" },
+            { title: "托卡馬克與仿星器", url: "topics/plasma-physics/lesson-36.html" },
+            { title: "不穩定性與破裂", url: "topics/plasma-physics/lesson-37.html" },
+            { title: "磁約束的里程碑", url: "topics/plasma-physics/lesson-38.html" },
+            { title: "慣性約束：NIF 的點火", url: "topics/plasma-physics/lesson-39.html" },
+            { title: "民營核融合", url: "topics/plasma-physics/lesson-40.html" },
+            { title: "核融合還要多久", url: "topics/plasma-physics/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜工業與日常應用",
+          courses: [
+            { title: "半導體製程中的電漿", url: "topics/plasma-physics/lesson-42.html" },
+            { title: "照明與顯示", url: "topics/plasma-physics/lesson-43.html" },
+            { title: "切割、焊接與表面處理", url: "topics/plasma-physics/lesson-44.html" },
+            { title: "冷電漿：殺菌、醫療與農業", url: "topics/plasma-physics/lesson-45.html" },
+            { title: "電漿推進器", url: "topics/plasma-physics/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "電漿參數總覽", url: "topics/plasma-physics/lesson-47.html" },
+            { title: "總結與延伸閱讀", url: "topics/plasma-physics/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
