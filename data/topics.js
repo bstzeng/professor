@@ -15003,6 +15003,120 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "superconductivity",
+      category: "science",
+      title: "超導機制：電阻消失之謎",
+      description:
+        "1911 年電阻消失、邁斯納效應與三道臨界邊界；倫敦方程式、金茲堡—朗道理論、第一類與第二類超導、磁通渦旋；同位素效應、電子—聲子吸引、庫柏對、BCS 理論與能隙；磁通量子化、約瑟夫森效應、SQUID、2025 年諾貝爾獎的巨觀量子穿隧與量子位元；銅氧化物、鐵基、鎳基與高壓氫化物，室溫超導的爭議；MRI、LHC、磁浮、核融合與電力應用。附八個互動實驗。",
+      icon: "🧲",
+      url: "topics/superconductivity/index.html",
+      resources: [
+        {
+          title: "超導互動實驗室",
+          description: "電阻曲線、邁斯納效應、相圖、磁化與渦旋、電子—晶格吸引、能隙、SQUID、臨界溫度歷史",
+          icon: "🧪",
+          url: "topics/superconductivity/lab.html"
+        },
+        {
+          title: "超導材料速查",
+          description: "常見超導體的臨界溫度、類型與用途",
+          icon: "🗂️",
+          url: "topics/superconductivity/materials.html"
+        },
+        {
+          title: "超導大事年表",
+          description: "1908 年液化氦到今天",
+          icon: "📅",
+          url: "topics/superconductivity/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜發現與基本現象",
+          courses: [
+            { title: "1911 年：電阻突然消失", url: "topics/superconductivity/lesson-01.html" },
+            { title: "液氦與低溫物理", url: "topics/superconductivity/lesson-02.html" },
+            { title: "零電阻有多「零」", url: "topics/superconductivity/lesson-03.html" },
+            { title: "邁斯納效應", url: "topics/superconductivity/lesson-04.html" },
+            { title: "超導不只是完美導體", url: "topics/superconductivity/lesson-05.html" },
+            { title: "超導的三道邊界", url: "topics/superconductivity/lesson-06.html" },
+            { title: "學習地圖", url: "topics/superconductivity/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜古典電磁與唯象理論",
+          courses: [
+            { title: "一般金屬為什麼有電阻", url: "topics/superconductivity/lesson-08.html" },
+            { title: "倫敦方程式與穿透深度", url: "topics/superconductivity/lesson-09.html" },
+            { title: "超導是一種相變", url: "topics/superconductivity/lesson-10.html" },
+            { title: "金茲堡—朗道理論", url: "topics/superconductivity/lesson-11.html" },
+            { title: "相干長度", url: "topics/superconductivity/lesson-12.html" },
+            { title: "第一類與第二類超導體", url: "topics/superconductivity/lesson-13.html" },
+            { title: "磁通渦旋與釘扎", url: "topics/superconductivity/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜BCS 理論：超導的微觀機制",
+          courses: [
+            { title: "量子力學複習", url: "topics/superconductivity/lesson-15.html" },
+            { title: "同位素效應", url: "topics/superconductivity/lesson-16.html" },
+            { title: "電子為什麼會互相吸引", url: "topics/superconductivity/lesson-17.html" },
+            { title: "庫柏對", url: "topics/superconductivity/lesson-18.html" },
+            { title: "(k↑, −k↓)：庫柏對的結構", url: "topics/superconductivity/lesson-19.html" },
+            { title: "BCS 理論（1957）", url: "topics/superconductivity/lesson-20.html" },
+            { title: "能隙", url: "topics/superconductivity/lesson-21.html" },
+            { title: "能隙為什麼讓電阻消失", url: "topics/superconductivity/lesson-22.html" },
+            { title: "BCS 的定量檢驗", url: "topics/superconductivity/lesson-23.html" },
+            { title: "宏觀量子態", url: "topics/superconductivity/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜宏觀量子現象",
+          courses: [
+            { title: "磁通量子化", url: "topics/superconductivity/lesson-25.html" },
+            { title: "約瑟夫森效應", url: "topics/superconductivity/lesson-26.html" },
+            { title: "交流約瑟夫森效應與電壓標準", url: "topics/superconductivity/lesson-27.html" },
+            { title: "SQUID：最靈敏的磁場感測器", url: "topics/superconductivity/lesson-28.html" },
+            { title: "巨觀量子穿隧", url: "topics/superconductivity/lesson-29.html" },
+            { title: "超導量子位元", url: "topics/superconductivity/lesson-30.html" },
+            { title: "對稱性破缺與希格斯機制", url: "topics/superconductivity/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜高溫超導：打破 BCS 的天花板",
+          courses: [
+            { title: "30 K 的天花板？", url: "topics/superconductivity/lesson-32.html" },
+            { title: "1986 年：貝德諾茲與穆勒", url: "topics/superconductivity/lesson-33.html" },
+            { title: "1987 年：突破 77 K", url: "topics/superconductivity/lesson-34.html" },
+            { title: "銅氧化物的結構與相圖", url: "topics/superconductivity/lesson-35.html" },
+            { title: "d 波配對與未解之謎", url: "topics/superconductivity/lesson-36.html" },
+            { title: "新的超導家族", url: "topics/superconductivity/lesson-37.html" },
+            { title: "高壓氫化物", url: "topics/superconductivity/lesson-38.html" },
+            { title: "爭議與撤稿", url: "topics/superconductivity/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用",
+          courses: [
+            { title: "超導磁鐵與 MRI", url: "topics/superconductivity/lesson-40.html" },
+            { title: "粒子加速器", url: "topics/superconductivity/lesson-41.html" },
+            { title: "磁浮列車與超導懸浮", url: "topics/superconductivity/lesson-42.html" },
+            { title: "核融合的超導磁鐵", url: "topics/superconductivity/lesson-43.html" },
+            { title: "電力應用", url: "topics/superconductivity/lesson-44.html" },
+            { title: "精密量測", url: "topics/superconductivity/lesson-45.html" },
+            { title: "限制與成本", url: "topics/superconductivity/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "室溫超導的夢", url: "topics/superconductivity/lesson-47.html" },
+            { title: "總結：從零電阻到宏觀量子態", url: "topics/superconductivity/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };

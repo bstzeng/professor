@@ -1,0 +1,171 @@
+# -*- coding: utf-8 -*-
+"""〈超導機制〉共用工具與互動元件（SPLIB）。"""
+from cc_common import *
+from qt_common import BASEJS
+
+SP_NOTE = (u"本課的數值為文獻中的代表值，不同樣品與量測方法可能略有出入；推導段落省略了部分嚴格條件，"
+           u"只想理解概念的讀者可以跳過公式，看圖、互動與「重點」。")
+
+SPLIB = r"""
+(function () {
+  if (window.__spLib) return; window.__spLib = 1;
+""" + BASEJS + r"""
+  /* ---------- 電阻—溫度 ---------- */
+  var MAT = { '水銀 Hg': [4.15, 'I'], '鉛 Pb': [7.2, 'I'], '鈮 Nb': [9.25, 'II'], '二硼化鎂 MgB₂': [39, 'II'], 'YBCO': [92, 'II'], '銅 Cu（不超導）': [0, '-'] };
+  function initRT(root, cfg) {
+    head(root, cfg.q); var m = cfg.m || '水銀 Hg', T = 3, bar = el('div'), view = el('div'), info = el('p', 'margin:6px 0 0'), us; root.appendChild(bar); root.appendChild(view);
+    Object.keys(MAT).forEach(function (k) { var b = btn(k, k); b.addEventListener('click', function () { m = k; mark(bar, k); setT(); }); bar.appendChild(b); }); mark(bar, m);
+    var sl = slider(root, '溫度', 0, 1, 0.002, 0.5, function (v) { return f2(tmax() * v) + ' K'; }, 'T', function (v) { T = tmax() * v; draw(); }); root.appendChild(info);
+    function tmax() { var tc = MAT[m][0]; return tc > 0 ? tc * 2.2 : 20; }
+    function R(t) { var tc = MAT[m][0], r = 0.12 + 0.88 * Math.pow(t / tmax(), m === 'YBCO' ? 1 : 3) ; if (m === 'YBCO') r = 0.05 + 0.95 * t / tmax(); return tc > 0 && t < tc ? 0 : r; }
+    function setT() { sl(); }
+    function draw() { var P = []; for (var i = 0; i <= 400; i++) { var t = tmax() * i / 400; P.push([t, R(t)]); }
+      var tc = MAT[m][0];
+      view.innerHTML = chart(640, 230, [{ d: P, c: '#3a6ea5', n: '電阻（相對值）' }], { x0: 0, x1: tmax(), y0: 0, y1: 1.1, xl: '溫度（K）', vl: tc ? [{ x: tc, c: '#e0605a', n: 'Tc = ' + tc + ' K' }] : [], pts: [{ x: T, y: R(T), c: '#e8a33d' }] });
+      var r = R(T);
+      info.innerHTML = m + '，' + f2(T) + ' K：' + (tc === 0 ? '銅是極好的導體，但冷到接近 0 K 仍有<b>殘餘電阻</b>（來自雜質與缺陷），永遠不會變成零。' : r === 0 ? '<b>超導態：電阻為零</b>。持續電流實驗中，電流可以流動多年而量不到衰減。' :
+        '正常態：電阻隨溫度下降而變小。降到 Tc = ' + tc + ' K 時，電阻會<b>突然</b>掉到零。') + (tc >= 77 ? '　Tc 高於液態氮的沸點 77 K，冷卻便宜很多。' : tc > 0 ? '　需要液態氦（4.2 K）或特殊冷卻。' : ''); }
+    sl();
+  }
+
+  /* ---------- 邁斯納效應 ---------- */
+  function initMeiss(root, cfg) {
+    head(root, cfg.q); var mat = 'sc', order = 'B', step = 2, bar1 = el('div'), bar2 = el('div'), view = el('div'), info = el('p', 'margin:6px 0 0');
+    root.appendChild(bar1); root.appendChild(bar2); root.appendChild(view); root.appendChild(info);
+    [['sc', '超導體'], ['pc', '假想的「完美導體」（只有零電阻）']].forEach(function (p) { var b = btn(p[1], p[0]); b.addEventListener('click', function () { mat = p[0]; mark(bar1, mat); draw(); }); bar1.appendChild(b); });
+    [['A', '順序 A：先降溫，再加磁場'], ['B', '順序 B：先加磁場，再降溫']].forEach(function (p) { var b = btn(p[1], p[0]); b.addEventListener('click', function () { order = p[0]; mark(bar2, order); draw(); }); bar2.appendChild(b); });
+    mark(bar1, mat); mark(bar2, order);
+    function lines(expel) { var o = '', R = 50, cx = 320, cy = 110;
+      for (var k = -5; k <= 5; k++) { var c = k * 19 + (k === 0 ? 0.5 : 0), d = '', pen = 'M';
+        for (var x = 20; x <= 620; x += 3) { var y; if (expel) { var X = x - cx, yy = c;
+              for (var it = 0; it < 30; it++) { var r2 = X * X + yy * yy; var f = yy * (1 - R * R / r2) - c, df = 1 - R * R / r2 + 2 * R * R * yy * yy / (r2 * r2); yy -= f / df; } y = cy + yy; if (!isFinite(yy) || X * X + yy * yy < R * R) y = NaN; }
+          else y = cy + c; if (isNaN(y)) { pen = 'M'; continue; } d += pen + n1(x) + ' ' + n1(y); pen = 'L'; }
+        o += '<path d="' + d + '" fill="none" stroke="#3a6ea5" stroke-width="1.4"/>'; }
+      return o; }
+    function draw() { var expel = mat === 'sc' ? true : order === 'A', o = lines(expel);
+      o += '<circle cx="320" cy="110" r="50" fill="' + (mat === 'sc' ? 'rgba(232,163,61,0.35)' : 'rgba(142,107,191,0.3)') + '" stroke="#555"/>' + tx(320, 114, mat === 'sc' ? '超導體' : '完美導體', 11);
+      o += tx(320, 232, expel ? '磁力線被排出，內部 B = 0' : '磁場被「凍結」在裡面', 11, expel ? '#5aa469' : '#e0605a');
+      view.innerHTML = svgw('0 0 640 240', o);
+      info.innerHTML = mat === 'sc' ? '不論先加磁場還是先降溫，超導體一進入超導態就<b>主動把磁場排出去</b>——這就是邁斯納效應（1933）。結果只由「現在的狀態」決定，所以超導是一種真正的熱力學相。' :
+        (order === 'A' ? '先降溫再加磁場：零電阻會產生感應電流抵抗磁場變化，磁場進不去——看起來和超導體一樣。' : '先加磁場再降溫：零電阻只會「保持現狀」，磁場被凍結在裡面。<b>結果取決於歷史</b>，這就是完美導體和超導體的根本差別。'); }
+    draw();
+  }
+
+  /* ---------- 相圖（第一類／第二類） ---------- */
+  function initPhase(root, cfg) {
+    head(root, cfg.q); var ty = cfg.ty || 'II', T = 0.5, H = 0.3, bar = el('div'), view = el('div'), info = el('p', 'margin:6px 0 0'); root.appendChild(bar); root.appendChild(view);
+    [['I', '第一類（例：鉛）'], ['II', '第二類（例：鈮）']].forEach(function (p) { var b = btn(p[1], p[0]); b.addEventListener('click', function () { ty = p[0]; mark(bar, ty); draw(); }); bar.appendChild(b); }); mark(bar, ty);
+    var u1 = slider(root, '溫度 T / Tc', 0, 1.2, 0.01, T, f2, 'T', function (v) { T = v; draw(); }), u2 = slider(root, '外加磁場 H（相對值）', 0, 1.2, 0.01, H, f2, 'H', function (v) { H = v; draw(); }); root.appendChild(info);
+    function hc(t, h0) { return t >= 1 ? 0 : h0 * (1 - t * t); }
+    function draw() { var A = [], B = [];
+      for (var t = 0; t <= 1.0001; t += 0.01) { if (ty === 'I') A.push([t, hc(t, 0.6)]); else { A.push([t, hc(t, 0.25)]); B.push([t, hc(t, 1)]); } }
+      var se = ty === 'I' ? [{ d: A, c: '#e0605a', n: '臨界磁場 Hc' }] : [{ d: A, c: '#e0605a', n: '下臨界 Hc1' }, { d: B, c: '#8e6bbf', n: '上臨界 Hc2' }];
+      var st = ty === 'I' ? (H < hc(T, 0.6) ? 'sc' : 'n') : (H < hc(T, 0.25) ? 'sc' : H < hc(T, 1) ? 'mix' : 'n');
+      view.innerHTML = chart(640, 240, se, { x0: 0, x1: 1.2, y0: 0, y1: 1.2, xl: '溫度 T / Tc', yl: '磁場 H', pts: [{ x: T, y: H, c: st === 'sc' ? '#5aa469' : st === 'mix' ? '#e8a33d' : '#888' }] });
+      info.innerHTML = st === 'sc' ? '<b>超導態（邁斯納態）</b>：磁場完全被排出，電阻為零。' : st === 'mix' ? '<b>混合態（渦旋態）</b>：磁場以一根根「磁通渦旋」穿過材料，其他地方仍然超導，電阻仍可為零。第二類超導體因此能承受很強的磁場。' :
+        '<b>正常態</b>：溫度或磁場太高，超導被破壞。' + (T > 1 ? '（溫度高於 Tc）' : ''); }
+    u1(); u2();
+  }
+
+  /* ---------- 磁化曲線與渦旋 ---------- */
+  function initMag(root, cfg) {
+    head(root, cfg.q); var H = 0.4, view = el('div'), info = el('p', 'margin:6px 0 0'); root.appendChild(view);
+    var u = slider(root, '外加磁場 H（相對值）', 0, 1.2, 0.01, H, f2, 'H', function (v) { H = v; draw(); }); root.appendChild(info);
+    var Hc = 0.5, Hc1 = 0.25, Hc2 = 1;
+    function m1(h) { return h < Hc ? h : 0; }
+    function m2(h) { return h < Hc1 ? h : h < Hc2 ? Hc1 * (Hc2 - h) / (Hc2 - Hc1) : 0; }
+    function draw() { var A = [], B = []; for (var h = 0; h <= 1.2; h += 0.005) { A.push([h, m1(h)]); B.push([h, m2(h)]); }
+      var ch = chart(420, 230, [{ d: A, c: '#e0605a', n: '第一類', dash: '6 4' }, { d: B, c: '#3a6ea5', n: '第二類' }], { x0: 0, x1: 1.2, y0: 0, y1: 0.6, xl: '外加磁場 H', yl: '−M（排斥的程度）', vl: [{ x: H, c: '#888', n: '' }] });
+      var Bin = H < Hc1 ? 0 : H < Hc2 ? H - m2(H) : H, n = Math.round(Bin * 70), o = '<rect x="10" y="20" width="180" height="180" fill="rgba(232,163,61,0.18)" stroke="#999"/>', rows = Math.ceil(Math.sqrt(n * 1.15));
+      if (n > 0 && H < Hc2) { var cols = Math.ceil(n / rows), k = 0; for (var r = 0; r < rows && k < n; r++) for (var c = 0; c < cols && k < n; c++, k++) { var x = 10 + (c + 0.5 + (r % 2) * 0.5) * 180 / (cols + 0.5), y = 20 + (r + 0.5) * 180 / rows;
+          o += '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="' + n1(Math.max(2, 9 - rows * 0.5)) + '" fill="#3a6ea5" opacity="0.85"/>'; } }
+      if (H >= Hc2) o += '<rect x="10" y="20" width="180" height="180" fill="rgba(58,110,165,0.35)"/>';
+      o += tx(100, 216, H < Hc1 ? '沒有渦旋：完全排斥' : H < Hc2 ? n + ' 根磁通渦旋（三角晶格）' : '正常態：磁場均勻穿過', 9.5);
+      view.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><div style="flex:1 1 380px">' + ch + '</div><div style="flex:0 0 200px">' + svgw('0 0 200 224', o) + '</div></div>';
+      info.innerHTML = '第一類超導體在 Hc 之前完全排斥磁場，超過就整個變回正常態。第二類超導體超過 Hc1 後，讓磁場以<b>量子化的磁通渦旋</b>穿入，每根渦旋帶一個磁通量子 Φ₀ = h/2e ≈ 2.07×10⁻¹⁵ Wb；直到 Hc2 才完全失去超導。'; }
+    u();
+  }
+
+  /* ---------- 電子—聲子吸引 ---------- */
+  function initPair(root, cfg) {
+    head(root, cfg.q); var cv = document.createElement('canvas'); cv.width = 640; cv.height = 260; cv.style.cssText = 'width:100%;display:block;background:var(--surface);border:1px solid var(--border);border-radius:8px'; root.appendChild(cv);
+    var bar = el('div'), info = el('p', 'margin:6px 0 0'), run = true, two = true; root.appendChild(bar); root.appendChild(info);
+    var bp = btn('⏸ 暫停', 'p'); bp.addEventListener('click', function () { run = !run; bp.textContent = run ? '⏸ 暫停' : '▶ 繼續'; }); bar.appendChild(bp);
+    var b2 = btn('第二個電子：開', 't'); b2.addEventListener('click', function () { two = !two; b2.textContent = '第二個電子：' + (two ? '開' : '關'); }); bar.appendChild(b2);
+    var ions = [], e1 = { x: 0, y: 130 }, e2 = { x: -100, y: 130, vx: 2.6 }, t = 0;
+    for (var i = 0; i < 22; i++) for (var j = 0; j < 7; j++) ions.push({ x0: 15 + i * 29, y0: 40 + j * 30, dx: 0, dy: 0 });
+    function frame() { if (!root.isConnected) return; if (run) { t++; e1.x += 3; if (e1.x > 700) { e1.x = -40; e2.x = -100; e2.vx = 2.6; ions.forEach(function (p) { p.dx = p.dy = 0; }); }
+        ions.forEach(function (p) { var ddx = e1.x - p.x0, ddy = e1.y - p.y0, d2 = ddx * ddx + ddy * ddy + 200, f = 2200 / d2; p.dx = p.dx * 0.985 + f * ddx / Math.sqrt(d2) * 0.02; p.dy = p.dy * 0.985 + f * ddy / Math.sqrt(d2) * 0.02; });
+        if (two) { var fx = 0; ions.forEach(function (p) { var ddx = p.x0 + p.dx - e2.x, ddy = p.y0 + p.dy - e2.y, d2 = ddx * ddx + ddy * ddy + 300, s = Math.hypot(p.dx, p.dy); fx += s * ddx / d2 * 1.6; }); e2.vx = 0.9 * e2.vx + 0.1 * (2.6 + fx); e2.x += e2.vx; } }
+      var g = cv.getContext('2d'), cs = getComputedStyle(root); g.clearRect(0, 0, 640, 260);
+      ions.forEach(function (p) { var s = Math.min(1, Math.hypot(p.dx, p.dy) / 4); g.fillStyle = 'rgba(224,96,90,' + (0.35 + 0.6 * s) + ')'; g.beginPath(); g.arc(p.x0 + p.dx, p.y0 + p.dy, 7, 0, 6.3); g.fill(); g.fillStyle = '#fff'; g.font = '10px sans-serif'; g.fillText('+', p.x0 + p.dx - 3, p.y0 + p.dy + 4); });
+      [[e1, '#3a6ea5']].concat(two ? [[e2, '#5aa469']] : []).forEach(function (q) { g.fillStyle = q[1]; g.beginPath(); g.arc(q[0].x, q[0].y, 6, 0, 6.3); g.fill(); g.fillStyle = '#fff'; g.fillText('−', q[0].x - 3, q[0].y + 3); });
+      requestAnimationFrame(frame); }
+    info.innerHTML = '藍色電子快速經過，把附近帶正電的離子（紅）往自己拉。離子很重、反應慢，等電子走了，那裡還留著一條<b>正電荷比較集中的尾跡</b>。綠色電子被這條尾跡吸引而跟上——兩個電子透過晶格<b>間接地互相吸引</b>，這就是庫柏對的來源（顏色越深表示離子位移越大）。';
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- 能隙 ---------- */
+  function initGap(root, cfg) {
+    head(root, cfg.q); var tt = 0.5, view = el('div'), info = el('p', 'margin:6px 0 0'); root.appendChild(view);
+    var u = slider(root, '溫度 T / Tc', 0, 1.1, 0.01, tt, f2, 'tt', function (v) { tt = v; draw(); }); root.appendChild(info);
+    function gap(t) { return t >= 1 ? 0 : t <= 0 ? 1 : Math.tanh(1.74 * Math.sqrt(1 / t - 1)); }
+    function draw() { var A = []; for (var t = 0; t <= 1.1; t += 0.005) A.push([t, gap(t)]); var g = gap(tt);
+      var ch1 = chart(320, 220, [{ d: A, c: '#3a6ea5', n: 'Δ(T) / Δ(0)' }], { x0: 0, x1: 1.1, y0: 0, y1: 1.15, xl: 'T / Tc', pts: [{ x: tt, y: g, c: '#e0605a' }] });
+      var D = [], N = []; for (var E = -3; E <= 3; E += 0.01) { var a = Math.abs(E), d = g; D.push([E, d > 0 ? (a > d ? Math.min(4, a / Math.sqrt(a * a - d * d)) : 0) : 1]); N.push([E, 1]); }
+      var ch2 = chart(320, 220, [{ d: N, c: '#999', n: '正常態', dash: '4 3', w: 1.5 }, { d: D, c: '#e8a33d', n: '超導態' }], { x0: -3, x1: 3, y0: 0, y1: 4.2, xl: '能量 E（以 Δ(0) 為單位，0 = 費米能）', yl: '能態密度' });
+      view.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px"><div style="flex:1 1 300px">' + ch1 + '</div><div style="flex:1 1 300px">' + ch2 + '</div></div>';
+      info.innerHTML = 'T = ' + f2(tt) + ' Tc：能隙是 0 K 時的 <b>' + Math.round(g * 100) + '%</b>。' + (g > 0 ? '費米能附近 ±Δ 範圍內<b>沒有可用的能態</b>，被擠到能隙邊緣堆成尖峰。要把一對電子拆開，至少要 2Δ 的能量；低溫下的散射付不起這個代價，電子對就能無阻地流動。' : '溫度高於 Tc，能隙消失，回到正常金屬。') +
+        ' BCS 理論預測 2Δ(0) ≈ 3.53 k<sub>B</sub>T<sub>c</sub>。'; }
+    u();
+  }
+
+  /* ---------- SQUID ---------- */
+  function initSquid(root, cfg) {
+    head(root, cfg.q); var ph = 0.2, view = el('div'), info = el('p', 'margin:6px 0 0'); root.appendChild(view);
+    var u = slider(root, '穿過迴路的磁通 Φ / Φ₀', 0, 4, 0.01, ph, f2, 'ph', function (v) { ph = v; draw(); }); root.appendChild(info);
+    function draw() { var A = []; for (var x = 0; x <= 4; x += 0.005) A.push([x, Math.abs(Math.cos(Math.PI * x))]); var ic = Math.abs(Math.cos(Math.PI * ph));
+      var o = '<rect x="40" y="40" width="160" height="120" rx="14" fill="none" stroke="#e8a33d" stroke-width="8"/>' + '<rect x="110" y="32" width="20" height="16" fill="#555"/>' + '<rect x="110" y="152" width="20" height="16" fill="#555"/>';
+      o += tx(120, 26, '約瑟夫森接面', 9, 'var(--text-muted)') + tx(120, 186, '約瑟夫森接面', 9, 'var(--text-muted)') + '<circle cx="120" cy="100" r="' + n1(6 + ph * 6) + '" fill="#3a6ea5" opacity="0.35"/>' + tx(120, 104, 'Φ', 12, '#3a6ea5');
+      o += ln(10, 100, 40, 100, '#555', 2) + ln(200, 100, 230, 100, '#555', 2) + tx(10, 92, 'I', 10, 'currentColor', 'start');
+      view.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center"><div style="flex:0 0 240px">' + svgw('0 0 240 200', o) + '</div><div style="flex:1 1 360px">' +
+        chart(400, 210, [{ d: A, c: '#3a6ea5', n: '最大超導電流 Ic / Ic,max' }], { x0: 0, x1: 4, y0: 0, y1: 1.15, xl: '磁通 Φ / Φ₀', pts: [{ x: ph, y: ic, c: '#e0605a' }] }) + '</div></div>';
+      info.innerHTML = '兩條路徑上的電子對波函數互相干涉，就像雙縫實驗：最大超導電流隨磁通以 Φ₀ = h/2e ≈ 2×10⁻¹⁵ Wb 為週期振盪。目前 Ic 是最大值的 <b>' + Math.round(ic * 100) + '%</b>。數這些振盪的「條紋」，就能量到比地球磁場小一百億倍的磁場變化。'; }
+    u();
+  }
+
+  /* ---------- 臨界溫度的歷史 ---------- */
+  var TCD = [[1911, 4.2, 'Hg', 'c', 'L'], [1913, 7.2, 'Pb', 'c'], [1930, 9.2, 'Nb', 'c'], [1941, 16, 'NbN', 'c'], [1953, 17.1, 'V₃Si', 'c', 'L'], [1954, 18.3, 'Nb₃Sn', 'c'], [1973, 23.2, 'Nb₃Ge', 'c'],
+    [1986, 35, 'LBCO', 'u'], [1987, 93, 'YBCO', 'u'], [1988, 110, 'BSCCO', 'u'], [1988, 125, 'Tl 系', 'u', 'L'], [1993, 133, 'Hg 系', 'u'], [1994, 164, 'Hg 系（高壓）', 'up'],
+    [2001, 39, 'MgB₂', 'c'], [2008, 26, 'LaFeAsO:F', 'f'], [2008, 55, 'SmFeAsO', 'f'], [2015, 203, 'H₃S（高壓）', 'hp'], [2019, 250, 'LaH₁₀（高壓）', 'hp'], [2023, 80, 'La₃Ni₂O₇（高壓）', 'np']];
+  var TCC = { c: ['#3a6ea5', '傳統（BCS）'], u: ['#e0605a', '銅氧化物'], up: ['#e0605a', ''], f: ['#5aa469', '鐵基'], hp: ['#8e6bbf', '氫化物（高壓）'], np: ['#e8a33d', '鎳氧化物（高壓）'] };
+  function initTc(root, cfg) {
+    head(root, cfg.q); var hp = true, bar = el('div'), view = el('div'), info = el('p', 'margin:6px 0 0'); root.appendChild(bar); root.appendChild(view); root.appendChild(info);
+    var b = btn('隱藏需要高壓的紀錄', 'hp'); b.addEventListener('click', function () { hp = !hp; b.textContent = hp ? '隱藏需要高壓的紀錄' : '顯示需要高壓的紀錄'; draw(); }); bar.appendChild(b);
+    function draw() { var X0 = 60, X1 = 620, Y0 = 20, Y1 = 250; function sx(y) { return X0 + (y - 1905) / (2030 - 1905) * (X1 - X0); } function sy(t) { return Y1 - t / 300 * (Y1 - Y0); }
+      var o = ln(X0, Y1, X1, Y1, '#999') + ln(X0, Y0, X0, Y1, '#999');
+      [0, 50, 100, 150, 200, 250, 300].forEach(function (t) { o += tx(X0 - 6, sy(t) + 3, t, 9, 'var(--text-muted)', 'end') + ln(X0, sy(t), X1, sy(t), 'var(--border)', 0.6, 'stroke-dasharray="2 3"'); });
+      [1910, 1930, 1950, 1970, 1990, 2010, 2030].forEach(function (y) { o += tx(sx(y), Y1 + 14, y, 9, 'var(--text-muted)'); });
+      o += ln(X0, sy(77), X1, sy(77), '#3a6ea5', 1.2, 'stroke-dasharray="6 4"') + tx(X0 + 4, sy(77) - 4, '液態氮 77 K', 9, '#3a6ea5', 'start');
+      o += ln(X0, sy(4.2), X1, sy(4.2), '#888', 1, 'stroke-dasharray="3 3"') + tx(X1, sy(4.2) - 4, '液態氦 4.2 K', 9, '#888', 'end');
+      o += ln(X0, sy(293), X1, sy(293), '#e0605a', 1.2, 'stroke-dasharray="6 4"') + tx(X1, sy(293) + 12, '室溫 約 293 K', 9, '#e0605a', 'end');
+      TCD.forEach(function (d) { var press = /高壓/.test(d[2]); if (press && !hp) return; var c = TCC[d[3]][0];
+        o += '<circle cx="' + n1(sx(d[0])) + '" cy="' + n1(sy(d[1])) + '" r="5" fill="' + (press ? 'var(--surface)' : c) + '" stroke="' + c + '" stroke-width="2"/>' + tx(sx(d[0]) + (d[0] > 2012 || d[4] === 'L' ? -7 : 7), sy(d[1]) + 3, d[2], 8.5, c, d[0] > 2012 || d[4] === 'L' ? 'end' : 'start'); });
+      var lx = X0 + 8; ['c', 'u', 'f', 'hp', 'np'].forEach(function (k) { o += '<circle cx="' + lx + '" cy="12" r="4" fill="' + TCC[k][0] + '"/>' + tx(lx + 7, 15, TCC[k][1], 9, 'currentColor', 'start'); lx += 20 + TCC[k][1].length * 9.5; });
+      view.innerHTML = svgw('0 0 640 270', o);
+      info.innerHTML = '縱軸是臨界溫度（K）。空心點需要上百萬大氣壓的高壓。1986 年之前，75 年只從 4 K 爬到 23 K；銅氧化物在一年內跳過了液態氮的 77 K。常壓下的紀錄至今仍是汞系銅氧化物的約 133 K，離室溫還很遠。'; }
+    draw();
+  }
+
+  function initAll() { document.querySelectorAll('.sp-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+    ({ rt: initRT, meiss: initMeiss, phase: initPhase, mag: initMag, pair: initPair, gap: initGap, squid: initSquid, tc: initTc })[cfg.t](w, cfg); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+})();
+"""
+
+
+def spw(cfg, maxw=680):
+    return wdg("sp-w", cfg, maxw)
+
+
+splesson = make_lesson(u"🧲", SP_NOTE, SPLIB, "sp-w")
