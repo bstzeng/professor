@@ -14398,6 +14398,270 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "crypto-currency",
+      category: "finance",
+      title: "加密貨幣：從密碼學原理到比特幣、以太坊與穩定幣",
+      description:
+        "錢是什麼、數位支付為什麼有雙重支付難題；比特幣之前的 eCash、Hashcash、b-money；雜湊、公私鑰、數位簽章與地址；比特幣的交易、區塊鏈、默克爾樹、挖礦、難度、最長鏈、減半與 51% 攻擊；從創世區塊到 ETF 的歷史；以太坊、智慧合約、The DAO、權益證明與 Rollup；穩定幣、DeFi、NFT、交易所與錢包；FTX、Terra 等事件、詐騙防範、監管與 CBDC。附 SHA-256、簽章、區塊鏈竄改、挖礦等互動實驗。教育用途，不構成投資建議。",
+      icon: "₿",
+      url: "topics/crypto-currency/index.html",
+      resources: [
+        {
+          title: "加密貨幣互動實驗室",
+          description: "SHA-256、雪崩效應、數位簽章、區塊鏈竄改、親手挖礦、UTXO、發行曲線、自動做市商",
+          icon: "🧪",
+          url: "topics/crypto-currency/lab.html"
+        },
+        {
+          title: "加密貨幣大事年表",
+          description: "從 1982 年的盲簽章到今天",
+          icon: "📅",
+          url: "topics/crypto-currency/timeline.html"
+        },
+        {
+          title: "加密貨幣速查表",
+          description: "術語中英對照與核心數字",
+          icon: "🗂️",
+          url: "topics/crypto-currency/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜錢是什麼",
+          courses: [
+            { title: "錢的三個功能", url: "topics/crypto-currency/lesson-01.html" },
+            { title: "從貝殼到紙幣：信用與發行權", url: "topics/crypto-currency/lesson-02.html" },
+            { title: "數位支付的難題：雙重支付", url: "topics/crypto-currency/lesson-03.html" },
+            { title: "加密貨幣想解決什麼問題", url: "topics/crypto-currency/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜比特幣之前",
+          courses: [
+            { title: "密碼龐克運動", url: "topics/crypto-currency/lesson-05.html" },
+            { title: "大衛．喬姆與 eCash", url: "topics/crypto-currency/lesson-06.html" },
+            { title: "Hashcash：工作量證明的前身", url: "topics/crypto-currency/lesson-07.html" },
+            { title: "b-money、Bit Gold 與 RPOW", url: "topics/crypto-currency/lesson-08.html" },
+            { title: "為什麼之前都失敗了", url: "topics/crypto-currency/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜密碼學基礎",
+          courses: [
+            { title: "雜湊函數", url: "topics/crypto-currency/lesson-10.html" },
+            { title: "雜湊的三個關鍵特性", url: "topics/crypto-currency/lesson-11.html" },
+            { title: "公鑰與私鑰", url: "topics/crypto-currency/lesson-12.html" },
+            { title: "數位簽章", url: "topics/crypto-currency/lesson-13.html" },
+            { title: "橢圓曲線的直覺", url: "topics/crypto-currency/lesson-14.html" },
+            { title: "地址是怎麼產生的", url: "topics/crypto-currency/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜比特幣的原理",
+          courses: [
+            { title: "2008 年的白皮書", url: "topics/crypto-currency/lesson-16.html" },
+            { title: "交易與 UTXO", url: "topics/crypto-currency/lesson-17.html" },
+            { title: "區塊與鏈", url: "topics/crypto-currency/lesson-18.html" },
+            { title: "默克爾樹", url: "topics/crypto-currency/lesson-19.html" },
+            { title: "挖礦：工作量證明", url: "topics/crypto-currency/lesson-20.html" },
+            { title: "難度調整", url: "topics/crypto-currency/lesson-21.html" },
+            { title: "最長鏈原則與共識", url: "topics/crypto-currency/lesson-22.html" },
+            { title: "獎勵、減半與 2100 萬上限", url: "topics/crypto-currency/lesson-23.html" },
+            { title: "51% 攻擊與安全性", url: "topics/crypto-currency/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜比特幣的歷史",
+          courses: [
+            { title: "創世區塊與中本聰之謎", url: "topics/crypto-currency/lesson-25.html" },
+            { title: "披薩日：第一筆真實交易", url: "topics/crypto-currency/lesson-26.html" },
+            { title: "暗網與 Mt. Gox：早期的混亂", url: "topics/crypto-currency/lesson-27.html" },
+            { title: "擴容之爭與分叉", url: "topics/crypto-currency/lesson-28.html" },
+            { title: "閃電網路", url: "topics/crypto-currency/lesson-29.html" },
+            { title: "從邊緣走向主流", url: "topics/crypto-currency/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜以太坊與智慧合約",
+          courses: [
+            { title: "維塔利克的想法：全球電腦", url: "topics/crypto-currency/lesson-31.html" },
+            { title: "智慧合約", url: "topics/crypto-currency/lesson-32.html" },
+            { title: "帳戶模型與 Gas", url: "topics/crypto-currency/lesson-33.html" },
+            { title: "The DAO 事件與以太坊分叉", url: "topics/crypto-currency/lesson-34.html" },
+            { title: "The Merge：從工作量證明到權益證明", url: "topics/crypto-currency/lesson-35.html" },
+            { title: "第二層擴容：Rollup", url: "topics/crypto-currency/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜加密貨幣生態",
+          courses: [
+            { title: "代幣與 ICO 熱潮", url: "topics/crypto-currency/lesson-37.html" },
+            { title: "穩定幣", url: "topics/crypto-currency/lesson-38.html" },
+            { title: "演算法穩定幣的崩潰：Terra／Luna", url: "topics/crypto-currency/lesson-39.html" },
+            { title: "DeFi：去中心化金融", url: "topics/crypto-currency/lesson-40.html" },
+            { title: "NFT：數位所有權", url: "topics/crypto-currency/lesson-41.html" },
+            { title: "交易所與錢包", url: "topics/crypto-currency/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜風險與事件",
+          courses: [
+            { title: "FTX 破產", url: "topics/crypto-currency/lesson-43.html" },
+            { title: "駭客與詐騙", url: "topics/crypto-currency/lesson-44.html" },
+            { title: "價格波動與泡沫", url: "topics/crypto-currency/lesson-45.html" },
+            { title: "能源與環境爭議", url: "topics/crypto-currency/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜監管與社會",
+          courses: [
+            { title: "各國的監管", url: "topics/crypto-currency/lesson-47.html" },
+            { title: "台灣的規定", url: "topics/crypto-currency/lesson-48.html" },
+            { title: "央行數位貨幣（CBDC）", url: "topics/crypto-currency/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 J｜總結",
+          courses: [
+            { title: "加密貨幣解決了什麼、沒解決什麼", url: "topics/crypto-currency/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "quantum-mechanics",
+      category: "science",
+      title: "量子力學：從黑體輻射到薛丁格方程式與糾纏",
+      description:
+        "古典物理的危機：黑體輻射、光電效應、康普頓散射；波耳模型與原子光譜；物質波與一次一顆的雙縫實驗；複數、波函數、狄拉克符號與算符；薛丁格方程式、位能井、量子穿隧、簡諧振子；測不準原理與量測問題；氫原子軌域、自旋與週期表；EPR、糾纏與貝爾不等式；各種詮釋、應用與通往量子場論。附九個互動實驗。",
+      icon: "⚛️",
+      url: "topics/quantum-mechanics/index.html",
+      resources: [
+        {
+          title: "量子力學互動實驗室",
+          description: "黑體輻射、光電效應、氫原子光譜、雙縫、位能井、穿隧、軌域、施特恩—格拉赫、貝爾實驗",
+          icon: "🧪",
+          url: "topics/quantum-mechanics/lab.html"
+        },
+        {
+          title: "量子力學年表",
+          description: "從 1900 年的普朗克到 2025 年的諾貝爾獎",
+          icon: "📅",
+          url: "topics/quantum-mechanics/timeline.html"
+        },
+        {
+          title: "量子力學速查表",
+          description: "常數、核心公式與術語",
+          icon: "🗂️",
+          url: "topics/quantum-mechanics/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜古典物理的危機",
+          courses: [
+            { title: "1900 年的物理學", url: "topics/quantum-mechanics/lesson-01.html" },
+            { title: "黑體輻射與紫外災難", url: "topics/quantum-mechanics/lesson-02.html" },
+            { title: "普朗克的「絕望之舉」：E = hν", url: "topics/quantum-mechanics/lesson-03.html" },
+            { title: "光電效應：光是一顆一顆的", url: "topics/quantum-mechanics/lesson-04.html" },
+            { title: "康普頓散射：光子也有動量", url: "topics/quantum-mechanics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜原子的量子化",
+          courses: [
+            { title: "原子光譜：大自然的條碼", url: "topics/quantum-mechanics/lesson-06.html" },
+            { title: "波耳模型：氫原子的能階", url: "topics/quantum-mechanics/lesson-07.html" },
+            { title: "夫蘭克—赫茲實驗：能階真的存在", url: "topics/quantum-mechanics/lesson-08.html" },
+            { title: "波耳模型的極限", url: "topics/quantum-mechanics/lesson-09.html" },
+            { title: "從舊量子論到新量子力學", url: "topics/quantum-mechanics/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜物質波",
+          courses: [
+            { title: "德布羅意：電子也是波", url: "topics/quantum-mechanics/lesson-11.html" },
+            { title: "戴維森—革末實驗：電子會繞射", url: "topics/quantum-mechanics/lesson-12.html" },
+            { title: "雙縫實驗：一次只送一顆電子", url: "topics/quantum-mechanics/lesson-13.html" },
+            { title: "路徑資訊與互補原理", url: "topics/quantum-mechanics/lesson-14.html" },
+            { title: "波粒二象性的正確理解", url: "topics/quantum-mechanics/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜數學工具箱",
+          courses: [
+            { title: "複數複習：量子力學的語言", url: "topics/quantum-mechanics/lesson-16.html" },
+            { title: "波函數與玻恩規則", url: "topics/quantum-mechanics/lesson-17.html" },
+            { title: "狄拉克符號：態向量", url: "topics/quantum-mechanics/lesson-18.html" },
+            { title: "算符與本徵值：可觀測量", url: "topics/quantum-mechanics/lesson-19.html" },
+            { title: "厄米算符：為什麼量測結果是實數", url: "topics/quantum-mechanics/lesson-20.html" },
+            { title: "對易子：先後順序有差", url: "topics/quantum-mechanics/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜薛丁格方程式",
+          courses: [
+            { title: "薛丁格方程式從哪裡來", url: "topics/quantum-mechanics/lesson-22.html" },
+            { title: "定態與能量本徵值", url: "topics/quantum-mechanics/lesson-23.html" },
+            { title: "無限位能井：盒子裡的粒子", url: "topics/quantum-mechanics/lesson-24.html" },
+            { title: "有限位能井與量子穿隧", url: "topics/quantum-mechanics/lesson-25.html" },
+            { title: "穿隧的應用：從太陽到快閃記憶體", url: "topics/quantum-mechanics/lesson-26.html" },
+            { title: "簡諧振子與階梯算符", url: "topics/quantum-mechanics/lesson-27.html" },
+            { title: "波包：量子粒子如何移動", url: "topics/quantum-mechanics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜測不準與測量",
+          courses: [
+            { title: "測不準原理：Δx Δp ≥ ħ/2", url: "topics/quantum-mechanics/lesson-29.html" },
+            { title: "測不準原理的常見誤解", url: "topics/quantum-mechanics/lesson-30.html" },
+            { title: "量測問題", url: "topics/quantum-mechanics/lesson-31.html" },
+            { title: "疊加與薛丁格的貓", url: "topics/quantum-mechanics/lesson-32.html" },
+            { title: "期望值與埃倫費斯特定理", url: "topics/quantum-mechanics/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜氫原子與自旋",
+          courses: [
+            { title: "三維薛丁格方程式與角動量", url: "topics/quantum-mechanics/lesson-34.html" },
+            { title: "解氫原子：n、l、m", url: "topics/quantum-mechanics/lesson-35.html" },
+            { title: "軌域的形狀：機率雲", url: "topics/quantum-mechanics/lesson-36.html" },
+            { title: "施特恩—格拉赫實驗：自旋的發現", url: "topics/quantum-mechanics/lesson-37.html" },
+            { title: "自旋 ½ 與包立矩陣", url: "topics/quantum-mechanics/lesson-38.html" },
+            { title: "包立不相容原理與週期表", url: "topics/quantum-mechanics/lesson-39.html" },
+            { title: "費米子與玻色子", url: "topics/quantum-mechanics/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜糾纏",
+          courses: [
+            { title: "EPR 悖論：量子力學完備嗎？", url: "topics/quantum-mechanics/lesson-41.html" },
+            { title: "糾纏態", url: "topics/quantum-mechanics/lesson-42.html" },
+            { title: "貝爾不等式：讓哲學變成實驗", url: "topics/quantum-mechanics/lesson-43.html" },
+            { title: "從阿斯佩到 2022 年諾貝爾獎", url: "topics/quantum-mechanics/lesson-44.html" },
+            { title: "糾纏的限制與應用", url: "topics/quantum-mechanics/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 I｜詮釋與延伸",
+          courses: [
+            { title: "哥本哈根詮釋", url: "topics/quantum-mechanics/lesson-46.html" },
+            { title: "多世界、玻姆力學與退相干", url: "topics/quantum-mechanics/lesson-47.html" },
+            { title: "微擾理論：近似計算的工具", url: "topics/quantum-mechanics/lesson-48.html" },
+            { title: "量子力學的應用", url: "topics/quantum-mechanics/lesson-49.html" },
+            { title: "通往量子場論", url: "topics/quantum-mechanics/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 J｜歷史與總結",
+          courses: [
+            { title: "量子力學的人物群像", url: "topics/quantum-mechanics/lesson-51.html" },
+            { title: "總結：量子力學的五條規則", url: "topics/quantum-mechanics/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
