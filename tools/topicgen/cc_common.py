@@ -32,7 +32,9 @@ _XT = {"cr": (u"cryptography", u"密碼學全解析"), "cc": (u"crypto-currency"
        "cx": (u"complex-numbers", u"複數到底在做什麼"), "rel": (u"relativity", u"廣義相對論"), "np": (u"nobel-physics", u"諾貝爾物理獎"),
        "stock": (u"stock-investing", u"股票的本質"), "debt": (u"national-debt", u"國債是什麼"), "net": (u"networking", u"網路"),
        "th": (u"tech-history", u"人類科技發展史"), "em": (u"electromagnetism", u"電磁學"), "chip": (u"chip-layout", u"晶片是怎麼畫出來的"),
-       "st": (u"string-theory", u"超弦理論入門"), "lap": (u"laplace-transform", u"拉普拉斯轉換")}
+       "st": (u"string-theory", u"超弦理論入門"), "lap": (u"laplace-transform", u"拉普拉斯轉換"),
+       "qt": (u"queueing-theory", u"排隊理論"), "sd": (u"system-dynamics", u"系統動力學"), "stat": (u"statistics-doe", u"統計學與實驗設計"),
+       "cs": (u"computer-science", u"計算機概論"), "os": (u"os-dev", u"作業系統是怎麼寫出來的")}
 
 
 def XL(key, text=None):
