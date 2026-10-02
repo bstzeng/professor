@@ -14662,6 +14662,226 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "queueing-theory",
+      category: "math",
+      title: "排隊理論：為什麼你總是在等？",
+      description:
+        "從超商、客服到網路封包：排隊系統的組成、卜瓦松到達與指數分布、檢查站悖論；利特爾定律 L = λW；M/M/1 推導與「使用率接近 100% 就塞爆」的壅塞曲線；多櫃台、爾朗 B／C 公式與人力規劃；變異、優先權、放棄與重試風暴；生產線瓶頸與排隊網路；電腦系統、尾端延遲、交通與排隊心理學。附六個互動模擬。",
+      icon: "⏳",
+      url: "topics/queueing-theory/index.html",
+      resources: [
+        {
+          title: "排隊理論互動實驗室",
+          description: "壅塞曲線、卜瓦松到達、M/M/c 動畫模擬、一條隊 vs. 各排各的、爾朗 C 人力計算、生產線瓶頸",
+          icon: "🧪",
+          url: "topics/queueing-theory/lab.html"
+        },
+        {
+          title: "排隊理論公式速查",
+          description: "符號、核心公式與術語",
+          icon: "🗂️",
+          url: "topics/queueing-theory/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜生活中的排隊",
+          courses: [
+            { title: "排隊無所不在", url: "topics/queueing-theory/lesson-01.html" },
+            { title: "排隊系統的組成", url: "topics/queueing-theory/lesson-02.html" },
+            { title: "歷史：電話交換機的難題", url: "topics/queueing-theory/lesson-03.html" },
+            { title: "為什麼「快滿了」就會塞爆", url: "topics/queueing-theory/lesson-04.html" },
+            { title: "學習地圖：從直覺到公式", url: "topics/queueing-theory/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜描述隨機性的工具",
+          courses: [
+            { title: "到達是隨機的", url: "topics/queueing-theory/lesson-06.html" },
+            { title: "卜瓦松過程：完全隨機的到達", url: "topics/queueing-theory/lesson-07.html" },
+            { title: "指數分布與無記憶性", url: "topics/queueing-theory/lesson-08.html" },
+            { title: "卜瓦松和指數是一體兩面", url: "topics/queueing-theory/lesson-09.html" },
+            { title: "變異係數：有多不穩定", url: "topics/queueing-theory/lesson-10.html" },
+            { title: "檢查站悖論", url: "topics/queueing-theory/lesson-11.html" },
+            { title: "用程式產生隨機到達", url: "topics/queueing-theory/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜最重要的一條定律",
+          courses: [
+            { title: "利特爾定律：L = λW", url: "topics/queueing-theory/lesson-13.html" },
+            { title: "利特爾定律的直觀證明", url: "topics/queueing-theory/lesson-14.html" },
+            { title: "利特爾定律的應用", url: "topics/queueing-theory/lesson-15.html" },
+            { title: "使用率與穩定條件", url: "topics/queueing-theory/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜經典模型 M/M/1",
+          courses: [
+            { title: "肯德爾記號", url: "topics/queueing-theory/lesson-17.html" },
+            { title: "生死過程與狀態轉移圖", url: "topics/queueing-theory/lesson-18.html" },
+            { title: "推導穩態機率", url: "topics/queueing-theory/lesson-19.html" },
+            { title: "平均隊長與等待時間", url: "topics/queueing-theory/lesson-20.html" },
+            { title: "最重要的一張圖：壅塞曲線", url: "topics/queueing-theory/lesson-21.html" },
+            { title: "管理的意義：不要排到 100%", url: "topics/queueing-theory/lesson-22.html" },
+            { title: "模擬與公式對照", url: "topics/queueing-theory/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜多服務台與容量限制",
+          courses: [
+            { title: "M/M/c：好幾個櫃台", url: "topics/queueing-theory/lesson-24.html" },
+            { title: "爾朗 C 公式：客服中心要排幾個人", url: "topics/queueing-theory/lesson-25.html" },
+            { title: "一條長隊 vs. 每台各排一隊", url: "topics/queueing-theory/lesson-26.html" },
+            { title: "M/M/c/K：滿了就拒絕", url: "topics/queueing-theory/lesson-27.html" },
+            { title: "爾朗 B 公式：占線與病床", url: "topics/queueing-theory/lesson-28.html" },
+            { title: "平方根人力法則", url: "topics/queueing-theory/lesson-29.html" },
+            { title: "案例：急診室與超商結帳", url: "topics/queueing-theory/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜更真實的模型",
+          courses: [
+            { title: "M/G/1：變異越大越塞", url: "topics/queueing-theory/lesson-31.html" },
+            { title: "為什麼「穩定」比「快」更重要", url: "topics/queueing-theory/lesson-32.html" },
+            { title: "優先權排隊", url: "topics/queueing-theory/lesson-33.html" },
+            { title: "排隊紀律：誰先被服務", url: "topics/queueing-theory/lesson-34.html" },
+            { title: "放棄與拒排", url: "topics/queueing-theory/lesson-35.html" },
+            { title: "重試風暴：網站當機後為什麼更難恢復", url: "topics/queueing-theory/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜排隊網路",
+          courses: [
+            { title: "串聯系統：生產線與瓶頸", url: "topics/queueing-theory/lesson-37.html" },
+            { title: "傑克森網路", url: "topics/queueing-theory/lesson-38.html" },
+            { title: "封閉網路", url: "topics/queueing-theory/lesson-39.html" },
+            { title: "案例：主題樂園的動線", url: "topics/queueing-theory/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜應用與心理",
+          courses: [
+            { title: "電腦系統裡的排隊", url: "topics/queueing-theory/lesson-41.html" },
+            { title: "伺服器負載與尾端延遲", url: "topics/queueing-theory/lesson-42.html" },
+            { title: "交通：匝道儀控與收費站", url: "topics/queueing-theory/lesson-43.html" },
+            { title: "排隊心理學", url: "topics/queueing-theory/lesson-44.html" },
+            { title: "離散事件模擬", url: "topics/queueing-theory/lesson-45.html" },
+            { title: "總結：五條排隊直覺", url: "topics/queueing-theory/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "system-dynamics",
+      category: "math",
+      title: "系統動力學：為什麼好意常帶來壞結果？",
+      description:
+        "系統思考與冰山模型、政策抵抗；存量與流量、浴缸模型與 MIT 浴缸測驗；增強與調節迴路、S 型曲線、延遲造成的振盪；六種行為模式、臨界點與非線性；七個系統基模（成長上限、捨本逐末、公地悲劇……）；啤酒遊戲、SIR、獵物掠食者、巴斯擴散、城市動力學與《成長的極限》；建模流程、工具、驗證與梅多斯的槓桿點。附浴缸與十種模型的互動模擬。",
+      icon: "🔄",
+      url: "topics/system-dynamics/index.html",
+      resources: [
+        {
+          title: "系統動力學互動實驗室",
+          description: "浴缸、浴缸測驗、指數與 S 型成長、目標尋求、洗澡水振盪、超越後崩潰、SIR、獵物掠食者、巴斯擴散、啤酒遊戲",
+          icon: "🧪",
+          url: "topics/system-dynamics/lab.html"
+        },
+        {
+          title: "系統動力學速查表",
+          description: "符號、行為模式、系統基模與模型公式",
+          icon: "🗂️",
+          url: "topics/system-dynamics/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系統思考",
+          courses: [
+            { title: "什麼是系統", url: "topics/system-dynamics/lesson-01.html" },
+            { title: "冰山模型：事件、模式、結構", url: "topics/system-dynamics/lesson-02.html" },
+            { title: "線性思考的陷阱：政策抵抗", url: "topics/system-dynamics/lesson-03.html" },
+            { title: "歷史：佛睿斯特與 MIT", url: "topics/system-dynamics/lesson-04.html" },
+            { title: "系統動力學和其他方法的差別", url: "topics/system-dynamics/lesson-05.html" },
+            { title: "學習地圖：從浴缸到世界模型", url: "topics/system-dynamics/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜存量與流量",
+          courses: [
+            { title: "浴缸模型", url: "topics/system-dynamics/lesson-07.html" },
+            { title: "存量不會瞬間改變", url: "topics/system-dynamics/lesson-08.html" },
+            { title: "生活中的存量與流量", url: "topics/system-dynamics/lesson-09.html" },
+            { title: "存量—流量圖的畫法", url: "topics/system-dynamics/lesson-10.html" },
+            { title: "MIT 浴缸測驗", url: "topics/system-dynamics/lesson-11.html" },
+            { title: "積分與微分：數學觀點", url: "topics/system-dynamics/lesson-12.html" },
+            { title: "用試算表算存量", url: "topics/system-dynamics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜回饋迴路",
+          courses: [
+            { title: "因果迴路圖", url: "topics/system-dynamics/lesson-14.html" },
+            { title: "增強迴路：滾雪球", url: "topics/system-dynamics/lesson-15.html" },
+            { title: "調節迴路：趨向目標", url: "topics/system-dynamics/lesson-16.html" },
+            { title: "判斷迴路極性", url: "topics/system-dynamics/lesson-17.html" },
+            { title: "主導迴路的轉換", url: "topics/system-dynamics/lesson-18.html" },
+            { title: "S 型曲線：邏輯斯成長", url: "topics/system-dynamics/lesson-19.html" },
+            { title: "延遲＋調節＝振盪", url: "topics/system-dynamics/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜經典行為模式",
+          courses: [
+            { title: "三種基本行為", url: "topics/system-dynamics/lesson-21.html" },
+            { title: "組合行為", url: "topics/system-dynamics/lesson-22.html" },
+            { title: "平衡點與穩定性", url: "topics/system-dynamics/lesson-23.html" },
+            { title: "延遲的種類", url: "topics/system-dynamics/lesson-24.html" },
+            { title: "非線性與表函數", url: "topics/system-dynamics/lesson-25.html" },
+            { title: "從行為反推結構", url: "topics/system-dynamics/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜系統基模",
+          courses: [
+            { title: "成長上限", url: "topics/system-dynamics/lesson-27.html" },
+            { title: "捨本逐末", url: "topics/system-dynamics/lesson-28.html" },
+            { title: "公地悲劇", url: "topics/system-dynamics/lesson-29.html" },
+            { title: "飲鴆止渴", url: "topics/system-dynamics/lesson-30.html" },
+            { title: "目標侵蝕", url: "topics/system-dynamics/lesson-31.html" },
+            { title: "惡性競爭", url: "topics/system-dynamics/lesson-32.html" },
+            { title: "富者越富", url: "topics/system-dynamics/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜經典模型",
+          courses: [
+            { title: "啤酒遊戲：長鞭效應", url: "topics/system-dynamics/lesson-34.html" },
+            { title: "傳染病模型 SIR", url: "topics/system-dynamics/lesson-35.html" },
+            { title: "獵物與掠食者", url: "topics/system-dynamics/lesson-36.html" },
+            { title: "巴斯擴散模型", url: "topics/system-dynamics/lesson-37.html" },
+            { title: "城市動力學與住房", url: "topics/system-dynamics/lesson-38.html" },
+            { title: "《成長的極限》與 World3", url: "topics/system-dynamics/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜建模實作",
+          courses: [
+            { title: "建模流程", url: "topics/system-dynamics/lesson-40.html" },
+            { title: "工具：Vensim、Stella 與 Python", url: "topics/system-dynamics/lesson-41.html" },
+            { title: "模型驗證：所有模型都是錯的", url: "topics/system-dynamics/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "槓桿點", url: "topics/system-dynamics/lesson-43.html" },
+            { title: "系統思考的十條守則", url: "topics/system-dynamics/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
