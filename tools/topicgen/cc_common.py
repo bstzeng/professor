@@ -36,7 +36,8 @@ _XT = {"cr": (u"cryptography", u"密碼學全解析"), "cc": (u"crypto-currency"
        "qt": (u"queueing-theory", u"排隊理論"), "sd": (u"system-dynamics", u"系統動力學"), "stat": (u"statistics-doe", u"統計學與實驗設計"),
        "cs": (u"computer-science", u"計算機概論"), "os": (u"os-dev", u"作業系統是怎麼寫出來的"),
        "bb": (u"big-bang", u"大霹靂起源論"), "astro": (u"astronomy", u"太空探索"), "sf": (u"spaceflight", u"飛向太空"), "cf": (u"cosmic-future", u"宇宙的未來"),
-       "spc": (u"superconductivity", u"超導機制"), "stp": (u"statistical-physics", u"統計物理與相變"), "pl": (u"plasma-physics", u"電漿物理")}
+       "spc": (u"superconductivity", u"超導機制"), "stp": (u"statistical-physics", u"統計物理與相變"), "pl": (u"plasma-physics", u"電漿物理"),
+       "rp": (u"stochastic-processes", u"隨機過程與馬可夫鏈"), "mc": (u"monte-carlo", u"蒙地卡羅方法"), "go": (u"go-basics", u"圍棋入門"), "stock": (u"stock-investing", u"股票的本質")}
 
 
 def XL(key, text=None):
