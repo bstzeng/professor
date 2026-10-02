@@ -14882,6 +14882,127 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cosmic-future",
+      category: "science",
+      title: "宇宙的未來：從明天到時間的盡頭",
+      description:
+        "用現有科學推測未來：冰期、超大陸、月球遠離、太陽變亮與海洋消失；太陽變成紅巨星、白矮星，地球是否被吞沒；太陽系的混沌與路過的恆星；銀河系與仙女座的碰撞（2025 年新研究：約一半機率）；加速膨脹、暗能量、DESI 新線索與熱寂、大撕裂、大擠壓；恆星時代結束、質子衰變、黑洞蒸發到 10¹⁰⁰ 年的黑暗時代。每項推測都標示把握程度，附六個互動模擬。",
+      icon: "🌌",
+      url: "topics/cosmic-future/index.html",
+      resources: [
+        {
+          title: "宇宙未來互動實驗室",
+          description: "對數時間軸、地球溫度、太陽的一生、恆星壽命、銀河碰撞、宇宙的四種結局",
+          icon: "🧪",
+          url: "topics/cosmic-future/lab.html"
+        },
+        {
+          title: "宇宙未來年表",
+          description: "從 1 萬年到 10¹⁰⁰ 年，每一項都標示把握程度",
+          icon: "📅",
+          url: "topics/cosmic-future/timeline.html"
+        },
+        {
+          title: "宇宙未來數字速查",
+          description: "太陽、銀河、宇宙的關鍵數字",
+          icon: "🗂️",
+          url: "topics/cosmic-future/numbers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜我們怎麼「預測」幾百億年後",
+          courses: [
+            { title: "預測未來的三把鑰匙", url: "topics/cosmic-future/lesson-01.html" },
+            { title: "宇宙年曆", url: "topics/cosmic-future/lesson-02.html" },
+            { title: "對數時間尺度", url: "topics/cosmic-future/lesson-03.html" },
+            { title: "把握程度怎麼分級", url: "topics/cosmic-future/lesson-04.html" },
+            { title: "現在的宇宙長什麼樣", url: "topics/cosmic-future/lesson-05.html" },
+            { title: "學習地圖", url: "topics/cosmic-future/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜地球的未來",
+          courses: [
+            { title: "未來幾萬年：冰期循環", url: "topics/cosmic-future/lesson-07.html" },
+            { title: "大陸漂移：未來的超大陸", url: "topics/cosmic-future/lesson-08.html" },
+            { title: "月球正在遠離", url: "topics/cosmic-future/lesson-09.html" },
+            { title: "太陽越來越亮", url: "topics/cosmic-future/lesson-10.html" },
+            { title: "約 6 億～10 億年後：光合作用的終點", url: "topics/cosmic-future/lesson-11.html" },
+            { title: "約 10 億～15 億年後：海洋消失", url: "topics/cosmic-future/lesson-12.html" },
+            { title: "地球生命的最後階段", url: "topics/cosmic-future/lesson-13.html" },
+            { title: "地球最後的命運", url: "topics/cosmic-future/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜太陽的一生",
+          courses: [
+            { title: "太陽的現在：中年的主序星", url: "topics/cosmic-future/lesson-15.html" },
+            { title: "太陽為什麼會變老", url: "topics/cosmic-future/lesson-16.html" },
+            { title: "約 50～76 億年後：紅巨星", url: "topics/cosmic-future/lesson-17.html" },
+            { title: "氦閃與水平分支", url: "topics/cosmic-future/lesson-18.html" },
+            { title: "漸近巨星分支與行星狀星雲", url: "topics/cosmic-future/lesson-19.html" },
+            { title: "白矮星：地球大小的餘燼", url: "topics/cosmic-future/lesson-20.html" },
+            { title: "黑矮星：宇宙中還沒有一顆", url: "topics/cosmic-future/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜太陽系的未來",
+          courses: [
+            { title: "行星軌道真的穩定嗎", url: "topics/cosmic-future/lesson-22.html" },
+            { title: "水星的 1% 機率", url: "topics/cosmic-future/lesson-23.html" },
+            { title: "太陽變輕，軌道變大", url: "topics/cosmic-future/lesson-24.html" },
+            { title: "紅巨星時期的新適居帶", url: "topics/cosmic-future/lesson-25.html" },
+            { title: "路過的恆星", url: "topics/cosmic-future/lesson-26.html" },
+            { title: "太陽系的最終結局", url: "topics/cosmic-future/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜銀河系的未來",
+          courses: [
+            { title: "銀河系的現在", url: "topics/cosmic-future/lesson-28.html" },
+            { title: "仙女座正在接近", url: "topics/cosmic-future/lesson-29.html" },
+            { title: "碰撞會發生嗎", url: "topics/cosmic-future/lesson-30.html" },
+            { title: "星系碰撞時，恆星會相撞嗎", url: "topics/cosmic-future/lesson-31.html" },
+            { title: "銀河仙女星系", url: "topics/cosmic-future/lesson-32.html" },
+            { title: "麥哲倫雲的回歸", url: "topics/cosmic-future/lesson-33.html" },
+            { title: "星系的熄火", url: "topics/cosmic-future/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜宇宙的膨脹與命運",
+          courses: [
+            { title: "宇宙在膨脹，而且在加速", url: "topics/cosmic-future/lesson-35.html" },
+            { title: "暗能量是什麼", url: "topics/cosmic-future/lesson-36.html" },
+            { title: "本星系群的孤島", url: "topics/cosmic-future/lesson-37.html" },
+            { title: "未來的天文學家", url: "topics/cosmic-future/lesson-38.html" },
+            { title: "四種可能的結局", url: "topics/cosmic-future/lesson-39.html" },
+            { title: "DESI 的新線索", url: "topics/cosmic-future/lesson-40.html" },
+            { title: "真空衰變", url: "topics/cosmic-future/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜漫長的黑暗",
+          courses: [
+            { title: "恆星時代的結束", url: "topics/cosmic-future/lesson-42.html" },
+            { title: "紅矮星的未來", url: "topics/cosmic-future/lesson-43.html" },
+            { title: "簡併時代", url: "topics/cosmic-future/lesson-44.html" },
+            { title: "質子會衰變嗎", url: "topics/cosmic-future/lesson-45.html" },
+            { title: "黑洞時代", url: "topics/cosmic-future/lesson-46.html" },
+            { title: "黑暗時代", url: "topics/cosmic-future/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 H｜時間的盡頭與總結",
+          courses: [
+            { title: "熵與時間之箭", url: "topics/cosmic-future/lesson-48.html" },
+            { title: "推測的極限", url: "topics/cosmic-future/lesson-49.html" },
+            { title: "總結：從現在到 10¹⁰⁰ 年", url: "topics/cosmic-future/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
