@@ -15343,6 +15343,226 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "stochastic-processes",
+      category: "math",
+      title: "隨機過程與馬可夫鏈：會隨時間變化的機率",
+      description:
+        "樣本路徑與四種隨機過程；隨機漫步、賭徒破產、反射原理、波利亞定理、中央極限定理；馬可夫鏈、轉移矩陣、狀態分類、吸收與首次步分析；平穩分布、遍歷、七次洗牌、細緻平衡、PageRank；卜瓦松、生死與分支過程、檢查站悖論；布朗運動、伊藤引理、幾何布朗運動、布萊克—修斯；隱馬可夫、強化學習、語言模型、鞅與常見誤解。附九個互動模擬。",
+      icon: "🎲",
+      url: "topics/stochastic-processes/index.html",
+      resources: [
+        {
+          title: "隨機過程互動實驗室",
+          description: "樣本路徑、賭徒破產、高爾頓板、天氣馬可夫鏈、蛇梯棋、PageRank、分支過程、幾何布朗運動、文字產生器",
+          icon: "🧪",
+          url: "topics/stochastic-processes/lab.html"
+        },
+        {
+          title: "隨機過程公式速查",
+          description: "核心公式與術語",
+          icon: "🗂️",
+          url: "topics/stochastic-processes/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從機率到隨機過程",
+          courses: [
+            { title: "什麼是隨機過程", url: "topics/stochastic-processes/lesson-01.html" },
+            { title: "機率複習", url: "topics/stochastic-processes/lesson-02.html" },
+            { title: "四種隨機過程", url: "topics/stochastic-processes/lesson-03.html" },
+            { title: "樣本路徑", url: "topics/stochastic-processes/lesson-04.html" },
+            { title: "生活中的隨機過程", url: "topics/stochastic-processes/lesson-05.html" },
+            { title: "學習地圖", url: "topics/stochastic-processes/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜隨機漫步",
+          courses: [
+            { title: "一維簡單隨機漫步", url: "topics/stochastic-processes/lesson-07.html" },
+            { title: "賭徒破產問題", url: "topics/stochastic-processes/lesson-08.html" },
+            { title: "反射原理與首次到達", url: "topics/stochastic-processes/lesson-09.html" },
+            { title: "會不會回到原點", url: "topics/stochastic-processes/lesson-10.html" },
+            { title: "√n 規律", url: "topics/stochastic-processes/lesson-11.html" },
+            { title: "中央極限定理", url: "topics/stochastic-processes/lesson-12.html" },
+            { title: "隨機漫步的應用", url: "topics/stochastic-processes/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜馬可夫鏈基礎",
+          courses: [
+            { title: "馬可夫性質", url: "topics/stochastic-processes/lesson-14.html" },
+            { title: "轉移矩陣", url: "topics/stochastic-processes/lesson-15.html" },
+            { title: "多步轉移", url: "topics/stochastic-processes/lesson-16.html" },
+            { title: "狀態分類", url: "topics/stochastic-processes/lesson-17.html" },
+            { title: "週期性與不可約", url: "topics/stochastic-processes/lesson-18.html" },
+            { title: "吸收機率與期望步數", url: "topics/stochastic-processes/lesson-19.html" },
+            { title: "首次步分析", url: "topics/stochastic-processes/lesson-20.html" },
+            { title: "案例：信用評等與疾病分期", url: "topics/stochastic-processes/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜長期行為",
+          courses: [
+            { title: "平穩分布", url: "topics/stochastic-processes/lesson-22.html" },
+            { title: "收斂定理與遍歷性", url: "topics/stochastic-processes/lesson-23.html" },
+            { title: "混合時間：洗幾次牌才夠亂", url: "topics/stochastic-processes/lesson-24.html" },
+            { title: "可逆性與細緻平衡", url: "topics/stochastic-processes/lesson-25.html" },
+            { title: "PageRank：Google 的起點", url: "topics/stochastic-processes/lesson-26.html" },
+            { title: "特徵值與收斂速度", url: "topics/stochastic-processes/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜連續時間過程",
+          courses: [
+            { title: "卜瓦松過程", url: "topics/stochastic-processes/lesson-28.html" },
+            { title: "指數分布與無記憶性", url: "topics/stochastic-processes/lesson-29.html" },
+            { title: "連續時間馬可夫鏈", url: "topics/stochastic-processes/lesson-30.html" },
+            { title: "生死過程", url: "topics/stochastic-processes/lesson-31.html" },
+            { title: "分支過程", url: "topics/stochastic-processes/lesson-32.html" },
+            { title: "更新過程與檢查站悖論", url: "topics/stochastic-processes/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜布朗運動與隨機微積分",
+          courses: [
+            { title: "從隨機漫步到布朗運動", url: "topics/stochastic-processes/lesson-34.html" },
+            { title: "布朗運動的奇特性質", url: "topics/stochastic-processes/lesson-35.html" },
+            { title: "二次變分", url: "topics/stochastic-processes/lesson-36.html" },
+            { title: "伊藤積分", url: "topics/stochastic-processes/lesson-37.html" },
+            { title: "伊藤引理", url: "topics/stochastic-processes/lesson-38.html" },
+            { title: "幾何布朗運動與股價模型", url: "topics/stochastic-processes/lesson-39.html" },
+            { title: "布萊克—修斯公式", url: "topics/stochastic-processes/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜應用與延伸",
+          courses: [
+            { title: "隱馬可夫模型", url: "topics/stochastic-processes/lesson-41.html" },
+            { title: "馬可夫決策過程與強化學習", url: "topics/stochastic-processes/lesson-42.html" },
+            { title: "n 元模型與語言模型", url: "topics/stochastic-processes/lesson-43.html" },
+            { title: "鞅：公平的賭局", url: "topics/stochastic-processes/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "常見誤解", url: "topics/stochastic-processes/lesson-45.html" },
+            { title: "總結與延伸閱讀", url: "topics/stochastic-processes/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "monte-carlo",
+      category: "math",
+      title: "蒙地卡羅方法：用隨機算出確定的答案",
+      description:
+        "蒲豐投針與丟點估 π、大數法則與中央極限定理；偽隨機數、RANDU、梅森旋轉、反函數法、接受—拒絕；蒙地卡羅積分、1/√N、維度詛咒、重要性抽樣、變異數縮減、準蒙地卡羅；梅特羅波利斯、吉布斯、HMC、貝氏推論；模擬退火、MCTS 與 AlphaGo、SGD；粒子輸運、路徑追蹤、量子蒙地卡羅、系集預報；選擇權定價、VaR、退休規劃。附十個互動模擬。",
+      icon: "🎯",
+      url: "topics/monte-carlo/index.html",
+      resources: [
+        {
+          title: "蒙地卡羅互動實驗室",
+          description: "蒲豐投針、丟點估 π、接受—拒絕、誤差收斂、準蒙地卡羅、梅特羅波利斯、模擬退火、柔和陰影算圖、選擇權、退休規劃",
+          icon: "🧪",
+          url: "topics/monte-carlo/lab.html"
+        },
+        {
+          title: "蒙地卡羅公式速查",
+          description: "核心公式、方法比較與術語",
+          icon: "🗂️",
+          url: "topics/monte-carlo/cheatsheet.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜用隨機算出確定的答案",
+          courses: [
+            { title: "什麼是蒙地卡羅方法", url: "topics/monte-carlo/lesson-01.html" },
+            { title: "歷史：從曼哈頓計畫開始", url: "topics/monte-carlo/lesson-02.html" },
+            { title: "蒲豐投針", url: "topics/monte-carlo/lesson-03.html" },
+            { title: "丟點估計 π", url: "topics/monte-carlo/lesson-04.html" },
+            { title: "大數法則與中央極限定理", url: "topics/monte-carlo/lesson-05.html" },
+            { title: "學習地圖", url: "topics/monte-carlo/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜隨機數從哪裡來",
+          courses: [
+            { title: "真隨機與偽隨機", url: "topics/monte-carlo/lesson-07.html" },
+            { title: "線性同餘法與 RANDU 的教訓", url: "topics/monte-carlo/lesson-08.html" },
+            { title: "現代產生器：梅森旋轉與 PCG", url: "topics/monte-carlo/lesson-09.html" },
+            { title: "如何檢驗隨機數", url: "topics/monte-carlo/lesson-10.html" },
+            { title: "反函數法", url: "topics/monte-carlo/lesson-11.html" },
+            { title: "接受—拒絕法與 Box–Muller", url: "topics/monte-carlo/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜積分、誤差與變異數縮減",
+          courses: [
+            { title: "蒙地卡羅積分", url: "topics/monte-carlo/lesson-13.html" },
+            { title: "1/√N：收斂的速度", url: "topics/monte-carlo/lesson-14.html" },
+            { title: "維度的詛咒", url: "topics/monte-carlo/lesson-15.html" },
+            { title: "重要性抽樣", url: "topics/monte-carlo/lesson-16.html" },
+            { title: "分層抽樣與控制變數", url: "topics/monte-carlo/lesson-17.html" },
+            { title: "準蒙地卡羅", url: "topics/monte-carlo/lesson-18.html" },
+            { title: "信賴區間與停止規則", url: "topics/monte-carlo/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜馬可夫鏈蒙地卡羅（MCMC）",
+          courses: [
+            { title: "為什麼需要 MCMC", url: "topics/monte-carlo/lesson-20.html" },
+            { title: "梅特羅波利斯演算法", url: "topics/monte-carlo/lesson-21.html" },
+            { title: "梅特羅波利斯—哈斯廷斯", url: "topics/monte-carlo/lesson-22.html" },
+            { title: "吉布斯抽樣", url: "topics/monte-carlo/lesson-23.html" },
+            { title: "預燒、自相關與收斂診斷", url: "topics/monte-carlo/lesson-24.html" },
+            { title: "伊辛模型模擬", url: "topics/monte-carlo/lesson-25.html" },
+            { title: "哈密頓蒙地卡羅與 NUTS", url: "topics/monte-carlo/lesson-26.html" },
+            { title: "貝氏推論", url: "topics/monte-carlo/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜用隨機性搜尋與最佳化",
+          courses: [
+            { title: "模擬退火", url: "topics/monte-carlo/lesson-28.html" },
+            { title: "蒙地卡羅樹搜尋與 AlphaGo", url: "topics/monte-carlo/lesson-29.html" },
+            { title: "隨機梯度下降", url: "topics/monte-carlo/lesson-30.html" },
+            { title: "遺傳演算法", url: "topics/monte-carlo/lesson-31.html" },
+            { title: "交叉熵方法與稀有事件", url: "topics/monte-carlo/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜科學與工程中的蒙地卡羅",
+          courses: [
+            { title: "粒子輸運與放射治療", url: "topics/monte-carlo/lesson-33.html" },
+            { title: "路徑追蹤與電影算圖", url: "topics/monte-carlo/lesson-34.html" },
+            { title: "分子模擬", url: "topics/monte-carlo/lesson-35.html" },
+            { title: "量子蒙地卡羅", url: "topics/monte-carlo/lesson-36.html" },
+            { title: "系集天氣預報", url: "topics/monte-carlo/lesson-37.html" },
+            { title: "可靠度與風險評估", url: "topics/monte-carlo/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜金融與決策",
+          courses: [
+            { title: "選擇權定價", url: "topics/monte-carlo/lesson-39.html" },
+            { title: "風險值與壓力測試", url: "topics/monte-carlo/lesson-40.html" },
+            { title: "退休規劃與報酬順序風險", url: "topics/monte-carlo/lesson-41.html" },
+            { title: "專案管理與商業決策", url: "topics/monte-carlo/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "常見陷阱", url: "topics/monte-carlo/lesson-43.html" },
+            { title: "總結：隨機性的力量", url: "topics/monte-carlo/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
