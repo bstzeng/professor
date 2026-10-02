@@ -36,7 +36,7 @@ window.SITE_DATA = {
     { id: "finance", label: "金融與經濟", icon: "💰" },
     { id: "religion", label: "宗教與哲學", icon: "🪷" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
-    { id: "fantasy", label: "奇幻文學與電影宇宙", icon: "📖" },
+    { id: "fantasy", label: "奇幻與科幻文學、電影宇宙", icon: "📖" },
     { id: "anime", label: "動漫", icon: "🍥" },
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
     { id: "mythology", label: "神話與傳說", icon: "🏺" },
@@ -15560,6 +15560,226 @@ window.SITE_DATA = {
           courses: [
             { title: "常見陷阱", url: "topics/monte-carlo/lesson-43.html" },
             { title: "總結：隨機性的力量", url: "topics/monte-carlo/lesson-44.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "dune",
+      category: "fantasy",
+      title: "沙丘：香料、沙漠與救世主的警告",
+      description:
+        "法蘭克·赫伯特六部曲完整導讀：作者與出版史、巴特勒聖戰與沒有電腦的封建宇宙、宇航公會、貝尼·傑瑟里特、門塔特與香料經濟；沙蟲、弗瑞曼人與水的文化；《沙丘》劇情逐課解析，續集《救世主》《沙丘之子》《神帝》《異端》《聖殿》；生態、救世主、宗教、預知與爭議等主題；佐杜洛夫斯基、林區、影集與維勒納夫電影。附互動地圖、年表、勢力圖與人物卡。",
+      icon: "🏜️",
+      url: "topics/dune/index.html",
+      resources: [
+        {
+          title: "沙丘互動圖鑑",
+          description: "閱讀路線、宇宙年表、帝國權力圖、厄拉科斯地圖、人物卡、亞崔迪家族圖、改編年表",
+          icon: "🗺️",
+          url: "topics/dune/guide.html"
+        },
+        {
+          title: "沙丘名詞表",
+          description: "勢力、地名、物品與術語中英對照",
+          icon: "📖",
+          url: "topics/dune/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識沙丘",
+          courses: [
+            { title: "什麼是《沙丘》", url: "topics/dune/lesson-01.html" },
+            { title: "法蘭克·赫伯特與創作起源", url: "topics/dune/lesson-02.html" },
+            { title: "出版史與獎項", url: "topics/dune/lesson-03.html" },
+            { title: "六部曲全覽與閱讀順序", url: "topics/dune/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜沙丘宇宙的勢力",
+          courses: [
+            { title: "一萬年的宇宙年表", url: "topics/dune/lesson-05.html" },
+            { title: "巴特勒聖戰：禁止思考機器", url: "topics/dune/lesson-06.html" },
+            { title: "帝國體制：皇帝、大家族與薩督卡", url: "topics/dune/lesson-07.html" },
+            { title: "宇航公會與香料航行", url: "topics/dune/lesson-08.html" },
+            { title: "貝尼·傑瑟里特", url: "topics/dune/lesson-09.html" },
+            { title: "門塔特、蘇克醫生與其他訓練", url: "topics/dune/lesson-10.html" },
+            { title: "CHOAM 與香料經濟", url: "topics/dune/lesson-11.html" },
+            { title: "伊克斯人與特雷亞拉克斯人", url: "topics/dune/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜厄拉科斯：沙丘星球",
+          courses: [
+            { title: "沙蟲與香料的生命週期", url: "topics/dune/lesson-13.html" },
+            { title: "弗瑞曼人：沙漠的子民", url: "topics/dune/lesson-14.html" },
+            { title: "水的文化", url: "topics/dune/lesson-15.html" },
+            { title: "凱恩斯父子與生態改造夢", url: "topics/dune/lesson-16.html" },
+            { title: "語言與文化的來源", url: "topics/dune/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜《沙丘》劇情",
+          courses: [
+            { title: "卡樂丹與痛苦之盒", url: "topics/dune/lesson-18.html" },
+            { title: "前往厄拉科斯：明知是陷阱", url: "topics/dune/lesson-19.html" },
+            { title: "悅醫生的背叛", url: "topics/dune/lesson-20.html" },
+            { title: "沙漠逃亡與凱恩斯之死", url: "topics/dune/lesson-21.html" },
+            { title: "加入弗瑞曼：保羅變成摩阿迪巴", url: "topics/dune/lesson-22.html" },
+            { title: "生命之水與覺醒", url: "topics/dune/lesson-23.html" },
+            { title: "決戰厄拉奇恩", url: "topics/dune/lesson-24.html" },
+            { title: "人物分析：保羅與潔西卡", url: "topics/dune/lesson-25.html" },
+            { title: "人物速查", url: "topics/dune/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜續集：英雄的代價",
+          courses: [
+            { title: "《沙丘救世主》：聖戰之後", url: "topics/dune/lesson-27.html" },
+            { title: "救世主：陰謀與失明", url: "topics/dune/lesson-28.html" },
+            { title: "《沙丘之子》：雙胞胎與憎惡", url: "topics/dune/lesson-29.html" },
+            { title: "《沙丘之子》：雷托的選擇", url: "topics/dune/lesson-30.html" },
+            { title: "《沙丘神帝》：三千五百年的暴君", url: "topics/dune/lesson-31.html" },
+            { title: "金色通道", url: "topics/dune/lesson-32.html" },
+            { title: "《沙丘異端》：尊母歸來", url: "topics/dune/lesson-33.html" },
+            { title: "《沙丘聖殿》與未完的結局", url: "topics/dune/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題分析",
+          courses: [
+            { title: "第一部生態學小說", url: "topics/dune/lesson-35.html" },
+            { title: "對救世主的警告", url: "topics/dune/lesson-36.html" },
+            { title: "宗教與政治", url: "topics/dune/lesson-37.html" },
+            { title: "預知的陷阱", url: "topics/dune/lesson-38.html" },
+            { title: "人類潛能與「思考機器」", url: "topics/dune/lesson-39.html" },
+            { title: "東方主義與「白人救世主」爭議", url: "topics/dune/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜改編與影響",
+          courses: [
+            { title: "佐杜洛夫斯基：沒拍成的偉大電影", url: "topics/dune/lesson-41.html" },
+            { title: "大衛·林區的《沙丘》（1984）", url: "topics/dune/lesson-42.html" },
+            { title: "電視迷你影集（2000、2003）", url: "topics/dune/lesson-43.html" },
+            { title: "維勒納夫的《沙丘》電影", url: "topics/dune/lesson-44.html" },
+            { title: "遊戲與流行文化的影響", url: "topics/dune/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "總結：沙漠中的長河", url: "topics/dune/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "foundation",
+      category: "fantasy",
+      title: "基地：預測歷史的科學與銀河帝國的衰亡",
+      description:
+        "以撒·艾西莫夫七部曲完整導讀：作者與出版史、銀河帝國與川陀、心理史學與謝頓危機；《基地》哈定與馬洛、里歐思將軍與騾、第二基地與「星際盡頭」；崔維茲、蓋婭、地球與丹尼爾；前傳中的謝頓；機器人三定律、第零法則與大宇宙統合；歷史決定論、心理史學能否成真、羅馬帝國原型、Apple TV+ 影集與影響。附心理史學模擬、時間表與人物卡。",
+      icon: "🌌",
+      url: "topics/foundation/index.html",
+      resources: [
+        {
+          title: "基地互動圖鑑",
+          description: "閱讀順序、謝頓計畫時間表、心理史學模擬、人物卡、艾西莫夫大宇宙、影集差異",
+          icon: "🗺️",
+          url: "topics/foundation/guide.html"
+        },
+        {
+          title: "基地名詞表",
+          description: "概念、地名與組織中英對照",
+          icon: "📖",
+          url: "topics/foundation/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識基地",
+          courses: [
+            { title: "什麼是《基地》", url: "topics/foundation/lesson-01.html" },
+            { title: "以撒·艾西莫夫", url: "topics/foundation/lesson-02.html" },
+            { title: "從雜誌連載到雨果獎", url: "topics/foundation/lesson-03.html" },
+            { title: "七部作品與閱讀順序", url: "topics/foundation/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜核心概念",
+          courses: [
+            { title: "銀河帝國與川陀", url: "topics/foundation/lesson-05.html" },
+            { title: "心理史學", url: "topics/foundation/lesson-06.html" },
+            { title: "哈里·謝頓", url: "topics/foundation/lesson-07.html" },
+            { title: "謝頓危機", url: "topics/foundation/lesson-08.html" },
+            { title: "千年計畫的時間表", url: "topics/foundation/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜《基地》",
+          courses: [
+            { title: "〈心理史學家〉：審判", url: "topics/foundation/lesson-10.html" },
+            { title: "〈百科全書編者〉：第一次危機", url: "topics/foundation/lesson-11.html" },
+            { title: "〈市長〉：科學宗教", url: "topics/foundation/lesson-12.html" },
+            { title: "〈行商〉：宗教的極限", url: "topics/foundation/lesson-13.html" },
+            { title: "〈商業王侯〉：馬洛", url: "topics/foundation/lesson-14.html" },
+            { title: "《基地》的模式", url: "topics/foundation/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜《基地與帝國》",
+          courses: [
+            { title: "〈將軍〉：里歐思", url: "topics/foundation/lesson-16.html" },
+            { title: "不可避免的失敗", url: "topics/foundation/lesson-17.html" },
+            { title: "〈騾〉：一個無法預測的人", url: "topics/foundation/lesson-18.html" },
+            { title: "小丑麥格尼菲柯", url: "topics/foundation/lesson-19.html" },
+            { title: "艾布林·米斯與貝泰", url: "topics/foundation/lesson-20.html" },
+            { title: "心理史學為什麼失靈", url: "topics/foundation/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜《第二基地》",
+          courses: [
+            { title: "〈騾的搜尋〉", url: "topics/foundation/lesson-22.html" },
+            { title: "第二基地是什麼", url: "topics/foundation/lesson-23.html" },
+            { title: "〈基地的搜尋〉：艾嘉蒂", url: "topics/foundation/lesson-24.html" },
+            { title: "「星際盡頭」的謎底", url: "topics/foundation/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜後傳與前傳",
+          courses: [
+            { title: "《基地邊緣》：崔維茲", url: "topics/foundation/lesson-26.html" },
+            { title: "蓋婭與崔維茲的抉擇", url: "topics/foundation/lesson-27.html" },
+            { title: "《基地與地球》：尋找地球", url: "topics/foundation/lesson-28.html" },
+            { title: "丹尼爾的兩萬年", url: "topics/foundation/lesson-29.html" },
+            { title: "《基地前奏》：年輕的謝頓", url: "topics/foundation/lesson-30.html" },
+            { title: "《基地締造者》：謝頓的一生", url: "topics/foundation/lesson-31.html" },
+            { title: "人物總覽", url: "topics/foundation/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜機器人宇宙大統合",
+          courses: [
+            { title: "機器人三定律", url: "topics/foundation/lesson-33.html" },
+            { title: "機器人系列與太空族", url: "topics/foundation/lesson-34.html" },
+            { title: "第零法則", url: "topics/foundation/lesson-35.html" },
+            { title: "帝國系列與大統合", url: "topics/foundation/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜主題與影響",
+          courses: [
+            { title: "歷史決定論與個人", url: "topics/foundation/lesson-37.html" },
+            { title: "心理史學能成真嗎？", url: "topics/foundation/lesson-38.html" },
+            { title: "吉朋與羅馬帝國衰亡", url: "topics/foundation/lesson-39.html" },
+            { title: "艾西莫夫的寫作風格", url: "topics/foundation/lesson-40.html" },
+            { title: "Apple TV+ 影集", url: "topics/foundation/lesson-41.html" },
+            { title: "對科幻與現實的影響", url: "topics/foundation/lesson-42.html" },
+            { title: "後續作品與他人續寫", url: "topics/foundation/lesson-43.html" },
+            { title: "總結：保存文明的火種", url: "topics/foundation/lesson-44.html" },
           ],
         },
       ],
