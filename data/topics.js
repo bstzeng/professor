@@ -15783,6 +15783,257 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "song-of-ice-and-fire",
+      category: "fantasy",
+      title: "冰與火之歌：權力遊戲、凜冬與龍",
+      description:
+        "喬治·R·R·馬汀的史詩奇幻完整導讀：POV 寫法與出版史；先民、長夜、瓦雷利亞、伊耿征服、血龍狂舞與篡奪者戰爭；九大家族與陰謀家；長城、異鬼、厄斯索斯、宗教與魔法；五部劇情逐課解析（奈德之死、五王之戰、血色婚禮、紫色婚禮、瓊恩之死）；灰色人物、權力、戰爭、預言、玫瑰戰爭原型與讀者理論；《血與火》、鄧克與蛋、HBO 影集與爭議結局。附互動地圖、家族圖與人物卡。",
+      icon: "🐺",
+      url: "topics/song-of-ice-and-fire/index.html",
+      resources: [
+        {
+          title: "冰與火之歌互動圖鑑",
+          description: "閱讀順序、萬年年表、家族關係圖、維斯特洛地圖、人物卡、五王之戰、書劇差異、改編年表",
+          icon: "🗺️",
+          url: "topics/song-of-ice-and-fire/guide.html"
+        },
+        {
+          title: "冰與火之歌名詞表",
+          description: "地名、組織、物品與術語中英對照",
+          icon: "📖",
+          url: "topics/song-of-ice-and-fire/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識冰與火之歌",
+          courses: [
+            { title: "什麼是《冰與火之歌》", url: "topics/song-of-ice-and-fire/lesson-01.html" },
+            { title: "喬治·R·R·馬汀", url: "topics/song-of-ice-and-fire/lesson-02.html" },
+            { title: "POV 章節的寫法", url: "topics/song-of-ice-and-fire/lesson-03.html" },
+            { title: "出版史與閱讀順序", url: "topics/song-of-ice-and-fire/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜維斯特洛的歷史",
+          courses: [
+            { title: "先民、森林之子與長夜", url: "topics/song-of-ice-and-fire/lesson-05.html" },
+            { title: "安達爾人與七大王國", url: "topics/song-of-ice-and-fire/lesson-06.html" },
+            { title: "瓦雷利亞與末日", url: "topics/song-of-ice-and-fire/lesson-07.html" },
+            { title: "伊耿征服與鐵王座", url: "topics/song-of-ice-and-fire/lesson-08.html" },
+            { title: "坦格利安王朝與血龍狂舞", url: "topics/song-of-ice-and-fire/lesson-09.html" },
+            { title: "篡奪者戰爭", url: "topics/song-of-ice-and-fire/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜主要家族",
+          courses: [
+            { title: "史塔克家族", url: "topics/song-of-ice-and-fire/lesson-11.html" },
+            { title: "蘭尼斯特家族", url: "topics/song-of-ice-and-fire/lesson-12.html" },
+            { title: "拜拉席恩家族", url: "topics/song-of-ice-and-fire/lesson-13.html" },
+            { title: "坦格利安家族的倖存者", url: "topics/song-of-ice-and-fire/lesson-14.html" },
+            { title: "葛雷喬伊家族與鐵群島", url: "topics/song-of-ice-and-fire/lesson-15.html" },
+            { title: "提利爾與馬泰爾", url: "topics/song-of-ice-and-fire/lesson-16.html" },
+            { title: "徒利、艾林與谷地", url: "topics/song-of-ice-and-fire/lesson-17.html" },
+            { title: "陰謀家：小指頭與瓦里斯", url: "topics/song-of-ice-and-fire/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜世界與勢力",
+          courses: [
+            { title: "守夜人與長城", url: "topics/song-of-ice-and-fire/lesson-19.html" },
+            { title: "塞外與異鬼", url: "topics/song-of-ice-and-fire/lesson-20.html" },
+            { title: "狹海對岸：厄斯索斯", url: "topics/song-of-ice-and-fire/lesson-21.html" },
+            { title: "維斯特洛的宗教", url: "topics/song-of-ice-and-fire/lesson-22.html" },
+            { title: "魔法與龍的歸來", url: "topics/song-of-ice-and-fire/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜《權力遊戲》",
+          courses: [
+            { title: "勞勃北上", url: "topics/song-of-ice-and-fire/lesson-24.html" },
+            { title: "奈德在君臨", url: "topics/song-of-ice-and-fire/lesson-25.html" },
+            { title: "奈德之死", url: "topics/song-of-ice-and-fire/lesson-26.html" },
+            { title: "丹妮莉絲與卓戈", url: "topics/song-of-ice-and-fire/lesson-27.html" },
+            { title: "第一部的結尾", url: "topics/song-of-ice-and-fire/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜《列王的紛爭》",
+          courses: [
+            { title: "五王之戰", url: "topics/song-of-ice-and-fire/lesson-29.html" },
+            { title: "席恩奪下臨冬城", url: "topics/song-of-ice-and-fire/lesson-30.html" },
+            { title: "史坦尼斯與梅麗珊卓", url: "topics/song-of-ice-and-fire/lesson-31.html" },
+            { title: "黑水河之役", url: "topics/song-of-ice-and-fire/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜《冰雨的風暴》",
+          courses: [
+            { title: "羅柏的錯誤", url: "topics/song-of-ice-and-fire/lesson-33.html" },
+            { title: "血色婚禮", url: "topics/song-of-ice-and-fire/lesson-34.html" },
+            { title: "紫色婚禮", url: "topics/song-of-ice-and-fire/lesson-35.html" },
+            { title: "提利昂的審判", url: "topics/song-of-ice-and-fire/lesson-36.html" },
+            { title: "長城之戰與瓊恩當選", url: "topics/song-of-ice-and-fire/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜《群鴉的盛宴》與《魔龍的狂舞》",
+          courses: [
+            { title: "瑟曦的統治與垮台", url: "topics/song-of-ice-and-fire/lesson-38.html" },
+            { title: "詹姆的轉變", url: "topics/song-of-ice-and-fire/lesson-39.html" },
+            { title: "艾莉亞在布拉佛斯", url: "topics/song-of-ice-and-fire/lesson-40.html" },
+            { title: "丹妮莉絲在彌林", url: "topics/song-of-ice-and-fire/lesson-41.html" },
+            { title: "瓊恩之死", url: "topics/song-of-ice-and-fire/lesson-42.html" },
+            { title: "未完的故事", url: "topics/song-of-ice-and-fire/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜主題分析",
+          courses: [
+            { title: "灰色人物", url: "topics/song-of-ice-and-fire/lesson-44.html" },
+            { title: "權力的本質", url: "topics/song-of-ice-and-fire/lesson-45.html" },
+            { title: "戰爭的代價", url: "topics/song-of-ice-and-fire/lesson-46.html" },
+            { title: "預言與「被應許的王子」", url: "topics/song-of-ice-and-fire/lesson-47.html" },
+            { title: "玫瑰戰爭與歷史原型", url: "topics/song-of-ice-and-fire/lesson-48.html" },
+            { title: "讀者理論", url: "topics/song-of-ice-and-fire/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 J｜衍生作品與改編",
+          courses: [
+            { title: "《血與火》與《冰與火的世界》", url: "topics/song-of-ice-and-fire/lesson-50.html" },
+            { title: "鄧克與蛋", url: "topics/song-of-ice-and-fire/lesson-51.html" },
+            { title: "HBO《權力遊戲》", url: "topics/song-of-ice-and-fire/lesson-52.html" },
+            { title: "爭議的結局", url: "topics/song-of-ice-and-fire/lesson-53.html" },
+            { title: "《龍族》與更多影集", url: "topics/song-of-ice-and-fire/lesson-54.html" },
+            { title: "對奇幻文學的影響", url: "topics/song-of-ice-and-fire/lesson-55.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "總結：凜冬將至", url: "topics/song-of-ice-and-fire/lesson-56.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "wheel-of-time",
+      category: "fantasy",
+      title: "時光之輪：轉生真龍與永恆輪迴的史詩",
+      description:
+        "羅伯特·喬丹與布蘭登·山德森的十五本奇幻史詩完整導讀：作者與出版歷程、閱讀策略與泥沼期；時光之輪、紋路與時代輪迴、至上力、暗帝、被棄者與真龍預言；白塔七宗、護法、艾伊爾、光之子、聖桑與暗影；兩河五人組；全系列劇情從冬夜到最後之戰；性別、神話、救世主的負擔、寫作風格、Amazon 影集與影響。附大陸地圖、勢力卡、人物圖與比較表。",
+      icon: "☸️",
+      url: "topics/wheel-of-time/index.html",
+      resources: [
+        {
+          title: "時光之輪互動圖鑑",
+          description: "閱讀順序、世界年表、勢力卡、兩河人物圖、大陸地圖、影集差異、與冰與火之歌比較",
+          icon: "🗺️",
+          url: "topics/wheel-of-time/guide.html"
+        },
+        {
+          title: "時光之輪名詞表",
+          description: "世界觀、組織與術語中英對照",
+          icon: "📖",
+          url: "topics/wheel-of-time/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識時光之輪",
+          courses: [
+            { title: "什麼是《時光之輪》", url: "topics/wheel-of-time/lesson-01.html" },
+            { title: "羅伯特·喬丹", url: "topics/wheel-of-time/lesson-02.html" },
+            { title: "出版歷程與山德森接手", url: "topics/wheel-of-time/lesson-03.html" },
+            { title: "十五本書與閱讀策略", url: "topics/wheel-of-time/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜世界觀",
+          courses: [
+            { title: "時光之輪與紋路", url: "topics/wheel-of-time/lesson-05.html" },
+            { title: "時代輪迴：我們的世界也在輪子上", url: "topics/wheel-of-time/lesson-06.html" },
+            { title: "至上力：陽極力與陰極力", url: "topics/wheel-of-time/lesson-07.html" },
+            { title: "暗帝與世界崩毀", url: "topics/wheel-of-time/lesson-08.html" },
+            { title: "被棄者", url: "topics/wheel-of-time/lesson-09.html" },
+            { title: "預言與轉生真龍", url: "topics/wheel-of-time/lesson-10.html" },
+            { title: "夢境世界與其他奇觀", url: "topics/wheel-of-time/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜勢力",
+          courses: [
+            { title: "兩儀師與白塔", url: "topics/wheel-of-time/lesson-12.html" },
+            { title: "七宗與黑宗", url: "topics/wheel-of-time/lesson-13.html" },
+            { title: "護法與羈絆", url: "topics/wheel-of-time/lesson-14.html" },
+            { title: "艾伊爾人", url: "topics/wheel-of-time/lesson-15.html" },
+            { title: "光之子與補鍋匠", url: "topics/wheel-of-time/lesson-16.html" },
+            { title: "聖桑帝國與海民", url: "topics/wheel-of-time/lesson-17.html" },
+            { title: "暗影的軍隊", url: "topics/wheel-of-time/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜兩河的主角們",
+          courses: [
+            { title: "蘭德·亞瑟", url: "topics/wheel-of-time/lesson-19.html" },
+            { title: "麥特·考索恩", url: "topics/wheel-of-time/lesson-20.html" },
+            { title: "佩林·艾巴亞", url: "topics/wheel-of-time/lesson-21.html" },
+            { title: "艾雯與奈妮薇", url: "topics/wheel-of-time/lesson-22.html" },
+            { title: "茉蕾與其他同伴", url: "topics/wheel-of-time/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜第一到第五本",
+          courses: [
+            { title: "《世界之眼》（上）：冬夜", url: "topics/wheel-of-time/lesson-24.html" },
+            { title: "《世界之眼》（下）：沙達·洛格斯與世界之眼", url: "topics/wheel-of-time/lesson-25.html" },
+            { title: "《大狩獵》", url: "topics/wheel-of-time/lesson-26.html" },
+            { title: "《真龍轉生》", url: "topics/wheel-of-time/lesson-27.html" },
+            { title: "《闇影漸起》", url: "topics/wheel-of-time/lesson-28.html" },
+            { title: "《天堂之火》", url: "topics/wheel-of-time/lesson-29.html" },
+            { title: "前五本回顧與地圖", url: "topics/wheel-of-time/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜第六到第十一本",
+          courses: [
+            { title: "《混沌之王》", url: "topics/wheel-of-time/lesson-31.html" },
+            { title: "《劍之王冠》與《匕首之路》", url: "topics/wheel-of-time/lesson-32.html" },
+            { title: "《寒冬之心》：淨化陽極力", url: "topics/wheel-of-time/lesson-33.html" },
+            { title: "《暮光之交》與泥沼期", url: "topics/wheel-of-time/lesson-34.html" },
+            { title: "《夢之刃》", url: "topics/wheel-of-time/lesson-35.html" },
+            { title: "女王與玉座", url: "topics/wheel-of-time/lesson-36.html" },
+            { title: "前傳《新春》", url: "topics/wheel-of-time/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜山德森的最後三部曲",
+          courses: [
+            { title: "《風暴聚集》：蘭德的黑暗", url: "topics/wheel-of-time/lesson-38.html" },
+            { title: "龍山上的頓悟", url: "topics/wheel-of-time/lesson-39.html" },
+            { title: "《午夜之塔》", url: "topics/wheel-of-time/lesson-40.html" },
+            { title: "《光明之憶》：最後之戰", url: "topics/wheel-of-time/lesson-41.html" },
+            { title: "結局", url: "topics/wheel-of-time/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜主題與影響",
+          courses: [
+            { title: "性別二元的魔法與爭議", url: "topics/wheel-of-time/lesson-43.html" },
+            { title: "神話大熔爐", url: "topics/wheel-of-time/lesson-44.html" },
+            { title: "救世主的負擔", url: "topics/wheel-of-time/lesson-45.html" },
+            { title: "喬丹的寫作風格", url: "topics/wheel-of-time/lesson-46.html" },
+            { title: "Amazon 影集", url: "topics/wheel-of-time/lesson-47.html" },
+            { title: "對奇幻文學的影響", url: "topics/wheel-of-time/lesson-48.html" },
+            { title: "與《冰與火之歌》的比較", url: "topics/wheel-of-time/lesson-49.html" },
+            { title: "總結：輪子仍在轉動", url: "topics/wheel-of-time/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
