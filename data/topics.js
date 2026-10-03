@@ -16729,6 +16729,133 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "self-build",
+      category: "life",
+      title: "自地自建：從一塊地到夢想的家",
+      description:
+        "自地自建完整指南：和買房比較、全流程與時程；都市與非都市土地、可建性判斷、建蔽率容積率、建築線、地質鑽探、水電接入、看地與買地產權；建照、農舍、山坡地、設計法規與違建風險；總預算、每坪造價、貸款與建築融資、隱藏成本與預備金；建築師、技師、營造廠與合約、監造；需求、座向日照、動線、結構系統、耐震抗颱、防水、水電與被動式設計；施工各階段與驗收、常見糾紛；老屋健檢、翻修或重建、危老與法規陷阱；使照、登記、稅與維護。附時程、建蔽容積、預算、貸款、太陽軌跡等互動工具。",
+      icon: "🏡",
+      url: "topics/self-build/index.html",
+      resources: [
+        {
+          title: "自地自建工具箱",
+          description: "時程、土地可建性、建蔽容積、預算、貸款、需求坪數、太陽軌跡、老屋判斷、總檢查清單",
+          icon: "🧮",
+          url: "topics/self-build/guide.html"
+        },
+        {
+          title: "自地自建名詞速查",
+          description: "土地、法規、資金、施工與老屋的常用名詞",
+          icon: "📖",
+          url: "topics/self-build/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜夢想與現實",
+          courses: [
+            { title: "什麼是自地自建", url: "topics/self-build/lesson-01.html" },
+            { title: "自地自建 vs 買房", url: "topics/self-build/lesson-02.html" },
+            { title: "全流程地圖", url: "topics/self-build/lesson-03.html" },
+            { title: "時間與精力", url: "topics/self-build/lesson-04.html" },
+            { title: "家人共識與心理準備", url: "topics/self-build/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜土地：能不能蓋、能蓋多大",
+          courses: [
+            { title: "都市土地與非都市土地", url: "topics/self-build/lesson-06.html" },
+            { title: "這塊地能蓋房子嗎", url: "topics/self-build/lesson-07.html" },
+            { title: "建蔽率與容積率", url: "topics/self-build/lesson-08.html" },
+            { title: "建築線與道路", url: "topics/self-build/lesson-09.html" },
+            { title: "地形、地質與鑽探", url: "topics/self-build/lesson-10.html" },
+            { title: "水電與排水能不能接", url: "topics/self-build/lesson-11.html" },
+            { title: "看地檢查清單", url: "topics/self-build/lesson-12.html" },
+            { title: "買地流程與產權", url: "topics/self-build/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜法規與特殊情況",
+          courses: [
+            { title: "建築法與建造執照", url: "topics/self-build/lesson-14.html" },
+            { title: "農地蓋農舍", url: "topics/self-build/lesson-15.html" },
+            { title: "山坡地與特殊管制區", url: "topics/self-build/lesson-16.html" },
+            { title: "設計上的法規限制", url: "topics/self-build/lesson-17.html" },
+            { title: "違建的風險", url: "topics/self-build/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜預算與資金",
+          courses: [
+            { title: "總預算長什麼樣", url: "topics/self-build/lesson-19.html" },
+            { title: "每坪造價怎麼看", url: "topics/self-build/lesson-20.html" },
+            { title: "自備款與貸款", url: "topics/self-build/lesson-21.html" },
+            { title: "建築融資的撥款", url: "topics/self-build/lesson-22.html" },
+            { title: "容易被忽略的成本", url: "topics/self-build/lesson-23.html" },
+            { title: "預備金", url: "topics/self-build/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜團隊與合約",
+          courses: [
+            { title: "建築師", url: "topics/self-build/lesson-25.html" },
+            { title: "專業技師", url: "topics/self-build/lesson-26.html" },
+            { title: "營造廠、統包、自己分包", url: "topics/self-build/lesson-27.html" },
+            { title: "工程合約重點", url: "topics/self-build/lesson-28.html" },
+            { title: "監造與第三方檢驗", url: "topics/self-build/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜設計",
+          courses: [
+            { title: "需求清單", url: "topics/self-build/lesson-30.html" },
+            { title: "配置與座向", url: "topics/self-build/lesson-31.html" },
+            { title: "平面與動線", url: "topics/self-build/lesson-32.html" },
+            { title: "結構系統", url: "topics/self-build/lesson-33.html" },
+            { title: "耐震與抗颱", url: "topics/self-build/lesson-34.html" },
+            { title: "屋頂與防水", url: "topics/self-build/lesson-35.html" },
+            { title: "水電、排水與設備規劃", url: "topics/self-build/lesson-36.html" },
+            { title: "節能、被動式設計與老後彈性", url: "topics/self-build/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜施工",
+          courses: [
+            { title: "從建照到開工", url: "topics/self-build/lesson-38.html" },
+            { title: "整地與基礎", url: "topics/self-build/lesson-39.html" },
+            { title: "結構體", url: "topics/self-build/lesson-40.html" },
+            { title: "外牆、屋頂與防水施工", url: "topics/self-build/lesson-41.html" },
+            { title: "門窗與氣密水密", url: "topics/self-build/lesson-42.html" },
+            { title: "水電管線與設備預埋", url: "topics/self-build/lesson-43.html" },
+            { title: "室內裝修", url: "topics/self-build/lesson-44.html" },
+            { title: "各階段的驗收重點", url: "topics/self-build/lesson-45.html" },
+            { title: "常見糾紛", url: "topics/self-build/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜老屋：翻修還是重建",
+          courses: [
+            { title: "老屋的機會與風險", url: "topics/self-build/lesson-47.html" },
+            { title: "老屋健檢", url: "topics/self-build/lesson-48.html" },
+            { title: "翻修還是重建", url: "topics/self-build/lesson-49.html" },
+            { title: "老屋翻修重點", url: "topics/self-build/lesson-50.html" },
+            { title: "拆除重建流程", url: "topics/self-build/lesson-51.html" },
+            { title: "危老重建與都更", url: "topics/self-build/lesson-52.html" },
+            { title: "老屋的法規陷阱", url: "topics/self-build/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 I｜完工與入住",
+          courses: [
+            { title: "使用執照", url: "topics/self-build/lesson-54.html" },
+            { title: "水電、門牌與建物登記", url: "topics/self-build/lesson-55.html" },
+            { title: "房屋稅、地價稅與保險", url: "topics/self-build/lesson-56.html" },
+            { title: "維護與總結", url: "topics/self-build/lesson-57.html" },
+          ],
+        },
+      ],
     }
   ]
 };
