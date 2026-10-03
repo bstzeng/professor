@@ -16588,6 +16588,147 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "home-repair",
+      category: "life",
+      title: "水電師傅常見修復方法：居家水電與家電修繕",
+      description:
+        "居家水電與家電修繕完整指南：安全守則、工具、法規與住家水電地圖；電壓電流、單相三線、線徑、迴路負載、接地與漏電、三用電錶；跳電排查、插座開關燈具、延長線與老屋換線；水錶、水塔、加壓馬達與暗漏；龍頭、止水閥、馬桶水箱、矽利康；存水彎、通管與臭味；抓漏、壁癌、樓上漏樓下、防水；熱水器與一氧化碳；冷氣滴水、不冷、異味與保養；洗衣機、冰箱、除濕機、抽油煙機、瓦斯爐等家電；找師傅與定期檢查清單。附故障速查器、跳電與抓漏判斷流程、馬桶水箱與冷媒循環模擬等互動工具。",
+      icon: "🔧",
+      url: "topics/home-repair/index.html",
+      resources: [
+        {
+          title: "水電互動工具箱",
+          description: "故障速查器、跳電診斷、抓漏判斷、線徑與負載、漏水量、馬桶水箱、冷媒循環、冷氣坪數",
+          icon: "🧰",
+          url: "topics/home-repair/guide.html"
+        },
+        {
+          title: "水電故障速查表",
+          description: "症狀、原因、能否自己修，以及常用名詞",
+          icon: "📋",
+          url: "topics/home-repair/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜入門與安全",
+          courses: [
+            { title: "水電師傅在做什麼", url: "topics/home-repair/lesson-01.html" },
+            { title: "安全第一", url: "topics/home-repair/lesson-02.html" },
+            { title: "基本工具箱", url: "topics/home-repair/lesson-03.html" },
+            { title: "住家的水電地圖", url: "topics/home-repair/lesson-04.html" },
+            { title: "法規與責任", url: "topics/home-repair/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電的基礎",
+          courses: [
+            { title: "電壓、電流與功率", url: "topics/home-repair/lesson-06.html" },
+            { title: "單相三線與住宅配電", url: "topics/home-repair/lesson-07.html" },
+            { title: "線徑與安培數", url: "topics/home-repair/lesson-08.html" },
+            { title: "迴路與負載", url: "topics/home-repair/lesson-09.html" },
+            { title: "接地與漏電", url: "topics/home-repair/lesson-10.html" },
+            { title: "三用電錶入門", url: "topics/home-repair/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜電的常見故障",
+          courses: [
+            { title: "跳電了怎麼辦", url: "topics/home-repair/lesson-12.html" },
+            { title: "插座鬆脫、發黑、燒焦", url: "topics/home-repair/lesson-13.html" },
+            { title: "開關失靈與更換", url: "topics/home-repair/lesson-14.html" },
+            { title: "燈具不亮", url: "topics/home-repair/lesson-15.html" },
+            { title: "延長線與老舊線路", url: "topics/home-repair/lesson-16.html" },
+            { title: "浴室電器", url: "topics/home-repair/lesson-17.html" },
+            { title: "老屋換線", url: "topics/home-repair/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜給水系統",
+          courses: [
+            { title: "自來水從哪裡來", url: "topics/home-repair/lesson-19.html" },
+            { title: "水管材料", url: "topics/home-repair/lesson-20.html" },
+            { title: "水壓不足", url: "topics/home-repair/lesson-21.html" },
+            { title: "加壓馬達故障", url: "topics/home-repair/lesson-22.html" },
+            { title: "水塔清洗與浮球開關", url: "topics/home-repair/lesson-23.html" },
+            { title: "水錶在轉卻沒人用水", url: "topics/home-repair/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜龍頭、馬桶與衛浴",
+          courses: [
+            { title: "水龍頭滴水", url: "topics/home-repair/lesson-25.html" },
+            { title: "止水閥與軟管", url: "topics/home-repair/lesson-26.html" },
+            { title: "馬桶水箱構造", url: "topics/home-repair/lesson-27.html" },
+            { title: "馬桶一直流水或不止水", url: "topics/home-repair/lesson-28.html" },
+            { title: "馬桶搖晃與底部滲水", url: "topics/home-repair/lesson-29.html" },
+            { title: "蓮蓬頭、淋浴龍頭與恆溫閥", url: "topics/home-repair/lesson-30.html" },
+            { title: "矽利康重打", url: "topics/home-repair/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜排水與阻塞",
+          courses: [
+            { title: "排水系統原理", url: "topics/home-repair/lesson-32.html" },
+            { title: "洗手台與流理台阻塞", url: "topics/home-repair/lesson-33.html" },
+            { title: "馬桶阻塞", url: "topics/home-repair/lesson-34.html" },
+            { title: "地板落水頭與臭味", url: "topics/home-repair/lesson-35.html" },
+            { title: "化學通管劑與高壓通管", url: "topics/home-repair/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜漏水與抓漏",
+          courses: [
+            { title: "漏水的三大來源", url: "topics/home-repair/lesson-37.html" },
+            { title: "抓漏的方法", url: "topics/home-repair/lesson-38.html" },
+            { title: "壁癌", url: "topics/home-repair/lesson-39.html" },
+            { title: "樓上漏到樓下", url: "topics/home-repair/lesson-40.html" },
+            { title: "防水工程入門", url: "topics/home-repair/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜熱水器",
+          courses: [
+            { title: "熱水器的種類", url: "topics/home-repair/lesson-42.html" },
+            { title: "熱水器不點火、忽冷忽熱", url: "topics/home-repair/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜冷氣",
+          courses: [
+            { title: "冷氣怎麼運作", url: "topics/home-repair/lesson-44.html" },
+            { title: "冷氣滴水", url: "topics/home-repair/lesson-45.html" },
+            { title: "冷氣不冷", url: "topics/home-repair/lesson-46.html" },
+            { title: "冷氣異味與發霉", url: "topics/home-repair/lesson-47.html" },
+            { title: "冷氣異音與故障碼", url: "topics/home-repair/lesson-48.html" },
+            { title: "冷氣保養與安裝重點", url: "topics/home-repair/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 J｜其他常見家電",
+          courses: [
+            { title: "家電故障的通用排查", url: "topics/home-repair/lesson-50.html" },
+            { title: "洗衣機", url: "topics/home-repair/lesson-51.html" },
+            { title: "滾筒洗衣機與烘衣機", url: "topics/home-repair/lesson-52.html" },
+            { title: "冰箱", url: "topics/home-repair/lesson-53.html" },
+            { title: "除濕機與空氣清淨機", url: "topics/home-repair/lesson-54.html" },
+            { title: "抽油煙機", url: "topics/home-repair/lesson-55.html" },
+            { title: "瓦斯爐", url: "topics/home-repair/lesson-56.html" },
+            { title: "淨水器、飲水機、電熱水瓶", url: "topics/home-repair/lesson-57.html" },
+            { title: "微波爐、電鍋、電扇", url: "topics/home-repair/lesson-58.html" },
+            { title: "修還是換", url: "topics/home-repair/lesson-59.html" },
+          ],
+        },
+        {
+          title: "模組 K｜實務與總結",
+          courses: [
+            { title: "找師傅的實務", url: "topics/home-repair/lesson-60.html" },
+            { title: "總結：居家水電定期檢查清單", url: "topics/home-repair/lesson-61.html" },
+          ],
+        },
+      ],
     }
   ]
 };
