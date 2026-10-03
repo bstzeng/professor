@@ -16856,6 +16856,122 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "first-principles",
+      category: "tech",
+      title: "馬斯克的第一性原理：從物理思考到改變產業",
+      description:
+        "第一性原理完整導讀：亞里斯多德到物理學家的思考、類比推理的取捨、馬斯克的原話；拆解、白痴指數、理論極限與五步驟演算法；SpaceX 的成本拆解、垂直整合、Falcon 1、可重複使用、Starship 與 Starlink；Tesla 的電池、超級工廠、直營、OTA、壓鑄、生產地獄與純視覺；PayPal、SolarCity、Boring、Neuralink、推特；近年的 Starship 入軌、xAI 與 SpaceX 合併上市、Robotaxi、銷量挑戰與 DOGE；預測失準、失敗案例、倖存者偏差與方法的極限；以及如何用在生活、工作與學習。附九個互動工具。",
+      icon: "🧭",
+      url: "topics/first-principles/index.html",
+      resources: [
+        {
+          title: "第一性原理工具箱",
+          description: "拆解樹、白痴指數、五步驟、重複使用、發射成本、學習曲線、預測對照、Starship 試飛、檢查清單",
+          icon: "🧰",
+          url: "topics/first-principles/guide.html"
+        },
+        {
+          title: "名詞速查與年表",
+          description: "方法名詞與馬斯克事業年表",
+          icon: "📖",
+          url: "topics/first-principles/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是第一性原理",
+          courses: [
+            { title: "一句話說清楚", url: "topics/first-principles/lesson-01.html" },
+            { title: "思想源頭", url: "topics/first-principles/lesson-02.html" },
+            { title: "物理學家怎麼想", url: "topics/first-principles/lesson-03.html" },
+            { title: "類比推理與第一性原理", url: "topics/first-principles/lesson-04.html" },
+            { title: "馬斯克自己怎麼說", url: "topics/first-principles/lesson-05.html" },
+            { title: "常見誤解", url: "topics/first-principles/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜方法工具箱",
+          courses: [
+            { title: "拆解", url: "topics/first-principles/lesson-07.html" },
+            { title: "成本拆解與白痴指數", url: "topics/first-principles/lesson-08.html" },
+            { title: "理論極限", url: "topics/first-principles/lesson-09.html" },
+            { title: "「演算法」五步驟", url: "topics/first-principles/lesson-10.html" },
+            { title: "最好的零件就是沒有零件", url: "topics/first-principles/lesson-11.html" },
+            { title: "每個需求都要有人名", url: "topics/first-principles/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜SpaceX：火箭可以便宜",
+          courses: [
+            { title: "買不到火箭", url: "topics/first-principles/lesson-13.html" },
+            { title: "火箭的成本拆解", url: "topics/first-principles/lesson-14.html" },
+            { title: "垂直整合", url: "topics/first-principles/lesson-15.html" },
+            { title: "Falcon 1", url: "topics/first-principles/lesson-16.html" },
+            { title: "可重複使用", url: "topics/first-principles/lesson-17.html" },
+            { title: "發射成本下降", url: "topics/first-principles/lesson-18.html" },
+            { title: "Starship", url: "topics/first-principles/lesson-19.html" },
+            { title: "Starlink", url: "topics/first-principles/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜Tesla：電動車與製造",
+          courses: [
+            { title: "電池太貴？", url: "topics/first-principles/lesson-21.html" },
+            { title: "超級工廠", url: "topics/first-principles/lesson-22.html" },
+            { title: "跳過經銷商", url: "topics/first-principles/lesson-23.html" },
+            { title: "汽車也能更新", url: "topics/first-principles/lesson-24.html" },
+            { title: "超級充電站", url: "topics/first-principles/lesson-25.html" },
+            { title: "一體化壓鑄", url: "topics/first-principles/lesson-26.html" },
+            { title: "生產地獄", url: "topics/first-principles/lesson-27.html" },
+            { title: "只用攝影機的自動駕駛", url: "topics/first-principles/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜其他事業",
+          courses: [
+            { title: "PayPal 時期", url: "topics/first-principles/lesson-29.html" },
+            { title: "SolarCity 與太陽能屋頂", url: "topics/first-principles/lesson-30.html" },
+            { title: "Boring Company 與 Hyperloop", url: "topics/first-principles/lesson-31.html" },
+            { title: "Neuralink", url: "topics/first-principles/lesson-32.html" },
+            { title: "收購推特", url: "topics/first-principles/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜近年發展：新戰場",
+          courses: [
+            { title: "Starship 試飛", url: "topics/first-principles/lesson-34.html" },
+            { title: "Starlink 的規模化", url: "topics/first-principles/lesson-35.html" },
+            { title: "xAI、Grok 與 SpaceX 的合併", url: "topics/first-principles/lesson-36.html" },
+            { title: "Tesla 的新賭注", url: "topics/first-principles/lesson-37.html" },
+            { title: "Tesla 的挑戰", url: "topics/first-principles/lesson-38.html" },
+            { title: "DOGE：把五步驟用在政府", url: "topics/first-principles/lesson-39.html" },
+            { title: "Neuralink 的人體試驗", url: "topics/first-principles/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜限制、失敗與批判",
+          courses: [
+            { title: "預測失準", url: "topics/first-principles/lesson-41.html" },
+            { title: "失敗與擱置的案例", url: "topics/first-principles/lesson-42.html" },
+            { title: "第一性原理的限制", url: "topics/first-principles/lesson-43.html" },
+            { title: "倖存者偏差與個人神話", url: "topics/first-principles/lesson-44.html" },
+            { title: "管理風格的爭議", url: "topics/first-principles/lesson-45.html" },
+            { title: "工廠與社會的差別", url: "topics/first-principles/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜自己怎麼用",
+          courses: [
+            { title: "生活中的練習", url: "topics/first-principles/lesson-47.html" },
+            { title: "工作中的練習", url: "topics/first-principles/lesson-48.html" },
+            { title: "學習新領域", url: "topics/first-principles/lesson-49.html" },
+            { title: "什麼時候該用類比", url: "topics/first-principles/lesson-50.html" },
+            { title: "總結", url: "topics/first-principles/lesson-51.html" },
+          ],
+        },
+      ],
     }
   ]
 };
