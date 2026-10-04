@@ -16972,6 +16972,119 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chaos-theory",
+      category: "math",
+      title: "混沌理論：決定論中的不可預測",
+      description:
+        "混沌理論完整導讀：拉普拉斯妖、龐加萊、勞倫茲與蝴蝶效應；邏輯斯諦映射、蛛網圖、週期倍增、分岔圖、費根鮑姆常數與週期三；李亞普諾夫指數、可預測時間、相空間與吸引子；勞倫茲方程、拉伸與摺疊、Hénon 映射、龐加萊截面與通往混沌的路；碎形維度、曼德博與朱利亞集合、牛頓碎形；雙擺、三體、天氣與系集預報、亂流、生物節律與同步；族群、經濟、混沌控制、加密與常見誤用。附十三個即時互動實驗。",
+      icon: "🦋",
+      url: "topics/chaos-theory/index.html",
+      resources: [
+        {
+          title: "混沌實驗室",
+          description: "蛛網圖、分岔圖、李亞普諾夫指數、勞倫茲吸引子、Hénon、碎形、曼德博與朱利亞、牛頓碎形、雙擺、系集、同步、控制",
+          icon: "🧪",
+          url: "topics/chaos-theory/guide.html"
+        },
+        {
+          title: "混沌名詞速查",
+          description: "混沌理論的名詞、公式與常數",
+          icon: "📖",
+          url: "topics/chaos-theory/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是混沌",
+          courses: [
+            { title: "混沌不是亂", url: "topics/chaos-theory/lesson-01.html" },
+            { title: "決定論的夢想", url: "topics/chaos-theory/lesson-02.html" },
+            { title: "第一道裂縫", url: "topics/chaos-theory/lesson-03.html" },
+            { title: "勞倫茲的意外發現", url: "topics/chaos-theory/lesson-04.html" },
+            { title: "蝴蝶效應", url: "topics/chaos-theory/lesson-05.html" },
+            { title: "混沌的三個特徵", url: "topics/chaos-theory/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜最簡單的混沌：邏輯斯諦映射",
+          courses: [
+            { title: "一條簡單的公式", url: "topics/chaos-theory/lesson-07.html" },
+            { title: "迭代與蛛網圖", url: "topics/chaos-theory/lesson-08.html" },
+            { title: "不動點與穩定性", url: "topics/chaos-theory/lesson-09.html" },
+            { title: "週期倍增", url: "topics/chaos-theory/lesson-10.html" },
+            { title: "分岔圖", url: "topics/chaos-theory/lesson-11.html" },
+            { title: "費根鮑姆常數", url: "topics/chaos-theory/lesson-12.html" },
+            { title: "週期 3 與混沌", url: "topics/chaos-theory/lesson-13.html" },
+            { title: "對初始條件的敏感", url: "topics/chaos-theory/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜衡量混沌",
+          courses: [
+            { title: "指數發散", url: "topics/chaos-theory/lesson-15.html" },
+            { title: "李亞普諾夫指數", url: "topics/chaos-theory/lesson-16.html" },
+            { title: "可預測的時間有多長", url: "topics/chaos-theory/lesson-17.html" },
+            { title: "相空間", url: "topics/chaos-theory/lesson-18.html" },
+            { title: "吸引子", url: "topics/chaos-theory/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜連續系統與奇異吸引子",
+          courses: [
+            { title: "勞倫茲方程", url: "topics/chaos-theory/lesson-20.html" },
+            { title: "拉伸與摺疊", url: "topics/chaos-theory/lesson-21.html" },
+            { title: "Hénon 映射與 Rössler 吸引子", url: "topics/chaos-theory/lesson-22.html" },
+            { title: "奇異吸引子的結構", url: "topics/chaos-theory/lesson-23.html" },
+            { title: "龐加萊截面", url: "topics/chaos-theory/lesson-24.html" },
+            { title: "為什麼至少要三維", url: "topics/chaos-theory/lesson-25.html" },
+            { title: "通往混沌的三條路", url: "topics/chaos-theory/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜碎形：混沌的幾何",
+          courses: [
+            { title: "什麼是碎形", url: "topics/chaos-theory/lesson-27.html" },
+            { title: "碎形維度", url: "topics/chaos-theory/lesson-28.html" },
+            { title: "曼德博集合", url: "topics/chaos-theory/lesson-29.html" },
+            { title: "朱利亞集合", url: "topics/chaos-theory/lesson-30.html" },
+            { title: "牛頓法的碎形", url: "topics/chaos-theory/lesson-31.html" },
+            { title: "自然界的碎形", url: "topics/chaos-theory/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜物理世界中的混沌",
+          courses: [
+            { title: "雙擺", url: "topics/chaos-theory/lesson-33.html" },
+            { title: "三體問題與太陽系", url: "topics/chaos-theory/lesson-34.html" },
+            { title: "天氣與氣候", url: "topics/chaos-theory/lesson-35.html" },
+            { title: "系集預報", url: "topics/chaos-theory/lesson-36.html" },
+            { title: "亂流", url: "topics/chaos-theory/lesson-37.html" },
+            { title: "心臟、大腦與生物節律", url: "topics/chaos-theory/lesson-38.html" },
+            { title: "同步", url: "topics/chaos-theory/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜社會、科技與應用",
+          courses: [
+            { title: "族群動態", url: "topics/chaos-theory/lesson-40.html" },
+            { title: "經濟與金融", url: "topics/chaos-theory/lesson-41.html" },
+            { title: "混沌控制", url: "topics/chaos-theory/lesson-42.html" },
+            { title: "混沌加密與亂數", url: "topics/chaos-theory/lesson-43.html" },
+            { title: "隨機與混沌", url: "topics/chaos-theory/lesson-44.html" },
+            { title: "常見誤用", url: "topics/chaos-theory/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "人物與年表", url: "topics/chaos-theory/lesson-46.html" },
+            { title: "複雜系統", url: "topics/chaos-theory/lesson-47.html" },
+            { title: "總結：決定論、可預測性與謙虛", url: "topics/chaos-theory/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
