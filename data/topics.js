@@ -17085,6 +17085,121 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "computability",
+      category: "math",
+      title: "計算理論：從圖靈機到停機問題",
+      description:
+        "計算理論完整導讀：希爾伯特的夢想、1936 年的丘奇與圖靈；有限自動機、NFA、正規表達式與抽水引理；上下文無關文法、下推自動機與喬姆斯基階層；圖靈機、萬能圖靈機、丘奇－圖靈論題、λ 演算與圖靈完備；對角線論證、停機問題的證明、歸約、萊斯定理與其他不可判定問題；哥德爾數與不完備定理、忙碌海狸與考拉茲猜想；時間複雜度、P、NP、NP 完全與 P vs NP。附十四個互動模擬器。",
+      icon: "🧮",
+      url: "topics/computability/index.html",
+      resources: [
+        {
+          title: "計算理論實驗室",
+          description: "狀態機、DFA、抽水引理、堆疊、圖靈機、λ 演算、細胞自動機、對角線、停機問題、骨牌、哥德爾數、考拉茲、複雜度、SAT",
+          icon: "🧪",
+          url: "topics/computability/guide.html"
+        },
+        {
+          title: "計算理論名詞速查",
+          description: "自動機、可計算性、不完備與複雜度的名詞",
+          icon: "📖",
+          url: "topics/computability/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是「計算」",
+          courses: [
+            { title: "計算理論在問什麼", url: "topics/computability/lesson-01.html" },
+            { title: "希爾伯特的夢想", url: "topics/computability/lesson-02.html" },
+            { title: "演算法的直覺", url: "topics/computability/lesson-03.html" },
+            { title: "1936 年", url: "topics/computability/lesson-04.html" },
+            { title: "圖靈這個人", url: "topics/computability/lesson-05.html" },
+            { title: "這門課的地圖", url: "topics/computability/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜最簡單的機器：有限自動機",
+          courses: [
+            { title: "有限狀態機", url: "topics/computability/lesson-07.html" },
+            { title: "確定性有限自動機", url: "topics/computability/lesson-08.html" },
+            { title: "非確定性", url: "topics/computability/lesson-09.html" },
+            { title: "NFA 與 DFA 一樣強", url: "topics/computability/lesson-10.html" },
+            { title: "正規表達式", url: "topics/computability/lesson-11.html" },
+            { title: "有限自動機做不到的事", url: "topics/computability/lesson-12.html" },
+            { title: "抽水引理", url: "topics/computability/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜加一個堆疊：下推自動機與文法",
+          courses: [
+            { title: "上下文無關文法", url: "topics/computability/lesson-14.html" },
+            { title: "下推自動機", url: "topics/computability/lesson-15.html" },
+            { title: "編譯器與剖析器", url: "topics/computability/lesson-16.html" },
+            { title: "喬姆斯基階層", url: "topics/computability/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜圖靈機：計算的終極模型",
+          courses: [
+            { title: "圖靈機的構造", url: "topics/computability/lesson-18.html" },
+            { title: "第一台圖靈機", url: "topics/computability/lesson-19.html" },
+            { title: "更多圖靈機", url: "topics/computability/lesson-20.html" },
+            { title: "萬能圖靈機", url: "topics/computability/lesson-21.html" },
+            { title: "丘奇－圖靈論題", url: "topics/computability/lesson-22.html" },
+            { title: "λ 演算", url: "topics/computability/lesson-23.html" },
+            { title: "意想不到的圖靈完備", url: "topics/computability/lesson-24.html" },
+            { title: "圖靈機的變形", url: "topics/computability/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜不可計算：停機問題",
+          courses: [
+            { title: "無限也有大小", url: "topics/computability/lesson-26.html" },
+            { title: "可數與不可數", url: "topics/computability/lesson-27.html" },
+            { title: "停機問題", url: "topics/computability/lesson-28.html" },
+            { title: "停機問題的證明", url: "topics/computability/lesson-29.html" },
+            { title: "停機問題的意義", url: "topics/computability/lesson-30.html" },
+            { title: "歸約", url: "topics/computability/lesson-31.html" },
+            { title: "萊斯定理", url: "topics/computability/lesson-32.html" },
+            { title: "更多不可判定的問題", url: "topics/computability/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜不完備與自我指涉",
+          courses: [
+            { title: "說謊者悖論", url: "topics/computability/lesson-34.html" },
+            { title: "哥德爾數", url: "topics/computability/lesson-35.html" },
+            { title: "哥德爾不完備定理", url: "topics/computability/lesson-36.html" },
+            { title: "不完備與停機問題", url: "topics/computability/lesson-37.html" },
+            { title: "忙碌海狸", url: "topics/computability/lesson-38.html" },
+            { title: "未解的停機問題", url: "topics/computability/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜算得太慢：計算複雜度",
+          courses: [
+            { title: "時間複雜度", url: "topics/computability/lesson-40.html" },
+            { title: "P", url: "topics/computability/lesson-41.html" },
+            { title: "NP", url: "topics/computability/lesson-42.html" },
+            { title: "NP 完全", url: "topics/computability/lesson-43.html" },
+            { title: "歸約的遊戲", url: "topics/computability/lesson-44.html" },
+            { title: "P vs NP", url: "topics/computability/lesson-45.html" },
+            { title: "更多複雜度類別", url: "topics/computability/lesson-46.html" },
+            { title: "面對難題的實務", url: "topics/computability/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 H｜應用與總結",
+          courses: [
+            { title: "計算理論在哪裡", url: "topics/computability/lesson-48.html" },
+            { title: "年表與人物", url: "topics/computability/lesson-49.html" },
+            { title: "總結", url: "topics/computability/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
