@@ -1,0 +1,298 @@
+# -*- coding: utf-8 -*-
+"""〈計算理論〉共用工具與互動元件（TCLIB）。"""
+from cc_common import *
+from qt_common import BASEJS
+
+TC_NOTE = (u"互動模擬為教學用的簡化版本；圖靈機、λ 演算等模擬器都設有步數上限，以免瀏覽器卡住——"
+           u"這個「上限」本身就呼應了停機問題：我們無法事先知道一個程式會不會停。")
+
+TCLIB = r"""
+(function () {
+  if (window.__tcLib) return; window.__tcLib = 1;
+""" + BASEJS + r"""
+  function info(root) { var p = el('p', 'margin:6px 0 0;line-height:1.7'); root.appendChild(p); return p; }
+  function bar(root) { var b = el('div'); root.appendChild(b); return b; }
+  function bt(b, t, k, f) { var x = btn(t, k); x.addEventListener('click', f); b.appendChild(x); return x; }
+  function inp(root, val, k, w) { var i = document.createElement('input'); i.type = 'text'; i.value = val; i.setAttribute('data-k', k);
+    i.style.cssText = 'width:' + (w || '14em') + ';max-width:100%;padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;font-family:monospace'; root.appendChild(i); return i; }
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+  var OK = '#2e7d4f', NG = '#c0392b', C1 = '#3a6ea5', C4 = '#e08a1e', C5 = '#8a5cb8';
+  function cell(ch, on, col) { return '<span style="display:inline-block;min-width:1.6em;text-align:center;padding:3px 2px;margin:1px;border:1px solid ' + (on ? (col || C4) : 'var(--border)') + ';border-radius:4px;font-family:monospace;' + (on ? 'background:' + (col || C4) + ';color:#fff;font-weight:bold' : '') + '">' + esc(ch) + '</span>'; }
+
+  /* ---------- 狀態圖（共用） ---------- */
+  function sdiag(S, T, cur, acc, W, H) { var g = '<defs><marker id="tcar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#888"/></marker></defs>';
+    T.forEach(function (t) { var a = S[t[0]], b = S[t[1]];
+      if (t[0] === t[1]) { g += '<path d="M' + (a.x - 10) + ' ' + (a.y - 24) + ' C' + (a.x - 30) + ' ' + (a.y - 70) + ' ' + (a.x + 30) + ' ' + (a.y - 70) + ' ' + (a.x + 10) + ' ' + (a.y - 24) + '" fill="none" stroke="#888" marker-end="url(#tcar)"/>' + tx(a.x, a.y - 60, t[2], 11, 'currentColor'); return; }
+      var dx = b.x - a.x, dy = b.y - a.y, L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L, off = t[3] || 0, nx = -uy * off, ny = ux * off;
+      var x1 = a.x + ux * 24 + nx, y1 = a.y + uy * 24 + ny, x2 = b.x - ux * 26 + nx, y2 = b.y - uy * 26 + ny, mx = (x1 + x2) / 2 + nx * 0.8, my = (y1 + y2) / 2 + ny * 0.8;
+      g += '<path d="M' + n1(x1) + ' ' + n1(y1) + ' Q' + n1(mx) + ' ' + n1(my) + ' ' + n1(x2) + ' ' + n1(y2) + '" fill="none" stroke="#888" marker-end="url(#tcar)"/>' + tx((x1 + 2 * mx + x2) / 4, (y1 + 2 * my + y2) / 4 + (off > 0 ? 14 : -5), t[2], 11, 'currentColor'); });
+    Object.keys(S).forEach(function (k) { var s = S[k], on = k === cur; g += '<circle cx="' + s.x + '" cy="' + s.y + '" r="22" fill="' + (on ? C4 : 'var(--surface)') + '" stroke="' + (on ? C4 : C1) + '" stroke-width="2"/>' +
+      (acc.indexOf(k) >= 0 ? '<circle cx="' + s.x + '" cy="' + s.y + '" r="17" fill="none" stroke="' + (on ? '#fff' : C1) + '" stroke-width="1.5"/>' : '') + tx(s.x, s.y + 4, s.n || k, 11, on ? '#fff' : 'currentColor'); });
+    return svgw('0 0 ' + W + ' ' + H, g); }
+
+  /* ---------- 販賣機 ---------- */
+  function initVend(root, cfg) {
+    head(root, cfg.q); var st = 0, log = [], view = el('div'), b = bar(root), p;
+    var S = { 0: { x: 80, y: 120, n: '0 元' }, 5: { x: 250, y: 120, n: '5 元' }, 10: { x: 420, y: 120, n: '10 元' }, 15: { x: 580, y: 120, n: '出貨' } };
+    var T = [[0, 5, '+5', -10], [5, 10, '+5', -10], [10, 15, '+5', -10], [0, 10, '+10', 48], [5, 15, '+10', -62], [10, 15, '+10（找 5）', 24]];
+    root.insertBefore(view, b);
+    bt(b, '投 5 元', 'c5', function () { go(5); }); bt(b, '投 10 元', 'c10', function () { go(10); }); bt(b, '↺ 重設', 'reset', function () { st = 0; log = []; draw(); }); p = info(root);
+    function go(c) { if (st === 15) { st = 0; log = []; } var n = st + c; log.push('+' + c); st = n >= 15 ? 15 : n; if (n > 15) log.push('找 ' + (n - 15)); draw(); }
+    function draw() { view.innerHTML = sdiag(S, T, String(st), ['15'], 660, 230);
+      p.innerHTML = '一瓶飲料 15 元，只收 5 元與 10 元硬幣。目前狀態：<b>' + S[st].n + '</b>。紀錄：' + (log.join('、') || '（尚未投幣）') + '。' + (st === 15 ? '<b style="color:' + OK + '">出貨！</b>再投幣會重新開始。' : '') +
+        '<br><span style="font-size:0.88em;color:var(--text-muted)">販賣機不需要記住你投了哪幾枚硬幣，只需要記住「目前累計多少」——這就是「有限狀態」：記憶有限，只有幾個狀態。</span>'; }
+    draw();
+  }
+
+  /* ---------- DFA ---------- */
+  var DFAS = {
+    even1: { n: '偶數個 1', S: { e: { x: 160, y: 110, n: '偶' }, o: { x: 460, y: 110, n: '奇' } }, start: 'e', acc: ['e'], d: { e: { 0: 'e', 1: 'o' }, o: { 0: 'o', 1: 'e' } },
+      T: [['e', 'e', '0'], ['o', 'o', '0'], ['e', 'o', '1', -16], ['o', 'e', '1', -16]], s: '1101' },
+    end01: { n: '以 01 結尾', S: { a: { x: 110, y: 120, n: 'q0' }, b: { x: 320, y: 120, n: 'q1' }, c: { x: 530, y: 120, n: 'q2' } }, start: 'a', acc: ['c'],
+      d: { a: { 0: 'b', 1: 'a' }, b: { 0: 'b', 1: 'c' }, c: { 0: 'b', 1: 'a' } }, T: [['a', 'a', '1'], ['a', 'b', '0', -14], ['b', 'b', '0'], ['b', 'c', '1', -14], ['c', 'b', '0', -14], ['c', 'a', '1', 50]], s: '10101' },
+    div3: { n: '二進位數可被 3 整除', S: { r0: { x: 110, y: 120, n: '餘 0' }, r1: { x: 320, y: 120, n: '餘 1' }, r2: { x: 530, y: 120, n: '餘 2' } }, start: 'r0', acc: ['r0'],
+      d: { r0: { 0: 'r0', 1: 'r1' }, r1: { 0: 'r2', 1: 'r0' }, r2: { 0: 'r1', 1: 'r2' } }, T: [['r0', 'r0', '0'], ['r0', 'r1', '1', -14], ['r1', 'r0', '1', -14], ['r1', 'r2', '0', -14], ['r2', 'r1', '0', -14], ['r2', 'r2', '1']], s: '1001' } };
+  function initDFA(root, cfg) {
+    head(root, cfg.q); var key = cfg.m || 'even1', M, s, i, cur, b = bar(root), w = el('div', 'margin:6px 0'), view = el('div'), tape = el('div', 'margin:4px 0'), b2 = bar(root), p, I;
+    Object.keys(DFAS).forEach(function (k) { bt(b, DFAS[k].n, k, function () { key = k; mark(b, k); I.value = DFAS[k].s; reset(); }); });
+    root.insertBefore(w, b2); w.appendChild(document.createTextNode('輸入字串（只能用 0 和 1）：')); I = inp(w, DFAS[key].s, 'in', '10em'); I.addEventListener('input', reset);
+    root.insertBefore(view, b2); root.insertBefore(tape, b2);
+    bt(b2, '下一步 ▶', 'step', function () { if (i < s.length) { var c = s[i]; cur = M.d[cur][c]; i++; } draw(); }); bt(b2, '全部執行 ⏩', 'run', function () { while (i < s.length) { cur = M.d[cur][s[i]]; i++; } draw(); }); bt(b2, '↺ 重來', 'reset', reset); p = info(root);
+    function reset() { M = DFAS[key]; s = I.value.replace(/[^01]/g, ''); i = 0; cur = M.start; draw(); }
+    function draw() { view.innerHTML = sdiag(M.S, M.T, cur, M.acc, 640, 210); tape.innerHTML = s.split('').map(function (c, j) { return cell(c, j === i); }).join('') + (i >= s.length ? '　<b>讀完了</b>' : '');
+      var done = i >= s.length, ok = M.acc.indexOf(cur) >= 0;
+      p.innerHTML = '目前狀態：<b>' + M.S[cur].n + '</b>（雙圈是「接受」狀態）。' + (done ? (ok ? '<b style="color:' + OK + '">接受</b>：這個字串屬於這個語言。' : '<b style="color:' + NG + '">拒絕</b>：這個字串不屬於這個語言。') : '已讀 ' + i + ' / ' + s.length + ' 個字元。') +
+        (key === 'div3' ? '<br><span style="font-size:0.88em;color:var(--text-muted)">每讀一位，餘數變成（餘數 × 2 + 這一位）mod 3——只要三個狀態就能判斷任意長的二進位數。</span>' : ''); }
+    mark(b, key); reset();
+  }
+
+  /* ---------- 抽水引理對戰 ---------- */
+  function initPump(root, cfg) {
+    head(root, cfg.q); var P, sp, view = el('div'), b = bar(root), p; root.insertBefore(view, b);
+    bt(b, '↺ 新的一局', 'new', start); p = info(root);
+    function start() { P = 3 + Math.floor(Math.random() * 4); sp = null; draw(0); }
+    function draw(stage, iv) { var h = '<p style="margin:4px 0">① 對手（宣稱有一台有限自動機能辨認 aⁿbⁿ）說：抽水長度 <b>p = ' + P + '</b>。</p>';
+      if (stage === 0) { view.innerHTML = h + '<p>② 輪到你選一個長度至少 p 的字串。</p>'; var bb = btn('選 s = a^' + P + ' b^' + P, 'pick'); bb.addEventListener('click', function () {
+          var xy = 1 + Math.floor(Math.random() * P), y = 1 + Math.floor(Math.random() * xy); sp = [xy - y, y]; draw(1); }); view.appendChild(bb); p.innerHTML = '目標：證明 {aⁿbⁿ}（相同數量的 a 和 b）不是正規語言。'; return; }
+      var s = 'a'.repeat(P) + 'b'.repeat(P), x = s.slice(0, sp[0]), y = s.slice(sp[0], sp[0] + sp[1]), z = s.slice(sp[0] + sp[1]);
+      h += '<p style="margin:4px 0">② 你選了 s = ' + s + '</p><p style="margin:4px 0">③ 對手把它切成 x y z（|xy| ≤ p，|y| ≥ 1）：<span style="font-family:monospace">' + (x ? cell(x, false) : '') + cell(y, true) + cell(z, false) + '</span>　（y 是橘色那段，只含 a）</p>';
+      if (stage === 1) { view.innerHTML = h + '<p style="margin:4px 0">④ 輪到你選 i，把 y 重複 i 次：</p>'; [0, 2, 3].forEach(function (k) { var bb = btn('i = ' + k, 'i' + k); bb.addEventListener('click', function () { draw(2, k); }); view.appendChild(bb); }); p.innerHTML = ''; return; }
+      var t = x + y.repeat(iv) + z, na = t.split('a').length - 1, nb = t.split('b').length - 1;
+      view.innerHTML = h + '<p style="margin:4px 0">④ 你選 i = ' + iv + '：x y<sup>' + iv + '</sup> z = <span style="font-family:monospace">' + t + '</span></p>';
+      p.innerHTML = 'a 有 ' + na + ' 個、b 有 ' + nb + ' 個——' + (na !== nb ? '<b style="color:' + OK + '">數量不相等，不在語言中，你贏了！</b>' : '') + '不管對手怎麼切，因為 |xy| ≤ p，y 一定全是 a，重複之後 a 和 b 就不相等。所以對手的「有限自動機」不存在：<b>aⁿbⁿ 不是正規語言</b>。直覺上，有限的狀態無法記住任意多個 a。'; }
+    start();
+  }
+
+  /* ---------- 堆疊括號 ---------- */
+  function initStack(root, cfg) {
+    head(root, cfg.q); var s, i, st, err, w = el('div', 'margin:6px 0'), view = el('div'), b = bar(root), p, I;
+    root.insertBefore(w, b); w.appendChild(document.createTextNode('輸入括號字串：')); I = inp(w, cfg.s || '({[]}())[', 'in', '12em'); I.addEventListener('input', reset); root.insertBefore(view, b);
+    bt(b, '下一步 ▶', 'step', step); bt(b, '全部執行 ⏩', 'run', function () { while (i < s.length && !err) step(true); draw(); }); bt(b, '↺ 重來', 'reset', reset); p = info(root);
+    var PAIR = { ')': '(', ']': '[', '}': '{' };
+    function reset() { s = I.value.replace(/[^()\[\]{}]/g, ''); i = 0; st = []; err = ''; draw(); }
+    function step(q) { if (i >= s.length || err) return; var c = s[i]; if ('([{'.indexOf(c) >= 0) st.push(c); else if (st.length && st[st.length - 1] === PAIR[c]) st.pop(); else err = '第 ' + (i + 1) + ' 個字元「' + c + '」配不上'; i++; if (!q) draw(); }
+    function draw() { view.innerHTML = '<div style="margin:4px 0">' + s.split('').map(function (c, j) { return cell(c, j === i); }).join('') + '</div><div style="display:flex;align-items:flex-end;gap:12px"><div style="display:flex;flex-direction:column-reverse;min-height:40px;border:2px solid var(--border);border-top:none;padding:3px;min-width:2.4em">' +
+        st.map(function (c) { return '<div style="text-align:center;font-family:monospace;background:' + C1 + ';color:#fff;margin:1px;border-radius:3px">' + c + '</div>'; }).join('') + '</div><span style="font-size:0.85em;color:var(--text-muted)">← 堆疊（後進先出）</span></div>';
+      p.innerHTML = err ? '<b style="color:' + NG + '">' + err + '：不平衡。</b>' : i >= s.length ? (st.length ? '<b style="color:' + NG + '">讀完了，但堆疊裡還有 ' + st.length + ' 個沒配對的左括號。</b>' : '<b style="color:' + OK + '">平衡！</b>') : '遇到左括號就推入堆疊，遇到右括號就看堆疊頂端是不是對應的左括號。' ; }
+    reset();
+  }
+
+  /* ---------- 圖靈機 ---------- */
+  var TMS = {
+    inc: { n: '二進位加一', tape: '1011', r: 'q0 0 0 R q0\nq0 1 1 R q0\nq0 _ _ L q1\nq1 1 0 L q1\nq1 0 1 L H\nq1 _ 1 L H', d: '先走到最右邊，再往左把 1 變 0（進位），遇到 0 或空白就寫 1 停止。' },
+    pal: { n: '判斷迴文', tape: 'abba', r: 'q0 a _ R qa\nq0 b _ R qb\nq0 _ _ R Y\nqa a a R qa\nqa b b R qa\nqa _ _ L ca\nca a _ L back\nca b b L N\nca _ _ L Y\nqb a a R qb\nqb b b R qb\nqb _ _ L cb\ncb b _ L back\ncb a a L N\ncb _ _ L Y\nback a a L back\nback b b L back\nback _ _ R q0', d: '擦掉最左邊的字母並記住它，跑到最右邊比對，相同就擦掉再回到左邊。停在 Y＝是迴文，N＝不是。' },
+    add: { n: '一元加法', tape: '111+11', r: 'q0 1 1 R q0\nq0 + 1 R q1\nq1 1 1 R q1\nq1 _ _ L q2\nq2 1 _ L H', d: '把「+」換成 1，再擦掉最後一個 1：111+11 變成 11111（3 + 2 = 5）。' },
+    bb2: { n: '忙碌海狸（2 狀態）', tape: '', r: 'A 0 1 R B\nA 1 1 L B\nB 0 1 L A\nB 1 1 R H', d: '從全 0 的紙帶開始。2 個狀態的機器中，停下來時寫最多 1 的冠軍：6 步、4 個 1。' },
+    bb3: { n: '忙碌海狸（3 狀態）', tape: '', r: 'A 0 1 R B\nA 1 1 R H\nB 0 0 R C\nB 1 1 R B\nC 0 1 L C\nC 1 1 L A', d: '3 狀態的冠軍之一：14 步，留下 6 個 1。' },
+    bb4: { n: '忙碌海狸（4 狀態）', tape: '', r: 'A 0 1 R B\nA 1 1 L B\nB 0 1 L A\nB 1 0 L C\nC 0 1 R H\nC 1 1 L D\nD 0 1 R D\nD 1 0 R A', d: '4 狀態的冠軍：107 步，留下 13 個 1。到 5 狀態，冠軍要跑四千七百多萬步。' } };
+  function initTM(root, cfg) {
+    head(root, cfg.q); var key = cfg.m || 'inc', R, tp, h, st, n, msg, tm = null, b = bar(root), ta = document.createElement('textarea'), w = el('div', 'margin:4px 0'), view = el('div'), b2 = bar(root), p, I;
+    Object.keys(TMS).forEach(function (k) { bt(b, TMS[k].n, k, function () { key = k; mark(b, k); ta.value = TMS[k].r; I.value = TMS[k].tape; reset(); }); });
+    ta.style.cssText = 'width:100%;box-sizing:border-box;height:96px;font-family:monospace;font-size:0.85em;padding:6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)'; ta.value = TMS[key].r; ta.setAttribute('data-k', 'rules');
+    root.insertBefore(el('div', 'font-size:0.85em;color:var(--text-muted);margin-top:6px', '規則（每行：狀態 讀到 寫入 移動 下一狀態；_ 是空白，H／Y／N 是停機狀態，可以自己修改）：'), b2); root.insertBefore(ta, b2);
+    root.insertBefore(w, b2); w.appendChild(document.createTextNode('初始紙帶：')); I = inp(w, TMS[key].tape, 'tape', '10em'); root.insertBefore(view, b2);
+    ta.addEventListener('input', reset); I.addEventListener('input', reset);
+    bt(b2, '下一步 ▶', 'step', function () { stop(); step(); draw(); }); var rb = bt(b2, '▶ 自動執行', 'run', function () { if (tm) { stop(); return; } rb.textContent = '⏸ 暫停'; tm = setInterval(function () { if (!root.isConnected) { stop(); return; } step(); draw(); if (halted()) stop(); }, 120); });
+    bt(b2, '⏩ 直接跑完', 'fast', function () { stop(); var k = 0; while (!halted() && k < 100000) { step(); k++; } draw(); }); bt(b2, '↺ 重來', 'reset', function () { stop(); reset(); }); p = info(root);
+    function stop() { if (tm) { clearInterval(tm); tm = null; } rb.textContent = '▶ 自動執行'; }
+    function halted() { return st === 'H' || st === 'Y' || st === 'N' || msg; }
+    function reset() { R = {}; msg = ''; ta.value.split('\n').forEach(function (l) { var f = l.trim().split(/\s+/); if (f.length === 5) R[f[0] + ' ' + f[1]] = f; });
+      tp = {}; I.value.split('').forEach(function (c, j) { tp[j] = c; }); h = 0; st = ta.value.trim().split(/\s+/)[0] || 'q0'; n = 0; draw(); }
+    function rd(k) { var c = tp[k]; return c === undefined || c === '' ? (key.indexOf('bb') === 0 ? '0' : '_') : c; }
+    function step() { if (halted()) return; var r = R[st + ' ' + rd(h)]; if (!r) { msg = '沒有規則可用（狀態 ' + st + '，讀到 ' + rd(h) + '），機器停止'; return; } tp[h] = r[2]; h += r[3] === 'R' ? 1 : r[3] === 'L' ? -1 : 0; st = r[4]; n++; }
+    function draw() { var lo = h - 9, hi = h + 9, cells = ''; for (var k = lo; k <= hi; k++) cells += cell(rd(k), k === h);
+      var ones = 0; Object.keys(tp).forEach(function (k) { if (tp[k] === '1') ones++; });
+      view.innerHTML = '<div style="margin:8px 0;white-space:nowrap;overflow-x:auto">' + cells + '</div><div style="font-size:0.9em">狀態：<b>' + st + '</b>　步數：<b>' + n + '</b>' + (key.indexOf('bb') === 0 ? '　紙帶上的 1：<b>' + ones + '</b>' : '') + '</div>';
+      p.innerHTML = TMS[key].d + (halted() ? '<br><b style="color:' + (st === 'N' || msg ? NG : OK) + '">' + (msg || (st === 'Y' ? '停機：是迴文。' : st === 'N' ? '停機：不是迴文。' : '停機。')) + '</b>' : ''); }
+    mark(b, key); reset();
+  }
+
+  /* ---------- λ 演算 ---------- */
+  var MAC = { TRUE: '\\x.\\y.x', FALSE: '\\x.\\y.y', ID: '\\x.x', SUCC: '\\n.\\f.\\x.f (n f x)', PLUS: '\\m.\\n.\\f.\\x.m f (n f x)', MUL: '\\m.\\n.\\f.m (n f)', OMEGA: '(\\x.x x) (\\x.x x)' };
+  function church(k) { var b = 'x'; for (var i = 0; i < k; i++) b = 'f (' + b + ')'; return '(\\f.\\x.' + b + ')'; }
+  function lparse(src) { var s = src.replace(/λ/g, '\\'); s = s.replace(/\b[A-Z]+\b/g, function (m) { return MAC[m] ? '(' + MAC[m] + ')' : m; }).replace(/\b(\d+)\b/g, function (m) { return church(+m); });
+    var i = 0; function ws() { while (s[i] === ' ') i++; }
+    function atom() { ws(); if (s[i] === '(') { i++; var t = expr(); ws(); i++; return t; } if (s[i] === '\\') { i++; ws(); var v = ''; while (/[a-z0-9_']/.test(s[i])) v += s[i++]; ws(); i++; return { t: 'L', v: v, b: expr() }; }
+      var v2 = ''; while (i < s.length && /[a-z0-9_']/.test(s[i])) v2 += s[i++]; if (!v2) throw new Error('語法錯誤'); return { t: 'V', v: v2 }; }
+    function expr() { ws(); var t = atom(); ws(); while (i < s.length && s[i] !== ')') { t = { t: 'A', f: t, a: atom() }; ws(); } return t; }
+    var r = expr(); return r; }
+  var FC = 0;
+  function fv(t, set) { set = set || {}; if (t.t === 'V') set[t.v] = 1; else if (t.t === 'L') { var s2 = fv(t.b, {}); delete s2[t.v]; for (var k in s2) set[k] = 1; } else { fv(t.f, set); fv(t.a, set); } return set; }
+  function subst(t, v, r) { if (t.t === 'V') return t.v === v ? r : t; if (t.t === 'A') return { t: 'A', f: subst(t.f, v, r), a: subst(t.a, v, r) };
+    if (t.v === v) return t; var F = fv(r); if (F[t.v]) { var nv = t.v.replace(/\d+$/, '') + (++FC); return { t: 'L', v: nv, b: subst(subst(t.b, t.v, { t: 'V', v: nv }), v, r) }; } return { t: 'L', v: t.v, b: subst(t.b, v, r) }; }
+  function red(t) { if (t.t === 'A' && t.f.t === 'L') return subst(t.f.b, t.f.v, t.a); if (t.t === 'A') { var f = red(t.f); if (f) return { t: 'A', f: f, a: t.a }; var a = red(t.a); if (a) return { t: 'A', f: t.f, a: a }; return null; }
+    if (t.t === 'L') { var b = red(t.b); return b ? { t: 'L', v: t.v, b: b } : null; } return null; }
+  function show(t) { if (t.t === 'V') return t.v; if (t.t === 'L') return 'λ' + t.v + '.' + show(t.b); var f = t.f.t === 'L' ? '(' + show(t.f) + ')' : show(t.f), a = t.a.t === 'V' ? show(t.a) : '(' + show(t.a) + ')'; return f + ' ' + a; }
+  function asNum(t) { if (t.t !== 'L' || t.b.t !== 'L') return -1; var f = t.v, x = t.b.v, b = t.b.b, k = 0; while (b.t === 'A' && b.f.t === 'V' && b.f.v === f) { k++; b = b.a; } return b.t === 'V' && b.v === x ? k : -1; }
+  function initLambda(root, cfg) {
+    head(root, cfg.q); var b = bar(root), w = el('div', 'margin:6px 0'), view = el('div', 'font-family:monospace;font-size:0.88em;line-height:1.7;max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:6px;padding:6px 10px'), p, I;
+    var PRE = [['恆等函數', '(\\x.x) y'], ['取第一個', '(\\x.\\y.x) a b'], ['SUCC 2', 'SUCC 2'], ['PLUS 2 3', 'PLUS 2 3'], ['MUL 2 3', 'MUL 2 3'], ['Ω（永不停止）', 'OMEGA']];
+    PRE.forEach(function (q, k) { bt(b, q[0], 'p' + k, function () { I.value = q[1]; mark(b, 'p' + k); run(); }); });
+    root.appendChild(w); w.appendChild(document.createTextNode('λ 式子（可用 \\ 代表 λ）：')); I = inp(w, cfg.s || 'PLUS 2 3', 'in', '16em'); var gb = btn('化簡', 'go'); gb.addEventListener('click', run); w.appendChild(gb);
+    root.appendChild(view); p = info(root);
+    function run() { var t, out = [], k = 0; try { t = lparse(I.value); } catch (e) { view.innerHTML = '語法錯誤'; return; } out.push(show(t));
+      while (k < 60) { var r = red(t); if (!r) break; t = r; k++; var sh = show(t); out.push(sh.length > 160 ? sh.slice(0, 160) + '…' : sh); }
+      view.innerHTML = out.map(function (l, j) { return '<div>' + (j ? '→<sub>β</sub> ' : '　 ') + esc(l) + '</div>'; }).join('');
+      var nm = asNum(t), fin = !red(t);
+      p.innerHTML = fin ? '化簡 ' + k + ' 步後到達<b>正規形</b>（不能再化簡）' + (nm >= 0 ? '，它是邱奇數 <b>' + nm + '</b>（把 f 套用 ' + nm + ' 次）。' : '。') : '<b style="color:' + NG + '">60 步後仍在化簡</b>——Ω = (λx.x x)(λx.x x) 化簡一步後得到自己，永遠停不下來。λ 演算也有自己的「停機問題」。'; }
+    run();
+  }
+
+  /* ---------- 細胞自動機 ---------- */
+  function initCA(root, cfg) {
+    head(root, cfg.q); var rule = cfg.r || 110, init = 'one', b = bar(root), b2 = bar(root), c = document.createElement('canvas'), p;
+    [30, 90, 110, 184].forEach(function (r) { bt(b, '規則 ' + r, 'r' + r, function () { rule = r; mark(b, 'r' + r); draw(); }); });
+    bt(b2, '單一黑格起點', 'one', function () { init = 'one'; mark(b2, 'one'); draw(); }); bt(b2, '隨機起點', 'rnd', function () { init = 'rnd'; mark(b2, 'rnd'); draw(); });
+    var W = 640, H = 320, d = Math.min(window.devicePixelRatio || 1, 2); c.width = W * d; c.height = H * d; c.style.cssText = 'width:100%;max-width:640px;display:block;margin:6px auto;border:1px solid var(--border);border-radius:8px;image-rendering:pixelated'; root.appendChild(c); p = info(root);
+    function draw() { var X = c.getContext('2d'), N = 160, Rw = 80, sz = W / N; X.setTransform(d, 0, 0, d, 0, 0); X.fillStyle = '#fafafa'; X.fillRect(0, 0, W, H); var row = [];
+      for (var i = 0; i < N; i++) row.push(init === 'one' ? (i === (rule === 110 ? N - 2 : N >> 1) ? 1 : 0) : (Math.random() < 0.5 ? 1 : 0));
+      for (var y = 0; y < Rw; y++) { X.fillStyle = '#2b3a55'; row.forEach(function (v, i) { if (v) X.fillRect(i * sz, y * (H / Rw), sz, H / Rw); });
+        var nx = []; for (var j = 0; j < N; j++) { var l = row[(j - 1 + N) % N], m = row[j], r = row[(j + 1) % N]; nx.push((rule >> (l * 4 + m * 2 + r)) & 1); } row = nx; }
+      var bits = []; for (var k = 7; k >= 0; k--) bits.push(((k >> 2) & 1) + '' + ((k >> 1) & 1) + (k & 1) + '→' + ((rule >> k) & 1));
+      p.innerHTML = '每一列是一個時間步：每個格子的下一個狀態，只看自己和左右鄰居（8 種組合）。規則 ' + rule + ' 的對照表：<span style="font-family:monospace;font-size:0.88em">' + bits.join('　') + '</span>。' +
+        (rule === 110 ? '<br><b>規則 110 已被證明是圖靈完備的</b>（Matthew Cook，2004 年發表）：這麼簡單的規則，原則上能模擬任何電腦程式。' : rule === 30 ? '<br>規則 30 產生看似隨機的圖案，曾被用來產生亂數。' : rule === 90 ? '<br>規則 90 從一個點長出謝爾賓斯基三角形。' : '<br>規則 184 可以模擬單線道的車流。'); }
+    mark(b, 'r' + rule); mark(b2, init); draw();
+  }
+
+  /* ---------- 對角線論證 ---------- */
+  function initDiag(root, cfg) {
+    head(root, cfg.q); var M, k = 0, view = el('div'), b = bar(root), p; root.insertBefore(view, b);
+    bt(b, '下一步 ▶', 'step', function () { if (k < 8) k++; draw(); }); bt(b, '全部完成 ⏩', 'all', function () { k = 8; draw(); }); bt(b, '🎲 換一份清單', 'new', gen); p = info(root);
+    function gen() { M = []; for (var i = 0; i < 8; i++) { var r = []; for (var j = 0; j < 8; j++) r.push(Math.random() < 0.5 ? 0 : 1); M.push(r); } k = 0; draw(); }
+    function draw() { var h = '<table style="border-collapse:collapse;font-family:monospace;margin:6px 0">'; M.forEach(function (r, i) { h += '<tr><td style="padding:2px 8px;color:var(--text-muted);font-size:0.85em">第 ' + (i + 1) + ' 個</td>' +
+        r.map(function (v, j) { var on = i === j; return '<td style="padding:3px 7px;border:1px solid var(--border);' + (on ? 'background:' + (i < k ? C4 : 'rgba(224,138,30,0.25)') + ';color:' + (i < k ? '#fff' : 'inherit') + ';font-weight:bold' : '') + '">' + v + '</td>'; }).join('') + '<td style="padding:2px 6px">…</td></tr>'; });
+      h += '<tr><td style="padding:2px 8px;color:' + OK + ';font-weight:bold;font-size:0.85em">新的</td>' + M.map(function (r, j) { return '<td style="padding:3px 7px;border:2px solid ' + OK + ';color:' + OK + ';font-weight:bold">' + (j < k ? 1 - M[j][j] : '?') + '</td>'; }).join('') + '<td>…</td></tr></table>';
+      view.innerHTML = h;
+      p.innerHTML = '假設有人宣稱列出了<b>所有</b>無限長的 0/1 序列（第 1 個、第 2 個……）。沿著對角線（橘色），把第 i 個序列的第 i 位<b>反過來</b>，組成一個新序列。' +
+        (k >= 8 ? '新序列和第 1 個在第 1 位不同、和第 2 個在第 2 位不同……和清單上<b>每一個</b>都不同——所以清單不可能是完整的。<b>無限長的 0/1 序列不可數。</b>' : '已處理 ' + k + ' / 8 位。'); }
+    gen();
+  }
+
+  /* ---------- 停機問題悖論 ---------- */
+  function initHalt(root, cfg) {
+    head(root, cfg.q); var view = el('div'), b = bar(root), p, stg = 0; root.insertBefore(view, b); bt(b, '↺ 從頭開始', 'reset', function () { stg = 0; draw(); }); p = info(root);
+    var code = function (s) { return '<pre style="margin:6px 0;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:0.88em;white-space:pre-wrap">' + s + '</pre>'; };
+    function choice(opts) { opts.forEach(function (o) { var x = btn(o[0], o[1]); x.addEventListener('click', function () { stg = o[2]; draw(); }); view.appendChild(x); }); }
+    function draw() { view.innerHTML = '';
+      var H = code('<b>H(程式 P, 輸入 x)</b>：\n  如果 P(x) 最後會停 → 回答「會停」\n  如果 P(x) 永遠不停 → 回答「不會停」\n  （H 本身保證一定會停下來給答案）');
+      var D = code('<b>D(程式 P)</b>：\n  問 H(P, P)  ← 把 P 自己當成輸入\n  如果 H 說「會停」   → 進入無窮迴圈\n  如果 H 說「不會停」 → 立刻停止');
+      if (stg === 0) { view.innerHTML = '<p>① 假設有人寫出了一個萬能的停機判斷程式 H：</p>' + H; choice([['好，假設 H 存在 ▶', 'n0', 1]]); p.innerHTML = '這是反證法：先假設 H 存在，看會不會推出矛盾。'; return; }
+      if (stg === 1) { view.innerHTML = '<p>② 用 H 當零件，寫一個「唱反調」的程式 D：</p>' + H + D; choice([['D 寫得出來嗎？是的 ▶', 'n1', 2]]); p.innerHTML = '只要 H 存在，D 就一定寫得出來——它只是呼叫 H 再做相反的事。'; return; }
+      if (stg === 2) { view.innerHTML = '<p>③ 關鍵問題：<b>把 D 自己餵給 D，也就是執行 D(D)，會停嗎？</b>D(D) 會去問 H(D, D)。H 會怎麼回答？</p>' + D;
+        choice([['H 說：D(D) 會停', 'a', 3], ['H 說：D(D) 不會停', 'b', 4]]); p.innerHTML = 'H 一定會給出兩個答案之一。兩種都試試看。'; return; }
+      if (stg === 3) { view.innerHTML = '<p>④ 如果 H 說「D(D) 會停」……</p>' + code('D 看到 H 說「會停」\n→ D 進入無窮迴圈\n→ D(D) <b>永遠不停</b>'); p.innerHTML = '<b style="color:' + NG + '">H 答錯了！</b>它說會停，結果不會停。'; choice([['換另一個答案試試', 'b2', 4], ['看結論 ▶', 'c', 5]]); return; }
+      if (stg === 4) { view.innerHTML = '<p>④ 如果 H 說「D(D) 不會停」……</p>' + code('D 看到 H 說「不會停」\n→ D 立刻停止\n→ D(D) <b>停了</b>'); p.innerHTML = '<b style="color:' + NG + '">H 又答錯了！</b>它說不會停，結果停了。'; choice([['換另一個答案試試', 'a2', 3], ['看結論 ▶', 'c', 5]]); return; }
+      view.innerHTML = '<p>⑤ 結論</p>'; p.innerHTML = '不管 H 怎麼回答 D(D)，都會答錯。可是我們假設 H 永遠答對——<b>矛盾</b>。所以一開始的假設錯了：<b>不存在能判斷所有程式會不會停的程式 H</b>。這就是圖靈在 1936 年證明的停機問題不可判定。<br><span style="font-size:0.88em;color:var(--text-muted)">注意：這不是說「某些程式很難判斷」，而是說「萬能的判斷程式在邏輯上不可能存在」——不管電腦多快、時間多長。</span>'; }
+    draw();
+  }
+
+  /* ---------- 波斯特對應問題 ---------- */
+  function initPCP(root, cfg) {
+    head(root, cfg.q); var DOM = [['a', 'baa'], ['ab', 'aa'], ['bba', 'bb']], seq = [], view = el('div'), b = el('div'), b2 = bar(root), p;
+    root.insertBefore(b, b2); root.insertBefore(view, b2);
+    DOM.forEach(function (d, i) { var x = document.createElement('button'); x.type = 'button'; x.setAttribute('data-k', 'd' + i);
+      x.style.cssText = 'margin:4px 8px 4px 0;padding:0;border:2px solid ' + C1 + ';border-radius:6px;background:var(--surface);color:var(--text);cursor:pointer;font-family:monospace;min-width:4em';
+      x.innerHTML = '<div style="padding:4px 8px;border-bottom:1px solid ' + C1 + '">' + d[0] + '</div><div style="padding:4px 8px">' + d[1] + '</div><div style="font-size:0.7em;color:var(--text-muted)">#' + (i + 1) + '</div>';
+      x.addEventListener('click', function () { if (seq.length < 12) seq.push(i); draw(); }); b.appendChild(x); });
+    bt(b2, '↶ 拿掉最後一張', 'undo', function () { seq.pop(); draw(); }); bt(b2, '↺ 清空', 'reset', function () { seq = []; draw(); }); p = info(root);
+    function draw() { var t = seq.map(function (i) { return DOM[i][0]; }).join(''), u = seq.map(function (i) { return DOM[i][1]; }).join(''), L = Math.max(t.length, u.length), ok = true;
+      for (var k = 0; k < Math.min(t.length, u.length); k++) if (t[k] !== u[k]) ok = false;
+      var row = function (s, o) { var h = ''; for (var k = 0; k < L; k++) { var c = s[k] || ' ', bad = k < Math.min(t.length, u.length) && t[k] !== u[k]; h += '<span style="display:inline-block;width:1.3em;text-align:center;font-family:monospace;border-bottom:1px solid var(--border);' + (bad ? 'background:rgba(192,57,43,0.25)' : '') + '">' + c + '</span>'; } return h; };
+      view.innerHTML = '<div style="margin:6px 0">上：' + row(t) + '</div><div>下：' + row(u) + '</div><div style="font-size:0.85em;color:var(--text-muted);margin-top:4px">使用的骨牌：' + (seq.map(function (i) { return '#' + (i + 1); }).join(' ') || '（尚未選）') + '</div>';
+      p.innerHTML = seq.length && t === u ? '<b style="color:' + OK + '">完全相同！你找到解了。</b>' : !ok ? '<b style="color:' + NG + '">上下已經不一致（紅色處），這條路走不通。</b>' : '點骨牌（可以重複使用）排成一列，讓上面串起來的字和下面串起來的字<b>完全相同</b>。這一組有解（提示：從 #3 開始）。' +
+        '<br><span style="font-size:0.88em;color:var(--text-muted)">波斯特（1946）證明：沒有任何演算法能判斷「任意一組骨牌」是否有解——連這種小遊戲都是不可判定的。</span>'; }
+    draw();
+  }
+
+  /* ---------- 哥德爾編碼 ---------- */
+  var GS = { '¬': 1, '∨': 2, '⊃': 3, '∃': 4, '=': 5, '0': 6, 's': 7, '(': 8, ')': 9, ',': 10, '+': 11, '×': 12, 'x': 13, 'y': 17, 'z': 19 }, PR = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53];
+  function initGodel(root, cfg) {
+    head(root, cfg.q); var w = el('div', 'margin:6px 0'), b = bar(root), view = el('div'), p, I; root.insertBefore(w, b);
+    w.appendChild(document.createTextNode('公式：')); I = inp(w, cfg.s || '0=0', 'in', '12em'); I.addEventListener('input', draw);
+    ['0=0', 's0=s0', '¬(0=s0)', '(∃x)(x=s0)', 'x+0=x'].forEach(function (f, i) { bt(b, f, 'f' + i, function () { I.value = f; draw(); }); });
+    root.appendChild(view); p = info(root);
+    function draw() { var s = I.value.replace(/\s/g, '').split('').filter(function (c) { return GS[c]; }).slice(0, 16), N = BigInt(1);
+      s.forEach(function (c, i) { N *= BigInt(PR[i]) ** BigInt(GS[c]); });
+      view.innerHTML = '<table style="border-collapse:collapse;font-family:monospace;margin:6px 0"><tr>' + s.map(function (c) { return '<td style="padding:3px 8px;border:1px solid var(--border);text-align:center">' + c + '</td>'; }).join('') + '</tr><tr>' +
+        s.map(function (c) { return '<td style="padding:3px 8px;border:1px solid var(--border);text-align:center;color:' + C1 + '">' + GS[c] + '</td>'; }).join('') + '</tr><tr>' + s.map(function (c, i) { return '<td style="padding:3px 8px;border:1px solid var(--border);text-align:center;font-size:0.85em">' + PR[i] + '<sup>' + GS[c] + '</sup></td>'; }).join('') + '</tr></table>' +
+        '<div style="font-family:monospace;word-break:break-all;font-size:0.9em">哥德爾數 = ' + N.toString() + '</div>';
+      p.innerHTML = '每個符號先對應一個代碼（藍色），第 i 個符號的代碼當成第 i 個質數的指數，全部乘起來。因為質因數分解是唯一的，從這個數字可以<b>唯一地還原</b>回公式。共 ' + N.toString().length + ' 位數。' +
+        '<br><span style="font-size:0.88em;color:var(--text-muted)">可用符號：¬ ∨ ⊃ ∃ = 0 s（後繼）( ) , + × x y z。哥德爾用這個方法讓「關於數學的命題」變成「關於數字的命題」，數學因此可以談論自己。</span>'; }
+    draw();
+  }
+
+  /* ---------- 考拉茲 ---------- */
+  function initCollatz(root, cfg) {
+    head(root, cfg.q); var n = cfg.n || 27, w = el('div', 'margin:6px 0'), view = el('div'), p, I;
+    root.appendChild(w); w.appendChild(document.createTextNode('起始數字：')); I = inp(w, String(n), 'in', '8em'); var gb = btn('計算', 'go'); w.appendChild(gb);
+    [27, 97, 871, 77031].forEach(function (k) { var x = btn(String(k), 'n' + k); x.addEventListener('click', function () { I.value = k; draw(); }); w.appendChild(x); });
+    gb.addEventListener('click', draw); root.appendChild(view); p = info(root);
+    function draw() { var v = Math.max(1, Math.min(1e12, Math.floor(+I.value) || 1)), s = [v], mx = v; while (v !== 1 && s.length < 5000) { v = v % 2 ? 3 * v + 1 : v / 2; s.push(v); if (v > mx) mx = v; }
+      view.innerHTML = chart(640, 230, [{ d: s.map(function (x, i) { return [i, x]; }), c: C1, n: '數值', w: 1.3 }], { x0: 0, y0: 0, xl: '步數' });
+      p.innerHTML = '規則：偶數就除以 2，奇數就乘 3 加 1。從 ' + s[0] + ' 出發，經過 <b>' + (s.length - 1) + '</b> 步到達 1，途中最高到 <b>' + mx.toLocaleString() + '</b>。' +
+        '<br>考拉茲猜想（1937）說：<b>從任何正整數出發，最後都會到達 1</b>。電腦已驗證到大約 2<sup>68</sup> 以內都成立，但至今沒有人能證明。換句話說：「這個簡單的迴圈對每個輸入都會停嗎？」——這是一個人類還回答不了的停機問題。'; }
+    draw();
+  }
+
+  /* ---------- 成長曲線 ---------- */
+  function initGrowth(root, cfg) {
+    head(root, cfg.q); var n = 30, view = el('div'), p;
+    var u = slider(root, '問題規模 n', 5, 100, 1, n, function (v) { return v; }, 'n', function (v) { n = v; draw(); }); root.appendChild(view); p = info(root);
+    function dur(ops) { var s = ops / 1e9; if (!isFinite(s)) return '∞'; if (s < 1e-3) return '不到 1 毫秒'; if (s < 1) return f1(s * 1000) + ' 毫秒'; if (s < 60) return f1(s) + ' 秒'; if (s < 3600) return f1(s / 60) + ' 分鐘'; if (s < 86400) return f1(s / 3600) + ' 小時';
+      if (s < 3.15e7) return f1(s / 86400) + ' 天'; var y = s / 3.15e7; if (y < 1e4) return Math.round(y).toLocaleString() + ' 年'; if (y < 1.38e10) return y.toExponential(1) + ' 年'; return y.toExponential(1) + ' 年（遠超過宇宙年齡）'; }
+    function fact(k) { var r = 1; for (var i = 2; i <= k; i++) r *= i; return r; }
+    function draw() { var F = [['n', function (k) { return k; }, '#2e7d4f'], ['n log n', function (k) { return k * Math.log2(k); }, '#4a9a5e'], ['n²', function (k) { return k * k; }, C1], ['n³', function (k) { return k * k * k; }, C5], ['2ⁿ', function (k) { return Math.pow(2, k); }, C4], ['n!', fact, NG]];
+      var S = F.map(function (f) { var d = []; for (var k = 1; k <= 40; k++) d.push([k, Math.log10(Math.max(f[1](k), 1))]); return { d: d, c: f[2], n: f[0] }; });
+      view.innerHTML = chart(640, 230, S, { x0: 1, x1: 40, y0: 0, y1: 20, xl: 'n（1～40）', yl: 'log₁₀（步數）' }) +
+        '<table style="border-collapse:collapse;margin-top:6px;font-size:0.9em;width:100%">' + F.map(function (f) { return '<tr><td style="padding:3px 8px;border-bottom:1px solid var(--border);color:' + f[2] + ';font-weight:bold">' + f[0] + '</td><td style="padding:3px 8px;border-bottom:1px solid var(--border)">' + dur(f[1](n)) + '</td></tr>'; }).join('') + '</table>';
+      p.innerHTML = 'n = ' + n + ' 時，用每秒 10 億步的電腦所需的時間。多項式（n、n²、n³）溫和成長；指數（2ⁿ）與階乘（n!）爆炸性成長——n 加一點點，時間就翻倍或更多。這就是「可以算」和「算得完」的差別。'; }
+    u();
+  }
+
+  /* ---------- SAT ---------- */
+  function initSAT(root, cfg) {
+    head(root, cfg.q); var N = 10, F, view = el('div'), b = bar(root), p;
+    var u = slider(root, '變數個數 n', 3, 20, 1, N, function (v) { return v; }, 'N', function (v) { N = v; gen(); }); bt(b, '🎲 換一題', 'new', gen); bt(b, '⚙ 暴力求解', 'solve', solve); root.insertBefore(view, b); p = info(root);
+    function gen() { var m = Math.round(N * 4.2); F = []; for (var i = 0; i < m; i++) { var c = []; while (c.length < 3) { var v = Math.floor(Math.random() * N); if (c.every(function (q) { return Math.abs(q) - 1 !== v; })) c.push((v + 1) * (Math.random() < 0.5 ? 1 : -1)); } F.push(c); }
+      view.innerHTML = '<div style="font-family:monospace;font-size:0.82em;line-height:1.6;max-height:120px;overflow:auto;border:1px solid var(--border);border-radius:6px;padding:6px">' + F.slice(0, 40).map(function (c) { return '(' + c.map(function (l) { return (l < 0 ? '¬' : '') + 'x' + Math.abs(l); }).join(' ∨ ') + ')'; }).join(' ∧ ') + (F.length > 40 ? ' ∧ …' : '') + '</div>';
+      p.innerHTML = n1(F.length) + ' 個子句、' + N + ' 個變數。可能的真假組合有 2<sup>' + N + '</sup> = ' + Math.pow(2, N).toLocaleString() + ' 種。按「暴力求解」逐一嘗試。'; }
+    function solve() { var t0 = performance.now(), tried = 0, sol = -1, tot = Math.pow(2, N);
+      for (var a = 0; a < tot; a++) { tried++; var ok = true; for (var i = 0; i < F.length && ok; i++) { var c = F[i], s = false; for (var j = 0; j < 3; j++) { var l = c[j], v = (a >> (Math.abs(l) - 1)) & 1; if ((l > 0) === (v === 1)) { s = true; break; } } if (!s) ok = false; } if (ok) { sol = a; break; } }
+      var ms = performance.now() - t0, asg = sol >= 0 ? Array.from({ length: N }, function (_, k) { return 'x' + (k + 1) + '=' + ((sol >> k) & 1 ? '真' : '假'); }).join('、') : '';
+      p.innerHTML = (sol >= 0 ? '<b style="color:' + OK + '">可滿足！</b>試了 ' + tried.toLocaleString() + ' 種組合找到：' + asg + '。' : '<b style="color:' + NG + '">不可滿足</b>：試完全部 ' + tried.toLocaleString() + ' 種組合都不行。') + '（耗時 ' + f1(ms) + ' 毫秒）' +
+        '<br>驗證一組答案只要掃過所有子句一次——很快；但<b>找</b>答案的暴力法要試的組合隨 n 指數成長，每多一個變數就加倍。n = 100 時要試 2<sup>100</sup> ≈ 10<sup>30</sup> 種。這就是 NP 問題「好驗證、難找」的味道。'; }
+    u();
+  }
+
+  function initAll() { document.querySelectorAll('.tc-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+    ({ vend: initVend, dfa: initDFA, pump: initPump, stack: initStack, tm: initTM, lambda: initLambda, ca: initCA, diag: initDiag, halt: initHalt, pcp: initPCP, godel: initGodel, collatz: initCollatz, growth: initGrowth, sat: initSAT })[cfg.t](w, cfg); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+})();
+"""
+
+
+def tcw(cfg, maxw=680):
+    return wdg("tc-w", cfg, maxw)
+
+
+tclesson = make_lesson(u"🧮", TC_NOTE, TCLIB, "tc-w")
