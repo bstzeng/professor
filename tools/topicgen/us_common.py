@@ -1,0 +1,159 @@
+# -*- coding: utf-8 -*-
+"""〈美國歷史〉共用工具與互動元件（USLIB）。"""
+from cc_common import *
+from qt_common import BASEJS
+
+US_NOTE = (u"本課程是<strong>歷史教育內容</strong>，以一般通行的歷史研究為基礎；涉及當代政治的部分只敘述事件與各方觀點，不做評價。"
+           u"人口、面積、傷亡等數字多為常用的約略值。")
+
+USLIB = r"""
+(function () {
+  if (window.__usLib) return; window.__usLib = 1;
+""" + BASEJS + r"""
+  function info(root) { var p = el('p', 'margin:6px 0 0;line-height:1.7'); root.appendChild(p); return p; }
+  function bar(root) { var b = el('div'); root.appendChild(b); return b; }
+  function bt(b, t, k, f) { var x = btn(t, k); x.addEventListener('click', f); b.appendChild(x); return x; }
+
+  /* ---------- 1. 領土擴張 ---------- */
+  var LAND = [[1783, '獨立時的領土', 230, '#5b7fa6', '《巴黎條約》確認的範圍：東起大西洋，西到密西西比河，北接英屬加拿大，南接西屬佛羅里達。'],
+    [1803, '路易斯安那購地', 214, '#2e7d4f', '以約 1,500 萬美元向拿破崙統治的法國購得密西西比河以西的大片土地，國土幾乎倍增。'],
+    [1819, '佛羅里達', 19, '#b7791f', '依《亞當斯-奧尼斯條約》從西班牙取得，美國承擔約 500 萬美元的居民求償。'],
+    [1845, '兼併德克薩斯', 101, '#c0392b', '1836 年脫離墨西哥獨立的德克薩斯共和國加入美國，成為美墨戰爭的導火線之一。'],
+    [1846, '奧勒岡', 74, '#16a085', '與英國談判，以北緯 49 度為界劃分奧勒岡地區。'],
+    [1848, '墨西哥割讓地', 137, '#8e44ad', '美墨戰爭後依《瓜達盧佩-伊達爾戈條約》取得加州、內華達、猶他與亞利桑那、新墨西哥等地，美國支付 1,500 萬美元。'],
+    [1853, '加茲登購地', 8, '#7f8c8d', '為了修築南方鐵路，向墨西哥購得今亞利桑那與新墨西哥南部。至此本土 48 州的邊界大致確定。'],
+    [1867, '阿拉斯加', 152, '#2c3e50', '以 720 萬美元向俄國購得，當時被嘲笑為「蘇華德的蠢事」，後來發現金礦與石油。'],
+    [1898, '夏威夷', 2, '#d35400', '1893 年美國商人推翻夏威夷王國，1898 年被美國兼併；1959 年與阿拉斯加一同成為州。']];
+  function initLand(root, cfg) {
+    head(root, cfg.q); var k = 0, b = bar(root), view = el('div'), p; root.appendChild(view); p = info(root);
+    LAND.forEach(function (l, i) { bt(b, l[0] + ' ' + l[1], i, function () { k = i; mark(b, i); draw(); }); });
+    function draw() { var W = 680, total = 0, x = 20, g = '', cum = 0, BW = 640;
+      LAND.forEach(function (l) { total += l[2]; });
+      LAND.forEach(function (l, i) { var w = l[2] / total * BW, on = i <= k;
+        g += '<rect x="' + n1(x) + '" y="30" width="' + n1(Math.max(w, 1.5)) + '" height="40" fill="' + l[3] + '" opacity="' + (on ? (i === k ? 1 : 0.75) : 0.12) + '"/>';
+        if (w > 40) g += tx(x + w / 2, 55, l[0], 10, on ? '#fff' : 'var(--text-muted)');
+        if (on) cum += l[2]; x += w; });
+      g += tx(20, 20, '面積（萬平方公里，約略）', 10, 'var(--text-muted)', 'start');
+      g += tx(20, 92, '累計：約 ' + Math.round(cum) + ' 萬平方公里（約為台灣的 ' + Math.round(cum / 3.6) + ' 倍）', 11, 'currentColor', 'start');
+      view.innerHTML = svgw('0 0 ' + W + ' 104', g);
+      var l = LAND[k]; p.innerHTML = '<b>' + l[0] + ' 年　' + l[1] + '</b>（約 ' + l[2] + ' 萬平方公里）<br>' + l[4] +
+        '<br><span style="font-size:0.88em;color:var(--text-muted)">這些土地上原本就住著原住民族，「取得」是歐美國家之間的協議，原住民多半沒有參與，也往往被迫遷離。</span>'; }
+    mark(b, 0); draw();
+  }
+
+  /* ---------- 2. 歷史時間軸 ---------- */
+  var CAT = { p: ['政治與建國', '#3a6ea5'], w: ['戰爭與外交', '#c0392b'], s: ['社會與權利', '#2e7d4f'], e: ['經濟與科技', '#b7791f'] };
+  var EV = [[1607, 'p', '詹姆斯鎮建立', '英國在北美第一個永久殖民地，位於維吉尼亞。'],
+    [1619, 's', '第一批非洲人被帶到維吉尼亞', '常被視為英屬北美奴隸制度的起點。'],
+    [1620, 'p', '五月花號抵達普利茅斯', '清教徒簽訂《五月花號公約》，約定自我治理。'],
+    [1763, 'w', '法國印第安戰爭結束', '英國取得北美的主導權，但戰債使它向殖民地加稅。'],
+    [1773, 'p', '波士頓茶黨', '抗議者把東印度公司的茶葉倒進波士頓港。'],
+    [1776, 'p', '《獨立宣言》', '7 月 4 日由大陸會議通過，主要起草人是傑佛遜。'],
+    [1787, 'p', '制憲會議', '在費城寫成美國憲法，1789 年生效，華盛頓成為第一任總統。'],
+    [1803, 'e', '路易斯安那購地', '國土幾乎倍增。'],
+    [1830, 's', '《印第安人遷移法》', '數萬名原住民被迫遷往密西西比河以西，切羅基人的遷徙稱為「血淚之路」。'],
+    [1848, 'w', '美墨戰爭結束', '美國取得加州等西南部地區；同年加州發現金礦。'],
+    [1861, 'w', '南北戰爭爆發', '南方十一州脫離聯邦，戰爭持續到 1865 年，死亡約 62～75 萬人。'],
+    [1863, 's', '《解放奴隸宣言》', '林肯宣布叛亂州的奴隸獲得自由；1865 年第 13 條修正案全面廢除奴隸制。'],
+    [1869, 'e', '橫貫大陸鐵路完成', '東西兩岸的鐵路在猶他接軌，大量華工參與修建西段。'],
+    [1882, 's', '《排華法案》', '美國第一部針對特定族群禁止移民的法律，直到 1943 年才廢除。'],
+    [1898, 'w', '美西戰爭', '美國取得菲律賓、波多黎各、關島，並兼併夏威夷。'],
+    [1917, 'w', '加入第一次世界大戰', '美國的參戰幫助協約國獲勝。'],
+    [1920, 's', '婦女取得投票權', '第 19 條修正案生效。'],
+    [1929, 'e', '華爾街股災', '經濟大恐慌開始，失業率最高約 25%。'],
+    [1933, 'p', '羅斯福新政', '政府大規模介入經濟與社會福利，1935 年建立社會安全制度。'],
+    [1941, 'w', '珍珠港事件', '日本偷襲夏威夷，美國加入第二次世界大戰。'],
+    [1945, 'w', '二戰結束', '美國在廣島、長崎投下原子彈；聯合國成立，美國成為超級強權。'],
+    [1954, 's', '布朗訴教育委員會案', '最高法院判定公立學校的種族隔離違憲。'],
+    [1962, 'w', '古巴飛彈危機', '美蘇最接近核戰的十三天。'],
+    [1964, 's', '《民權法案》', '禁止基於種族、膚色、宗教、性別、原籍的歧視；隔年通過《投票權法案》。'],
+    [1969, 'e', '阿波羅 11 號登陸月球', '阿姆斯壯成為第一個踏上月球的人。'],
+    [1973, 'w', '美軍撤出越南', '越戰造成約 5.8 萬名美軍死亡，社會嚴重分裂；1975 年西貢陷落。'],
+    [1974, 'p', '尼克森辭職', '水門案使他成為唯一辭職的美國總統。'],
+    [1979, 'w', '美國與中華人民共和國建交', '同年國會通過《台灣關係法》。'],
+    [1991, 'w', '蘇聯解體', '冷戰結束，美國成為唯一的超級強權。'],
+    [2001, 'w', '九一一事件', '蓋達組織攻擊紐約與華府，近三千人死亡；美國隨後出兵阿富汗，2003 年入侵伊拉克。'],
+    [2008, 'e', '全球金融海嘯', '次級房貸危機引發大衰退；同年歐巴馬當選第一位非裔總統。'],
+    [2020, 's', 'COVID-19 疫情', '美國是死亡人數最多的國家之一（超過一百萬人）；同年喬治·佛洛伊德之死引發全國抗議。'],
+    [2024, 'p', '川普再次當選總統', '成為繼克里夫蘭之後第二位不連任的兩任總統，2025 年 1 月就任第 47 任總統。']];
+  function initTimeline(root, cfg) {
+    head(root, cfg.q); var f = 'all', sel = 0, b = bar(root), view = el('div'), p;
+    bt(b, '全部', 'all', function () { f = 'all'; mark(b, 'all'); draw(); });
+    Object.keys(CAT).forEach(function (k) { bt(b, CAT[k][0], k, function () { f = k; mark(b, k); var i = EV.findIndex(function (e) { return e[1] === k; }); if (i >= 0) sel = i; draw(); }); });
+    root.appendChild(view); p = info(root);
+    var sc = [[1600, 0], [1750, 0.12], [1900, 0.5], [2025, 1]];
+    function sx(y) { var k = 1; while (k < sc.length - 1 && y > sc[k][0]) k++; var a = sc[k - 1], c = sc[k]; return 20 + (a[1] + (y - a[0]) / (c[0] - a[0]) * (c[1] - a[1])) * 640; }
+    function draw() { var g = ln(20, 60, 660, 60, 'var(--border)', 2);
+      [1600, 1700, 1776, 1850, 1900, 1950, 2000].forEach(function (t) { g += ln(sx(t), 56, sx(t), 64, 'var(--text-muted)', 1) + tx(sx(t), 80, t, 10, 'var(--text-muted)'); });
+      EV.forEach(function (e, i) { if (f !== 'all' && e[1] !== f) return; var on = i === sel;
+        g += '<circle data-e="' + i + '" cx="' + n1(sx(e[0])) + '" cy="60" r="' + (on ? 8 : 5.5) + '" fill="' + CAT[e[1]][1] + '" stroke="' + (on ? 'currentColor' : 'none') + '" stroke-width="2" style="cursor:pointer"/>'; });
+      var lx = 20; Object.keys(CAT).forEach(function (k) { g += '<circle cx="' + lx + '" cy="104" r="5" fill="' + CAT[k][1] + '"/>' + tx(lx + 9, 108, CAT[k][0], 10, 'currentColor', 'start'); lx += 30 + CAT[k][0].length * 11; });
+      view.innerHTML = svgw('0 0 680 120', g);
+      var nav = el('div'), pv = btn('◀ 上一則', 'prev'), nx = btn('下一則 ▶', 'nextE');
+      pv.addEventListener('click', function () { step(-1); }); nx.addEventListener('click', function () { step(1); }); nav.appendChild(pv); nav.appendChild(nx); view.appendChild(nav);
+      view.querySelectorAll('[data-e]').forEach(function (c) { c.addEventListener('click', function () { sel = +c.getAttribute('data-e'); draw(); }); });
+      var e = EV[sel]; p.innerHTML = '<b style="color:' + CAT[e[1]][1] + '">' + e[0] + ' 年　' + e[2] + '</b><br>' + e[3] +
+        '<br><span style="font-size:0.88em;color:var(--text-muted)">時間軸採分段比例：1750 年以前壓縮，1900 年以後放大。</span>'; }
+    function step(d) { var k = sel; do { k = (k + d + EV.length) % EV.length; } while (f !== 'all' && EV[k][1] !== f); sel = k; draw(); }
+    mark(b, 'all'); draw();
+  }
+
+  /* ---------- 3. 選舉人團模擬器 ---------- */
+  var ST = [['阿拉巴馬', 9], ['阿拉斯加', 3], ['亞利桑那', 11], ['阿肯色', 6], ['加州', 54], ['科羅拉多', 10], ['康乃狄克', 7], ['德拉瓦', 3], ['華府', 3], ['佛羅里達', 30],
+    ['喬治亞', 16], ['夏威夷', 4], ['愛達荷', 4], ['伊利諾', 19], ['印第安納', 11], ['愛荷華', 6], ['堪薩斯', 6], ['肯塔基', 8], ['路易斯安那', 8], ['緬因', 4],
+    ['馬里蘭', 10], ['麻州', 11], ['密西根', 15], ['明尼蘇達', 10], ['密西西比', 6], ['密蘇里', 10], ['蒙大拿', 4], ['內布拉斯加', 5], ['內華達', 6], ['新罕布夏', 4],
+    ['紐澤西', 14], ['新墨西哥', 5], ['紐約', 28], ['北卡羅來納', 16], ['北達科他', 3], ['俄亥俄', 17], ['奧克拉荷馬', 7], ['奧勒岡', 8], ['賓州', 19], ['羅德島', 4],
+    ['南卡羅來納', 9], ['南達科他', 3], ['田納西', 11], ['德州', 40], ['猶他', 6], ['佛蒙特', 3], ['維吉尼亞', 13], ['華盛頓州', 12], ['西維吉尼亞', 4], ['威斯康辛', 10], ['懷俄明', 3]];
+  function initElect(root, cfg) {
+    head(root, cfg.q); var st = ST.map(function () { return 0; }), b = bar(root), view = el('div'), grid = el('div', 'display:flex;flex-wrap:wrap;gap:4px;margin-top:8px'), p;
+    bt(b, '全部清除', 'c', function () { st = st.map(function () { return 0; }); draw(); });
+    bt(b, '隨機分配', 'r', function () { st = st.map(function () { return Math.random() < 0.5 ? 1 : 2; }); draw(); });
+    root.appendChild(view); root.appendChild(grid); p = info(root);
+    var COL = ['var(--surface)', '#3a6ea5', '#c0392b'];
+    function draw() { var a = 0, c = 0; ST.forEach(function (s, i) { if (st[i] === 1) a += s[1]; if (st[i] === 2) c += s[1]; });
+      var W = 680, BW = 640, g = '<rect x="20" y="20" width="' + n1(a / 538 * BW) + '" height="28" fill="#3a6ea5"/><rect x="' + n1(20 + BW - c / 538 * BW) + '" y="20" width="' + n1(c / 538 * BW) + '" height="28" fill="#c0392b"/>' +
+        '<rect x="20" y="20" width="' + BW + '" height="28" fill="none" stroke="var(--border)"/>' + ln(20 + 270 / 538 * BW, 12, 20 + 270 / 538 * BW, 56, 'currentColor', 2) +
+        tx(20 + 270 / 538 * BW, 70, '270 票過半', 10, 'currentColor') + tx(20, 70, '甲 ' + a, 12, '#3a6ea5', 'start') + tx(660, 70, '乙 ' + c, 12, '#c0392b', 'end');
+      view.innerHTML = svgw('0 0 ' + W + ' 80', g);
+      grid.innerHTML = ''; ST.forEach(function (s, i) { var x = btn(s[0] + ' ' + s[1], 's' + i); x.style.margin = '0'; x.style.background = COL[st[i]]; if (st[i]) x.style.color = '#fff';
+        x.addEventListener('click', function () { st[i] = (st[i] + 1) % 3; draw(); }); grid.appendChild(x); });
+      var msg = a >= 270 ? '<b style="color:#3a6ea5">甲當選</b>' : c >= 270 ? '<b style="color:#c0392b">乙當選</b>' : (a + c === 538 ? '<b>269 比 269 平手：由眾議院以每州一票選出總統</b>' : '尚未有人達到 270 票');
+      p.innerHTML = msg + '　（未分配：' + (538 - a - c) + ' 票）<br><span style="font-size:0.88em;color:var(--text-muted)">點選州名切換：空白 → 甲 → 乙。票數依 2020 年人口普查分配（適用 2024、2028 年大選）。' +
+        '除緬因與內布拉斯加按選區分配外，各州都是「贏者全拿」。所以候選人可能拿到較多全國普選票卻輸掉選舉（例如 2000 年與 2016 年）。</span>'; }
+    draw();
+  }
+
+  /* ---------- 4. 憲法修正案導覽 ---------- */
+  var AM = [[1, 1791, '宗教、言論、新聞、集會與請願自由；國會不得立法確立國教'], [2, 1791, '人民持有與攜帶武器的權利'], [3, 1791, '平時不得未經屋主同意在民宅駐兵'],
+    [4, 1791, '禁止不合理的搜索與扣押；搜索票需有相當理由'], [5, 1791, '正當程序、不得自證己罪、一罪不二罰、徵收私產需公平補償'],
+    [6, 1791, '刑事被告有迅速公開審判、陪審團與律師協助的權利'], [7, 1791, '民事案件的陪審權'], [8, 1791, '禁止過高的保釋金與罰金、禁止殘酷且不尋常的刑罰'],
+    [9, 1791, '憲法列舉的權利，不代表人民沒有其他權利'], [10, 1791, '未授予聯邦、也未禁止各州的權力，保留給各州或人民'],
+    [11, 1795, '限制他州或外國公民在聯邦法院控告州政府'], [12, 1804, '選舉人分別投票選總統與副總統'], [13, 1865, '廢除奴隸制度與強迫勞役（犯罪刑罰除外）'],
+    [14, 1868, '凡在美國出生或歸化者都是公民；各州不得剝奪正當程序與法律的平等保護'], [15, 1870, '不得因種族、膚色或曾為奴隸而剝奪投票權'],
+    [16, 1913, '國會可以課徵聯邦所得稅'], [17, 1913, '聯邦參議員由人民直接選舉（過去由州議會選出）'], [18, 1919, '全國禁酒（1933 年被第 21 條廢除）'],
+    [19, 1920, '不得因性別剝奪投票權——婦女投票權'], [20, 1933, '總統就職日改為 1 月 20 日，國會開議改為 1 月 3 日，縮短「跛鴨」期'], [21, 1933, '廢除第 18 條修正案（禁酒令結束）'],
+    [22, 1951, '總統最多只能當選兩次（羅斯福連任四屆後通過）'], [23, 1961, '華府居民在總統選舉中有選舉人票'], [24, 1964, '聯邦選舉不得以繳納人頭稅作為投票條件'],
+    [25, 1967, '總統去世、辭職或失能時的繼任與代理程序'], [26, 1971, '投票年齡降為 18 歲（越戰時期「夠老可以打仗，就夠老可以投票」）'],
+    [27, 1992, '國會議員加薪須在下一次選舉後才生效——1789 年提出，兩百年後才批准']];
+  var GRP = [['權利法案（1～10）', 0, 9], ['建國初期（11～12）', 10, 11], ['重建修正案（13～15）', 12, 14], ['進步時代（16～19）', 15, 18], ['二十世紀（20～27）', 19, 26]];
+  function initAmend(root, cfg) {
+    head(root, cfg.q); var gk = 0, b = bar(root), view = el('div'); root.appendChild(view);
+    GRP.forEach(function (g, i) { bt(b, g[0], i, function () { gk = i; mark(b, i); draw(); }); });
+    function draw() { var g = GRP[gk], h = '<table style="border-collapse:collapse;width:100%;margin-top:8px;font-size:0.92em">';
+      for (var i = g[1]; i <= g[2]; i++) { var a = AM[i]; h += '<tr><td style="padding:4px 8px;border-bottom:1px solid var(--border);white-space:nowrap"><b>第 ' + a[0] + ' 條</b></td><td style="padding:4px 8px;border-bottom:1px solid var(--border);white-space:nowrap;color:var(--text-muted)">' + a[1] + '</td><td style="padding:4px 8px;border-bottom:1px solid var(--border)">' + a[2] + '</td></tr>'; }
+      view.innerHTML = h + '</table><p style="font-size:0.88em;color:var(--text-muted);margin:6px 0 0">兩百多年來只通過了 27 條修正案：需要國會兩院各三分之二通過，再經四分之三的州（38 州）批准。</p>'; }
+    mark(b, 0); draw();
+  }
+
+  function initAll() { document.querySelectorAll('.us-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+    ({ land: initLand, timeline: initTimeline, elect: initElect, amend: initAmend })[cfg.t](w, cfg); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+})();
+"""
+
+
+def usw(cfg, maxw=700):
+    return wdg("us-w", cfg, maxw)
+
+
+uslesson = make_lesson(u"🇺🇸", US_NOTE, USLIB, "us-w")
