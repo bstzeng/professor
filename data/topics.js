@@ -17733,6 +17733,106 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "prompt-engineering",
+      category: "tech",
+      title: "提示工程：從一句指令到可上線的 AI 系統",
+      description:
+        "從模型怎麼讀提示開始：指令、說明理由、具體化、結構化、Few-shot、輸出格式與結構化輸出、思考與拆解；上下文工程、長文件、RAG、記憶、工具說明、提示快取與上下文污染；代理的系統提示、規劃者與執行者、狀態、錯誤恢復、模型路由、子代理與自主程度；需求、測試集、評分、失敗分類、提示注入與縱深防禦、優化、版本管理、模型遷移與成本。以改寫前後對照為主，附六個互動工具。",
+      icon: "✍️",
+      url: "topics/prompt-engineering/index.html",
+      resources: [
+        {
+          title: "提示工程實驗室",
+          description: "提示健檢、Few-shot 組合、長文件擺放、改寫對照、評估計分板、提示注入防禦",
+          icon: "🧪",
+          url: "topics/prompt-engineering/guide.html"
+        },
+        {
+          title: "提示工程名詞速查",
+          description: "提示、上下文、代理與工程化的名詞",
+          icon: "📖",
+          url: "topics/prompt-engineering/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "Level 0｜先理解模型怎麼「讀」提示",
+          courses: [
+            { title: "提示是什麼", url: "topics/prompt-engineering/lesson-01.html" },
+            { title: "system、user、assistant", url: "topics/prompt-engineering/lesson-02.html" },
+            { title: "模型的注意力：位置、長度與順序", url: "topics/prompt-engineering/lesson-03.html" },
+            { title: "過時的技巧", url: "topics/prompt-engineering/lesson-04.html" },
+          ],
+        },
+        {
+          title: "Level 1｜提示基礎",
+          courses: [
+            { title: "指令：把任務說清楚", url: "topics/prompt-engineering/lesson-05.html" },
+            { title: "說明「為什麼」", url: "topics/prompt-engineering/lesson-06.html" },
+            { title: "具體 vs 模糊", url: "topics/prompt-engineering/lesson-07.html" },
+            { title: "結構化提示", url: "topics/prompt-engineering/lesson-08.html" },
+            { title: "Few-shot：用範例教", url: "topics/prompt-engineering/lesson-09.html" },
+            { title: "Zero-shot 還是 Few-shot", url: "topics/prompt-engineering/lesson-10.html" },
+            { title: "輸出格式", url: "topics/prompt-engineering/lesson-11.html" },
+            { title: "結構化輸出", url: "topics/prompt-engineering/lesson-12.html" },
+            { title: "限制條件", url: "topics/prompt-engineering/lesson-13.html" },
+            { title: "讓模型思考", url: "topics/prompt-engineering/lesson-14.html" },
+            { title: "拆解任務", url: "topics/prompt-engineering/lesson-15.html" },
+            { title: "實作：把一個爛提示改十次", url: "topics/prompt-engineering/lesson-16.html" },
+          ],
+        },
+        {
+          title: "Level 2｜Context：模型該看到什麼",
+          courses: [
+            { title: "從提示工程到上下文工程", url: "topics/prompt-engineering/lesson-17.html" },
+            { title: "上下文的預算", url: "topics/prompt-engineering/lesson-18.html" },
+            { title: "長文件的擺法", url: "topics/prompt-engineering/lesson-19.html" },
+            { title: "RAG（一）：檢索", url: "topics/prompt-engineering/lesson-20.html" },
+            { title: "RAG（二）：讓模型老實回答", url: "topics/prompt-engineering/lesson-21.html" },
+            { title: "記憶", url: "topics/prompt-engineering/lesson-22.html" },
+            { title: "工具呼叫（一）：工具說明就是提示", url: "topics/prompt-engineering/lesson-23.html" },
+            { title: "工具呼叫（二）：參數與錯誤訊息", url: "topics/prompt-engineering/lesson-24.html" },
+            { title: "提示快取", url: "topics/prompt-engineering/lesson-25.html" },
+            { title: "多模態上下文", url: "topics/prompt-engineering/lesson-26.html" },
+            { title: "上下文污染", url: "topics/prompt-engineering/lesson-27.html" },
+            { title: "實作：客服知識庫的上下文設計", url: "topics/prompt-engineering/lesson-28.html" },
+          ],
+        },
+        {
+          title: "Level 3｜Agent：讓模型自己跑很多步",
+          courses: [
+            { title: "代理的系統提示", url: "topics/prompt-engineering/lesson-29.html" },
+            { title: "規劃者與執行者", url: "topics/prompt-engineering/lesson-30.html" },
+            { title: "狀態", url: "topics/prompt-engineering/lesson-31.html" },
+            { title: "錯誤恢復", url: "topics/prompt-engineering/lesson-32.html" },
+            { title: "自我檢查與反思", url: "topics/prompt-engineering/lesson-33.html" },
+            { title: "模型路由", url: "topics/prompt-engineering/lesson-34.html" },
+            { title: "子代理與委派", url: "topics/prompt-engineering/lesson-35.html" },
+            { title: "自主程度的控制", url: "topics/prompt-engineering/lesson-36.html" },
+            { title: "長任務的提示", url: "topics/prompt-engineering/lesson-37.html" },
+            { title: "實作：拆解一個程式代理的系統提示", url: "topics/prompt-engineering/lesson-38.html" },
+          ],
+        },
+        {
+          title: "Level 4｜Engineering：把提示當成軟體",
+          courses: [
+            { title: "需求", url: "topics/prompt-engineering/lesson-39.html" },
+            { title: "評估（一）：建立測試集", url: "topics/prompt-engineering/lesson-40.html" },
+            { title: "評估（二）：怎麼評分", url: "topics/prompt-engineering/lesson-41.html" },
+            { title: "失敗分類", url: "topics/prompt-engineering/lesson-42.html" },
+            { title: "從失敗回推修改", url: "topics/prompt-engineering/lesson-43.html" },
+            { title: "安全（一）：提示注入與越獄", url: "topics/prompt-engineering/lesson-44.html" },
+            { title: "安全（二）：防護欄不能只寫在提示裡", url: "topics/prompt-engineering/lesson-45.html" },
+            { title: "提示優化", url: "topics/prompt-engineering/lesson-46.html" },
+            { title: "版本管理", url: "topics/prompt-engineering/lesson-47.html" },
+            { title: "換模型時的提示遷移", url: "topics/prompt-engineering/lesson-48.html" },
+            { title: "成本與延遲", url: "topics/prompt-engineering/lesson-49.html" },
+            { title: "總結：提示工程檢查清單", url: "topics/prompt-engineering/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };

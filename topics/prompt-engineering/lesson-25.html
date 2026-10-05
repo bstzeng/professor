@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：提示快取 ｜ 提示工程 ｜ 博雅書院</title>
+<meta name="description" content="怎麼排列內容才能省錢">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">提示工程</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">Level 2｜Context：模型該看到什麼 · 第 25 課</div>
+      <h1>提示快取</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解提示快取的原理</li>
+          <li>安排提示順序以提高命中率</li>
+          <li>避免讓快取失效的常見錯誤</li>
+        </ul>
+      </div>
+
+      <p>
+        許多 API 支援<strong>提示快取</strong>：如果這次請求的開頭和上次完全一樣，伺服器可以重用之前的計算結果，這部分的費用大幅降低、速度也更快。代理與聊天機器人每一輪都重送相同的系統提示與歷史，最能受惠。
+      </p>
+
+      <p>
+        快取是<strong>前綴匹配</strong>：從開頭開始比對，遇到第一個不同的字，之後的全部失效。所以提示的排列原則是：
+      </p>
+
+      <ol>
+        <li><strong>最穩定的放最前面</strong>：工具定義、系統提示、固定的參考文件。</li>
+        <li><strong>會變的放最後面</strong>：使用者的新問題、時間、本次的資料。</li>
+      </ol>
+
+      <div style="display:flex;flex-wrap:wrap;gap:10px;margin:0 0 8px"><div style="flex:1 1 280px;min-width:0"><div style="font-weight:bold;color:#c0392b;margin-bottom:4px">✗ 改寫前</div><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#3a2222;color:#ffe9e6">system：&#10;今天是 2026-10-05 14:32:07。&#10;你是客服助理……（以下 5,000 字的規則與產品資料）</div></div><div style="flex:1 1 280px;min-width:0"><div style="font-weight:bold;color:#2e7d4f;margin-bottom:4px">✓ 改寫後</div><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#1f3326;color:#e3f7e8">system：&#10;你是客服助理……（5,000 字的規則與產品資料，固定不變）&#10;&#10;user：&#10;（今天日期：2026-10-05）&#10;客人的問題：……</div></div></div><ul style="margin:0 0 20px"><li>把每次都不同的時間戳記從開頭移到最後，前面 5,000 字就能被快取</li></ul>
+
+      <p style="margin:16px 0 6px"><strong>☁️ Claude API 範例</strong>（需要 <code>pip install anthropic</code> 與 API 金鑰）　開啟提示快取並檢查是否命中</p>
+
+      <div class="code-block">import anthropic
+
+client = anthropic.Anthropic()
+RULES = open("customer_service_rules.txt", encoding="utf-8").read()   # 長而固定的規則
+
+r = client.messages.create(
+    model="claude-opus-5-5",
+    max_tokens=16000,
+    cache_control={"type": "ephemeral"},     # 自動在最後一個可快取區塊設快取點
+    system=RULES,                            # 固定內容放前面
+    messages=[{"role": "user", "content": "（今天 10/5）我的訂單什麼時候到？"}],   # 變動內容放後面
+)
+u = r.usage
+print("讀取快取:", u.cache_read_input_tokens, "寫入快取:", u.cache_creation_input_tokens)</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          提示快取在請求開頭與上次相同時重用計算結果，降低費用與延遲，代理與聊天機器人最受惠。快取是前綴匹配，遇到第一個不同的字後全部失效，所以最穩定的內容（工具、系統提示、參考文件）放前、會變的（新問題、時間）放後。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">✍️ 提示工程的最佳做法會隨模型世代改變；本課以目前主流模型（特別是 Claude）的實際行為為例，原則大多通用。Python 範例中標示「已執行」的為離線程式，輸出是實際結果；呼叫 API 的範例需要金鑰，模型名稱與參數以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是前綴匹配？</li>
+          <li>提示中哪些內容應該放在最前面？</li>
+          <li>為什麼把時間戳記放在系統提示開頭會讓快取失效？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>多模態上下文</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：工具呼叫（二）：參數與錯誤訊息</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：多模態上下文 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

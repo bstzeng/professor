@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：模型路由 ｜ 提示工程 ｜ 博雅書院</title>
+<meta name="description" content="分類器提示與大小模型分工">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">提示工程</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">Level 3｜Agent：讓模型自己跑很多步 · 第 34 課</div>
+      <h1>模型路由</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解模型路由的目的</li>
+          <li>寫出穩定的分類器提示</li>
+          <li>設計路由的升級機制</li>
+        </ul>
+      </div>
+
+      <p>
+        不是每個請求都需要最強的模型。<strong>路由</strong>是先判斷請求的類型或難度，再交給適合的模型或流程：簡單的交給快而便宜的模型，困難的交給強模型。
+      </p>
+
+      <p>
+        路由的核心是一個<strong>分類器提示</strong>，它需要：
+      </p>
+
+      <ul>
+        <li><strong>封閉的類別清單</strong>，每類有清楚的定義與例子</li>
+        <li><strong>邊界規則</strong>：不確定時歸到哪一類（通常歸到較安全、較強的那一類）</li>
+        <li><strong>固定的輸出格式</strong>：只輸出類別，方便程式解析</li>
+      </ul>
+
+      <p style="margin:16px 0 6px"><strong>🐍 Python 範例</strong>（離線可執行，已實際執行）　把分類結果對應到模型與流程</p>
+
+      <div class="code-block"># 路由決策：分類結果 → 模型與流程（分類本身由便宜的模型完成）
+ROUTES = {
+    "簡單問答": ("小模型", "直接回答"),
+    "需要查資料": ("中模型", "先檢索再回答"),
+    "複雜分析": ("大模型", "開啟思考、較高 effort"),
+    "敏感／投訴": ("大模型", "回答後轉真人複核"),
+}
+FALLBACK = "複雜分析"   # 分類器回傳無法辨識的結果時，走較安全的路線
+
+def route(label):
+    label = label.strip()
+    if label not in ROUTES:
+        label = FALLBACK
+    model, flow = ROUTES[label]
+    return label, model, flow
+
+for raw in ["簡單問答", "需要查資料", "敏感／投訴", "我覺得是簡單的", ""]:
+    print("分類器輸出 %-10r → %s" % (raw, " / ".join(route(raw))))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong></p>
+
+      <div style="margin:0 0 20px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#14301f;color:#d6f5df">分類器輸出 '簡單問答'     → 簡單問答 / 小模型 / 直接回答&#10;分類器輸出 '需要查資料'    → 需要查資料 / 中模型 / 先檢索再回答&#10;分類器輸出 '敏感／投訴'    → 敏感／投訴 / 大模型 / 回答後轉真人複核&#10;分類器輸出 '我覺得是簡單的'  → 複雜分析 / 大模型 / 開啟思考、較高 effort&#10;分類器輸出 ''         → 複雜分析 / 大模型 / 開啟思考、較高 effort</div></div>
+
+      <div style="margin:0 0 18px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#2a2438;color:#efe9ff">把客戶訊息分到下列一類，只輸出類別名稱：&#10;- 簡單問答：營業時間、地址、一般政策等固定答案的問題&#10;- 需要查資料：涉及特定訂單、帳號、庫存的問題&#10;- 複雜分析：需要比較、計算、多步驟推理的問題&#10;- 敏感／投訴：抱怨、退款爭議、法律或安全相關&#10;若同時符合多類，選擇列表中較下方的那一類。</div></div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          模型路由先判斷請求類型或難度，簡單的交給快而便宜的模型、困難的交給強模型。分類器提示需要封閉且有定義的類別清單、不確定時歸向較安全較強一類的邊界規則與固定輸出格式；程式也要處理無法辨識的輸出。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">✍️ 提示工程的最佳做法會隨模型世代改變；本課以目前主流模型（特別是 Claude）的實際行為為例，原則大多通用。Python 範例中標示「已執行」的為離線程式，輸出是實際結果；呼叫 API 的範例需要金鑰，模型名稱與參數以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>模型路由的目的是什麼？</li>
+          <li>分類器提示需要哪三個要素？</li>
+          <li>分類器輸出無法辨識時，程式應該怎麼處理？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>子代理與委派</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：自我檢查與反思</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：子代理與委派 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
