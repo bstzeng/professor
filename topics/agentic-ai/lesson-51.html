@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：未來：更長時程的自主代理 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="從幾分鐘到幾天">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實務與未來 · 第 51 課</div>
+      <h1>未來：更長時程的自主代理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解代理能力的發展趨勢</li>
+          <li>認識長時程代理的關鍵技術</li>
+          <li>思考人與代理的分工</li>
+        </ul>
+      </div>
+
+      <p>
+        短短幾年，代理能獨立完成的任務長度從幾分鐘延伸到幾小時。研究機構 METR 追蹤發現，AI 能以 50% 成功率完成的任務長度（以人類專家所需時間衡量），過去數年大約每七個月翻倍，近期甚至更快。這類趨勢的外推有很大不確定性，但方向很清楚：<strong>代理會承擔越來越長、越來越完整的工作</strong>。
+      </p>
+
+      <p>
+        要跨越幾小時、甚至幾天，單一個上下文視窗不夠用。關鍵技術包括：
+      </p>
+
+      <ul>
+        <li><strong>進度檔與交接筆記</strong>：把狀態寫在檔案裡，下一個上下文視窗讀進來接著做。</li>
+        <li><strong>上下文壓縮與清理</strong>：自動摘要、清除舊結果。</li>
+        <li><strong>定期驗證</strong>：每完成一段就跑測試，不累積錯誤。</li>
+        <li><strong>可中斷、可恢復</strong>：檢查點、冪等操作。</li>
+        <li><strong>預算意識</strong>：知道還剩多少資源，懂得收尾。</li>
+      </ul>
+
+      <p>
+        人的角色也在改變：從「一步一步指揮」變成「定義目標、設定邊界、審查成果」。這門課教的每一個元件——工具、記憶、規劃、安全、評估——都是讓這種分工可以信任的基礎。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/h51_future.py" download>下載 h51_future.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        一個每個上下文視窗只能做兩項工作的代理，靠進度檔在四個獨立的 session 中接力完成七項功能。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 51 課：更長時程的自主代理——從「幾分鐘的任務」走向「幾小時、幾天的任務」。
+關鍵技術：進度檔（讓代理跨越多個上下文視窗接力）、定期驗證、可中斷可恢復。
+這裡模擬一個代理在「每個上下文視窗只做得完 2 項工作」的限制下，靠進度檔完成 7 項工作。"""
+import json
+import os
+import tempfile
+
+PROGRESS = os.path.join(tempfile.gettempdir(), "long_task_progress.json")
+if os.path.exists(PROGRESS):
+    os.remove(PROGRESS)
+FEATURES = ["使用者註冊", "登入", "購物車", "結帳", "訂單查詢", "退貨", "管理後台"]
+PER_WINDOW = 2                                       # 一個上下文視窗大約只做得完 2 項
+
+def one_session(n):
+    """每個 session 都是全新的上下文：先讀進度檔，再接著做，最後寫回進度與交接筆記。"""
+    p = json.load(open(PROGRESS, encoding="utf-8")) if os.path.exists(PROGRESS) else {"done": [], "notes": []}
+    todo = [f for f in FEATURES if f not in p["done"]]
+    if not todo:
+        return False
+    did = todo[:PER_WINDOW]
+    p["done"] += did
+    p["notes"].append("session %d：完成 %s；下一步：%s" % (n, "、".join(did), todo[PER_WINDOW] if len(todo) &gt; PER_WINDOW else "無"))
+    json.dump(p, open(PROGRESS, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("Session %d（全新上下文）讀進度 → 已完成 %d/%d → 這次做：%s" % (n, len(p["done"]) - len(did), len(FEATURES), "、".join(did)))
+    return True
+
+n = 1
+while one_session(n):
+    n += 1
+print("\n進度檔最後的交接筆記：")
+for line in json.load(open(PROGRESS, encoding="utf-8"))["notes"]:
+    print("  ", line)
+print("\n人類工程師換班時會寫交接；長時程代理也一樣——把狀態寫在檔案裡，而不是只放在腦子（上下文）裡。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">Session 1（全新上下文）讀進度 → 已完成 0/7 → 這次做：使用者註冊、登入&#10;Session 2（全新上下文）讀進度 → 已完成 2/7 → 這次做：購物車、結帳&#10;Session 3（全新上下文）讀進度 → 已完成 4/7 → 這次做：訂單查詢、退貨&#10;Session 4（全新上下文）讀進度 → 已完成 6/7 → 這次做：管理後台&#10;&#10;進度檔最後的交接筆記：&#10;   session 1：完成 使用者註冊、登入；下一步：購物車&#10;   session 2：完成 購物車、結帳；下一步：訂單查詢&#10;   session 3：完成 訂單查詢、退貨；下一步：管理後台&#10;   session 4：完成 管理後台；下一步：無&#10;&#10;人類工程師換班時會寫交接；長時程代理也一樣——把狀態寫在檔案裡，而不是只放在腦子（上下文）裡。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          代理能完成的任務長度快速增長（METR 觀察約每七個月翻倍，外推有不確定性）。長時程代理靠進度檔與交接筆記、上下文壓縮、定期驗證、可恢復設計與預算意識；人的角色轉為定義目標、設定邊界與審查成果。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>長時程代理為什麼需要進度檔？</li>
+          <li>列出三項長時程代理的關鍵技術。</li>
+          <li>在代理時代，人的角色有什麼改變？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        這是這門課的最後一課。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：代理的極限與常見失敗</a>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled">下一課 →</span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

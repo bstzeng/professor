@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：為什麼要多代理 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="上下文隔離與分工">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜多代理 · 第 33 課</div>
+      <h1>為什麼要多代理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解多代理的主要動機</li>
+          <li>認識子代理的運作方式</li>
+          <li>知道多代理的代價</li>
+        </ul>
+      </div>
+
+      <p>
+        一個代理就夠聰明了，為什麼要很多個？最重要的理由不是「人多好辦事」，而是<strong>上下文隔離</strong>：讀三份各一萬字的報告，如果主代理自己讀，三萬字都會留在它的上下文裡；如果派三個<strong>子代理</strong>各讀一份、只回傳一句摘要，主代理的上下文就只多了三句話。
+      </p>
+
+      <ul>
+        <li><strong>保持主代理清醒</strong>：大量的中間過程留在子代理，主代理只看結論。</li>
+        <li><strong>可以平行</strong>：彼此獨立的子任務同時進行。</li>
+        <li><strong>專業分工</strong>：每個子代理有聚焦的提示與工具。</li>
+      </ul>
+
+      <p>
+        實作上，子代理常被包成一個工具，例如 <code>delegate(task)</code>：主代理呼叫它時，程式開一段<strong>全新的對話</strong>給子代理，跑完後只把最終答案當成 tool_result 交回。Claude Code 的子代理就是這樣運作的。
+      </p>
+
+      <div class="callout">
+        <h3>不是免費的</h3>
+        <p>
+          總 token 數沒有變少——子代理讀的東西一樣要付費，還多了協調的成本。換來的是更清楚的主線與平行速度。
+        </p>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/f33_why_multi.py" download>下載 f33_why_multi.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        比較主代理自己讀三份文件與派子代理讀的上下文大小。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 33 課：為什麼要多代理？最大的理由是「上下文隔離」。
+主代理把『讀大量資料』的工作交給子代理；子代理在自己全新的上下文裡讀完，只回傳一段摘要。
+主代理的上下文因此保持乾淨。"""
+import json
+from mockllm import MockClient, text, tool_use, count_tokens
+
+DOCS = {"財報.txt": "營收…" * 3000, "競品分析.txt": "A 公司…" * 3000, "用戶訪談.txt": "受訪者說…" * 3000}
+SUMMARY = {"財報.txt": "營收年增 12%，毛利率下滑 2 點。", "競品分析.txt": "A 公司降價 15%，搶走中階市場。",
+           "用戶訪談.txt": "用戶最在意續航與價格。"}
+
+def subagent(task, doc):
+    """子代理：全新對話、只看到一份文件，回傳精簡摘要。"""
+    sub = MockClient(lambda ctx: text(SUMMARY[doc]))
+    r = sub.messages.create(model="mock", max_tokens=300, messages=[{"role": "user", "content": task + "\n\n" + DOCS[doc]}])
+    return r.content[0].text, r.usage.input_tokens
+
+# 方案 A：單一代理自己讀全部
+single = [{"role": "user", "content": "分析市場"}] + [{"role": "user", "content": d} for d in DOCS.values()]
+print("單一代理：主上下文 %d tokens" % count_tokens(single))
+
+# 方案 B：主代理用 delegate 工具派工
+main_ctx, sub_total = [{"role": "user", "content": "分析市場"}], 0
+for doc in DOCS:
+    summary, used = subagent("讀這份文件，用一句話摘要重點", doc)
+    sub_total += used
+    main_ctx.append({"role": "user", "content": "[%s] %s" % (doc, summary)})
+    print("  子代理讀 %-8s（用了 %d tokens）→ %s" % (doc, used, summary))
+print("多代理：主上下文只有 %d tokens（子代理合計 %d tokens，各自用完即丟）" % (count_tokens(main_ctx), sub_total))
+print("代價：總 token 數沒有變少，甚至更多；換來的是主代理思路清楚、子代理可以平行。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">單一代理：主上下文 27787 tokens&#10;  子代理讀 財報.txt  （用了 6784 tokens）→ 營收年增 12%，毛利率下滑 2 點。&#10;  子代理讀 競品分析.txt（用了 8284 tokens）→ A 公司降價 15%，搶走中階市場。&#10;  子代理讀 用戶訪談.txt（用了 12784 tokens）→ 用戶最在意續航與價格。&#10;多代理：主上下文只有 90 tokens（子代理合計 27852 tokens，各自用完即丟）&#10;代價：總 token 數沒有變少，甚至更多；換來的是主代理思路清楚、子代理可以平行。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/f33_why_multi.py" download>下載 f33_why_multi.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 33 課（Claude API 版）：把「子代理」包成一個工具。主代理呼叫 delegate(task) 時，&#10;我們開一段全新的對話給子代理執行，只把它的最終摘要交回主代理。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;DOCS = {"財報.txt": open(__file__, encoding="utf-8").read()}   # 換成你的大型文件&#10;&#10;&#10;def read_doc(name):&#10;    return DOCS.get(name, "找不到文件")&#10;&#10;&#10;def run_subagent(task):&#10;    """子代理：自己的上下文、自己的工具，只回傳結論。"""&#10;    tools = [{"name": "read_doc", "description": "讀取文件全文", "input_schema": {&#10;        "type": "object", "properties": {"name": {"type": "string"}}, "required": ["name"]}}]&#10;    msgs = [{"role": "user", "content": task + "\n可用文件：" + "、".join(DOCS) + "\n最後用 100 字內回報結論。"}]&#10;    while True:&#10;        r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, tools=tools, messages=msgs,&#10;                                   output_config={"effort": "low"})          # 子任務單純：低 effort 省 token&#10;        msgs.append({"role": "assistant", "content": r.content})&#10;        if r.stop_reason != "tool_use":&#10;            return "".join(b.text for b in r.content if b.type == "text")&#10;        msgs.append({"role": "user", "content": [{"type": "tool_result", "tool_use_id": b.id, "content": read_doc(**b.input)}&#10;                                                 for b in r.content if b.type == "tool_use"]})&#10;&#10;&#10;main_tools = [{"name": "delegate", "description": "把一個需要大量閱讀的子任務交給子代理，回傳精簡結論",&#10;               "input_schema": {"type": "object", "properties": {"task": {"type": "string"}}, "required": ["task"]}}]&#10;messages = [{"role": "user", "content": "請分析我們的財報重點，給我三點建議。"}]&#10;while True:&#10;    r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, tools=main_tools, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    results = []&#10;    for b in r.content:&#10;        if b.type == "tool_use":&#10;            print("主代理派工：", b.input["task"])&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": run_subagent(b.input["task"])})&#10;    messages.append({"role": "user", "content": results})&#10;print(next(b.text for b in r.content if b.type == "text"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          多代理的主要動機是上下文隔離：子代理在全新上下文中處理大量資料，只回傳摘要，讓主代理保持清楚，並可平行與分工。子代理常包成 delegate 工具。代價是總 token 不減反增。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>多代理最重要的好處是什麼？</li>
+          <li>子代理通常怎麼實作？</li>
+          <li>多代理會讓總成本變低嗎？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>協調者與工作者</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：實作：迷你程式代理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：協調者與工作者 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

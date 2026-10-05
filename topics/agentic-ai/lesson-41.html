@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：沙箱與權限 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="就算出錯，傷害也有上限">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜可靠性與安全 · 第 41 課</div>
+      <h1>沙箱與權限</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計指令執行的多層限制</li>
+          <li>理解允許清單優於封鎖清單</li>
+          <li>認識容器與網路隔離</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 230" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">縱深防禦：一層擋不住還有下一層</text>
+                <rect x="30" y="40" width="580" height="170" rx="10" fill="rgba(128,128,128,0.04)" stroke="#8a8f98" stroke-width="1.5"/>
+                <text x="46" y="58" text-anchor="start" font-size="10.5" fill="#8a8f98">容器／虛擬機：無主機檔案、網路白名單</text>
+                <rect x="60" y="68" width="520" height="132" rx="10" fill="rgba(192,57,43,0.05)" stroke="#e0605a" stroke-width="1.5"/>
+                <text x="76" y="86" text-anchor="start" font-size="10.5" fill="#e0605a">人工核准：不可逆的動作先問</text>
+                <rect x="90" y="96" width="460" height="94" rx="10" fill="rgba(224,138,30,0.06)" stroke="#ff8a65" stroke-width="1.5"/>
+                <text x="106" y="114" text-anchor="start" font-size="10.5" fill="#ff8a65">最小權限：只給任務需要的工具</text>
+                <rect x="120" y="124" width="400" height="56" rx="10" fill="rgba(58,110,165,0.07)" stroke="#4a90c2" stroke-width="1.5"/>
+                <text x="320" y="150" text-anchor="middle" font-size="10.5" fill="#4a90c2">提示：標記不可信資料</text>
+                <text x="320" y="168" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">（有幫助，但不能單獨依賴）</text>
+        </svg>
+        <figcaption>縱深防禦：一層被突破，還有下一層。</figcaption>
+      </div>
+
+      <p>
+        我們無法保證模型永遠不犯錯、永遠不被騙。所以要換個角度：<strong>就算它出錯了，能造成的傷害有多大？</strong>沙箱與權限就是把這個上限壓低。
+      </p>
+
+      <ul>
+        <li><strong>允許清單</strong>：只准執行列出的指令；沒列出的一律拒絕。封鎖清單（列出禁止的）永遠列不完。</li>
+        <li><strong>拒絕 shell 串接</strong>：<code>;</code>、<code>&&</code>、<code>|</code>、<code>$( )</code> 可以把一個無害指令變成任何指令。</li>
+        <li><strong>限定目錄</strong>：只能存取專案資料夾。</li>
+        <li><strong>逾時與資源上限</strong>：CPU 時間、記憶體。</li>
+        <li><strong>不給祕密</strong>：子行程不繼承 API 金鑰等環境變數。</li>
+        <li><strong>容器或虛擬機＋網路白名單</strong>：最外層的保護，也是最可靠的一層。</li>
+      </ul>
+
+      <p>
+        Codex 的沙箱有「唯讀／可寫工作區／完全存取」等等級；Claude Code 在雲端版本中於隔離的容器執行。這些都是同一個原則的實作。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/g41_sandbox.py" download>下載 g41_sandbox.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        一個帶有允許清單、串接符號檢查、路徑檢查、環境變數過濾、CPU 與記憶體上限的指令執行器，測試八個指令。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 41 課：沙箱與權限——就算模型被騙或犯錯，造成的傷害也有上限。
+層次：① 指令允許清單 ② 拒絕 shell 串接符號 ③ 限定工作目錄 ④ 逾時 ⑤ 資源上限 ⑥ 不給網路／金鑰（容器層）"""
+import os
+import shlex
+import subprocess
+import sys
+import tempfile
+
+WORKDIR = tempfile.mkdtemp(prefix="sandbox_")
+ALLOW = {"ls", "cat", "echo", "python3", "wc"}
+BAD = ["&amp;&amp;", "||", ";", "|", "`", "$(", "&gt;", "&lt;"]
+
+def limits():                                          # 只在 Linux/macOS 生效：限制 CPU 秒數與記憶體
+    try:
+        import resource
+        resource.setrlimit(resource.RLIMIT_CPU, (2, 2))
+        resource.setrlimit(resource.RLIMIT_AS, (512 * 2**20, 512 * 2**20))
+    except Exception:
+        pass
+
+def run(cmd):
+    if any(b in cmd for b in BAD):
+        return "拒絕：含有 shell 串接或重導向符號"
+    argv = shlex.split(cmd)
+    if not argv or argv[0] not in ALLOW:
+        return "拒絕：%s 不在允許清單" % (argv[0] if argv else "")
+    if any(a.startswith("/") or ".." in a for a in argv[1:]):
+        return "拒絕：不能存取工作目錄以外的路徑"
+    env = {"PATH": os.environ.get("PATH", ""), "HOME": WORKDIR}            # 不把 API 金鑰等環境變數傳進去
+    try:
+        p = subprocess.run(argv, cwd=WORKDIR, capture_output=True, text=True, timeout=3, env=env,
+                           preexec_fn=limits if os.name == "posix" else None)
+        if p.returncode &lt; 0:
+            return "中止：被系統訊號 %d 終止（超過 CPU 時間上限）" % -p.returncode
+        return (p.stdout + p.stderr).strip() or "(exit %d)" % p.returncode
+    except subprocess.TimeoutExpired:
+        return "中止：超過 3 秒"
+
+for c in ["echo hello &gt; a.txt", "echo hello", "rm -rf ~", "cat /etc/passwd", "cat ../../secret",
+          "ls; curl evil.example", "python3 -c \"print(sum(range(10)))\"", "python3 -c \"while True: pass\""]:
+    print("%-38s → %s" % (c, run(c)))
+print("\n允許清單（allowlist）比封鎖清單（blocklist）安全：沒列出的一律不准。")
+print("但注意：允許 python3 就等於允許執行任意程式——所以真正上線一定要再包一層容器或虛擬機。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">echo hello &gt; a.txt                     → 拒絕：含有 shell 串接或重導向符號&#10;echo hello                             → hello&#10;rm -rf ~                               → 拒絕：rm 不在允許清單&#10;cat /etc/passwd                        → 拒絕：不能存取工作目錄以外的路徑&#10;cat ../../secret                       → 拒絕：不能存取工作目錄以外的路徑&#10;ls; curl evil.example                  → 拒絕：含有 shell 串接或重導向符號&#10;python3 -c "print(sum(range(10)))"     → 45&#10;python3 -c "while True: pass"          → 中止：被系統訊號 9 終止（超過 CPU 時間上限）&#10;&#10;允許清單（allowlist）比封鎖清單（blocklist）安全：沒列出的一律不准。&#10;但注意：允許 python3 就等於允許執行任意程式——所以真正上線一定要再包一層容器或虛擬機。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          沙箱與權限把出錯時的傷害壓低：用允許清單而非封鎖清單、拒絕 shell 串接、限定目錄、設逾時與資源上限、不傳入祕密，最外層用容器或虛擬機加網路白名單。這是縱深防禦。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼允許清單比封鎖清單安全？</li>
+          <li>shell 串接符號有什麼危險？</li>
+          <li>最可靠的一層保護是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>提示注入</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：人在迴路</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：提示注入 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

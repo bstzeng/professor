@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：讀寫檔案 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="view、create、str_replace">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜與世界互動 · 第 28 課</div>
+      <h1>讀寫檔案</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計檔案操作工具</li>
+          <li>用 str_replace 做精確修改</li>
+          <li>防止路徑穿越攻擊</li>
+        </ul>
+      </div>
+
+      <p>
+        程式代理最常用的工具就是檔案操作。常見的設計是三四個動作：<strong>view</strong>（看檔案或目錄，附行號）、<strong>create</strong>（建立或覆寫）、<strong>str_replace</strong>（取代一段文字）、<strong>insert</strong>（在某行後插入）。
+      </p>
+
+      <p>
+        為什麼修改用 str_replace 而不是「整份重寫」或「改第 N 行」？
+      </p>
+
+      <ul>
+        <li>整份重寫：大檔案很浪費 token，也容易不小心改到別處。</li>
+        <li>依行號修改：模型讀檔後行號可能已經變了，容易對錯行。</li>
+        <li>str_replace：指定「把這段原文換成那段」，而且要求原文<strong>剛好出現一次</strong>——出現 0 次或多次都報錯，請模型多帶一點上下文。精確又安全。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>路徑穿越</h3>
+        <p>
+          模型給的路徑是不可信的。<code>../../etc/passwd</code> 或絕對路徑都可能讀到專案外的檔案。正確做法：把路徑解析成絕對路徑（resolve），再確認它仍在專案根目錄之內。
+        </p>
+      </div>
+
+      <p>
+        Claude API 有 Anthropic 定義的<strong>文字編輯工具</strong>（不需要寫 schema，模型已經熟悉用法），你只要實作上述動作。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/e28_files.py" download>下載 e28_files.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        實作三個檔案工具，示範 str_replace 遇到多處相符時拒絕，以及擋下 ../ 路徑穿越。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 28 課：檔案工具——view / create / str_replace，全部限制在專案根目錄內（防止 ../ 路徑穿越）。"""
+import os
+import tempfile
+from pathlib import Path
+
+ROOT = Path(tempfile.mkdtemp(prefix="agent_ws_")).resolve()
+
+def safe(path):
+    p = (ROOT / path).resolve()
+    if not p.is_relative_to(ROOT):
+        raise PermissionError("拒絕：%s 在專案目錄之外" % path)
+    return p
+
+def view(path):
+    p = safe(path)
+    if p.is_dir():
+        return "\n".join(sorted(x.name for x in p.iterdir()))
+    return "\n".join("%4d  %s" % (i, l) for i, l in enumerate(p.read_text(encoding="utf-8").splitlines(), 1))
+
+def create(path, file_text):
+    p = safe(path)
+    p.parent.mkdir(parents=True, exist_ok=True)
+    p.write_text(file_text, encoding="utf-8")
+    return "已建立 %s（%d 行）" % (path, file_text.count("\n") + 1)
+
+def str_replace(path, old_str, new_str):
+    """只取代『剛好出現一次』的字串——出現 0 次或多次都報錯，避免改錯地方。"""
+    p = safe(path)
+    s = p.read_text(encoding="utf-8")
+    n = s.count(old_str)
+    if n != 1:
+        raise ValueError("old_str 出現 %d 次，必須剛好 1 次；請提供更多上下文" % n)
+    p.write_text(s.replace(old_str, new_str), encoding="utf-8")
+    return "已修改 %s" % path
+
+print(create("app/config.py", "DEBUG = True\nPORT = 8000\nHOST = 'localhost'"))
+print(view("app/config.py"))
+print(str_replace("app/config.py", "DEBUG = True", "DEBUG = False"))
+for call in [lambda: str_replace("app/config.py", "=", ":"),
+             lambda: view("../../etc/passwd")]:
+    try:
+        call()
+    except Exception as e:
+        print("✗", type(e).__name__, e)
+print(view("app/config.py"))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">已建立 app/config.py（3 行）&#10;   1  DEBUG = True&#10;   2  PORT = 8000&#10;   3  HOST = 'localhost'&#10;已修改 app/config.py&#10;✗ ValueError old_str 出現 3 次，必須剛好 1 次；請提供更多上下文&#10;✗ PermissionError 拒絕：../../etc/passwd 在專案目錄之外&#10;   1  DEBUG = False&#10;   2  PORT = 8000&#10;   3  HOST = 'localhost'</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/e28_files.py" download>下載 e28_files.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 28 課（Claude API 版）：Anthropic 定義的文字編輯工具（text_editor_20250728）。&#10;不用寫 input_schema——Claude 已經知道怎麼用；你負責實作 view / create / str_replace / insert。"""&#10;import tempfile&#10;from pathlib import Path&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;ROOT = Path(tempfile.mkdtemp()).resolve()&#10;(ROOT / "config.py").write_text("DEBUG = True\nPORT = 8000\n", encoding="utf-8")&#10;&#10;&#10;def safe(path):&#10;    p = (ROOT / path.lstrip("/")).resolve()&#10;    if not p.is_relative_to(ROOT):&#10;        raise PermissionError("路徑在專案目錄之外")&#10;    return p&#10;&#10;&#10;def editor(inp):&#10;    cmd, p = inp["command"], safe(inp["path"])&#10;    if cmd == "view":&#10;        return p.read_text(encoding="utf-8") if p.is_file() else "\n".join(x.name for x in p.iterdir())&#10;    if cmd == "create":&#10;        p.write_text(inp["file_text"], encoding="utf-8")&#10;        return "已建立"&#10;    if cmd == "str_replace":&#10;        s = p.read_text(encoding="utf-8")&#10;        if s.count(inp["old_str"]) != 1:&#10;            raise ValueError("old_str 必須剛好出現一次")&#10;        p.write_text(s.replace(inp["old_str"], inp["new_str"]), encoding="utf-8")&#10;        return "已修改"&#10;    if cmd == "insert":&#10;        lines = p.read_text(encoding="utf-8").split("\n")&#10;        lines.insert(inp["insert_line"], inp["insert_text"])&#10;        p.write_text("\n".join(lines), encoding="utf-8")&#10;        return "已插入"&#10;    raise ValueError("未知指令 " + cmd)&#10;&#10;&#10;tools = [{"type": "text_editor_20250728", "name": "str_replace_based_edit_tool"}]&#10;messages = [{"role": "user", "content": "把 /config.py 的 DEBUG 關掉，並把 PORT 改成 8080。"}]&#10;while True:&#10;    r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, tools=tools, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    results = []&#10;    for b in r.content:&#10;        if b.type == "tool_use":&#10;            try:&#10;                results.append({"type": "tool_result", "tool_use_id": b.id, "content": editor(b.input)})&#10;            except Exception as e:&#10;                results.append({"type": "tool_result", "tool_use_id": b.id, "content": str(e), "is_error": True})&#10;    messages.append({"role": "user", "content": results})&#10;print((ROOT / "config.py").read_text(encoding="utf-8"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          檔案工具常見 view、create、str_replace、insert；修改用 str_replace 並要求原文剛好出現一次，比整份重寫或依行號修改更精確安全。所有路徑都要解析後確認仍在專案根目錄內，以防路徑穿越。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 str_replace 要求原文剛好出現一次？</li>
+          <li>依行號修改檔案有什麼風險？</li>
+          <li>怎麼防止路徑穿越？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>上網搜尋與擷取</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：執行程式碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：上網搜尋與擷取 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

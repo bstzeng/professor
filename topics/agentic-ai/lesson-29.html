@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：上網搜尋與擷取 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="先搜尋，再挑著讀">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜與世界互動 · 第 29 課</div>
+      <h1>上網搜尋與擷取</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>分辨 search 與 fetch 兩種工具</li>
+          <li>讓代理有效率地查資料</li>
+          <li>知道網路內容的風險</li>
+        </ul>
+      </div>
+
+      <p>
+        要回答「最近發生了什麼」，代理需要上網。通常分成兩個工具：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>工具</th><th>回傳</th><th>成本</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>search(query)</td><td>標題、網址、摘要（短）</td><td>低</td></tr>
+          <tr><td>fetch(url)</td><td>整頁內容（長）</td><td>高</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        好的代理會<strong>先搜尋、看標題摘要挑出最相關的，再讀全文</strong>，而不是每頁都讀。讀到的內容也要附<strong>來源網址</strong>，方便使用者查證。
+      </p>
+
+      <p>
+        Claude API 提供伺服器端的 <strong>web_search</strong> 與 <strong>web_fetch</strong> 工具，搜尋與讀取都在 Anthropic 端完成，可以限制網域（allowed_domains／blocked_domains）與次數（max_uses）。
+      </p>
+
+      <div class="callout">
+        <h3>網頁是不可信的</h3>
+        <p>
+          網頁可能過時、錯誤，甚至藏著給 AI 的惡意指令（提示注入，第 42 課）。一個安全習慣是：只讀取「搜尋結果中出現過」或「使用者提供」的網址，不讓模型自己拼湊網址。
+        </p>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/e29_web.py" download>下載 e29_web.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        在本地的「假網路」上搜尋，挑第一筆讀全文，回答時附上來源。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 29 課：上網搜尋與擷取——search 回傳標題與網址（短），fetch 才讀全文（長）。
+代理的好習慣：先搜尋、挑最相關的再讀，而不是把每一頁都讀進來。這裡用本地的「假網路」示範（晴川市是虛構城市）。"""
+import json
+from mockllm import MockClient, text, tool_use
+
+WEB = {"https://ex.com/a": ("晴川市 2026 年再生能源占比", "（虛構資料）晴川市 2026 年上半年再生能源發電占比約 15%……" * 5),
+       "https://ex.com/b": ("太陽能板清潔小技巧", "用清水與軟刷……" * 5),
+       "https://ex.com/c": ("離岸風電進度報告", "第三階段區塊開發……占比預計持續上升……" * 5)}
+
+def web_search(query):
+    words = [w for w in query.split() if w]
+    hits = [{"url": u, "title": t} for u, (t, _) in WEB.items() if any(w in t for w in words)]
+    return hits[:5]
+
+def web_fetch(url):
+    if url not in WEB:
+        raise ValueError("只能讀取搜尋結果中出現過的網址")         # 降低被誘導去奇怪網址的風險
+    return WEB[url][1][:300]
+
+def policy(ctx):
+    if ctx.turn == 0:
+        return tool_use("web_search", {"query": "再生能源 占比"})
+    if ctx.turn == 1:
+        best = ctx.data()[0]["url"]
+        return [text("第一筆最相關，讀全文。"), tool_use("web_fetch", {"url": best})]
+    return text("根據搜尋到的資料，晴川市 2026 年上半年再生能源發電占比約 15%。（來源：https://ex.com/a）")
+
+IMPL = {"web_search": web_search, "web_fetch": web_fetch}
+tools = [{"name": "web_search", "description": "搜尋網路，回傳標題與網址", "input_schema": {"type": "object", "properties": {"query": {"type": "string"}}}},
+         {"name": "web_fetch", "description": "讀取網頁全文", "input_schema": {"type": "object", "properties": {"url": {"type": "string"}}}}]
+client, msgs = MockClient(policy), [{"role": "user", "content": "晴川市的再生能源現在占多少？"}]
+while True:
+    r = client.messages.create(model="mock", max_tokens=800, tools=tools, messages=msgs)
+    msgs.append({"role": "assistant", "content": r.content})
+    if r.stop_reason != "tool_use":
+        break
+    b = next(x for x in r.content if x.type == "tool_use")
+    out = IMPL[b.name](**b.input)
+    print("[%s] %s → %s" % (b.name, b.input, json.dumps(out, ensure_ascii=False)[:80] + "…"))
+    msgs.append({"role": "user", "content": [{"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False)}]})
+print(r.content[-1].text)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">[web_search] {'query': '再生能源 占比'} → [{"url": "https://ex.com/a", "title": "晴川市 2026 年再生能源占比"}]…&#10;[web_fetch] {'url': 'https://ex.com/a'} → "（虛構資料）晴川市 2026 年上半年再生能源發電占比約 15%……（虛構資料）晴川市 2026 年上半年再生能源發電占比約 15%……（虛構資料）晴川市 2…&#10;根據搜尋到的資料，晴川市 2026 年上半年再生能源發電占比約 15%。（來源：https://ex.com/a）</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/e29_web.py" download>下載 e29_web.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 29 課（Claude API 版）：伺服器端的 web_search 與 web_fetch 工具，搜尋與擷取都在 Anthropic 端完成。&#10;可用 allowed_domains / blocked_domains 限制範圍、max_uses 限制次數。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;r = client.messages.create(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    tools=[{"type": "web_search_20260209", "name": "web_search", "max_uses": 5},&#10;           {"type": "web_fetch_20260209", "name": "web_fetch", "max_uses": 3}],&#10;    messages=[{"role": "user", "content": "台灣目前再生能源發電占比大約多少？請附來源。"}],&#10;)&#10;if r.stop_reason == "pause_turn":      # 伺服器端工具跑太久會暫停，把 r.content 接回去再送一次即可繼續&#10;    print("（回合暫停，需要續送）")&#10;for b in r.content:&#10;    if b.type == "text":&#10;        print(b.text, end="")&#10;    elif b.type == "server_tool_use":&#10;        print("\n[%s] %s" % (b.name, b.input))&#10;print()</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          上網通常分 search（回傳短摘要）與 fetch（讀全文）兩種工具；好的代理先搜尋再挑著讀，並附來源。Claude API 有伺服器端 web_search 與 web_fetch，可限制網域與次數。網頁內容不可信，可能含提示注入。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>search 和 fetch 有什麼不同？</li>
+          <li>為什麼代理應該先搜尋再讀全文？</li>
+          <li>讀取網頁時有什麼安全考量？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>MCP：模型上下文協定</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：讀寫檔案</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：MCP：模型上下文協定 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

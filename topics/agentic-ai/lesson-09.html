@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：平行工具呼叫 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="一次要三個，同時去拿">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 9 課</div>
+      <h1>平行工具呼叫</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解模型可以一次發出多個工具呼叫</li>
+          <li>用執行緒平行執行工具</li>
+          <li>知道結果必須放在同一則訊息</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">依序 vs 平行執行工具</text>
+                <text x="20" y="52" text-anchor="start" font-size="11" fill="var(--text-muted)">依序</text>
+                <rect x="70" y="40" width="160" height="18" rx="3" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="230" y="40" width="160" height="18" rx="3" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <rect x="390" y="40" width="160" height="18" rx="3" fill="#ff8a65" fill-opacity="0.5" stroke="#ff8a65" stroke-width="1"/>
+                <text x="20" y="102" text-anchor="start" font-size="11" fill="var(--text-muted)">平行</text>
+                <rect x="70" y="80" width="160" height="18" rx="3" fill="#4a90c2" fill-opacity="0.5" stroke="#4a90c2" stroke-width="1"/>
+                <rect x="70" y="102" width="160" height="18" rx="3" fill="#5aa469" fill-opacity="0.5" stroke="#5aa469" stroke-width="1"/>
+                <rect x="70" y="124" width="160" height="18" rx="3" fill="#ff8a65" fill-opacity="0.5" stroke="#ff8a65" stroke-width="1"/>
+                <text x="560" y="54" text-anchor="start" font-size="10" fill="var(--text-muted)">1.5 秒</text>
+                <text x="240" y="116" text-anchor="start" font-size="10" fill="var(--text-muted)">0.5 秒</text>
+                <text x="320" y="175" text-anchor="middle" font-size="10.5" fill="var(--accent)">三個 tool_result 要放在「同一則」user 訊息送回</text>
+        </svg>
+        <figcaption>三個各需 0.5 秒的工具，依序要 1.5 秒，平行只要 0.5 秒。</figcaption>
+      </div>
+
+      <p>
+        問「台北、東京、首爾哪裡最暖」時，聰明的模型不會查一個、等結果、再查下一個——它會在<strong>同一則回應</strong>裡放三個 tool_use。這三個呼叫彼此獨立，你的程式可以<strong>同時</strong>執行。
+      </p>
+
+      <p>
+        Python 用 <code>concurrent.futures.ThreadPoolExecutor</code> 就能簡單做到。對網路請求這類「大部分時間在等待」的工具，平行可以大幅縮短延遲。
+      </p>
+
+      <div class="callout">
+        <h3>一定要放在同一則訊息</h3>
+        <p>
+          所有 tool_result 必須放在<strong>同一則</strong> user 訊息裡送回，每個都對應自己的 tool_use_id。如果拆成好幾則訊息，模型會逐漸「學到」不要平行呼叫，反而變慢。
+        </p>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b09_parallel.py" download>下載 b09_parallel.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        比較依序與平行執行的耗時，並把三個結果一起送回。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 9 課：平行工具呼叫——模型一次要求多個工具，我們同時執行，再「一起」送回。"""
+import json
+import time
+from concurrent.futures import ThreadPoolExecutor
+from mockllm import MockClient, text, tool_use
+
+def get_weather(city):
+    time.sleep(0.5)                            # 模擬網路延遲 0.5 秒
+    return {"台北": 27, "東京": 22, "首爾": 18}[city]
+
+def policy(ctx):
+    if ctx.turn == 0:                          # 一次回應裡放 3 個 tool_use
+        return [text("三個城市我同時查。")] + [tool_use("get_weather", {"city": c}) for c in ("台北", "東京", "首爾")]
+    temps = {json.loads(r[1])["city"]: json.loads(r[1])["temp"] for r in ctx.results()}
+    return text("最暖的是%s（%d°C）。" % max(temps.items(), key=lambda kv: kv[1]))
+
+tools = [{"name": "get_weather", "description": "查氣溫", "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}}}]
+client = MockClient(policy)
+messages = [{"role": "user", "content": "台北、東京、首爾哪裡最暖？"}]
+r = client.messages.create(model="mock", max_tokens=500, tools=tools, messages=messages)
+calls = [b for b in r.content if b.type == "tool_use"]
+print("模型一次要求了 %d 個工具呼叫" % len(calls))
+
+def run_one(b):
+    return {"type": "tool_result", "tool_use_id": b.id,
+            "content": json.dumps({"city": b.input["city"], "temp": get_weather(**b.input)}, ensure_ascii=False)}
+
+t0 = time.time()
+for b in calls:                                # 依序執行：約 1.5 秒
+    run_one(b)
+print("依序執行耗時 %.1f 秒" % (time.time() - t0))
+
+t0 = time.time()
+with ThreadPoolExecutor() as pool:             # 平行執行：約 0.5 秒
+    results = list(pool.map(run_one, calls))   # map 會保持原本順序
+print("平行執行耗時 %.1f 秒" % (time.time() - t0))
+
+messages += [{"role": "assistant", "content": r.content},
+             {"role": "user", "content": results}]   # 重點：所有 tool_result 放在「同一則」user 訊息
+r = client.messages.create(model="mock", max_tokens=500, tools=tools, messages=messages)
+print(r.content[0].text)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">模型一次要求了 3 個工具呼叫&#10;依序執行耗時 1.5 秒&#10;平行執行耗時 0.5 秒&#10;最暖的是台北（27°C）。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/b09_parallel.py" download>下載 b09_parallel.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 9 課（Claude API 版）：Claude 預設可以在一則回應裡發出多個 tool_use。&#10;平行執行後，把所有 tool_result 放在同一則 user 訊息送回。"""&#10;import json&#10;from concurrent.futures import ThreadPoolExecutor&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;MODEL = "claude-opus-5-5"&#10;TEMPS = {"台北": 27, "東京": 22, "首爾": 18}&#10;tools = [{"name": "get_weather", "description": "查一個城市的目前氣溫（攝氏）",&#10;          "input_schema": {"type": "object", "properties": {"city": {"type": "string"}}, "required": ["city"]}}]&#10;messages = [{"role": "user", "content": "台北、東京、首爾哪裡最暖？"}]&#10;&#10;while True:&#10;    r = client.messages.create(model=MODEL, max_tokens=16000, tools=tools, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    calls = [b for b in r.content if b.type == "tool_use"]&#10;    print("這一輪有 %d 個工具呼叫" % len(calls))&#10;    with ThreadPoolExecutor() as pool:&#10;        results = list(pool.map(lambda b: {"type": "tool_result", "tool_use_id": b.id,&#10;                                           "content": json.dumps({"temp_c": TEMPS.get(b.input["city"])})}, calls))&#10;    messages.append({"role": "user", "content": results})&#10;&#10;print(next(b.text for b in r.content if b.type == "text"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          模型可以在一則回應中發出多個獨立的 tool_use；程式可用執行緒平行執行以縮短延遲。所有 tool_result 必須放在同一則 user 訊息送回，否則會讓模型逐漸不再平行呼叫。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼情況適合平行執行工具？</li>
+          <li>Python 可以用什麼來平行執行？</li>
+          <li>為什麼 tool_result 要放在同一則訊息？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>工具錯誤處理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：完整的工具迴圈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：工具錯誤處理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：思考：讓模型先想再答 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="thinking 區塊與 effort">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜推理與規劃 · 第 14 課</div>
+      <h1>思考：讓模型先想再答</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解「先思考」為什麼能提升正確率</li>
+          <li>認識 thinking 區塊</li>
+          <li>用 effort 控制思考深度與成本</li>
+        </ul>
+      </div>
+
+      <p>
+        「球棒和球共 110 元，球棒比球貴 100 元，球多少錢？」直覺答案是 10 元，但正確答案是 5 元。人需要停下來想一想，模型也是。
+      </p>
+
+      <p>
+        現代的 LLM 可以在回答前先產生一段<strong>思考</strong>（回應中的 <code>thinking</code> 區塊）：拆解問題、列出步驟、自我檢查。對代理來說更重要的是<strong>工具之間的思考</strong>：看到工具結果後，先想清楚它代表什麼、下一步該做什麼，再行動。
+      </p>
+
+      <p>
+        在 Claude 最新的模型上，思考是<strong>自適應</strong>（adaptive）的：模型自己判斷需要想多少。你用 <code>effort</code>（low、medium、high、xhigh、max）控制整體的深度與 token 花費。簡單任務用 low 省錢，困難的程式與長時程任務用 high 以上。
+      </p>
+
+      <div class="callout">
+        <h3>思考也要付費</h3>
+        <p>
+          思考的 token 算在輸出裡，要付費、也會增加延遲。思考內容預設不回傳（只回傳空白的 thinking 區塊）；需要看時可設定 display 為 summarized，取得可讀的摘要。
+        </p>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/c14_thinking.py" download>下載 c14_thinking.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        假模型示範：不思考時直覺答錯，思考時拆步驟答對。Claude API 版比較 low 與 high 兩種 effort。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 14 課：先想再答。回應裡多了一種 thinking 區塊；代理在每次呼叫工具之前也可以先想。
+這個假模型示範：不想 → 直覺答錯；先想 → 拆步驟答對。"""
+from mockllm import MockClient, text, thinking
+
+Q = "球棒和球共 110 元，球棒比球貴 100 元，球多少錢？"
+
+def policy(ctx):
+    if ctx.extra.get("thinking"):
+        return [thinking("設球 x 元，球棒 x+100。x + (x+100) = 110 → 2x = 10 → x = 5。驗算：5 + 105 = 110 ✓"),
+                text("球 5 元。")]
+    return text("球 10 元。")                      # 直覺答案（錯）
+
+client = MockClient(policy)
+for think in (False, True):
+    kw = {"thinking": {"type": "adaptive"}} if think else {}
+    r = client.messages.create(model="mock", max_tokens=2000, messages=[{"role": "user", "content": Q}], **kw)
+    print("思考%s：" % ("開" if think else "關"))
+    for b in r.content:
+        print("   [%s] %s" % (b.type, b.thinking if b.type == "thinking" else b.text))
+    print("   output tokens = %d（思考也要算錢）" % r.usage.output_tokens)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">思考關：&#10;   [text] 球 10 元。&#10;   output tokens = 11（思考也要算錢）&#10;思考開：&#10;   [thinking] 設球 x 元，球棒 x+100。x + (x+100) = 110 → 2x = 10 → x = 5。驗算：5 + 105 = 110 ✓&#10;   [text] 球 5 元。&#10;   output tokens = 46（思考也要算錢）</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/c14_thinking.py" download>下載 c14_thinking.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 14 課（Claude API 版）：adaptive thinking 與 effort。&#10;Claude Opus 5.5 的思考一律開啟（由模型自行決定想多少），用 output_config.effort 控制深度；&#10;display="summarized" 會回傳可讀的思考摘要（預設是 omitted，thinking 文字為空）。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;Q = "球棒和球共 110 元，球棒比球貴 100 元，球多少錢？"&#10;&#10;for effort in ("low", "high"):&#10;    r = client.messages.create(&#10;        model="claude-opus-5-5",&#10;        max_tokens=16000,&#10;        thinking={"type": "adaptive", "display": "summarized"},&#10;        output_config={"effort": effort},&#10;        messages=[{"role": "user", "content": Q}],&#10;    )&#10;    print("== effort=%s  output_tokens=%d" % (effort, r.usage.output_tokens))&#10;    for b in r.content:&#10;        if b.type == "thinking":&#10;            print("[思考摘要]", b.thinking[:200])&#10;        elif b.type == "text":&#10;            print("[回答]", b.text)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          讓模型先思考能提升正確率，對代理尤其重要的是工具之間的思考。新的 Claude 模型採自適應思考，用 effort 控制深度與花費；思考 token 計入輸出要付費，預設不回傳全文。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼「先想再答」能減少錯誤？</li>
+          <li>對代理來說，什麼時候的思考特別重要？</li>
+          <li>effort 參數控制什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>ReAct：推理與行動交錯</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：Tool Runner：讓 SDK 跑迴圈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：ReAct：推理與行動交錯 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

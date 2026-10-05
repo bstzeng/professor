@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：長期記憶：跨對話記得你 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="視窗會清空，檔案不會">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶與知識 · 第 24 課</div>
+      <h1>長期記憶：跨對話記得你</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>區分工作記憶與長期記憶</li>
+          <li>用工具讀寫持久化的記憶</li>
+          <li>注意記憶的隱私與安全</li>
+        </ul>
+      </div>
+
+      <p>
+        上下文視窗是<strong>工作記憶</strong>，對話結束就清空。要讓代理下次還記得「你吃素、對花生過敏」，需要<strong>長期記憶</strong>：把重要的事實寫進檔案或資料庫，下次對話時再讀回來。
+      </p>
+
+      <p>
+        最直接的設計是給代理兩個工具：<code>remember(key, value)</code> 與 <code>recall(query)</code>，由模型自己判斷什麼值得記、什麼時候該查。Claude API 也提供 Anthropic 定義的<strong>記憶工具</strong>，模型以「檔案」的方式在 /memories 目錄中管理記憶，儲存則由你的程式實作。
+      </p>
+
+      <p>
+        程式代理常用另一種長期記憶：專案根目錄的說明檔（Claude Code 的 <code>CLAUDE.md</code>、Codex 的 <code>AGENTS.md</code>），每次啟動自動讀入，記錄專案慣例、測試指令、注意事項。
+      </p>
+
+      <div class="callout">
+        <h3>記憶的安全</h3>
+        <p>
+          不要把密碼、API 金鑰存進記憶；個人資料要注意隱私法規；多使用者系統要隔離每個人的記憶。記憶也可能被<strong>污染</strong>——如果代理把惡意網頁的內容記了下來，之後每次都會受影響。
+        </p>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/d24_memory.py" download>下載 d24_memory.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        兩段完全獨立的對話：第一段記下飲食偏好，第二段（全新的上下文）查詢記憶後給出推薦。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 24 課：長期記憶——上下文視窗會清空，但檔案不會。
+給代理 remember / recall 兩個工具，把重要事實寫進 JSON 檔，下一次對話再讀回來。"""
+import json
+import os
+import tempfile
+from mockllm import MockClient, text, tool_use
+
+PATH = os.path.join(tempfile.gettempdir(), "agent_memory_demo.json")
+if os.path.exists(PATH):
+    os.remove(PATH)
+
+def remember(key, value):
+    mem = json.load(open(PATH, encoding="utf-8")) if os.path.exists(PATH) else {}
+    mem[key] = value
+    json.dump(mem, open(PATH, "w", encoding="utf-8"), ensure_ascii=False)
+    return "已記住 %s" % key
+
+def recall(query):
+    mem = json.load(open(PATH, encoding="utf-8")) if os.path.exists(PATH) else {}
+    return {k: v for k, v in mem.items() if any(w in k for w in query.split())} or "沒有相關記憶"
+
+IMPL = {"remember": remember, "recall": recall}
+TOOLS = [{"name": n, "description": d, "input_schema": {"type": "object", "properties": p}} for n, d, p in [
+    ("remember", "把關於使用者的長期事實存起來", {"key": {"type": "string"}, "value": {"type": "string"}}),
+    ("recall", "查詢先前記住的事實", {"query": {"type": "string"}})]]
+
+def policy(ctx):
+    q = ctx.user_text(first=True)
+    if "吃素" in q and ctx.turn == 0:
+        return [text("好的，我記下來。"), tool_use("remember", {"key": "飲食 偏好", "value": "吃素、對花生過敏"})]
+    if "推薦" in q and ctx.turn == 0:
+        return tool_use("recall", {"query": "飲食"})
+    if "推薦" in q:
+        return text("根據你的偏好（%s），推薦：蔬菜咖哩、豆腐蓋飯（都不含花生）。" % list(ctx.data().values())[0])
+    return text("記好了！")
+
+def session(user_msg):
+    client, msgs = MockClient(policy), [{"role": "user", "content": user_msg}]   # 每次都是全新的對話
+    while True:
+        r = client.messages.create(model="mock", max_tokens=500, tools=TOOLS, messages=msgs)
+        msgs.append({"role": "assistant", "content": r.content})
+        if r.stop_reason != "tool_use":
+            return r.content[-1].text
+        res = []
+        for b in r.content:
+            if b.type == "tool_use":
+                out = IMPL[b.name](**b.input)
+                print("   [%s] %s → %s" % (b.name, b.input, out))
+                res.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False)})
+        msgs.append({"role": "user", "content": res})
+
+print("對話 1：", session("我吃素，而且對花生過敏。"))
+print("（對話結束，上下文清空）")
+print("對話 2：", session("晚餐推薦什麼？"))
+print("記憶檔內容：", open(PATH, encoding="utf-8").read())</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">   [remember] {'key': '飲食 偏好', 'value': '吃素、對花生過敏'} → 已記住 飲食 偏好&#10;對話 1： 記好了！&#10;（對話結束，上下文清空）&#10;   [recall] {'query': '飲食'} → {'飲食 偏好': '吃素、對花生過敏'}&#10;對話 2： 根據你的偏好（吃素、對花生過敏），推薦：蔬菜咖哩、豆腐蓋飯（都不含花生）。&#10;記憶檔內容： {"飲食 偏好": "吃素、對花生過敏"}</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/d24_memory.py" download>下載 d24_memory.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 24 課（Claude API 版）：Anthropic 定義的記憶工具（memory_20250818）。&#10;Claude 會發出 view / create / str_replace 等指令，由你的程式在 /memories 目錄中實作。&#10;SDK 提供 BetaAbstractMemoryTool：繼承並實作各指令即可交給 tool_runner。"""&#10;import anthropic&#10;from anthropic.lib.tools import BetaAbstractMemoryTool&#10;&#10;client = anthropic.Anthropic()&#10;STORE = {}   # 示範用：存在記憶體；實務請存檔案或資料庫，並防止路徑穿越（../）&#10;&#10;&#10;class DictMemory(BetaAbstractMemoryTool):&#10;    def view(self, command):&#10;        if command.path.rstrip("/") == "/memories":          # 看目錄：列出所有檔案&#10;            return "\n".join(STORE) or "（目前沒有記憶）"&#10;        return STORE.get(command.path, "找不到檔案")&#10;&#10;    def create(self, command):&#10;        STORE[command.path] = command.file_text&#10;        return "已建立 %s" % command.path&#10;&#10;    def str_replace(self, command):&#10;        STORE[command.path] = STORE[command.path].replace(command.old_str, command.new_str)&#10;        return "已更新"&#10;&#10;    def insert(self, command):&#10;        lines = STORE[command.path].split("\n")&#10;        lines.insert(command.insert_line, command.insert_text)&#10;        STORE[command.path] = "\n".join(lines)&#10;        return "已插入"&#10;&#10;    def delete(self, command):&#10;        STORE.pop(command.path, None)&#10;        return "已刪除"&#10;&#10;    def rename(self, command):&#10;        STORE[command.new_path] = STORE.pop(command.old_path)&#10;        return "已改名"&#10;&#10;&#10;memory = DictMemory()&#10;for msg in ["我吃素，而且對花生過敏，請記住。", "晚餐推薦什麼？"]:   # 兩次獨立的對話&#10;    runner = client.beta.messages.tool_runner(model="claude-opus-5-5", max_tokens=16000, tools=[memory],&#10;                                              messages=[{"role": "user", "content": msg}])&#10;    for m in runner:&#10;        for b in m.content:&#10;            if b.type == "text":&#10;                print(b.text)&#10;print(STORE)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          上下文視窗是會清空的工作記憶；長期記憶把重要事實寫入檔案或資料庫，下次再讀回。可用 remember／recall 工具或 Anthropic 的記憶工具；程式代理用 CLAUDE.md、AGENTS.md 等專案說明檔。記憶要注意隱私、不存密鑰並防範污染。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>工作記憶和長期記憶有什麼不同？</li>
+          <li>CLAUDE.md、AGENTS.md 這類檔案扮演什麼角色？</li>
+          <li>長期記憶有哪些安全風險？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>提示快取</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：RAG：檢索增強生成</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：提示快取 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

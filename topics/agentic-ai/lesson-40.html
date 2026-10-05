@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：人在迴路 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="危險動作先問人">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜可靠性與安全 · 第 40 課</div>
+      <h1>人在迴路</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>依風險分級設計核准機制</li>
+          <li>讓被拒絕的動作回饋給模型</li>
+          <li>在自主與安全之間取得平衡</li>
+        </ul>
+      </div>
+
+      <p>
+        代理越自主，越需要在關鍵時刻讓人介入。<strong>人在迴路</strong>（human-in-the-loop）的做法是：依動作的風險分級，決定要不要先問人。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>風險</th><th>例子</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>低</td><td>讀檔、搜尋</td><td>自動放行</td></tr>
+          <tr><td>中</td><td>修改檔案</td><td>第一次問，之後同類動作放行</td></tr>
+          <tr><td>高（不可逆）</td><td>刪除、付款、寄信、推送到正式環境</td><td>每次都問</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        被拒絕時，也要回傳一個 tool_result（例如「使用者拒絕了這個動作」，標記 is_error），讓模型知道並調整計畫，而不是假裝沒發生。
+      </p>
+
+      <p>
+        Claude Code 的<strong>權限模式</strong>正是這個概念：預設模式改檔與執行指令前會詢問；也可以切成「自動接受修改」或「只規劃不動手」（plan 模式）。Codex 也有類似的核准等級。太多詢問讓人疲勞、太少則有風險，要依任務調整。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/g40_approval.py" download>下載 g40_approval.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        讀檔自動放行，寫檔與刪檔詢問後允許，寄信被拒絕——模型收到拒絕訊息後調整回覆。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 40 課：人在迴路（human-in-the-loop）——危險動作執行前先問人。
+依風險分級：讀取＝自動放行；寫入＝問一次；不可逆（刪除、付款、寄信）＝每次都問。"""
+import json
+from mockllm import MockClient, text, tool_use
+
+RISK = {"read_file": "low", "write_file": "medium", "delete_file": "high", "send_email": "high"}
+FS = {"draft.md": "草稿", "old.log": "舊紀錄"}
+approved_once = set()
+
+def ask_human(name, args, answers):
+    """真實程式用 input()；這裡用預先準備的答案模擬使用者的選擇。"""
+    ans = answers.pop(0)
+    print("   🙋 代理想執行 %s(%s)，允許嗎？[y/n] → %s" % (name, json.dumps(args, ensure_ascii=False), ans))
+    return ans == "y"
+
+def gate(name, args, answers):
+    r = RISK[name]
+    if r == "low" or (r == "medium" and name in approved_once):
+        return True
+    ok = ask_human(name, args, answers)
+    if ok and r == "medium":
+        approved_once.add(name)
+    return ok
+
+IMPL = {"read_file": lambda path: FS[path], "write_file": lambda path, text: FS.__setitem__(path, text) or "ok",
+        "delete_file": lambda path: FS.pop(path) and "deleted", "send_email": lambda to, body: "sent"}
+PLAN = [tool_use("read_file", {"path": "draft.md"}), tool_use("write_file", {"path": "draft.md", "text": "定稿"}),
+        tool_use("delete_file", {"path": "old.log"}), tool_use("send_email", {"to": "boss@co.com", "body": "定稿完成"})]
+
+client = MockClient(lambda ctx: PLAN[ctx.turn] if ctx.turn &lt; len(PLAN) else text("處理完畢（被拒絕的動作已略過）。"))
+tools = [{"name": n, "description": n, "input_schema": {"type": "object"}} for n in RISK]
+msgs, answers = [{"role": "user", "content": "把草稿定稿、清掉舊紀錄，然後寄信給老闆"}], ["y", "y", "n"]
+while True:
+    r = client.messages.create(model="mock", max_tokens=500, tools=tools, messages=msgs)
+    msgs.append({"role": "assistant", "content": r.content})
+    if r.stop_reason != "tool_use":
+        break
+    b = r.content[0]
+    if gate(b.name, b.input, answers):
+        res = {"type": "tool_result", "tool_use_id": b.id, "content": str(IMPL[b.name](**b.input))}
+        print("   ✓ 執行 %s（風險：%s）" % (b.name, RISK[b.name]))
+    else:      # 被拒絕也要回 tool_result，讓模型知道並調整
+        res = {"type": "tool_result", "tool_use_id": b.id, "content": "使用者拒絕了這個動作", "is_error": True}
+        print("   ✗ 使用者拒絕 %s" % b.name)
+    msgs.append({"role": "user", "content": [res]})
+print(r.content[0].text, "目前檔案：", FS)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">   ✓ 執行 read_file（風險：low）&#10;   🙋 代理想執行 write_file({"path": "draft.md", "text": "定稿"})，允許嗎？[y/n] → y&#10;   ✓ 執行 write_file（風險：medium）&#10;   🙋 代理想執行 delete_file({"path": "old.log"})，允許嗎？[y/n] → y&#10;   ✓ 執行 delete_file（風險：high）&#10;   🙋 代理想執行 send_email({"to": "boss@co.com", "body": "定稿完成"})，允許嗎？[y/n] → n&#10;   ✗ 使用者拒絕 send_email&#10;處理完畢（被拒絕的動作已略過）。 目前檔案： {'draft.md': '定稿'}</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/g40_approval.py" download>下載 g40_approval.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 40 課（Claude API 版）：在工具迴圈中加入核准關卡。被拒絕時一樣要回 tool_result（is_error），Claude 才知道要調整。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;RISK = {"read_file": "low", "delete_file": "high"}&#10;tools = [{"name": "read_file", "description": "讀取檔案", "input_schema": {&#10;              "type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},&#10;         {"name": "delete_file", "description": "刪除檔案（不可復原）", "input_schema": {&#10;              "type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}}]&#10;&#10;&#10;def execute(name, args):&#10;    return "（示範）已執行 %s %s" % (name, args)&#10;&#10;&#10;messages = [{"role": "user", "content": "看一下 old.log 的內容，如果沒用就刪掉。"}]&#10;while True:&#10;    r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, tools=tools, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    results = []&#10;    for b in r.content:&#10;        if b.type != "tool_use":&#10;            continue&#10;        if RISK[b.name] == "high" and input("允許執行 %s %s？[y/N] " % (b.name, b.input)).strip().lower() != "y":&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": "使用者拒絕了這個動作", "is_error": True})&#10;        else:&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": execute(b.name, b.input)})&#10;    messages.append({"role": "user", "content": results})&#10;print(next(b.text for b in r.content if b.type == "text"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          人在迴路依風險分級：讀取自動放行、修改可詢問一次、不可逆動作每次都問；被拒絕時也要回傳 tool_result 讓模型調整。Claude Code 與 Codex 的權限模式就是此概念，詢問太多或太少都要依任務權衡。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>怎麼依風險決定是否需要人工核准？</li>
+          <li>動作被拒絕時，代理程式應該怎麼做？</li>
+          <li>詢問太多有什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>沙箱與權限</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：防護欄</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：沙箱與權限 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

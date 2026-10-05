@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：多代理的代價與陷阱 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="先算清楚再決定">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜多代理 · 第 37 課</div>
+      <h1>多代理的代價與陷阱</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>估算多代理的 token 與成本</li>
+          <li>認識多代理常見的失敗</li>
+          <li>判斷任務是否適合多代理</li>
+        </ul>
+      </div>
+
+      <p>
+        多代理聽起來很厲害，但代價實在。Anthropic 分享研究系統的經驗時提到：代理通常比一般聊天多用約 4 倍 token，多代理系統更可達約 15 倍。效果確實更好，但只有在任務價值夠高時才划算。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>陷阱</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>token 倍增</td><td>每個代理都要讀背景、自己探索</td></tr>
+          <tr><td>協調失誤</td><td>子任務重疊、遺漏，或彼此結論矛盾</td></tr>
+          <tr><td>資訊遺失</td><td>摘要時丟掉了關鍵細節</td></tr>
+          <tr><td>除錯困難</td><td>出錯時要追蹤好幾個代理的軌跡</td></tr>
+          <tr><td>緊密相依的任務</td><td>多個代理同時改同一段程式，容易互相衝突</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        判斷原則：<strong>子任務彼此獨立、可平行、資訊量大</strong>（研究、大量檔案審查）適合多代理；<strong>步驟緊密相依、需要共享大量上下文</strong>（例如一起改同一個功能的程式碼）通常單一代理更好。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/f37_costs.py" download>下載 f37_costs.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        同一個任務，比較單一代理與「一個協調者＋六個工作者」的 token 與成本。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 37 課：多代理的代價——token 用量會倍增，協調也會出錯。先算清楚再決定。"""
+
+PRICE = {"claude-opus-5-5": (4.0, 20.0), "claude-sonnet-5-5": (2.0, 10.0), "claude-haiku-4-5": (1.0, 5.0)}   # 美元／百萬 tokens
+
+def cost(model, inp, out):
+    pi, po = PRICE[model]
+    return (inp * pi + out * po) / 1e6
+
+def agent_run(model, turns, base_ctx, growth, out_per_turn):
+    """一個代理跑 turns 輪：每輪重送整段上下文，上下文每輪增加 growth。"""
+    inp = sum(base_ctx + growth * t for t in range(turns))
+    return cost(model, inp, out_per_turn * turns), inp + out_per_turn * turns
+
+single, st = agent_run("claude-opus-5-5", 30, 8000, 3000, 800)
+print("單一代理（Opus 5.5，30 輪）：%7.2f 美元，%9d tokens" % (single, st))
+
+orch, ot = agent_run("claude-opus-5-5", 10, 8000, 2000, 800)
+# 每個工作者都要重新讀背景資料、自己探索，所以各自的上下文也會長大
+workers = [agent_run("claude-sonnet-5-5", 20, 8000, 3000, 800) for _ in range(6)]
+multi = orch + sum(c for c, _ in workers)
+mt = ot + sum(t for _, t in workers)
+print("多代理（Opus 協調 + 6 個 Sonnet 工作者）：%5.2f 美元，%9d tokens" % (multi, mt))
+print("\ntoken 是單一代理的 %.1f 倍；工作者改用較便宜的模型，成本只是 %.1f 倍。值得嗎？看任務：" % (mt / st, multi / single))
+for k, v in [("✓ 適合", "可平行、彼此獨立、資訊量大（研究、大量檔案審查）"),
+             ("✗ 不適合", "步驟緊密相依、需要共享大量上下文（例如：多人同時改同一段程式碼）")]:
+    print("  %s：%s" % (k, v))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">單一代理（Opus 5.5，30 輪）：   6.66 美元，  1569000 tokens&#10;多代理（Opus 協調 + 6 個 Sonnet 工作者）：10.56 美元，  4654000 tokens&#10;&#10;token 是單一代理的 3.0 倍；工作者改用較便宜的模型，成本只是 1.6 倍。值得嗎？看任務：&#10;  ✓ 適合：可平行、彼此獨立、資訊量大（研究、大量檔案審查）&#10;  ✗ 不適合：步驟緊密相依、需要共享大量上下文（例如：多人同時改同一段程式碼）</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          多代理的代價包括 token 倍增、協調失誤、摘要遺失資訊與除錯困難；Anthropic 經驗是代理約為聊天的 4 倍 token、多代理約 15 倍。子任務獨立、可平行、資訊量大時才適合，步驟緊密相依的任務用單一代理較好。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>多代理有哪些常見陷阱？</li>
+          <li>什麼樣的任務適合多代理？</li>
+          <li>為什麼多人同時改同一段程式碼不適合多代理？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>結構化輸出</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：評估者與優化者</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：結構化輸出 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

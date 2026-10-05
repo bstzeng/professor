@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：上下文工程 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="放什麼、放多少、什麼時候放">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶與知識 · 第 26 課</div>
+      <h1>上下文工程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解上下文工程與提示工程的差別</li>
+          <li>運用按需載入與結果截斷</li>
+          <li>依優先順序安排有限的上下文</li>
+        </ul>
+      </div>
+
+      <p>
+        提示工程關心「怎麼寫指令」；<strong>上下文工程</strong>（context engineering）關心更大的問題：在有限的視窗裡，每一輪該讓模型看到<strong>什麼資訊</strong>。對長時間執行的代理，這往往比措辭更重要。
+      </p>
+
+      <ul>
+        <li><strong>按需載入（just-in-time）</strong>：不要一開始就塞進整個專案；只放檔案索引，讓代理用工具讀需要的部分。Claude Code 就是這樣：用 grep、glob 找，再讀相關檔案。</li>
+        <li><strong>結果截斷</strong>：工具輸出太長就保留頭尾，並告訴模型被截斷了、怎麼看更多。</li>
+        <li><strong>優先順序</strong>：系統指示與任務最重要，相關的程式碼與錯誤訊息次之，背景資料最後。</li>
+        <li><strong>子代理</strong>：大量閱讀交給子代理，只帶回摘要（第 33 課）。</li>
+        <li><strong>結構化筆記</strong>：讓代理把進度寫進檔案，需要時再讀（第 51 課）。</li>
+      </ul>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/d26_context_eng.py" download>下載 d26_context_eng.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        同一個專案，比較「全部塞進去」與「只放索引」的 token 數，示範結果截斷與依優先順序裝箱。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 26 課：上下文工程——在有限的視窗裡，決定「放什麼、放多少、什麼時候放」。
+技巧：① 只放索引、需要時再載入（just-in-time） ② 工具結果截斷  ③ 依優先順序裝箱  ④ 重要指示放在固定位置"""
+from mockllm import count_tokens
+
+REPO = {"src/auth.py": "def login(user, pw):\n    ...\n" * 300,
+        "src/db.py": "class DB:\n    ...\n" * 500,
+        "src/ui.py": "def render():\n    ...\n" * 800,
+        "README.md": "# 專案說明\n安裝步驟……\n" * 50}
+
+# ❌ 天真做法：把整個專案塞進去
+naive = "\n".join("=== %s ===\n%s" % kv for kv in REPO.items())
+print("天真做法：%d tokens" % count_tokens(naive))
+
+# ✓ 只放檔案索引（路徑＋大小），讓代理用 read_file 工具按需讀取
+index = "\n".join("%s（%d 行）" % (p, c.count("\n")) for p, c in REPO.items())
+print("只放索引：%d tokens →\n%s" % (count_tokens(index), index))
+
+def truncate(output, limit=200):
+    """工具結果太長時保留頭尾，並告訴模型被截斷了、怎麼看更多。"""
+    if count_tokens(output) &lt;= limit:
+        return output
+    lines = output.splitlines()
+    return "\n".join(lines[:5] + ["…（省略 %d 行，可用 read_file(path, start, end) 讀指定範圍）…" % (len(lines) - 10)] + lines[-5:])
+
+print("\n讀取 src/db.py 的結果（截斷後）：%d tokens" % count_tokens(truncate(REPO["src/db.py"])))
+
+def pack(items, budget):
+    """依優先順序裝箱：先放最重要的，放不下就跳過。"""
+    out, used = [], 0
+    for prio, name, content in sorted(items):
+        t = count_tokens(content)
+        if used + t &lt;= budget:
+            out.append(name)
+            used += t
+    return out, used
+
+items = [(0, "系統指示", "你是程式代理" * 50), (1, "任務說明", "修好登入錯誤" * 20),
+         (2, "auth.py", REPO["src/auth.py"]), (3, "相關測試失敗訊息", "AssertionError" * 30),
+         (4, "db.py", REPO["src/db.py"]), (5, "ui.py", REPO["src/ui.py"])]
+print("在 4000 tokens 預算內放入：%s（%d tokens）" % pack(items, 4000))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">天真做法：9319 tokens&#10;只放索引：26 tokens →&#10;src/auth.py（600 行）&#10;src/db.py（1000 行）&#10;src/ui.py（1600 行）&#10;README.md（100 行）&#10;&#10;讀取 src/db.py 的結果（截斷後）：44 tokens&#10;在 4000 tokens 預算內放入：['系統指示', '任務說明', 'auth.py', '相關測試失敗訊息']（2700 tokens）</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/d26_context_eng.py" download>下載 d26_context_eng.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 26 課（Claude API 版）：context editing（beta）——自動清除較舊的工具結果，讓長時間執行的代理保持精簡。&#10;與 compaction（摘要）不同：它是直接剪掉，不是濃縮。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;tools = [{"name": "read_file", "description": "讀取檔案；可指定行號範圍以免結果過長",&#10;          "input_schema": {"type": "object", "properties": {"path": {"type": "string"},&#10;                                                            "start": {"type": "integer"}, "end": {"type": "integer"}},&#10;                           "required": ["path"]}}]&#10;r = client.beta.messages.create(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    betas=["context-management-2025-06-27"],&#10;    context_management={"edits": [{"type": "clear_tool_uses_20250919"}]},&#10;    system="專案檔案索引：\nsrc/auth.py（600 行）\nsrc/db.py（1000 行）\n需要時用 read_file 讀取，只讀需要的範圍。",&#10;    tools=tools,&#10;    messages=[{"role": "user", "content": "登入失敗的錯誤可能在哪裡？"}],&#10;)&#10;for b in r.content:&#10;    print(b.type, getattr(b, "input", "") or getattr(b, "text", ""))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          上下文工程決定每輪讓模型看到什麼：按需載入（只放索引、用工具讀取）、截斷過長結果、依優先順序安排、把大量閱讀交給子代理、把進度寫成筆記。對長時間代理，這往往比提示措辭更重要。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>上下文工程和提示工程有什麼不同？</li>
+          <li>什麼是按需載入？舉一個例子。</li>
+          <li>截斷工具結果時，應該告訴模型什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>執行程式碼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：提示快取</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：執行程式碼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

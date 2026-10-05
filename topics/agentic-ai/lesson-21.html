@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：對話歷史管理：截斷與摘要 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="記憶太長時的取捨">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶與知識 · 第 21 課</div>
+      <h1>對話歷史管理：截斷與摘要</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較滑動視窗、摘要、清除舊輸出三種策略</li>
+          <li>理解各策略的取捨</li>
+          <li>認識伺服器端壓縮</li>
+        </ul>
+      </div>
+
+      <p>
+        歷史太長時，有三種基本策略：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>策略</th><th>做法</th><th>優點</th><th>缺點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>滑動視窗</td><td>只保留最近 N 則</td><td>最簡單</td><td>會忘記最初的任務與早期資訊</td></tr>
+          <tr><td>摘要</td><td>把舊對話濃縮成一段重點</td><td>保留脈絡</td><td>可能漏掉細節；摘要本身要花錢</td></tr>
+          <tr><td>清除舊工具輸出</td><td>保留對話骨架，把舊的大段結果換成佔位符</td><td>保留做過什麼</td><td>看不到原文，需要時得重新讀取</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        實務上常組合使用：永遠保留最初的任務說明，清除很舊的工具輸出，接近上限時再做摘要。
+      </p>
+
+      <p>
+        Claude API 提供兩種伺服器端的做法：<strong>compaction</strong>（接近門檻時自動摘要較早的內容）與 <strong>context editing</strong>（自動清除舊的工具結果）。使用 compaction 時要特別注意：回應中的壓縮區塊必須<strong>整個接回歷史</strong>，只存文字會遺失壓縮狀態。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/d21_history.py" download>下載 d21_history.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        同一段 20 則訊息的歷史，比較三種策略後剩下多少 tokens、開頭變成什麼。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 21 課：對話太長怎麼辦？三種策略比較——
+① 滑動視窗：只留最近 N 則  ② 摘要：把舊的濃縮成一段  ③ 清除舊工具結果：保留骨架、丟掉大段輸出"""
+from mockllm import MockClient, text, count_tokens
+
+history = []
+for i in range(1, 11):
+    history += [{"role": "user", "content": "第 %d 個問題：請分析 log_%d" % (i, i)},
+                {"role": "assistant", "content": "（分析了 log_%d 的 2000 行輸出……）" % i + "細節" * 300}]
+print("原始：%d 則訊息，約 %d tokens" % (len(history), count_tokens(history)))
+
+def sliding_window(h, keep=4):
+    return h[-keep:]
+
+summarizer = MockClient(lambda ctx: text("【先前摘要】使用者請我依序分析 log_1～log_8，已完成；重點：log_3 有逾時、log_7 有記憶體不足。"))
+
+def summarize(h, keep=4):
+    old, recent = h[:-keep], h[-keep:]
+    s = summarizer.messages.create(model="mock", max_tokens=300, system="把對話濃縮成要點",
+                                   messages=[{"role": "user", "content": str(old)}]).content[0].text
+    return [{"role": "user", "content": s}, {"role": "assistant", "content": "了解，我記得先前的重點。"}] + recent
+
+def clear_old_outputs(h, keep=4):
+    out = []
+    for i, m in enumerate(h):
+        if i &lt; len(h) - keep and m["role"] == "assistant":
+            m = {"role": "assistant", "content": "[舊的工具輸出已清除]"}
+        out.append(m)
+    return out
+
+for name, fn in [("滑動視窗", sliding_window), ("摘要", summarize), ("清除舊輸出", clear_old_outputs)]:
+    h = fn(history)
+    print("%-6s → %2d 則，約 %5d tokens｜開頭：%s" % (name, len(h), count_tokens(h), h[0]["content"][:30]))
+print("\n取捨：滑動視窗最簡單但會『失憶』；摘要保留重點但可能漏細節；清除輸出保留脈絡但看不到原文。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">原始：20 則訊息，約 6408 tokens&#10;滑動視窗   →  4 則，約  1282 tokens｜開頭：第 9 個問題：請分析 log_9&#10;摘要     →  6 則，約  1352 tokens｜開頭：【先前摘要】使用者請我依序分析 log_1～log_8，已完&#10;清除舊輸出  → 20 則，約  1582 tokens｜開頭：第 1 個問題：請分析 log_1&#10;&#10;取捨：滑動視窗最簡單但會『失憶』；摘要保留重點但可能漏細節；清除輸出保留脈絡但看不到原文。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/d21_history.py" download>下載 d21_history.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 21 課（Claude API 版）：伺服器端壓縮（compaction，beta）。對話接近門檻時，API 自動摘要較早的內容。&#10;重點：一定要把 response.content「整個」接回歷史，壓縮區塊才會被保留。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;messages = []&#10;&#10;&#10;def chat(user_message):&#10;    messages.append({"role": "user", "content": user_message})&#10;    r = client.beta.messages.create(&#10;        betas=["compact-2026-01-12"],&#10;        model="claude-opus-5-5",&#10;        max_tokens=16000,&#10;        messages=messages,&#10;        context_management={"edits": [{"type": "compact_20260112"}]},&#10;    )&#10;    messages.append({"role": "assistant", "content": r.content})   # 不要只存文字！&#10;    return next(b.text for b in r.content if b.type == "text")&#10;&#10;&#10;print(chat("幫我規劃一個 Python 網路爬蟲"))&#10;print(chat("加上處理 JavaScript 動態頁面的功能"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          管理過長歷史的三種策略：滑動視窗（簡單但會失憶）、摘要（保留脈絡但可能漏細節）、清除舊工具輸出（保留骨架但看不到原文），常組合使用。Claude API 提供伺服器端的 compaction 與 context editing。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>三種歷史管理策略各有什麼缺點？</li>
+          <li>為什麼最初的任務說明通常要永遠保留？</li>
+          <li>使用伺服器端壓縮時要注意什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>嵌入向量與相似度</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：上下文視窗：代理的工作記憶</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：嵌入向量與相似度 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
