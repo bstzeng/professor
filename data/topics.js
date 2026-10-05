@@ -18289,6 +18289,125 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "us-history",
+      category: "history",
+      title: "美國歷史：從殖民地到超級強權",
+      description:
+        "從原住民的北美洲與十三個殖民地講起：獨立革命、制憲與權利法案；西部擴張、血淚之路與美墨戰爭；奴隸制度、南北戰爭與重建；工業化、移民潮與排華法案、進步主義；兩次世界大戰、經濟大恐慌與新政；冷戰、民權運動、越戰與水門案；雷根、九一一、金融海嘯到兩極化的當代政治。並附歷任總統表，以及領土擴張、時間軸、選舉人團模擬器與憲法修正案導覽等互動工具。",
+      icon: "🇺🇸",
+      url: "topics/us-history/index.html",
+      resources: [
+        {
+          title: "美國歷史互動工具",
+          description: "領土擴張、歷史時間軸、選舉人團模擬器、憲法修正案導覽",
+          icon: "🗺️",
+          url: "topics/us-history/guide.html"
+        },
+        {
+          title: "美國歷任總統",
+          description: "第 1 任到第 47 任總統的任期與政黨",
+          icon: "🏛️",
+          url: "topics/us-history/presidents.html"
+        },
+        {
+          title: "美國歷史名詞速查",
+          description: "殖民與建國、內戰與重建、二十世紀的常用名詞",
+          icon: "📖",
+          url: "topics/us-history/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜歐洲人到來之前與殖民時代",
+          courses: [
+            { title: "原住民的北美洲", url: "topics/us-history/lesson-01.html" },
+            { title: "歐洲列強的爭奪", url: "topics/us-history/lesson-02.html" },
+            { title: "詹姆斯鎮與普利茅斯", url: "topics/us-history/lesson-03.html" },
+            { title: "十三個殖民地", url: "topics/us-history/lesson-04.html" },
+            { title: "奴隸制度的建立", url: "topics/us-history/lesson-05.html" },
+            { title: "法國印第安戰爭", url: "topics/us-history/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜獨立革命與建國",
+          courses: [
+            { title: "「無代表，不納稅」", url: "topics/us-history/lesson-07.html" },
+            { title: "《獨立宣言》", url: "topics/us-history/lesson-08.html" },
+            { title: "獨立戰爭", url: "topics/us-history/lesson-09.html" },
+            { title: "邦聯條例的失敗", url: "topics/us-history/lesson-10.html" },
+            { title: "1787 年制憲會議", url: "topics/us-history/lesson-11.html" },
+            { title: "聯邦黨與反聯邦黨", url: "topics/us-history/lesson-12.html" },
+            { title: "第一批總統與兩黨的誕生", url: "topics/us-history/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜擴張的共和國",
+          courses: [
+            { title: "路易斯安那購地與西部探險", url: "topics/us-history/lesson-14.html" },
+            { title: "1812 年戰爭與「好感時代」", url: "topics/us-history/lesson-15.html" },
+            { title: "傑克森民主與血淚之路", url: "topics/us-history/lesson-16.html" },
+            { title: "天命論與美墨戰爭", url: "topics/us-history/lesson-17.html" },
+            { title: "第二次大覺醒與改革運動", url: "topics/us-history/lesson-18.html" },
+            { title: "北方的工廠，南方的棉花", url: "topics/us-history/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜南北戰爭與重建",
+          courses: [
+            { title: "奴隸制度的擴張之爭", url: "topics/us-history/lesson-20.html" },
+            { title: "林肯當選與南方脫離聯邦", url: "topics/us-history/lesson-21.html" },
+            { title: "南北戰爭（一）：從桑特堡到蓋茨堡", url: "topics/us-history/lesson-22.html" },
+            { title: "南北戰爭（二）：解放與勝利", url: "topics/us-history/lesson-23.html" },
+            { title: "重建時期", url: "topics/us-history/lesson-24.html" },
+            { title: "重建的失敗與吉姆·克勞", url: "topics/us-history/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜工業巨人與西部",
+          courses: [
+            { title: "鐵路、鋼鐵與石油", url: "topics/us-history/lesson-26.html" },
+            { title: "西部的終結", url: "topics/us-history/lesson-27.html" },
+            { title: "移民潮與城市", url: "topics/us-history/lesson-28.html" },
+            { title: "鍍金年代與勞工運動", url: "topics/us-history/lesson-29.html" },
+            { title: "進步主義時代", url: "topics/us-history/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜走向世界：兩次大戰之間",
+          courses: [
+            { title: "美西戰爭與海外擴張", url: "topics/us-history/lesson-31.html" },
+            { title: "第一次世界大戰", url: "topics/us-history/lesson-32.html" },
+            { title: "咆哮的二〇年代", url: "topics/us-history/lesson-33.html" },
+            { title: "經濟大恐慌", url: "topics/us-history/lesson-34.html" },
+            { title: "羅斯福新政", url: "topics/us-history/lesson-35.html" },
+            { title: "第二次世界大戰", url: "topics/us-history/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜冷戰與民權運動",
+          courses: [
+            { title: "冷戰的開始", url: "topics/us-history/lesson-37.html" },
+            { title: "韓戰、古巴飛彈危機與太空競賽", url: "topics/us-history/lesson-38.html" },
+            { title: "民權運動（一）", url: "topics/us-history/lesson-39.html" },
+            { title: "民權運動（二）", url: "topics/us-history/lesson-40.html" },
+            { title: "越戰與反戰運動", url: "topics/us-history/lesson-41.html" },
+            { title: "1960～70 年代的社會變革", url: "topics/us-history/lesson-42.html" },
+            { title: "水門案", url: "topics/us-history/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜當代美國",
+          courses: [
+            { title: "雷根時代與冷戰結束", url: "topics/us-history/lesson-44.html" },
+            { title: "1990 年代", url: "topics/us-history/lesson-45.html" },
+            { title: "九一一事件、反恐戰爭與金融海嘯", url: "topics/us-history/lesson-46.html" },
+            { title: "歐巴馬、川普與兩極化的政治", url: "topics/us-history/lesson-47.html" },
+            { title: "總結：美國歷史的幾條主線", url: "topics/us-history/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
