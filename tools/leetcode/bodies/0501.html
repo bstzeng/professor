@@ -1,0 +1,139 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given the <code>root</code> of a binary search tree (BST) with duplicates, return <em>all the <a href="https://en.wikipedia.org/wiki/Mode_(statistics)" target="_blank">mode(s)</a> (i.e., the most frequently occurred element) in it</em>.</p>
+          <p>If the tree has more than one mode, return them in <strong>any order</strong>.</p>
+          <p>Assume a BST is defined as follows:</p>
+        <ul>
+          <li>The left subtree of a node contains only nodes with keys <strong>less than or equal to</strong> the node&#39;s key.</li>
+          <li>The right subtree of a node contains only nodes with keys <strong>greater than or equal to</strong> the node&#39;s key.</li>
+          <li>Both the left and right subtrees must also be binary search trees.</li>
+        </ul>
+          <p><strong>Follow up:</strong> Could you do that without using any extra space? (Assume that the implicit stack space incurred due to recursion does not count).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一棵<strong>允許重複值</strong>的二元搜尋樹（BST）的根節點，找出所有<strong>眾數</strong>（出現次數最多的值）。若有多個，以任意順序回傳。</p>
+          <p>這裡的 BST 定義：左子樹的值都 <strong>≤</strong> 節點值，右子樹的值都 <strong>≥</strong> 節點值。</p>
+          <p><strong>進階：</strong>能不用額外空間嗎？（遞迴的呼叫堆疊不算）</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：root = [1,null,2,2]
+  輸出：[2]
+
+範例 2
+  輸入：root = [0]
+  輸出：[0]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li>節點數在 <code>[1, 10⁴]</code> 範圍內</li>
+          <li><code>-10⁵ ≤ Node.val ≤ 10⁵</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/find-mode-in-binary-search-tree/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【一般二元樹的做法】
+    用雜湊表數每個值出現幾次，取最大的。O(n) 空間。
+
+【利用 BST 的性質】
+    BST 的中序走訪 = 由小到大排好的序列。
+    排序後，相同的值一定擠在一起 -&gt; 像在排序陣列上數「連續段」：
+        prev：上一個值
+        run ：目前這一段的長度
+        best：目前最長的長度
+    run &gt; best -&gt; 清空答案，只放這個值
+    run == best -&gt; 加進答案
+    只用幾個變數，不需要雜湊表。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>雜湊表計數（任何二元樹都適用）</h3>
+        <div class="code-block">class Solution:
+    def findMode(self, root: Optional[TreeNode]) -&gt; List[int]:
+        cnt = Counter()
+        def dfs(nd):
+            if nd:
+                cnt[nd.val] += 1
+                dfs(nd.left); dfs(nd.right)
+        dfs(root)
+        best = max(cnt.values())
+        return [v for v, c in cnt.items() if c == best]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>中序走訪 + 連續段計數</h3>
+        <div class="code-block">class Solution:
+    def findMode(self, root: Optional[TreeNode]) -&gt; List[int]:
+        res, best = [], 0
+        prev, run = None, 0              # 中序走訪時「上一個值」與它目前連續出現的次數
+
+        def visit(v):
+            nonlocal prev, run, best, res
+            run = run + 1 if v == prev else 1   # ★ BST 中序是有序的，相同值一定相鄰
+            prev = v
+            if run &gt; best:
+                best, res = run, [v]
+            elif run == best:
+                res.append(v)
+
+        def inorder(nd):
+            if nd:
+                inorder(nd.left)
+                visit(nd.val)
+                inorder(nd.right)
+
+        inorder(root)
+        return res</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(h)</td><td>只有遞迴堆疊</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>只有一個節點</strong> → 答案就是它。</li>
+          <li><strong>所有值都不同</strong> → 每個值都是眾數，全部回傳。</li>
+          <li><strong>更新 best 時要清空舊答案</strong> → 不能只 append。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>真正的 O(1) 空間？</h3>
+
+        <div class="code-block">遞迴堆疊仍是 O(h)。要做到 O(1)，可以用 Morris 中序走訪（第 99 題、第 94 題的進階）：暫時把前驅節點的右指標接回自己，走完再還原。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 94 題 二元樹的中序走訪</strong></li>
+          <li><strong>第 530 題 BST 的最小絕對差</strong></li>
+          <li><strong>第 98 題 驗證二元搜尋樹</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 BST 中相同的值在中序序列裡一定相鄰？</li>
+            <li>run 超過 best 時答案要怎麼更新？</li>
+          </ol>
+        </div>

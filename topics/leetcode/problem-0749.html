@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>749. Contain Virus 隔離病毒 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="照規則模擬：每天找出所有感染區域，替「下一輪威脅最多健康格」的區域築牆，其他區域往外擴散一格。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="749">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 749 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 749</div>
+          <h1>Contain Virus<br>隔離病毒</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">矩陣</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A virus is spreading rapidly, and your task is to quarantine the infected area by installing walls.</p>
+          <p>The world is modeled as an <code>m x n</code> binary grid <code>isInfected</code>, where <code>isInfected[i][j] == 0</code> represents uninfected cells, and <code>isInfected[i][j] == 1</code> represents cells contaminated with the virus. A wall (and only one wall) can be installed between any two <strong>4-directionally</strong> adjacent cells, on the shared boundary.</p>
+          <p>Every night, the virus spreads to all neighboring cells in all four directions unless blocked by a wall. Resources are limited. Each day, you can install walls around only one region (i.e., the affected area (continuous block of infected cells) that threatens the most uninfected cells the following night). There <strong>will never be a tie</strong>.</p>
+          <p>Return <em>the number of walls used to quarantine all the infected regions</em>. If the world will become fully infected, return the number of walls used.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><code>isInfected</code> 是一個世界地圖：<code>1</code> 是感染區、<code>0</code> 是健康區。病毒每晚會擴散到所有與感染區四方向相鄰的健康格，除非中間有牆。</p>
+          <p>每天你只能替<strong>一個</strong>感染區域（連通塊）築牆，把它完全圍起來：選擇下一晚會感染最多健康格的那個區域（題目保證不會平手）。</p>
+          <p>回傳總共需要的牆數；若整個世界都會被感染，回傳到那時為止用的牆數。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：isInfected = [[0,1,0,0,0,0,0,1],[0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0]]
+  輸出：10
+
+範例 2
+  輸入：isInfected = [[1,1,1],[1,0,1],[1,1,1]]
+  輸出：4
+
+範例 3
+  輸入：isInfected = [[1,1,1,0,0,0,0,0,0],[1,0,1,0,1,1,1,1,1],[1,1,1,0,0,0,0,0,0]]
+  輸出：13</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == isInfected.length</code></li>
+          <li><code>n == isInfected[i].length</code></li>
+          <li><code>1 ≤ m, n ≤ 50</code></li>
+          <li><code>isInfected[i][j]</code> is either <code>0</code> or <code>1</code>.</li>
+          <li>There is always a contiguous viral region throughout the described process that will <strong>infect strictly more uncontaminated squares</strong> in the next round.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/contain-virus/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【每一天的流程】
+    1. 找出所有感染區域（連通塊，不含已隔離的）。
+       對每個區域記錄：
+           frontier：它下一晚會感染的健康格（集合，去重）
+           walls：它需要的牆數 = 區域格與健康格相鄰的「邊」數
+                  （同一個健康格可能被兩條邊碰到，各要一道牆）
+    2. 選 frontier 最大的區域，加上它的 walls，把它標記為已隔離（-1）。
+    3. 其他區域的 frontier 全部變成感染。
+    4. 沒有區域或沒有任何威脅時結束。
+
+【注意兩個量的差別】
+    「威脅」看的是健康格的個數（去重），
+    「牆」看的是邊的個數（不去重）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>逐日模擬</h3>
+        <div class="code-block">class Solution:
+    def containVirus(self, isInfected: List[List[int]]) -&gt; int:
+        g = isInfected
+        m, n = len(g), len(g[0])
+        walls = 0
+        while True:
+            regions, frontiers, wall_counts = [], [], []
+            seen = set()
+            for i in range(m):
+                for j in range(n):
+                    if g[i][j] == 1 and (i, j) not in seen:
+                        cells, front, w = [], set(), 0
+                        stack = [(i, j)]
+                        seen.add((i, j))
+                        while stack:                        # 找出一個感染區域
+                            x, y = stack.pop()
+                            cells.append((x, y))
+                            for a, b in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+                                if 0 &lt;= a &lt; m and 0 &lt;= b &lt; n:
+                                    if g[a][b] == 0:
+                                        front.add((a, b))   # 下一輪會被感染的格子
+                                        w += 1              # 每一個相鄰的「區域-健康格」邊界都要一道牆
+                                    elif g[a][b] == 1 and (a, b) not in seen:
+                                        seen.add((a, b))
+                                        stack.append((a, b))
+                        regions.append(cells)
+                        frontiers.append(front)
+                        wall_counts.append(w)
+            if not regions:
+                return walls
+            k = max(range(len(regions)), key=lambda t: len(frontiers[t]))   # ★ 威脅最大的區域
+            if not frontiers[k]:
+                return walls
+            walls += wall_counts[k]
+            for x, y in regions[k]:
+                g[x][y] = -1                                # 被隔離，之後不再擴散
+            for t, front in enumerate(frontiers):
+                if t != k:
+                    for x, y in front:
+                        g[x][y] = 1                         # 其他區域擴散一格</div>
+        <p>驗證方式：題目三個範例（含區域內部被包住的健康格需要 4 道牆的情況）。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O((mn)²)</td><td>每輪 O(mn)；每輪至少隔離一個區域，輪數不超過 mn（寬鬆上界）</td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>同一健康格被一個區域從兩邊碰到</strong> → 威脅算 1 格，牆算 2 道。</li>
+          <li><strong>已隔離的區域</strong> → 之後完全忽略。</li>
+          <li><strong>全部被感染</strong> → 沒有 frontier，結束。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>模擬題的技巧</h3>
+
+        <div class="code-block">把每一輪需要的資訊（區域、邊界、牆數）一次收集完，再統一更新地圖——邊收集邊修改很容易互相干擾。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 200 題 島嶼數量</strong></li>
+          <li><strong>第 994 題 腐爛的橘子</strong></li>
+          <li><strong>第 463 題 島嶼的周長</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>威脅數和牆數為什麼不一樣？</li>
+            <li>為什麼要先收集完所有區域資訊再更新地圖？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0748.html">← 上一題：748. 最短補全詞</a>
+          <a href="problem-0752.html">下一題：752. 打開轉盤鎖 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

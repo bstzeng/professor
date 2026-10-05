@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>535. Encode and Decode TinyURL TinyURL 的加密與解密 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="系統設計小題：隨機短碼 + 兩個雜湊表，處理碰撞與重複網址；比較自增 ID、雜湊等方案。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="535">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 535 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 535</div>
+          <h1>Encode and Decode TinyURL<br>TinyURL 的加密與解密</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">設計</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">雜湊函數</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p><blockquote>Note: This is a companion problem to the <a href="https://leetcode.com/discuss/interview-question/system-design/" target="_blank">System Design</a> problem: <a href="https://leetcode.com/discuss/interview-question/124658/Design-a-URL-Shortener-(-TinyURL-)-System/" target="_blank">Design TinyURL</a>.</blockquote></p>
+          <p>TinyURL is a URL shortening service where you enter a URL such as <code>https://leetcode.com/problems/design-tinyurl</code> and it returns a short URL such as <code>http://tinyurl.com/4e9iAk</code>. Design a class to encode a URL and decode a tiny URL.</p>
+          <p>There is no restriction on how your encode/decode algorithm should work. You just need to ensure that a URL can be encoded to a tiny URL and the tiny URL can be decoded to the original URL.</p>
+          <p>Implement the <code>Solution</code> class:</p>
+        <ul>
+          <li><code>Solution()</code> Initializes the object of the system.</li>
+          <li><code>String encode(String longUrl)</code> Returns a tiny URL for the given <code>longUrl</code>.</li>
+          <li><code>String decode(String shortUrl)</code> Returns the original long URL for the given <code>shortUrl</code>. It is guaranteed that the given <code>shortUrl</code> was encoded by the same object.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>TinyURL 是一個縮網址服務：輸入長網址，得到一個短網址。設計 <code>encode</code>（長→短）和 <code>decode</code>（短→長）。</p>
+          <p>演算法沒有限制，只要短網址能還原成原本的長網址即可。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入：url = "https://leetcode.com/problems/design-tinyurl"
+  輸出："https://leetcode.com/problems/design-tinyurl"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ url.length ≤ 10⁴</code></li>
+          <li><code>url</code> is guranteed to be a valid URL.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/encode-and-decode-tinyurl/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【核心：短碼 -&gt; 長網址 的對照表】
+    decode 只是查表。重點在 encode 怎麼產生短碼。
+
+【方案比較】
+    自增 ID（0, 1, 2…轉 62 進位）：
+        簡單、不會碰撞，但可以被猜出下一個網址、洩漏總量。
+    雜湊（例如取 MD5 前幾位）：
+        同一個網址總是同一個碼，但截短後可能碰撞。
+    隨機 6 碼（62⁶ ≈ 568 億種）：
+        難以猜測；碰撞時重抽即可。
+
+【額外的反查表】
+    url2code：同一個長網址重複編碼時給同一個短碼，不浪費空間。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>隨機短碼 + 雙向雜湊表</h3>
+        <div class="code-block">class Codec:
+    alphabet = string.ascii_letters + string.digits
+
+    def __init__(self):
+        self.code2url = {}
+        self.url2code = {}
+
+    def encode(self, longUrl: str) -&gt; str:
+        if longUrl not in self.url2code:            # 同一個網址重複編碼時回傳相同結果
+            while True:
+                code = "".join(random.choice(self.alphabet) for _ in range(6))   # 62⁶ ≈ 568 億種
+                if code not in self.code2url:       # ★ 碰撞就重抽
+                    break
+            self.code2url[code] = longUrl
+            self.url2code[longUrl] = code
+        return "http://tinyurl.com/" + self.url2code[longUrl]
+
+    def decode(self, shortUrl: str) -&gt; str:
+        return self.code2url[shortUrl.rsplit("/", 1)[1]]</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>encode / decode：O(L)</td><td></td></tr>
+            <tr><td>空間</td><td>O(總網址長度)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>碰撞</strong> → 重抽。</li>
+          <li><strong>同一網址多次編碼</strong> → 回傳同一個短網址。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>真實系統還要考慮</h3>
+
+        <div class="code-block">分散式下如何產生不碰撞的 ID（例如每台機器預先領一段 ID 區間）、過期與刪除、快取熱門短網址、302 轉址與點擊統計。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 380 題 O(1) 插入、刪除與隨機取得</strong></li>
+          <li><strong>第 297 題 二元樹的序列化與反序列化</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>自增 ID 方案有什麼缺點？</li>
+            <li>為什麼要多一張 url2code？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0532.html">← 上一題：532. 陣列中的 k-diff 數對</a>
+          <a href="problem-0537.html">下一題：537. 複數乘法 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

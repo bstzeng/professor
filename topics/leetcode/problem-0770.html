@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>770. Basic Calculator IV 基本計算機 IV ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="遞迴下降解析 + 多項式運算：每個子運算式算成「單項式 → 係數」的字典，加減合併同類項、乘法兩兩相乘；最後依次數與字典序輸出。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="770">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 770 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 770</div>
+          <h1>Basic Calculator IV<br>基本計算機 IV</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">堆疊</span>
+          <span class="lc-badge">遞迴</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">數學</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an expression such as <code>expression = &quot;e + 8 - a + 5&quot;</code> and an evaluation map such as <code>{&quot;e&quot;: 1}</code> (given in terms of <code>evalvars = [&quot;e&quot;]</code> and <code>evalints = [1]</code>), return a list of tokens representing the simplified expression, such as <code>[&quot;-1*a&quot;,&quot;14&quot;]</code></p>
+        <ul>
+          <li>An expression alternates chunks and symbols, with a space separating each chunk and symbol.</li>
+          <li>A chunk is either an expression in parentheses, a variable, or a non-negative integer.</li>
+          <li>A variable is a string of lowercase letters (not including digits.) Note that variables can be multiple letters, and note that variables never have a leading coefficient or unary operator like <code>&quot;2x&quot;</code> or <code>&quot;-x&quot;</code>.</li>
+        </ul>
+          <p>Expressions are evaluated in the usual order: brackets first, then multiplication, then addition and subtraction.</p>
+        <ul>
+          <li>For example, <code>expression = &quot;1 + 2 * 3&quot;</code> has an answer of <code>[&quot;7&quot;]</code>.</li>
+        </ul>
+          <p>The format of the output is as follows:</p>
+        <ul>
+          <li>For each term of free variables with a non-zero coefficient, we write the free variables within a term in sorted order lexicographically. <ul> <li>For example, we would never write a term like <code>&quot;b*a*c&quot;</code>, only <code>&quot;a*b*c&quot;</code>.</li> </ul></li>
+          <li>Terms have degrees equal to the number of free variables being multiplied, counting multiplicity. We write the largest degree terms of our answer first, breaking ties by lexicographic order ignoring the leading coefficient of the term. <ul> <li>For example, <code>&quot;a*a*b*c&quot;</code> has degree <code>4</code>.</li> </ul></li>
+          <li>The leading coefficient of the term is placed directly to the left with an asterisk separating it from the variables (if they exist.) A leading coefficient of 1 is still printed.</li>
+          <li>An example of a well-formatted answer is <code>[&quot;-2*a*a*a&quot;, &quot;3*a*a*b&quot;, &quot;3*b*b&quot;, &quot;4*a&quot;, &quot;5*c&quot;, &quot;-6&quot;]</code>.</li>
+          <li>Terms (including constant terms) with coefficient <code>0</code> are not included. <ul> <li>For example, an expression of <code>&quot;0&quot;</code> has an output of <code>[]</code>.</li> </ul></li>
+        </ul>
+          <p><strong>Note:</strong> You may assume that the given expression is always valid. All intermediate results will be in the range of <code>[-2<sup>31</sup>, 2<sup>31</sup> - 1]</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個運算式（含 <code>+</code>、<code>-</code>、<code>*</code>、括號、非負整數與小寫變數），以及一部分變數的值 <code>evalvars</code>、<code>evalints</code>。代入已知的變數後，把運算式<strong>化簡</strong>成多項式。</p>
+          <p>輸出格式：每一項寫成 <code>"係數*變數*變數..."</code>（變數依字典序排列，係數 1 也要寫），項的順序是<strong>次數高的在前</strong>，同次數依變數序列的字典序；常數項放最後，係數為 0 的項不輸出。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：expression = "e + 8 - a + 5", evalvars = ["e"], evalints = [1]
+  輸出：["-1*a","14"]
+
+範例 2
+  輸入：expression = "e - 8 + temperature - pressure", evalvars = ["e", "temperature"], evalints = [1, 12]
+  輸出：["-1*pressure","5"]
+
+範例 3
+  輸入：expression = "(e + 8) * (e - 8)", evalvars = [], evalints = []
+  輸出：["1*e*e","-64"]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ expression.length ≤ 250</code></li>
+          <li><code>expression</code> consists of lowercase English letters, digits, <code>&#39;+&#39;</code>, <code>&#39;-&#39;</code>, <code>&#39;*&#39;</code>, <code>&#39;(&#39;</code>, <code>&#39;)&#39;</code>, <code>&#39; &#39;</code>.</li>
+          <li><code>expression</code> 開頭與結尾沒有空白</li>
+          <li>All the tokens in <code>expression</code> are separated by a single space.</li>
+          <li><code>0 ≤ evalvars.length ≤ 100</code></li>
+          <li><code>1 ≤ evalvars[i].length ≤ 20</code></li>
+          <li><code>evalvars[i]</code> 只含小寫英文字母</li>
+          <li><code>evalints.length == evalvars.length</code></li>
+          <li><code>-100 ≤ evalints[i] ≤ 100</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/basic-calculator-iv/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【多項式的表示】
+    {單項式: 係數}，單項式用排序後的變數 tuple 表示：
+        3·a·b·b -&gt; {("a","b","b"): 3}
+        常數 5   -&gt; {(): 5}
+
+【運算】
+    加減：同一個鍵的係數相加減（合併同類項）。
+    乘法：兩邊每一項兩兩相乘，變數 tuple 串接後排序，係數相乘。
+
+【解析：運算子優先順序】
+    expr := term (('+'|'-') term)*
+    term := atom ('*' atom)*
+    atom := 數字 | 變數 | '(' expr ')'
+    已知的變數在 atom 就直接換成常數。
+
+【輸出排序】
+    (-次數, 變數 tuple)；過濾係數為 0 的項。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>遞迴下降 + 多項式字典</h3>
+        <div class="code-block">class Solution:
+    def basicCalculatorIV(self, expression: str, evalvars: List[str], evalints: List[int]) -&gt; List[str]:
+        env = dict(zip(evalvars, evalints))
+        # 多項式：{(變數1, 變數2, ...)（排序後的 tuple）: 係數}，常數項的鍵是 ()
+        def add(p, q, sign=1):
+            r = Counter(p)
+            for k, v in q.items():
+                r[k] += sign * v
+            return r
+        def mul(p, q):
+            r = Counter()
+            for k1, v1 in p.items():
+                for k2, v2 in q.items():
+                    r[tuple(sorted(k1 + k2))] += v1 * v2
+            return r
+
+        tokens = re.findall(r"\d+|[a-z]+|[()+\-*]", expression)
+        pos = 0
+        def atom():
+            nonlocal pos
+            t = tokens[pos]
+            pos += 1
+            if t == "(":
+                p = expr()
+                pos += 1                        # 跳過 ')'
+                return p
+            if t.isdigit():
+                return Counter({(): int(t)})
+            if t in env:
+                return Counter({(): env[t]})    # 已知的變數直接代入數值
+            return Counter({(t,): 1})
+        def term():                             # ★ 乘法優先：term 處理連乘
+            nonlocal pos
+            p = atom()
+            while pos &lt; len(tokens) and tokens[pos] == "*":
+                pos += 1
+                p = mul(p, atom())
+            return p
+        def expr():                             # expr 處理加減
+            nonlocal pos
+            p = term()
+            while pos &lt; len(tokens) and tokens[pos] in "+-":
+                sign = 1 if tokens[pos] == "+" else -1
+                pos += 1
+                p = add(p, term(), sign)
+            return p
+
+        poly = expr()
+        # 輸出排序：次數高的在前，同次數依變數的字典序；係數為 0 的不輸出
+        items = sorted(((k, v) for k, v in poly.items() if v), key=lambda kv: (-len(kv[0]), kv[0]))
+        return ["*".join([str(v)] + list(k)) for k, v in items]</div>
+        <p>驗證方式：題目所有範例（含展開後 22 項的長多項式），以及完全相消的 a − a。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(T²)</td><td>T 為多項式的項數；乘法是兩兩相乘</td></tr>
+            <tr><td>空間</td><td>O(T)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>係數為 0</strong> → 不輸出（可能全部消掉，回傳空陣列）。</li>
+          <li><strong>係數 1</strong> → 仍要寫出 "1*a"。</li>
+          <li><strong>變數順序</strong> → b*a 和 a*b 是同一項。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>計算機系列</h3>
+
+        <div class="code-block">第 224 題（加減與括號）、第 227 題（加減乘除）、第 772 題（四則加括號，付費）、本題（符號運算）——一路從數值計算走到電腦代數系統（CAS）的雛形。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 224 題 基本計算機</strong></li>
+          <li><strong>第 227 題 基本計算機 II</strong></li>
+          <li><strong>第 736 題 Lisp 語法解析</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>單項式為什麼要用排序後的 tuple 表示？</li>
+            <li>解析時怎麼處理乘法優先於加減？</li>
+            <li>輸出的排序規則是什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0769.html">← 上一題：769. 最多能完成排序的區塊</a>
+          <a href="problem-0771.html">下一題：771. 寶石與石頭 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>743. Network Delay Time 網路延遲時間 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="單源最短路徑的標準題：Dijkstra 求出從 k 到每個節點的最短時間，答案是其中最大值；有節點到不了就回傳 −1。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="743">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 743 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 743</div>
+          <h1>Network Delay Time<br>網路延遲時間</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">圖</span>
+          <span class="lc-badge">最短路徑</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a network of <code>n</code> nodes, labeled from <code>1</code> to <code>n</code>. You are also given <code>times</code>, a list of travel times as directed edges <code>times[i] = (u<sub>i</sub>, v<sub>i</sub>, w<sub>i</sub>)</code>, where <code>u<sub>i</sub></code> is the source node, <code>v<sub>i</sub></code> is the target node, and <code>w<sub>i</sub></code> is the time it takes for a signal to travel from source to target.</p>
+          <p>We will send a signal from a given node <code>k</code>. Return <em>the <strong>minimum</strong> time it takes for all the</em> <code>n</code> <em>nodes to receive the signal</em>. If it is impossible for all the <code>n</code> nodes to receive the signal, return <code>-1</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>有 <code>n</code> 個網路節點（編號 1～n）。<code>times[i] = (u, v, w)</code> 表示訊號從 u 傳到 v 需要 w 的時間（有向邊）。</p>
+          <p>從節點 <code>k</code> 發出訊號，回傳<strong>所有節點都收到訊號</strong>所需的最短時間；若有節點收不到，回傳 <code>-1</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
+  輸出：2
+
+範例 2
+  輸入：times = [[1,2,1]], n = 2, k = 1
+  輸出：1
+
+範例 3
+  輸入：times = [[1,2,1]], n = 2, k = 2
+  輸出：-1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ k ≤ n ≤ 100</code></li>
+          <li><code>1 ≤ times.length ≤ 6000</code></li>
+          <li><code>times[i].length == 3</code></li>
+          <li><code>1 ≤ u<sub>i</sub>, v<sub>i</sub> ≤ n</code></li>
+          <li><code>u<sub>i</sub> != v<sub>i</sub></code></li>
+          <li><code>0 ≤ w<sub>i</sub> ≤ 100</code></li>
+          <li>All the pairs <code>(u<sub>i</sub>, v<sub>i</sub>)</code> are <strong>unique</strong>. (i.e., no multiple edges.)</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【所有節點都收到 = 最晚收到的那個】
+    答案 = max(從 k 到每個節點的最短距離)。
+
+【Dijkstra（邊權非負）】
+    最小堆積存 (目前距離, 節點)。
+    每次取出距離最小的節點 u：
+        若已經確定過，跳過；
+        否則它的距離就是最短的（之後不可能有更短的路，因為邊權 &gt;= 0），
+        用它更新鄰居。
+
+【為什麼第一次取出就是最短？】
+    堆積裡其他候選的距離都 &gt;= d，
+    經過它們再走非負的邊，只會更長。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>Dijkstra（堆積）</h3>
+        <div class="code-block">class Solution:
+    def networkDelayTime(self, times: List[List[int]], n: int, k: int) -&gt; int:
+        adj = defaultdict(list)
+        for u, v, w in times:
+            adj[u].append((v, w))
+        dist = {}
+        pq = [(0, k)]
+        while pq:
+            d, u = heapq.heappop(pq)
+            if u in dist:
+                continue                        # 已經確定過最短距離
+            dist[u] = d                         # ★ Dijkstra：第一次從堆積取出時，距離就是最短的
+            for v, w in adj[u]:
+                if v not in dist:
+                    heapq.heappush(pq, (d + w, v))
+        return max(dist.values()) if len(dist) == n else -1</div>
+        <p>驗證方式：和 Bellman-Ford（鬆弛 n 輪）比對 1500 組隨機圖。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(E log E)</td><td></td></tr>
+            <tr><td>空間</td><td>O(V + E)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>有節點到不了</strong> → −1。</li>
+          <li><strong>只有一個節點</strong> → 0。</li>
+          <li><strong>邊權為 0</strong> → Dijkstra 仍然正確（非負即可）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>最短路徑演算法比較</h3>
+
+        <div class="code-block">Dijkstra：非負邊權，O(E log V)。Bellman-Ford：可有負邊、能偵測負環，O(VE)。Floyd-Warshall：所有點對，O(V³)。0-1 BFS：邊權只有 0 和 1，O(V + E)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 787 題 K 站中轉內最便宜的航班</strong></li>
+          <li><strong>第 1631 題 最小體力消耗路徑</strong></li>
+          <li><strong>第 1514 題 機率最大的路徑</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>答案為什麼是所有最短距離的最大值？</li>
+            <li>Dijkstra 為什麼要求邊權非負？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0741.html">← 上一題：741. 摘櫻桃</a>
+          <a href="problem-0744.html">下一題：744. 尋找比目標字母大的最小字母 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

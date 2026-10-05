@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>659. Split Array into Consecutive Subsequences 分割陣列為連續子序列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="貪心：每個數優先接到「以 x−1 結尾」的序列後面，接不上才以它開頭新建長度 3 的序列。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="659">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 659 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 659</div>
+          <h1>Split Array into Consecutive Subsequences<br>分割陣列為連續子序列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">堆積（優先佇列）</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an integer array <code>nums</code> that is <strong>sorted in non-decreasing order</strong>.</p>
+          <p>Determine if it is possible to split <code>nums</code> into <strong>one or more subsequences</strong> such that <strong>both</strong> of the following conditions are true:</p>
+        <ul>
+          <li>Each subsequence is a <strong>consecutive increasing sequence</strong> (i.e. each integer is <strong>exactly one</strong> more than the previous integer).</li>
+          <li>All subsequences have a length of <code>3</code><strong> or more</strong>.</li>
+        </ul>
+          <p>Return <code>true</code><em> if you can split </em><code>nums</code><em> according to the above conditions, or </em><code>false</code><em> otherwise</em>.</p>
+          <p>A <strong>subsequence</strong> of an array is a new array that is formed from the original array by deleting some (can be none) of the elements without disturbing the relative positions of the remaining elements. (i.e., <code>[1,3,5]</code> is a subsequence of <code>[<u>1</u>,2,<u>3</u>,4,<u>5</u>]</code> while <code>[1,3,2]</code> is not).</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個<strong>非遞減排序</strong>的整數陣列 <code>nums</code>。判斷能否把它分成一個或多個子序列，使得：</p>
+        <ul>
+          <li>每個子序列都由<strong>連續遞增</strong>的整數組成（每個數比前一個大 1）。</li>
+          <li>每個子序列的長度<strong>至少為 3</strong>。</li>
+        </ul>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,2,3,3,4,5]
+  輸出：true
+
+範例 2
+  輸入：nums = [1,2,3,3,4,4,5,5]
+  輸出：true
+
+範例 3
+  輸入：nums = [1,2,3,4,4,5]
+  輸出：false</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ nums.length ≤ 10⁴</code></li>
+          <li><code>-1000 ≤ nums[i] ≤ 1000</code></li>
+          <li><code>nums</code> 已依非遞減順序排序</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/split-array-into-consecutive-subsequences/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【由小到大處理每個數 x，兩種選擇】
+    A. 接到某個以 x-1 結尾的序列後面
+    B. 以 x 開頭建立新序列
+
+【為什麼優先 A？】
+    新序列需要 x+1、x+2 也存在才能湊滿 3 個，風險高；
+    接到已有序列後面一定不會讓情況變差：
+    如果某個解讓 x 開新序列，而存在以 x-1 結尾的序列，
+    可以把 x 開頭的那整段接到那個序列後面，仍然合法。
+
+【開新序列時直接預約 x+1、x+2】
+    立刻從 cnt 中扣掉，保證新序列長度至少 3；
+    扣不到就失敗。
+
+【兩個計數表】
+    cnt：還沒用的數
+    tail：以某數結尾、已經合法（長度 &gt;= 3）的序列數</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>貪心 + 兩個計數表</h3>
+        <div class="code-block">class Solution:
+    def isPossible(self, nums: List[int]) -&gt; bool:
+        cnt = Counter(nums)                 # 還沒被使用的數
+        tail = Counter()                    # tail[x]：以 x 結尾、長度 &gt;= 3 的子序列數
+        for x in nums:
+            if cnt[x] == 0:
+                continue                    # 已經被之前的新序列用掉
+            cnt[x] -= 1
+            if tail[x - 1]:
+                tail[x - 1] -= 1            # ★ 優先接到已有的序列後面
+                tail[x] += 1
+            elif cnt[x + 1] and cnt[x + 2]:
+                cnt[x + 1] -= 1             # 否則以 x 開頭新建一個長度 3 的序列
+                cnt[x + 2] -= 1
+                tail[x + 2] += 1
+            else:
+                return False                # 既接不上也開不了新的
+        return True</div>
+        <p>驗證方式：和窮舉每個數接到哪個序列或新建序列的搜尋比對 1500 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>[1,2,3,3,4,5]</strong> → True（123、345）。</li>
+          <li><strong>[1,2,3,4,4,5]</strong> → False。</li>
+          <li><strong>重複的數很多</strong> → 會開出多條平行的序列。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>相關</h3>
+
+        <div class="code-block">第 846 題（一手順子）：每組長度固定為 W，從最小的數開始貪心組成順子。本題長度不固定，需要「接上舊的」這個選項。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 846 題 一手順子</strong></li>
+          <li><strong>第 1296 題 劃分陣列為連續數字的集合</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼優先接到已有的序列後面？</li>
+            <li>開新序列時為什麼要立刻扣掉 x+1 和 x+2？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0658.html">← 上一題：658. 找到 K 個最接近的元素</a>
+          <a href="problem-0661.html">下一題：661. 圖片平滑器 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

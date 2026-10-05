@@ -62,3 +62,14 @@ verify-NNNN.py     該題所有 Python 解法的正確性測試（含隨機壓�
 
 題目每 25 題自動分成一組（`meta.GROUP_SIZE`），
 組名像「第 026–050 題」，不需要手動維護。
+
+## 從第 501 題開始的寫法（lcauto）
+
+```
+stmts/NNNN.json      原題英文敘述、範例、限制條件（由 fetchstmts.py 從 doocs/leetcode 轉出）
+stmts/_meta/*.json   em() 記下的題目資料，addmeta.py 會把它們併入 meta.py
+lcauto.py            auto()：由 stmts 自動帶出 en / examples / constraints；em()：emit + 記錄 meta
+```
+
+每個 `cNNN.py` 只寫中文翻譯、思路、解法（含測試）與延伸，呼叫 `em({...})`。
+寫完後依序執行 `python3 addmeta.py`、`python3 gen.py`、`python3 mkindex.py`。

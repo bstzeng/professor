@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>710. Random Pick with Blacklist 黑名單中的隨機數 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="只在 [0, n−|B|) 中隨機；落在這個範圍內的黑名單數，預先映射到範圍外的白名單數。每次 pick 只呼叫一次亂數。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="710">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 710 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 710</div>
+          <h1>Random Pick with Blacklist<br>黑名單中的隨機數</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+          <span class="lc-badge">數學</span>
+          <span class="lc-badge">二分搜尋</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an integer <code>n</code> and an array of <strong>unique</strong> integers <code>blacklist</code>. Design an algorithm to pick a random integer in the range <code>[0, n - 1]</code> that is <strong>not</strong> in <code>blacklist</code>. Any integer that is in the mentioned range and not in <code>blacklist</code> should be <strong>equally likely</strong> to be returned.</p>
+          <p>Optimize your algorithm such that it minimizes the number of calls to the <strong>built-in</strong> random function of your language.</p>
+          <p>Implement the <code>Solution</code> class:</p>
+        <ul>
+          <li><code>Solution(int n, int[] blacklist)</code> Initializes the object with the integer <code>n</code> and the blacklisted integers <code>blacklist</code>.</li>
+          <li><code>int pick()</code> Returns a random integer in the range <code>[0, n - 1]</code> and not in <code>blacklist</code>.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你整數 <code>n</code> 和不重複的黑名單 <code>blacklist</code>。設計 <code>pick()</code>：在 <code>[0, n − 1]</code> 中<strong>不在黑名單</strong>的整數裡均勻隨機選一個。</p>
+          <p>請盡量減少呼叫內建亂數函式的次數。（n 可達 10⁹。）</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入
+  ["Solution", "pick", "pick", "pick", "pick", "pick", "pick", "pick"]
+  [[7, [2, 3, 5]], [], [], [], [], [], [], []]
+  輸出
+  [null, 0, 4, 1, 6, 1, 0, 4]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ n ≤ 10⁹</code></li>
+          <li><code>0 ≤ blacklist.length ≤ min(10⁵, n - 1)</code></li>
+          <li><code>0 ≤ blacklist[i] &lt; n</code></li>
+          <li><code>blacklist</code> 中的元素互不相同</li>
+          <li>最多呼叫 <code>2 * 10⁴</code> 次（<code>pick</code>）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/random-pick-with-blacklist/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【白名單有 W = n - |B| 個】
+    想要在 [0, W) 中均勻選一個「編號」，再對應到白名單的某個數。
+
+【映射】
+    [0, W) 中的數若不在黑名單 -&gt; 對應自己。
+    [0, W) 中的黑名單數有 t 個，
+    而 [W, n) 中恰好有 t 個白名單數（數量剛好互補）。
+    把它們一一配對：黑名單 b -&gt; 範圍外的白名單 w。
+
+【pick】
+    x = 隨機 [0, W)，回傳 remap.get(x, x)。
+    一次亂數、O(1)。
+
+【空間】
+    只為黑名單建映射，O(|B|)，不受 n = 10⁹ 影響。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>範圍縮減 + 黑名單重映射</h3>
+        <div class="code-block">class Solution:
+    def __init__(self, n: int, blacklist: List[int]):
+        self.bound = n - len(blacklist)         # 只在 [0, bound) 中隨機
+        black = set(blacklist)
+        self.remap = {}
+        w = self.bound                          # 從 [bound, n) 中找白名單的數
+        for b in blacklist:
+            if b &lt; self.bound:                  # ★ 落在隨機範圍內的黑名單，映射到範圍外的白名單數
+                while w in black:
+                    w += 1
+                self.remap[b] = w
+                w += 1
+
+    def pick(self) -&gt; int:
+        x = random.randrange(self.bound)
+        return self.remap.get(x, x)</div>
+        <p>驗證方式：小規模時檢查每個白名單數都會被選到、黑名單數不會出現；六萬次抽樣檢查分布均勻。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>建構 O(|B|)，pick O(1)</td><td></td></tr>
+            <tr><td>空間</td><td>O(|B|)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>黑名單全在 [W, n)</strong> → 不需要映射。</li>
+          <li><strong>黑名單為空</strong> → 直接在 [0, n) 隨機。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>為什麼不用拒絕抽樣？</h3>
+
+        <div class="code-block">隨機到黑名單就重抽：黑名單佔大部分時期望要抽很多次。本題要求減少亂數呼叫，映射法保證每次只抽一次。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 519 題 隨機翻轉矩陣</strong></li>
+          <li><strong>第 380 題 O(1) 時間插入、刪除和取得隨機元素</strong></li>
+          <li><strong>第 528 題 按權重隨機選擇</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>[0, W) 中的黑名單數和 [W, n) 中的白名單數為什麼一樣多？</li>
+            <li>pick 為什麼只需要一次亂數？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0709.html">← 上一題：709. 轉換成小寫字母</a>
+          <a href="problem-0712.html">下一題：712. 兩個字串的最小 ASCII 刪除和 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

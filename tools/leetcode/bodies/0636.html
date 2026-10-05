@@ -1,0 +1,118 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>On a <strong>single-threaded</strong> CPU, we execute a program containing <code>n</code> functions. Each function has a unique ID between 0 and <code>n - 1</code>.</p>
+          <p>Function calls are <strong>stored in a <a href="https://en.wikipedia.org/wiki/Call_stack">call stack</a></strong>: when a function call starts, its ID is pushed onto the stack, and when a function call ends, its ID is popped off the stack. The function whose ID is at the top of the stack is <strong>the current function being executed</strong>. Each time a function starts or ends, we write a log with the ID, whether it started or ended, and the timestamp.</p>
+          <p>You are given a list <code>logs</code>, where <code>logs[i]</code> represents the <code>i<sup>th</sup></code> log message formatted as a string <code>&quot;{function_id}:{&quot;start&quot; | &quot;end&quot;}:{timestamp}&quot;</code>. For example, <code>&quot;0:start:3&quot;</code> means a function call with function ID 0 <strong>started at the beginning</strong> of timestamp 3, and <code>&quot;1:end:2&quot;</code> means a function call with function ID 1 <strong>ended at the end</strong> of timestamp 2. Note that a function can be called <b>multiple times, possibly recursively</b>.</p>
+          <p>A function&#39;s <strong>exclusive time</strong> is the sum of execution times for all function calls in the program. For example, if a function is called twice, one call executing for 2 time units and another call executing for 1 time unit, the <strong>exclusive time</strong> is <code>2 + 1 = 3</code>.</p>
+          <p>Return <em>the <strong>exclusive time</strong> of each function in an array, where the value at the </em><code>i<sup>th</sup></code><em> index represents the exclusive time for the function with ID </em><code>i</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>單執行緒 CPU 上執行了 <code>n</code> 個函式（id 為 0～n−1），可能互相呼叫或遞迴。給你依時間排序的日誌，每筆格式為 <code>"id:start:時間"</code> 或 <code>"id:end:時間"</code>。</p>
+          <p><code>"0:start:3"</code> 表示函式 0 在第 3 個時間單位的<strong>開頭</strong>開始；<code>"1:end:2"</code> 表示函式 1 在第 2 個時間單位的<strong>結尾</strong>結束。</p>
+          <p>函式的<strong>獨佔時間</strong>是它自己在執行（不含它呼叫的其他函式）的時間總和。回傳每個函式的獨佔時間。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 2, logs = ["0:start:0","1:start:2","1:end:5","0:end:6"]
+  輸出：[3,4]
+
+範例 2
+  輸入：n = 1, logs = ["0:start:0","0:start:2","0:end:5","0:start:6","0:end:6","0:end:7"]
+  輸出：[8]
+
+範例 3
+  輸入：n = 2, logs = ["0:start:0","0:start:2","0:end:5","1:start:6","1:end:6","0:end:7"]
+  輸出：[7,1]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ n ≤ 100</code></li>
+          <li><code>2 ≤ logs.length ≤ 500</code></li>
+          <li><code>0 ≤ function_id &lt; n</code></li>
+          <li><code>0 ≤ timestamp ≤ 10⁹</code></li>
+          <li>No two start events will happen at the same timestamp.</li>
+          <li>No two end events will happen at the same timestamp.</li>
+          <li>Each function has an <code>&quot;end&quot;</code> log for each <code>&quot;start&quot;</code> log.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/exclusive-time-of-functions/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【單執行緒 = 任何時刻只有堆疊頂端在執行】
+    用堆疊模擬呼叫堆疊。
+
+【把時間切成片段】
+    prev = 目前這個片段的開頭時間點。
+    遇到 start t：
+        頂端函式從 prev 跑到 t 的開頭 -&gt; 加 t - prev
+        新函式入堆疊，prev = t
+    遇到 end t：
+        頂端函式從 prev 跑到 t 的結尾 -&gt; 加 t - prev + 1
+        出堆疊，prev = t + 1（下一個單位的開頭）
+
+【關鍵：start 和 end 的時間語意不同】
+    start 在單位開頭、end 在單位結尾，所以 end 要 +1。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>堆疊模擬</h3>
+        <div class="code-block">class Solution:
+    def exclusiveTime(self, n: int, logs: List[str]) -&gt; List[int]:
+        res = [0] * n
+        stack = []                          # 呼叫堆疊：正在執行（或被暫停）的函式 id
+        prev = 0                            # 上一個事件的「時間點」（時間片段的開頭）
+        for log in logs:
+            fid, kind, t = log.split(":")
+            fid, t = int(fid), int(t)
+            if kind == "start":
+                if stack:
+                    res[stack[-1]] += t - prev      # 目前執行中的函式跑到 t 之前
+                stack.append(fid)
+                prev = t
+            else:
+                res[stack.pop()] += t - prev + 1    # ★ end 的時間戳是「該單位的結尾」，所以 +1
+                prev = t + 1
+        return res</div>
+        <p>驗證方式：題目範例，加上隨機產生的合法日誌，和「逐時間單位模擬」的參考答案比對。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(m)</td><td>m 為日誌筆數</td></tr>
+            <tr><td>空間</td><td>O(m)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>遞迴呼叫自己</strong> → 堆疊裡會有重複 id，照常處理。</li>
+          <li><strong>同一時間單位內 start 又 end</strong> → 時間 1。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>效能分析器</h3>
+
+        <div class="code-block">這就是 profiler 計算「self time」（獨佔時間）和「total time」（含子呼叫）的方式。火焰圖（flame graph）中每個框的寬度就是 total time。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 20 題 有效的括號</strong></li>
+          <li><strong>第 71 題 簡化路徑</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 end 要加 1？</li>
+            <li>prev 在 start 與 end 之後分別設成什麼？</li>
+          </ol>
+        </div>

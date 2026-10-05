@@ -1,0 +1,146 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given a string expression representing a Lisp-like expression to return the integer value of.</p>
+          <p>The syntax for these expressions is given as follows.</p>
+        <ul>
+          <li>An expression is either an integer, let expression, add expression, mult expression, or an assigned variable. Expressions always evaluate to a single integer.</li>
+          <li>(An integer could be positive or negative.)</li>
+          <li>A let expression takes the form <code>&quot;(let v<sub>1</sub> e<sub>1</sub> v<sub>2</sub> e<sub>2</sub> ... v<sub>n</sub> e<sub>n</sub> expr)&quot;</code>, where let is always the string <code>&quot;let&quot;</code>, then there are one or more pairs of alternating variables and expressions, meaning that the first variable <code>v<sub>1</sub></code> is assigned the value of the expression <code>e<sub>1</sub></code>, the second variable <code>v<sub>2</sub></code> is assigned the value of the expression <code>e<sub>2</sub></code>, and so on sequentially; and then the value of this let expression is the value of the expression <code>expr</code>.</li>
+          <li>An add expression takes the form <code>&quot;(add e<sub>1</sub> e<sub>2</sub>)&quot;</code> where add is always the string <code>&quot;add&quot;</code>, there are always two expressions <code>e<sub>1</sub></code>, <code>e<sub>2</sub></code> and the result is the addition of the evaluation of <code>e<sub>1</sub></code> and the evaluation of <code>e<sub>2</sub></code>.</li>
+          <li>A mult expression takes the form <code>&quot;(mult e<sub>1</sub> e<sub>2</sub>)&quot;</code> where mult is always the string <code>&quot;mult&quot;</code>, there are always two expressions <code>e<sub>1</sub></code>, <code>e<sub>2</sub></code> and the result is the multiplication of the evaluation of e1 and the evaluation of e2.</li>
+          <li>For this question, we will use a smaller subset of variable names. A variable starts with a lowercase letter, then zero or more lowercase letters or digits. Additionally, for your convenience, the names <code>&quot;add&quot;</code>, <code>&quot;let&quot;</code>, and <code>&quot;mult&quot;</code> are protected and will never be used as variable names.</li>
+          <li>Finally, there is the concept of scope. When an expression of a variable name is evaluated, within the context of that evaluation, the innermost scope (in terms of parentheses) is checked first for the value of that variable, and then outer scopes are checked sequentially. It is guaranteed that every expression is legal. Please see the examples for more details on the scope.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個類 Lisp 的運算式字串，回傳它的整數值。運算式有以下幾種：</p>
+        <ul>
+          <li>整數（可能為負）或變數名稱（變數的值是<strong>最內層</strong>作用域中的值）。</li>
+          <li><code>(add e1 e2)</code>：e1 + e2。<code>(mult e1 e2)</code>：e1 × e2。</li>
+          <li><code>(let v1 e1 v2 e2 ... vn en expr)</code>：依序把 v1 設為 e1 的值、v2 設為 e2 的值……（後面的可以用到前面剛設定的），最後回傳 expr 的值。</li>
+          <li>每個 let 會建立新的作用域；離開 let 後，裡面的賦值不影響外面。</li>
+        </ul>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：expression = "(let x 2 (mult x (let x 3 y 4 (add x y))))"
+  輸出：14
+
+範例 2
+  輸入：expression = "(let x 3 x 2 x)"
+  輸出：2
+
+範例 3
+  輸入：expression = "(let x 1 y 2 x (add x y) (add x y))"
+  輸出：5</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ expression.length ≤ 2000</code></li>
+          <li>There are no leading or trailing spaces in <code>expression</code>.</li>
+          <li>All tokens are separated by a single space in <code>expression</code>.</li>
+          <li>The answer and all intermediate calculations of that answer are guaranteed to fit in a <strong>32-bit</strong> integer.</li>
+          <li>The expression is guaranteed to be legal and evaluate to an integer.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/parse-lisp-expression/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【遞迴下降】
+    parse() 讀一個運算式：
+        數字 -&gt; 回傳
+        變數 -&gt; 查作用域
+        "(" -&gt; 看運算子：
+            add / mult：遞迴讀兩個運算式
+            let：一對一對讀 (變數, 運算式)，最後一個單獨的運算式是回傳值
+
+【let 怎麼判斷「最後一個」？】
+    下一個 token 是 "("（一定是運算式），
+    或下一個的下一個是 ")"（剩下一個 token 就是最後的值），
+    就是最後的 expr。
+
+【作用域】
+    進入 let 時複製外層的變數表；
+    內層的修改不影響外層 —— 函式返回後自然回到外層的表。
+    （更省的做法：用一個 dict 加上「變更紀錄」堆疊，離開時還原。）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>遞迴下降 + 作用域複製</h3>
+        <div class="code-block">class Solution:
+    def evaluate(self, expression: str) -&gt; int:
+        tokens = expression.replace("(", " ( ").replace(")", " ) ").split()
+        pos = 0
+
+        def parse(scope):                       # scope：變數名 -&gt; 值（每個 let 建立新的一層）
+            nonlocal pos
+            t = tokens[pos]
+            pos += 1
+            if t != "(":
+                if t[0] == "-" or t.isdigit():
+                    return int(t)
+                return scope[t]                 # 變數：查目前的作用域
+            op = tokens[pos]
+            pos += 1
+            if op == "let":
+                scope = dict(scope)             # ★ 內層作用域：複製一份，不影響外層
+                while True:
+                    if tokens[pos] == "(" or tokens[pos + 1] == ")":
+                        val = parse(scope)      # 最後一個運算式：let 的值
+                        break
+                    name = tokens[pos]
+                    pos += 1
+                    scope[name] = parse(scope)  # 依序賦值，後面的可以用前面的
+            else:
+                a = parse(scope)
+                b = parse(scope)
+                val = a + b if op == "add" else a * b
+            pos += 1                            # 跳過 ')'
+            return val
+
+        return parse({})</div>
+        <p>驗證方式：題目範例，加上巢狀作用域遮蔽、同一個 let 中重複賦值、負數等案例。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>最壞每層 let 都複製整個變數表</td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>同一個 let 重複賦值</strong>（let x 3 x 2 x）→ 2。</li>
+          <li><strong>內層遮蔽外層</strong> → 離開後恢復外層的值。</li>
+          <li><strong>負數</strong> → 以 '-' 開頭的是數字。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>直譯器的雛形</h3>
+
+        <div class="code-block">這就是一個極小的直譯器：詞法分析（切 token）、語法分析（遞迴下降）、環境（作用域鏈）。SICP 的 metacircular evaluator 就是從這裡出發。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 224 題 基本計算機</strong></li>
+          <li><strong>第 726 題 原子的數量</strong></li>
+          <li><strong>第 770 題 基本計算機 IV</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>let 怎麼判斷哪一個是最後的回傳運算式？</li>
+            <li>為什麼進入 let 時要複製作用域？</li>
+          </ol>
+        </div>

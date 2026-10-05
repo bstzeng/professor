@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>730. Count Different Palindromic Subsequences 統計不同回文子序列 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="區間 DP 的難題：兩端相同時，依內部有幾個同樣字元分三種情況扣掉重複；兩端不同時用容斥。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="730">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 730 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 730</div>
+          <h1>Count Different Palindromic Subsequences<br>統計不同回文子序列</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">字串</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string s, return <em>the number of different non-empty palindromic subsequences in</em> <code>s</code>. Since the answer may be very large, return it <strong>modulo</strong> <code>10<sup>9</sup> + 7</code>.</p>
+          <p>A subsequence of a string is obtained by deleting zero or more characters from the string.</p>
+          <p>A sequence is palindromic if it is equal to the sequence reversed.</p>
+          <p>Two sequences <code>a<sub>1</sub>, a<sub>2</sub>, ...</code> and <code>b<sub>1</sub>, b<sub>2</sub>, ...</code> are different if there is some <code>i</code> for which <code>a<sub>i</sub> != b<sub>i</sub></code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個只含 <code>'a'</code>、<code>'b'</code>、<code>'c'</code>、<code>'d'</code> 的字串 <code>s</code>，回傳其中<strong>不同的非空迴文子序列</strong>的個數，對 <code>10⁹ + 7</code> 取模。</p>
+          <p>內容相同的子序列只算一次（即使出現在不同位置）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "bccb"
+  輸出：6
+
+範例 2
+  輸入：s = "abcdabcdabcdabcdabcdabcdabcdabcddcbadcbadcbadcbadcbadcbadcbadcba"
+  輸出：104860361</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ s.length ≤ 1000</code></li>
+          <li><code>s[i]</code> is either <code>&#39;a&#39;</code>, <code>&#39;b&#39;</code>, <code>&#39;c&#39;</code>, or <code>&#39;d&#39;</code>.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/count-different-palindromic-subsequences/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【dp[i][j] = s[i..j] 中不同的非空迴文子序列個數】
+
+【s[i] != s[j]】
+    迴文不可能同時用到 s[i] 當頭、s[j] 當尾。
+    容斥：dp[i+1][j] + dp[i][j-1] - dp[i+1][j-1]。
+
+【s[i] == s[j] = c】
+    新的迴文：在內部每個迴文外面包上 c...c（兩倍），
+    再加上 "c" 和 "cc" 兩個 —— 但可能已經被算過，看內部有幾個 c：
+        內部沒有 c：
+            "c"、"cc" 都是新的 -&gt; 2·inner + 2
+        內部恰有一個 c：
+            "c" 已經在 inner 裡 -&gt; 2·inner + 1
+        內部有兩個以上（第一個在 lo、最後一個在 hi）：
+            "c"、"cc" 都已算過；
+            而且 c[s[lo+1..hi-1] 的迴文]c 在 inner 裡就出現過，
+            包上外層 c 後會重複 -&gt; 2·inner - dp[lo+1][hi-1]
+
+    每種情況都在保證「內容相同只算一次」。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>區間 DP + 分情況去重</h3>
+        <div class="code-block">class Solution:
+    def countPalindromicSubsequences(self, s: str) -&gt; int:
+        MOD = 10 ** 9 + 7
+        n = len(s)
+        dp = [[0] * n for _ in range(n)]        # dp[i][j]：s[i..j] 中不同的非空迴文子序列個數
+        for i in range(n - 1, -1, -1):
+            dp[i][i] = 1
+            for j in range(i + 1, n):
+                if s[i] != s[j]:
+                    # 容斥：包含 s[i] 的 + 包含 s[j] 的 - 兩者都不含的（重複算了）
+                    dp[i][j] = dp[i + 1][j] + dp[i][j - 1] - dp[i + 1][j - 1]
+                else:
+                    c = s[i]
+                    lo, hi = i + 1, j - 1
+                    while lo &lt;= hi and s[lo] != c:
+                        lo += 1                 # 內部第一個 c
+                    while lo &lt;= hi and s[hi] != c:
+                        hi -= 1                 # 內部最後一個 c
+                    inner = dp[i + 1][j - 1]
+                    if lo &gt; hi:                 # ★ 內部沒有 c：內部每個迴文包上 c..c，再加上 "c"、"cc"
+                        dp[i][j] = 2 * inner + 2
+                    elif lo == hi:              # 內部恰有一個 c："c" 已經算過，只多 "cc"
+                        dp[i][j] = 2 * inner + 1
+                    else:                       # 內部有兩個以上 c：c[內部第一與最後 c 之間]c 被重複算了
+                        dp[i][j] = 2 * inner - dp[lo + 1][hi - 1]
+                dp[i][j] %= MOD
+        return dp[0][n - 1]</div>
+        <p>驗證方式：和枚舉所有子序列放進集合的暴力法比對 400 組；題目的長字串範例答案是 104860361。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n³)</td><td>找內部第一個與最後一個 c 需要 O(n)；預處理 next/prev 可降到 O(n²)</td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>單一字元</strong> → 1。</li>
+          <li><strong>"aaa"</strong> → 3（a、aa、aaa）。</li>
+          <li><strong>減法後取模</strong> → Python 的 % 自動回到非負值。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>依字元分類的寫法</h3>
+
+        <div class="code-block">另一種 DP：dp[c][i][j] = s[i..j] 中「以字元 c 開頭結尾」的不同迴文數。字元集只有 4 個，轉移更直觀：找 i 之後第一個 c 與 j 之前最後一個 c，再對 4 個字元加總。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 516 題 最長迴文子序列</strong></li>
+          <li><strong>第 647 題 迴文子字串</strong></li>
+          <li><strong>第 940 題 不同的子序列 II</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>兩端不同時為什麼要減掉 dp[i+1][j−1]？</li>
+            <li>兩端相同時，三種情況分別重複算了什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0729.html">← 上一題：729. 我的日程安排表 I</a>
+          <a href="problem-0731.html">下一題：731. 我的日程安排表 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

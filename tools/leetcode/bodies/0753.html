@@ -1,0 +1,113 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>There is a safe protected by a password. The password is a sequence of <code>n</code> digits where each digit can be in the range <code>[0, k - 1]</code>.</p>
+          <p>The safe has a peculiar way of checking the password. When you enter in a sequence, it checks the <strong>most recent </strong><code>n</code><strong> digits</strong> that were entered each time you type a digit.</p>
+        <ul>
+          <li>For example, the correct password is <code>&quot;345&quot;</code> and you enter in <code>&quot;012345&quot;</code>: <ul> <li>After typing <code>0</code>, the most recent <code>3</code> digits is <code>&quot;0&quot;</code>, which is incorrect.</li> <li>After typing <code>1</code>, the most recent <code>3</code> digits is <code>&quot;01&quot;</code>, which is incorrect.</li> <li>After typing <code>2</code>, the most recent <code>3</code> digits is <code>&quot;012&quot;</code>, which is incorrect.</li> <li>After typing <code>3</code>, the most recent <code>3</code> digits is <code>&quot;123&quot;</code>, which is incorrect.</li> <li>After typing <code>4</code>, the most recent <code>3</code> digits is <code>&quot;234&quot;</code>, which is incorrect.</li> <li>After typing <code>5</code>, the most recent <code>3</code> digits is <code>&quot;345&quot;</code>, which is correct and the safe unlocks.</li> </ul></li>
+        </ul>
+          <p>Return <em>any string of <strong>minimum length</strong> that will unlock the safe <strong>at some point</strong> of entering it</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>保險箱的密碼是 <code>n</code> 位數，每位是 <code>0</code>～<code>k−1</code>。保險箱會檢查你<strong>最近輸入的 n 位</strong>，只要等於密碼就打開。</p>
+          <p>回傳一個<strong>最短</strong>的字串，保證在輸入過程中某個時刻能打開保險箱（也就是說，它包含所有 kⁿ 種密碼作為子字串）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：n = 1, k = 2
+  輸出："10"
+
+範例 2
+  輸入：n = 2, k = 2
+  輸出："01100"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ n ≤ 4</code></li>
+          <li><code>1 ≤ k ≤ 10</code></li>
+          <li><code>1 ≤ k<sup>n</sup> ≤ 4096</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/cracking-the-safe/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【下界】
+    要包含 kⁿ 個不同的長度 n 子字串，
+    字串長度至少 kⁿ + n - 1（每多一個字元最多多一個新的子字串）。
+    能做到恰好這個長度的序列叫 De Bruijn 序列。
+
+【轉成歐拉迴路】
+    節點：所有長度 n-1 的字串（kⁿ⁻¹ 個）。
+    邊：從節點 u 加上一個字元 d，得到長度 n 的密碼 u+d，
+        走到新節點 (u+d)[1:]。
+    每個密碼恰好對應一條邊。
+    每個節點出度 = 入度 = k -&gt; 一定存在歐拉迴路。
+    沿著迴路寫下每條邊新增的字元，就得到 De Bruijn 序列。
+
+【Hierholzer 演算法】
+    DFS 走未用過的邊，回溯時（後序）才把邊記下來，
+    最後反轉就是歐拉迴路。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>De Bruijn 圖 + Hierholzer</h3>
+        <div class="code-block">class Solution:
+    def crackSafe(self, n: int, k: int) -&gt; str:
+        if n == 1:
+            return "".join(map(str, range(k)))
+        seen, res = set(), []
+
+        def dfs(node):                          # node：長度 n-1 的字串（De Bruijn 圖的節點）
+            for d in map(str, range(k)):
+                edge = node + d                 # 每條邊對應一個長度 n 的密碼
+                if edge not in seen:
+                    seen.add(edge)
+                    dfs(edge[1:])
+                    res.append(d)               # ★ Hierholzer：走完再記錄（後序），反過來就是歐拉迴路
+
+        start = "0" * (n - 1)
+        dfs(start)
+        return start + "".join(reversed(res))</div>
+        <p>驗證方式：小範圍的所有 (n, k)，檢查長度恰為 kⁿ + n − 1，且包含全部 kⁿ 種密碼。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n · kⁿ)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n · kⁿ)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → "01…(k−1)"。</li>
+          <li><strong>k = 1</strong> → n 個 0。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>歐拉路徑的另一題</h3>
+
+        <div class="code-block">第 332 題（重新安排行程）也是 Hierholzer：機票是邊，要找字典序最小的歐拉路徑。De Bruijn 序列在密碼學、DNA 定序、魔術（猜牌）中都有應用。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 332 題 重新安排行程</strong></li>
+          <li><strong>第 2097 題 合法重新排列數對</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>De Bruijn 圖的節點和邊分別是什麼？</li>
+            <li>為什麼一定存在歐拉迴路？</li>
+            <li>Hierholzer 為什麼要在回溯時才記錄？</li>
+          </ol>
+        </div>

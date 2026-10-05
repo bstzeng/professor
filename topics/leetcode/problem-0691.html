@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>691. Stickers to Spell Word 貼紙拼詞 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="target 最多 15 個字元：用位元遮罩表示「哪些位置已拼好」，對每個狀態嘗試每張貼紙，做最短步數的 DP。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="691">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 691 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 691</div>
+          <h1>Stickers to Spell Word<br>貼紙拼詞</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">位元運算</span>
+          <span class="lc-badge">記憶化搜尋</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">雜湊表</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>We are given <code>n</code> different types of <code>stickers</code>. Each sticker has a lowercase English word on it.</p>
+          <p>You would like to spell out the given string <code>target</code> by cutting individual letters from your collection of stickers and rearranging them. You can use each sticker more than once if you want, and you have infinite quantities of each sticker.</p>
+          <p>Return <em>the minimum number of stickers that you need to spell out </em><code>target</code>. If the task is impossible, return <code>-1</code>.</p>
+          <p><strong>Note:</strong> In all test cases, all words were chosen randomly from the <code>1000</code> most common US English words, and <code>target</code> was chosen as a concatenation of two random words.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你 <code>n</code> 種貼紙（每種是一個單字，數量無限），你可以把貼紙上的字母一個個剪下來重新排列。</p>
+          <p>回傳拼出字串 <code>target</code> 所需的<strong>最少貼紙張數</strong>；拼不出來則回傳 <code>-1</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：stickers = ["with","example","science"], target = "thehat"
+  輸出：3
+
+範例 2
+  輸入：stickers = ["notice","possible"], target = "basicbasic"
+  輸出：-1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == stickers.length</code></li>
+          <li><code>1 ≤ n ≤ 50</code></li>
+          <li><code>1 ≤ stickers[i].length ≤ 10</code></li>
+          <li><code>1 ≤ target.length ≤ 15</code></li>
+          <li><code>stickers[i]</code> and <code>target</code> 只含小寫英文字母</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/stickers-to-spell-word/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【狀態：target 的哪些位置已經填好】
+    target 長度 &lt;= 15 -&gt; 用 15 位元的遮罩，最多 32768 種狀態。
+
+【轉移】
+    從狀態 mask 貼上一張貼紙 s：
+        用 s 的字母去填 mask 中還沒填的位置（貪心地從左填起即可，
+        因為同樣的字母填哪個位置都等價）。
+    得到新狀態 cur，dp[cur] = min(dp[cur], dp[mask] + 1)。
+
+【順序】
+    新狀態的位元只會變多 -&gt; cur &gt; mask，
+    依 mask 由小到大處理就是合法的 DP 順序。
+
+【其他做法】
+    記憶化搜尋「剩下需要的字母計數」，
+    每次只嘗試包含「剩下需求中第一個字母」的貼紙來剪枝。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>位元遮罩 DP</h3>
+        <div class="code-block">class Solution:
+    def minStickers(self, stickers: List[str], target: str) -&gt; int:
+        n = len(target)
+        full = (1 &lt;&lt; n) - 1
+        dp = [-1] * (1 &lt;&lt; n)                    # dp[mask]：拼出 mask 中這些位置所需的最少貼紙數
+        dp[0] = 0
+        for mask in range(1 &lt;&lt; n):
+            if dp[mask] &lt; 0:
+                continue
+            for s in stickers:
+                cur = mask
+                cnt = Counter(s)
+                for i, ch in enumerate(target):
+                    if not cur &gt;&gt; i &amp; 1 and cnt[ch] &gt; 0:
+                        cnt[ch] -= 1            # ★ 用這張貼紙的字母填補還沒拼好的位置
+                        cur |= 1 &lt;&lt; i
+                if cur != mask and (dp[cur] &lt; 0 or dp[cur] &gt; dp[mask] + 1):
+                    dp[cur] = dp[mask] + 1
+        return dp[full]</div>
+        <p>驗證方式：和回溯搜尋（每次只試包含某個缺少字母的貼紙）比對 400 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(2ⁿ · m · n)</td><td>n = |target|，m = 貼紙數</td></tr>
+            <tr><td>空間</td><td>O(2ⁿ)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>target 有任何貼紙都沒有的字母</strong> → −1。</li>
+          <li><strong>重複字母</strong> → 遮罩以位置為單位，自然處理。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>集合覆蓋</h3>
+
+        <div class="code-block">本質是加權的集合覆蓋問題（NP 困難），只因為 target 很短才能用位元遮罩窮舉。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 322 題 零錢兌換</strong></li>
+          <li><strong>第 1125 題 最小的必要團隊</strong></li>
+          <li><strong>第 943 題 最短超級串</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>遮罩的每一位代表什麼？</li>
+            <li>為什麼依 mask 由小到大處理是正確的？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0690.html">← 上一題：690. 員工的重要性</a>
+          <a href="problem-0692.html">下一題：692. 前 K 個高頻單字 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

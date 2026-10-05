@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>546. Remove Boxes 移除盒子 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="區間 DP 必須多加一維「右邊黏著幾個同色盒子」：dp(l, r, k)，經典的難題狀態設計。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="546">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 546 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 546</div>
+          <h1>Remove Boxes<br>移除盒子</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">記憶化搜尋</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given several <code>boxes</code> with different colors represented by different positive numbers.</p>
+          <p>You may experience several rounds to remove boxes until there is no box left. Each time you can choose some continuous boxes with the same color (i.e., composed of <code>k</code> boxes, <code>k &gt;= 1</code>), remove them and get <code>k * k</code> points.</p>
+          <p>Return <em>the maximum points you can get</em>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一排不同顏色的盒子 <code>boxes</code>（正整數代表顏色）。每一輪可以移除<strong>連續且同色</strong>的 <code>k</code> 個盒子（k ≥ 1），得到 <code>k × k</code> 分。</p>
+          <p>重複直到沒有盒子，回傳可以得到的<strong>最高總分</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：boxes = [1,3,2,2,2,3,4,3,1]
+  輸出：23
+
+範例 2
+  輸入：boxes = [1,1,1]
+  輸出：9
+
+範例 3
+  輸入：boxes = [1]
+  輸出：1</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ boxes.length ≤ 100</code></li>
+          <li><code>1 ≤ boxes[i] ≤ 100</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/remove-boxes/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【為什麼一般區間 DP 不夠？】
+    dp(l, r) 只看 boxes[l..r] 本身，
+    但分數取決於「同色的能不能湊在一起再一起消」——
+    這可能和區間外的盒子有關。
+
+【多加一維：右邊黏著幾個同色】
+    dp(l, r, k) = 處理 boxes[l..r]，
+                  而且 boxes[r] 右邊還黏著 k 個同色盒子（之後一定和它一起消）。
+
+【兩種選擇】
+    1. 現在就把 boxes[r] 連同黏著的 k 個一起消：
+           (k+1)² + dp(l, r-1, 0)
+    2. 在 l..r-1 中找一個同色的 boxes[i]，
+       先把中間 i+1..r-1 全部消掉，讓 boxes[i] 和 boxes[r] 接起來：
+           dp(i+1, r-1, 0) + dp(l, i, k+1)
+
+【小最佳化】
+    先把 r 左邊連續同色的吸進 k，減少重複狀態。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>三維區間 DP（記憶化）</h3>
+        <div class="code-block">class Solution:
+    def removeBoxes(self, boxes: List[int]) -&gt; int:
+        @cache
+        def dp(l, r, k):
+            # boxes[l..r]，而且 boxes[r] 的右邊還「黏著」k 個和 boxes[r] 同色的盒子
+            if l &gt; r:
+                return 0
+            while l &lt; r and boxes[r - 1] == boxes[r]:   # 把同色的往左吸進來
+                r -= 1
+                k += 1
+            # 選擇一：現在就把 boxes[r] 和黏著的 k 個一起移除
+            res = dp(l, r - 1, 0) + (k + 1) ** 2
+            # ★ 選擇二：先清掉中間 (i+1..r-1)，讓 boxes[i] 和 boxes[r] 接在一起
+            for i in range(l, r):
+                if boxes[i] == boxes[r]:
+                    res = max(res, dp(l, i, k + 1) + dp(i + 1, r - 1, 0))
+            return res
+        return dp(0, len(boxes) - 1, 0)</div>
+        <p>驗證方式：和窮舉所有消除順序的暴力法比對 400 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n⁴)</td><td>狀態 n³、轉移 O(n)</td></tr>
+            <tr><td>空間</td><td>O(n³)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>全同色</strong> → n²。</li>
+          <li><strong>全部不同色</strong> → n。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>「區間外的資訊」要放進狀態</h3>
+
+        <div class="code-block">這是區間 DP 中最典型的「狀態不夠用就加維度」。類似的還有第 664 題（奇怪的印表機）、第 1000 題（合併石頭的最低成本）。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 664 題 奇怪的印表機</strong></li>
+          <li><strong>第 312 題 戳氣球</strong></li>
+          <li><strong>第 1000 題 合併石頭的最低成本</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼 dp(l, r) 兩個參數不夠？</li>
+            <li>k 代表什麼？</li>
+            <li>選擇二為什麼要先把中間清掉？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0543.html">← 上一題：543. 二元樹的直徑</a>
+          <a href="problem-0547.html">下一題：547. 省份數量 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
