@@ -18093,6 +18093,202 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "islam",
+      category: "religion",
+      title: "伊斯蘭教：歷史與教義",
+      description:
+        "從七世紀的阿拉伯半島講起：先知穆罕默德、遷徙與麥地那社群；《古蘭經》的成書與內容、聖訓與經注；認主獨一、六大信仰與五功；沙里亞、法學派、清真、婚姻家庭與吉哈德的原意；遜尼與什葉、蘇菲主義、神學與哲學；從四大哈里發、阿拔斯黃金時代、安達魯斯、十字軍與蒙古到三大火藥帝國；殖民、改革、伊朗革命與極端主義；中國與台灣的伊斯蘭。以理解為目的，並列不同觀點。附伊斯蘭曆換算、教派關係圖與歷史時間軸。",
+      icon: "☪️",
+      url: "topics/islam/index.html",
+      resources: [
+        {
+          title: "伊斯蘭教互動工具",
+          description: "伊斯蘭曆換算、教派關係圖、歷史時間軸",
+          icon: "🧭",
+          url: "topics/islam/guide.html"
+        },
+        {
+          title: "伊斯蘭教名詞速查",
+          description: "信仰、經典、實踐、教派與歷史的常用名詞",
+          icon: "📖",
+          url: "topics/islam/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源：先知與阿拉伯半島",
+          courses: [
+            { title: "伊斯蘭教之前的阿拉伯半島", url: "topics/islam/lesson-01.html" },
+            { title: "穆罕默德的早年與第一次啟示", url: "topics/islam/lesson-02.html" },
+            { title: "麥加時期：傳教與迫害", url: "topics/islam/lesson-03.html" },
+            { title: "遷徙與麥地那社群", url: "topics/islam/lesson-04.html" },
+            { title: "重返麥加與先知去世", url: "topics/islam/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜《古蘭經》與聖訓",
+          courses: [
+            { title: "《古蘭經》是怎麼成書的", url: "topics/islam/lesson-06.html" },
+            { title: "《古蘭經》的結構與內容", url: "topics/islam/lesson-07.html" },
+            { title: "聖訓：先知的言行", url: "topics/islam/lesson-08.html" },
+            { title: "經注與翻譯", url: "topics/islam/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜核心信仰與五功",
+          courses: [
+            { title: "認主獨一與六大信仰", url: "topics/islam/lesson-10.html" },
+            { title: "與猶太教、基督教的關係", url: "topics/islam/lesson-11.html" },
+            { title: "五功（一）：念功與禮功", url: "topics/islam/lesson-12.html" },
+            { title: "五功（二）：齋功", url: "topics/islam/lesson-13.html" },
+            { title: "五功（三）：課功", url: "topics/islam/lesson-14.html" },
+            { title: "五功（四）：朝功", url: "topics/islam/lesson-15.html" },
+            { title: "伊斯蘭曆與節日", url: "topics/islam/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜伊斯蘭法與日常生活",
+          courses: [
+            { title: "沙里亞與法源", url: "topics/islam/lesson-17.html" },
+            { title: "四大法學派", url: "topics/islam/lesson-18.html" },
+            { title: "清真與日常生活", url: "topics/islam/lesson-19.html" },
+            { title: "婚姻、家庭與女性", url: "topics/islam/lesson-20.html" },
+            { title: "「吉哈德」的原意與誤解", url: "topics/islam/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜教派與思想",
+          courses: [
+            { title: "遜尼派與什葉派的分裂", url: "topics/islam/lesson-22.html" },
+            { title: "什葉派的伊瑪目與分支", url: "topics/islam/lesson-23.html" },
+            { title: "蘇菲主義", url: "topics/islam/lesson-24.html" },
+            { title: "神學與哲學", url: "topics/islam/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜歷史：從帝國到黃金時代",
+          courses: [
+            { title: "四大哈里發與早期征服", url: "topics/islam/lesson-26.html" },
+            { title: "伍麥亞與阿拔斯王朝", url: "topics/islam/lesson-27.html" },
+            { title: "伊斯蘭黃金時代的科學", url: "topics/islam/lesson-28.html" },
+            { title: "安達魯斯", url: "topics/islam/lesson-29.html" },
+            { title: "十字軍與蒙古", url: "topics/islam/lesson-30.html" },
+            { title: "三大火藥帝國", url: "topics/islam/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜近現代",
+          courses: [
+            { title: "殖民、改革與哈里發的終結", url: "topics/islam/lesson-32.html" },
+            { title: "復興運動、政治伊斯蘭與伊朗革命", url: "topics/islam/lesson-33.html" },
+            { title: "極端主義與主流穆斯林", url: "topics/islam/lesson-34.html" },
+            { title: "伊斯蘭教在中國與台灣", url: "topics/islam/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜綜合",
+          courses: [
+            { title: "伊斯蘭藝術與常見誤解", url: "topics/islam/lesson-36.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "hinduism",
+      category: "religion",
+      title: "印度教：歷史與教義",
+      description:
+        "一個沒有創始人的宗教：從印度河文明、吠陀、梵書到奧義書；梵與我、業與輪迴、解脫、法、人生四目標與四階段、種姓制度；天啟與傳承、《摩訶婆羅多》、《薄伽梵歌》、《羅摩衍那》、往世書與《摩奴法典》；三相神、毗濕奴十化身、黑天、濕婆與女神；六派哲學、吠檀多、虔信運動與密教；與佛教的互動、南印度神廟、伊斯蘭時代與錫克教、殖民改革、甘地與現代印度；普迦、節日與人生禮儀。以理解為目的，並列不同觀點。附十化身、人生階段與歷史時間軸互動工具。",
+      icon: "🕉️",
+      url: "topics/hinduism/index.html",
+      resources: [
+        {
+          title: "印度教互動工具",
+          description: "毗濕奴十化身、人生四階段與四目標、歷史時間軸",
+          icon: "🪔",
+          url: "topics/hinduism/guide.html"
+        },
+        {
+          title: "印度教名詞速查",
+          description: "概念、經典、神祇、哲學與實踐的常用名詞",
+          icon: "📖",
+          url: "topics/hinduism/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源：沒有創始人的宗教",
+          courses: [
+            { title: "「印度教」是什麼", url: "topics/hinduism/lesson-01.html" },
+            { title: "印度河文明", url: "topics/hinduism/lesson-02.html" },
+            { title: "吠陀時代與四吠陀", url: "topics/hinduism/lesson-03.html" },
+            { title: "梵書與祭祀的時代", url: "topics/hinduism/lesson-04.html" },
+            { title: "奧義書：從祭祀到內在", url: "topics/hinduism/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜核心概念",
+          courses: [
+            { title: "梵與我", url: "topics/hinduism/lesson-06.html" },
+            { title: "業與輪迴", url: "topics/hinduism/lesson-07.html" },
+            { title: "解脫與三條道路", url: "topics/hinduism/lesson-08.html" },
+            { title: "法", url: "topics/hinduism/lesson-09.html" },
+            { title: "人生四目標與四階段", url: "topics/hinduism/lesson-10.html" },
+            { title: "種姓制度", url: "topics/hinduism/lesson-11.html" },
+            { title: "多神、一神還是泛神？", url: "topics/hinduism/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜經典",
+          courses: [
+            { title: "天啟與傳承", url: "topics/hinduism/lesson-13.html" },
+            { title: "《摩訶婆羅多》", url: "topics/hinduism/lesson-14.html" },
+            { title: "《薄伽梵歌》", url: "topics/hinduism/lesson-15.html" },
+            { title: "《羅摩衍那》", url: "topics/hinduism/lesson-16.html" },
+            { title: "往世書", url: "topics/hinduism/lesson-17.html" },
+            { title: "《摩奴法典》與法論", url: "topics/hinduism/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜眾神",
+          courses: [
+            { title: "三相神", url: "topics/hinduism/lesson-19.html" },
+            { title: "毗濕奴與十化身", url: "topics/hinduism/lesson-20.html" },
+            { title: "黑天", url: "topics/hinduism/lesson-21.html" },
+            { title: "濕婆", url: "topics/hinduism/lesson-22.html" },
+            { title: "女神與其他常見的神", url: "topics/hinduism/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜哲學流派與修行",
+          courses: [
+            { title: "六派哲學：數論與瑜伽", url: "topics/hinduism/lesson-24.html" },
+            { title: "吠檀多：三位大師", url: "topics/hinduism/lesson-25.html" },
+            { title: "虔信運動", url: "topics/hinduism/lesson-26.html" },
+            { title: "密教", url: "topics/hinduism/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜歷史",
+          courses: [
+            { title: "與佛教、耆那教的互動與笈多王朝", url: "topics/hinduism/lesson-28.html" },
+            { title: "南印度與神廟文化", url: "topics/hinduism/lesson-29.html" },
+            { title: "伊斯蘭政權與錫克教", url: "topics/hinduism/lesson-30.html" },
+            { title: "殖民時代與印度教改革", url: "topics/hinduism/lesson-31.html" },
+            { title: "甘地、分治與現代印度", url: "topics/hinduism/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜生活與實踐",
+          courses: [
+            { title: "普迦與神廟敬拜", url: "topics/hinduism/lesson-33.html" },
+            { title: "節日與人生禮儀", url: "topics/hinduism/lesson-34.html" },
+            { title: "走向世界與常見誤解", url: "topics/hinduism/lesson-35.html" },
+          ],
+        },
+      ],
     }
   ]
 };
