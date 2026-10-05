@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：結構化輸出 ｜ 提示工程 ｜ 博雅書院</title>
+<meta name="description" content="用 schema 保證格式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">提示工程</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">Level 1｜提示基礎 · 第 12 課</div>
+      <h1>結構化輸出</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解結構化輸出的必要性</li>
+          <li>用 schema 定義輸出</li>
+          <li>在程式中驗證輸出</li>
+        </ul>
+      </div>
+
+      <p>
+        當輸出要交給程式處理時，「請只輸出 JSON」這種請求偶爾會失敗：多一句「好的，以下是結果」、少一個欄位、型別不對。對程式來說，偶爾失敗就是會壞掉。
+      </p>
+
+      <p>
+        可靠的做法是使用 API 的<strong>結構化輸出</strong>功能：提供一個 JSON Schema，模型產生的內容被限制在合法範圍內，<strong>保證</strong>符合格式。提示仍然重要——它決定欄位的<strong>內容</strong>好不好，schema 決定<strong>形式</strong>對不對。
+      </p>
+
+      <p style="margin:16px 0 6px"><strong>🐍 Python 範例</strong>（離線可執行，已實際執行）　在程式中驗證模型輸出的格式</p>
+
+      <div class="code-block">import json
+
+# 模型可能回傳的三種輸出（第一種是沒有約束時常見的情況）
+outputs = [
+    '好的！以下是擷取結果：{"name": "王小美", "plan": "企業", "demo": "要"}',
+    '{"name": "王小美", "plan": "enterprise"}',
+    '{"name": "王小美", "plan": "enterprise", "demo": true}',
+]
+schema = {"name": str, "plan": ["free", "pro", "enterprise"], "demo": bool}
+
+def check(raw):
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return "不是合法 JSON"
+    errs = []
+    for key, rule in schema.items():
+        if key not in data:
+            errs.append("缺少 " + key)
+        elif isinstance(rule, list) and data[key] not in rule:
+            errs.append(key + " 必須是 " + "/".join(rule))
+        elif isinstance(rule, type) and not isinstance(data[key], rule):
+            errs.append(key + " 型別應為 " + rule.__name__)
+    return "通過" if not errs else "；".join(errs)
+
+for raw in outputs:
+    print(check(raw).ljust(24), raw[:40])</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong></p>
+
+      <div style="margin:0 0 20px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#14301f;color:#d6f5df">不是合法 JSON                好的！以下是擷取結果：{"name": "王小美", "plan": "企業",&#10;缺少 demo                  {"name": "王小美", "plan": "enterprise"}&#10;通過                       {"name": "王小美", "plan": "enterprise", "d</div></div>
+
+      <p style="margin:16px 0 6px"><strong>☁️ Claude API 範例</strong>（需要 <code>pip install anthropic</code> 與 API 金鑰）　用 schema 保證輸出格式</p>
+
+      <div class="code-block">from typing import Literal
+from pydantic import BaseModel
+import anthropic
+
+class Lead(BaseModel):
+    name: str
+    plan: Literal["free", "pro", "enterprise"]
+    demo: bool
+
+client = anthropic.Anthropic()
+r = client.messages.parse(
+    model="claude-opus-5-5",
+    max_tokens=16000,
+    messages=[{"role": "user", "content": "擷取資料：我是王小美，想試用企業方案，可以安排展示嗎？"}],
+    output_format=Lead,          # 以 Pydantic 類別定義 schema，SDK 會驗證並回傳物件
+)
+print(r.parsed_output)</div>
+
+      <p>
+        結構化輸出也有限制：某些 schema 寫法（例如數值範圍）不支援，內容是否「合理」仍要用程式檢查。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          程式要讀取的輸出不能只靠「請輸出 JSON」，因為偶爾會多出文字、缺欄位或型別錯誤。使用結構化輸出提供 JSON Schema 可保證格式，提示則決定欄位內容的品質；仍要用程式驗證內容是否合理。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">✍️ 提示工程的最佳做法會隨模型世代改變；本課以目前主流模型（特別是 Claude）的實際行為為例，原則大多通用。Python 範例中標示「已執行」的為離線程式，輸出是實際結果；呼叫 API 的範例需要金鑰，模型名稱與參數以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼「請只輸出 JSON」不夠可靠？</li>
+          <li>在結構化輸出中，提示和 schema 各負責什麼？</li>
+          <li>結構化輸出保證了格式，還需要檢查什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>限制條件</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：輸出格式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：限制條件 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

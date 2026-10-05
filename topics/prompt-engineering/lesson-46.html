@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：提示優化 ｜ 提示工程 ｜ 博雅書院</title>
+<meta name="description" content="A/B 測試、自動化與用模型改提示">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">提示工程</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">Level 4｜Engineering：把提示當成軟體 · 第 46 課</div>
+      <h1>提示優化</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較兩個提示版本</li>
+          <li>讓模型協助改寫提示</li>
+          <li>知道自動優化的限制</li>
+        </ul>
+      </div>
+
+      <p>
+        有了測試集和評分方式，就可以系統性地優化提示：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>做法</th><th>注意</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>離線 A/B</td><td>兩版提示跑同一組測試集，比較分數</td><td>樣本太少時差異可能只是隨機</td></tr>
+          <tr><td>線上 A/B</td><td>部分真實流量用新版，比較使用者行為</td><td>要先通過離線評估</td></tr>
+          <tr><td>用模型改提示</td><td>把提示、失敗案例與評審理由給模型，請它提出修改</td><td>仍要用測試集驗證，不能直接採用</td></tr>
+          <tr><td>自動化迴圈</td><td>程式反覆「改寫 → 評估 → 保留較好的」</td><td>容易過度擬合，要用保留集確認</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p style="margin:16px 0 6px"><strong>🐍 Python 範例</strong>（離線可執行，已實際執行）　樣本數夠不夠？</p>
+
+      <div class="code-block"># 兩版提示各跑 40 個案例：差異是真的，還是運氣？
+import math
+n = 40
+pass_a, pass_b = 30, 34          # v1 通過 30 題、v2 通過 34 題
+pa, pb = pass_a / n, pass_b / n
+p = (pass_a + pass_b) / (2 * n)
+se = math.sqrt(p * (1 - p) * 2 / n)
+z = (pb - pa) / se
+print("v1 %.0f%%  v2 %.0f%%  差 %.0f 個百分點" % (pa * 100, pb * 100, (pb - pa) * 100))
+print("z = %.2f → %s" % (z, "差異可能是真的" if abs(z) &gt; 1.96 else "差異可能只是隨機，需要更多案例"))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong></p>
+
+      <div style="margin:0 0 20px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#14301f;color:#d6f5df">v1 75%  v2 85%  差 10 個百分點&#10;z = 1.12 → 差異可能只是隨機，需要更多案例</div></div>
+
+      <div style="margin:0 0 18px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#2a2438;color:#efe9ff">下面是一個提示、它在測試集上失敗的案例，以及評審給的失敗理由。&#10;&lt;prompt&gt;{目前的提示}&lt;/prompt&gt;&#10;&lt;failures&gt;{失敗案例與理由}&lt;/failures&gt;&#10;&#10;請找出這些失敗的共通原因，提出一個最小的修改，並說明為什麼這個修改能解決問題、可能會影響哪些原本通過的案例。&#10;不要針對個別案例加特例規則。</div></div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          系統性優化包括離線 A/B（同測試集比分數，注意樣本數）、線上 A/B（先通過離線評估）、把提示與失敗案例交給模型提出修改（仍需驗證），以及自動化改寫評估迴圈（要用保留集防過度擬合）。案例太少時分數差異可能只是隨機。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">✍️ 提示工程的最佳做法會隨模型世代改變；本課以目前主流模型（特別是 Claude）的實際行為為例，原則大多通用。Python 範例中標示「已執行」的為離線程式，輸出是實際結果；呼叫 API 的範例需要金鑰，模型名稱與參數以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼樣本太少時，兩版提示的分數差異不可靠？</li>
+          <li>請模型改寫提示時，要提供哪些資訊？</li>
+          <li>自動化優化迴圈有什麼風險？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>版本管理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：安全（二）：防護欄不能只寫在提示裡</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：版本管理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

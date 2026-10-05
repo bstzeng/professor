@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：RAG（二）：讓模型老實回答 ｜ 提示工程 ｜ 博雅書院</title>
+<meta name="description" content="只根據資料、標註出處、說不知道">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">提示工程</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">Level 2｜Context：模型該看到什麼 · 第 21 課</div>
+      <h1>RAG（二）：讓模型老實回答</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出有據可查的 RAG 提示</li>
+          <li>要求引用來源</li>
+          <li>讓模型在資料不足時承認不知道</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 260" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">RAG 提示的組成</text>
+                <rect x="60" y="40" width="520" height="180" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+                <text x="80" y="64" text-anchor="start" font-size="10.5" fill="#9c89d6">system：只根據提供的資料回答；資料不足就說不知道</text>
+                <text x="80" y="96" text-anchor="start" font-size="10.5" fill="#4a90c2">&lt;documents&gt;</text>
+                <text x="100" y="118" text-anchor="start" font-size="10" fill="#4a90c2">&lt;document index=&quot;1&quot; source=&quot;退貨政策.pdf&quot;&gt; …… &lt;/document&gt;</text>
+                <text x="100" y="140" text-anchor="start" font-size="10" fill="#4a90c2">&lt;document index=&quot;2&quot; source=&quot;FAQ&quot;&gt; …… &lt;/document&gt;</text>
+                <text x="80" y="162" text-anchor="start" font-size="10.5" fill="#4a90c2">&lt;/documents&gt;</text>
+                <text x="80" y="194" text-anchor="start" font-size="10.5" fill="#e0605a">問題＋輸出要求：附上引用的文件編號</text>
+                <text x="320" y="240" text-anchor="middle" font-size="10.5" fill="var(--accent)">檢索決定「能不能答對」，提示決定「會不會亂答」</text>
+        </svg>
+        <figcaption>RAG 提示的典型結構。</figcaption>
+      </div>
+
+      <p>
+        檢索到資料之後，提示要確保模型<strong>根據資料回答</strong>，而不是憑記憶或想像。三個關鍵指令：
+      </p>
+
+      <ol>
+        <li><strong>只根據提供的資料</strong>：明確說明資料以外的知識不能用（或要分開標示）。</li>
+        <li><strong>標註出處</strong>：每個說法附上來源編號，方便檢查。</li>
+        <li><strong>允許說不知道</strong>：資料不足時，說「資料中沒有提到」比編造好。這一句非常重要——沒有它，模型傾向硬擠出答案。</li>
+      </ol>
+
+      <p style="margin:16px 0 6px"><strong>🐍 Python 範例</strong>（離線可執行，已實際執行）　組出一個嚴格的 RAG 提示</p>
+
+      <div class="code-block"># 組出一個 RAG 提示：檢索結果 + 嚴格的回答規則
+hits = [
+    ("退貨政策.pdf", "商品到貨 7 天內可申請退貨，需保持包裝完整。"),
+    ("FAQ", "退款會在退貨審核通過後 5 個工作天內退回原付款方式。"),
+]
+question = "退貨後多久會拿到錢？運費誰出？"
+
+docs = "\n".join(
+    '&lt;document index="%d" source="%s"&gt;%s&lt;/document&gt;' % (i, src, text)
+    for i, (src, text) in enumerate(hits, 1))
+prompt = """&lt;documents&gt;
+%s
+&lt;/documents&gt;
+
+只根據上面的文件回答問題，每個說法後面用 [編號] 標註來源。
+文件沒有提到的部分，請明確寫「文件中沒有提到」，不要自行推測。
+
+問題：%s""" % (docs, question)
+print(prompt)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong></p>
+
+      <div style="margin:0 0 20px"><div class="code-block" style="white-space:pre-wrap;word-break:break-word;margin:0;background:#14301f;color:#d6f5df">&lt;documents&gt;&#10;&lt;document index="1" source="退貨政策.pdf"&gt;商品到貨 7 天內可申請退貨，需保持包裝完整。&lt;/document&gt;&#10;&lt;document index="2" source="FAQ"&gt;退款會在退貨審核通過後 5 個工作天內退回原付款方式。&lt;/document&gt;&#10;&lt;/documents&gt;&#10;&#10;只根據上面的文件回答問題，每個說法後面用 [編號] 標註來源。&#10;文件沒有提到的部分，請明確寫「文件中沒有提到」，不要自行推測。&#10;&#10;問題：退貨後多久會拿到錢？運費誰出？</div></div>
+
+      <p>
+        注意這個問題的設計：「運費誰出」在文件中找不到。好的提示會讓模型回答前半題、並老實說後半題文件沒有提到——這正是要測試的行為（第 40 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          RAG 提示要確保模型根據資料回答：明確只用提供的資料、每個說法標註來源編號、資料不足時允許並要求說「文件中沒有提到」。最後一點非常重要，否則模型傾向硬擠出答案；測試時應刻意包含資料中找不到的問題。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">✍️ 提示工程的最佳做法會隨模型世代改變；本課以目前主流模型（特別是 Claude）的實際行為為例，原則大多通用。Python 範例中標示「已執行」的為離線程式，輸出是實際結果；呼叫 API 的範例需要金鑰，模型名稱與參數以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RAG 提示的三個關鍵指令是什麼？</li>
+          <li>為什麼「允許說不知道」這麼重要？</li>
+          <li>測試 RAG 提示時，為什麼要包含資料中找不到答案的問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>記憶</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：RAG（一）：檢索</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：記憶 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
