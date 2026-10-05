@@ -17620,6 +17620,119 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "stock-order-flow",
+      category: "tech",
+      title: "股票下單的幕後：一張委託單的千分之一秒旅程",
+      description:
+        "按下「買進」之後發生了什麼？從手機、行動網路、券商前台與風控、專線，到證交所的委託簿與撮合引擎；價格時間優先、逐筆交易與集合競價、漲跌停與價格穩定措施、熔斷、市場監視與 T+2 交割；光速極限、共置機房、核心旁路、FPGA、時間同步、芝加哥到紐約的微波競賽與高頻交易；交易所與券商的機房規模（和 YouTube 比一比）、備援設計，以及閃電崩盤、騎士資本、胖手指與交易所當機等事故。附六個互動工具。",
+      icon: "📈",
+      url: "topics/stock-order-flow/index.html",
+      resources: [
+        {
+          title: "交易系統實驗室",
+          description: "委託單旅程、時間尺度、委託簿撮合、延遲計算、集合競價與逐筆交易、漲跌停與熔斷",
+          icon: "🧪",
+          url: "topics/stock-order-flow/guide.html"
+        },
+        {
+          title: "交易系統名詞速查",
+          description: "委託、撮合、監管、速度工程與機房的名詞",
+          icon: "📖",
+          url: "topics/stock-order-flow/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜一張委託單的旅程",
+          courses: [
+            { title: "按下「買進」之後", url: "topics/stock-order-flow/lesson-01.html" },
+            { title: "時間預算：每一段花多少時間", url: "topics/stock-order-flow/lesson-02.html" },
+            { title: "參與者地圖", url: "topics/stock-order-flow/lesson-03.html" },
+            { title: "台灣的路徑", url: "topics/stock-order-flow/lesson-04.html" },
+            { title: "美國的路徑", url: "topics/stock-order-flow/lesson-05.html" },
+            { title: "為什麼你感覺「瞬間」", url: "topics/stock-order-flow/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜你這一端：手機到券商",
+          courses: [
+            { title: "App 送出了什麼", url: "topics/stock-order-flow/lesson-07.html" },
+            { title: "網路這一段", url: "topics/stock-order-flow/lesson-08.html" },
+            { title: "券商的前台", url: "topics/stock-order-flow/lesson-09.html" },
+            { title: "券商風控：第一道閘門", url: "topics/stock-order-flow/lesson-10.html" },
+            { title: "券商到交易所的專線", url: "topics/stock-order-flow/lesson-11.html" },
+            { title: "API 與程式交易", url: "topics/stock-order-flow/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜交易所的心臟：撮合引擎",
+          courses: [
+            { title: "委託簿", url: "topics/stock-order-flow/lesson-13.html" },
+            { title: "價格優先、時間優先", url: "topics/stock-order-flow/lesson-14.html" },
+            { title: "逐筆交易與集合競價", url: "topics/stock-order-flow/lesson-15.html" },
+            { title: "開盤、收盤與盤後", url: "topics/stock-order-flow/lesson-16.html" },
+            { title: "撮合引擎的軟體設計", url: "topics/stock-order-flow/lesson-17.html" },
+            { title: "確定性與公平", url: "topics/stock-order-flow/lesson-18.html" },
+            { title: "成交回報與行情發布", url: "topics/stock-order-flow/lesson-19.html" },
+            { title: "容量規劃", url: "topics/stock-order-flow/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜誰在控制交易",
+          courses: [
+            { title: "交易所的閘門：漲跌停與異常委託", url: "topics/stock-order-flow/lesson-21.html" },
+            { title: "價格穩定措施與熔斷", url: "topics/stock-order-flow/lesson-22.html" },
+            { title: "主管機關與交易所的角色", url: "topics/stock-order-flow/lesson-23.html" },
+            { title: "市場監視系統", url: "topics/stock-order-flow/lesson-24.html" },
+            { title: "結算與交割", url: "topics/stock-order-flow/lesson-25.html" },
+            { title: "出事的時候", url: "topics/stock-order-flow/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜為什麼這麼快：速度工程",
+          courses: [
+            { title: "光速是極限", url: "topics/stock-order-flow/lesson-27.html" },
+            { title: "共置機房", url: "topics/stock-order-flow/lesson-28.html" },
+            { title: "交換器、網卡與核心旁路", url: "topics/stock-order-flow/lesson-29.html" },
+            { title: "FPGA 與專用硬體", url: "topics/stock-order-flow/lesson-30.html" },
+            { title: "時間同步", url: "topics/stock-order-flow/lesson-31.html" },
+            { title: "微波與雷射：芝加哥到紐約的競賽", url: "topics/stock-order-flow/lesson-32.html" },
+            { title: "高頻交易", url: "topics/stock-order-flow/lesson-33.html" },
+            { title: "速度有沒有盡頭", url: "topics/stock-order-flow/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜機房到底多大",
+          courses: [
+            { title: "美國交易所的機房", url: "topics/stock-order-flow/lesson-35.html" },
+            { title: "台灣證交所的機房與備援", url: "topics/stock-order-flow/lesson-36.html" },
+            { title: "規模估算：跟 YouTube 比一比", url: "topics/stock-order-flow/lesson-37.html" },
+            { title: "行情資料有多大", url: "topics/stock-order-flow/lesson-38.html" },
+            { title: "券商的機房", url: "topics/stock-order-flow/lesson-39.html" },
+            { title: "備援設計", url: "topics/stock-order-flow/lesson-40.html" },
+            { title: "可靠度的代價", url: "topics/stock-order-flow/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜事故與教訓",
+          courses: [
+            { title: "2010 年閃電崩盤", url: "topics/stock-order-flow/lesson-42.html" },
+            { title: "2012 年騎士資本", url: "topics/stock-order-flow/lesson-43.html" },
+            { title: "胖手指與錯帳", url: "topics/stock-order-flow/lesson-44.html" },
+            { title: "交易所當機", url: "topics/stock-order-flow/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "一張委託單的完整時間表", url: "topics/stock-order-flow/lesson-46.html" },
+            { title: "台灣與美國的市場結構", url: "topics/stock-order-flow/lesson-47.html" },
+            { title: "未來：更短的交割、雲端與 24 小時交易", url: "topics/stock-order-flow/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };

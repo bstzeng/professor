@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交易系統實驗室 ｜ 股票下單的幕後 ｜ 博雅書院</title>
+<meta name="description" content="委託單旅程、時間尺度、委託簿撮合、延遲計算、集合競價與逐筆交易、漲跌停與熔斷">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">股票下單的幕後</a>
+      <span class="sep">/</span>
+      <span>交易系統實驗室</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>交易系統實驗室</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <script>
+      (function () {
+        if (window.__soLib) return; window.__soLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        function info(root) { var p = el('p', 'margin:6px 0 0;line-height:1.7'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div'); root.appendChild(b); return b; }
+        function bt(b, t, k, f) { var x = btn(t, k); x.addEventListener('click', f); b.appendChild(x); return x; }
+        var OK = '#2e7d4f', NG = '#c0392b', C1 = '#3a6ea5', C4 = '#e08a1e', C5 = '#8a5cb8', BUY = '#c0392b', SELL = '#2e7d4f';
+        var MONO = 'font-family:ui-monospace,Menlo,Consolas,monospace';
+        function inp(val, w) { var i = document.createElement('input'); i.type = 'text'; i.value = val;
+          i.style.cssText = 'width:' + (w || '5em') + ';padding:3px 6px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit;' + MONO; return i; }
+        function fmtUs(us) { if (us < 1) return f1(us * 1000) + ' ns'; if (us < 1000) return f1(us) + ' μs'; if (us < 1e6) return f1(us / 1000) + ' ms'; return f2(us / 1e6) + ' s'; }
+
+        /* ---------- 1. 委託單旅程 ---------- */
+        var JR = {
+          tw: { n: '台灣散戶（手機 4G）', hops: [['手機 App 打包委託', 5000], ['行動網路到券商機房', 40000], ['券商前台：驗證、解密', 3000], ['券商風控：餘額、額度、價格檢查', 2000], ['券商專線到證交所', 1000], ['證交所接收與檢查', 300], ['撮合引擎：比對委託簿', 50], ['成交回報回券商', 1000], ['券商推播回手機', 45000]] },
+          web: { n: '台灣散戶（家用光纖、電腦）', hops: [['網頁或軟體打包委託', 3000], ['家用光纖到券商機房', 8000], ['券商前台：驗證、解密', 3000], ['券商風控檢查', 2000], ['券商專線到證交所', 1000], ['證交所接收與檢查', 300], ['撮合引擎：比對委託簿', 50], ['成交回報回券商', 1000], ['券商回傳到電腦', 10000]] },
+          colo: { n: '程式交易（機房內共置）', hops: [['策略程式產生委託（FPGA／優化軟體）', 2], ['機房內網路到券商閘道', 5], ['券商閘道風控（硬體化）', 3], ['交易所閘道', 20], ['撮合引擎', 10], ['成交回報', 20]] },
+          us: { n: '美國散戶（App 經批發商）', hops: [['手機 App 打包委託', 5000], ['網路到券商雲端', 30000], ['券商風控與路由', 5000], ['轉給批發造市商（訂單流付費）', 2000], ['造市商內部撮合或轉送交易所', 500], ['成交回報回券商', 2000], ['券商推播回手機', 40000]] } };
+        function initJourney(root, cfg) {
+          head(root, cfg.q); var key = 'tw', step = -1, b = bar(root), view = el('div'), b2 = bar(root), p, timer = null;
+          Object.keys(JR).forEach(function (k) { bt(b, JR[k].n, k, function () { key = k; step = -1; mark(b, k); draw(); }); });
+          root.insertBefore(view, b2);
+          bt(b2, '下一段 ▶', 'next', function () { if (step < JR[key].hops.length - 1) step++; draw(); });
+          bt(b2, '⏯ 自動播放', 'auto', function () { if (timer) { clearInterval(timer); timer = null; return; } step = -1;
+            timer = setInterval(function () { if (!root.isConnected) { clearInterval(timer); return; } if (!root.offsetParent) return; if (step >= JR[key].hops.length - 1) { clearInterval(timer); timer = null; return; } step++; draw(); }, 700); });
+          bt(b2, '↺ 重來', 'reset', function () { step = -1; draw(); }); p = info(root);
+          function draw() { var H = JR[key].hops, tot = 0, W = 640, g = '', L = 230, BW = W - L - 70;
+            H.forEach(function (h) { tot += h[1]; });
+            var lmax = Math.log10(1e5), lmin = Math.log10(1);
+            H.forEach(function (h, i) { var y = 10 + i * 26, on = i <= step, w = Math.max(2, (Math.log10(h[1]) - lmin) / (lmax - lmin) * BW), cur = i === step;
+              g += tx(L - 8, y + 14, h[0], 10.5, on ? 'currentColor' : 'var(--text-muted)', 'end') +
+                '<rect x="' + L + '" y="' + (y + 3) + '" width="' + n1(w) + '" height="16" rx="3" fill="' + (cur ? C4 : on ? C1 : 'var(--border)') + '"/>' +
+                tx(L + w + 6, y + 15, fmtUs(h[1]), 10, on ? 'currentColor' : 'var(--text-muted)', 'start'); });
+            var y0 = 14 + H.length * 26;
+            [1, 10, 100, 1000, 10000, 100000].forEach(function (v) { var x = L + (Math.log10(v) - lmin) / (lmax - lmin) * BW; g += ln(x, 8, x, y0, 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(x, y0 + 12, fmtUs(v), 9, 'var(--text-muted)'); });
+            view.innerHTML = svgw('0 0 ' + W + ' ' + (y0 + 18), g);
+            var done = 0; H.forEach(function (h, i) { if (i <= step) done += h[1]; });
+            var mx = H.reduce(function (a, h) { return h[1] > a[1] ? h : a; });
+            p.innerHTML = (step < 0 ? '按「下一段」跟著委託單走。' : '目前累計 <b>' + fmtUs(done) + '</b>。') + '全程約 <b>' + fmtUs(tot) + '</b>；最慢的一段是「' + mx[0] + '」（' + fmtUs(mx[1]) + '）。' +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">橫軸是對數刻度：每一格差 10 倍。數字為示意量級，實際依網路、券商與系統而不同。' + (key === 'colo' ? '共置程式交易的整趟旅程，比散戶手機的「網路那一段」還短上千倍。' : '散戶感受到的時間，大部分花在自己的網路與推播上；交易所撮合只占極小一部分。') + '</span>'; }
+          mark(b, key); draw();
+        }
+
+        /* ---------- 2. 委託簿撮合 ---------- */
+        function initBook(root, cfg) {
+          head(root, cfg.q); var bids, asks, seq, trades, b = bar(root), form = el('div', 'margin:6px 0'), view = el('div'), p;
+          function reset() { seq = 1; trades = []; bids = [[99.9, 3, 'B1'], [99.9, 2, 'B2'], [99.8, 5, 'B3'], [99.7, 4, 'B4'], [99.6, 6, 'B5']].map(function (o) { return { p: o[0], q: o[1], id: o[2], t: seq++ }; });
+            asks = [[100.0, 2, 'S1'], [100.0, 3, 'S2'], [100.1, 4, 'S3'], [100.2, 5, 'S4'], [100.3, 3, 'S5']].map(function (o) { return { p: o[0], q: o[1], id: o[2], t: seq++ }; }); }
+          bt(b, '↺ 重設委託簿', 'reset', function () { reset(); draw(''); });
+          var side = 'B', typ = 'L', sb = el('span'), tb = el('span'), pr = inp('100.1'), qt = inp('6', '3em'), go = btn('送出委託', 'go');
+          form.appendChild(document.createTextNode('方向：')); form.appendChild(sb); form.appendChild(document.createTextNode(' 類型：')); form.appendChild(tb);
+          form.appendChild(el('br')); form.appendChild(document.createTextNode('價格 ')); form.appendChild(pr); form.appendChild(document.createTextNode(' 張數 ')); form.appendChild(qt); form.appendChild(go);
+          bt(sb, '買進', 'B', function () { side = 'B'; mark(sb, 'B'); }); bt(sb, '賣出', 'S', function () { side = 'S'; mark(sb, 'S'); });
+          bt(tb, '限價', 'L', function () { typ = 'L'; mark(tb, 'L'); pr.disabled = false; }); bt(tb, '市價', 'M', function () { typ = 'M'; mark(tb, 'M'); pr.disabled = true; });
+          root.appendChild(form); root.appendChild(view); p = info(root);
+          go.addEventListener('click', function () { var q = parseInt(qt.value, 10), px = Math.round(parseFloat(pr.value) * 10) / 10;
+            if (!(q > 0) || (typ === 'L' && !(px > 0))) { p.innerHTML = '請輸入正確的價格與張數。'; return; }
+            var id = side + (seq), opp = side === 'B' ? asks : bids, log = [], left = q;
+            while (left > 0 && opp.length) { var best = opp[0]; if (typ === 'L' && (side === 'B' ? best.p > px : best.p < px)) break;
+              var x = Math.min(left, best.q); log.push(x + ' 張 @ ' + best.p.toFixed(1) + '（對手 ' + best.id + '）'); trades.unshift({ p: best.p, q: x, a: id, b: best.id });
+              best.q -= x; left -= x; if (!best.q) opp.shift(); }
+            var msg = '委託 <b>' + id + '</b>：' + (side === 'B' ? '買' : '賣') + ' ' + q + ' 張' + (typ === 'L' ? ' 限價 ' + px.toFixed(1) : ' 市價') + '。';
+            msg += log.length ? '<br>成交：' + log.join('；') + '。' : '<br>沒有可成交的對手。';
+            if (left > 0) { if (typ === 'L') { var o = { p: px, q: left, id: id, t: seq }, mine = side === 'B' ? bids : asks; mine.push(o);
+                mine.sort(function (a, c) { return side === 'B' ? (c.p - a.p || a.t - c.t) : (a.p - c.p || a.t - c.t); }); msg += '剩餘 ' + left + ' 張掛進委託簿排隊。'; }
+              else msg += '剩餘 ' + left + ' 張無法成交，取消。'; }
+            seq++; draw(msg); });
+          function row(o, col) { return '<tr><td style="padding:2px 8px;color:' + col + ';' + MONO + '">' + o.p.toFixed(1) + '</td><td style="padding:2px 8px;' + MONO + '">' + o.q + '</td><td style="padding:2px 8px;font-size:0.85em;color:var(--text-muted)">' + o.id + '</td></tr>'; }
+          function draw(msg) { var A = asks.slice(0, 6).reverse(), Bd = bids.slice(0, 6), sp = asks.length && bids.length ? (asks[0].p - bids[0].p).toFixed(1) : '—';
+            view.innerHTML = '<div style="display:flex;flex-wrap:wrap;gap:16px"><table style="border-collapse:collapse;font-size:0.92em"><tr><th style="padding:2px 8px">價格</th><th style="padding:2px 8px">張數</th><th style="padding:2px 8px">委託</th></tr>' +
+              A.map(function (o) { return row(o, SELL); }).join('') + '<tr><td colspan="3" style="padding:3px 8px;font-size:0.85em;color:var(--text-muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">買賣價差 ' + sp + '</td></tr>' +
+              Bd.map(function (o) { return row(o, BUY); }).join('') + '</table>' +
+              '<div style="flex:1;min-width:180px;font-size:0.88em"><b>最近成交</b>' + (trades.length ? trades.slice(0, 8).map(function (t) { return '<div style="' + MONO + '">' + t.q + ' 張 @ ' + t.p.toFixed(1) + '　' + t.a + '↔' + t.b + '</div>'; }).join('') : '<div style="color:var(--text-muted)">（尚無）</div>') + '</div></div>';
+            p.innerHTML = (msg ? msg + '<br>' : '') + '<span style="font-size:0.88em;color:var(--text-muted)">上方綠色是賣單（價格越低越優先），下方紅色是買單（價格越高越優先）；同價格時先到先成交。台股習慣以紅色代表買進／上漲。</span>'; }
+          mark(sb, 'B'); mark(tb, 'L'); reset(); draw('');
+        }
+
+        /* ---------- 3. 延遲計算器 ---------- */
+        var MED = { fib: ['光纖（沿道路鋪設）', 4.9, 1.3], fibs: ['光纖（理想直線）', 4.9, 1.0], mw: ['微波（直線）', 3.34, 1.0] };
+        var PRE = [['同一機房兩台機器', 0.05], ['台北 → 新竹', 70], ['台北 → 高雄', 300], ['芝加哥 Aurora → 紐澤西', 1150], ['紐約 → 倫敦', 5570], ['台北 → 東京', 2100]];
+        function initLatency(root, cfg) {
+          head(root, cfg.q); var km = 1150, b = bar(root), view = el('div'), p;
+          PRE.forEach(function (x, i) { bt(b, x[0], 'p' + i, function () { km = x[1]; mark(b, 'p' + i); draw(); }); });
+          var w = el('div', 'margin:6px 0'); w.appendChild(document.createTextNode('直線距離（公里）：')); var I = inp(String(km), '6em'); w.appendChild(I); root.appendChild(w);
+          I.addEventListener('input', function () { var v = parseFloat(I.value); if (v >= 0) { km = v; mark(b, ''); draw(); } });
+          root.appendChild(view); p = info(root);
+          function draw() { I.value = km; var rows = Object.keys(MED).map(function (k) { var m = MED[k], us = km * m[2] * m[1]; return [m[0], us]; }), mx = Math.max.apply(null, rows.map(function (r) { return r[1]; }));
+            view.innerHTML = rows.map(function (r) { return '<div style="display:flex;align-items:center;gap:6px;margin:4px 0;font-size:0.9em"><span style="flex:0 0 10em">' + r[0] + '</span><span style="flex:1;height:14px;background:var(--border);border-radius:3px;overflow:hidden"><span style="display:block;height:100%;width:' + n1(100 * r[1] / mx) + '%;background:' + C1 + '"></span></span><span style="flex:0 0 9em;' + MONO + '">單程 ' + fmtUs(r[1]) + '</span></div>'; }).join('');
+            var f = km * 1.3 * 4.9, m = km * 3.34;
+            p.innerHTML = '光在真空中每公里約 3.34 μs；在光纖玻璃中慢約三分之一（每公里約 4.9 μs），而且光纖要沿著道路、鐵路繞行。微波在空氣中幾乎以光速直線傳播——' + (km > 50 ? '這段距離微波比一般光纖快約 <b>' + fmtUs(f - m) + '</b>（單程）。' : '短距離時差異很小。') +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">「沿道路鋪設」以直線距離的 1.3 倍估算；實際路線各不相同。微波受天候影響，所以高頻交易業者通常同時保留光纖備援。</span>'; }
+          mark(b, 'p3'); draw();
+        }
+
+        /* ---------- 4. 集合競價 vs 逐筆 ---------- */
+        var ORD = [['B', 100.5, 3], ['S', 100.0, 2], ['B', 99.5, 4], ['S', 100.5, 3], ['B', 101.0, 2], ['S', 99.0, 4], ['B', 100.0, 3], ['S', 101.0, 2]];
+        function initAuction(root, cfg) {
+          head(root, cfg.q); var view = el('div'), p; root.appendChild(view); p = info(root);
+          function call() { var ps = []; ORD.forEach(function (o) { if (ps.indexOf(o[1]) < 0) ps.push(o[1]); }); ps.sort(function (a, b) { return a - b; });
+            var best = null; ps.forEach(function (px) { var bq = 0, sq = 0; ORD.forEach(function (o) { if (o[0] === 'B' && o[1] >= px) bq += o[2]; if (o[0] === 'S' && o[1] <= px) sq += o[2]; });
+              var v = Math.min(bq, sq), imb = Math.abs(bq - sq); if (!best || v > best.v || (v === best.v && imb < best.imb)) best = { p: px, v: v, imb: imb, bq: bq, sq: sq }; });
+            return best; }
+          function cont() { var bids = [], asks = [], tr = []; ORD.forEach(function (o, i) { var left = o[2], opp = o[0] === 'B' ? asks : bids;
+              while (left && opp.length) { var c = opp[0]; if (o[0] === 'B' ? c.p > o[1] : c.p < o[1]) break; var x = Math.min(left, c.q); tr.push({ i: i + 1, p: c.p, q: x }); c.q -= x; left -= x; if (!c.q) opp.shift(); }
+              if (left) { var me = o[0] === 'B' ? bids : asks; me.push({ p: o[1], q: left, t: i }); me.sort(function (a, b) { return o[0] === 'B' ? (b.p - a.p || a.t - b.t) : (a.p - b.p || a.t - b.t); }); } });
+            return tr; }
+          var c = call(), t = cont(), vol = t.reduce(function (a, x) { return a + x.q; }, 0);
+          var td = 'padding:3px 7px;border-bottom:1px solid var(--border);text-align:center';
+          view.innerHTML = '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-size:0.9em;width:100%"><tr><th style="' + td + '">到達順序</th>' + ORD.map(function (o, i) { return '<th style="' + td + '">' + (i + 1) + '</th>'; }).join('') + '</tr>' +
+            '<tr><td style="' + td + '">委託</td>' + ORD.map(function (o) { return '<td style="' + td + ';color:' + (o[0] === 'B' ? BUY : SELL) + ';' + MONO + '">' + (o[0] === 'B' ? '買' : '賣') + ' ' + o[2] + '<br>@' + o[1].toFixed(1) + '</td>'; }).join('') + '</tr></table></div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px"><div style="flex:1 1 240px;border:1px solid var(--border);border-radius:8px;padding:8px"><b>集合競價</b>（全部收齊後一次撮合）<br>單一成交價 <b style="' + MONO + '">' + c.p.toFixed(1) + '</b>，成交 <b>' + c.v + '</b> 張<br><span style="font-size:0.88em;color:var(--text-muted)">在這個價格，願意買的有 ' + c.bq + ' 張、願意賣的有 ' + c.sq + ' 張；這是成交量最大的價格。</span></div>' +
+            '<div style="flex:1 1 240px;border:1px solid var(--border);border-radius:8px;padding:8px"><b>逐筆交易</b>（每筆到達立刻撮合）<br>' + t.map(function (x) { return '第 ' + x.i + ' 筆到達時成交 ' + x.q + ' 張 @ <span style="' + MONO + '">' + x.p.toFixed(1) + '</span>'; }).join('<br>') + '<br>共 <b>' + vol + '</b> 張，成交價有 ' + t.map(function (x) { return x.p; }).filter(function (v, i, a) { return a.indexOf(v) === i; }).length + ' 種</div></div>';
+          p.innerHTML = '同樣八筆委託，兩種制度得到不同的結果：集合競價只有一個價格、對所有人一致；逐筆交易誰先到誰先成交，價格隨順序跳動，<b>速度</b>因此變得重要。台股在 2020 年 3 月 23 日把盤中改為逐筆交易，開盤與收盤仍用集合競價。';
+        }
+
+        /* ---------- 5. 漲跌停與價格穩定措施 ---------- */
+        function initBreaker(root, cfg) {
+          head(root, cfg.q); var mode = 'tw', t, px, path, halt, events, seed, timer = null, b = bar(root), b2 = bar(root), view = el('div'), p;
+          bt(b, '台股規則', 'tw', function () { mode = 'tw'; mark(b, 'tw'); reset(); }); bt(b, '美股規則（大盤）', 'us', function () { mode = 'us'; mark(b, 'us'); reset(); });
+          bt(b2, '下一分鐘 ▶', 'next', function () { tick(); draw(); }); bt(b2, '⏯ 自動', 'auto', function () { if (timer) { clearInterval(timer); timer = null; return; }
+            timer = setInterval(function () { if (!root.isConnected) { clearInterval(timer); return; } if (!root.offsetParent) return; if (t >= 120) { clearInterval(timer); timer = null; return; } tick(); draw(); }, 120); });
+          bt(b2, '↺ 新的情境', 'reset', reset);
+          root.appendChild(view); p = info(root);
+          function rnd() { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; }
+          function reset() { t = 0; px = 100; path = [[0, 100]]; halt = 0; events = []; seed = Math.floor(Math.random() * 1e5); draw(); }
+          function tick() { if (t >= 120) return; t++;
+            if (halt > 0) { halt--; path.push([t, px]); if (!halt) events.push([t, mode === 'tw' ? '2 分鐘後以集合競價恢復，再回到逐筆交易' : '恢復交易']); return; }
+            var shock = (t > 30 && t < 75) ? -0.55 : 0.02, cand = px * (1 + (shock + (rnd() - 0.5) * 1.6) / 100);
+            if (mode === 'tw') { var ref = path.length > 5 ? path[path.length - 5][1] : 100;
+              if (Math.abs(cand - ref) / ref > 0.035 && t > 3) { halt = 2; events.push([t, '瞬間價格穩定措施：試算價偏離近 5 分鐘價格超過 3.5%，暫緩撮合 2 分鐘']); path.push([t, px]); return; }
+              if (cand <= 90) { cand = 90; if (!events.some(function (e) { return e[1].indexOf('跌停') >= 0; })) events.push([t, '觸及跌停（−10%），不能以更低價格成交']); } if (cand >= 110) cand = 110; }
+            else { var d = (cand - 100);
+              var lv = d <= -20 ? 3 : d <= -13 ? 2 : d <= -7 ? 1 : 0, done = events.filter(function (e) { return e[2]; }).length;
+              if (lv > done) { events.push([t, lv === 1 ? '第一級熔斷（−7%）：全市場暫停 15 分鐘' : lv === 2 ? '第二級熔斷（−13%）：全市場暫停 15 分鐘' : '第三級熔斷（−20%）：當日停止交易', lv]); px = cand; path.push([t, px]); halt = lv === 3 ? 999 : 15; return; } }
+            px = cand; path.push([t, px]); }
+          function draw() { var hl = mode === 'tw' ? [{ y: 90, c: NG, n: '跌停 −10%' }, { y: 110, c: NG, n: '漲停 +10%' }] : [{ y: 93, c: C4, n: '−7%' }, { y: 87, c: NG, n: '−13%' }, { y: 80, c: NG, n: '−20%' }];
+            view.innerHTML = chart(640, 230, [{ d: path, c: C1, n: mode === 'tw' ? '個股價格' : 'S&P 500 指數（以 100 為前日收盤）' }], { x0: 0, x1: 120, y0: 75, y1: 112, xl: '盤中經過分鐘', yl: '價格', hl: hl });
+            p.innerHTML = (events.length ? events.map(function (e) { return '<b>第 ' + e[0] + ' 分鐘</b>：' + e[1]; }).join('<br>') : '按「下一分鐘」或「自動」，看一場急跌中系統何時介入。') +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">' + (mode === 'tw' ? '台股沒有全市場的熔斷機制，靠個股 ±10% 漲跌幅限制與盤中瞬間價格穩定措施冷卻。這裡的「近 5 分鐘價格」以 5 分鐘前的價格簡化表示。' : '美國以 S&P 500 指數相對前日收盤的跌幅觸發全市場熔斷（7%、13%、20%）；下午 3:25 後的 7%、13% 不暫停。個股另有 LULD 漲跌幅帶。') + '</span>'; }
+          mark(b, mode); reset();
+        }
+
+        /* ---------- 6. 時間尺度尺 ---------- */
+        var TS = [[0.001, '1 ns', '光在真空中走 30 公分'], [0.3, '約 0.3 μs', '高階網路交換器轉送一個封包'], [1, '約 1 μs', 'FPGA 讀取行情、做出交易決策（頂尖等級）'],
+          [5, '約 5 μs', '光在光纖中走 1 公里'], [30, '數十 μs', '交易所撮合引擎處理一筆委託（量級）'], [350, '350 μs', '美國 IEX 交易所刻意加入的「減速墊」'],
+          [700, '約 0.7 ms', '台北到新竹光纖單程（約 100 公里路徑）'], [4000, '約 4 ms', '芝加哥到紐澤西微波單程'], [6600, '約 6.6 ms', '同一段走光纖單程（Spread Networks，往返約 13 ms）'],
+          [40000, '數十 ms', '手機 4G 網路往返'], [100000, '約 100 ms', '人感覺「即時」的門檻'], [300000, '0.1～0.4 s', '眨一次眼'], [1000000, '1 s', '一秒']];
+        function initScale(root, cfg) {
+          head(root, cfg.q); var sel = 4, view = el('div'), p; root.appendChild(view); p = info(root);
+          function draw() { var W = 640, L = 20, R = 20, g = '', lmin = -3, lmax = 6;
+            function sx(us) { return L + (Math.log10(us) - lmin) / (lmax - lmin) * (W - L - R); }
+            g += ln(L, 60, W - R, 60, '#999', 1.5);
+            [[0.001, '1 ns'], [1, '1 μs'], [1000, '1 ms'], [1e6, '1 s']].forEach(function (v) { g += ln(sx(v[0]), 52, sx(v[0]), 68, '#999', 1.5) + tx(sx(v[0]), 84, v[1], 11, 'currentColor'); });
+            for (var e = -3; e <= 6; e++) g += ln(sx(Math.pow(10, e)), 56, sx(Math.pow(10, e)), 64, '#999');
+            TS.forEach(function (x, i) { var on = i === sel; g += '<circle data-i="' + i + '" cx="' + n1(sx(x[0])) + '" cy="' + (i % 2 ? 40 : 30) + '" r="' + (on ? 7 : 5) + '" fill="' + (on ? C4 : C1) + '" style="cursor:pointer"/>' + ln(sx(x[0]), (i % 2 ? 40 : 30), sx(x[0]), 60, on ? C4 : 'var(--border)', 1); });
+            view.innerHTML = svgw('0 0 ' + W + ' 96', g);
+            view.querySelectorAll('[data-i]').forEach(function (c) { c.addEventListener('click', function () { sel = +c.getAttribute('data-i'); draw(); }); });
+            var nav = el('div'), a = btn('◀', 'prev'), z = btn('▶', 'nextS'); a.addEventListener('click', function () { sel = (sel + TS.length - 1) % TS.length; draw(); }); z.addEventListener('click', function () { sel = (sel + 1) % TS.length; draw(); }); nav.appendChild(a); nav.appendChild(z); view.appendChild(nav);
+            var x = TS[sel]; p.innerHTML = '<b>' + x[1] + '</b>：' + x[2] + '<br><span style="font-size:0.88em;color:var(--text-muted)">對數刻度：從 1 奈秒到 1 秒相差十億倍。點圓點或用箭頭切換。數字為量級。</span>'; }
+          draw();
+        }
+
+        function initAll() { document.querySelectorAll('.so-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ journey: initJourney, book: initBook, latency: initLatency, auction: initAuction, breaker: initBreaker, scale: initScale })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <p>
+        所有數字為示意量級，用來理解系統的運作方式。
+      </p>
+
+      <h2>1. 委託單旅程（第 2、46 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;journey&quot;}"></div>
+
+      <h2>2. 時間尺度：從奈秒到秒（第 2 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;scale&quot;}"></div>
+
+      <h2>3. 委託簿撮合模擬器（第 14 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;book&quot;}"></div>
+
+      <h2>4. 集合競價 vs 逐筆交易（第 15 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;auction&quot;}"></div>
+
+      <h2>5. 漲跌停、價格穩定措施與熔斷（第 22 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;breaker&quot;}"></div>
+
+      <h2>6. 延遲計算器：光纖與微波（第 27 課）</h2>
+
+      <div class="so-w content-figure" style="text-align:left;max-width:700px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;latency&quot;}"></div>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
