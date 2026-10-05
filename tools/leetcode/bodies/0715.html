@@ -1,0 +1,144 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A Range Module is a module that tracks ranges of numbers. Design a data structure to track the ranges represented as <strong>half-open intervals</strong> and query about them.</p>
+          <p>A <strong>half-open interval</strong> <code>[left, right)</code> denotes all the real numbers <code>x</code> where <code>left &lt;= x &lt; right</code>.</p>
+          <p>Implement the <code>RangeModule</code> class:</p>
+        <ul>
+          <li><code>RangeModule()</code> Initializes the object of the data structure.</li>
+          <li><code>void addRange(int left, int right)</code> Adds the <strong>half-open interval</strong> <code>[left, right)</code>, tracking every real number in that interval. Adding an interval that partially overlaps with currently tracked numbers should add any numbers in the interval <code>[left, right)</code> that are not already tracked.</li>
+          <li><code>boolean queryRange(int left, int right)</code> Returns <code>true</code> if every real number in the interval <code>[left, right)</code> is currently being tracked, and <code>false</code> otherwise.</li>
+          <li><code>void removeRange(int left, int right)</code> Stops tracking every real number currently being tracked in the <strong>half-open interval</strong> <code>[left, right)</code>.</li>
+        </ul>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>設計一個追蹤數字範圍的模組，範圍以<strong>半開區間</strong> <code>[left, right)</code> 表示：</p>
+        <ul>
+          <li><code>addRange(left, right)</code>：開始追蹤 [left, right) 中所有實數（與已追蹤的部分合併）。</li>
+          <li><code>queryRange(left, right)</code>：若 [left, right) 中每個實數都正在被追蹤，回傳 True。</li>
+          <li><code>removeRange(left, right)</code>：停止追蹤 [left, right) 中的所有實數。</li>
+        </ul>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例
+  輸入
+  ["RangeModule", "addRange", "removeRange", "queryRange", "queryRange", "queryRange"]
+  [[], [10, 20], [14, 16], [10, 14], [13, 15], [16, 17]]
+  輸出
+  [null, null, null, true, false, true]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ left &lt; right ≤ 10⁹</code></li>
+          <li>最多呼叫 <code>10⁴</code> 次（<code>addRange</code>, <code>queryRange</code>, and <code>removeRange</code>）</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/range-module/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【端點陣列】
+    把所有不相交的區間攤平：[l1, r1, l2, r2, ...]（排序）。
+    對任意位置 x，bisect 得到的索引 i：
+        i 是奇數 -&gt; x 在某個區間裡面
+        i 是偶數 -&gt; x 在所有區間外面
+
+【addRange(left, right)】
+    i = bisect_left(left)、j = bisect_right(right)
+    [i, j) 之間的端點都被新區間覆蓋，刪掉。
+    若 i 是偶數（left 在區間外）-&gt; left 成為新的左端點；
+    若 j 是偶數（right 在區間外）-&gt; right 成為新的右端點。
+    bisect_left / right 的選擇讓相接的區間自動合併。
+
+【removeRange】
+    對稱：奇數時補端點（原本在區間內，切開後需要新邊界）。
+
+【queryRange】
+    left 和 right 落在同一個區間內：
+    bisect_right(left) == bisect_left(right) 而且是奇數。
+
+    每個操作 O(log n + 被刪除的端點數)，均攤 O(log n)（切片的搬移成本另計）。</div>
+
+        <div class="lc-approach">
+          <span class="lc-approach-tag">解法一</span>
+          <h3>有序區間列表</h3>
+        <div class="code-block">維護排序的 [l, r) 列表
+add：找出所有與 [left, right) 重疊或相接的區間，合併成一個
+remove：找出重疊的區間，切掉 [left, right) 的部分
+query：二分找包含 left 的區間，檢查它的右端 &gt;= right</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法二</span>
+          <h3>端點陣列 + 奇偶判斷</h3>
+        <div class="code-block">class RangeModule:
+    def __init__(self):
+        self.iv = []                    # 排序、互不重疊、也不相接的區間端點：[l1, r1, l2, r2, ...]
+
+    def addRange(self, left: int, right: int) -&gt; None:
+        i = bisect.bisect_left(self.iv, left)
+        j = bisect.bisect_right(self.iv, right)
+        # ★ 落在 [i, j) 的端點全部被吞掉；偶數索引代表「在區間外」，要補上新的端點
+        new = ([left] if i % 2 == 0 else []) + ([right] if j % 2 == 0 else [])
+        self.iv[i:j] = new
+
+    def queryRange(self, left: int, right: int) -&gt; bool:
+        i = bisect.bisect_right(self.iv, left)
+        j = bisect.bisect_left(self.iv, right)
+        return i == j and i % 2 == 1    # left 與 right 落在同一個區間內
+
+    def removeRange(self, left: int, right: int) -&gt; None:
+        i = bisect.bisect_left(self.iv, left)
+        j = bisect.bisect_right(self.iv, right)
+        new = ([left] if i % 2 == 1 else []) + ([right] if j % 2 == 1 else [])
+        self.iv[i:j] = new</div>
+        <p>驗證方式：在整數座標上和布林陣列模擬比對 400 組隨機操作序列。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(log n + 移動量)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>相接的區間</strong>（[1,3) 與 [3,5)）→ 應該合併。</li>
+          <li><strong>刪除區間的中間一段</strong> → 一個區間變成兩個。</li>
+          <li><strong>查詢空集合</strong>（題目保證 left < right）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>線段樹做法</h3>
+
+        <div class="code-block">座標達 10⁹，可用動態開點線段樹：區間賦值（設為追蹤/不追蹤）＋區間「是否全部為真」查詢。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 56 題 合併區間</strong></li>
+          <li><strong>第 57 題 插入區間</strong></li>
+          <li><strong>第 352 題 將資料流變為多個不相交區間</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>端點陣列中索引的奇偶代表什麼？</li>
+            <li>addRange 為什麼用 bisect_left 找 left、bisect_right 找 right？</li>
+          </ol>
+        </div>

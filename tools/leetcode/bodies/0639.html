@@ -1,0 +1,129 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>A message containing letters from <code>A-Z</code> can be <strong>encoded</strong> into numbers using the following mapping:</p>
+        <div class="code-block">'A' -&gt; "1"
+'B' -&gt; "2"
+...
+'Z' -&gt; "26"</div>
+          <p>To <strong>decode</strong> an encoded message, all the digits must be grouped then mapped back into letters using the reverse of the mapping above (there may be multiple ways). For example, <code>&quot;11106&quot;</code> can be mapped into:</p>
+        <ul>
+          <li><code>&quot;AAJF&quot;</code> with the grouping <code>(1 1 10 6)</code></li>
+          <li><code>&quot;KJF&quot;</code> with the grouping <code>(11 10 6)</code></li>
+        </ul>
+          <p>Note that the grouping <code>(1 11 06)</code> is invalid because <code>&quot;06&quot;</code> cannot be mapped into <code>&#39;F&#39;</code> since <code>&quot;6&quot;</code> is different from <code>&quot;06&quot;</code>.</p>
+          <p><strong>In addition</strong> to the mapping above, an encoded message may contain the <code>&#39;*&#39;</code> character, which can represent any digit from <code>&#39;1&#39;</code> to <code>&#39;9&#39;</code> (<code>&#39;0&#39;</code> is excluded). For example, the encoded message <code>&quot;1*&quot;</code> may represent any of the encoded messages <code>&quot;11&quot;</code>, <code>&quot;12&quot;</code>, <code>&quot;13&quot;</code>, <code>&quot;14&quot;</code>, <code>&quot;15&quot;</code>, <code>&quot;16&quot;</code>, <code>&quot;17&quot;</code>, <code>&quot;18&quot;</code>, or <code>&quot;19&quot;</code>. Decoding <code>&quot;1*&quot;</code> is equivalent to decoding <strong>any</strong> of the encoded messages it can represent.</p>
+          <p>Given a string <code>s</code> consisting of digits and <code>&#39;*&#39;</code> characters, return <em>the <strong>number</strong> of ways to <strong>decode</strong> it</em>.</p>
+          <p>Since the answer may be very large, return it <strong>modulo</strong> <code>10<sup>9</sup> + 7</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>訊息用 <code>'A' → "1"</code>、…、<code>'Z' → "26"</code> 編碼。現在編碼字串中還可能出現 <code>'*'</code>，代表 <code>'1'</code>～<code>'9'</code> 中的任一個數字（不含 <code>'0'</code>）。</p>
+          <p>給你字串 <code>s</code>，回傳所有可能的解碼方式總數，對 <code>10⁹ + 7</code> 取模。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：s = "*"
+  輸出：9
+
+範例 2
+  輸入：s = "1*"
+  輸出：18
+
+範例 3
+  輸入：s = "2*"
+  輸出：15</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ s.length ≤ 10⁵</code></li>
+          <li><code>s[i]</code> is a digit or <code>&#39;*&#39;</code>.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/decode-ways-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【第 91 題的 DP】
+    dp[i] = dp[i-1]·(s[i] 單獨解碼的方法數)
+          + dp[i-2]·(s[i-1..i] 合起來解碼的方法數)
+
+【單一字元 one(c)】
+    '*' -&gt; 9；'0' -&gt; 0；其他 -&gt; 1
+
+【兩個字元 two(a, b)】（合起來要在 10～26）
+    "**" -&gt; 11～19、21～26，共 15
+    "*b" -&gt; b &lt;= 6：1b、2b 兩種；b &gt;= 7：只有 1b
+    "a*" -&gt; a = 1：11～19 九種；a = 2：21～26 六種；其他 0
+    "ab" -&gt; 10 &lt;= ab &lt;= 26 則 1，否則 0
+
+    注意 '*' 不能代表 0，所以 "*0"：10、20 兩種（b = '0' &lt;= '6'）。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>DP + 分情況計數</h3>
+        <div class="code-block">class Solution:
+    def numDecodings(self, s: str) -&gt; int:
+        MOD = 10 ** 9 + 7
+
+        def one(c):                         # 單一字元能解碼成幾種字母
+            if c == "*":
+                return 9                    # 1～9
+            return 0 if c == "0" else 1
+
+        def two(a, b):                      # 兩個字元合起來（10～26）能解碼成幾種
+            if a == "*" and b == "*":
+                return 15                   # 11～19（9 種）+ 21～26（6 種）
+            if a == "*":
+                return 2 if b &lt;= "6" else 1 # 1b 和 2b，或只有 1b
+            if b == "*":
+                return 9 if a == "1" else 6 if a == "2" else 0
+            return 1 if 10 &lt;= int(a + b) &lt;= 26 else 0
+
+        prev2, prev1 = 1, one(s[0])         # dp[i-2], dp[i-1]
+        for i in range(1, len(s)):
+            # ★ 和第 91 題相同的遞迴，只是每項乘上「有幾種解法」
+            cur = (prev1 * one(s[i]) + prev2 * two(s[i - 1], s[i])) % MOD
+            prev2, prev1 = prev1, cur
+        return prev1</div>
+        <p>驗證方式：把每個 * 展開成 1～9 的所有組合，用第 91 題的解法逐一計算加總，比對 400 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(1)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>"*0"</strong> → 2（10、20）。</li>
+          <li><strong>"0" 開頭</strong> → 0。</li>
+          <li><strong>"**"</strong> → 9×9 + 15 = 96。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>萬用字元的 DP</h3>
+
+        <div class="code-block">「把萬用字元的每一種可能都數進轉移係數」：第 10 題、第 44 題（萬用字元匹配）是判斷型；本題是計數型，轉移時乘上可能數。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 91 題 解碼方法</strong></li>
+          <li><strong>第 44 題 萬用字元匹配</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>"*b" 在 b ≤ 6 和 b ≥ 7 時各有幾種？</li>
+            <li>"**" 合起來為什麼是 15 種？</li>
+          </ol>
+        </div>

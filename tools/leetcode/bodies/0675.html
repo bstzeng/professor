@@ -1,0 +1,132 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are asked to cut off all the trees in a forest for a golf event. The forest is represented as an <code>m x n</code> matrix. In this matrix:</p>
+        <ul>
+          <li><code>0</code> means the cell cannot be walked through.</li>
+          <li><code>1</code> represents an empty cell that can be walked through.</li>
+          <li>A number greater than <code>1</code> represents a tree in a cell that can be walked through, and this number is the tree&#39;s height.</li>
+        </ul>
+          <p>In one step, you can walk in any of the four directions: north, east, south, and west. If you are standing in a cell with a tree, you can choose whether to cut it off.</p>
+          <p>You must cut off the trees in order from shortest to tallest. When you cut off a tree, the value at its cell becomes <code>1</code> (an empty cell).</p>
+          <p>Starting from the point <code>(0, 0)</code>, return <em>the minimum steps you need to walk to cut off all the trees</em>. If you cannot cut off all the trees, return <code>-1</code>.</p>
+          <p><strong>Note:</strong> The input is generated such that no two trees have the same height, and there is at least one tree needs to be cut off.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>m x n</code> 的森林矩陣：<code>0</code> 是障礙物（不能走）、<code>1</code> 是空地、大於 1 的數是樹（可以走，值是樹的高度，砍掉後變成 1）。</p>
+          <p>你從 <code>(0, 0)</code> 出發，每步可以往上下左右走一格。必須依<strong>高度由矮到高</strong>砍掉所有樹（高度互不相同），回傳最少步數；無法砍完所有樹則回傳 <code>-1</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：forest = [[1,2,3],[0,0,4],[7,6,5]]
+  輸出：6
+
+範例 2
+  輸入：forest = [[1,2,3],[0,0,0],[7,6,5]]
+  輸出：-1
+
+範例 3
+  輸入：forest = [[2,3,4],[0,0,5],[8,7,6]]
+  輸出：6</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>m == forest.length</code></li>
+          <li><code>n == forest[i].length</code></li>
+          <li><code>1 ≤ m, n ≤ 50</code></li>
+          <li><code>0 ≤ forest[i][j] ≤ 10⁹</code></li>
+          <li>Heights of all trees are <strong>distinct</strong>.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/cut-off-trees-for-golf-event/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【順序是固定的】
+    必須由矮到高砍 -&gt; 先把所有樹依高度排序。
+    路線 = (0,0) -&gt; 第 1 棵 -&gt; 第 2 棵 -&gt; ... -&gt; 最後一棵。
+
+【每一段獨立】
+    砍樹只把格子變成 1，不改變「哪些格子能走」，
+    所以每一段的最短路互不影響 -&gt; 各做一次 BFS 加總。
+    任何一段走不到 -&gt; -1。
+
+【複雜度】
+    最多 mn 棵樹，每段 BFS O(mn) -&gt; O((mn)²)。
+    m, n &lt;= 50，約 6×10⁶，可以接受。
+
+【加速】
+    把 BFS 換成 A*（曼哈頓距離當啟發式）或 Hadlock 演算法。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>排序 + 逐段 BFS</h3>
+        <div class="code-block">class Solution:
+    def cutOffTree(self, forest: List[List[int]]) -&gt; int:
+        m, n = len(forest), len(forest[0])
+        trees = sorted((h, i, j) for i, row in enumerate(forest) for j, h in enumerate(row) if h &gt; 1)
+
+        def bfs(si, sj, ti, tj):                # 兩點間最短步數（不能走 0）
+            if (si, sj) == (ti, tj):
+                return 0
+            seen = {(si, sj)}
+            q = deque([(si, sj, 0)])
+            while q:
+                i, j, d = q.popleft()
+                for x, y in ((i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)):
+                    if 0 &lt;= x &lt; m and 0 &lt;= y &lt; n and forest[x][y] and (x, y) not in seen:
+                        if (x, y) == (ti, tj):
+                            return d + 1
+                        seen.add((x, y))
+                        q.append((x, y, d + 1))
+            return -1
+
+        res, si, sj = 0, 0, 0
+        for _, ti, tj in trees:                 # ★ 砍樹順序固定（由矮到高），只要把每一段最短路加起來
+            d = bfs(si, sj, ti, tj)
+            if d &lt; 0:
+                return -1
+            res += d
+            si, sj = ti, tj
+        return res</div>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O((mn)²)</td><td></td></tr>
+            <tr><td>空間</td><td>O(mn)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>(0,0) 本身是樹</strong> → 第一段距離可能是 0。</li>
+          <li><strong>某棵樹被障礙物隔開</strong> → −1。</li>
+          <li><strong>(0,0) 是障礙物</strong>（題目保證不會）。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>A* 搜尋</h3>
+
+        <div class="code-block">A* 用 f = 已走距離 + 曼哈頓距離 排序的優先佇列。曼哈頓距離不會高估真實距離（可容許的啟發式），所以找到的仍是最短路，但通常探索的格子少很多。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1091 題 二進位矩陣中的最短路徑</strong></li>
+          <li><strong>第 864 題 獲取所有鑰匙的最短路徑</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼可以把每一段分開計算？</li>
+            <li>整體時間複雜度是多少？</li>
+          </ol>
+        </div>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>587. Erect the Fence 安裝柵欄 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="凸包：Andrew 單調鏈演算法，排序後分別建上下凸包；本題邊上共線的點也要保留，只在右轉時彈出。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="587">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 587 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 587</div>
+          <h1>Erect the Fence<br>安裝柵欄</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">幾何</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">數學</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an array <code>trees</code> where <code>trees[i] = [x<sub>i</sub>, y<sub>i</sub>]</code> represents the location of a tree in the garden.</p>
+          <p>Fence the entire garden using the minimum length of rope, as it is expensive. The garden is well-fenced only if <strong>all the trees are enclosed</strong>.</p>
+          <p>Return <em>the coordinates of trees that are exactly located on the fence perimeter</em>. You may return the answer in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你花園中每棵樹的座標 <code>trees[i] = [x, y]</code>。你要用<strong>最短</strong>的繩子把所有樹圍起來。</p>
+          <p>回傳<strong>恰好位於柵欄上</strong>的所有樹的座標（順序不限）。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：trees = [[1,1],[2,2],[2,0],[2,4],[3,3],[4,2]]
+  輸出：[[1,1],[2,0],[4,2],[3,3],[2,4]]
+
+範例 2
+  輸入：trees = [[1,2],[2,2],[4,2]]
+  輸出：[[4,2],[2,2],[1,2]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ trees.length ≤ 3000</code></li>
+          <li><code>trees[i].length == 2</code></li>
+          <li><code>0 ≤ x<sub>i</sub>, y<sub>i</sub> ≤ 100</code></li>
+          <li>All the given positions are <strong>unique</strong>.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/erect-the-fence/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【最短的圍繩 = 凸包】
+    把所有點包起來的最小凸多邊形。
+
+【Andrew 單調鏈】
+    1. 依 (x, y) 排序。
+    2. 由左到右建下凸包：維護一個堆疊，
+       新點讓最後兩點和它形成「右轉」時，中間那點不是凸包上的點，彈出。
+    3. 由右到左用同樣方法建上凸包。
+    4. 兩者合併（去重）。
+
+【轉向判斷：外積】
+    cross(o, a, b) = (a-o) × (b-o)
+        &gt; 0：o -&gt; a -&gt; b 左轉
+        &lt; 0：右轉
+        = 0：共線
+
+【本題的特別之處：邊上的點也要】
+    一般凸包只保留頂點（共線時也彈出）；
+    本題要所有在柵欄上的樹 -&gt; 只在嚴格右轉（&lt; 0）時彈出。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>Andrew 單調鏈</h3>
+        <div class="code-block">class Solution:
+    def outerTrees(self, trees: List[List[int]]) -&gt; List[List[int]]:
+        pts = sorted(map(tuple, trees))
+        if len(pts) &lt;= 3:
+            return [list(p) for p in set(pts)]
+
+        def cross(o, a, b):         # (a - o) × (b - o)：&gt; 0 左轉，&lt; 0 右轉，= 0 共線
+            return (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+
+        def half(points):
+            hull = []
+            for p in points:
+                # ★ 只在「右轉」時彈出；共線（= 0）的點保留，因為邊上的樹也要圍進去
+                while len(hull) &gt;= 2 and cross(hull[-2], hull[-1], p) &lt; 0:
+                    hull.pop()
+                hull.append(p)
+            return hull
+
+        lower = half(pts)               # 下凸包（由左到右）
+        upper = half(pts[::-1])         # 上凸包（由右到左）
+        return [list(p) for p in set(lower + upper)]</div>
+        <p>驗證方式：和「點在凸包邊界上 ⇔ 存在一條經過它、所有點都在同一側的直線」的暴力判斷比對 1500 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>所有點共線</strong> → 上下凸包都包含全部點，用集合去重。</li>
+          <li><strong>點數 ≤ 3</strong> → 全部都在柵欄上。</li>
+          <li><strong>邊上共線的點</strong> → 只在 cross < 0 時彈出才能保留。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>其他凸包演算法</h3>
+
+        <div class="code-block">Graham 掃描（依極角排序）、Jarvis 步進（禮物包裝法，O(nh)）。Andrew 只用 x 座標排序，處理共線比 Graham 簡單。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 593 題 有效的正方形</strong></li>
+          <li><strong>第 963 題 最小面積矩形 II</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>外積的正負代表什麼？</li>
+            <li>為什麼本題只在 cross < 0 時彈出？</li>
+            <li>所有點共線時會發生什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0583.html">← 上一題：583. 兩個字串的刪除操作</a>
+          <a href="problem-0589.html">下一題：589. N 叉樹的前序走訪 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

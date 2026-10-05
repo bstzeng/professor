@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>685. Redundant Connection II 冗餘連接 II ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="有向版本分三種情況：有節點入度為 2（兩條候選邊）、有環、或兩者同時；先暫時刪掉後出現的候選邊再用聯合查找判斷。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="685">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 685 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 685</div>
+          <h1>Redundant Connection II<br>冗餘連接 II</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">聯合查找</span>
+          <span class="lc-badge">圖</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>In this problem, a rooted tree is a <b>directed</b> graph such that, there is exactly one node (the root) for which all other nodes are descendants of this node, plus every node has exactly one parent, except for the root node which has no parents.</p>
+          <p>The given input is a directed graph that started as a rooted tree with <code>n</code> nodes (with distinct values from <code>1</code> to <code>n</code>), with one additional directed edge added. The added edge has two different vertices chosen from <code>1</code> to <code>n</code>, and was not an edge that already existed.</p>
+          <p>The resulting graph is given as a 2D-array of <code>edges</code>. Each element of <code>edges</code> is a pair <code>[u<sub>i</sub>, v<sub>i</sub>]</code> that represents a <b>directed</b> edge connecting nodes <code>u<sub>i</sub></code> and <code>v<sub>i</sub></code>, where <code>u<sub>i</sub></code> is a parent of child <code>v<sub>i</sub></code>.</p>
+          <p>Return <em>an edge that can be removed so that the resulting graph is a rooted tree of</em> <code>n</code> <em>nodes</em>. If there are multiple answers, return the answer that occurs last in the given 2D-array.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p><strong>有根樹</strong>是一個有向圖：恰好一個根節點（沒有父節點），其他每個節點恰好有一個父節點，且所有節點都是根的後代。</p>
+          <p>給你一棵有 n 個節點的有根樹，被多加了一條有向邊（不重複）。回傳一條可以刪除的邊，使剩下的圖成為有根樹；有多個答案時回傳<strong>最後出現</strong>的那條。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：edges = [[1,2],[1,3],[2,3]]
+  輸出：[2,3]
+
+範例 2
+  輸入：edges = [[1,2],[2,3],[3,4],[4,1],[1,5]]
+  輸出：[4,1]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == edges.length</code></li>
+          <li><code>3 ≤ n ≤ 1000</code></li>
+          <li><code>edges[i].length == 2</code></li>
+          <li><code>1 ≤ u<sub>i</sub>, v<sub>i</sub> ≤ n</code></li>
+          <li><code>u<sub>i</sub> != v<sub>i</sub></code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/redundant-connection-ii/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【多出的那條邊 u -&gt; v 會造成什麼？】
+    情況 1：v 不是根 -&gt; v 有兩個父節點（入度 2），但沒有環
+    情況 2：v 是根 -&gt; 沒有入度 2 的節點，但形成一個環
+    情況 3：v 不是根，而且 u 是 v 的後代 -&gt; 入度 2 + 環
+
+【做法】
+    1. 先找入度為 2 的節點，記下兩條指向它的邊 cand1（先）、cand2（後）。
+    2. 暫時跳過 cand2，用聯合查找把其他邊加進來：
+       - 若仍形成環：
+           有候選 -&gt; 刪錯了，應該刪 cand1（情況 3）
+           沒候選 -&gt; 純粹是環，刪形成環的這條（情況 2，和第 684 題相同）
+       - 若沒有環：刪 cand2 就對了（情況 1，題目要最後出現的）</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>入度檢查 + 聯合查找</h3>
+        <div class="code-block">class Solution:
+    def findRedundantDirectedConnection(self, edges: List[List[int]]) -&gt; List[int]:
+        n = len(edges)
+        par = {}
+        cand1 = cand2 = None
+        for a, b in edges:                      # 找有沒有節點有兩個父節點
+            if b in par:
+                cand1, cand2 = [par[b], b], [a, b]   # 先出現的、後出現的
+            else:
+                par[b] = a
+
+        root = list(range(n + 1))
+        def find(x):
+            while root[x] != x:
+                root[x] = root[root[x]]
+                x = root[x]
+            return x
+
+        for a, b in edges:
+            if [a, b] == cand2:
+                continue                        # ★ 先假設刪掉後出現的那條，看剩下的是否無環
+            ra, rb = find(a), find(b)
+            if ra == rb:
+                # 有環：若有兩個父節點的情況，刪的應該是 cand1；否則刪形成環的這條
+                return cand1 if cand1 else [a, b]
+            root[rb] = ra
+        return cand2</div>
+        <p>驗證方式：隨機有根樹加一條有向邊，和「從後往前試刪，檢查是否為有根樹」的暴力法比對 2000 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n α(n))</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>入度 2 但無環</strong> → 刪後出現的那條。</li>
+          <li><strong>入度 2 且有環</strong> → 刪環上那條候選邊（cand1）。</li>
+          <li><strong>只有環、沒有入度 2</strong> → 多的邊指向根，和第 684 題相同。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>無向 vs 有向</h3>
+
+        <div class="code-block">無向圖（第 684 題）只要找環；有向的有根樹還要求每個節點恰好一個父節點，所以多了入度的檢查。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 684 題 冗餘連接</strong></li>
+          <li><strong>第 1361 題 驗證二元樹</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>多加的邊會造成哪三種情況？</li>
+            <li>跳過 cand2 後仍有環，為什麼答案是 cand1？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0684.html">← 上一題：684. 冗餘連接</a>
+          <a href="problem-0686.html">下一題：686. 重複疊加字串匹配 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

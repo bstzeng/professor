@@ -48,6 +48,17 @@ def from_list(node):
 
 
 NS = dict(globals())
+# LeetCode 的 Python 環境預先匯入了這些名稱
+from collections import deque, Counter, defaultdict, OrderedDict
+from functools import cache, lru_cache, reduce
+from itertools import accumulate, permutations, combinations, product
+from math import gcd, inf, comb, isqrt
+from bisect import bisect_left, bisect_right, insort
+import string, operator
+NS.update(deque=deque, Counter=Counter, defaultdict=defaultdict, OrderedDict=OrderedDict, cache=cache,
+          lru_cache=lru_cache, reduce=reduce, accumulate=accumulate, permutations=permutations,
+          combinations=combinations, product=product, gcd=gcd, inf=inf, comb=comb, isqrt=isqrt,
+          bisect_left=bisect_left, bisect_right=bisect_right, insort=insort, string=string, operator=operator)
 
 
 class Src(dict):

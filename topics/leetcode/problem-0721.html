@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>721. Accounts Merge 帳戶合併 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="以 email 為節點，同一帳戶內的 email 互相連通；用聯合查找求連通分量，每個分量就是一個人。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="721">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 721 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 721</div>
+          <h1>Accounts Merge<br>帳戶合併</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge medium">Medium · 中等</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">聯合查找</span>
+          <span class="lc-badge">陣列</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a list of <code>accounts</code> where each element <code>accounts[i]</code> is a list of strings, where the first element <code>accounts[i][0]</code> is a name, and the rest of the elements are <strong>emails</strong> representing emails of the account.</p>
+          <p>Now, we would like to merge these accounts. Two accounts definitely belong to the same person if there is some common email to both accounts. Note that even if two accounts have the same name, they may belong to different people as people could have the same name. A person can have any number of accounts initially, but all of their accounts definitely have the same name.</p>
+          <p>After merging the accounts, return the accounts in the following format: the first element of each account is the name, and the rest of the elements are emails <strong>in sorted order</strong>. The accounts themselves can be returned in <strong>any order</strong>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一組帳戶 <code>accounts</code>，<code>accounts[i][0]</code> 是名字，其餘是這個帳戶的 email。</p>
+          <p>兩個帳戶只要有<strong>任何一個共同的 email</strong>，就一定屬於同一個人（同名不代表同一個人）。合併後回傳每個人的帳戶：名字在前，後面是<strong>排序好</strong>的所有 email。帳戶順序不限。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"],["John","johnsmith@mail.com","john00@mail.com"],["Mary","mary@mail.com"],["John","johnnybravo@mail.com"]]
+  輸出：[["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"],["Mary","mary@mail.com"],["John","johnnybravo@mail.com"]]
+
+範例 2
+  輸入：accounts = [["Gabe","Gabe0@m.co","Gabe3@m.co","Gabe1@m.co"],["Kevin","Kevin3@m.co","Kevin5@m.co","Kevin0@m.co"],["Ethan","Ethan5@m.co","Ethan4@m.co","Ethan0@m.co"],["Hanzo","Hanzo3@m.co","Hanzo1@m.co","Hanzo0@m.co"],["Fern","Fern5@m.co","Fern1@m.co","Fern0@m.co"]]
+  輸出：[["Ethan","Ethan0@m.co","Ethan4@m.co","Ethan5@m.co"],["Gabe","Gabe0@m.co","Gabe1@m.co","Gabe3@m.co"],["Hanzo","Hanzo0@m.co","Hanzo1@m.co","Hanzo3@m.co"],["Kevin","Kevin0@m.co","Kevin3@m.co","Kevin5@m.co"],["Fern","Fern0@m.co","Fern1@m.co","Fern5@m.co"]]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ accounts.length ≤ 1000</code></li>
+          <li><code>2 ≤ accounts[i].length ≤ 10</code></li>
+          <li><code>1 ≤ accounts[i][j].length ≤ 30</code></li>
+          <li><code>accounts[i][0]</code> 只含英文字母</li>
+          <li><code>accounts[i][j] (for j &gt; 0)</code> is a valid email.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/accounts-merge/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【圖的連通分量】
+    節點：每個 email。
+    邊：同一個帳戶內的 email 互相相連
+        （只要把每個 email 連到該帳戶的第一個 email 即可）。
+    同一個連通分量的 email 屬於同一個人。
+
+【聯合查找】
+    每個帳戶：把所有 email 和第一個 email 合併。
+    最後依代表元素分組、排序，加上名字。
+
+【名字從哪來？】
+    同一個連通分量的帳戶名字一定相同（同一個人），
+    記下任一個 email 對應的名字即可。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>聯合查找</h3>
+        <div class="code-block">class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -&gt; List[List[str]]:
+        parent = {}
+        def find(x):
+            parent.setdefault(x, x)
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        owner = {}
+        for acc in accounts:
+            name, first = acc[0], acc[1]
+            for e in acc[1:]:
+                owner[e] = name
+                parent[find(e)] = find(first)       # ★ 同一個帳戶裡的 email 都屬於同一個人
+
+        groups = defaultdict(list)
+        for e in owner:
+            groups[find(e)].append(e)
+        return [[owner[r]] + sorted(es) for r, es in groups.items()]</div>
+        <p>驗證方式：和「反覆合併有交集的 email 集合」的暴力法比對 1000 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(N log N)</td><td>N 為 email 總數；排序是主要成本</td></tr>
+            <tr><td>空間</td><td>O(N)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>同名但沒有共同 email</strong> → 不合併。</li>
+          <li><strong>間接相連</strong>（A–B 共用、B–C 共用）→ 三個帳戶都合併。</li>
+          <li><strong>帳戶內重複的 email</strong> → 分組時用 owner 的鍵去重。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>DFS 做法</h3>
+
+        <div class="code-block">建好 email 的鄰接表後，對每個沒拜訪過的 email 做 DFS 收集整個分量，效果相同。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 547 題 省份數量</strong></li>
+          <li><strong>第 684 題 冗餘連接</strong></li>
+          <li><strong>第 737 題 句子相似性 II</strong>（付費）</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>圖的節點和邊分別是什麼？</li>
+            <li>為什麼只要把每個 email 和帳戶的第一個 email 合併？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0720.html">← 上一題：720. 字典中最長的單字</a>
+          <a href="problem-0722.html">下一題：722. 刪除註解 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

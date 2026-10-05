@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>502. IPO IPO ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="資本只會增加，所以每一步都在「做得起的專案」裡挑利潤最大的：排序 + 最大堆積。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="502">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 502 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 502</div>
+          <h1>IPO<br>IPO</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">貪心</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">排序</span>
+          <span class="lc-badge">堆積（優先佇列）</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Suppose LeetCode will start its <strong>IPO</strong> soon. In order to sell a good price of its shares to Venture Capital, LeetCode would like to work on some projects to increase its capital before the <strong>IPO</strong>. Since it has limited resources, it can only finish at most <code>k</code> distinct projects before the <strong>IPO</strong>. Help LeetCode design the best way to maximize its total capital after finishing at most <code>k</code> distinct projects.</p>
+          <p>You are given <code>n</code> projects where the <code>i<sup>th</sup></code> project has a pure profit <code>profits[i]</code> and a minimum capital of <code>capital[i]</code> is needed to start it.</p>
+          <p>Initially, you have <code>w</code> capital. When you finish a project, you will obtain its pure profit and the profit will be added to your total capital.</p>
+          <p>Pick a list of <strong>at most</strong> <code>k</code> distinct projects from given projects to <strong>maximize your final capital</strong>, and return <em>the final maximized capital</em>.</p>
+          <p>The answer is guaranteed to fit in a 32-bit signed integer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>公司想在 IPO 前最多完成 <code>k</code> 個不同的專案。第 <code>i</code> 個專案需要資本至少 <code>capital[i]</code> 才能開始，完成後得到純利潤 <code>profits[i]</code>（加進資本，不會扣掉門檻）。</p>
+          <p>一開始資本是 <code>w</code>。選擇最多 <code>k</code> 個專案，回傳最後能得到的<strong>最大資本</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：k = 2, w = 0, profits = [1,2,3], capital = [0,1,1]
+  輸出：4
+
+範例 2
+  輸入：k = 3, w = 0, profits = [1,2,3], capital = [0,1,2]
+  輸出：6</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ k ≤ 10⁵</code></li>
+          <li><code>0 ≤ w ≤ 10⁹</code></li>
+          <li><code>n == profits.length</code></li>
+          <li><code>n == capital.length</code></li>
+          <li><code>1 ≤ n ≤ 10⁵</code></li>
+          <li><code>0 ≤ profits[i] ≤ 10⁴</code></li>
+          <li><code>0 ≤ capital[i] ≤ 10⁹</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/ipo/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【關鍵觀察：資本只增不減】
+    做任何專案都不會花掉資本（只要達到門檻），利潤 &gt;= 0。
+    所以「做得起的專案集合」只會越來越大。
+
+【貪心】
+    每一輪：在目前做得起的專案中，挑利潤最大的。
+    為什麼對？做了利潤最大的，資本最高，
+    之後做得起的集合也最大 —— 不會比其他選擇差。
+
+【資料結構】
+    專案依門檻排序，用指標 i 把「門檻 &lt;= w」的專案陸續放進最大堆積；
+    每輪從堆積拿最大利潤。
+    每個專案最多進出堆積一次。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>排序 + 最大堆積的貪心</h3>
+        <div class="code-block">class Solution:
+    def findMaximizedCapital(self, k: int, w: int, profits: List[int], capital: List[int]) -&gt; int:
+        projects = sorted(zip(capital, profits))   # 依門檻（所需資本）排序
+        heap = []                                   # 目前「做得起」的專案利潤（最大堆積）
+        i = 0
+        for _ in range(k):
+            while i &lt; len(projects) and projects[i][0] &lt;= w:
+                heapq.heappush(heap, -projects[i][1])  # 門檻達到了，放進候選
+                i += 1
+            if not heap:
+                break                               # 一個都做不起，提早結束
+            w += -heapq.heappop(heap)               # ★ 貪心：做得起的裡面挑利潤最大的
+        return w</div>
+        <p>驗證方式：和窮舉所有選擇順序的暴力法比對 1500 組隨機資料。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n log n + k log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>沒有做得起的專案</strong> → 提早結束，回傳目前資本。</li>
+          <li><strong>k 大於專案數</strong> → 堆積空了就停。</li>
+          <li><strong>利潤為 0 的專案</strong> → 做了也不影響，不需特別處理。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>兩個堆積的寫法</h3>
+
+        <div class="code-block">也可以把專案依門檻放進最小堆積，每輪把門檻 &lt;= w 的移到利潤最大堆積。和排序 + 指標是同一件事。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 630 題 課程表 III</strong></li>
+          <li><strong>第 871 題 最少加油次數</strong></li>
+          <li><strong>第 1353 題 最多可以參加的會議數目</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼貪心挑利潤最大的專案是對的？</li>
+            <li>哪一個性質保證「做得起的集合」只會變大？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0501.html">← 上一題：501. 二元搜尋樹中的眾數</a>
+          <a href="problem-0503.html">下一題：503. 下一個更大元素 II →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

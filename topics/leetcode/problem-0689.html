@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>689. Maximum Sum of 3 Non-Overlapping Subarrays 三個無重疊子陣列的最大和 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="先算所有長度 k 的視窗和，再預處理「左邊最大」與「右邊最大」的位置，枚舉中間視窗 O(n)；注意字典序最小的平手規則。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="689">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 689 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 689</div>
+          <h1>Maximum Sum of 3 Non-Overlapping Subarrays<br>三個無重疊子陣列的最大和</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">陣列</span>
+          <span class="lc-badge">動態規劃</span>
+          <span class="lc-badge">前綴和</span>
+          <span class="lc-badge">滑動視窗</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given an integer array <code>nums</code> and an integer <code>k</code>, find three non-overlapping subarrays of length <code>k</code> with maximum sum and return them.</p>
+          <p>Return the result as a list of indices representing the starting position of each interval (<strong>0-indexed</strong>). If there are multiple answers, return the lexicographically smallest one.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你整數陣列 <code>nums</code> 和整數 <code>k</code>，找出三個長度為 <code>k</code>、<strong>互不重疊</strong>的子陣列，使它們的總和最大。</p>
+          <p>回傳三個子陣列的起始索引；有多個答案時回傳<strong>字典序最小</strong>的。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：nums = [1,2,1,2,6,7,5,1], k = 2
+  輸出：[0,3,5]
+
+範例 2
+  輸入：nums = [1,2,1,2,1,2,1,2,1], k = 2
+  輸出：[0,2,4]</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ nums.length ≤ 2 * 10⁴</code></li>
+          <li><code>1 ≤ nums[i] &lt; 2¹⁶</code></li>
+          <li><code>1 ≤ k ≤ floor(nums.length / 3)</code></li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/maximum-sum-of-3-non-overlapping-subarrays/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【視窗和】
+    w[i] = nums[i..i+k-1] 的和，用滑動視窗 O(n) 算出。
+    問題變成：選 i &lt; j &lt; l，j &gt;= i + k、l &gt;= j + k，使 w[i] + w[j] + w[l] 最大。
+
+【枚舉中間的 j】
+    左邊：w[0 .. j-k] 中最大的 -&gt; 預處理 left[]
+    右邊：w[j+k ..] 中最大的   -&gt; 預處理 right[]
+    每個 j O(1)。
+
+【字典序最小】
+    left：遇到相同值保留較左的（嚴格 &gt; 才更新）。
+    right：從右往左掃，遇到相同值更新成較左的（&gt;= 就更新）。
+    枚舉 j 由小到大，總和嚴格更大才更新。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>視窗和 + 左右最大值預處理</h3>
+        <div class="code-block">class Solution:
+    def maxSumOfThreeSubarrays(self, nums: List[int], k: int) -&gt; List[int]:
+        n = len(nums)
+        w = [0] * (n - k + 1)                   # w[i]：從 i 開始、長度 k 的視窗和
+        s = sum(nums[:k])
+        w[0] = s
+        for i in range(1, n - k + 1):
+            s += nums[i + k - 1] - nums[i - 1]
+            w[i] = s
+
+        left = [0] * len(w)                     # left[i]：w[0..i] 中最大值的位置（相同取最左）
+        for i in range(1, len(w)):
+            left[i] = i if w[i] &gt; w[left[i - 1]] else left[i - 1]
+        right = [len(w) - 1] * len(w)           # right[i]：w[i..] 中最大值的位置（相同取最左）
+        for i in range(len(w) - 2, -1, -1):
+            right[i] = i if w[i] &gt;= w[right[i + 1]] else right[i + 1]
+
+        best = None
+        for j in range(k, len(w) - k):          # ★ 枚舉中間的視窗 j，左右各取最好的
+            a, c = left[j - k], right[j + k]
+            cand = (w[a] + w[j] + w[c], a, j, c)
+            if best is None or cand[0] &gt; best[0]:
+                best = cand
+        return list(best[1:])</div>
+        <p>驗證方式：和枚舉所有三元組的暴力法（含字典序平手規則）比對 1000 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>多個相同總和</strong> → 字典序最小，left 與 right 的比較符號要小心。</li>
+          <li><strong>n = 3k</strong> → 唯一解 [0, k, 2k]。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>一般化成 m 個子陣列</h3>
+
+        <div class="code-block">dp[t][i] = 在前 i 個位置中選 t 個不重疊視窗的最大和；dp[t][i] = max(dp[t][i−1], dp[t−1][i−k] + w[i−k])，O(m·n)，再回溯取字典序最小的答案。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 123 題 買賣股票的最佳時機 III</strong></li>
+          <li><strong>第 1031 題 兩個非重疊子陣列的最大和</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼枚舉中間的視窗最方便？</li>
+            <li>left 與 right 在遇到相同值時分別怎麼處理？為什麼？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0688.html">← 上一題：688. 騎士在棋盤上的機率</a>
+          <a href="problem-0690.html">下一題：690. 員工的重要性 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

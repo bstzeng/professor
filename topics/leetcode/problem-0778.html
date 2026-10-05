@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>778. Swim in Rising Water 水位上升的泳池中游泳 ｜ LeetCode 題解 ｜ 博雅書院</title>
+<meta name="description" content="找一條路徑使「途中最高的格子」最小——瓶頸最短路：把 Dijkstra 的加法換成 max；也可以二分水位或用聯合查找。">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body data-topic-id="leetcode" data-problem="778">
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">LeetCode 題解</a>
+      <span class="sep">/</span>
+      <span>第 778 題</span>
+    </nav>
+
+    <div class="lc-layout">
+      <aside class="lc-sidebar" id="lc-sidebar"></aside>
+
+      <article class="lc-content lesson-content">
+        <header class="lesson-header">
+          <div class="eyebrow">LeetCode 778</div>
+          <h1>Swim in Rising Water<br>水位上升的泳池中游泳</h1>
+        </header>
+
+        <div class="lc-meta">
+          <span class="lc-badge hard">Hard · 困難</span>
+          <span class="lc-badge">深度優先搜尋</span>
+          <span class="lc-badge">廣度優先搜尋</span>
+          <span class="lc-badge">聯合查找</span>
+          <span class="lc-badge">陣列</span>
+        </div>
+
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>You are given an <code>n x n</code> integer matrix <code>grid</code> where each value <code>grid[i][j]</code> represents the elevation at that point <code>(i, j)</code>.</p>
+          <p>It starts raining, and water gradually rises over time. At time <code>t</code>, the water level is <code>t</code>, meaning <strong>any</strong> cell with elevation less than equal to <code>t</code> is submerged or reachable.</p>
+          <p>You can swim from a square to another 4-directionally adjacent square if and only if the elevation of both squares individually are at most <code>t</code>. You can swim infinite distances in zero time. Of course, you must stay within the boundaries of the grid during your swim.</p>
+          <p>Return <em>the minimum time until you can reach the bottom right square </em><code>(n - 1, n - 1)</code><em> if you start at the top left square </em><code>(0, 0)</code>.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個 <code>n x n</code> 的格子，<code>grid[i][j]</code> 是該格的海拔（0～n²−1 各出現一次）。下雨後，時間 t 時所有地方的水深都是 t。</p>
+          <p>你可以從一格游到上下左右相鄰的格子，前提是兩格的海拔都不超過 t（游泳本身不花時間）。從 <code>(0, 0)</code> 出發，回傳能到達 <code>(n−1, n−1)</code> 的<strong>最早時間</strong>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：grid = [[0,2],[1,3]]
+  輸出：3
+
+範例 2
+  輸入：grid = [[0,1,2,3,4],[24,23,22,21,5],[12,13,14,15,16],[11,17,18,19,20],[10,9,8,7,6]]
+  輸出：16</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>n == grid.length</code></li>
+          <li><code>n == grid[i].length</code></li>
+          <li><code>1 ≤ n ≤ 50</code></li>
+          <li><code>0 ≤ grid[i][j] &lt; n²</code></li>
+          <li>每個 <code>grid[i][j]</code> 互不相同</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/swim-in-rising-water/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【答案是什麼？】
+    一條路徑能在時間 t 走完 &lt;=&gt; 路徑上每一格的海拔 &lt;= t。
+    -&gt; 要找一條「最高點」最低的路徑，答案就是那個最高點。
+
+【做法一：修改版 Dijkstra】
+    路徑成本 = max(經過的格子)，仍然滿足「延長路徑成本不會變小」，
+    所以 Dijkstra 適用：把 d + w 換成 max(d, w)。
+
+【做法二：二分答案】
+    給定 t，用 BFS 檢查只走 &lt;= t 的格子能否到達終點。
+    t 在 [0, n²-1] 二分，O(n² log n)。
+
+【做法三：聯合查找】
+    依海拔由低到高逐一「打開」格子，和已打開的鄰居合併；
+    起點和終點第一次連通時的海拔就是答案。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>Dijkstra（成本取最大值）</h3>
+        <div class="code-block">class Solution:
+    def swimInWater(self, grid: List[List[int]]) -&gt; int:
+        n = len(grid)
+        seen = {(0, 0)}
+        pq = [(grid[0][0], 0, 0)]               # (到達這格所需的最低水位, 列, 欄)
+        while pq:
+            t, i, j = heapq.heappop(pq)
+            if (i, j) == (n - 1, n - 1):
+                return t
+            for x, y in ((i + 1, j), (i - 1, j), (i, j + 1), (i, j - 1)):
+                if 0 &lt;= x &lt; n and 0 &lt;= y &lt; n and (x, y) not in seen:
+                    seen.add((x, y))
+                    # ★ 路徑的成本是「途中最高的格子」，不是總和
+                    heapq.heappush(pq, (max(t, grid[x][y]), x, y))</div>
+        <p>驗證方式：和「水位從 0 往上逐一嘗試，每次 DFS 檢查是否連通」的暴力法比對 500 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n² log n)</td><td></td></tr>
+            <tr><td>空間</td><td>O(n²)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>n = 1</strong> → grid[0][0]。</li>
+          <li><strong>起點海拔很高</strong> → 至少要等到起點的海拔。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>瓶頸路徑</h3>
+
+        <div class="code-block">「最小化路徑上的最大值」也叫 minimax 路徑：第 1631 題（最小體力消耗路徑）、第 1102 題（得分最高的路徑，付費）。它恰好是最小生成樹上兩點之間的路徑。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 1631 題 最小體力消耗路徑</strong></li>
+          <li><strong>第 743 題 網路延遲時間</strong></li>
+          <li><strong>第 1102 題 得分最高的路徑</strong>（付費）</li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>為什麼答案是路徑上最高的格子？</li>
+            <li>Dijkstra 要改哪裡？為什麼仍然正確？</li>
+          </ol>
+        </div>
+
+        <nav class="lesson-nav">
+          <a href="problem-0777.html">← 上一題：777. 在 LR 字串中交換相鄰字元</a>
+          <a href="problem-0779.html">下一題：779. 第 K 個語法符號 →</a>
+        </nav>
+      </article>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>window.SITE_BASE = "../../";</script>
+<script src="../../data/topics.js"></script>
+<script src="../../js/leetcode-nav.js"></script>
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

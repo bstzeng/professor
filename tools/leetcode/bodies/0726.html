@@ -1,0 +1,126 @@
+        <div class="lc-statement is-en">
+          <h3>Problem</h3>
+          <p>Given a string <code>formula</code> representing a chemical formula, return <em>the count of each atom</em>.</p>
+          <p>The atomic element always starts with an uppercase character, then zero or more lowercase letters, representing the name.</p>
+          <p>One or more digits representing that element&#39;s count may follow if the count is greater than <code>1</code>. If the count is <code>1</code>, no digits will follow.</p>
+        <ul>
+          <li>For example, <code>&quot;H2O&quot;</code> and <code>&quot;H2O2&quot;</code> are possible, but <code>&quot;H1O2&quot;</code> is impossible.</li>
+        </ul>
+          <p>Two formulas are concatenated together to produce another formula.</p>
+        <ul>
+          <li>For example, <code>&quot;H2O2He3Mg4&quot;</code> is also a formula.</li>
+        </ul>
+          <p>A formula placed in parentheses, and a count (optionally added) is also a formula.</p>
+        <ul>
+          <li>For example, <code>&quot;(H2O2)&quot;</code> and <code>&quot;(H2O2)3&quot;</code> are formulas.</li>
+        </ul>
+          <p>Return the count of all elements as a string in the following form: the first name (in sorted order), followed by its count (if that count is more than <code>1</code>), followed by the second name (in sorted order), followed by its count (if that count is more than <code>1</code>), and so on.</p>
+          <p>The test cases are generated so that all the values in the output fit in a <strong>32-bit</strong> integer.</p>
+        </div>
+
+        <div class="lc-statement">
+          <h3>中文翻譯</h3>
+          <p>給你一個化學式字串 <code>formula</code>，回傳每種原子的數量。</p>
+          <p>原子名稱以大寫字母開頭，後面接零或多個小寫字母；數量（大於 1 時才寫）接在後面。化學式可以用括號組合並乘上倍數，例如 <code>"Mg(OH)2"</code>。</p>
+          <p>輸出依原子名稱的<strong>字典序</strong>排列，數量為 1 時不寫數字，例如 <code>"H2MgO2"</code>。</p>
+        </div>
+
+        <h2>範例</h2>
+
+        <div class="code-block">範例 1
+  輸入：formula = "H2O"
+  輸出："H2O"
+
+範例 2
+  輸入：formula = "Mg(OH)2"
+  輸出："H2MgO2"
+
+範例 3
+  輸入：formula = "K4(ON(SO3)2)2"
+  輸出："K4N2O14S4"</div>
+
+        <h2>限制條件</h2>
+
+        <ul>
+          <li><code>1 ≤ formula.length ≤ 1000</code></li>
+          <li><code>formula</code> consists of English letters, digits, <code>&#39;(&#39;</code>, and <code>&#39;)&#39;</code>.</li>
+          <li><code>formula</code> is always valid.</li>
+        </ul>
+
+        <p><a href="https://leetcode.com/problems/number-of-atoms/" target="_blank" rel="noopener">LeetCode 原題</a></p>
+
+        <h2>解題思路</h2>
+
+        <div class="code-block">【括號巢狀 -&gt; 堆疊】
+    堆疊的每一層是一個計數器，代表「目前這層括號裡」的原子數量。
+        原子 + 數字 -&gt; 加到頂層
+        (            -&gt; 推入新的空計數器
+        ) + 數字 k   -&gt; 彈出頂層，全部乘 k 後加到下一層
+
+【斷詞】
+    正規表示式一次切出三種 token：
+        ([A-Z][a-z]*)(\d*)   原子與數量
+        (\()                 左括號
+        (\))(\d*)           右括號與倍數
+
+【遞迴寫法】
+    parse() 遇到 '(' 就遞迴解析到對應的 ')'，回傳子計數器。</div>
+
+        <div class="lc-approach is-optimal">
+          <span class="lc-approach-tag">解法</span>
+          <h3>堆疊 + 計數器</h3>
+        <div class="code-block">class Solution:
+    def countOfAtoms(self, formula: str) -&gt; str:
+        stack = [Counter()]
+        tokens = re.findall(r"([A-Z][a-z]*)(\d*)|(\()|(\))(\d*)", formula)
+        for name, cnt, lp, rp, mult in tokens:
+            if name:
+                stack[-1][name] += int(cnt or 1)        # 原子：加到目前這一層
+            elif lp:
+                stack.append(Counter())                 # 左括號：開新的一層
+            else:
+                top = stack.pop()
+                k = int(mult or 1)
+                for a, c in top.items():
+                    stack[-1][a] += c * k               # ★ 右括號：整層乘上倍數，併回上一層
+        cnt = stack[0]
+        return "".join(a + (str(cnt[a]) if cnt[a] &gt; 1 else "") for a in sorted(cnt))</div>
+        <p>驗證方式：題目範例，加上隨機產生的巢狀化學式，和遞迴下降解析器比對 1500 組。</p>
+        <table>
+          <thead><tr><th></th><th>複雜度</th><th>說明</th></tr></thead>
+          <tbody>
+            <tr><td>時間</td><td>O(n²)</td><td>最壞每層括號都要把內容乘一次</td></tr>
+            <tr><td>空間</td><td>O(n)</td><td></td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2>邊界條件檢查清單</h2>
+
+        <ul>
+          <li><strong>數量 1 不寫</strong>（輸入與輸出都是）。</li>
+          <li><strong>多位數</strong>（如 Be32）。</li>
+          <li><strong>多層巢狀括號</strong>。</li>
+        </ul>
+
+        <h2>常見追問</h2>
+
+        <h3>由右往左掃</h3>
+
+        <div class="code-block">從右往左掃描，維護一個「目前的乘數」堆疊：遇到 ) 把乘數乘上它後面的數字並推入，遇到 ( 彈出。每個原子直接乘上目前乘數加到總表，避免重複乘整層，O(n)。</div>
+
+        <h2>延伸題目</h2>
+
+        <ul>
+          <li><strong>第 394 題 字串解碼</strong></li>
+          <li><strong>第 224 題 基本計算機</strong></li>
+          <li><strong>第 736 題 Lisp 語法解析</strong></li>
+        </ul>
+
+        <div class="self-check">
+          <h3>檢查你的理解</h3>
+          <ol>
+            <li>遇到右括號時要做什麼？</li>
+            <li>為什麼堆疊的每一層要是一個計數器？</li>
+          </ol>
+        </div>
