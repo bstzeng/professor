@@ -17425,6 +17425,201 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "nobel-medicine",
+      category: "nobel",
+      title: "諾貝爾生理學或醫學獎：一百二十五年的完整地圖",
+      description:
+        "從一九〇一年到二〇二五年的諾貝爾生理學或醫學獎完整整理，架構與物理獎、化學獎課程相同，每年十月可自行擴充。先講清楚卡羅琳學院的評選規則與醫學獎獨有的難題；一九〇一至二〇〇五年以四張大表加分析呈現（含胰島素、青黴素與三個尷尬的獎、分子生物學革命），二〇〇六年後每年獨立一課。最後分析時間差、遺珠與代表性，以及如何在每年十月判讀新的獎。",
+      icon: "🏅",
+      url: "topics/nobel-medicine/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：醫學獎的性格與課程結構",
+          courses: [
+            { title: "醫學獎的規則與它的特色", url: "topics/nobel-medicine/lesson-01.html" },
+            { title: "醫學獎的領域分布與趨勢", url: "topics/nobel-medicine/lesson-02.html" },
+            { title: "課程結構與怎麼新增新年度", url: "topics/nobel-medicine/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜大表：一九〇一至一九二五",
+          courses: [
+            { title: "一九〇一至一九二五年醫學獎總表", url: "topics/nobel-medicine/lesson-04.html" },
+            { title: "胰島素：最快的獎與被遺漏的人", url: "topics/nobel-medicine/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 C｜大表：一九二六至一九五〇",
+          courses: [
+            { title: "一九二六至一九五〇年醫學獎總表", url: "topics/nobel-medicine/lesson-06.html" },
+            { title: "藥物的年代與三個尷尬的獎", url: "topics/nobel-medicine/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 D｜大表：一九五一至一九七五",
+          courses: [
+            { title: "一九五一至一九七五年醫學獎總表", url: "topics/nobel-medicine/lesson-08.html" },
+            { title: "分子生物學革命與兩位缺席者", url: "topics/nobel-medicine/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 E｜大表：一九七六至二〇〇五",
+          courses: [
+            { title: "一九七六至二〇〇五年醫學獎總表", url: "topics/nobel-medicine/lesson-10.html" },
+            { title: "三十年的三個趨勢與大表的收尾", url: "topics/nobel-medicine/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 F｜逐年精讀：二〇〇六至二〇一〇",
+          courses: [
+            { title: "二〇〇六年：RNA 干擾", url: "topics/nobel-medicine/lesson-12.html" },
+            { title: "二〇〇七年：基因標的小鼠", url: "topics/nobel-medicine/lesson-13.html" },
+            { title: "二〇〇八年：兩種致病病毒：HPV 與 HIV", url: "topics/nobel-medicine/lesson-14.html" },
+            { title: "二〇〇九年：端粒與端粒酶", url: "topics/nobel-medicine/lesson-15.html" },
+            { title: "二〇一〇年：試管嬰兒", url: "topics/nobel-medicine/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 G｜逐年精讀：二〇一一至二〇一五",
+          courses: [
+            { title: "二〇一一年：先天免疫與樹突細胞", url: "topics/nobel-medicine/lesson-17.html" },
+            { title: "二〇一二年：細胞重新編程", url: "topics/nobel-medicine/lesson-18.html" },
+            { title: "二〇一三年：囊泡運輸", url: "topics/nobel-medicine/lesson-19.html" },
+            { title: "二〇一四年：大腦的定位系統", url: "topics/nobel-medicine/lesson-20.html" },
+            { title: "二〇一五年：寄生蟲病的新療法", url: "topics/nobel-medicine/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 H｜逐年精讀：二〇一六至二〇二〇",
+          courses: [
+            { title: "二〇一六年：細胞自噬", url: "topics/nobel-medicine/lesson-22.html" },
+            { title: "二〇一七年：晝夜節律的分子機制", url: "topics/nobel-medicine/lesson-23.html" },
+            { title: "二〇一八年：癌症免疫療法", url: "topics/nobel-medicine/lesson-24.html" },
+            { title: "二〇一九年：細胞如何感知氧氣", url: "topics/nobel-medicine/lesson-25.html" },
+            { title: "二〇二〇年：C 型肝炎病毒", url: "topics/nobel-medicine/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 I｜逐年精讀：二〇二一至二〇二五",
+          courses: [
+            { title: "二〇二一年：溫度與觸覺受體", url: "topics/nobel-medicine/lesson-27.html" },
+            { title: "二〇二二年：古基因體與人類演化", url: "topics/nobel-medicine/lesson-28.html" },
+            { title: "二〇二三年：mRNA 疫苗的關鍵", url: "topics/nobel-medicine/lesson-29.html" },
+            { title: "二〇二四年：微型 RNA", url: "topics/nobel-medicine/lesson-30.html" },
+            { title: "二〇二五年：周邊免疫耐受與調節性 T 細胞", url: "topics/nobel-medicine/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 J｜橫向主題分析",
+          courses: [
+            { title: "時間差：從發現到獲獎要等多久", url: "topics/nobel-medicine/lesson-32.html" },
+            { title: "遺珠、爭議與代表性", url: "topics/nobel-medicine/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結與持續追蹤",
+          courses: [
+            { title: "每年十月：怎麼追蹤與判讀", url: "topics/nobel-medicine/lesson-34.html" },
+            { title: "總結：一百二十五年的醫學", url: "topics/nobel-medicine/lesson-35.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "nobel-economics",
+      category: "nobel",
+      title: "諾貝爾經濟學獎：五十七年的完整地圖",
+      description:
+        "從一九六九年第一屆到二〇二五年的瑞典中央銀行紀念諾貝爾經濟學獎完整整理，架構與時間框架和物理獎、化學獎課程相同，每年十月可自行擴充。先講清楚這個「不在諾貝爾遺囑裡」的獎的由來與爭議；一九六九至二〇〇五年以三張大表加分析呈現（奠基者、芝加哥學派與制度、賽局資訊與行為），二〇〇六年後每年獨立一課。最後分析時間差、學派、遺珠與代表性，以及如何在每年十月判讀新的獎。",
+      icon: "🏅",
+      url: "topics/nobel-economics/index.html",
+      modules: [
+        {
+          title: "模組 A｜序幕：經濟學獎的身分與課程結構",
+          courses: [
+            { title: "一個「不是諾貝爾遺囑裡」的獎", url: "topics/nobel-economics/lesson-01.html" },
+            { title: "經濟學獎的領域分布與趨勢", url: "topics/nobel-economics/lesson-02.html" },
+            { title: "課程結構與怎麼新增新年度", url: "topics/nobel-economics/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜大表：一九六九至一九八〇",
+          courses: [
+            { title: "一九六九至一九八〇年經濟學獎總表", url: "topics/nobel-economics/lesson-04.html" },
+            { title: "奠基者：把經濟學變成一門數學科學", url: "topics/nobel-economics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 C｜大表：一九八一至一九九三",
+          courses: [
+            { title: "一九八一至一九九三年經濟學獎總表", url: "topics/nobel-economics/lesson-06.html" },
+            { title: "芝加哥學派、交易成本與制度", url: "topics/nobel-economics/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 D｜大表：一九九四至二〇〇五",
+          courses: [
+            { title: "一九九四至二〇〇五年經濟學獎總表", url: "topics/nobel-economics/lesson-08.html" },
+            { title: "賽局、資訊與行為：三次擴張與大表的收尾", url: "topics/nobel-economics/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 F｜逐年精讀：二〇〇六至二〇一〇",
+          courses: [
+            { title: "二〇〇六年：通膨與失業的跨期取捨", url: "topics/nobel-economics/lesson-10.html" },
+            { title: "二〇〇七年：機制設計", url: "topics/nobel-economics/lesson-11.html" },
+            { title: "二〇〇八年：新貿易理論與經濟地理", url: "topics/nobel-economics/lesson-12.html" },
+            { title: "二〇〇九年：經濟治理：共有資源與企業邊界", url: "topics/nobel-economics/lesson-13.html" },
+            { title: "二〇一〇年：搜尋摩擦與失業", url: "topics/nobel-economics/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 G｜逐年精讀：二〇一一至二〇一五",
+          courses: [
+            { title: "二〇一一年：總體經濟的因果", url: "topics/nobel-economics/lesson-15.html" },
+            { title: "二〇一二年：穩定配對與市場設計", url: "topics/nobel-economics/lesson-16.html" },
+            { title: "二〇一三年：資產價格的實證分析", url: "topics/nobel-economics/lesson-17.html" },
+            { title: "二〇一四年：市場力量與管制", url: "topics/nobel-economics/lesson-18.html" },
+            { title: "二〇一五年：消費、貧窮與福利", url: "topics/nobel-economics/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 H｜逐年精讀：二〇一六至二〇二〇",
+          courses: [
+            { title: "二〇一六年：契約理論", url: "topics/nobel-economics/lesson-20.html" },
+            { title: "二〇一七年：行為經濟學", url: "topics/nobel-economics/lesson-21.html" },
+            { title: "二〇一八年：氣候、創新與長期成長", url: "topics/nobel-economics/lesson-22.html" },
+            { title: "二〇一九年：以實驗方法對抗貧窮", url: "topics/nobel-economics/lesson-23.html" },
+            { title: "二〇二〇年：拍賣理論與新的拍賣形式", url: "topics/nobel-economics/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 I｜逐年精讀：二〇二一至二〇二五",
+          courses: [
+            { title: "二〇二一年：自然實驗與因果推論", url: "topics/nobel-economics/lesson-25.html" },
+            { title: "二〇二二年：銀行與金融危機", url: "topics/nobel-economics/lesson-26.html" },
+            { title: "二〇二三年：女性的勞動市場", url: "topics/nobel-economics/lesson-27.html" },
+            { title: "二〇二四年：制度與國家的繁榮", url: "topics/nobel-economics/lesson-28.html" },
+            { title: "二〇二五年：創新驅動的經濟成長", url: "topics/nobel-economics/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 J｜橫向主題分析",
+          courses: [
+            { title: "時間差與學派", url: "topics/nobel-economics/lesson-30.html" },
+            { title: "爭議、遺珠與代表性", url: "topics/nobel-economics/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結與持續追蹤",
+          courses: [
+            { title: "每年十月：怎麼追蹤與判讀", url: "topics/nobel-economics/lesson-32.html" },
+            { title: "總結：五十七年的經濟學", url: "topics/nobel-economics/lesson-33.html" },
+          ],
+        },
+      ],
     }
   ]
 };
