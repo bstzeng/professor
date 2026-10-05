@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：撮合引擎的軟體設計 ｜ 股票下單的幕後 ｜ 博雅書院</title>
+<meta name="description" content="單執行緒、記憶體、日誌">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">股票下單的幕後</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜交易所的心臟：撮合引擎 · 第 17 課</div>
+      <h1>撮合引擎的軟體設計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解撮合引擎的典型架構</li>
+          <li>理解為什麼用單執行緒</li>
+          <li>認識日誌與重播</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">撮合引擎的典型架構</text>
+                <rect x="20" y="70" width="110" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="75" y="96" text-anchor="middle" font-size="11" fill="#4a90c2">閘道</text><text x="75" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">收委託、檢查格式</text>
+                <rect x="150" y="70" width="110" height="60" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="205" y="96" text-anchor="middle" font-size="11" fill="#9c89d6">定序器</text><text x="205" y="110" text-anchor="middle" font-size="9" fill="var(--text-muted)">排出唯一順序</text>
+                <rect x="280" y="50" width="130" height="100" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="345" y="84" text-anchor="middle" font-size="11" fill="#e0605a">撮合引擎</text><text x="345" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">單一執行緒</text><text x="345" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">委託簿在記憶體</text><text x="345" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">依序處理</text>
+                <rect x="430" y="40" width="190" height="50" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="525" y="61" text-anchor="middle" font-size="11" fill="#ff8a65">成交回報</text><text x="525" y="75" text-anchor="middle" font-size="9" fill="var(--text-muted)">回給券商</text>
+                <rect x="430" y="110" width="190" height="50" rx="8" fill="var(--surface)" stroke="#5fa8a8" stroke-width="1.5"/><text x="525" y="131" text-anchor="middle" font-size="11" fill="#5fa8a8">行情發布</text><text x="525" y="145" text-anchor="middle" font-size="9" fill="var(--text-muted)">同時廣播給所有人</text>
+                <line x1="130.0" y1="100.0" x2="141.0" y2="100.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="148.0,100.0 141.0,103.5 141.0,96.5" fill="var(--text-muted)"/>
+                <line x1="260.0" y1="100.0" x2="271.0" y2="100.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="278.0,100.0 271.0,103.5 271.0,96.5" fill="var(--text-muted)"/>
+                <line x1="410.0" y1="80.0" x2="422.5" y2="70.3" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="428.0,66.0 424.6,73.1 420.3,67.5" fill="var(--text-muted)"/>
+                <line x1="410.0" y1="120.0" x2="422.5" y2="129.7" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="428.0,134.0 420.3,132.5 424.6,126.9" fill="var(--text-muted)"/>
+                <path d="M345 150 L345 182 L215 182 L215 132" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <text x="280" y="198" text-anchor="middle" font-size="10" fill="var(--text-muted)">日誌：每一筆事件都寫下來，可完整重播</text>
+        </svg>
+        <figcaption>撮合引擎的典型架構。</figcaption>
+      </div>
+
+      <p>
+        直覺上，處理大量委託應該用很多 CPU 同時計算。但大多數撮合引擎的核心反而是<strong>單一執行緒、依序處理</strong>：同一檔股票的委託一筆接一筆，絕不同時處理兩筆。
+      </p>
+
+      <ul>
+        <li><strong>順序就是公平</strong>：時間優先要求嚴格的先後順序。多個執行緒同時處理，順序就可能亂掉。</li>
+        <li><strong>沒有鎖，就沒有等待</strong>：多執行緒要用鎖來避免衝突，鎖本身就很慢。單執行緒在記憶體裡直接操作，一筆只需要微秒。</li>
+        <li><strong>平行化在外面做</strong>：不同股票可以分給不同的撮合引擎（分區）；收委託、檢查格式、發布行情也在其他機器上平行處理。</li>
+      </ul>
+
+      <p>
+        另一個關鍵是<strong>日誌</strong>：每一筆進入撮合引擎的事件，都先依序寫下來。系統當機時，只要把日誌從頭重播一遍，就能精確重建當時的委託簿。這叫事件溯源（event sourcing）。
+      </p>
+
+      <p>
+        台灣證交所為逐筆交易改版的系統，也採用在記憶體中處理委託的設計，並從舊有的大型主機程式語言改寫為開放平台上的 C 語言。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          撮合引擎核心多採單執行緒依序處理：嚴格順序確保時間優先的公平，免除鎖的等待，一筆只需微秒；平行化靠按股票分區與周邊系統。每筆事件先寫入日誌，當機時可重播重建委託簿（事件溯源）。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">📈 本課程說明交易系統<strong>如何運作</strong>，不是投資建議。延遲與規模數字多為公開資料或量級估算，實際數值依券商、網路與系統版本而不同；交易規則以證交所、櫃買中心與主管機關最新公告為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼撮合引擎核心常用單執行緒？</li>
+          <li>不同股票如何平行處理？</li>
+          <li>日誌如何幫助系統從當機中恢復？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>確定性與公平</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：開盤、收盤與盤後</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：確定性與公平 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
