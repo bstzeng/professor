@@ -17200,6 +17200,231 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "agentic-ai",
+      category: "tech",
+      title: "Agentic AI 的運行原理",
+      description:
+        "Agentic AI 完整導讀，每一個動作都附 Python 範例（離線假 LLM 版可直接執行＋Claude API 版）：代理迴圈、工具定義與往返、平行呼叫、錯誤處理、Tool Runner；思考、ReAct、規劃、待辦清單、反思與停止條件；上下文視窗、歷史管理、嵌入、RAG、長期記憶、提示快取、上下文工程；執行程式、檔案、上網、MCP、computer use 與迷你程式代理；多代理；結構化輸出、防護欄、人在迴路、沙箱、提示注入、評估、追蹤、成本；Claude Code 與 Codex 案例剖析、部署與未來。附六個互動工具與完整範例下載。",
+      icon: "🤖",
+      url: "topics/agentic-ai/index.html",
+      resources: [
+        {
+          title: "Agentic AI 實驗室",
+          description: "代理迴圈、工具定義、向量相似度、上下文視窗、提示注入攻防、成本估算，以及全部 Python 範例下載",
+          icon: "🧪",
+          url: "topics/agentic-ai/guide.html"
+        },
+        {
+          title: "Agentic AI 名詞速查",
+          description: "代理、工具、記憶、多代理與安全的名詞",
+          icon: "📖",
+          url: "topics/agentic-ai/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從聊天到代理",
+          courses: [
+            { title: "什麼是 Agentic AI", url: "topics/agentic-ai/lesson-01.html" },
+            { title: "LLM 只會「接下一個字」", url: "topics/agentic-ai/lesson-02.html" },
+            { title: "呼叫 LLM API：訊息與角色", url: "topics/agentic-ai/lesson-03.html" },
+            { title: "從工作流到代理：自主程度光譜", url: "topics/agentic-ai/lesson-04.html" },
+            { title: "代理迴圈：感知、思考、行動、觀察", url: "topics/agentic-ai/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜工具使用",
+          courses: [
+            { title: "工具是什麼：函式加上說明書", url: "topics/agentic-ai/lesson-06.html" },
+            { title: "tool_use 與 tool_result 的往返", url: "topics/agentic-ai/lesson-07.html" },
+            { title: "完整的工具迴圈", url: "topics/agentic-ai/lesson-08.html" },
+            { title: "平行工具呼叫", url: "topics/agentic-ai/lesson-09.html" },
+            { title: "工具錯誤處理", url: "topics/agentic-ai/lesson-10.html" },
+            { title: "設計好工具", url: "topics/agentic-ai/lesson-11.html" },
+            { title: "參數驗證與嚴格模式", url: "topics/agentic-ai/lesson-12.html" },
+            { title: "Tool Runner：讓 SDK 跑迴圈", url: "topics/agentic-ai/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜推理與規劃",
+          courses: [
+            { title: "思考：讓模型先想再答", url: "topics/agentic-ai/lesson-14.html" },
+            { title: "ReAct：推理與行動交錯", url: "topics/agentic-ai/lesson-15.html" },
+            { title: "先規劃再執行", url: "topics/agentic-ai/lesson-16.html" },
+            { title: "任務分解與待辦清單", url: "topics/agentic-ai/lesson-17.html" },
+            { title: "反思與自我修正", url: "topics/agentic-ai/lesson-18.html" },
+            { title: "何時停止：終止條件與預算", url: "topics/agentic-ai/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜記憶與知識",
+          courses: [
+            { title: "上下文視窗：代理的工作記憶", url: "topics/agentic-ai/lesson-20.html" },
+            { title: "對話歷史管理：截斷與摘要", url: "topics/agentic-ai/lesson-21.html" },
+            { title: "嵌入向量與相似度", url: "topics/agentic-ai/lesson-22.html" },
+            { title: "RAG：檢索增強生成", url: "topics/agentic-ai/lesson-23.html" },
+            { title: "長期記憶：跨對話記得你", url: "topics/agentic-ai/lesson-24.html" },
+            { title: "提示快取", url: "topics/agentic-ai/lesson-25.html" },
+            { title: "上下文工程", url: "topics/agentic-ai/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜與世界互動",
+          courses: [
+            { title: "執行程式碼", url: "topics/agentic-ai/lesson-27.html" },
+            { title: "讀寫檔案", url: "topics/agentic-ai/lesson-28.html" },
+            { title: "上網搜尋與擷取", url: "topics/agentic-ai/lesson-29.html" },
+            { title: "MCP：模型上下文協定", url: "topics/agentic-ai/lesson-30.html" },
+            { title: "Computer use：操作電腦畫面", url: "topics/agentic-ai/lesson-31.html" },
+            { title: "實作：迷你程式代理", url: "topics/agentic-ai/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜多代理",
+          courses: [
+            { title: "為什麼要多代理", url: "topics/agentic-ai/lesson-33.html" },
+            { title: "協調者與工作者", url: "topics/agentic-ai/lesson-34.html" },
+            { title: "路由與交接", url: "topics/agentic-ai/lesson-35.html" },
+            { title: "評估者與優化者", url: "topics/agentic-ai/lesson-36.html" },
+            { title: "多代理的代價與陷阱", url: "topics/agentic-ai/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜可靠性與安全",
+          courses: [
+            { title: "結構化輸出", url: "topics/agentic-ai/lesson-38.html" },
+            { title: "防護欄", url: "topics/agentic-ai/lesson-39.html" },
+            { title: "人在迴路", url: "topics/agentic-ai/lesson-40.html" },
+            { title: "沙箱與權限", url: "topics/agentic-ai/lesson-41.html" },
+            { title: "提示注入", url: "topics/agentic-ai/lesson-42.html" },
+            { title: "評估：怎麼知道代理變好了", url: "topics/agentic-ai/lesson-43.html" },
+            { title: "可觀測性：日誌與追蹤", url: "topics/agentic-ai/lesson-44.html" },
+            { title: "成本與延遲", url: "topics/agentic-ai/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜實務與未來",
+          courses: [
+            { title: "用哪種架構？從簡單開始", url: "topics/agentic-ai/lesson-46.html" },
+            { title: "代理框架與 SDK", url: "topics/agentic-ai/lesson-47.html" },
+            { title: "案例剖析：Claude Code 與 Codex", url: "topics/agentic-ai/lesson-48.html" },
+            { title: "把代理部署上線", url: "topics/agentic-ai/lesson-49.html" },
+            { title: "代理的極限與常見失敗", url: "topics/agentic-ai/lesson-50.html" },
+            { title: "未來：更長時程的自主代理", url: "topics/agentic-ai/lesson-51.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fascism",
+      category: "history",
+      title: "法西斯主義：起源、運作與教訓",
+      description:
+        "以 Paxton、Griffin、Eco 等學者研究為基礎的法西斯主義歷史導讀：語源與定義、與威權及極權的區別；一戰與戰後危機；墨索里尼的崛起、進軍羅馬與法西斯義大利；威瑪共和、大蕭條與納粹選票、1933 年的一體化、種族迫害與大屠殺；西班牙、葡萄牙、奧地利、東歐與日本的比較；領袖崇拜、宣傳、暴力、群眾組織、經濟與菁英共謀；二戰、崩潰、紐倫堡與戰後民主的防衛；Paxton 五階段與民主如何保護自己。附五個互動工具。",
+      icon: "📜",
+      url: "topics/fascism/index.html",
+      resources: [
+        {
+          title: "法西斯主義互動工具",
+          description: "威瑪共和選舉、宣傳手法辨識、政權比較、Paxton 五階段、1914–1946 年表",
+          icon: "🧭",
+          url: "topics/fascism/guide.html"
+        },
+        {
+          title: "法西斯主義名詞速查",
+          description: "概念、人物、事件與組織",
+          icon: "📖",
+          url: "topics/fascism/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是法西斯主義",
+          courses: [
+            { title: "這個詞從哪裡來", url: "topics/fascism/lesson-01.html" },
+            { title: "為什麼法西斯很難定義", url: "topics/fascism/lesson-02.html" },
+            { title: "Paxton：看它做了什麼", url: "topics/fascism/lesson-03.html" },
+            { title: "Griffin：民族重生的神話", url: "topics/fascism/lesson-04.html" },
+            { title: "Eco：永恆法西斯的十四個特徵", url: "topics/fascism/lesson-05.html" },
+            { title: "法西斯、威權與極權", url: "topics/fascism/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜一戰與戰後危機",
+          courses: [
+            { title: "第一次世界大戰的衝擊", url: "topics/fascism/lesson-07.html" },
+            { title: "戰後的經濟與社會動盪", url: "topics/fascism/lesson-08.html" },
+            { title: "對共產革命的恐懼", url: "topics/fascism/lesson-09.html" },
+            { title: "自由民主的危機", url: "topics/fascism/lesson-10.html" },
+            { title: "思想的源流", url: "topics/fascism/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜義大利：法西斯的誕生",
+          courses: [
+            { title: "墨索里尼的出身", url: "topics/fascism/lesson-12.html" },
+            { title: "1919：戰鬥團與「殘缺的勝利」", url: "topics/fascism/lesson-13.html" },
+            { title: "黑衫軍與暴力", url: "topics/fascism/lesson-14.html" },
+            { title: "進軍羅馬", url: "topics/fascism/lesson-15.html" },
+            { title: "從總理到獨裁者", url: "topics/fascism/lesson-16.html" },
+            { title: "法西斯義大利的統治", url: "topics/fascism/lesson-17.html" },
+            { title: "對外擴張與種族法", url: "topics/fascism/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜德國：國家社會主義",
+          courses: [
+            { title: "威瑪共和的困境", url: "topics/fascism/lesson-19.html" },
+            { title: "希特勒與早期納粹黨", url: "topics/fascism/lesson-20.html" },
+            { title: "大蕭條與選票", url: "topics/fascism/lesson-21.html" },
+            { title: "1933 年 1 月：被扶上台", url: "topics/fascism/lesson-22.html" },
+            { title: "一體化：六個月拆除民主", url: "topics/fascism/lesson-23.html" },
+            { title: "納粹國家的運作", url: "topics/fascism/lesson-24.html" },
+            { title: "種族意識形態與迫害", url: "topics/fascism/lesson-25.html" },
+            { title: "大屠殺", url: "topics/fascism/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜其他國家與比較",
+          courses: [
+            { title: "西班牙：佛朗哥與長槍黨", url: "topics/fascism/lesson-27.html" },
+            { title: "葡萄牙與奧地利", url: "topics/fascism/lesson-28.html" },
+            { title: "東歐的法西斯運動與失敗的運動", url: "topics/fascism/lesson-29.html" },
+            { title: "日本：軍國主義是不是法西斯", url: "topics/fascism/lesson-30.html" },
+            { title: "比較：法西斯與其他獨裁", url: "topics/fascism/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜運作機制",
+          courses: [
+            { title: "領袖崇拜", url: "topics/fascism/lesson-32.html" },
+            { title: "宣傳", url: "topics/fascism/lesson-33.html" },
+            { title: "暴力與恐怖", url: "topics/fascism/lesson-34.html" },
+            { title: "群眾組織與青年", url: "topics/fascism/lesson-35.html" },
+            { title: "經濟：統合主義與戰爭經濟", url: "topics/fascism/lesson-36.html" },
+            { title: "傳統菁英的共謀", url: "topics/fascism/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜戰爭、崩潰與戰後",
+          courses: [
+            { title: "軸心國與第二次世界大戰", url: "topics/fascism/lesson-38.html" },
+            { title: "崩潰：1943–1945", url: "topics/fascism/lesson-39.html" },
+            { title: "清算：紐倫堡審判與去納粹化", url: "topics/fascism/lesson-40.html" },
+            { title: "戰後的新法西斯與民主的防衛", url: "topics/fascism/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜歷史的教訓",
+          courses: [
+            { title: "Paxton 的五個階段", url: "topics/fascism/lesson-42.html" },
+            { title: "謹慎使用「法西斯」這個詞", url: "topics/fascism/lesson-43.html" },
+            { title: "民主如何保護自己", url: "topics/fascism/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };

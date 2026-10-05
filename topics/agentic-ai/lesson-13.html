@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：Tool Runner：讓 SDK 跑迴圈 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="你只寫工具函式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 13 課</div>
+      <h1>Tool Runner：讓 SDK 跑迴圈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Tool Runner 幫你做了什麼</li>
+          <li>用裝飾器定義工具</li>
+          <li>知道何時改用手寫迴圈</li>
+        </ul>
+      </div>
+
+      <p>
+        前面幾課我們一直手寫迴圈：送出、檢查 stop_reason、執行工具、接回結果。這段程式每個代理都一樣，所以官方 SDK 把它包成 <strong>Tool Runner</strong>（目前是 beta 功能）：你只要用 <code>@beta_tool</code> 裝飾器寫好工具函式，SDK 會自動產生 schema、跑迴圈、執行工具、接回結果。
+      </p>
+
+      <p>
+        Tool Runner 是一個<strong>迭代器</strong>：每一輪 yield 一則模型回應，你可以在迴圈裡觀察、記錄、甚至中途修改。它仍然跑在你自己的機器上，工具也由你提供。
+      </p>
+
+      <p>
+        什麼時候還需要手寫迴圈？當你需要非常特殊的控制流程、不想依賴 beta 功能，或是想徹底理解代理怎麼運作——就像這門課做的。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b13_runner.py" download>下載 b13_runner.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        自己做一個迷你版的 <code>@tool</code> 裝飾器與 <code>tool_runner()</code> 產生器，理解 SDK 版本在背後做了什麼。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 13 課：Tool Runner——把迴圈包起來，你只要寫工具函式。
+這裡自己做一個迷你版 @tool 裝飾器與 run_tools()，理解 SDK 的 tool_runner 在做什麼。"""
+import inspect
+import json
+from mockllm import MockClient, text, tool_use
+
+REG = {}
+
+def tool(fn):
+    """裝飾器：自動從簽名產生 schema，並登記到 REG。"""
+    props = {n: {"type": {int: "integer", float: "number"}.get(p.annotation, "string")}
+             for n, p in inspect.signature(fn).parameters.items()}
+    fn.schema = {"name": fn.__name__, "description": inspect.getdoc(fn),
+                 "input_schema": {"type": "object", "properties": props, "required": list(props)}}
+    REG[fn.__name__] = fn
+    return fn
+
+@tool
+def add(a: float, b: float):
+    """兩數相加"""
+    return a + b
+
+@tool
+def multiply(a: float, b: float):
+    """兩數相乘"""
+    return a * b
+
+def tool_runner(client, messages, tools, max_iterations=10):
+    """產生器：每一輪 yield 一則模型訊息；工具自動執行並接回。"""
+    for _ in range(max_iterations):
+        r = client.messages.create(model="mock", max_tokens=1000, messages=messages, tools=[t.schema for t in tools])
+        yield r
+        messages.append({"role": "assistant", "content": r.content})
+        calls = [b for b in r.content if b.type == "tool_use"]
+        if not calls:
+            return
+        messages.append({"role": "user", "content": [
+            {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(REG[b.name](**b.input))} for b in calls]})
+
+def policy(ctx):
+    if ctx.turn == 0:
+        return tool_use("add", {"a": 17, "b": 25})
+    if ctx.turn == 1:
+        return tool_use("multiply", {"a": ctx.data(), "b": 3})
+    return text("(17 + 25) × 3 = %s" % ctx.data())
+
+for msg in tool_runner(MockClient(policy), [{"role": "user", "content": "(17+25)×3 = ?"}], [add, multiply]):
+    print([("%s%s" % (b.name, b.input)) if b.type == "tool_use" else b.text for b in msg.content])</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">["add{'a': 17, 'b': 25}"]&#10;["multiply{'a': 42, 'b': 3}"]&#10;['(17 + 25) × 3 = 126']</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/b13_runner.py" download>下載 b13_runner.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 13 課（Claude API 版）：SDK 內建的 Tool Runner（beta）。你只寫工具，迴圈交給 SDK。"""&#10;import anthropic&#10;from anthropic import beta_tool&#10;&#10;client = anthropic.Anthropic()&#10;&#10;&#10;@beta_tool&#10;def add(a: float, b: float) -&gt; str:&#10;    """兩數相加。&#10;&#10;    Args:&#10;        a: 第一個數&#10;        b: 第二個數&#10;    """&#10;    return str(a + b)&#10;&#10;&#10;@beta_tool&#10;def multiply(a: float, b: float) -&gt; str:&#10;    """兩數相乘。&#10;&#10;    Args:&#10;        a: 第一個數&#10;        b: 第二個數&#10;    """&#10;    return str(a * b)&#10;&#10;&#10;runner = client.beta.messages.tool_runner(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    tools=[add, multiply],&#10;    messages=[{"role": "user", "content": "(17+25)×3 是多少？請用工具計算。"}],&#10;)&#10;for message in runner:                     # 每一輪都會 yield 一則 Claude 的回應&#10;    for b in message.content:&#10;        if b.type == "tool_use":&#10;            print("工具：", b.name, b.input)&#10;        elif b.type == "text":&#10;            print("Claude：", b.text)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Tool Runner 把代理迴圈包起來：用 @beta_tool 寫工具函式，SDK 自動產生 schema、執行工具並接回結果，每輪 yield 一則回應供你觀察。需要特殊控制流程或避免依賴 beta 時，再手寫迴圈。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Tool Runner 自動做了哪些事？</li>
+          <li>為什麼 Tool Runner 是一個迭代器？</li>
+          <li>什麼情況下仍然適合手寫迴圈？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>思考：讓模型先想再答</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：參數驗證與嚴格模式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：思考：讓模型先想再答 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：任務分解與待辦清單 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="把大任務拆小，並追蹤進度">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜推理與規劃 · 第 17 課</div>
+      <h1>任務分解與待辦清單</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用待辦清單工具管理多步驟任務</li>
+          <li>理解清單對代理與使用者的價值</li>
+          <li>設計整份覆寫的狀態更新</li>
+        </ul>
+      </div>
+
+      <p>
+        「幫我加一個登入功能」是個大任務。好的代理會先把它拆成小項目——讀需求、寫程式、寫測試、跑測試——並在做的過程中持續更新每一項的狀態：待辦、進行中、完成。
+      </p>
+
+      <p>
+        這件事可以做成一個簡單的工具：<code>todo_write(todos)</code>，模型每次送出<strong>整份最新清單</strong>。整份覆寫比「新增一項」「修改第三項」這種細碎操作可靠得多，模型不容易搞亂。
+      </p>
+
+      <ul>
+        <li><strong>對代理</strong>：任務很長時，清單是它的「外部記憶」，不會做到一半忘了還剩什麼。</li>
+        <li><strong>對使用者</strong>：隨時看得到代理做到哪裡、打算做什麼，方便及早糾正方向。</li>
+      </ul>
+
+      <p>
+        Claude Code 的 TodoWrite 工具就是這個設計；你在使用它時看到的勾選清單，就是模型呼叫這個工具的結果。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/c17_todo.py" download>下載 c17_todo.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        代理建立四項清單，每做一項就把它從「進行中」改成「完成」。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 17 課：待辦清單工具——讓代理把大任務拆成小項目並追蹤進度（Claude Code 的 TodoWrite 就是這個概念）。"""
+import json
+from mockllm import MockClient, text, tool_use
+
+TODOS = []
+
+def todo_write(todos):
+    """整份清單覆寫：模型每次送出完整的最新狀態。"""
+    TODOS[:] = todos
+    icon = {"pending": "☐", "in_progress": "▶", "completed": "☑"}
+    print("   " + "  ".join("%s %s" % (icon[t["status"]], t["content"]) for t in TODOS))
+    return "ok"
+
+def work(name):
+    return "%s 完成" % name
+
+ITEMS = ["讀需求", "寫程式", "寫測試", "跑測試"]
+
+def policy(ctx):
+    k = ctx.turn                             # 第 0 輪建立清單；之後每兩輪：標記進行中 → 做事並標記完成
+    if k == 0:
+        return tool_use("todo_write", {"todos": [{"content": c, "status": "pending"} for c in ITEMS]})
+    idx, phase = divmod(k - 1, 2)
+    if idx &gt;= len(ITEMS):
+        return text("全部 %d 項都完成了。" % len(ITEMS))
+    st = lambda j: "completed" if j &lt; idx or (j == idx and phase == 1) else ("in_progress" if j == idx else "pending")
+    calls = [tool_use("todo_write", {"todos": [{"content": c, "status": st(j)} for j, c in enumerate(ITEMS)]})]
+    if phase == 0:
+        calls.append(tool_use("work", {"name": ITEMS[idx]}))
+    return calls
+
+tools = [{"name": "todo_write", "description": "更新待辦清單", "input_schema": {"type": "object", "properties": {"todos": {"type": "array"}}}},
+         {"name": "work", "description": "執行一項工作", "input_schema": {"type": "object", "properties": {"name": {"type": "string"}}}}]
+impl = {"todo_write": todo_write, "work": work}
+client, msgs = MockClient(policy), [{"role": "user", "content": "幫我加一個登入功能"}]
+while True:
+    r = client.messages.create(model="mock", max_tokens=800, tools=tools, messages=msgs)
+    msgs.append({"role": "assistant", "content": r.content})
+    if r.stop_reason != "tool_use":
+        break
+    msgs.append({"role": "user", "content": [{"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(impl[b.name](**b.input), ensure_ascii=False)}
+                                             for b in r.content if b.type == "tool_use"]})
+print(r.content[0].text, "清單讓代理（和你）隨時知道：做到哪、還剩什麼。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">   ☐ 讀需求  ☐ 寫程式  ☐ 寫測試  ☐ 跑測試&#10;   ▶ 讀需求  ☐ 寫程式  ☐ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ☐ 寫程式  ☐ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ▶ 寫程式  ☐ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ☑ 寫程式  ☐ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ☑ 寫程式  ▶ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ☑ 寫程式  ☑ 寫測試  ☐ 跑測試&#10;   ☑ 讀需求  ☑ 寫程式  ☑ 寫測試  ▶ 跑測試&#10;   ☑ 讀需求  ☑ 寫程式  ☑ 寫測試  ☑ 跑測試&#10;全部 4 項都完成了。 清單讓代理（和你）隨時知道：做到哪、還剩什麼。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/c17_todo.py" download>下載 c17_todo.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 17 課（Claude API 版）：給 Claude 一個 todo_write 工具，要求它先列清單、邊做邊更新。"""&#10;import json&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;TODOS = []&#10;tools = [{&#10;    "name": "todo_write",&#10;    "description": "建立或更新整份待辦清單。開始多步驟工作前先列出清單；每開始或完成一項就送出完整的最新清單。",&#10;    "input_schema": {"type": "object", "properties": {"todos": {"type": "array", "items": {&#10;        "type": "object", "properties": {"content": {"type": "string"},&#10;                                         "status": {"type": "string", "enum": ["pending", "in_progress", "completed"]}},&#10;        "required": ["content", "status"]}}}, "required": ["todos"]},&#10;}]&#10;messages = [{"role": "user", "content": "規劃「把部落格從 WordPress 搬到靜態網站」的工作，用 todo_write 列出清單，並把第一項標成進行中。"}]&#10;while True:&#10;    r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, tools=tools, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    results = []&#10;    for b in r.content:&#10;        if b.type == "tool_use":&#10;            TODOS[:] = b.input["todos"]&#10;            for t in TODOS:&#10;                print({"pending": "☐", "in_progress": "▶", "completed": "☑"}[t["status"]], t["content"])&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": "清單已更新"})&#10;    messages.append({"role": "user", "content": results})&#10;print(json.dumps(TODOS, ensure_ascii=False, indent=1))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          代理可用待辦清單工具把大任務拆成小項目並追蹤狀態；模型每次送出整份最新清單較可靠。清單是代理的外部記憶，也讓使用者看到進度並及早糾正方向。Claude Code 的 TodoWrite 就是此設計。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>待辦清單對代理和使用者各有什麼好處？</li>
+          <li>為什麼用「整份覆寫」而不是逐項修改？</li>
+          <li>清單上的三種狀態是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>反思與自我修正</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：先規劃再執行</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：反思與自我修正 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

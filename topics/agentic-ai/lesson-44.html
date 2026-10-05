@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：可觀測性：日誌與追蹤 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="出事時查得出原因">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜可靠性與安全 · 第 44 課</div>
+      <h1>可觀測性：日誌與追蹤</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>記錄代理每一步的追蹤資料</li>
+          <li>用父子關係組織追蹤</li>
+          <li>從追蹤找出問題</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一次代理執行的追蹤（trace）</text>
+                <rect x="40" y="40" width="560" height="22" rx="4" fill="#9c89d6" fill-opacity="0.25" stroke="#9c89d6" stroke-width="1"/>
+                <text x="48" y="55" text-anchor="start" font-size="10" fill="var(--text)">agent run　171 ms</text>
+                <rect x="60" y="68" width="40" height="18" rx="3" fill="#4a90c2" fill-opacity="0.35" stroke="#4a90c2" stroke-width="1"/>
+                <text x="106" y="81" text-anchor="start" font-size="9.5" fill="#4a90c2">llm</text>
+                <rect x="100" y="92" width="120" height="18" rx="3" fill="#5aa469" fill-opacity="0.35" stroke="#5aa469" stroke-width="1"/>
+                <text x="226" y="105" text-anchor="start" font-size="9.5" fill="#5aa469">search 50 ms</text>
+                <rect x="100" y="116" width="290" height="18" rx="3" fill="#e0605a" fill-opacity="0.35" stroke="#e0605a" stroke-width="1"/>
+                <text x="396" y="129" text-anchor="start" font-size="9.5" fill="#e0605a">fetch 120 ms ✗ 逾時</text>
+                <rect x="400" y="140" width="40" height="18" rx="3" fill="#4a90c2" fill-opacity="0.35" stroke="#4a90c2" stroke-width="1"/>
+                <text x="446" y="153" text-anchor="start" font-size="9.5" fill="#4a90c2">llm</text>
+                <text x="320" y="190" text-anchor="middle" font-size="10" fill="var(--accent)">一眼看出：時間花在哪、哪一步出錯、用了多少 token</text>
+        </svg>
+        <figcaption>追蹤把一次執行拆成有時間、有父子關係的步驟。</figcaption>
+      </div>
+
+      <p>
+        代理出錯時，最常聽到的問題是：「它為什麼會這樣做？」要回答，就需要<strong>追蹤</strong>（trace）：每一次模型呼叫（輸入、輸出、token、耗時）、每一次工具呼叫（參數、結果、錯誤），以及它們的先後與父子關係。
+      </p>
+
+      <ul>
+        <li><strong>除錯</strong>：看到模型在第幾步拿到錯誤資訊、做了錯誤判斷。</li>
+        <li><strong>效能</strong>：時間花在哪一步？哪個工具最慢？</li>
+        <li><strong>成本</strong>：哪類任務最燒 token？</li>
+        <li><strong>稽核</strong>：代理做過哪些動作，誰核准的。</li>
+      </ul>
+
+      <p>
+        實務上可以把追蹤資料存成 JSON Lines，或送進 OpenTelemetry 相容的觀測平台。注意追蹤裡可能有個資與機密，要遮蔽並控管存取。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/g44_tracing.py" download>下載 g44_tracing.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        用一個裝飾器記錄每個步驟的種類、耗時、父步驟與狀態，一眼看出讀網頁那一步逾時。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 44 課：可觀測性——把代理的每一步（模型呼叫、工具、耗時、token）記成「追蹤（trace）」，
+出事時才查得出：它看到什麼、為什麼這樣做、卡在哪一步。"""
+import functools
+import json
+import time
+import itertools
+from mockllm import MockClient, text, tool_use
+
+TRACE = []
+_stack = []
+_ids = itertools.count(1)
+
+def span(kind):
+    """裝飾器：記錄一個步驟的開始、結束、耗時、輸入摘要、父子關係。"""
+    def deco(fn):
+        @functools.wraps(fn)
+        def wrap(*a, **kw):
+            sid = "s%d" % next(_ids)
+            rec = {"id": sid, "parent": _stack[-1] if _stack else None, "kind": kind, "name": fn.__name__,
+                   "input": str(kw or a)[:60]}
+            _stack.append(sid)
+            t0 = time.perf_counter()
+            try:
+                out = fn(*a, **kw)
+                rec["status"] = "ok"
+                return out
+            except Exception as e:
+                rec["status"] = "error: %s" % e
+                raise
+            finally:
+                rec["ms"] = round((time.perf_counter() - t0) * 1000, 1)
+                _stack.pop()
+                TRACE.append(rec)
+        return wrap
+    return deco
+
+@span("tool")
+def search(q):
+    time.sleep(0.05)
+    return ["結果 1", "結果 2"]
+
+@span("tool")
+def fetch(url):
+    time.sleep(0.12)
+    raise TimeoutError("連線逾時")
+
+client = MockClient(lambda ctx: [tool_use("search", {"q": "agent"}), tool_use("fetch", {"url": "https://x.example"})]
+                    if ctx.turn == 0 else text("搜尋成功，但讀取網頁逾時。"))
+
+@span("llm")
+def call_llm(msgs):
+    r = client.messages.create(model="mock", max_tokens=500, messages=msgs,
+                               tools=[{"name": n, "input_schema": {"type": "object"}} for n in ("search", "fetch")])
+    TRACE.append({"kind": "usage", "in": r.usage.input_tokens, "out": r.usage.output_tokens})
+    return r
+
+@span("agent")
+def run(task):
+    msgs = [{"role": "user", "content": task}]
+    while True:
+        r = call_llm(msgs)
+        msgs.append({"role": "assistant", "content": r.content})
+        if r.stop_reason != "tool_use":
+            return r.content[0].text
+        res = []
+        for b in r.content:
+            if b.type == "tool_use":
+                try:
+                    res.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(globals()[b.name](**b.input), ensure_ascii=False)})
+                except Exception as e:
+                    res.append({"type": "tool_result", "tool_use_id": b.id, "content": str(e), "is_error": True})
+        msgs.append({"role": "user", "content": res})
+
+run(task="研究 agent")
+print("追蹤紀錄（可存成 JSON Lines，送進 OpenTelemetry 等工具）：")
+for r in TRACE:
+    if r["kind"] == "usage":
+        print("   · tokens in=%d out=%d" % (r["in"], r["out"]))
+    else:
+        print("   %-6s %-9s %6.1f ms  parent=%-6s %s" % (r["kind"], r["name"], r["ms"], r["parent"], r["status"]))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">追蹤紀錄（可存成 JSON Lines，送進 OpenTelemetry 等工具）：&#10;   · tokens in=49 out=44&#10;   llm    call_llm     0.1 ms  parent=s1     ok&#10;   tool   search      50.4 ms  parent=s1     ok&#10;   tool   fetch      120.3 ms  parent=s1     error: 連線逾時&#10;   · tokens in=161 out=20&#10;   llm    call_llm     0.2 ms  parent=s1     ok&#10;   agent  run        171.3 ms  parent=None   ok</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          追蹤記錄代理每一次模型與工具呼叫的輸入、輸出、token、耗時與父子關係，用於除錯、效能分析、成本控管與稽核。可存成 JSON Lines 或送入 OpenTelemetry 相容平台，並注意遮蔽個資。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>追蹤應該記錄哪些資訊？</li>
+          <li>追蹤有哪四種用途？</li>
+          <li>儲存追蹤資料時要注意什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>成本與延遲</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：評估：怎麼知道代理變好了</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：成本與延遲 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

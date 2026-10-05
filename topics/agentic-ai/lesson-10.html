@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：工具錯誤處理 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="錯誤是給模型的線索">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 10 課</div>
+      <h1>工具錯誤處理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把例外轉成 tool_result 而不是讓程式崩潰</li>
+          <li>使用 is_error 標記錯誤</li>
+          <li>寫出能幫助模型自我修正的錯誤訊息</li>
+        </ul>
+      </div>
+
+      <p>
+        工具會出錯：檔案不存在、網路逾時、參數不合法。天真的寫法是讓例外往上丟，整個代理當掉。正確的做法是<strong>攔下例外，把錯誤訊息當成工具結果回給模型</strong>，並標上 <code>is_error: true</code>。
+      </p>
+
+      <p>
+        模型看到錯誤後，通常會自己調整：換個參數、換個工具、或向使用者說明。所以錯誤訊息要<strong>有幫助</strong>——不只說「錯了」，還要說「為什麼錯、正確的應該長什麼樣子」。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>沒幫助的錯誤</th><th>有幫助的錯誤</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>KeyError</td><td>找不到商品「蘋果」。可用商品：apple, banana</td></tr>
+          <tr><td>Invalid input</td><td>date 格式錯誤，應為 YYYY-MM-DD，收到「下週五」</td></tr>
+          <tr><td>Error 500</td><td>庫存服務暫時無法使用，請稍後再試或改查 check_stock_cache</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b10_tool_errors.py" download>下載 b10_tool_errors.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        模型第一次用中文名稱查庫存而失敗，看到錯誤訊息中列出的可用名稱後，自己改用英文再查一次。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 10 課：工具出錯怎麼辦？——不要讓程式當掉，把錯誤「告訴模型」(is_error=True)，讓它自己修正。"""
+import json
+from mockllm import MockClient, text, tool_use
+
+STOCK = {"apple": 12, "banana": 0}
+
+def check_stock(item):
+    if item not in STOCK:
+        raise ValueError("找不到商品 '%s'。可用商品：%s" % (item, ", ".join(STOCK)))
+    return STOCK[item]
+
+def policy(ctx):
+    res = ctx.results()
+    if ctx.turn == 0:
+        return tool_use("check_stock", {"item": "蘋果"})              # 第一次：用了中文名稱（錯）
+    name, out, err = res[0]
+    if err:                                                          # 看到錯誤訊息 → 自我修正
+        return [text("名稱要用英文，我改用 apple 再查一次。"), tool_use("check_stock", {"item": "apple"})]
+    return text("蘋果還有 %s 個。" % out)
+
+def execute(b):
+    """把例外轉成 tool_result，而不是讓整個代理崩潰。"""
+    try:
+        return {"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(check_stock(**b.input))}
+    except Exception as e:
+        return {"type": "tool_result", "tool_use_id": b.id, "content": "錯誤：%s" % e, "is_error": True}
+
+tools = [{"name": "check_stock", "description": "查商品庫存（商品名稱用英文小寫）",
+          "input_schema": {"type": "object", "properties": {"item": {"type": "string"}}, "required": ["item"]}}]
+client, messages = MockClient(policy), [{"role": "user", "content": "蘋果還有貨嗎？"}]
+while True:
+    r = client.messages.create(model="mock", max_tokens=500, tools=tools, messages=messages)
+    messages.append({"role": "assistant", "content": r.content})
+    if r.stop_reason != "tool_use":
+        break
+    results = [execute(b) for b in r.content if b.type == "tool_use"]
+    for x in results:
+        print("  tool_result%s：%s" % ("（is_error）" if x.get("is_error") else "", x["content"]))
+    messages.append({"role": "user", "content": results})
+print(r.content[-1].text)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">  tool_result（is_error）：錯誤：找不到商品 '蘋果'。可用商品：apple, banana&#10;  tool_result：12&#10;蘋果還有 12 個。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          工具出錯時要攔下例外，把錯誤訊息以 is_error 的 tool_result 回給模型，而不是讓代理崩潰。錯誤訊息要說明原因與正確格式，模型通常能據此自我修正。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>工具出錯時，為什麼不該讓例外直接丟出？</li>
+          <li>is_error 的作用是什麼？</li>
+          <li>什麼樣的錯誤訊息對模型有幫助？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>設計好工具</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：平行工具呼叫</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：設計好工具 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

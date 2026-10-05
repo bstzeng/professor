@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：路由與交接 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="把問題送到對的代理">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜多代理 · 第 35 課</div>
+      <h1>路由與交接</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用路由把請求分派給專門代理</li>
+          <li>實作代理之間的交接</li>
+          <li>理解路由的好處</li>
+        </ul>
+      </div>
+
+      <p>
+        客服系統常有帳務、技術、一般三類問題。與其讓一個代理背所有規則與工具，不如先<strong>路由</strong>：用一個小而快的模型（甚至只是分類器）判斷類型，交給對應的<strong>專門代理</strong>。
+      </p>
+
+      <p>
+        有時路由會判斷錯，或者問題處理到一半發現需要另一個專長。這時可以<strong>交接</strong>（handoff）：專門代理說「這不是我的範圍」，把原問題與已知資訊轉給另一個代理。交接時要帶上足夠的脈絡，別讓使用者重講一次。
+      </p>
+
+      <ul>
+        <li>每個代理的提示與工具都很聚焦，表現更穩定。</li>
+        <li>權限可以分開：帳務代理才有退款工具。</li>
+        <li>路由本身便宜又快。</li>
+      </ul>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/f35_router.py" download>下載 f35_router.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        四個問題經過路由分派；第四個被誤判為帳務，帳務代理把它交接給技術代理。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 35 課：路由（routing）與交接（handoff）。
+路由器先判斷問題類型，交給專門的代理；專門代理處理不了時，可以把對話「交接」給另一個代理。"""
+from mockllm import MockClient, text
+
+def classify(q):
+    r = MockClient(lambda ctx: text("billing" if any(w in q for w in ("扣款", "發票", "退費")) else
+                                    "tech" if any(w in q for w in ("當機", "錯誤", "登入")) else "general"))
+    return r.messages.create(model="mock", max_tokens=10, system="只輸出 billing / tech / general 其中之一",
+                             messages=[{"role": "user", "content": q}]).content[0].text
+
+AGENTS = {
+    "billing": lambda q: "【帳務代理】已查到重複扣款，3 個工作天內退回。" if "扣款" in q else "HANDOFF:tech",
+    "tech": lambda q: "【技術代理】請清除快取後重新登入；若仍失敗，我幫你重設密碼。",
+    "general": lambda q: "【一般客服】我們的營業時間是 9:00～18:00。",
+}
+
+def handle(q):
+    route = classify(q)
+    print("問題：%s\n  路由 → %s" % (q, route))
+    ans = AGENTS[route](q)
+    if ans.startswith("HANDOFF:"):                     # 交接：把原問題與已知資訊轉給另一個代理
+        to = ans.split(":")[1]
+        print("  帳務代理判斷不是帳務問題 → 交接給 %s" % to)
+        ans = AGENTS[to](q)
+    print("  " + ans)
+
+for q in ["這個月被扣款兩次！", "App 一直顯示登入錯誤", "你們幾點開門？", "發票上的登入帳號錯誤"]:
+    handle(q)
+print("\n好處：每個代理的提示與工具都很聚焦；路由本身可以用小而快的模型。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">問題：這個月被扣款兩次！&#10;  路由 → billing&#10;  【帳務代理】已查到重複扣款，3 個工作天內退回。&#10;問題：App 一直顯示登入錯誤&#10;  路由 → tech&#10;  【技術代理】請清除快取後重新登入；若仍失敗，我幫你重設密碼。&#10;問題：你們幾點開門？&#10;  路由 → general&#10;  【一般客服】我們的營業時間是 9:00～18:00。&#10;問題：發票上的登入帳號錯誤&#10;  路由 → billing&#10;  帳務代理判斷不是帳務問題 → 交接給 tech&#10;  【技術代理】請清除快取後重新登入；若仍失敗，我幫你重設密碼。&#10;&#10;好處：每個代理的提示與工具都很聚焦；路由本身可以用小而快的模型。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          路由先判斷請求類型再交給專門代理，可用小而快的模型；專門代理遇到範圍外問題時可交接給其他代理，並帶上足夠脈絡。好處是提示與工具聚焦、權限可分開、路由成本低。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>路由的好處有哪些？</li>
+          <li>什麼時候需要交接？</li>
+          <li>交接時要注意什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>評估者與優化者</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：協調者與工作者</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：評估者與優化者 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：先規劃再執行 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="Plan-and-Execute">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜推理與規劃 · 第 16 課</div>
+      <h1>先規劃再執行</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識先規劃後執行的模式</li>
+          <li>用結構化輸出產生計畫</li>
+          <li>知道何時需要重新規劃</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">兩種規劃風格</text>
+                <rect x="20" y="40" width="290" height="150" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="165" y="99" text-anchor="middle" font-size="11" fill="#ff8a65">ReAct（邊走邊想）</text><text x="165" y="113" text-anchor="middle" font-size="9" fill="var(--text-muted)">每一步都重新判斷</text><text x="165" y="126" text-anchor="middle" font-size="9" fill="var(--text-muted)">適應變化快</text><text x="165" y="139" text-anchor="middle" font-size="9" fill="var(--text-muted)">呼叫次數多、較貴</text>
+                <rect x="330" y="40" width="290" height="150" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="475" y="99" text-anchor="middle" font-size="11" fill="#4a90c2">先規劃後執行</text><text x="475" y="113" text-anchor="middle" font-size="9" fill="var(--text-muted)">一次產生完整計畫</text><text x="475" y="126" text-anchor="middle" font-size="9" fill="var(--text-muted)">執行時不必每步問模型</text><text x="475" y="139" text-anchor="middle" font-size="9" fill="var(--text-muted)">失敗時才重新規劃</text>
+        </svg>
+        <figcaption>兩種規劃風格各有取捨。</figcaption>
+      </div>
+
+      <p>
+        ReAct 每一步都要問模型，任務長時又慢又貴。另一種風格是<strong>先規劃再執行</strong>：讓模型一次產生完整的步驟清單（最好是結構化的 JSON），再由程式或較便宜的模型逐步執行。
+      </p>
+
+      <p>
+        計畫趕不上變化時——某一步失敗，或結果和預期不同——就把「已完成什麼、哪裡失敗、為什麼」回饋給規劃者，請它<strong>重新規劃</strong>。
+      </p>
+
+      <p>
+        實務上兩者常混用：先有一個粗略計畫讓方向清楚，執行時每一步仍保留 ReAct 式的彈性。Claude Code 在做大型修改前會先擬計畫（甚至有只規劃不動手的 plan 模式），就是這個概念。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/c16_plan_execute.py" download>下載 c16_plan_execute.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        規劃者產生四步計畫；第一步的資料來源連不上，回饋後規劃者改用備用來源。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 16 課：先規劃、再執行（Plan-and-Execute）。
+規劃者一次產生完整計畫（結構化 JSON），執行者逐步完成；某步失敗時才請規劃者「重新規劃」。"""
+import json
+from mockllm import MockClient, text
+
+def planner_policy(ctx):
+    if "失敗" in ctx.user_text():
+        return text(json.dumps(["用備用來源 B 下載資料", "清理資料", "產生圖表", "寫摘要"], ensure_ascii=False))
+    return text(json.dumps(["從來源 A 下載資料", "清理資料", "產生圖表", "寫摘要"], ensure_ascii=False))
+
+planner = MockClient(planner_policy)
+
+def execute(step):
+    if "來源 A" in step:
+        raise ConnectionError("來源 A 連不上")
+    return "完成：" + step
+
+def plan(goal, feedback=""):
+    r = planner.messages.create(model="mock", max_tokens=500, system="把目標拆成步驟，只輸出 JSON 陣列",
+                                messages=[{"role": "user", "content": goal + feedback}])
+    return json.loads(r.content[0].text)
+
+goal = "做一份上個月營收的分析報告"
+steps, done = plan(goal), []
+print("初始計畫：", steps)
+i = 0
+while i &lt; len(steps):
+    try:
+        done.append(execute(steps[i]))
+        print("  ✓", done[-1])
+        i += 1
+    except Exception as e:
+        print("  ✗ %s → %s，請規劃者重新規劃" % (steps[i], e))
+        steps = plan(goal, "\n已完成：%s\n失敗：%s（%s）" % (done, steps[i], e))
+        print("新計畫：", steps)
+        i = 0
+        done = []
+print("共呼叫規劃者 %d 次。優點：省 token、步驟清楚；缺點：計畫趕不上變化時要重規劃。" % planner.calls)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">初始計畫： ['從來源 A 下載資料', '清理資料', '產生圖表', '寫摘要']&#10;  ✗ 從來源 A 下載資料 → 來源 A 連不上，請規劃者重新規劃&#10;新計畫： ['用備用來源 B 下載資料', '清理資料', '產生圖表', '寫摘要']&#10;  ✓ 完成：用備用來源 B 下載資料&#10;  ✓ 完成：清理資料&#10;  ✓ 完成：產生圖表&#10;  ✓ 完成：寫摘要&#10;共呼叫規劃者 2 次。優點：省 token、步驟清楚；缺點：計畫趕不上變化時要重規劃。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/c16_plan_execute.py" download>下載 c16_plan_execute.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 16 課（Claude API 版）：用結構化輸出（output_config.format）讓規劃者回傳保證合法的 JSON 計畫。"""&#10;import json&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;PLAN_SCHEMA = {&#10;    "type": "object",&#10;    "properties": {"steps": {"type": "array", "items": {"type": "string"}}},&#10;    "required": ["steps"],&#10;    "additionalProperties": False,&#10;}&#10;&#10;&#10;def plan(goal, feedback=""):&#10;    r = client.messages.create(&#10;        model="claude-opus-5-5",&#10;        max_tokens=16000,&#10;        system="你是規劃者。把目標拆成 3～6 個具體、可執行的步驟。",&#10;        messages=[{"role": "user", "content": goal + feedback}],&#10;        output_config={"format": {"type": "json_schema", "schema": PLAN_SCHEMA}},&#10;    )&#10;    return json.loads(next(b.text for b in r.content if b.type == "text"))["steps"]&#10;&#10;&#10;steps = plan("做一份上個月營收的分析報告")&#10;for i, s in enumerate(steps, 1):&#10;    print(i, s)&#10;# 執行失敗時：plan(goal, "\n已完成：...\n失敗：...（原因）") 讓 Claude 重新規劃</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          先規劃再執行：模型一次產生結構化的步驟清單，再逐步執行；失敗或結果不如預期時，把已完成與失敗原因回饋給規劃者重新規劃。實務上常與 ReAct 混用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>先規劃再執行比 ReAct 好在哪裡？</li>
+          <li>什麼時候需要重新規劃？重新規劃時要給規劃者什麼資訊？</li>
+          <li>兩種風格在實務上怎麼混用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>任務分解與待辦清單</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：ReAct：推理與行動交錯</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：任務分解與待辦清單 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 課：LLM 只會「接下一個字」 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="代理的大腦是一個預測機器">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 2 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜從聊天到代理 · 第 2 課</div>
+      <h1>LLM 只會「接下一個字」</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 LLM 逐 token 產生文字的方式</li>
+          <li>認識 temperature 對輸出的影響</li>
+          <li>明白為什麼 LLM 本身不會「做事」</li>
+        </ul>
+      </div>
+
+      <p>
+        大型語言模型做的事，說穿了只有一件：<strong>給定前面的文字，預測下一個 token 的機率分布</strong>，從中挑一個接上去，再重複。token 是文字的小片段，英文大約 4 個字母一個，中文大約一個字一個。
+      </p>
+
+      <p>
+        這個簡單的機制，經過海量文字訓練後，產生了驚人的能力：理解問題、推理、寫程式。但要記住：<strong>模型本身不會上網、不會執行程式、不會記得上一次對話</strong>。它只是一個「文字進、文字出」的函數。
+      </p>
+
+      <p>
+        那代理怎麼「做事」？答案是：讓模型輸出一段<strong>特定格式的文字</strong>（例如「我要呼叫 get_weather，參數是台北」），由外面的程式解析並真的去執行，再把結果當成新的文字餵回去。模型負責<strong>決定</strong>，程式負責<strong>執行</strong>。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/a02_next_token.py" download>下載 a02_next_token.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        用一個只有幾十個字的「二元語法」模型，示範統計下一個字的機率並一個一個接下去。真正的 LLM 用的是有數千億參數的神經網路，但「接下一個字」的流程一樣。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 2 課：LLM 的本質——一次預測一個 token。
+用一個極小的「二元語法（bigram）」模型示範：統計『下一個字』的機率，再一個一個接下去。"""
+import random
+from collections import Counter, defaultdict
+
+corpus = ("代理會呼叫工具。代理會讀取結果。代理會決定下一步。"
+          "模型會預測下一個字。模型會呼叫工具。工具會回傳結果。")
+nxt = defaultdict(Counter)
+for a, b in zip(corpus, corpus[1:]):
+    nxt[a][b] += 1                       # 「a 後面接 b」出現幾次
+
+def probs(ch):
+    c = nxt[ch]
+    total = sum(c.values())
+    return {k: v / total for k, v in c.most_common()}
+
+print("「會」後面可能接：", {k: round(v, 2) for k, v in probs("會").items()})
+
+def generate(start, n, temperature=1.0, seed=0):
+    rnd = random.Random(seed)
+    out = start
+    for _ in range(n):
+        p = probs(out[-1])
+        if not p:
+            break
+        # temperature 越低越「保守」（偏向最常見的字），越高越「隨機」
+        w = [v ** (1.0 / temperature) for v in p.values()]
+        out += rnd.choices(list(p.keys()), weights=w)[0]
+        if out[-1] == "。":
+            break
+    return out
+
+for t in (0.2, 1.0, 2.0):
+    print("temperature=%.1f →" % t, [generate("代", 12, t, seed=s) for s in range(3)])
+print("重點：模型本身只會『接下一個字』。它不會自己上網、不會自己執行程式——")
+print("　　　要讓它『做事』，得靠外面的程式把它包進一個迴圈，並提供工具。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">「會」後面可能接： {'呼': 0.33, '讀': 0.17, '決': 0.17, '預': 0.17, '回': 0.17}&#10;temperature=0.2 → ['代理會呼叫工具。', '代理會呼叫工具。', '代理會呼叫工具。']&#10;temperature=1.0 → ['代理會讀取結果。', '代理會預測下一個字。', '代理會呼叫工具會呼叫工具。']&#10;temperature=2.0 → ['代理會讀取結果。', '代理會預測下一個字。', '代理會呼叫工具會讀取結果。']&#10;重點：模型本身只會『接下一個字』。它不會自己上網、不會自己執行程式——&#10;　　　要讓它『做事』，得靠外面的程式把它包進一個迴圈，並提供工具。</div>
+
+      <div class="callout">
+        <h3>temperature</h3>
+        <p>
+          temperature 越低，模型越傾向挑機率最高的 token，輸出穩定但單調；越高越隨機、越有創意也越容易出錯。代理通常需要穩定可靠的行為。注意：在最新的 Claude 模型上，取樣參數由模型自行管理，API 不開放調整 temperature。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LLM 只做一件事：根據前文預測下一個 token 並逐一接上；它本身不會上網、執行程式或記憶。代理的做法是讓模型輸出特定格式的「行動要求」，由外部程式執行並把結果餵回去——模型決定、程式執行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>token 是什麼？中文和英文大約各多少字一個？</li>
+          <li>為什麼說 LLM 本身不會「做事」？</li>
+          <li>代理中，模型和程式各負責什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>呼叫 LLM API：訊息與角色</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-01.html">← 上一課：什麼是 Agentic AI</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-03.html">下一課：呼叫 LLM API：訊息與角色 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

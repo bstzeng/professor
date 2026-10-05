@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：結構化輸出 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="讓回答變成程式能用的資料">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜可靠性與安全 · 第 38 課</div>
+      <h1>結構化輸出</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼代理需要結構化輸出</li>
+          <li>驗證模型產生的 JSON</li>
+          <li>使用約束解碼保證格式</li>
+        </ul>
+      </div>
+
+      <p>
+        代理的輸出常常要交給程式處理：存進資料庫、決定下一步、傳給另一個代理。這時「好的！以下是結果：……希望有幫助！」這種回答就是災難——你得從一堆文字中挖出 JSON，還可能漏欄位、型別錯誤。
+      </p>
+
+      <p>
+        三種做法，可靠度遞增：
+      </p>
+
+      <ol>
+        <li>在提示中要求「只輸出 JSON」，再用程式解析並驗證——大多時候可行，偶爾會壞。</li>
+        <li>把輸出定義成一個工具的參數（模型「呼叫」它來交答案）。</li>
+        <li><strong>結構化輸出</strong>（約束解碼）：在 API 指定 JSON Schema，模型產生的 token 被限制在合法範圍內，<strong>保證</strong>符合格式。Python SDK 可以直接用 Pydantic 類別定義，回傳驗證好的物件。</li>
+      </ol>
+
+      <p>
+        即使格式保證正確，內容仍可能不合理（例如日期在過去），重要的值要再用程式檢查。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/g38_structured.py" download>下載 g38_structured.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        比較沒約束（包在一堆文字裡、型別錯誤）與有約束（乾淨的 JSON）的輸出，並用程式驗證。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 38 課：結構化輸出——讓模型的回答變成程式能直接用的資料（JSON），而且要驗證。
+沒有約束時，模型可能多講廢話、漏欄位、用錯型別；約束解碼（constrained decoding）則保證符合 schema。"""
+import json
+import re
+from mockllm import MockClient, text
+
+SCHEMA_KEYS = {"name": str, "email": str, "plan": str, "demo": bool}
+EMAIL = "我是王小美（mei@example.com），想試用企業方案，可以安排展示嗎？"
+
+loose = MockClient(lambda ctx: text('好的！以下是擷取結果：\n```json\n{"name": "王小美", "email": "mei@example.com", "plan": "企業", "demo": "要"}\n```\n希望有幫助！'))
+strict = MockClient(lambda ctx: text('{"name": "王小美", "email": "mei@example.com", "plan": "enterprise", "demo": true}'))
+
+def parse_and_check(raw):
+    m = re.search(r"\{.*\}", raw, re.S)                # 從一堆文字中挖出 JSON（脆弱的做法）
+    data = json.loads(m.group(0))
+    errs = ["%s 應為 %s" % (k, t.__name__) for k, t in SCHEMA_KEYS.items() if not isinstance(data.get(k), t)]
+    return data, errs
+
+for name, c in [("沒約束", loose), ("有約束", strict)]:
+    raw = c.messages.create(model="mock", max_tokens=300, messages=[{"role": "user", "content": EMAIL}]).content[0].text
+    data, errs = parse_and_check(raw)
+    print("【%s】原始輸出：%s" % (name, raw.replace("\n", "⏎")))
+    print("        驗證：%s" % ("通過 ✓ → " + str(data) if not errs else "失敗 ✗ " + "；".join(errs)))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">【沒約束】原始輸出：好的！以下是擷取結果：⏎```json⏎{"name": "王小美", "email": "mei@example.com", "plan": "企業", "demo": "要"}⏎```⏎希望有幫助！&#10;        驗證：失敗 ✗ demo 應為 bool&#10;【有約束】原始輸出：{"name": "王小美", "email": "mei@example.com", "plan": "enterprise", "demo": true}&#10;        驗證：通過 ✓ → {'name': '王小美', 'email': 'mei@example.com', 'plan': 'enterprise', 'demo': True}</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/g38_structured.py" download>下載 g38_structured.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 38 課（Claude API 版）：用 Pydantic 定義格式，messages.parse() 自動驗證並回傳物件。"""&#10;from typing import Literal&#10;from pydantic import BaseModel&#10;import anthropic&#10;&#10;&#10;class Lead(BaseModel):&#10;    name: str&#10;    email: str&#10;    plan: Literal["free", "pro", "enterprise"]&#10;    demo: bool&#10;&#10;&#10;client = anthropic.Anthropic()&#10;r = client.messages.parse(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    messages=[{"role": "user", "content": "擷取資料：我是王小美（mei@example.com），想試用企業方案，可以安排展示嗎？"}],&#10;    output_format=Lead,&#10;)&#10;lead = r.parsed_output          # 已驗證的 Lead 物件&#10;print(lead.name, lead.email, lead.plan, lead.demo)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          代理的輸出常交給程式處理，必須是可靠的結構化資料。可在提示中要求 JSON 並驗證、把輸出定義為工具參數，或使用約束解碼的結構化輸出保證符合 schema（Python 可用 Pydantic）；內容合理性仍要程式檢查。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼代理需要結構化輸出？</li>
+          <li>約束解碼保證了什麼？</li>
+          <li>格式正確就代表內容正確嗎？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>防護欄</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：多代理的代價與陷阱</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：防護欄 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

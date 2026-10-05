@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：RAG：檢索增強生成 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="先找資料，再回答">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜記憶與知識 · 第 23 課</div>
+      <h1>RAG：檢索增強生成</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 RAG 的五個步驟</li>
+          <li>讓模型根據資料回答並附出處</li>
+          <li>認識代理式 RAG</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">RAG 的流程</text>
+                <rect x="20" y="40" width="120" height="60" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="80" y="66" text-anchor="middle" font-size="11" fill="#8a8f98">文件</text><text x="80" y="80" text-anchor="middle" font-size="9" fill="var(--text-muted)">切塊</text>
+                <rect x="170" y="40" width="120" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="230" y="66" text-anchor="middle" font-size="11" fill="#4a90c2">嵌入</text><text x="230" y="80" text-anchor="middle" font-size="9" fill="var(--text-muted)">變成向量</text>
+                <rect x="320" y="40" width="120" height="60" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="380" y="66" text-anchor="middle" font-size="11" fill="#9c89d6">向量庫</text><text x="380" y="80" text-anchor="middle" font-size="9" fill="var(--text-muted)">建索引</text>
+                <rect x="170" y="140" width="120" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="230" y="166" text-anchor="middle" font-size="11" fill="#4a90c2">問題</text><text x="230" y="180" text-anchor="middle" font-size="9" fill="var(--text-muted)">也變成向量</text>
+                <rect x="320" y="140" width="120" height="60" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="380" y="166" text-anchor="middle" font-size="11" fill="#ff8a65">檢索</text><text x="380" y="180" text-anchor="middle" font-size="9" fill="var(--text-muted)">找最相近 k 段</text>
+                <rect x="480" y="140" width="140" height="60" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="550" y="166" text-anchor="middle" font-size="11" fill="#5aa469">LLM</text><text x="550" y="180" text-anchor="middle" font-size="9" fill="var(--text-muted)">看著資料回答</text>
+                <line x1="140.0" y1="70.0" x2="161.0" y2="70.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="168.0,70.0 161.0,73.5 161.0,66.5" fill="var(--text-muted)"/>
+                <line x1="290.0" y1="70.0" x2="311.0" y2="70.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="318.0,70.0 311.0,73.5 311.0,66.5" fill="var(--text-muted)"/>
+                <line x1="290.0" y1="170.0" x2="311.0" y2="170.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="318.0,170.0 311.0,173.5 311.0,166.5" fill="var(--text-muted)"/>
+                <line x1="380.0" y1="100.0" x2="380.0" y2="131.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="380.0,138.0 376.5,131.0 383.5,131.0" fill="var(--text-muted)"/>
+                <line x1="440.0" y1="170.0" x2="471.0" y2="170.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="478.0,170.0 471.0,173.5 471.0,166.5" fill="var(--text-muted)"/>
+                <text x="320" y="228" text-anchor="middle" font-size="10" fill="var(--accent)">索引事先建好；每次查詢只做下面那一排</text>
+        </svg>
+        <figcaption>RAG：事先建好索引，查詢時檢索最相關的段落交給 LLM。</figcaption>
+      </div>
+
+      <p>
+        LLM 不知道你公司的客服手冊，也不知道昨天的新聞。<strong>RAG</strong>（Retrieval-Augmented Generation）的做法是：先從知識庫<strong>檢索</strong>出相關段落，放進提示，讓模型<strong>看著資料回答</strong>。
+      </p>
+
+      <ol>
+        <li><strong>切塊</strong>：把文件切成段落（太大不精準，太小缺脈絡）。</li>
+        <li><strong>建索引</strong>：每塊算出嵌入向量存起來。</li>
+        <li><strong>檢索</strong>：問題也算向量，找最相近的 k 塊。</li>
+        <li><strong>組提示</strong>：把段落和問題放在一起，要求只根據資料回答、標註來源。</li>
+        <li><strong>生成</strong>：模型回答。</li>
+      </ol>
+
+      <p>
+        在代理中，RAG 常變成一個工具：<code>search_knowledge(query)</code>。模型自己決定要不要查、用什麼關鍵字、查不到時換個說法再查——這叫<strong>代理式 RAG</strong>。程式代理用 grep 搜尋程式碼，本質上也是一種檢索。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/d23_rag.py" download>下載 d23_rag.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        從一份客服手冊檢索出兩段，組成提示，假模型依資料回答並標註來源。Claude API 版用 document 區塊開啟 citations，回答會附精確的引用文字。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 23 課：RAG（檢索增強生成）——先從知識庫找出相關段落，再把它們放進提示，讓模型「看著資料回答」。
+步驟：切塊 → 建索引（嵌入）→ 查詢時檢索 top-k → 組提示 → 生成（附出處）。"""
+import math
+from mockllm import MockClient, text
+
+def embed(s, dim=256):
+    v = [0.0] * dim
+    for a, b in zip(s, s[1:]):
+        v[(ord(a) * 31 + ord(b)) % dim] += 1
+    n = math.sqrt(sum(x * x for x in v)) or 1
+    return [x / n for x in v]
+
+MANUAL = """退貨：商品到貨 7 天內可申請退貨，需保持包裝完整。
+退款：退貨審核通過後，款項於 5 個工作天內退回原付款方式。
+運費：訂單滿 1000 元免運，未滿收 80 元。
+保固：電子產品享一年保固，人為損壞不在保固範圍。
+會員：年消費滿 2 萬元升級金卡，享 95 折。"""
+
+chunks = [c for c in MANUAL.split("\n") if c]                     # ① 切塊（這裡一行一塊）
+index = [(c, embed(c)) for c in chunks]                           # ② 建索引
+
+def retrieve(q, k=2):                                              # ③ 檢索
+    qv = embed(q)
+    return sorted(index, key=lambda cv: -sum(a * b for a, b in zip(qv, cv[1])))[:k]
+
+def rag_policy(ctx):                                               # ⑤ 假模型：只根據提示中的資料回答
+    p = ctx.user_text()
+    if "5 個工作天" in p:
+        return text("退貨審核通過後，退款會在 5 個工作天內退回原付款方式。[來源 2]")
+    return text("資料中沒有提到，我無法確定。")
+
+q = "退貨之後錢多久會退回來？"
+hits = retrieve(q)
+for i, (c, _) in enumerate(hits, 1):
+    print("檢索 %d：%s" % (i, c))
+prompt = "根據以下資料回答，並標註來源編號；資料沒有的就說不知道。\n\n" + \
+         "\n".join("[來源 %d] %s" % (i, c) for i, (c, _) in enumerate(hits, 1)) + "\n\n問題：" + q   # ④ 組提示
+print("\n送給模型的提示：\n" + prompt)
+r = MockClient(rag_policy).messages.create(model="mock", max_tokens=300, messages=[{"role": "user", "content": prompt}])
+print("\n回答：", r.content[0].text)
+print("\n代理式 RAG：把 retrieve 包成工具，讓模型自己決定要不要查、查什麼、查幾次。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">檢索 1：退貨：商品到貨 7 天內可申請退貨，需保持包裝完整。&#10;檢索 2：退款：退貨審核通過後，款項於 5 個工作天內退回原付款方式。&#10;&#10;送給模型的提示：&#10;根據以下資料回答，並標註來源編號；資料沒有的就說不知道。&#10;&#10;[來源 1] 退貨：商品到貨 7 天內可申請退貨，需保持包裝完整。&#10;[來源 2] 退款：退貨審核通過後，款項於 5 個工作天內退回原付款方式。&#10;&#10;問題：退貨之後錢多久會退回來？&#10;&#10;回答： 退貨審核通過後，退款會在 5 個工作天內退回原付款方式。[來源 2]&#10;&#10;代理式 RAG：把 retrieve 包成工具，讓模型自己決定要不要查、查什麼、查幾次。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/d23_rag.py" download>下載 d23_rag.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 23 課（Claude API 版）：檢索到的段落用 document 區塊送進去，並開啟 citations，&#10;Claude 的回答會附上精確的引用位置（cited_text）。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;hits = ["退貨：商品到貨 7 天內可申請退貨，需保持包裝完整。",&#10;        "退款：退貨審核通過後，款項於 5 個工作天內退回原付款方式。"]   # 由你的檢索器取得&#10;content = [{"type": "document", "source": {"type": "text", "media_type": "text/plain", "data": h},&#10;            "title": "客服手冊段落 %d" % i, "citations": {"enabled": True}} for i, h in enumerate(hits, 1)]&#10;content.append({"type": "text", "text": "退貨之後錢多久會退回來？只根據文件回答。"})&#10;&#10;r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, messages=[{"role": "user", "content": content}])&#10;for b in r.content:&#10;    if b.type == "text":&#10;        print(b.text, end="")&#10;        for c in (b.citations or []):&#10;            print("  ⟨引用：%s｜%s⟩" % (c.document_title, c.cited_text), end="")&#10;print()</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          RAG 先從知識庫檢索相關段落放進提示，讓模型看著資料回答並附出處；步驟是切塊、建索引、檢索、組提示、生成。在代理中檢索常變成工具，由模型自己決定查詢內容與次數。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RAG 解決了 LLM 的什麼問題？</li>
+          <li>RAG 的五個步驟是什麼？</li>
+          <li>什麼是代理式 RAG？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>長期記憶：跨對話記得你</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：嵌入向量與相似度</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：長期記憶：跨對話記得你 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

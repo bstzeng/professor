@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：MCP：模型上下文協定 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="工具的 USB 介面">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜與世界互動 · 第 30 課</div>
+      <h1>MCP：模型上下文協定</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 MCP 要解決的問題</li>
+          <li>看懂 MCP 的 JSON-RPC 訊息</li>
+          <li>把 MCP 工具轉成 API 工具</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">MCP：工具的通用介面</text>
+                <rect x="20" y="80" width="150" height="80" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="95" y="110" text-anchor="middle" font-size="11" fill="#4a90c2">代理（客戶端）</text><text x="95" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">Claude Code、Codex、</text><text x="95" y="137" text-anchor="middle" font-size="9" fill="var(--text-muted)">你的程式…</text>
+                <rect x="250" y="90" width="140" height="60" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="116" text-anchor="middle" font-size="11" fill="#9c89d6">MCP 協定</text><text x="320" y="130" text-anchor="middle" font-size="9" fill="var(--text-muted)">JSON-RPC 2.0</text>
+                <rect x="470" y="30" width="150" height="46" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="545" y="56.85" text-anchor="middle" font-size="11" fill="#5aa469">GitHub 伺服器</text>
+                <rect x="470" y="96" width="150" height="46" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="545" y="122.85" text-anchor="middle" font-size="11" fill="#5aa469">資料庫伺服器</text>
+                <rect x="470" y="162" width="150" height="46" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="545" y="188.85" text-anchor="middle" font-size="11" fill="#5aa469">筆記伺服器</text>
+                <line x1="170.0" y1="120.0" x2="241.0" y2="120.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="248.0,120.0 241.0,123.5 241.0,116.5" fill="var(--text-muted)"/>
+                <line x1="390.0" y1="112.0" x2="462.3" y2="60.1" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="468.0,56.0 464.4,62.9 460.3,57.2" fill="var(--text-muted)"/>
+                <line x1="390.0" y1="120.0" x2="461.0" y2="119.1" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="468.0,119.0 461.0,122.6 461.0,115.6" fill="var(--text-muted)"/>
+                <line x1="390.0" y1="128.0" x2="462.2" y2="178.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="468.0,182.0 460.3,180.9 464.2,175.1" fill="var(--text-muted)"/>
+                <text x="320" y="228" text-anchor="middle" font-size="10" fill="var(--accent)">寫一次伺服器，所有支援 MCP 的代理都能用</text>
+        </svg>
+        <figcaption>MCP 讓工具提供者與代理之間有統一的介面。</figcaption>
+      </div>
+
+      <p>
+        每個代理都要連 GitHub、資料庫、Slack、筆記……如果每個代理都要為每個服務各寫一次整合，就是 M × N 的工作量。<strong>MCP</strong>（Model Context Protocol）是 Anthropic 在 2024 年底提出的開放標準：服務提供者寫一個 <strong>MCP 伺服器</strong>，任何支援 MCP 的代理（客戶端）都能直接使用。之後 OpenAI、Google 等也陸續支援。
+      </p>
+
+      <p>
+        MCP 底層是 <strong>JSON-RPC 2.0</strong>：客戶端送出帶有 method 與 id 的請求，伺服器回應對應 id 的結果。最常用的幾個方法：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>initialize</td><td>握手，交換協定版本與能力</td></tr>
+          <tr><td>tools/list</td><td>列出伺服器提供的工具（名稱、說明、inputSchema）</td></tr>
+          <tr><td>tools/call</td><td>呼叫某個工具並取得結果</td></tr>
+          <tr><td>resources/*、prompts/*</td><td>提供可讀取的資料與提示範本</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        傳輸方式有兩種：本機的 <strong>stdio</strong>（代理把伺服器當子行程啟動）與遠端的 <strong>HTTP</strong>。Claude Code、Codex 都能設定 MCP 伺服器；Claude API 也有 MCP 連接器，可以直接把遠端伺服器交給 Claude。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/e30_mcp.py" download>下載 e30_mcp.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        在同一個行程裡做一個迷你 MCP 伺服器與客戶端，印出每一則 JSON-RPC 訊息，最後把 MCP 工具轉成 API 工具格式。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 30 課：MCP（Model Context Protocol）——工具的「USB 介面標準」。
+工具提供者寫一個 MCP 伺服器；任何支援 MCP 的代理（客戶端）都能用同一套協定發現並呼叫它。
+MCP 底層是 JSON-RPC 2.0。這裡在同一個行程裡做一個迷你伺服器與客戶端，看清楚往返的訊息。"""
+import json
+
+# ───── 伺服器端（工具提供者）─────
+NOTES = {"購物": "牛奶、雞蛋", "會議": "週五 10 點"}
+SERVER_TOOLS = [{"name": "get_note", "description": "依標題讀取筆記",
+                 "inputSchema": {"type": "object", "properties": {"title": {"type": "string"}}, "required": ["title"]}}]
+
+def server_handle(raw):
+    req = json.loads(raw)
+    m, rid = req["method"], req.get("id")
+    if m == "initialize":
+        res = {"protocolVersion": "2025-06-18", "capabilities": {"tools": {}}, "serverInfo": {"name": "notes-server", "version": "1.0"}}
+    elif m == "tools/list":
+        res = {"tools": SERVER_TOOLS}
+    elif m == "tools/call":
+        title = req["params"]["arguments"]["title"]
+        res = {"content": [{"type": "text", "text": NOTES.get(title, "沒有這則筆記")}], "isError": title not in NOTES}
+    else:
+        return json.dumps({"jsonrpc": "2.0", "id": rid, "error": {"code": -32601, "message": "Method not found"}})
+    return json.dumps({"jsonrpc": "2.0", "id": rid, "result": res}, ensure_ascii=False)
+
+# ───── 客戶端（代理這一側）─────
+class MCPClient(object):
+    def __init__(self, transport):
+        self.send, self.n = transport, 0
+
+    def request(self, method, params=None):
+        self.n += 1
+        raw = json.dumps({"jsonrpc": "2.0", "id": self.n, "method": method, "params": params or {}}, ensure_ascii=False)
+        print("→", raw)
+        resp = self.send(raw)
+        print("←", resp)
+        return json.loads(resp)["result"]
+
+c = MCPClient(server_handle)          # 真實情況的傳輸層是 stdio（本機子行程）或 HTTP
+c.request("initialize", {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "my-agent", "version": "0.1"}})
+# （完整流程中，客戶端接著會送一個 notifications/initialized 通知，這裡省略）
+tools = c.request("tools/list")["tools"]
+
+# 把 MCP 工具轉成 LLM API 的工具格式：只差在 inputSchema → input_schema
+api_tools = [{"name": t["name"], "description": t["description"], "input_schema": t["inputSchema"]} for t in tools]
+print("\n轉成 API 工具：", json.dumps(api_tools, ensure_ascii=False))
+
+# 當模型要求 get_note({"title": "會議"}) 時，代理轉送給 MCP 伺服器：
+out = c.request("tools/call", {"name": "get_note", "arguments": {"title": "會議"}})
+print("\n要放進 tool_result 的內容：", out["content"][0]["text"])</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">→ {"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "my-agent", "version": "0.1"}}}&#10;← {"jsonrpc": "2.0", "id": 1, "result": {"protocolVersion": "2025-06-18", "capabilities": {"tools": {}}, "serverInfo": {"name": "notes-server", "version": "1.0"}}}&#10;→ {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}&#10;← {"jsonrpc": "2.0", "id": 2, "result": {"tools": [{"name": "get_note", "description": "依標題讀取筆記", "inputSchema": {"type": "object", "properties": {"title": {"type": "string"}}, "required": ["title"]}}]}}&#10;&#10;轉成 API 工具： [{"name": "get_note", "description": "依標題讀取筆記", "input_schema": {"type": "object", "properties": {"title": {"type": "string"}}, "required": ["title"]}}]&#10;→ {"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": "get_note", "arguments": {"title": "會議"}}}&#10;← {"jsonrpc": "2.0", "id": 3, "result": {"content": [{"type": "text", "text": "週五 10 點"}], "isError": false}}&#10;&#10;要放進 tool_result 的內容： 週五 10 點</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/e30_mcp.py" download>下載 e30_mcp.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 30 課（Claude API 版）：MCP 連接器（beta）——直接把遠端 MCP 伺服器交給 Claude，&#10;API 會自己做 tools/list 與 tools/call。兩半都要給：mcp_servers 與對應名稱的 mcp_toolset。&#10;（本機的 stdio MCP 伺服器則可用 SDK 的 anthropic.lib.tools.mcp 輔助函式轉成工具，交給 tool_runner。）"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;r = client.beta.messages.create(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    betas=["mcp-client-2025-11-20"],&#10;    mcp_servers=[{"type": "url", "url": "https://example.com/mcp", "name": "notes"}],   # 換成你的 MCP 伺服器&#10;    tools=[{"type": "mcp_toolset", "mcp_server_name": "notes"}],&#10;    messages=[{"role": "user", "content": "我的會議筆記寫了什麼？"}],&#10;)&#10;for b in r.content:&#10;    print(b.type, getattr(b, "text", "") or getattr(b, "input", ""))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          MCP 是開放的工具介面標準：服務方寫 MCP 伺服器，任何支援的代理都能使用，解決 M×N 整合問題。底層是 JSON-RPC 2.0，核心方法有 initialize、tools/list、tools/call；傳輸有本機 stdio 與遠端 HTTP。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>MCP 解決了什麼問題？</li>
+          <li>tools/list 和 tools/call 各做什麼？</li>
+          <li>MCP 的兩種傳輸方式是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Computer use：操作電腦畫面</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：上網搜尋與擷取</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：Computer use：操作電腦畫面 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

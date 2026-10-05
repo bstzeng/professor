@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：何時停止：終止條件與預算 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="代理一定要有煞車">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜推理與規劃 · 第 19 課</div>
+      <h1>何時停止：終止條件與預算</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計多種停止條件</li>
+          <li>偵測重複的無效迴圈</li>
+          <li>認識 task budget 的概念</li>
+        </ul>
+      </div>
+
+      <p>
+        代理最常見的失控方式是<strong>停不下來</strong>：一直重試同一個失敗的操作、在兩個狀態間來回、或者越做越多。每一輪都要花錢，而且歷史越長越貴。所以一定要有多重煞車：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>煞車</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>步數上限</td><td>最多跑 N 輪</td></tr>
+          <tr><td>token／金額預算</td><td>累計用量超過就停</td></tr>
+          <tr><td>時間限制</td><td>超過 N 秒就停</td></tr>
+          <tr><td>重複偵測</td><td>同樣的工具與參數連續出現好幾次 → 卡住了</td></tr>
+          <tr><td>人工中斷</td><td>讓使用者隨時能喊停</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        停下來之後，不是直接丟掉——應該回報「做到哪裡、卡在哪裡」，讓人可以接手。
+      </p>
+
+      <p>
+        Claude API 另有 <strong>task budget</strong>（beta）：告訴模型這個任務總共有多少 token 預算，模型會「知道」還剩多少，自己調整節奏、在預算內優雅收尾。這和 <code>max_tokens</code>（單次回應的硬上限，模型並不知道）不同。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/c19_stop.py" download>下載 c19_stop.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        一個卡住的假模型不停搜尋同樣的東西；預算物件在第三次重複時偵測到並停止。注意每一步的 token 越來越多。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 19 課：何時停止？——代理一定要有「煞車」：步數上限、token 預算、重複偵測、時間限制。"""
+import json
+import time
+from mockllm import MockClient, tool_use
+
+class Budget(object):
+    def __init__(self, max_steps=8, max_tokens=3000, max_seconds=5):
+        self.max_steps, self.max_tokens, self.max_seconds = max_steps, max_tokens, max_seconds
+        self.steps = self.tokens = 0
+        self.t0 = time.time()
+        self.seen = []
+
+    def check(self, resp):
+        self.steps += 1
+        self.tokens += resp.usage.input_tokens + resp.usage.output_tokens
+        calls = [json.dumps([b.name, b.input], sort_keys=True) for b in resp.content if b.type == "tool_use"]
+        if calls and self.seen[-2:] == [calls, calls]:
+            return "偵測到重複：同樣的呼叫連續出現 3 次"
+        self.seen.append(calls)
+        if self.steps &gt;= self.max_steps:
+            return "達到步數上限 %d" % self.max_steps
+        if self.tokens &gt;= self.max_tokens:
+            return "超過 token 預算（已用 %d）" % self.tokens
+        if time.time() - self.t0 &gt; self.max_seconds:
+            return "超過時間限制"
+        return None
+
+# 一個「卡住」的假模型：一直重複搜尋同樣的東西
+stuck = MockClient(lambda ctx: tool_use("search", {"q": "不存在的資料"}))
+tools = [{"name": "search", "description": "搜尋", "input_schema": {"type": "object", "properties": {"q": {"type": "string"}}}}]
+msgs, b = [{"role": "user", "content": "找出不存在的資料"}], Budget()
+while True:
+    r = stuck.messages.create(model="mock", max_tokens=500, tools=tools, messages=msgs)
+    reason = b.check(r)
+    print("第 %d 步，累計 %d tokens" % (b.steps, b.tokens))
+    if reason:
+        print("🛑 停止：" + reason)
+        break
+    msgs += [{"role": "assistant", "content": r.content},
+             {"role": "user", "content": [{"type": "tool_result", "tool_use_id": r.content[0].id, "content": "查無結果"}]}]
+print("注意：每一步的 input tokens 會越來越多——因為整段歷史每次都重送。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">第 1 步，累計 82 tokens&#10;第 2 步，累計 227 tokens&#10;第 3 步，累計 435 tokens&#10;🛑 停止：偵測到重複：同樣的呼叫連續出現 3 次&#10;注意：每一步的 input tokens 會越來越多——因為整段歷史每次都重送。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/c19_stop.py" download>下載 c19_stop.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 19 課（Claude API 版）：自己的煞車（步數、token）＋ API 的 task_budget（beta）。&#10;task_budget 讓 Claude「知道」還剩多少預算，會自己調整節奏、優雅收尾；max_tokens 則是單次回應的硬上限。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;MAX_STEPS, MAX_TOTAL_TOKENS = 20, 200_000&#10;used = 0&#10;messages = [{"role": "user", "content": "用三句話說明代理為什麼需要停止條件。"}]&#10;&#10;for step in range(MAX_STEPS):&#10;    with client.beta.messages.stream(&#10;        model="claude-opus-5-5",&#10;        max_tokens=64000,&#10;        output_config={"effort": "high", "task_budget": {"type": "tokens", "total": 64000}},&#10;        betas=["task-budgets-2026-03-13"],&#10;        messages=messages,&#10;    ) as stream:&#10;        r = stream.get_final_message()&#10;    used += r.usage.input_tokens + r.usage.output_tokens&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    if r.stop_reason != "tool_use" or used &gt; MAX_TOTAL_TOKENS:   # 這個例子沒有工具，一輪就結束&#10;        break&#10;print(next(b.text for b in r.content if b.type == "text"))&#10;print("累計 tokens：", used)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          代理必須有多重煞車：步數上限、token 或金額預算、時間限制、重複偵測與人工中斷；停下時要回報進度與卡關處。task budget 讓模型知道剩餘預算而自行收尾，不同於模型不知道的 max_tokens。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>列出三種代理的停止條件。</li>
+          <li>怎麼偵測代理卡在重複的迴圈？</li>
+          <li>task budget 和 max_tokens 有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>上下文視窗：代理的工作記憶</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：反思與自我修正</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：上下文視窗：代理的工作記憶 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：實作：迷你程式代理 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="讀檔、跑測試、修改、再驗證">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜與世界互動 · 第 32 課</div>
+      <h1>實作：迷你程式代理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>組合前面學到的元件，完成一個程式代理</li>
+          <li>讓代理用測試結果驅動修改</li>
+          <li>把離線版換成真的 Claude</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">程式代理的核心迴圈</text>
+                <rect x="20" y="60" width="130.5" height="66" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="85.25" y="89" text-anchor="middle" font-size="11" fill="#ff8a65">跑測試</text><text x="85.25" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">看哪裡失敗</text><line x1="153.5" y1="93.0" x2="166.5" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="173.5,93.0 166.5,96.5 166.5,89.5" fill="var(--border)"/><rect x="176.5" y="60" width="130.5" height="66" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="241.75" y="89" text-anchor="middle" font-size="11" fill="#4a90c2">讀程式</text><text x="241.75" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">找出原因</text><line x1="310.0" y1="93.0" x2="323.0" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="330.0,93.0 323.0,96.5 323.0,89.5" fill="var(--border)"/><rect x="333" y="60" width="130.5" height="66" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="398.25" y="89" text-anchor="middle" font-size="11" fill="#9c89d6">修改</text><text x="398.25" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">str_replace</text><line x1="466.5" y1="93.0" x2="479.5" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="486.5,93.0 479.5,96.5 479.5,89.5" fill="var(--border)"/><rect x="489.5" y="60" width="130.5" height="66" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="554.75" y="89" text-anchor="middle" font-size="11" fill="#5aa469">再跑測試</text><text x="554.75" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">驗證</text>
+                <path d="M565 130 Q565 180 320 180 Q75 180 75 130" fill="none" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="4 3"/>
+                <line x1="76.0" y1="140.0" x2="75.7" y2="137.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="75.0,130.0 79.2,136.6 72.2,137.3" fill="var(--text-muted)"/>
+                <text x="320" y="200" text-anchor="middle" font-size="10" fill="var(--accent)">失敗就回到開頭；全部通過才回報</text>
+        </svg>
+        <figcaption>程式代理的核心迴圈。</figcaption>
+      </div>
+
+      <p>
+        現在把前面學到的東西組起來：工具迴圈（第 8 課）、錯誤處理（第 10 課）、外部回饋自我修正（第 18 課）、執行程式（第 27 課）、檔案工具與路徑保護（第 28 課）。結果就是一個能<strong>自己修 bug</strong> 的迷你程式代理。
+      </p>
+
+      <p>
+        它只有四個工具：列出檔案、讀檔、改檔（str_replace）、跑測試。流程完全由模型依據觀察決定：先跑測試看哪裡壞了，讀相關程式，找到原因，修改，再跑測試確認。
+      </p>
+
+      <p>
+        離線版的假模型會<strong>真的讀</strong>測試輸出和檔案內容來決定下一步（看到 FAILED 就去讀程式、看到 <code>s - discount</code> 就修改），並在臨時目錄中真的建立專案、真的跑 unittest。Claude API 版則是一個可以對你自己的專案使用的命令列工具：<code>python e32_mini_coder.py 專案目錄 "任務"</code>。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/e32_mini_coder.py" download>下載 e32_mini_coder.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        在臨時目錄建立一個有 bug 的小專案，代理自己跑測試、找到錯誤、修改、驗證。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 32 課：實作一個迷你程式代理（mini coding agent）——讀檔、跑測試、修改、再跑測試，直到全部通過。
+這就是 Claude Code、Codex 這類工具最核心的迴圈。這個檔案可以直接執行，不需要 API 金鑰。"""
+import json
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+from mockllm import MockClient, text, tool_use
+
+# ── 1. 準備一個有 bug 的小專案 ──
+WS = Path(tempfile.mkdtemp(prefix="mini_coder_")).resolve()
+(WS / "pricing.py").write_text('''def total(prices, discount=0):
+    """加總價格後套用折扣（discount 為 0～1 的比例）。"""
+    s = sum(prices)
+    return round(s - discount, 2)
+''', encoding="utf-8")
+(WS / "test_pricing.py").write_text('''import unittest
+from pricing import total
+
+class T(unittest.TestCase):
+    def test_no_discount(self):
+        self.assertEqual(total([100, 50]), 150)
+    def test_discount(self):
+        self.assertEqual(total([100, 100], 0.1), 180)
+''', encoding="utf-8")
+
+# ── 2. 工具 ──
+def safe(path):
+    p = (WS / path).resolve()
+    if not p.is_relative_to(WS):
+        raise PermissionError("路徑超出專案目錄")
+    return p
+
+def read_file(path):
+    return safe(path).read_text(encoding="utf-8")
+
+def edit_file(path, old, new):
+    p = safe(path)
+    s = p.read_text(encoding="utf-8")
+    if s.count(old) != 1:
+        raise ValueError("old 必須剛好出現一次（目前 %d 次）" % s.count(old))
+    p.write_text(s.replace(old, new), encoding="utf-8")
+    return "已修改 %s" % path
+
+def run_tests():
+    p = subprocess.run([sys.executable, "-m", "unittest", "-q"], cwd=WS, capture_output=True, text=True, timeout=30)
+    return (p.stdout + p.stderr)[-1500:]
+
+IMPL = {"read_file": read_file, "edit_file": edit_file, "run_tests": run_tests}
+TOOLS = [{"name": "read_file", "description": "讀取專案中的檔案", "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
+         {"name": "edit_file", "description": "把檔案中唯一出現的 old 字串換成 new", "input_schema": {"type": "object", "properties": {
+             "path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}}, "required": ["path", "old", "new"]}},
+         {"name": "run_tests", "description": "執行全部單元測試並回傳輸出", "input_schema": {"type": "object", "properties": {}}}]
+
+# ── 3. 假模型：真的「讀」工具輸出來決定下一步（不是寫死的劇本）──
+def policy(ctx):
+    hist = ctx.all_results()
+    last_name, last_out = (hist[-1][0], json.loads(hist[-1][1])) if hist else (None, None)
+    if last_name is None:
+        return [text("先跑測試看看現況。"), tool_use("run_tests", {})]
+    if last_name == "run_tests":
+        if re.search(r"\bOK\b", last_out) and "FAILED" not in last_out:
+            return text("所有測試都通過了。修正內容：折扣應該是乘上 (1 - discount)，而不是減去 discount。")
+        return [text("有測試失敗，讀被測的程式碼。"), tool_use("read_file", {"path": "pricing.py"})]
+    if last_name == "read_file":
+        if "s - discount" in last_out:
+            return [text("bug 找到了：把比例當成金額減掉。"),
+                    tool_use("edit_file", {"path": "pricing.py", "old": "s - discount", "new": "s * (1 - discount)"})]
+    return [text("修好了，再跑一次測試確認。"), tool_use("run_tests", {})]
+
+# ── 4. 代理迴圈 ──
+client, msgs = MockClient(policy), [{"role": "user", "content": "test_pricing 有測試沒過，請修好。"}]
+for step in range(1, 11):
+    r = client.messages.create(model="mock", max_tokens=2000, tools=TOOLS, messages=msgs)
+    msgs.append({"role": "assistant", "content": r.content})
+    for b in r.content:
+        if b.type == "text":
+            print("🤖", b.text)
+    if r.stop_reason != "tool_use":
+        break
+    results = []
+    for b in r.content:
+        if b.type == "tool_use":
+            try:
+                out, err = IMPL[b.name](**b.input), False
+            except Exception as e:
+                out, err = "錯誤：%s" % e, True
+            print("   🔧 %s%s\n      %s" % (b.name, json.dumps(b.input, ensure_ascii=False) if b.input else "()",
+                                        out.strip().splitlines()[-1] if out.strip() else ""))
+            results.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False), "is_error": err})
+    msgs.append({"role": "user", "content": results})
+print("\n修改後的 pricing.py：\n" + read_file("pricing.py"))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">🤖 先跑測試看看現況。&#10;   🔧 run_tests()&#10;      FAILED (failures=1)&#10;🤖 有測試失敗，讀被測的程式碼。&#10;   🔧 read_file{"path": "pricing.py"}&#10;          return round(s - discount, 2)&#10;🤖 bug 找到了：把比例當成金額減掉。&#10;   🔧 edit_file{"path": "pricing.py", "old": "s - discount", "new": "s * (1 - discount)"}&#10;      已修改 pricing.py&#10;🤖 修好了，再跑一次測試確認。&#10;   🔧 run_tests()&#10;      OK&#10;🤖 所有測試都通過了。修正內容：折扣應該是乘上 (1 - discount)，而不是減去 discount。&#10;&#10;修改後的 pricing.py：&#10;def total(prices, discount=0):&#10;    """加總價格後套用折扣（discount 為 0～1 的比例）。"""&#10;    s = sum(prices)&#10;    return round(s * (1 - discount), 2)</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/e32_mini_coder.py" download>下載 e32_mini_coder.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 32 課（Claude API 版）：迷你程式代理。用法：&#10;    python e32_mini_coder.py 專案目錄 "要完成的任務"&#10;Claude 會用 list_files / read_file / edit_file / run_tests 四個工具自己完成任務。&#10;⚠ 它會修改目錄裡的檔案、執行測試：請在 git 版本控制或副本上使用，並在可信任的專案中執行。"""&#10;import json&#10;import subprocess&#10;import sys&#10;from pathlib import Path&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;WS = Path(sys.argv[1] if len(sys.argv) &gt; 1 else ".").resolve()&#10;TASK = sys.argv[2] if len(sys.argv) &gt; 2 else "執行測試，找出失敗原因並修好，直到全部通過。"&#10;&#10;&#10;def safe(path):&#10;    p = (WS / path).resolve()&#10;    if not p.is_relative_to(WS):&#10;        raise PermissionError("路徑超出專案目錄")&#10;    return p&#10;&#10;&#10;def list_files():&#10;    return "\n".join(str(p.relative_to(WS)) for p in sorted(WS.rglob("*.py")) if ".git" not in p.parts)&#10;&#10;&#10;def read_file(path):&#10;    return safe(path).read_text(encoding="utf-8")&#10;&#10;&#10;def edit_file(path, old, new):&#10;    p = safe(path)&#10;    s = p.read_text(encoding="utf-8")&#10;    if s.count(old) != 1:&#10;        raise ValueError("old 必須剛好出現一次（目前 %d 次），請多帶一點上下文" % s.count(old))&#10;    p.write_text(s.replace(old, new), encoding="utf-8")&#10;    return "已修改"&#10;&#10;&#10;def run_tests():&#10;    p = subprocess.run([sys.executable, "-m", "unittest", "-q"], cwd=WS, capture_output=True, text=True, timeout=120)&#10;    return (p.stdout + p.stderr)[-4000:] or "（沒有輸出）"&#10;&#10;&#10;IMPL = {"list_files": list_files, "read_file": read_file, "edit_file": edit_file, "run_tests": run_tests}&#10;TOOLS = [&#10;    {"name": "list_files", "description": "列出專案中所有 .py 檔", "input_schema": {"type": "object", "properties": {}}},&#10;    {"name": "read_file", "description": "讀取一個檔案的完整內容", "input_schema": {&#10;        "type": "object", "properties": {"path": {"type": "string", "description": "相對於專案根目錄的路徑"}}, "required": ["path"]}},&#10;    {"name": "edit_file", "description": "把檔案中唯一出現一次的 old 字串換成 new。old 要包含足夠上下文以確保唯一。",&#10;     "input_schema": {"type": "object", "properties": {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}},&#10;                      "required": ["path", "old", "new"]}},&#10;    {"name": "run_tests", "description": "用 unittest 執行全部測試，回傳輸出結尾", "input_schema": {"type": "object", "properties": {}}},&#10;]&#10;SYSTEM = ("你是程式代理，在使用者的專案目錄中工作。先了解現況再修改；每次修改後都要跑測試驗證。"&#10;          "不要修改測試來讓它通過。完成後用兩三句話說明你改了什麼、為什麼。")&#10;&#10;messages = [{"role": "user", "content": TASK}]&#10;for step in range(30):&#10;    r = client.messages.create(model="claude-opus-5-5", max_tokens=16000, system=SYSTEM, tools=TOOLS, messages=messages)&#10;    messages.append({"role": "assistant", "content": r.content})&#10;    for b in r.content:&#10;        if b.type == "text" and b.text.strip():&#10;            print("🤖", b.text)&#10;    if r.stop_reason != "tool_use":&#10;        break&#10;    results = []&#10;    for b in r.content:&#10;        if b.type != "tool_use":&#10;            continue&#10;        print("   🔧", b.name, json.dumps(b.input, ensure_ascii=False)[:120])&#10;        try:&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": IMPL[b.name](**b.input)})&#10;        except Exception as e:&#10;            results.append({"type": "tool_result", "tool_use_id": b.id, "content": "錯誤：%s" % e, "is_error": True})&#10;    messages.append({"role": "user", "content": results})</div></details>
+
+      <div class="callout">
+        <h3>延伸練習</h3>
+        <ul>
+          <li>加一個 <code>search(pattern)</code> 工具，在大專案中用關鍵字找檔案。</li>
+          <li>加入第 40 課的核准機制：改檔前先問你。</li>
+          <li>加入第 17 課的待辦清單，讓它處理多個 bug。</li>
+          <li>把測試指令寫進一個說明檔，啟動時自動讀入（就像 CLAUDE.md）。</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          迷你程式代理組合了工具迴圈、錯誤處理、外部回饋、執行程式與檔案工具：只用列檔、讀檔、str_replace 改檔、跑測試四個工具，由模型依觀察決定流程，直到測試全部通過。這正是 Claude Code、Codex 的核心。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>迷你程式代理有哪四個工具？</li>
+          <li>為什麼「先跑測試」是好的第一步？</li>
+          <li>它用到了前面哪幾課的概念？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>為什麼要多代理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：Computer use：操作電腦畫面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：為什麼要多代理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

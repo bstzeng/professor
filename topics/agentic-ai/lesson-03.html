@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：呼叫 LLM API：訊息與角色 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="system、user、assistant">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜從聊天到代理 · 第 3 課</div>
+      <h1>呼叫 LLM API：訊息與角色</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Messages API 的基本結構</li>
+          <li>理解 API 是無狀態的</li>
+          <li>學會維護多輪對話歷史</li>
+        </ul>
+      </div>
+
+      <p>
+        使用 Claude 這類模型時，你的程式會呼叫一個 API。最核心的參數有三個：<code>model</code>（用哪個模型）、<code>max_tokens</code>（這次最多輸出多少）、<code>messages</code>（對話內容）。另外常用 <code>system</code>（系統提示）設定角色與規則。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>角色</th><th>誰說的</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>system</td><td>開發者（你）</td><td>「你是客服助理，用繁體中文回答。」</td></tr>
+          <tr><td>user</td><td>使用者，或工具結果</td><td>「我的訂單到哪了？」</td></tr>
+          <tr><td>assistant</td><td>模型</td><td>「我幫你查一下。」</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        最重要的觀念：<strong>API 是無狀態的</strong>。伺服器不會幫你記住對話——每次呼叫，你都要把<strong>整段歷史</strong>重新送過去。模型「記得」你的名字，只是因為那句話還在你送去的 messages 裡。
+      </p>
+
+      <p>
+        這件事對代理影響深遠：代理每跑一輪，歷史就變長一點，下一次要送的內容就更多。第 20 課起我們會處理這個問題。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/a03_messages.py" download>下載 a03_messages.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        維護一個 <code>history</code> 清單，每輪把使用者訊息和模型回應都加進去。最後示範：如果不送歷史，模型就真的「忘了」。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 3 課：呼叫 LLM API 的基本形狀——system、messages、角色交替。
+API 是「無狀態」的：每次呼叫都要把整段對話重新送過去。"""
+from mockllm import MockClient, text
+
+def policy(ctx):
+    # 假模型：能「記得」名字，只因為整段歷史每次都被送進來
+    for m in ctx.messages:
+        if m["role"] == "user" and "我叫" in m["content"]:
+            name = m["content"].split("我叫")[1].strip("。 ")
+            if "名字" in ctx.user_text():
+                return text("你叫%s。（我是從你送來的對話歷史裡讀到的）" % name)
+    if "名字" in ctx.user_text():
+        return text("我不知道你的名字——這次送來的訊息裡沒有提到。")
+    return text("你好！（system 要我：%s）" % ctx.system)
+
+client = MockClient(policy)
+system = "用繁體中文、一句話回答。"
+history = []
+
+def send(msg):
+    history.append({"role": "user", "content": msg})
+    r = client.messages.create(model="mock", max_tokens=300, system=system, messages=history)
+    history.append({"role": "assistant", "content": r.content})
+    print("使用者：%s\n模型　：%s   (送出 %d tokens)" % (msg, r.content[0].text, r.usage.input_tokens))
+
+send("嗨，我叫小安。")
+send("我的名字是什麼？")
+print("\n歷史共有 %d 則訊息，角色依序：%s" % (len(history), [m["role"] for m in history]))
+
+# 如果「忘了」把歷史送回去，模型就真的不知道：
+r = client.messages.create(model="mock", max_tokens=300, system=system,
+                           messages=[{"role": "user", "content": "我的名字是什麼？"}])
+print("不送歷史 →", r.content[0].text)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">使用者：嗨，我叫小安。&#10;模型　：你好！（system 要我：用繁體中文、一句話回答。）   (送出 38 tokens)&#10;使用者：我的名字是什麼？&#10;模型　：你叫小安。（我是從你送來的對話歷史裡讀到的）   (送出 92 tokens)&#10;&#10;歷史共有 4 則訊息，角色依序：['user', 'assistant', 'user', 'assistant']&#10;不送歷史 → 我不知道你的名字——這次送來的訊息裡沒有提到。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/a03_messages.py" download>下載 a03_messages.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 3 課（Claude API 版）：system + 多輪 messages。API 無狀態，每次送完整歷史。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;MODEL = "claude-opus-5-5"&#10;system = "用繁體中文、一句話回答。"&#10;history = []&#10;&#10;&#10;def send(msg):&#10;    history.append({"role": "user", "content": msg})&#10;    r = client.messages.create(model=MODEL, max_tokens=16000, system=system, messages=history)&#10;    history.append({"role": "assistant", "content": r.content})&#10;    reply = next(b.text for b in r.content if b.type == "text")&#10;    print("使用者：%s\n Claude：%s  (input=%d, output=%d tokens)" % (msg, reply, r.usage.input_tokens, r.usage.output_tokens))&#10;&#10;&#10;send("嗨，我叫小安。")&#10;send("我的名字是什麼？")</div></details>
+
+      <p>
+        回應的 <code>content</code> 是一個<strong>區塊清單</strong>，每個區塊有 <code>type</code>：<code>text</code>（文字）、<code>tool_use</code>（要求使用工具）、<code>thinking</code>（思考）等。代理程式的工作，就是讀懂這些區塊並做出反應。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Messages API 的核心是 model、max_tokens、messages，加上 system 設定角色；角色有 system、user、assistant。API 無狀態，每次都要送完整歷史，所以代理的歷史會越來越長。回應是由 text、tool_use、thinking 等區塊組成的清單。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>system、user、assistant 三種角色分別代表誰？</li>
+          <li>為什麼說 API 是無狀態的？這對代理有什麼影響？</li>
+          <li>回應的 content 裡可能出現哪些類型的區塊？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>從工作流到代理：自主程度光譜</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：LLM 只會「接下一個字」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：從工作流到代理：自主程度光譜 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

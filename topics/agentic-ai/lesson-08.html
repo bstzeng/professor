@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：完整的工具迴圈 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="任何工具、任何步數都適用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 8 課</div>
+      <h1>完整的工具迴圈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出通用的工具迴圈</li>
+          <li>用登錄表依名稱分派工具</li>
+          <li>處理各種 stop_reason</li>
+        </ul>
+      </div>
+
+      <p>
+        把上一課的往返包進迴圈，就是一個通用的代理。關鍵設計：
+      </p>
+
+      <ul>
+        <li><strong>工具登錄表</strong>：用字典把工具名稱對應到 Python 函式，收到 tool_use 時依名稱分派。</li>
+        <li><strong>一則回應可能有多個 tool_use</strong>：全部執行，結果一起送回。</li>
+        <li><strong>檢查 stop_reason</strong>：<code>tool_use</code> 繼續；<code>end_turn</code> 結束；<code>max_tokens</code> 代表輸出被截斷；<code>refusal</code> 代表模型拒絕。</li>
+      </ul>
+
+      <p>
+        範例中的假模型不是照劇本走，而是根據「目前已知道什麼」決定下一步：還沒列檔案就先列；找到 todo 檔就讀；讀完就數行數。這正是代理的精神——<strong>下一步取決於上一步的結果</strong>。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b08_tool_loop.py" download>下載 b08_tool_loop.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        三個工具（列檔、讀檔、數行數），模型自己串出三步完成任務。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 8 課：通用的工具迴圈——任何工具、任何步數都適用的寫法。"""
+import json
+from mockllm import MockClient, text, tool_use
+
+# 一個小型「檔案系統」與三個工具
+FILES = {"todo.txt": "買牛奶\n繳電費\n寫報告", "notes.txt": "週五開會"}
+
+def list_files():
+    return sorted(FILES)
+
+def read_file(path):
+    return FILES[path]
+
+def count_lines(text):
+    return len(text.splitlines())
+
+REGISTRY = {f.__name__: f for f in (list_files, read_file, count_lines)}
+TOOLS = [{"name": "list_files", "description": "列出所有檔案", "input_schema": {"type": "object", "properties": {}}},
+         {"name": "read_file", "description": "讀取檔案內容", "input_schema": {"type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}},
+         {"name": "count_lines", "description": "計算文字行數", "input_schema": {"type": "object", "properties": {"text": {"type": "string"}}, "required": ["text"]}}]
+
+def policy(ctx):                          # 假模型：依照「目前知道了什麼」決定下一步
+    seen = {name: json.loads(out) for name, out, _ in ctx.all_results()}
+    if "list_files" not in seen:
+        return tool_use("list_files", {})
+    if "read_file" not in seen:
+        target = next(f for f in seen["list_files"] if "todo" in f)
+        return tool_use("read_file", {"path": target})
+    if "count_lines" not in seen:
+        return tool_use("count_lines", {"text": seen["read_file"]})
+    return text("待辦清單有 %d 項：%s" % (seen["count_lines"], "、".join(seen["read_file"].splitlines())))
+
+def run(client, task, max_turns=8):
+    messages = [{"role": "user", "content": task}]
+    for turn in range(max_turns):
+        r = client.messages.create(model="mock", max_tokens=1000, tools=TOOLS, messages=messages)
+        messages.append({"role": "assistant", "content": r.content})
+        if r.stop_reason == "end_turn":
+            return next(b.text for b in r.content if b.type == "text")
+        results = []
+        for b in r.content:
+            if b.type != "tool_use":
+                continue
+            out = REGISTRY[b.name](**b.input)                      # 依名稱分派到對應函式
+            print("  turn %d → %s%s = %s" % (turn + 1, b.name, tuple(b.input.values()), out))
+            results.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False)})
+        messages.append({"role": "user", "content": results})
+    raise RuntimeError("超過最大輪數")
+
+print(run(MockClient(policy), "我的待辦清單有幾項？"))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">  turn 1 → list_files() = ['notes.txt', 'todo.txt']&#10;  turn 2 → read_file('todo.txt',) = 買牛奶&#10;繳電費&#10;寫報告&#10;  turn 3 → count_lines('買牛奶\n繳電費\n寫報告',) = 3&#10;待辦清單有 3 項：買牛奶、繳電費、寫報告</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/b08_tool_loop.py" download>下載 b08_tool_loop.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 8 課（Claude API 版）：通用工具迴圈。處理 end_turn、tool_use、max_tokens、refusal 等停止原因。"""&#10;import json&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;MODEL = "claude-opus-5-5"&#10;FILES = {"todo.txt": "買牛奶\n繳電費\n寫報告", "notes.txt": "週五開會"}&#10;REGISTRY = {&#10;    "list_files": lambda: sorted(FILES),&#10;    "read_file": lambda path: FILES[path],&#10;}&#10;TOOLS = [{"name": "list_files", "description": "列出所有檔案名稱", "input_schema": {"type": "object", "properties": {}}},&#10;         {"name": "read_file", "description": "讀取一個檔案的完整內容", "input_schema": {&#10;             "type": "object", "properties": {"path": {"type": "string"}}, "required": ["path"]}}]&#10;&#10;&#10;def run(task, max_turns=10):&#10;    messages = [{"role": "user", "content": task}]&#10;    for _ in range(max_turns):&#10;        r = client.messages.create(model=MODEL, max_tokens=16000, tools=TOOLS, messages=messages)&#10;        messages.append({"role": "assistant", "content": r.content})&#10;        if r.stop_reason == "refusal":&#10;            return "模型拒絕了這個請求"&#10;        if r.stop_reason == "max_tokens":&#10;            return "輸出被 max_tokens 截斷，請調高上限"&#10;        if r.stop_reason != "tool_use":        # end_turn 等：完成&#10;            return "".join(b.text for b in r.content if b.type == "text")&#10;        results = []&#10;        for b in r.content:&#10;            if b.type == "tool_use":&#10;                out = REGISTRY[b.name](**b.input)&#10;                print("→", b.name, b.input)&#10;                results.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False)})&#10;        messages.append({"role": "user", "content": results})   # 所有結果放在同一則訊息&#10;    raise RuntimeError("超過最大輪數")&#10;&#10;&#10;print(run("我的待辦清單有幾項？"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          通用工具迴圈用登錄表依名稱分派工具，執行同一則回應中的所有 tool_use 並一起送回，並依 stop_reason 判斷繼續（tool_use）、結束（end_turn）、截斷（max_tokens）或被拒（refusal）。代理的下一步取決於上一步的結果。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>工具登錄表的用途是什麼？</li>
+          <li>stop_reason 可能有哪些值，各代表什麼？</li>
+          <li>為什麼說代理的步驟無法事先寫死？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>平行工具呼叫</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：tool_use 與 tool_result 的往返</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：平行工具呼叫 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

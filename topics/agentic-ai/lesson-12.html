@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：參數驗證與嚴格模式 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="不要相信模型給的參數">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 12 課</div>
+      <h1>參數驗證與嚴格模式</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>在執行前驗證工具參數</li>
+          <li>把驗證錯誤回饋給模型</li>
+          <li>認識 strict 模式的保證與限制</li>
+        </ul>
+      </div>
+
+      <p>
+        模型產生的參數大多數時候是對的，但「大多數」不夠。人數填成「兩位」、日期填成「下週五」、多出不存在的欄位——這些都會讓你的程式出錯，甚至造成危險（例如金額被填成負數）。
+      </p>
+
+      <p>
+        所以在執行工具<strong>之前</strong>一定要驗證：型別、必填欄位、範圍、可選值、不允許的多餘欄位。驗證失敗就把錯誤訊息當 is_error 的 tool_result 回給模型，它通常會修正。
+      </p>
+
+      <p>
+        Claude API 提供<strong>嚴格模式</strong>（工具定義加上 <code>"strict": true</code>），透過「約束解碼」保證產生的參數<strong>一定符合 schema</strong>。但 schema 能表達的有限（例如數值範圍、字串長度不支援），而且「格式正確」不等於「商業上合理」——退款金額不能超過訂單金額這種規則，仍然要在你的程式裡檢查。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b12_validate.py" download>下載 b12_validate.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        一個 40 行的迷你 JSON Schema 驗證器，檢查四組參數。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 12 課：參數驗證——永遠不要相信模型給的參數一定正確。
+寫一個迷你 JSON Schema 驗證器，在執行工具前先檢查。"""
+
+def validate(schema, data, path="input"):
+    errs = []
+    t = schema.get("type")
+    types = {"object": dict, "string": str, "integer": int, "number": (int, float), "boolean": bool, "array": list}
+    if t and not isinstance(data, types[t]) or (t in ("integer", "number") and isinstance(data, bool)):
+        return ["%s 應為 %s，收到 %r" % (path, t, data)]
+    if "enum" in schema and data not in schema["enum"]:
+        errs.append("%s 必須是 %s 之一，收到 %r" % (path, schema["enum"], data))
+    if t in ("integer", "number"):
+        if "minimum" in schema and data &lt; schema["minimum"]:
+            errs.append("%s 不可小於 %s" % (path, schema["minimum"]))
+        if "maximum" in schema and data &gt; schema["maximum"]:
+            errs.append("%s 不可大於 %s" % (path, schema["maximum"]))
+    if t == "object":
+        for k in schema.get("required", []):
+            if k not in data:
+                errs.append("缺少必填欄位 %s.%s" % (path, k))
+        props = schema.get("properties", {})
+        for k, v in data.items():
+            if k in props:
+                errs += validate(props[k], v, path + "." + k)
+            elif schema.get("additionalProperties") is False:
+                errs.append("不允許的欄位 %s.%s" % (path, k))
+    return errs
+
+schema = {"type": "object", "additionalProperties": False, "required": ["destination", "passengers"],
+          "properties": {"destination": {"type": "string"},
+                         "passengers": {"type": "integer", "minimum": 1, "maximum": 8},
+                         "cabin": {"type": "string", "enum": ["economy", "business"]}}}
+for call in [{"destination": "東京", "passengers": 2},
+             {"destination": "東京", "passengers": "兩位"},
+             {"passengers": 12, "cabin": "first"},
+             {"destination": "大阪", "passengers": 1, "seat": "窗邊"}]:
+    e = validate(schema, call)
+    print(("✓ 通過 " if not e else "✗ 拒絕 ") + str(call))
+    for x in e:
+        print("     →", x)
+print("被拒絕時，把錯誤文字當成 is_error=True 的 tool_result 回給模型，它通常會自己修正參數。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">✓ 通過 {'destination': '東京', 'passengers': 2}&#10;✗ 拒絕 {'destination': '東京', 'passengers': '兩位'}&#10;     → input.passengers 應為 integer，收到 '兩位'&#10;✗ 拒絕 {'passengers': 12, 'cabin': 'first'}&#10;     → 缺少必填欄位 input.destination&#10;     → input.passengers 不可大於 8&#10;     → input.cabin 必須是 ['economy', 'business'] 之一，收到 'first'&#10;✗ 拒絕 {'destination': '大阪', 'passengers': 1, 'seat': '窗邊'}&#10;     → 不允許的欄位 input.seat&#10;被拒絕時，把錯誤文字當成 is_error=True 的 tool_result 回給模型，它通常會自己修正參數。</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/b12_validate.py" download>下載 b12_validate.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 12 課（Claude API 版）：strict: true 讓 Claude 產生的工具參數「保證」符合 schema。&#10;schema 需要 additionalProperties: false 與 required。仍建議在伺服器端再驗證一次商業規則。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;r = client.messages.create(&#10;    model="claude-opus-5-5",&#10;    max_tokens=16000,&#10;    messages=[{"role": "user", "content": "幫我訂兩張下週五飛東京的商務艙機票"}],&#10;    tools=[{&#10;        "name": "book_flight",&#10;        "description": "預訂機票",&#10;        "strict": True,&#10;        "input_schema": {&#10;            "type": "object",&#10;            "properties": {&#10;                "destination": {"type": "string"},&#10;                "date": {"type": "string", "format": "date"},&#10;                "passengers": {"type": "integer", "enum": [1, 2, 3, 4, 5, 6, 7, 8]},&#10;                "cabin": {"type": "string", "enum": ["economy", "business"]},&#10;            },&#10;            "required": ["destination", "date", "passengers", "cabin"],&#10;            "additionalProperties": False,&#10;        },&#10;    }],&#10;)&#10;for b in r.content:&#10;    if b.type == "tool_use":&#10;        print("符合 schema 的參數：", b.input)</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          執行工具前一定要驗證參數的型別、必填、範圍、可選值與多餘欄位，失敗時以 is_error 回饋給模型。strict 模式保證參數符合 schema，但無法表達所有限制，商業規則仍須在程式中檢查。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼要在執行前驗證參數？</li>
+          <li>驗證失敗時該怎麼處理？</li>
+          <li>strict 模式能保證什麼、不能保證什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Tool Runner：讓 SDK 跑迴圈</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：設計好工具</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：Tool Runner：讓 SDK 跑迴圈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

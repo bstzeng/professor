@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：防護欄 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="在輸入、工具、輸出設關卡">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜可靠性與安全 · 第 39 課</div>
+      <h1>防護欄</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>在三個關口設計防護欄</li>
+          <li>用允許清單限制工具</li>
+          <li>理解程式層防護比提示更可靠</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>防護欄</strong>（guardrails）是包在代理外面的檢查，分三個關口：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>關口</th><th>檢查什麼</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>輸入</td><td>使用者訊息與外部資料</td><td>偵測信用卡號、過長輸入、明顯的攻擊字串</td></tr>
+          <tr><td>工具呼叫</td><td>模型要做的動作</td><td>工具允許清單、參數格式、金額上限</td></tr>
+          <tr><td>輸出</td><td>要給使用者的回覆</td><td>遮蔽個資、攔下不當承諾、檢查是否引用來源</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        最重要的原則：<strong>防護欄要寫在程式裡，不能只寫在提示裡</strong>。提示中寫「不要退款超過 1000 元」是請求，模型可能被說服；程式中寫 <code>if amount > 1000: reject</code> 是規則，不會被說服。
+      </p>
+
+      <p>
+        防護欄也可以用另一個（較小的）模型來做分類，例如判斷輸入是否在服務範圍內。但最後的硬性限制，仍應由確定性的程式把關。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/g39_guardrails.py" download>下載 g39_guardrails.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        三個關口各一個例子：擋下信用卡號、拒絕不在允許清單的工具與可疑參數、遮蔽輸出中的 email 和電話。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 39 課：防護欄（guardrails）——在代理的輸入、工具呼叫、輸出三個關口設檢查。"""
+import re
+
+def input_guard(msg):
+    if re.search(r"\b\d{4}-?\d{4}-?\d{4}-?\d{4}\b", msg):
+        return "請不要在對話中貼信用卡號。"
+    if len(msg) &gt; 5000:
+        return "訊息太長。"
+    return None
+
+ALLOWED_TOOLS = {"search_orders", "get_order"}             # 這個客服代理只能「讀」，不能退款或刪除
+def tool_guard(name, args):
+    if name not in ALLOWED_TOOLS:
+        return "工具 %s 不在允許清單內" % name
+    if name == "get_order" and not re.fullmatch(r"[A-Z]\d{5}", args.get("order_id", "")):
+        return "訂單編號格式錯誤"
+    return None
+
+def output_guard(reply):
+    reply = re.sub(r"[\w.+-]+@[\w-]+\.[\w.]+", "[email 已遮蔽]", reply)          # 遮蔽個資
+    reply = re.sub(r"09\d{2}-?\d{3}-?\d{3}", "[電話已遮蔽]", reply)
+    if "保證獲利" in reply:
+        return "（此回覆因含不當承諾而被攔下，已轉人工）"
+    return reply
+
+print("輸入：", input_guard("我的卡號是 4111-1111-1111-1111，幫我查"))
+for call in [("get_order", {"order_id": "A12345"}), ("refund", {"order_id": "A12345"}), ("get_order", {"order_id": "1 OR 1=1"})]:
+    print("工具 %-10s %-28s → %s" % (call[0], call[1], tool_guard(*call) or "放行 ✓"))
+print("輸出：", output_guard("已通知負責人 amy@shop.com，電話 0912-345-678。"))
+print("輸出：", output_guard("這支基金保證獲利！"))
+print("\n原則：防護欄放在『程式』裡，而不是只寫在提示裡拜託模型遵守——模型可能被說服，程式不會。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">輸入： 請不要在對話中貼信用卡號。&#10;工具 get_order  {'order_id': 'A12345'}       → 放行 ✓&#10;工具 refund     {'order_id': 'A12345'}       → 工具 refund 不在允許清單內&#10;工具 get_order  {'order_id': '1 OR 1=1'}     → 訂單編號格式錯誤&#10;輸出： 已通知負責人 [email 已遮蔽]，電話 [電話已遮蔽]。&#10;輸出： （此回覆因含不當承諾而被攔下，已轉人工）&#10;&#10;原則：防護欄放在『程式』裡，而不是只寫在提示裡拜託模型遵守——模型可能被說服，程式不會。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          防護欄在輸入、工具呼叫、輸出三個關口檢查：偵測敏感輸入、用允許清單與參數檢查限制動作、遮蔽個資與攔下不當內容。最重要的是把硬性限制寫在程式裡，而不只是寫在提示中。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>防護欄的三個關口是什麼？</li>
+          <li>為什麼防護欄要寫在程式裡？</li>
+          <li>工具允許清單的作用是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>人在迴路</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：結構化輸出</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：人在迴路 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

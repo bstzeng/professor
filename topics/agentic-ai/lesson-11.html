@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：設計好工具 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="命名、說明、粒度、回傳">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 11 課</div>
+      <h1>設計好工具</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握工具命名與說明的原則</li>
+          <li>決定工具的粒度</li>
+          <li>讓工具回傳精簡、有用的結果</li>
+        </ul>
+      </div>
+
+      <p>
+        代理表現好不好，很大一部分取決於工具設計。Anthropic 的經驗是：花在工具上的心力，常常比花在提示上的更值得。幾個原則：
+      </p>
+
+      <ul>
+        <li><strong>命名清楚</strong>：動詞＋名詞，如 <code>search_orders</code>，不要叫 <code>do</code> 或 <code>tool1</code>。</li>
+        <li><strong>說明完整</strong>：做什麼、什麼時候該用（和什麼時候不該用）、回傳什麼、有什麼限制。</li>
+        <li><strong>參數有說明</strong>：特別是格式（日期、單位、大小寫）；可選值用 enum 列出。</li>
+        <li><strong>粒度適中</strong>：一個工具做一件事；但也別拆得太碎，讓模型要呼叫十次才能完成一件常見的事。</li>
+        <li><strong>回傳精簡</strong>：只回傳模型需要的欄位；過長的結果要截斷或分頁，別把五萬字的原始 JSON 全丟回去。</li>
+        <li><strong>數量節制</strong>：工具太多會讓模型選錯；把相關功能整合，或用工具搜尋按需載入。</li>
+      </ul>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b11_tool_design.py" download>下載 b11_tool_design.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        寫一個「工具定義檢查器」，對一個壞工具和一個好工具打分數。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 11 課：好工具 vs 壞工具。用一個簡單的「檢查器」幫工具定義打分數。"""
+
+def lint_tool(t):
+    issues = []
+    d = t.get("description", "")
+    if len(d) &lt; 20:
+        issues.append("描述太短：要說明『做什麼、何時用、回傳什麼』")
+    if not t["name"].replace("_", "").isalnum() or t["name"] in ("do", "run", "tool", "process"):
+        issues.append("名稱太模糊：用動詞＋名詞，如 search_orders")
+    props = t["input_schema"].get("properties", {})
+    for k, v in props.items():
+        if "description" not in v and "enum" not in v:
+            issues.append("參數 %s 沒有說明" % k)
+        if v.get("type") == "string" and any(w in k for w in ("date", "time")) and "format" not in v and "格式" not in v.get("description", ""):
+            issues.append("參數 %s 沒說日期格式" % k)
+    if len(props) &gt; 6:
+        issues.append("參數太多（%d 個）：考慮拆成多個工具" % len(props))
+    if "required" not in t["input_schema"]:
+        issues.append("沒有標出必填參數")
+    return issues
+
+bad = {"name": "do", "description": "查東西",
+       "input_schema": {"type": "object", "properties": {"q": {"type": "string"}, "date": {"type": "string"}}}}
+good = {"name": "search_orders",
+        "description": "依客戶 email 與日期區間搜尋訂單，回傳訂單編號、金額與狀態的清單（最多 20 筆）。客戶詢問訂單狀況時使用。",
+        "input_schema": {"type": "object", "properties": {
+            "email": {"type": "string", "description": "客戶 email"},
+            "start_date": {"type": "string", "description": "起始日期，格式 YYYY-MM-DD"},
+            "status": {"type": "string", "enum": ["pending", "shipped", "delivered"]}},
+            "required": ["email"]}}
+for t in (bad, good):
+    issues = lint_tool(t)
+    print("%-14s 分數 %d/10" % (t["name"], max(0, 10 - 2 * len(issues))))
+    for i in issues:
+        print("   ✗", i)
+print("\n原則：把工具當成寫給『新進同事』的說明書——模型只能讀到這些字。")
+print("回傳也要精簡：只給模型需要的欄位，別把 5 萬字的原始 JSON 全丟回去。")</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">do             分數 0/10&#10;   ✗ 描述太短：要說明『做什麼、何時用、回傳什麼』&#10;   ✗ 名稱太模糊：用動詞＋名詞，如 search_orders&#10;   ✗ 參數 q 沒有說明&#10;   ✗ 參數 date 沒有說明&#10;   ✗ 參數 date 沒說日期格式&#10;   ✗ 沒有標出必填參數&#10;search_orders  分數 10/10&#10;&#10;原則：把工具當成寫給『新進同事』的說明書——模型只能讀到這些字。&#10;回傳也要精簡：只給模型需要的欄位，別把 5 萬字的原始 JSON 全丟回去。</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          好工具要命名清楚（動詞＋名詞）、說明做什麼何時用回傳什麼、參數有格式說明、粒度適中、回傳精簡，並控制工具數量。模型只能讀到說明，工具設計常比提示更影響代理表現。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>好的工具說明應該包含哪些內容？</li>
+          <li>工具粒度太細或太粗各有什麼問題？</li>
+          <li>為什麼工具回傳要精簡？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>參數驗證與嚴格模式</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：工具錯誤處理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：參數驗證與嚴格模式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

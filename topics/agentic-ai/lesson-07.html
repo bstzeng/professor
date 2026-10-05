@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：tool_use 與 tool_result 的往返 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="一次工具呼叫的完整旅程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜工具使用 · 第 7 課</div>
+      <h1>tool_use 與 tool_result 的往返</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂一次工具往返的四則訊息</li>
+          <li>理解 tool_use_id 的配對</li>
+          <li>知道工具結果要放在 user 訊息中</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">一次工具往返的四則訊息</text>
+                <rect x="20" y="40" width="600" height="34" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="320" y="60.85" text-anchor="middle" font-size="11" fill="#4a90c2">① user：「200 美元可以換多少台幣？」</text>
+                <rect x="20" y="82" width="600" height="34" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="102.85" text-anchor="middle" font-size="11" fill="#9c89d6">② assistant：tool_use｜get_exchange_rate(base=USD, quote=TWD)｜id=toolu_A1</text>
+                <rect x="20" y="124" width="600" height="34" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="320" y="144.85" text-anchor="middle" font-size="11" fill="#5aa469">③ user：tool_result｜tool_use_id=toolu_A1｜content="32.1"</text>
+                <rect x="20" y="166" width="600" height="34" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="186.85" text-anchor="middle" font-size="11" fill="#ff8a65">④ assistant：「200 美元約可換 6420 新台幣。」 stop_reason=end_turn</text>
+                <text x="320" y="222" text-anchor="middle" font-size="10" fill="var(--accent)">id 必須對得上；工具結果放在 user 角色的訊息裡</text>
+        </svg>
+        <figcaption>一次工具往返：模型要求 → 程式執行 → 結果送回 → 模型回答。</figcaption>
+      </div>
+
+      <p>
+        把上一課的工具交給模型後，一次完整的往返是這樣的：
+      </p>
+
+      <ol>
+        <li>你送出使用者的問題，並附上 <code>tools</code>。</li>
+        <li>模型回應中出現 <code>tool_use</code> 區塊（含 <code>id</code>、<code>name</code>、<code>input</code>），<code>stop_reason</code> 是 <code>tool_use</code>。</li>
+        <li>你把模型的回應<strong>原封不動</strong>接到歷史裡，執行工具，再送出一則 <strong>user</strong> 訊息，內含 <code>tool_result</code> 區塊，<code>tool_use_id</code> 要對應剛才的 id。</li>
+        <li>模型看到結果，產生最終回答。</li>
+      </ol>
+
+      <p>
+        為什麼工具結果是 <strong>user</strong> 角色？因為從模型的角度看，那是「外界」給它的新資訊。<code>tool_result</code> 的 content 是字串（或內容區塊清單），結構化資料要先轉成 JSON 字串。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/b07_roundtrip.py" download>下載 b07_roundtrip.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        一步一步印出每一則訊息，看清楚資料怎麼流動。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 7 課：一次完整的「tool_use → tool_result」往返，逐則印出訊息內容。"""
+import json
+from mockllm import MockClient, text, tool_use, script, show
+
+def get_exchange_rate(base, quote):
+    return {"USD/TWD": 32.1, "JPY/TWD": 0.215}.get(base + "/" + quote)
+
+tools = [{"name": "get_exchange_rate", "description": "查詢匯率：1 單位 base 可換多少 quote",
+          "input_schema": {"type": "object", "properties": {"base": {"type": "string"}, "quote": {"type": "string"}},
+                           "required": ["base", "quote"]}}]
+client = MockClient(script(
+    [text("我來查匯率。"), tool_use("get_exchange_rate", {"base": "USD", "quote": "TWD"}, id="toolu_A1")],
+    lambda c: text("200 美元約可換 %.0f 新台幣。" % (200 * float(c.data())))))
+
+messages = [{"role": "user", "content": "200 美元可以換多少台幣？"}]
+print("① 送出 user 訊息"); r = client.messages.create(model="mock", max_tokens=500, messages=messages, tools=tools); show(r)
+
+messages.append({"role": "assistant", "content": r.content})
+call = next(b for b in r.content if b.type == "tool_use")
+result = get_exchange_rate(**call.input)
+print("\n② 我們的程式執行 %s → %s" % (call.name, result))
+messages.append({"role": "user", "content": [
+    {"type": "tool_result", "tool_use_id": call.id, "content": json.dumps(result)}]})   # id 必須對得上
+print("③ 把 tool_result 放在 user 訊息送回：", messages[-1]["content"][0])
+
+r = client.messages.create(model="mock", max_tokens=500, messages=messages, tools=tools)
+print("\n④ 模型看到結果後回答"); show(r)
+print("\n整段對話角色：", [m["role"] for m in messages + [{"role": "assistant"}]])</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">① 送出 user 訊息&#10;  [text] 我來查匯率。&#10;  [tool_use] get_exchange_rate({"base": "USD", "quote": "TWD"})  id=toolu_A1&#10;  stop_reason=tool_use  Usage(input=91, output=41, cache_read=0)&#10;&#10;② 我們的程式執行 get_exchange_rate → 32.1&#10;③ 把 tool_result 放在 user 訊息送回： {'type': 'tool_result', 'tool_use_id': 'toolu_A1', 'content': '32.1'}&#10;&#10;④ 模型看到結果後回答&#10;  [text] 200 美元約可換 6420 新台幣。&#10;  stop_reason=end_turn  Usage(input=167, output=19, cache_read=0)&#10;&#10;整段對話角色： ['user', 'assistant', 'user', 'assistant']</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/b07_roundtrip.py" download>下載 b07_roundtrip.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 7 課（Claude API 版）：手動完成一次 tool_use → tool_result 往返。"""&#10;import json&#10;import anthropic&#10;&#10;client = anthropic.Anthropic()&#10;MODEL = "claude-opus-5-5"&#10;tools = [{"name": "get_exchange_rate", "description": "查詢匯率：1 單位 base 貨幣可換多少 quote 貨幣（ISO 代碼，如 USD、TWD）",&#10;          "input_schema": {"type": "object", "properties": {"base": {"type": "string"}, "quote": {"type": "string"}},&#10;                           "required": ["base", "quote"]}}]&#10;messages = [{"role": "user", "content": "200 美元可以換多少台幣？"}]&#10;&#10;r = client.messages.create(model=MODEL, max_tokens=16000, tools=tools, messages=messages)&#10;print("stop_reason =", r.stop_reason)&#10;call = next(b for b in r.content if b.type == "tool_use")&#10;print("Claude 要求：", call.name, call.input, call.id)&#10;&#10;messages.append({"role": "assistant", "content": r.content})&#10;messages.append({"role": "user", "content": [{"type": "tool_result", "tool_use_id": call.id,&#10;                                              "content": json.dumps({"rate": 32.1})}]})&#10;r = client.messages.create(model=MODEL, max_tokens=16000, tools=tools, messages=messages)&#10;print(next(b.text for b in r.content if b.type == "text"))</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          一次工具往返包含四則訊息：user 問題、assistant 的 tool_use（含 id）、user 的 tool_result（tool_use_id 要對應）、assistant 的最終回答。模型回應要原封不動接回歷史，工具結果以字串放在 user 訊息中。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>tool_use 區塊包含哪三個重要欄位？</li>
+          <li>tool_result 為什麼放在 user 角色的訊息裡？</li>
+          <li>tool_use_id 的作用是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>完整的工具迴圈</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：工具是什麼：函式加上說明書</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：完整的工具迴圈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

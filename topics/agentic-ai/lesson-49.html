@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：把代理部署上線 ｜ Agentic AI ｜ 博雅書院</title>
+<meta name="description" content="網路會斷、程式會重啟">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Agentic AI</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實務與未來 · 第 49 課</div>
+      <h1>把代理部署上線</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>為 API 呼叫加上重試與退避</li>
+          <li>用冪等性避免重複的副作用</li>
+          <li>用檢查點讓長任務可恢復</li>
+        </ul>
+      </div>
+
+      <p>
+        在筆電上跑得好好的代理，上線後會遇到各種現實問題：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>問題</th><th>對策</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>API 限流（429）、伺服器暫時錯誤（5xx）</td><td>重試＋指數退避＋隨機抖動；SDK 已內建基本重試</td></tr>
+          <tr><td>請求本身有錯（400）</td><td>不要重試，記錄並修正</td></tr>
+          <tr><td>工具逾時</td><td>設逾時，回傳錯誤讓模型決定</td></tr>
+          <tr><td>重試導致重複扣款、重複寄信</td><td>冪等性：用唯一鍵記錄已完成的副作用</td></tr>
+          <tr><td>程式在長任務中途重啟</td><td>檢查點：每完成一步就存狀態</td></tr>
+          <tr><td>模型因安全考量拒絕（refusal）</td><td>檢查 stop_reason，必要時改走其他流程或模型</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        另外記得：記錄每個請求的 request id（回報問題時有用）、監控成本與錯誤率、為整個任務設時間與金額上限。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 Python 範例（離線版）</strong>　<a href="py/h49_deploy.py" download>下載 h49_deploy.py</a>　<span style="color:var(--text-muted);font-size:0.9em">需同資料夾的 <a href="py/mockllm.py" download>mockllm.py</a></span></p>
+
+      <p>
+        示範指數退避重試、冪等的扣款、以及程式中途當掉後從檢查點恢復。Claude API 版示範錯誤類型的處理順序與伺服器端備援。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 49 課：把代理部署上線——網路會斷、API 會限流、工具會逾時、程式會重啟。
+重點：重試與退避、冪等性（重做不會重複扣款）、檢查點（重啟能接著做）、逾時。"""
+import json
+import os
+import random
+import tempfile
+import time
+
+class RateLimitError(Exception):
+    pass
+
+def flaky_api(rng):
+    """模擬一個不穩定的 API：30% 機率回 429。"""
+    if rng.random() &lt; 0.3:
+        raise RateLimitError("429 Too Many Requests")
+    return "ok"
+
+def with_retry(fn, max_tries=5, base=0.05, jitter=random.Random(0)):
+    for i in range(max_tries):
+        try:
+            return fn()
+        except RateLimitError as e:
+            wait = base * (2 ** i) * (1 + jitter.random() * 0.2)     # 指數退避＋隨機抖動
+            print("   重試 %d：%s，等 %.2f 秒" % (i + 1, e, wait))
+            time.sleep(wait)
+    raise RuntimeError("重試 %d 次仍失敗" % max_tries)
+
+rng = random.Random(3)
+print("呼叫結果：", with_retry(lambda: flaky_api(rng)))
+
+# 冪等性：用 idempotency key 記錄已完成的副作用，重跑時不會重複執行
+DONE = set()
+def charge(order_id, amount):
+    key = "charge:%s" % order_id
+    if key in DONE:
+        return "已處理過，略過（不會重複扣款）"
+    DONE.add(key)
+    return "扣款 %d 元" % amount
+print(charge("A1", 500), "｜", charge("A1", 500))
+
+# 檢查點：每完成一步就存檔，程式重啟後從中斷處繼續
+CK = os.path.join(tempfile.gettempdir(), "agent_checkpoint_demo.json")
+if os.path.exists(CK):
+    os.remove(CK)
+STEPS = ["下載資料", "清理", "分析", "產生報告"]
+
+def run(crash_at=None):
+    state = json.load(open(CK)) if os.path.exists(CK) else {"done": []}
+    for s in STEPS:
+        if s in state["done"]:
+            continue
+        if s == crash_at:
+            print("   💥 在「%s」時程式當掉" % s)
+            return
+        state["done"].append(s)
+        json.dump(state, open(CK, "w"), ensure_ascii=False)
+        print("   ✓", s)
+
+print("第一次執行："); run(crash_at="分析")
+print("重啟後："); run()</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（這是實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">   重試 1：429 Too Many Requests，等 0.06 秒&#10;呼叫結果： ok&#10;扣款 500 元 ｜ 已處理過，略過（不會重複扣款）&#10;第一次執行：&#10;   ✓ 下載資料&#10;   ✓ 清理&#10;   💥 在「分析」時程式當掉&#10;重啟後：&#10;   ✓ 分析&#10;   ✓ 產生報告</div>
+
+      <details style="margin:0 0 20px"><summary style="cursor:pointer;font-weight:bold">☁️ Claude API 版（換成真的 Claude，點我展開）</summary><p style="margin:8px 0">需要 <code>pip install anthropic</code> 並設定環境變數 <code>ANTHROPIC_API_KEY</code>；會實際呼叫 API 並計費。<a href="py/claude/h49_deploy.py" download>下載 h49_deploy.py</a></p><div class="code-block"># -*- coding: utf-8 -*-&#10;"""第 49 課（Claude API 版）：上線時的錯誤處理。&#10;SDK 會自動重試連線錯誤、408/409/429/5xx（預設 2 次，可調 max_retries）。&#10;另外示範：伺服器端備援（fallbacks，beta）——遇到安全分類器拒答時由伺服器自動改用合適模型；以及 refusal 停止原因。"""&#10;import anthropic&#10;&#10;client = anthropic.Anthropic(max_retries=4, timeout=120.0)&#10;&#10;try:&#10;    r = client.beta.messages.create(&#10;        model="claude-opus-5-5",&#10;        max_tokens=16000,&#10;        betas=["server-side-fallback-2026-07-01"],&#10;        fallbacks="default",&#10;        messages=[{"role": "user", "content": "用一句話介紹代理迴圈。"}],&#10;    )&#10;    if r.stop_reason == "refusal":&#10;        print("被拒絕：", r.stop_details)&#10;    else:&#10;        print(next(b.text for b in r.content if b.type == "text"))&#10;    print("request id（回報問題時附上）：", r._request_id)&#10;except anthropic.BadRequestError as e:          # 400：請求本身有錯，重試沒用&#10;    print("請求錯誤：", e.message)&#10;except anthropic.RateLimitError as e:           # 429：SDK 已重試過仍失敗&#10;    print("被限流，請稍後再試；retry-after =", e.response.headers.get("retry-after"))&#10;except anthropic.APIStatusError as e:&#10;    print("API 錯誤 %d：%s" % (e.status_code, e.message))&#10;except anthropic.APIConnectionError:&#10;    print("網路連線失敗")</div></details>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          部署代理要處理限流與暫時錯誤（重試加指數退避與抖動）、不重試 400 錯誤、工具逾時、用冪等鍵避免重複副作用、用檢查點讓長任務可恢復，並檢查 refusal、記錄 request id 與監控成本。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課的 Python 範例分兩版：<strong>離線版</strong>用一個模仿 Anthropic SDK 介面的「假 LLM」（mockllm.py），不需 API 金鑰即可執行，頁面上的輸出就是實際執行的結果；<strong>Claude API 版</strong>使用官方 anthropic 套件，需要 API 金鑰、會產生費用。API 細節（模型名稱、beta 功能）會隨時間更新，以官方文件為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>哪些錯誤該重試、哪些不該？</li>
+          <li>什麼是冪等性？為什麼代理需要它？</li>
+          <li>檢查點如何讓長任務可恢復？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>代理的極限與常見失敗</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：案例剖析：Claude Code 與 Codex</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：代理的極限與常見失敗 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
