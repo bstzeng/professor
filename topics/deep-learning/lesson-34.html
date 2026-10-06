@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：Seq2seq 與機器翻譯 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="一個網路讀、一個網路寫">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜處理序列：RNN 與 LSTM · 第 34 課</div>
+      <h1>Seq2seq 與機器翻譯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解編碼器—解碼器架構</li>
+          <li>知道 seq2seq 的瓶頸</li>
+          <li>理解 teacher forcing</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Seq2seq：編碼器讀完整句，解碼器再逐字輸出</text>
+                <rect x="20" y="60" width="70.6667" height="40" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="55.3333" y="83.85" text-anchor="middle" font-size="11" fill="#4a90c2">我</text><line x1="93.7" y1="80.0" x2="94.7" y2="80.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="101.7,80.0 94.7,83.5 94.7,76.5" fill="var(--border)"/><rect x="104.667" y="60" width="70.6667" height="40" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="140" y="83.85" text-anchor="middle" font-size="11" fill="#4a90c2">愛</text><line x1="178.3" y1="80.0" x2="179.3" y2="80.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="186.3,80.0 179.3,83.5 179.3,76.5" fill="var(--border)"/><rect x="189.333" y="60" width="70.6667" height="40" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="224.667" y="83.85" text-anchor="middle" font-size="11" fill="#4a90c2">你</text>
+                <line x1="262.0" y1="80.0" x2="293.0" y2="80.0" stroke="#ff8a65" stroke-width="2"/><polygon points="300.0,80.0 293.0,83.5 293.0,76.5" fill="#ff8a65"/>
+                <rect x="300" y="58" width="70" height="44" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="335" y="83.85" text-anchor="middle" font-size="11" fill="#ff8a65">向量 c</text>
+                <line x1="372.0" y1="80.0" x2="393.0" y2="80.0" stroke="#ff8a65" stroke-width="2"/><polygon points="400.0,80.0 393.0,83.5 393.0,76.5" fill="#ff8a65"/>
+                <rect x="400" y="60" width="64" height="40" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="432" y="83.85" text-anchor="middle" font-size="11" fill="#5aa469">I</text><line x1="467.0" y1="80.0" x2="468.0" y2="80.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="475.0,80.0 468.0,83.5 468.0,76.5" fill="var(--border)"/><rect x="478" y="60" width="64" height="40" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="510" y="83.85" text-anchor="middle" font-size="11" fill="#5aa469">love</text><line x1="545.0" y1="80.0" x2="546.0" y2="80.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="553.0,80.0 546.0,83.5 546.0,76.5" fill="var(--border)"/><rect x="556" y="60" width="64" height="40" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="588" y="83.85" text-anchor="middle" font-size="11" fill="#5aa469">you</text>
+                <text x="140" y="128" text-anchor="middle" font-size="10" fill="#4a90c2">編碼器（RNN）</text>
+                <text x="510" y="128" text-anchor="middle" font-size="10" fill="#5aa469">解碼器（RNN）</text>
+                <text x="320" y="160" text-anchor="middle" font-size="10.5" fill="#e0605a">瓶頸：再長的句子都被壓進一個固定大小的向量 c</text>
+        </svg>
+        <figcaption>編碼器把整句壓成一個向量，解碼器再從這個向量生成譯文。</figcaption>
+      </div>
+
+      <p>
+        2014 年 Sutskever 等人和 Cho 等人提出 <strong>Seq2seq</strong>：一個 RNN（編碼器）讀完原文，把最後的隱藏狀態當成整句的摘要向量；另一個 RNN（解碼器）從這個向量開始，一個字一個字生成譯文，每一步的輸出當作下一步的輸入。
+      </p>
+
+      <h2>Teacher forcing</h2>
+
+      <p>
+        訓練時，解碼器每一步的輸入用<strong>正確答案</strong>的前一個字，而不是自己剛剛的預測，這樣訓練比較穩定。推論時沒有答案，只能用自己的預測——GPT 的生成也是這樣。
+      </p>
+
+      <h2>瓶頸</h2>
+
+      <p>
+        不管原文多長，都要擠進一個固定大小的向量。句子一長，翻譯品質就明顯下降。解決這個問題的，就是下一課的<strong>注意力機制</strong>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Seq2seq 用編碼器 RNN 把原文壓成一個向量，解碼器 RNN 再逐字生成譯文；訓練時用 teacher forcing。缺點是所有資訊都擠進一個固定向量，長句表現差。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Seq2seq 的編碼器和解碼器各做什麼？</li>
+          <li>什麼是 teacher forcing？</li>
+          <li>Seq2seq 的瓶頸在哪裡？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>注意力機制的誕生</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：LSTM 與 GRU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：注意力機制的誕生 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

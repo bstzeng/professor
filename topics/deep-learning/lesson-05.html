@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：梯度下降：往山下走的盲人 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="沿著斜率調參數">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜機器怎麼「學」 · 第 5 課</div>
+      <h1>梯度下降：往山下走的盲人</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解梯度下降的直覺</li>
+          <li>知道學習率太大、太小的後果</li>
+          <li>認識局部最小值</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__nnLib) return; window.__nnLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        function info(root) { var p = el('p', 'margin:6px 0 0;line-height:1.65'); root.appendChild(p); return p; }
+        function rng(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+        function gauss(r) { var u = 1 - r(), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+        function canvas(w, h, mw) { var c = document.createElement('canvas'); c.width = w; c.height = h;
+          c.style.cssText = 'width:100%;max-width:' + (mw || w) + 'px;display:block;margin:6px auto;border:1px solid var(--border);border-radius:6px'; return c; }
+        function setS(root, k, v) { var s = root.querySelector('input[data-k="' + k + '"]'); if (s) { s.value = v; s.dispatchEvent(new Event('input')); } }
+        function fl(v) { return v >= 0.01 ? f2(v) : v >= 1e-4 ? v.toFixed(4) : v.toExponential(1); }
+        function bar(root) { var b = el('div'); root.appendChild(b); return b; }
+
+        /* ---------- 梯度下降小球 ---------- */
+        function initGD(root, cfg) {
+          head(root, cfg.q); var mode = cfg.f || 'quad', lr = cfg.lr || 0.1, w0 = mode === 'quad' ? -2 : -4.5, w = w0, path = [w], view = el('div'), p, timer = null;
+          var F = { quad: { f: function (x) { return (x - 2) * (x - 2); }, a: -3, b: 7, y1: 26 },
+                    bumpy: { f: function (x) { return 0.08 * (x - 1) * (x - 1) + 0.6 * Math.sin(1.6 * x) + 0.6; }, a: -6, b: 8, y1: 5 } };
+          function g(x) { var h = 1e-4, f = F[mode].f; return (f(x + h) - f(x - h)) / (2 * h); }
+          var bb = bar(root), b1 = btn('走一步', 's'), b2 = btn('▶ 連走 30 步', 'r'), b3 = btn('↺ 重來', 'z');
+          [b1, b2, b3].forEach(function (b) { bb.appendChild(b); });
+          if (!cfg.f) { var b4 = btn('切換：有很多山谷的曲線', 'm'); bb.appendChild(b4); b4.addEventListener('click', function () { mode = mode === 'quad' ? 'bumpy' : 'quad'; b4.textContent = mode === 'quad' ? '切換：有很多山谷的曲線' : '切換：簡單的碗形曲線'; w0 = mode === 'quad' ? -2 : -4.5; reset(); }); }
+          var u1 = slider(root, '學習率 η（每一步走多遠）', 0.01, mode === 'quad' ? 1.1 : 1.5, 0.01, lr, f2, 'lr', function (v) { lr = v; reset(); });
+          var u2 = slider(root, '起點 w₀', -6, 7, 0.1, w0, f1, 'w0', function (v) { w0 = v; reset(); });
+          root.appendChild(view); p = info(root);
+          function step() { var gr = g(w); w = w - lr * gr; if (!isFinite(w) || Math.abs(w) > 1e6) w = w > 0 ? 1e6 : -1e6; path.push(w); draw(); }
+          function reset() { if (timer) { clearInterval(timer); timer = null; } w = Math.max(F[mode].a, Math.min(F[mode].b, w0)); path = [w]; draw(); }
+          b1.addEventListener('click', step); b3.addEventListener('click', reset);
+          b2.addEventListener('click', function () { if (timer) return; var n = 0; timer = setInterval(function () { step(); if (++n >= 30 || !root.isConnected) { clearInterval(timer); timer = null; } }, 120); });
+          function draw() { var M = F[mode], W = 640, H = 240, L = 40, R = 14, T = 14, B = 26, f = M.f;
+            function sx(x) { return L + (x - M.a) / (M.b - M.a) * (W - L - R); } function sy(y) { return H - B - Math.min(y, M.y1) / M.y1 * (H - T - B); }
+            var d = '', o = ''; for (var x = M.a; x <= M.b + 1e-9; x += (M.b - M.a) / 200) d += (d ? 'L' : 'M') + n1(sx(x)) + ' ' + n1(sy(f(x)));
+            o += ln(L, H - B, W - R, H - B, '#999') + '<path d="' + d + '" fill="none" stroke="#3a6ea5" stroke-width="2.5"/>';
+            for (var i = Math.max(-10, M.a); i <= M.b; i += 2) o += tx(sx(i), H - B + 14, i, 9, 'var(--text-muted)');
+            path.forEach(function (q, i) { if (q < M.a || q > M.b) return; o += '<circle cx="' + n1(sx(q)) + '" cy="' + n1(sy(f(q))) + '" r="' + (i === path.length - 1 ? 7 : 3.5) + '" fill="' + (i === path.length - 1 ? '#d0564f' : 'rgba(208,86,79,0.4)') + '"/>'; });
+            o += tx(W / 2, H - 1, '參數 w', 9.5, 'var(--text-muted)') + tx(L - 4, T + 4, '損失', 9.5, 'var(--text-muted)', 'end');
+            view.innerHTML = svgw('0 0 ' + W + ' ' + H, o);
+            var out = w < M.a || w > M.b, gr = g(w);
+            p.innerHTML = '第 <b>' + (path.length - 1) + '</b> 步：w ＝ <b>' + (Math.abs(w) > 1e5 ? '飛出去了' : f2(w)) + '</b>，損失 ＝ ' + (out ? '—' : f2(f(w))) + '，斜率（梯度）＝ ' + (out ? '—' : f2(gr)) + '。' +
+              '<br>更新規則：<b>w ← w − η × 斜率</b>。斜率是正的就往左走、負的就往右走，越陡走越大步。' +
+              (mode === 'quad' ? (lr > 1 ? '<br><b style="color:#d0564f">學習率大於 1：每一步都跨過谷底而且越跨越遠，發散了。</b>' : lr > 0.5 ? '<br>學習率偏大：在谷底兩側來回跳，但還是會收斂。' : lr < 0.05 ? '<br>學習率很小：很穩，但要走非常多步。' : '')
+                : '<br>這條曲線有好幾個山谷。從不同起點出發、用不同學習率，會停在不同的谷底（<b>局部最小值</b>）。'); }
+          u1(); u2();
+        }
+
+        /* ---------- 線性迴歸 ---------- */
+        function initLin(root, cfg) {
+          head(root, cfg.q); var r = rng(7), X = [], Y = [], a = 0.5, b = 0, view = el('div'), p;
+          for (var i = 0; i < 12; i++) { var x = 0.3 + i * 0.5; X.push(x); Y.push(1.5 * x + 1 + gauss(r) * 0.8); }
+          var u1 = slider(root, '斜率 a', -1, 4, 0.01, a, f2, 'a', function (v) { a = v; draw(); });
+          var u2 = slider(root, '截距 b', -3, 5, 0.01, b, f2, 'b', function (v) { b = v; draw(); });
+          var bb = bar(root), b1 = btn('梯度下降走一步', 'g'), b2 = btn('▶ 連走 50 步', 'r'), b3 = btn('直接算出最佳解', 'ls');
+          [b1, b2, b3].forEach(function (x) { bb.appendChild(x); }); root.appendChild(view); p = info(root);
+          function mse(aa, bb2) { var s = 0; for (var i = 0; i < X.length; i++) { var e = aa * X[i] + bb2 - Y[i]; s += e * e; } return s / X.length; }
+          function gstep() { var ga = 0, gb = 0, n = X.length; for (var i = 0; i < n; i++) { var e = a * X[i] + b - Y[i]; ga += 2 * e * X[i] / n; gb += 2 * e / n; }
+            setS(root, 'a', Math.max(-1, Math.min(4, a - 0.03 * ga))); setS(root, 'b', Math.max(-3, Math.min(5, b - 0.03 * gb))); }
+          b1.addEventListener('click', gstep);
+          b2.addEventListener('click', function () { var n = 0, t = setInterval(function () { gstep(); if (++n >= 50 || !root.isConnected) clearInterval(t); }, 40); });
+          b3.addEventListener('click', function () { var n = X.length, sx = 0, sy = 0, sxx = 0, sxy = 0; for (var i = 0; i < n; i++) { sx += X[i]; sy += Y[i]; sxx += X[i] * X[i]; sxy += X[i] * Y[i]; }
+            var aa = (n * sxy - sx * sy) / (n * sxx - sx * sx); setS(root, 'a', aa); setS(root, 'b', (sy - aa * sx) / n); });
+          function draw() { var W = 640, H = 260, L = 36, R = 12, T = 12, B = 24; function sx(x) { return L + x / 6.5 * (W - L - R); } function sy(y) { return H - B - (y + 1) / 13 * (H - T - B); }
+            var o = ln(L, sy(0), W - R, sy(0), '#bbb') + ln(sx(0), T, sx(0), H - B, '#bbb');
+            for (var i = 0; i < X.length; i++) { var yh = a * X[i] + b; o += ln(sx(X[i]), sy(Y[i]), sx(X[i]), sy(yh), '#d0564f', 1.2, 'stroke-dasharray="3 2"') + '<circle cx="' + n1(sx(X[i])) + '" cy="' + n1(sy(Y[i])) + '" r="5" fill="#3a6ea5"/>'; }
+            o += ln(sx(0), sy(b), sx(6.5), sy(a * 6.5 + b), '#4a9a5e', 2.5);
+            view.innerHTML = svgw('0 0 ' + W + ' ' + H, o);
+            p.innerHTML = '模型：<b>ŷ ＝ ' + f2(a) + ' x ＋ ' + f2(b) + '</b>。紅色虛線是每個點的誤差，損失（均方誤差 MSE）＝ 誤差平方的平均 ＝ <b>' + f2(mse(a, b)) + '</b>。' +
+              '<br>試著手動拉滑桿讓 MSE 變小，再按「梯度下降走一步」看看電腦怎麼做——它算出 MSE 對 a、b 的斜率，往下坡的方向調整。這些點是用 y ＝ 1.5x ＋ 1 加上隨機雜訊產生的。'; }
+          u1(); u2();
+        }
+
+        /* ---------- 感知器 ---------- */
+        function initPerc(root, cfg) {
+          head(root, cfg.q); var D = { AND: [[0, 0, 0], [0, 1, 0], [1, 0, 0], [1, 1, 1]], OR: [[0, 0, 0], [0, 1, 1], [1, 0, 1], [1, 1, 1]], XOR: [[0, 0, 0], [0, 1, 1], [1, 0, 1], [1, 1, 0]] };
+          var ds = cfg.d || 'AND', w1 = 1, w2 = 1, b = -0.5, view = el('div'), p, ep = 0, msg = '';
+          var bb = bar(root); ['AND', 'OR', 'XOR'].forEach(function (k) { var x = btn(k, k); x.addEventListener('click', function () { ds = k; ep = 0; msg = ''; mark(bb, k); draw(); }); bb.appendChild(x); }); mark(bb, ds);
+          var u1 = slider(root, '權重 w₁', -3, 3, 0.05, w1, f2, 'w1', function (v) { w1 = v; draw(); });
+          var u2 = slider(root, '權重 w₂', -3, 3, 0.05, w2, f2, 'w2', function (v) { w2 = v; draw(); });
+          var u3 = slider(root, '偏差 b', -3, 3, 0.05, b, f2, 'b', function (v) { b = v; draw(); });
+          var b2 = bar(root), lb = btn('用感知器學習規則跑一輪', 'l'); b2.appendChild(lb); root.appendChild(view); p = info(root);
+          function out(x1, x2) { return w1 * x1 + w2 * x2 + b > 0 ? 1 : 0; }
+          lb.addEventListener('click', function () { var nw1 = w1, nw2 = w2, nb = b, err = 0;
+            D[ds].forEach(function (q) { var y = nw1 * q[0] + nw2 * q[1] + nb > 0 ? 1 : 0, e = q[2] - y; if (e) { err++; nw1 += 0.5 * e * q[0]; nw2 += 0.5 * e * q[1]; nb += 0.5 * e; } });
+            ep++; msg = err ? '這一輪有 ' + err + ' 個點分錯，依規則調整了權重。' : '這一輪全部分對，學習完成！';
+            setS(root, 'w1', Math.max(-3, Math.min(3, nw1))); setS(root, 'w2', Math.max(-3, Math.min(3, nw2))); setS(root, 'b', Math.max(-3, Math.min(3, nb))); });
+          function draw() { var W = 300, L = 30, S = 240 / 2, o = ''; function sx(x) { return L + (x + 0.5) * S; } function sy(y) { return 10 + (1.5 - y) * S; }
+            for (var i = 0; i < 30; i++) for (var j = 0; j < 30; j++) { var x = -0.5 + (i + 0.5) / 15, y = -0.5 + (j + 0.5) / 15; o += '<rect x="' + n1(sx(x) - S / 30) + '" y="' + n1(sy(y) - S / 30) + '" width="' + n1(S / 15 + 0.3) + '" height="' + n1(S / 15 + 0.3) + '" fill="' + (out(x, y) ? 'rgba(58,110,165,0.18)' : 'rgba(224,144,90,0.16)') + '"/>'; }
+            if (Math.abs(w2) > 1e-6) o += ln(sx(-0.5), sy((-b - w1 * -0.5) / w2), sx(1.5), sy((-b - w1 * 1.5) / w2), '#333', 2); else if (Math.abs(w1) > 1e-6) o += ln(sx(-b / w1), sy(-0.5), sx(-b / w1), sy(1.5), '#333', 2);
+            var ok = 0; D[ds].forEach(function (q) { var c = out(q[0], q[1]) === q[2]; if (c) ok++; o += '<circle cx="' + sx(q[0]) + '" cy="' + sy(q[1]) + '" r="11" fill="' + (q[2] ? '#3a6ea5' : '#e0905a') + '" stroke="' + (c ? '#4a9a5e' : '#d0564f') + '" stroke-width="3"/>' + tx(sx(q[0]), sy(q[1]) + 4, q[2], 11, '#fff'); });
+            o += tx(sx(0), sy(-0.5) + 14, 'x₁=0', 9, 'var(--text-muted)') + tx(sx(1), sy(-0.5) + 14, 'x₁=1', 9, 'var(--text-muted)') + tx(sx(-0.5) - 2, sy(0) + 3, 'x₂=0', 9, 'var(--text-muted)', 'end') + tx(sx(-0.5) - 2, sy(1) + 3, 'x₂=1', 9, 'var(--text-muted)', 'end');
+            view.innerHTML = '<div style="max-width:340px;margin:auto">' + svgw('-20 0 ' + (W + 40) + ' 270', o) + '</div>';
+            p.innerHTML = '輸出 ＝ 1 如果 <b>' + f2(w1) + '·x₁ ＋ ' + f2(w2) + '·x₂ ＋ (' + f2(b) + ') ＞ 0</b>，否則 0。四個點答對 <b>' + ok + ' / 4</b>（綠框對、紅框錯）。' + (ep ? '<br>第 ' + ep + ' 輪：' + msg : '') +
+              (ds === 'XOR' ? '<br><b>XOR 無論怎麼調都不可能四個全對</b>——藍點在對角、橘點在另一條對角，一條直線切不開。這就是 1969 年《感知器》一書指出的限制。' : ''); }
+          u1(); u2(); u3();
+        }
+
+        /* ---------- 激活函數 ---------- */
+        function initAct(root, cfg) {
+          head(root, cfg.q); var fs = { sigmoid: [function (x) { return 1 / (1 + Math.exp(-x)); }, '#3a6ea5', 'Sigmoid：壓到 0～1，兩端斜率幾乎是 0（梯度消失）。'],
+            tanh: [Math.tanh, '#8a5cb8', 'Tanh：壓到 −1～1，以 0 為中心，兩端同樣會飽和。'],
+            relu: [function (x) { return Math.max(0, x); }, '#d9822b', 'ReLU：負的變 0、正的照抄。計算超簡單、正半邊斜率恆為 1，2012 年後成為主流。缺點是負半邊斜率為 0，神經元可能「死掉」。'],
+            gelu: [function (x) { return 0.5 * x * (1 + Math.tanh(0.7978845608 * (x + 0.044715 * x * x * x))); }, '#4a9a5e', 'GELU：像平滑版的 ReLU，負值附近有一點點彎，BERT、GPT 都用它（或類似的 SiLU／SwiGLU）。'],
+            step: [function (x) { return x > 0 ? 1 : 0; }, '#777', '階梯函數：1958 年感知器用的。斜率到處都是 0，所以沒辦法用梯度下降訓練。'] };
+          var cur = cfg.f || 'relu', der = false, bb = bar(root), view = el('div'), p;
+          Object.keys(fs).forEach(function (k) { var x = btn(k === 'step' ? '階梯' : k === 'sigmoid' ? 'Sigmoid' : k === 'tanh' ? 'Tanh' : k === 'relu' ? 'ReLU' : 'GELU', k); x.addEventListener('click', function () { cur = k; mark(bb, k); draw(); }); bb.appendChild(x); }); mark(bb, cur);
+          var db = btn('同時畫出斜率（導數）', 'd'); db.addEventListener('click', function () { der = !der; db.style.fontWeight = der ? 'bold' : 'normal'; draw(); }); bar(root).appendChild(db);
+          root.appendChild(view); p = info(root);
+          function draw() { var f = fs[cur][0], d1 = [], d2 = []; for (var x = -5; x <= 5.001; x += 0.05) { d1.push([x, f(x)]); if (der) d2.push([x, cur === 'step' ? 0 : (f(x + 1e-4) - f(x - 1e-4)) / 2e-4]); }
+            var S = [{ d: d1, c: fs[cur][1], n: '函數值' }]; if (der) S.push({ d: d2, c: '#d0564f', n: '斜率', dash: '5 3' });
+            view.innerHTML = chart(640, 240, S, { x0: -5, x1: 5, y0: -1.5, y1: 3, xl: '輸入 z' }); p.innerHTML = fs[cur][2]; }
+          draw();
+        }
+
+        /* ---------- 神經網路遊樂場 ---------- */
+        function initPlay(root, cfg) {
+          head(root, cfg.q); var ds = cfg.d || 'circle', nh = cfg.h === undefined ? 1 : cfg.h, nn = cfg.n || 4, act = cfg.a || 'tanh', lr = 0.1, net, data, ep = 0, run = false, loss = 0, hist = [];
+          var bb = bar(root), names = { blobs: '兩群', circle: '圓圈', xor: 'XOR', spiral: '螺旋' };
+          Object.keys(names).forEach(function (k) { var x = btn(names[k], k); x.addEventListener('click', function () { ds = k; mark(bb, k); reset(); }); bb.appendChild(x); }); mark(bb, ds);
+          var ab = bar(root); ['tanh', 'relu', 'sigmoid'].forEach(function (k) { var x = btn('激活：' + k, k); x.addEventListener('click', function () { act = k; mark(ab, k); reset(); }); ab.appendChild(x); }); mark(ab, act);
+          var u1 = slider(root, '隱藏層數', 0, 3, 1, nh, function (v) { return v + ' 層'; }, 'nh', function (v) { nh = v; reset(); });
+          var u2 = slider(root, '每層神經元數', 1, 8, 1, nn, function (v) { return v + ' 個'; }, 'nn', function (v) { nn = v; reset(); });
+          var u3 = slider(root, '學習率', 0.01, 1, 0.01, lr, f2, 'lr', function (v) { lr = v; });
+          var cb = bar(root), go = btn('▶ 開始訓練', 'go'), rs = btn('↺ 重新初始化', 'rs'); cb.appendChild(go); cb.appendChild(rs);
+          var cv = canvas(320, 320, 320), lc = el('div'), p; root.appendChild(cv); root.appendChild(lc); p = info(root);
+          var ctx = cv.getContext('2d');
+          function A(z) { return act === 'tanh' ? Math.tanh(z) : act === 'relu' ? Math.max(0, z) : 1 / (1 + Math.exp(-z)); }
+          function dA(z, a) { return act === 'tanh' ? 1 - a * a : act === 'relu' ? (z > 0 ? 1 : 0) : a * (1 - a); }
+          function gen() { var r = rng(3 + ds.length), d = []; for (var i = 0; i < 200; i++) { var x, y, l;
+              if (ds === 'blobs') { l = i % 2; x = (l ? 0.45 : -0.45) + gauss(r) * 0.22; y = (l ? 0.35 : -0.35) + gauss(r) * 0.22; }
+              else if (ds === 'circle') { l = i % 2; var rr = l ? r() * 0.4 : 0.6 + r() * 0.35, th = r() * 6.283; x = rr * Math.cos(th); y = rr * Math.sin(th); }
+              else if (ds === 'xor') { x = r() * 2 - 1; y = r() * 2 - 1; if (Math.abs(x) < 0.08) x += x < 0 ? -0.1 : 0.1; if (Math.abs(y) < 0.08) y += y < 0 ? -0.1 : 0.1; l = x * y > 0 ? 1 : 0; }
+              else { l = i % 2; var t = (i >> 1) / 100 * 3.5, rad = 0.1 + t / 3.5 * 0.8, ang = t * 2.2 + (l ? Math.PI : 0); x = rad * Math.cos(ang) + gauss(r) * 0.03; y = rad * Math.sin(ang) + gauss(r) * 0.03; }
+              d.push([x, y, l]); } return d; }
+          function init() { var r = rng(11), sz = [2]; for (var i = 0; i < nh; i++) sz.push(nn); sz.push(1); net = { s: sz, W: [], B: [] };
+            for (var l = 0; l < sz.length - 1; l++) { var Wl = []; for (var j = 0; j < sz[l + 1]; j++) { var row = []; for (var k = 0; k < sz[l]; k++) row.push(gauss(r) * Math.sqrt((act === 'relu' ? 2 : 1) / sz[l])); Wl.push(row); } net.W.push(Wl); net.B.push(new Array(sz[l + 1]).fill(0)); } }
+          function fwd(x) { var as = [x], zs = []; for (var l = 0; l < net.W.length; l++) { var z = [], a = [], last = l === net.W.length - 1; for (var j = 0; j < net.W[l].length; j++) { var s = net.B[l][j]; for (var k = 0; k < as[l].length; k++) s += net.W[l][j][k] * as[l][k]; z.push(s); a.push(last ? 1 / (1 + Math.exp(-s)) : A(s)); } zs.push(z); as.push(a); } return [as, zs]; }
+          function train(epochs) { for (var e = 0; e < epochs; e++) { var order = data.map(function (_, i) { return i; }); for (var i = order.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = order[i]; order[i] = order[j]; order[j] = t; }
+              for (var bi = 0; bi < order.length; bi += 10) { var gW = net.W.map(function (Wl) { return Wl.map(function (r) { return r.map(function () { return 0; }); }); }), gB = net.B.map(function (b) { return b.map(function () { return 0; }); }), n = 0;
+                for (var q = bi; q < Math.min(bi + 10, order.length); q++) { var pt = data[order[q]], f = fwd([pt[0], pt[1]]), as = f[0], zs = f[1], L = net.W.length, delta = [as[L][0] - pt[2]]; n++;
+                  for (var l = L - 1; l >= 0; l--) { for (var j2 = 0; j2 < delta.length; j2++) { gB[l][j2] += delta[j2]; for (var k = 0; k < as[l].length; k++) gW[l][j2][k] += delta[j2] * as[l][k]; }
+                    if (l > 0) { var nd = []; for (var k2 = 0; k2 < as[l].length; k2++) { var s = 0; for (var j3 = 0; j3 < delta.length; j3++) s += net.W[l][j3][k2] * delta[j3]; nd.push(s * dA(zs[l - 1][k2], as[l][k2])); } delta = nd; } } }
+                for (var l2 = 0; l2 < net.W.length; l2++) for (var j4 = 0; j4 < net.W[l2].length; j4++) { net.B[l2][j4] -= lr * gB[l2][j4] / n; for (var k3 = 0; k3 < net.W[l2][j4].length; k3++) net.W[l2][j4][k3] -= lr * gW[l2][j4][k3] / n; } }
+              ep++; }
+            loss = 0; var acc = 0; data.forEach(function (pt) { var y = fwd([pt[0], pt[1]])[0]; y = y[y.length - 1][0]; loss -= pt[2] ? Math.log(Math.max(y, 1e-9)) : Math.log(Math.max(1 - y, 1e-9)); if ((y > 0.5 ? 1 : 0) === pt[2]) acc++; }); loss /= data.length; hist.push([ep, loss]); if (hist.length > 400) hist = hist.filter(function (_, i) { return i % 2 === 0 || i === hist.length - 1; }); return acc / data.length; }
+          var lastAcc = 0;
+          function draw() { var G = 40, cs = 320 / G; for (var i = 0; i < G; i++) for (var j = 0; j < G; j++) { var x = -1.2 + (i + 0.5) / G * 2.4, y = 1.2 - (j + 0.5) / G * 2.4, o = fwd([x, y])[0], pr = o[o.length - 1][0];
+                var rC = Math.round(224 + (58 - 224) * pr), gC = Math.round(144 + (110 - 144) * pr), bC = Math.round(90 + (165 - 90) * pr); ctx.fillStyle = 'rgba(' + rC + ',' + gC + ',' + bC + ',0.45)'; ctx.fillRect(i * cs, j * cs, cs + 0.5, cs + 0.5); }
+            data.forEach(function (pt) { ctx.beginPath(); ctx.arc((pt[0] + 1.2) / 2.4 * 320, (1.2 - pt[1]) / 2.4 * 320, 3.5, 0, 6.283); ctx.fillStyle = pt[2] ? '#2b5a8a' : '#c96a2a'; ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 1; ctx.stroke(); });
+            lc.innerHTML = hist.length > 1 ? chart(640, 150, [{ d: hist, c: '#d0564f', n: '訓練損失（交叉熵）' }], { y0: 0, xl: 'epoch' }) : '';
+            var np = 0; for (var l = 0; l < net.W.length; l++) np += net.W[l].length * (net.W[l][0].length + 1);
+            p.innerHTML = '網路結構：' + net.s.join(' → ') + '（共 <b>' + np + '</b> 個參數）。第 <b>' + ep + '</b> 個 epoch，損失 ' + fl(loss) + '，準確率 <b>' + Math.round(lastAcc * 100) + '%</b>。' +
+              '<br>背景顏色是網路對每個位置的預測（藍＝類別 1、橘＝類別 0）。' + (nh === 0 ? '<b>沒有隱藏層時，網路只能畫出一條直線</b>——試試「圓圈」或「XOR」就知道為什麼需要隱藏層。' : '加深加寬網路，邊界就能彎成更複雜的形狀；螺旋最難，通常要 2～3 層。'); }
+          function reset() { run = false; go.textContent = '▶ 開始訓練'; data = gen(); init(); ep = 0; hist = []; lastAcc = train(0); hist = []; draw(); }
+          function loop() { if (!run || !root.isConnected) return; lastAcc = train(2); draw(); if (ep >= 3000) { run = false; go.textContent = '▶ 繼續訓練'; return; } requestAnimationFrame(loop); }
+          go.addEventListener('click', function () { run = !run; go.textContent = run ? '⏸ 暫停' : '▶ 繼續訓練'; if (run) loop(); });
+          rs.addEventListener('click', reset);
+          u3(); data = gen(); u1(); u2();
+        }
+
+        /* ---------- 卷積 ---------- */
+        function initConv(root, cfg) {
+          head(root, cfg.q); var N = 28, img = [], K = { '原圖（恆等）': [0, 0, 0, 0, 1, 0, 0, 0, 0], '模糊': [1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9], '銳利化': [0, -1, 0, -1, 5, -1, 0, -1, 0],
+            '邊緣（拉普拉斯）': [-1, -1, -1, -1, 8, -1, -1, -1, -1], '垂直邊（Sobel x）': [-1, 0, 1, -2, 0, 2, -1, 0, 1], '水平邊（Sobel y）': [-1, -2, -1, 0, 0, 0, 1, 2, 1] };
+          for (var y = 0; y < N; y++) { var row = []; for (var x = 0; x < N; x++) { var v = 0; if (x >= 3 && x <= 12 && y >= 4 && y <= 13) v = 1; if ((x - 19) * (x - 19) + (y - 9) * (y - 9) <= 25) v = 0.8; if (Math.abs(x - y + 2) <= 1 && y > 15) v = 1; if (y >= 18 && y <= 24 && x >= 18 && x <= 25 && (x === 18 || x === 25 || y === 18 || y === 24)) v = 0.9; row.push(v); } img.push(row); }
+          var cur = cfg.k || '垂直邊（Sobel x）', k = K[cur].slice(), bb = bar(root), grid = el('div', 'display:grid;grid-template-columns:repeat(3,52px);gap:3px;margin:8px auto;width:max-content'), ins = [];
+          Object.keys(K).forEach(function (n) { var x = btn(n, n); x.addEventListener('click', function () { cur = n; k = K[n].slice(); mark(bb, n); sync(); draw(); }); bb.appendChild(x); }); mark(bb, cur);
+          for (var i = 0; i < 9; i++) (function (i) { var t = document.createElement('input'); t.type = 'number'; t.step = '0.1'; t.style.cssText = 'width:52px;padding:3px;text-align:center;border:1px solid var(--border);border-radius:4px;background:var(--surface);color:var(--text);font:inherit';
+            t.addEventListener('input', function () { k[i] = parseFloat(t.value) || 0; draw(); }); ins.push(t); grid.appendChild(t); })(i);
+          root.appendChild(el('div', 'text-align:center;font-size:0.88em;margin-top:6px', '3×3 卷積核（可以自己改數字）')); root.appendChild(grid);
+          var wrap = el('div', 'display:flex;gap:12px;justify-content:center;flex-wrap:wrap'), c1 = canvas(N, N, 220), c2 = canvas(N - 2, N - 2, 220);
+          [c1, c2].forEach(function (c) { c.style.imageRendering = 'pixelated'; c.style.width = '200px'; c.style.margin = '0'; });
+          var w1 = el('div', 'text-align:center;font-size:0.85em'), w2 = el('div', 'text-align:center;font-size:0.85em'); w1.appendChild(c1); w1.appendChild(el('div', '', '輸入（28×28）')); w2.appendChild(c2); w2.appendChild(el('div', '', '輸出特徵圖（26×26）'));
+          wrap.appendChild(w1); wrap.appendChild(w2); root.appendChild(wrap); var p = info(root);
+          function sync() { ins.forEach(function (t, i) { t.value = Math.round(k[i] * 100) / 100; }); }
+          function paint(c, arr, signed) { var n = arr.length, ctx = c.getContext('2d'), im = ctx.createImageData(n, n), mx = 0; arr.forEach(function (r) { r.forEach(function (v) { mx = Math.max(mx, Math.abs(v)); }); }); mx = mx || 1;
+            for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) { var v = arr[y][x], q = (y * n + x) * 4; if (signed) { var t = v / mx; im.data[q] = t > 0 ? 255 : Math.round(255 * (1 + t)); im.data[q + 1] = Math.round(255 * (1 - Math.abs(t))); im.data[q + 2] = t < 0 ? 255 : Math.round(255 * (1 - t)); }
+              else { var g = Math.round(255 * (1 - Math.max(0, Math.min(1, v)))); im.data[q] = im.data[q + 1] = im.data[q + 2] = g; } im.data[q + 3] = 255; } ctx.putImageData(im, 0, 0); }
+          function draw() { var out = []; for (var y = 1; y < N - 1; y++) { var row = []; for (var x = 1; x < N - 1; x++) { var s = 0; for (var dy = -1; dy <= 1; dy++) for (var dx = -1; dx <= 1; dx++) s += img[y + dy][x + dx] * k[(dy + 1) * 3 + dx + 1]; row.push(s); } out.push(row); }
+            paint(c1, img, false); var neg = out.some(function (r) { return r.some(function (v) { return v < -1e-9; }); }); paint(c2, out, neg);
+            p.innerHTML = '卷積核在圖上一格一格滑動：把 3×3 的小區塊和核<b>對應相乘再加總</b>，得到輸出的一個像素。' + (neg ? '輸出有正有負：<span style="color:#c33">紅色</span>是正值、<span style="color:#33c">藍色</span>是負值、白色接近 0。' : '') +
+              '<br>邊緣核只在顏色變化的地方有反應——CNN 第一層學到的濾鏡，常常就長得像這些邊緣偵測器。CNN 的卷積核不是人設計的，而是<b>從資料學出來</b>的。'; }
+          sync(); draw();
+        }
+
+        /* ---------- 詞向量 ---------- */
+        function initW2V(root, cfg) {
+          head(root, cfg.q); var SETS = {
+            royal: { n: '國王－男人＋女人', v: { '男人': [-2, -1.6], '女人': [2, -1.6], '國王': [-2, 1.8], '女王': [2, 1.8], '男孩': [-2.3, -3], '女孩': [1.7, -3], '王子': [-2.3, 0.6], '公主': [1.8, 0.6], '叔叔': [-1.6, -0.7], '阿姨': [2.2, -0.7] }, q: ['國王', '男人', '女人'], xl: '←男性　　女性→', yl: '王室程度' },
+            city: { n: '東京－日本＋法國', v: { '日本': [2.6, -1.2], '東京': [2.6, 1.3], '法國': [-2.2, -1.1], '巴黎': [-2.1, 1.4], '台灣': [2.1, -1.5], '台北': [2.0, 1.0], '德國': [-1.5, -1.3], '柏林': [-1.4, 1.2], '韓國': [2.9, -0.9], '首爾': [3.0, 1.6] }, q: ['東京', '日本', '法國'], xl: '←歐洲　　東亞→', yl: '首都↔國家' } };
+          var set = cfg.s || 'royal', q, bb = bar(root), view = el('div'), p, sels = el('div');
+          Object.keys(SETS).forEach(function (k) { var x = btn(SETS[k].n, k); x.addEventListener('click', function () { set = k; q = SETS[k].q.slice(); mark(bb, k); mk(); draw(); }); bb.appendChild(x); }); mark(bb, set);
+          root.appendChild(sels); root.appendChild(view); p = info(root); q = SETS[set].q.slice();
+          function mk() { sels.innerHTML = ''; var words = Object.keys(SETS[set].v); ['A', '－B', '＋C'].forEach(function (lab, i) { var w = el('label', 'margin:4px 10px 4px 0;display:inline-block', lab + ' '), s = document.createElement('select');
+              s.style.cssText = 'padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);font:inherit'; words.forEach(function (x) { var o = document.createElement('option'); o.textContent = x; s.appendChild(o); }); s.value = q[i];
+              s.addEventListener('change', function () { q[i] = s.value; draw(); }); w.appendChild(s); sels.appendChild(w); }); }
+          function draw() { var V = SETS[set].v, a = V[q[0]], b = V[q[1]], c = V[q[2]], r = [a[0] - b[0] + c[0], a[1] - b[1] + c[1]], best = null, bd = 1e9;
+            Object.keys(V).forEach(function (w) { if (q.indexOf(w) >= 0) return; var d = Math.hypot(V[w][0] - r[0], V[w][1] - r[1]); if (d < bd) { bd = d; best = w; } });
+            function sx(x) { return 320 + x * 70; } function sy(y) { return 160 - y * 38; }
+            var o = '<defs><marker id="nnar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#d0564f"/></marker></defs>';
+            o += ln(30, 160, 610, 160, 'var(--border)') + ln(320, 20, 320, 300, 'var(--border)') + tx(600, 176, SETS[set].xl, 9.5, 'var(--text-muted)', 'end') + tx(328, 26, SETS[set].yl, 9.5, 'var(--text-muted)', 'start');
+            o += '<line x1="' + sx(b[0]) + '" y1="' + sy(b[1]) + '" x2="' + sx(a[0]) + '" y2="' + sy(a[1]) + '" stroke="#d0564f" stroke-width="2" marker-end="url(#nnar)"/>';
+            o += '<line x1="' + sx(c[0]) + '" y1="' + sy(c[1]) + '" x2="' + n1(sx(r[0])) + '" y2="' + n1(sy(r[1])) + '" stroke="#d0564f" stroke-width="2" stroke-dasharray="5 3" marker-end="url(#nnar)"/>';
+            Object.keys(V).forEach(function (w) { var v = V[w], hl = q.indexOf(w) >= 0, bw = w === best; o += '<circle cx="' + sx(v[0]) + '" cy="' + sy(v[1]) + '" r="' + (bw ? 7 : 5) + '" fill="' + (bw ? '#4a9a5e' : hl ? '#d0564f' : '#3a6ea5') + '"/>' + tx(sx(v[0]) + 9, sy(v[1]) + 4, w, 11, bw ? '#4a9a5e' : 'currentColor', 'start'); });
+            o += '<circle cx="' + n1(sx(r[0])) + '" cy="' + n1(sy(r[1])) + '" r="9" fill="none" stroke="#4a9a5e" stroke-width="2" stroke-dasharray="3 2"/>';
+            view.innerHTML = svgw('0 0 640 310', o);
+            p.innerHTML = '計算：「' + q[0] + '」－「' + q[1] + '」＋「' + q[2] + '」＝ (' + f1(r[0]) + ', ' + f1(r[1]) + ')，離它最近的詞是 <b style="color:#4a9a5e">' + best + '</b>。' +
+              '<br>實線箭頭是「從 ' + q[1] + ' 到 ' + q[0] + '」的方向，把同樣的箭頭搬到「' + q[2] + '」身上（虛線），就落在答案附近。<span style="color:var(--text-muted);font-size:0.9em">這裡只用 2 維、座標是手工擺的示意；Word2Vec 實際上是 100～300 維，由大量文字自動學出來。</span>'; }
+          mk(); draw();
+        }
+
+        /* ---------- 自注意力計算 ---------- */
+        function initSelfAttn(root, cfg) {
+          head(root, cfg.q); var tok = ['我', '喜歡', '吃', '蘋果'], Q = [[1, 0], [0.2, 1], [0.5, 1.2], [1.2, 0.3]], K = [[0.9, 0.1], [0.3, 0.8], [0.2, 1.4], [1.1, 0.9]], V = [[1, 0, 0], [0, 1, 0], [0, 0.5, 1], [0.3, 0, 1]];
+          var qi = cfg.i === undefined ? 3 : cfg.i, bb = bar(root), view = el('div'), p;
+          tok.forEach(function (t, i) { var x = btn('查詢者：「' + t + '」', i); x.addEventListener('click', function () { qi = i; mark(bb, i); draw(); }); bb.appendChild(x); }); mark(bb, qi);
+          root.appendChild(view); p = info(root);
+          function vs(v) { return '(' + v.map(function (x) { return f2(x); }).join(', ') + ')'; }
+          function draw() { var d = 2, sc = K.map(function (k) { return (Q[qi][0] * k[0] + Q[qi][1] * k[1]) / Math.sqrt(d); }), mx = Math.max.apply(null, sc), e = sc.map(function (s) { return Math.exp(s - mx); }), se = e.reduce(function (a, b) { return a + b; }, 0), w = e.map(function (x) { return x / se; });
+            var out = [0, 0, 0]; w.forEach(function (wi, j) { for (var k = 0; k < 3; k++) out[k] += wi * V[j][k]; });
+            var t = '<div class="table-wrap" style="overflow-x:auto"><table><thead><tr><th>token</th><th>Key</th><th>分數 q·k ÷ √2</th><th>softmax 權重</th><th>Value</th></tr></thead><tbody>';
+            tok.forEach(function (x, j) { t += '<tr><td>' + x + '</td><td>' + vs(K[j]) + '</td><td>' + f2(sc[j]) + '</td><td><span style="display:inline-block;height:10px;width:' + Math.round(w[j] * 120) + 'px;background:#3a6ea5;border-radius:2px;vertical-align:middle"></span> ' + Math.round(w[j] * 100) + '%</td><td>' + vs(V[j]) + '</td></tr>'; });
+            t += '</tbody></table></div>'; view.innerHTML = t;
+            p.innerHTML = '「' + tok[qi] + '」的 Query ＝ ' + vs(Q[qi]) + '。步驟：① 和每個 token 的 Key 做內積、除以 √d（d＝2）得到分數；② softmax 把分數變成加起來等於 1 的權重；③ 用權重把所有 Value 加權平均。' +
+              '<br>輸出 ＝ <b>' + vs(out) + '</b>：這就是「' + tok[qi] + '」看過整句話之後的新表示。' + '<span style="color:var(--text-muted);font-size:0.9em">（數字是示意用的；真實模型的 Q、K、V 由 x 乘上學出來的矩陣 W_Q、W_K、W_V 得到。）</span>'; }
+          draw();
+        }
+
+        /* ---------- 過擬合：多項式 ---------- */
+        function initOver(root, cfg) {
+          head(root, cfg.q); var r = rng(5), TX = [], TY = [], VX = [], VY = [], deg = cfg.d || 3, lam = 0, view = el('div'), p;
+          for (var i = 0; i < 10; i++) { var x = -1 + i * 2 / 9 + (r() - 0.5) * 0.08; TX.push(x); TY.push(Math.sin(Math.PI * x) + gauss(r) * 0.25); }
+          for (i = 0; i < 40; i++) { var x2 = -1 + r() * 2; VX.push(x2); VY.push(Math.sin(Math.PI * x2) + gauss(r) * 0.25); }
+          var u1 = slider(root, '多項式次數（模型複雜度）', 1, 9, 1, deg, function (v) { return v + ' 次'; }, 'deg', function (v) { deg = v; draw(); });
+          var u2 = slider(root, '正規化強度 λ（L2）', -7, 1, 0.1, -7, function (v) { return v <= -6.95 ? '0（不正規化）' : '10^' + f1(v); }, 'lam', function (v) { lam = v <= -6.95 ? 0 : Math.pow(10, v); draw(); });
+          root.appendChild(view); p = info(root);
+          function fit() { var n = deg + 1, A = [], b = []; for (var i = 0; i < n; i++) { A.push(new Array(n).fill(0)); b.push(0); }
+            TX.forEach(function (x, k) { var pw = []; for (var i = 0; i < n; i++) pw.push(Math.pow(x, i)); for (i = 0; i < n; i++) { b[i] += pw[i] * TY[k]; for (var j = 0; j < n; j++) A[i][j] += pw[i] * pw[j]; } });
+            for (i = 1; i < n; i++) A[i][i] += lam; A[0][0] += 1e-12;
+            for (var c = 0; c < n; c++) { var pv = c; for (var r2 = c + 1; r2 < n; r2++) if (Math.abs(A[r2][c]) > Math.abs(A[pv][c])) pv = r2; var t = A[c]; A[c] = A[pv]; A[pv] = t; var tb = b[c]; b[c] = b[pv]; b[pv] = tb;
+              for (r2 = c + 1; r2 < n; r2++) { var f = A[r2][c] / A[c][c]; for (var j2 = c; j2 < n; j2++) A[r2][j2] -= f * A[c][j2]; b[r2] -= f * b[c]; } }
+            var w = new Array(n).fill(0); for (i = n - 1; i >= 0; i--) { var s = b[i]; for (j2 = i + 1; j2 < n; j2++) s -= A[i][j2] * w[j2]; w[i] = s / A[i][i]; } return w; }
+          function ev(w, x) { var s = 0; for (var i = w.length - 1; i >= 0; i--) s = s * x + w[i]; return s; }
+          function mse(w, X, Y) { var s = 0; X.forEach(function (x, i) { var e = ev(w, x) - Y[i]; s += e * e; }); return s / X.length; }
+          function draw() { var w = fit(), W = 640, H = 250; function sx(x) { return 30 + (x + 1.05) / 2.1 * (W - 44); } function sy(y) { return H / 2 - y * 70; }
+            var o = '<clipPath id="nnov"><rect x="0" y="0" width="' + W + '" height="' + H + '"/></clipPath>' + ln(20, H / 2, W - 10, H / 2, 'var(--border)'), d = '', dt = '';
+            for (var x = -1.05; x <= 1.05; x += 0.005) { d += (d ? 'L' : 'M') + n1(sx(x)) + ' ' + n1(Math.max(-50, Math.min(H + 50, sy(ev(w, x))))); dt += (dt ? 'L' : 'M') + n1(sx(x)) + ' ' + n1(sy(Math.sin(Math.PI * x))); }
+            o += '<path d="' + dt + '" fill="none" stroke="#999" stroke-width="1.2" stroke-dasharray="4 3"/><path clip-path="url(#nnov)" d="' + d + '" fill="none" stroke="#4a9a5e" stroke-width="2.5"/>';
+            VX.forEach(function (x, i) { o += '<circle cx="' + n1(sx(x)) + '" cy="' + n1(sy(VY[i])) + '" r="3.5" fill="none" stroke="#e0905a" stroke-width="1.5"/>'; });
+            TX.forEach(function (x, i) { o += '<circle cx="' + n1(sx(x)) + '" cy="' + n1(sy(TY[i])) + '" r="5" fill="#3a6ea5"/>'; });
+            view.innerHTML = svgw('0 0 ' + W + ' ' + H, o); var tr = mse(w, TX, TY), te = mse(w, VX, VY);
+            p.innerHTML = '藍點：10 個<b>訓練資料</b>；橘圈：40 個模型沒看過的<b>測試資料</b>；灰虛線：真正的規律 sin(πx)。訓練誤差 <b>' + f2(tr) + '</b>，測試誤差 <b>' + f2(te) + '</b>。' +
+              (deg <= 2 ? '<br>次數太低：連訓練資料都擬合不好——<b>欠擬合</b>。' : deg >= 8 && lam === 0 ? '<br><b style="color:#d0564f">次數太高：曲線硬是穿過每一個訓練點（訓練誤差接近 0），卻在點和點之間亂彎，測試誤差變大——這就是過擬合。</b>試著加大 λ。' : lam > 0.3 ? '<br>λ 太大：模型被壓得幾乎變成一條平線，又變成<b>欠擬合</b>。正規化也要適量。' : lam > 0 && deg >= 7 ? '<br>加上適量正規化後，高次模型被迫「保持平滑」，測試誤差又降下來了。' : '<br>次數適中：訓練和測試誤差都不錯。'); }
+          u1(); u2();
+        }
+
+        /* ---------- 優化器比較 ---------- */
+        function initOpt(root, cfg) {
+          head(root, cfg.q); var lr = 0.9, noise = false, cv = canvas(640, 300, 640), p, ctx = cv.getContext('2d'), paths, timer = null;
+          function f(x, y) { return x * x / 20 + y * y; } function g(x, y) { return [x / 10, 2 * y]; }
+          var u = slider(root, '學習率（SGD 與 Momentum）', 0.05, 1.0, 0.01, lr, f2, 'lr', function (v) { lr = v; reset(); });
+          var bb = bar(root), go = btn('▶ 跑 80 步', 'go'), nb = btn('加入梯度雜訊（模擬小批次）：關', 'n'); bb.appendChild(go); bb.appendChild(nb); root.appendChild(cv); p = info(root);
+          nb.addEventListener('click', function () { noise = !noise; nb.textContent = '加入梯度雜訊（模擬小批次）：' + (noise ? '開' : '關'); reset(); });
+          function sx(x) { return 320 + x * 30; } function sy(y) { return 150 - y * 45; }
+          function bg() { var im = ctx.createImageData(640, 300); for (var j = 0; j < 300; j++) for (var i = 0; i < 640; i++) { var x = (i - 320) / 30, y = (150 - j) / 45, v = Math.log(1 + f(x, y)), q = (j * 640 + i) * 4, band = Math.abs((v * 4) % 1 - 0.5) < 0.04;
+              im.data[q] = band ? 160 : 235 - v * 25; im.data[q + 1] = band ? 170 : 240 - v * 18; im.data[q + 2] = band ? 190 : 250 - v * 8; im.data[q + 3] = 255; } return im; }
+          var BG = bg();
+          function reset() { if (timer) { clearInterval(timer); timer = null; } var s = [-9.5, 2.6]; paths = { sgd: { p: [s.slice()], c: '#d0564f', n: 'SGD' }, mom: { p: [s.slice()], c: '#3a6ea5', n: 'Momentum（β=0.9）', v: [0, 0] }, adam: { p: [s.slice()], c: '#2e8b57', n: 'Adam（η=0.3）', m: [0, 0], v: [0, 0], t: 0 } }; draw(); }
+          function step() { var r = Math.random; function gn(x, y) { var gg = g(x, y); if (noise) { gg[0] += (r() - 0.5) * 1.2; gg[1] += (r() - 0.5) * 2.4; } return gg; }
+            var P = paths.sgd.p, c = P[P.length - 1], gg = gn(c[0], c[1]); P.push([c[0] - lr * gg[0], c[1] - lr * gg[1]]);
+            var M = paths.mom; c = M.p[M.p.length - 1]; gg = gn(c[0], c[1]); M.v = [0.9 * M.v[0] + gg[0], 0.9 * M.v[1] + gg[1]]; M.p.push([c[0] - lr * 0.1 * M.v[0], c[1] - lr * 0.1 * M.v[1]]);
+            var A2 = paths.adam; c = A2.p[A2.p.length - 1]; gg = gn(c[0], c[1]); A2.t++; for (var k = 0; k < 2; k++) { A2.m[k] = 0.9 * A2.m[k] + 0.1 * gg[k]; A2.v[k] = 0.999 * A2.v[k] + 0.001 * gg[k] * gg[k]; }
+            var mh = [A2.m[0] / (1 - Math.pow(0.9, A2.t)), A2.m[1] / (1 - Math.pow(0.9, A2.t))], vh = [A2.v[0] / (1 - Math.pow(0.999, A2.t)), A2.v[1] / (1 - Math.pow(0.999, A2.t))];
+            A2.p.push([c[0] - 0.3 * mh[0] / (Math.sqrt(vh[0]) + 1e-8), c[1] - 0.3 * mh[1] / (Math.sqrt(vh[1]) + 1e-8)]); draw(); }
+          go.addEventListener('click', function () { reset(); var n = 0; timer = setInterval(function () { step(); if (++n >= 80 || !root.isConnected) { clearInterval(timer); timer = null; } }, 60); });
+          function draw() { ctx.putImageData(BG, 0, 0); ctx.fillStyle = '#333'; ctx.beginPath(); ctx.arc(sx(0), sy(0), 4, 0, 6.283); ctx.fill();
+            var ly = 18; Object.keys(paths).forEach(function (k) { var q = paths[k]; ctx.strokeStyle = q.c; ctx.lineWidth = 2; ctx.beginPath(); q.p.forEach(function (pt, i) { var X = Math.max(-5, Math.min(645, sx(pt[0]))), Y = Math.max(-5, Math.min(305, sy(pt[1]))); if (i) ctx.lineTo(X, Y); else ctx.moveTo(X, Y); }); ctx.stroke();
+              ctx.fillStyle = q.c; ctx.font = '13px sans-serif'; ctx.fillText('● ' + q.n, 12, ly); ly += 18; });
+            var L = function (k) { var q = paths[k].p, e = q[q.length - 1]; return f(e[0], e[1]); };
+            p.innerHTML = '損失曲面是一個<b>又長又窄的山谷</b>（東西方向很平、南北方向很陡），黑點是谷底。目前損失：SGD ' + fl(L('sgd')) + '、Momentum ' + fl(L('mom')) + '、Adam ' + fl(L('adam')) + '（第 ' + (paths.sgd.p.length - 1) + ' 步）。' +
+              '<br>SGD 在陡的方向來回彈、在平的方向走得很慢；Momentum 累積「慣性」，沿著谷底加速；Adam 對每個方向各自調整步伐，所以兩個方向都走得穩。'; }
+          u();
+        }
+
+        function initAll() { document.querySelectorAll('.nn-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ gd: initGD, lin: initLin, perc: initPerc, act: initAct, play: initPlay, conv: initConv, w2v: initW2V, sattn: initSelfAttn, over: initOver, opt: initOpt })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <p>
+        想像你蒙著眼站在山坡上，要走到山谷最低點。你看不到地形，但腳可以感覺到哪邊是下坡——往下坡走一小步，再感覺、再走。這就是<strong>梯度下降</strong>。
+      </p>
+
+      <p>
+        「山的高度」是損失，「位置」是參數，「坡度」是損失對參數的導數（梯度）。更新規則：\[w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}\]\(\eta\)（eta）是<strong>學習率</strong>，決定每一步走多遠。
+      </p>
+
+      <div class="nn-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;gd&quot;, &quot;q&quot;: &quot;按「走一步」看紅球怎麼往谷底移動。把學習率調到 1 以上看看會發生什麼。&quot;}"></div>
+
+      <h2>學習率的取捨</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>學習率</th><th>結果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>太小</td><td>很穩，但要走非常多步，訓練很慢</td></tr>
+          <tr><td>適中</td><td>幾十步內接近谷底</td></tr>
+          <tr><td>太大</td><td>在谷底兩側來回跳，甚至越跳越遠（發散）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>局部最小值</h2>
+
+      <p>
+        真實的損失曲面有很多坑。按上面的「切換」按鈕，從不同起點出發，會停在不同的谷底。不過在幾百萬維的神經網路裡，研究發現大多數的「坑」其實是鞍點，而且很多局部最小值的損失都差不多好，所以這個問題沒有早年擔心的那麼嚴重。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          梯度下降沿著損失的下坡方向更新參數：w ← w − η × 梯度。學習率太小太慢、太大會發散。損失曲面有很多坑，但在高維的神經網路中通常不是大問題。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>梯度下降的更新規則是什麼？</li>
+          <li>學習率太大會發生什麼事？</li>
+          <li>什麼是局部最小值？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>向量與矩陣</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：損失函數：怎麼量「錯多少」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：向量與矩陣 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

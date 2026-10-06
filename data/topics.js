@@ -28,6 +28,7 @@ window.SITE_DATA = {
   categories: [
     { id: "music", label: "音樂", icon: "🎵" },
     { id: "tech", label: "科技與工程", icon: "💻" },
+    { id: "ai", label: "AI 與機器學習", icon: "🤖" },
     { id: "math", label: "數學", icon: "📐" },
     { id: "science", label: "物理與宇宙學", icon: "🔭" },
     { id: "biomed", label: "生命科學與醫學", icon: "🧬" },
@@ -3914,7 +3915,7 @@ window.SITE_DATA = {
     },
     {
       id: "ai-workflow",
-      category: "tech",
+      category: "ai",
       title: "AI工作流全紀錄：用Ollama＋n8n打造你的地端自動化系統",
       description:
         "從安裝地端 LLM 執行工具 Ollama 開始，學會用它的 API 讓外部工具呼叫地端模型，接著上手開源工作流平台 n8n，把 AI 步驟串進信件、試算表、Slack 與資料庫；並補齊 RAG 文件問答、Agent 工具呼叫、排程、錯誤處理與安全性，最終建立一套資料全程留在自己環境裡的地端 AI 自動化系統。",
@@ -4091,7 +4092,7 @@ window.SITE_DATA = {
     },
     {
       id: "ai-workflow-map",
-      category: "tech",
+      category: "ai",
       title: "AI工作流全景圖：目前有哪些工具、怎麼組、怎麼選",
       description:
         "盤點目前檯面上所有主要的 AI 工作流做法——從對話式助理、無碼自動化平台、程式框架與 Agent SDK、AI 編碼工具，到地端自架、RAG 知識庫與辦公室 AI；並補齊 MCP 等互通標準、五種工作流設計模式、Agent 的能力邊界、評測監控與成本控制，最後用一張決策樹與六個真實情境帶你選出該用哪一組。",
@@ -9438,7 +9439,7 @@ window.SITE_DATA = {
     },
     {
       id: "llm-models",
-      category: "tech",
+      category: "ai",
       title: "LLM 模型全解：從訓練到讀懂一張 Model Card",
       description:
         "完整拆解大型語言模型：一個模型由哪三件套組成、Transformer 的參數量如何精確計算、scaling law 怎麼決定該練多大餵多少資料、預訓練與後訓練各做了什麼、LoRA 與 QLoRA 的原理，以及 GGUF、GPTQ、Q4_K_M、8x7B 這些名詞的意思，最後收束到 VRAM 計算、推理引擎選擇與選型決策樹。",
@@ -16743,7 +16744,7 @@ window.SITE_DATA = {
     },
     {
       id: "llm-inference",
-      category: "tech",
+      category: "ai",
       title: "一次 LLM 推論到底發生什麼：Prefill 與 Decode",
       description:
         "從按下 Enter 到看到文字：tokenizer、chat template、embedding、RoPE 與 Transformer 層；Q、K、V、因果遮罩、KV Cache 的大小與 GQA／MLA；prefill 的 FLOPs、算力受限與 FlashAttention；decode 的頻寬受限、roofline、速度上限與抽樣；batching、continuous batching、PagedAttention、prefix cache、量化、推測解碼、分離部署與 MoE；GPU、記憶體階層、多卡平行與互連；排程、成本、benchmark 與本地推論。附九個互動計算器。",
@@ -17464,7 +17465,7 @@ window.SITE_DATA = {
     },
     {
       id: "agentic-ai",
-      category: "tech",
+      category: "ai",
       title: "Agentic AI 的運行原理",
       description:
         "Agentic AI 完整導讀，每一個動作都附 Python 範例（離線假 LLM 版可直接執行＋Claude API 版）：代理迴圈、工具定義與往返、平行呼叫、錯誤處理、Tool Runner；思考、ReAct、規劃、待辦清單、反思與停止條件；上下文視窗、歷史管理、嵌入、RAG、長期記憶、提示快取、上下文工程；執行程式、檔案、上網、MCP、computer use 與迷你程式代理；多代理；結構化輸出、防護欄、人在迴路、沙箱、提示注入、評估、追蹤、成本；Claude Code 與 Codex 案例剖析、部署與未來。附六個互動工具與完整範例下載。",
@@ -17997,7 +17998,7 @@ window.SITE_DATA = {
     },
     {
       id: "prompt-engineering",
-      category: "tech",
+      category: "ai",
       title: "提示工程：從一句指令到可上線的 AI 系統",
       description:
         "從模型怎麼讀提示開始：指令、說明理由、具體化、結構化、Few-shot、輸出格式與結構化輸出、思考與拆解；上下文工程、長文件、RAG、記憶、工具說明、提示快取與上下文污染；代理的系統提示、規劃者與執行者、狀態、錯誤恢復、模型路由、子代理與自主程度；需求、測試集、評分、失敗分類、提示注入與縱深防禦、優化、版本管理、模型遷移與成本。以改寫前後對照為主，附六個互動工具。",
@@ -18978,6 +18979,122 @@ window.SITE_DATA = {
             { title: "世界遺產與必去名勝", url: "topics/europe-countries/lesson-49.html" },
             { title: "歐洲美食地圖", url: "topics/europe-countries/lesson-50.html" },
             { title: "歐洲與台灣", url: "topics/europe-countries/lesson-51.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "deep-learning",
+      category: "ai",
+      title: "神經網路與深度學習：從一個神經元到 Transformer",
+      description:
+        "給沒有機器學習背景的人：從線性迴歸、損失函數、梯度下降開始，補上向量、矩陣、導數與連鎖律；感知器與 XOR、激活函數、多層網路、softmax 與 MNIST；反向傳播、學習率、SGD／Adam、批次、過擬合、正規化、初始化、Batch／Layer Norm；CNN 與 ResNet、遷移學習；RNN、LSTM、seq2seq 與注意力；Word2Vec 與上下文表示；Transformer、自注意力、BERT、GPT 與縮放定律。附十個互動工具（梯度下降、神經網路遊樂場、卷積核、詞向量、自注意力等）。",
+      icon: "🧠",
+      url: "topics/deep-learning/index.html",
+      resources: [
+        {
+          title: "深度學習互動工具箱",
+          description: "梯度下降、線性迴歸、感知器、激活函數、神經網路遊樂場、卷積、詞向量、自注意力、過擬合、優化器",
+          icon: "🧮",
+          url: "topics/deep-learning/guide.html"
+        },
+        {
+          title: "深度學習名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/deep-learning/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜機器怎麼「學」",
+          courses: [
+            { title: "什麼是機器學習", url: "topics/deep-learning/lesson-01.html" },
+            { title: "三種學習方式", url: "topics/deep-learning/lesson-02.html" },
+            { title: "一條直線的學習：線性迴歸", url: "topics/deep-learning/lesson-03.html" },
+            { title: "損失函數：怎麼量「錯多少」", url: "topics/deep-learning/lesson-04.html" },
+            { title: "梯度下降：往山下走的盲人", url: "topics/deep-learning/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜數學補給站",
+          courses: [
+            { title: "向量與矩陣", url: "topics/deep-learning/lesson-06.html" },
+            { title: "矩陣乘法的直覺", url: "topics/deep-learning/lesson-07.html" },
+            { title: "導數與斜率", url: "topics/deep-learning/lesson-08.html" },
+            { title: "偏導數與梯度", url: "topics/deep-learning/lesson-09.html" },
+            { title: "連鎖律：反向傳播的關鍵", url: "topics/deep-learning/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜神經元與網路",
+          courses: [
+            { title: "感知器：1958 年的第一個神經元", url: "topics/deep-learning/lesson-11.html" },
+            { title: "XOR 問題與第一次 AI 寒冬", url: "topics/deep-learning/lesson-12.html" },
+            { title: "激活函數", url: "topics/deep-learning/lesson-13.html" },
+            { title: "多層網路：為什麼「深」有用", url: "topics/deep-learning/lesson-14.html" },
+            { title: "萬能近似定理", url: "topics/deep-learning/lesson-15.html" },
+            { title: "分類問題：Softmax 與交叉熵", url: "topics/deep-learning/lesson-16.html" },
+            { title: "實作：手寫數字辨識（MNIST）", url: "topics/deep-learning/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜訓練的技術",
+          courses: [
+            { title: "反向傳播一步步算", url: "topics/deep-learning/lesson-18.html" },
+            { title: "學習率", url: "topics/deep-learning/lesson-19.html" },
+            { title: "SGD、Momentum、Adam", url: "topics/deep-learning/lesson-20.html" },
+            { title: "批次大小與 epoch", url: "topics/deep-learning/lesson-21.html" },
+            { title: "過擬合與欠擬合", url: "topics/deep-learning/lesson-22.html" },
+            { title: "正規化", url: "topics/deep-learning/lesson-23.html" },
+            { title: "權重初始化與梯度消失、梯度爆炸", url: "topics/deep-learning/lesson-24.html" },
+            { title: "Batch Norm 與 Layer Norm", url: "topics/deep-learning/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜看圖的網路：CNN",
+          courses: [
+            { title: "卷積是什麼", url: "topics/deep-learning/lesson-26.html" },
+            { title: "池化與特徵圖", url: "topics/deep-learning/lesson-27.html" },
+            { title: "從 LeNet 到 AlexNet", url: "topics/deep-learning/lesson-28.html" },
+            { title: "ResNet 與殘差連接", url: "topics/deep-learning/lesson-29.html" },
+            { title: "遷移學習", url: "topics/deep-learning/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜處理序列：RNN 與 LSTM",
+          courses: [
+            { title: "為什麼文字需要「記憶」", url: "topics/deep-learning/lesson-31.html" },
+            { title: "RNN 的結構", url: "topics/deep-learning/lesson-32.html" },
+            { title: "LSTM 與 GRU", url: "topics/deep-learning/lesson-33.html" },
+            { title: "Seq2seq 與機器翻譯", url: "topics/deep-learning/lesson-34.html" },
+            { title: "注意力機制的誕生", url: "topics/deep-learning/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜文字變向量",
+          courses: [
+            { title: "One-hot 的問題", url: "topics/deep-learning/lesson-36.html" },
+            { title: "Word2Vec", url: "topics/deep-learning/lesson-37.html" },
+            { title: "上下文相關的表示", url: "topics/deep-learning/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜Transformer 時代",
+          courses: [
+            { title: "《Attention Is All You Need》", url: "topics/deep-learning/lesson-39.html" },
+            { title: "Self-attention 一步步算", url: "topics/deep-learning/lesson-40.html" },
+            { title: "Encoder、Decoder 與三種架構", url: "topics/deep-learning/lesson-41.html" },
+            { title: "BERT：克漏字訓練", url: "topics/deep-learning/lesson-42.html" },
+            { title: "GPT 系列：從 GPT-1 到 ChatGPT", url: "topics/deep-learning/lesson-43.html" },
+            { title: "縮放定律與湧現能力", url: "topics/deep-learning/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "深度學習發展時間軸", url: "topics/deep-learning/lesson-45.html" },
+            { title: "接下來往哪裡學", url: "topics/deep-learning/lesson-46.html" },
           ],
         },
       ],

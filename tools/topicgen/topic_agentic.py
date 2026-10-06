@@ -9,7 +9,7 @@ from ag_common import PYDIR
 
 TOPIC = {
     "id": "agentic-ai",
-    "category": "tech",
+    "category": "ai",
     "title": u"Agentic AI 的運行原理",
     "short": u"Agentic AI",
     "crumb": u"Agentic AI",

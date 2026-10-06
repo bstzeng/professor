@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：RNN 的結構 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="把記憶傳給下一步">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜處理序列：RNN 與 LSTM · 第 32 課</div>
+      <h1>RNN 的結構</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 RNN 的隱藏狀態</li>
+          <li>知道 RNN 的展開與時間反向傳播</li>
+          <li>了解 RNN 的弱點</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 220" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">RNN 展開：同一個單元在每個時間步重複使用</text>
+                <rect x="40" y="80" width="100" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="90" y="108.85" text-anchor="middle" font-size="11" fill="#9c89d6">RNN 單元</text>
+                <rect x="180" y="80" width="100" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="230" y="108.85" text-anchor="middle" font-size="11" fill="#9c89d6">RNN 單元</text>
+                <rect x="320" y="80" width="100" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="370" y="108.85" text-anchor="middle" font-size="11" fill="#9c89d6">RNN 單元</text>
+                <rect x="460" y="80" width="100" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="510" y="108.85" text-anchor="middle" font-size="11" fill="#9c89d6">RNN 單元</text>
+                <line x1="140.0" y1="105.0" x2="173.0" y2="105.0" stroke="#ff8a65" stroke-width="1.8"/><polygon points="180.0,105.0 173.0,108.5 173.0,101.5" fill="#ff8a65"/>
+                <line x1="280.0" y1="105.0" x2="313.0" y2="105.0" stroke="#ff8a65" stroke-width="1.8"/><polygon points="320.0,105.0 313.0,108.5 313.0,101.5" fill="#ff8a65"/>
+                <line x1="420.0" y1="105.0" x2="453.0" y2="105.0" stroke="#ff8a65" stroke-width="1.8"/><polygon points="460.0,105.0 453.0,108.5 453.0,101.5" fill="#ff8a65"/>
+                <text x="160" y="96" text-anchor="middle" font-size="10" fill="#ff8a65">h₁</text>
+                <text x="300" y="96" text-anchor="middle" font-size="10" fill="#ff8a65">h₂</text>
+                <text x="440" y="96" text-anchor="middle" font-size="10" fill="#ff8a65">h₃</text>
+                <text x="90" y="170" text-anchor="middle" font-size="11" fill="#4a90c2">我</text>
+                <text x="230" y="170" text-anchor="middle" font-size="11" fill="#4a90c2">今天</text>
+                <text x="370" y="170" text-anchor="middle" font-size="11" fill="#4a90c2">很</text>
+                <text x="510" y="170" text-anchor="middle" font-size="11" fill="#4a90c2">開心</text>
+                <line x1="90.0" y1="158.0" x2="90.0" y2="139.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="90.0,132.0 93.5,139.0 86.5,139.0" fill="var(--text-muted)"/>
+                <line x1="230.0" y1="158.0" x2="230.0" y2="139.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="230.0,132.0 233.5,139.0 226.5,139.0" fill="var(--text-muted)"/>
+                <line x1="370.0" y1="158.0" x2="370.0" y2="139.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="370.0,132.0 373.5,139.0 366.5,139.0" fill="var(--text-muted)"/>
+                <line x1="510.0" y1="158.0" x2="510.0" y2="139.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="510.0,132.0 513.5,139.0 506.5,139.0" fill="var(--text-muted)"/>
+                <text x="320" y="200" text-anchor="middle" font-size="10" fill="var(--accent)">隱藏狀態 h 把前面讀過的內容「記」在一個固定大小的向量裡</text>
+        </svg>
+        <figcaption>RNN 每讀一個字，就更新一次隱藏狀態，並傳給下一步。</figcaption>
+      </div>
+
+      <p>
+        <strong>循環神經網路（RNN）</strong>每一步讀一個字 \(x_t\)，結合上一步的隱藏狀態 \(h_{t-1}\)：\[h_t = \tanh(W_h h_{t-1} + W_x x_t + b)\]所有時間步共用同一組權重，所以可以處理任意長度的序列。
+      </p>
+
+      <h2>時間反向傳播（BPTT）</h2>
+
+      <p>
+        把 RNN 沿著時間展開，就像一個很深的網路（句子多長就多深），再用反向傳播訓練。
+      </p>
+
+      <h2>兩個弱點</h2>
+
+      <ul>
+        <li><strong>長距離遺忘</strong>：梯度要經過幾十、幾百步的連乘，很容易消失。「我在法國長大……（中間 50 個字）……所以我會說＿＿」，RNN 很難把「法國」記到最後。</li>
+        <li><strong>無法平行</strong>：第 t 步要等第 t−1 步算完，GPU 的平行能力用不上，訓練很慢。</li>
+      </ul>
+
+      <p>
+        第一個弱點由 LSTM 改善；兩個弱點都由 Transformer 徹底解決。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          RNN 用隱藏狀態把前文的資訊傳到下一步，各時間步共享權重，以時間反向傳播訓練。缺點是長距離資訊容易遺忘（梯度消失），而且必須逐步計算、無法平行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RNN 的隱藏狀態公式是什麼？</li>
+          <li>為什麼 RNN 可以處理任意長度的句子？</li>
+          <li>RNN 的兩大弱點是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>LSTM 與 GRU</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：為什麼文字需要「記憶」</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：LSTM 與 GRU →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

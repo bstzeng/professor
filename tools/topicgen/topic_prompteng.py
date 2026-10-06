@@ -4,7 +4,7 @@ import pe_a, pe_b, pe_c, pe_ref
 
 TOPIC = {
     "id": "prompt-engineering",
-    "category": "tech",
+    "category": "ai",
     "title": u"提示工程：從一句指令到可上線的 AI 系統",
     "short": u"提示工程",
     "crumb": u"提示工程",
