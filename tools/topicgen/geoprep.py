@@ -6,6 +6,7 @@
   中國：https://raw.githubusercontent.com/longwosion/geojson-map-china/master/china.json
   日本：https://raw.githubusercontent.com/dataofjapan/land/master/japan.geojson
   韓國：https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json（存成 korea.json）
+  歐洲：https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_50m_admin_0_countries.geojson（存成 ne50.geojson）
 """
 import io
 import json
@@ -234,9 +235,88 @@ def prep_kr(fn):
     print("KR", W, H, sum(len(v) for v in out.values()), "bytes")
 
 
+def clip_rect(r, x0, y0, x1, y1):
+    """Sutherland–Hodgman：把多邊形裁切到矩形內。"""
+    def clip(pts, inside, inter):
+        out = []
+        for i in range(len(pts)):
+            a, b = pts[i - 1], pts[i]
+            ia, ib = inside(a), inside(b)
+            if ib:
+                if not ia:
+                    out.append(inter(a, b))
+                out.append(b)
+            elif ia:
+                out.append(inter(a, b))
+        return out
+
+    def ix(xv):
+        return lambda a, b: (xv, a[1] + (b[1] - a[1]) * (xv - a[0]) / ((b[0] - a[0]) or 1e-9))
+
+    def iy(yv):
+        return lambda a, b: (a[0] + (b[0] - a[0]) * (yv - a[1]) / ((b[1] - a[1]) or 1e-9), yv)
+    pts = r
+    for ins, inter in [(lambda p: p[0] >= x0, ix(x0)), (lambda p: p[0] <= x1, ix(x1)),
+                       (lambda p: p[1] >= y0, iy(y0)), (lambda p: p[1] <= y1, iy(y1))]:
+        if not pts:
+            break
+        pts = clip(pts, ins, inter)
+    return pts
+
+
+EU_MAIN = ("ALB AND AUT BEL BGR BIH BLR CHE CYP CZE DEU DNK ESP EST FIN FRA GBR GRC HRV HUN IRL ISL ITA KOS LIE LTU LUX LVA MCO MDA "
+           "MKD MLT MNE NLD NOR POL PRT ROU RUS SMR SRB SVK SVN SWE TUR UKR VAT").split()
+EU_MERGE = {"ALD": "FIN", "FRO": "DNK", "CYN": "CYP"}
+
+
+def prep_eu(fn):
+    d = json.load(io.open(fn, encoding="utf-8"))
+    K = G.EU_K
+    # 視窗：西到冰島、東到東經 45 度、南到北緯 34 度、北到北緯 71.5 度
+    corners = [G._EU(lon, lat) for lon in (-25, -10, 15, 30, 45) for lat in (34, 71.5)]
+    xs = [x * K for x, y in corners]
+    ys = [-y * K for x, y in corners]
+    X0, X1 = G._EU(-25, 60)[0] * K, G._EU(45, 45)[0] * K
+    Y0, Y1 = -G._EU(15, 71.5)[1] * K, -G._EU(15, 34)[1] * K
+    m = 0
+    T = (-X0, -Y0)
+    W, H = int(X1 - X0), int(Y1 - Y0)
+    main, ctx = {}, []
+    for f in d["features"]:
+        a3 = f["properties"]["ADM0_A3"]
+        a3 = EU_MERGE.get(a3, a3)
+        geom = f["geometry"]
+        polys = geom["coordinates"] if geom["type"] == "MultiPolygon" else [geom["coordinates"]]
+        rr = []
+        for p in polys:
+            for r in p:
+                if a3 == "RUS" and all(32.3 < lon < 36.8 and 44.2 < lat < 46.3 for lon, lat in r):
+                    # 克里米亞：依國際普遍承認的邊界畫入烏克蘭（2014 年起由俄羅斯實際控制，課文中說明）
+                    q = [(G._EU(lon, lat)[0] * K + T[0], -G._EU(lon, lat)[1] * K + T[1]) for lon, lat in r]
+                    main.setdefault("UKR", []).append(dpring(q, 0.5))
+                    continue
+                q = [(G._EU(lon, lat)[0] * K + T[0], -G._EU(lon, lat)[1] * K + T[1]) for lon, lat in r]
+                q = clip_rect(q, -2, -2, W + 2, H + 2)
+                if len(q) < 3 or area(q) < (0.3 if a3 in ("VAT", "MCO", "SMR", "LIE", "AND", "MLT", "LUX") else 1.2):
+                    continue
+                q = dpring(q, 0.5 if a3 not in ("VAT", "MCO", "SMR") else 0.05)
+                if len(q) >= 3:
+                    rr.append(q)
+        if not rr:
+            continue
+        if a3 in EU_MAIN:
+            main.setdefault(a3, []).extend(rr)
+        else:
+            ctx.extend(rr)
+    out = {k: path(v) for k, v in main.items()}
+    write("eup_geo.py", u"歐洲各國的 SVG 路徑", [("EU_VB", [W, H]), ("EU_T", list(T)), ("EU_PATHS", out), ("EU_CTX", path(ctx))])
+    print("EU", W, H, sum(len(v) for v in out.values()), len(path(ctx)), "bytes", sorted(set(EU_MAIN) - set(out)))
+
+
 if __name__ == "__main__":
     g = sys.argv[1]
     prep_us(os.path.join(g, "us-states.json"))
     prep_cn(os.path.join(g, "china.json"))
     prep_jp(os.path.join(g, "japan.geojson"))
     prep_kr(os.path.join(g, "korea.json"))
+    prep_eu(os.path.join(g, "ne50.geojson"))
