@@ -18637,6 +18637,135 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "japan-prefectures",
+      category: "geography",
+      title: "日本 47 都道府縣：位置、美食、祭典與旅行",
+      description:
+        "一縣一課，依北海道、東北、關東、中部、近畿、中國、四國、九州・沖繩八大地方介紹 47 都道府縣：每課有位置地圖、一句話記憶、讀音與舊國名、主要城市、地理歷史、方言、美食與伴手禮、世界遺產、祭典、溫泉，以及旅遊建議與從台灣怎麼去。另有都道府縣制度、地形四季、舊國名、各縣比較、世界遺產總表、鄉土料理與「日本與台灣」，附互動地圖、找縣測驗與速查表。",
+      icon: "🗾",
+      url: "topics/japan-prefectures/index.html",
+      resources: [
+        {
+          title: "日本都道府縣互動地圖",
+          description: "點選查詢、找縣測驗、排行比較",
+          icon: "🗾",
+          url: "topics/japan-prefectures/guide.html"
+        },
+        {
+          title: "47 都道府縣速查表",
+          description: "讀音、地方、廳所在地、人口、面積、舊國名與推薦季節",
+          icon: "📋",
+          url: "topics/japan-prefectures/prefectures.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論：認識日本的都道府縣",
+          courses: [
+            { title: "都道府縣與八大地方", url: "topics/japan-prefectures/lesson-01.html" },
+            { title: "地形、氣候與四季", url: "topics/japan-prefectures/lesson-02.html" },
+            { title: "舊國名：藏在地名裡的歷史", url: "topics/japan-prefectures/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜北海道",
+          courses: [
+            { title: "北海道：雪、海鮮與大自然", url: "topics/japan-prefectures/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 C｜東北：本州的北國",
+          courses: [
+            { title: "青森縣：蘋果與睡魔祭", url: "topics/japan-prefectures/lesson-05.html" },
+            { title: "岩手縣：本州最大的縣", url: "topics/japan-prefectures/lesson-06.html" },
+            { title: "宮城縣：杜之都仙台", url: "topics/japan-prefectures/lesson-07.html" },
+            { title: "秋田縣：秋田美人與生剝鬼", url: "topics/japan-prefectures/lesson-08.html" },
+            { title: "山形縣：櫻桃與山寺", url: "topics/japan-prefectures/lesson-09.html" },
+            { title: "福島縣：會津與桃子", url: "topics/japan-prefectures/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 D｜關東：首都圈",
+          courses: [
+            { title: "茨城縣：納豆與海濱花海", url: "topics/japan-prefectures/lesson-11.html" },
+            { title: "栃木縣：日光與草莓", url: "topics/japan-prefectures/lesson-12.html" },
+            { title: "群馬縣：溫泉王國", url: "topics/japan-prefectures/lesson-13.html" },
+            { title: "埼玉縣：東京的北鄰", url: "topics/japan-prefectures/lesson-14.html" },
+            { title: "千葉縣：迪士尼和成田機場的所在地", url: "topics/japan-prefectures/lesson-15.html" },
+            { title: "東京都：首都東京", url: "topics/japan-prefectures/lesson-16.html" },
+            { title: "神奈川縣：港都橫濱與古都鎌倉", url: "topics/japan-prefectures/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜中部：北陸、甲信與東海",
+          courses: [
+            { title: "新潟縣：米與酒的雪國", url: "topics/japan-prefectures/lesson-18.html" },
+            { title: "富山縣：立山黑部與富山灣", url: "topics/japan-prefectures/lesson-19.html" },
+            { title: "石川縣：加賀百萬石的金澤", url: "topics/japan-prefectures/lesson-20.html" },
+            { title: "福井縣：恐龍、越前蟹與幸福度", url: "topics/japan-prefectures/lesson-21.html" },
+            { title: "山梨縣：富士山北麓與水果王國", url: "topics/japan-prefectures/lesson-22.html" },
+            { title: "長野縣：日本的屋脊", url: "topics/japan-prefectures/lesson-23.html" },
+            { title: "岐阜縣：合掌村與飛驒高山", url: "topics/japan-prefectures/lesson-24.html" },
+            { title: "靜岡縣：富士山與綠茶", url: "topics/japan-prefectures/lesson-25.html" },
+            { title: "愛知縣：名古屋與汽車王國", url: "topics/japan-prefectures/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜近畿：古都與天下的廚房",
+          courses: [
+            { title: "三重縣：伊勢神宮與海女", url: "topics/japan-prefectures/lesson-27.html" },
+            { title: "滋賀縣：琵琶湖之國", url: "topics/japan-prefectures/lesson-28.html" },
+            { title: "京都府：千年古都", url: "topics/japan-prefectures/lesson-29.html" },
+            { title: "大阪府：天下的廚房", url: "topics/japan-prefectures/lesson-30.html" },
+            { title: "兵庫縣：從日本海到瀨戶內海", url: "topics/japan-prefectures/lesson-31.html" },
+            { title: "奈良縣：鹿與大佛的古都", url: "topics/japan-prefectures/lesson-32.html" },
+            { title: "和歌山縣：熊野古道與高野山", url: "topics/japan-prefectures/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜中國地方：山陰與山陽",
+          courses: [
+            { title: "鳥取縣：砂丘與柯南之鄉", url: "topics/japan-prefectures/lesson-34.html" },
+            { title: "島根縣：神話之國出雲", url: "topics/japan-prefectures/lesson-35.html" },
+            { title: "岡山縣：晴天之國與桃太郎", url: "topics/japan-prefectures/lesson-36.html" },
+            { title: "廣島縣：和平之城與宮島", url: "topics/japan-prefectures/lesson-37.html" },
+            { title: "山口縣：本州西端與河豚之都", url: "topics/japan-prefectures/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜四國",
+          courses: [
+            { title: "德島縣：阿波舞與鳴門漩渦", url: "topics/japan-prefectures/lesson-39.html" },
+            { title: "香川縣：烏龍麵縣", url: "topics/japan-prefectures/lesson-40.html" },
+            { title: "愛媛縣：柑橘王國與道後溫泉", url: "topics/japan-prefectures/lesson-41.html" },
+            { title: "高知縣：坂本龍馬與鰹魚", url: "topics/japan-prefectures/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 I｜九州・沖繩",
+          courses: [
+            { title: "福岡縣：亞洲的門戶博多", url: "topics/japan-prefectures/lesson-43.html" },
+            { title: "佐賀縣：陶瓷之鄉", url: "topics/japan-prefectures/lesson-44.html" },
+            { title: "長崎縣：鎖國時代的窗口", url: "topics/japan-prefectures/lesson-45.html" },
+            { title: "熊本縣：熊本熊與阿蘇火山", url: "topics/japan-prefectures/lesson-46.html" },
+            { title: "大分縣：溫泉縣", url: "topics/japan-prefectures/lesson-47.html" },
+            { title: "宮崎縣：日向神話與南國", url: "topics/japan-prefectures/lesson-48.html" },
+            { title: "鹿兒島縣：櫻島與薩摩", url: "topics/japan-prefectures/lesson-49.html" },
+            { title: "沖繩縣：琉球王國與碧海", url: "topics/japan-prefectures/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 J｜總結",
+          courses: [
+            { title: "47 都道府縣大比較", url: "topics/japan-prefectures/lesson-51.html" },
+            { title: "世界遺產總表", url: "topics/japan-prefectures/lesson-52.html" },
+            { title: "鄉土料理與伴手禮", url: "topics/japan-prefectures/lesson-53.html" },
+            { title: "日本與台灣", url: "topics/japan-prefectures/lesson-54.html" },
+          ],
+        },
+      ],
     }
   ]
 };
