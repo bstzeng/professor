@@ -19210,6 +19210,238 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "multimodal-ai",
+      category: "ai",
+      title: "多模態與生成式 AI：圖像、語音與影片",
+      description:
+        "電腦怎麼看圖、聽聲音，又怎麼畫圖、說話、拍影片：生成模型四大家族、VAE、GAN 與 deepfake；擴散模型的加噪去噪、U-Net、取樣器、CFG、Latent Diffusion、Stable Diffusion、DiT 與 flow matching；提示詞、參數、img2img、ControlNet、LoRA、ComfyUI；ViT、CLIP 與視覺語言模型；頻譜圖、Whisper、TTS、聲音複製、neural codec、即時語音對話；AI 音樂、影片生成、世界模型、NeRF 與 Gaussian Splatting；著作權、浮水印與工具地圖。附六個互動工具。",
+      icon: "🎨",
+      url: "topics/multimodal-ai/index.html",
+      resources: [
+        {
+          title: "多模態互動工具箱",
+          description: "擴散加噪、CFG 引導、ViT 切 patch、CLIP 相似度、頻譜圖、潛空間壓縮",
+          icon: "🧮",
+          url: "topics/multimodal-ai/guide.html"
+        },
+        {
+          title: "多模態名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/multimodal-ai/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論",
+          courses: [
+            { title: "什麼是多模態", url: "topics/multimodal-ai/lesson-01.html" },
+            { title: "生成模型的四大家族", url: "topics/multimodal-ai/lesson-02.html" },
+            { title: "時間軸：從 GAN 到 Sora", url: "topics/multimodal-ai/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電腦怎麼看圖",
+          courses: [
+            { title: "像素、通道與圖片的數學表示", url: "topics/multimodal-ai/lesson-04.html" },
+            { title: "CNN 回顧", url: "topics/multimodal-ai/lesson-05.html" },
+            { title: "Vision Transformer：把圖切成 patch", url: "topics/multimodal-ai/lesson-06.html" },
+            { title: "CLIP：讓圖片和文字住在同一個空間", url: "topics/multimodal-ai/lesson-07.html" },
+            { title: "圖片 embedding 與以圖搜圖", url: "topics/multimodal-ai/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜早期生成模型",
+          courses: [
+            { title: "自編碼器與 VAE", url: "topics/multimodal-ai/lesson-09.html" },
+            { title: "GAN：生成器與判別器的對抗", url: "topics/multimodal-ai/lesson-10.html" },
+            { title: "StyleGAN 與 deepfake", url: "topics/multimodal-ai/lesson-11.html" },
+            { title: "GAN 的問題", url: "topics/multimodal-ai/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜擴散模型",
+          courses: [
+            { title: "擴散的直覺：把墨水倒回瓶子", url: "topics/multimodal-ai/lesson-13.html" },
+            { title: "前向加噪", url: "topics/multimodal-ai/lesson-14.html" },
+            { title: "反向去噪與 U-Net", url: "topics/multimodal-ai/lesson-15.html" },
+            { title: "取樣器：DDPM、DDIM 與其他", url: "topics/multimodal-ai/lesson-16.html" },
+            { title: "條件生成與 Classifier-free guidance", url: "topics/multimodal-ai/lesson-17.html" },
+            { title: "Latent Diffusion：在壓縮空間裡擴散", url: "topics/multimodal-ai/lesson-18.html" },
+            { title: "Stable Diffusion 完整拆解", url: "topics/multimodal-ai/lesson-19.html" },
+            { title: "DiT 與 Flow Matching：新一代架構", url: "topics/multimodal-ai/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜圖像生成實戰",
+          courses: [
+            { title: "提示詞與負面提示詞", url: "topics/multimodal-ai/lesson-21.html" },
+            { title: "CFG、步數、取樣器怎麼調", url: "topics/multimodal-ai/lesson-22.html" },
+            { title: "Img2img 與 Inpainting", url: "topics/multimodal-ai/lesson-23.html" },
+            { title: "ControlNet：用姿勢、線稿控制構圖", url: "topics/multimodal-ai/lesson-24.html" },
+            { title: "LoRA 與風格訓練", url: "topics/multimodal-ai/lesson-25.html" },
+            { title: "ComfyUI 節點工作流", url: "topics/multimodal-ai/lesson-26.html" },
+            { title: "主流圖像生成工具比較", url: "topics/multimodal-ai/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜視覺語言模型",
+          courses: [
+            { title: "LLM 怎麼「看圖」", url: "topics/multimodal-ai/lesson-28.html" },
+            { title: "LLaVA 架構", url: "topics/multimodal-ai/lesson-29.html" },
+            { title: "圖片也吃 token", url: "topics/multimodal-ai/lesson-30.html" },
+            { title: "OCR、圖表理解與文件解析", url: "topics/multimodal-ai/lesson-31.html" },
+            { title: "視覺模型的弱點", url: "topics/multimodal-ai/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜語音",
+          courses: [
+            { title: "聲音的數位表示與頻譜圖", url: "topics/multimodal-ai/lesson-33.html" },
+            { title: "語音辨識：從 HMM 到 Whisper", url: "topics/multimodal-ai/lesson-34.html" },
+            { title: "Whisper 拆解", url: "topics/multimodal-ai/lesson-35.html" },
+            { title: "語音合成（TTS）的演進", url: "topics/multimodal-ai/lesson-36.html" },
+            { title: "聲音複製與它的風險", url: "topics/multimodal-ai/lesson-37.html" },
+            { title: "音訊 token 化：Neural codec", url: "topics/multimodal-ai/lesson-38.html" },
+            { title: "即時語音對話", url: "topics/multimodal-ai/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜音樂、影片與 3D",
+          courses: [
+            { title: "AI 音樂生成", url: "topics/multimodal-ai/lesson-40.html" },
+            { title: "影片生成：時間一致性的挑戰", url: "topics/multimodal-ai/lesson-41.html" },
+            { title: "時空 patch 與影片擴散", url: "topics/multimodal-ai/lesson-42.html" },
+            { title: "世界模型", url: "topics/multimodal-ai/lesson-43.html" },
+            { title: "3D 生成：NeRF 與 Gaussian Splatting", url: "topics/multimodal-ai/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "統一的多模態模型", url: "topics/multimodal-ai/lesson-45.html" },
+            { title: "在自己的電腦上跑圖像與語音模型", url: "topics/multimodal-ai/lesson-46.html" },
+            { title: "著作權、深偽與浮水印", url: "topics/multimodal-ai/lesson-47.html" },
+            { title: "全課程總結與工具地圖", url: "topics/multimodal-ai/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "ai-inside-limits",
+      category: "ai",
+      title: "AI 的內心與邊界：可解釋性、幻覺、安全與社會",
+      description:
+        "打開 AI 的黑盒子，也看清它的邊界：幻覺的成因、校準、諂媚與減少幻覺的方法；探針、logit lens、殘差流、induction head、疊加、稀疏自編碼器、金門大橋 Claude 與電路追蹤；思維鏈的忠實性與測試時運算；對齊、RLHF 的極限、憲法式 AI、獎勵駭客、欺騙研究與可擴展監督；越獄、提示注入、紅隊、資料投毒與隱私；偏見與公平；著作權、各國法規（含台灣）、工作、能源、深偽與選舉、AGI 的各方觀點。附真實小模型的 logit lens 與注意力等互動工具。",
+      icon: "🔍",
+      url: "topics/ai-inside-limits/index.html",
+      resources: [
+        {
+          title: "AI 內心互動工具箱",
+          description: "真實小模型的 logit lens 與注意力頭、疊加、校準曲線、攻擊手法分類練習",
+          icon: "🧮",
+          url: "topics/ai-inside-limits/guide.html"
+        },
+        {
+          title: "AI 安全與可解釋性名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/ai-inside-limits/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要打開黑盒子",
+          courses: [
+            { title: "黑盒子問題", url: "topics/ai-inside-limits/lesson-01.html" },
+            { title: "「理解」一個模型是什麼意思", url: "topics/ai-inside-limits/lesson-02.html" },
+            { title: "本課地圖：內部機制 → 錯誤 → 安全 → 社會", url: "topics/ai-inside-limits/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜幻覺",
+          courses: [
+            { title: "什麼是幻覺", url: "topics/ai-inside-limits/lesson-04.html" },
+            { title: "為什麼會幻覺", url: "topics/ai-inside-limits/lesson-05.html" },
+            { title: "訓練資料與知識截止", url: "topics/ai-inside-limits/lesson-06.html" },
+            { title: "模型知不知道自己不知道：校準", url: "topics/ai-inside-limits/lesson-07.html" },
+            { title: "諂媚", url: "topics/ai-inside-limits/lesson-08.html" },
+            { title: "減少幻覺的方法", url: "topics/ai-inside-limits/lesson-09.html" },
+            { title: "怎麼偵測與評估幻覺", url: "topics/ai-inside-limits/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機制可解釋性",
+          courses: [
+            { title: "從 CNN 視覺化說起", url: "topics/ai-inside-limits/lesson-11.html" },
+            { title: "探針（Probing）", url: "topics/ai-inside-limits/lesson-12.html" },
+            { title: "Logit lens：看模型每一層在想什麼", url: "topics/ai-inside-limits/lesson-13.html" },
+            { title: "殘差流：資訊的高速公路", url: "topics/ai-inside-limits/lesson-14.html" },
+            { title: "Induction head：模型怎麼學會複製", url: "topics/ai-inside-limits/lesson-15.html" },
+            { title: "疊加：一個神經元多個意思", url: "topics/ai-inside-limits/lesson-16.html" },
+            { title: "稀疏自編碼器與「特徵」", url: "topics/ai-inside-limits/lesson-17.html" },
+            { title: "特徵操控：金門大橋 Claude", url: "topics/ai-inside-limits/lesson-18.html" },
+            { title: "電路追蹤：看一次推理的路徑", url: "topics/ai-inside-limits/lesson-19.html" },
+            { title: "可解釋性的極限與爭議", url: "topics/ai-inside-limits/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜推理模型的思考",
+          courses: [
+            { title: "思維鏈是怎麼來的", url: "topics/ai-inside-limits/lesson-21.html" },
+            { title: "思考過程可信嗎：忠實性問題", url: "topics/ai-inside-limits/lesson-22.html" },
+            { title: "測試時運算", url: "topics/ai-inside-limits/lesson-23.html" },
+            { title: "推理模型的常見失誤", url: "topics/ai-inside-limits/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜對齊",
+          courses: [
+            { title: "對齊問題是什麼", url: "topics/ai-inside-limits/lesson-25.html" },
+            { title: "RLHF 的極限", url: "topics/ai-inside-limits/lesson-26.html" },
+            { title: "憲法式 AI", url: "topics/ai-inside-limits/lesson-27.html" },
+            { title: "獎勵駭客與規格博弈", url: "topics/ai-inside-limits/lesson-28.html" },
+            { title: "欺騙與策略性行為的研究", url: "topics/ai-inside-limits/lesson-29.html" },
+            { title: "可擴展監督", url: "topics/ai-inside-limits/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜攻防",
+          courses: [
+            { title: "越獄手法分類", url: "topics/ai-inside-limits/lesson-31.html" },
+            { title: "提示注入", url: "topics/ai-inside-limits/lesson-32.html" },
+            { title: "紅隊測試", url: "topics/ai-inside-limits/lesson-33.html" },
+            { title: "資料投毒與後門", url: "topics/ai-inside-limits/lesson-34.html" },
+            { title: "隱私：訓練資料外洩", url: "topics/ai-inside-limits/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜偏見與公平",
+          courses: [
+            { title: "偏見從哪裡來", url: "topics/ai-inside-limits/lesson-36.html" },
+            { title: "公平的定義與取捨", url: "topics/ai-inside-limits/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜社會與法律",
+          courses: [
+            { title: "著作權與訓練資料爭議", url: "topics/ai-inside-limits/lesson-38.html" },
+            { title: "各國法規", url: "topics/ai-inside-limits/lesson-39.html" },
+            { title: "AI 對工作的影響", url: "topics/ai-inside-limits/lesson-40.html" },
+            { title: "能源與環境成本", url: "topics/ai-inside-limits/lesson-41.html" },
+            { title: "深偽、假訊息與選舉", url: "topics/ai-inside-limits/lesson-42.html" },
+            { title: "AGI 與風險：各方觀點", url: "topics/ai-inside-limits/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "怎麼負責任地使用 AI", url: "topics/ai-inside-limits/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };

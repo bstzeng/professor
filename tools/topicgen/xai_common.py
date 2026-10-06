@@ -40,15 +40,15 @@ XAILIB = r"""
 
   /* ---------- 真實的注意力頭 ---------- */
   function initHeads(root, cfg) {
-    head(root, cfg.q); var keys = Object.keys(LENS.attn); if (!keys.length) return; var pr = cfg.p || keys[0], L = 0, H = 0, bb = bar(root), lb = bar(root), hb = bar(root), view = el('div'), p;
+    head(root, cfg.q); var keys = Object.keys(LENS.attn); if (!keys.length) return; var pr = cfg.p || keys[0], L = 0, H = 1, bb = bar(root), lb = bar(root), hb = bar(root), view = el('div'), p;
     keys.forEach(function (k) { var x = btn('「' + k + '」', k); x.addEventListener('click', function () { pr = k; mark(bb, k); draw(); }); bb.appendChild(x); }); mark(bb, pr);
     for (var i = 0; i < 4; i++) (function (i) { var x = btn('第 ' + (i + 1) + ' 層', 'L' + i); x.addEventListener('click', function () { L = i; mark(lb, 'L' + i); draw(); }); lb.appendChild(x); var y = btn('頭 ' + (i + 1), 'H' + i); y.addEventListener('click', function () { H = i; mark(hb, 'H' + i); draw(); }); hb.appendChild(y); })(i);
-    mark(lb, 'L0'); mark(hb, 'H0'); root.appendChild(view); p = info(root);
+    mark(lb, 'L0'); mark(hb, 'H1'); root.appendChild(view); p = info(root);
     function draw() { var A = LENS.attn[pr], w = A.tokens, M = A.layers[L][H], n = w.length, cs = Math.min(40, 500 / n), x0 = 50, y0 = 28, o = '';
       for (var j = 0; j < n; j++) o += tx(x0 + j * cs + cs / 2, y0 - 8, w[j], 12, 'currentColor');
       for (var i = 0; i < n; i++) { o += tx(x0 - 6, y0 + i * cs + cs / 2 + 4, w[i], 12, 'currentColor', 'end'); for (var j2 = 0; j2 < n; j2++) { var v = j2 <= i ? M[i][j2] : 0; o += '<rect x="' + (x0 + j2 * cs) + '" y="' + (y0 + i * cs) + '" width="' + (cs - 2) + '" height="' + (cs - 2) + '" fill="' + (j2 <= i ? 'rgba(208,86,79,' + (0.06 + 0.94 * v).toFixed(2) + ')' : 'var(--border)') + '"/>'; } }
       view.innerHTML = svgw('0 0 640 ' + (y0 + n * cs + 6), o);
-      p.innerHTML = '第 ' + (L + 1) + ' 層、第 ' + (H + 1) + ' 個注意力頭：每一列是一個位置，顏色越深代表它越注意哪個字。切換不同的層和頭，會看到不同的「習慣」：有的頭幾乎只看前一個字，有的頭盯著開頭的換行（常被當成「什麼都不看」時的停靠點），有的頭會去找句子裡對應位置的字。'; }
+      p.innerHTML = '第 ' + (L + 1) + ' 層、第 ' + (H + 1) + ' 個注意力頭：每一列是一個位置，顏色越深代表它越注意哪個字。以「床前明月光，疑是地上」實測：<b>第 1 層頭 2</b> 平均有 74% 的注意力放在前一個字（前一字頭）；<b>第 1 層頭 1</b> 有約三成注意力放在往前第 6 個位置——在五言詩裡正好是上一句的同一個位置；<b>第 2 層頭 4</b>、<b>第 4 層頭 2</b> 有四成左右停在開頭的換行（常被當成「沒什麼要看」時的停靠點）。這些是觀察到的模式，頭真正的功能還要靠介入實驗確認。'; }
     draw();
   }
 
