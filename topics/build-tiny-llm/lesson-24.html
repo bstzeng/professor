@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：程式碼總檢查：完整的 GPT ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="約 200 行">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 24 課</div>
+      <h1>程式碼總檢查：完整的 GPT</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>讀懂 gpt.py 的每一部分</li>
+          <li>知道 modern 開關切換了什麼</li>
+          <li>準備開始訓練</li>
+        </ul>
+      </div>
+
+      <p>
+        這是完整的 <code>gpt.py</code>。<code>modern=True</code> 的分支（RoPE、RMSNorm、SwiGLU）和 KV cache 的部分，之後的課程會再說明，現在可以先略過。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 gpt.py</strong>　<a href="py/gpt.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>（由 train.py 匯入使用）</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""一個完整的 GPT（decoder-only Transformer）。
+
+modern=False：GPT-2 風格（學出來的位置 embedding、LayerNorm、GELU）
+modern=True ：Llama 風格（RoPE、RMSNorm、SwiGLU）
+"""
+import math
+from dataclasses import dataclass
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+@dataclass
+class GPTConfig:
+    vocab_size: int = 8000
+    block_size: int = 128       # 最長的上下文長度
+    n_layer: int = 4
+    n_head: int = 4
+    n_embd: int = 192
+    dropout: float = 0.1
+    modern: bool = False
+
+
+class RMSNorm(nn.Module):
+    def __init__(self, d, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(d))
+
+    def forward(self, x):
+        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps) * self.weight
+
+
+def rope(x, pos):
+    """旋轉位置編碼：把每兩個維度當成一個平面，依位置旋轉不同角度。x: (B, H, T, D)"""
+    d = x.shape[-1]
+    freq = 1.0 / (10000 ** (torch.arange(0, d, 2, device=x.device).float() / d))
+    ang = pos[:, None].float() * freq[None, :]                  # (T, D/2)
+    cos, sin = ang.cos(), ang.sin()
+    x1, x2 = x[..., 0::2], x[..., 1::2]
+    out = torch.stack([x1 * cos - x2 * sin, x1 * sin + x2 * cos], dim=-1)
+    return out.flatten(-2)
+
+
+class CausalSelfAttention(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        assert cfg.n_embd % cfg.n_head == 0
+        self.n_head, self.hd, self.modern = cfg.n_head, cfg.n_embd // cfg.n_head, cfg.modern
+        self.qkv = nn.Linear(cfg.n_embd, 3 * cfg.n_embd, bias=not cfg.modern)   # 一次算出 Q、K、V
+        self.proj = nn.Linear(cfg.n_embd, cfg.n_embd, bias=not cfg.modern)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.register_buffer("mask", torch.tril(torch.ones(cfg.block_size, cfg.block_size)).bool())
+
+    def forward(self, x, cache=None, start=0):
+        B, T, C = x.shape
+        q, k, v = self.qkv(x).split(C, dim=2)
+        q, k, v = [t.view(B, T, self.n_head, self.hd).transpose(1, 2) for t in (q, k, v)]   # (B, H, T, hd)
+        if self.modern:
+            pos = torch.arange(start, start + T, device=x.device)
+            q, k = rope(q, pos), rope(k, pos)
+        if cache is not None:                       # KV cache：把之前的 K、V 接在前面
+            if "k" in cache:
+                k = torch.cat([cache["k"], k], dim=2)
+                v = torch.cat([cache["v"], v], dim=2)
+            cache["k"], cache["v"] = k, v
+        S = k.shape[2]
+        att = (q @ k.transpose(-2, -1)) / math.sqrt(self.hd)       # (B, H, T, S)
+        att = att.masked_fill(~self.mask[S - T:S, :S], float("-inf"))   # 因果遮罩
+        att = self.drop(F.softmax(att, dim=-1))
+        y = (att @ v).transpose(1, 2).contiguous().view(B, T, C)    # 把各頭接回來
+        return self.drop(self.proj(y))
+
+
+class MLP(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.modern = cfg.modern
+        if cfg.modern:                              # SwiGLU：隱藏層約 8/3 倍，讓參數量和 4 倍的 GELU 相近
+            h = int(8 * cfg.n_embd / 3)
+            self.w1 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w3 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w2 = nn.Linear(h, cfg.n_embd, bias=False)
+        else:
+            self.fc = nn.Linear(cfg.n_embd, 4 * cfg.n_embd)
+            self.proj = nn.Linear(4 * cfg.n_embd, cfg.n_embd)
+        self.drop = nn.Dropout(cfg.dropout)
+
+    def forward(self, x):
+        if self.modern:
+            return self.drop(self.w2(F.silu(self.w1(x)) * self.w3(x)))
+        return self.drop(self.proj(F.gelu(self.fc(x))))
+
+
+class Block(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        Norm = RMSNorm if cfg.modern else nn.LayerNorm
+        self.ln1, self.attn = Norm(cfg.n_embd), CausalSelfAttention(cfg)
+        self.ln2, self.mlp = Norm(cfg.n_embd), MLP(cfg)
+
+    def forward(self, x, cache=None, start=0):
+        x = x + self.attn(self.ln1(x), cache, start)     # 殘差連接
+        x = x + self.mlp(self.ln2(x))
+        return x
+
+
+class GPT(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.tok_emb = nn.Embedding(cfg.vocab_size, cfg.n_embd)
+        self.pos_emb = None if cfg.modern else nn.Embedding(cfg.block_size, cfg.n_embd)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+        self.ln_f = RMSNorm(cfg.n_embd) if cfg.modern else nn.LayerNorm(cfg.n_embd)
+        self.head = nn.Linear(cfg.n_embd, cfg.vocab_size, bias=False)
+        self.head.weight = self.tok_emb.weight          # 權重綁定：輸入和輸出共用同一張 embedding 表
+        self.apply(self._init)
+
+    @staticmethod
+    def _init(m):
+        if isinstance(m, (nn.Linear, nn.Embedding)):
+            nn.init.normal_(m.weight, mean=0.0, std=0.02)
+        if isinstance(m, nn.Linear) and m.bias is not None:
+            nn.init.zeros_(m.bias)
+
+    def forward(self, idx, targets=None, caches=None, start=0):
+        B, T = idx.shape
+        x = self.tok_emb(idx)
+        if self.pos_emb is not None:
+            x = x + self.pos_emb(torch.arange(start, start + T, device=idx.device))
+        x = self.drop(x)
+        for i, blk in enumerate(self.blocks):
+            x = blk(x, None if caches is None else caches[i], start)
+        logits = self.head(self.ln_f(x))
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+        return logits, loss
+
+    def num_params(self):
+        return sum(p.numel() for p in self.parameters())
+
+    @torch.no_grad()
+    def generate(self, idx, max_new_tokens, temperature=1.0, top_k=None, top_p=None, stop=None, use_cache=True):
+        """逐字生成。stop：遇到這個 token id 就停（例如換行）。"""
+        self.eval()
+        caches = [dict() for _ in self.blocks] if use_cache else None
+        start = 0
+        for _ in range(max_new_tokens):
+            if idx.size(1) &gt;= self.cfg.block_size:          # 超過上下文長度就只看最後一段，並重建快取
+                idx_in, caches, start = idx[:, -self.cfg.block_size + 1:], ([dict() for _ in self.blocks] if use_cache else None), 0
+            elif use_cache and start &gt; 0:
+                idx_in = idx[:, -1:]                         # 有快取：只需送入最新的一個 token
+            else:
+                idx_in = idx
+            logits, _ = self(idx_in, caches=caches, start=start)
+            if use_cache:
+                start += idx_in.size(1)
+            logits = logits[:, -1, :] / max(temperature, 1e-6)
+            if top_k:
+                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                logits[logits &lt; v[:, [-1]]] = float("-inf")
+            probs = F.softmax(logits, dim=-1)
+            if top_p:
+                sp, si = torch.sort(probs, descending=True)
+                drop = sp.cumsum(-1) - sp &gt; top_p              # 保留累積機率剛好達到 top_p 的最小集合
+                sp[drop] = 0
+                probs = torch.zeros_like(probs).scatter(-1, si, sp)
+                probs = probs / probs.sum(-1, keepdim=True)
+            nxt = torch.argmax(probs, -1, keepdim=True) if temperature == 0 else torch.multinomial(probs, 1)
+            idx = torch.cat([idx, nxt], dim=1)
+            if stop is not None and nxt.item() == stop:
+                break
+        return idx</div>
+
+      <h2>自我檢查清單</h2>
+
+      <ul>
+        <li>每個 Linear、Embedding 的形狀你都說得出來嗎？</li>
+        <li>(B, T, C) 在注意力裡怎麼變成 (B, H, T, hd)？</li>
+        <li>loss 是對哪幾個位置算的？</li>
+        <li>為什麼 <code>head.weight = tok_emb.weight</code>？</li>
+      </ul>
+
+      <div class="callout">
+        <h3>和 nanoGPT 比較</h3>
+        <p>
+          這份程式的結構參考了 Andrej Karpathy 的開源專案 nanoGPT（MIT 授權）。nanoGPT 再多了 FlashAttention、從 OpenAI 載入 GPT-2 權重、多卡訓練等功能，讀完本課程後很適合接著讀。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          完整的 gpt.py 約 200 行，包含 embedding、多頭因果注意力、MLP、Block、權重綁定與生成函式，並用 modern 開關切換 Llama 風格的元件。結構參考 nanoGPT。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>gpt.py 裡的 modern 開關切換了哪三個元件？</li>
+          <li>注意力的形狀是怎麼變化的？</li>
+          <li>讀完本課程後可以接著讀哪個開源專案？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>資料載入與 batch</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：數參數：我的模型有多大</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：資料載入與 batch →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

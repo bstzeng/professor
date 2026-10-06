@@ -19098,6 +19098,118 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "build-tiny-llm",
+      category: "ai",
+      title: "親手訓練一個小 LLM：從零寫出你的 GPT",
+      description:
+        "用 Python 和 PyTorch 從零寫一個約 300 萬參數的 GPT，拿 3.6 萬首唐詩在一般電腦的 CPU 上訓練，讓它學會寫五言、七言詩。字元級與 BPE tokenizer、bigram 模型、一行一行寫出注意力、因果遮罩、多頭、FFN、殘差與 LayerNorm；AdamW、warmup 與 cosine、驗證與過擬合、混合精度、梯度累積、存檔續訓與對照實驗；temperature／top-k／top-p 與 KV cache；RoPE、RMSNorm、SwiGLU；指令資料與從零實作 LoRA 微調、評估。每支程式都實際執行過並附上輸出，可整包下載。",
+      icon: "🛠️",
+      url: "topics/build-tiny-llm/index.html",
+      resources: [
+        {
+          title: "小 LLM 互動工具箱",
+          description: "BPE 合併、Bigram 機率表、因果遮罩、參數計算、真實訓練曲線、真實模型的抽樣",
+          icon: "🧮",
+          url: "topics/build-tiny-llm/guide.html"
+        },
+        {
+          title: "範例下載與指令速查",
+          description: "所有 Python 範例、建議執行順序與常用指令",
+          icon: "📦",
+          url: "topics/build-tiny-llm/files.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜準備",
+          courses: [
+            { title: "這門課要做出什麼", url: "topics/build-tiny-llm/lesson-01.html" },
+            { title: "環境：Python、PyTorch、GPU／Mac／CPU", url: "topics/build-tiny-llm/lesson-02.html" },
+            { title: "PyTorch 速成：tensor 與 autograd", url: "topics/build-tiny-llm/lesson-03.html" },
+            { title: "nn.Module 與訓練迴圈", url: "topics/build-tiny-llm/lesson-04.html" },
+            { title: "準備語料：下載、清理、切分", url: "topics/build-tiny-llm/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜Tokenizer",
+          courses: [
+            { title: "字元級 tokenizer", url: "topics/build-tiny-llm/lesson-06.html" },
+            { title: "從頭實作 BPE", url: "topics/build-tiny-llm/lesson-07.html" },
+            { title: "中文的 BPE 會遇到什麼", url: "topics/build-tiny-llm/lesson-08.html" },
+            { title: "特殊 token 與編碼、解碼", url: "topics/build-tiny-llm/lesson-09.html" },
+            { title: "實作：訓練自己的 tokenizer", url: "topics/build-tiny-llm/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜最小的語言模型",
+          courses: [
+            { title: "Bigram 模型：只看前一個字", url: "topics/build-tiny-llm/lesson-11.html" },
+            { title: "損失與困惑度", url: "topics/build-tiny-llm/lesson-12.html" },
+            { title: "抽樣生成第一段文字", url: "topics/build-tiny-llm/lesson-13.html" },
+            { title: "為什麼 bigram 不夠", url: "topics/build-tiny-llm/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜一行一行寫 Transformer",
+          courses: [
+            { title: "Token embedding 與位置 embedding", url: "topics/build-tiny-llm/lesson-15.html" },
+            { title: "單頭 self-attention", url: "topics/build-tiny-llm/lesson-16.html" },
+            { title: "因果遮罩", url: "topics/build-tiny-llm/lesson-17.html" },
+            { title: "多頭注意力", url: "topics/build-tiny-llm/lesson-18.html" },
+            { title: "FFN：每個字各自加工", url: "topics/build-tiny-llm/lesson-19.html" },
+            { title: "殘差與 LayerNorm", url: "topics/build-tiny-llm/lesson-20.html" },
+            { title: "組成一個 Block", url: "topics/build-tiny-llm/lesson-21.html" },
+            { title: "堆疊成 GPT", url: "topics/build-tiny-llm/lesson-22.html" },
+            { title: "數參數：我的模型有多大", url: "topics/build-tiny-llm/lesson-23.html" },
+            { title: "程式碼總檢查：完整的 GPT", url: "topics/build-tiny-llm/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜訓練",
+          courses: [
+            { title: "資料載入與 batch", url: "topics/build-tiny-llm/lesson-25.html" },
+            { title: "AdamW 與學習率排程", url: "topics/build-tiny-llm/lesson-26.html" },
+            { title: "觀察 loss 曲線", url: "topics/build-tiny-llm/lesson-27.html" },
+            { title: "驗證集與過擬合", url: "topics/build-tiny-llm/lesson-28.html" },
+            { title: "混合精度與梯度累積", url: "topics/build-tiny-llm/lesson-29.html" },
+            { title: "存檔、讀檔與續訓", url: "topics/build-tiny-llm/lesson-30.html" },
+            { title: "實驗：改層數、寬度、上下文長度", url: "topics/build-tiny-llm/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生成",
+          courses: [
+            { title: "Temperature、Top-k、Top-p", url: "topics/build-tiny-llm/lesson-32.html" },
+            { title: "KV cache 實作", url: "topics/build-tiny-llm/lesson-33.html" },
+            { title: "做一個互動寫詩介面", url: "topics/build-tiny-llm/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜升級成現代架構",
+          courses: [
+            { title: "RoPE：旋轉位置編碼", url: "topics/build-tiny-llm/lesson-35.html" },
+            { title: "RMSNorm 與 SwiGLU", url: "topics/build-tiny-llm/lesson-36.html" },
+            { title: "對照 Llama 的程式碼", url: "topics/build-tiny-llm/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜微調",
+          courses: [
+            { title: "載入開源小模型", url: "topics/build-tiny-llm/lesson-38.html" },
+            { title: "指令微調的資料格式", url: "topics/build-tiny-llm/lesson-39.html" },
+            { title: "用 LoRA 微調", url: "topics/build-tiny-llm/lesson-40.html" },
+            { title: "評估微調前後的差異", url: "topics/build-tiny-llm/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "從你的小 GPT 到 GPT-4：差了什麼", url: "topics/build-tiny-llm/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };

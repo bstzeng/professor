@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：中文的 BPE 會遇到什麼 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="一個字三個位元組">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜Tokenizer · 第 8 課</div>
+      <h1>中文的 BPE 會遇到什麼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂位元組層級 BPE 在中文上的行為</li>
+          <li>理解壓縮率</li>
+          <li>知道為什麼中文常比英文花更多 token</li>
+        </ul>
+      </div>
+
+      <p>
+        用唐詩訓練 400 次合併，看看前幾次合併了什麼：
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s05_bpe.py</strong>　<a href="py/s05_bpe.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s05_bpe.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 7、8 課：從零實作 BPE，看它在中文上學到什麼。"""
+import time
+from tokenizer import BPETokenizer, show
+
+poems = open("data/tang.txt", encoding="utf-8").read().split("\n")[:1500]
+sample = "\n".join(poems)
+t = time.time()
+tok = BPETokenizer.train(sample, 400, verbose=12)
+print("訓練 400 次合併花了 %.0f 秒" % (time.time() - t))
+
+s = "白日依山盡，黃河入海流。欲窮千里目，更上一層樓。"
+ids = tok.encode(s)
+print("\n「%s」" % s)
+print("UTF-8 位元組數：", len(s.encode("utf-8")), "  字數：", len(s), "  BPE token 數：", len(ids))
+print("切法：", " | ".join(show(tok.vocab[i]) for i in ids))
+
+test = "\n".join(open("data/tang.txt", encoding="utf-8").read().split("\n")[30000:30200])
+n_ids = len(tok.encode(test))
+print("\n在沒看過的 200 首詩上：位元組 %d → BPE token %d（字數 %d）" % (len(test.encode("utf-8")), n_ids, len(test)))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">合併 #1：‹ef› ＋ ‹bc› → ‹ef bc›（出現 4488 次）&#10;合併 #2：‹ef bc› ＋ ‹8c› → ，（出現 4488 次）&#10;合併 #3：‹e3› ＋ ‹80› → ‹e3 80›（出現 4488 次）&#10;合併 #4：‹e3 80› ＋ ‹82› → 。（出現 4488 次）&#10;合併 #5：‹e4› ＋ ‹b8› → ‹e4 b8›（出現 1629 次）&#10;合併 #6：。 ＋ ⏎ → 。⏎（出現 1499 次）&#10;合併 #7：‹e6› ＋ ‹9c› → ‹e6 9c›（出現 1047 次）&#10;合併 #8：， ＋ ‹e5› → ‹ef bc 8c e5›（出現 1031 次）&#10;合併 #9：， ＋ ‹e6› → ‹ef bc 8c e6›（出現 913 次）&#10;合併 #10：‹e9› ＋ ‹9b› → ‹e9 9b›（出現 840 次）&#10;合併 #11：‹e6› ＋ ‹98› → ‹e6 98›（出現 786 次）&#10;合併 #12：‹e5› ＋ ‹a4› → ‹e5 a4›（出現 762 次）&#10;合併 #400：‹ef bc 8c e5› ＋ ‹90› → ‹ef bc 8c e5 90›（出現 58 次）&#10;訓練 400 次合併花了 15 秒&#10;&#10;「白日依山盡，黃河入海流。欲窮千里目，更上一層樓。」&#10;UTF-8 位元組數： 72   字數： 24   BPE token 數： 31&#10;切法： 白 | 日 | ‹e4 be› | ‹9d› | 山 | 盡 | ‹ef bc 8c e9› | ‹bb› | ‹83› | 河 | 入 | 海 | 流 | ‹e3 80 82 e6› | ‹ac› | ‹b2› | ‹e7 aa› | ‹ae› | 千 | 里 | ‹e7 9b› | ‹ae› | ‹ef bc 8c e6› | ‹9b› | ‹b4› | 上 | 一 | ‹e5 b1› | ‹a4› | 樓 | 。&#10;&#10;在沒看過的 200 首詩上：位元組 30463 → BPE token 16023（字數 10287）</div>
+
+      <h2>觀察</h2>
+
+      <ul>
+        <li>中文字在 UTF-8 裡通常是 3 個位元組。最早的合併常是把常見的「前兩個位元組」黏起來（顯示成 ‹e5 a4›），因為很多中文字共用同樣的開頭位元組。</li>
+        <li>標點「，」「。」很快就成為完整的 token；接著還會出現跨字的組合，例如「，」加上下一個字的第一個位元組——BPE 只看頻率，不管字的邊界。</li>
+        <li>常見字（山、月、日）最後變成一個 token；罕見字還是 2～3 個 token。</li>
+        <li>在沒看過的詩上，BPE 用的 token 數約是字數的 1.5 倍，比字元級還多——因為我們只合併了 400 次，連常用字都還沒完全學完。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>真實的 LLM</h3>
+        <p>
+          GPT-4 等模型的詞彙表有 10 萬到 20 萬個 token，常用中文字大多是一個 token，但在詞彙表以英文為主的模型上，同樣意思的中文常比英文花更多 token，費用和速度都受影響（見〈LLM 模型全解〉）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          位元組層級 BPE 會先合併中文字常見的位元組開頭，常用字最後變成單一 token、罕見字仍拆開。合併次數太少時，中文 token 數甚至比字數還多；真實模型用 10 萬以上的詞彙表。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>一個中文字在 UTF-8 裡通常佔幾個位元組？</li>
+          <li>為什麼 BPE 的 token 有時顯示成 ‹e5 a4› 這種樣子？</li>
+          <li>為什麼中文常比英文花更多 token？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>特殊 token 與編碼、解碼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：從頭實作 BPE</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：特殊 token 與編碼、解碼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

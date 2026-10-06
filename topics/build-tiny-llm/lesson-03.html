@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：PyTorch 速成：tensor 與 autograd ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="兩個你一定要會的東西">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜準備 · 第 3 課</div>
+      <h1>PyTorch 速成：tensor 與 autograd</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>會建立和操作 tensor</li>
+          <li>看懂 tensor 的形狀</li>
+          <li>理解自動微分</li>
+        </ul>
+      </div>
+
+      <p>
+        PyTorch 的核心只有兩樣：<strong>tensor</strong>（多維陣列，可以放在 GPU 上算）和 <strong>autograd</strong>（自動算梯度）。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s01_tensor.py</strong>　<a href="py/s01_tensor.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s01_tensor.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 3 課：PyTorch 速成——tensor 與自動微分。"""
+import torch
+
+a = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+b = torch.tensor([[5.0, 6.0], [7.0, 8.0]])
+print("a 的形狀：", tuple(a.shape))
+print("矩陣乘法 a @ b：\n", a @ b)
+print("逐元素相乘 a * b：\n", a * b)
+
+x = torch.randn(32, 80, 192)          # 一批 32 段文字、每段 80 個 token、每個 token 192 維
+print("一批 token 向量的形狀：", tuple(x.shape))
+print("取第 0 段的最後一個 token：", tuple(x[0, -1].shape))
+
+# 自動微分：y = w·x + b 的梯度
+w = torch.tensor(2.0, requires_grad=True)
+bias = torch.tensor(1.0, requires_grad=True)
+y = w * 3.0 + bias                    # x = 3
+loss = (y - 10.0) ** 2                # 希望 y = 10
+loss.backward()                       # 反向傳播
+print("y =", y.item(), " loss =", loss.item())
+print("∂loss/∂w =", w.grad.item(), "（＝ 2(y−10)·x ＝ 2×(−3)×3）")
+print("∂loss/∂b =", bias.grad.item())</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">a 的形狀： (2, 2)&#10;矩陣乘法 a @ b：&#10; tensor([[19., 22.],&#10;        [43., 50.]])&#10;逐元素相乘 a * b：&#10; tensor([[ 5., 12.],&#10;        [21., 32.]])&#10;一批 token 向量的形狀： (32, 80, 192)&#10;取第 0 段的最後一個 token： (192,)&#10;y = 7.0  loss = 9.0&#10;∂loss/∂w = -18.0 （＝ 2(y−10)·x ＝ 2×(−3)×3）&#10;∂loss/∂b = -6.0</div>
+
+      <h2>形狀是最重要的事</h2>
+
+      <p>
+        寫 Transformer 時，最常見的張量形狀是 <code>(B, T, C)</code>：B 段文字（batch）、每段 T 個 token、每個 token C 維。注意力會再多一個頭的維度 <code>(B, H, T, hd)</code>。寫程式時隨時印出 <code>x.shape</code>，可以省下很多除錯時間。
+      </p>
+
+      <h2>autograd</h2>
+
+      <p>
+        設定 <code>requires_grad=True</code> 的張量，PyTorch 會記錄所有對它的運算。呼叫 <code>loss.backward()</code> 後，每個參數的 <code>.grad</code> 就是損失對它的偏導數——反向傳播完全自動。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          PyTorch 的兩個核心是 tensor 和 autograd。Transformer 裡最常見的形狀是 (B, T, C)；設定 requires_grad 後呼叫 backward()，就能自動得到每個參數的梯度。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>(32, 80, 192) 這個形狀分別代表什麼？</li>
+          <li>loss.backward() 之後梯度存在哪裡？</li>
+          <li>矩陣乘法和逐元素相乘的運算子分別是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>nn.Module 與訓練迴圈</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：環境：Python、PyTorch、GPU／Mac／CPU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：nn.Module 與訓練迴圈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

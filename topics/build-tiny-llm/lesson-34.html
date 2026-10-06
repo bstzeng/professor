@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：做一個互動寫詩介面 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="chat.py">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜生成 · 第 34 課</div>
+      <h1>做一個互動寫詩介面</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把模型包成可以互動的程式</li>
+          <li>處理詞彙表外的輸入</li>
+          <li>了解「聊天」和「續寫」的差別</li>
+        </ul>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 sample.py</strong>　<a href="py/sample.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python sample.py --prompt 春 --n 3</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""用訓練好的模型寫詩。
+
+  python sample.py --prompt 春 --n 3
+  python sample.py --prompt 床前明月光， --temperature 0.8 --top_p 0.9
+"""
+import argparse
+import torch
+from gpt import GPT, GPTConfig
+from tokenizer import CharTokenizer
+
+
+def load(path="ckpt.pt", device="cpu"):
+    ck = torch.load(path, map_location=device)
+    model = GPT(GPTConfig(**ck["cfg"])).to(device)
+    model.load_state_dict(ck["model"])
+    model.eval()
+    return model
+
+
+def write(model, tok, prompt, temperature=0.8, top_k=None, top_p=0.9, max_new=80):
+    """前面加一個換行：在訓練資料裡，換行後面就是「一首詩的開頭」。"""
+    idx = torch.tensor([tok.encode("\n" + prompt)])
+    out = model.generate(idx, max_new, temperature=temperature, top_k=top_k, top_p=top_p, stop=tok.stoi["\n"])
+    return tok.decode(out[0, 1:].tolist()).strip()
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--ckpt", default="ckpt.pt")
+    ap.add_argument("--prompt", default="春")
+    ap.add_argument("--n", type=int, default=3)
+    ap.add_argument("--temperature", type=float, default=0.8)
+    ap.add_argument("--top_k", type=int, default=None)
+    ap.add_argument("--top_p", type=float, default=0.9)
+    ap.add_argument("--seed", type=int, default=0)
+    a = ap.parse_args()
+    torch.manual_seed(a.seed)
+    tok, model = CharTokenizer.load("tokenizer.json"), load(a.ckpt)
+    for _ in range(a.n):
+        print(write(model, tok, a.prompt, a.temperature, a.top_k, a.top_p))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">春風多少思，夢客到東樓。孤鶴人何在，湘洲日夜深。&#10;春深似野園，微急是孤舟。家有花枝在，年少月中空。庭前歸不可，月月楚風吹。&#10;春風塵際節，風暮雨中天。暖色蕭蕭斷，寒霞萬里中。</div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 chat.py</strong>　<a href="py/chat.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python chat.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 34 課：互動寫詩。輸入開頭的字或第一句，模型接著寫；輸入空白行結束。"""
+import sys
+import torch
+from sample import load, write
+from tokenizer import CharTokenizer
+
+tok, model = CharTokenizer.load("tokenizer.json"), load()
+torch.manual_seed(7)
+print("🖌️ 唐詩小模型（輸入開頭，直接按 Enter 離開）")
+while True:
+    try:
+        s = input("&gt; ").strip()
+    except EOFError:
+        break
+    if not sys.stdin.isatty():                           # 從檔案或管線輸入時，把輸入也印出來
+        print(s)
+    if not s:
+        break
+    s = "".join(c for c in s if c in tok.stoi)          # 詞彙表裡沒有的字就略過
+    if not s:
+        print("（這些字不在詞彙表裡）")
+        continue
+    print(write(model, tok, s))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">🖌️ 唐詩小模型（輸入開頭，直接按 Enter 離開）&#10;&gt; 月&#10;月下下詩留，石中吟外人。樹中清韻合，霜月夜松清。草色浮雲散，山山落水多。野人連此去，鄉路路歸歸。&#10;&gt; 孤帆遠影&#10;孤帆遠影生，舉目爲歸去。別意知何處，長懷爲未窮。&#10;&gt; </div>
+
+      <p>
+        給第一句「孤帆遠影」，它就接著寫下去。這其實不是聊天，而是<strong>續寫</strong>：模型只會把你給的文字當開頭繼續寫。ChatGPT 能「對話」，是因為它在預訓練之後，又用大量「問題—回答」格式的資料微調過（第 39 課會做一個迷你版）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          sample.py 載入模型並依參數生成，chat.py 包成互動介面，並濾掉詞彙表外的字。這是續寫而不是對話；能對話的模型還需要用問答格式的資料微調。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>chat.py 怎麼處理詞彙表裡沒有的字？</li>
+          <li>「續寫」和「對話」有什麼不同？</li>
+          <li>ChatGPT 為什麼能對話？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>RoPE：旋轉位置編碼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：KV cache 實作</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：RoPE：旋轉位置編碼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

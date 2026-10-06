@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：用 LoRA 微調 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="只訓練 1% 的參數">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調 · 第 40 課</div>
+      <h1>用 LoRA 微調</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 LoRA 的原理</li>
+          <li>從零實作 LoRALinear</li>
+          <li>只對回答的部分計算損失</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 200" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">LoRA：凍結大矩陣 W，只訓練兩個細長的小矩陣</text>
+                <rect x="40" y="50" width="120" height="120" rx="8" fill="rgba(140,140,140,0.15)" stroke="#8a8f98" stroke-width="1.5"/>
+                <text x="100" y="115" text-anchor="middle" font-size="12" fill="var(--text-muted)">W（凍結）</text>
+                <text x="100" y="186" text-anchor="middle" font-size="10" fill="var(--text-muted)">d × d</text>
+                <text x="185" y="115" text-anchor="middle" font-size="18" fill="var(--accent)">＋</text>
+                <rect x="215" y="50" width="26" height="120" rx="8" fill="rgba(74,154,94,0.2)" stroke="#5aa469" stroke-width="1.5"/>
+                <text x="228" y="186" text-anchor="middle" font-size="10" fill="#5aa469">B：d × r</text>
+                <rect x="255" y="98" width="120" height="26" rx="8" fill="rgba(217,130,43,0.2)" stroke="#ff8a65" stroke-width="1.5"/>
+                <text x="315" y="116" text-anchor="middle" font-size="10" fill="#ff8a65">A：r × d</text>
+                <rect x="420" y="50" width="200" height="120" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="520" y="88" text-anchor="middle" font-size="11" fill="var(--accent)">r ＝ 8、d ＝ 192 時</text><text x="520" y="102" text-anchor="middle" font-size="9" fill="var(--text-muted)">W 有 36,864 個參數</text><text x="520" y="115" text-anchor="middle" font-size="9" fill="var(--text-muted)">A、B 合計只有 3,072 個</text><text x="520" y="128" text-anchor="middle" font-size="9" fill="var(--text-muted)">B 從 0 開始：一開始等於原模型</text><text x="520" y="141" text-anchor="middle" font-size="9" fill="var(--text-muted)">全模型 LoRA 檔約 144 KB</text>
+        </svg>
+        <figcaption>LoRA 在原本的權重旁邊加上兩個低秩小矩陣。</figcaption>
+      </div>
+
+      <p>
+        全參數微調要存一整份新模型，也要很多記憶體。<strong>LoRA</strong>（2021，微軟）凍結原本的權重 W，只在旁邊加兩個細長的小矩陣：\(y = Wx + BAx \cdot \frac{\alpha}{r}\)。r 通常是 8～64，遠小於 d。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 lora.py</strong>　<a href="py/lora.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python lora.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 40 課：從零實作 LoRA，教唐詩模型聽懂〔體裁 主題字〕的指令。
+
+  python lora.py            # 讀 ckpt.pt，只訓練 LoRA 參數，存成 lora.pt
+"""
+import math
+import torch
+import torch.nn as nn
+from sample import load
+from tokenizer import CharTokenizer
+
+
+class LoRALinear(nn.Module):
+    """y = W x + (B A x) · (alpha / r)。W 凍結，只訓練很小的 A、B。"""
+
+    def __init__(self, base: nn.Linear, r=8, alpha=16):
+        super().__init__()
+        self.base, self.scale = base, alpha / r
+        self.A = nn.Parameter(torch.randn(r, base.in_features) / math.sqrt(base.in_features))
+        self.B = nn.Parameter(torch.zeros(base.out_features, r))     # B 從 0 開始：一開始完全不改變原模型
+
+    def forward(self, x):
+        return self.base(x) + (x @ self.A.T @ self.B.T) * self.scale
+
+
+def add_lora(model, r=8):
+    for p in model.parameters():
+        p.requires_grad = False                                       # 凍結整個原模型
+    for blk in model.blocks:
+        blk.attn.qkv = LoRALinear(blk.attn.qkv, r)
+        blk.attn.proj = LoRALinear(blk.attn.proj, r)
+    return model
+
+
+def lora_state(model):
+    return {k: v for k, v in model.state_dict().items() if k.endswith(".A") or k.endswith(".B")}
+
+
+if __name__ == "__main__":
+    torch.manual_seed(0)
+    tok = CharTokenizer.load("tokenizer.json")
+    model = add_lora(load("ckpt.pt"))
+    train = [r for r in open("data/instruct.txt", encoding="utf-8").read().split("\n") if r][:-500]   # 最後 500 筆留給評估
+    n_all = model.num_params()
+    n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    print("全部參數 %d，要訓練的 LoRA 參數 %d（%.1f%%）" % (n_all, n_train, 100 * n_train / n_all))
+    opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=2e-3)
+    T = model.cfg.block_size
+    model.train()
+    for step in range(601):
+        rows = [train[i] for i in torch.randint(len(train), (32,)).tolist()]
+        ids = [tok.encode("\n" + r + "\n")[:T + 1] for r in rows]      # 前後都是換行，和 write() 的格式一致
+        L = max(len(s) for s in ids)
+        x = torch.full((32, L - 1), 0)
+        y = torch.full((32, L - 1), -100)                              # -100：不計算損失的位置
+        for i, s in enumerate(ids):
+            x[i, :len(s) - 1] = torch.tensor(s[:-1])
+            y[i, :len(s) - 1] = torch.tensor(s[1:])
+            y[i, :s.index(tok.stoi["〕"])] = -100                        # 只對「詩」的部分算損失，指令本身不用學
+        logits, _ = model(x)
+        loss = nn.functional.cross_entropy(logits.reshape(-1, logits.size(-1)), y.reshape(-1), ignore_index=-100)
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+        if step % 100 == 0:
+            print("step %3d  loss %.3f" % (step, loss.item()))
+    torch.save(lora_state(model), "lora.pt")
+    print("LoRA 權重存成 lora.pt，大小約 %.0f KB" % (n_train * 4 / 1024))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">全部參數 3129600，要訓練的 LoRA 參數 36864（1.2%）&#10;step   0  loss 5.018&#10;step 100  loss 4.695&#10;step 200  loss 4.552&#10;step 300  loss 4.765&#10;step 400  loss 4.577&#10;step 500  loss 4.654&#10;step 600  loss 4.764&#10;LoRA 權重存成 lora.pt，大小約 144 KB</div>
+
+      <h2>三個重點</h2>
+
+      <ul>
+        <li><strong>B 初始化為 0</strong>：訓練開始時 BA ＝ 0，模型和原本一模一樣，不會一開始就被破壞。</li>
+        <li><strong>只對詩算損失</strong>：<code>y</code> 裡指令部分設成 −100（PyTorch 的 ignore_index），模型只學「看到指令後怎麼寫」，不用學怎麼寫指令。</li>
+        <li><strong>檔案很小</strong>：只要存 A、B，本課程約 144 KB（原模型約 12 MB）；可以為不同任務各訓練一份，隨時切換。</li>
+      </ul>
+
+      <p>
+        用 Hugging Face 的 <code>peft</code> 套件對開源模型做 LoRA，概念完全一樣：
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 hf_qwen_lora.py</strong>　<a href="py/hf_qwen_lora.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python hf_qwen_lora.py（需安裝 transformers、peft，並可連線 Hugging Face）</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 38～40 課（延伸）：用 Hugging Face 的 transformers ＋ peft 對開源小模型做 LoRA 微調。
+
+需要：pip install transformers peft accelerate
+第一次執行會從 Hugging Face 下載約 1 GB 的模型。建議有 GPU；CPU 也能跑，但很慢。
+本課程頁面沒有附上這支程式的執行結果。
+"""
+import torch
+from peft import LoraConfig, get_peft_model
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+NAME = "Qwen/Qwen2.5-0.5B-Instruct"
+tok = AutoTokenizer.from_pretrained(NAME)
+model = AutoModelForCausalLM.from_pretrained(NAME, torch_dtype=torch.bfloat16)
+
+# 1. 指令資料：用模型自己的 chat template 排成對話格式
+pairs = [("寫一首關於春天的七言絕句", "春風吹綠江南岸，……"),        # ← 換成你自己的資料
+         ("用一句話介紹台北", "台北是台灣的首都，……")]
+def encode(q, a):
+    msgs = [{"role": "user", "content": q}, {"role": "assistant", "content": a}]
+    ids = tok.apply_chat_template(msgs, tokenize=True)
+    n_prompt = len(tok.apply_chat_template(msgs[:1], tokenize=True, add_generation_prompt=True))
+    labels = [-100] * n_prompt + ids[n_prompt:]          # 只對回答的部分算損失
+    return torch.tensor([ids]), torch.tensor([labels])
+
+# 2. 掛上 LoRA：只訓練注意力層的小矩陣
+cfg = LoraConfig(r=8, lora_alpha=16, lora_dropout=0.05, task_type="CAUSAL_LM",
+                 target_modules=["q_proj", "k_proj", "v_proj", "o_proj"])
+model = get_peft_model(model, cfg)
+model.print_trainable_parameters()
+
+# 3. 和我們自己的訓練迴圈一模一樣
+opt = torch.optim.AdamW([p for p in model.parameters() if p.requires_grad], lr=2e-4)
+model.train()
+for epoch in range(3):
+    for q, a in pairs:
+        x, y = encode(q, a)
+        loss = model(input_ids=x, labels=y).loss
+        opt.zero_grad()
+        loss.backward()
+        opt.step()
+    print("epoch", epoch, "loss", loss.item())
+
+model.save_pretrained("qwen-lora")                      # 只存 LoRA 權重，通常只有幾 MB</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LoRA 凍結原權重，只訓練兩個低秩矩陣 A、B（y = Wx + BAx·α/r），B 從 0 開始所以初始等於原模型。只對回答部分算損失，訓練參數約 1%，存檔約 144 KB。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LoRA 為什麼把 B 初始化為 0？</li>
+          <li>ignore_index＝−100 的作用是什麼？</li>
+          <li>LoRA 的檔案為什麼這麼小？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>評估微調前後的差異</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：指令微調的資料格式</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：評估微調前後的差異 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：Token embedding 與位置 embedding ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="把 id 變成向量">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 15 課</div>
+      <h1>Token embedding 與位置 embedding</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 embedding 查表</li>
+          <li>理解為什麼需要位置資訊</li>
+          <li>看懂模型開頭的程式</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 190" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Token embedding ＋ 位置 embedding</text>
+                <rect x="30" y="50" width="160" height="40" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="110" y="73.85" text-anchor="middle" font-size="11" fill="#4a90c2">token id：2214（月）</text>
+                <line x1="190.0" y1="70.0" x2="233.0" y2="70.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="240.0,70.0 233.0,73.5 233.0,66.5" fill="var(--text-muted)"/>
+                <rect x="240" y="40" width="170" height="60" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="325" y="66" text-anchor="middle" font-size="11" fill="#4a90c2">查表：第 2214 列</text><text x="325" y="80" text-anchor="middle" font-size="9" fill="var(--text-muted)">192 個數字</text>
+                <rect x="30" y="130" width="160" height="40" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="110" y="153.85" text-anchor="middle" font-size="11" fill="#9c89d6">位置：第 3 個字</text>
+                <line x1="190.0" y1="150.0" x2="233.0" y2="150.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="240.0,150.0 233.0,153.5 233.0,146.5" fill="var(--text-muted)"/>
+                <rect x="240" y="120" width="170" height="60" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="325" y="146" text-anchor="middle" font-size="11" fill="#9c89d6">查表：第 3 列</text><text x="325" y="160" text-anchor="middle" font-size="9" fill="var(--text-muted)">192 個數字</text>
+                <circle cx="470" cy="110" r="16" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/>
+                <text x="470" y="115" text-anchor="middle" font-size="14" fill="var(--accent)">＋</text>
+                <line x1="410.0" y1="70.0" x2="450.3" y2="98.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="456.0,102.0 448.3,100.9 452.3,95.1" fill="var(--text-muted)"/>
+                <line x1="410.0" y1="150.0" x2="450.3" y2="122.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="456.0,118.0 452.3,124.9 448.3,119.1" fill="var(--text-muted)"/>
+                <line x1="486.0" y1="110.0" x2="523.0" y2="110.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="530.0,110.0 523.0,113.5 523.0,106.5" fill="var(--text-muted)"/>
+                <rect x="530" y="85" width="90" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="575" y="106" text-anchor="middle" font-size="11" fill="#5aa469">輸入向量</text><text x="575" y="120" text-anchor="middle" font-size="9" fill="var(--text-muted)">192 維</text>
+        </svg>
+        <figcaption>每個 token 查表得到一個向量，再加上它所在位置的向量。</figcaption>
+      </div>
+
+      <p>
+        <code>nn.Embedding(V, d)</code> 是一張 V 列、d 行的表。token id 是 2214，就取出第 2214 列——一個 d 維向量。這些數字一開始是隨機的，訓練時跟著其他參數一起學。
+      </p>
+
+      <p>
+        注意力本身不知道順序，所以再加一張<strong>位置 embedding</strong> 表：第 0 個位置一個向量、第 1 個位置一個向量……把兩者相加，就是送進 Transformer 的輸入。
+      </p>
+
+      <div class="code-block">    def forward(self, idx, targets=None, caches=None, start=0):
+        B, T = idx.shape
+        x = self.tok_emb(idx)
+        if self.pos_emb is not None:
+            x = x + self.pos_emb(torch.arange(start, start + T, device=idx.device))
+        x = self.drop(x)</div>
+
+      <p>
+        這是 GPT-2 的做法（學出來的絕對位置）。缺點是只能處理訓練時看過的長度（我們是 80）。第 35 課會換成現代 LLM 用的 RoPE。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Token embedding 是一張 V×d 的表，用 token id 查出向量；位置 embedding 另一張表提供順序資訊，兩者相加後送進 Transformer。GPT-2 用學出來的絕對位置。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>nn.Embedding(6758, 192) 有多少個參數？</li>
+          <li>為什麼需要位置 embedding？</li>
+          <li>學出來的絕對位置 embedding 有什麼限制？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>單頭 self-attention</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：為什麼 bigram 不夠</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：單頭 self-attention →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

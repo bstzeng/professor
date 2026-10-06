@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 4 課：nn.Module 與訓練迴圈 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="所有模型的骨架">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 4 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜準備 · 第 4 課</div>
+      <h1>nn.Module 與訓練迴圈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>會寫一個 nn.Module</li>
+          <li>記住訓練迴圈的五個步驟</li>
+          <li>知道 optimizer 在做什麼</li>
+        </ul>
+      </div>
+
+      <p>
+        PyTorch 的模型都繼承 <code>nn.Module</code>：在 <code>__init__</code> 裡建立參數和子模組，在 <code>forward</code> 裡寫計算。我們先用最簡單的直線練習。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s02_module.py</strong>　<a href="py/s02_module.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s02_module.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 4 課：nn.Module 與訓練迴圈——用梯度下降找出 y = 2x + 1。"""
+import torch
+import torch.nn as nn
+
+torch.manual_seed(0)
+x = torch.linspace(-3, 3, 100).unsqueeze(1)          # 100 個點，形狀 (100, 1)
+y = 2 * x + 1 + 0.3 * torch.randn_like(x)            # 加一點雜訊
+
+
+class Line(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.lin = nn.Linear(1, 1)                   # 裡面有 weight 和 bias 兩個參數
+
+    def forward(self, x):
+        return self.lin(x)
+
+
+model = Line()
+opt = torch.optim.SGD(model.parameters(), lr=0.1)
+for step in range(101):
+    pred = model(x)                                  # 1. 前向
+    loss = ((pred - y) ** 2).mean()                  # 2. 算損失（MSE）
+    opt.zero_grad()                                  # 3. 清掉舊梯度
+    loss.backward()                                  # 4. 反向傳播
+    opt.step()                                       # 5. 更新參數
+    if step % 20 == 0:
+        print("step %3d  loss %.4f  w=%.3f  b=%.3f" % (step, loss.item(), model.lin.weight.item(), model.lin.bias.item()))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">step   0  loss 16.5048  w=1.128  b=0.238&#10;step  20  loss 0.0946  w=2.000  b=1.002&#10;step  40  loss 0.0945  w=2.000  b=1.011&#10;step  60  loss 0.0945  w=2.000  b=1.011&#10;step  80  loss 0.0945  w=2.000  b=1.011&#10;step 100  loss 0.0945  w=2.000  b=1.011</div>
+
+      <h2>訓練迴圈五步驟</h2>
+
+      <ol>
+        <li>前向：<code>pred = model(x)</code></li>
+        <li>損失：<code>loss = ...</code></li>
+        <li>清梯度：<code>opt.zero_grad()</code>（PyTorch 的梯度預設會累加）</li>
+        <li>反向：<code>loss.backward()</code></li>
+        <li>更新：<code>opt.step()</code></li>
+      </ol>
+
+      <p>
+        20 步之後 w 和 b 就很接近 2 和 1 了。我們的 GPT 只是把「一條直線」換成「300 萬個參數的 Transformer」、把 MSE 換成交叉熵，迴圈完全一樣。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          模型繼承 nn.Module，在 forward 寫計算。訓練迴圈是前向、算損失、清梯度、反向、更新五步。從一條直線到 GPT，迴圈都一樣。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼每一步都要 zero_grad？</li>
+          <li>nn.Linear(1, 1) 裡有幾個參數？</li>
+          <li>把這個迴圈套用到 GPT，要換掉哪些部分？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>準備語料：下載、清理、切分</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-03.html">← 上一課：PyTorch 速成：tensor 與 autograd</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-05.html">下一課：準備語料：下載、清理、切分 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

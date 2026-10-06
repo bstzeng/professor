@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：KV cache 實作 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="不要重算已經算過的東西">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜生成 · 第 33 課</div>
+      <h1>KV cache 實作</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 KV cache 的原理</li>
+          <li>看懂 cache 的程式</li>
+          <li>實測加速並驗證正確性</li>
+        </ul>
+      </div>
+
+      <p>
+        沒有 KV cache 時，生成第 50 個字要把前 49 個字整個重算一次。但前面每個字的 K、V 根本沒變！KV cache 把它們存起來，每一步只算新字的 Q、K、V，再和快取接起來。
+      </p>
+
+      <div class="code-block">        if cache is not None:                       # KV cache：把之前的 K、V 接在前面
+            if "k" in cache:
+                k = torch.cat([cache["k"], k], dim=2)
+                v = torch.cat([cache["v"], v], dim=2)
+            cache["k"], cache["v"] = k, v</div>
+
+      <p>
+        位置也要跟著調整：新字的位置是 <code>start</code>，而不是 0。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s11_kvcache.py</strong>　<a href="py/s11_kvcache.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s11_kvcache.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 33 課：KV cache 有沒有用？比較速度，並確認輸出完全一樣。"""
+import time
+import torch
+from sample import load
+from tokenizer import CharTokenizer
+
+tok, model = CharTokenizer.load("tokenizer.json"), load()
+idx = torch.tensor([tok.encode("\n山")])
+for use in (False, True):
+    t = time.time()
+    for _ in range(5):
+        out = model.generate(idx, 70, temperature=0, use_cache=use)
+    dt = (time.time() - t) / 5
+    print("%s KV cache：生成 70 字平均 %.3f 秒  →  %s" % ("有" if use else "沒有", dt, tok.decode(out[0, 1:].tolist()).split("\n")[0]))
+a = model.generate(idx, 70, temperature=0, use_cache=False)
+b = model.generate(idx, 70, temperature=0, use_cache=True)
+print("兩種方式的輸出完全相同：", torch.equal(a, b))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">沒有 KV cache：生成 70 字平均 0.258 秒  →  山中無事事，不是有人間。&#10;有 KV cache：生成 70 字平均 0.112 秒  →  山中無事事，不是有人間。&#10;兩種方式的輸出完全相同： True</div>
+
+      <p>
+        結果完全相同，速度快了一倍多，而且序列越長差距越大。代價是記憶體：每一層都要存所有字的 K、V。大型模型處理長文件時，KV cache 可能比模型本身還大（見〈一次 LLM 推論到底發生什麼〉第 12、13 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          KV cache 把每層已算過的 K、V 存起來，生成時只算新 token 並接上快取，輸出完全相同但快很多。代價是記憶體，長上下文時 KV cache 可能比模型還大。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼前面字的 K、V 可以重複使用？</li>
+          <li>用 KV cache 時，新 token 的位置要怎麼處理？</li>
+          <li>KV cache 的代價是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>做一個互動寫詩介面</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：Temperature、Top-k、Top-p</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：做一個互動寫詩介面 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

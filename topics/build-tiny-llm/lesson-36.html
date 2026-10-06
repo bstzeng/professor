@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：RMSNorm 與 SwiGLU ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="更省、更好的兩個零件">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜升級成現代架構 · 第 36 課</div>
+      <h1>RMSNorm 與 SwiGLU</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂 RMSNorm</li>
+          <li>看懂 SwiGLU</li>
+          <li>知道它們取代了什麼</li>
+        </ul>
+      </div>
+
+      <h2>RMSNorm</h2>
+
+      <div class="code-block">class RMSNorm(nn.Module):
+    def __init__(self, d, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(d))
+
+    def forward(self, x):
+        return x * torch.rsqrt(x.pow(2).mean(-1, keepdim=True) + self.eps) * self.weight</div>
+
+      <p>
+        LayerNorm 要減平均、除標準差；RMSNorm 只除以均方根，省掉減平均的步驟，也沒有偏差。效果幾乎一樣，計算更快。
+      </p>
+
+      <h2>SwiGLU</h2>
+
+      <div class="code-block">        if cfg.modern:                              # SwiGLU：隱藏層約 8/3 倍，讓參數量和 4 倍的 GELU 相近
+            h = int(8 * cfg.n_embd / 3)
+            self.w1 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w3 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w2 = nn.Linear(h, cfg.n_embd, bias=False)</div>
+
+      <p>
+        一般 FFN 是 <code>W₂ · GELU(W₁x)</code>；SwiGLU 是 <code>W₂ · (SiLU(W₁x) ⊙ W₃x)</code>：多一個矩陣 W₃ 當「閘門」，逐元素相乘。為了讓參數量和原本差不多，中間層從 4d 縮成約 8d/3。2020 年 Noam Shazeer 的論文顯示它效果更好，之後被 PaLM、Llama 採用。
+      </p>
+
+      <p>
+        另外，modern 版的線性層都拿掉了偏差（<code>bias=False</code>），這也是 Llama 的做法。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          RMSNorm 只除以均方根、不減平均也沒有偏差，更快且效果相當。SwiGLU 用 SiLU 閘門乘上另一路線性變換，中間層約 8d/3 以維持參數量，效果比 GELU FFN 好。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RMSNorm 比 LayerNorm 省了哪一步？</li>
+          <li>SwiGLU 比一般 FFN 多了哪個矩陣？</li>
+          <li>為什麼 SwiGLU 的中間層是 8d/3 而不是 4d？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>對照 Llama 的程式碼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：RoPE：旋轉位置編碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：對照 Llama 的程式碼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

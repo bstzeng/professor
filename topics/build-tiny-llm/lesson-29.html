@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：混合精度與梯度累積 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="用更少的記憶體、更快地訓練">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜訓練 · 第 29 課</div>
+      <h1>混合精度與梯度累積</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解混合精度訓練</li>
+          <li>理解梯度累積</li>
+          <li>知道這兩招什麼時候用</li>
+        </ul>
+      </div>
+
+      <h2>混合精度</h2>
+
+      <p>
+        矩陣乘法用 16 位元（bfloat16）算，速度可以快 2 倍以上、記憶體減半；但權重和優化器狀態仍保留 32 位元，以免累積誤差。PyTorch 用 <code>torch.autocast</code> 自動處理：
+      </p>
+
+      <div class="code-block">amp = torch.autocast(device_type=device if device != "mps" else "cpu", dtype=torch.bfloat16, enabled=args.amp)</div>
+
+      <p>
+        在 GPU 上加 <code>--amp</code> 就會啟用。bfloat16 的數值範圍和 FP32 一樣大，不像 FP16 需要額外做損失縮放（見〈LLM 模型全解〉第 50 課）。在 CPU 上效果有限，我們的實測沒有使用。
+      </p>
+
+      <h2>梯度累積</h2>
+
+      <div class="code-block">    for _ in range(args.accum):                         # 梯度累積
+        x, y = get_batch("train")
+        with amp:
+            _, loss = model(x, y)
+        (loss / args.accum).backward()</div>
+
+      <p>
+        記憶體只夠放 8 段文字，但想要 32 段的效果？設定 <code>--batch 8 --accum 4</code>：連續算 4 次梯度（每次除以 4）累加起來，再更新一次參數，數學上等同一次 32 段的 batch。代價是一步要花 4 倍時間。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          混合精度用 bfloat16 做矩陣運算、FP32 保存權重，GPU 上更快更省記憶體。梯度累積把多個小 batch 的梯度加起來再更新，等同大 batch，用時間換記憶體。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>混合精度裡哪些部分用 16 位元、哪些用 32 位元？</li>
+          <li>--batch 8 --accum 4 等效於多大的 batch？</li>
+          <li>梯度累積的代價是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>存檔、讀檔與續訓</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：驗證集與過擬合</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：存檔、讀檔與續訓 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

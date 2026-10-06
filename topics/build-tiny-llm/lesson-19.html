@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：FFN：每個字各自加工 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="參數的大頭">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 19 課</div>
+      <h1>FFN：每個字各自加工</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解前饋網路的結構</li>
+          <li>知道 4 倍擴張的慣例</li>
+          <li>理解注意力和 FFN 的分工</li>
+        </ul>
+      </div>
+
+      <p>
+        注意力負責讓 token <strong>互相交換資訊</strong>；前饋網路（FFN，也叫 MLP）則對<strong>每個 token 各自</strong>做兩層全連接：先放大到 4 倍維度、經過 GELU、再縮回來。
+      </p>
+
+      <div class="code-block">class MLP(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.modern = cfg.modern
+        if cfg.modern:                              # SwiGLU：隱藏層約 8/3 倍，讓參數量和 4 倍的 GELU 相近
+            h = int(8 * cfg.n_embd / 3)
+            self.w1 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w3 = nn.Linear(cfg.n_embd, h, bias=False)
+            self.w2 = nn.Linear(h, cfg.n_embd, bias=False)
+        else:
+            self.fc = nn.Linear(cfg.n_embd, 4 * cfg.n_embd)
+            self.proj = nn.Linear(4 * cfg.n_embd, cfg.n_embd)
+        self.drop = nn.Dropout(cfg.dropout)
+
+    def forward(self, x):
+        if self.modern:
+            return self.drop(self.w2(F.silu(self.w1(x)) * self.w3(x)))
+        return self.drop(self.proj(F.gelu(self.fc(x))))</div>
+
+      <p>
+        一個 FFN 有 \(2 \times d \times 4d = 8d^2\) 個權重，是注意力（\(4d^2\)）的兩倍。研究發現，模型學到的很多「知識」（例如「巴黎是法國的首都」）似乎就儲存在 FFN 的權重裡。
+      </p>
+
+      <p>
+        現代 LLM 把它換成 SwiGLU（第 36 課），程式裡的 <code>modern</code> 分支就是。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          FFN 對每個 token 各自做兩層全連接（d → 4d → d，中間 GELU），權重 8d² 是注意力的兩倍。注意力負責 token 間交流，FFN 負責各自加工，知識多半存在 FFN 裡。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>FFN 的中間層通常是幾倍寬？</li>
+          <li>FFN 和注意力的參數量比例大約是多少？</li>
+          <li>注意力和 FFN 的分工是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>殘差與 LayerNorm</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：多頭注意力</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：殘差與 LayerNorm →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

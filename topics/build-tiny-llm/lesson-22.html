@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：堆疊成 GPT ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="完整的模型">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 22 課</div>
+      <h1>堆疊成 GPT</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂 GPT 類別</li>
+          <li>理解權重綁定</li>
+          <li>理解初始化與損失計算</li>
+        </ul>
+      </div>
+
+      <div class="code-block">class GPT(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        self.cfg = cfg
+        self.tok_emb = nn.Embedding(cfg.vocab_size, cfg.n_embd)
+        self.pos_emb = None if cfg.modern else nn.Embedding(cfg.block_size, cfg.n_embd)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.blocks = nn.ModuleList([Block(cfg) for _ in range(cfg.n_layer)])
+        self.ln_f = RMSNorm(cfg.n_embd) if cfg.modern else nn.LayerNorm(cfg.n_embd)
+        self.head = nn.Linear(cfg.n_embd, cfg.vocab_size, bias=False)
+        self.head.weight = self.tok_emb.weight          # 權重綁定：輸入和輸出共用同一張 embedding 表
+        self.apply(self._init)</div>
+
+      <p>
+        （這裡節錄建構子，完整程式見第 24 課。）
+      </p>
+
+      <h2>三個細節</h2>
+
+      <ul>
+        <li><strong>輸出層</strong>：最後的 <code>head</code> 把 d 維向量轉成 V 個 logits，就是對整個詞彙表的分數。</li>
+        <li><strong>權重綁定</strong>：輸出層和 token embedding 共用同一張表。輸入時「字 → 向量」、輸出時「向量 → 每個字的分數」，用同一組權重很合理，還能省下 V×d 個參數（我們省了 130 萬）。</li>
+        <li><strong>初始化</strong>：所有權重用標準差 0.02 的常態分布，偏差設 0，這是 GPT-2 的設定。</li>
+      </ul>
+
+      <div class="code-block">        logits = self.head(self.ln_f(x))
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1))
+        return logits, loss</div>
+
+      <p>
+        損失就是對每個位置的 logits 做交叉熵，PyTorch 一行搞定。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          GPT 由 token／位置 embedding、N 個 Block、最後的 LayerNorm 與輸出層組成。輸出層和 token embedding 權重綁定以節省參數，權重以標準差 0.02 初始化，損失是每個位置的交叉熵。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>輸出層產生的 logits 有幾個數字？</li>
+          <li>什麼是權重綁定？有什麼好處？</li>
+          <li>GPT-2 的權重初始化標準差是多少？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>數參數：我的模型有多大</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：組成一個 Block</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：數參數：我的模型有多大 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
