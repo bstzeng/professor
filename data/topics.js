@@ -18527,6 +18527,116 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "china-provinces",
+      category: "geography",
+      title: "中國各省：位置、古城、小吃與世界遺產",
+      description:
+        "一省一課，依華北、東北、華東、華中、華南、西南、西北七大分區介紹 31 個省、自治區、直轄市與香港、澳門：每課有位置地圖、一句話記憶、簡稱與省會、大城市與古稱、地理與歷史、方言與民族、代表小吃、世界遺產、非物質文化遺產、旅遊建議（季節、天數、路線）與常見誤解。另有行政區劃、地形三級階梯、簡稱記憶、各省比較、世界遺產總表與八大菜系，附可點選的互動地圖、找省測驗與排行比較。",
+      icon: "🏯",
+      url: "topics/china-provinces/index.html",
+      resources: [
+        {
+          title: "中國各省互動地圖",
+          description: "點選查詢、找省測驗、排行比較",
+          icon: "🗺️",
+          url: "topics/china-provinces/guide.html"
+        },
+        {
+          title: "省級行政區速查表",
+          description: "33 個省區的簡稱、省會、分區、人口、面積、最佳季節與建議天數",
+          icon: "📋",
+          url: "topics/china-provinces/provinces.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論：認識中國的省級行政區",
+          courses: [
+            { title: "省、自治區、直轄市與特別行政區", url: "topics/china-provinces/lesson-01.html" },
+            { title: "七大地理分區", url: "topics/china-provinces/lesson-02.html" },
+            { title: "地形三級階梯與氣候", url: "topics/china-provinces/lesson-03.html" },
+            { title: "簡稱怎麼記", url: "topics/china-provinces/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜華北：京津冀、山西與內蒙古",
+          courses: [
+            { title: "北京：千年古都與首都", url: "topics/china-provinces/lesson-05.html" },
+            { title: "天津：渡口之城、相聲之鄉", url: "topics/china-provinces/lesson-06.html" },
+            { title: "河北：環抱京津的燕趙大地", url: "topics/china-provinces/lesson-07.html" },
+            { title: "山西：表裡山河的晉商故鄉", url: "topics/china-provinces/lesson-08.html" },
+            { title: "內蒙古：橫跨三北的大草原", url: "topics/china-provinces/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜東北：遼寧、吉林、黑龍江",
+          courses: [
+            { title: "遼寧：清朝的龍興之地", url: "topics/china-provinces/lesson-10.html" },
+            { title: "吉林：長白山與汽車城", url: "topics/china-provinces/lesson-11.html" },
+            { title: "黑龍江：北國冰城", url: "topics/china-provinces/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜華東：長江下游與東南沿海",
+          courses: [
+            { title: "上海：從縣城到國際大都會", url: "topics/china-provinces/lesson-13.html" },
+            { title: "江蘇：六朝古都與江南園林", url: "topics/china-provinces/lesson-14.html" },
+            { title: "浙江：西湖與民營經濟", url: "topics/china-provinces/lesson-15.html" },
+            { title: "安徽：黃山與徽州", url: "topics/china-provinces/lesson-16.html" },
+            { title: "福建：台灣海峽對岸的閩南故鄉", url: "topics/china-provinces/lesson-17.html" },
+            { title: "江西：瓷都與廬山", url: "topics/china-provinces/lesson-18.html" },
+            { title: "山東：孔孟之鄉與五嶽之首", url: "topics/china-provinces/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜華中：中原與兩湖",
+          courses: [
+            { title: "河南：中原與古都", url: "topics/china-provinces/lesson-20.html" },
+            { title: "湖北：九省通衢與楚文化", url: "topics/china-provinces/lesson-21.html" },
+            { title: "湖南：湖湘與奇峰", url: "topics/china-provinces/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜華南：嶺南、海南與港澳",
+          courses: [
+            { title: "廣東：嶺南與改革開放的前沿", url: "topics/china-provinces/lesson-23.html" },
+            { title: "廣西：桂林山水與壯鄉", url: "topics/china-provinces/lesson-24.html" },
+            { title: "海南：熱帶島嶼與自由貿易港", url: "topics/china-provinces/lesson-25.html" },
+            { title: "香港：東方之珠", url: "topics/china-provinces/lesson-26.html" },
+            { title: "澳門：中西交會四百年", url: "topics/china-provinces/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜西南：川渝、雲貴與西藏",
+          courses: [
+            { title: "重慶：山城與火鍋", url: "topics/china-provinces/lesson-28.html" },
+            { title: "四川：天府之國", url: "topics/china-provinces/lesson-29.html" },
+            { title: "貴州：地無三里平", url: "topics/china-provinces/lesson-30.html" },
+            { title: "雲南：彩雲之南", url: "topics/china-provinces/lesson-31.html" },
+            { title: "西藏：世界屋脊", url: "topics/china-provinces/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 H｜西北：陝甘寧青新",
+          courses: [
+            { title: "陝西：周秦漢唐的古都", url: "topics/china-provinces/lesson-33.html" },
+            { title: "甘肅：河西走廊與敦煌", url: "topics/china-provinces/lesson-34.html" },
+            { title: "青海：中華水塔", url: "topics/china-provinces/lesson-35.html" },
+            { title: "寧夏：塞上江南", url: "topics/china-provinces/lesson-36.html" },
+            { title: "新疆：三山夾兩盆的絲路要地", url: "topics/china-provinces/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "各省區大比較", url: "topics/china-provinces/lesson-38.html" },
+            { title: "世界遺產總表", url: "topics/china-provinces/lesson-39.html" },
+            { title: "八大菜系與各地小吃", url: "topics/china-provinces/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
