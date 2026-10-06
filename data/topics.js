@@ -18854,6 +18854,133 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "europe-countries",
+      category: "geography",
+      title: "歐洲各國：從英國、法國到土耳其",
+      description:
+        "一國一課介紹歐洲 42 國，再用兩課介紹梵蒂岡、聖馬利諾、摩納哥、列支敦斯登、安道爾五個迷你國家。每課有位置地圖、一句話記憶、國旗、基本資料、主要城市、地理歷史、你好與謝謝、美食與伴手禮、世界遺產、節慶，以及旅遊建議與從台灣怎麼去。另有歐盟與申根、地形氣候與語言、國旗家族、世界遺產、美食地圖和歐洲與台灣，附互動地圖、找國家測驗、速查表與國旗一覽。",
+      icon: "🇪🇺",
+      url: "topics/europe-countries/index.html",
+      resources: [
+        {
+          title: "歐洲各國互動地圖",
+          description: "點選查詢、找國家測驗、排行比較",
+          icon: "🗺️",
+          url: "topics/europe-countries/guide.html"
+        },
+        {
+          title: "47 國速查表",
+          description: "當地名稱、首都、地區、人口、面積、貨幣與歐盟／申根／北約",
+          icon: "📋",
+          url: "topics/europe-countries/countries.html"
+        },
+        {
+          title: "歐洲國旗一覽",
+          description: "47 國國旗，依地區排列",
+          icon: "🏳️",
+          url: "topics/europe-countries/flags.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論：認識歐洲",
+          courses: [
+            { title: "歐洲在哪裡？47 國總覽", url: "topics/europe-countries/lesson-01.html" },
+            { title: "歐盟、申根、歐元與北約", url: "topics/europe-countries/lesson-02.html" },
+            { title: "地形、氣候與語言", url: "topics/europe-countries/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜西歐",
+          courses: [
+            { title: "英國：大笨鐘、王室與英語的故鄉", url: "topics/europe-countries/lesson-04.html" },
+            { title: "愛爾蘭：綠寶石島與聖派翠克節", url: "topics/europe-countries/lesson-05.html" },
+            { title: "法國：艾菲爾鐵塔、羅浮宮與美食", url: "topics/europe-countries/lesson-06.html" },
+            { title: "比利時：巧克力、鬆餅與歐盟首都", url: "topics/europe-countries/lesson-07.html" },
+            { title: "荷蘭：風車、鬱金香與單車王國", url: "topics/europe-countries/lesson-08.html" },
+            { title: "盧森堡：千堡之國的金融小國", url: "topics/europe-countries/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜中歐",
+          courses: [
+            { title: "德國：啤酒、香腸與童話城堡", url: "topics/europe-countries/lesson-10.html" },
+            { title: "奧地利：音樂之都與阿爾卑斯山", url: "topics/europe-countries/lesson-11.html" },
+            { title: "瑞士：雪山、手錶與永久中立", url: "topics/europe-countries/lesson-12.html" },
+            { title: "波蘭：蕭邦的故鄉與浴火重生的古城", url: "topics/europe-countries/lesson-13.html" },
+            { title: "捷克：童話般的布拉格與啤酒", url: "topics/europe-countries/lesson-14.html" },
+            { title: "斯洛伐克：城堡之國與塔特拉山", url: "topics/europe-countries/lesson-15.html" },
+            { title: "匈牙利：多瑙河明珠與溫泉之都", url: "topics/europe-countries/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜南歐",
+          courses: [
+            { title: "西班牙：佛朗明哥、高第與海鮮燉飯", url: "topics/europe-countries/lesson-17.html" },
+            { title: "葡萄牙：大航海時代與蛋塔", url: "topics/europe-countries/lesson-18.html" },
+            { title: "義大利：羅馬帝國、文藝復興與披薩", url: "topics/europe-countries/lesson-19.html" },
+            { title: "希臘：神話、哲學與愛琴海", url: "topics/europe-countries/lesson-20.html" },
+            { title: "馬爾他：地中海中心的騎士島國", url: "topics/europe-countries/lesson-21.html" },
+            { title: "賽普勒斯：愛神的故鄉與分裂之島", url: "topics/europe-countries/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜北歐",
+          courses: [
+            { title: "丹麥：童話、樂高與幸福國度", url: "topics/europe-countries/lesson-23.html" },
+            { title: "挪威：峽灣、極光與午夜太陽", url: "topics/europe-countries/lesson-24.html" },
+            { title: "瑞典：IKEA、諾貝爾與森林湖泊", url: "topics/europe-countries/lesson-25.html" },
+            { title: "芬蘭：千湖之國與聖誕老人的故鄉", url: "topics/europe-countries/lesson-26.html" },
+            { title: "冰島：冰與火之島", url: "topics/europe-countries/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜波羅的海與東歐",
+          courses: [
+            { title: "愛沙尼亞：數位國家與中世紀塔林", url: "topics/europe-countries/lesson-28.html" },
+            { title: "拉脫維亞：新藝術建築與琥珀海岸", url: "topics/europe-countries/lesson-29.html" },
+            { title: "立陶宛：曾經的歐洲大國與十字架山", url: "topics/europe-countries/lesson-30.html" },
+            { title: "烏克蘭：歐洲的穀倉", url: "topics/europe-countries/lesson-31.html" },
+            { title: "白俄羅斯：森林與湖泊的內陸國", url: "topics/europe-countries/lesson-32.html" },
+            { title: "摩爾多瓦：葡萄酒之國", url: "topics/europe-countries/lesson-33.html" },
+            { title: "俄羅斯：橫跨歐亞的世界最大國", url: "topics/europe-countries/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜巴爾幹與土耳其",
+          courses: [
+            { title: "斯洛維尼亞：阿爾卑斯山下的綠色小國", url: "topics/europe-countries/lesson-35.html" },
+            { title: "克羅埃西亞：亞得里亞海的千島海岸", url: "topics/europe-countries/lesson-36.html" },
+            { title: "波士尼亞與赫塞哥維納：東西方交會的塞拉耶佛", url: "topics/europe-countries/lesson-37.html" },
+            { title: "塞爾維亞：多瑙河畔的白色城市", url: "topics/europe-countries/lesson-38.html" },
+            { title: "蒙特內哥羅：黑色山脈與科托爾灣", url: "topics/europe-countries/lesson-39.html" },
+            { title: "北馬其頓：奧赫里德湖與國名之爭", url: "topics/europe-countries/lesson-40.html" },
+            { title: "阿爾巴尼亞：雙頭鷹之國與碉堡", url: "topics/europe-countries/lesson-41.html" },
+            { title: "保加利亞：玫瑰之國與西里爾字母的故鄉", url: "topics/europe-countries/lesson-42.html" },
+            { title: "羅馬尼亞：德古拉城堡與喀爾巴阡山", url: "topics/europe-countries/lesson-43.html" },
+            { title: "科索沃：巴爾幹最年輕的國家", url: "topics/europe-countries/lesson-44.html" },
+            { title: "土耳其：橫跨歐亞的鄂圖曼故土", url: "topics/europe-countries/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜迷你國家",
+          courses: [
+            { title: "梵蒂岡、聖馬利諾、摩納哥", url: "topics/europe-countries/lesson-46.html" },
+            { title: "列支敦斯登、安道爾", url: "topics/europe-countries/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "各國大比較與國旗家族", url: "topics/europe-countries/lesson-48.html" },
+            { title: "世界遺產與必去名勝", url: "topics/europe-countries/lesson-49.html" },
+            { title: "歐洲美食地圖", url: "topics/europe-countries/lesson-50.html" },
+            { title: "歐洲與台灣", url: "topics/europe-countries/lesson-51.html" },
+          ],
+        },
+      ],
     }
   ]
 };

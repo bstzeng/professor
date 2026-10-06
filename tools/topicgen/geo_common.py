@@ -70,6 +70,17 @@ def kr_xy(lon, lat):
     return x * KR_K + KR_T[0], -y * KR_K + KR_T[1]
 
 
+# ---------- 歐洲 ----------
+_EU = albers(40, 65, 52, 15)
+EU_K = 1150.0
+
+
+def eu_xy(lon, lat):
+    from eup_geo import EU_T
+    x, y = _EU(lon, lat)
+    return x * EU_K + EU_T[0], -y * EU_K + EU_T[1]
+
+
 # ---------- 幾何 ----------
 import json as _json
 import re as _re
