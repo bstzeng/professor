@@ -19562,6 +19562,349 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "global-logistics",
+      category: "tech",
+      title: "全球物流系統：一件商品怎麼跨越半個地球來到你手上",
+      description:
+        "從一支手機的旅程出發：貨櫃革命、貨櫃船、航線與海運聯盟、世界大港與碼頭、運河與海峽、長榮陽明萬海；航空貨運、快遞樞紐、冷鏈；卡車、中歐班列、多式聯運、管線；配送中心、越庫、自動化倉儲、電商與超商取貨；長鞭效應、經濟訂購量、JIT、韌性、半導體供應鏈；國貿條規、提單報關、保稅與出口管制；疫情塞港、長賜輪、紅海與巴拿馬乾旱；追蹤技術、路線最佳化、自動化與綠色航運。附世界航線地圖、長鞭效應模擬等六個互動工具。",
+      icon: "🚢",
+      url: "topics/global-logistics/index.html",
+      resources: [
+        {
+          title: "物流互動工具箱",
+          description: "航線地圖、運輸方式比較、貨櫃裝載、長鞭效應、經濟訂購量、送貨路線最佳化",
+          icon: "🧰",
+          url: "topics/global-logistics/guide.html"
+        },
+        {
+          title: "物流名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/global-logistics/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總覽",
+          courses: [
+            { title: "從工廠到你家門口：一支手機的旅程", url: "topics/global-logistics/lesson-01.html" },
+            { title: "物流、供應鏈、運籌有什麼不同", url: "topics/global-logistics/lesson-02.html" },
+            { title: "全球貿易的規模", url: "topics/global-logistics/lesson-03.html" },
+            { title: "物流成本：一雙鞋的運費", url: "topics/global-logistics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜貨櫃革命與海運",
+          courses: [
+            { title: "貨櫃的發明", url: "topics/global-logistics/lesson-05.html" },
+            { title: "標準貨櫃", url: "topics/global-logistics/lesson-06.html" },
+            { title: "貨櫃船的演進", url: "topics/global-logistics/lesson-07.html" },
+            { title: "航線網路", url: "topics/global-logistics/lesson-08.html" },
+            { title: "世界大港", url: "topics/global-logistics/lesson-09.html" },
+            { title: "貨櫃碼頭怎麼運作", url: "topics/global-logistics/lesson-10.html" },
+            { title: "散裝船、油輪與其他特殊船", url: "topics/global-logistics/lesson-11.html" },
+            { title: "運河與海峽", url: "topics/global-logistics/lesson-12.html" },
+            { title: "台灣的海運業", url: "topics/global-logistics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜空運與快遞",
+          courses: [
+            { title: "航空貨運", url: "topics/global-logistics/lesson-14.html" },
+            { title: "樞紐機場", url: "topics/global-logistics/lesson-15.html" },
+            { title: "快遞巨頭", url: "topics/global-logistics/lesson-16.html" },
+            { title: "什麼東西適合空運", url: "topics/global-logistics/lesson-17.html" },
+            { title: "冷鏈物流", url: "topics/global-logistics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜陸運與多式聯運",
+          courses: [
+            { title: "卡車運輸與最後一哩路", url: "topics/global-logistics/lesson-19.html" },
+            { title: "鐵路貨運", url: "topics/global-logistics/lesson-20.html" },
+            { title: "多式聯運", url: "topics/global-logistics/lesson-21.html" },
+            { title: "管線", url: "topics/global-logistics/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜倉儲與配送中心",
+          courses: [
+            { title: "倉庫的角色", url: "topics/global-logistics/lesson-23.html" },
+            { title: "越庫作業", url: "topics/global-logistics/lesson-24.html" },
+            { title: "自動化倉儲", url: "topics/global-logistics/lesson-25.html" },
+            { title: "揀貨策略", url: "topics/global-logistics/lesson-26.html" },
+            { title: "電商物流", url: "topics/global-logistics/lesson-27.html" },
+            { title: "台灣的最後一哩", url: "topics/global-logistics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜供應鏈管理",
+          courses: [
+            { title: "長鞭效應", url: "topics/global-logistics/lesson-29.html" },
+            { title: "庫存管理", url: "topics/global-logistics/lesson-30.html" },
+            { title: "及時生產與豐田生產方式", url: "topics/global-logistics/lesson-31.html" },
+            { title: "預測與需求規劃", url: "topics/global-logistics/lesson-32.html" },
+            { title: "供應鏈的韌性與效率", url: "topics/global-logistics/lesson-33.html" },
+            { title: "半導體供應鏈", url: "topics/global-logistics/lesson-34.html" },
+            { title: "逆物流", url: "topics/global-logistics/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜貿易規則與文件",
+          courses: [
+            { title: "國貿條規", url: "topics/global-logistics/lesson-36.html" },
+            { title: "提單、報關、關稅", url: "topics/global-logistics/lesson-37.html" },
+            { title: "自由貿易區與保稅倉庫", url: "topics/global-logistics/lesson-38.html" },
+            { title: "貿易戰、出口管制與供應鏈轉移", url: "topics/global-logistics/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜危機與事件",
+          courses: [
+            { title: "疫情塞港與運價暴漲", url: "topics/global-logistics/lesson-40.html" },
+            { title: "長賜輪卡住蘇伊士運河", url: "topics/global-logistics/lesson-41.html" },
+            { title: "紅海危機與繞道好望角", url: "topics/global-logistics/lesson-42.html" },
+            { title: "巴拿馬運河乾旱與其他風險", url: "topics/global-logistics/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜科技與未來",
+          courses: [
+            { title: "物流資訊系統", url: "topics/global-logistics/lesson-44.html" },
+            { title: "最佳化問題", url: "topics/global-logistics/lesson-45.html" },
+            { title: "自駕卡車、無人機與自動化港口", url: "topics/global-logistics/lesson-46.html" },
+            { title: "綠色物流", url: "topics/global-logistics/lesson-47.html" },
+            { title: "總結：物流地圖與職涯", url: "topics/global-logistics/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "satellite-comms",
+      category: "tech",
+      title: "衛星通訊：天上的訊號怎麼連到你的手機",
+      description:
+        "為什麼需要衛星、從克拉克到 Starlink；軌道力學、低軌中軌與地球同步、仰角與覆蓋、傾角與太陽同步、星系與太空垃圾；頻段、天線、鏈路預算、分貝與路徑損耗、夏農容量、雨衰；取樣、調變、錯誤更正碼、多工、延遲；衛星結構、轉頻器、相位陣列、雷射鏈路、遙測指令；衛星電視、海空通訊、衛星電話、GPS、福衛、搜救、軍事、物聯網；Starlink、手機直連、5G NTN、烏克蘭與台灣的數位韌性；地面站、發射、產業鏈與未來。附軌道計算、鏈路預算、星系覆蓋等五個互動工具。",
+      icon: "🛰️",
+      url: "topics/satellite-comms/index.html",
+      resources: [
+        {
+          title: "衛星通訊互動工具箱",
+          description: "軌道計算、鏈路預算與雨衰、星系覆蓋、QAM 星座圖、延遲比較",
+          icon: "🧰",
+          url: "topics/satellite-comms/guide.html"
+        },
+        {
+          title: "衛星通訊名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/satellite-comms/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "為什麼需要衛星", url: "topics/satellite-comms/lesson-01.html" },
+            { title: "衛星通訊簡史", url: "topics/satellite-comms/lesson-02.html" },
+            { title: "衛星通訊系統的組成", url: "topics/satellite-comms/lesson-03.html" },
+            { title: "衛星的一生", url: "topics/satellite-comms/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜軌道",
+          courses: [
+            { title: "衛星為什麼不會掉下來", url: "topics/satellite-comms/lesson-05.html" },
+            { title: "低軌、中軌、地球同步軌道", url: "topics/satellite-comms/lesson-06.html" },
+            { title: "地球同步軌道", url: "topics/satellite-comms/lesson-07.html" },
+            { title: "週期、仰角與覆蓋範圍", url: "topics/satellite-comms/lesson-08.html" },
+            { title: "傾角、極軌道與太陽同步軌道", url: "topics/satellite-comms/lesson-09.html" },
+            { title: "衛星星系", url: "topics/satellite-comms/lesson-10.html" },
+            { title: "軌道資源與太空垃圾", url: "topics/satellite-comms/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜無線電基礎",
+          courses: [
+            { title: "電磁波、頻率與波長", url: "topics/satellite-comms/lesson-12.html" },
+            { title: "天線", url: "topics/satellite-comms/lesson-13.html" },
+            { title: "鏈路預算", url: "topics/satellite-comms/lesson-14.html" },
+            { title: "自由空間路徑損耗與分貝", url: "topics/satellite-comms/lesson-15.html" },
+            { title: "雜訊、訊噪比與通道容量", url: "topics/satellite-comms/lesson-16.html" },
+            { title: "雨衰", url: "topics/satellite-comms/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜調變與編碼",
+          courses: [
+            { title: "類比到數位", url: "topics/satellite-comms/lesson-18.html" },
+            { title: "調變", url: "topics/satellite-comms/lesson-19.html" },
+            { title: "錯誤更正碼", url: "topics/satellite-comms/lesson-20.html" },
+            { title: "多工", url: "topics/satellite-comms/lesson-21.html" },
+            { title: "延遲", url: "topics/satellite-comms/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜衛星的結構",
+          courses: [
+            { title: "衛星上有什麼", url: "topics/satellite-comms/lesson-23.html" },
+            { title: "轉頻器", url: "topics/satellite-comms/lesson-24.html" },
+            { title: "多波束與相位陣列天線", url: "topics/satellite-comms/lesson-25.html" },
+            { title: "衛星之間的雷射鏈路", url: "topics/satellite-comms/lesson-26.html" },
+            { title: "衛星怎麼被控制", url: "topics/satellite-comms/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用",
+          courses: [
+            { title: "衛星電視與廣播", url: "topics/satellite-comms/lesson-28.html" },
+            { title: "海事與航空通訊", url: "topics/satellite-comms/lesson-29.html" },
+            { title: "衛星電話", url: "topics/satellite-comms/lesson-30.html" },
+            { title: "衛星定位", url: "topics/satellite-comms/lesson-31.html" },
+            { title: "遙測衛星", url: "topics/satellite-comms/lesson-32.html" },
+            { title: "緊急救難", url: "topics/satellite-comms/lesson-33.html" },
+            { title: "軍事與政府通訊", url: "topics/satellite-comms/lesson-34.html" },
+            { title: "物聯網衛星", url: "topics/satellite-comms/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜低軌寬頻新時代",
+          courses: [
+            { title: "Starlink", url: "topics/satellite-comms/lesson-36.html" },
+            { title: "OneWeb、Kuiper 與其他星系", url: "topics/satellite-comms/lesson-37.html" },
+            { title: "手機直連衛星", url: "topics/satellite-comms/lesson-38.html" },
+            { title: "5G 非地面網路", url: "topics/satellite-comms/lesson-39.html" },
+            { title: "低軌衛星在戰爭與災難中的角色", url: "topics/satellite-comms/lesson-40.html" },
+            { title: "台灣的低軌衛星發展與數位韌性", url: "topics/satellite-comms/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜地面段與產業",
+          courses: [
+            { title: "地面站與閘道站", url: "topics/satellite-comms/lesson-42.html" },
+            { title: "發射", url: "topics/satellite-comms/lesson-43.html" },
+            { title: "衛星產業鏈與台灣的角色", url: "topics/satellite-comms/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "太空的挑戰", url: "topics/satellite-comms/lesson-45.html" },
+            { title: "未來", url: "topics/satellite-comms/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "radio-spectrum",
+      category: "tech",
+      title: "電波頻譜的世界：看不見的無線電資源",
+      description:
+        "我們生活在電波之中：電磁頻譜全圖、頻率波長與能量、游離與非游離輻射、頻譜為何稀缺；傳播、穿牆、電離層、多路徑、都卜勒、天線；從潛艦長波、AM、短波、FM 與航空、UHF 黃金頻段、2.4 GHz 與微波爐、5／6 GHz Wi-Fi、2G～5G、毫米波、衛星頻段、雷達到無線電天文；調變、頻寬、OFDM、波束成形、動態共享；ITU、頻率分配表、執照與免執照、頻譜拍賣、NCC 與數位發展部、5G 與高度計爭議；基地台、Wi-Fi、悠遊卡、GPS 干擾、電子戰、業餘無線電；電磁波與健康的研究證據、頻譜與國安、6G。附頻譜互動圖、Wi-Fi 頻道重疊等六個互動工具。",
+      icon: "📡",
+      url: "topics/radio-spectrum/index.html",
+      resources: [
+        {
+          title: "電波頻譜互動工具箱",
+          description: "電磁頻譜互動圖、波長與天線計算、傳播距離與穿牆、AM／FM 調變、Wi-Fi 頻道重疊、都卜勒效應",
+          icon: "🧰",
+          url: "topics/radio-spectrum/guide.html"
+        },
+        {
+          title: "電波頻譜名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/radio-spectrum/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是頻譜",
+          courses: [
+            { title: "我們生活在電波之中", url: "topics/radio-spectrum/lesson-01.html" },
+            { title: "電磁頻譜全圖", url: "topics/radio-spectrum/lesson-02.html" },
+            { title: "頻率、波長、能量", url: "topics/radio-spectrum/lesson-03.html" },
+            { title: "頻譜是稀缺資源", url: "topics/radio-spectrum/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電波的物理",
+          courses: [
+            { title: "電波怎麼傳播", url: "topics/radio-spectrum/lesson-05.html" },
+            { title: "不同頻段的個性", url: "topics/radio-spectrum/lesson-06.html" },
+            { title: "電離層反射與短波通訊", url: "topics/radio-spectrum/lesson-07.html" },
+            { title: "多路徑與衰落", url: "topics/radio-spectrum/lesson-08.html" },
+            { title: "都卜勒效應", url: "topics/radio-spectrum/lesson-09.html" },
+            { title: "天線大小與頻率", url: "topics/radio-spectrum/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜一段一段認識頻譜",
+          courses: [
+            { title: "極低頻與長波", url: "topics/radio-spectrum/lesson-11.html" },
+            { title: "中波與 AM 廣播", url: "topics/radio-spectrum/lesson-12.html" },
+            { title: "短波", url: "topics/radio-spectrum/lesson-13.html" },
+            { title: "特高頻", url: "topics/radio-spectrum/lesson-14.html" },
+            { title: "超高頻", url: "topics/radio-spectrum/lesson-15.html" },
+            { title: "2.4 GHz 的故事", url: "topics/radio-spectrum/lesson-16.html" },
+            { title: "5 GHz 與 6 GHz Wi-Fi", url: "topics/radio-spectrum/lesson-17.html" },
+            { title: "行動通訊頻段", url: "topics/radio-spectrum/lesson-18.html" },
+            { title: "毫米波", url: "topics/radio-spectrum/lesson-19.html" },
+            { title: "衛星頻段", url: "topics/radio-spectrum/lesson-20.html" },
+            { title: "雷達", url: "topics/radio-spectrum/lesson-21.html" },
+            { title: "無線電天文", url: "topics/radio-spectrum/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜技術",
+          courses: [
+            { title: "調變", url: "topics/radio-spectrum/lesson-23.html" },
+            { title: "頻寬與資料速率", url: "topics/radio-spectrum/lesson-24.html" },
+            { title: "多工與共享", url: "topics/radio-spectrum/lesson-25.html" },
+            { title: "天線陣列與波束成形", url: "topics/radio-spectrum/lesson-26.html" },
+            { title: "認知無線電與動態頻譜共享", url: "topics/radio-spectrum/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜管理與分配",
+          courses: [
+            { title: "國際電信聯盟與世界無線電大會", url: "topics/radio-spectrum/lesson-28.html" },
+            { title: "頻率分配表", url: "topics/radio-spectrum/lesson-29.html" },
+            { title: "執照頻段與免執照頻段", url: "topics/radio-spectrum/lesson-30.html" },
+            { title: "頻譜拍賣", url: "topics/radio-spectrum/lesson-31.html" },
+            { title: "台灣的頻譜管理", url: "topics/radio-spectrum/lesson-32.html" },
+            { title: "干擾與糾紛", url: "topics/radio-spectrum/lesson-33.html" },
+            { title: "頻譜的價值", url: "topics/radio-spectrum/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生活應用",
+          courses: [
+            { title: "手機基地台怎麼運作", url: "topics/radio-spectrum/lesson-35.html" },
+            { title: "Wi-Fi 的演進", url: "topics/radio-spectrum/lesson-36.html" },
+            { title: "藍牙、NFC、RFID、悠遊卡", url: "topics/radio-spectrum/lesson-37.html" },
+            { title: "衛星定位與定位干擾", url: "topics/radio-spectrum/lesson-38.html" },
+            { title: "電子戰與無人機干擾", url: "topics/radio-spectrum/lesson-39.html" },
+            { title: "業餘無線電", url: "topics/radio-spectrum/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜安全與爭議",
+          courses: [
+            { title: "電磁波與健康", url: "topics/radio-spectrum/lesson-41.html" },
+            { title: "頻譜與國安", url: "topics/radio-spectrum/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "未來：6G、太赫茲、頻譜共享", url: "topics/radio-spectrum/lesson-43.html" },
+            { title: "頻譜地圖總覽", url: "topics/radio-spectrum/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
