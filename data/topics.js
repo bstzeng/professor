@@ -19680,6 +19680,122 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "satellite-comms",
+      category: "tech",
+      title: "衛星通訊：天上的訊號怎麼連到你的手機",
+      description:
+        "為什麼需要衛星、從克拉克到 Starlink；軌道力學、低軌中軌與地球同步、仰角與覆蓋、傾角與太陽同步、星系與太空垃圾；頻段、天線、鏈路預算、分貝與路徑損耗、夏農容量、雨衰；取樣、調變、錯誤更正碼、多工、延遲；衛星結構、轉頻器、相位陣列、雷射鏈路、遙測指令；衛星電視、海空通訊、衛星電話、GPS、福衛、搜救、軍事、物聯網；Starlink、手機直連、5G NTN、烏克蘭與台灣的數位韌性；地面站、發射、產業鏈與未來。附軌道計算、鏈路預算、星系覆蓋等五個互動工具。",
+      icon: "🛰️",
+      url: "topics/satellite-comms/index.html",
+      resources: [
+        {
+          title: "衛星通訊互動工具箱",
+          description: "軌道計算、鏈路預算與雨衰、星系覆蓋、QAM 星座圖、延遲比較",
+          icon: "🧰",
+          url: "topics/satellite-comms/guide.html"
+        },
+        {
+          title: "衛星通訊名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/satellite-comms/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "為什麼需要衛星", url: "topics/satellite-comms/lesson-01.html" },
+            { title: "衛星通訊簡史", url: "topics/satellite-comms/lesson-02.html" },
+            { title: "衛星通訊系統的組成", url: "topics/satellite-comms/lesson-03.html" },
+            { title: "衛星的一生", url: "topics/satellite-comms/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜軌道",
+          courses: [
+            { title: "衛星為什麼不會掉下來", url: "topics/satellite-comms/lesson-05.html" },
+            { title: "低軌、中軌、地球同步軌道", url: "topics/satellite-comms/lesson-06.html" },
+            { title: "地球同步軌道", url: "topics/satellite-comms/lesson-07.html" },
+            { title: "週期、仰角與覆蓋範圍", url: "topics/satellite-comms/lesson-08.html" },
+            { title: "傾角、極軌道與太陽同步軌道", url: "topics/satellite-comms/lesson-09.html" },
+            { title: "衛星星系", url: "topics/satellite-comms/lesson-10.html" },
+            { title: "軌道資源與太空垃圾", url: "topics/satellite-comms/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜無線電基礎",
+          courses: [
+            { title: "電磁波、頻率與波長", url: "topics/satellite-comms/lesson-12.html" },
+            { title: "天線", url: "topics/satellite-comms/lesson-13.html" },
+            { title: "鏈路預算", url: "topics/satellite-comms/lesson-14.html" },
+            { title: "自由空間路徑損耗與分貝", url: "topics/satellite-comms/lesson-15.html" },
+            { title: "雜訊、訊噪比與通道容量", url: "topics/satellite-comms/lesson-16.html" },
+            { title: "雨衰", url: "topics/satellite-comms/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜調變與編碼",
+          courses: [
+            { title: "類比到數位", url: "topics/satellite-comms/lesson-18.html" },
+            { title: "調變", url: "topics/satellite-comms/lesson-19.html" },
+            { title: "錯誤更正碼", url: "topics/satellite-comms/lesson-20.html" },
+            { title: "多工", url: "topics/satellite-comms/lesson-21.html" },
+            { title: "延遲", url: "topics/satellite-comms/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜衛星的結構",
+          courses: [
+            { title: "衛星上有什麼", url: "topics/satellite-comms/lesson-23.html" },
+            { title: "轉頻器", url: "topics/satellite-comms/lesson-24.html" },
+            { title: "多波束與相位陣列天線", url: "topics/satellite-comms/lesson-25.html" },
+            { title: "衛星之間的雷射鏈路", url: "topics/satellite-comms/lesson-26.html" },
+            { title: "衛星怎麼被控制", url: "topics/satellite-comms/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用",
+          courses: [
+            { title: "衛星電視與廣播", url: "topics/satellite-comms/lesson-28.html" },
+            { title: "海事與航空通訊", url: "topics/satellite-comms/lesson-29.html" },
+            { title: "衛星電話", url: "topics/satellite-comms/lesson-30.html" },
+            { title: "衛星定位", url: "topics/satellite-comms/lesson-31.html" },
+            { title: "遙測衛星", url: "topics/satellite-comms/lesson-32.html" },
+            { title: "緊急救難", url: "topics/satellite-comms/lesson-33.html" },
+            { title: "軍事與政府通訊", url: "topics/satellite-comms/lesson-34.html" },
+            { title: "物聯網衛星", url: "topics/satellite-comms/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜低軌寬頻新時代",
+          courses: [
+            { title: "Starlink", url: "topics/satellite-comms/lesson-36.html" },
+            { title: "OneWeb、Kuiper 與其他星系", url: "topics/satellite-comms/lesson-37.html" },
+            { title: "手機直連衛星", url: "topics/satellite-comms/lesson-38.html" },
+            { title: "5G 非地面網路", url: "topics/satellite-comms/lesson-39.html" },
+            { title: "低軌衛星在戰爭與災難中的角色", url: "topics/satellite-comms/lesson-40.html" },
+            { title: "台灣的低軌衛星發展與數位韌性", url: "topics/satellite-comms/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜地面段與產業",
+          courses: [
+            { title: "地面站與閘道站", url: "topics/satellite-comms/lesson-42.html" },
+            { title: "發射", url: "topics/satellite-comms/lesson-43.html" },
+            { title: "衛星產業鏈與台灣的角色", url: "topics/satellite-comms/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "太空的挑戰", url: "topics/satellite-comms/lesson-45.html" },
+            { title: "未來", url: "topics/satellite-comms/lesson-46.html" },
+          ],
+        },
+      ],
     }
   ]
 };
