@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：反向傳播一步步算 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="1986 年讓深度學習起飛的演算法">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜訓練的技術 · 第 18 課</div>
+      <h1>反向傳播一步步算</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解前向與反向傳播</li>
+          <li>能手算一個小網路的梯度</li>
+          <li>知道自動微分在做什麼</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 170" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">前向傳播與反向傳播</text>
+                <rect x="20" y="50" width="99.2" height="50" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="69.6" y="78.85" text-anchor="middle" font-size="11" fill="#4a90c2">輸入 x</text><line x1="122.2" y1="75.0" x2="135.2" y2="75.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="142.2,75.0 135.2,78.5 135.2,71.5" fill="var(--border)"/><rect x="145.2" y="50" width="99.2" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="194.8" y="78.85" text-anchor="middle" font-size="11" fill="#9c89d6">第 1 層</text><line x1="247.4" y1="75.0" x2="260.4" y2="75.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="267.4,75.0 260.4,78.5 260.4,71.5" fill="var(--border)"/><rect x="270.4" y="50" width="99.2" height="50" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="78.85" text-anchor="middle" font-size="11" fill="#9c89d6">第 2 層</text><line x1="372.6" y1="75.0" x2="385.6" y2="75.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="392.6,75.0 385.6,78.5 385.6,71.5" fill="var(--border)"/><rect x="395.6" y="50" width="99.2" height="50" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="445.2" y="78.85" text-anchor="middle" font-size="11" fill="#5aa469">輸出 ŷ</text><line x1="497.8" y1="75.0" x2="510.8" y2="75.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="517.8,75.0 510.8,78.5 510.8,71.5" fill="var(--border)"/><rect x="520.8" y="50" width="99.2" height="50" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="570.4" y="71" text-anchor="middle" font-size="11" fill="#e0605a">損失 L</text><text x="570.4" y="85" text-anchor="middle" font-size="9" fill="var(--text-muted)">和答案 y 比較</text>
+                <line x1="560.0" y1="130.0" x2="87.0" y2="130.0" stroke="#ff8a65" stroke-width="2"/><polygon points="80.0,130.0 87.0,126.5 87.0,133.5" fill="#ff8a65"/>
+                <text x="320" y="150" text-anchor="middle" font-size="10.5" fill="#ff8a65">反向：用連鎖律，從損失往回算每一層參數的梯度 ∂L/∂w</text>
+                <text x="320" y="40" text-anchor="middle" font-size="10.5" fill="#4a90c2">前向：一層一層算出預測</text>
+        </svg>
+        <figcaption>前向傳播算出預測與損失；反向傳播用連鎖律，從損失往回算出每個參數的梯度。</figcaption>
+      </div>
+
+      <p>
+        1986 年 Rumelhart、Hinton、Williams 在《自然》期刊發表論文，展示<strong>反向傳播</strong>可以有效訓練多層網路，讓神經網路研究重新熱起來。（類似的想法更早就有人提出。）
+      </p>
+
+      <h2>手算一個例子</h2>
+
+      <div class="code-block">網路：h = ReLU(w1·x)，ŷ = w2·h，L = (ŷ − y)²
+設 x = 2, y = 10, w1 = 1.5, w2 = 2
+
+前向：h = ReLU(3) = 3     ŷ = 6     L = (6−10)² = 16
+
+反向：
+  ∂L/∂ŷ  = 2(ŷ − y)        = −8
+  ∂L/∂w2 = ∂L/∂ŷ · h       = −8 × 3 = −24
+  ∂L/∂h  = ∂L/∂ŷ · w2      = −8 × 2 = −16
+  ∂L/∂w1 = ∂L/∂h · ReLU'· x = −16 × 1 × 2 = −32
+
+更新（η = 0.01）：w2 = 2 + 0.24 = 2.24，w1 = 1.5 + 0.32 = 1.82
+再算一次：h = 3.64，ŷ = 8.15，L = 3.4  ← 損失從 16 降到 3.4</div>
+
+      <p>
+        注意 ∂L/∂h 算一次，就同時用來算 w1 的梯度——反向傳播的效率來自重複使用中間結果，總計算量大約只是前向的兩倍。
+      </p>
+
+      <h2>自動微分</h2>
+
+      <p>
+        PyTorch 在前向計算時記錄每個運算（計算圖），呼叫 <code>loss.backward()</code> 時自動沿著圖反向套用連鎖律。所以我們只要寫前向，梯度不用自己推。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          反向傳播從損失開始，用連鎖律一層層往回算出每個參數的梯度，並重複使用中間結果，成本只是前向的約兩倍。PyTorch 的自動微分會記錄計算圖、自動完成這件事。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>反向傳播為什麼比「每個參數各自數值微分」快得多？</li>
+          <li>在範例中，∂L/∂h 被用來算什麼？</li>
+          <li>loss.backward() 做了什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>學習率</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：實作：手寫數字辨識（MNIST）</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：學習率 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@ import lf_a, lf_e, lf_ref
 
 TOPIC = {
     "id": "llm-inference",
-    "category": "tech",
+    "category": "ai",
     "title": "一次 LLM 推論到底發生什麼：Prefill 與 Decode",
     "short": "LLM 推論",
     "crumb": "LLM 推論",

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：Encoder、Decoder 與三種架構 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="BERT、T5、GPT 的差別">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Transformer 時代 · 第 41 課</div>
+      <h1>Encoder、Decoder 與三種架構</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Transformer block 的組成</li>
+          <li>分辨三種 Transformer 架構</li>
+          <li>知道為什麼 decoder-only 成為主流</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 240" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Transformer 的一個 block（decoder-only，GPT 式）</text>
+                <rect x="230" y="196" width="180" height="30" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="214.85" text-anchor="middle" font-size="11" fill="#8a8f98">輸入 token 向量</text>
+                <rect x="230" y="146" width="180" height="34" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="320" y="159" text-anchor="middle" font-size="11" fill="#4a90c2">多頭自注意力</text><text x="320" y="173" text-anchor="middle" font-size="9" fill="var(--text-muted)">token 之間交換資訊</text>
+                <rect x="230" y="90" width="180" height="34" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="320" y="103" text-anchor="middle" font-size="11" fill="#ff8a65">前饋網路（MLP）</text><text x="320" y="117" text-anchor="middle" font-size="9" fill="var(--text-muted)">每個 token 各自加工</text>
+                <rect x="230" y="40" width="180" height="30" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="58.85" text-anchor="middle" font-size="11" fill="#8a8f98">輸出 → 下一個 block</text>
+                <line x1="320.0" y1="196.0" x2="320.0" y2="189.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,182.0 323.5,189.0 316.5,189.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="146.0" x2="320.0" y2="133.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,126.0 323.5,133.0 316.5,133.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="90.0" x2="320.0" y2="79.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,72.0 323.5,79.0 316.5,79.0" fill="var(--text-muted)"/>
+                <path d="M230 211 L190 211 L190 135 L228 135" fill="none" stroke="#9c89d6" stroke-width="1.3" stroke-dasharray="4 3"/>
+                <path d="M410 158 L450 158 L450 80 L412 80" fill="none" stroke="#9c89d6" stroke-width="1.3" stroke-dasharray="4 3"/>
+                <text x="184" y="172" text-anchor="end" font-size="9.5" fill="#9c89d6">殘差</text>
+                <text x="456" y="120" text-anchor="start" font-size="9.5" fill="#9c89d6">殘差</text>
+                <text x="110" y="70" text-anchor="middle" font-size="13" fill="var(--accent)">× N 層</text>
+                <text x="530" y="186" text-anchor="middle" font-size="9.5" fill="var(--text-muted)">每個子層前有 LayerNorm</text>
+        </svg>
+        <figcaption>Transformer 的一個 block：自注意力加前饋網路，各自帶殘差連接和 LayerNorm，重複 N 層。</figcaption>
+      </div>
+
+      <p>
+        每個 block 有兩個子層：<strong>多頭自注意力</strong>（字和字之間交換資訊）和<strong>前饋網路</strong>（每個字各自做兩層 MLP）。每個子層都有殘差連接和 LayerNorm。整個模型就是把 block 疊幾十層。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 180" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">Transformer 的三種用法</text>
+                <rect x="20" y="40" width="190" height="120" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="115" y="84" text-anchor="middle" font-size="11" fill="#4a90c2">Encoder-only</text><text x="115" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">雙向：每個字看整句</text><text x="115" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">BERT（2018）</text><text x="115" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">擅長理解、分類、搜尋</text>
+                <rect x="225" y="40" width="190" height="120" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="84" text-anchor="middle" font-size="11" fill="#9c89d6">Encoder-Decoder</text><text x="320" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">原始 Transformer、T5</text><text x="320" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">擅長翻譯、摘要</text><text x="320" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">輸入和輸出分開處理</text>
+                <rect x="430" y="40" width="190" height="120" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="525" y="84" text-anchor="middle" font-size="11" fill="#5aa469">Decoder-only</text><text x="525" y="98" text-anchor="middle" font-size="9" fill="var(--text-muted)">單向：只看前面</text><text x="525" y="111" text-anchor="middle" font-size="9" fill="var(--text-muted)">GPT 系列、Llama、Claude</text><text x="525" y="124" text-anchor="middle" font-size="9" fill="var(--text-muted)">擅長生成，今日主流</text>
+        </svg>
+        <figcaption>同樣的零件，三種組法。</figcaption>
+      </div>
+
+      <h2>為什麼 decoder-only 贏了</h2>
+
+      <ul>
+        <li><strong>簡單</strong>：只有一種 block、一個訓練目標（預測下一個 token）。</li>
+        <li><strong>什麼都能變成生成</strong>：翻譯、摘要、問答、寫程式，都可以寫成「給一段文字，接著寫下去」。</li>
+        <li><strong>規模化效果好</strong>：放大之後湧現出多種能力（第 44 課）。</li>
+      </ul>
+
+      <p>
+        今天的 GPT、Claude、Gemini、Llama、Qwen、DeepSeek 都是 decoder-only（加上 MoE 等改良）。更細的結構與參數計算，請見〈LLM 模型全解〉。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Transformer block 由多頭自注意力和前饋網路組成，各帶殘差與 LayerNorm，疊成數十層。Encoder-only（BERT）擅長理解，encoder-decoder（T5）擅長翻譯，decoder-only（GPT）簡單、通用，成為今日主流。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Transformer block 的兩個子層是什麼？</li>
+          <li>BERT 和 GPT 各屬於哪一種架構？</li>
+          <li>為什麼 decoder-only 成為主流？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>BERT：克漏字訓練</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：Self-attention 一步步算</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：BERT：克漏字訓練 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：多頭注意力 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="同時看好幾種關係">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 18 課</div>
+      <h1>多頭注意力</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解多頭注意力</li>
+          <li>看懂 view 與 transpose 的形狀轉換</li>
+          <li>理解輸出投影</li>
+        </ul>
+      </div>
+
+      <p>
+        一個注意力頭只能學一種「看」法。<strong>多頭注意力</strong>把 d 維切成 H 份（我們是 4 頭 × 48 維），每個頭各自做注意力，最後接回 d 維、再經過一個線性層（輸出投影）。
+      </p>
+
+      <div class="code-block">class CausalSelfAttention(nn.Module):
+    def __init__(self, cfg):
+        super().__init__()
+        assert cfg.n_embd % cfg.n_head == 0
+        self.n_head, self.hd, self.modern = cfg.n_head, cfg.n_embd // cfg.n_head, cfg.modern
+        self.qkv = nn.Linear(cfg.n_embd, 3 * cfg.n_embd, bias=not cfg.modern)   # 一次算出 Q、K、V
+        self.proj = nn.Linear(cfg.n_embd, cfg.n_embd, bias=not cfg.modern)
+        self.drop = nn.Dropout(cfg.dropout)
+        self.register_buffer("mask", torch.tril(torch.ones(cfg.block_size, cfg.block_size)).bool())
+
+    def forward(self, x, cache=None, start=0):
+        B, T, C = x.shape
+        q, k, v = self.qkv(x).split(C, dim=2)
+        q, k, v = [t.view(B, T, self.n_head, self.hd).transpose(1, 2) for t in (q, k, v)]   # (B, H, T, hd)
+        if self.modern:
+            pos = torch.arange(start, start + T, device=x.device)
+            q, k = rope(q, pos), rope(k, pos)
+        if cache is not None:                       # KV cache：把之前的 K、V 接在前面
+            if "k" in cache:
+                k = torch.cat([cache["k"], k], dim=2)
+                v = torch.cat([cache["v"], v], dim=2)
+            cache["k"], cache["v"] = k, v
+        S = k.shape[2]
+        att = (q @ k.transpose(-2, -1)) / math.sqrt(self.hd)       # (B, H, T, S)
+        att = att.masked_fill(~self.mask[S - T:S, :S], float("-inf"))   # 因果遮罩
+        att = self.drop(F.softmax(att, dim=-1))
+        y = (att @ v).transpose(1, 2).contiguous().view(B, T, C)    # 把各頭接回來
+        return self.drop(self.proj(y))</div>
+
+      <h2>形狀變化</h2>
+
+      <div class="code-block">x                 (B, T, 192)
+qkv(x)            (B, T, 576)      一次算出 Q、K、V
+split             3 × (B, T, 192)
+view              (B, T, 4, 48)    切成 4 個頭
+transpose(1, 2)   (B, 4, T, 48)    把「頭」移到前面，各頭平行計算
+q @ kᵀ            (B, 4, T, T)     每個頭一張注意力表
+att @ v           (B, 4, T, 48)
+transpose + view  (B, T, 192)      接回來
+proj              (B, T, 192)</div>
+
+      <p>
+        一次用一個 <code>nn.Linear(d, 3d)</code> 算出 Q、K、V，比分三次快。KV cache 的部分（cache 參數）先跳過，第 33 課再講。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          多頭注意力把 d 維切成 H 個頭各自做注意力，再接回並經過輸出投影。用 view 和 transpose 在 (B, T, C) 與 (B, H, T, hd) 之間轉換，一次線性層同時算出 Q、K、V。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>我們的模型有幾個頭、每頭幾維？</li>
+          <li>transpose(1, 2) 的目的是什麼？</li>
+          <li>輸出投影 proj 的作用是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>FFN：每個字各自加工</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：因果遮罩</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：FFN：每個字各自加工 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

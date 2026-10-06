@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：實作：訓練自己的 tokenizer ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="tokenizer.py 完整程式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜Tokenizer · 第 10 課</div>
+      <h1>實作：訓練自己的 tokenizer</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>看懂完整的 tokenizer.py</li>
+          <li>知道 tokenizer 要存檔、和模型一起使用</li>
+          <li>選擇本課程要用的 tokenizer</li>
+        </ul>
+      </div>
+
+      <p>
+        兩種 tokenizer 的完整程式：
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 tokenizer.py</strong>　<a href="py/tokenizer.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>（由其他程式匯入使用）</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""兩種 tokenizer：字元級（CharTokenizer）與從零實作的 BPE（BPETokenizer）。"""
+import json
+from collections import Counter
+
+SPECIAL = ["\n", "〔", "〕", " "]        # 換行＝一首詩結束；〔〕與空白給第 39 課的指令格式用
+
+
+class CharTokenizer:
+    """每個字一個 token。"""
+
+    def __init__(self, chars):
+        self.itos = list(chars)
+        self.stoi = {c: i for i, c in enumerate(self.itos)}
+
+    @classmethod
+    def train(cls, text):
+        chars = sorted(set(text) | set(SPECIAL))
+        return cls(chars)
+
+    def encode(self, s):
+        return [self.stoi[c] for c in s]
+
+    def decode(self, ids):
+        return "".join(self.itos[i] for i in ids)
+
+    @property
+    def vocab_size(self):
+        return len(self.itos)
+
+    def save(self, path):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump({"type": "char", "itos": self.itos}, f, ensure_ascii=False)
+
+    @classmethod
+    def load(cls, path):
+        with open(path, encoding="utf-8") as f:
+            return cls(json.load(f)["itos"])
+
+
+def show(b):
+    """把一段位元組顯示出來：是完整的 UTF-8 字就顯示字，否則顯示十六進位。"""
+    try:
+        return b.decode("utf-8").replace("\n", "⏎")
+    except UnicodeDecodeError:
+        return "‹" + b.hex(" ") + "›"
+
+
+class BPETokenizer:
+    """位元組層級的 BPE：從 256 個位元組開始，反覆合併最常一起出現的一對。"""
+
+    def __init__(self, merges=None):
+        self.merges = merges or []                 # [(a, b), ...]，依合併順序
+        self.vocab = {i: bytes([i]) for i in range(256)}
+        for k, (a, b) in enumerate(self.merges):
+            self.vocab[256 + k] = self.vocab[a] + self.vocab[b]
+
+    @staticmethod
+    def _pairs(ids):
+        return Counter(zip(ids, ids[1:]))
+
+    @staticmethod
+    def _merge(ids, pair, new):
+        out, i = [], 0
+        while i &lt; len(ids):
+            if i &lt; len(ids) - 1 and (ids[i], ids[i + 1]) == pair:
+                out.append(new)
+                i += 2
+            else:
+                out.append(ids[i])
+                i += 1
+        return out
+
+    @classmethod
+    def train(cls, text, n_merges, verbose=0):
+        ids = list(text.encode("utf-8"))
+        tok = cls()
+        for k in range(n_merges):
+            stats = cls._pairs(ids)
+            if not stats:
+                break
+            pair, cnt = stats.most_common(1)[0]
+            new = 256 + k
+            ids = cls._merge(ids, pair, new)
+            tok.merges.append(pair)
+            tok.vocab[new] = tok.vocab[pair[0]] + tok.vocab[pair[1]]
+            if verbose and (k &lt; verbose or k == n_merges - 1):
+                print("合併 #%d：%s ＋ %s → %s（出現 %d 次）" % (k + 1, show(tok.vocab[pair[0]]), show(tok.vocab[pair[1]]),
+                                                             show(tok.vocab[new]), cnt))
+        return tok
+
+    def encode(self, s):
+        ids = list(s.encode("utf-8"))
+        rank = {p: k for k, p in enumerate(self.merges)}
+        while len(ids) &gt; 1:
+            pair = min(self._pairs(ids), key=lambda p: rank.get(p, 1e18))
+            if pair not in rank:
+                break
+            ids = self._merge(ids, pair, 256 + rank[pair])
+        return ids
+
+    def decode(self, ids):
+        return b"".join(self.vocab[i] for i in ids).decode("utf-8", errors="replace")
+
+    @property
+    def vocab_size(self):
+        return 256 + len(self.merges)</div>
+
+      <h2>Tokenizer 和模型綁在一起</h2>
+
+      <p>
+        train.py 第一次執行時會建立字元級 tokenizer 並存成 <code>tokenizer.json</code>，之後的 sample.py、chat.py、lora.py 都讀同一份檔案。<strong>換了 tokenizer，模型就得重新訓練</strong>——因為 token id 對應的字全變了。
+      </p>
+
+      <h2>本課程的選擇</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>字元級</th><th>BPE（400 次合併）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>詞彙量</td><td>6,758</td><td>656</td></tr>
+          <tr><td>〈登鸛雀樓〉的 token 數</td><td>24</td><td>31</td></tr>
+          <tr><td>沒看過的字</td><td>無法處理</td><td>可以</td></tr>
+          <tr><td>實作難度</td><td>很簡單</td><td>較複雜</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        唐詩的字都在詞彙表裡、序列也短，我們選<strong>字元級</strong>。如果要訓練處理一般文章的模型，應該改用 BPE，並把合併次數提高到數萬次。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          tokenizer.py 包含字元級與 BPE 兩種實作。Tokenizer 要存檔並與模型一起使用，換了就得重訓。唐詩語料短且字都在詞彙表內，所以本課程用字元級。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼換 tokenizer 就要重新訓練模型？</li>
+          <li>tokenizer.json 存了什麼？</li>
+          <li>什麼情況下應該改用 BPE？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Bigram 模型：只看前一個字</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：特殊 token 與編碼、解碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：Bigram 模型：只看前一個字 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

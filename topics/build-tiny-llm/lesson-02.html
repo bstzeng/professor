@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 課：環境：Python、PyTorch、GPU／Mac／CPU ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="把工具裝起來">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 2 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜準備 · 第 2 課</div>
+      <h1>環境：Python、PyTorch、GPU／Mac／CPU</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>安裝 Python 與 PyTorch</li>
+          <li>知道 CPU、CUDA、MPS 三種裝置</li>
+          <li>下載並整理唐詩語料</li>
+        </ul>
+      </div>
+
+      <h2>安裝</h2>
+
+      <div class="code-block"># 1. 安裝 Python 3.9 以上（python.org 或 Anaconda）
+# 2. 建立虛擬環境（建議）
+python -m venv llm
+source llm/bin/activate          # Windows：llm\Scripts\activate
+
+# 3. 安裝 PyTorch：到 pytorch.org 依作業系統與顯示卡選擇指令，例如
+pip install torch</div>
+
+      <h2>三種裝置</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>裝置</th><th>PyTorch 名稱</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>NVIDIA 顯示卡</td><td>cuda</td><td>最快，訓練本課模型約幾分鐘</td></tr>
+          <tr><td>Apple M 系列</td><td>mps</td><td>比 CPU 快數倍</td></tr>
+          <tr><td>一般 CPU</td><td>cpu</td><td>本課程的實測環境，4 核心約 20 分鐘</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        本課程的程式會自動選擇：
+      </p>
+
+      <div class="code-block">device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"</div>
+
+      <h2>下載唐詩</h2>
+
+      <p style="margin:18px 0 6px"><strong>🐍 prepare_data.py</strong>　<a href="py/prepare_data.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python prepare_data.py</code></span></p>
+
+      <p>
+        語料來自 GitHub 上的開源專案 chinese-poetry（MIT 授權）收錄的《全唐詩》。我們只留下格式工整的五言、七言絕句與律詩，方便模型學習。
+      </p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""下載《全唐詩》（chinese-poetry 專案，MIT 授權）並整理成訓練用的純文字檔。
+
+輸出：data/tang.txt，每行一首五言或七言的絕句、律詩。
+"""
+import json
+import os
+import re
+import urllib.request
+
+URL = "https://raw.githubusercontent.com/chinese-poetry/chinese-poetry/master/%E5%85%A8%E5%94%90%E8%AF%97/poet.tang.{}.json"
+os.makedirs("data", exist_ok=True)
+CACHE = os.path.join("data", "raw")
+os.makedirs(CACHE, exist_ok=True)
+
+
+def fetch(i):
+    path = os.path.join(CACHE, "poet.tang.%d.json" % i)
+    if not os.path.exists(path):
+        urllib.request.urlretrieve(URL.format(i), path)
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def clean(poem):
+    """只留下「每句 5 或 7 字、共 4 或 8 句」的詩；不合格就回傳 None。"""
+    text = "".join(poem["paragraphs"])
+    if re.search(r"[^一-鿿，。]", text):      # 有缺字符號、註解或其他標點就跳過
+        return None
+    sents = [s for s in re.split(r"[，。]", text) if s]
+    if len(sents) not in (4, 8):
+        return None
+    n = len(sents[0])
+    if n not in (5, 7) or any(len(s) != n for s in sents):
+        return None
+    return text
+
+
+poems = []
+for i in range(0, 58000, 1000):
+    for p in fetch(i):
+        t = clean(p)
+        if t:
+            poems.append(t)
+
+with open("data/tang.txt", "w", encoding="utf-8") as f:
+    f.write("\n".join(poems) + "\n")
+print("整理出 %d 首詩，共 %d 個字" % (len(poems), sum(len(p) for p in poems)))
+print("第一首：", poems[0])</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">整理出 36595 首詩，共 1620259 個字&#10;第一首： 秦川雄帝宅，函谷壯皇居。綺殿千尋起，離宮百雉餘。連甍遙接漢，飛觀迥凌虛。雲日隱層闕，風煙出綺疎。</div>
+
+      <div class="callout">
+        <h3>為什麼要過濾？</h3>
+        <p>
+          原始資料裡有缺字符號、註解、長短不一的古體詩。先把資料整理乾淨，模型學得快很多——「垃圾進，垃圾出」在 LLM 訓練裡同樣成立，真實的 LLM 團隊會花大量心力在資料清洗上。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          安裝 Python 與 PyTorch，程式會自動選擇 cuda、mps 或 cpu。prepare_data.py 從 chinese-poetry 下載《全唐詩》，只留下格式工整的五言、七言絕句律詩，共約 3.6 萬首。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>PyTorch 在 Mac 上用哪個裝置名稱？</li>
+          <li>我們過濾掉了哪些詩？為什麼？</li>
+          <li>整理後的語料約有多少字？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PyTorch 速成：tensor 與 autograd</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-01.html">← 上一課：這門課要做出什麼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-03.html">下一課：PyTorch 速成：tensor 與 autograd →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

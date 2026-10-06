@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：RoPE：旋轉位置編碼 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="Llama 的位置編碼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜升級成現代架構 · 第 35 課</div>
+      <h1>RoPE：旋轉位置編碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 RoPE 的想法</li>
+          <li>看懂 rope 函式</li>
+          <li>知道 RoPE 的優點</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">RoPE：依位置把向量旋轉不同角度</text>
+                <circle cx="140" cy="110" r="60" fill="var(--surface)" stroke="var(--border)" stroke-width="1.5"/>
+                <line x1="140.0" y1="110.0" x2="193.0" y2="110.0" stroke="#4a90c2" stroke-width="2"/><polygon points="200.0,110.0 193.0,113.5 193.0,106.5" fill="#4a90c2"/>
+                <text x="214" y="114" text-anchor="start" font-size="10" fill="#4a90c2">位置 0</text>
+                <line x1="140.0" y1="110.0" x2="177.1" y2="72.9" stroke="#ff8a65" stroke-width="2"/><polygon points="182.0,68.0 179.5,75.4 174.6,70.5" fill="#ff8a65"/>
+                <text x="188" y="62" text-anchor="start" font-size="10" fill="#ff8a65">位置 1</text>
+                <line x1="140.0" y1="110.0" x2="140.0" y2="57.0" stroke="#5aa469" stroke-width="2"/><polygon points="140.0,50.0 143.5,57.0 136.5,57.0" fill="#5aa469"/>
+                <text x="146" y="44" text-anchor="start" font-size="10" fill="#5aa469">位置 2</text>
+                <text x="140" y="196" text-anchor="middle" font-size="10" fill="var(--text-muted)">同一個向量，位置越後面轉得越多</text>
+                <rect x="300" y="50" width="320" height="120" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="460" y="88" text-anchor="middle" font-size="11" fill="#9c89d6">為什麼好用</text><text x="460" y="102" text-anchor="middle" font-size="9" fill="var(--text-muted)">Q 和 K 都旋轉後，內積只取決於「相對距離」</text><text x="460" y="115" text-anchor="middle" font-size="9" fill="var(--text-muted)">不需要位置 embedding 表</text><text x="460" y="128" text-anchor="middle" font-size="9" fill="var(--text-muted)">每兩個維度一組、各用不同的轉速</text><text x="460" y="141" text-anchor="middle" font-size="9" fill="var(--text-muted)">Llama、Qwen、Mistral 都用它</text>
+        </svg>
+        <figcaption>RoPE 把 Q、K 依位置旋轉，內積只取決於兩個字的相對距離。</figcaption>
+      </div>
+
+      <p>
+        2021 年蘇劍林等人提出 RoPE。做法：把向量每兩個維度當成平面上的一個點，依照 token 的位置旋轉一個角度。不同的維度組用不同的轉速（從快到慢）。
+      </p>
+
+      <div class="code-block">def rope(x, pos):
+    """旋轉位置編碼：把每兩個維度當成一個平面，依位置旋轉不同角度。x: (B, H, T, D)"""
+    d = x.shape[-1]
+    freq = 1.0 / (10000 ** (torch.arange(0, d, 2, device=x.device).float() / d))
+    ang = pos[:, None].float() * freq[None, :]                  # (T, D/2)
+    cos, sin = ang.cos(), ang.sin()
+    x1, x2 = x[..., 0::2], x[..., 1::2]
+    out = torch.stack([x1 * cos - x2 * sin, x1 * sin + x2 * cos], dim=-1)
+    return out.flatten(-2)</div>
+
+      <p>
+        關鍵性質：位置 m 的 Q 和位置 n 的 K 都旋轉之後，它們的內積只跟 <strong>m − n</strong> 有關。模型自然學到「相對位置」，而且不需要位置 embedding 表。
+      </p>
+
+      <p>
+        在 <code>CausalSelfAttention.forward</code> 裡，只對 Q、K 套用 RoPE（V 不用）：
+      </p>
+
+      <div class="code-block">            pos = torch.arange(start, start + T, device=x.device)
+            q, k = rope(q, pos), rope(k, pos)</div>
+
+      <p>
+        搭配 YaRN 等方法調整轉速，RoPE 模型可以延伸到比訓練時更長的上下文（見〈LLM 模型全解〉第 69 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          RoPE 把 Q、K 每兩個維度依位置旋轉不同角度，旋轉後的內積只取決於相對距離，不需要位置 embedding 表，還能延伸上下文。Llama、Qwen 等都使用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RoPE 為什麼只轉 Q、K，不轉 V？</li>
+          <li>RoPE 的內積只取決於什麼？</li>
+          <li>用 RoPE 的模型還需要位置 embedding 表嗎？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>RMSNorm 與 SwiGLU</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：做一個互動寫詩介面</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：RMSNorm 與 SwiGLU →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

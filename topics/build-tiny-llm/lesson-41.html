@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：評估微調前後的差異 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="用數字說話">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜微調 · 第 41 課</div>
+      <h1>評估微調前後的差異</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計可自動檢查的評估</li>
+          <li>比較微調前後</li>
+          <li>理解評估的限制</li>
+        </ul>
+      </div>
+
+      <p>
+        「感覺變好了」不算數。我們設計兩個可以用程式自動檢查的指標：
+      </p>
+
+      <ul>
+        <li><strong>體裁正確</strong>：句數（4 或 8）和每句字數（5 或 7）都對。</li>
+        <li><strong>包含主題字</strong>：詩裡有出現指定的字。</li>
+      </ul>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s14_eval.py</strong>　<a href="py/s14_eval.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s14_eval.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 41 課：評估微調前後——模型有沒有照指令寫？"""
+import random
+import re
+import torch
+from lora import add_lora
+from sample import load, write
+from tokenizer import CharTokenizer
+
+tok = CharTokenizer.load("tokenizer.json")
+base = load("ckpt.pt")
+tuned = add_lora(load("ckpt.pt"))
+tuned.load_state_dict(torch.load("lora.pt"), strict=False)
+tuned.eval()
+
+SPEC = {"五言絕句": (5, 4), "七言絕句": (7, 4), "五言律詩": (5, 8), "七言律詩": (7, 8)}
+
+
+def check(prompt, out):
+    form, theme = prompt[1:-1].split()
+    poem = out[len(prompt):]
+    sents = [s for s in re.split("[，。]", poem) if s]
+    n, k = SPEC[form]
+    return len(sents) == k and all(len(s) == n for s in sents), theme in poem
+
+
+random.seed(1)
+prompts = ["〔%s %s〕" % (random.choice(list(SPEC)), random.choice("春秋月山水風花雪雨夜江雲柳酒鶴")) for _ in range(60)]
+for name, m in [("微調前", base), ("微調後（LoRA）", tuned)]:
+    torch.manual_seed(0)
+    ok_form = ok_theme = 0
+    outs = []
+    for p in prompts:
+        out = write(m, tok, p, temperature=0.8, top_p=0.9)
+        f, t = check(p, out)
+        ok_form += f
+        ok_theme += t
+        outs.append(out)
+    print("%s：體裁正確 %d/%d，包含主題字 %d/%d" % (name, ok_form, len(prompts), ok_theme, len(prompts)))
+    for o in outs[:3]:
+        print("   ", o)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">微調前：體裁正確 4/60，包含主題字 3/60&#10;    〔七言絕句 夜〕。知君學，詩問人間兩轉奇。莫言掩地催孤夢，何處傳詩向故鄉。&#10;    〔五言絕句 水〕新吟上，我有時年得用人。每到白頭公子地，且須紅藥哭胡衣。&#10;    〔五言絕句 雪〕。要心何用身成我，看說生涯滿眼開。月散燕干猶自語，月明頭上不難驚。&#10;微調後（LoRA）：體裁正確 48/60，包含主題字 6/60&#10;    〔七言絕句 夜〕微霜萬葉日如冰，漸恐長安送九衢。地入孤山猶自醉，水連孤鷺最何多。&#10;    〔五言絕句 水〕細雨共時入，秋風初夜斜。月明梅管舞，風夜碧桃花。&#10;    〔五言絕句 雪〕向此少年年，蕭條空水天。生涯滿塵夢，月照見山船。</div>
+
+      <p>
+        只訓練約 1% 的參數、600 步，<strong>體裁正確率從 4/60 提升到 48/60</strong>：模型學會了看指令決定寫五言還是七言、絕句還是律詩。這就是 SFT 的威力——也是 ChatGPT 從 GPT-3 變得「聽話」的關鍵一步。
+      </p>
+
+      <p>
+        但<strong>包含主題字只從 3/60 變成 6/60</strong>，幾乎沒有進步。格式是很強、很一致的訊號（每首詩都有），容易學；「詩裡要出現某個字」對這個 300 萬參數的小模型來說難得多，而且我們的訓練資料裡，主題字可能出現在詩的任何位置，訊號比較弱。這是很真實的一課：微調前後一定要分項目量，不能只憑幾個好例子就說「成功了」。
+      </p>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <ul>
+          <li>把 lora.py 的訓練步數從 600 加到 3000，看主題字的比例會不會上升。</li>
+          <li>把 r 從 8 加到 32，或把 LoRA 也加到 MLP 層。</li>
+          <li>改用 Llama 風格的模型（ckpt_modern.pt）當基礎。</li>
+        </ul>
+      </div>
+
+      <h2>評估的限制</h2>
+
+      <ul>
+        <li>這兩個指標只檢查<strong>格式</strong>，不檢查<strong>好不好</strong>。詩寫得好不好，需要人來評，或用更強的模型當評審（LLM-as-a-judge）。</li>
+        <li>評估用的提示要和訓練資料分開，否則可能只是背下來。我們留了最後 500 筆不參與訓練。</li>
+        <li>建立自己的評估集，是任何微調專案最重要的一步（見〈LLM 模型全解〉第 76 課、〈提示工程〉第 40、41 課）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          用可自動檢查的指標（體裁正確、包含主題字）比較微調前後：LoRA 只訓練約 1% 參數，體裁正確率從 4/60 升到 48/60，但主題字只從 3/60 到 6/60——格式易學、內容控制難。格式指標不代表品質，評估資料也要與訓練資料分開。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>我們用了哪兩個自動評估指標？結果各是多少？</li>
+          <li>為什麼體裁容易學、主題字比較難？</li>
+          <li>這兩個指標沒辦法評估什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>從你的小 GPT 到 GPT-4：差了什麼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：用 LoRA 微調</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：從你的小 GPT 到 GPT-4：差了什麼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

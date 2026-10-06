@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：準備語料：下載、清理、切分 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="先認識你的資料">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜準備 · 第 5 課</div>
+      <h1>準備語料：下載、清理、切分</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>統計語料的基本數字</li>
+          <li>知道字的分布非常不平均</li>
+          <li>了解訓練集與驗證集的切分</li>
+        </ul>
+      </div>
+
+      <p>
+        訓練前先看看資料：有多少首詩、多少個不同的字、哪些字最常見。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s03_data.py</strong>　<a href="py/s03_data.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s03_data.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 5 課：看看語料長什麼樣。"""
+from collections import Counter
+
+poems = open("data/tang.txt", encoding="utf-8").read().split("\n")
+poems = [p for p in poems if p]
+text = "".join(poems)
+print("詩的數量：", len(poems))
+print("總字數：", len(text))
+print("不同的字：", len(set(text)))
+
+kind = Counter()
+for p in poems:
+    n = len(p.replace("，", "").replace("。", ""))
+    kind[{20: "五言絕句", 28: "七言絕句", 40: "五言律詩", 56: "七言律詩"}[n]] += 1
+for k, v in kind.most_common():
+    print("  %s：%d 首" % (k, v))
+
+cnt = Counter(c for c in text if c not in "，。")
+print("最常見的 20 個字：", "".join(c for c, _ in cnt.most_common(20)))
+once = sum(1 for c, v in cnt.items() if v == 1)
+print("只出現一次的字：%d 個（例如：%s）" % (once, "".join([c for c, v in cnt.items() if v == 1][:10])))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">詩的數量： 36595&#10;總字數： 1620259&#10;不同的字： 6754&#10;  五言律詩：14333 首&#10;  七言絕句：10484 首&#10;  七言律詩：7850 首&#10;  五言絕句：3928 首&#10;最常見的 20 個字： 不人山風一無日雲來花春水月有何上時中天年&#10;只出現一次的字：1040 個（例如：蒐殖譟嶪侁煠闓絜跱簋）</div>
+
+      <h2>觀察</h2>
+
+      <ul>
+        <li>約 6,750 個不同的字，但前幾百個常用字就佔了大部分。這種「少數很常見、多數很罕見」的分布叫<strong>長尾分布</strong>。</li>
+        <li>有一千多個字只出現一次——模型幾乎不可能學會它們。</li>
+        <li>五言律詩最多，五言絕句最少。模型寫出來的詩，也會偏向資料裡比較多的體裁。</li>
+      </ul>
+
+      <h2>切分</h2>
+
+      <p>
+        我們把整份文字的前 95% 當訓練集、後 5% 當驗證集。驗證集模型從沒看過，用來檢查它是真的學會寫詩，還是只是背下訓練資料。
+      </p>
+
+      <div class="code-block"># ---- 資料：整份文字轉成一長串 token id，前 95% 訓練、後 5% 驗證 ----
+text = open(args.data, encoding="utf-8").read()
+if os.path.exists("tokenizer.json"):
+    tok = CharTokenizer.load("tokenizer.json")
+else:
+    tok = CharTokenizer.train(text)
+    tok.save("tokenizer.json")
+data = torch.tensor(tok.encode(text), dtype=torch.long)
+n = int(len(data) * 0.95)
+train_data, val_data = data[:n], data[n:]</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          語料約 3.6 萬首、162 萬字、6,750 個不同的字，字頻是長尾分布。前 95% 當訓練集、後 5% 當驗證集，用來檢查模型是否真的學會而不是背誦。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是長尾分布？</li>
+          <li>只出現一次的字，模型為什麼學不會？</li>
+          <li>驗證集的用途是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>字元級 tokenizer</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：nn.Module 與訓練迴圈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：字元級 tokenizer →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

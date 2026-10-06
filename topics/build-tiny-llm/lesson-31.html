@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：實驗：改層數、寬度、上下文長度 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="自己當研究員">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜訓練 · 第 31 課</div>
+      <h1>實驗：改層數、寬度、上下文長度</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>學會設計對照實驗</li>
+          <li>觀察模型大小對損失的影響</li>
+          <li>理解上下文長度的重要</li>
+        </ul>
+      </div>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s09_experiments.py</strong>　<a href="py/s09_experiments.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s09_experiments.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 31 課：改層數、寬度、上下文長度，各訓練 300 步，比較驗證損失。"""
+import re
+import subprocess
+import sys
+
+RUNS = [("基準：2 層、128 維、上下文 80", []),
+        ("加深：4 層", ["--n_layer", "4"]),
+        ("加寬：256 維", ["--n_embd", "256"]),
+        ("上下文縮短為 16", ["--block", "16"])]
+for name, extra in RUNS:
+    cmd = [sys.executable, "train.py", "--steps", "300", "--eval_every", "299", "--n_layer", "2", "--n_embd", "128",
+           "--out", "exp.pt", "--warmup", "30"] + extra
+    out = subprocess.run(cmd, capture_output=True, text=True).stdout
+    last = [l for l in out.splitlines() if l.startswith("step")][-1]
+    params = re.search(r"參數 ([\d.]+)M", out).group(1)
+    print("%-22s 參數 %sM  →  驗證損失 %s" % (name, params, re.search(r"val loss ([\d.]+)", last).group(1)))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">基準：2 層、128 維、上下文 80    參數 1.27M  →  驗證損失 6.298&#10;加深：4 層                 參數 1.67M  →  驗證損失 6.261&#10;加寬：256 維               參數 3.33M  →  驗證損失 6.150&#10;上下文縮短為 16              參數 1.26M  →  驗證損失 6.398</div>
+
+      <h2>從結果學到</h2>
+
+      <ul>
+        <li>在相同步數下，<strong>加深或加寬</strong>通常讓損失更低，但每一步也更慢。</li>
+        <li><strong>上下文縮短到 16</strong>：模型連一句七言都看不完整，損失明顯變差——它不知道自己寫到第幾句。</li>
+        <li>只訓練 300 步的結論不一定能推廣到長時間訓練。真實的研究會用縮放定律，在小模型上做實驗、預測大模型的表現。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>動手試試</h3>
+        <ul>
+          <li>把 dropout 改成 0，看驗證損失會不會變差。</li>
+          <li>把學習率改成 3e-3 或 3e-4。</li>
+          <li>不加 warmup（--warmup 0）會怎樣？</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          對照實驗一次只改一個變因。加深、加寬通常降低損失但更慢；上下文太短，模型看不到整首詩的結構，損失明顯變差。短時間實驗的結論要小心推廣。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>設計對照實驗的原則是什麼？</li>
+          <li>上下文縮短到 16 為什麼會變差？</li>
+          <li>為什麼只訓練 300 步的結論可能不準？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Temperature、Top-k、Top-p</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：存檔、讀檔與續訓</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：Temperature、Top-k、Top-p →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

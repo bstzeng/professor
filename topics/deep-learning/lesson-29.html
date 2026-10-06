@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：ResNet 與殘差連接 ｜ 深度學習基礎 ｜ 博雅書院</title>
+<meta name="description" content="152 層也訓練得動">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">深度學習基礎</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜看圖的網路：CNN · 第 29 課</div>
+      <h1>ResNet 與殘差連接</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解深網路的退化問題</li>
+          <li>理解殘差連接的原理</li>
+          <li>知道殘差連接在 Transformer 中的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        AlexNet 之後大家把網路越做越深（VGG 有 16～19 層）。但研究者發現，層數超過某個程度後，<strong>連訓練誤差都變高</strong>——不是過擬合，而是太深的網路根本難以優化。
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 210" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">殘差區塊：輸出 ＝ F(x) ＋ x</text>
+                <rect x="250" y="170" width="140" height="30" rx="8" fill="var(--surface)" stroke="#8a8f98" stroke-width="1.5"/><text x="320" y="188.85" text-anchor="middle" font-size="11" fill="#8a8f98">x</text>
+                <rect x="250" y="120" width="140" height="30" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="138.85" text-anchor="middle" font-size="11" fill="#9c89d6">卷積層</text>
+                <rect x="250" y="74" width="140" height="30" rx="8" fill="var(--surface)" stroke="#9c89d6" stroke-width="1.5"/><text x="320" y="92.85" text-anchor="middle" font-size="11" fill="#9c89d6">卷積層</text>
+                <circle cx="320" cy="44" r="12" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/>
+                <text x="320" y="48" text-anchor="middle" font-size="13" fill="#5aa469">＋</text>
+                <line x1="320.0" y1="170.0" x2="320.0" y2="159.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,152.0 323.5,159.0 316.5,159.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="120.0" x2="320.0" y2="113.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,106.0 323.5,113.0 316.5,113.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="74.0" x2="320.0" y2="65.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,58.0 323.5,65.0 316.5,65.0" fill="var(--text-muted)"/>
+                <line x1="320.0" y1="32.0" x2="320.0" y2="21.0" stroke="var(--text-muted)" stroke-width="1.5"/><polygon points="320.0,14.0 323.5,21.0 316.5,21.0" fill="var(--text-muted)"/>
+                <path d="M390 185 L460 185 L460 44 L334 44" fill="none" stroke="#ff8a65" stroke-width="2"/>
+                <text x="470" y="120" text-anchor="start" font-size="10" fill="#ff8a65">捷徑：直接把 x 加過來</text>
+                <text x="150" y="110" text-anchor="middle" font-size="10" fill="#9c89d6">F(x)：只要學「差多少」</text>
+        </svg>
+        <figcaption>殘差區塊讓輸入繞過幾層、直接加到輸出。</figcaption>
+      </div>
+
+      <p>
+        2015 年何愷明等人提出 <strong>ResNet</strong>：每幾層加一條「捷徑」，輸出 ＝ F(x) ＋ x。如果某幾層沒有用，只要把 F 學成 0 就好，至少不會變差。
+      </p>
+
+      <h2>為什麼有效</h2>
+
+      <ul>
+        <li><strong>梯度高速公路</strong>：反向傳播時，梯度可以沿著捷徑直接傳回前面的層，不會一路被乘小。</li>
+        <li><strong>學差異比學全部容易</strong>：每個區塊只要學「在 x 的基礎上修正多少」。</li>
+      </ul>
+
+      <p>
+        ResNet-152 在 ILSVRC 2015 達到約 3.6% 的 top-5 錯誤率，低於常被引用的人類約 5% 的水準（該數字來自單一研究者的測試）。這篇論文是史上被引用最多的論文之一。
+      </p>
+
+      <div class="callout">
+        <h3>Transformer 也靠它</h3>
+        <p>
+          Transformer 每個子層都有殘差連接（第 41 課）。沒有殘差連接，就不可能訓練數十到上百層的 LLM。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          深網路會出現連訓練誤差都上升的退化問題。ResNet 用殘差連接 F(x) + x，讓梯度可以直通、每層只學修正量，成功訓練 152 層網路；Transformer 也依賴殘差連接。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧠 本課的互動工具都在瀏覽器裡即時計算；資料是教學用的小例子，詞向量、注意力等數值為示意，真實模型的維度從數百到數萬維。歷史年份以原始論文發表年份為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>深網路的「退化問題」和過擬合有什麼不同？</li>
+          <li>殘差區塊的輸出公式是什麼？</li>
+          <li>殘差連接為什麼能幫助梯度傳遞？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>遷移學習</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：從 LeNet 到 AlexNet</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：遷移學習 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

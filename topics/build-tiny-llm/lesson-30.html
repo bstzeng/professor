@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：存檔、讀檔與續訓 ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="訓練到一半當機怎麼辦">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜訓練 · 第 30 課</div>
+      <h1>存檔、讀檔與續訓</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>知道 checkpoint 要存哪些東西</li>
+          <li>會從存檔繼續訓練</li>
+          <li>看懂完整的 train.py</li>
+        </ul>
+      </div>
+
+      <p>
+        每次評估時存一個 checkpoint：
+      </p>
+
+      <div class="code-block">        torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "cfg": cfg.__dict__, "step": step + 1}, args.out)</div>
+
+      <ul>
+        <li><strong>model</strong>：所有權重。</li>
+        <li><strong>opt</strong>：AdamW 的兩個動量狀態——不存的話，續訓時優化器要重新「暖機」。</li>
+        <li><strong>cfg</strong>：模型設定，載入時才知道要建多大的模型。</li>
+        <li><strong>step</strong>：學習率排程要從哪一步接著算。</li>
+      </ul>
+
+      <p>
+        續訓：<code>python train.py --resume</code>。真實的 LLM 訓練動輒數週、用上萬張 GPU，硬體故障是家常便飯，定期存檔與自動續訓是基本功。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 train.py</strong>　<a href="py/train.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python train.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""訓練 GPT 寫唐詩。
+
+  python train.py                     # 預設設定，約 3M 參數
+  python train.py --modern            # Llama 風格（RoPE、RMSNorm、SwiGLU）
+  python train.py --resume            # 從上次的存檔繼續
+  python train.py --steps 300 --n_layer 2 --out ckpt_small.pt   # 自己做實驗
+"""
+import argparse
+import math
+import os
+import time
+
+import torch
+
+from gpt import GPT, GPTConfig
+from tokenizer import CharTokenizer
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--data", default="data/tang.txt")
+ap.add_argument("--out", default="ckpt.pt")
+ap.add_argument("--steps", type=int, default=2000)
+ap.add_argument("--batch", type=int, default=32)
+ap.add_argument("--accum", type=int, default=1, help="梯度累積步數：等效批次 = batch × accum")
+ap.add_argument("--block", type=int, default=80)
+ap.add_argument("--n_layer", type=int, default=4)
+ap.add_argument("--n_head", type=int, default=4)
+ap.add_argument("--n_embd", type=int, default=192)
+ap.add_argument("--lr", type=float, default=1e-3)
+ap.add_argument("--warmup", type=int, default=100)
+ap.add_argument("--eval_every", type=int, default=200)
+ap.add_argument("--modern", action="store_true")
+ap.add_argument("--resume", action="store_true")
+ap.add_argument("--amp", action="store_true", help="混合精度：GPU 上用 bfloat16 自動轉型")
+ap.add_argument("--seed", type=int, default=1337)
+args = ap.parse_args()
+
+torch.manual_seed(args.seed)
+device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+
+# ---- 資料：整份文字轉成一長串 token id，前 95% 訓練、後 5% 驗證 ----
+text = open(args.data, encoding="utf-8").read()
+if os.path.exists("tokenizer.json"):
+    tok = CharTokenizer.load("tokenizer.json")
+else:
+    tok = CharTokenizer.train(text)
+    tok.save("tokenizer.json")
+data = torch.tensor(tok.encode(text), dtype=torch.long)
+n = int(len(data) * 0.95)
+train_data, val_data = data[:n], data[n:]
+
+
+def get_batch(split):
+    d = train_data if split == "train" else val_data
+    ix = torch.randint(len(d) - args.block - 1, (args.batch,))
+    x = torch.stack([d[i:i + args.block] for i in ix])
+    y = torch.stack([d[i + 1:i + args.block + 1] for i in ix])      # 答案 ＝ 往右移一格
+    return x.to(device), y.to(device)
+
+
+# ---- 模型與優化器 ----
+cfg = GPTConfig(vocab_size=tok.vocab_size, block_size=args.block, n_layer=args.n_layer, n_head=args.n_head,
+                n_embd=args.n_embd, modern=args.modern)
+model = GPT(cfg).to(device)
+decay = [p for p in model.parameters() if p.dim() &gt;= 2]            # 權重矩陣做權重衰減
+no_decay = [p for p in model.parameters() if p.dim() &lt; 2]          # 偏差、正規化層不做
+opt = torch.optim.AdamW([{"params": decay, "weight_decay": 0.1}, {"params": no_decay, "weight_decay": 0.0}],
+                        lr=args.lr, betas=(0.9, 0.95))
+step0 = 0
+if args.resume and os.path.exists(args.out):
+    ck = torch.load(args.out, map_location=device)
+    model.load_state_dict(ck["model"])
+    opt.load_state_dict(ck["opt"])
+    step0 = ck["step"]
+    print("從第 %d 步繼續訓練" % step0)
+print("裝置 %s，參數 %.2fM，詞彙 %d 字，訓練資料 %d 個 token" % (device, model.num_params() / 1e6, tok.vocab_size, len(train_data)))
+
+
+def lr_at(step):
+    """warmup 之後用 cosine 衰減到最大學習率的 10%。"""
+    if step &lt; args.warmup:
+        return args.lr * (step + 1) / args.warmup
+    t = (step - args.warmup) / max(1, args.steps - args.warmup)
+    return args.lr * (0.1 + 0.9 * 0.5 * (1 + math.cos(math.pi * min(t, 1.0))))
+
+
+@torch.no_grad()
+def evaluate(iters=20):
+    model.eval()
+    out = {}
+    for split in ("train", "val"):
+        out[split] = sum(model(*get_batch(split))[1].item() for _ in range(iters)) / iters
+    model.train()
+    return out
+
+
+amp = torch.autocast(device_type=device if device != "mps" else "cpu", dtype=torch.bfloat16, enabled=args.amp)
+model.train()
+t0 = time.time()
+for step in range(step0, args.steps):
+    for g in opt.param_groups:
+        g["lr"] = lr_at(step)
+    for _ in range(args.accum):                         # 梯度累積
+        x, y = get_batch("train")
+        with amp:
+            _, loss = model(x, y)
+        (loss / args.accum).backward()
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)    # 梯度裁剪
+    opt.step()
+    opt.zero_grad(set_to_none=True)
+    if step % args.eval_every == 0 or step == args.steps - 1:
+        e = evaluate()
+        print("step %5d | lr %.2e | train loss %.3f | val loss %.3f | %.0fs" % (step, lr_at(step), e["train"], e["val"], time.time() - t0))
+        torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "cfg": cfg.__dict__, "step": step + 1}, args.out)
+print("已存檔到", args.out)</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">裝置 cpu，參數 3.09M，詞彙 6758 字，訓練資料 1574011 個 token&#10;step     0 | lr 1.00e-05 | train loss 8.850 | val loss 8.850 | 4s&#10;step   200 | lr 9.94e-04 | train loss 5.997 | val loss 6.224 | 285s&#10;step   400 | lr 9.46e-04 | train loss 5.531 | val loss 5.796 | 450s&#10;step   600 | lr 8.55e-04 | train loss 5.270 | val loss 5.578 | 530s&#10;step   800 | lr 7.31e-04 | train loss 5.120 | val loss 5.504 | 612s&#10;step  1000 | lr 5.87e-04 | train loss 4.997 | val loss 5.399 | 692s&#10;step  1200 | lr 4.40e-04 | train loss 4.855 | val loss 5.331 | 768s&#10;step  1400 | lr 3.04e-04 | train loss 4.851 | val loss 5.257 | 840s&#10;step  1600 | lr 1.95e-04 | train loss 4.797 | val loss 5.237 | 916s&#10;step  1800 | lr 1.24e-04 | train loss 4.765 | val loss 5.210 | 1001s&#10;step  1999 | lr 1.00e-04 | train loss 4.692 | val loss 5.208 | 1077s&#10;已存檔到 ckpt.pt</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Checkpoint 要存權重、優化器狀態、模型設定與步數，才能完整續訓。用 --resume 從存檔繼續；大規模訓練必須定期存檔以應付硬體故障。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>checkpoint 為什麼要存優化器狀態？</li>
+          <li>為什麼要存 cfg？</li>
+          <li>續訓時學習率怎麼知道要從哪裡接著算？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>實驗：改層數、寬度、上下文長度</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：混合精度與梯度累積</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：實驗：改層數、寬度、上下文長度 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

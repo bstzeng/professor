@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：單頭 self-attention ｜ 親手訓練小 LLM ｜ 博雅書院</title>
+<meta name="description" content="讓每個字去看其他字">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">親手訓練小 LLM</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜一行一行寫 Transformer · 第 16 課</div>
+      <h1>單頭 self-attention</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>一步步算出注意力</li>
+          <li>理解 Q、K、V 的計算</li>
+          <li>看懂分數、softmax、加權平均</li>
+        </ul>
+      </div>
+
+      <p>
+        每個 token 的向量 x 乘上三個矩陣，得到 Query、Key、Value。用 Q 和所有 K 做內積得到分數，除以 √d，softmax 變成權重，再用權重加總 V。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>🐍 s07_attention.py</strong>　<a href="py/s07_attention.py" download>下載</a>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>python s07_attention.py</code></span></p>
+
+      <div class="code-block"># -*- coding: utf-8 -*-
+"""第 16～18 課：單頭自注意力，一步一步算。"""
+import torch
+import torch.nn.functional as F
+
+torch.manual_seed(0)
+B, T, C, hd = 1, 4, 8, 4                        # 1 段文字、4 個 token、每個 8 維；注意力頭 4 維
+x = torch.randn(B, T, C)
+Wq, Wk, Wv = (torch.randn(C, hd) * 0.4 for _ in range(3))
+q, k, v = x @ Wq, x @ Wk, x @ Wv               # (1, 4, 4)
+
+scores = q @ k.transpose(-2, -1) / hd ** 0.5    # (1, 4, 4)：每個 token 對每個 token 的分數
+print("分數（未遮罩）：\n", scores[0].round(decimals=2))
+
+mask = torch.tril(torch.ones(T, T)).bool()
+scores = scores.masked_fill(~mask, float("-inf"))
+print("\n因果遮罩後：\n", scores[0].round(decimals=2))
+
+w = F.softmax(scores, dim=-1)
+print("\nsoftmax 權重（每一列加起來 ＝ 1）：\n", w[0].round(decimals=2))
+out = w @ v
+print("\n輸出形狀：", tuple(out.shape), "  第 1 個 token 的輸出 ＝ 它自己的 v：", torch.allclose(out[0, 0], v[0, 0]))
+
+# 多頭：把 C 維切成 H 個頭，各自做注意力
+H = 2
+qh = q.repeat(1, 1, H).view(B, T, H, hd).transpose(1, 2)        # (B, H, T, hd)
+print("\n多頭的形狀 (B, H, T, hd)：", tuple(qh.shape))</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 執行結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">分數（未遮罩）：&#10; tensor([[ 0.9800,  0.3600, -0.6200,  0.8500],&#10;        [-1.5600, -0.1600, -1.0400,  0.3300],&#10;        [-0.2400, -0.4500,  0.1600, -0.5900],&#10;        [-1.8400, -0.1800, -1.7400,  0.5800]])&#10;&#10;因果遮罩後：&#10; tensor([[ 0.9800,    -inf,    -inf,    -inf],&#10;        [-1.5600, -0.1600,    -inf,    -inf],&#10;        [-0.2400, -0.4500,  0.1600,    -inf],&#10;        [-1.8400, -0.1800, -1.7400,  0.5800]])&#10;&#10;softmax 權重（每一列加起來 ＝ 1）：&#10; tensor([[1.0000, 0.0000, 0.0000, 0.0000],&#10;        [0.2000, 0.8000, 0.0000, 0.0000],&#10;        [0.3000, 0.2500, 0.4500, 0.0000],&#10;        [0.0500, 0.2800, 0.0600, 0.6100]])&#10;&#10;輸出形狀： (1, 4, 4)   第 1 個 token 的輸出 ＝ 它自己的 v： True&#10;&#10;多頭的形狀 (B, H, T, hd)： (1, 2, 4, 4)</div>
+
+      <p>
+        整個注意力只有三個矩陣乘法和一個 softmax，全部可以平行計算——這就是 Transformer 在 GPU 上這麼快的原因。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          單頭注意力把 x 乘上 W_Q、W_K、W_V 得到 Q、K、V，計算 QKᵀ/√d 的分數、softmax 成權重，再加權平均 V。全部是矩陣運算，可以平行計算。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 本課程的 Python 範例都在一台 4 核心 CPU、沒有 GPU 的電腦上實際執行過，頁面上的「執行結果」就是當時的輸出；你的數字會因硬體、PyTorch 版本與隨機性而略有不同。語料來自開源的 chinese-poetry 專案（MIT 授權）。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Q、K、V 是怎麼從 x 算出來的？</li>
+          <li>注意力分數為什麼要除以 √d？</li>
+          <li>softmax 之後每一列的權重加起來是多少？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>因果遮罩</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：Token embedding 與位置 embedding</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：因果遮罩 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
