@@ -19442,6 +19442,126 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "game-theory",
+      category: "math",
+      title: "賽局理論：從囚犯困境到拍賣與 AI",
+      description:
+        "當你的結果取決於別人怎麼做：報酬矩陣、優勢策略、囚犯困境、納許均衡、協調與膽小鬼賽局；混合策略、足球 PK 與極小極大；賽局樹、逆向歸納、可信威脅與承諾；重複賽局、以牙還牙、演化與鷹鴿；訊號、檸檬市場、篩選與道德風險；公共財、公地悲劇、寡占、談判、拍賣、投票、大學分發與核威懾；行為賽局、機制設計、AI 與區塊鏈。附報酬矩陣求解器、囚犯困境對戰、錦標賽、拍賣與配對等十個互動工具。",
+      icon: "♟️",
+      url: "topics/game-theory/index.html",
+      resources: [
+        {
+          title: "賽局互動工具箱",
+          description: "報酬矩陣求解器、囚犯困境對戰、錦標賽、鷹鴿演化、賽局樹、PK、拍賣、配對、最後通牒、公共財",
+          icon: "🧮",
+          url: "topics/game-theory/guide.html"
+        },
+        {
+          title: "賽局理論名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/game-theory/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是賽局",
+          courses: [
+            { title: "賽局理論在研究什麼", url: "topics/game-theory/lesson-01.html" },
+            { title: "賽局的四個要素", url: "topics/game-theory/lesson-02.html" },
+            { title: "理性假設與共同知識", url: "topics/game-theory/lesson-03.html" },
+            { title: "歷史：從馮紐曼到諾貝爾獎", url: "topics/game-theory/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜同時出招的賽局",
+          courses: [
+            { title: "報酬矩陣怎麼看", url: "topics/game-theory/lesson-05.html" },
+            { title: "優勢策略與劣勢策略", url: "topics/game-theory/lesson-06.html" },
+            { title: "重複刪去劣勢策略", url: "topics/game-theory/lesson-07.html" },
+            { title: "囚犯困境", url: "topics/game-theory/lesson-08.html" },
+            { title: "納許均衡", url: "topics/game-theory/lesson-09.html" },
+            { title: "找出納許均衡：畫底線法", url: "topics/game-theory/lesson-10.html" },
+            { title: "多個均衡：性別之戰與獵鹿賽局", url: "topics/game-theory/lesson-11.html" },
+            { title: "膽小鬼賽局", url: "topics/game-theory/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜混合策略",
+          courses: [
+            { title: "猜拳沒有必勝法", url: "topics/game-theory/lesson-13.html" },
+            { title: "怎麼算混合策略均衡", url: "topics/game-theory/lesson-14.html" },
+            { title: "足球 PK：罰球往哪邊踢", url: "topics/game-theory/lesson-15.html" },
+            { title: "納許定理", url: "topics/game-theory/lesson-16.html" },
+            { title: "零和賽局與極小極大定理", url: "topics/game-theory/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜依序出招的賽局",
+          courses: [
+            { title: "賽局樹", url: "topics/game-theory/lesson-18.html" },
+            { title: "逆向歸納法", url: "topics/game-theory/lesson-19.html" },
+            { title: "不可信的威脅：子賽局完美均衡", url: "topics/game-theory/lesson-20.html" },
+            { title: "先動優勢與後動優勢", url: "topics/game-theory/lesson-21.html" },
+            { title: "承諾的力量", url: "topics/game-theory/lesson-22.html" },
+            { title: "蜈蚣賽局與最後通牒賽局", url: "topics/game-theory/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜重複賽局與合作",
+          courses: [
+            { title: "只玩一次 vs 玩很多次", url: "topics/game-theory/lesson-24.html" },
+            { title: "以牙還牙：艾瑟羅德的電腦比賽", url: "topics/game-theory/lesson-25.html" },
+            { title: "冷酷觸發策略與未來的陰影", url: "topics/game-theory/lesson-26.html" },
+            { title: "雜音與誤會", url: "topics/game-theory/lesson-27.html" },
+            { title: "合作怎麼演化出來", url: "topics/game-theory/lesson-28.html" },
+            { title: "鷹鴿賽局", url: "topics/game-theory/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜不完全資訊",
+          courses: [
+            { title: "你不知道對方是哪種人：貝氏賽局", url: "topics/game-theory/lesson-30.html" },
+            { title: "訊號：學歷、品牌、保固為什麼有用", url: "topics/game-theory/lesson-31.html" },
+            { title: "檸檬市場：二手車與資訊不對稱", url: "topics/game-theory/lesson-32.html" },
+            { title: "篩選：保險公司怎麼分辨高低風險", url: "topics/game-theory/lesson-33.html" },
+            { title: "道德風險：保了險就比較不小心？", url: "topics/game-theory/lesson-34.html" },
+            { title: "撲克牌與虛張聲勢", url: "topics/game-theory/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜生活與社會中的賽局",
+          courses: [
+            { title: "公共財與搭便車", url: "topics/game-theory/lesson-36.html" },
+            { title: "公地悲劇與歐斯壯的解方", url: "topics/game-theory/lesson-37.html" },
+            { title: "寡占競爭", url: "topics/game-theory/lesson-38.html" },
+            { title: "談判與議價", url: "topics/game-theory/lesson-39.html" },
+            { title: "拍賣理論", url: "topics/game-theory/lesson-40.html" },
+            { title: "贏家的詛咒與頻譜拍賣", url: "topics/game-theory/lesson-41.html" },
+            { title: "投票的賽局", url: "topics/game-theory/lesson-42.html" },
+            { title: "配對問題：大學分發與器官交換", url: "topics/game-theory/lesson-43.html" },
+            { title: "軍備競賽、核威懾與古巴飛彈危機", url: "topics/game-theory/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 H｜進階與現代應用",
+          courses: [
+            { title: "行為賽局理論", url: "topics/game-theory/lesson-45.html" },
+            { title: "機制設計", url: "topics/game-theory/lesson-46.html" },
+            { title: "賽局理論與 AI", url: "topics/game-theory/lesson-47.html" },
+            { title: "區塊鏈與共識機制中的賽局", url: "topics/game-theory/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "賽局理論的限制與誤用", url: "topics/game-theory/lesson-49.html" },
+            { title: "用賽局的眼光看世界", url: "topics/game-theory/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
