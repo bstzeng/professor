@@ -19796,6 +19796,115 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "radio-spectrum",
+      category: "tech",
+      title: "電波頻譜的世界：看不見的無線電資源",
+      description:
+        "我們生活在電波之中：電磁頻譜全圖、頻率波長與能量、游離與非游離輻射、頻譜為何稀缺；傳播、穿牆、電離層、多路徑、都卜勒、天線；從潛艦長波、AM、短波、FM 與航空、UHF 黃金頻段、2.4 GHz 與微波爐、5／6 GHz Wi-Fi、2G～5G、毫米波、衛星頻段、雷達到無線電天文；調變、頻寬、OFDM、波束成形、動態共享；ITU、頻率分配表、執照與免執照、頻譜拍賣、NCC 與數位發展部、5G 與高度計爭議；基地台、Wi-Fi、悠遊卡、GPS 干擾、電子戰、業餘無線電；電磁波與健康的研究證據、頻譜與國安、6G。附頻譜互動圖、Wi-Fi 頻道重疊等六個互動工具。",
+      icon: "📡",
+      url: "topics/radio-spectrum/index.html",
+      resources: [
+        {
+          title: "電波頻譜互動工具箱",
+          description: "電磁頻譜互動圖、波長與天線計算、傳播距離與穿牆、AM／FM 調變、Wi-Fi 頻道重疊、都卜勒效應",
+          icon: "🧰",
+          url: "topics/radio-spectrum/guide.html"
+        },
+        {
+          title: "電波頻譜名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/radio-spectrum/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是頻譜",
+          courses: [
+            { title: "我們生活在電波之中", url: "topics/radio-spectrum/lesson-01.html" },
+            { title: "電磁頻譜全圖", url: "topics/radio-spectrum/lesson-02.html" },
+            { title: "頻率、波長、能量", url: "topics/radio-spectrum/lesson-03.html" },
+            { title: "頻譜是稀缺資源", url: "topics/radio-spectrum/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電波的物理",
+          courses: [
+            { title: "電波怎麼傳播", url: "topics/radio-spectrum/lesson-05.html" },
+            { title: "不同頻段的個性", url: "topics/radio-spectrum/lesson-06.html" },
+            { title: "電離層反射與短波通訊", url: "topics/radio-spectrum/lesson-07.html" },
+            { title: "多路徑與衰落", url: "topics/radio-spectrum/lesson-08.html" },
+            { title: "都卜勒效應", url: "topics/radio-spectrum/lesson-09.html" },
+            { title: "天線大小與頻率", url: "topics/radio-spectrum/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜一段一段認識頻譜",
+          courses: [
+            { title: "極低頻與長波", url: "topics/radio-spectrum/lesson-11.html" },
+            { title: "中波與 AM 廣播", url: "topics/radio-spectrum/lesson-12.html" },
+            { title: "短波", url: "topics/radio-spectrum/lesson-13.html" },
+            { title: "特高頻", url: "topics/radio-spectrum/lesson-14.html" },
+            { title: "超高頻", url: "topics/radio-spectrum/lesson-15.html" },
+            { title: "2.4 GHz 的故事", url: "topics/radio-spectrum/lesson-16.html" },
+            { title: "5 GHz 與 6 GHz Wi-Fi", url: "topics/radio-spectrum/lesson-17.html" },
+            { title: "行動通訊頻段", url: "topics/radio-spectrum/lesson-18.html" },
+            { title: "毫米波", url: "topics/radio-spectrum/lesson-19.html" },
+            { title: "衛星頻段", url: "topics/radio-spectrum/lesson-20.html" },
+            { title: "雷達", url: "topics/radio-spectrum/lesson-21.html" },
+            { title: "無線電天文", url: "topics/radio-spectrum/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜技術",
+          courses: [
+            { title: "調變", url: "topics/radio-spectrum/lesson-23.html" },
+            { title: "頻寬與資料速率", url: "topics/radio-spectrum/lesson-24.html" },
+            { title: "多工與共享", url: "topics/radio-spectrum/lesson-25.html" },
+            { title: "天線陣列與波束成形", url: "topics/radio-spectrum/lesson-26.html" },
+            { title: "認知無線電與動態頻譜共享", url: "topics/radio-spectrum/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜管理與分配",
+          courses: [
+            { title: "國際電信聯盟與世界無線電大會", url: "topics/radio-spectrum/lesson-28.html" },
+            { title: "頻率分配表", url: "topics/radio-spectrum/lesson-29.html" },
+            { title: "執照頻段與免執照頻段", url: "topics/radio-spectrum/lesson-30.html" },
+            { title: "頻譜拍賣", url: "topics/radio-spectrum/lesson-31.html" },
+            { title: "台灣的頻譜管理", url: "topics/radio-spectrum/lesson-32.html" },
+            { title: "干擾與糾紛", url: "topics/radio-spectrum/lesson-33.html" },
+            { title: "頻譜的價值", url: "topics/radio-spectrum/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生活應用",
+          courses: [
+            { title: "手機基地台怎麼運作", url: "topics/radio-spectrum/lesson-35.html" },
+            { title: "Wi-Fi 的演進", url: "topics/radio-spectrum/lesson-36.html" },
+            { title: "藍牙、NFC、RFID、悠遊卡", url: "topics/radio-spectrum/lesson-37.html" },
+            { title: "衛星定位與定位干擾", url: "topics/radio-spectrum/lesson-38.html" },
+            { title: "電子戰與無人機干擾", url: "topics/radio-spectrum/lesson-39.html" },
+            { title: "業餘無線電", url: "topics/radio-spectrum/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜安全與爭議",
+          courses: [
+            { title: "電磁波與健康", url: "topics/radio-spectrum/lesson-41.html" },
+            { title: "頻譜與國安", url: "topics/radio-spectrum/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "未來：6G、太赫茲、頻譜共享", url: "topics/radio-spectrum/lesson-43.html" },
+            { title: "頻譜地圖總覽", url: "topics/radio-spectrum/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
