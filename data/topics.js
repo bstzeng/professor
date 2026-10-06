@@ -19562,6 +19562,124 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "global-logistics",
+      category: "tech",
+      title: "全球物流系統：一件商品怎麼跨越半個地球來到你手上",
+      description:
+        "從一支手機的旅程出發：貨櫃革命、貨櫃船、航線與海運聯盟、世界大港與碼頭、運河與海峽、長榮陽明萬海；航空貨運、快遞樞紐、冷鏈；卡車、中歐班列、多式聯運、管線；配送中心、越庫、自動化倉儲、電商與超商取貨；長鞭效應、經濟訂購量、JIT、韌性、半導體供應鏈；國貿條規、提單報關、保稅與出口管制；疫情塞港、長賜輪、紅海與巴拿馬乾旱；追蹤技術、路線最佳化、自動化與綠色航運。附世界航線地圖、長鞭效應模擬等六個互動工具。",
+      icon: "🚢",
+      url: "topics/global-logistics/index.html",
+      resources: [
+        {
+          title: "物流互動工具箱",
+          description: "航線地圖、運輸方式比較、貨櫃裝載、長鞭效應、經濟訂購量、送貨路線最佳化",
+          icon: "🧰",
+          url: "topics/global-logistics/guide.html"
+        },
+        {
+          title: "物流名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/global-logistics/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總覽",
+          courses: [
+            { title: "從工廠到你家門口：一支手機的旅程", url: "topics/global-logistics/lesson-01.html" },
+            { title: "物流、供應鏈、運籌有什麼不同", url: "topics/global-logistics/lesson-02.html" },
+            { title: "全球貿易的規模", url: "topics/global-logistics/lesson-03.html" },
+            { title: "物流成本：一雙鞋的運費", url: "topics/global-logistics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜貨櫃革命與海運",
+          courses: [
+            { title: "貨櫃的發明", url: "topics/global-logistics/lesson-05.html" },
+            { title: "標準貨櫃", url: "topics/global-logistics/lesson-06.html" },
+            { title: "貨櫃船的演進", url: "topics/global-logistics/lesson-07.html" },
+            { title: "航線網路", url: "topics/global-logistics/lesson-08.html" },
+            { title: "世界大港", url: "topics/global-logistics/lesson-09.html" },
+            { title: "貨櫃碼頭怎麼運作", url: "topics/global-logistics/lesson-10.html" },
+            { title: "散裝船、油輪與其他特殊船", url: "topics/global-logistics/lesson-11.html" },
+            { title: "運河與海峽", url: "topics/global-logistics/lesson-12.html" },
+            { title: "台灣的海運業", url: "topics/global-logistics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜空運與快遞",
+          courses: [
+            { title: "航空貨運", url: "topics/global-logistics/lesson-14.html" },
+            { title: "樞紐機場", url: "topics/global-logistics/lesson-15.html" },
+            { title: "快遞巨頭", url: "topics/global-logistics/lesson-16.html" },
+            { title: "什麼東西適合空運", url: "topics/global-logistics/lesson-17.html" },
+            { title: "冷鏈物流", url: "topics/global-logistics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜陸運與多式聯運",
+          courses: [
+            { title: "卡車運輸與最後一哩路", url: "topics/global-logistics/lesson-19.html" },
+            { title: "鐵路貨運", url: "topics/global-logistics/lesson-20.html" },
+            { title: "多式聯運", url: "topics/global-logistics/lesson-21.html" },
+            { title: "管線", url: "topics/global-logistics/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜倉儲與配送中心",
+          courses: [
+            { title: "倉庫的角色", url: "topics/global-logistics/lesson-23.html" },
+            { title: "越庫作業", url: "topics/global-logistics/lesson-24.html" },
+            { title: "自動化倉儲", url: "topics/global-logistics/lesson-25.html" },
+            { title: "揀貨策略", url: "topics/global-logistics/lesson-26.html" },
+            { title: "電商物流", url: "topics/global-logistics/lesson-27.html" },
+            { title: "台灣的最後一哩", url: "topics/global-logistics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜供應鏈管理",
+          courses: [
+            { title: "長鞭效應", url: "topics/global-logistics/lesson-29.html" },
+            { title: "庫存管理", url: "topics/global-logistics/lesson-30.html" },
+            { title: "及時生產與豐田生產方式", url: "topics/global-logistics/lesson-31.html" },
+            { title: "預測與需求規劃", url: "topics/global-logistics/lesson-32.html" },
+            { title: "供應鏈的韌性與效率", url: "topics/global-logistics/lesson-33.html" },
+            { title: "半導體供應鏈", url: "topics/global-logistics/lesson-34.html" },
+            { title: "逆物流", url: "topics/global-logistics/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜貿易規則與文件",
+          courses: [
+            { title: "國貿條規", url: "topics/global-logistics/lesson-36.html" },
+            { title: "提單、報關、關稅", url: "topics/global-logistics/lesson-37.html" },
+            { title: "自由貿易區與保稅倉庫", url: "topics/global-logistics/lesson-38.html" },
+            { title: "貿易戰、出口管制與供應鏈轉移", url: "topics/global-logistics/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜危機與事件",
+          courses: [
+            { title: "疫情塞港與運價暴漲", url: "topics/global-logistics/lesson-40.html" },
+            { title: "長賜輪卡住蘇伊士運河", url: "topics/global-logistics/lesson-41.html" },
+            { title: "紅海危機與繞道好望角", url: "topics/global-logistics/lesson-42.html" },
+            { title: "巴拿馬運河乾旱與其他風險", url: "topics/global-logistics/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜科技與未來",
+          courses: [
+            { title: "物流資訊系統", url: "topics/global-logistics/lesson-44.html" },
+            { title: "最佳化問題", url: "topics/global-logistics/lesson-45.html" },
+            { title: "自駕卡車、無人機與自動化港口", url: "topics/global-logistics/lesson-46.html" },
+            { title: "綠色物流", url: "topics/global-logistics/lesson-47.html" },
+            { title: "總結：物流地圖與職涯", url: "topics/global-logistics/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
