@@ -15,7 +15,7 @@ _WHISPER = svg(
     title(u"Whisper：編碼器—解碼器 Transformer"),
     box(20, 60, 120, 60, u"30 秒音訊", [u"→ 80 維 Mel 頻譜"], BLUE), A(140, 90, 170, 90, MUTED),
     box(170, 60, 130, 60, u"編碼器", [u"Transformer"], PURPLE), A(300, 90, 340, 90, MUTED),
-    box(340, 40, 280, 100, u"解碼器（像 GPT 一樣逐 token 生成）", [u"<|zh|><|transcribe|>", u"今天天氣很好……", u"特殊 token 指定語言、任務、時間戳"], GREEN),
+    box(340, 40, 280, 100, u"解碼器（像 GPT 一樣逐 token 生成）", [u"&lt;|zh|&gt;&lt;|transcribe|&gt;", u"今天天氣很好……", u"特殊 token 指定語言、任務、時間戳"], GREEN),
     T(320, 170, u"68 萬小時、多語言的網路音訊與字幕（弱監督）", 10.5, ACC),
 )
 
