@@ -41,7 +41,8 @@ window.SITE_DATA = {
     { id: "games", label: "電玩遊戲世界觀", icon: "🎮" },
     { id: "mythology", label: "神話與傳說", icon: "🏺" },
     { id: "divination", label: "命理與占卜", icon: "🔮" },
-    { id: "history", label: "歷史", icon: "📜" }
+    { id: "history", label: "歷史", icon: "📜" },
+    { id: "geography", label: "地理與旅遊", icon: "🗺️" }
   ],
   topics: [
     {
@@ -18405,6 +18406,124 @@ window.SITE_DATA = {
             { title: "九一一事件、反恐戰爭與金融海嘯", url: "topics/us-history/lesson-46.html" },
             { title: "歐巴馬、川普與兩極化的政治", url: "topics/us-history/lesson-47.html" },
             { title: "總結：美國歷史的幾條主線", url: "topics/us-history/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "us-states",
+      category: "geography",
+      title: "美國五十州：位置、州旗與特色",
+      description:
+        "一州一課，依東北、中西部、南部、西部四大區域介紹五十州：每課有位置地圖、一句話記憶、基本資料、州旗、地理與歷史、大企業、代表食物、華人社群、景點與冷知識。另有華盛頓特區、波多黎各與關島等屬地、五十州大比較，以及華人在美國的歷史；附可點選的互動地圖、找州測驗、加入順序動畫與州旗一覽。",
+      icon: "🗽",
+      url: "topics/us-states/index.html",
+      resources: [
+        {
+          title: "美國五十州互動地圖",
+          description: "點選查詢、找州測驗、加入順序動畫、排行比較",
+          icon: "🗺️",
+          url: "topics/us-states/guide.html"
+        },
+        {
+          title: "五十州速查表",
+          description: "五十州的縮寫、區域、首府、最大城市、人口、加入年份與綽號",
+          icon: "📋",
+          url: "topics/us-states/states.html"
+        },
+        {
+          title: "五十州州旗一覽",
+          description: "依英文州名排列的五十面州旗（簡化示意圖）",
+          icon: "🚩",
+          url: "topics/us-states/flags.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論：怎麼認識美國五十州",
+          courses: [
+            { title: "什麼是「州」？州與聯邦的分工", url: "topics/us-states/lesson-01.html" },
+            { title: "四大區域與美國的地理骨架", url: "topics/us-states/lesson-02.html" },
+            { title: "五十州是怎麼來的：加入聯邦的順序", url: "topics/us-states/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜東北部：新英格蘭與中大西洋",
+          courses: [
+            { title: "緬因州：龍蝦與松林之州", url: "topics/us-states/lesson-04.html" },
+            { title: "新罕布夏州：不自由，毋寧死", url: "topics/us-states/lesson-05.html" },
+            { title: "佛蒙特州：綠山與楓糖", url: "topics/us-states/lesson-06.html" },
+            { title: "麻州州：美國革命的搖籃", url: "topics/us-states/lesson-07.html" },
+            { title: "羅德島州：最小的州", url: "topics/us-states/lesson-08.html" },
+            { title: "康乃狄克州：憲法州與保險之都", url: "topics/us-states/lesson-09.html" },
+            { title: "紐約州：帝國州", url: "topics/us-states/lesson-10.html" },
+            { title: "紐澤西州：花園州", url: "topics/us-states/lesson-11.html" },
+            { title: "賓州州：拱心石州", url: "topics/us-states/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜中西部：五大湖與大平原",
+          courses: [
+            { title: "俄亥俄州：總統之母與航空的搖籃", url: "topics/us-states/lesson-13.html" },
+            { title: "印第安納州：賽車與籃球之州", url: "topics/us-states/lesson-14.html" },
+            { title: "伊利諾州：林肯之地", url: "topics/us-states/lesson-15.html" },
+            { title: "密西根州：大湖州與汽車城", url: "topics/us-states/lesson-16.html" },
+            { title: "威斯康辛州：美國的乳製品之鄉", url: "topics/us-states/lesson-17.html" },
+            { title: "明尼蘇達州：萬湖之州", url: "topics/us-states/lesson-18.html" },
+            { title: "愛荷華州：玉米田與總統初選", url: "topics/us-states/lesson-19.html" },
+            { title: "密蘇里州：西部之門", url: "topics/us-states/lesson-20.html" },
+            { title: "北達科他州：北方大平原", url: "topics/us-states/lesson-21.html" },
+            { title: "南達科他州：拉什莫爾山州", url: "topics/us-states/lesson-22.html" },
+            { title: "內布拉斯加州：剝玉米殼州", url: "topics/us-states/lesson-23.html" },
+            { title: "堪薩斯州：向日葵州", url: "topics/us-states/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜南部：從大西洋岸到德州",
+          courses: [
+            { title: "德拉瓦州：第一州", url: "topics/us-states/lesson-25.html" },
+            { title: "馬里蘭州：美國的縮影", url: "topics/us-states/lesson-26.html" },
+            { title: "維吉尼亞州：總統之母", url: "topics/us-states/lesson-27.html" },
+            { title: "西維吉尼亞州：從維吉尼亞分出來的山州", url: "topics/us-states/lesson-28.html" },
+            { title: "北卡羅來納州：飛行第一州", url: "topics/us-states/lesson-29.html" },
+            { title: "南卡羅來納州：矮棕櫚州", url: "topics/us-states/lesson-30.html" },
+            { title: "喬治亞州：桃子州與新南方之都", url: "topics/us-states/lesson-31.html" },
+            { title: "佛羅里達州：陽光州", url: "topics/us-states/lesson-32.html" },
+            { title: "肯塔基州：藍草州", url: "topics/us-states/lesson-33.html" },
+            { title: "田納西州：音樂之州", url: "topics/us-states/lesson-34.html" },
+            { title: "阿拉巴馬州：迪克西之心", url: "topics/us-states/lesson-35.html" },
+            { title: "密西西比州：藍調的故鄉", url: "topics/us-states/lesson-36.html" },
+            { title: "阿肯色州：自然之州", url: "topics/us-states/lesson-37.html" },
+            { title: "路易斯安那州：爵士樂與法式風情", url: "topics/us-states/lesson-38.html" },
+            { title: "奧克拉荷馬州：原住民的土地", url: "topics/us-states/lesson-39.html" },
+            { title: "德州州：孤星州", url: "topics/us-states/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 E｜西部：落基山、太平洋岸與阿拉斯加、夏威夷",
+          courses: [
+            { title: "蒙大拿州：大天空之國", url: "topics/us-states/lesson-41.html" },
+            { title: "懷俄明州：平等州", url: "topics/us-states/lesson-42.html" },
+            { title: "科羅拉多州：百年州", url: "topics/us-states/lesson-43.html" },
+            { title: "新墨西哥州：魅力之地", url: "topics/us-states/lesson-44.html" },
+            { title: "亞利桑那州：大峽谷州", url: "topics/us-states/lesson-45.html" },
+            { title: "猶他州：蜂巢州", url: "topics/us-states/lesson-46.html" },
+            { title: "愛達荷州：寶石州", url: "topics/us-states/lesson-47.html" },
+            { title: "內華達州：銀州與賭城", url: "topics/us-states/lesson-48.html" },
+            { title: "加州州：黃金州", url: "topics/us-states/lesson-49.html" },
+            { title: "奧勒岡州：河狸州", url: "topics/us-states/lesson-50.html" },
+            { title: "華盛頓州：常青州", url: "topics/us-states/lesson-51.html" },
+            { title: "阿拉斯加州：最後的邊疆", url: "topics/us-states/lesson-52.html" },
+            { title: "夏威夷州：阿囉哈州", url: "topics/us-states/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 F｜特區、屬地與總結",
+          courses: [
+            { title: "華盛頓特區：不屬於任何一州的首都", url: "topics/us-states/lesson-54.html" },
+            { title: "美國的屬地：波多黎各、關島與其他島嶼", url: "topics/us-states/lesson-55.html" },
+            { title: "五十州大比較", url: "topics/us-states/lesson-56.html" },
+            { title: "華人在美國：分布與歷史", url: "topics/us-states/lesson-57.html" },
           ],
         },
       ],
