@@ -5,6 +5,7 @@
   美國：https://raw.githubusercontent.com/python-visualization/folium/main/examples/data/us-states.json
   中國：https://raw.githubusercontent.com/longwosion/geojson-map-china/master/china.json
   日本：https://raw.githubusercontent.com/dataofjapan/land/master/japan.geojson
+  韓國：https://raw.githubusercontent.com/southkorea/southkorea-maps/master/kostat/2018/json/skorea-provinces-2018-geo.json（存成 korea.json）
 """
 import io
 import json
@@ -203,8 +204,39 @@ def prep_jp(fn):
     print("JP", W, H, sum(len(v) for v in out.values()), "bytes")
 
 
+def prep_kr(fn):
+    d = json.load(io.open(fn, encoding="utf-8"))
+    raw = {}
+    for f in d["features"]:
+        geom = f["geometry"]
+        polys = geom["coordinates"] if geom["type"] == "MultiPolygon" else [geom["coordinates"]]
+        # 保留內圈：光州廣域市是全羅南道裡的一個「洞」
+        raw[f["properties"]["code"]] = [[G._KR(lon, lat) for lon, lat in r] for p in polys for r in p]
+    K = G.KR_K
+    b = bbox([(x * K, -y * K) for rs in raw.values() for r in rs for x, y in r])
+    m = 10
+    T = (m - b[0], m - b[1])
+    out, allp = {}, []
+    for code, rs in sorted(raw.items()):
+        rr = []
+        for r in rs:
+            q = [(x * K + T[0], -y * K + T[1]) for x, y in r]
+            if area(q) < 1.5:
+                continue
+            q = dpring(q, 0.6)
+            if len(q) >= 3:
+                rr.append(q)
+                allp += q
+        out[code] = path(rr)
+    bb = bbox(allp)
+    W, H = int(bb[2] + m), int(bb[3] + m)
+    write("krp_geo.py", u"韓國各市道的 SVG 路徑", [("KR_VB", [W, H]), ("KR_T", list(T)), ("KR_PATHS", out)])
+    print("KR", W, H, sum(len(v) for v in out.values()), "bytes")
+
+
 if __name__ == "__main__":
     g = sys.argv[1]
     prep_us(os.path.join(g, "us-states.json"))
     prep_cn(os.path.join(g, "china.json"))
     prep_jp(os.path.join(g, "japan.geojson"))
+    prep_kr(os.path.join(g, "korea.json"))
