@@ -4,6 +4,7 @@
 資料來源（下載到 geo/ 目錄後執行 python3 geoprep.py geo/）：
   美國：https://raw.githubusercontent.com/python-visualization/folium/main/examples/data/us-states.json
   中國：https://raw.githubusercontent.com/longwosion/geojson-map-china/master/china.json
+  日本：https://raw.githubusercontent.com/dataofjapan/land/master/japan.geojson
 """
 import io
 import json
@@ -161,7 +162,49 @@ def prep_cn(fn):
     print("CN", W, H, sum(len(v) for v in out.values()), "bytes")
 
 
+def prep_jp(fn):
+    d = json.load(io.open(fn, encoding="utf-8"))
+    raw = {}
+    for f in d["features"]:
+        code = int(f["properties"]["id"])
+        part = "oki" if code == 47 else "main"
+        rs = []
+        for r in rings(f["geometry"]):
+            if part == "main" and min(lat for lon, lat in r) < 30.5:     # 小笠原等遠島不畫
+                continue
+            rs.append([G._JP(lon, lat) for lon, lat in r])
+        raw[code] = (part, rs)
+    K = G.JP_K
+
+    def pts(part):
+        return [(x * K, -y * K) for c, (p, rs) in raw.items() if p == part for r in rs for x, y in r]
+    bm = bbox(pts("main"))
+    m = 10
+    T = {"main": (1.0, m - bm[0], m - bm[1])}
+    bo = bbox(pts("oki"))
+    # 沖繩放在左上角（日本海一帶的空白處），外加框線
+    T["oki"] = (1.0, m + 8 - bo[0], m + 8 - bo[1])
+    out, allp = {}, []
+    for code, (part, rs) in sorted(raw.items()):
+        s, dx, dy = T[part]
+        rr = []
+        for r in rs:
+            q = [(x * K * s + dx, -y * K * s + dy) for x, y in r]
+            if area(q) < (2.5 if code != 47 else 0.8):
+                continue
+            q = dpring(q, 0.55)
+            if len(q) >= 3:
+                rr.append(q)
+                allp += q
+        out["%02d" % code] = path(rr)
+    bb = bbox(allp)
+    W, H = int(bb[2] + m), int(bb[3] + m)
+    write("jpp_geo.py", u"日本各都道府縣的 SVG 路徑", [("JP_VB", [W, H]), ("JP_T", T), ("JP_PATHS", out)])
+    print("JP", W, H, sum(len(v) for v in out.values()), "bytes")
+
+
 if __name__ == "__main__":
     g = sys.argv[1]
     prep_us(os.path.join(g, "us-states.json"))
     prep_cn(os.path.join(g, "china.json"))
+    prep_jp(os.path.join(g, "japan.geojson"))

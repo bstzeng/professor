@@ -47,6 +47,18 @@ def cn_xy(lon, lat):
     return x * CN_K + CN_T[0], -y * CN_K + CN_T[1]
 
 
+# ---------- 日本：本土 + 沖繩插圖 ----------
+_JP = albers(30, 42, 36, 136)
+JP_K = 2400.0
+
+
+def jp_xy(lon, lat, part="main"):
+    from jpp_geo import JP_T
+    x, y = _JP(lon, lat)
+    s, dx, dy = JP_T[part]
+    return x * JP_K * s + dx, -y * JP_K * s + dy
+
+
 # ---------- 幾何 ----------
 import json as _json
 import re as _re
