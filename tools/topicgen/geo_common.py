@@ -59,6 +59,17 @@ def jp_xy(lon, lat, part="main"):
     return x * JP_K * s + dx, -y * JP_K * s + dy
 
 
+# ---------- 韓國 ----------
+_KR = albers(34, 38, 36, 127.5)
+KR_K = 6000.0
+
+
+def kr_xy(lon, lat):
+    from krp_geo import KR_T
+    x, y = _KR(lon, lat)
+    return x * KR_K + KR_T[0], -y * KR_K + KR_T[1]
+
+
 # ---------- 幾何 ----------
 import json as _json
 import re as _re
@@ -163,10 +174,10 @@ def static_map(vb, paths, hl, near=(), star=None, label=None, extra=None, small=
         if k == hl:
             continue
         fill = NEAR if k in near else BASE
-        g.append('<path d="%s" fill="%s" stroke="%s" stroke-width="0.8"/>' % (d, fill, STROKE))
+        g.append('<path d="%s" fill="%s" fill-rule="evenodd" stroke="%s" stroke-width="0.8"/>' % (d, fill, STROKE))
     if extra:
         g.append(extra)
-    g.append('<path d="%s" fill="%s" stroke="%s" stroke-width="1"/>' % (paths[hl], HL, STROKE))
+    g.append('<path d="%s" fill="%s" fill-rule="evenodd" stroke="%s" stroke-width="1"/>' % (paths[hl], HL, STROKE))
     x0, y0, x1, y1 = bbox_of(paths[hl])
     if small:
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
@@ -227,7 +238,7 @@ def geolib(flag, dataset):
   function mapSvg(root, onClick) {
     var box = el('div', 'margin:6px 0'); root.appendChild(box);
     var g = (D.extra || '');
-    D.items.forEach(function (it) { g += '<path data-c="' + it.c + '" d="' + it.p + '" fill="' + BASE + '" stroke="var(--surface)" stroke-width="0.8" style="cursor:pointer"><title>' + it.n + '</title></path>'; });
+    D.items.forEach(function (it) { g += '<path data-c="' + it.c + '" d="' + it.p + '" fill="' + BASE + '" fill-rule="evenodd" stroke="var(--surface)" stroke-width="0.8" style="cursor:pointer"><title>' + it.n + '</title></path>'; });
     g += '<g class="lab"></g>';
     box.innerHTML = svgw('0 0 ' + D.vb[0] + ' ' + D.vb[1], g);
     var svg = box.querySelector('svg');

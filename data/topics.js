@@ -18766,6 +18766,94 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "korea-regions",
+      category: "geography",
+      title: "韓國各市道：首爾、釜山到濟州",
+      description:
+        "一地一課介紹韓國 17 個市道：首爾特別市、六個廣域市、世宗特別自治市和九個道。每課有位置地圖、一句話記憶、韓文與名稱由來、主要地區、地理歷史、方言、美食與伴手禮、世界遺產、慶典，以及旅遊建議與從台灣怎麼去。另有行政區制度、地形氣候、地名的念法、各地比較與世界遺產總表、美食地圖和韓國與台灣，附互動地圖、找地測驗與速查表。",
+      icon: "🇰🇷",
+      url: "topics/korea-regions/index.html",
+      resources: [
+        {
+          title: "韓國各市道互動地圖",
+          description: "點選查詢、找地測驗、排行比較",
+          icon: "🗺️",
+          url: "topics/korea-regions/guide.html"
+        },
+        {
+          title: "17 市道速查表",
+          description: "韓文、類型、地區、廳舍所在地、人口、面積與推薦季節",
+          icon: "📋",
+          url: "topics/korea-regions/regions.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論：認識韓國的行政區",
+          courses: [
+            { title: "特別市、廣域市與道", url: "topics/korea-regions/lesson-01.html" },
+            { title: "地形、氣候與六大地區", url: "topics/korea-regions/lesson-02.html" },
+            { title: "地名怎麼念、怎麼寫", url: "topics/korea-regions/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜首都圈",
+          courses: [
+            { title: "首爾特別市：六百年古都與韓流中心", url: "topics/korea-regions/lesson-04.html" },
+            { title: "仁川廣域市：國際門戶與炸醬麵的故鄉", url: "topics/korea-regions/lesson-05.html" },
+            { title: "京畿道：環繞首爾的大道", url: "topics/korea-regions/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 C｜江原",
+          courses: [
+            { title: "江原特別自治道：山與海的道", url: "topics/korea-regions/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 D｜忠清",
+          courses: [
+            { title: "大田廣域市：科學城與麵包聖地", url: "topics/korea-regions/lesson-08.html" },
+            { title: "世宗特別自治市：行政首都", url: "topics/korea-regions/lesson-09.html" },
+            { title: "忠清北道：唯一不靠海的道", url: "topics/korea-regions/lesson-10.html" },
+            { title: "忠清南道：百濟古都與西海岸", url: "topics/korea-regions/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 E｜湖南（全羅）",
+          courses: [
+            { title: "光州廣域市：民主化的聖地", url: "topics/korea-regions/lesson-12.html" },
+            { title: "全北特別自治道：韓國的飲食之都", url: "topics/korea-regions/lesson-13.html" },
+            { title: "全羅南道：多島海與南道美食", url: "topics/korea-regions/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 F｜嶺南（慶尚）",
+          courses: [
+            { title: "釜山廣域市：韓國第二大城與港都", url: "topics/korea-regions/lesson-15.html" },
+            { title: "大邱廣域市：盆地裡的「大프리카」", url: "topics/korea-regions/lesson-16.html" },
+            { title: "蔚山廣域市：工業首都", url: "topics/korea-regions/lesson-17.html" },
+            { title: "慶尚北道：千年古都慶州與儒學之鄉", url: "topics/korea-regions/lesson-18.html" },
+            { title: "慶尚南道：南海岸與伽倻文明", url: "topics/korea-regions/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 G｜濟州",
+          courses: [
+            { title: "濟州特別自治道：火山島與度假勝地", url: "topics/korea-regions/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "各地大比較與世界遺產總表", url: "topics/korea-regions/lesson-21.html" },
+            { title: "韓國美食地圖", url: "topics/korea-regions/lesson-22.html" },
+            { title: "韓國與台灣", url: "topics/korea-regions/lesson-23.html" },
+          ],
+        },
+      ],
     }
   ]
 };
