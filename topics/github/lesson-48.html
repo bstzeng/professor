@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：打包與垃圾回收 ｜ GitHub 從零到協作 ｜ 博雅書院</title>
+<meta name="description" content="Git 怎麼省空間">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GitHub 從零到協作</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜Git 的內部 · 第 48 課</div>
+      <h1>打包與垃圾回收</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解鬆散物件與 packfile</li>
+          <li>認識 git gc</li>
+          <li>了解 Git 用 SHA-1 的安全議題</li>
+        </ul>
+      </div>
+
+      <p>
+        每個新物件一開始都是 <code>.git/objects/</code> 下的一個壓縮檔（<strong>鬆散物件</strong>，loose object）。修改一個大檔案的一行，就會多一個幾乎一樣的 blob——看起來很浪費。所以 Git 會定期<strong>打包</strong>：
+      </p>
+
+      <p style="margin:16px 0 4px"><strong>▶ 動手做</strong>　<span style="color:var(--text-muted);font-size:0.88em">實際執行的輸出</span></p>
+
+      <div class="code-block" style="background:#14181f;color:#d8dde6"><span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git count-objects -v</span>&#10;count: 30&#10;size: 120&#10;in-pack: 0&#10;packs: 0&#10;size-pack: 0&#10;prune-packable: 0&#10;garbage: 0&#10;size-garbage: 0&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git gc --quiet</span>&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git count-objects -v</span>&#10;count: 0&#10;size: 0&#10;in-pack: 30&#10;packs: 1&#10;size-pack: 4&#10;prune-packable: 0&#10;garbage: 0&#10;size-garbage: 0&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">ls .git/objects/pack</span>&#10;pack-b837483a8f924c27b75f3840c303b55e481a798c.idx&#10;pack-b837483a8f924c27b75f3840c303b55e481a798c.pack&#10;pack-b837483a8f924c27b75f3840c303b55e481a798c.rev</div>
+
+      <p>
+        <code>git gc</code>（garbage collection）把 30 個鬆散物件打包成一個 <strong>packfile</strong>（<code>.pack</code> 存資料，<code>.idx</code> 是索引）。在 pack 裡，相似的物件會存成「基底＋差異（delta）」，所以 10 個版本的大檔案只占一點點空間。同時，沒有任何分支或 reflog 指向的過期物件會被刪除。
+      </p>
+
+      <ul>
+        <li>Git 會在適當時機<strong>自動</strong>執行 gc，平常不用手動。</li>
+        <li><code>git clone</code> 與 <code>git push</code> 時，傳輸的也是 packfile，所以速度很快。</li>
+        <li>這套機制對文字檔效果極好；對已經壓縮過的二進位檔（影片、zip、jpg）幾乎無效——這是大型二進位檔該用 Git LFS 的原因（第 50 課）。</li>
+      </ul>
+
+      <h2>SHA-1 安全嗎？</h2>
+
+      <p>
+        2017 年研究者首次做出兩個不同但 SHA-1 相同的 PDF。Git 之後改用能偵測這類攻擊的強化版 SHA-1，並已支援以 <strong>SHA-256</strong> 建立倉庫（<code>git init --object-format=sha256</code>）。不過 SHA-256 倉庫與 GitHub 等平台的相容性仍在推進中，目前絕大多數倉庫仍使用 SHA-1。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          新物件先是 .git/objects 下的鬆散物件；git gc 把它們打包成 packfile（.pack 與 .idx），相似物件以基底加差異儲存，並刪除無人指向的過期物件。gc 會自動執行，clone 與 push 也傳輸 packfile。差異壓縮對文字檔有效、對已壓縮的二進位檔幾乎無效，所以大型二進位檔應用 Git LFS。SHA-1 在 2017 年被證實可碰撞，Git 採用偵測碰撞的強化版並支援 SHA-256 倉庫。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🐙 本課程的 Git 指令範例都在 Git 2.43 實際執行過，畫面上的輸出就是當時的結果（日期固定，所以雜湊值可重現）；範例中的「GitHub 遠端」是用本機的裸倉庫模擬的，指令與真正連到 GitHub 時相同，只有網址不同。GitHub 網站的按鈕位置與名稱偶爾會改版，以官方說明為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>鬆散物件和 packfile 有什麼不同？</li>
+          <li>為什麼 Git 對影片檔很沒效率？</li>
+          <li>Git 如何因應 SHA-1 的碰撞問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>常見災難與解法</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：參照：HEAD 與分支的真面目</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：常見災難與解法 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：cherry-pick 與 reflog ｜ GitHub 從零到協作 ｜ 博雅書院</title>
+<meta name="description" content="挑一個 commit、救回消失的 commit">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GitHub 從零到協作</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜分支 · 第 28 課</div>
+      <h1>cherry-pick 與 reflog</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用 cherry-pick 複製單一 commit</li>
+          <li>用 reflog 找回被 reset 掉的 commit</li>
+          <li>理解 reflog 的期限</li>
+        </ul>
+      </div>
+
+      <h2>cherry-pick：只拿我要的那一個</h2>
+
+      <p>
+        experiment 分支有兩個 commit，你只想要其中「加入 util.py 小工具」那一個，不要實驗性修改：
+      </p>
+
+      <p style="margin:16px 0 4px"><strong>▶ 動手做</strong>　<span style="color:var(--text-muted);font-size:0.88em">實際執行的輸出</span></p>
+
+      <div class="code-block" style="background:#14181f;color:#d8dde6"><span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git log --oneline experiment</span>&#10;5c28245 實驗性修改&#10;aec5ad2 加入 util.py 小工具&#10;edad20f 加入 app.py&#10;582091b 初始提交：加入 README&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git cherry-pick experiment~1</span>&#10;[main 21aeb91] 加入 util.py 小工具&#10; Date: Sun Mar 1 10:08:00 2026 +0800&#10; 1 file changed, 1 insertion(+)&#10; create mode 100644 util.py&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git log --oneline</span>&#10;21aeb91 加入 util.py 小工具&#10;edad20f 加入 app.py&#10;582091b 初始提交：加入 README</div>
+
+      <p>
+        cherry-pick 把那個 commit 的修改<strong>複製</strong>一份到目前分支，產生新雜湊（aec5ad2 → 21aeb91）。常見用途：把 main 上的 bug 修正搬到舊版本的維護分支。
+      </p>
+
+      <h2>reflog：Git 的「黑盒子」</h2>
+
+      <p>
+        不小心 <code>reset --hard</code> 掉了重要的 commit？別慌：
+      </p>
+
+      <p style="margin:16px 0 4px"><strong>▶ 動手做</strong>　<span style="color:var(--text-muted);font-size:0.88em">實際執行的輸出</span></p>
+
+      <div class="code-block" style="background:#14181f;color:#d8dde6"><span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git reset --hard HEAD~1</span>&#10;HEAD is now at edad20f 加入 app.py&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git log --oneline</span>&#10;edad20f 加入 app.py&#10;582091b 初始提交：加入 README&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git reflog</span>&#10;edad20f HEAD@{0}: reset: moving to HEAD~1&#10;830b714 HEAD@{1}: commit: 重要的工作&#10;edad20f HEAD@{2}: commit: 加入 app.py&#10;582091b HEAD@{3}: commit (initial): 初始提交：加入 README&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git reset --hard HEAD@{1}</span>&#10;HEAD is now at 830b714 重要的工作&#10;<span style="color:#7ee2a8">$</span> <span style="color:#ffd479">git log --oneline</span>&#10;830b714 重要的工作&#10;edad20f 加入 app.py&#10;582091b 初始提交：加入 README</div>
+
+      <p>
+        <code>git reflog</code> 記錄了 HEAD 在<strong>你這台電腦上</strong>走過的每一步，即使 commit 已經沒有任何分支指著它。找到它（HEAD@{1}），reset 回去或開一個新分支指向它（<code>git branch rescue 830b714</code>）就救回來了。
+      </p>
+
+      <p>
+        限制：reflog 只存在本機、不會 push；沒有分支指向的 commit 大約 30 天到 90 天後會被清理（依設定）。另外，<strong>從來沒有 commit 過</strong>的修改（例如被 <code>git restore</code> 丟掉的）不在 reflog 裡，救不回來——所以多 commit 永遠是好習慣。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          git cherry-pick 雜湊 把指定 commit 的修改複製到目前分支（產生新雜湊），常用於把 bug 修正搬到維護分支。git reflog 記錄 HEAD 在本機走過的每一步，可找回被 reset 掉的 commit 並 reset 回去或開新分支指向它。reflog 只在本機、無人指向的 commit 約 30～90 天後清理；從未 commit 的修改救不回來。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🐙 本課程的 Git 指令範例都在 Git 2.43 實際執行過，畫面上的輸出就是當時的結果（日期固定，所以雜湊值可重現）；範例中的「GitHub 遠端」是用本機的裸倉庫模擬的，指令與真正連到 GitHub 時相同，只有網址不同。GitHub 網站的按鈕位置與名稱偶爾會改版，以官方說明為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>cherry-pick 是搬移還是複製？</li>
+          <li>reflog 存在哪裡？會被 push 嗎？</li>
+          <li>被 git restore 丟掉的修改能用 reflog 救回嗎？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Pull Request</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：分支策略</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：Pull Request →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
