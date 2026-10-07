@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：計數器 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="同步計數、漣波計數與各種變形">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜循序邏輯 · 第 37 課</div>
+      <h1>計數器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計同步二進位計數器</li>
+          <li>比較同步與漣波（非同步）計數器</li>
+          <li>認識模 N、上下數、環形與詹森計數器</li>
+        </ul>
+      </div>
+
+      <p>
+        計數器是「暫存器 + 加 1 電路」的狀態機：\(Q^+ = Q + 1\)。用 T 正反器的觀點：第 \(i\) 位在所有較低位都是 1 時翻轉，
+      </p>
+
+      <p>
+        \[ T_i = Q_{i-1} Q_{i-2} \cdots Q_0 \]
+      </p>
+
+      <p>
+        這正是漣波進位加法器加 1 的進位鏈。所有位元由<strong>同一個時脈</strong>驅動，在同一個邊緣一起更新，這是<strong>同步計數器</strong>。
+      </p>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：counter</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o counter counter.v tb_counter.v &amp;&amp; vvp counter</code></span></p>
+
+      <p>
+        包含帶致能的 4 位元計數器、上一課的移位暫存器與 LFSR。測試平台在第 10、11 個週期把致能關掉。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>📄 counter.v</strong>　<a href="v/counter.v" download>下載</a></p>
+
+      <div class="code-block">// counter.v：同步計數器、移位暫存器與 LFSR
+module counter4(input clk, input rst, input en, output reg [3:0] q);
+  always @(posedge clk)
+    if (rst)     q &lt;= 4'd0;
+    else if (en) q &lt;= q + 4'd1;          // 所有位元在同一個時脈邊緣一起更新
+endmodule
+
+module shift8(input clk, input rst, input din, output reg [7:0] q);
+  always @(posedge clk)
+    if (rst) q &lt;= 8'd0;
+    else     q &lt;= {q[6:0], din};          // 往左移，新的位元從右邊進來
+endmodule
+
+// 4 位元線性回授移位暫存器：x^4 + x^3 + 1，會走過全部 15 個非零狀態
+module lfsr4(input clk, input rst, output reg [3:0] q);
+  always @(posedge clk)
+    if (rst) q &lt;= 4'b0001;
+    else     q &lt;= {q[2:0], q[3] ^ q[2]};
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_counter.v</strong>　<a href="v/tb_counter.v" download>下載</a></p>
+
+      <div class="code-block">module tb_counter;
+  reg clk = 0, rst = 1, en = 1, din = 0;
+  wire [3:0] q; wire [7:0] sq; wire [3:0] lq;
+  counter4 c(clk, rst, en, q);
+  shift8   s(clk, rst, din, sq);
+  lfsr4    l(clk, rst, lq);
+  always #5 clk = ~clk;
+  reg [7:0] pattern = 8'b1011_0010;
+  integer n;
+  initial begin
+    @(posedge clk); #1 rst = 0;
+    $display("cycle | counter | shift8 (din) | lfsr");
+    for (n = 1; n &lt;= 18; n = n + 1) begin
+      din = pattern[7 - (n - 1) % 8];
+      if (n == 10) en = 0;                    // 第 10 拍暫停計數
+      if (n == 12) en = 1;
+      @(posedge clk); #1;
+      $display("%5d |  %2d     | %b (%b)   | %b", n, q, sq, din, lq);
+    end
+    $finish;
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">cycle | counter | shift8 (din) | lfsr&#10;    1 |   1     | 00000001 (1)   | 0010&#10;    2 |   2     | 00000010 (0)   | 0100&#10;    3 |   3     | 00000101 (1)   | 1001&#10;    4 |   4     | 00001011 (1)   | 0011&#10;    5 |   5     | 00010110 (0)   | 0110&#10;    6 |   6     | 00101100 (0)   | 1101&#10;    7 |   7     | 01011001 (1)   | 1010&#10;    8 |   8     | 10110010 (0)   | 0101&#10;    9 |   9     | 01100101 (1)   | 1011&#10;   10 |   9     | 11001010 (0)   | 0111&#10;   11 |   9     | 10010101 (1)   | 1111&#10;   12 |  10     | 00101011 (1)   | 1110&#10;   13 |  11     | 01010110 (0)   | 1100&#10;   14 |  12     | 10101100 (0)   | 1000&#10;   15 |  13     | 01011001 (1)   | 0001&#10;   16 |  14     | 10110010 (0)   | 0010&#10;   17 |  15     | 01100101 (1)   | 0100&#10;   18 |   0     | 11001010 (0)   | 1001</div>
+
+      <p>
+        觀察輸出：計數器在 en = 0 的兩個週期停在 9；從 15 回到 0（模 16 自然繞回）。LFSR 欄從 0001 開始走過 15 個不同的非零值後，第 15 拍回到 0001。
+      </p>
+
+      <h2>漣波計數器</h2>
+
+      <p>
+        把每個 T 正反器（T = 1）的輸出接到下一級的時脈：第 0 位每個時脈翻轉一次，它的下降邊緣讓第 1 位翻轉……結構極簡單，但每一位的變化都比前一位晚一個 \(t_{cq}\)，N 位元時輸出要 \(N t_{cq}\) 才穩定，中間會出現錯誤的過渡值（例如 0111 → 0110 → 0100 → 0000 → 1000）。而且它違反了「所有正反器同一個時脈」的同步規則，<strong>不應用在同步設計中</strong>；它的合理用途是低功耗的時脈分頻。
+      </p>
+
+      <h2>變形</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>類型</th><th>做法</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>模 N</td><td>到 N − 1 時同步清為 0</td><td>BCD 計數（模 10）、計時器、鮑率產生</td></tr>
+          <tr><td>上下數</td><td>多工器選 +1 或 −1</td><td>位置編碼器、FIFO 計數</td></tr>
+          <tr><td>環形計數器</td><td>one-hot 的 1 在移位暫存器裡繞圈</td><td>N 個正反器 N 個狀態，解碼免邏輯</td></tr>
+          <tr><td>詹森計數器</td><td>反相後回授的移位暫存器</td><td>N 個正反器 2N 個狀態，相鄰只差一位</td></tr>
+          <tr><td>格雷碼計數器</td><td>二進位計數再轉格雷碼</td><td>跨時脈域（第 42 課）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        模 N 計數器搭配比較器就是<strong>計時器</strong>：每 N 個週期產生一個脈衝。微控制器的 PWM、看門狗計時器、UART 的鮑率產生器都是這樣做的。下一課開始，我們把計數器推廣成任意的狀態機。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          同步計數器 Q⁺ = Q + 1，第 i 位在所有低位為 1 時翻轉，全部位元同一時脈更新；Verilog 模擬驗證了致能、繞回與 LFSR 的 15 個狀態。漣波計數器以前一級輸出當時脈，延遲累積且出現錯誤過渡值，只適合時脈分頻。變形包括模 N、上下數、環形（N 狀態）、詹森（2N 狀態）與格雷碼計數器；計數器加比較器即計時器。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>同步 4 位元計數器第 3 位的 T 輸入是什麼？</li>
+          <li>漣波計數器從 0111 到 1000 會出現哪些過渡值？</li>
+          <li>3 個正反器的詹森計數器有幾個狀態？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>有限狀態機：Moore 與 Mealy</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：移位暫存器與 LFSR</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：有限狀態機：Moore 與 Mealy →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

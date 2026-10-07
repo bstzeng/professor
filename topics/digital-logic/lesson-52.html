@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 52 課：控制訊號與立即值解碼 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="把機器碼翻譯成開關">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 52 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜做一顆 CPU · 第 52 課</div>
+      <h1>控制訊號與立即值解碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出主控制單元的真值表</li>
+          <li>推導各格式立即值的拼接與符號延伸</li>
+          <li>理解分支條件與下一個 PC 的選擇</li>
+        </ul>
+      </div>
+
+      <h2>主控制表</h2>
+
+      <p>
+        控制單元的輸入是 opcode（7 位元），輸出是每個控制訊號。rv_single.v 中直接用一組 <code>is_r</code>、<code>is_lw</code>…的比較，再組合成控制訊號：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>指令</th><th>reg_write</th><th>alu_src</th><th>ALU</th><th>mem_write</th><th>寫回來源</th><th>PC</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>R 型</td><td>1</td><td>暫存器</td><td>依 funct</td><td>0</td><td>ALU</td><td>+4</td></tr>
+          <tr><td>I 型運算</td><td>1</td><td>imm_i</td><td>依 funct3</td><td>0</td><td>ALU</td><td>+4</td></tr>
+          <tr><td>lw</td><td>1</td><td>imm_i</td><td>加</td><td>0</td><td>記憶體</td><td>+4</td></tr>
+          <tr><td>sw</td><td>0</td><td>imm_s</td><td>加</td><td>1</td><td>—</td><td>+4</td></tr>
+          <tr><td>分支</td><td>0</td><td>暫存器</td><td>減（比較）</td><td>0</td><td>—</td><td>take ? +imm_b : +4</td></tr>
+          <tr><td>jal</td><td>1</td><td>—</td><td>—</td><td>0</td><td>PC + 4</td><td>+imm_j</td></tr>
+          <tr><td>jalr</td><td>1</td><td>imm_i</td><td>加</td><td>0</td><td>PC + 4</td><td>(rs1 + imm) &amp; ~1</td></tr>
+          <tr><td>lui</td><td>1</td><td>—</td><td>—</td><td>0</td><td>imm_u</td><td>+4</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        <strong>ALU 控制</strong>分兩層：主控制先決定「這是位址計算（加）、比較（減）、還是看 funct」；R 型與 I 型再由 funct3（和 R 型的 funct7 第 5 位區分 add／sub）決定實際運算。兩層解碼讓主控制表保持很小。
+      </p>
+
+      <div class="code-block">  // ALU 控制：把 funct3/funct7 翻譯成 ALU 運算碼（與 alu.v 相同的編碼）
+  reg [3:0] alu_op;
+  always @(*) begin
+    if (is_lw | is_sw | is_jalr) alu_op = 4'd0;                // 位址計算用加法
+    else if (is_b)               alu_op = 4'd1;                // 比較用減法
+    else case (f3)
+      3'b000: alu_op = (is_r &amp;&amp; f7[5]) ? 4'd1 : 4'd0;          // add / sub
+      3'b001: alu_op = 4'd7;                                   // sll
+      3'b010: alu_op = 4'd5;                                   // slt
+      3'b100: alu_op = 4'd4;                                   // xor
+      3'b101: alu_op = 4'd8;                                   // srl
+      3'b110: alu_op = 4'd3;                                   // or
+      default: alu_op = 4'd2;                                  // and
+    endcase
+  end</div>
+
+      <h2>立即值產生器</h2>
+
+      <p>
+        每種格式把立即值的位元放在不同的地方，產生器的工作是把它們拼回來並<strong>符號延伸</strong>（第 2 課）：
+      </p>
+
+      <div class="code-block">  // 立即值產生器：依指令格式把散落各處的位元拼回來，並做符號延伸
+  wire [31:0] imm_i = {{20{instr[31]}}, instr[31:20]};
+  wire [31:0] imm_s = {{20{instr[31]}}, instr[31:25], instr[11:7]};
+  wire [31:0] imm_b = {{19{instr[31]}}, instr[31], instr[7], instr[30:25], instr[11:8], 1'b0};
+  wire [31:0] imm_j = {{11{instr[31]}}, instr[31], instr[19:12], instr[20], instr[30:21], 1'b0};
+  wire [31:0] imm_u = {instr[31:12], 12'b0};</div>
+
+      <ul>
+        <li><code>{20{instr[31]}}</code> 把符號位複製 20 次。所有格式的符號位都是 instr[31]，這是 RISC-V 刻意的設計。</li>
+        <li>B 與 J 格式的最低位固定是 0（指令至少 2 位元組對齊），所以不存，讓範圍加倍：分支 ±4 KB、jal ±1 MB。</li>
+        <li>U 格式把 20 位放在高位、低 12 位補 0。<code>lui</code> 加上 <code>addi</code> 就能組出任何 32 位元常數。</li>
+      </ul>
+
+      <h2>分支與下一個 PC</h2>
+
+      <div class="code-block">  wire lt = $signed(rd1) &lt; $signed(rd2);
+  wire take = is_b &amp; ((f3 == 3'b000 &amp; zero) | (f3 == 3'b001 &amp; ~zero) | (f3 == 3'b100 &amp; lt) | (f3 == 3'b101 &amp; ~lt));
+  wire [31:0] pc_next = is_jal ? pc + imm_j : is_jalr ? (alu_y &amp; ~32'd1) : take ? pc + imm_b : pc4;</div>
+
+      <p>
+        beq／bne 用 ALU 減法的 <code>zero</code> 旗標；blt／bge 用有號比較。<code>pc_next</code> 是一個四選一：jal 目標、jalr 目標（最低位清 0）、分支目標、或 PC + 4。jalr 搭配 <code>ra</code> 就是函式返回（<code>ret</code> = <code>jalr zero, 0(ra)</code>）。
+      </p>
+
+      <p>
+        這些控制訊號都是組合邏輯，大多數只是幾個閘。在真實的處理器中，指令解碼比這複雜得多（x86 的變長指令尤其困難），但原理相同。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          主控制單元依 opcode 產生 reg_write、alu_src、mem_write、寫回來源與 PC 選擇；ALU 控制分兩層，先分位址／比較／看 funct，再由 funct3 與 funct7[5] 決定運算。立即值產生器依格式拼接位元並以 instr[31] 做符號延伸，B、J 格式省略恆為 0 的最低位以加倍範圍，lui + addi 可組出任意常數。下一個 PC 在 jal、jalr、分支目標與 PC + 4 之間選擇。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 sw 的 reg_write 是 0？</li>
+          <li>寫出 B 格式立即值的拼接方式。</li>
+          <li>如何用兩條指令把 0x12345678 載入暫存器？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>多週期 CPU 與微程式</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-51.html">← 上一課：單週期 CPU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-53.html">下一課：多週期 CPU 與微程式 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

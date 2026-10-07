@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：暫存器與暫存器檔 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="把很多正反器排在一起">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜循序邏輯 · 第 35 課</div>
+      <h1>暫存器與暫存器檔</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>由正反器組成 N 位元暫存器</li>
+          <li>設計多讀埠、單寫埠的暫存器檔</li>
+          <li>理解 RISC-V x0 恆為 0 的實作</li>
+        </ul>
+      </div>
+
+      <p>
+        N 個共用時脈（與致能、重置）的 D 正反器就是一個 N 位元<strong>暫存器</strong>。在 Verilog 中只是把 <code>reg</code> 宣告成向量：<code>reg [31:0] q; always @(posedge clk) q &lt;= d;</code>。
+      </p>
+
+      <h2>暫存器檔</h2>
+
+      <p>
+        CPU 需要一組可以用編號存取的暫存器。RISC-V 有 32 個 32 位元的整數暫存器 x0～x31。一條像 <code>add x5, x6, x7</code> 的指令需要<strong>同時讀兩個</strong>暫存器、<strong>寫一個</strong>，所以暫存器檔要有兩個讀埠、一個寫埠：
+      </p>
+
+      <ul>
+        <li><strong>讀埠</strong>：5 位元的位址選出 32 個暫存器之一——就是一個 32 選 1 的多工器（每個位元一個，共 32 個）。讀取是<strong>組合邏輯</strong>，位址一給就有結果。</li>
+        <li><strong>寫埠</strong>：5 位元位址經過 5 對 32 解碼器，再 AND 上寫入致能 we，產生每個暫存器的致能；在時脈邊緣寫入。</li>
+      </ul>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：regfile</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o regfile regfile.v tb_regfile.v &amp;&amp; vvp regfile</code></span></p>
+
+      <p style="margin:18px 0 6px"><strong>📄 regfile.v</strong>　<a href="v/regfile.v" download>下載</a></p>
+
+      <div class="code-block">// regfile.v：RISC-V 的 32 個 32 位元暫存器，兩個讀埠、一個寫埠，x0 永遠是 0
+module regfile(input clk, input we, input [4:0] ra1, input [4:0] ra2, input [4:0] wa,
+               input [31:0] wd, output [31:0] rd1, output [31:0] rd2);
+  reg [31:0] r [1:31];
+  assign rd1 = (ra1 == 0) ? 32'd0 : r[ra1];  // 讀取是組合邏輯：立刻得到
+  assign rd2 = (ra2 == 0) ? 32'd0 : r[ra2];
+  always @(posedge clk)                      // 寫入在時脈邊緣
+    if (we &amp;&amp; wa != 0) r[wa] &lt;= wd;
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_regfile.v</strong>　<a href="v/tb_regfile.v" download>下載</a></p>
+
+      <div class="code-block">module tb_regfile;
+  reg clk = 0, we = 0; reg [4:0] ra1, ra2, wa; reg [31:0] wd; wire [31:0] rd1, rd2;
+  regfile rf(clk, we, ra1, ra2, wa, wd, rd1, rd2);
+  always #5 clk = ~clk;
+  initial begin
+    we = 1; wa = 5;  wd = 32'd123; @(posedge clk); #1;
+    wa = 6;  wd = 32'd456; @(posedge clk); #1;
+    wa = 0;  wd = 32'd999; @(posedge clk); #1;   // 寫 x0 會被忽略
+    we = 0; ra1 = 5; ra2 = 6; #1 $display("x5 = %0d, x6 = %0d", rd1, rd2);
+    ra1 = 0; #1 $display("x0 = %0d (writes to x0 are ignored)", rd1);
+    $finish;
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">x5 = 123, x6 = 456&#10;x0 = 0 (writes to x0 are ignored)</div>
+
+      <p>
+        注意兩個細節：
+      </p>
+
+      <ol>
+        <li><code>reg [31:0] r [1:31]</code> 只宣告 31 個暫存器：<strong>x0 根本不存在</strong>。讀到位址 0 時直接回傳 0，寫入位址 0 時被忽略。RISC-V 用這個恆為 0 的暫存器實作很多「假指令」：<code>mv a, b</code> 是 <code>addi a, b, 0</code>，<code>nop</code> 是 <code>addi x0, x0, 0</code>，無條件跳躍 <code>j</code> 是 <code>jal x0, …</code>。</li>
+        <li>讀是組合、寫是同步：在單週期 CPU 中，一條指令在同一個週期內讀暫存器、算出結果，到時脈邊緣才寫回，下一條指令就看得到新值。</li>
+      </ol>
+
+      <h2>真實的暫存器檔</h2>
+
+      <p>
+        用正反器加多工器做暫存器檔在 FPGA 與小型設計中很普遍。高效能 CPU 的暫存器檔是客製化的 SRAM 陣列（第 47 課），有 6～12 個讀埠、3～6 個寫埠，供多條指令同時使用；因為暫存器重新命名，實體暫存器數量也遠多於 32 個（例如 180～300 個）。每多一個埠，每個儲存格就要多一條字線與位元線，面積大約隨埠數的平方成長。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          N 個共用時脈的 D 正反器組成暫存器。RISC-V 暫存器檔有 32 個 32 位元暫存器、兩個讀埠（32 選 1 多工器，組合讀取）與一個寫埠（解碼器 + we，在時脈邊緣寫入）。x0 不存在實體儲存，讀回 0、寫入被忽略，讓 mv、nop、j 等假指令得以實作。高效能 CPU 的暫存器檔是多埠 SRAM，面積隨埠數約平方成長。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>暫存器檔的讀埠本質上是什麼元件？</li>
+          <li>nop 在 RISC-V 中如何實作？</li>
+          <li>為什麼暫存器檔的面積隨埠數快速增加？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>移位暫存器與 LFSR</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：JK、T 正反器與重置、致能</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：移位暫存器與 LFSR →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

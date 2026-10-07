@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：JK、T 正反器與重置、致能 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="其他種類的正反器與實務控制訊號">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜閂鎖器與正反器 · 第 34 課</div>
+      <h1>JK、T 正反器與重置、致能</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>寫出 JK 與 T 正反器的特性方程式</li>
+          <li>比較同步與非同步重置</li>
+          <li>用多工器加入致能</li>
+        </ul>
+      </div>
+
+      <h2>JK 與 T 正反器</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>類型</th><th>特性方程式</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>D</td><td>\(Q^+ = D\)</td><td>現代設計幾乎只用它</td></tr>
+          <tr><td>JK</td><td>\(Q^+ = JQ' + K'Q\)</td><td>像 SR，但 J = K = 1 時翻轉（沒有禁止組合）</td></tr>
+          <tr><td>T</td><td>\(Q^+ = T \oplus Q\)</td><td>T = 1 時翻轉；計數器的基本單元</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        JK 與 T 在離散 IC 的年代很流行，因為它們讓計數器等電路的激勵式比較簡單。今天，任何 JK 或 T 都可以用 D 正反器加一點邏輯實作（\(D = T \oplus Q\)），合成工具與 FPGA 也只提供 D 型，所以它們主要出現在教科書中。理解它們的價值在於：任何循序電路都是「D 正反器 + 下一狀態邏輯」。
+      </p>
+
+      <h2>重置</h2>
+
+      <p>
+        電源打開時，正反器的值是隨機的。系統需要<strong>重置</strong>把狀態設到已知值。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>同步重置</th><th>非同步重置</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>寫法</td><td><code>always @(posedge clk) if (rst) q &lt;= 0;</code></td><td><code>always @(posedge clk or posedge rst) if (rst) q &lt;= 0;</code></td></tr>
+          <tr><td>何時生效</td><td>下一個時脈邊緣</td><td>立即，不需要時脈</td></tr>
+          <tr><td>實作</td><td>D 輸入前加一個 AND（或多工器）</td><td>正反器內部的設定／重置電晶體</td></tr>
+          <tr><td>優點</td><td>純同步，時序分析簡單；不怕毛刺</td><td>時脈還沒穩定也能重置；不占資料路徑</td></tr>
+          <tr><td>風險</td><td>重置期間時脈必須在跑</td><td><strong>重置放開</strong>時若接近時脈邊緣，會發生亞穩態</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        業界常見的折衷：<strong>非同步觸發、同步放開</strong>——重置訊號可以隨時進來，但放開前先經過一個兩級同步器（第 42 課），確保所有正反器在同一個時脈邊緣離開重置。latches.v 最後的 <code>dff</code> 模組就是非同步重置的寫法。
+      </p>
+
+      <h2>致能</h2>
+
+      <p>
+        有致能的暫存器只在 en = 1 時更新：\(D = en\cdot d + en'\cdot Q\)，也就是 D 前面加一個 2 選 1 多工器，選「新值」或「自己」。Verilog：
+      </p>
+
+      <div class="code-block">always @(posedge clk)
+  if (en) q &lt;= d;      // en = 0 時 q 保持（合成成多工器或時脈閘控）</div>
+
+      <p>
+        <strong>絕對不要</strong>用 AND 閘把 en 和 clk 直接接在一起來做致能：en 的毛刺或在 clk = 1 時改變都會在時脈上產生額外的邊緣（第 15 課）。需要省電時使用工具插入的時脈閘控單元（內含閂鎖器，第 29 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          JK 正反器 Q⁺ = JQ′ + K′Q（J = K = 1 時翻轉），T 正反器 Q⁺ = T ⊕ Q；兩者都可用 D 正反器加邏輯實作，現代設計只用 D。同步重置在時脈邊緣生效、時序簡單；非同步重置立即生效但放開時可能亞穩，常用「非同步觸發、同步放開」。致能以多工器在 D 前選擇新值或保持，絕不可直接用 AND 閘閘控時脈。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 D 正反器與 XOR 實作 T 正反器。</li>
+          <li>非同步重置的主要風險是什麼？如何避免？</li>
+          <li>為什麼不能用 AND(en, clk) 做致能？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>暫存器與暫存器檔</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：亞穩態</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：暫存器與暫存器檔 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

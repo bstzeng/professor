@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：多週期 CPU 與微程式 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="把一條指令拆成幾個較短的週期">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜做一顆 CPU · 第 53 課</div>
+      <h1>多週期 CPU 與微程式</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明多週期 CPU 如何縮短時脈週期</li>
+          <li>把控制單元設計成狀態機</li>
+          <li>理解微程式控制與 CPI</li>
+        </ul>
+      </div>
+
+      <p>
+        單週期的問題是所有指令都要等最慢的那一個。<strong>多週期 CPU</strong> 把五個步驟分到不同的週期，每個週期只做一步；步驟之間加上暫存器（指令暫存器 IR、讀出的 A、B、ALU 結果、記憶體資料暫存器）保存中間結果。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>指令</th><th>需要的週期</th><th>經過的步驟</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>lw</td><td>5</td><td>IF ID EX MEM WB</td></tr>
+          <tr><td>sw</td><td>4</td><td>IF ID EX MEM</td></tr>
+          <tr><td>R、I 型</td><td>4</td><td>IF ID EX WB</td></tr>
+          <tr><td>分支</td><td>3</td><td>IF ID EX</td></tr>
+          <tr><td>jal</td><td>3</td><td>IF ID EX（同時寫回）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        時脈週期只要容納<strong>最慢的一步</strong>（通常是記憶體存取），而不是最慢的一整條指令。每條指令用幾個週期就是幾個，不必都等 5 個。
+      </p>
+
+      <h2>效能分析</h2>
+
+      <p>
+        \[ \text{執行時間} = \text{指令數} \times \text{CPI} \times T_{clk} \]
+      </p>
+
+      <p>
+        假設單週期 \(T = 800\) ps、CPI = 1；多週期 \(T = 200\) ps，指令組合為 lw 25%、sw 10%、R/I 型 45%、分支 20%，平均 CPI = 0.25×5 + 0.10×4 + 0.45×4 + 0.20×3 = 4.05，每條指令平均 810 ps——<strong>反而差不多</strong>，因為每個步驟的時間不平均，加上中間暫存器的 \(t_{cq} + t_{setup}\) 開銷。多週期的真正好處是<strong>硬體可以重複使用</strong>：同一個 ALU 在不同週期算 PC + 4、分支目標與運算結果；指令和資料可以共用一個記憶體。在 1970～80 年代電晶體昂貴的時候，這非常重要。
+      </p>
+
+      <h2>控制單元變成狀態機</h2>
+
+      <p>
+        多週期的控制單元是一個 FSM（模組 F）：狀態 IF → ID → 依 opcode 分岔到不同的 EX 狀態 → MEM → WB → 回到 IF。每個狀態輸出一組控制訊號（Moore 機）。
+      </p>
+
+      <h2>微程式</h2>
+
+      <p>
+        指令很多、很複雜時（例如 x86），這個 FSM 變得極大。1951 年威爾克斯提出<strong>微程式</strong>：把每個狀態的控制訊號存在一個 ROM（控制儲存，第 26 課）裡，每一列是一條<strong>微指令</strong>，下一個狀態也由 ROM 中的欄位決定。設計控制單元就變成「寫微程式」。IBM System/360（1964）用微程式讓同一個 ISA 在快慢不同的機器上實作。
+      </p>
+
+      <p>
+        RISC 運動（1980 年代，包括柏克萊的 RISC-I——RISC-V 的「V」就是第五代）認為：與其用微程式實作複雜指令，不如用簡單、固定格式、可以直接硬接線解碼的指令，然後把力氣花在<strong>管線化</strong>上。今天的 x86 處理器在前端把複雜指令翻譯成類似 RISC 的微操作，只有極少數複雜指令還走微碼。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          多週期 CPU 把五個步驟分到不同週期，步驟間以暫存器保存中間結果，時脈只需容納最慢的一步，各指令用 3～5 個週期。執行時間 = 指令數 × CPI × T；由於步驟時間不均與暫存器開銷，多週期未必更快，主要好處是共用 ALU 與記憶體。控制單元成為狀態機，複雜時可用微程式（控制訊號存在 ROM）實作。RISC 主張簡單硬接線指令加管線化，現代 x86 則把指令翻譯成微操作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>多週期 CPU 中，為什麼需要指令暫存器 IR？</li>
+          <li>計算一個 CPI = 4、T = 250 ps 的處理器執行 10⁹ 條指令的時間。</li>
+          <li>微程式控制把什麼東西存在 ROM 裡？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>管線化</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：控制訊號與立即值解碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：管線化 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：模擬、合成與 FPGA ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="從程式碼到真正的硬體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體描述語言 · 第 46 課</div>
+      <h1>模擬、合成與 FPGA</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明數位設計的完整流程</li>
+          <li>理解合成如何把 RTL 轉成閘</li>
+          <li>比較 FPGA 與 ASIC</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 175" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">從 Verilog 到硬體</text>
+                <rect x="20" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="65.8333" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">RTL</text><text x="65.8333" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">Verilog</text><line x1="114.7" y1="93.0" x2="111.7" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="118.7,93.0 111.7,96.5 111.7,89.5" fill="var(--border)"/><rect x="121.667" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="167.5" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">模擬</text><text x="167.5" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">測試平台</text><line x1="216.3" y1="93.0" x2="213.3" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="220.3,93.0 213.3,96.5 213.3,89.5" fill="var(--border)"/><rect x="223.333" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="269.167" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">合成</text><text x="269.167" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">閘層級網表</text><line x1="318.0" y1="93.0" x2="315.0" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="322.0,93.0 315.0,96.5 315.0,89.5" fill="var(--border)"/><rect x="325" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="370.833" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">實作</text><text x="370.833" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">佈局／FPGA</text><line x1="419.7" y1="93.0" x2="416.7" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="423.7,93.0 416.7,96.5 416.7,89.5" fill="var(--border)"/><rect x="426.667" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="472.5" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">時序分析</text><text x="472.5" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">STA</text><line x1="521.3" y1="93.0" x2="518.3" y2="93.0" stroke="var(--border)" stroke-width="1.5"/><polygon points="525.3,93.0 518.3,96.5 518.3,89.5" fill="var(--border)"/><rect x="528.333" y="60" width="91.6667" height="66" rx="8" fill="var(--surface)" stroke="var(--accent)" stroke-width="1.5"/><text x="574.167" y="89" text-anchor="middle" font-size="11" fill="var(--accent)">硬體</text><text x="574.167" y="103" text-anchor="middle" font-size="9" fill="var(--text-muted)">晶片／位元流</text>
+                <text x="320" y="160" text-anchor="middle" font-size="10.5" fill="var(--accent)">每一步之後都可以再模擬一次：RTL 模擬、閘層級模擬、含延遲的後佈局模擬</text>
+        </svg>
+        <figcaption>數位設計流程。</figcaption>
+      </div>
+
+      <h2>合成做了什麼</h2>
+
+      <ol>
+        <li><strong>解析與推論</strong>：辨認出加法器、多工器、正反器、記憶體、FSM。</li>
+        <li><strong>邏輯最佳化</strong>：與技術無關的化簡（第 9～11 課的自動化版本，以 AIG 等表示）、常數傳播、刪除沒用到的邏輯。</li>
+        <li><strong>技術映射</strong>：對應到目標的實體元件——ASIC 的標準元件庫（NAND2_X1、DFF_X2…），或 FPGA 的 LUT 與正反器。</li>
+        <li><strong>時序驅動最佳化</strong>：根據設計者給的時脈約束，對關鍵路徑換用更快的結構、調整閘的尺寸。</li>
+      </ol>
+
+      <p>
+        開源工具 <strong>Yosys</strong> 可以把本課程的 Verilog 合成成閘層級網表並統計用了多少元件，是學習合成最好的入口。詳細流程見 <a href="../chip-layout/lesson-17.html">〈晶片 Layout 設計〉第 17 課</a>。
+      </p>
+
+      <h2>FPGA 與 ASIC</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>FPGA</th><th>ASIC（客製化晶片）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>原理</td><td>預先做好的 LUT、正反器、繞線開關，用位元流設定</td><td>為這個設計專門製造的光罩與晶片</td></tr>
+          <tr><td>一次性成本</td><td>幾乎為零</td><td>先進製程光罩數百萬到上億美元</td></tr>
+          <tr><td>單價</td><td>高</td><td>大量生產時極低</td></tr>
+          <tr><td>速度、功耗</td><td>約慢 3～5 倍、耗電 10 倍以上（繞線開關的代價）</td><td>最佳</td></tr>
+          <tr><td>修改</td><td>重新下載位元流，幾秒鐘</td><td>重新投片，數個月</td></tr>
+          <tr><td>用途</td><td>原型驗證、小量產品、通訊、加速器</td><td>手機、CPU、GPU 等大量產品</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        FPGA 的內部結構在第 49 課介紹；從程式碼到位元流的流程見 <a href="../chip-layout/lesson-19.html">〈晶片 Layout 設計〉第 19 課</a>。對學習者來說，一塊幾十美元的 FPGA 開發板就能把這門課的 RISC-V CPU 真的跑起來，在 LED 上顯示費氏數列。
+      </p>
+
+      <h2>實務上的注意事項</h2>
+
+      <ul>
+        <li>合成報告要看：意外推論出的閂鎖器、被刪掉的邏輯（通常代表接線錯了）、時序報告中的最差餘裕（WNS）。</li>
+        <li>合成後再做一次閘層級模擬，確認沒有模擬與合成不一致。</li>
+        <li>FPGA 中 <code>initial</code> 可以設定暫存器與記憶體的初值（位元流會載入），本課程的 <code>$readmemh</code> 在 FPGA 工具中也能用來初始化指令記憶體；ASIC 則一定要靠重置。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          數位設計流程：RTL → 模擬 → 合成 → 實作（佈局繞線或 FPGA 配置）→ 靜態時序分析 → 硬體。合成會推論元件、做邏輯最佳化、技術映射到標準元件或 LUT，並依時序約束最佳化；開源 Yosys 是好入口。FPGA 無一次性成本、可立即修改但較慢較耗電；ASIC 一次性成本極高但單價低、效能最佳。合成報告要檢查閂鎖器、被刪邏輯與時序餘裕。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>技術映射是什麼？</li>
+          <li>什麼情況下應該選 FPGA 而不是 ASIC？</li>
+          <li>合成報告說某個模組被整個刪除，最可能是什麼原因？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>SRAM</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：Verilog：循序邏輯與狀態機</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：SRAM →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：編碼：BCD、格雷碼、同位元與 ASCII ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="同樣的位元，不同的意義">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜數位的基礎 · 第 3 課</div>
+      <h1>編碼：BCD、格雷碼、同位元與 ASCII</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說出 BCD、格雷碼、one-hot 的用途</li>
+          <li>理解格雷碼「相鄰只差一位」的價值</li>
+          <li>用同位元與漢明距離偵測錯誤</li>
+        </ul>
+      </div>
+
+      <p>
+        位元本身沒有意義，<strong>編碼</strong>決定它代表什麼。選擇編碼常常是為了讓某個電路更簡單、更可靠。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>編碼</th><th>例子</th><th>用途與理由</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>BCD</td><td>59 → 0101 1001</td><td>每個十進位數字用 4 位元；方便顯示與金融運算（避免二進位小數誤差）</td></tr>
+          <tr><td>格雷碼</td><td>0,1,3,2,6,7,5,4（000,001,011,010,110,…）</td><td>相鄰值只差 1 位：旋轉編碼器、跨時脈域計數器、卡諾圖</td></tr>
+          <tr><td>one-hot</td><td>4 個狀態：0001,0010,0100,1000</td><td>每個狀態一條線；解碼極快，FPGA 狀態機常用</td></tr>
+          <tr><td>ASCII／UTF-8</td><td>'A' = 0x41</td><td>文字；UTF-8 用 1～4 位元組表示所有 Unicode 字元</td></tr>
+          <tr><td>七段顯示</td><td>'3' → a,b,c,d,g 亮</td><td>直接驅動顯示器</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>格雷碼為什麼重要</h2>
+
+      <p>
+        二進位從 0111 變 1000 時四個位元同時改變。真實電路的四條線不可能<em>剛好</em>同時變化：如果在變化的瞬間讀取，可能讀到 0000、1111 或任何組合。格雷碼每次只變一位，所以在變化瞬間讀到的不是舊值就是新值，<strong>絕不會讀到無關的值</strong>。這個性質在第 42 課的非同步 FIFO 指標同步中至關重要。
+      </p>
+
+      <p>
+        轉換公式：\(g = b \oplus (b \gg 1)\)；反轉換則 \(b_{N-1} = g_{N-1}\)，\(b_i = b_{i+1} \oplus g_i\)。
+      </p>
+
+      <h2>錯誤偵測：同位元與漢明距離</h2>
+
+      <p>
+        兩個碼字之間不同的位元數叫<strong>漢明距離</strong>。一組編碼的最小距離 \(d\) 決定它的能力：
+      </p>
+
+      <ul>
+        <li>\(d = 2\)：可以<strong>偵測</strong>任何單一位元錯誤。加一個<strong>同位元</strong>（讓 1 的總數為偶數）就能做到；同位元產生器就是一串 XOR。</li>
+        <li>\(d = 3\)：可以<strong>更正</strong>單一位元錯誤（漢明碼）。</li>
+        <li>\(d = 4\)：更正一位、偵測兩位（SECDED），伺服器的 ECC 記憶體就用這個。</li>
+      </ul>
+
+      <p>
+        一般而言，可偵測 \(d-1\) 位錯誤、可更正 \(\lfloor (d-1)/2 \rfloor\) 位錯誤。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          編碼決定位元的意義：BCD 方便十進位、格雷碼相鄰只差一位（避免多位同時變化造成的錯讀，用於編碼器與跨時脈域）、one-hot 解碼最快。漢明距離 d 的編碼可偵測 d−1 位、更正 ⌊(d−1)/2⌋ 位錯誤；同位元提供 d = 2，SECDED ECC 提供 d = 4。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>把二進位 1011 轉成格雷碼。</li>
+          <li>為什麼跨時脈域的計數器常用格雷碼？</li>
+          <li>最小漢明距離 3 的編碼能更正幾位錯誤？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>從電晶體到邏輯閘：CMOS</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：數字系統與二補數</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：從電晶體到邏輯閘：CMOS →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
