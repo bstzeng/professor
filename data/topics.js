@@ -21008,6 +21008,124 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "github",
+      category: "tech",
+      title: "GitHub 從零到協作：Git 版本控制與團隊開發",
+      description:
+        "從安裝、第一個 commit 開始，學會 Git 的三個區域、分支、合併與衝突、rebase、復原與救援，再到 GitHub 的 Pull Request、Code Review、Fork、Issue、Projects、分支保護、GitHub Actions、Pages、Secrets、Releases、Dependabot，以及 Git 的內部原理。所有指令範例都實際執行過並附上真實輸出；附三個區域模擬器、分支模擬器、衝突練習、.gitignore 測試器、雜湊計算與復原決策樹等互動工具。",
+      icon: "🐙",
+      url: "topics/github/index.html",
+      resources: [
+        {
+          title: "Git 互動工具箱",
+          description: "三個區域、分支模擬器、reset 模式、合併衝突、.gitignore 測試器、雜湊計算、PR 流程、復原與救援決策樹、指令速查",
+          icon: "🧰",
+          url: "topics/github/guide.html"
+        },
+        {
+          title: "名詞速查",
+          description: "Git 與 GitHub 常見名詞的中英對照與說明",
+          icon: "📖",
+          url: "topics/github/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜觀念入門",
+          courses: [
+            { title: "Git 和 GitHub 不一樣", url: "topics/github/lesson-01.html" },
+            { title: "為什麼需要版本控制", url: "topics/github/lesson-02.html" },
+            { title: "三個區域", url: "topics/github/lesson-03.html" },
+            { title: "commit 是什麼", url: "topics/github/lesson-04.html" },
+            { title: "分散式版本控制", url: "topics/github/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜開始使用",
+          courses: [
+            { title: "註冊 GitHub、安裝 Git", url: "topics/github/lesson-06.html" },
+            { title: "第一次設定", url: "topics/github/lesson-07.html" },
+            { title: "登入驗證：HTTPS 與 SSH", url: "topics/github/lesson-08.html" },
+            { title: "建立第一個倉庫", url: "topics/github/lesson-09.html" },
+            { title: "clone：把倉庫複製下來", url: "topics/github/lesson-10.html" },
+            { title: "add 與 commit", url: "topics/github/lesson-11.html" },
+            { title: "push 與 pull", url: "topics/github/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜日常操作",
+          courses: [
+            { title: "status、diff、log", url: "topics/github/lesson-13.html" },
+            { title: ".gitignore", url: "topics/github/lesson-14.html" },
+            { title: "復原：restore、reset、revert", url: "topics/github/lesson-15.html" },
+            { title: "amend：修改上一個 commit", url: "topics/github/lesson-16.html" },
+            { title: "stash：暫時收起來", url: "topics/github/lesson-17.html" },
+            { title: "tag 與版本號", url: "topics/github/lesson-18.html" },
+            { title: "在 GitHub 網頁上操作", url: "topics/github/lesson-19.html" },
+            { title: "圖形介面工具", url: "topics/github/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜分支",
+          courses: [
+            { title: "分支是什麼", url: "topics/github/lesson-21.html" },
+            { title: "建立與切換分支", url: "topics/github/lesson-22.html" },
+            { title: "merge：合併分支", url: "topics/github/lesson-23.html" },
+            { title: "合併衝突", url: "topics/github/lesson-24.html" },
+            { title: "rebase：讓歷史變成一直線", url: "topics/github/lesson-25.html" },
+            { title: "merge 還是 rebase？", url: "topics/github/lesson-26.html" },
+            { title: "分支策略", url: "topics/github/lesson-27.html" },
+            { title: "cherry-pick 與 reflog", url: "topics/github/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜GitHub 協作",
+          courses: [
+            { title: "Pull Request", url: "topics/github/lesson-29.html" },
+            { title: "Code Review", url: "topics/github/lesson-30.html" },
+            { title: "三種合併方式", url: "topics/github/lesson-31.html" },
+            { title: "Fork：參與別人的專案", url: "topics/github/lesson-32.html" },
+            { title: "讓 fork 跟上原專案", url: "topics/github/lesson-33.html" },
+            { title: "Issue", url: "topics/github/lesson-34.html" },
+            { title: "Projects 看板", url: "topics/github/lesson-35.html" },
+            { title: "保護 main 分支", url: "topics/github/lesson-36.html" },
+            { title: "團隊與權限", url: "topics/github/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜自動化與進階功能",
+          courses: [
+            { title: "GitHub Actions 入門", url: "topics/github/lesson-38.html" },
+            { title: "CI：每次 push 自動測試", url: "topics/github/lesson-39.html" },
+            { title: "GitHub Pages：免費架網站", url: "topics/github/lesson-40.html" },
+            { title: "Secrets 與環境變數", url: "topics/github/lesson-41.html" },
+            { title: "Releases 與套件發布", url: "topics/github/lesson-42.html" },
+            { title: "安全性功能", url: "topics/github/lesson-43.html" },
+            { title: "Markdown 與 README", url: "topics/github/lesson-44.html" },
+            { title: "gh、Codespaces 與 Copilot", url: "topics/github/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 G｜Git 的內部",
+          courses: [
+            { title: "物件：blob、tree、commit", url: "topics/github/lesson-46.html" },
+            { title: "參照：HEAD 與分支的真面目", url: "topics/github/lesson-47.html" },
+            { title: "打包與垃圾回收", url: "topics/github/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 H｜救援與實戰",
+          courses: [
+            { title: "常見災難與解法", url: "topics/github/lesson-49.html" },
+            { title: "大型檔案：Git LFS", url: "topics/github/lesson-50.html" },
+            { title: "開源禮儀與授權", url: "topics/github/lesson-51.html" },
+            { title: "實戰：從零到第一個 PR", url: "topics/github/lesson-52.html" },
+            { title: "總結與學習地圖", url: "topics/github/lesson-53.html" },
+          ],
+        },
+      ],
     }
   ]
 };
