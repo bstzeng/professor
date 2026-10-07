@@ -20039,6 +20039,133 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "device-physics",
+      category: "tech",
+      title: "半導體元件物理：從能帶到 3 奈米電晶體",
+      description:
+        "大學部程度的元件物理，附推導：晶格、量子力學速成、能帶、有效質量、電洞、狀態密度與費米分布；本質與摻雜、漂移擴散、SRH 復合、連續方程式；PN 接面的空乏區、二極體方程式、非理想效應、崩潰與暫態；蕭特基與異質接面、量子井；BJT 與 HBT；MOS 電容、C–V、臨界電壓、MOSFET、次臨界擺幅、短通道效應、微縮、high-k 金屬閘極、CMOS；應變矽、SOI、FinFET、GAA 與未來元件；太陽能電池、LED、影像感測器；DRAM、快閃記憶體、功率元件與可靠度。附能帶圖、PN 接面、MOS C–V、MOSFET 等九個互動工具。",
+      icon: "🔬",
+      url: "topics/device-physics/index.html",
+      resources: [
+        {
+          title: "元件物理工具箱",
+          description: "能帶圖、費米分布、載子對溫度、PN 接面、二極體、MOS 電容、MOSFET、CMOS 反相器、太陽能電池",
+          icon: "🧪",
+          url: "topics/device-physics/guide.html"
+        },
+        {
+          title: "公式與常數速查",
+          description: "常用常數、矽的參數與主要公式",
+          icon: "📖",
+          url: "topics/device-physics/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼是半導體",
+          courses: [
+            { title: "導體、絕緣體、半導體", url: "topics/device-physics/lesson-01.html" },
+            { title: "歷史：從礦石收音機到積體電路", url: "topics/device-physics/lesson-02.html" },
+            { title: "矽為什麼勝出", url: "topics/device-physics/lesson-03.html" },
+            { title: "這門課的地圖", url: "topics/device-physics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜晶體與能帶",
+          courses: [
+            { title: "晶格與米勒指數", url: "topics/device-physics/lesson-05.html" },
+            { title: "量子力學速成", url: "topics/device-physics/lesson-06.html" },
+            { title: "從原子能階到能帶", url: "topics/device-physics/lesson-07.html" },
+            { title: "E–k 圖、有效質量、直接與間接能隙", url: "topics/device-physics/lesson-08.html" },
+            { title: "電洞", url: "topics/device-physics/lesson-09.html" },
+            { title: "狀態密度", url: "topics/device-physics/lesson-10.html" },
+            { title: "費米—狄拉克分布與費米能階", url: "topics/device-physics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜載子",
+          courses: [
+            { title: "本質半導體", url: "topics/device-physics/lesson-12.html" },
+            { title: "摻雜", url: "topics/device-physics/lesson-13.html" },
+            { title: "載子濃度與溫度", url: "topics/device-physics/lesson-14.html" },
+            { title: "漂移", url: "topics/device-physics/lesson-15.html" },
+            { title: "擴散與愛因斯坦關係式", url: "topics/device-physics/lesson-16.html" },
+            { title: "產生與復合", url: "topics/device-physics/lesson-17.html" },
+            { title: "連續方程式與擴散長度", url: "topics/device-physics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜PN 接面",
+          courses: [
+            { title: "PN 接面的形成", url: "topics/device-physics/lesson-19.html" },
+            { title: "能帶圖的畫法", url: "topics/device-physics/lesson-20.html" },
+            { title: "空乏區寬度與接面電容", url: "topics/device-physics/lesson-21.html" },
+            { title: "理想二極體方程式", url: "topics/device-physics/lesson-22.html" },
+            { title: "非理想效應", url: "topics/device-physics/lesson-23.html" },
+            { title: "崩潰", url: "topics/device-physics/lesson-24.html" },
+            { title: "暫態與儲存時間", url: "topics/device-physics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜金屬—半導體與異質結構",
+          courses: [
+            { title: "蕭特基接面與歐姆接觸", url: "topics/device-physics/lesson-26.html" },
+            { title: "異質接面與能帶偏移", url: "topics/device-physics/lesson-27.html" },
+            { title: "量子井與二維電子氣", url: "topics/device-physics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜雙載子電晶體 BJT",
+          courses: [
+            { title: "BJT 的結構與工作原理", url: "topics/device-physics/lesson-29.html" },
+            { title: "電流增益與艾利效應", url: "topics/device-physics/lesson-30.html" },
+            { title: "高頻特性與 HBT", url: "topics/device-physics/lesson-31.html" },
+            { title: "BJT 今天用在哪裡", url: "topics/device-physics/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜MOS 結構與 MOSFET",
+          courses: [
+            { title: "MOS 電容", url: "topics/device-physics/lesson-33.html" },
+            { title: "平帶電壓、氧化層電荷與 C–V 量測", url: "topics/device-physics/lesson-34.html" },
+            { title: "臨界電壓", url: "topics/device-physics/lesson-35.html" },
+            { title: "MOSFET 電流—電壓特性", url: "topics/device-physics/lesson-36.html" },
+            { title: "次臨界擺幅", url: "topics/device-physics/lesson-37.html" },
+            { title: "短通道效應", url: "topics/device-physics/lesson-38.html" },
+            { title: "微縮", url: "topics/device-physics/lesson-39.html" },
+            { title: "漏電、high-k 與金屬閘極", url: "topics/device-physics/lesson-40.html" },
+            { title: "CMOS 反相器", url: "topics/device-physics/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜先進電晶體",
+          courses: [
+            { title: "應變矽與 SOI", url: "topics/device-physics/lesson-42.html" },
+            { title: "FinFET", url: "topics/device-physics/lesson-43.html" },
+            { title: "GAA 奈米片", url: "topics/device-physics/lesson-44.html" },
+            { title: "未來的電晶體", url: "topics/device-physics/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 I｜光電元件",
+          courses: [
+            { title: "光吸收與太陽能電池", url: "topics/device-physics/lesson-46.html" },
+            { title: "LED 與雷射二極體", url: "topics/device-physics/lesson-47.html" },
+            { title: "光偵測器與影像感測器", url: "topics/device-physics/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 J｜記憶體、功率元件與總結",
+          courses: [
+            { title: "記憶體元件", url: "topics/device-physics/lesson-49.html" },
+            { title: "功率元件", url: "topics/device-physics/lesson-50.html" },
+            { title: "可靠度", url: "topics/device-physics/lesson-51.html" },
+            { title: "總結：從能帶到你手上的 3 奈米晶片", url: "topics/device-physics/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
