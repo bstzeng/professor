@@ -20393,6 +20393,266 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chinese-paladin",
+      category: "games",
+      title: "仙劍奇俠傳歷代故事：從餘杭鎮到神樹",
+      description:
+        "仙劍奇俠傳單機正傳與外傳的完整劇情（含結局暴雷）：一代李逍遙、趙靈兒、林月如與鎖妖塔、拜月教主；二代王小虎與蘇媚的寬恕；三代景天、雪見、龍葵、紫萱與徐長卿的輪迴；問情篇南宮煌；四代雲天河、韓菱紗與瓊華派的尋仙；五前傳夏侯瑾軒與姜承；五代姜雲凡；六代越今朝與越祈；七代修吾與月清疏。附發行年表、故事時間線、血脈與前世今生、地圖、全系列結局對照等互動工具。",
+      icon: "⚔️",
+      url: "topics/chinese-paladin/index.html",
+      resources: [
+        {
+          title: "仙劍互動工具箱",
+          description: "發行年表、六界與血脈關係、前世今生、地圖、全系列結局對照",
+          icon: "🧭",
+          url: "topics/chinese-paladin/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "歷代主要人物、故事年代與名詞",
+          icon: "📖",
+          url: "topics/chinese-paladin/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "三十年的仙劍", url: "topics/chinese-paladin/lesson-01.html" },
+            { title: "世界觀：六界、女媧與神樹", url: "topics/chinese-paladin/lesson-02.html" },
+            { title: "系列時間線：故事的年代順序", url: "topics/chinese-paladin/lesson-03.html" },
+            { title: "地圖與前世今生", url: "topics/chinese-paladin/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜仙劍奇俠傳（一代）",
+          courses: [
+            { title: "餘杭鎮的少年", url: "topics/chinese-paladin/lesson-05.html" },
+            { title: "蘇州林家堡與林月如", url: "topics/chinese-paladin/lesson-06.html" },
+            { title: "鎖妖塔", url: "topics/chinese-paladin/lesson-07.html" },
+            { title: "南詔國與拜月教主", url: "topics/chinese-paladin/lesson-08.html" },
+            { title: "水魔獸與結局", url: "topics/chinese-paladin/lesson-09.html" },
+            { title: "人物分析：李逍遙、靈兒、月如", url: "topics/chinese-paladin/lesson-10.html" },
+            { title: "一代的配角群像", url: "topics/chinese-paladin/lesson-11.html" },
+            { title: "一代的各種版本", url: "topics/chinese-paladin/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜仙劍奇俠傳二",
+          courses: [
+            { title: "八年之後", url: "topics/chinese-paladin/lesson-13.html" },
+            { title: "蘇媚：從仇恨到寬恕", url: "topics/chinese-paladin/lesson-14.html" },
+            { title: "五華山決戰與結局", url: "topics/chinese-paladin/lesson-15.html" },
+            { title: "一代與二代合看", url: "topics/chinese-paladin/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜仙劍三與問情篇",
+          courses: [
+            { title: "渝州當舖的景天", url: "topics/chinese-paladin/lesson-17.html" },
+            { title: "龍葵與魔劍", url: "topics/chinese-paladin/lesson-18.html" },
+            { title: "紫萱與徐長卿", url: "topics/chinese-paladin/lesson-19.html" },
+            { title: "重樓、飛蓬與夕瑤", url: "topics/chinese-paladin/lesson-20.html" },
+            { title: "邪劍仙與鎖妖塔", url: "topics/chinese-paladin/lesson-21.html" },
+            { title: "三代的多重結局", url: "topics/chinese-paladin/lesson-22.html" },
+            { title: "三代人物分析", url: "topics/chinese-paladin/lesson-23.html" },
+            { title: "問情篇：南宮煌與蜀山的危機", url: "topics/chinese-paladin/lesson-24.html" },
+            { title: "問情篇：創世的祕密與結局", url: "topics/chinese-paladin/lesson-25.html" },
+            { title: "三代、問情篇與一代的連結", url: "topics/chinese-paladin/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜仙劍奇俠傳四",
+          courses: [
+            { title: "青鸞峰的雲天河", url: "topics/chinese-paladin/lesson-27.html" },
+            { title: "瓊華派與雙劍", url: "topics/chinese-paladin/lesson-28.html" },
+            { title: "玄霄、夙玉與雲天青", url: "topics/chinese-paladin/lesson-29.html" },
+            { title: "柳夢璃與幻暝界", url: "topics/chinese-paladin/lesson-30.html" },
+            { title: "韓菱紗的壽命", url: "topics/chinese-paladin/lesson-31.html" },
+            { title: "四代的結局", url: "topics/chinese-paladin/lesson-32.html" },
+            { title: "四代人物分析與評價", url: "topics/chinese-paladin/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜仙劍五前傳與仙劍五",
+          courses: [
+            { title: "五前傳：四大世家與賞劍大會", url: "topics/chinese-paladin/lesson-34.html" },
+            { title: "姜承：從弟子到魔君", url: "topics/chinese-paladin/lesson-35.html" },
+            { title: "瑕、暮菖蘭與時間的祕密", url: "topics/chinese-paladin/lesson-36.html" },
+            { title: "五前傳的結局", url: "topics/chinese-paladin/lesson-37.html" },
+            { title: "仙劍五：姜雲凡與唐雨柔", url: "topics/chinese-paladin/lesson-38.html" },
+            { title: "小蠻與龍幽", url: "topics/chinese-paladin/lesson-39.html" },
+            { title: "淨天教與魔翳", url: "topics/chinese-paladin/lesson-40.html" },
+            { title: "仙劍五的結局", url: "topics/chinese-paladin/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜仙劍六與仙劍七",
+          courses: [
+            { title: "仙劍六：越今朝與越祈", url: "topics/chinese-paladin/lesson-42.html" },
+            { title: "九泉、熱海與洛家的詛咒", url: "topics/chinese-paladin/lesson-43.html" },
+            { title: "仙劍六的結局", url: "topics/chinese-paladin/lesson-44.html" },
+            { title: "仙劍七：神樹之實與明庶門少女", url: "topics/chinese-paladin/lesson-45.html" },
+            { title: "神子、天魔與敖胥", url: "topics/chinese-paladin/lesson-46.html" },
+            { title: "仙劍七的結局", url: "topics/chinese-paladin/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "反覆出現的主題", url: "topics/chinese-paladin/lesson-48.html" },
+            { title: "系列常客與音樂", url: "topics/chinese-paladin/lesson-49.html" },
+            { title: "總結：三十年的仙劍", url: "topics/chinese-paladin/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "xuanyuan-sword",
+      category: "games",
+      title: "軒轅劍歷代故事：一部奇幻的中國史",
+      description:
+        "軒轅劍單機正傳與外傳的完整劇情（含結局暴雷）：楓之舞的墨家與煉妖壺；參代法蘭克騎士賽特從威尼斯到長安的王道之旅；天之痕陳靖仇、于小雪、拓跋玉兒與宇文拓；肆代墨家少女水鏡與張良；蒼之濤改寫淝水之戰；伍代山海界；漢之雲、雲之遙的軒轅劍轉世兄弟；陸代牧野之戰；穹之扉的天門與武丁；柒代王莽新朝的天書與黑火。附發行與故事年表、神州與歐亞地圖、跨代人物、全系列結局對照等互動工具。",
+      icon: "🗡️",
+      url: "topics/xuanyuan-sword/index.html",
+      resources: [
+        {
+          title: "軒轅劍互動工具箱",
+          description: "發行年表、故事年代、神州與歐亞地圖、跨代人物、全系列結局對照",
+          icon: "🧭",
+          url: "topics/xuanyuan-sword/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "歷代主要人物、作品年代與名詞",
+          icon: "📖",
+          url: "topics/xuanyuan-sword/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "三十年的軒轅劍", url: "topics/xuanyuan-sword/lesson-01.html" },
+            { title: "世界觀：神器、天書、墨家與機關", url: "topics/xuanyuan-sword/lesson-02.html" },
+            { title: "系列時間線：從上古到盛唐", url: "topics/xuanyuan-sword/lesson-03.html" },
+            { title: "地圖與跨代人物", url: "topics/xuanyuan-sword/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期作品：軒轅劍一、二",
+          courses: [
+            { title: "軒轅劍（1990）", url: "topics/xuanyuan-sword/lesson-05.html" },
+            { title: "軒轅劍貳（1994）", url: "topics/xuanyuan-sword/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 C｜外傳・楓之舞",
+          courses: [
+            { title: "墨家弟子輔子徹", url: "topics/xuanyuan-sword/lesson-07.html" },
+            { title: "紋錦、鑄石子與疾鵬", url: "topics/xuanyuan-sword/lesson-08.html" },
+            { title: "蜀桑子的陰謀與結局", url: "topics/xuanyuan-sword/lesson-09.html" },
+            { title: "楓之舞在系列中的意義", url: "topics/xuanyuan-sword/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 D｜軒轅劍參 雲和山的彼端",
+          courses: [
+            { title: "法蘭克騎士賽特", url: "topics/xuanyuan-sword/lesson-11.html" },
+            { title: "妮可與旅伴", url: "topics/xuanyuan-sword/lesson-12.html" },
+            { title: "阿拉伯與西域", url: "topics/xuanyuan-sword/lesson-13.html" },
+            { title: "怛羅斯之戰與慧彥", url: "topics/xuanyuan-sword/lesson-14.html" },
+            { title: "虛幻的五年與蜃樓王", url: "topics/xuanyuan-sword/lesson-15.html" },
+            { title: "長安決戰：撒旦與煉妖壺", url: "topics/xuanyuan-sword/lesson-16.html" },
+            { title: "軒轅劍參的評價與王道", url: "topics/xuanyuan-sword/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜外傳・天之痕",
+          courses: [
+            { title: "陳靖仇與師父陳輔", url: "topics/xuanyuan-sword/lesson-18.html" },
+            { title: "于小雪與拓跋玉兒", url: "topics/xuanyuan-sword/lesson-19.html" },
+            { title: "宇文拓與五件神器", url: "topics/xuanyuan-sword/lesson-20.html" },
+            { title: "獨孤寧珂的真面目", url: "topics/xuanyuan-sword/lesson-21.html" },
+            { title: "天之痕的三個結局", url: "topics/xuanyuan-sword/lesson-22.html" },
+            { title: "天之痕的地位與影響", url: "topics/xuanyuan-sword/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜軒轅劍肆 黑龍舞兮雲飛揚",
+          courses: [
+            { title: "秦國與墨家：少女水鏡", url: "topics/xuanyuan-sword/lesson-24.html" },
+            { title: "赤松子與雲中界", url: "topics/xuanyuan-sword/lesson-25.html" },
+            { title: "墨門夫人、白輿與黑火", url: "topics/xuanyuan-sword/lesson-26.html" },
+            { title: "柒與軒轅劍：結局", url: "topics/xuanyuan-sword/lesson-27.html" },
+            { title: "軒轅劍肆的人物與評價", url: "topics/xuanyuan-sword/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 G｜外傳・蒼之濤",
+          courses: [
+            { title: "車芸與雲狐", url: "topics/xuanyuan-sword/lesson-29.html" },
+            { title: "千年後的人：嬴詩與桓遠之", url: "topics/xuanyuan-sword/lesson-30.html" },
+            { title: "蒼之濤的結局", url: "topics/xuanyuan-sword/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 H｜軒轅劍伍 一劍凌雲山海情",
+          courses: [
+            { title: "陸承軒與山海界", url: "topics/xuanyuan-sword/lesson-32.html" },
+            { title: "山海界的同伴", url: "topics/xuanyuan-sword/lesson-33.html" },
+            { title: "天女與雙結局", url: "topics/xuanyuan-sword/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 I｜外傳・漢之雲",
+          courses: [
+            { title: "諸葛亮的第四次北伐", url: "topics/xuanyuan-sword/lesson-35.html" },
+            { title: "焉逢與耶亞希", url: "topics/xuanyuan-sword/lesson-36.html" },
+            { title: "漢之雲的結局", url: "topics/xuanyuan-sword/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 J｜外傳・雲之遙",
+          courses: [
+            { title: "白衣尊者徐暮雲", url: "topics/xuanyuan-sword/lesson-38.html" },
+            { title: "蘭茵與雲之遙的結局", url: "topics/xuanyuan-sword/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 K｜軒轅劍陸 鳳凌長空千載雲",
+          courses: [
+            { title: "牧野之戰與鳳天凌", url: "topics/xuanyuan-sword/lesson-40.html" },
+            { title: "瑚月、迦蘭多、姬亭與蓉霜", url: "topics/xuanyuan-sword/lesson-41.html" },
+            { title: "軒轅劍陸的結局", url: "topics/xuanyuan-sword/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 L｜外傳・穹之扉",
+          courses: [
+            { title: "天門與絕地天通", url: "topics/xuanyuan-sword/lesson-43.html" },
+            { title: "共工與穹之扉的結局", url: "topics/xuanyuan-sword/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 M｜軒轅劍柒",
+          courses: [
+            { title: "留侯墓的竹簡", url: "topics/xuanyuan-sword/lesson-45.html" },
+            { title: "太史昭、太史湘與褚紅", url: "topics/xuanyuan-sword/lesson-46.html" },
+            { title: "黑火與不老夫人：結局", url: "topics/xuanyuan-sword/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 N｜總結",
+          courses: [
+            { title: "墨家與紋錦：最長的一條線", url: "topics/xuanyuan-sword/lesson-48.html" },
+            { title: "系列的主題：歷史、戰爭與王道", url: "topics/xuanyuan-sword/lesson-49.html" },
+            { title: "總結：三十年的軒轅劍", url: "topics/xuanyuan-sword/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
