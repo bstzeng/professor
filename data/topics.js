@@ -19905,6 +19905,267 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "hunter-x-hunter",
+      category: "anime",
+      title: "獵人全紀錄：念能力、劇情與人物完整解析（未完結）",
+      description:
+        "冨樫義博的《獵人》完整導讀，寫到第 410 話：作者與休刊史、1999 與 2011 兩版動畫比較；獵人執照、協會與十二支、流星街與揍敵客家；念的四大行、應用技、六大系統與水見式、制約與誓約、死後的念；獵人考試、天空競技場、友克鑫市與幻影旅團、貪婪之島、嵌合蟻、會長選舉、暗黑大陸與卡金王位繼承戰逐篇解析；人物論與主題。附念能力六角形、系別性格測驗、人物卡、年表與關係圖。",
+      icon: "🎯",
+      url: "topics/hunter-x-hunter/index.html",
+      resources: [
+        {
+          title: "念能力工具箱",
+          description: "念能力六角形、系別性格測驗、主要人物卡",
+          icon: "🎯",
+          url: "topics/hunter-x-hunter/guide.html"
+        },
+        {
+          title: "獵人名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/hunter-x-hunter/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜作品與作者",
+          courses: [
+            { title: "冨樫義博與《獵人》", url: "topics/hunter-x-hunter/lesson-01.html" },
+            { title: "兩版動畫與劇場版", url: "topics/hunter-x-hunter/lesson-02.html" },
+            { title: "世界觀總覽", url: "topics/hunter-x-hunter/lesson-03.html" },
+            { title: "閱讀指南", url: "topics/hunter-x-hunter/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜獵人的世界",
+          courses: [
+            { title: "獵人是什麼", url: "topics/hunter-x-hunter/lesson-05.html" },
+            { title: "獵人協會與十二支", url: "topics/hunter-x-hunter/lesson-06.html" },
+            { title: "獵人的種類", url: "topics/hunter-x-hunter/lesson-07.html" },
+            { title: "世界地圖與重要地點", url: "topics/hunter-x-hunter/lesson-08.html" },
+            { title: "揍敵客家族", url: "topics/hunter-x-hunter/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜念能力系統",
+          courses: [
+            { title: "什麼是念", url: "topics/hunter-x-hunter/lesson-10.html" },
+            { title: "應用技", url: "topics/hunter-x-hunter/lesson-11.html" },
+            { title: "六大系統與水見式", url: "topics/hunter-x-hunter/lesson-12.html" },
+            { title: "系別的相性", url: "topics/hunter-x-hunter/lesson-13.html" },
+            { title: "制約與誓約", url: "topics/hunter-x-hunter/lesson-14.html" },
+            { title: "死後的念與除念", url: "topics/hunter-x-hunter/lesson-15.html" },
+            { title: "主要角色的念能力", url: "topics/hunter-x-hunter/lesson-16.html" },
+            { title: "念能力設計的魅力", url: "topics/hunter-x-hunter/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜獵人考試篇",
+          courses: [
+            { title: "第一關到第三關", url: "topics/hunter-x-hunter/lesson-18.html" },
+            { title: "第四關：薩巴島的號碼牌", url: "topics/hunter-x-hunter/lesson-19.html" },
+            { title: "最終關：淘汰賽與奇犽失格", url: "topics/hunter-x-hunter/lesson-20.html" },
+            { title: "主角四人組成形", url: "topics/hunter-x-hunter/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜天空競技場篇",
+          courses: [
+            { title: "前往揍敵客家與天空競技場", url: "topics/hunter-x-hunter/lesson-22.html" },
+            { title: "第一次接觸念", url: "topics/hunter-x-hunter/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜友克鑫市篇",
+          courses: [
+            { title: "幻影旅團", url: "topics/hunter-x-hunter/lesson-24.html" },
+            { title: "酷拉皮卡的鎖鏈與緋紅眼", url: "topics/hunter-x-hunter/lesson-25.html" },
+            { title: "地下拍賣會與十老頭", url: "topics/hunter-x-hunter/lesson-26.html" },
+            { title: "揍敵客家對團長庫洛洛", url: "topics/hunter-x-hunter/lesson-27.html" },
+            { title: "酷拉皮卡的復仇", url: "topics/hunter-x-hunter/lesson-28.html" },
+            { title: "預言詩與旅團的結局", url: "topics/hunter-x-hunter/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜貪婪之島篇",
+          courses: [
+            { title: "遊戲規則", url: "topics/hunter-x-hunter/lesson-30.html" },
+            { title: "金與遊戲的開發者們", url: "topics/hunter-x-hunter/lesson-31.html" },
+            { title: "比司吉的修行", url: "topics/hunter-x-hunter/lesson-32.html" },
+            { title: "躲避球大戰", url: "topics/hunter-x-hunter/lesson-33.html" },
+            { title: "爆彈魔與通關", url: "topics/hunter-x-hunter/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 H｜嵌合蟻篇",
+          courses: [
+            { title: "蟻后登陸與 NGL", url: "topics/hunter-x-hunter/lesson-35.html" },
+            { title: "護衛軍", url: "topics/hunter-x-hunter/lesson-36.html" },
+            { title: "凱特之死與小傑的執念", url: "topics/hunter-x-hunter/lesson-37.html" },
+            { title: "東果德共和國與突入作戰", url: "topics/hunter-x-hunter/lesson-38.html" },
+            { title: "尼特羅對蟻王", url: "topics/hunter-x-hunter/lesson-39.html" },
+            { title: "小傑的變身與代價", url: "topics/hunter-x-hunter/lesson-40.html" },
+            { title: "蟻王與小麥", url: "topics/hunter-x-hunter/lesson-41.html" },
+            { title: "嵌合蟻篇的尾聲", url: "topics/hunter-x-hunter/lesson-42.html" },
+            { title: "嵌合蟻篇的主題", url: "topics/hunter-x-hunter/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜會長選舉篇",
+          courses: [
+            { title: "會長選舉與十二支的角力", url: "topics/hunter-x-hunter/lesson-44.html" },
+            { title: "奇犽、亞路加與娜尼加", url: "topics/hunter-x-hunter/lesson-45.html" },
+            { title: "小傑與金", url: "topics/hunter-x-hunter/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 J｜暗黑大陸與王位繼承戰（未完結）",
+          courses: [
+            { title: "暗黑大陸與五大災厄", url: "topics/hunter-x-hunter/lesson-47.html" },
+            { title: "比昂德・尼特羅與新十二支", url: "topics/hunter-x-hunter/lesson-48.html" },
+            { title: "卡金王位繼承戰", url: "topics/hunter-x-hunter/lesson-49.html" },
+            { title: "船上的三方勢力", url: "topics/hunter-x-hunter/lesson-50.html" },
+            { title: "旅團對西索與尚未解開的謎", url: "topics/hunter-x-hunter/lesson-51.html" },
+          ],
+        },
+        {
+          title: "模組 K｜人物與主題",
+          courses: [
+            { title: "主角四人的人物論", url: "topics/hunter-x-hunter/lesson-52.html" },
+            { title: "西索、伊路米、庫洛洛", url: "topics/hunter-x-hunter/lesson-53.html" },
+            { title: "主題總結", url: "topics/hunter-x-hunter/lesson-54.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "device-physics",
+      category: "tech",
+      title: "半導體元件物理：從能帶到 3 奈米電晶體",
+      description:
+        "大學部程度的元件物理，附推導：晶格、量子力學速成、能帶、有效質量、電洞、狀態密度與費米分布；本質與摻雜、漂移擴散、SRH 復合、連續方程式；PN 接面的空乏區、二極體方程式、非理想效應、崩潰與暫態；蕭特基與異質接面、量子井；BJT 與 HBT；MOS 電容、C–V、臨界電壓、MOSFET、次臨界擺幅、短通道效應、微縮、high-k 金屬閘極、CMOS；應變矽、SOI、FinFET、GAA 與未來元件；太陽能電池、LED、影像感測器；DRAM、快閃記憶體、功率元件與可靠度。附能帶圖、PN 接面、MOS C–V、MOSFET 等九個互動工具。",
+      icon: "🔬",
+      url: "topics/device-physics/index.html",
+      resources: [
+        {
+          title: "元件物理工具箱",
+          description: "能帶圖、費米分布、載子對溫度、PN 接面、二極體、MOS 電容、MOSFET、CMOS 反相器、太陽能電池",
+          icon: "🧪",
+          url: "topics/device-physics/guide.html"
+        },
+        {
+          title: "公式與常數速查",
+          description: "常用常數、矽的參數與主要公式",
+          icon: "📖",
+          url: "topics/device-physics/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼是半導體",
+          courses: [
+            { title: "導體、絕緣體、半導體", url: "topics/device-physics/lesson-01.html" },
+            { title: "歷史：從礦石收音機到積體電路", url: "topics/device-physics/lesson-02.html" },
+            { title: "矽為什麼勝出", url: "topics/device-physics/lesson-03.html" },
+            { title: "這門課的地圖", url: "topics/device-physics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜晶體與能帶",
+          courses: [
+            { title: "晶格與米勒指數", url: "topics/device-physics/lesson-05.html" },
+            { title: "量子力學速成", url: "topics/device-physics/lesson-06.html" },
+            { title: "從原子能階到能帶", url: "topics/device-physics/lesson-07.html" },
+            { title: "E–k 圖、有效質量、直接與間接能隙", url: "topics/device-physics/lesson-08.html" },
+            { title: "電洞", url: "topics/device-physics/lesson-09.html" },
+            { title: "狀態密度", url: "topics/device-physics/lesson-10.html" },
+            { title: "費米—狄拉克分布與費米能階", url: "topics/device-physics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜載子",
+          courses: [
+            { title: "本質半導體", url: "topics/device-physics/lesson-12.html" },
+            { title: "摻雜", url: "topics/device-physics/lesson-13.html" },
+            { title: "載子濃度與溫度", url: "topics/device-physics/lesson-14.html" },
+            { title: "漂移", url: "topics/device-physics/lesson-15.html" },
+            { title: "擴散與愛因斯坦關係式", url: "topics/device-physics/lesson-16.html" },
+            { title: "產生與復合", url: "topics/device-physics/lesson-17.html" },
+            { title: "連續方程式與擴散長度", url: "topics/device-physics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜PN 接面",
+          courses: [
+            { title: "PN 接面的形成", url: "topics/device-physics/lesson-19.html" },
+            { title: "能帶圖的畫法", url: "topics/device-physics/lesson-20.html" },
+            { title: "空乏區寬度與接面電容", url: "topics/device-physics/lesson-21.html" },
+            { title: "理想二極體方程式", url: "topics/device-physics/lesson-22.html" },
+            { title: "非理想效應", url: "topics/device-physics/lesson-23.html" },
+            { title: "崩潰", url: "topics/device-physics/lesson-24.html" },
+            { title: "暫態與儲存時間", url: "topics/device-physics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜金屬—半導體與異質結構",
+          courses: [
+            { title: "蕭特基接面與歐姆接觸", url: "topics/device-physics/lesson-26.html" },
+            { title: "異質接面與能帶偏移", url: "topics/device-physics/lesson-27.html" },
+            { title: "量子井與二維電子氣", url: "topics/device-physics/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜雙載子電晶體 BJT",
+          courses: [
+            { title: "BJT 的結構與工作原理", url: "topics/device-physics/lesson-29.html" },
+            { title: "電流增益與艾利效應", url: "topics/device-physics/lesson-30.html" },
+            { title: "高頻特性與 HBT", url: "topics/device-physics/lesson-31.html" },
+            { title: "BJT 今天用在哪裡", url: "topics/device-physics/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜MOS 結構與 MOSFET",
+          courses: [
+            { title: "MOS 電容", url: "topics/device-physics/lesson-33.html" },
+            { title: "平帶電壓、氧化層電荷與 C–V 量測", url: "topics/device-physics/lesson-34.html" },
+            { title: "臨界電壓", url: "topics/device-physics/lesson-35.html" },
+            { title: "MOSFET 電流—電壓特性", url: "topics/device-physics/lesson-36.html" },
+            { title: "次臨界擺幅", url: "topics/device-physics/lesson-37.html" },
+            { title: "短通道效應", url: "topics/device-physics/lesson-38.html" },
+            { title: "微縮", url: "topics/device-physics/lesson-39.html" },
+            { title: "漏電、high-k 與金屬閘極", url: "topics/device-physics/lesson-40.html" },
+            { title: "CMOS 反相器", url: "topics/device-physics/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜先進電晶體",
+          courses: [
+            { title: "應變矽與 SOI", url: "topics/device-physics/lesson-42.html" },
+            { title: "FinFET", url: "topics/device-physics/lesson-43.html" },
+            { title: "GAA 奈米片", url: "topics/device-physics/lesson-44.html" },
+            { title: "未來的電晶體", url: "topics/device-physics/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 I｜光電元件",
+          courses: [
+            { title: "光吸收與太陽能電池", url: "topics/device-physics/lesson-46.html" },
+            { title: "LED 與雷射二極體", url: "topics/device-physics/lesson-47.html" },
+            { title: "光偵測器與影像感測器", url: "topics/device-physics/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 J｜記憶體、功率元件與總結",
+          courses: [
+            { title: "記憶體元件", url: "topics/device-physics/lesson-49.html" },
+            { title: "功率元件", url: "topics/device-physics/lesson-50.html" },
+            { title: "可靠度", url: "topics/device-physics/lesson-51.html" },
+            { title: "總結：從能帶到你手上的 3 奈米晶片", url: "topics/device-physics/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
