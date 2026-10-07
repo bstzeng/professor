@@ -20653,6 +20653,361 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "zelda",
+      category: "games",
+      title: "薩爾達傳說歷代故事：從天空洛夫特到王國之淚",
+      description:
+        "薩爾達傳說正傳與主要外傳的完整劇情（含結局暴雷），依官方三分歧時間線講解：天空之劍的起源與終焉者的詛咒、時之笛的分歧、勇者敗北線、少年線（穆修拉的假面、黃昏公主）、成年線（風之律動、大地的汽笛）、曠野之息與王國之淚。附發行年表、時間線樹、海拉魯地圖、轉世輪迴、人物關係與結局對照等互動工具。",
+      icon: "🗡️",
+      url: "topics/zelda/index.html",
+      resources: [
+        {
+          title: "薩爾達互動工具箱",
+          description: "發行年表、三條時間線、轉世輪迴、人物關係、結局對照",
+          icon: "🧭",
+          url: "topics/zelda/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "主要人物、時間線與名詞",
+          icon: "📖",
+          url: "topics/zelda/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "四十年的薩爾達", url: "topics/zelda/lesson-01.html" },
+            { title: "三角神力與三位一體", url: "topics/zelda/lesson-02.html" },
+            { title: "官方時間線：一分為三", url: "topics/zelda/lesson-03.html" },
+            { title: "世界、種族與地圖", url: "topics/zelda/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜起源：天空之劍到四支劍",
+          courses: [
+            { title: "天空之劍：天空洛夫特", url: "topics/zelda/lesson-05.html" },
+            { title: "天空之劍：女神的轉世", url: "topics/zelda/lesson-06.html" },
+            { title: "天空之劍：終焉者的詛咒", url: "topics/zelda/lesson-07.html" },
+            { title: "縹緲的帽子", url: "topics/zelda/lesson-08.html" },
+            { title: "四支劍", url: "topics/zelda/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜分歧點：時之笛",
+          courses: [
+            { title: "時之笛：森林的少年", url: "topics/zelda/lesson-10.html" },
+            { title: "時之笛：薩爾達與加儂多夫", url: "topics/zelda/lesson-11.html" },
+            { title: "時之笛：七年後與七賢者", url: "topics/zelda/lesson-12.html" },
+            { title: "時之笛：結局與分歧", url: "topics/zelda/lesson-13.html" },
+            { title: "時之笛的影響", url: "topics/zelda/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜勇者敗北線",
+          courses: [
+            { title: "眾神的三角神力：光與闇", url: "topics/zelda/lesson-15.html" },
+            { title: "眾神的三角神力：結局", url: "topics/zelda/lesson-16.html" },
+            { title: "不可思議的果實", url: "topics/zelda/lesson-17.html" },
+            { title: "織夢島", url: "topics/zelda/lesson-18.html" },
+            { title: "眾神的三角神力 2：羅魯拉", url: "topics/zelda/lesson-19.html" },
+            { title: "三角神力三劍客", url: "topics/zelda/lesson-20.html" },
+            { title: "智慧的再現", url: "topics/zelda/lesson-21.html" },
+            { title: "薩爾達傳說（初代）", url: "topics/zelda/lesson-22.html" },
+            { title: "林克的冒險", url: "topics/zelda/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜少年時代線",
+          courses: [
+            { title: "穆修拉的假面：三天後的月亮", url: "topics/zelda/lesson-24.html" },
+            { title: "穆修拉的假面：面具與人們", url: "topics/zelda/lesson-25.html" },
+            { title: "穆修拉的假面：月亮之中", url: "topics/zelda/lesson-26.html" },
+            { title: "黃昏公主：影之國度", url: "topics/zelda/lesson-27.html" },
+            { title: "黃昏公主：加儂多夫與結局", url: "topics/zelda/lesson-28.html" },
+            { title: "四支劍+", url: "topics/zelda/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜成年時代線",
+          courses: [
+            { title: "風之律動：被淹沒的海拉魯", url: "topics/zelda/lesson-30.html" },
+            { title: "風之律動：泰特拉與國王", url: "topics/zelda/lesson-31.html" },
+            { title: "風之律動：國王的願望", url: "topics/zelda/lesson-32.html" },
+            { title: "夢幻沙漏", url: "topics/zelda/lesson-33.html" },
+            { title: "大地的汽笛：新海拉魯", url: "topics/zelda/lesson-34.html" },
+            { title: "大地的汽笛：結局與成年線的終點", url: "topics/zelda/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜遙遠的未來：曠野之息與王國之淚",
+          courses: [
+            { title: "曠野之息：百年的沉睡", url: "topics/zelda/lesson-36.html" },
+            { title: "曠野之息：薩爾達的百年", url: "topics/zelda/lesson-37.html" },
+            { title: "曠野之息：結局與評價", url: "topics/zelda/lesson-38.html" },
+            { title: "王國之淚：大地的震動", url: "topics/zelda/lesson-39.html" },
+            { title: "王國之淚：建國的祕密", url: "topics/zelda/lesson-40.html" },
+            { title: "王國之淚：白龍與結局", url: "topics/zelda/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜外傳與總結",
+          courses: [
+            { title: "海拉魯無雙與災厄啟示錄", url: "topics/zelda/lesson-42.html" },
+            { title: "其他外傳", url: "topics/zelda/lesson-43.html" },
+            { title: "道具、樂器與象徵", url: "topics/zelda/lesson-44.html" },
+            { title: "系列的主題", url: "topics/zelda/lesson-45.html" },
+            { title: "總結：四十年的海拉魯", url: "topics/zelda/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "final-fantasy",
+      category: "games",
+      title: "最終幻想歷代故事：十六個世界，一個名字",
+      description:
+        "最終幻想 FF1～FF16 正傳、續作與主要外傳的完整劇情（含結局暴雷）：水晶與光之戰士、塞西爾、凱夫卡、FF7 與其衍生宇宙、FF8 的魔女、FF9、FF10 的斯匹拉、伊瓦利斯與戰略版、FF13 三部曲、FF15、FF16；FF11 與 FF14 簡介。附發行年表、FF7 年表、召喚獸與席德圖鑑、人物關係與全系列結局對照等互動工具。",
+      icon: "💎",
+      url: "topics/final-fantasy/index.html",
+      resources: [
+        {
+          title: "FF 互動工具箱",
+          description: "發行年表、共通元素、FF7 年表、召喚獸、席德、人物關係、全系列結局",
+          icon: "🧭",
+          url: "topics/final-fantasy/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "歷代主要人物、世界與名詞",
+          icon: "📖",
+          url: "topics/final-fantasy/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "「最後的幻想」", url: "topics/final-fantasy/lesson-01.html" },
+            { title: "共通元素", url: "topics/final-fantasy/lesson-02.html" },
+            { title: "十六個世界", url: "topics/final-fantasy/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜紅白機時代：FF1～FF3",
+          courses: [
+            { title: "FF1：光之戰士", url: "topics/final-fantasy/lesson-04.html" },
+            { title: "FF2：野玫瑰", url: "topics/final-fantasy/lesson-05.html" },
+            { title: "FF3：光與暗的平衡", url: "topics/final-fantasy/lesson-06.html" },
+            { title: "陌生天堂：FF1 的另一個起源", url: "topics/final-fantasy/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜超任時代：FF4～FF6",
+          courses: [
+            { title: "FF4：暗黑騎士塞西爾", url: "topics/final-fantasy/lesson-08.html" },
+            { title: "FF4：月亮與兄弟", url: "topics/final-fantasy/lesson-09.html" },
+            { title: "FF5：四顆水晶與兩個世界", url: "topics/final-fantasy/lesson-10.html" },
+            { title: "FF5：職業系統與評價", url: "topics/final-fantasy/lesson-11.html" },
+            { title: "FF6：魔導與帝國", url: "topics/final-fantasy/lesson-12.html" },
+            { title: "FF6：凱夫卡與世界的崩壞", url: "topics/final-fantasy/lesson-13.html" },
+            { title: "FF6：崩壞後的世界", url: "topics/final-fantasy/lesson-14.html" },
+            { title: "FF6：結局", url: "topics/final-fantasy/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜FF7 與它的宇宙",
+          courses: [
+            { title: "FF7：米德加與神羅", url: "topics/final-fantasy/lesson-16.html" },
+            { title: "FF7：薩菲羅斯與傑諾瓦", url: "topics/final-fantasy/lesson-17.html" },
+            { title: "FF7：忘卻之都", url: "topics/final-fantasy/lesson-18.html" },
+            { title: "FF7：克勞德的真相", url: "topics/final-fantasy/lesson-19.html" },
+            { title: "FF7：隕石與結局", url: "topics/final-fantasy/lesson-20.html" },
+            { title: "危機核心：扎克斯的故事", url: "topics/final-fantasy/lesson-21.html" },
+            { title: "降臨之子與地獄犬的輓歌", url: "topics/final-fantasy/lesson-22.html" },
+            { title: "FF7 重製三部曲", url: "topics/final-fantasy/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜PS 時代：FF8 與 FF9",
+          courses: [
+            { title: "FF8：花園與 SeeD", url: "topics/final-fantasy/lesson-24.html" },
+            { title: "FF8：孤兒院與時間壓縮", url: "topics/final-fantasy/lesson-25.html" },
+            { title: "FF8：結局與迴圈", url: "topics/final-fantasy/lesson-26.html" },
+            { title: "FF9：吉坦與公主", url: "topics/final-fantasy/lesson-27.html" },
+            { title: "FF9：比比與生命", url: "topics/final-fantasy/lesson-28.html" },
+            { title: "FF9：庫加、加蘭德與結局", url: "topics/final-fantasy/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜FF10 與 FF10-2",
+          courses: [
+            { title: "FF10：從夢之薩納爾罕到斯匹拉", url: "topics/final-fantasy/lesson-30.html" },
+            { title: "FF10：最終召喚的真相", url: "topics/final-fantasy/lesson-31.html" },
+            { title: "FF10：祈子的夢與結局", url: "topics/final-fantasy/lesson-32.html" },
+            { title: "FF10：斯匹拉的宗教與機械", url: "topics/final-fantasy/lesson-33.html" },
+            { title: "FF10-2：尤娜的新旅程", url: "topics/final-fantasy/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜伊瓦利斯：FF12 與戰略版",
+          courses: [
+            { title: "FF12：被占領的王國", url: "topics/final-fantasy/lesson-35.html" },
+            { title: "FF12：不滅者與人類的歷史", url: "topics/final-fantasy/lesson-36.html" },
+            { title: "FF12：結局", url: "topics/final-fantasy/lesson-37.html" },
+            { title: "最終幻想戰略版：獅子戰爭", url: "topics/final-fantasy/lesson-38.html" },
+            { title: "伊瓦利斯的世界", url: "topics/final-fantasy/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜FF13 三部曲",
+          courses: [
+            { title: "FF13：繭與露希", url: "topics/final-fantasy/lesson-40.html" },
+            { title: "FF13：拉格納洛克與結局", url: "topics/final-fantasy/lesson-41.html" },
+            { title: "FF13-2：時間的悖論", url: "topics/final-fantasy/lesson-42.html" },
+            { title: "雷霆歸來與新水晶神話", url: "topics/final-fantasy/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜FF15",
+          courses: [
+            { title: "FF15：王子的公路旅行", url: "topics/final-fantasy/lesson-44.html" },
+            { title: "FF15：阿汀與星之病", url: "topics/final-fantasy/lesson-45.html" },
+            { title: "FF15：十年後的黎明", url: "topics/final-fantasy/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 J｜FF16",
+          courses: [
+            { title: "FF16：母水晶與顯化者", url: "topics/final-fantasy/lesson-47.html" },
+            { title: "FF16：隱居者之地與究極", url: "topics/final-fantasy/lesson-48.html" },
+            { title: "FF16：結局", url: "topics/final-fantasy/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 K｜線上作品與其他外傳",
+          courses: [
+            { title: "FF11：凡納迪爾", url: "topics/final-fantasy/lesson-50.html" },
+            { title: "FF14：艾歐澤亞的重生", url: "topics/final-fantasy/lesson-51.html" },
+            { title: "其他外傳", url: "topics/final-fantasy/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 L｜總結",
+          courses: [
+            { title: "反覆出現的主題", url: "topics/final-fantasy/lesson-53.html" },
+            { title: "音樂、畫面與遊戲史", url: "topics/final-fantasy/lesson-54.html" },
+            { title: "總結：十六個世界，一個名字", url: "topics/final-fantasy/lesson-55.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "dragon-quest",
+      category: "games",
+      title: "勇者鬥惡龍歷代故事：從洛特的傳說到尋覓逝去的時光",
+      description:
+        "勇者鬥惡龍正傳與主要外傳的完整劇情（含結局暴雷）：洛特三部曲（DQ3→DQ1→DQ2）、天空三部曲（DQ4 比薩羅、DQ5 三代人的一生、DQ6 夢與現實）、DQ7 的島嶼、DQ8 的詛咒、DQ9 的天使、DQ11 與洛特傳說的連結，以及創世小玩家、怪物仙境等外傳；DQ10 簡介、DQ12 近況。附發行年表、洛特血脈、人物關係、怪物圖鑑與全系列結局對照等互動工具。",
+      icon: "🐉",
+      url: "topics/dragon-quest/index.html",
+      resources: [
+        {
+          title: "DQ 互動工具箱",
+          description: "發行年表、洛特的血脈、天空三部曲與 DQ8、DQ11 人物關係、怪物圖鑑、全系列結局",
+          icon: "🧭",
+          url: "topics/dragon-quest/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "歷代主要人物、作品與名詞",
+          icon: "📖",
+          url: "topics/dragon-quest/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "日本的國民 RPG", url: "topics/dragon-quest/lesson-01.html" },
+            { title: "「勇者」是什麼", url: "topics/dragon-quest/lesson-02.html" },
+            { title: "系列的連結方式", url: "topics/dragon-quest/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜洛特三部曲",
+          courses: [
+            { title: "DQ3：奧爾提加之子", url: "topics/dragon-quest/lesson-04.html" },
+            { title: "DQ3：大魔王佐瑪與闇之世界", url: "topics/dragon-quest/lesson-05.html" },
+            { title: "DQ3：於是進入傳說", url: "topics/dragon-quest/lesson-06.html" },
+            { title: "DQ1：龍王與光之玉", url: "topics/dragon-quest/lesson-07.html" },
+            { title: "DQ1：「要不要分享世界？」", url: "topics/dragon-quest/lesson-08.html" },
+            { title: "DQ2：三位洛特的子孫", url: "topics/dragon-quest/lesson-09.html" },
+            { title: "DQ2：破壞神席多", url: "topics/dragon-quest/lesson-10.html" },
+            { title: "洛特三部曲總結", url: "topics/dragon-quest/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜天空三部曲",
+          courses: [
+            { title: "DQ4：五個章節", url: "topics/dragon-quest/lesson-12.html" },
+            { title: "DQ4：比薩羅與羅莎莉", url: "topics/dragon-quest/lesson-13.html" },
+            { title: "DQ4：天空城與結局", url: "topics/dragon-quest/lesson-14.html" },
+            { title: "DQ5：父親帕帕斯", url: "topics/dragon-quest/lesson-15.html" },
+            { title: "DQ5：奴隸與重逢", url: "topics/dragon-quest/lesson-16.html" },
+            { title: "DQ5：天空的新娘", url: "topics/dragon-quest/lesson-17.html" },
+            { title: "DQ5：石化的八年", url: "topics/dragon-quest/lesson-18.html" },
+            { title: "DQ5：魔界與結局", url: "topics/dragon-quest/lesson-19.html" },
+            { title: "DQ6：夢與現實", url: "topics/dragon-quest/lesson-20.html" },
+            { title: "DQ6：迪斯塔姆爾與天空城", url: "topics/dragon-quest/lesson-21.html" },
+            { title: "天空三部曲的連結", url: "topics/dragon-quest/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜DQ7～DQ10",
+          courses: [
+            { title: "DQ7：只有一座島的世界", url: "topics/dragon-quest/lesson-23.html" },
+            { title: "DQ7：基法的離去", url: "topics/dragon-quest/lesson-24.html" },
+            { title: "DQ7：假神與結局", url: "topics/dragon-quest/lesson-25.html" },
+            { title: "DQ8：被詛咒的王國", url: "topics/dragon-quest/lesson-26.html" },
+            { title: "DQ8：權杖的連鎖", url: "topics/dragon-quest/lesson-27.html" },
+            { title: "DQ8：婚禮與身世", url: "topics/dragon-quest/lesson-28.html" },
+            { title: "DQ9：墜落的天使", url: "topics/dragon-quest/lesson-29.html" },
+            { title: "DQ9：艾爾吉歐斯", url: "topics/dragon-quest/lesson-30.html" },
+            { title: "DQ10：線上的世界（簡介）", url: "topics/dragon-quest/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜DQ11：尋覓逝去的時光",
+          courses: [
+            { title: "DQ11：惡魔之子", url: "topics/dragon-quest/lesson-32.html" },
+            { title: "DQ11：世界樹的崩落", url: "topics/dragon-quest/lesson-33.html" },
+            { title: "DQ11：崩落後的世界", url: "topics/dragon-quest/lesson-34.html" },
+            { title: "DQ11：回到過去", url: "topics/dragon-quest/lesson-35.html" },
+            { title: "DQ11：通往洛特的傳說", url: "topics/dragon-quest/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 F｜外傳",
+          courses: [
+            { title: "創世小玩家：如果勇者答應了", url: "topics/dragon-quest/lesson-37.html" },
+            { title: "怪物仙境系列", url: "topics/dragon-quest/lesson-38.html" },
+            { title: "英雄集結、寶藏與史萊姆", url: "topics/dragon-quest/lesson-39.html" },
+            { title: "外傳如何補完正傳", url: "topics/dragon-quest/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "史萊姆與怪物", url: "topics/dragon-quest/lesson-41.html" },
+            { title: "一脈相承的傳統", url: "topics/dragon-quest/lesson-42.html" },
+            { title: "全系列結局對照", url: "topics/dragon-quest/lesson-43.html" },
+            { title: "DQ12 與系列的未來", url: "topics/dragon-quest/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
