@@ -20166,6 +20166,107 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "qi-transport",
+      category: "life",
+      title: "氣的輸送：中醫理論中的氣如何生成、運行與阻滯",
+      description:
+        "用「輸送現象」的眼光整理中醫的氣理論：氣的字源與先秦氣論、氣的種類；元氣、脾胃、肺與宗氣的生成；十二經流注、子午流注、營衛運行、奇經、腧穴與三焦；升降出入、肝升肺降、脾升胃降、心腎相交、氣血耦合與晝夜四季；氣虛、氣滯、氣逆、氣陷與九氣為病；針灸、導引與入門呼吸練習、中藥、推拿；最後中立整理經絡實體、針灸與氣功的研究證據。附子午流注、營衛運行、氣機升降、源—流—匯類比模型與呼吸節拍器。本課程不是診斷或治療建議。",
+      icon: "🌬️",
+      url: "topics/qi-transport/index.html",
+      resources: [
+        {
+          title: "氣的輸送工具箱",
+          description: "子午流注、營衛運行、氣機升降、十二經循環、源—流—匯類比模型、呼吸節拍器",
+          icon: "🧭",
+          url: "topics/qi-transport/guide.html"
+        },
+        {
+          title: "氣的輸送名詞速查",
+          description: "本課程用到的名詞與對應課次",
+          icon: "📖",
+          url: "topics/qi-transport/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是氣",
+          courses: [
+            { title: "「氣」這個字", url: "topics/qi-transport/lesson-01.html" },
+            { title: "先秦到漢代的氣論", url: "topics/qi-transport/lesson-02.html" },
+            { title: "中醫的氣：物質還是功能", url: "topics/qi-transport/lesson-03.html" },
+            { title: "氣的種類", url: "topics/qi-transport/lesson-04.html" },
+            { title: "用「輸送」的眼光看氣", url: "topics/qi-transport/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜氣從哪裡來",
+          courses: [
+            { title: "先天之氣：腎與元氣", url: "topics/qi-transport/lesson-06.html" },
+            { title: "後天之氣：脾胃運化", url: "topics/qi-transport/lesson-07.html" },
+            { title: "清氣：肺與呼吸", url: "topics/qi-transport/lesson-08.html" },
+            { title: "宗氣的合成", url: "topics/qi-transport/lesson-09.html" },
+            { title: "氣、血、津液、精的互相轉化", url: "topics/qi-transport/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜氣走哪些路",
+          courses: [
+            { title: "經絡系統總覽", url: "topics/qi-transport/lesson-11.html" },
+            { title: "十二經脈的流注順序", url: "topics/qi-transport/lesson-12.html" },
+            { title: "營氣行於脈中", url: "topics/qi-transport/lesson-13.html" },
+            { title: "衛氣行於脈外", url: "topics/qi-transport/lesson-14.html" },
+            { title: "奇經八脈", url: "topics/qi-transport/lesson-15.html" },
+            { title: "腧穴：通道上的節點", url: "topics/qi-transport/lesson-16.html" },
+            { title: "三焦", url: "topics/qi-transport/lesson-17.html" },
+            { title: "用網路圖看經絡", url: "topics/qi-transport/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜氣怎麼動：氣機",
+          courses: [
+            { title: "升降出入", url: "topics/qi-transport/lesson-19.html" },
+            { title: "臟腑的升降", url: "topics/qi-transport/lesson-20.html" },
+            { title: "心腎相交、水火既濟", url: "topics/qi-transport/lesson-21.html" },
+            { title: "驅動力", url: "topics/qi-transport/lesson-22.html" },
+            { title: "氣與血的耦合輸送", url: "topics/qi-transport/lesson-23.html" },
+            { title: "晝夜與四季", url: "topics/qi-transport/lesson-24.html" },
+            { title: "「源—流—匯」模型", url: "topics/qi-transport/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜氣卡住了：病理",
+          courses: [
+            { title: "氣虛", url: "topics/qi-transport/lesson-26.html" },
+            { title: "氣滯", url: "topics/qi-transport/lesson-27.html" },
+            { title: "氣逆", url: "topics/qi-transport/lesson-28.html" },
+            { title: "氣陷與氣脫", url: "topics/qi-transport/lesson-29.html" },
+            { title: "不通則痛", url: "topics/qi-transport/lesson-30.html" },
+            { title: "情志與氣", url: "topics/qi-transport/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜讓氣通：調理方法",
+          courses: [
+            { title: "針灸", url: "topics/qi-transport/lesson-32.html" },
+            { title: "導引、氣功與太極", url: "topics/qi-transport/lesson-33.html" },
+            { title: "入門練習：安全的呼吸與導引", url: "topics/qi-transport/lesson-34.html" },
+            { title: "中藥：理氣、補氣、降氣", url: "topics/qi-transport/lesson-35.html" },
+            { title: "按摩、推拿與刮痧", url: "topics/qi-transport/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜現代觀點",
+          courses: [
+            { title: "經絡有沒有實體", url: "topics/qi-transport/lesson-37.html" },
+            { title: "針灸的臨床研究", url: "topics/qi-transport/lesson-38.html" },
+            { title: "氣功與太極的研究", url: "topics/qi-transport/lesson-39.html" },
+            { title: "人體真正的輸送現象", url: "topics/qi-transport/lesson-40.html" },
+            { title: "總結", url: "topics/qi-transport/lesson-41.html" },
+          ],
+        },
+      ],
     }
   ]
 };
