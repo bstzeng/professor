@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 55 課：從教科書 CPU 到真正的處理器 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="快取、預測、亂序、多核心">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 55 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜做一顆 CPU · 第 55 課</div>
+      <h1>從教科書 CPU 到真正的處理器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>說明記憶體階層與快取的必要性</li>
+          <li>認識超純量與亂序執行</li>
+          <li>了解現代處理器的規模</li>
+        </ul>
+      </div>
+
+      <p>
+        我們的 CPU 假設記憶體一個週期就能讀到。第 48 課說過，DRAM 要 40～50 ns，相當於數百個 CPU 週期。真實處理器用了下列技術彌補，每一項都是數位邏輯設計的大型應用。
+      </p>
+
+      <h2>記憶體階層</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>層級</th><th>容量</th><th>延遲（週期）</th><th>技術</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>暫存器</td><td>數百個</td><td>0</td><td>多埠暫存器檔</td></tr>
+          <tr><td>L1 快取</td><td>32～192 KB</td><td>3～5</td><td>SRAM</td></tr>
+          <tr><td>L2 快取</td><td>0.5～16 MB</td><td>10～20</td><td>SRAM</td></tr>
+          <tr><td>L3 快取</td><td>數十 MB</td><td>30～60</td><td>SRAM</td></tr>
+          <tr><td>主記憶體</td><td>數十 GB</td><td>200～400</td><td>DRAM</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        快取利用<strong>區域性</strong>：最近用過的資料（時間區域性）和它附近的資料（空間區域性）很可能馬上又要用。快取由 SRAM 陣列（資料與標籤）、比較器（標籤比對，第 20 課）、多工器與替換策略的狀態機組成。命中率通常 95% 以上，讓平均延遲接近 L1。多核心之間的一致性見 <a href="../computer-science/lesson-68.html">〈計算機概論〉第 68 課</a>。
+      </p>
+
+      <h2>一次做更多事</h2>
+
+      <ul>
+        <li><strong>超純量</strong>：每個週期提取、解碼、發出多條指令（現代高效能核心 6～10 條寬）。需要多個 ALU、多埠暫存器檔、大量轉送路徑。</li>
+        <li><strong>亂序執行</strong>：指令依資料就緒的順序而非程式順序執行，用<strong>暫存器重新命名</strong>消除假相依、用<strong>重新排序緩衝區（ROB）</strong>保證結果依程式順序生效。數百條指令同時「在飛」。</li>
+        <li><strong>分支預測與投機執行</strong>：預測器本身就是一組表格（SRAM）和計數器（2 位元飽和計數器是一個小 FSM），猜對就繼續、猜錯就丟棄（<a href="../computer-science/lesson-65.html">〈計算機概論〉第 65 課</a>、<a href="../computer-science/lesson-66.html">〈計算機概論〉第 66 課</a>）。</li>
+        <li><strong>多核心與 SIMD</strong>：一顆晶片多個核心；向量指令一次處理多筆資料。</li>
+      </ul>
+
+      <h2>規模感</h2>
+
+      <p>
+        我們的 CPU 約數千個閘。一個現代高效能核心有數億個電晶體，一顆手機 SoC 有上百億個——CPU 核心、GPU、神經網路加速器、影像處理器、數據機、記憶體控制器，數十個時脈域（第 42 課），全部用本課程的元件與方法建構：組合邏輯、正反器、狀態機、同步設計、HDL、合成、靜態時序分析。
+      </p>
+
+      <p>
+        開源的 RISC-V 核心是很好的下一步：PicoRV32（極小、多週期）、VexRiscv（可設定管線）、Rocket（Chisel 寫成的五級管線，可跑 Linux）、BOOM（亂序執行）。它們的原始碼都是公開的，結構與這門課完全一致，只是多了很多細節。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          真實處理器以記憶體階層（暫存器、L1～L3 SRAM 快取、DRAM）利用區域性彌補 DRAM 的數百週期延遲；快取由 SRAM 陣列、標籤比較器與替換邏輯組成。超純量每週期發出多條指令，亂序執行以暫存器重新命名與 ROB 讓數百條指令同時在飛，分支預測器以表格與飽和計數器猜測方向。現代 SoC 有上百億個電晶體，但用的仍是本課程的元件與方法；PicoRV32、Rocket、BOOM 等開源核心是很好的下一步。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是時間區域性與空間區域性？</li>
+          <li>暫存器重新命名解決了什麼問題？</li>
+          <li>2 位元飽和計數器分支預測器是幾個狀態的 FSM？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>總結：從邏輯閘到一顆 CPU</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-54.html">← 上一課：管線化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-56.html">下一課：總結：從邏輯閘到一顆 CPU →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

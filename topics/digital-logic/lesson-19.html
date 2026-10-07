@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：解碼器、編碼器與優先權編碼器 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="二進位碼 ↔ 一條線">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜組合邏輯元件 · 第 19 課</div>
+      <h1>解碼器、編碼器與優先權編碼器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計 n 對 2ⁿ 解碼器並用它實作函數</li>
+          <li>理解一般編碼器的限制</li>
+          <li>設計優先權編碼器</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__dgLib) return; window.__dgLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var PROG = [[0, 659, "addi t0, zero, 0"], [4, 1049363, "addi t1, zero, 1"], [8, 11535251, "addi t2, zero, 11"], [12, 6455987, "add  t0, t0, t1"], [16, 1245971, "addi t1, t1, 1"], [20, 4268956899, "bne  t1, t2, loop"], [24, 5251107, "sw   t0, 0(zero)"], [28, 16778259, "addi s0, zero, 16"], [32, 1299, "addi a0, zero, 0"], [36, 1050003, "addi a1, zero, 1"], [40, 10486931, "addi s1, zero, 10"], [44, 10756131, "sw   a0, 0(s0)"], [48, 11863603, "add  a2, a0, a1"], [52, 361747, "addi a0, a1, 0"], [56, 394643, "addi a1, a2, 0"], [60, 4457491, "addi s0, s0, 4"], [64, 4294214803, "addi s1, s1, -1"], [68, 4261713123, "bne  s1, zero, fib"], [72, 17827091, "addi a0, zero, 17"], [76, 44041619, "addi a1, zero, 42"], [80, 20971759, "jal  ra, max"], [84, 10494499, "sw   a0, 4(zero)"], [88, 305419959, "lui  a3, 0x12345"], [92, 9987, "lw   a4, 0(zero)"], [96, 99, "beq  zero, zero, done"], [100, 11879523, "blt  a0, a1, take_b"], [104, 32871, "jalr zero, 0(ra)"], [108, 361747, "addi a0, a1, 0"], [112, 32871, "jalr zero, 0(ra)"]];
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div'); root.appendChild(b); return b; }
+        var ON = '#d0564f', OFF = '#3a6ea5';
+
+        /* ---------- 邏輯閘沙盒 ---------- */
+        var OPS = { AND: function (v) { return v.every(Boolean) ? 1 : 0; }, OR: function (v) { return v.some(Boolean) ? 1 : 0; }, NOT: function (v) { return v[0] ? 0 : 1; },
+          NAND: function (v) { return v.every(Boolean) ? 0 : 1; }, NOR: function (v) { return v.some(Boolean) ? 0 : 1; }, XOR: function (v) { return v.reduce(function (a, b) { return a ^ b; }, 0); } };
+        var CIRC = {
+          basic: { n: '基本邏輯閘', ins: { A: [40, 90], B: [40, 190] }, g: [['g1', 'AND', ['A', 'B'], 260, 40], ['g2', 'OR', ['A', 'B'], 260, 95], ['g3', 'XOR', ['A', 'B'], 260, 150], ['g4', 'NAND', ['A', 'B'], 260, 205], ['g5', 'NOR', ['A', 'B'], 260, 260]], outs: { AND: 'g1', OR: 'g2', XOR: 'g3', NAND: 'g4', NOR: 'g5' } },
+          half: { n: '半加器', ins: { A: [40, 100], B: [40, 200] }, g: [['x', 'XOR', ['A', 'B'], 260, 90], ['a', 'AND', ['A', 'B'], 260, 200]], outs: { 'S（和）': 'x', 'C（進位）': 'a' } },
+          full: { n: '全加器', ins: { A: [40, 60], B: [40, 140], Cin: [40, 240] }, g: [['p', 'XOR', ['A', 'B'], 200, 80], ['s', 'XOR', ['p', 'Cin'], 380, 110], ['g', 'AND', ['A', 'B'], 200, 170], ['t', 'AND', ['p', 'Cin'], 380, 220], ['c', 'OR', ['g', 't'], 520, 200]], outs: { S: 's', Cout: 'c' } },
+          mux: { n: '2 選 1 多工器', ins: { D0: [40, 60], D1: [40, 160], S: [40, 260] }, g: [['n', 'NOT', ['S'], 180, 250], ['a0', 'AND', ['D0', 'n'], 330, 80], ['a1', 'AND', ['D1', 'S'], 330, 190], ['y', 'OR', ['a0', 'a1'], 500, 135]], outs: { Y: 'y' } },
+          dec: { n: '2 對 4 解碼器', ins: { A1: [40, 80], A0: [40, 200] }, g: [['n1', 'NOT', ['A1'], 160, 60], ['n0', 'NOT', ['A0'], 160, 220], ['y0', 'AND', ['n1', 'n0'], 380, 40], ['y1', 'AND', ['n1', 'A0'], 380, 110], ['y2', 'AND', ['A1', 'n0'], 380, 180], ['y3', 'AND', ['A1', 'A0'], 380, 250]], outs: { Y0: 'y0', Y1: 'y1', Y2: 'y2', Y3: 'y3' } },
+          sr: { n: 'SR 閂鎖器（NOR）', ins: { S: [40, 80], R: [40, 220] }, g: [['q', 'NOR', ['R', 'qn'], 330, 200], ['qn', 'NOR', ['S', 'q'], 330, 90]], outs: { Q: 'q', "Q'": 'qn' }, latch: 1 } };
+        function initLogic(root, cfg) {
+          head(root, cfg.q); var key = cfg.c || 'basic', st = {}, val = {}, view = el('div'), p, bb = bar(root);
+          Object.keys(CIRC).forEach(function (k) { var b = btn(CIRC[k].n, k); b.addEventListener('click', function () { key = k; st = {}; val = {}; mark(bb, k); draw(); }); bb.appendChild(b); }); mark(bb, key);
+          root.appendChild(view); p = info(root);
+          function evalc() { var c = CIRC[key]; Object.keys(c.ins).forEach(function (k) { val[k] = st[k] || 0; });
+            c.g.forEach(function (g) { if (val[g[0]] === undefined) val[g[0]] = (key === 'sr' && g[0] === 'qn') ? 1 : 0; });
+            for (var it = 0; it < 12; it++) { var ch = false; c.g.forEach(function (g) { var v = OPS[g[1]](g[2].map(function (s) { return val[s] || 0; })); if (v !== val[g[0]]) { val[g[0]] = v; ch = true; } }); if (!ch) break; } }
+          function draw() { evalc(); var c = CIRC[key], o = '', pos = {};
+            Object.keys(c.ins).forEach(function (k) { pos[k] = [c.ins[k][0] + 26, c.ins[k][1]]; });
+            c.g.forEach(function (g) { pos[g[0]] = [g[3] + 70, g[4]]; });
+            c.g.forEach(function (g) { g[2].forEach(function (s, i) { var a = pos[s], y = g[4] - 10 + i * (g[2].length > 1 ? 20 / (g[2].length - 1) : 0) + (g[2].length > 1 ? 0 : 10), mx = (a[0] + g[3]) / 2;
+              var back = a[0] > g[3]; var d = back ? 'M' + a[0] + ',' + a[1] + ' L' + (a[0] + 14) + ',' + a[1] + ' L' + (a[0] + 14) + ',' + (g[4] < a[1] ? g[4] - 34 : g[4] + 34) + ' L' + (g[3] - 14) + ',' + (g[4] < a[1] ? g[4] - 34 : g[4] + 34) + ' L' + (g[3] - 14) + ',' + n1(y) + ' L' + g[3] + ',' + n1(y)
+                : 'M' + a[0] + ',' + a[1] + ' L' + n1(mx) + ',' + a[1] + ' L' + n1(mx) + ',' + n1(y) + ' L' + g[3] + ',' + n1(y);
+              o += '<path d="' + d + '" fill="none" stroke="' + (val[s] ? ON : OFF) + '" stroke-width="2.2"/>'; }); });
+            c.g.forEach(function (g) { var v = val[g[0]]; o += '<rect x="' + g[3] + '" y="' + (g[4] - 18) + '" width="70" height="36" rx="8" fill="var(--surface)" stroke="' + (v ? ON : OFF) + '" stroke-width="2"/>' + tx(g[3] + 35, g[4] + 5, g[1], 12, 'currentColor'); });
+            Object.keys(c.ins).forEach(function (k) { var a = c.ins[k], v = val[k]; o += '<g data-in="' + k + '" style="cursor:pointer"><rect x="' + (a[0] - 22) + '" y="' + (a[1] - 16) + '" width="48" height="32" rx="6" fill="' + (v ? ON : OFF) + '"/>' + tx(a[0] + 2, a[1] + 5, k + '=' + v, 12, '#fff') + '</g>'; });
+            var oy = 40; Object.keys(c.outs).forEach(function (k) { var s = c.outs[k], a = pos[s], v = val[s]; o += ln(a[0], a[1], 600, a[1], v ? ON : OFF, 2) + '<circle cx="610" cy="' + a[1] + '" r="10" fill="' + (v ? ON : 'var(--surface)') + '" stroke="' + (v ? ON : OFF) + '" stroke-width="2"/>' + tx(628, a[1] + 5, k + '=' + v, 12, 'currentColor', 'start'); });
+            view.innerHTML = svgw('0 0 700 300', o);
+            view.querySelectorAll('g[data-in]').forEach(function (g) { g.addEventListener('click', function () { var k = g.getAttribute('data-in'); st[k] = st[k] ? 0 : 1; draw(); }); });
+            p.innerHTML = '點左邊的輸入方塊切換 0／1。紅色線是 1，藍色線是 0。' + (key === 'sr' ? '<br><b>試試看</b>：先按 S=1 再放回 0，Q 會<b>保持</b>在 1；再按 R=1 放回 0，Q 保持 0。輸出接回輸入（回授），電路就有了記憶。S、R 同時為 1 是禁止的組合。' : key === 'full' ? '<br>全加器由兩個半加器加一個 OR 組成：S = A⊕B⊕Cin，Cout = AB + Cin(A⊕B)。' : ''); }
+          draw();
+        }
+
+        /* ---------- 卡諾圖化簡 ---------- */
+        var GRAY = [0, 1, 3, 2];
+        function initKmap(root, cfg) {
+          head(root, cfg.q); var nv = cfg.n || 4, cells = [], view = el('div'), p, bb = bar(root);
+          function reset() { cells = []; for (var i = 0; i < (1 << nv); i++) cells.push(0); if (cfg.m && nv === (cfg.n || 4)) cfg.m.forEach(function (m) { cells[m] = 1; }); }
+          [2, 3, 4].forEach(function (k) { var b = btn(k + ' 個變數', k); b.addEventListener('click', function () { nv = k; cfg.m = null; reset(); mark(bb, k); draw(); }); bb.appendChild(b); });
+          var bc = btn('清空', 'clr'); bc.addEventListener('click', function () { cfg.m = null; for (var i = 0; i < cells.length; i++) cells[i] = 0; draw(); }); bb.appendChild(bc); mark(bb, nv);
+          root.appendChild(view); p = info(root); reset();
+          var V = ['A', 'B', 'C', 'D'];
+          function solve() { var n = nv, N = 1 << n, on = [], dc = [];
+            for (var i = 0; i < N; i++) { if (cells[i] === 1) on.push(i); if (cells[i] === 2) dc.push(i); }
+            if (!on.length) return { expr: '0', pis: [] }; if (on.length + dc.length === N) return { expr: '1', pis: [{ v: 0, m: 0 }] };
+            var imps = [], seen = {};
+            for (var mask = 0; mask < N; mask++) for (var v = 0; v < N; v++) { if (v & mask) continue; var ok = true, cov = [];
+              for (var x = 0; x < N; x++) if ((x & ~mask & (N - 1)) === v) { if (cells[x] === 0) { ok = false; break; } cov.push(x); }
+              if (ok) { var k2 = mask + ':' + v; if (!seen[k2]) { seen[k2] = 1; imps.push({ m: mask, v: v, cov: cov }); } } }
+            var primes = imps.filter(function (a) { return !imps.some(function (b) { return b !== a && (a.m & b.m) === a.m && b.m !== a.m && (a.v & ~b.m) === b.v; }); });
+            var best = null;
+            for (var sz = 1; sz <= primes.length && !best; sz++) { (function rec(start, chosen) { if (best) return; if (chosen.length === sz) { if (on.every(function (m) { return chosen.some(function (c) { return c.cov.indexOf(m) >= 0; }); })) { if (!best || lits(chosen) < lits(best)) best = chosen.slice(); } return; }
+                for (var i = start; i < primes.length; i++) { chosen.push(primes[i]); rec(i + 1, chosen); chosen.pop(); } })(0, []); }
+            function lits(s) { return s.reduce(function (t, c) { var k = 0; for (var b = 0; b < n; b++) if (!(c.m >> b & 1)) k++; return t + k; }, 0); }
+            var terms = best.map(function (c) { var s = ''; for (var b = n - 1; b >= 0; b--) { if (c.m >> b & 1) continue; s += V[n - 1 - b] + ((c.v >> b & 1) ? '' : '′'); } return s || '1'; });
+            return { expr: terms.join(' + '), pis: best }; }
+          function draw() { var n = nv, rows = n === 2 ? 2 : n === 3 ? 2 : 4, cols = n === 2 ? 2 : 4, rb = n === 4 ? 2 : 1, cb = n === 2 ? 1 : 2, o = '', W = 70, x0 = 120, y0 = 50;
+            var res = solve(), cols6 = ['#d0564f', '#3a6ea5', '#4a9a5e', '#d9822b', '#8a5cb8', '#2a9d8f', '#b8941f', '#666'];
+            var rl = V.slice(0, rb).join(''), cl = V.slice(rb, n).join('');
+            o += tx(x0 - 20, y0 - 18, rl + '＼' + cl, 12, 'var(--text-muted)', 'end');
+            for (var c = 0; c < cols; c++) o += tx(x0 + c * W + W / 2, y0 - 10, (cb === 1 ? GRAY[c] & 1 : ('0' + GRAY[c].toString(2)).slice(-2)) + '', 12, 'var(--text-muted)');
+            for (var r = 0; r < rows; r++) { o += tx(x0 - 14, y0 + r * W + W / 2 + 4, (rb === 1 ? GRAY[r] & 1 : ('0' + GRAY[r].toString(2)).slice(-2)) + '', 12, 'var(--text-muted)', 'end');
+              for (var c2 = 0; c2 < cols; c2++) { var rv = rb === 1 ? GRAY[r] & 1 : GRAY[r], cv = cb === 1 ? GRAY[c2] & 1 : GRAY[c2], m = (rv << (n - rb)) | cv, v = cells[m], x = x0 + c2 * W, y = y0 + r * W;
+                o += '<g data-m="' + m + '" style="cursor:pointer"><rect x="' + x + '" y="' + y + '" width="' + W + '" height="' + W + '" fill="var(--surface)" stroke="var(--border)"/>';
+                res.pis.forEach(function (pi, k) { if (pi.cov && pi.cov.indexOf(m) >= 0) o += '<rect x="' + (x + 4 + k * 3) + '" y="' + (y + 4 + k * 3) + '" width="' + (W - 8 - k * 6) + '" height="' + (W - 8 - k * 6) + '" rx="10" fill="' + cols6[k % 8] + '" fill-opacity="0.13" stroke="' + cols6[k % 8] + '" stroke-width="2"/>'; });
+                o += tx(x + W / 2, y + W / 2 + 7, v === 2 ? 'X' : v, 20, v === 1 ? ON : 'var(--text-muted)') + tx(x + W - 6, y + 14, 'm' + m, 9, 'var(--text-muted)', 'end') + '</g>'; } }
+            view.innerHTML = svgw('0 0 520 ' + (y0 + rows * W + 10), o);
+            view.querySelectorAll('g[data-m]').forEach(function (g) { g.addEventListener('click', function () { var m = +g.getAttribute('data-m'); cells[m] = (cells[m] + 1) % 3; draw(); }); });
+            var on = []; cells.forEach(function (v, i) { if (v === 1) on.push(i); });
+            p.innerHTML = '點格子循環切換 0 → 1 → X（無關項）。最簡積之和：<b style="font-size:1.15em">F = ' + res.expr + '</b>' +
+              '<br>最小項 Σm(' + on.join(', ') + ')。彩色框是選中的質蘊涵項：每個框都是 2 的次方個相鄰的 1（可以跨邊緣繞回），框越大、變數越少。<br><span style="font-size:0.9em;color:var(--text-muted)">程式以窮舉找出所有質蘊涵項，再找出字數最少的覆蓋。</span>'; }
+          draw();
+        }
+
+        /* ---------- 延遲與毛刺波形 ---------- */
+        function initGlitch(root, cfg) {
+          head(root, cfg.q); var dn = 2, da = 2, dor = 2, fix = false, view = el('div'), p, bb = bar(root), b1 = btn('加上共識項 B·C：關', 'f');
+          b1.addEventListener('click', function () { fix = !fix; b1.textContent = '加上共識項 B·C：' + (fix ? '開' : '關'); draw(); }); bb.appendChild(b1);
+          var u1 = slider(root, '反相器延遲', 0, 6, 0.5, dn, function (v) { return v + ' ns'; }, 'dn', function (v) { dn = v; draw(); });
+          var u2 = slider(root, 'AND 閘延遲', 0.5, 6, 0.5, da, function (v) { return v + ' ns'; }, 'da', function (v) { da = v; draw(); });
+          var u3 = slider(root, 'OR 閘延遲', 0.5, 6, 0.5, dor, function (v) { return v + ' ns'; }, 'dor', function (v) { dor = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function draw() { var T = 30, t0 = 8, A = function (t) { return t < t0 ? 1 : 0; }, An = function (t) { return 1 - A(t - dn); }, X = function (t) { return A(t - da); }, Y = function (t) { return An(t - da); }, Z = function () { return 1; };
+            var F = function (t) { var a = X(t - dor) || Y(t - dor) || (fix && Z()) ? 1 : 0; return a; };
+            var sig = [['A', A], ["A'", An], ['A·B', X], ["A'·C", Y], ['F', F]], o = '', sx = function (t) { return 90 + t / T * 530; }, lo = 0, hi = 0;
+            sig.forEach(function (s, i) { var y = 30 + i * 46, d = '', prev = null; for (var t = 0; t <= T; t += 0.05) { var v = s[1](t), yy = y + (v ? 0 : 24); if (prev === null) d = 'M' + n1(sx(t)) + ',' + yy; else if (v !== prev) d += ' L' + n1(sx(t)) + ',' + (y + (prev ? 0 : 24)) + ' L' + n1(sx(t)) + ',' + yy; prev = v; } d += ' L' + n1(sx(T)) + ',' + (y + (prev ? 0 : 24));
+              o += tx(80, y + 16, s[0], 12, 'currentColor', 'end') + '<path d="' + d + '" fill="none" stroke="' + (s[0] === 'F' ? ON : OFF) + '" stroke-width="2.2"/>'; });
+            for (var t = 0; t <= T; t += 0.05) { if (!F(t) && t > 3) { if (!lo) lo = t; hi = t; } }
+            if (lo) o += '<rect x="' + n1(sx(lo)) + '" y="208" width="' + n1(Math.max(sx(hi) - sx(lo), 2)) + '" height="34" fill="' + ON + '" fill-opacity="0.15"/>';
+            for (var g = 0; g <= T; g += 5) o += tx(sx(g), 266, g + ' ns', 9.5, 'var(--text-muted)');
+            o += ln(sx(t0), 20, sx(t0), 250, '#999', 1, 'stroke-dasharray="3 3"');
+            view.innerHTML = svgw('0 0 640 275', o);
+            p.innerHTML = 'F = A·B + A′·C，B = C = 1。邏輯上 F 應該恆為 1，但 A 在 ' + t0 + ' ns 從 1 變 0 時，A′ 要多經過一個反相器（' + dn + ' ns）才變 1；這段時間兩個 AND 都是 0，F 就掉下來一下。' +
+              (lo ? '<br><b style="color:' + ON + '">毛刺：F 在 ' + f1(lo) + '～' + f1(hi + 0.05) + ' ns 之間錯誤地變成 0，寬度約 ' + f1(hi - lo + 0.05) + ' ns（≈ 反相器延遲）。</b>' : '<br><b style="color:#4a9a5e">沒有毛刺。</b>') +
+              '<br>把反相器延遲調成 0 毛刺就消失；或打開「共識項 B·C」：它在 A 切換時一直維持 1，像一座橋。同步電路則用另一種辦法：只在時脈邊緣取樣，等毛刺過去（第 15～17 課）。'; }
+          u1(); u2(); u3();
+        }
+
+        /* ---------- 加法器延遲比較 ---------- */
+        function initAdder(root, cfg) {
+          head(root, cfg.q); var tg = 15, N = 32, view = el('div'), p;
+          var u1 = slider(root, '每個閘的延遲', 5, 50, 1, tg, function (v) { return v + ' ps'; }, 'tg', function (v) { tg = v; draw(); });
+          var u2 = slider(root, '位元數', 4, 64, 4, N, function (v) { return v + ' 位元'; }, 'N', function (v) { N = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function rc(n) { return 2 * n + 1; } function cla(n) { return 4 + 2 * Math.ceil(n / 4); } function ks(n) { return 2 + 2 * Math.ceil(Math.log(n) / Math.LN2); }
+          function draw() { var a = [], b = [], c = []; for (var n = 4; n <= 64; n += 4) { a.push([n, rc(n) * tg]); b.push([n, cla(n) * tg]); c.push([n, ks(n) * tg]); }
+            view.innerHTML = chart(640, 270, [{ d: a, c: ON, n: '漣波進位（∝ N）' }, { d: b, c: '#d9822b', n: '4 位元超前進位區塊' }, { d: c, c: '#4a9a5e', n: '平行前綴（∝ log N）' }], { x0: 4, x1: 64, y0: 0, xl: '位元數 N', yl: '延遲（ps）', vl: [{ x: N, c: '#999', n: N + ' 位元' }] });
+            var r = rc(N) * tg, k = ks(N) * tg;
+            p.innerHTML = N + ' 位元：漣波進位約 <b>' + r + ' ps</b>（' + rc(N) + ' 級閘），平行前綴（Kogge–Stone 類）約 <b>' + k + ' ps</b>（' + ks(N) + ' 級）。' +
+              '<br>如果加法要在一個時脈週期內完成，漣波進位最高只能跑到約 <b>' + f1(1000 / r) + ' GHz</b>，平行前綴可到約 <b>' + f1(1000 / k) + ' GHz</b>（尚未扣除暫存器與導線的時間）。代價是平行前綴的閘數多很多（約 N·log N）。' +
+              '<br><span style="font-size:0.9em;color:var(--text-muted)">以「閘級數 × 每級延遲」的簡化模型估算：漣波 2N+1、超前進位 4+2⌈N/4⌉、平行前綴 2+2⌈log₂N⌉。</span>'; }
+          u1(); u2();
+        }
+
+        /* ---------- 閂鎖器／正反器波形 ---------- */
+        function initFF(root, cfg) {
+          head(root, cfg.q); var D = cfg.d || [0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0], su = 1, ho = 1, view = el('div'), p;
+          var u1 = slider(root, '建立時間 setup（格數）', 0, 3, 1, su, function (v) { return v + ' 格'; }, 'su', function (v) { su = v; draw(); });
+          var u2 = slider(root, '保持時間 hold（格數）', 0, 3, 1, ho, function (v) { return v + ' 格'; }, 'ho', function (v) { ho = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function draw() { var n = D.length, W = 520 / n, x0 = 90, clk = [], lat = [], ff = [], q1 = 0, q2 = 0, viol = [];
+            for (var i = 0; i < n; i++) clk.push(Math.floor(i / 3) % 2 ? 1 : 0);
+            for (var j = 0; j < n; j++) { if (clk[j]) q1 = D[j]; lat.push(q1); if (j > 0 && clk[j] && !clk[j - 1]) { q2 = D[j - 1];
+                var lo = j - su + 1, hi = j + ho - 1; if (su + ho > 0) { lo = Math.min(lo, j); hi = Math.max(hi, j); }
+                for (var k = Math.max(1, lo); k <= Math.min(n - 1, hi); k++) if (D[k] !== D[k - 1]) { viol.push(j); break; } }
+              ff.push(q2); }
+            var rows = [['CLK', clk, '#999'], ['D', D, OFF], ['D 閂鎖器 Q', lat, '#d9822b'], ['D 正反器 Q', ff, ON]], o = '';
+            rows.forEach(function (r, ri) { var y = 26 + ri * 52, d = 'M' + x0 + ',' + (y + (r[1][0] ? 0 : 26)); for (var i = 0; i < n; i++) { var yy = y + (r[1][i] ? 0 : 26); d += ' L' + n1(x0 + i * W) + ',' + yy + ' L' + n1(x0 + (i + 1) * W) + ',' + yy; }
+              o += tx(x0 - 8, y + 18, r[0], 11.5, 'currentColor', 'end') + '<path d="' + d + '" fill="none" stroke="' + r[2] + '" stroke-width="2.2"/>';
+              if (ri === 1) for (var i2 = 0; i2 < n; i2++) o += '<rect data-i="' + i2 + '" x="' + n1(x0 + i2 * W) + '" y="' + (y - 4) + '" width="' + n1(W) + '" height="34" fill="transparent" style="cursor:pointer"/>'; });
+            for (var e = 1; e < n; e++) if (clk[e] && !clk[e - 1]) { var x = x0 + e * W, bad = viol.indexOf(e) >= 0;
+              o += '<rect x="' + n1(x - su * W) + '" y="14" width="' + n1((su + ho) * W) + '" height="210" fill="' + (bad ? ON : '#4a9a5e') + '" fill-opacity="' + (bad ? 0.18 : 0.07) + '"/>' + ln(x, 14, x, 224, '#999', 1, 'stroke-dasharray="3 3"'); if (bad) o += tx(x, 240, '違規', 10, ON); }
+            view.innerHTML = svgw('0 0 640 250', o);
+            view.querySelectorAll('rect[data-i]').forEach(function (r) { r.addEventListener('click', function () { var i = +r.getAttribute('data-i'); D[i] = D[i] ? 0 : 1; draw(); }); });
+            p.innerHTML = '點 D 波形的任一格切換 0／1。<b style="color:#d9822b">閂鎖器</b>在 CLK = 1 的整段期間都「透明」，D 怎麼變它就跟著變；<b style="color:' + ON + '">正反器</b>只在 CLK 由 0 變 1 的那一瞬間取樣，其他時間完全不理 D。' +
+              '<br>綠色區塊是每個上升邊緣前後的 setup／hold 視窗：D 必須在這段時間內保持穩定。' + (viol.length ? '<b style="color:' + ON + '">有 ' + viol.length + ' 個邊緣的 D 在視窗內變化——真實電路可能進入亞穩態（第 33 課）。</b>' : '目前沒有違規。'); }
+          u1(); u2();
+        }
+
+        /* ---------- 亞穩態與 MTBF ---------- */
+        function initMeta(root, cfg) {
+          head(root, cfg.q); var tau = 20, fc = 1000, fd = 100, st = 2, view = el('div'), p;
+          var u1 = slider(root, '時間常數 τ（越小越快恢復）', 5, 60, 1, tau, function (v) { return v + ' ps'; }, 'tau', function (v) { tau = v; draw(); });
+          var u2 = slider(root, '時脈頻率', 100, 5000, 100, fc, function (v) { return v + ' MHz'; }, 'fc', function (v) { fc = v; draw(); });
+          var u3 = slider(root, '非同步資料變化頻率', 1, 500, 1, fd, function (v) { return v + ' MHz'; }, 'fd', function (v) { fd = v; draw(); });
+          var u4 = slider(root, '同步器級數', 1, 3, 1, st, function (v) { return v + ' 級'; }, 'st', function (v) { st = v; draw(); });
+          root.appendChild(view); p = info(root);
+          function human(s) { var y = s / 3.156e7; return s < 1 ? f2(s * 1000) + ' 毫秒' : s < 3600 ? f1(s) + ' 秒' : s < 86400 * 2 ? f1(s / 3600) + ' 小時' : y < 1 ? f1(s / 86400) + ' 天' : y < 1.4e10 ? (y < 1e4 ? f1(y) : y.toExponential(1)) + ' 年' : '遠超過宇宙年齡（' + y.toExponential(1) + ' 年）'; }
+          function draw() { var T = 1e6 / fc, T0 = 10, tr = (0.3 * T - 110) + (st - 1) * (T - 110), mtbf = Math.exp(tr / tau) / (T0 * 1e-12 * fc * 1e6 * fd * 1e6), o = '';
+            for (var k = 0; k < 9; k++) { var dt = Math.pow(10, -k / 1.2) * 40, d = ''; for (var t = 0; t <= 400; t += 4) { var v = 0.5 + 0.5 * Math.tanh(dt / 40 * Math.exp(t / tau) * (k % 2 ? 1 : -1)); d += (t ? 'L' : 'M') + n1(60 + t * 1.3) + ',' + n1(200 - v * 160); } o += '<path d="' + d + '" fill="none" stroke="' + (k % 2 ? ON : OFF) + '" stroke-opacity="' + (0.4 + k * 0.06) + '" stroke-width="1.6"/>'; }
+            o += ln(60, 120, 590, 120, '#999', 1, 'stroke-dasharray="4 4"') + tx(595, 124, 'VDD/2', 10, 'var(--text-muted)', 'start') + tx(60, 222, '時脈邊緣', 10, 'var(--text-muted)', 'start') + tx(590, 222, '時間 →', 10, 'var(--text-muted)', 'end');
+            o += tx(30, 44, '1', 11, 'currentColor') + tx(30, 204, '0', 11, 'currentColor');
+            view.innerHTML = svgw('0 0 640 235', o);
+            p.innerHTML = '資料越接近時脈邊緣才改變（曲線越貼近中線），輸出卡在中間的時間越長，恢復時間與 τ·ln(1/Δt) 成正比——理論上可以無限長。' +
+              '<br>平均失效間隔 MTBF = e<sup>t<sub>r</sub>/τ</sup> ／（T<sub>0</sub>·f<sub>clk</sub>·f<sub>data</sub>）。目前可用的恢復時間 t<sub>r</sub> ≈ ' + Math.round(tr) + ' ps，MTBF ≈ <b>' + (tr <= 0 ? '幾乎每次都可能出錯' : human(mtbf)) + '</b>。' +
+              '<br>每多一級同步器，就多出一整個週期讓它安定下來，MTBF 以指數成長。這就是跨時脈域一定要用兩級（或三級）正反器同步器的原因。<br><span style="font-size:0.9em;color:var(--text-muted)">T<sub>0</sub> 取 10 ps；只有一級時，假設下游邏輯用掉 70% 的週期；每多一級同步器多出一整個週期（扣除約 110 ps 的 clock-to-Q 與 setup）。數值只示意量級。</span>'; }
+          u1(); u2(); u3(); u4();
+        }
+
+        /* ---------- 有限狀態機 ---------- */
+        var FSMS = {
+          seq: { n: '序列偵測器 1011（Moore）', st: [['S0', '起始', 90, 120], ['S1', '看到 1', 230, 50], ['S10', '看到 10', 380, 50], ['S101', '看到 101', 520, 120], ['S1011', '偵測到！', 380, 210]],
+            tr: { S0: ['S0', 'S1'], S1: ['S10', 'S1'], S10: ['S0', 'S101'], S101: ['S10', 'S1011'], S1011: ['S10', 'S1'] }, out: function (s) { return s === 'S1011' ? 1 : 0; }, inp: '輸入 x' },
+          tl: { n: '紅綠燈（含行人按鈕）', st: [['NS_G', '南北綠', 120, 70], ['NS_Y', '南北黃', 480, 70], ['EW_G', '東西綠', 480, 200], ['EW_Y', '東西黃', 120, 200]], timed: { NS_G: 5, NS_Y: 2, EW_G: 5, EW_Y: 2 }, nx: { NS_G: 'NS_Y', NS_Y: 'EW_G', EW_G: 'EW_Y', EW_Y: 'NS_G' }, inp: '行人按鈕' } };
+        function initFSM(root, cfg) {
+          head(root, cfg.q); var key = cfg.f || 'seq', s, t, x = 0, hist = [], view = el('div'), p, bb = bar(root), bx, bs, brs;
+          Object.keys(FSMS).forEach(function (k) { var b = btn(FSMS[k].n, k); b.addEventListener('click', function () { key = k; mark(bb, k); rst(); }); bb.appendChild(b); });
+          var b2 = bar(root); bx = btn('', 'x'); bs = btn('⏵ 時脈（前進一拍）', 'step'); brs = btn('重置', 'r'); [bx, bs, brs].forEach(function (b) { b2.appendChild(b); });
+          bx.addEventListener('click', function () { x = x ? 0 : 1; draw(); }); bs.addEventListener('click', step); brs.addEventListener('click', rst);
+          root.appendChild(view); p = info(root); mark(bb, key);
+          function rst() { s = FSMS[key].st[0][0]; t = 0; x = 0; hist = []; draw(); }
+          function step() { var F = FSMS[key], ns; if (F.tr) ns = F.tr[s][x]; else { t++; ns = (t >= F.timed[s] || (s === 'NS_G' && x && t >= 2)) ? F.nx[s] : s; if (ns !== s) t = 0; }
+            hist.push((F.tr ? x : (x ? 'P' : '·')) + ''); if (hist.length > 24) hist.shift(); s = ns; if (!F.tr) x = 0; draw(); }
+          function draw() { var F = FSMS[key], o = '', pos = {}; F.st.forEach(function (q) { pos[q[0]] = q; });
+            var edges = F.tr ? [] : Object.keys(F.nx).map(function (k) { return [k, F.nx[k], '時間到']; });
+            if (F.tr) Object.keys(F.tr).forEach(function (k) { F.tr[k].forEach(function (d, i) { edges.push([k, d, 'x=' + i]); }); });
+            edges.forEach(function (e) { var a = pos[e[0]], b = pos[e[1]]; if (e[0] === e[1]) { o += '<path d="M' + (a[2] - 14) + ',' + (a[3] - 30) + ' C' + (a[2] - 40) + ',' + (a[3] - 80) + ' ' + (a[2] + 40) + ',' + (a[3] - 80) + ' ' + (a[2] + 14) + ',' + (a[3] - 30) + '" fill="none" stroke="#999" stroke-width="1.3"/>' + tx(a[2], a[3] - 66, e[2], 9.5, 'var(--text-muted)'); return; }
+              var dx = b[2] - a[2], dy = b[3] - a[3], L = Math.hypot(dx, dy), ux = dx / L, uy = dy / L, off = 8, sx2 = a[2] + ux * 34 - uy * off, sy2 = a[3] + uy * 34 + ux * off, ex = b[2] - ux * 36 - uy * off, ey = b[3] - uy * 36 + ux * off;
+              o += ln(sx2, sy2, ex, ey, '#999', 1.3) + '<circle cx="' + n1(ex) + '" cy="' + n1(ey) + '" r="3" fill="#999"/>' + tx((sx2 + ex) / 2 - uy * 10, (sy2 + ey) / 2 + ux * 10 + 4, e[2], 9.5, 'var(--text-muted)'); });
+            F.st.forEach(function (q) { var on = q[0] === s; o += '<circle cx="' + q[2] + '" cy="' + q[3] + '" r="32" fill="' + (on ? ON : 'var(--surface)') + '" stroke="' + (on ? ON : OFF) + '" stroke-width="2.5"/>' + tx(q[2], q[3] - 2, q[0], 11.5, on ? '#fff' : 'currentColor') + tx(q[2], q[3] + 13, q[1], 9, on ? '#fff' : 'var(--text-muted)'); });
+            view.innerHTML = svgw('0 0 640 260', o);
+            bx.textContent = F.inp + '：' + (F.tr ? x : (x ? '按下' : '沒按'));
+            var outS = F.tr ? '輸出 y = <b>' + F.out(s) + '</b>' : '南北：<b>' + (s === 'NS_G' ? '綠' : s === 'NS_Y' ? '黃' : '紅') + '</b>　東西：<b>' + (s === 'EW_G' ? '綠' : s === 'EW_Y' ? '黃' : '紅') + '</b>　（此狀態已 ' + t + ' 拍）';
+            p.innerHTML = '目前狀態：<b>' + s + '</b>　' + outS + '<br>歷史輸入：' + (hist.join(' ') || '（尚未前進）') +
+              '<br>' + (F.tr ? '設定輸入 x，再按「時脈」前進一拍。試著輸入 1、0、1、1：第四拍之後進入 S1011，y = 1。再輸入 0、1、1 會再次偵測到（允許重疊）。' : '每按一次時脈前進一拍。南北綠燈 5 拍、黃燈 2 拍；南北綠燈時按下行人按鈕，綠燈會提早結束。'); }
+          rst();
+        }
+
+        /* ---------- RISC-V 單週期 CPU ---------- */
+        function sx(v, b) { return v & (1 << (b - 1)) ? v - (1 << b) : v; }
+        var RN = ['zero', 'ra', 'sp', 'gp', 'tp', 't0', 't1', 't2', 's0', 's1', 'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7', 's2', 's3', 's4', 's5', 's6', 's7', 's8', 's9', 's10', 's11', 't3', 't4', 't5', 't6'];
+        function initCPU(root, cfg) {
+          head(root, cfg.q); var R, M, pc, cyc, last, view = el('div'), regv = el('div', 'font-family:monospace;font-size:0.85em;margin-top:6px;display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:2px 10px'), p, bb = bar(root);
+          var b1 = btn('⏵ 執行一條指令', 's'), b2 = btn('⏩ 執行 10 條', 's10'), b3 = btn('⏭ 執行到結束', 'run'), b4 = btn('重置', 'r'); [b1, b2, b3, b4].forEach(function (b) { bb.appendChild(b); });
+          b1.addEventListener('click', function () { step(1); }); b2.addEventListener('click', function () { step(10); }); b3.addEventListener('click', function () { step(200); }); b4.addEventListener('click', reset);
+          root.appendChild(view); root.appendChild(regv); p = info(root);
+          function reset() { R = []; for (var i = 0; i < 32; i++) R.push(0); M = {}; pc = 0; cyc = 0; last = null; draw(); }
+          function fetch(a) { var w = PROG.filter(function (q) { return q[0] === a; })[0]; return w ? w : [a, 0x13, 'nop']; }
+          function exec() { var w = fetch(pc), ins = w[1] >>> 0, op = ins & 0x7f, rd = ins >> 7 & 31, f3 = ins >> 12 & 7, rs1 = ins >> 15 & 31, rs2 = ins >> 20 & 31, f7 = ins >>> 25, a = R[rs1] | 0, b = R[rs2] | 0, np = pc + 4, wr = null, kind = '', memop = '';
+            var ii = sx(ins >>> 20, 12), is_ = sx(((ins >>> 25) << 5) | rd, 12), ib = sx(((ins >>> 31) << 12) | ((ins >> 7 & 1) << 11) | ((ins >> 25 & 63) << 5) | ((ins >> 8 & 15) << 1), 13), ij = sx(((ins >>> 31) << 20) | ((ins >> 12 & 255) << 12) | ((ins >> 20 & 1) << 11) | ((ins >> 21 & 1023) << 1), 21);
+            function alu(x, y, f, sub) { switch (f) { case 0: return sub ? x - y | 0 : x + y | 0; case 1: return x << (y & 31); case 2: return x < y ? 1 : 0; case 4: return x ^ y; case 5: return x >>> (y & 31); case 6: return x | y; default: return x & y; } }
+            if (op === 0x33) { kind = 'R'; wr = alu(a, b, f3, f7 & 32); } else if (op === 0x13) { kind = 'I'; wr = alu(a, ii, f3, 0); } else if (op === 0x03) { kind = 'lw'; var ad = a + ii; wr = M[ad] | 0; memop = '讀 mem[' + ad + '] = ' + wr; }
+            else if (op === 0x23) { kind = 'sw'; var ad2 = a + is_; M[ad2] = b; memop = '寫 mem[' + ad2 + '] ← ' + b; } else if (op === 0x63) { kind = 'B'; var tk = f3 === 0 ? a === b : f3 === 1 ? a !== b : f3 === 4 ? a < b : a >= b; if (tk) np = pc + ib; memop = tk ? '條件成立，跳到 ' + (pc + ib).toString(16) : '條件不成立，繼續'; }
+            else if (op === 0x6f) { kind = 'jal'; wr = pc + 4; np = pc + ij; } else if (op === 0x67) { kind = 'jalr'; wr = pc + 4; np = (a + ii) & ~1; } else if (op === 0x37) { kind = 'lui'; wr = ins & 0xfffff000; }
+            if (wr !== null && rd) R[rd] = wr | 0; last = { pc: pc, w: w, kind: kind, rd: wr !== null && rd ? rd : -1, memop: memop, np: np }; pc = np; cyc++; }
+          function step(n) { for (var i = 0; i < n; i++) { if (fetch(pc)[2].indexOf('beq  zero, zero, done') === 0 && last && last.pc === pc) break; exec(); } draw(); }
+          var UNITS = [['PC', 20, 110, 50, 40], ['指令記憶體', 100, 95, 90, 70], ['暫存器檔', 230, 80, 90, 100], ['立即值', 230, 200, 90, 34], ['ALU', 370, 95, 60, 70], ['資料記憶體', 470, 95, 90, 70], ['寫回', 590, 110, 40, 40]];
+          var ACT = { R: ['PC', '指令記憶體', '暫存器檔', 'ALU', '寫回'], I: ['PC', '指令記憶體', '暫存器檔', '立即值', 'ALU', '寫回'], lw: ['PC', '指令記憶體', '暫存器檔', '立即值', 'ALU', '資料記憶體', '寫回'],
+            sw: ['PC', '指令記憶體', '暫存器檔', '立即值', 'ALU', '資料記憶體'], B: ['PC', '指令記憶體', '暫存器檔', '立即值', 'ALU'], jal: ['PC', '指令記憶體', '立即值', '寫回'], jalr: ['PC', '指令記憶體', '暫存器檔', '立即值', 'ALU', '寫回'], lui: ['PC', '指令記憶體', '立即值', '寫回'] };
+          function draw() { var act = last ? ACT[last.kind] || [] : [], o = '';
+            o += '<path d="M70,130 L100,130 M190,130 L230,130 M320,120 L370,120 M320,217 L345,217 L345,150 L370,150 M430,130 L470,130 M560,130 L590,130 M610,150 L610,260 L275,260 L275,180" fill="none" stroke="var(--border)" stroke-width="2"/>';
+            UNITS.forEach(function (u) { var on = act.indexOf(u[0]) >= 0; o += '<rect x="' + u[1] + '" y="' + u[2] + '" width="' + u[3] + '" height="' + u[4] + '" rx="6" fill="' + (on ? ON : 'var(--surface)') + '" fill-opacity="' + (on ? 0.18 : 1) + '" stroke="' + (on ? ON : OFF) + '" stroke-width="2"/>' + tx(u[1] + u[3] / 2, u[2] + u[4] / 2 + 4, u[0], 10.5, 'currentColor'); });
+            var cur = fetch(pc);
+            o += tx(20, 30, '下一條：' + cur[0].toString(16).padStart(4, '0') + '  ' + cur[2], 12, 'currentColor', 'start') + tx(20, 54, last ? '剛執行：' + last.pc.toString(16).padStart(4, '0') + '  ' + last.w[2] + '（' + last.kind + ' 型）' : '尚未執行', 12, ON, 'start');
+            view.innerHTML = svgw('0 0 640 280', o);
+            var rs = ''; for (var i = 1; i < 32; i++) { if (!R[i] && i !== 10 && i !== 11) continue; rs += '<span style="' + (last && last.rd === i ? 'color:' + ON + ';font-weight:bold' : '') + '">x' + i + '(' + RN[i] + ') = ' + R[i] + (Math.abs(R[i]) > 4095 ? ' = 0x' + (R[i] >>> 0).toString(16) : '') + '</span>'; }
+            var mem = Object.keys(M).sort(function (a, b) { return a - b; }).map(function (k) { return 'mem[' + k + ']=' + M[k]; }).join('  ');
+            regv.innerHTML = rs;
+            p.innerHTML = '週期 <b>' + cyc + '</b>　PC = 0x' + pc.toString(16) + (last && last.memop ? '　' + last.memop : '') + '<br>記憶體：' + (mem || '（空）') +
+              '<br>紅色方塊是這條指令用到的硬體。比較 <b>R 型</b>（不用立即值、不碰記憶體）、<b>lw</b>（五個部分全部用上，是最慢的指令——單週期 CPU 的時脈就由它決定）、<b>sw</b>（不寫回）、<b>分支</b>（ALU 做比較）。' +
+              '<br><span style="font-size:0.9em;color:var(--text-muted)">這個模擬器執行的程式和 Verilog 範例 rv_single.v 完全相同（prog.s），結果也一致：mem[0] = 55、mem[4] = 42、費氏數列存在 mem[16] 開始。</span>'; }
+          reset();
+        }
+
+        /* ---------- 時序預算 ---------- */
+        function initTiming(root, cfg) {
+          head(root, cfg.q); var tcq = 40, ng = 20, tg = 12, tsu = 30, sk = 10, view = el('div'), p;
+          var us = [slider(root, '正反器 clock-to-Q', 10, 100, 1, tcq, function (v) { return v + ' ps'; }, 'tcq', function (v) { tcq = v; draw(); }),
+            slider(root, '最長路徑上的閘數', 1, 60, 1, ng, function (v) { return v + ' 個'; }, 'ng', function (v) { ng = v; draw(); }),
+            slider(root, '每個閘＋導線的延遲', 3, 40, 1, tg, function (v) { return v + ' ps'; }, 'tg', function (v) { tg = v; draw(); }),
+            slider(root, '建立時間 setup', 5, 80, 1, tsu, function (v) { return v + ' ps'; }, 'tsu', function (v) { tsu = v; draw(); }),
+            slider(root, '時脈偏移與抖動餘裕', 0, 80, 1, sk, function (v) { return v + ' ps'; }, 'sk', function (v) { sk = v; draw(); })];
+          root.appendChild(view); p = info(root);
+          function draw() { var logic = ng * tg, T = tcq + logic + tsu + sk, parts = [['clock-to-Q', tcq, '#8a5cb8'], ['組合邏輯', logic, OFF], ['setup', tsu, '#d9822b'], ['偏移餘裕', sk, '#999']], o = '', x = 20, s = 600 / Math.max(T, 400);
+            parts.forEach(function (q) { var w = q[1] * s; o += '<rect x="' + n1(x) + '" y="40" width="' + n1(Math.max(w, 1)) + '" height="40" fill="' + q[2] + '" fill-opacity="0.75"/>' + (w > 50 ? tx(x + w / 2, 65, q[0], 10.5, '#fff') : '') + tx(x + w / 2, 98, q[1] + ' ps', 9.5, 'var(--text-muted)'); x += w; });
+            o += ln(20, 30, 20, 110, 'currentColor', 1.5) + ln(x, 30, x, 110, ON, 2) + tx(20, 24, '時脈邊緣（發射）', 10, 'currentColor', 'start') + tx(x, 24, '下一個邊緣（擷取）', 10, ON, 'end');
+            view.innerHTML = svgw('0 0 640 120', o);
+            p.innerHTML = '最小週期 T<sub>min</sub> = t<sub>cq</sub> + t<sub>logic</sub> + t<sub>setup</sub> + t<sub>skew</sub> = <b>' + T + ' ps</b>，最高時脈約 <b>' + f2(1000 / T) + ' GHz</b>。' +
+              '<br>組合邏輯占了 ' + Math.round(logic / T * 100) + '%。想要更快：減少路徑上的閘數（更好的演算法，例如超前進位）、把路徑切成兩段（管線化，但每一級又要付一次 t<sub>cq</sub> + t<sub>setup</sub>）、或讓每個閘更快（更大的電晶體、更高的電壓）。'; }
+          us.forEach(function (f) { f(); });
+        }
+
+        function initAll() { document.querySelectorAll('.dg-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ logic: initLogic, kmap: initKmap, glitch: initGlitch, adder: initAdder, ff: initFF, meta: initMeta, fsm: initFSM, cpu: initCPU, timing: initTiming })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <p>
+        <strong>解碼器</strong>把 \(n\) 位元的二進位碼轉成 \(2^n\) 條線中的一條為 1（one-hot），也就是同時產生全部 \(2^n\) 個最小項。用途：記憶體的列選擇（第 47 課）、CPU 的指令解碼、匯流排上的位址解碼、七段顯示器。
+      </p>
+
+      <div class="dg-w content-figure" style="text-align:left;max-width:720px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;logic&quot;, &quot;c&quot;: &quot;dec&quot;}"></div>
+
+      <p>
+        既然解碼器輸出全部最小項，用一個解碼器加一個 OR 閘就能實作任何 SOP：\(F = \sum m(1,2,4,7)\) 只要把解碼器的 \(y_1, y_2, y_4, y_7\) OR 起來。大解碼器可以用小解碼器組成：兩個 3 對 8 加一條致能線就是 4 對 16。
+      </p>
+
+      <h2>編碼器</h2>
+
+      <p>
+        編碼器是反向：\(2^n\) 條輸入中恰好一條為 1，輸出它的編號。8 對 3 編碼器的式子很簡單（例如 \(c_0 = r_1 + r_3 + r_5 + r_7\)），但如果<strong>同時有兩條輸入為 1</strong>，輸出就變成兩個編號的 OR，是錯的；全部為 0 時也分不出是「第 0 條」還是「都沒有」。
+      </p>
+
+      <h2>優先權編碼器</h2>
+
+      <p>
+        解法是規定優先順序：同時有多個請求時，輸出最高的那一個，並另外輸出 <code>valid</code> 表示至少有一個請求。用途：中斷控制器（多個裝置同時要求服務）、浮點數正規化時找最高位的 1（前導零計數）、仲裁器。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>r7 … r0</th><th>code</th><th>valid</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>0000 0000</td><td>—</td><td>0</td></tr>
+          <tr><td>0000 0001</td><td>0</td><td>1</td></tr>
+          <tr><td>0000 001x</td><td>1</td><td>1</td></tr>
+          <tr><td>…</td><td>…</td><td>…</td></tr>
+          <tr><td>1xxx xxxx</td><td>7</td><td>1</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        x 表示無論是 0 或 1。最高位的式子：\(c_2 = r_7 + r_6 + r_5 + r_4\)，\(c_1 = r_7 + r_6 + r_5'r_4'(r_3 + r_2)\)，……越低位越複雜。
+      </p>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：decoder</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o decoder decoder.v tb_decoder.v &amp;&amp; vvp decoder</code></span></p>
+
+      <p>
+        3 對 8 解碼器用一行移位寫完；優先權編碼器用 for 迴圈由低往高掃描，最後找到的（最高位）勝出。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>📄 decoder.v</strong>　<a href="v/decoder.v" download>下載</a></p>
+
+      <div class="code-block">// decoder.v：3 對 8 解碼器與 8 對 3 優先權編碼器
+module dec3to8(input [2:0] a, input en, output [7:0] y);
+  assign y = en ? (8'b1 &lt;&lt; a) : 8'b0;      // 只有第 a 條輸出為 1
+endmodule
+
+module prienc8(input [7:0] r, output reg [2:0] code, output reg valid);
+  integer i;
+  always @(*) begin
+    code = 3'd0; valid = 1'b0;
+    for (i = 0; i &lt; 8; i = i + 1)          // 從低到高掃描，最後找到的（最高位）勝出
+      if (r[i]) begin code = i[2:0]; valid = 1'b1; end
+  end
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_decoder.v</strong>　<a href="v/tb_decoder.v" download>下載</a></p>
+
+      <div class="code-block">module tb_decoder;
+  reg [2:0] a; reg en; wire [7:0] y;
+  reg [7:0] r; wire [2:0] code; wire valid;
+  dec3to8 d(a, en, y);
+  prienc8 p(r, code, valid);
+  integer i;
+  initial begin
+    en = 1;
+    $display("decoder:");
+    for (i = 0; i &lt; 8; i = i + 1) begin a = i; #1 $display("  a=%0d -&gt; y=%b", a, y); end
+    $display("priority encoder:");
+    r = 8'b0000_0000; #1 $display("  r=%b -&gt; valid=%b", r, valid);
+    r = 8'b0001_0110; #1 $display("  r=%b -&gt; code=%0d valid=%b", r, code, valid);
+    r = 8'b1000_0001; #1 $display("  r=%b -&gt; code=%0d valid=%b", r, code, valid);
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">decoder:&#10;  a=0 -&gt; y=00000001&#10;  a=1 -&gt; y=00000010&#10;  a=2 -&gt; y=00000100&#10;  a=3 -&gt; y=00001000&#10;  a=4 -&gt; y=00010000&#10;  a=5 -&gt; y=00100000&#10;  a=6 -&gt; y=01000000&#10;  a=7 -&gt; y=10000000&#10;priority encoder:&#10;  r=00000000 -&gt; valid=0&#10;  r=00010110 -&gt; code=4 valid=1&#10;  r=10000001 -&gt; code=7 valid=1</div>
+
+      <p>
+        注意 Verilog 的 <code>for</code> 迴圈在合成時會被<strong>展開</strong>成 8 份硬體，而不是「執行 8 次」：這段程式碼描述的是一個優先權鏈，越後面的 <code>if</code> 優先權越高。理解這一點是寫好 HDL 的關鍵（第 43 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          n 對 2ⁿ 解碼器產生全部最小項（one-hot），用於位址與指令解碼，加 OR 閘可實作任意 SOP。一般編碼器在多條輸入同時為 1 時出錯，也無法表示「沒有輸入」；優先權編碼器輸出最高優先權的編號並附 valid，用於中斷、前導零計數與仲裁。Verilog 的 for 迴圈在合成時展開成平行硬體。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 3 對 8 解碼器實作 F = Σm(0, 3, 6)。</li>
+          <li>一般 8 對 3 編碼器在輸入 0010 0100 時輸出什麼？為什麼錯？</li>
+          <li>優先權編碼器的 valid 有什麼用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>比較器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：多工器與解多工器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：比較器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

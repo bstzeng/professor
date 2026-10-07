@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：減法、溢位與 ALU ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="一個加法器做出十種運算">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜組合邏輯元件 · 第 23 課</div>
+      <h1>減法、溢位與 ALU</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用加法器做減法</li>
+          <li>推導有號溢位的判斷</li>
+          <li>設計並驗證 RV32I 用的 32 位元 ALU</li>
+        </ul>
+      </div>
+
+      <h2>減法</h2>
+
+      <p>
+        \(a - b = a + \bar{b} + 1\)：把 \(b\) 每一位接 XOR（控制訊號 sub = 1 時反相），再把 sub 接到最低位的 \(c_{in}\)。一個加法器加 \(N\) 個 XOR，就同時能加能減。
+      </p>
+
+      <h2>溢位</h2>
+
+      <p>
+        有號加法的結果超出 \([-2^{N-1}, 2^{N-1}-1]\) 時發生溢位。只有<strong>兩個同號的數相加</strong>才可能溢位，而且溢位時結果的符號會「翻過去」。等價的硬體判斷：
+      </p>
+
+      <p>
+        \[ V = c_{N} \oplus c_{N-1} \]
+      </p>
+
+      <p>
+        即「進入最高位的進位」與「離開最高位的進位」不同。證明：最高位 \(a_{N-1} = b_{N-1} = 0\) 時 \(c_N = 0\)，若 \(c_{N-1} = 1\) 則結果為負——正 + 正得負；\(a_{N-1} = b_{N-1} = 1\) 時 \(c_N = 1\)，若 \(c_{N-1} = 0\) 則結果為正——負 + 負得正；異號時兩者必相同。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>例（8 位元）</th><th>無號解讀</th><th>有號解讀</th><th>C</th><th>V</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>100 + 50</td><td>150 ✓</td><td>−106 ✗</td><td>0</td><td>1</td></tr>
+          <tr><td>200 + 100</td><td>44 ✗</td><td>−56 + 100 = 44 ✓</td><td>1</td><td>0</td></tr>
+          <tr><td>100 − 37</td><td>63 ✓</td><td>63 ✓</td><td>1</td><td>0</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        注意：無號加法的溢位看 C，有號加法的溢位看 V，兩者完全獨立。RISC-V 的整數指令不偵測溢位（需要時由軟體檢查），這也是一種設計選擇。
+      </p>
+
+      <h2>ALU</h2>
+
+      <p>
+        算術邏輯單元把加減法、邏輯運算、比較、移位放在一起，用運算碼選擇結果。概念上就是各種運算平行計算、最後用一個大多工器挑出結果。下面是本課程 CPU 使用的 32 位元 ALU，支援 RV32I 需要的十種運算，另外輸出 <code>zero</code> 給分支指令用：
+      </p>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：alu</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o alu alu.v tb_alu.v &amp;&amp; vvp alu</code></span></p>
+
+      <p>
+        同一個檔案也包含第 25 課的桶式移位器。測試平台檢查每種運算、有號與無號比較的差異，並用 10000 筆亂數比對桶式移位器。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>📄 alu.v</strong>　<a href="v/alu.v" download>下載</a></p>
+
+      <div class="code-block">// alu.v：RV32I 用的 32 位元 ALU
+module alu(input [31:0] a, input [31:0] b, input [3:0] op, output reg [31:0] y, output zero);
+  localparam ADD = 4'd0, SUB = 4'd1, AND = 4'd2, OR = 4'd3, XOR = 4'd4,
+             SLT = 4'd5, SLTU = 4'd6, SLL = 4'd7, SRL = 4'd8, SRA = 4'd9;
+  always @(*) begin
+    case (op)
+      ADD:  y = a + b;
+      SUB:  y = a - b;
+      AND:  y = a &amp; b;
+      OR:   y = a | b;
+      XOR:  y = a ^ b;
+      SLT:  y = ($signed(a) &lt; $signed(b)) ? 32'd1 : 32'd0;   // 有號比較
+      SLTU: y = (a &lt; b) ? 32'd1 : 32'd0;                     // 無號比較
+      SLL:  y = a &lt;&lt; b[4:0];                                  // 只取低 5 位當移位量
+      SRL:  y = a &gt;&gt; b[4:0];                                  // 邏輯右移：補 0
+      SRA:  y = $signed(a) &gt;&gt;&gt; b[4:0];                        // 算術右移：補符號位
+      default: y = 32'd0;
+    endcase
+  end
+  assign zero = (y == 32'd0);
+endmodule
+
+// barrel.v 的概念：32 位元桶式左移器，用 5 層 2 選 1 多工器組成
+module barrel_sll(input [31:0] a, input [4:0] sh, output [31:0] y);
+  wire [31:0] s0 = sh[0] ? {a[30:0], 1'b0}   : a;    // 移 1
+  wire [31:0] s1 = sh[1] ? {s0[29:0], 2'b0}  : s0;   // 移 2
+  wire [31:0] s2 = sh[2] ? {s1[27:0], 4'b0}  : s1;   // 移 4
+  wire [31:0] s3 = sh[3] ? {s2[23:0], 8'b0}  : s2;   // 移 8
+  assign      y  = sh[4] ? {s3[15:0], 16'b0} : s3;   // 移 16
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_alu.v</strong>　<a href="v/tb_alu.v" download>下載</a></p>
+
+      <div class="code-block">module tb_alu;
+  reg [31:0] a, b; reg [3:0] op; wire [31:0] y; wire zero;
+  alu dut(a, b, op, y, zero);
+  reg [31:0] x; reg [4:0] sh; wire [31:0] ys;
+  barrel_sll bs(x, sh, ys);
+  integer i, err, seed;
+  initial begin
+    a = 32'd7; b = 32'd5;
+    for (i = 0; i &lt; 10; i = i + 1) begin op = i; #1 $display("op=%0d  7, 5 -&gt; %0d", op, $signed(y)); end
+    a = -32'sd8; b = 32'd1;
+    op = 5; #1 $display("slt(-8, 1)  = %0d   (signed: -8 &lt; 1)", y);
+    op = 6; #1 $display("sltu(-8, 1) = %0d   (unsigned: 0xFFFFFFF8 &gt; 1)", y);
+    op = 8; #1 $display("srl(-8, 1)  = 0x%h", y);
+    op = 9; #1 $display("sra(-8, 1)  = %0d", $signed(y));
+    a = 32'd42; b = 32'd42; op = 1; #1 $display("42 - 42 = %0d, zero = %b", y, zero);
+    err = 0; seed = 1;
+    for (i = 0; i &lt; 10000; i = i + 1) begin
+      x = $random(seed); sh = $random(seed);
+      #1 if (ys !== (x &lt;&lt; sh)) err = err + 1;
+    end
+    $display("barrel shifter: 10000 random tests, errors = %0d", err);
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">op=0  7, 5 -&gt; 12&#10;op=1  7, 5 -&gt; 2&#10;op=2  7, 5 -&gt; 5&#10;op=3  7, 5 -&gt; 7&#10;op=4  7, 5 -&gt; 2&#10;op=5  7, 5 -&gt; 0&#10;op=6  7, 5 -&gt; 0&#10;op=7  7, 5 -&gt; 224&#10;op=8  7, 5 -&gt; 0&#10;op=9  7, 5 -&gt; 0&#10;slt(-8, 1)  = 1   (signed: -8 &lt; 1)&#10;sltu(-8, 1) = 0   (unsigned: 0xFFFFFFF8 &gt; 1)&#10;srl(-8, 1)  = 0x7ffffffc&#10;sra(-8, 1)  = -4&#10;42 - 42 = 0, zero = 1&#10;barrel shifter: 10000 random tests, errors = 0</div>
+
+      <p>
+        幾個值得注意的地方：<code>$signed()</code> 告訴 Verilog 用有號方式解讀位元；<code>&gt;&gt;&gt;</code> 是算術右移；移位量只取低 5 位（RISC-V 規格如此，32 位元最多移 31）。結果驗證了第 2 課的要點：同樣的 −8 與 1，有號比較為真、無號比較為假。
+      </p>
+
+      <p>
+        合成時，<code>a + b</code> 與 <code>a - b</code> 會被共用成一個加法器加 XOR（資源共享），比較也會用減法器的結果。真實 CPU 的 ALU 還會把加法器、移位器、邏輯單元分成不同的執行單元，以便同時發出多條指令。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          a − b = a + b̄ + 1：一個加法器配 N 個 XOR 與 sub 控制即可加減。有號溢位只在同號相加時發生，V = c_N ⊕ c_{N−1}；無號溢位看進位 C，兩者獨立。ALU 將各種運算平行計算後以多工器選擇，本課程的 32 位元 ALU 支援 ADD、SUB、AND、OR、XOR、SLT、SLTU、SLL、SRL、SRA 與 zero 輸出，以 Verilog 模擬驗證。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>8 位元 −100 − 50 會溢位嗎？V 是多少？</li>
+          <li>為什麼 V = c_N ⊕ c_{N−1}？</li>
+          <li>Verilog 中 >> 與 >>> 有什麼差別？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>乘法器：陣列、Booth 與 Wallace 樹</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：超前進位與平行前綴加法器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：乘法器：陣列、Booth 與 Wallace 樹 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

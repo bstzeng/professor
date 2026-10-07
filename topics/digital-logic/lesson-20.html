@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：比較器 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="相等、大於、小於">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜組合邏輯元件 · 第 20 課</div>
+      <h1>比較器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>設計相等比較器</li>
+          <li>由高位往低位推導大小比較器</li>
+          <li>用減法實作有號與無號比較</li>
+        </ul>
+      </div>
+
+      <h2>相等</h2>
+
+      <p>
+        兩個 \(N\) 位元的數相等，當且僅當每一位都相同：
+      </p>
+
+      <p>
+        \[ EQ = \prod_{i} (a_i \odot b_i) = \Big(\sum_i (a_i \oplus b_i)\Big)' \]
+      </p>
+
+      <p>
+        也就是 \(N\) 個 XOR 加一個大 NOR（用樹狀實作，\(\log N\) 級）。快取的標籤比對、TLB 查詢每個週期都要做大量的相等比較。
+      </p>
+
+      <h2>大小（無號）</h2>
+
+      <p>
+        從最高位往下看：第一個不同的位元決定大小。定義 \(e_i = a_i \odot b_i\)（XNOR），則
+      </p>
+
+      <p>
+        \[ GT = a_{n-1}b_{n-1}' + e_{n-1}a_{n-2}b_{n-2}' + e_{n-1}e_{n-2}a_{n-3}b_{n-3}' + \cdots \]
+      </p>
+
+      <p>
+        這和超前進位的式子形狀一模一樣（第 22 課），也可以用前綴樹加速。實際上大多數處理器根本不做獨立的比較器：<strong>直接用減法</strong>。
+      </p>
+
+      <h2>用減法比較</h2>
+
+      <p>
+        計算 \(a - b = a + \bar b + 1\)，看結果的旗標：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>比較</th><th>條件</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>a = b</td><td>Z = 1</td><td>結果為零</td></tr>
+          <tr><td>a &lt; b（無號）</td><td>C = 0</td><td>沒有進位 = 有借位</td></tr>
+          <tr><td>a &lt; b（有號）</td><td>N ⊕ V = 1</td><td>符號位與溢位不同</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        有號比較為什麼要看溢位？例如 8 位元 \(100 - (-50) = 150\) 超出範圍，結果的位元樣式是 \(-106\)（符號位 N = 1），但正確答案是 a > b。溢位 V = 1 正好把它修正回來。RISC-V 的 <code>slt</code> 與 <code>sltu</code> 就分別做這兩種比較（第 23 課的 ALU 範例會實際驗證：\(-8 < 1\) 有號為真、無號為假）。
+      </p>
+
+      <h3>ARM 與 x86 的旗標，RISC-V 的選擇</h3>
+
+      <p>
+        x86 與 ARM 把 N、Z、C、V 存在旗標暫存器，後面的條件跳躍再讀它；RISC-V 刻意不要旗標暫存器，比較直接寫在分支指令裡（<code>blt</code>、<code>bgeu</code> 等），或用 <code>slt</code> 寫進一般暫存器。少了旗標，管線與亂序執行少了一個共享的相依來源。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          相等比較 = 逐位 XNOR 後全部 AND（或 XOR 後 NOR）。大小比較從最高位找第一個不同的位，式子與超前進位同形，可用前綴樹加速。實務上用減法：Z = 1 為相等，無號 a < b 看 C = 0，有號 a < b 看 N ⊕ V。RISC-V 不使用旗標暫存器，直接在分支或 slt/sltu 中比較。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出 4 位元相等比較器的式子。</li>
+          <li>為什麼有號比較要考慮溢位？</li>
+          <li>RISC-V 為什麼不使用旗標暫存器？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>半加器、全加器與漣波進位</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：解碼器、編碼器與優先權編碼器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：半加器、全加器與漣波進位 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

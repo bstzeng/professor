@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：FSM 設計流程 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="從文字規格到 Verilog">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜循序邏輯 · 第 39 課</div>
+      <h1>FSM 設計流程</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>依步驟把規格轉成狀態圖、狀態表與邏輯式</li>
+          <li>比較二進位、格雷碼、one-hot 狀態編碼</li>
+          <li>用三段式寫法撰寫 Verilog FSM</li>
+        </ul>
+      </div>
+
+      <h2>六個步驟</h2>
+
+      <ol>
+        <li><strong>理解規格</strong>：輸入、輸出是什麼？Moore 還是 Mealy？</li>
+        <li><strong>畫狀態圖</strong>：每個狀態代表「到目前為止需要記住的資訊」。</li>
+        <li><strong>狀態化簡</strong>：合併等價狀態（對所有輸入序列輸出都相同者）。</li>
+        <li><strong>狀態編碼</strong>：給每個狀態一組位元。</li>
+        <li><strong>推導下一狀態與輸出邏輯</strong>：寫出狀態表，用卡諾圖化簡。</li>
+        <li><strong>實作與驗證</strong>：寫 Verilog、寫測試平台。</li>
+      </ol>
+
+      <h2>狀態編碼</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>編碼</th><th>5 個狀態需要</th><th>特性</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>二進位</td><td>3 個正反器</td><td>最少正反器；下一狀態邏輯可能較複雜</td></tr>
+          <tr><td>格雷碼</td><td>3 個</td><td>依序轉移的狀態只變一位，減少切換與毛刺</td></tr>
+          <tr><td>one-hot</td><td>5 個</td><td>每個狀態一個正反器；下一狀態邏輯很簡單、很快；FPGA 正反器多，合成工具常自動選它</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>手算：1011 偵測器（Moore，二進位編碼）</h2>
+
+      <p>
+        編碼 S0 = 000、S1 = 001、S10 = 010、S101 = 011、S1011 = 100。狀態表（\(q_2q_1q_0\)，輸入 x）：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>目前</th><th>x = 0</th><th>x = 1</th><th>y</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>000 S0</td><td>000</td><td>001</td><td>0</td></tr>
+          <tr><td>001 S1</td><td>010</td><td>001</td><td>0</td></tr>
+          <tr><td>010 S10</td><td>000</td><td>011</td><td>0</td></tr>
+          <tr><td>011 S101</td><td>010</td><td>100</td><td>0</td></tr>
+          <tr><td>100 S1011</td><td>010</td><td>001</td><td>1</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        101、110、111 不會出現，是無關項。用卡諾圖化簡（4 個變數 \(q_2q_1q_0x\)）可得
+      </p>
+
+      <p>
+        \[ q_2^+ = q_1q_0x, \quad q_1^+ = q_0x' + q_1q_0'x + q_2x' , \quad q_0^+ = x\,(q_1q_0)' , \quad y = q_2 \]
+      </p>
+
+      <p>
+        例如 \(q_1^+\) 的最小項是 \(q_2q_1q_0x\) = 0010、0101、0110、1000，無關項是 1010～1111，可以把它們填進第 9 課的卡諾圖工具驗證。手算的目的是理解原理；實務上交給合成工具。
+      </p>
+
+      <h2>Verilog：三段式寫法</h2>
+
+      <p>
+        最清楚、最不容易出錯的寫法把三個部分分開：狀態暫存器（時序）、下一狀態邏輯（組合）、輸出邏輯（組合）。
+      </p>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：fsm_seq</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o fsm_seq fsm_seq.v tb_fsm_seq.v &amp;&amp; vvp fsm_seq</code></span></p>
+
+      <p>
+        Moore 與 Mealy 兩個版本，餵入同一串 16 個位元。
+      </p>
+
+      <p style="margin:18px 0 6px"><strong>📄 fsm_seq.v</strong>　<a href="v/fsm_seq.v" download>下載</a></p>
+
+      <div class="code-block">// fsm_seq.v：偵測輸入序列 1011（允許重疊），Moore 與 Mealy 兩種寫法
+module seq1011_moore(input clk, input rst, input x, output y);
+  localparam S0 = 3'd0, S1 = 3'd1, S10 = 3'd2, S101 = 3'd3, S1011 = 3'd4;
+  reg [2:0] state, next;
+  always @(posedge clk) state &lt;= rst ? S0 : next;        // 狀態暫存器
+  always @(*) begin                                       // 下一狀態邏輯
+    case (state)
+      S0:    next = x ? S1    : S0;
+      S1:    next = x ? S1    : S10;
+      S10:   next = x ? S101  : S0;
+      S101:  next = x ? S1011 : S10;
+      S1011: next = x ? S1    : S10;   // 重疊：結尾的 1 可以當下一次的開頭
+      default: next = S0;
+    endcase
+  end
+  assign y = (state == S1011);                            // 輸出只看狀態
+endmodule
+
+module seq1011_mealy(input clk, input rst, input x, output y);
+  localparam S0 = 2'd0, S1 = 2'd1, S10 = 2'd2, S101 = 2'd3;
+  reg [1:0] state, next;
+  always @(posedge clk) state &lt;= rst ? S0 : next;
+  always @(*) begin
+    case (state)
+      S0:   next = x ? S1   : S0;
+      S1:   next = x ? S1   : S10;
+      S10:  next = x ? S101 : S0;
+      S101: next = x ? S1   : S10;
+    endcase
+  end
+  assign y = (state == S101) &amp;&amp; x;                        // 輸出看狀態與目前輸入
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_fsm_seq.v</strong>　<a href="v/tb_fsm_seq.v" download>下載</a></p>
+
+      <div class="code-block">module tb_fsm_seq;
+  reg clk = 0, rst = 1, x = 0;
+  wire ymo, yme;
+  seq1011_moore mo(clk, rst, x, ymo);
+  seq1011_mealy me(clk, rst, x, yme);
+  always #5 clk = ~clk;
+  reg [15:0] bits = 16'b0101_1011_0110_1100;
+  integer i;
+  initial begin
+    @(posedge clk); #1 rst = 0;
+    $display("input bits: %b", bits);
+    $display(" n  x | Mealy y | Moore y (one cycle later)");
+    for (i = 15; i &gt;= 0; i = i - 1) begin
+      x = bits[i];
+      #1 $write("%2d  %b |    %b    |", 15 - i, x, yme);
+      @(posedge clk); #1 $display("    %b", ymo);
+    end
+    $finish;
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">input bits: 0101101101101100&#10; n  x | Mealy y | Moore y (one cycle later)&#10; 0  0 |    0    |    0&#10; 1  1 |    0    |    0&#10; 2  0 |    0    |    0&#10; 3  1 |    0    |    0&#10; 4  1 |    1    |    1&#10; 5  0 |    0    |    0&#10; 6  1 |    0    |    0&#10; 7  1 |    1    |    1&#10; 8  0 |    0    |    0&#10; 9  1 |    0    |    0&#10;10  1 |    1    |    1&#10;11  0 |    0    |    0&#10;12  1 |    0    |    0&#10;13  1 |    1    |    1&#10;14  0 |    0    |    0&#10;15  0 |    0    |    0</div>
+
+      <p>
+        兩者都在第 4、7、10、13 個位元偵測到 1011（允許重疊）。表中的 Moore 欄已經是<strong>下一個時脈之後</strong>才讀取的值（測試平台在時脈邊緣後才印出），而 Mealy 欄在同一拍、輸入剛給定時就讀到——這就是「Mealy 快一拍」。
+      </p>
+
+      <p>
+        注意 <code>localparam</code> 給狀態取名字、<code>case</code> 加 <code>default</code>；合成工具辨識出這是 FSM 後，可以自動重新編碼（例如改成 one-hot）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          FSM 設計六步驟：理解規格、畫狀態圖、狀態化簡、狀態編碼、推導邏輯、實作驗證。編碼可選二進位（最少正反器）、格雷碼（少切換）或 one-hot（邏輯簡單快速，FPGA 常用）。以狀態表與卡諾圖可手算下一狀態式，未使用的編碼是無關項。Verilog 三段式寫法分開狀態暫存器、下一狀態與輸出邏輯；模擬驗證 Moore 與 Mealy 都偵測到 1011，Mealy 早一拍。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>8 個狀態用 one-hot 需要幾個正反器？二進位呢？</li>
+          <li>三段式 FSM 寫法的三段是什麼？</li>
+          <li>為什麼未使用的狀態編碼可以當作無關項？有什麼風險？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>FSM 範例：紅綠燈與販賣機</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：有限狀態機：Moore 與 Mealy</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：FSM 範例：紅綠燈與販賣機 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

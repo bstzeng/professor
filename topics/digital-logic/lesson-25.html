@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：移位器與桶式移位器 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="一個週期移任意位數">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜組合邏輯元件 · 第 25 課</div>
+      <h1>移位器與桶式移位器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>區分邏輯、算術移位與旋轉</li>
+          <li>用 log₂N 層多工器實作桶式移位器</li>
+          <li>了解移位器在 CPU 中的用途</li>
+        </ul>
+      </div>
+
+      <p>
+        移位看起來只是重新接線：左移一位就是把每一條線往上接一格。<strong>固定</strong>的移位確實不需要任何閘；問題是移位量由<strong>資料</strong>決定（例如 <code>sll x5, x6, x7</code>），要在一個週期內移 0～31 位中的任意位數。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>運算</th><th>空出的位補</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>邏輯左移 SLL</td><td>0</td><td>乘以 2ᵏ、組合欄位</td></tr>
+          <tr><td>邏輯右移 SRL</td><td>0</td><td>無號除以 2ᵏ、取欄位</td></tr>
+          <tr><td>算術右移 SRA</td><td>符號位</td><td>有號除以 2ᵏ（向 −∞ 取整）</td></tr>
+          <tr><td>旋轉 ROL/ROR</td><td>移出的位</td><td>密碼學、雜湊（RISC-V 的 Zbb 擴充）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>桶式移位器</h2>
+
+      <p>
+        把移位量寫成二進位 \(sh = \sum sh_i 2^i\)：移 \(sh\) 位等於依序「若 \(sh_i = 1\) 則移 \(2^i\) 位」。每一層是 \(N\) 個 2 選 1 多工器：
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 270" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">桶式移位器：log₂N 層多工器，每層移 1、2、4、8、16 位</text>
+                <rect x="60" y="40" width="520" height="26" rx="4" fill="#4a90c2" fill-opacity="0.15" stroke="#4a90c2" stroke-width="1.5"/>
+                <rect x="60" y="80" width="520" height="26" rx="4" fill="#5aa469" fill-opacity="0.15" stroke="#5aa469" stroke-width="1.5"/>
+                <rect x="60" y="120" width="520" height="26" rx="4" fill="#ff8a65" fill-opacity="0.15" stroke="#ff8a65" stroke-width="1.5"/>
+                <rect x="60" y="160" width="520" height="26" rx="4" fill="#e0605a" fill-opacity="0.15" stroke="#e0605a" stroke-width="1.5"/>
+                <rect x="60" y="200" width="520" height="26" rx="4" fill="#9c89d6" fill-opacity="0.15" stroke="#9c89d6" stroke-width="1.5"/>
+                <text x="320" y="58" text-anchor="middle" font-size="10.5" fill="var(--text)">第 1 層：sh[0] = 1 時左移 1 位，否則直通（32 個 2 選 1 多工器）</text>
+                <text x="320" y="98" text-anchor="middle" font-size="10.5" fill="var(--text)">第 2 層：sh[1] = 1 時左移 2 位，否則直通（32 個 2 選 1 多工器）</text>
+                <text x="320" y="138" text-anchor="middle" font-size="10.5" fill="var(--text)">第 3 層：sh[2] = 1 時左移 4 位，否則直通（32 個 2 選 1 多工器）</text>
+                <text x="320" y="178" text-anchor="middle" font-size="10.5" fill="var(--text)">第 4 層：sh[3] = 1 時左移 8 位，否則直通（32 個 2 選 1 多工器）</text>
+                <text x="320" y="218" text-anchor="middle" font-size="10.5" fill="var(--text)">第 5 層：sh[4] = 1 時左移 16 位，否則直通（32 個 2 選 1 多工器）</text>
+                <text x="320" y="258" text-anchor="middle" font-size="11" fill="var(--accent)">任意移位量 0～31 只要 5 級多工器延遲；面積 N·log₂N</text>
+        </svg>
+        <figcaption>對數式桶式移位器。</figcaption>
+      </div>
+
+      <div class="code-block">// barrel.v 的概念：32 位元桶式左移器，用 5 層 2 選 1 多工器組成
+module barrel_sll(input [31:0] a, input [4:0] sh, output [31:0] y);
+  wire [31:0] s0 = sh[0] ? {a[30:0], 1'b0}   : a;    // 移 1
+  wire [31:0] s1 = sh[1] ? {s0[29:0], 2'b0}  : s0;   // 移 2
+  wire [31:0] s2 = sh[2] ? {s1[27:0], 4'b0}  : s1;   // 移 4
+  wire [31:0] s3 = sh[3] ? {s2[23:0], 8'b0}  : s2;   // 移 8
+  assign      y  = sh[4] ? {s3[15:0], 16'b0} : s3;   // 移 16
+endmodule</div>
+
+      <p>
+        第 23 課的測試平台用 10000 筆亂數比對它和 Verilog 內建的 <code>&lt;&lt;</code>，全部一致。面積 \(N\log_2 N\) 個多工器，延遲 \(\log_2 N\) 級。另一種「交叉開關」結構只有一級但需要 \(N^2\) 個開關，適合小寬度。
+      </p>
+
+      <h2>同一個移位器做左右移</h2>
+
+      <p>
+        右移可以用「先把資料位元反轉、左移、再反轉」實作，所以一個左移器加兩組反轉多工器就能同時支援 SLL、SRL；算術右移則在補位時填入符號位而不是 0。
+      </p>
+
+      <h3>用途</h3>
+
+      <ul>
+        <li>移位指令本身；位址計算中的比例因子（ARM 的 <code>ldr r0, [r1, r2, lsl #2]</code>）。</li>
+        <li>浮點加法中對齊指數、正規化（配合前導零計數，第 19 課）。</li>
+        <li>RISC-V 的 <code>lui</code> 載入高 20 位，概念上就是左移 12 位（第 52 課）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          固定移位只是接線，資料決定的移位量需要移位器。邏輯移位補 0，算術右移補符號位，旋轉補移出的位。桶式移位器把移位量拆成二進位，log₂N 層 2 選 1 多工器各移 2ⁱ 位，面積 N log₂N、延遲 log₂N，以亂數比對驗證。右移可透過位元反轉共用左移器。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>32 位元桶式移位器需要幾層、共多少個 2 選 1 多工器？</li>
+          <li>−7 算術右移 1 位結果是多少？</li>
+          <li>如何用左移器實作右移？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>ROM、PLA 與查表</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：乘法器：陣列、Booth 與 Wallace 樹</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：ROM、PLA 與查表 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

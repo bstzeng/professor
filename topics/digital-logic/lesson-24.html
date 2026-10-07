@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：乘法器：陣列、Booth 與 Wallace 樹 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="部分積怎麼加最快">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜組合邏輯元件 · 第 24 課</div>
+      <h1>乘法器：陣列、Booth 與 Wallace 樹</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解二進位乘法的部分積結構</li>
+          <li>說明 Booth 編碼如何減少部分積</li>
+          <li>理解進位保留加法與 Wallace 樹</li>
+        </ul>
+      </div>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 205" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">4×4 陣列乘法器：部分積錯位相加</text>
+                <text x="420" y="40" text-anchor="end" font-size="11" fill="var(--text)">a₃  a₂  a₁  a₀</text>
+                <text x="420" y="62" text-anchor="end" font-size="11" fill="var(--text)">×  b₃  b₂  b₁  b₀</text>
+                <path d="M300 70 L430 70" fill="none" stroke="var(--text)" stroke-width="1"/>
+                <text x="420" y="90" text-anchor="end" font-size="10.5" fill="#4a90c2">a₃b₀ a₂b₀ a₁b₀ a₀b₀</text>
+                <text x="380" y="112" text-anchor="end" font-size="10.5" fill="#5aa469">a₃b₁ a₂b₁ a₁b₁ a₀b₁</text>
+                <text x="340" y="134" text-anchor="end" font-size="10.5" fill="#ff8a65">a₃b₂ a₂b₂ a₁b₂ a₀b₂</text>
+                <text x="300" y="156" text-anchor="end" font-size="10.5" fill="#e0605a">a₃b₃ a₂b₃ a₁b₃ a₀b₃</text>
+                <path d="M120 166 L430 166" fill="none" stroke="var(--text)" stroke-width="1"/>
+                <text x="420" y="186" text-anchor="end" font-size="11" fill="var(--text)">p₇ p₆ p₅ p₄ p₃ p₂ p₁ p₀</text>
+                <text x="470" y="100" text-anchor="start" font-size="10.5" fill="var(--text)">部分積 = AND 閘（N² 個）</text>
+                <text x="470" y="124" text-anchor="start" font-size="10.5" fill="var(--text)">相加 = 加法器陣列</text>
+                <text x="470" y="160" text-anchor="start" font-size="10.5" fill="var(--accent)">Wallace 樹：log 深度</text>
+        </svg>
+        <figcaption>4×4 乘法的部分積。</figcaption>
+      </div>
+
+      <p>
+        二進位乘法比十進位簡單：每個部分積不是 0 就是被乘數本身（左移）。\(N \times N\) 位元乘法產生 \(N\) 個部分積、共 \(N^2\) 個 AND 閘，結果是 \(2N\) 位元。難處在<strong>把 N 個數加起來</strong>。
+      </p>
+
+      <h2>三種做法</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>做法</th><th>硬體</th><th>時間</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>移位—相加（循序）</td><td>一個加法器、移位暫存器</td><td>N 個週期</td></tr>
+          <tr><td>陣列乘法器</td><td>N 列加法器</td><td>O(N) 閘延遲</td></tr>
+          <tr><td>Wallace／Dadda 樹</td><td>進位保留加法器樹 + 最後一個快速加法器</td><td>O(log N)</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>進位保留加法（CSA）</h2>
+
+      <p>
+        全加器把三個位元變成兩個（和、進位）。把它用在<strong>三個數</strong>上：每一位獨立用一個全加器，得到一個「和向量」與一個「進位向量」（左移一位），<strong>不傳遞進位</strong>。這叫 3:2 壓縮器，延遲只有一個全加器，與位元數無關。
+      </p>
+
+      <p>
+        Wallace 樹反覆使用 3:2 壓縮器，每層把部分積的數量變成原來的 2/3，約 \(\log_{3/2} N\) 層後剩兩個數，再用一個平行前綴加法器（第 22 課）加起來。32 位元乘法約 8 層壓縮。
+      </p>
+
+      <h2>Booth 編碼：減少部分積</h2>
+
+      <p>
+        觀察：一串連續的 1 可以寫成相減，例如 \(0111\,1100 = 1000\,0000 - 0000\,0100\)。<strong>基數 4 Booth 編碼</strong>每次看乘數的三個位元 \((b_{2i+1}, b_{2i}, b_{2i-1})\)，產生 \(\{-2, -1, 0, +1, +2\}\) 之一：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>b₂ᵢ₊₁ b₂ᵢ b₂ᵢ₋₁</th><th>倍數</th><th>b₂ᵢ₊₁ b₂ᵢ b₂ᵢ₋₁</th><th>倍數</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>000</td><td>0</td><td>100</td><td>−2</td></tr>
+          <tr><td>001</td><td>+1</td><td>101</td><td>−1</td></tr>
+          <tr><td>010</td><td>+1</td><td>110</td><td>−1</td></tr>
+          <tr><td>011</td><td>+2</td><td>111</td><td>0</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        倍數都很容易產生（左移一位、取補數），而部分積的數量<strong>減半</strong>。值等於 \(-2b_{2i+1} + b_{2i} + b_{2i-1}\)，所以它天生處理二補數的有號乘法。
+      </p>
+
+      <p>
+        現代 CPU 的 64 位元整數乘法器用基數 4 Booth + Wallace／Dadda 樹 + 前綴加法器，管線化成 3～4 個週期。乘法器是晶片中毛刺最多、功耗密度最高的區塊之一（第 15 課）。
+      </p>
+
+      <h3>除法</h3>
+
+      <p>
+        除法本質上是循序的（每一步要看上一步的餘數），一般用 SRT 等每週期產生 1～4 位商的演算法，所以除法比乘法慢得多（數十個週期）。RV32I 基本指令集甚至不包含乘除法，它們在 M 擴充中。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          N×N 乘法有 N 個部分積（N² 個 AND），難處在把它們加起來。進位保留加法（3:2 壓縮）不傳遞進位、延遲與位元數無關；Wallace／Dadda 樹以 O(log N) 層壓到兩個數，再用快速加法器相加。基數 4 Booth 編碼把部分積減半，並自然處理有號乘法。除法本質循序，比乘法慢得多。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>進位保留加法器為什麼比一般加法器快？</li>
+          <li>Booth 編碼中，乘數位元 110 代表哪個倍數？</li>
+          <li>為什麼除法比乘法難平行化？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>移位器與桶式移位器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：減法、溢位與 ALU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：移位器與桶式移位器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

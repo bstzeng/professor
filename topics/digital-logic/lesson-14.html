@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：路徑延遲與關鍵路徑 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="整個電路的速度由最慢的路徑決定">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜閘延遲與時序 · 第 14 課</div>
+      <h1>路徑延遲與關鍵路徑</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>計算組合電路中每條路徑的延遲</li>
+          <li>找出關鍵路徑</li>
+          <li>在 Verilog 模擬中看到「時脈太快」的後果</li>
+        </ul>
+      </div>
+
+      <p>
+        組合電路的延遲不是某一個閘的延遲，而是從輸入到輸出所有路徑中<strong>最長</strong>的那一條：
+      </p>
+
+      <p>
+        \[ t_{pd}(\text{電路}) = \max_{\text{路徑}} \sum_{\text{路徑上的閘}} t_{pd,i}, \qquad t_{cd}(\text{電路}) = \min_{\text{路徑}} \sum t_{cd,i} \]
+      </p>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 265" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">關鍵路徑：所有路徑中延遲最長的一條</text>
+                <rect x="40" y="40" width="80" height="44" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="80" y="65.85" text-anchor="middle" font-size="11" fill="#4a90c2">輸入 A</text>
+                <rect x="40" y="110" width="80" height="44" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="80" y="135.85" text-anchor="middle" font-size="11" fill="#4a90c2">輸入 B</text>
+                <rect x="40" y="180" width="80" height="44" rx="8" fill="var(--surface)" stroke="#4a90c2" stroke-width="1.5"/><text x="80" y="205.85" text-anchor="middle" font-size="11" fill="#4a90c2">輸入 C</text>
+                <rect x="180" y="60" width="90" height="44" rx="8" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.5"/><text x="225" y="85.85" text-anchor="middle" font-size="11" fill="var(--text-muted)">G1 (2)</text>
+                <rect x="180" y="160" width="90" height="44" rx="8" fill="var(--surface)" stroke="var(--text-muted)" stroke-width="1.5"/><text x="225" y="185.85" text-anchor="middle" font-size="11" fill="var(--text-muted)">G2 (1)</text>
+                <rect x="330" y="100" width="90" height="44" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="375" y="125.85" text-anchor="middle" font-size="11" fill="#e0605a">G3 (3)</text>
+                <rect x="480" y="100" width="90" height="44" rx="8" fill="var(--surface)" stroke="#e0605a" stroke-width="1.5"/><text x="525" y="125.85" text-anchor="middle" font-size="11" fill="#e0605a">G4 (2)</text>
+                <path d="M120 62 L180 82 M120 132 L180 92 M120 132 L180 172 M120 202 L180 192 M270 82 L330 115 M270 182 L330 132 M420 122 L480 122" fill="none" stroke="var(--text-muted)" stroke-width="1.5"/>
+                <path d="M120 62 L180 82 M270 82 L330 115 M420 122 L480 122" fill="none" stroke="#e0605a" stroke-width="3"/>
+                <text x="320" y="250" text-anchor="middle" font-size="10.5" fill="var(--accent)">A → G1 → G3 → G4：2 + 3 + 2 = 7（最長）；C → G2 → G3 → G4：1 + 3 + 2 = 6</text>
+        </svg>
+        <figcaption>關鍵路徑（紅色）。</figcaption>
+      </div>
+
+      <p>
+        最長的路徑稱為<strong>關鍵路徑</strong>。要讓電路變快，只能縮短關鍵路徑；優化其他路徑完全沒有用（直到它們變成新的關鍵路徑）。靜態時序分析（STA）工具就是對整顆晶片做這件事：把電路當成一張有向無環圖，用拓樸排序在線性時間內算出每個節點的最晚到達時間（<a href="../chip-layout/lesson-30.html">〈晶片 Layout 設計〉第 30 課</a>）。
+      </p>
+
+      <h2>漣波進位加法器的關鍵路徑</h2>
+
+      <p>
+        在 8 位元漣波進位加法器裡，若每個閘延遲 1 ns：第 0 位的進位要經過 XOR（或 AND）、AND、OR 才出來，之後每一位多兩級（AND、OR），最後一位的和再加一個 XOR。最長路徑約
+      </p>
+
+      <p>
+        \[ t \approx 3 + 2\times 6 + 1 = 16 \text{ ns} \]
+      </p>
+
+      <p>
+        但這條路徑<strong>只有在進位真的一路傳上去時</strong>才會被觸發，例如 127 + 1 或 255 + 1。3 + 4 這種不產生進位的加法很快就算完。
+      </p>
+
+      <h2>實驗：時脈太快會怎樣</h2>
+
+      <p>
+        下面的範例把這個加法器夾在兩排暫存器之間：每個時脈邊緣把新的 a、b 打進去，同時把上一拍的結果存起來。我們用 30、10、6 ns 三種時脈週期跑同一組資料。
+      </p>
+
+      <p style="margin:18px 0 4px"><strong>🔧 範例：timing</strong>　<span style="color:var(--text-muted);font-size:0.9em">執行：<code>iverilog -g2012 -o timing timing.v tb_timing.v &amp;&amp; vvp timing</code></span></p>
+
+      <p style="margin:18px 0 6px"><strong>📄 timing.v</strong>　<a href="v/timing.v" download>下載</a></p>
+
+      <div class="code-block">// timing.v：時脈太快會怎樣？
+// 兩排暫存器之間夾一個 8 位元漣波進位加法器，每個閘延遲 1 ns
+`timescale 1ns/1ps
+module fa_d(input a, input b, input cin, output s, output cout);
+  wire p, g, t;
+  xor #1 x1(p, a, b);
+  xor #1 x2(s, p, cin);
+  and #1 a1(g, a, b);
+  and #1 a2(t, p, cin);
+  or  #1 o1(cout, g, t);
+endmodule
+
+module adder8_d(input [7:0] a, input [7:0] b, output [7:0] s);
+  wire [8:0] c; assign c[0] = 1'b0;
+  genvar i;
+  generate for (i = 0; i &lt; 8; i = i + 1) begin : st
+    fa_d fa(a[i], b[i], c[i], s[i], c[i+1]);
+  end endgenerate
+endmodule
+
+// 暫存器 → 加法器 → 暫存器：每個時脈把新的 a、b 打進來，同時把上一拍的和存起來
+module reg_adder_reg(input clk, input [7:0] a_in, input [7:0] b_in, output reg [7:0] sum);
+  reg [7:0] a, b; wire [7:0] s;
+  adder8_d add(a, b, s);
+  always @(posedge clk) begin
+    a &lt;= a_in; b &lt;= b_in;
+    sum &lt;= s;
+  end
+endmodule</div>
+
+      <p style="margin:18px 0 6px"><strong>📄 tb_timing.v</strong>　<a href="v/tb_timing.v" download>下載</a></p>
+
+      <div class="code-block">`timescale 1ns/1ps
+// 每個時脈送進一組新的 a、b；加法器只有「一個週期」的時間算出結果
+module tb_timing;
+  reg clk = 0; reg [7:0] a_in, b_in; wire [7:0] sum;
+  reg_adder_reg dut(clk, a_in, b_in, sum);
+  reg [7:0] A [0:5], Bv [0:5];
+  integer period, i, err;
+  task run(input integer p);
+    begin
+      period = p; err = 0;
+      $display("--- clock period %0d ns ---", p);
+      for (i = 0; i &lt; 8; i = i + 1) begin
+        a_in = A[i % 6]; b_in = Bv[i % 6];
+        #(p / 2) clk = 1; #(p - p / 2) clk = 0;     // 一個時脈週期
+        if (i &gt;= 1) begin                           // sum 是上一拍送進去的那一組
+          $display("  %3d + %3d = %3d  (expected %3d) %s", A[(i - 1) % 6], Bv[(i - 1) % 6], sum,
+                   (A[(i - 1) % 6] + Bv[(i - 1) % 6]) &amp; 8'hFF, (sum == ((A[(i - 1) % 6] + Bv[(i - 1) % 6]) &amp; 8'hFF)) ? "" : "&lt;-- WRONG");
+          if (sum != ((A[(i - 1) % 6] + Bv[(i - 1) % 6]) &amp; 8'hFF)) err = err + 1;
+        end
+      end
+      $display("  errors: %0d / 7", err);
+    end
+  endtask
+  initial begin
+    A[0] = 0;   Bv[0] = 0;
+    A[1] = 127; Bv[1] = 1;     // 進位從第 0 位傳到第 7 位：最長路徑
+    A[2] = 0;   Bv[2] = 0;
+    A[3] = 255; Bv[3] = 1;
+    A[4] = 3;   Bv[4] = 4;     // 沒有進位：很快
+    A[5] = 100; Bv[5] = 27;
+    run(30);
+    run(10);
+    run(6);
+    $finish;
+  end
+endmodule</div>
+
+      <p style="margin:0 0 6px"><strong>▶ 模擬結果</strong>（實際執行的輸出）</p>
+
+      <div class="code-block" style="background:#14301f;color:#d6f5df">--- clock period 30 ns ---&#10;    0 +   0 =   0  (expected   0)&#10;  127 +   1 = 128  (expected 128)&#10;    0 +   0 =   0  (expected   0)&#10;  255 +   1 =   0  (expected   0)&#10;    3 +   4 =   7  (expected   7)&#10;  100 +  27 = 127  (expected 127)&#10;    0 +   0 =   0  (expected   0)&#10;  errors: 0 / 7&#10;--- clock period 10 ns ---&#10;    0 +   0 =   0  (expected   0)&#10;  127 +   1 =  96  (expected 128) &lt;-- WRONG&#10;    0 +   0 =   0  (expected   0)&#10;  255 +   1 = 224  (expected   0) &lt;-- WRONG&#10;    3 +   4 =   7  (expected   7)&#10;  100 +  27 = 127  (expected 127)&#10;    0 +   0 =   0  (expected   0)&#10;  errors: 2 / 7&#10;--- clock period 6 ns ---&#10;    0 +   0 =   0  (expected   0)&#10;  127 +   1 = 120  (expected 128) &lt;-- WRONG&#10;    0 +   0 =   0  (expected   0)&#10;  255 +   1 = 248  (expected   0) &lt;-- WRONG&#10;    3 +   4 =  15  (expected   7) &lt;-- WRONG&#10;  100 +  27 = 127  (expected 127)&#10;    0 +   0 =   0  (expected   0)&#10;  errors: 3 / 7</div>
+
+      <p>
+        30 ns 時全部正確。10 ns 時，127 + 1 與 255 + 1 錯了——正是進位要傳很遠的那兩筆；結果 96（0110 0000）表示高位還沒等到進位就被存進去了。6 ns 時連 3 + 4 都錯了：因為上一筆 255 + 1 的進位「漣漪」還沒平息，新資料就進來了——<strong>延遲不只取決於現在的輸入，也取決於前一個狀態</strong>。
+      </p>
+
+      <p>
+        這正是時序設計的核心：時脈週期必須大於<strong>最壞情況</strong>的路徑延遲，即使那條路徑很少被用到。下一課開始處理延遲帶來的另一個問題：毛刺。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          組合電路的 t_pd 是所有路徑延遲中的最大值，t_cd 是最小值；最長的路徑稱為關鍵路徑，只有縮短它才能讓電路變快。STA 用拓樸排序在線性時間內算出關鍵路徑。8 位元漣波加法器的關鍵路徑是進位鏈；Verilog 實驗顯示時脈週期小於最壞路徑延遲時，長進位的加法以及緊接其後的運算都會出錯。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼優化非關鍵路徑沒有用？</li>
+          <li>在 timing 範例中，為什麼 6 ns 時 3 + 4 也會錯？</li>
+          <li>漣波進位加法器的哪些輸入會觸發最長路徑？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>毛刺與競爭</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：扇出、FO4 與邏輯努力</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：毛刺與競爭 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

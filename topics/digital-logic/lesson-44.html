@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：Verilog：組合邏輯 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="assign、always @(*) 與閂鎖器陷阱">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體描述語言 · 第 44 課</div>
+      <h1>Verilog：組合邏輯</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用 assign 與 always @(*) 描述組合邏輯</li>
+          <li>掌握位元寬度、串接與運算子</li>
+          <li>避免意外產生閂鎖器</li>
+        </ul>
+      </div>
+
+      <h2>模組與連接埠</h2>
+
+      <div class="code-block">module mux2 #(parameter W = 8) (       // 參數：寬度可調
+  input  [W-1:0] a, b,
+  input          s,
+  output [W-1:0] y
+);
+  assign y = s ? b : a;                  // 連續賦值：y 永遠等於右邊
+endmodule</div>
+
+      <p>
+        <code>assign</code> 描述的是一條<strong>永遠成立</strong>的關係，不是一次性的動作：右邊任何訊號改變，y 就跟著變。它對應的硬體就是一團組合邏輯。
+      </p>
+
+      <h2>常用語法</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>語法</th><th>意義</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>8'b1010_0011</code>、<code>8'hA3</code>、<code>8'd163</code></td><td>寬度 + 進位 + 值</td><td>底線只是分隔</td></tr>
+          <tr><td><code>a[3:0]</code>、<code>a[7]</code></td><td>取部分位元</td><td></td></tr>
+          <tr><td><code>{a, b}</code></td><td>串接</td><td><code>{4'b0, x}</code> 補零</td></tr>
+          <tr><td><code>{8{a[7]}}</code></td><td>複製</td><td>符號延伸（第 52 課）</td></tr>
+          <tr><td><code>&amp; | ^ ~</code></td><td>逐位元運算</td><td></td></tr>
+          <tr><td><code>&amp;a</code>、<code>|a</code>、<code>^a</code></td><td>縮減運算：所有位元 AND／OR／XOR 成一位</td><td><code>^a</code> 就是同位元</td></tr>
+          <tr><td><code>&amp;&amp; || !</code></td><td>邏輯運算（結果一位）</td><td></td></tr>
+          <tr><td><code>+ - * &lt;&lt; &gt;&gt; &gt;&gt;&gt;</code></td><td>算術與移位</td><td>合成成加法器、乘法器、移位器</td></tr>
+          <tr><td><code>? :</code></td><td>條件運算子</td><td>多工器</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        位元寬度要特別小心：兩個 8 位元相加的結果要 9 位元才裝得下進位；把 32 位元的值指定給 8 位元的訊號會被<strong>默默截斷</strong>。模擬器頂多給警告。
+      </p>
+
+      <h2>always @(*)</h2>
+
+      <p>
+        較複雜的組合邏輯（case、多層 if）寫在 <code>always @(*)</code> 裡，被賦值的訊號要宣告成 <code>reg</code>（名稱的歷史包袱：它<strong>不一定</strong>是暫存器）。第 18 課的 <code>mux4_case</code> 與第 23 課的 ALU 都是這種寫法。
+      </p>
+
+      <h2>閂鎖器陷阱</h2>
+
+      <div class="code-block">always @(*) begin
+  if (en) y = d;        // en = 0 時呢？沒有寫！
+end</div>
+
+      <p>
+        組合邏輯的定義是「輸出只依賴目前的輸入」。en = 0 時沒有給 y 新值，語意上 y 要<strong>保持</strong>舊值——這需要記憶，合成工具只好推論出一個<strong>閂鎖器</strong>（第 29 課）。這幾乎總是錯誤。避免方法：
+      </p>
+
+      <ul>
+        <li>每個 <code>if</code> 都有 <code>else</code>，每個 <code>case</code> 都有 <code>default</code>。</li>
+        <li>更保險：在 <code>always</code> 開頭先給所有輸出一個預設值，再用 if/case 覆蓋。第 19 課的優先權編碼器就是這樣寫的（<code>code = 0; valid = 0;</code>）。</li>
+        <li>SystemVerilog 的 <code>always_comb</code> 會讓工具檢查並報錯。</li>
+      </ul>
+
+      <h3>敏感列表</h3>
+
+      <p>
+        舊式寫法 <code>always @(a or b)</code> 如果漏寫一個訊號，模擬時那個訊號改變不會觸發重新計算（看起來像有記憶），合成卻會忽略敏感列表產生正確的組合邏輯——典型的<strong>模擬與合成不一致</strong>。一律使用 <code>@(*)</code>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          組合邏輯用 assign（永遠成立的連續賦值）或 always @(*)（內部用 = 阻塞賦值）描述。要掌握位元寬度、串接 {}、複製、縮減運算與條件運算子；寬度不符會默默截斷。always @(*) 中若某條件下未給輸出賦值，會推論出閂鎖器；以完整的 else、default 或開頭預設值避免。敏感列表一律用 @(*) 以免模擬與合成不一致。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>寫出把 8 位元 x 符號延伸到 16 位元的 Verilog 表達式。</li>
+          <li>為什麼 if 沒有 else 會產生閂鎖器？</li>
+          <li>^a 計算的是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Verilog：循序邏輯與狀態機</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：為什麼需要 HDL</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：Verilog：循序邏輯與狀態機 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -20267,6 +20267,132 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "digital-logic",
+      category: "tech",
+      title: "數位邏輯設計：從邏輯閘到一顆 CPU",
+      description:
+        "大學部程度的數位邏輯設計，附推導與可執行的 Verilog 範例：雜訊邊限、二補數、CMOS 閘、NAND 萬用；布林代數、卡諾圖、Quine–McCluskey；閘延遲、邏輯努力、關鍵路徑、毛刺與危障、為什麼需要時脈；多工器、解碼器、加法器、超前進位與平行前綴、ALU、乘法器、桶式移位器；閂鎖器、主從式正反器、setup／hold、亞穩態；暫存器、計數器、有限狀態機、時脈偏移與同步器；Verilog、合成與 FPGA；SRAM、DRAM、快閃；最後用約 70 行 Verilog 做出一顆執行 RISC-V 程式的單週期 CPU，並介紹多週期與管線化。所有範例都以 Icarus Verilog 實跑、可整包下載，附九個互動工具。",
+      icon: "🔌",
+      url: "topics/digital-logic/index.html",
+      resources: [
+        {
+          title: "數位邏輯工具箱",
+          description: "邏輯閘沙盒、卡諾圖化簡、毛刺波形、加法器延遲、正反器時序、亞穩態、狀態機、時序預算、RISC-V CPU 模擬器，以及 Verilog 範例下載",
+          icon: "🧪",
+          url: "topics/digital-logic/guide.html"
+        },
+        {
+          title: "公式與術語速查",
+          description: "布林代數、算術、時序公式與常用術語",
+          icon: "📖",
+          url: "topics/digital-logic/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜數位的基礎",
+          courses: [
+            { title: "為什麼要「數位」：雜訊邊限與再生", url: "topics/digital-logic/lesson-01.html" },
+            { title: "數字系統與二補數", url: "topics/digital-logic/lesson-02.html" },
+            { title: "編碼：BCD、格雷碼、同位元與 ASCII", url: "topics/digital-logic/lesson-03.html" },
+            { title: "從電晶體到邏輯閘：CMOS", url: "topics/digital-logic/lesson-04.html" },
+            { title: "NAND 萬用與邏輯閘總覽", url: "topics/digital-logic/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜布林代數與化簡",
+          courses: [
+            { title: "布林代數的公理與定理", url: "topics/digital-logic/lesson-06.html" },
+            { title: "笛摩根定律與推泡泡", url: "topics/digital-logic/lesson-07.html" },
+            { title: "最小項、最大項：SOP 與 POS", url: "topics/digital-logic/lesson-08.html" },
+            { title: "卡諾圖", url: "topics/digital-logic/lesson-09.html" },
+            { title: "無關項與 Quine–McCluskey", url: "topics/digital-logic/lesson-10.html" },
+            { title: "多層邏輯與取捨", url: "topics/digital-logic/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜閘延遲與時序",
+          courses: [
+            { title: "閘延遲從哪裡來：RC、t_pd 與 t_cd", url: "topics/digital-logic/lesson-12.html" },
+            { title: "扇出、FO4 與邏輯努力", url: "topics/digital-logic/lesson-13.html" },
+            { title: "路徑延遲與關鍵路徑", url: "topics/digital-logic/lesson-14.html" },
+            { title: "毛刺與競爭", url: "topics/digital-logic/lesson-15.html" },
+            { title: "消除靜態危障", url: "topics/digital-logic/lesson-16.html" },
+            { title: "為什麼需要時脈", url: "topics/digital-logic/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜組合邏輯元件",
+          courses: [
+            { title: "多工器與解多工器", url: "topics/digital-logic/lesson-18.html" },
+            { title: "解碼器、編碼器與優先權編碼器", url: "topics/digital-logic/lesson-19.html" },
+            { title: "比較器", url: "topics/digital-logic/lesson-20.html" },
+            { title: "半加器、全加器與漣波進位", url: "topics/digital-logic/lesson-21.html" },
+            { title: "超前進位與平行前綴加法器", url: "topics/digital-logic/lesson-22.html" },
+            { title: "減法、溢位與 ALU", url: "topics/digital-logic/lesson-23.html" },
+            { title: "乘法器：陣列、Booth 與 Wallace 樹", url: "topics/digital-logic/lesson-24.html" },
+            { title: "移位器與桶式移位器", url: "topics/digital-logic/lesson-25.html" },
+            { title: "ROM、PLA 與查表", url: "topics/digital-logic/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜閂鎖器與正反器",
+          courses: [
+            { title: "回授與雙穩態：電路怎麼記住東西", url: "topics/digital-logic/lesson-27.html" },
+            { title: "SR 閂鎖器", url: "topics/digital-logic/lesson-28.html" },
+            { title: "D 閂鎖器", url: "topics/digital-logic/lesson-29.html" },
+            { title: "主從式 D 正反器", url: "topics/digital-logic/lesson-30.html" },
+            { title: "電晶體層級：傳輸閘與正反器的真實模樣", url: "topics/digital-logic/lesson-31.html" },
+            { title: "建立時間、保持時間與 clock-to-Q", url: "topics/digital-logic/lesson-32.html" },
+            { title: "亞穩態", url: "topics/digital-logic/lesson-33.html" },
+            { title: "JK、T 正反器與重置、致能", url: "topics/digital-logic/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜循序邏輯",
+          courses: [
+            { title: "暫存器與暫存器檔", url: "topics/digital-logic/lesson-35.html" },
+            { title: "移位暫存器與 LFSR", url: "topics/digital-logic/lesson-36.html" },
+            { title: "計數器", url: "topics/digital-logic/lesson-37.html" },
+            { title: "有限狀態機：Moore 與 Mealy", url: "topics/digital-logic/lesson-38.html" },
+            { title: "FSM 設計流程", url: "topics/digital-logic/lesson-39.html" },
+            { title: "FSM 範例：紅綠燈與販賣機", url: "topics/digital-logic/lesson-40.html" },
+            { title: "最高時脈頻率與時脈偏移", url: "topics/digital-logic/lesson-41.html" },
+            { title: "跨時脈域與同步器", url: "topics/digital-logic/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 G｜硬體描述語言",
+          courses: [
+            { title: "為什麼需要 HDL", url: "topics/digital-logic/lesson-43.html" },
+            { title: "Verilog：組合邏輯", url: "topics/digital-logic/lesson-44.html" },
+            { title: "Verilog：循序邏輯與狀態機", url: "topics/digital-logic/lesson-45.html" },
+            { title: "模擬、合成與 FPGA", url: "topics/digital-logic/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜記憶體",
+          courses: [
+            { title: "SRAM", url: "topics/digital-logic/lesson-47.html" },
+            { title: "DRAM", url: "topics/digital-logic/lesson-48.html" },
+            { title: "快閃記憶體與 FPGA 的查表", url: "topics/digital-logic/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 I｜做一顆 CPU",
+          courses: [
+            { title: "指令集、資料路徑與控制", url: "topics/digital-logic/lesson-50.html" },
+            { title: "單週期 CPU", url: "topics/digital-logic/lesson-51.html" },
+            { title: "控制訊號與立即值解碼", url: "topics/digital-logic/lesson-52.html" },
+            { title: "多週期 CPU 與微程式", url: "topics/digital-logic/lesson-53.html" },
+            { title: "管線化", url: "topics/digital-logic/lesson-54.html" },
+            { title: "從教科書 CPU 到真正的處理器", url: "topics/digital-logic/lesson-55.html" },
+            { title: "總結：從邏輯閘到一顆 CPU", url: "topics/digital-logic/lesson-56.html" },
+          ],
+        },
+      ],
     }
   ]
 };

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 45 課：Verilog：循序邏輯與狀態機 ｜ 數位邏輯設計 ｜ 博雅書院</title>
+<meta name="description" content="posedge、非阻塞賦值與測試平台">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位邏輯設計</a>
+      <span class="sep">/</span>
+      <span>第 45 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體描述語言 · 第 45 課</div>
+      <h1>Verilog：循序邏輯與狀態機</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用 always @(posedge clk) 描述正反器</li>
+          <li>理解阻塞與非阻塞賦值的差別</li>
+          <li>撰寫測試平台驗證設計</li>
+        </ul>
+      </div>
+
+      <h2>正反器的寫法</h2>
+
+      <div class="code-block">always @(posedge clk) begin
+  if (rst) q &lt;= 0;
+  else if (en) q &lt;= d;
+end</div>
+
+      <p>
+        <code>posedge clk</code> 表示只在時脈上升時執行；這段描述合成成帶同步重置與致能的 D 正反器（第 34 課）。在 <code>always @(posedge clk)</code> 裡被賦值的訊號一定變成正反器。
+      </p>
+
+      <h2>阻塞與非阻塞</h2>
+
+      <div class="content-figure">
+        <svg class="content-diagram" viewBox="0 0 640 215" xmlns="http://www.w3.org/2000/svg">
+                <text x="320" y="18" text-anchor="middle" font-size="12" fill="var(--text-muted)">非阻塞賦值（&lt;=）：所有右邊先讀完，再一起更新</text>
+                <rect x="40" y="50" width="260" height="120" rx="8" fill="var(--surface)" stroke="#5aa469" stroke-width="1.5"/><text x="170" y="94" text-anchor="middle" font-size="11" fill="#5aa469">&lt;= 非阻塞（循序邏輯用）</text><text x="170" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">a &lt;= b;  b &lt;= a;</text><text x="170" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">→ a、b 交換</text><text x="170" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">等同正反器：邊緣時同時取樣</text>
+                <rect x="340" y="50" width="260" height="120" rx="8" fill="var(--surface)" stroke="#ff8a65" stroke-width="1.5"/><text x="470" y="94" text-anchor="middle" font-size="11" fill="#ff8a65">= 阻塞（組合邏輯用）</text><text x="470" y="108" text-anchor="middle" font-size="9" fill="var(--text-muted)">a = b;  b = a;</text><text x="470" y="121" text-anchor="middle" font-size="9" fill="var(--text-muted)">→ a、b 都變成 b 的舊值</text><text x="470" y="134" text-anchor="middle" font-size="9" fill="var(--text-muted)">像程式語言：一行一行執行</text>
+                <text x="320" y="200" text-anchor="middle" font-size="10.5" fill="var(--accent)">規則：always @(posedge clk) 裡用 &lt;=；always @(*) 裡用 =；同一個 always 不要混用</text>
+        </svg>
+        <figcaption>兩種賦值。</figcaption>
+      </div>
+
+      <p>
+        <code>&lt;=</code>（非阻塞）的語意是：先把所有右邊的值讀出來，等到這個時間點的所有區塊都執行完，再一起更新左邊。這正好模擬「所有正反器在同一個邊緣同時取樣」。看第 36 課的移位暫存器：如果改用 <code>=</code> 逐級寫 <code>q1 = q0; q2 = q1;</code>，q2 會在同一個邊緣拿到新的 q1——資料一次穿過兩級，而且結果取決於敘述的順序。
+      </p>
+
+      <p>
+        規則很簡單，絕不例外：
+      </p>
+
+      <ol>
+        <li>循序邏輯（<code>posedge</code>）用 <code>&lt;=</code>。</li>
+        <li>組合邏輯（<code>@(*)</code>）用 <code>=</code>。</li>
+        <li>同一個訊號只在一個 <code>always</code> 區塊中賦值。</li>
+      </ol>
+
+      <h2>三段式 FSM</h2>
+
+      <p>
+        第 39 課的 fsm_seq.v 是標準範本：一行 <code>always @(posedge clk) state &lt;= rst ? S0 : next;</code> 是狀態暫存器；一個 <code>always @(*)</code> 用 <code>case</code> 算 <code>next</code>；一個 <code>assign</code> 算輸出。把時序和組合分開，閂鎖器、阻塞非阻塞的錯誤都不容易發生。
+      </p>
+
+      <h2>測試平台</h2>
+
+      <p>
+        測試平台是一個沒有連接埠的模組，實例化待測設計、產生時脈與輸入、檢查輸出：
+      </p>
+
+      <div class="code-block">module tb;
+  reg clk = 0, rst = 1; wire [3:0] q;
+  counter4 dut(clk, rst, 1'b1, q);      // 待測設計
+  always #5 clk = ~clk;                  // 週期 10 的時脈
+  initial begin
+    @(posedge clk); #1 rst = 0;          // 一拍後放開重置
+    repeat (20) begin
+      @(posedge clk); #1;
+      if (q !== expected) $display("錯！");   // 自動比對
+    end
+    $finish;
+  end
+endmodule</div>
+
+      <p>
+        好的測試平台會<strong>自動比對</strong>結果，而不是讓人看波形：本課程的 mux、adders、alu 範例都是窮舉或亂數比對、最後印出錯誤數。<code>!==</code> 是「四值」比較，會把未知值 x 當成不相等。輸入在時脈邊緣之後 <code>#1</code> 才改變，是為了避免與正反器取樣發生競爭。
+      </p>
+
+      <p>
+        業界的驗證遠比這複雜：SystemVerilog 的 UVM 方法學、限制式隨機、功能覆蓋率、形式驗證。驗證工程師的人數往往比設計工程師多（<a href="../chip-layout/lesson-16.html">〈晶片 Layout 設計〉第 16 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          always @(posedge clk) 中被賦值的訊號會成為正反器。非阻塞賦值 <= 先讀完所有右邊再同時更新，正確模擬同一邊緣的取樣；阻塞賦值 = 依序執行。規則：循序用 <=、組合用 =、每個訊號只在一個 always 中賦值。三段式 FSM 分離時序與組合。測試平台產生時脈與輸入並自動比對輸出，輸入在邊緣後稍晚改變以避免競爭。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課程的 Verilog 範例都用 Icarus Verilog 12 實際編譯、模擬過，頁面上的「模擬結果」就是當時的輸出；所有範例可以<a href="v/digital-logic-verilog.zip" download>整包下載</a>。時間單位與延遲數字是教學用的假設值，真實晶片的閘延遲在皮秒等級。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>在移位暫存器中把 <= 改成 =，會發生什麼？</li>
+          <li>為什麼測試平台常在 @(posedge clk) 後加 #1 才改變輸入？</li>
+          <li>!== 與 != 有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>模擬、合成與 FPGA</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-44.html">← 上一課：Verilog：組合邏輯</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-46.html">下一課：模擬、合成與 FPGA →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
