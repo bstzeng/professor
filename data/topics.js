@@ -21239,6 +21239,112 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "shopee-business",
+      category: "finance",
+      title: "蝦皮的商業模式：從燒錢到獲利",
+      description:
+        "蝦皮怎麼從 2015 年的新創變成東南亞與台灣的電商龍頭？它靠什麼賺錢？從母公司 Sea 與 Garena 的資金、手機優先、免費上架與免運補貼、網路效應、在地化與遊戲化，到手續費、廣告、物流、金融與跨境的營收結構；2022 年的大撤退與轉虧為盈、近年財報解讀、台灣的店到店與賣家成本，以及 Lazada、TikTok Shop、Temu、momo 等對手。附大事記、平台飛輪、財報圖表與賣家費用試算器。",
+      icon: "🦐",
+      url: "topics/shopee-business/index.html",
+      resources: [
+        {
+          title: "蝦皮分析工具箱",
+          description: "大事記、平台飛輪、財報圖表、賣家費用試算器、競爭對手卡",
+          icon: "🧰",
+          url: "topics/shopee-business/guide.html"
+        },
+        {
+          title: "名詞與數字速查",
+          description: "平台經濟名詞、財報指標與蝦皮關鍵數字",
+          icon: "📖",
+          url: "topics/shopee-business/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜蝦皮是誰",
+          courses: [
+            { title: "你每天在用的蝦皮", url: "topics/shopee-business/lesson-01.html" },
+            { title: "母公司 Sea", url: "topics/shopee-business/lesson-02.html" },
+            { title: "李小冬與三大事業", url: "topics/shopee-business/lesson-03.html" },
+            { title: "2015 年的好時機", url: "topics/shopee-business/lesson-04.html" },
+            { title: "蝦皮的時間軸", url: "topics/shopee-business/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜它是怎麼變大的",
+          courses: [
+            { title: "手機優先", url: "topics/shopee-business/lesson-06.html" },
+            { title: "免費上架、零佣金", url: "topics/shopee-business/lesson-07.html" },
+            { title: "免運補貼", url: "topics/shopee-business/lesson-08.html" },
+            { title: "網路效應", url: "topics/shopee-business/lesson-09.html" },
+            { title: "遊戲公司的錢", url: "topics/shopee-business/lesson-10.html" },
+            { title: "本地化", url: "topics/shopee-business/lesson-11.html" },
+            { title: "行銷戰", url: "topics/shopee-business/lesson-12.html" },
+            { title: "遊戲化", url: "topics/shopee-business/lesson-13.html" },
+            { title: "直播與短影音", url: "topics/shopee-business/lesson-14.html" },
+            { title: "擴張與撤退", url: "topics/shopee-business/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜它賺什麼錢",
+          courses: [
+            { title: "平台的營收結構", url: "topics/shopee-business/lesson-16.html" },
+            { title: "成交手續費與金流費", url: "topics/shopee-business/lesson-17.html" },
+            { title: "廣告", url: "topics/shopee-business/lesson-18.html" },
+            { title: "蝦皮商城與品牌", url: "topics/shopee-business/lesson-19.html" },
+            { title: "免運與活動費用", url: "topics/shopee-business/lesson-20.html" },
+            { title: "物流", url: "topics/shopee-business/lesson-21.html" },
+            { title: "金融服務", url: "topics/shopee-business/lesson-22.html" },
+            { title: "跨境電商", url: "topics/shopee-business/lesson-23.html" },
+            { title: "營收與 GMV", url: "topics/shopee-business/lesson-24.html" },
+            { title: "一張訂單的經濟學", url: "topics/shopee-business/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 D｜從虧損到獲利",
+          courses: [
+            { title: "為什麼燒錢燒了好幾年", url: "topics/shopee-business/lesson-26.html" },
+            { title: "2022 年的轉折", url: "topics/shopee-business/lesson-27.html" },
+            { title: "提高費率", url: "topics/shopee-business/lesson-28.html" },
+            { title: "首次獲利", url: "topics/shopee-business/lesson-29.html" },
+            { title: "近年財報解讀", url: "topics/shopee-business/lesson-30.html" },
+            { title: "投資人怎麼看 Sea", url: "topics/shopee-business/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜台灣的蝦皮",
+          courses: [
+            { title: "台灣網拍的變局", url: "topics/shopee-business/lesson-32.html" },
+            { title: "蝦皮店到店", url: "topics/shopee-business/lesson-33.html" },
+            { title: "台灣賣家的成本", url: "topics/shopee-business/lesson-34.html" },
+            { title: "台灣的對手", url: "topics/shopee-business/lesson-35.html" },
+            { title: "稅務與法規", url: "topics/shopee-business/lesson-36.html" },
+            { title: "消費者爭議", url: "topics/shopee-business/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜競爭對手",
+          courses: [
+            { title: "Lazada", url: "topics/shopee-business/lesson-38.html" },
+            { title: "TikTok Shop 與 Tokopedia", url: "topics/shopee-business/lesson-39.html" },
+            { title: "Temu 與 SHEIN", url: "topics/shopee-business/lesson-40.html" },
+            { title: "Amazon 與 Mercado Libre", url: "topics/shopee-business/lesson-41.html" },
+            { title: "誰的模式比較能賺錢", url: "topics/shopee-business/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "平台經濟學", url: "topics/shopee-business/lesson-43.html" },
+            { title: "蝦皮的風險", url: "topics/shopee-business/lesson-44.html" },
+            { title: "對賣家與消費者的啟示", url: "topics/shopee-business/lesson-45.html" },
+            { title: "總結：蝦皮成功的十個原因", url: "topics/shopee-business/lesson-46.html" },
+          ],
+        },
+      ],
     }
   ]
 };
