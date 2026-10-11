@@ -21126,6 +21126,119 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "start-a-company",
+      category: "finance",
+      title: "開公司：好處、代價與紅線",
+      description:
+        "依台灣現行法規，從公司是什麼、五種組織型態開始，講清楚開公司的好處（有限責任、營所稅與盈餘保留、費用列支、信用、募資、傳承）、代價（設立與每年成本、兩層課稅、未分配盈餘、清算）、設立流程，以及公司不能做的事：公私不分、抽逃資本、違法貸與與保證、吸金、作假帳與假發票、逃漏稅、人頭負責人、勞動、個資、公平交易與洗錢防制。附稅負試算器、組織型態比較、紅線測驗、檢查清單與年度行事曆。",
+      icon: "🏢",
+      url: "topics/start-a-company/index.html",
+      resources: [
+        {
+          title: "開公司工具箱",
+          description: "稅負試算器、組織型態比較、該不該開公司決策樹、設立流程、錢的流向、紅線測驗、檢查清單、年度行事曆",
+          icon: "🧰",
+          url: "topics/start-a-company/guide.html"
+        },
+        {
+          title: "名詞與法條速查",
+          description: "開公司常見名詞、重要數字與法條",
+          icon: "📖",
+          url: "topics/start-a-company/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜開公司之前",
+          courses: [
+            { title: "公司是什麼", url: "topics/start-a-company/lesson-01.html" },
+            { title: "個人、行號、公司", url: "topics/start-a-company/lesson-02.html" },
+            { title: "五種組織型態", url: "topics/start-a-company/lesson-03.html" },
+            { title: "什麼時候值得開公司", url: "topics/start-a-company/lesson-04.html" },
+            { title: "常見迷思", url: "topics/start-a-company/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜開公司的好處",
+          courses: [
+            { title: "有限責任", url: "topics/start-a-company/lesson-06.html" },
+            { title: "兩種所得稅", url: "topics/start-a-company/lesson-07.html" },
+            { title: "費用可以列支", url: "topics/start-a-company/lesson-08.html" },
+            { title: "盈餘保留與再投資", url: "topics/start-a-company/lesson-09.html" },
+            { title: "信用與形象", url: "topics/start-a-company/lesson-10.html" },
+            { title: "募資與股權", url: "topics/start-a-company/lesson-11.html" },
+            { title: "分工與治理", url: "topics/start-a-company/lesson-12.html" },
+            { title: "傳承與轉讓", url: "topics/start-a-company/lesson-13.html" },
+            { title: "政府資源", url: "topics/start-a-company/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜開公司的代價",
+          courses: [
+            { title: "設立成本", url: "topics/start-a-company/lesson-15.html" },
+            { title: "每年的固定成本", url: "topics/start-a-company/lesson-16.html" },
+            { title: "錢從公司到你口袋", url: "topics/start-a-company/lesson-17.html" },
+            { title: "雙重課稅？", url: "topics/start-a-company/lesson-18.html" },
+            { title: "未分配盈餘與其他稅務細節", url: "topics/start-a-company/lesson-19.html" },
+            { title: "收掉公司", url: "topics/start-a-company/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜設立流程",
+          courses: [
+            { title: "名稱與營業項目", url: "topics/start-a-company/lesson-21.html" },
+            { title: "資本額", url: "topics/start-a-company/lesson-22.html" },
+            { title: "章程與股東協議", url: "topics/start-a-company/lesson-23.html" },
+            { title: "設立登記", url: "topics/start-a-company/lesson-24.html" },
+            { title: "開業之後的第一個月", url: "topics/start-a-company/lesson-25.html" },
+            { title: "特許行業", url: "topics/start-a-company/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜公司不能做的事：資金與財務",
+          courses: [
+            { title: "公司的錢不是老闆的錢", url: "topics/start-a-company/lesson-27.html" },
+            { title: "不能抽回資本", url: "topics/start-a-company/lesson-28.html" },
+            { title: "不能隨便借錢給別人", url: "topics/start-a-company/lesson-29.html" },
+            { title: "不能隨便當保證人", url: "topics/start-a-company/lesson-30.html" },
+            { title: "不能向大眾吸金", url: "topics/start-a-company/lesson-31.html" },
+            { title: "帳務不實", url: "topics/start-a-company/lesson-32.html" },
+            { title: "虛設行號與假發票", url: "topics/start-a-company/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜公司不能做的事：稅務",
+          courses: [
+            { title: "私人開銷報公司帳", url: "topics/start-a-company/lesson-34.html" },
+            { title: "用公司搬移所得", url: "topics/start-a-company/lesson-35.html" },
+            { title: "發票與營業稅", url: "topics/start-a-company/lesson-36.html" },
+            { title: "節稅、避稅、逃稅", url: "topics/start-a-company/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜公司不能做的事：經營與人事",
+          courses: [
+            { title: "人頭負責人與人頭股東", url: "topics/start-a-company/lesson-38.html" },
+            { title: "負責人的義務", url: "topics/start-a-company/lesson-39.html" },
+            { title: "勞動法紅線", url: "topics/start-a-company/lesson-40.html" },
+            { title: "個資、廣告與消費者保護", url: "topics/start-a-company/lesson-41.html" },
+            { title: "公平交易與傳銷", url: "topics/start-a-company/lesson-42.html" },
+            { title: "洗錢防制與實質受益人", url: "topics/start-a-company/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 H｜實戰與總結",
+          courses: [
+            { title: "案例：從接案到開公司", url: "topics/start-a-company/lesson-44.html" },
+            { title: "案例：合夥創業吵翻了", url: "topics/start-a-company/lesson-45.html" },
+            { title: "出事時負責人的責任", url: "topics/start-a-company/lesson-46.html" },
+            { title: "找對專業人士", url: "topics/start-a-company/lesson-47.html" },
+            { title: "總結：開公司前的檢查清單", url: "topics/start-a-company/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
