@@ -21749,6 +21749,115 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "pili-puppetry",
+      category: "anime",
+      title: "霹靂布袋戲：從掌中戲到素還真的四十年",
+      description:
+        "從黃海岱的五洲園、黃俊雄的《雲州大儒俠》到黃強華、黃文擇創立霹靂；戲偶構造、操偶、八音才子的口白、特效與 AI；苦境、三教與詩號的世界觀；1988 年《霹靂金光》到 2026 年《塗附世界》的劇集大事記；素還真、一頁書、葉小釵、三先天、羅喉、棄天帝等經典角色；聖石傳說、東離劍遊紀、Netflix 與授權周邊，以及新手入門路線。附大事記、劇集年表、角色卡與關係圖、詩號卡、入門選劇。",
+      icon: "🎭",
+      url: "topics/pili-puppetry/index.html",
+      resources: [
+        {
+          title: "霹靂互動工具箱",
+          description: "大事記、劇集年表、世界地圖、角色卡與關係圖、詩號卡、入門選劇",
+          icon: "🧰",
+          url: "topics/pili-puppetry/guide.html"
+        },
+        {
+          title: "霹靂名詞速查",
+          description: "布袋戲名詞、霹靂常用語與關鍵數字",
+          icon: "📖",
+          url: "topics/pili-puppetry/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜布袋戲與霹靂的由來",
+          courses: [
+            { title: "布袋戲是什麼", url: "topics/pili-puppetry/lesson-01.html" },
+            { title: "黃海岱與五洲園", url: "topics/pili-puppetry/lesson-02.html" },
+            { title: "黃俊雄與《雲州大儒俠》", url: "topics/pili-puppetry/lesson-03.html" },
+            { title: "霹靂的誕生", url: "topics/pili-puppetry/lesson-04.html" },
+            { title: "錄影帶、衛星台與串流", url: "topics/pili-puppetry/lesson-05.html" },
+            { title: "霹靂國際多媒體", url: "topics/pili-puppetry/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜戲偶與製作幕後",
+          courses: [
+            { title: "戲偶的構造", url: "topics/pili-puppetry/lesson-07.html" },
+            { title: "操偶技法", url: "topics/pili-puppetry/lesson-08.html" },
+            { title: "口白：黃文擇與八音才子", url: "topics/pili-puppetry/lesson-09.html" },
+            { title: "布景、爆破與特效", url: "topics/pili-puppetry/lesson-10.html" },
+            { title: "一集是怎麼做出來的", url: "topics/pili-puppetry/lesson-11.html" },
+            { title: "配樂與角色曲", url: "topics/pili-puppetry/lesson-12.html" },
+            { title: "新技術與 AI", url: "topics/pili-puppetry/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜世界觀",
+          courses: [
+            { title: "苦境與各界", url: "topics/pili-puppetry/lesson-14.html" },
+            { title: "三教與正道", url: "topics/pili-puppetry/lesson-15.html" },
+            { title: "勢力的類型", url: "topics/pili-puppetry/lesson-16.html" },
+            { title: "武學體系", url: "topics/pili-puppetry/lesson-17.html" },
+            { title: "詩號", url: "topics/pili-puppetry/lesson-18.html" },
+            { title: "霹靂的敘事手法", url: "topics/pili-puppetry/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜劇集大事記",
+          courses: [
+            { title: "怎麼看霹靂的劇集年表", url: "topics/pili-puppetry/lesson-20.html" },
+            { title: "起點：霹靂金光到霹靂至尊", url: "topics/pili-puppetry/lesson-21.html" },
+            { title: "霹靂劍魂與霹靂異數", url: "topics/pili-puppetry/lesson-22.html" },
+            { title: "1990 年代的高峰", url: "topics/pili-puppetry/lesson-23.html" },
+            { title: "跨世紀：震寰宇與羅喉", url: "topics/pili-puppetry/lesson-24.html" },
+            { title: "霹靂兵燹與霹靂九皇座", url: "topics/pili-puppetry/lesson-25.html" },
+            { title: "2004～2005 的密集推出", url: "topics/pili-puppetry/lesson-26.html" },
+            { title: "2006～2009：謎城到天啟", url: "topics/pili-puppetry/lesson-27.html" },
+            { title: "2010 年代前期", url: "topics/pili-puppetry/lesson-28.html" },
+            { title: "2016～2019", url: "topics/pili-puppetry/lesson-29.html" },
+            { title: "2020～2023", url: "topics/pili-puppetry/lesson-30.html" },
+            { title: "2024～2026：最新的霹靂", url: "topics/pili-puppetry/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜經典角色",
+          courses: [
+            { title: "素還真", url: "topics/pili-puppetry/lesson-32.html" },
+            { title: "一頁書", url: "topics/pili-puppetry/lesson-33.html" },
+            { title: "葉小釵", url: "topics/pili-puppetry/lesson-34.html" },
+            { title: "談無慾", url: "topics/pili-puppetry/lesson-35.html" },
+            { title: "秦假仙", url: "topics/pili-puppetry/lesson-36.html" },
+            { title: "三先天", url: "topics/pili-puppetry/lesson-37.html" },
+            { title: "羅喉與天都", url: "topics/pili-puppetry/lesson-38.html" },
+            { title: "棄天帝與異度魔界", url: "topics/pili-puppetry/lesson-39.html" },
+            { title: "反派的魅力", url: "topics/pili-puppetry/lesson-40.html" },
+            { title: "人物關係總覽", url: "topics/pili-puppetry/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 F｜跨界與流行文化",
+          courses: [
+            { title: "霹靂的電影", url: "topics/pili-puppetry/lesson-42.html" },
+            { title: "東離劍遊紀", url: "topics/pili-puppetry/lesson-43.html" },
+            { title: "Netflix 與國際", url: "topics/pili-puppetry/lesson-44.html" },
+            { title: "授權、聯名與周邊", url: "topics/pili-puppetry/lesson-45.html" },
+            { title: "戲迷文化", url: "topics/pili-puppetry/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 G｜入門指南",
+          courses: [
+            { title: "新手從哪一部看起", url: "topics/pili-puppetry/lesson-47.html" },
+            { title: "霹靂與金光", url: "topics/pili-puppetry/lesson-48.html" },
+            { title: "總結", url: "topics/pili-puppetry/lesson-49.html" },
+          ],
+        },
+      ],
     }
   ]
 };
