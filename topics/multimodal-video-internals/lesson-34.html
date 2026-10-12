@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 34 課：影音同步生成 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="讓畫面和聲音一起出來">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 34 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜影片生成進階 · 第 34 課</div>
+      <h1>影音同步生成</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解影音同步生成的現況</li>
+          <li>推導兩種模態的時間對齊</li>
+          <li>理解同步生成的困難</li>
+        </ul>
+      </div>
+
+      <p>
+        2025 年 5 月 Google 的 Veo 3 能同時生成畫面與聲音（對白、音效、環境音），之後的 Veo 3.1、Sora 2 等也都強調這項能力；有排行榜分析認為聲音已是頂尖模型之間的主要差異。這些商業模型的架構沒有完整公開，本課介紹研究上的一般做法。
+      </p>
+
+      <h2>兩條潛空間串流</h2>
+
+      <p>
+        影片用影片 VAE 編碼成 \(z^{v}\)，聲音用音訊 VAE（或 codec）編碼成 \(z^{a}\)。一種常見設計是兩個分支的 DiT，在部分層做<strong>跨模態的聯合注意力</strong>，並用同一個 flow matching 損失（兩者加總）一起訓練。
+      </p>
+
+      <h2>推導：時間對齊</h2>
+
+      <p>
+        兩種潛向量的時間解析度不同。影片：fps 為 \(r_v\)、時間壓縮 \(f_t\)，第 \(j\) 個潛空間幀對應的時刻約為 \(\tau^{v}_j = j f_t / r_v\)（因果 VAE 下第 0 幀是第一張圖）。音訊潛向量的速率為 \(r_a\)（每秒幾個），第 \(k\) 個對應 \(\tau^{a}_k = k / r_a\)。若讓 RoPE 的時間座標直接使用<strong>秒數</strong>（乘上固定尺度 \(c\)）：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{pos}^{v}_j = c\,\frac{j f_t}{r_v}, \qquad \text{pos}^{a}_k = c\,\frac{k}{r_a}\]</div>
+
+      <p>
+        那麼同一時刻的畫面與聲音 token 有相同的時間位置，RoPE 的相對位置性質（第 3 課）讓注意力自然偏好「同一時刻」的配對。例如 \(r_v = 16, f_t = 4\)：影片潛空間每 0.25 秒一個；若音訊每秒 25 個，則 0.25 秒內約有 6 個音訊 token 對應一個影片時刻。
+      </p>
+
+      <h2>困難</h2>
+
+      <ul>
+        <li><strong>嘴型同步</strong>：誤差超過約 0.1 秒，人就會覺得「對不上嘴」。</li>
+        <li><strong>資料</strong>：需要聲音與畫面都乾淨、對應明確的影片，還要說明文字描述聲音內容（誰說了什麼、什麼音效）。</li>
+        <li><strong>評測</strong>：同時評估畫質、音質與同步程度很困難，多半仰賴人類偏好評比。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          2025 年 5 月 Veo 3 同時生成畫面與聲音，之後 Veo 3.1、Sora 2 也強調此能力，架構未完整公開。研究上常用影片 VAE 與音訊 VAE 兩條潛空間串流、兩分支 DiT 在部分層做跨模態聯合注意力，以 flow matching 一起訓練。時間對齊：影片第 j 個潛空間幀對應 j f_t / r_v 秒、音訊第 k 個對應 k / r_a 秒，讓 RoPE 時間座標使用秒數，同一時刻的 token 位置相同。困難在嘴型同步（誤差約 0.1 秒即可察覺）、資料與評測。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>影片潛空間第 j 幀對應幾秒？</li>
+          <li>為什麼讓 RoPE 的時間座標使用秒數？</li>
+          <li>影音同步生成有哪些困難？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>長影片</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-33.html">← 上一課：鏡頭與動作控制</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-35.html">下一課：長影片 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

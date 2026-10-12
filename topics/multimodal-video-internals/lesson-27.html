@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：影片 VAE ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="因果 3D 卷積、ELBO 與壓縮倍率">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜影片生成的核心 · 第 27 課</div>
+      <h1>影片 VAE</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導 VAE 的 ELBO 與高斯 KL</li>
+          <li>理解因果 3D 卷積</li>
+          <li>計算影片 VAE 的壓縮倍率</li>
+        </ul>
+      </div>
+
+      <p>
+        直接在像素上做擴散太貴：5 秒 720p 影片有 \(81\times720\times1280\times3 \approx 2.2\times10^8\) 個數值。先用 VAE 把影片壓縮到潛空間，擴散只在潛空間進行（Latent Diffusion，入門見 <a href="../multimodal-ai/lesson-18.html">〈多模態與生成式 AI〉第 18 課</a>）。
+      </p>
+
+      <h2>推導 ELBO</h2>
+
+      <p>
+        對任意分布 \(q(z\mid x)\)，用 Jensen 不等式（\(\log\) 是凹函數）：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\log p(x) = \log \mathbb{E}_{q(z\mid x)}\!\left[\frac{p(x\mid z)\,p(z)}{q(z\mid x)}\right] \ge \mathbb{E}_{q}\big[\log p(x\mid z)\big] - \mathrm{KL}\big(q(z\mid x)\,\Vert\,p(z)\big)\]</div>
+
+      <p>
+        第一項是重建品質，第二項讓潛向量的分布接近標準高斯。當 \(q = \mathcal{N}(\mu, \operatorname{diag}\sigma^2)\)、\(p = \mathcal{N}(0, I)\) 時，KL 有閉式解：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathrm{KL} = \mathbb{E}_q\!\left[\log q - \log p\right] = \sum_j \left(-\tfrac12\log\sigma_j^2 - \tfrac12 + \tfrac12(\mu_j^2 + \sigma_j^2)\right) = \tfrac12\sum_j\left(\mu_j^2 + \sigma_j^2 - 1 - \log\sigma_j^2\right)\]</div>
+
+      <p>
+        （\(\mathbb{E}_q[(z-\mu)^2/\sigma^2] = 1\)、\(\mathbb{E}_q[z^2] = \mu^2+\sigma^2\)，常數 \(\log 2\pi\) 互相抵消。）實務上影片 VAE 的 KL 權重很小，另外加上感知損失與對抗（GAN）損失讓畫面銳利。
+      </p>
+
+      <h2>因果 3D 卷積</h2>
+
+      <p>
+        3D 卷積核在時間方向大小為 \(k\) 時，一般卷積會在前後各補 \((k-1)/2\) 幀；<strong>因果</strong>卷積只在「過去」那一側補 \(k-1\) 幀。於是輸出第 \(t\) 幀只依賴輸入第 \(\le t\) 幀，<strong>第一幀被單獨編碼</strong>——一張圖片恰好就是一幀影片，同一個 VAE 可以同時處理圖片與影片。
+      </p>
+
+      <p>
+        時間方向壓縮 \(f_t\) 倍時，輸入幀數取 \(F = 1 + f_t k\)，潛空間幀數為
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[T = 1 + \frac{F - 1}{f_t}\]</div>
+
+      <p>
+        例如 \(f_t = 4\)、\(F = 81\)：\(T = 21\)。
+      </p>
+
+      <h2>壓縮倍率</h2>
+
+      <p>
+        空間壓縮 \(f_s\)、潛空間通道 \(C\) 時，總壓縮倍率（幀數夠多時）約為
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\frac{F \cdot H \cdot W \cdot 3}{T \cdot \frac{H}{f_s}\cdot\frac{W}{f_s}\cdot C} \approx \frac{f_t\, f_s^2 \cdot 3}{C}\]</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>模型</th><th>官方描述的壓縮</th><th>倍率</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>HunyuanVideo</td><td>時間 4、空間 8、16 個通道（因果 3D 卷積）</td><td>\(4\times64\times3/16 = 48\)</td></tr>
+          <tr><td>Wan 2.2 TI2V-5B</td><td>Wan2.2-VAE：16×16×4（空間 16×16、時間 4）</td><td>更高壓縮，720p 也能在消費級顯卡跑</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        壓縮越多，DiT 的 token 越少、越省；但細節（小字、手指、紋理）越容易被 VAE 犧牲掉。VAE 的品質決定了整個影片模型的畫質上限。長影片解碼時記憶體很大，常用「分塊解碼」：把潛空間切成重疊的時空區塊各自解碼再拼接。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Jensen 不等式給出 ELBO：log p(x) ≥ E_q[log p(x|z)] − KL(q‖p)；高斯 KL 閉式解 ½Σ(μ² + σ² − 1 − log σ²)。影片 VAE 另加感知與 GAN 損失。因果 3D 卷積只在過去一側補 k−1 幀，第一幀單獨編碼，圖片即一幀影片；F = 1 + f_t k 幀壓成 T = 1 + (F−1)/f_t（81 幀→21）。總壓縮倍率約 f_t f_s²·3/C：HunyuanVideo 時間 4、空間 8、16 通道約 48 倍；Wan2.2-TI2V-5B 為 16×16×4。壓縮越多越省但越容易丟細節。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 Jensen 不等式推導 ELBO。</li>
+          <li>推導兩個高斯之間的 KL 閉式解。</li>
+          <li>因果 3D 卷積為什麼讓圖片也能用同一個 VAE？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>時空 patch 與 Video DiT</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：噪音排程與時間步平移</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：時空 patch 與 Video DiT →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

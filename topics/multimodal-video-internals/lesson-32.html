@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：圖生影片、參考圖與角色一致性 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="條件幀怎麼放進模型">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜影片生成進階 · 第 32 課</div>
+      <h1>圖生影片、參考圖與角色一致性</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較通道串接與序列串接</li>
+          <li>理解條件圖的噪音增強</li>
+          <li>了解角色一致性的做法</li>
+        </ul>
+      </div>
+
+      <p>
+        圖生影片（I2V）：給一張起始畫面，讓模型生成接下來的動態。兩種主要的放法：
+      </p>
+
+      <h2>一、通道串接</h2>
+
+      <p>
+        把起始幀用 VAE 編碼成 \(z^{(0)}\)，其他幀補 0，得到與影片潛空間同形狀的條件 \(z_{\text{cond}}\)；再加一個遮罩 \(m\)（已知幀為 1、未知為 0）。DiT 的輸入沿通道方向串接：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{input} = \big[\, z_t \;\Vert\; z_{\text{cond}} \;\Vert\; m \,\big] \in \mathbb{R}^{T\times h\times w\times (2C + C_m)}\]</div>
+
+      <p>
+        只需要把第一層 patch 嵌入的輸入通道加寬（新增的權重初始化為 0，又是恆等初始化），其餘權重沿用文生影片模型。
+      </p>
+
+      <h2>二、序列串接（in-context）</h2>
+
+      <p>
+        把條件圖的 token 當作序列的前綴，與影片 token 一起做注意力，並給它們「時間步為乾淨」的標記。這種方式更有彈性：可以放任意張參考圖、放在任意時間位置（首幀、尾幀、中間關鍵幀），也能做影片延伸（第 35 課）。
+      </p>
+
+      <h2>條件圖的噪音增強</h2>
+
+      <p>
+        如果條件圖永遠是乾淨的，模型可能過度依賴它而「幾乎不動」。訓練時對條件圖也加少量噪音 \(z_{\text{cond}} \leftarrow z_{\text{cond}} + \sigma_{\text{aug}}\epsilon\)（\(\sigma_{\text{aug}}\) 隨機），推論時用小的 \(\sigma_{\text{aug}}\) 控制「忠於原圖」與「運動幅度」的平衡。
+      </p>
+
+      <h2>角色一致性</h2>
+
+      <p>
+        同一個角色在不同鏡頭中長相要一致，是影片創作最常見的需求。做法包括：把角色參考圖（臉、全身、服裝）以序列串接放入注意力；用少量圖片訓練角色專屬的 LoRA；或在多鏡頭生成時共享前一鏡頭的角色 token。商業工具多以「參考圖」或「角色」功能提供。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          圖生影片兩種放法：通道串接把起始幀潛向量（其餘補 0）與遮罩沿通道接到 z_t，輸入通道 2C + C_m，只需加寬第一層並將新權重初始化為 0；序列串接把條件圖 token 當前綴並標記為乾淨，可放任意張、任意時間位置，也能延伸影片。條件圖要加隨機噪音增強，避免模型過度依賴而不動，推論時可調整忠於原圖與運動幅度。角色一致性可用參考圖序列串接、角色 LoRA 或共享前一鏡頭的 token。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>通道串接時，DiT 的輸入通道數變成多少？</li>
+          <li>為什麼條件圖也要加噪音？</li>
+          <li>序列串接比通道串接多了哪些彈性？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>鏡頭與動作控制</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：漸進式訓練</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：鏡頭與動作控制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

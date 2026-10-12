@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：壓縮路線：Q-Former 與 Perceiver Resampler ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="用少量 query 讀整張圖">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 8 課</div>
+      <h1>壓縮路線：Q-Former 與 Perceiver Resampler</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解可學習 query 的交叉注意力</li>
+          <li>推導 LLM 端成本的節省</li>
+          <li>知道壓縮的代價</li>
+        </ul>
+      </div>
+
+      <p>
+        BLIP-2 的 Q-Former 準備 \(M\) 個可學習的 query 向量 \(Q_0 \in \mathbb{R}^{M\times d}\)（BLIP-2 用 \(M = 32\)），讓它們對視覺特徵 \(Z_v \in \mathbb{R}^{N_v \times d_v}\) 做交叉注意力：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[Q_{\text{out}} = \operatorname{softmax}\!\left(\frac{(Q_0 W_Q)(Z_v W_K)^{\top}}{\sqrt{d}}\right) Z_v W_V \in \mathbb{R}^{M \times d}\]</div>
+
+      <p>
+        不管圖片有多少 patch，輸出永遠是 \(M\) 個向量。Flamingo 的 Perceiver Resampler 是同樣的想法（64 個 latent query），還能把多幀影片的特徵一起壓縮成固定數量。
+      </p>
+
+      <h2>推導：LLM 端省了多少</h2>
+
+      <p>
+        LLM 每層注意力分數的成本正比於序列長度平方。設文字 \(N_t\) 個 token：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\frac{C_{\text{proj}}}{C_{\text{qformer}}} = \frac{(N_v + N_t)^2}{(M + N_t)^2}\]</div>
+
+      <p>
+        以 \(N_v = 576, M = 32, N_t = 100\) 為例：\((676/132)^2 \approx 26\)。若一段對話有 10 張圖，差距更大：\((5860/420)^2 \approx 195\)。代價是 Q-Former 本身的交叉注意力 \(O(M N_v d)\)，但它遠小於 LLM 的成本。
+      </p>
+
+      <h2>代價：資訊瓶頸</h2>
+
+      <p>
+        32 個向量要裝下整張圖的資訊。對「這張圖在講什麼」夠用，但對<strong>小字辨識、計數、精確位置</strong>就常常不夠。這也是後來的模型（例如 LLaVA-1.5、Qwen-VL 系列）多半改回投影層、改用「合併相鄰 token」做溫和壓縮的原因（第 10 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Q-Former 用 M 個可學習 query（BLIP-2 為 32）對視覺特徵做交叉注意力，輸出固定 M 個向量；Flamingo 的 Perceiver Resampler 用 64 個 latent，也能壓縮多幀。LLM 端成本比為 (N_v+N_t)²/(M+N_t)²，例如 576 vs 32、文字 100 時約 26 倍。代價是資訊瓶頸，小字、計數、精確位置容易遺失，所以後來多改回投影層並用相鄰合併做溫和壓縮。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Q-Former 的輸出數量由什麼決定？</li>
+          <li>推導 N_v=576、M=32、N_t=100 時的成本比。</li>
+          <li>壓縮路線在哪些任務上表現較差？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>交叉注意力路線：Flamingo</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：投影層路線：LLaVA</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：交叉注意力路線：Flamingo →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

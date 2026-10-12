@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：不用編碼器的設計 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="Fuyu 與 Gemma 4 12B">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 12 課</div>
+      <h1>不用編碼器的設計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 encoder-free 架構</li>
+          <li>計算線性 patch 嵌入的參數量</li>
+          <li>比較有無編碼器的取捨</li>
+        </ul>
+      </div>
+
+      <p>
+        前面的架構都依賴一個獨立預訓練的視覺編碼器（CLIP、SigLIP）。<strong>不用編碼器</strong>（encoder-free）的設計直接把原始 patch 線性投影進 LLM 的嵌入空間，視覺理解完全交給 LLM 自己學。
+      </p>
+
+      <p>
+        Adept 在 2023 年發表的 Fuyu-8B 是早期代表：patch 大小 30×30，嵌入就是 \(z = W x_{\text{patch}} + b\)。參數量是
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\underbrace{30 \times 30 \times 3}_{2700} \times \underbrace{4096}_{d} \approx 1.1 \times 10^{7}\]</div>
+
+      <p>
+        一千多萬個參數，相對於 4 億參數的 SigLIP 編碼器只是零頭。
+      </p>
+
+      <p>
+        2026 年的 Gemma 4 技術報告描述了一個「統一、不用編碼器」的 12B 變體：把原始的<strong>影像 patch</strong>和<strong>每 40 毫秒一段的原始音訊</strong>直接投影到 LLM 的嵌入空間；同一家族的其他尺寸則保留改進過的視覺與音訊編碼器。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>有編碼器</th><th>不用編碼器</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>起步</td><td>借用預訓練好的視覺知識，資料需求少</td><td>從頭學，需要大量資料與算力</td></tr>
+          <tr><td>解析度</td><td>受編碼器的輸入尺寸限制</td><td>天然支援任意解析度（搭配 2D RoPE）</td></tr>
+          <tr><td>部署</td><td>兩個模型、兩套前處理</td><td>一個模型、流程簡單</td></tr>
+          <tr><td>擴展</td><td>編碼器容量固定</td><td>視覺能力隨 LLM 一起擴大</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這個方向反映了一個大趨勢：只要資料與算力足夠，讓一個大模型端到端學會所有東西，往往比拼裝多個專家模型更好。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          不用編碼器的設計直接把原始 patch 線性投影進 LLM 嵌入空間。Fuyu-8B（2023）patch 30×30，參數量 30×30×3×4096 ≈ 1,100 萬，遠小於 4 億參數的 SigLIP。2026 年 Gemma 4 技術報告描述的 12B 統一變體把影像 patch 與每 40 毫秒的原始音訊直接投影進嵌入空間。取捨：有編碼器起步快、資料需求少；不用編碼器支援任意解析度、部署簡單、能力隨 LLM 擴大。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Fuyu 的 patch 嵌入有多少參數？</li>
+          <li>Gemma 4 12B 的不用編碼器變體直接吃哪兩種原始輸入？</li>
+          <li>不用編碼器的設計有什麼優缺點？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>輸出也能多模態</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：原生多模態：早期融合</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：輸出也能多模態 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

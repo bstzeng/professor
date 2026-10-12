@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：失敗模式與評測 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="物理錯誤、FVD 與 Elo">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜世界模型、安全與總結 · 第 43 課</div>
+      <h1>失敗模式與評測</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識影片模型的典型錯誤</li>
+          <li>推導 Fréchet 距離</li>
+          <li>推導 Elo 評分的勝率與更新</li>
+        </ul>
+      </div>
+
+      <h2>典型錯誤</h2>
+
+      <ul>
+        <li><strong>物理</strong>：杯子穿過桌面、水往上流、碰撞後的反應不合理。</li>
+        <li><strong>物體恆存</strong>：物體被遮住後消失或變成別的東西。</li>
+        <li><strong>數量與結構</strong>：手指數量、腿的交錯、文字。</li>
+        <li><strong>時間一致性</strong>：臉或衣服在幾秒後慢慢變樣。</li>
+        <li><strong>提示遵循</strong>：多個物體、空間關係、事件順序容易出錯。</li>
+      </ul>
+
+      <p>
+        這些錯誤反映了一個事實：模型學的是「看起來像真的影片」的統計，而不是物理定律本身。
+      </p>
+
+      <h2>推導：Fréchet 距離（FVD）</h2>
+
+      <p>
+        用預訓練的影片辨識網路把真實影片與生成影片各轉成特徵，分別擬合多變量高斯 \(\mathcal{N}(\mu_r, \Sigma_r)\) 與 \(\mathcal{N}(\mu_g, \Sigma_g)\)。兩個高斯之間的 2-Wasserstein 距離平方有閉式解：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathrm{FD} = \lVert \mu_r - \mu_g \rVert^2 + \operatorname{Tr}\!\Big(\Sigma_r + \Sigma_g - 2\big(\Sigma_r^{1/2}\Sigma_g\Sigma_r^{1/2}\big)^{1/2}\Big)\]</div>
+
+      <p>
+        一維時退化成 \((\mu_r - \mu_g)^2 + (\sigma_r - \sigma_g)^2\)：平均差加上標準差差，直觀地衡量「兩團點雲的位置與大小差多少」。FVD 越低越好，但它只看特徵的前兩階統計，對物理錯誤不敏感，所以現在多搭配 VBench 這類分項基準（主體一致性、運動流暢度、美感等）與人類評比。
+      </p>
+
+      <h2>推導：Elo 評分</h2>
+
+      <p>
+        影片排行榜常讓人看兩支影片選較好的一支，再用 Elo 系統計分。模型 A、B 的分數為 \(R_A, R_B\)，A 勝的預期機率
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[E_A = \frac{1}{1 + 10^{(R_B - R_A)/400}}\]</div>
+
+      <p>
+        差 400 分時 \(E_A = 10/11 \approx 0.91\)。一場比賽後的更新為 \(R_A \leftarrow R_A + K(S_A - E_A)\)，\(S_A\) 是實際結果（勝 1、敗 0）。這其實是對 logistic 模型 \(P(\text{A 勝}) = \sigma\big((R_A - R_B)\ln 10/400\big)\) 做隨機梯度上升：對 \(R_A\) 的對數概似梯度正比於 \(S_A - E_A\)。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          影片模型典型錯誤：物理、物體恆存、手指與文字、時間一致性、提示遵循，因為模型學的是外觀統計而非物理定律。FVD：特徵擬合高斯後的 Fréchet 距離 ‖μ_r − μ_g‖² + Tr(Σ_r + Σ_g − 2(Σ_r^{1/2}Σ_gΣ_r^{1/2})^{1/2})，一維為平均差平方加標準差差平方，對物理錯誤不敏感，需搭配 VBench 與人類評比。Elo：E_A = 1/(1 + 10^{(R_B−R_A)/400})，差 400 分勝率約 0.91，更新 R_A += K(S_A − E_A) 等同對 logistic 模型做隨機梯度上升。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>影片模型有哪些典型錯誤？</li>
+          <li>一維情況下 Fréchet 距離變成什麼？</li>
+          <li>推導 Elo 更新為什麼正比於 S_A − E_A。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>浮水印與來源標記</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：可互動的世界模型</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：浮水印與來源標記 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

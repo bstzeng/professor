@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：交叉注意力路線：Flamingo ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="門控讓凍結的 LLM 學會看圖">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 9 課</div>
+      <h1>交叉注意力路線：Flamingo</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解門控交叉注意力層</li>
+          <li>推導 tanh 門控如何保住原本的語言能力</li>
+          <li>理解圖文交錯的遮罩</li>
+        </ul>
+      </div>
+
+      <p>
+        Flamingo 不改動預訓練好的 LLM，而是在原本的層之間插入新的<strong>門控交叉注意力</strong>層。對文字隱藏狀態 \(y\) 與視覺特徵 \(V\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\begin{aligned} y &\leftarrow y + \tanh(\alpha_{\text{attn}})\cdot \operatorname{XAttn}(y, V) \\ y &\leftarrow y + \tanh(\alpha_{\text{ff}})\cdot \operatorname{FFN}(y) \\ y &\leftarrow \operatorname{LMLayer}(y) \quad (\text{凍結}) \end{aligned}\]</div>
+
+      <h2>推導：為什麼初始時模型不變</h2>
+
+      <p>
+        門控參數初始化為 \(\alpha = 0\)，所以 \(\tanh(0) = 0\)，新加的兩行都是 \(y \leftarrow y + 0\)。整個網路在訓練開始時<strong>精確等於原本的 LLM</strong>，語言能力完全保留。訓練過程中，梯度
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\frac{\partial \mathcal{L}}{\partial \alpha} = (1-\tanh^2\alpha)\left\langle \frac{\partial \mathcal{L}}{\partial y},\, \operatorname{XAttn}(y,V)\right\rangle \;\xrightarrow{\;\alpha=0\;}\; \left\langle \frac{\partial \mathcal{L}}{\partial y},\, \operatorname{XAttn}(y,V)\right\rangle\]</div>
+
+      <p>
+        在 \(\alpha=0\) 時不為零，所以門會慢慢打開，視覺資訊逐漸注入。這個「從恆等映射開始」的技巧在影片生成模型裡也會再出現（adaLN-Zero，第 28 課）。
+      </p>
+
+      <h2>圖文交錯</h2>
+
+      <p>
+        Flamingo 能處理「圖、文、圖、文⋯⋯」交錯的網頁。它的遮罩規則是：每個文字 token 只對<strong>它前面最近的那一張圖</strong>做交叉注意力，但透過 LLM 的自注意力，仍能間接得到更早的圖片資訊。這讓模型可以做 few-shot：先給幾組「圖＋答案」範例，再問新的圖。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Flamingo 在凍結的 LLM 層之間插入門控交叉注意力：y ← y + tanh(α)·XAttn(y,V)，y ← y + tanh(α)·FFN(y)。α 初始為 0，tanh(0)=0，所以訓練開始時網路精確等於原 LLM；而 ∂L/∂α 在 α=0 時不為零，門會慢慢打開。圖文交錯時每個文字 token 只對前面最近的一張圖做交叉注意力，其他圖片資訊透過自注意力間接取得，支援 few-shot。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 Flamingo 在訓練一開始等於原本的 LLM？</li>
+          <li>推導 α=0 時的梯度為什麼不為零。</li>
+          <li>圖文交錯時的遮罩規則是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>高解析度怎麼處理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：壓縮路線：Q-Former 與 Perceiver Resampler</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：高解析度怎麼處理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

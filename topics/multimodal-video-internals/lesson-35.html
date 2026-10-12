@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：長影片 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="延伸、自回歸與 diffusion forcing">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜影片生成進階 · 第 35 課</div>
+      <h1>長影片</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導自回歸延伸的誤差累積</li>
+          <li>理解 diffusion forcing 的訓練方式</li>
+          <li>了解減少誤差累積的方法</li>
+        </ul>
+      </div>
+
+      <p>
+        一次生成的長度受限於 token 數（注意力是平方成本）。要做更長的影片，最直接的方法是<strong>延伸</strong>：以上一段的最後幾幀為條件（第 32 課的序列串接），生成下一段，一段接一段。
+      </p>
+
+      <h2>推導：誤差會累積</h2>
+
+      <p>
+        設每一段生成都會在「真實分布」附近引入一個偏移 \(\delta_i\)，各段互相獨立、平均 0、變異數 \(\eta^2\)。因為下一段以上一段的結果為條件，偏移會一路傳下去，\(n\) 段之後的總偏移
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\Delta_n = \sum_{i=1}^{n}\delta_i, \qquad \operatorname{Var}(\Delta_n) = n\,\eta^2, \qquad \operatorname{SD}(\Delta_n) = \sqrt{n}\,\eta\]</div>
+
+      <p>
+        像隨機漫步一樣隨 \(\sqrt n\) 成長；如果偏移有系統性的方向（平均不為 0，例如顏色越來越飽和），則會隨 \(n\) 線性成長。更根本的問題是<strong>訓練與推論不一致</strong>：訓練時條件幀來自真實影片，推論時卻來自模型自己的輸出（exposure bias）。
+      </p>
+
+      <h2>Diffusion forcing</h2>
+
+      <p>
+        2024 年提出的 diffusion forcing 讓序列中<strong>每一幀（或每個 token）有各自獨立的噪音程度</strong> \(t_i\)。訓練損失（用第 25 課的慣例，\(t=1\) 是乾淨資料）：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L} = \mathbb{E}\sum_{i}\Big\lVert v_\theta\big(x^{(1)}_{t_1},\dots,x^{(n)}_{t_n};\, t_1,\dots,t_n\big)_i - \big(x^{(i)}_1 - x^{(i)}_0\big)\Big\rVert^2, \qquad t_i \overset{\text{iid}}{\sim} \mathcal{U}[0,1]\]</div>
+
+      <p>
+        搭配因果注意力（每幀只看過去），模型學會在「過去較乾淨、未來較嘈雜」的任何組合下去噪。推論時可以讓已生成的幀保持乾淨、新幀從噪音開始，像自回歸一樣<strong>無限往後滾動</strong>；也可以讓前面的幀保留一點噪音，降低對錯誤條件的過度信任。
+      </p>
+
+      <p>
+        另一類方法（例如 2025 年稱為 Self Forcing 的訓練方式）在訓練時就讓模型以<strong>自己生成的幀</strong>為條件，直接縮小訓練與推論的落差，配合少步取樣可以做到即時串流生成。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          長影片可用延伸：以上一段最後幾幀為條件逐段生成。若每段偏移獨立、平均 0、變異數 η²，n 段後總偏移變異數 nη²、標準差 √n η；有系統性偏移則線性成長，根本原因是訓練條件來自真實、推論條件來自自身輸出（exposure bias）。Diffusion forcing（2024）讓每幀有獨立噪音程度 t_i，配合因果注意力學會在過去較乾淨、未來較嘈雜下去噪，推論可無限滾動。Self Forcing 類方法在訓練時就以自身生成的幀為條件，配合少步取樣可即時串流。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導 n 段延伸後總偏移的標準差。</li>
+          <li>什麼是 exposure bias？</li>
+          <li>diffusion forcing 的訓練和一般擴散有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>開源模型拆解</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：影音同步生成</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：開源模型拆解 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

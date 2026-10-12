@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：輸出也能多模態 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="any-to-any：圖片與語音的解碼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 13 課</div>
+      <h1>輸出也能多模態</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較 LLM 生成圖片的兩種方式</li>
+          <li>推導自回歸＋擴散的聯合損失</li>
+          <li>理解語音輸出的 codec token</li>
+        </ul>
+      </div>
+
+      <p>
+        能「看」圖之後，下一步是「畫」圖和「說」話。輸出端有兩大類做法：
+      </p>
+
+      <h2>一、離散 token ＋ 解碼器</h2>
+
+      <p>
+        LLM 輸出圖片或音訊的離散 token，再交給 VQ 解碼器或音訊 codec 解碼器還原。優點是只要一個交叉熵損失；缺點是第 5 課說的資訊上限，以及要逐 token 生成（一張圖上千步）。
+      </p>
+
+      <h2>二、LLM ＋ 擴散</h2>
+
+      <p>
+        讓同一個 Transformer 對文字做自回歸、對圖片的連續潛向量做擴散（例如 Transfusion 一類的做法）。總損失是兩者加權：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L} = \mathcal{L}_{\text{LM}} + \lambda\, \mathcal{L}_{\text{diff}}, \quad \mathcal{L}_{\text{LM}} = -\sum_{i \in \text{text}} \log p_\theta(x_i \mid x_{<i}), \quad \mathcal{L}_{\text{diff}} = \mathbb{E}_{t,\epsilon}\big\lVert v_\theta(z_t, t) - (z_1 - z_0)\big\rVert^2\]</div>
+
+      <p>
+        其中 \(\mathcal{L}_{\text{diff}}\) 是 flow matching 損失（第 25 課完整推導）。注意力遮罩是混合的：文字部分用因果遮罩，同一張圖內部的 patch 彼此雙向可見。另一種較鬆的耦合是讓 LLM 輸出一組「條件向量」，交給獨立的擴散模型畫圖。
+      </p>
+
+      <h2>語音輸出</h2>
+
+      <p>
+        語音通常用多層 RVQ 的 codec token（第 19 課）。每個時間步有 \(Q\) 層 codebook，若全部攤平成一列，序列會變長 \(Q\) 倍。常見的「延遲模式」讓第 \(q\) 層比第 1 層晚 \(q-1\) 步輸出，於是每一步並行預測 \(Q\) 個 token，同時保留層與層之間的依賴。
+      </p>
+
+      <p>
+        NAVER 的 HyperCLOVA X 8B Omni（2026）是開放模型中的一個例子：單一的 decoder-only Transformer 處理交錯的文字、聲音、視覺序列，輸入由編碼器提供連續嵌入，輸出則交給各模態專屬的解碼器。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          多模態輸出兩大類：離散 token＋解碼器（一個交叉熵損失，但有資訊上限且需逐 token 生成）、LLM＋擴散（如 Transfusion 類做法，L = L_LM + λL_diff，文字用因果遮罩、同一張圖內 patch 雙向可見）。語音用多層 RVQ codec token，延遲模式讓第 q 層晚 q−1 步，每步並行預測 Q 個 token。HyperCLOVA X 8B Omni 是 2026 年開放的 any-to-any 例子。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>兩種生成圖片的方式各有什麼缺點？</li>
+          <li>聯合損失中的兩項分別作用在哪些 token 上？</li>
+          <li>語音 codec 的「延遲模式」解決什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>訓練資料</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：不用編碼器的設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：訓練資料 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

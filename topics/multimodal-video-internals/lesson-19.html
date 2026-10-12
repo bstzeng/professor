@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：音訊編碼 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="頻譜圖、Whisper 編碼器與 codec token">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜理解聲音與影片 · 第 19 課</div>
+      <h1>音訊編碼</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導短時傅立葉轉換與梅爾刻度</li>
+          <li>計算 Whisper 編碼器的序列長度</li>
+          <li>推導 codec token 的位元率</li>
+        </ul>
+      </div>
+
+      <h2>短時傅立葉轉換</h2>
+
+      <p>
+        聲音是一維訊號 \(x[n]\)。把它切成重疊的小窗，對每一窗做離散傅立葉轉換：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[X(m, k) = \sum_{n=0}^{N_{\text{fft}}-1} x[n + mH]\, w[n]\, e^{-2\pi i k n / N_{\text{fft}}}\]</div>
+
+      <p>
+        \(w\) 是窗函數（例如 Hann），\(H\) 是跳躍長度（hop），\(m\) 是第幾個窗、\(k\) 是頻率格。取 \(|X|^2\) 得到功率譜，再用一組三角形濾波器在<strong>梅爾刻度</strong>上合併頻率：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\operatorname{mel}(f) = 2595 \log_{10}\!\left(1 + \frac{f}{700}\right)\]</div>
+
+      <p>
+        梅爾刻度在低頻較密、高頻較疏，模仿人耳。最後取對數，就是對數梅爾頻譜圖——一張「時間 × 頻率」的圖片。
+      </p>
+
+      <h2>Whisper 的數字</h2>
+
+      <p>
+        Whisper 用 16 kHz 取樣、窗長 400 點（25 毫秒）、跳躍 160 點（10 毫秒）、80 個梅爾頻帶（large-v3 為 128）。一段 30 秒的輸入：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\frac{30\ \text{s}}{10\ \text{ms}} = 3000 \text{ 幀} \;\xrightarrow{\text{兩層卷積，第二層步長 2}}\; 1500 \text{ 個位置（每個 20 毫秒）}\]</div>
+
+      <p>
+        所以接在 LLM 前的 Whisper 編碼器，每 30 秒產生 1,500 個向量，多模態模型通常再合併或投影壓縮。
+      </p>
+
+      <h2>codec token 的位元率</h2>
+
+      <p>
+        神經音訊 codec（EnCodec、SoundStream、Mimi 等）用 RVQ（第 5 課）把聲音變成離散 token。幀率 \(f\)、\(Q\) 層 codebook、每層大小 \(K\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{位元率} = f \times Q \times \log_2 K\]</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>codec</th><th>幀率</th><th>設定</th><th>位元率</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>EnCodec（24 kHz）</td><td>75 Hz</td><td>\(Q=8,\ K=1024\)</td><td>\(75\times8\times10 = 6\) kbps</td></tr>
+          <tr><td>Mimi（Moshi 使用）</td><td>12.5 Hz</td><td>\(Q=8,\ K=2048\)</td><td>\(12.5\times8\times11 = 1.1\) kbps</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        對比：CD 音質是 1,411 kbps。codec token 用不到千分之一的位元率保留語音內容與音色，這是語音 LLM 能「說話」的基礎。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          短時傅立葉轉換 X(m,k) = Σ x[n+mH]w[n]e^{−2πikn/N} 得到頻譜，再用梅爾刻度 2595 log₁₀(1+f/700) 合併頻率並取對數，得到時間×頻率的圖。Whisper：16 kHz、窗長 25 毫秒、跳躍 10 毫秒、80 個梅爾頻帶，30 秒 3,000 幀經步長 2 卷積變 1,500 個位置。codec 位元率 = 幀率 × Q × log₂K：EnCodec 75 Hz×8×10 = 6 kbps、Mimi 12.5 Hz×8×11 = 1.1 kbps，遠低於 CD 的 1,411 kbps。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>梅爾刻度為什麼低頻較密？</li>
+          <li>推導 Whisper 30 秒輸入的編碼器位置數。</li>
+          <li>計算 Mimi 的位元率。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>即時語音對話</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：評測</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：即時語音對話 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

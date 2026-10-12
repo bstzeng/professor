@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：自回歸與擴散 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="兩種生成典範的比較">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜世界模型、安全與總結 · 第 41 課</div>
+      <h1>自回歸與擴散</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較兩種方法的機率模型</li>
+          <li>推導兩者的序列步數與延遲</li>
+          <li>理解混合做法</li>
+        </ul>
+      </div>
+
+      <h2>機率模型</h2>
+
+      <p>
+        自回歸（AR）把聯合機率精確分解：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[p(x_1,\dots,x_N) = \prod_{i=1}^{N} p(x_i\mid x_{<i})\]</div>
+
+      <p>
+        可以算出精確的對數概似，但需要離散 token（或對連續值建模的分布頭）。擴散／flow matching 學的是速度場或分數，只能給出概似的下界（ELBO）或透過 ODE 計算，但天然適合連續資料。
+      </p>
+
+      <h2>推導：序列步數與延遲</h2>
+
+      <p>
+        AR 生成 \(N\) 個 token 需要 \(N\) 次<strong>依序</strong>的前向計算（有 KV 快取，每次只算一個 token，但受記憶體頻寬限制）；擴散需要 \(K\) 次前向，但每次並行處理全部 \(N\) 個 token：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[T_{\text{AR}} \approx N\,\tau_{\text{decode}}, \qquad T_{\text{diff}} \approx K\,\tau_{\text{full}}(N)\]</div>
+
+      <p>
+        對 7.5 萬 token 的影片，\(N = 75600\) 次依序解碼即使每次 20 毫秒也要 25 分鐘；擴散 \(K = 40\) 步、每步數秒，總共約幾分鐘，而且能吃滿 GPU 算力。這是影片生成以擴散為主流的實際原因。
+      </p>
+
+      <h2>混合</h2>
+
+      <p>
+        兩者的優點可以結合：<strong>幀與幀之間自回歸</strong>（因果、能無限延伸、能即時串流），<strong>幀內部用擴散</strong>並行生成（例如第 35 課的 diffusion forcing 與 Self Forcing 類方法）。也有方法讓 AR 模型預測連續 token、每個 token 用一個小的擴散頭取樣。統一的多模態模型（第 13 課）也常走這條路。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          自回歸精確分解 p(x) = Π p(x_i|x_<i)，可算精確概似但需離散 token 或分布頭；擴散學速度場，只給 ELBO 但適合連續資料。AR 需 N 次依序前向（記憶體頻寬受限），擴散需 K 次並行前向：7.5 萬 token 依序解碼即使每次 20 毫秒也要約 25 分鐘，擴散 40 步約幾分鐘並能吃滿算力，所以影片以擴散為主。混合做法：幀間自回歸、幀內擴散（diffusion forcing、Self Forcing），或 AR 預測連續 token 配小擴散頭。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>兩種方法誰能算出精確的概似？</li>
+          <li>推導 AR 與擴散生成影片的延遲。</li>
+          <li>什麼是「幀間自回歸、幀內擴散」？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>可互動的世界模型</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：在自己的電腦上跑</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：可互動的世界模型 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
