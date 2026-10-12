@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 30 課：訓練資料管線 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="切鏡頭、過濾與自動說明">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 30 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜影片生成進階 · 第 30 課</div>
+      <h1>訓練資料管線</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導以直方圖差異切鏡頭</li>
+          <li>理解常見的過濾條件</li>
+          <li>知道影片說明怎麼產生</li>
+        </ul>
+      </div>
+
+      <p>
+        影片模型的品質，很大一部分取決於資料管線。原始影片（電影、網路影片、素材庫）要經過多道處理才能拿來訓練。
+      </p>
+
+      <h2>一、切鏡頭</h2>
+
+      <p>
+        一支影片裡常有多個鏡頭切換。訓練片段必須在同一個鏡頭內，否則模型會學到「畫面突然跳掉」。簡單的偵測法：把每幀的顏色分布做成直方圖 \(h_t\)（\(B\) 個格、總和為 1），計算相鄰幀的總變差距離
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[d_t = \frac{1}{2}\sum_{b=1}^{B}\big|h_t(b) - h_{t-1}(b)\big| \in [0, 1]\]</div>
+
+      <p>
+        \(d_t = 0\) 表示分布完全相同，\(d_t = 1\) 表示完全不重疊。超過門檻（例如 0.4）就判定為鏡頭切換。實務上會用更穩健的方法（例如深度學習的切鏡模型）處理淡入淡出等漸變。
+      </p>
+
+      <h2>二、過濾</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>條件</th><th>做法</th><th>目的</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>美感分數</td><td>用美感評分模型打分</td><td>去掉模糊、構圖差的片段</td></tr>
+          <tr><td>運動量</td><td>光流的平均大小 \(\frac{1}{|\Omega|}\sum_{p}\lVert f(p)\rVert\)</td><td>去掉幾乎靜止或晃動劇烈的片段</td></tr>
+          <tr><td>文字面積</td><td>OCR 偵測字幕、浮水印所占面積</td><td>避免模型學會畫字幕與浮水印</td></tr>
+          <tr><td>重複</td><td>影片嵌入的相似度去重</td><td>避免記住特定片段</td></tr>
+          <tr><td>安全與授權</td><td>內容分類、來源篩選</td><td>法規與倫理</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>三、自動說明</h2>
+
+      <p>
+        網路影片的標題無法描述畫面細節。主流做法是用看影片的多模態模型為每個片段寫詳細說明，內容包括主體、動作、場景、光線、鏡頭運動（推、拉、搖、跟拍）與風格。說明越精確，模型越能聽懂提示詞；但說明模型的錯誤與偏誤也會一起被學進去。
+      </p>
+
+      <p>
+        這些步驟大多是第 14 課圖片資料管線的延伸，只是每個步驟都因為「多了時間」而貴了很多。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          影片資料管線：切鏡頭（相鄰幀顏色直方圖的總變差距離 d_t = ½Σ|h_t − h_{t−1}| ∈ [0,1]，超過門檻判定切換，實務上另用深度模型處理漸變）；過濾（美感分數、光流平均大小的運動量、OCR 文字面積、嵌入去重、安全與授權）；自動說明（用看影片的多模態模型描述主體、動作、場景、光線、鏡頭運動與風格），說明越精確越聽得懂提示詞，但說明模型的偏誤也會被學進去。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導直方圖總變差距離的範圍。</li>
+          <li>為什麼要過濾有字幕的片段？</li>
+          <li>自動說明應該包含哪些資訊？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>漸進式訓練</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-29.html">← 上一課：文字怎麼注入</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-31.html">下一課：漸進式訓練 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

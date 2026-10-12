@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：第二階段：指令微調 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="讓模型學會看圖對話">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜多模態 LLM 怎麼訓練 · 第 16 課</div>
+      <h1>第二階段：指令微調</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解指令資料的組成</li>
+          <li>了解全參數微調與 LoRA 的取捨</li>
+          <li>推導 LoRA 的參數量</li>
+        </ul>
+      </div>
+
+      <p>
+        第二階段解凍 LLM（視覺編碼器通常仍凍結），用看圖對話、問答、OCR、圖表、推理等混合資料微調，損失仍是只對回答計算的 \(-\sum_i m_i \log p(x_i\mid\cdot)\)（第 7 課）。
+      </p>
+
+      <p>
+        LLaVA 的關鍵貢獻之一是用純文字的 GPT-4 生成看圖對話：把圖片的說明文字與物件框座標當成文字輸入，請 GPT-4 寫出「對話、詳細描述、複雜推理」三類資料，共 15.8 萬筆。
+      </p>
+
+      <h2>推導：LoRA 的參數量</h2>
+
+      <p>
+        全參數微調一個 7B 模型需要存權重、梯度與 Adam 的兩組動量，約 \(16\) bytes × 7B ≈ 112 GB。LoRA 把權重更新限制在低秩：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[W' = W + \Delta W = W + BA, \qquad B \in \mathbb{R}^{d \times r},\; A \in \mathbb{R}^{r \times k},\; r \ll \min(d,k)\]</div>
+
+      <p>
+        可訓練參數從 \(dk\) 降到 \(r(d+k)\)。以 \(d = k = 4096, r = 16\)：\(16 \times 8192 = 131{,}072\)，只有原本 \(16{,}777{,}216\) 的 0.78%。\(B\) 初始化為 0，所以訓練開始時 \(\Delta W = 0\)——又是「從恆等開始」的技巧。
+      </p>
+
+      <h2>資料混合的重要性</h2>
+
+      <p>
+        只用看圖資料微調，模型的純文字能力可能退化（災難性遺忘）。實務上會混入一定比例的純文字指令資料。資料配比（多少 OCR、多少圖表、多少對話）往往比架構細節更影響最終能力。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          第二階段解凍 LLM，用看圖對話、OCR、圖表、推理等混合資料微調，損失仍只對回答計算。LLaVA 用純文字 GPT-4 讀圖片說明與物件框生成 15.8 萬筆對話。全參數微調 7B 約需 112 GB；LoRA 令 W' = W + BA，參數從 dk 降到 r(d+k)，d=k=4096、r=16 時只占 0.78%，B 初始為 0 使訓練從恆等開始。需混入純文字資料避免遺忘，資料配比常比架構更重要。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LLaVA 怎麼用純文字 GPT-4 產生看圖資料？</li>
+          <li>推導 LoRA 在 d=k=4096、r=16 時的參數比例。</li>
+          <li>為什麼要混入純文字資料？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>偏好對齊與看圖幻覺</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：第一階段：對齊預訓練</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：偏好對齊與看圖幻覺 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

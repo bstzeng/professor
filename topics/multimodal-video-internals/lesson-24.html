@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 24 課：從圖片擴散到影片擴散 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="DDPM 前向過程的完整推導">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 24 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜影片生成的核心 · 第 24 課</div>
+      <h1>從圖片擴散到影片擴散</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導前向過程的閉式解</li>
+          <li>寫出噪音預測損失</li>
+          <li>理解影片擴散多出來的那一維</li>
+        </ul>
+      </div>
+
+      <h2>前向過程</h2>
+
+      <p>
+        DDPM 逐步加噪：\(q(x_t\mid x_{t-1}) = \mathcal{N}\big(\sqrt{\alpha_t}\,x_{t-1},\,(1-\alpha_t)I\big)\)，其中 \(\alpha_t = 1-\beta_t\)。令 \(\bar\alpha_t = \prod_{s=1}^{t}\alpha_s\)。要證明
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[q(x_t \mid x_0) = \mathcal{N}\!\big(\sqrt{\bar\alpha_t}\,x_0,\; (1-\bar\alpha_t) I\big) \quad\Longleftrightarrow\quad x_t = \sqrt{\bar\alpha_t}\,x_0 + \sqrt{1-\bar\alpha_t}\,\epsilon\]</div>
+
+      <p>
+        <strong>歸納法。</strong>\(t=1\) 時就是定義。假設 \(x_{t-1} = \sqrt{\bar\alpha_{t-1}}x_0 + \sqrt{1-\bar\alpha_{t-1}}\,\epsilon_1\)，則
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[x_t = \sqrt{\alpha_t}x_{t-1} + \sqrt{1-\alpha_t}\,\epsilon_2 = \sqrt{\bar\alpha_t}\,x_0 + \underbrace{\sqrt{\alpha_t(1-\bar\alpha_{t-1})}\,\epsilon_1 + \sqrt{1-\alpha_t}\,\epsilon_2}_{\text{兩個獨立高斯之和}}\]</div>
+
+      <p>
+        獨立高斯相加，變異數相加：\(\alpha_t(1-\bar\alpha_{t-1}) + (1-\alpha_t) = 1 - \alpha_t\bar\alpha_{t-1} = 1-\bar\alpha_t\)。證畢。這讓訓練時可以<strong>一步跳到任意 t</strong>，不必真的逐步加噪。
+      </p>
+
+      <h2>噪音預測損失</h2>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L} = \mathbb{E}_{x_0,\,t,\,\epsilon}\Big\lVert \epsilon - \epsilon_\theta\big(\sqrt{\bar\alpha_t}x_0 + \sqrt{1-\bar\alpha_t}\,\epsilon,\; t\big)\Big\rVert^2\]</div>
+
+      <p>
+        網路看到加了噪音的圖，猜出加進去的噪音是什麼。完整的反向過程推導見 <a href="../multimodal-ai/lesson-15.html">〈多模態與生成式 AI〉第 15 課</a>；本課程之後改用更簡潔的 flow matching（下一課）。
+      </p>
+
+      <h2>影片多了一維</h2>
+
+      <p>
+        影片資料是 \(x_0 \in \mathbb{R}^{F\times H\times W\times 3}\)。早期做法（2022～2023）把預訓練的圖片 U-Net「膨脹」：在每個空間層後面插入<strong>時間卷積或時間注意力</strong>，新層初始化成恆等映射，於是模型一開始等於「逐幀獨立生成圖片」，再慢慢學會幀與幀之間的關聯。今天的主流則是直接把影片壓縮成時空 token 交給 Transformer（第 27、28 課），並<strong>把圖片當成只有一幀的影片</strong>一起訓練。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          DDPM 前向 q(x_t|x_{t−1}) = N(√α_t x_{t−1}, (1−α_t)I)，以歸納法證明 x_t = √ᾱ_t x_0 + √(1−ᾱ_t) ε：兩個獨立高斯相加變異數為 α_t(1−ᾱ_{t−1}) + 1 − α_t = 1 − ᾱ_t，所以訓練可一步跳到任意 t。損失 E‖ε − ε_θ(x_t, t)‖²。影片多一個時間維度：早期把圖片 U-Net 膨脹，插入初始化為恆等的時間層；今天主流是把影片壓成時空 token 交給 Transformer，並把圖片當一幀影片一起訓練。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用歸納法證明 q(x_t|x_0) 的閉式解。</li>
+          <li>為什麼閉式解讓訓練更有效率？</li>
+          <li>早期影片模型怎麼從圖片模型擴充？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Flow matching 完整推導</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-23.html">← 上一課：視覺 token 的推論成本</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-25.html">下一課：Flow matching 完整推導 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：原生多模態：早期融合 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="Chameleon 與「一個 Transformer 吃所有東西」">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 11 課</div>
+      <h1>原生多模態：早期融合</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解早期融合的訓練目標</li>
+          <li>知道早期融合的穩定性問題</li>
+          <li>區分理解與生成的統一</li>
+        </ul>
+      </div>
+
+      <p>
+        早期融合（early fusion）把圖片也變成<strong>離散 token</strong>（第 5 課的 VQ 分詞器），和文字放進同一個詞彙表。整個模型就是一個普通的自回歸 Transformer，損失也只有一個：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L} = -\sum_{i} \log p_\theta(x_i \mid x_{<i}), \qquad x_i \in \mathcal{V}_{\text{text}} \cup \mathcal{V}_{\text{image}}\]</div>
+
+      <p>
+        Meta 在 2024 年發表的 Chameleon 是代表：圖片分詞器把 512×512 的圖編成 1,024 個 token（codebook 8,192），文字與圖片 token 交錯成一個序列。因為生成圖片就是「預測下一個圖片 token」，同一個模型既能看圖也能畫圖。
+      </p>
+
+      <h2>穩定性問題與 QK-Norm</h2>
+
+      <p>
+        不同模態的 token 統計性質差很多，訓練時注意力分數 \(q\cdot k\) 會越長越大，最後 softmax 飽和、損失爆炸。Chameleon 的對策之一是 <strong>QK-Norm</strong>：在計算分數前對 \(q, k\) 做正規化
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[s_{ij} = \frac{\operatorname{LN}(q_i)^{\top}\operatorname{LN}(k_j)}{\sqrt{d_k}}\]</div>
+
+      <p>
+        正規化後 \(\lVert q\rVert, \lVert k\rVert\) 受控，分數的量級不會無限制成長（再搭配可學習的縮放）。這個技巧後來也被大量影片生成模型採用。
+      </p>
+
+      <h2>商業模型</h2>
+
+      <p>
+        OpenAI 的 GPT-4o、Google 的 Gemini 都宣稱是原生多模態，能直接輸入（部分也能輸出）圖片與聲音，但具體是離散 token、連續向量或混合做法並未完整公開。課程中只引用官方公開的描述，不臆測內部細節。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          早期融合把圖片變成離散 token 和文字共用詞彙表，只有一個自回歸損失 −Σ log p(x_i|x_<i)。Chameleon（2024）把 512×512 圖編成 1,024 個 token（codebook 8,192），同一模型能看圖也能畫圖。不同模態的統計差異讓注意力分數失控，QK-Norm 對 q、k 先做 LayerNorm 再算分數以穩定訓練，後來影片模型也常用。GPT-4o、Gemini 宣稱原生多模態但細節未公開。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>早期融合的訓練損失是什麼？</li>
+          <li>為什麼早期融合容易訓練不穩定？</li>
+          <li>QK-Norm 怎麼解決這個問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>不用編碼器的設計</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：高解析度怎麼處理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：不用編碼器的設計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

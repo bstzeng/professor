@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：投影層路線：LLaVA ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="最簡單也最有效">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜多模態 LLM 的架構 · 第 7 課</div>
+      <h1>投影層路線：LLaVA</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>拆解 LLaVA 的資料流</li>
+          <li>推導只對回答計算損失的訓練目標</li>
+          <li>計算 LLaVA 的視覺 token 數</li>
+        </ul>
+      </div>
+
+      <p>
+        LLaVA 的資料流：圖片 \(x_v\) → 凍結的 CLIP ViT-L/14 → 倒數第二層的 patch 特徵 \(Z_v \in \mathbb{R}^{N_v \times d_v}\) → 投影 \(H_v = g(Z_v) \in \mathbb{R}^{N_v \times d}\) → 接在文字嵌入前面送進 LLM。
+      </p>
+
+      <p>
+        LLaVA-1 的 \(g\) 是一個線性層 \(H_v = Z_v W\)；LLaVA-1.5 改成兩層 MLP（中間 GELU），效果明顯更好。輸入 336×336、patch 14，所以 \(N_v = (336/14)^2 = 24^2 = 576\)。
+      </p>
+
+      <h2>訓練目標</h2>
+
+      <p>
+        一筆資料是圖片加上多輪對話 \((X_q^{1}, X_a^{1}, \dots, X_q^{T}, X_a^{T})\)，其中 \(X_q\) 是使用者問題、\(X_a\) 是回答。把整段串成序列 \(x_1, \dots, x_L\)，定義遮罩 \(m_i = 1\) 若 \(x_i\) 屬於回答（含結束符號），否則 0。損失是
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L}(\theta) = -\sum_{i=1}^{L} m_i \log p_\theta\!\left(x_i \mid H_v,\, x_{<i}\right)\]</div>
+
+      <p>
+        推導它的來源：自回歸模型把聯合機率分解為 \(p(x_{1:L}\mid H_v) = \prod_i p(x_i \mid H_v, x_{<i})\)。我們只想學「給定圖片與問題，產生回答」的條件分布 \(p(X_a \mid H_v, X_q)\)，它恰好是回答 token 那幾項的乘積；問題 token 的項屬於「預測使用者會問什麼」，不是我們要的，所以用 \(m_i\) 遮掉。取負對數就得到上式。
+      </p>
+
+      <div class="code-block">labels = input_ids.clone()
+labels[~is_answer_token] = -100     # -100：交叉熵忽略這些位置
+logits = llm(inputs_embeds=cat([proj(vit(img)), embed(input_ids)]))
+loss = cross_entropy(logits[:, :-1], labels[:, 1:], ignore_index=-100)</div>
+
+      <p>
+        LLaVA 的入門說明見 <a href="../multimodal-ai/lesson-29.html">〈多模態與生成式 AI〉第 29 課</a>。訓練分兩階段（第 15、16 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LLaVA：凍結的 CLIP ViT-L/14 取倒數第二層 patch 特徵，經投影（LLaVA-1 線性層、1.5 兩層 MLP）接在文字前面，336×336 圖得到 24² = 576 個視覺 token。訓練目標是 −Σ m_i log p(x_i | H_v, x_<i)，只對回答 token 計算損失，因為要學的是條件分布 p(回答 | 圖, 問題)，它恰是回答 token 那幾項的乘積。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LLaVA 的 576 個視覺 token 是怎麼算出來的？</li>
+          <li>為什麼不對問題 token 計算損失？</li>
+          <li>LLaVA-1.5 的投影層和 LLaVA-1 有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>壓縮路線：Q-Former 與 Perceiver Resampler</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：四種接法總覽</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：壓縮路線：Q-Former 與 Perceiver Resampler →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

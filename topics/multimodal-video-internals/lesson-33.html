@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 33 課：鏡頭與動作控制 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="Plücker 射線與軌跡條件">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 33 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜影片生成進階 · 第 33 課</div>
+      <h1>鏡頭與動作控制</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導每個像素的 Plücker 座標</li>
+          <li>證明 Plücker 座標與射線上取點無關</li>
+          <li>了解動作與姿勢控制</li>
+        </ul>
+      </div>
+
+      <p>
+        「鏡頭慢慢往右平移」用文字描述很模糊。精確的鏡頭控制，是把每一幀的相機參數轉成模型看得懂的條件。
+      </p>
+
+      <h2>推導：像素的射線</h2>
+
+      <p>
+        相機內參 \(K\)、外參（世界到相機）\(x_c = R\,x_w + t\)。相機中心在世界座標中滿足 \(0 = R\,o + t\)，所以 \(o = -R^{\top} t\)。像素 \((u,v)\) 在相機座標的方向是 \(K^{-1}[u, v, 1]^{\top}\)，轉到世界座標並正規化：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[d = \frac{R^{\top}K^{-1}[u,\,v,\,1]^{\top}}{\big\lVert R^{\top}K^{-1}[u,\,v,\,1]^{\top}\big\rVert}\]</div>
+
+      <p>
+        這條射線上的點是 \(o + \lambda d\)。<strong>Plücker 座標</strong>用一個 6 維向量表示這條直線：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\ell = \big(\, o \times d,\; d \,\big) \in \mathbb{R}^6\]</div>
+
+      <p>
+        <strong>與取點無關：</strong>若改用射線上的另一點 \(o' = o + \lambda d\)，則 \(o' \times d = o\times d + \lambda\, d \times d = o \times d\)（因為 \(d\times d = 0\)）。所以 \(\ell\) 只描述「這條直線」，不依賴原點的選擇，是很乾淨的幾何表示。
+      </p>
+
+      <p>
+        每個像素都有一個 \(\ell\)，整幀就是一張 6 通道的「射線圖」。把它下採樣到潛空間解析度，透過一個小的編碼器加到 DiT 的特徵上（類似 ControlNet 的旁路），模型就能依照指定的相機軌跡生成畫面。
+      </p>
+
+      <h2>動作與姿勢</h2>
+
+      <ul>
+        <li><strong>軌跡拖曳</strong>：使用者在圖上畫出物體的移動路徑，轉成稀疏的位移向量作為條件。</li>
+        <li><strong>姿勢序列</strong>：以骨架關鍵點驅動人物動作（舞蹈、手勢）。</li>
+        <li><strong>深度與邊緣</strong>：用一段影片的深度或邊緣序列，生成風格不同但動作相同的新影片（影片版的 ControlNet）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          相機外參 x_c = R x_w + t，相機中心 o = −Rᵀt；像素 (u,v) 的世界方向 d = RᵀK⁻¹[u,v,1]ᵀ 正規化。Plücker 座標 ℓ = (o × d, d) ∈ ℝ⁶，換成射線上另一點 o + λd 時 (o+λd) × d = o × d，因此與取點無關。每像素一個 ℓ 形成 6 通道射線圖，下採樣後經小編碼器加到 DiT 特徵上實現鏡頭控制。動作控制還有軌跡拖曳、姿勢序列、深度與邊緣序列。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導相機中心在世界座標中的位置。</li>
+          <li>證明 Plücker 座標與射線上取點無關。</li>
+          <li>射線圖怎麼送進 DiT？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>影音同步生成</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-32.html">← 上一課：圖生影片、參考圖與角色一致性</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-34.html">下一課：影音同步生成 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

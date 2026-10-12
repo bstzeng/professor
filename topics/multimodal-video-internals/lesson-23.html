@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 23 課：視覺 token 的推論成本 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="預填、首 token 延遲與價格">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 23 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜理解聲音與影片 · 第 23 課</div>
+      <h1>視覺 token 的推論成本</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導預填階段的計算量</li>
+          <li>估算圖片對延遲的影響</li>
+          <li>理解視覺 token 的計價</li>
+        </ul>
+      </div>
+
+      <h2>推導：預填的 FLOP</h2>
+
+      <p>
+        Transformer 每處理一個 token，每個參數大約參與一次乘法與一次加法，所以前向計算約 \(2P\) FLOP（\(P\) 為參數量，忽略注意力的 \(N^2\) 項）。預填（prefill）一次處理 \(N\) 個輸入 token：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[C_{\text{prefill}} \approx 2 P N \;\text{FLOP}\]</div>
+
+      <p>
+        7B 模型、一張 576 token 的圖：\(2\times7\times10^9\times576 \approx 8\times10^{12}\) FLOP。在有效算力每秒 \(10^{14}\) FLOP 的 GPU 上約 80 毫秒。十張高解析度圖（每張 2,880 token）就是 \(4\times10^{14}\)，約 4 秒——使用者會明顯感覺到「首 token 延遲」。
+      </p>
+
+      <h2>預填 vs. 解碼</h2>
+
+      <p>
+        預填是<strong>計算受限</strong>（大量 token 並行，GPU 算力被充分利用）；逐 token 解碼是<strong>記憶體頻寬受限</strong>（每步都要讀完全部權重與 KV 快取，但只算一個 token）。視覺 token 主要增加預填成本與 KV 快取，對之後每一步解碼的速度影響較小（只透過 KV 快取的讀取量）。
+      </p>
+
+      <h2>為什麼按 token 計價</h2>
+
+      <p>
+        API 通常把圖片換算成 token 計價，因為成本確實和 token 數成正比（預填 FLOP 與 KV 記憶體都是線性）。實務上的省錢方法：上傳前縮小或裁切到需要的區域、使用「低解析度」選項、純文字 PDF 直接抽文字。詳見 <a href="../multimodal-ai/lesson-30.html">〈多模態與生成式 AI〉第 30 課</a>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          前向計算約每 token 2P FLOP，預填 N 個 token 約 2PN FLOP：7B 模型一張 576 token 的圖約 8×10¹² FLOP，在 10¹⁴ FLOP/s 的 GPU 上約 80 毫秒，十張高解析度圖約 4 秒。預填是計算受限、解碼是記憶體頻寬受限；視覺 token 主要增加預填與 KV 快取。API 按 token 計價因為成本與 token 數成正比，可縮小裁切、用低解析度選項或抽文字省錢。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導預填的計算量公式。</li>
+          <li>為什麼預填是計算受限、解碼是頻寬受限？</li>
+          <li>有哪些方法可以減少圖片的成本？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>從圖片擴散到影片擴散</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-22.html">← 上一課：長影片理解</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-24.html">下一課：從圖片擴散到影片擴散 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

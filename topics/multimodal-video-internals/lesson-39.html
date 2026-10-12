@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：稀疏注意力、快取與量化 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="三種加速手段的數學">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜為什麼這麼貴：推論與加速 · 第 39 課</div>
+      <h1>稀疏注意力、快取與量化</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導局部注意力的成本</li>
+          <li>理解跨步特徵快取</li>
+          <li>推導均勻量化的誤差與 SQNR</li>
+        </ul>
+      </div>
+
+      <h2>一、稀疏與局部注意力</h2>
+
+      <p>
+        許多注意力權重集中在時空上相近的 token。若每個 token 只看一個大小為 \(w\) 的時空窗口：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[C_{\text{local}} \propto N\,w\,d \quad\text{vs.}\quad C_{\text{full}} \propto N^2 d, \qquad \frac{C_{\text{full}}}{C_{\text{local}}} = \frac{N}{w}\]</div>
+
+      <p>
+        \(N = 75600, w = 4096\) 時省約 18 倍。實務上常混合：部分層或部分注意力頭用完整注意力保留長距離關係，其餘用局部或依內容挑選的稀疏注意力。
+      </p>
+
+      <h2>二、跨步特徵快取</h2>
+
+      <p>
+        相鄰兩個去噪步的輸入只差一點點，某些層的輸出也很接近。快取方法計算相對變化
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\rho_k = \frac{\lVert h_k - h_{k-1}\rVert_1}{\lVert h_{k-1}\rVert_1}\]</div>
+
+      <p>
+        累積變化低於門檻時就直接沿用上一步的結果（或其中某些區塊的殘差），跳過計算。門檻越寬鬆越快，畫質損失也越大。通常在去噪中段（變化較平緩）最有效。
+      </p>
+
+      <h2>三、量化：推導量化噪音</h2>
+
+      <p>
+        用 \(b\) 位元均勻量化區間 \([-A, A]\)，步長 \(\Delta = 2A/2^b\)。把誤差 \(e\) 視為在 \([-\Delta/2, \Delta/2]\) 上均勻分布：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\operatorname{Var}(e) = \frac{1}{\Delta}\int_{-\Delta/2}^{\Delta/2} e^2\,de = \frac{1}{\Delta}\cdot\frac{2}{3}\left(\frac{\Delta}{2}\right)^3 = \frac{\Delta^2}{12}\]</div>
+
+      <p>
+        訊號變異數 \(\sigma_x^2\) 時，訊號對量化噪音比
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\operatorname{SQNR} = \frac{\sigma_x^2}{\Delta^2/12} = \frac{12\,\sigma_x^2\, 2^{2b}}{4A^2} \;\Rightarrow\; 10\log_{10}\operatorname{SQNR} \approx 6.02\,b + 10\log_{10}\frac{3\sigma_x^2}{A^2}\ \text{dB}\]</div>
+
+      <p>
+        每多 1 位元，SQNR 提高約 6 dB。式中的 \(A^2/\sigma_x^2\) 說明了<strong>離群值</strong>的危害：少數極大的權重或啟動值把 \(A\) 撐大，讓所有其他數值的精度變差。這就是為什麼量化方法會分組（每組各自的尺度）或把離群值另外處理。FP8（例如 E4M3）用浮點格式在大範圍內保持相對精度，是影片模型常見的推論格式。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          局部注意力成本 N w d，與完整注意力比為 N/w（N=75,600、w=4,096 時約 18 倍），常與部分完整注意力混合。跨步特徵快取計算相對變化 ‖h_k − h_{k−1}‖₁/‖h_{k−1}‖₁，低於門檻就沿用上一步，去噪中段最有效。b 位元均勻量化步長 Δ = 2A/2^b，誤差變異數 Δ²/12，SQNR ≈ 6.02b + 10 log₁₀(3σ²/A²) dB，每多 1 位元約 6 dB；離群值撐大 A 會讓整體精度變差，所以要分組量化或處理離群值，FP8 常用於推論。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導局部注意力相對完整注意力的節省倍數。</li>
+          <li>推導均勻量化誤差的變異數 Δ²/12。</li>
+          <li>為什麼離群值會傷害量化精度？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>在自己的電腦上跑</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：少步取樣與蒸餾</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：在自己的電腦上跑 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

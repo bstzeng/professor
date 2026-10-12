@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：連續 token 與離散 token ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="VQ-VAE、codebook 與直通估計">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜共同基礎：萬物皆 token · 第 5 課</div>
+      <h1>連續 token 與離散 token</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導 VQ-VAE 的三項損失</li>
+          <li>理解直通估計（straight-through）</li>
+          <li>計算離散 token 的資訊量</li>
+        </ul>
+      </div>
+
+      <p>
+        把圖片變成 token 有兩條路：<strong>連續</strong>（patch 投影成實數向量，前幾課的做法）與<strong>離散</strong>（每個位置變成 codebook 裡的一個編號，像文字一樣）。離散 token 讓 LLM 可以用「預測下一個 token」的方式生成圖片和聲音。
+      </p>
+
+      <h2>VQ-VAE</h2>
+
+      <p>
+        編碼器輸出 \(z_e(x)\)；codebook \(\{e_k\}_{k=1}^{K}\)。量化取最近的碼字：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[k^{*} = \arg\min_{k} \lVert z_e(x) - e_k \rVert_2, \qquad z_q(x) = e_{k^{*}}\]</div>
+
+      <p>
+        解碼器用 \(z_q\) 重建 \(\hat x\)。損失有三項（\(\operatorname{sg}\) 表示 stop-gradient，前向照常計算、反向不傳梯度）：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L} = \underbrace{\lVert x - \hat x \rVert^2}_{\text{重建}} + \underbrace{\lVert \operatorname{sg}[z_e] - e_{k^*} \rVert^2}_{\text{codebook：碼字靠向編碼}} + \beta\,\underbrace{\lVert z_e - \operatorname{sg}[e_{k^*}] \rVert^2}_{\text{commitment：編碼靠向碼字}}\]</div>
+
+      <h2>直通估計</h2>
+
+      <p>
+        \(\arg\min\) 不可微，梯度無法從 \(z_q\) 傳回編碼器。直通估計的做法是在前向時用 \(z_q\)，反向時假裝 \(\partial z_q / \partial z_e = I\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[z_q^{\text{ST}} = z_e + \operatorname{sg}[z_q - z_e] \;\;\Rightarrow\;\; \text{前向值} = z_q,\quad \frac{\partial z_q^{\text{ST}}}{\partial z_e} = I\]</div>
+
+      <p>
+        於是重建損失的梯度 \(\partial \mathcal{L}/\partial z_q\) 直接複製給 \(z_e\)。第二項負責更新碼字（實務上也常用指數移動平均），第三項（\(\beta\) 常取 0.25）防止編碼器輸出漂得離碼字太遠。
+      </p>
+
+      <h2>一個離散 token 有多少資訊？</h2>
+
+      <p>
+        codebook 大小 \(K\) 時，每個 token 最多 \(\log_2 K\) 位元。例如 Chameleon 的圖片分詞器把 512×512 的圖編成 1,024 個 token、codebook 8,192（13 位元），整張圖最多 \(1024 \times 13 \approx 13{,}300\) 位元——約 1.7 KB。這解釋了離散 token 為什麼常常「丟細節」：資訊量被硬性限制住了。
+      </p>
+
+      <p>
+        聲音常用<strong>殘差向量量化</strong>（RVQ）：第一層量化後的殘差 \(r_1 = z - z_q^{(1)}\) 再交給第二層量化，依此類推，\(Q\) 層就有 \(Q\log_2 K\) 位元（第 19 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          離散 token 讓 LLM 能用預測下一個 token 的方式生成圖片和聲音。VQ-VAE 取最近碼字 z_q = e_{k*}，損失 = 重建 + ‖sg[z_e] − e‖²（更新碼字）+ β‖z_e − sg[e]‖²（commitment）。argmin 不可微，用直通估計 z_e + sg[z_q − z_e]，前向值為 z_q、反向梯度直接傳給 z_e。每個 token 最多 log₂K 位元，例如 1,024 個 token × 13 位元約 1.7 KB，所以離散 token 會丟細節；聲音常用殘差向量量化 RVQ。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>VQ-VAE 的三項損失各有什麼作用？</li>
+          <li>直通估計的前向值與反向梯度各是什麼？</li>
+          <li>codebook 8,192、1,024 個 token 的圖片最多有多少位元？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>四種接法總覽</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：視覺編碼器：CLIP 與 SigLIP</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：四種接法總覽 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

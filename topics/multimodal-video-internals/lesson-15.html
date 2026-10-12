@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：第一階段：對齊預訓練 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="只訓練投影層">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜多模態 LLM 怎麼訓練 · 第 15 課</div>
+      <h1>第一階段：對齊預訓練</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解凍結與梯度流動</li>
+          <li>推導只有投影層收到梯度</li>
+          <li>知道對齊階段的資料與規模</li>
+        </ul>
+      </div>
+
+      <p>
+        LLaVA 式訓練的第一階段，凍結視覺編碼器 \(f_\phi\) 與 LLM \(p_\theta\)，只訓練投影層 \(g_\psi\)。資料是簡單的圖片說明（LLaVA-1.5 用約 55.8 萬筆）。
+      </p>
+
+      <h2>推導：梯度只流到投影層</h2>
+
+      <p>
+        令 \(H_v = g_\psi(f_\phi(x_v))\)。損失 \(\mathcal{L}(\theta, \psi)\) 對 \(\psi\) 的梯度由鏈鎖律為
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\frac{\partial \mathcal{L}}{\partial \psi} = \frac{\partial \mathcal{L}}{\partial H_v}\cdot\frac{\partial H_v}{\partial \psi}, \qquad \frac{\partial \mathcal{L}}{\partial H_v} = \sum_{i} m_i \frac{\partial\left[-\log p_\theta(x_i\mid H_v, x_{<i})\right]}{\partial H_v}\]</div>
+
+      <p>
+        第二個因子要穿過整個 LLM 做反向傳播（所以仍需要 LLM 的啟動值），但因為 \(\theta, \phi\) 被凍結，只有 \(\psi\) 會被更新。直覺上，這一階段是在學一本「視覺特徵 → LLM 詞嵌入空間」的翻譯字典，讓 LLM 讀得懂視覺 token。
+      </p>
+
+      <h2>為什麼要先對齊</h2>
+
+      <p>
+        如果一開始就同時更新 LLM，隨機初始化的投影層會送進一堆「看不懂的向量」，LLM 為了降低損失可能學會<strong>忽略視覺 token</strong>，甚至破壞原本的語言能力。先把投影層對齊，第二階段再解凍 LLM，訓練更穩定。
+      </p>
+
+      <p>
+        參數量的直覺：兩層 MLP 投影（1024 → 4096 → 4096）約 2,100 萬個參數，只占 7B 模型的 0.3%，所以第一階段很便宜。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          第一階段凍結視覺編碼器與 LLM，只訓練投影層，資料是簡單圖片說明（LLaVA-1.5 約 55.8 萬筆）。由鏈鎖律 ∂L/∂ψ = (∂L/∂H_v)(∂H_v/∂ψ)，梯度要穿過 LLM 反傳但只有 ψ 被更新，等於學一本視覺特徵到詞嵌入空間的翻譯字典。先對齊能避免 LLM 學會忽略視覺 token 或破壞語言能力；兩層 MLP 投影約 2,100 萬參數，只占 7B 的 0.3%。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>第一階段凍結了哪些部分？</li>
+          <li>為什麼梯度仍要穿過 LLM？</li>
+          <li>如果一開始就解凍 LLM 可能發生什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>第二階段：指令微調</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：訓練資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：第二階段：指令微調 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

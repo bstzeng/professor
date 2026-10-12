@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：偏好對齊與看圖幻覺 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="從 RLHF 目標完整推導 DPO">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜多模態 LLM 怎麼訓練 · 第 17 課</div>
+      <h1>偏好對齊與看圖幻覺</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解看圖幻覺</li>
+          <li>完整推導 DPO 損失</li>
+          <li>知道多模態偏好資料怎麼做</li>
+        </ul>
+      </div>
+
+      <p>
+        多模態模型最常見的錯誤是<strong>物體幻覺</strong>：描述圖中不存在的東西（例如看到餐桌就說有叉子）。原因之一是語言先驗太強——「餐桌」後面接「叉子」的機率很高。偏好對齊讓模型學會偏好「忠於畫面」的回答。
+      </p>
+
+      <h2>推導 DPO</h2>
+
+      <p>
+        RLHF 的目標是在獎勵 \(r(x,y)\) 與「不要離參考模型太遠」之間取得平衡：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\max_{\pi}\; \mathbb{E}_{x,\, y\sim\pi(\cdot\mid x)}\big[r(x,y)\big] - \beta\, \mathrm{KL}\big(\pi(\cdot\mid x)\,\Vert\,\pi_{\text{ref}}(\cdot\mid x)\big)\]</div>
+
+      <p>
+        <strong>步驟 1：最佳解。</strong>對固定的 \(x\)，目標可寫成 \(\sum_y \pi(y)\big[r(y) - \beta\log\frac{\pi(y)}{\pi_{\text{ref}}(y)}\big]\)。加上 \(\sum_y \pi(y) = 1\) 的拉格朗日乘數並對 \(\pi(y)\) 微分令其為 0：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[r(y) - \beta\log\frac{\pi(y)}{\pi_{\text{ref}}(y)} - \beta - \lambda = 0 \;\;\Rightarrow\;\; \pi^{*}(y\mid x) = \frac{1}{Z(x)}\,\pi_{\text{ref}}(y\mid x)\, e^{r(x,y)/\beta}\]</div>
+
+      <p>
+        <strong>步驟 2：反解獎勵。</strong>取對數整理：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[r(x,y) = \beta\log\frac{\pi^{*}(y\mid x)}{\pi_{\text{ref}}(y\mid x)} + \beta\log Z(x)\]</div>
+
+      <p>
+        <strong>步驟 3：代入 Bradley–Terry 偏好模型。</strong>人類偏好 \(y_w\) 勝過 \(y_l\) 的機率 \(P(y_w \succ y_l) = \sigma\big(r(x,y_w) - r(x,y_l)\big)\)。兩者相減時 \(\beta\log Z(x)\) 消掉了（這是整個推導的關鍵：不用計算難以處理的配分函數），以 \(\pi_\theta\) 代替 \(\pi^*\) 做最大概似：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\mathcal{L}_{\text{DPO}}(\theta) = -\,\mathbb{E}_{(x,y_w,y_l)}\left[\log\sigma\!\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\text{ref}}(y_w\mid x)} - \beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\text{ref}}(y_l\mid x)}\right)\right]\]</div>
+
+      <p>
+        不需要另外訓練獎勵模型，也不需要強化學習的取樣迴圈，只要成對的偏好資料。
+      </p>
+
+      <h2>多模態偏好資料</h2>
+
+      <p>
+        做法包括：讓人標註「哪個描述有幻覺」、把正確描述中的物體換成不存在的物體當作負例、或對模型的回答逐句修正（例如 RLHF-V 類的細粒度修正）。評測物體幻覺常用 POPE：反覆問「圖中有沒有 X？」，統計誤答「有」的比例。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          看圖幻覺常因語言先驗太強。DPO 推導：RLHF 目標 max E[r] − βKL(π‖π_ref) 的最佳解為 π* = π_ref·e^{r/β}/Z；反解 r = β log(π*/π_ref) + β log Z；代入 Bradley–Terry 偏好模型時 β log Z 相減消掉，得 L_DPO = −E log σ(β log(π_θ(y_w)/π_ref(y_w)) − β log(π_θ(y_l)/π_ref(y_l)))，不需獎勵模型與 RL 取樣。多模態偏好資料可用人工標註、替換物體製造負例或逐句修正；POPE 用是非題評測物體幻覺。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導 RLHF 目標的最佳策略 π*。</li>
+          <li>為什麼 DPO 推導中 Z(x) 會消掉？</li>
+          <li>POPE 怎麼評測物體幻覺？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>評測</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：第二階段：指令微調</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：評測 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

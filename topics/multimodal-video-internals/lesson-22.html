@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：長影片理解 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="KV 快取、合併與檢索">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜理解聲音與影片 · 第 22 課</div>
+      <h1>長影片理解</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導 KV 快取的記憶體公式</li>
+          <li>理解相似幀的 token 合併</li>
+          <li>理解以檢索處理長影片</li>
+        </ul>
+      </div>
+
+      <h2>推導：KV 快取有多大</h2>
+
+      <p>
+        推論時每一層要為每個 token 存下鍵 \(k\) 與值 \(v\)。設層數 \(L\)、KV 頭數 \(n_{kv}\)（使用 GQA 時少於查詢頭數）、每頭維度 \(d_h\)、每個數值 \(b\) bytes、token 數 \(N\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{KV 記憶體} = 2 \cdot L \cdot n_{kv} \cdot d_h \cdot b \cdot N\]</div>
+
+      <p>
+        以一個 28 層、4 個 KV 頭、頭維度 128、BF16 的 7B 級模型為例，每個 token 需要 \(2\times28\times4\times128\times2 = 57{,}344\) bytes ≈ 56 KB。一小時影片每秒 1 幀、每幀 256 token：\(3600\times256 = 921{,}600\) 個 token，KV 快取約 \(921{,}600 \times 56\text{ KB} \approx 52.8\) GB——比模型權重（約 15 GB）還大。
+      </p>
+
+      <h2>相似幀合併</h2>
+
+      <p>
+        相鄰幀常常幾乎一樣（靜止的鏡頭）。對同一空間位置的 token \(z_t, z_{t+1}\)，若餘弦相似度
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\cos(z_t, z_{t+1}) = \frac{z_t^{\top} z_{t+1}}{\lVert z_t\rVert\,\lVert z_{t+1}\rVert} > \tau\]</div>
+
+      <p>
+        就把它們平均成一個 token。靜態畫面可以壓縮很多倍，劇烈運動的片段則保留較多 token——等於讓 token 預算「跟著資訊量走」。
+      </p>
+
+      <h2>檢索：先找再看</h2>
+
+      <p>
+        另一種做法是把長影片切成片段，各自算一個嵌入向量存起來；收到問題時，先用問題的嵌入找出最相關的 k 個片段，只把這些片段的幀送進 LLM。這和文字的 RAG 完全相同，代價是可能找錯片段、也難以回答需要「看完整部」的問題（例如「主角的態度怎麼轉變」）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          KV 快取記憶體 = 2·L·n_kv·d_h·b·N。28 層、4 個 KV 頭、頭維度 128、BF16 的模型每 token 約 56 KB；一小時影片每秒 1 幀每幀 256 token 共 92 萬 token，KV 約 52.8 GB，大於權重。相似幀合併：同位置 token 餘弦相似度大於門檻就平均，讓 token 預算跟著資訊量走。檢索：片段嵌入後依問題找最相關的 k 段再送進 LLM，類似 RAG，但難以回答需要看完整部的問題。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導每個 token 的 KV 快取大小。</li>
+          <li>相似幀合併在什麼樣的影片上最有效？</li>
+          <li>檢索式長影片理解有什麼限制？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>視覺 token 的推論成本</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：LLM 怎麼看影片</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：視覺 token 的推論成本 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -21858,6 +21858,116 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "multimodal-video-internals",
+      category: "ai",
+      title: "多模態 LLM 與影片生成的內部運作：完整推導",
+      description:
+        "〈多模態與生成式 AI〉的進階版：從注意力、RoPE、對比學習與 VQ-VAE 出發，拆解 LLaVA、Q-Former、Flamingo、早期融合與不用編碼器的多模態 LLM，推導兩階段訓練與 DPO；音訊編碼、全雙工語音與影片理解；再完整推導影片生成：DDPM、flow matching、噪音排程與時間步平移、影片 VAE、時空 patch 與 Video DiT、CFG、鏡頭控制、影音同步、長影片與開源模型拆解；最後是注意力成本、蒸餾、量化、世界模型、評測與浮水印。附 token、注意力、flow matching、排程、抽幀與 VRAM 等互動工具。",
+      icon: "🎬",
+      url: "topics/multimodal-video-internals/index.html",
+      resources: [
+        {
+          title: "多模態與影片工具箱",
+          description: "token 計算、注意力成本、flow matching、噪音排程、對比學習、抽幀、VRAM 估算",
+          icon: "🧰",
+          url: "topics/multimodal-video-internals/guide.html"
+        },
+        {
+          title: "名詞與公式速查",
+          description: "多模態 LLM 與影片生成的關鍵名詞、數字與公式",
+          icon: "📖",
+          url: "topics/multimodal-video-internals/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜共同基礎：萬物皆 token",
+          courses: [
+            { title: "所有模態都變成向量序列", url: "topics/multimodal-video-internals/lesson-01.html" },
+            { title: "自注意力與交叉注意力", url: "topics/multimodal-video-internals/lesson-02.html" },
+            { title: "圖片切成 patch 與位置編碼", url: "topics/multimodal-video-internals/lesson-03.html" },
+            { title: "視覺編碼器：CLIP 與 SigLIP", url: "topics/multimodal-video-internals/lesson-04.html" },
+            { title: "連續 token 與離散 token", url: "topics/multimodal-video-internals/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜多模態 LLM 的架構",
+          courses: [
+            { title: "四種接法總覽", url: "topics/multimodal-video-internals/lesson-06.html" },
+            { title: "投影層路線：LLaVA", url: "topics/multimodal-video-internals/lesson-07.html" },
+            { title: "壓縮路線：Q-Former 與 Perceiver Resampler", url: "topics/multimodal-video-internals/lesson-08.html" },
+            { title: "交叉注意力路線：Flamingo", url: "topics/multimodal-video-internals/lesson-09.html" },
+            { title: "高解析度怎麼處理", url: "topics/multimodal-video-internals/lesson-10.html" },
+            { title: "原生多模態：早期融合", url: "topics/multimodal-video-internals/lesson-11.html" },
+            { title: "不用編碼器的設計", url: "topics/multimodal-video-internals/lesson-12.html" },
+            { title: "輸出也能多模態", url: "topics/multimodal-video-internals/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜多模態 LLM 怎麼訓練",
+          courses: [
+            { title: "訓練資料", url: "topics/multimodal-video-internals/lesson-14.html" },
+            { title: "第一階段：對齊預訓練", url: "topics/multimodal-video-internals/lesson-15.html" },
+            { title: "第二階段：指令微調", url: "topics/multimodal-video-internals/lesson-16.html" },
+            { title: "偏好對齊與看圖幻覺", url: "topics/multimodal-video-internals/lesson-17.html" },
+            { title: "評測", url: "topics/multimodal-video-internals/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜理解聲音與影片",
+          courses: [
+            { title: "音訊編碼", url: "topics/multimodal-video-internals/lesson-19.html" },
+            { title: "即時語音對話", url: "topics/multimodal-video-internals/lesson-20.html" },
+            { title: "LLM 怎麼看影片", url: "topics/multimodal-video-internals/lesson-21.html" },
+            { title: "長影片理解", url: "topics/multimodal-video-internals/lesson-22.html" },
+            { title: "視覺 token 的推論成本", url: "topics/multimodal-video-internals/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影片生成的核心",
+          courses: [
+            { title: "從圖片擴散到影片擴散", url: "topics/multimodal-video-internals/lesson-24.html" },
+            { title: "Flow matching 完整推導", url: "topics/multimodal-video-internals/lesson-25.html" },
+            { title: "噪音排程與時間步平移", url: "topics/multimodal-video-internals/lesson-26.html" },
+            { title: "影片 VAE", url: "topics/multimodal-video-internals/lesson-27.html" },
+            { title: "時空 patch 與 Video DiT", url: "topics/multimodal-video-internals/lesson-28.html" },
+            { title: "文字怎麼注入", url: "topics/multimodal-video-internals/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影片生成進階",
+          courses: [
+            { title: "訓練資料管線", url: "topics/multimodal-video-internals/lesson-30.html" },
+            { title: "漸進式訓練", url: "topics/multimodal-video-internals/lesson-31.html" },
+            { title: "圖生影片、參考圖與角色一致性", url: "topics/multimodal-video-internals/lesson-32.html" },
+            { title: "鏡頭與動作控制", url: "topics/multimodal-video-internals/lesson-33.html" },
+            { title: "影音同步生成", url: "topics/multimodal-video-internals/lesson-34.html" },
+            { title: "長影片", url: "topics/multimodal-video-internals/lesson-35.html" },
+            { title: "開源模型拆解", url: "topics/multimodal-video-internals/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜為什麼這麼貴：推論與加速",
+          courses: [
+            { title: "注意力的平方成本", url: "topics/multimodal-video-internals/lesson-37.html" },
+            { title: "少步取樣與蒸餾", url: "topics/multimodal-video-internals/lesson-38.html" },
+            { title: "稀疏注意力、快取與量化", url: "topics/multimodal-video-internals/lesson-39.html" },
+            { title: "在自己的電腦上跑", url: "topics/multimodal-video-internals/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜世界模型、安全與總結",
+          courses: [
+            { title: "自回歸與擴散", url: "topics/multimodal-video-internals/lesson-41.html" },
+            { title: "可互動的世界模型", url: "topics/multimodal-video-internals/lesson-42.html" },
+            { title: "失敗模式與評測", url: "topics/multimodal-video-internals/lesson-43.html" },
+            { title: "浮水印與來源標記", url: "topics/multimodal-video-internals/lesson-44.html" },
+            { title: "總結", url: "topics/multimodal-video-internals/lesson-45.html" },
+          ],
+        },
+      ],
     }
   ]
 };

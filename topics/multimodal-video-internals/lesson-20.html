@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：即時語音對話 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="全雙工與延遲預算">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜理解聲音與影片 · 第 20 課</div>
+      <h1>即時語音對話</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較串接式與端到端語音對話</li>
+          <li>推導延遲預算</li>
+          <li>理解全雙工的雙串流設計</li>
+        </ul>
+      </div>
+
+      <h2>串接式管線的延遲</h2>
+
+      <p>
+        傳統語音助理是「語音辨識 → LLM → 語音合成」三段串接。使用者說完到聽見回應的延遲是
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[T = T_{\text{VAD}} + T_{\text{ASR}} + T_{\text{LLM, 首 token}} + T_{\text{TTS, 首段音訊}} + T_{\text{網路}}\]</div>
+
+      <p>
+        例如：判斷說完需要 300 毫秒靜音 ＋ 辨識 150 ＋ LLM 首 token 300 ＋ TTS 首段 150 ＋ 網路 100 ≈ 1 秒。而人類對話中換人說話的間隔大約只有 200 毫秒，所以串接式系統總讓人覺得「慢半拍」，而且聽不到語氣、無法被打斷。
+      </p>
+
+      <h2>端到端與全雙工</h2>
+
+      <p>
+        Kyutai 在 2024 年發表的 Moshi 是開放的全雙工模型代表：它同時建模<strong>兩條音訊串流</strong>（使用者與模型自己），每一步都在「聽」也可以「說」，不需要判斷對方是否說完。它的 codec 是 12.5 Hz（每幀 80 毫秒），聲學 token 再延遲一幀，理論延遲
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[80\ \text{ms（一幀）} + 80\ \text{ms（聲學延遲）} = 160\ \text{ms}\]</div>
+
+      <p>
+        實測約 200 毫秒，接近人類。Moshi 還會在輸出聲音的同時預測對應的文字 token（「內心獨白」），用文字的語言能力來穩定語音內容。
+      </p>
+
+      <h2>雙串流的序列</h2>
+
+      <p>
+        每個時間步 \(s\) 的輸入包含：模型自己的文字 token、模型的 \(Q\) 個聲學 token、使用者的 \(Q\) 個聲學 token。模型預測下一步自己的文字與聲學 token，使用者的串流則只當條件。這讓「插話」「附和（嗯嗯）」「被打斷就停下」都變成模型自然學到的行為。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          串接式語音助理延遲 = VAD + ASR + LLM 首 token + TTS 首段 + 網路，常達約 1 秒，而人類換人說話間隔約 200 毫秒，且串接式聽不到語氣、無法被打斷。Moshi（2024）全雙工同時建模使用者與模型兩條音訊串流，codec 12.5 Hz，理論延遲 80+80 = 160 毫秒、實測約 200 毫秒，並同時預測文字內心獨白來穩定內容；插話、附和、被打斷就停都成為自然學到的行為。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>串接式管線的延遲由哪些部分組成？</li>
+          <li>Moshi 的理論延遲怎麼算出來的？</li>
+          <li>全雙工模型的輸入序列包含哪些串流？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>LLM 怎麼看影片</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：音訊編碼</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：LLM 怎麼看影片 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

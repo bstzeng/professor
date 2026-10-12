@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：文字怎麼注入 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="文字編碼器、交叉注意力、MMDiT 與 CFG 推導">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜影片生成的核心 · 第 29 課</div>
+      <h1>文字怎麼注入</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>比較三種文字條件化方式</li>
+          <li>從貝氏公式推導 classifier-free guidance</li>
+          <li>證明 CFG 在速度場上同樣成立</li>
+        </ul>
+      </div>
+
+      <h2>文字編碼器</h2>
+
+      <p>
+        影片模型需要把提示詞變成一串向量。常見的選擇：T5 系列的編碼器（例如 T5-XXL、Wan 使用多語言的 umT5）、CLIP 的文字編碼器，或直接用多模態 LLM 當編碼器——HunyuanVideo 用 decoder-only 的 MLLM，並因為它是單向（因果）注意力，額外加一個雙向的 token refiner 改善特徵。
+      </p>
+
+      <h2>三種注入方式</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方式</th><th>做法</th><th>成本</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>交叉注意力</td><td>影片 token 當 Q，文字 token 當 K、V</td><td>\(O(N M d)\)</td></tr>
+          <tr><td>MMDiT／聯合注意力</td><td>文字與影片 token 串接，用各自的權重投影後做一次自注意力</td><td>\(O((N+M)^2 d)\)</td></tr>
+          <tr><td>雙串流 → 單串流</td><td>前幾層各自處理（雙串流），後幾層串接共用權重（單串流）</td><td>介於兩者之間</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        MMDiT（SD3 提出）讓文字也能「看到」影像並被更新，圖文互動更充分；HunyuanVideo 採用「雙串流到單串流」的混合設計。
+      </p>
+
+      <h2>推導：classifier-free guidance</h2>
+
+      <p>
+        希望樣本更符合條件 \(c\)，可以從「加強版」的分布取樣 \(\tilde p(x\mid c) \propto p(x)\,p(c\mid x)^{w}\)。取對數梯度（分數）並用貝氏公式 \(\log p(c\mid x) = \log p(x\mid c) - \log p(x) + \text{const}\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\nabla_x \log \tilde p(x\mid c) = \nabla_x\log p(x) + w\big(\nabla_x \log p(x\mid c) - \nabla_x \log p(x)\big)\]</div>
+
+      <p>
+        不需要另外訓練分類器：同一個模型訓練時以一定機率（例如 10%）把提示詞換成空字串，就同時學會了有條件與無條件兩種預測。由 \(\epsilon_\theta = -\sigma_t \nabla\log p_t\)，在噪音預測上就是
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\tilde\epsilon = \epsilon_\theta(x, \varnothing) + w\big(\epsilon_\theta(x, c) - \epsilon_\theta(x, \varnothing)\big)\]</div>
+
+      <h2>在速度場上也成立</h2>
+
+      <p>
+        用第 25 課的慣例（\(x_t = t x_1 + (1-t)x_0\)，\(x_0\) 是噪音）。Tweedie 公式給出 \(\mathbb{E}[x_0\mid x_t] = -(1-t)\,\nabla\log p_t(x_t)\)，再由 \(\mathbb{E}[x_1\mid x_t] = \big(x_t - (1-t)\mathbb{E}[x_0\mid x_t]\big)/t\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[v(x,t) = \mathbb{E}[x_1 - x_0\mid x_t = x] = \frac{x - \mathbb{E}[x_0\mid x]}{t} = \frac{x + (1-t)\,\nabla_x\log p_t(x)}{t}\]</div>
+
+      <p>
+        \(v\) 是分數的<strong>仿射函數</strong>，係數只依賴 \(t\)。所以對分數做的線性組合可以直接搬到速度上：\(\tilde v = v_\theta(x,\varnothing) + w\big(v_\theta(x,c) - v_\theta(x,\varnothing)\big)\)。代價是每一步要算兩次（有條件與無條件），推論成本加倍（第 37 課）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          文字編碼器可用 T5（Wan 用 umT5）、CLIP 或 MLLM（HunyuanVideo 加雙向 refiner）。注入方式：交叉注意力 O(NMd)、MMDiT 聯合注意力 O((N+M)²d)、雙串流到單串流混合。CFG 從 p(x)p(c|x)^w 出發，以貝氏公式得分數 ∇log p(x) + w(∇log p(x|c) − ∇log p(x))，訓練時隨機丟掉提示詞即可同時學兩種預測。Tweedie 公式給出 v = (x + (1−t)∇log p_t)/t，速度是分數的仿射函數，所以 CFG 可直接用在速度上，代價是每步算兩次。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>MMDiT 和交叉注意力有什麼不同？</li>
+          <li>從貝氏公式推導 CFG 的分數組合。</li>
+          <li>為什麼 CFG 可以直接套用在速度場上？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>訓練資料管線</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：時空 patch 與 Video DiT</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：訓練資料管線 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 2 課：自注意力與交叉注意力 ｜ 多模態 LLM 與影片生成 ｜ 博雅書院</title>
+<meta name="description" content="讓資訊交流的兩種方式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">多模態 LLM 與影片生成</a>
+      <span class="sep">/</span>
+      <span>第 2 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜共同基礎：萬物皆 token · 第 2 課</div>
+      <h1>自注意力與交叉注意力</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>完整推導縮放點積注意力</li>
+          <li>推導為什麼要除以 √d</li>
+          <li>區分自注意力與交叉注意力</li>
+        </ul>
+      </div>
+
+      <h2>定義</h2>
+
+      <p>
+        給定查詢 \(Q \in \mathbb{R}^{N \times d_k}\)、鍵 \(K \in \mathbb{R}^{M \times d_k}\)、值 \(V \in \mathbb{R}^{M \times d_v}\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\operatorname{Attn}(Q,K,V) = \operatorname{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right) V, \qquad \operatorname{softmax}(z)_j = \frac{e^{z_j}}{\sum_{l} e^{z_l}}\]</div>
+
+      <p>
+        第 \(i\) 個輸出是 \(V\) 各列的加權平均，權重 \(a_{ij} = \operatorname{softmax}_j(q_i \cdot k_j / \sqrt{d_k})\)，且 \(\sum_j a_{ij} = 1\)。
+      </p>
+
+      <h2>推導：為什麼除以 √d</h2>
+
+      <p>
+        假設 \(q, k\) 的各分量獨立、平均 0、變異數 1。內積 \(s = \sum_{i=1}^{d_k} q_i k_i\) 的平均是 0，變異數為
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\operatorname{Var}(s) = \sum_{i=1}^{d_k} \operatorname{Var}(q_i k_i) = \sum_{i=1}^{d_k} \mathbb{E}[q_i^2]\,\mathbb{E}[k_i^2] = d_k\]</div>
+
+      <p>
+        （第一個等號用到各項獨立；第二個等號因為 \(\mathbb{E}[q_i k_i]=0\)，所以 \(\operatorname{Var}(q_ik_i)=\mathbb{E}[q_i^2k_i^2]=\mathbb{E}[q_i^2]\mathbb{E}[k_i^2]\)。）當 \(d_k = 128\)，內積的標準差約 11，softmax 會變得極端尖銳、梯度接近 0。除以 \(\sqrt{d_k}\) 後變異數回到 1。
+      </p>
+
+      <h2>自注意力 vs. 交叉注意力</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>Q 來自</th><th>K、V 來自</th><th>成本</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>自注意力</td><td>序列 X</td><td>同一個序列 X</td><td>\(O(N^2 d)\)</td></tr>
+          <tr><td>交叉注意力</td><td>序列 X（例如文字）</td><td>另一個序列 Y（例如圖片特徵）</td><td>\(O(NMd)\)</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        多模態模型兩種都用：LLaVA 把圖片 token 接進文字序列做自注意力；Flamingo 讓文字用交叉注意力去「查詢」圖片；影片生成模型常用交叉注意力把文字提示注入（第 29 課）。
+      </p>
+
+      <div class="code-block">def attention(Q, K, V, mask=None):
+    s = Q @ K.T / sqrt(Q.shape[-1])      # (N, M) 相似度
+    if mask is not None:
+        s = s.masked_fill(~mask, -inf)     # 因果遮罩：看不到未來
+    a = softmax(s, dim=-1)               # 每一列加總為 1
+    return a @ V                         # (N, d_v)</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          縮放點積注意力 softmax(QK^T/√d_k)V：輸出是 V 的加權平均。若 q、k 分量獨立、平均 0、變異數 1，內積變異數為 d_k，所以要除以 √d_k 讓變異數回到 1，避免 softmax 過度尖銳。自注意力的 Q、K、V 來自同一序列，成本 O(N²d)；交叉注意力的 K、V 來自另一序列，成本 O(NMd)。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎬 本課的互動工具在瀏覽器裡即時計算，使用教學用的小例子與約略估算；模型架構與數字以原始論文、技術報告與官方模型卡為準（2026 年 10 月查證），不同版本可能不同。推導採用常見的記號慣例，不同論文的時間方向（t=0 是資料或是噪音）可能相反，課文中會註明。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導內積 q·k 的變異數。</li>
+          <li>不除以 √d 會發生什麼事？</li>
+          <li>交叉注意力的 Q 與 K、V 各來自哪裡？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>圖片切成 patch 與位置編碼</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-01.html">← 上一課：所有模態都變成向量序列</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-03.html">下一課：圖片切成 patch 與位置編碼 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
