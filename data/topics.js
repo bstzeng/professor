@@ -34,6 +34,7 @@ window.SITE_DATA = {
     { id: "biomed", label: "生命科學與醫學", icon: "🧬" },
     { id: "nobel", label: "諾貝爾獎與科學大獎", icon: "🏅" },
     { id: "life", label: "生活與實用知識", icon: "🧭" },
+    { id: "edu", label: "教育與家庭", icon: "🏡" },
     { id: "finance", label: "金融與經濟", icon: "💰" },
     { id: "religion", label: "宗教與哲學", icon: "🪷" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
@@ -22124,6 +22125,226 @@ window.SITE_DATA = {
           courses: [
             { title: "每四年七月：怎麼追蹤與判讀", url: "topics/fields-medal/lesson-83.html" },
             { title: "總結：九十年的數學地圖", url: "topics/fields-medal/lesson-84.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "child-development",
+      category: "edu",
+      title: "兒童成長心理學：0～18 歲",
+      description:
+        "從大腦發育、五大發展理論出發，依年齡走過 0～2 歲（依附、物體恆存、語言萌芽）、2～6 歲（心智理論、遊戲、執行功能）、6～12 歲（具體運思、友誼、霸凌、道德推理）與 12～18 歲（青春期、青少年大腦、自我認同、社群媒體）；再談發展遲緩與早療、ADHD、自閉症、學習障礙、焦慮憂鬱與何時求助，納入台灣的兒童預防保健與早療制度。附發展里程碑、發展地圖與求助決策樹等互動工具。",
+      icon: "🌱",
+      url: "topics/child-development/index.html",
+      resources: [
+        {
+          title: "發展工具箱",
+          description: "發展里程碑查詢、0～18 歲發展地圖、五大理論、何時求助決策樹、迷思檢驗",
+          icon: "🧰",
+          url: "topics/child-development/guide.html"
+        },
+        {
+          title: "名詞速查",
+          description: "發展心理學的關鍵名詞、理論與台灣資源",
+          icon: "📖",
+          url: "topics/child-development/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎觀念",
+          courses: [
+            { title: "發展心理學在研究什麼", url: "topics/child-development/lesson-01.html" },
+            { title: "大腦怎麼長大", url: "topics/child-development/lesson-02.html" },
+            { title: "五大發展理論", url: "topics/child-development/lesson-03.html" },
+            { title: "怎麼研究不會說話的嬰兒", url: "topics/child-development/lesson-04.html" },
+            { title: "氣質：天生的個性差異", url: "topics/child-development/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜0～2 歲：嬰幼兒期",
+          courses: [
+            { title: "新生兒的能力", url: "topics/child-development/lesson-06.html" },
+            { title: "感覺與動作發展", url: "topics/child-development/lesson-07.html" },
+            { title: "依附關係", url: "topics/child-development/lesson-08.html" },
+            { title: "物體恆存", url: "topics/child-development/lesson-09.html" },
+            { title: "語言萌芽", url: "topics/child-development/lesson-10.html" },
+            { title: "情緒的出現", url: "topics/child-development/lesson-11.html" },
+            { title: "陌生人焦慮與分離焦慮", url: "topics/child-development/lesson-12.html" },
+            { title: "0～2 歲里程碑總整理", url: "topics/child-development/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜2～6 歲：學齡前",
+          courses: [
+            { title: "前運思期與自我中心", url: "topics/child-development/lesson-14.html" },
+            { title: "語言爆發", url: "topics/child-development/lesson-15.html" },
+            { title: "心智理論", url: "topics/child-development/lesson-16.html" },
+            { title: "遊戲的發展", url: "topics/child-development/lesson-17.html" },
+            { title: "自我控制與執行功能", url: "topics/child-development/lesson-18.html" },
+            { title: "情緒調節", url: "topics/child-development/lesson-19.html" },
+            { title: "性別認同的萌芽", url: "topics/child-development/lesson-20.html" },
+            { title: "道德感的開始", url: "topics/child-development/lesson-21.html" },
+            { title: "2～6 歲里程碑總整理", url: "topics/child-development/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜6～12 歲：學齡期",
+          courses: [
+            { title: "具體運思", url: "topics/child-development/lesson-23.html" },
+            { title: "記憶與學習策略", url: "topics/child-development/lesson-24.html" },
+            { title: "閱讀與數學能力", url: "topics/child-development/lesson-25.html" },
+            { title: "勤奮與自卑", url: "topics/child-development/lesson-26.html" },
+            { title: "同儕與友誼", url: "topics/child-development/lesson-27.html" },
+            { title: "自尊", url: "topics/child-development/lesson-28.html" },
+            { title: "霸凌", url: "topics/child-development/lesson-29.html" },
+            { title: "道德推理", url: "topics/child-development/lesson-30.html" },
+            { title: "6～12 歲總整理", url: "topics/child-development/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜12～18 歲：青少年期",
+          courses: [
+            { title: "青春期的身體變化", url: "topics/child-development/lesson-32.html" },
+            { title: "青少年大腦", url: "topics/child-development/lesson-33.html" },
+            { title: "形式運思與抽象思考", url: "topics/child-development/lesson-34.html" },
+            { title: "自我認同", url: "topics/child-development/lesson-35.html" },
+            { title: "同儕壓力", url: "topics/child-development/lesson-36.html" },
+            { title: "親子衝突的本質", url: "topics/child-development/lesson-37.html" },
+            { title: "戀愛與性", url: "topics/child-development/lesson-38.html" },
+            { title: "睡眠與生理時鐘", url: "topics/child-development/lesson-39.html" },
+            { title: "社群媒體與手機", url: "topics/child-development/lesson-40.html" },
+            { title: "邁向成年", url: "topics/child-development/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 F｜發展上的差異與困難",
+          courses: [
+            { title: "發展遲緩與早期療育", url: "topics/child-development/lesson-42.html" },
+            { title: "注意力不足過動症（ADHD）", url: "topics/child-development/lesson-43.html" },
+            { title: "自閉症類群", url: "topics/child-development/lesson-44.html" },
+            { title: "學習障礙", url: "topics/child-development/lesson-45.html" },
+            { title: "兒童與青少年的焦慮、憂鬱", url: "topics/child-development/lesson-46.html" },
+            { title: "何時該尋求專業協助", url: "topics/child-development/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "全年齡發展地圖", url: "topics/child-development/lesson-48.html" },
+            { title: "常見迷思", url: "topics/child-development/lesson-49.html" },
+            { title: "總結", url: "topics/child-development/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "parenting",
+      category: "edu",
+      title: "家長教養：從出生到 18 歲",
+      description:
+        "以研究為本的教養指南：教養風格、溫暖與設限、修復關係與家長自我照顧；依年齡談安全睡眠與安撫、情緒崩潰與正向管教、讚美與如廁、學習習慣與第一支手機、霸凌與性教育、青少年溝通與監督、菸酒電子煙、升學與打工、迎接 18 歲成年；並涵蓋離婚、多元家庭、特殊需求與台灣法規、求助專線。附教養風格象限與多個情境演練決策樹。",
+      icon: "🏡",
+      url: "topics/parenting/index.html",
+      resources: [
+        {
+          title: "情境演練工具箱",
+          description: "教養風格象限、五個情境決策樹、0～18 歲教養地圖、螢幕與睡眠建議",
+          icon: "🧰",
+          url: "topics/parenting/guide.html"
+        },
+        {
+          title: "名詞與求助速查",
+          description: "教養研究的關鍵名詞、台灣法規與求助專線",
+          icon: "📖",
+          url: "topics/parenting/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜教養的基礎",
+          courses: [
+            { title: "教養研究在說什麼", url: "topics/parenting/lesson-01.html" },
+            { title: "四種教養風格", url: "topics/parenting/lesson-02.html" },
+            { title: "溫暖與設限可以同時存在", url: "topics/parenting/lesson-03.html" },
+            { title: "回應與依附", url: "topics/parenting/lesson-04.html" },
+            { title: "家長也需要被照顧", url: "topics/parenting/lesson-05.html" },
+            { title: "台灣的教養相關法律", url: "topics/parenting/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜0～2 歲：建立安全感",
+          courses: [
+            { title: "新生兒照顧與安全睡眠", url: "topics/parenting/lesson-07.html" },
+            { title: "哭與安撫", url: "topics/parenting/lesson-08.html" },
+            { title: "餵養與飲食", url: "topics/parenting/lesson-09.html" },
+            { title: "跟寶寶說話", url: "topics/parenting/lesson-10.html" },
+            { title: "安全的探索", url: "topics/parenting/lesson-11.html" },
+            { title: "1～2 歲的「不要！」", url: "topics/parenting/lesson-12.html" },
+            { title: "托育與回到職場", url: "topics/parenting/lesson-13.html" },
+            { title: "0～2 歲總整理", url: "topics/parenting/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜2～6 歲：情緒與規矩",
+          courses: [
+            { title: "情緒崩潰怎麼辦", url: "topics/parenting/lesson-15.html" },
+            { title: "正向管教", url: "topics/parenting/lesson-16.html" },
+            { title: "讚美的藝術", url: "topics/parenting/lesson-17.html" },
+            { title: "如廁訓練", url: "topics/parenting/lesson-18.html" },
+            { title: "遊戲與閱讀", url: "topics/parenting/lesson-19.html" },
+            { title: "手足關係", url: "topics/parenting/lesson-20.html" },
+            { title: "例行作息與睡眠", url: "topics/parenting/lesson-21.html" },
+            { title: "上幼兒園與入學準備", url: "topics/parenting/lesson-22.html" },
+            { title: "2～6 歲總整理", url: "topics/parenting/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜6～12 歲：學習與責任",
+          courses: [
+            { title: "上小學了", url: "topics/parenting/lesson-24.html" },
+            { title: "作業與學習習慣", url: "topics/parenting/lesson-25.html" },
+            { title: "第一支手機與螢幕規則", url: "topics/parenting/lesson-26.html" },
+            { title: "友誼與霸凌", url: "topics/parenting/lesson-27.html" },
+            { title: "責任、家事與零用錢", url: "topics/parenting/lesson-28.html" },
+            { title: "誠實與說謊", url: "topics/parenting/lesson-29.html" },
+            { title: "談身體與性教育", url: "topics/parenting/lesson-30.html" },
+            { title: "運動、戶外與自由時間", url: "topics/parenting/lesson-31.html" },
+            { title: "6～12 歲總整理", url: "topics/parenting/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 E｜12～18 歲：從管理到顧問",
+          courses: [
+            { title: "青少年的溝通", url: "topics/parenting/lesson-33.html" },
+            { title: "監督與信任", url: "topics/parenting/lesson-34.html" },
+            { title: "自主與規則的協商", url: "topics/parenting/lesson-35.html" },
+            { title: "菸、酒、電子煙與藥物", url: "topics/parenting/lesson-36.html" },
+            { title: "戀愛、性與網路安全", url: "topics/parenting/lesson-37.html" },
+            { title: "睡眠、手機與作息", url: "topics/parenting/lesson-38.html" },
+            { title: "台灣的升學制度", url: "topics/parenting/lesson-39.html" },
+            { title: "打工、機車與成年前的準備", url: "topics/parenting/lesson-40.html" },
+            { title: "青少年的情緒與心理健康", url: "topics/parenting/lesson-41.html" },
+            { title: "迎接 18 歲", url: "topics/parenting/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 F｜特殊情境與家長自己",
+          courses: [
+            { title: "離婚與共同親職", url: "topics/parenting/lesson-43.html" },
+            { title: "多元的家庭", url: "topics/parenting/lesson-44.html" },
+            { title: "孩子有特殊需求時", url: "topics/parenting/lesson-45.html" },
+            { title: "當我失控時", url: "topics/parenting/lesson-46.html" },
+            { title: "求助地圖", url: "topics/parenting/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "0～18 歲教養地圖", url: "topics/parenting/lesson-48.html" },
+            { title: "教養迷思", url: "topics/parenting/lesson-49.html" },
+            { title: "總結", url: "topics/parenting/lesson-50.html" },
           ],
         },
       ],
