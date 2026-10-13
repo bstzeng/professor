@@ -22348,6 +22348,121 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "guiding-learning",
+      category: "edu",
+      title: "引導孩子學習：學習科學給家長的實用 Tips",
+      description:
+        "從工作記憶、遺忘曲線與必要難度出發，逐一實作學習科學的六大策略（提取、間隔、交錯、精緻化、具體例子、雙重編碼）與費曼學習法；談動機、成長心態、回饋與錯題本；鷹架、提問階梯、等待時間與後設認知；閱讀、寫作、CPA 數學、英語、自然與社會的分科引導；讀書時間、考前準備與考試焦慮、補習、學習困難與資優；以及 AI 時代怎麼把 AI 當家教而不是槍手。附遺忘曲線模擬、間隔複習表、提問階梯、CPA 示範、專注計時器與情境演練。",
+      icon: "📚",
+      url: "topics/guiding-learning/index.html",
+      resources: [
+        {
+          title: "學習引導工具箱",
+          description: "遺忘曲線模擬、間隔複習時間表、提問階梯、CPA 數學、專注計時器與情境演練",
+          icon: "🧰",
+          url: "topics/guiding-learning/guide.html"
+        },
+        {
+          title: "名詞速查",
+          description: "學習科學的關鍵名詞與研究",
+          icon: "📖",
+          url: "topics/guiding-learning/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜大腦怎麼學",
+          courses: [
+            { title: "學習是什麼", url: "topics/guiding-learning/lesson-01.html" },
+            { title: "遺忘曲線", url: "topics/guiding-learning/lesson-02.html" },
+            { title: "「感覺有學到」的陷阱", url: "topics/guiding-learning/lesson-03.html" },
+            { title: "必要難度", url: "topics/guiding-learning/lesson-04.html" },
+            { title: "睡眠、運動與學習", url: "topics/guiding-learning/lesson-05.html" },
+            { title: "六大策略總覽", url: "topics/guiding-learning/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜六大策略實作",
+          courses: [
+            { title: "提取練習", url: "topics/guiding-learning/lesson-07.html" },
+            { title: "間隔練習", url: "topics/guiding-learning/lesson-08.html" },
+            { title: "交錯練習", url: "topics/guiding-learning/lesson-09.html" },
+            { title: "精緻化", url: "topics/guiding-learning/lesson-10.html" },
+            { title: "具體例子與類比", url: "topics/guiding-learning/lesson-11.html" },
+            { title: "雙重編碼", url: "topics/guiding-learning/lesson-12.html" },
+            { title: "費曼學習法", url: "topics/guiding-learning/lesson-13.html" },
+            { title: "依年齡調整策略", url: "topics/guiding-learning/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜動機與心態",
+          courses: [
+            { title: "自我決定論", url: "topics/guiding-learning/lesson-15.html" },
+            { title: "獎勵怎麼用", url: "topics/guiding-learning/lesson-16.html" },
+            { title: "成長心態", url: "topics/guiding-learning/lesson-17.html" },
+            { title: "怎麼回饋", url: "topics/guiding-learning/lesson-18.html" },
+            { title: "犯錯是學習的材料", url: "topics/guiding-learning/lesson-19.html" },
+            { title: "保護好奇心", url: "topics/guiding-learning/lesson-20.html" },
+            { title: "「我就是不會」「好無聊」", url: "topics/guiding-learning/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜怎麼問、怎麼教",
+          courses: [
+            { title: "鷹架與近側發展區", url: "topics/guiding-learning/lesson-22.html" },
+            { title: "提問的階梯", url: "topics/guiding-learning/lesson-23.html" },
+            { title: "等待時間", url: "topics/guiding-learning/lesson-24.html" },
+            { title: "示範、引導、放手", url: "topics/guiding-learning/lesson-25.html" },
+            { title: "不直接給答案的五種說法", url: "topics/guiding-learning/lesson-26.html" },
+            { title: "後設認知", url: "topics/guiding-learning/lesson-27.html" },
+            { title: "專注力", url: "topics/guiding-learning/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜分科引導",
+          courses: [
+            { title: "0～6 歲：在遊戲中學習", url: "topics/guiding-learning/lesson-29.html" },
+            { title: "閱讀萌發與注音拼讀", url: "topics/guiding-learning/lesson-30.html" },
+            { title: "閱讀理解策略", url: "topics/guiding-learning/lesson-31.html" },
+            { title: "寫作", url: "topics/guiding-learning/lesson-32.html" },
+            { title: "數感與數學概念", url: "topics/guiding-learning/lesson-33.html" },
+            { title: "應用題與數學焦慮", url: "topics/guiding-learning/lesson-34.html" },
+            { title: "英語", url: "topics/guiding-learning/lesson-35.html" },
+            { title: "自然科學", url: "topics/guiding-learning/lesson-36.html" },
+            { title: "社會與時事", url: "topics/guiding-learning/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實戰情境",
+          courses: [
+            { title: "每天的讀書時間怎麼安排", url: "topics/guiding-learning/lesson-38.html" },
+            { title: "考前怎麼準備", url: "topics/guiding-learning/lesson-39.html" },
+            { title: "考試焦慮", url: "topics/guiding-learning/lesson-40.html" },
+            { title: "補習、才藝與自學", url: "topics/guiding-learning/lesson-41.html" },
+            { title: "跟老師合作", url: "topics/guiding-learning/lesson-42.html" },
+            { title: "學習困難的警訊", url: "topics/guiding-learning/lesson-43.html" },
+            { title: "學得快的孩子", url: "topics/guiding-learning/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 G｜AI 時代的學習",
+          courses: [
+            { title: "AI 是怎麼回答問題的", url: "topics/guiding-learning/lesson-45.html" },
+            { title: "把 AI 當家教，不是槍手", url: "topics/guiding-learning/lesson-46.html" },
+            { title: "家庭的 AI 規則", url: "topics/guiding-learning/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "0～18 歲學習引導地圖", url: "topics/guiding-learning/lesson-48.html" },
+            { title: "學習迷思", url: "topics/guiding-learning/lesson-49.html" },
+            { title: "總結：十個最有效的 Tips", url: "topics/guiding-learning/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
