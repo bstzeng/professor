@@ -22463,6 +22463,125 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "imperial-palace",
+      category: "history",
+      title: "皇宮裡的人與官：從三公九卿到紫禁城",
+      description:
+        "皇宮裡到底有多少人？宦官、宮女、后妃、侍衛、工匠與皇族的人數與來源，並把史料記載與學者估計分開說明；從秦漢三公九卿、隋唐三省六部、宋代二府三司、明代內閣與司禮監到清代軍機處，看懂兩千年中央官制各管什麼；監察、三法司與廠衛；明代二十四衙門與清代內務府；九品十八級、補服頂戴、俸祿與科舉入仕；最後走一遍紫禁城：建造、中軸線、三大殿、後三宮、養心殿、建築密碼、防火排水，以及兩岸故宮。附紫禁城互動平面圖、官制組織圖、品級對照器等工具。",
+      icon: "🏯",
+      url: "topics/imperial-palace/index.html",
+      resources: [
+        {
+          title: "皇宮工具箱",
+          description: "紫禁城互動平面圖、歷代官制組織圖、品級補服對照、皇宮人口、屋頂等級與職涯情境",
+          icon: "🧰",
+          url: "topics/imperial-palace/guide.html"
+        },
+        {
+          title: "官名與名詞速查",
+          description: "歷代官名、宮廷機構與紫禁城建築的速查表",
+          icon: "📖",
+          url: "topics/imperial-palace/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論：皇宮是一座城市",
+          courses: [
+            { title: "皇宮不只是皇帝的家", url: "topics/imperial-palace/lesson-01.html" },
+            { title: "我們怎麼知道", url: "topics/imperial-palace/lesson-02.html" },
+            { title: "歷代皇宮巡禮", url: "topics/imperial-palace/lesson-03.html" },
+            { title: "外朝與內廷", url: "topics/imperial-palace/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜皇宮裡到底有多少人",
+          courses: [
+            { title: "宦官：人數與來源", url: "topics/imperial-palace/lesson-05.html" },
+            { title: "宮女：選秀、工作與出宮", url: "topics/imperial-palace/lesson-06.html" },
+            { title: "后妃：位階與人數", url: "topics/imperial-palace/lesson-07.html" },
+            { title: "侍衛與禁軍", url: "topics/imperial-palace/lesson-08.html" },
+            { title: "工匠、廚役與雜役", url: "topics/imperial-palace/lesson-09.html" },
+            { title: "皇族：皇子、公主與太后", url: "topics/imperial-palace/lesson-10.html" },
+            { title: "每天進出宮門的官員", url: "topics/imperial-palace/lesson-11.html" },
+            { title: "皇宮人口總表", url: "topics/imperial-palace/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜歷代中央官制：國家由誰在管",
+          courses: [
+            { title: "官制的總體演變", url: "topics/imperial-palace/lesson-13.html" },
+            { title: "秦漢：三公九卿", url: "topics/imperial-palace/lesson-14.html" },
+            { title: "漢代的內朝與外朝", url: "topics/imperial-palace/lesson-15.html" },
+            { title: "魏晉南北朝：中書、門下崛起", url: "topics/imperial-palace/lesson-16.html" },
+            { title: "隋唐：三省分工", url: "topics/imperial-palace/lesson-17.html" },
+            { title: "唐代六部逐一看", url: "topics/imperial-palace/lesson-18.html" },
+            { title: "宋代：二府三司", url: "topics/imperial-palace/lesson-19.html" },
+            { title: "元代：中書省與行省", url: "topics/imperial-palace/lesson-20.html" },
+            { title: "明代：廢丞相與內閣", url: "topics/imperial-palace/lesson-21.html" },
+            { title: "清代：軍機處", url: "topics/imperial-palace/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜監察、司法與特務",
+          courses: [
+            { title: "御史台與都察院", url: "topics/imperial-palace/lesson-23.html" },
+            { title: "諫官與給事中", url: "topics/imperial-palace/lesson-24.html" },
+            { title: "三法司：大案怎麼審", url: "topics/imperial-palace/lesson-25.html" },
+            { title: "錦衣衛、東廠與西廠", url: "topics/imperial-palace/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜宮廷內部機構：誰在照顧皇帝一家",
+          courses: [
+            { title: "明代宦官的二十四衙門", url: "topics/imperial-palace/lesson-27.html" },
+            { title: "司禮監：宦官為什麼能「批紅」", url: "topics/imperial-palace/lesson-28.html" },
+            { title: "清代內務府", url: "topics/imperial-palace/lesson-29.html" },
+            { title: "敬事房", url: "topics/imperial-palace/lesson-30.html" },
+            { title: "太醫院", url: "topics/imperial-palace/lesson-31.html" },
+            { title: "光祿寺、御膳房與御茶房", url: "topics/imperial-palace/lesson-32.html" },
+            { title: "欽天監", url: "topics/imperial-palace/lesson-33.html" },
+            { title: "翰林院、南書房與上書房", url: "topics/imperial-palace/lesson-34.html" },
+            { title: "宗人府", url: "topics/imperial-palace/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜當官是什麼樣子",
+          courses: [
+            { title: "九品十八級", url: "topics/imperial-palace/lesson-36.html" },
+            { title: "從衣服認官", url: "topics/imperial-palace/lesson-37.html" },
+            { title: "俸祿：官員的薪水夠用嗎", url: "topics/imperial-palace/lesson-38.html" },
+            { title: "怎麼當上官", url: "topics/imperial-palace/lesson-39.html" },
+            { title: "上朝流程", url: "topics/imperial-palace/lesson-40.html" },
+            { title: "考核、升官、貶官與退休", url: "topics/imperial-palace/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜紫禁城",
+          courses: [
+            { title: "建造紫禁城", url: "topics/imperial-palace/lesson-42.html" },
+            { title: "數字裡的紫禁城", url: "topics/imperial-palace/lesson-43.html" },
+            { title: "中軸線與總體布局", url: "topics/imperial-palace/lesson-44.html" },
+            { title: "午門與金水橋", url: "topics/imperial-palace/lesson-45.html" },
+            { title: "太和殿", url: "topics/imperial-palace/lesson-46.html" },
+            { title: "中和殿與保和殿", url: "topics/imperial-palace/lesson-47.html" },
+            { title: "後三宮：乾清宮、交泰殿、坤寧宮", url: "topics/imperial-palace/lesson-48.html" },
+            { title: "養心殿", url: "topics/imperial-palace/lesson-49.html" },
+            { title: "東西六宮、御花園與寧壽宮", url: "topics/imperial-palace/lesson-50.html" },
+            { title: "建築的密碼", url: "topics/imperial-palace/lesson-51.html" },
+            { title: "城市的基礎設施", url: "topics/imperial-palace/lesson-52.html" },
+            { title: "從皇宮到博物院", url: "topics/imperial-palace/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "一張圖看懂皇宮系統", url: "topics/imperial-palace/lesson-54.html" },
+          ],
+        },
+      ],
     }
   ]
 };
