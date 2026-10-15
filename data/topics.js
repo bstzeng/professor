@@ -37,6 +37,7 @@ window.SITE_DATA = {
     { id: "edu", label: "教育與家庭", icon: "🏡" },
     { id: "finance", label: "金融與經濟", icon: "💰" },
     { id: "religion", label: "宗教與哲學", icon: "🪷" },
+    { id: "classics", label: "中國經典", icon: "🖌️" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
     { id: "fantasy", label: "奇幻與科幻文學、電影宇宙", icon: "📖" },
     { id: "anime", label: "動漫", icon: "🍥" },
@@ -22579,6 +22580,236 @@ window.SITE_DATA = {
           title: "模組 H｜總結",
           courses: [
             { title: "一張圖看懂皇宮系統", url: "topics/imperial-palace/lesson-54.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "analects",
+      category: "classics",
+      title: "論語：孔子與弟子的對話",
+      description:
+        "依主題重新編排《論語》：學習、仁、君子與小人、孝悌、交友待人、政治與禮，以及孔子這個人——他的自述、幽默、日常、音樂、挫折與顏淵之死。每課附原文、白話、字詞與不同的解讀，收錄兩百五十多則章句；並談論語在台灣、被誤讀的名句與論語成語。附原文白話切換、二十篇索引、一章多解、名句搜尋與成語測驗。",
+      icon: "📜",
+      url: "topics/analects/index.html",
+      resources: [
+        {
+          title: "名句搜尋",
+          description: "以關鍵字搜尋課程收錄的全部章句、二十篇索引與成語測驗",
+          icon: "🔎",
+          url: "topics/analects/guide.html"
+        },
+        {
+          title: "人物與名詞速查",
+          description: "論語中的人物、重要概念與注本",
+          icon: "📖",
+          url: "topics/analects/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識論語",
+          courses: [
+            { title: "《論語》是什麼書", url: "topics/analects/lesson-01.html" },
+            { title: "孔子的一生", url: "topics/analects/lesson-02.html" },
+            { title: "孔門弟子群像", url: "topics/analects/lesson-03.html" },
+            { title: "怎麼讀論語", url: "topics/analects/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜學習",
+          courses: [
+            { title: "學而時習之", url: "topics/analects/lesson-05.html" },
+            { title: "溫故知新、學思並重", url: "topics/analects/lesson-06.html" },
+            { title: "知之為知之", url: "topics/analects/lesson-07.html" },
+            { title: "好學的標準", url: "topics/analects/lesson-08.html" },
+            { title: "因材施教", url: "topics/analects/lesson-09.html" },
+            { title: "有教無類", url: "topics/analects/lesson-10.html" },
+            { title: "孔子怎麼評論學生", url: "topics/analects/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜仁",
+          courses: [
+            { title: "仁是什麼", url: "topics/analects/lesson-12.html" },
+            { title: "己所不欲，勿施於人", url: "topics/analects/lesson-13.html" },
+            { title: "克己復禮", url: "topics/analects/lesson-14.html" },
+            { title: "巧言令色鮮矣仁", url: "topics/analects/lesson-15.html" },
+            { title: "一以貫之", url: "topics/analects/lesson-16.html" },
+            { title: "殺身成仁", url: "topics/analects/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜君子與小人",
+          courses: [
+            { title: "君子的標準", url: "topics/analects/lesson-18.html" },
+            { title: "君子喻於義，小人喻於利", url: "topics/analects/lesson-19.html" },
+            { title: "和而不同", url: "topics/analects/lesson-20.html" },
+            { title: "君子三戒、三畏、九思", url: "topics/analects/lesson-21.html" },
+            { title: "文質彬彬", url: "topics/analects/lesson-22.html" },
+            { title: "見賢思齊、過則勿憚改", url: "topics/analects/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜孝悌與家庭",
+          courses: [
+            { title: "孝是什麼", url: "topics/analects/lesson-24.html" },
+            { title: "父母在，不遠遊", url: "topics/analects/lesson-25.html" },
+            { title: "三年之喪", url: "topics/analects/lesson-26.html" },
+            { title: "父為子隱", url: "topics/analects/lesson-27.html" },
+            { title: "孝的現代爭議", url: "topics/analects/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜交友與待人",
+          courses: [
+            { title: "益者三友，損者三友", url: "topics/analects/lesson-29.html" },
+            { title: "言而有信", url: "topics/analects/lesson-30.html" },
+            { title: "以直報怨", url: "topics/analects/lesson-31.html" },
+            { title: "言與行", url: "topics/analects/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 G｜政治與禮",
+          courses: [
+            { title: "為政以德", url: "topics/analects/lesson-33.html" },
+            { title: "正名", url: "topics/analects/lesson-34.html" },
+            { title: "民無信不立", url: "topics/analects/lesson-35.html" },
+            { title: "其身正，不令而行", url: "topics/analects/lesson-36.html" },
+            { title: "禮與樂", url: "topics/analects/lesson-37.html" },
+            { title: "中庸與過猶不及", url: "topics/analects/lesson-38.html" },
+            { title: "知其不可而為之", url: "topics/analects/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 H｜孔子這個人",
+          courses: [
+            { title: "孔子的自述", url: "topics/analects/lesson-40.html" },
+            { title: "孔子的幽默與脾氣", url: "topics/analects/lesson-41.html" },
+            { title: "孔子的日常生活", url: "topics/analects/lesson-42.html" },
+            { title: "孔子與音樂、與自然", url: "topics/analects/lesson-43.html" },
+            { title: "孔子的挫折", url: "topics/analects/lesson-44.html" },
+            { title: "顏淵之死", url: "topics/analects/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 I｜影響與總結",
+          courses: [
+            { title: "從論語到四書", url: "topics/analects/lesson-46.html" },
+            { title: "論語在台灣", url: "topics/analects/lesson-47.html" },
+            { title: "被誤讀的名句", url: "topics/analects/lesson-48.html" },
+            { title: "論語成語大全", url: "topics/analects/lesson-49.html" },
+            { title: "總結：二十句最值得記住的話", url: "topics/analects/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "taiwan-trees",
+      category: "life",
+      title: "認識台灣的樹：從行道樹到山林巨木",
+      description:
+        "從葉序、單葉複葉、葉形與花果開始學認樹；逐一認識榕樹、樟樹、茄苳、台灣欒樹、欖仁、光蠟樹、楓香、苦楝等常見行道樹，山櫻花、木棉、羊蹄甲類、流蘇、油桐、阿勃勒、鳳凰木、美人樹等開花樹，海岸與校園的樹，以及紅檜、扁柏、台灣杉、肖楠與台灣的松；再談老樹保護、行道樹的煩惱、入侵種與樹名。附維基共享資源照片、葉的示意圖、開花月曆與互動認樹檢索表。",
+      icon: "🌳",
+      url: "topics/taiwan-trees/index.html",
+      resources: [
+        {
+          title: "認樹工具箱",
+          description: "認樹檢索表、開花月曆與葉的示意圖",
+          icon: "🧰",
+          url: "topics/taiwan-trees/guide.html"
+        },
+        {
+          title: "樹種與名詞速查",
+          description: "本課程樹種的學名、來源，以及認樹的常用名詞",
+          icon: "📖",
+          url: "topics/taiwan-trees/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認樹基礎",
+          courses: [
+            { title: "怎麼看一棵樹", url: "topics/taiwan-trees/lesson-01.html" },
+            { title: "葉的密碼：單葉、複葉與葉序", url: "topics/taiwan-trees/lesson-02.html" },
+            { title: "葉形、葉緣與葉脈", url: "topics/taiwan-trees/lesson-03.html" },
+            { title: "花與果實", url: "topics/taiwan-trees/lesson-04.html" },
+            { title: "原生、特有、外來與入侵", url: "topics/taiwan-trees/lesson-05.html" },
+            { title: "觀察工具與記錄方法", url: "topics/taiwan-trees/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜最常見的行道樹",
+          courses: [
+            { title: "榕樹", url: "topics/taiwan-trees/lesson-07.html" },
+            { title: "樟樹", url: "topics/taiwan-trees/lesson-08.html" },
+            { title: "茄苳", url: "topics/taiwan-trees/lesson-09.html" },
+            { title: "台灣欒樹", url: "topics/taiwan-trees/lesson-10.html" },
+            { title: "黑板樹", url: "topics/taiwan-trees/lesson-11.html" },
+            { title: "大葉欖仁與小葉欖仁", url: "topics/taiwan-trees/lesson-12.html" },
+            { title: "印度紫檀與水黃皮", url: "topics/taiwan-trees/lesson-13.html" },
+            { title: "菩提樹", url: "topics/taiwan-trees/lesson-14.html" },
+            { title: "光蠟樹", url: "topics/taiwan-trees/lesson-15.html" },
+            { title: "楓香", url: "topics/taiwan-trees/lesson-16.html" },
+            { title: "苦楝", url: "topics/taiwan-trees/lesson-17.html" },
+            { title: "雀榕", url: "topics/taiwan-trees/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 C｜開花的樹，依季節",
+          courses: [
+            { title: "山櫻花與各種櫻花", url: "topics/taiwan-trees/lesson-19.html" },
+            { title: "木棉", url: "topics/taiwan-trees/lesson-20.html" },
+            { title: "洋紫荊、艷紫荊與羊蹄甲", url: "topics/taiwan-trees/lesson-21.html" },
+            { title: "流蘇", url: "topics/taiwan-trees/lesson-22.html" },
+            { title: "油桐", url: "topics/taiwan-trees/lesson-23.html" },
+            { title: "阿勃勒", url: "topics/taiwan-trees/lesson-24.html" },
+            { title: "鳳凰木", url: "topics/taiwan-trees/lesson-25.html" },
+            { title: "大花紫薇與九芎", url: "topics/taiwan-trees/lesson-26.html" },
+            { title: "美人樹", url: "topics/taiwan-trees/lesson-27.html" },
+            { title: "黃槿與海檬果", url: "topics/taiwan-trees/lesson-28.html" },
+            { title: "掌葉蘋婆與吉貝", url: "topics/taiwan-trees/lesson-29.html" },
+            { title: "台灣開花月曆", url: "topics/taiwan-trees/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 D｜海岸與校園",
+          courses: [
+            { title: "海岸林", url: "topics/taiwan-trees/lesson-31.html" },
+            { title: "福木", url: "topics/taiwan-trees/lesson-32.html" },
+            { title: "椰子與棕櫚", url: "topics/taiwan-trees/lesson-33.html" },
+            { title: "相思樹", url: "topics/taiwan-trees/lesson-34.html" },
+            { title: "構樹與血桐", url: "topics/taiwan-trees/lesson-35.html" },
+            { title: "果樹也是行道樹", url: "topics/taiwan-trees/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 E｜山林巨木與針葉樹",
+          courses: [
+            { title: "台灣的森林帶", url: "topics/taiwan-trees/lesson-37.html" },
+            { title: "紅檜與扁柏", url: "topics/taiwan-trees/lesson-38.html" },
+            { title: "台灣杉", url: "topics/taiwan-trees/lesson-39.html" },
+            { title: "台灣肖楠與香杉", url: "topics/taiwan-trees/lesson-40.html" },
+            { title: "台灣五木與伐木史", url: "topics/taiwan-trees/lesson-41.html" },
+            { title: "台灣的松", url: "topics/taiwan-trees/lesson-42.html" },
+            { title: "台灣櫸與烏心石", url: "topics/taiwan-trees/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 F｜樹與人",
+          courses: [
+            { title: "受保護樹木與老樹", url: "topics/taiwan-trees/lesson-44.html" },
+            { title: "行道樹的煩惱", url: "topics/taiwan-trees/lesson-45.html" },
+            { title: "外來種與入侵種", url: "topics/taiwan-trees/lesson-46.html" },
+            { title: "樹的名字", url: "topics/taiwan-trees/lesson-47.html" },
+            { title: "認樹散步路線", url: "topics/taiwan-trees/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "認樹檢索表", url: "topics/taiwan-trees/lesson-49.html" },
+            { title: "總結：最常見的 30 種樹", url: "topics/taiwan-trees/lesson-50.html" },
           ],
         },
       ],
