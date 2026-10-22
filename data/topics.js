@@ -22813,6 +22813,132 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "math-derivations",
+      category: "math",
+      title: "數學公式是怎麼推導出來的",
+      description:
+        "從高中到大一微積分，51 條公式逐步推導：每一步標出用了哪一招（代換、拆開重組、對稱、極限、歸納、反證……），可展開「為什麼可以？」，再用拉桿與圖形親手驗證。涵蓋畢氏定理、圓面積、等比級數、一元二次公式、二項式定理、e、和角公式、海龍公式、導數與積分的各條規則、球體積、泰勒展開、尤拉公式、巴塞爾問題、斯特靈公式、高斯積分、常態分布、行列式、最小平方法，以及自由落體、向心加速度、克卜勒第三定律、單擺與因次分析。",
+      icon: "✏️",
+      url: "topics/math-derivations/index.html",
+      resources: [
+        {
+          title: "推導工具箱",
+          description: "課程中所有圖形與數值互動：拼圖、切片、夾擠、割線、級數、機率與向量",
+          icon: "🧰",
+          url: "topics/math-derivations/guide.html"
+        },
+        {
+          title: "公式與招式速查",
+          description: "十二種推導招式，以及課程中每條公式的出處與主要招式",
+          icon: "📖",
+          url: "topics/math-derivations/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜序幕：推導是一種手藝",
+          courses: [
+            { title: "公式不是背的", url: "topics/math-derivations/lesson-01.html" },
+            { title: "推導的基本招式", url: "topics/math-derivations/lesson-02.html" },
+            { title: "怎麼讀一條推導", url: "topics/math-derivations/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜用圖形推公式",
+          courses: [
+            { title: "平方差與完全平方", url: "topics/math-derivations/lesson-04.html" },
+            { title: "畢氏定理的三種推導", url: "topics/math-derivations/lesson-05.html" },
+            { title: "圓面積：切披薩", url: "topics/math-derivations/lesson-06.html" },
+            { title: "阿基米德夾擠 π", url: "topics/math-derivations/lesson-07.html" },
+            { title: "等差級數：高斯配對", url: "topics/math-derivations/lesson-08.html" },
+            { title: "等比級數：錯位相減", url: "topics/math-derivations/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜代數公式",
+          courses: [
+            { title: "一元二次公式：配方法", url: "topics/math-derivations/lesson-10.html" },
+            { title: "根與係數", url: "topics/math-derivations/lesson-11.html" },
+            { title: "二項式定理", url: "topics/math-derivations/lesson-12.html" },
+            { title: "排列與組合", url: "topics/math-derivations/lesson-13.html" },
+            { title: "對數律：從指數律反推", url: "topics/math-derivations/lesson-14.html" },
+            { title: "複利與 e", url: "topics/math-derivations/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜三角公式",
+          courses: [
+            { title: "和角公式", url: "topics/math-derivations/lesson-16.html" },
+            { title: "倍角、半角、積化和差", url: "topics/math-derivations/lesson-17.html" },
+            { title: "正弦定理與餘弦定理", url: "topics/math-derivations/lesson-18.html" },
+            { title: "海龍公式", url: "topics/math-derivations/lesson-19.html" },
+            { title: "sin x / x → 1：夾擠", url: "topics/math-derivations/lesson-20.html" },
+            { title: "為什麼要用弧度", url: "topics/math-derivations/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜微積分的公式",
+          courses: [
+            { title: "導數：割線變切線", url: "topics/math-derivations/lesson-22.html" },
+            { title: "冪次法則 (xⁿ)′ = nxⁿ⁻¹", url: "topics/math-derivations/lesson-23.html" },
+            { title: "乘積律、商律、連鎖律", url: "topics/math-derivations/lesson-24.html" },
+            { title: "(eˣ)′ = eˣ 與 (ln x)′ = 1/x", url: "topics/math-derivations/lesson-25.html" },
+            { title: "(sin x)′ = cos x", url: "topics/math-derivations/lesson-26.html" },
+            { title: "微積分基本定理", url: "topics/math-derivations/lesson-27.html" },
+            { title: "球的體積與表面積", url: "topics/math-derivations/lesson-28.html" },
+            { title: "分部積分", url: "topics/math-derivations/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜無窮級數",
+          courses: [
+            { title: "泰勒展開", url: "topics/math-derivations/lesson-30.html" },
+            { title: "eˣ、sin x、cos x 的級數", url: "topics/math-derivations/lesson-31.html" },
+            { title: "尤拉公式 e^(iθ) = cos θ + i sin θ", url: "topics/math-derivations/lesson-32.html" },
+            { title: "巴塞爾問題：1 + 1/4 + 1/9 + … = π²/6", url: "topics/math-derivations/lesson-33.html" },
+            { title: "斯特靈公式 n! ≈ √(2πn)(n/e)ⁿ", url: "topics/math-derivations/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜機率與統計",
+          courses: [
+            { title: "期望值與變異數", url: "topics/math-derivations/lesson-35.html" },
+            { title: "貝氏定理", url: "topics/math-derivations/lesson-36.html" },
+            { title: "高斯積分 ∫e^(−x²)dx = √π", url: "topics/math-derivations/lesson-37.html" },
+            { title: "二項分布 → 常態分布", url: "topics/math-derivations/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜向量與線性代數",
+          courses: [
+            { title: "內積與夾角", url: "topics/math-derivations/lesson-39.html" },
+            { title: "行列式 = 面積", url: "topics/math-derivations/lesson-40.html" },
+            { title: "克拉瑪公式", url: "topics/math-derivations/lesson-41.html" },
+            { title: "最小平方法", url: "topics/math-derivations/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 I｜物理公式",
+          courses: [
+            { title: "自由落體 s = ½gt²", url: "topics/math-derivations/lesson-43.html" },
+            { title: "向心加速度 a = v²/r", url: "topics/math-derivations/lesson-44.html" },
+            { title: "克卜勒第三定律（圓軌道版）", url: "topics/math-derivations/lesson-45.html" },
+            { title: "單擺週期 T = 2π√(L/g)", url: "topics/math-derivations/lesson-46.html" },
+            { title: "因次分析", url: "topics/math-derivations/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 J｜招式總整理",
+          courses: [
+            { title: "數學歸納法：平方和公式", url: "topics/math-derivations/lesson-48.html" },
+            { title: "反證法：√2 是無理數、質數有無限多個", url: "topics/math-derivations/lesson-49.html" },
+            { title: "對稱與不變量", url: "topics/math-derivations/lesson-50.html" },
+            { title: "總結：推導地圖", url: "topics/math-derivations/lesson-51.html" },
+          ],
+        },
+      ],
     }
   ]
 };
