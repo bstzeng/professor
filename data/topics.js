@@ -22939,6 +22939,239 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "warp-drive",
+      category: "science",
+      title: "曲速引擎的詳細計算：為什麼需要巨大能量",
+      description:
+        "從火箭方程式與光速因果出發，用 3+1 分解完整推導阿庫別瑞度規的外曲率、哈密頓約束與能量密度，積分出總能量 E ≈ −(c⁴/G)β²R²/(18Δ)，再加入福特–羅曼量子不等式，算出 Pfenning–Ford 的 10⁶² 公斤；比較 Van Den Broeck、Natário、White、Lentz、Bobrick–Martire 與 2024 年等速正能量解；推導卡西米爾效應；最後看視界、量子不穩定、粒子累積、時間機器與重力波。附能量計算器、能量密度熱圖、卡西米爾與量子不等式工具。",
+      icon: "🛸",
+      url: "topics/warp-drive/index.html",
+      resources: [
+        {
+          title: "曲速計算工具箱",
+          description: "火箭方程式、時空剛性、形狀函數、能量密度熱圖、總能量、卡西米爾、量子不等式、視界與能量階梯",
+          icon: "🧮",
+          url: "topics/warp-drive/guide.html"
+        },
+        {
+          title: "公式與名詞速查",
+          description: "曲速計算的關鍵公式、數值與名詞",
+          icon: "📖",
+          url: "topics/warp-drive/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼光速是門檻",
+          courses: [
+            { title: "科幻的曲速與物理的曲速", url: "topics/warp-drive/lesson-01.html" },
+            { title: "光速極限與因果", url: "topics/warp-drive/lesson-02.html" },
+            { title: "火箭方程式：到半人馬座 α 要多少燃料", url: "topics/warp-drive/lesson-03.html" },
+            { title: "相對論火箭：能量為什麼發散", url: "topics/warp-drive/lesson-04.html" },
+            { title: "漏洞：時空本身可以超光速", url: "topics/warp-drive/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜精簡的廣義相對論工具箱",
+          courses: [
+            { title: "度規：用一行 ds² 描述時空", url: "topics/warp-drive/lesson-06.html" },
+            { title: "3+1 分解：時延與位移向量", url: "topics/warp-drive/lesson-07.html" },
+            { title: "能量動量張量", url: "topics/warp-drive/lesson-08.html" },
+            { title: "愛因斯坦方程式", url: "topics/warp-drive/lesson-09.html" },
+            { title: "時空的剛性：c⁴/8πG", url: "topics/warp-drive/lesson-10.html" },
+            { title: "量級估算：曲速泡大約要多少能量", url: "topics/warp-drive/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜阿庫別瑞度規",
+          courses: [
+            { title: "1994 年的度規", url: "topics/warp-drive/lesson-12.html" },
+            { title: "形狀函數：半徑 R 與壁厚", url: "topics/warp-drive/lesson-13.html" },
+            { title: "泡裡面的旅程", url: "topics/warp-drive/lesson-14.html" },
+            { title: "體積膨脹率：前縮後脹", url: "topics/warp-drive/lesson-15.html" },
+            { title: "算出能量密度", url: "topics/warp-drive/lesson-16.html" },
+            { title: "核對：原論文、單位與數值", url: "topics/warp-drive/lesson-17.html" },
+            { title: "負號從哪裡來", url: "topics/warp-drive/lesson-18.html" },
+            { title: "能量集中在哪裡", url: "topics/warp-drive/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜能量積分：數字有多大",
+          courses: [
+            { title: "對整個泡積分", url: "topics/warp-drive/lesson-20.html" },
+            { title: "代入數字：100 公尺的泡", url: "topics/warp-drive/lesson-21.html" },
+            { title: "壁厚的取捨", url: "topics/warp-drive/lesson-22.html" },
+            { title: "量子不等式：壁必須薄如普朗克長度", url: "topics/warp-drive/lesson-23.html" },
+            { title: "結果：比可觀測宇宙還多", url: "topics/warp-drive/lesson-24.html" },
+            { title: "比較表：從木星到宇宙", url: "topics/warp-drive/lesson-25.html" },
+            { title: "亞光速的曲速也很貴嗎", url: "topics/warp-drive/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜降低能量的嘗試",
+          courses: [
+            { title: "Van Den Broeck：小開口、大內部", url: "topics/warp-drive/lesson-27.html" },
+            { title: "Natário：沒有前縮後脹的曲速", url: "topics/warp-drive/lesson-28.html" },
+            { title: "Harold White：環面泡與振盪壁厚", url: "topics/warp-drive/lesson-29.html" },
+            { title: "Lentz：正能量的孤立子？", url: "topics/warp-drive/lesson-30.html" },
+            { title: "Bobrick 與 Martire：曲速的一般分類", url: "topics/warp-drive/lesson-31.html" },
+            { title: "2024 年：等速、正能量的曲速解", url: "topics/warp-drive/lesson-32.html" },
+            { title: "各方案比較", url: "topics/warp-drive/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜負能量從哪裡來",
+          courses: [
+            { title: "能量條件", url: "topics/warp-drive/lesson-34.html" },
+            { title: "卡西米爾效應：從零點能推導", url: "topics/warp-drive/lesson-35.html" },
+            { title: "卡西米爾效應能提供多少負能量", url: "topics/warp-drive/lesson-36.html" },
+            { title: "擠壓真空與其他負能量", url: "topics/warp-drive/lesson-37.html" },
+            { title: "量子不等式再看一次", url: "topics/warp-drive/lesson-38.html" },
+            { title: "差了幾個數量級", url: "topics/warp-drive/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜就算有能量，還有這些問題",
+          courses: [
+            { title: "視界問題：船控制不了前緣", url: "topics/warp-drive/lesson-40.html" },
+            { title: "霍金輻射與量子不穩定", url: "topics/warp-drive/lesson-41.html" },
+            { title: "抵達時摧毀目的地", url: "topics/warp-drive/lesson-42.html" },
+            { title: "時間機器：兩個曲速泡就能回到過去", url: "topics/warp-drive/lesson-43.html" },
+            { title: "親戚：Krasnikov 管與可穿越蟲洞", url: "topics/warp-drive/lesson-44.html" },
+            { title: "曲速泡崩潰時的重力波", url: "topics/warp-drive/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "計算總表：每一步差了多少", url: "topics/warp-drive/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "materials-to-structures",
+      category: "tech",
+      title: "從材料力學到建築承重：接得起來嗎？",
+      description:
+        "從原子鍵的位能曲線估出彈性模數，看理論強度為什麼比真實強度高一百倍（Griffith 裂紋、差排）；再走過應力應變、莫爾圓、降伏準則、彎曲 σ = My/I、剪應力、撓度、靜不定、歐拉挫屈與規範柱曲線；接著是桁架、剛架、勁度矩陣、有限元素、基礎與雙向板；載重從靜載重、活載重、風、地震到載重組合與可靠度；最後完整手算一棟虛構四層 RC 透天，並談平方立方定律、摩天大樓、吊橋與 921 等案例。附 13 種計算工具。",
+      icon: "🏗️",
+      url: "topics/materials-to-structures/index.html",
+      resources: [
+        {
+          title: "結構計算工具箱",
+          description: "原子位能、應力應變、莫爾圓、梁、斷面、挫屈、桁架、載重、RC 梁、尺度、地震力、威布爾、共振",
+          icon: "🧮",
+          url: "topics/materials-to-structures/guide.html"
+        },
+        {
+          title: "公式與名詞速查",
+          description: "材料力學與結構設計的關鍵公式、材料常數與名詞",
+          icon: "📖",
+          url: "topics/materials-to-structures/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從原子到連續體",
+          courses: [
+            { title: "問題地圖：一條從原子到大樓的鏈", url: "topics/materials-to-structures/lesson-01.html" },
+            { title: "原子鍵的位能曲線：彈性模數從哪來", url: "topics/materials-to-structures/lesson-02.html" },
+            { title: "理論強度 vs 實際強度", url: "topics/materials-to-structures/lesson-03.html" },
+            { title: "Griffith 裂紋理論", url: "topics/materials-to-structures/lesson-04.html" },
+            { title: "差排：金屬為什麼會降伏", url: "topics/materials-to-structures/lesson-05.html" },
+            { title: "連續體假設與代表體積元素", url: "topics/materials-to-structures/lesson-06.html" },
+            { title: "鋼、混凝土、木材", url: "topics/materials-to-structures/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜應力與應變",
+          courses: [
+            { title: "應力與應變", url: "topics/materials-to-structures/lesson-08.html" },
+            { title: "虎克定律與蒲松比", url: "topics/materials-to-structures/lesson-09.html" },
+            { title: "拉伸試驗：應力–應變曲線", url: "topics/materials-to-structures/lesson-10.html" },
+            { title: "三維的應力", url: "topics/materials-to-structures/lesson-11.html" },
+            { title: "主應力與莫爾圓", url: "topics/materials-to-structures/lesson-12.html" },
+            { title: "降伏準則：Tresca 與 von Mises", url: "topics/materials-to-structures/lesson-13.html" },
+            { title: "溫度應力與收縮", url: "topics/materials-to-structures/lesson-14.html" },
+            { title: "材料常數怎麼查、怎麼用", url: "topics/materials-to-structures/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜軸力、扭轉、彎曲",
+          courses: [
+            { title: "軸力桿件與伸長量", url: "topics/materials-to-structures/lesson-16.html" },
+            { title: "扭轉", url: "topics/materials-to-structures/lesson-17.html" },
+            { title: "剪力圖與彎矩圖", url: "topics/materials-to-structures/lesson-18.html" },
+            { title: "彎曲應力 σ = My/I", url: "topics/materials-to-structures/lesson-19.html" },
+            { title: "慣性矩：為什麼工字鋼長那樣", url: "topics/materials-to-structures/lesson-20.html" },
+            { title: "梁裡的剪應力", url: "topics/materials-to-structures/lesson-21.html" },
+            { title: "撓度：EI·y″ = M", url: "topics/materials-to-structures/lesson-22.html" },
+            { title: "靜不定梁", url: "topics/materials-to-structures/lesson-23.html" },
+            { title: "應力集中與開孔", url: "topics/materials-to-structures/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜柱與穩定",
+          courses: [
+            { title: "歐拉挫屈", url: "topics/materials-to-structures/lesson-25.html" },
+            { title: "長細比：短柱壓碎、長柱挫屈", url: "topics/materials-to-structures/lesson-26.html" },
+            { title: "偏心載重與 P-Δ 效應", url: "topics/materials-to-structures/lesson-27.html" },
+            { title: "鋼柱設計曲線：理論和實驗怎麼合在一起", url: "topics/materials-to-structures/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜從構件到結構系統",
+          courses: [
+            { title: "桁架：節點法", url: "topics/materials-to-structures/lesson-29.html" },
+            { title: "剛架、斜撐與剪力牆", url: "topics/materials-to-structures/lesson-30.html" },
+            { title: "力的傳遞路徑", url: "topics/materials-to-structures/lesson-31.html" },
+            { title: "位移法與勁度矩陣", url: "topics/materials-to-structures/lesson-32.html" },
+            { title: "有限元素法", url: "topics/materials-to-structures/lesson-33.html" },
+            { title: "基礎與土壤承載力", url: "topics/materials-to-structures/lesson-34.html" },
+            { title: "雙向板：載重往哪邊走", url: "topics/materials-to-structures/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜載重從哪裡來",
+          courses: [
+            { title: "靜載重：房子自己有多重", url: "topics/materials-to-structures/lesson-36.html" },
+            { title: "活載重：規範的數字從哪來", url: "topics/materials-to-structures/lesson-37.html" },
+            { title: "風載重", url: "topics/materials-to-structures/lesson-38.html" },
+            { title: "地震力：等值靜力法", url: "topics/materials-to-structures/lesson-39.html" },
+            { title: "載重組合", url: "topics/materials-to-structures/lesson-40.html" },
+            { title: "安全係數與 LRFD", url: "topics/materials-to-structures/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜實戰：算一棟四層樓 RC 透天",
+          courses: [
+            { title: "樓板與梁的載重", url: "topics/materials-to-structures/lesson-42.html" },
+            { title: "RC 梁設計：等值矩形應力塊", url: "topics/materials-to-structures/lesson-43.html" },
+            { title: "柱的軸力與配筋", url: "topics/materials-to-structures/lesson-44.html" },
+            { title: "基礎設計", url: "topics/materials-to-structures/lesson-45.html" },
+            { title: "手算和結構軟體的差別", url: "topics/materials-to-structures/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜尺度：為什麼不能等比例放大",
+          courses: [
+            { title: "伽利略的平方立方定律", url: "topics/materials-to-structures/lesson-47.html" },
+            { title: "摩天大樓：自重、風、共振", url: "topics/materials-to-structures/lesson-48.html" },
+            { title: "橋梁跨度的極限", url: "topics/materials-to-structures/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 I｜鏈條斷掉的地方",
+          courses: [
+            { title: "尺寸效應、疲勞、潛變", url: "topics/materials-to-structures/lesson-50.html" },
+            { title: "地震、韌性與四個案例", url: "topics/materials-to-structures/lesson-51.html" },
+            { title: "總結：接得起來嗎？", url: "topics/materials-to-structures/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
