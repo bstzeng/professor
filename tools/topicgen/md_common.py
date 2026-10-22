@@ -97,7 +97,7 @@ MDLIB = r"""
     root.appendChild(out); var nt = cfg.n ? el('p', 'margin:6px 0 0;font-size:0.88em;color:var(--text-muted)', cfg.n) : null; if (nt) root.appendChild(nt);
     function draw() { var args = names.map(function (n) { return vals[n]; }), rs = fns.map(function (f) { try { return f.apply(null, args); } catch (e) { return NaN; } });
       var h = '<table style="width:100%;border-collapse:collapse">';
-      cfg.r.forEach(function (r, i) { var same = i > 0 && Math.abs(rs[i] - rs[0]) <= 1e-9 * Math.max(1, Math.abs(rs[0]));
+      cfg.r.forEach(function (r, i) { var A0 = Math.abs(rs[0]), Ai = Math.abs(rs[i]), same = i > 0 && isFinite(rs[i]) && (Math.abs(rs[i] - rs[0]) <= 1e-9 * Math.max(A0, Ai) || (A0 < 1e-12 && Ai < 1e-12));
         h += '<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 4px">' + r[0] + '</td><td style="padding:6px 4px;text-align:right;font-family:monospace;font-weight:bold">' + sig(rs[i]) + '</td><td style="width:28px;text-align:center;color:' + (same ? GR : 'transparent') + '">' + (i > 0 ? '✓' : '') + '</td></tr>'; });
       out.innerHTML = h + '</table>'; mathIn(out); }
     draw(); }
@@ -537,5 +537,19 @@ def make(icon=u"✏️", note=MD_NOTE):
         L = base(*a, **k)
         if not any(isinstance(b, tuple) and b[0] == "raw" and "katex.min.js" in b[1] for b in L.body):
             L.body.append(("raw", KATEX))
+        return L
+    return lesson
+
+
+def make_with(icon, note, extra):
+    """md 的逐步推導／數值驗證，加上其他課程自己的互動庫。extra: [(class 名稱, JS 庫)]"""
+    base = make(icon, note)
+
+    def lesson(*a, **k):
+        L = base(*a, **k)
+        raws = [b[1] for b in L.body if isinstance(b, tuple) and b[0] == "raw"]
+        for cls, lib in extra:
+            if any('class="%s' % cls in r for r in raws):
+                L.body.insert(0, ("raw", u"<script>%s</script>" % lib))
         return L
     return lesson
