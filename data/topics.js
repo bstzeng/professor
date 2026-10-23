@@ -23361,6 +23361,111 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "taiwan-energy",
+      category: "tech",
+      title: "台灣電力與能源現況：電從哪裡來、燃料從哪裡來",
+      description:
+        "台灣最新的發電結構（2025 年燃氣 47.8%、燃煤 35.4%、再生能源 13.1%、核能歸零）與十年變化；燃氣、燃煤、燃油、核能、太陽光電、離岸風電、水力抽蓄、地熱生質的原理與現況；負載曲線、備轉容量與停電事件；液化天然氣、煤炭、原油的進口來源與比例、安全存量與 2026 年中東戰事的衝擊；國際燃料歷年價格、每度電成本、電價與台電財務；2050 淨零路徑與電源配比取捨。數據截至 2026 年 10 月，附 9 個互動圖表。",
+      icon: "⚡",
+      url: "topics/taiwan-energy/index.html",
+      resources: [
+        {
+          title: "台灣能源互動工具箱",
+          description: "發電結構、負載曲線、進口來源、燃料價格、每度電成本、配比沙盤、容量因數、LNG 存量、電價",
+          icon: "📊",
+          url: "topics/taiwan-energy/guide.html"
+        },
+        {
+          title: "台灣能源數據速查",
+          description: "發電結構、進口來源、燃料價格、發電成本、電價與名詞",
+          icon: "📖",
+          url: "topics/taiwan-energy/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜台灣電力的全貌",
+          courses: [
+            { title: "一度電從哪裡來", url: "topics/taiwan-energy/lesson-01.html" },
+            { title: "2025 年的發電結構", url: "topics/taiwan-energy/lesson-02.html" },
+            { title: "十年來的變化：從燃煤為主到燃氣為主", url: "topics/taiwan-energy/lesson-03.html" },
+            { title: "誰在發電：台電、民營電廠與汽電共生", url: "topics/taiwan-energy/lesson-04.html" },
+            { title: "誰在用電：工業、住商與 AI", url: "topics/taiwan-energy/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜火力發電",
+          courses: [
+            { title: "燃氣發電：複循環機組", url: "topics/taiwan-energy/lesson-06.html" },
+            { title: "主要燃氣電廠與天然氣供應鏈", url: "topics/taiwan-energy/lesson-07.html" },
+            { title: "燃煤發電：超超臨界機組", url: "topics/taiwan-energy/lesson-08.html" },
+            { title: "燃煤的空污、碳排與減煤政策", url: "topics/taiwan-energy/lesson-09.html" },
+            { title: "燃油與汽電共生", url: "topics/taiwan-energy/lesson-10.html" },
+            { title: "火力的未來：碳捕捉、混氫與混氨", url: "topics/taiwan-energy/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜核能發電",
+          courses: [
+            { title: "台灣核電簡史", url: "topics/taiwan-energy/lesson-12.html" },
+            { title: "除役與用過燃料", url: "topics/taiwan-energy/lesson-13.html" },
+            { title: "非核之後：公投、修法與核三再運轉審查", url: "topics/taiwan-energy/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜再生能源",
+          courses: [
+            { title: "太陽光電", url: "topics/taiwan-energy/lesson-15.html" },
+            { title: "離岸風電", url: "topics/taiwan-energy/lesson-16.html" },
+            { title: "陸域風電", url: "topics/taiwan-energy/lesson-17.html" },
+            { title: "水力與抽蓄水力", url: "topics/taiwan-energy/lesson-18.html" },
+            { title: "地熱、生質能與廢棄物發電", url: "topics/taiwan-energy/lesson-19.html" },
+            { title: "容量因數：裝置容量與發電量的差距", url: "topics/taiwan-energy/lesson-20.html" },
+            { title: "再生能源目標與實際進度", url: "topics/taiwan-energy/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜電網怎麼運作",
+          courses: [
+            { title: "負載曲線與鴨子曲線", url: "topics/taiwan-energy/lesson-22.html" },
+            { title: "基載、中載、尖載", url: "topics/taiwan-energy/lesson-23.html" },
+            { title: "備轉容量率與重大停電事件", url: "topics/taiwan-energy/lesson-24.html" },
+            { title: "儲能、需量反應與電力交易平台", url: "topics/taiwan-energy/lesson-25.html" },
+            { title: "輸電瓶頸與電網韌性", url: "topics/taiwan-energy/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜進口能源",
+          courses: [
+            { title: "能源進口依存度", url: "topics/taiwan-energy/lesson-27.html" },
+            { title: "液化天然氣：卡達、澳洲、美國", url: "topics/taiwan-energy/lesson-28.html" },
+            { title: "煤炭：澳洲與印尼", url: "topics/taiwan-energy/lesson-29.html" },
+            { title: "原油與石油產品", url: "topics/taiwan-energy/lesson-30.html" },
+            { title: "鈾燃料與其他進口能源", url: "topics/taiwan-energy/lesson-31.html" },
+            { title: "運輸、儲存與安全存量", url: "topics/taiwan-energy/lesson-32.html" },
+            { title: "能源安全：航道、封鎖與 2026 年中東戰事", url: "topics/taiwan-energy/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜價格與成本",
+          courses: [
+            { title: "國際燃料價格的歷年走勢", url: "topics/taiwan-energy/lesson-34.html" },
+            { title: "每度電的發電成本", url: "topics/taiwan-energy/lesson-35.html" },
+            { title: "台電的購電與再生能源躉購", url: "topics/taiwan-energy/lesson-36.html" },
+            { title: "電價怎麼訂", url: "topics/taiwan-energy/lesson-37.html" },
+            { title: "2022 年以來的燃料價格衝擊與台電財務", url: "topics/taiwan-energy/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜減碳與未來",
+          courses: [
+            { title: "2050 淨零排放路徑", url: "topics/taiwan-energy/lesson-39.html" },
+            { title: "電源配比的取捨", url: "topics/taiwan-energy/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
