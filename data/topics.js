@@ -23239,6 +23239,128 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "nuclear-plant-design",
+      category: "tech",
+      title: "現代核電廠設計：從核分裂到被動安全",
+      description:
+        "完整推導的核電廠設計課：反應爐物理（臨界、緩和、反應度、回饋、氙毒、衰變熱）；燃料與爐心（熱限值、DNB、鋯水反應、燃耗）；熱流與一次系統（壓力槽、蒸汽產生器、自然循環、朗肯循環）；縱深防禦、單一失效、PRA；LOCA、全廠斷電、AP1000 被動安全、嚴重事故對策、三哩島車諾比福島；儀控、電力、熱沉、選址、耐震、外部危害；SMR、高溫氣冷、鈉冷、熔鹽與核融合；執照、建造、LCOE、除役與核廢料。附 12 個互動模擬。",
+      icon: "⚛️",
+      url: "topics/nuclear-plant-design/index.html",
+      resources: [
+        {
+          title: "核電廠設計互動工具箱",
+          description: "配置圖、連鎖反應、點動態、控制棒、氙毒、衰變熱、熱通道、自然循環、效率、縱深防禦、事件樹、LCOE",
+          icon: "🧪",
+          url: "topics/nuclear-plant-design/guide.html"
+        },
+        {
+          title: "核電廠設計速查",
+          description: "術語、關鍵公式與代表數據",
+          icon: "📖",
+          url: "topics/nuclear-plant-design/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜核電廠是什麼",
+          courses: [
+            { title: "一座核電廠的全貌", url: "topics/nuclear-plant-design/lesson-01.html" },
+            { title: "從鍋爐到反應爐", url: "topics/nuclear-plant-design/lesson-02.html" },
+            { title: "核電發展史：從第一代到第四代", url: "topics/nuclear-plant-design/lesson-03.html" },
+            { title: "現代主流爐型地圖", url: "topics/nuclear-plant-design/lesson-04.html" },
+            { title: "設計目標：安全、經濟、可建造、可運轉、可除役", url: "topics/nuclear-plant-design/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜反應爐物理",
+          courses: [
+            { title: "核分裂與中子", url: "topics/nuclear-plant-design/lesson-06.html" },
+            { title: "連鎖反應與臨界", url: "topics/nuclear-plant-design/lesson-07.html" },
+            { title: "緩和劑：為什麼用水、石墨、重水", url: "topics/nuclear-plant-design/lesson-08.html" },
+            { title: "反應度與控制", url: "topics/nuclear-plant-design/lesson-09.html" },
+            { title: "回饋係數：功率上升時反應度為什麼會下降", url: "topics/nuclear-plant-design/lesson-10.html" },
+            { title: "氙毒與功率分布", url: "topics/nuclear-plant-design/lesson-11.html" },
+            { title: "衰變熱：停機之後為什麼還要持續冷卻", url: "topics/nuclear-plant-design/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜爐心與燃料設計",
+          courses: [
+            { title: "燃料丸、燃料棒、燃料組件", url: "topics/nuclear-plant-design/lesson-13.html" },
+            { title: "爐心布局與換料策略", url: "topics/nuclear-plant-design/lesson-14.html" },
+            { title: "燃料的熱限值", url: "topics/nuclear-plant-design/lesson-15.html" },
+            { title: "被覆管與事故容錯燃料", url: "topics/nuclear-plant-design/lesson-16.html" },
+            { title: "燃耗、用過燃料與燃料池", url: "topics/nuclear-plant-design/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜熱流與一次系統",
+          courses: [
+            { title: "壓水式與沸水式", url: "topics/nuclear-plant-design/lesson-18.html" },
+            { title: "反應爐壓力槽", url: "topics/nuclear-plant-design/lesson-19.html" },
+            { title: "蒸汽產生器、調壓器與冷卻水泵", url: "topics/nuclear-plant-design/lesson-20.html" },
+            { title: "熱流設計：冷卻水溫度與熱通道", url: "topics/nuclear-plant-design/lesson-21.html" },
+            { title: "自然循環：沒有泵浦也能帶走熱", url: "topics/nuclear-plant-design/lesson-22.html" },
+            { title: "二次側與汽輪機：朗肯循環與發電效率", url: "topics/nuclear-plant-design/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜安全設計哲學",
+          courses: [
+            { title: "縱深防禦：五道防線", url: "topics/nuclear-plant-design/lesson-24.html" },
+            { title: "多重屏障：從燃料丸到圍阻體", url: "topics/nuclear-plant-design/lesson-25.html" },
+            { title: "單一失效準則、冗餘與多樣性", url: "topics/nuclear-plant-design/lesson-26.html" },
+            { title: "設計基準事故與超越設計基準事故", url: "topics/nuclear-plant-design/lesson-27.html" },
+            { title: "機率風險評估（PRA）", url: "topics/nuclear-plant-design/lesson-28.html" },
+            { title: "安全等級、品質保證與定期測試", url: "topics/nuclear-plant-design/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜事故與現代的被動安全",
+          courses: [
+            { title: "冷卻水流失事故（LOCA）", url: "topics/nuclear-plant-design/lesson-30.html" },
+            { title: "全廠斷電（SBO）", url: "topics/nuclear-plant-design/lesson-31.html" },
+            { title: "主動式與被動式安全系統", url: "topics/nuclear-plant-design/lesson-32.html" },
+            { title: "AP1000 的被動安全系統", url: "topics/nuclear-plant-design/lesson-33.html" },
+            { title: "嚴重事故對策", url: "topics/nuclear-plant-design/lesson-34.html" },
+            { title: "圍阻體設計", url: "topics/nuclear-plant-design/lesson-35.html" },
+            { title: "三哩島、車諾比、福島：事故如何改寫設計規範", url: "topics/nuclear-plant-design/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜電廠系統與廠區",
+          courses: [
+            { title: "儀控系統：保護邏輯與控制室", url: "topics/nuclear-plant-design/lesson-37.html" },
+            { title: "電力系統：外電、柴油機與電池", url: "topics/nuclear-plant-design/lesson-38.html" },
+            { title: "冷卻水與最終熱沉", url: "topics/nuclear-plant-design/lesson-39.html" },
+            { title: "廠址選擇與大氣擴散", url: "topics/nuclear-plant-design/lesson-40.html" },
+            { title: "耐震設計與隔震", url: "topics/nuclear-plant-design/lesson-41.html" },
+            { title: "外部危害：飛機撞擊、海嘯與網路攻擊", url: "topics/nuclear-plant-design/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜小型模組化與第四代反應爐",
+          courses: [
+            { title: "SMR 是什麼：為什麼要變小", url: "topics/nuclear-plant-design/lesson-43.html" },
+            { title: "輕水式 SMR", url: "topics/nuclear-plant-design/lesson-44.html" },
+            { title: "高溫氣冷爐：球床與 TRISO 燃料", url: "topics/nuclear-plant-design/lesson-45.html" },
+            { title: "鈉冷快中子反應爐", url: "topics/nuclear-plant-design/lesson-46.html" },
+            { title: "熔鹽爐、鉛冷爐與微型反應爐", url: "topics/nuclear-plant-design/lesson-47.html" },
+            { title: "核融合與核分裂：哪個近、哪個遠", url: "topics/nuclear-plant-design/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 I｜從藍圖到除役",
+          courses: [
+            { title: "執照審查與安全目標", url: "topics/nuclear-plant-design/lesson-49.html" },
+            { title: "建造：模組化施工與成本超支", url: "topics/nuclear-plant-design/lesson-50.html" },
+            { title: "經濟性：均化發電成本", url: "topics/nuclear-plant-design/lesson-51.html" },
+            { title: "運轉、延役、除役與核廢料", url: "topics/nuclear-plant-design/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
