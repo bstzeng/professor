@@ -23172,6 +23172,73 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "rubiks-cube",
+      category: "life",
+      title: "魔術方塊：從看懂記號到相機自動求解",
+      description:
+        "用可拖曳的 3D 動畫學會解魔術方塊：構造與記號；層先法七步（白十字、角塊、第二層、黃十字、黃邊、黃角歸位與翻轉）；CFOP 速解（F2L、兩步 OLL 十個公式、兩步 PLL 六個公式）；狀態數、上帝之數 20 與科先巴兩階段演算法。附相機解方塊工具：拍照六面、校正顏色、自動辨識，算出約 20 步的解並用 3D 與逐步示意圖帶你轉。",
+      icon: "🧊",
+      url: "topics/rubiks-cube/index.html",
+      resources: [
+        {
+          title: "相機解方塊",
+          description: "拍照六面、校正顏色、自動辨識，算出最短解並用 3D 動畫與逐步示意圖帶你轉",
+          icon: "📷",
+          url: "topics/rubiks-cube/guide.html"
+        },
+        {
+          title: "魔術方塊公式速查",
+          description: "記號、層先法七步、兩步 OLL／PLL 公式一覽",
+          icon: "📖",
+          url: "topics/rubiks-cube/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識方塊",
+          courses: [
+            { title: "魔術方塊的構造", url: "topics/rubiks-cube/lesson-01.html" },
+            { title: "轉動記號", url: "topics/rubiks-cube/lesson-02.html" },
+            { title: "讀公式與手感", url: "topics/rubiks-cube/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜層先法：新手七步",
+          courses: [
+            { title: "第一步：白色十字", url: "topics/rubiks-cube/lesson-04.html" },
+            { title: "第二步：白色角塊", url: "topics/rubiks-cube/lesson-05.html" },
+            { title: "第三步：第二層邊塊", url: "topics/rubiks-cube/lesson-06.html" },
+            { title: "第四步：黃色十字", url: "topics/rubiks-cube/lesson-07.html" },
+            { title: "第五步：黃色邊塊對齊", url: "topics/rubiks-cube/lesson-08.html" },
+            { title: "第六步：黃色角塊歸位", url: "topics/rubiks-cube/lesson-09.html" },
+            { title: "第七步：黃色角塊翻轉", url: "topics/rubiks-cube/lesson-10.html" },
+            { title: "卡關排除與練習", url: "topics/rubiks-cube/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜CFOP：速解的主流方法",
+          courses: [
+            { title: "CFOP 概覽", url: "topics/rubiks-cube/lesson-12.html" },
+            { title: "F2L 概念：角邊配對", url: "topics/rubiks-cube/lesson-13.html" },
+            { title: "F2L 常見情況", url: "topics/rubiks-cube/lesson-14.html" },
+            { title: "兩步 OLL（一）：翻邊", url: "topics/rubiks-cube/lesson-15.html" },
+            { title: "兩步 OLL（二）：翻角", url: "topics/rubiks-cube/lesson-16.html" },
+            { title: "兩步 PLL（一）：排角", url: "topics/rubiks-cube/lesson-17.html" },
+            { title: "兩步 PLL（二）：排邊", url: "topics/rubiks-cube/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜數學、電腦求解與相機工具",
+          courses: [
+            { title: "方塊有多少種狀態", url: "topics/rubiks-cube/lesson-19.html" },
+            { title: "上帝之數：20 步", url: "topics/rubiks-cube/lesson-20.html" },
+            { title: "電腦怎麼解方塊：兩階段演算法", url: "topics/rubiks-cube/lesson-21.html" },
+            { title: "相機解方塊：怎麼拍與怎麼看解法", url: "topics/rubiks-cube/lesson-22.html" },
+          ],
+        },
+      ],
     }
   ]
 };
