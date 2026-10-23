@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 1 課：魔術方塊的構造 ｜ 魔術方塊 ｜ 博雅書院</title>
+<meta name="description" content="中心、邊塊、角塊：解方塊其實是在搬「塊」">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">魔術方塊</a>
+      <span class="sep">/</span>
+      <span>第 1 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜認識方塊 · 第 1 課</div>
+      <h1>魔術方塊的構造</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 3×3 方塊的 26 個塊</li>
+          <li>知道中心塊決定每一面的顏色</li>
+          <li>了解標準配色的對面關係</li>
+        </ul>
+      </div>
+
+      <script>/* 魔術方塊核心：狀態、轉動、公式解析、展開圖。瀏覽器與 Node 共用（掛在 RBCore）。
+       * 座標：x 往右（R）、y 往上（U）、z 往前（F）。配色採白底黃頂、綠色朝前：
+       *   U 黃、R 橘、F 綠、D 白、L 紅、B 藍。
+       * 貼紙位置 0–53 依 URFDLB 順序，每面 9 格，由左上到右下（Kociemba 的 facelet 慣例）。
+       * 狀態 state[位置] = 目前在該位置的貼紙編號（復原時 state[i] = i），貼紙顏色 = floor(編號 / 9)。
+       */
+      (function (root) {
+        "use strict";
+        var FACES = "URFDLB";
+        var COLORS = ["#ffd500", "#ff6a00", "#13a34a", "#f4f4f4", "#d7192c", "#1565d8"];   // U R F D L B
+        var COLOR_NAMES = ["黃", "橘", "綠", "白", "紅", "藍"];
+
+        // 每個面的法向量與格子座標（列 r、行 c 從左上開始）
+        function stickerPos(f, r, c) {
+          switch (f) {
+            case 0: return [c - 1, 1.5, r - 1];          // U：從上方看，B 在上
+            case 1: return [1.5, 1 - r, 1 - c];          // R：U 在上，左邊是 F
+            case 2: return [c - 1, 1 - r, 1.5];          // F
+            case 3: return [c - 1, -1.5, 1 - r];         // D：從下方看，F 在上
+            case 4: return [-1.5, 1 - r, c - 1];         // L：U 在上，左邊是 B
+            default: return [1 - c, 1 - r, -1.5];        // B：U 在上，左邊是 R
+          }
+        }
+        var NORMALS = [[0, 1, 0], [1, 0, 0], [0, 0, 1], [0, -1, 0], [-1, 0, 0], [0, 0, -1]];
+        var POS = [], NRM = [];
+        for (var f = 0; f < 6; f++) for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) { POS.push(stickerPos(f, r, c)); NRM.push(NORMALS[f]); }
+        function rot(v, axis, q) {          // 繞座標軸轉 q × 90°（右手定則）
+          var x = v[0], y = v[1], z = v[2];
+          q = ((q % 4) + 4) % 4;
+          for (var i = 0; i < q; i++) {
+            if (axis === 0) { var t = y; y = -z; z = t; }
+            else if (axis === 1) { var t2 = x; x = z; z = -t2; }
+            else { var t3 = x; x = -y; y = t3; }
+          }
+          return [x, y, z];
+        }
+        function keyOf(p, n) { return p.map(function (v) { return Math.round(v * 2); }).join(",") + "|" + n.join(","); }
+        var INDEX = {};
+        for (var i = 0; i < 54; i++) INDEX[keyOf(POS[i], NRM[i])] = i;
+
+        // 基本轉動：[軸, 層, 方向]（方向 −1 = 從該軸正方向看順時針）
+        var ALL = [-1, 0, 1];
+        var BASE = {
+          U: [1, [1], -1], D: [1, [-1], 1], R: [0, [1], -1], L: [0, [-1], 1], F: [2, [1], -1], B: [2, [-1], 1],
+          M: [0, [0], 1], E: [1, [0], 1], S: [2, [0], -1],
+          x: [0, ALL, -1], y: [1, ALL, -1], z: [2, ALL, -1],
+          u: [1, [1, 0], -1], d: [1, [-1, 0], 1], r: [0, [1, 0], -1], l: [0, [-1, 0], 1], f: [2, [1, 0], -1], b: [2, [-1, 0], 1],
+        };
+        var PERM = {};   // PERM[名稱][i] = 位置 i 的貼紙轉完後到哪個位置
+        Object.keys(BASE).forEach(function (k) {
+          var a = BASE[k][0], layers = BASE[k][1], dir = BASE[k][2], perm = new Array(54);
+          for (var i = 0; i < 54; i++) {
+            var cub = cubieOf(i);
+            if (layers.indexOf(cub[a]) < 0) { perm[i] = i; continue; }
+            perm[i] = INDEX[keyOf(rot(POS[i], a, dir), rot(NRM[i], a, dir))];
+          }
+          PERM[k] = perm;
+        });
+        function cubieOf(i) { return POS[i].map(function (v) { return Math.abs(v) === 1.5 ? (v > 0 ? 1 : -1) : v; }); }
+
+        // ---- 公式解析 ----
+        // 支援 R R' R2 R2'、小寫或 Rw 寬層、M E S、x y z，括號與 (…)3 重複
+        function parse(str) {
+          if (Array.isArray(str)) return str.slice();
+          str = String(str || "").replace(/[’′‘`]/g, "'").replace(/[\[\]]/g, function (m) { return m === "[" ? "(" : ")"; });
+          var out = [], stack = [[]], i = 0, s = str;
+          while (i < s.length) {
+            var ch = s[i];
+            if (/\s/.test(ch)) { i++; continue; }
+            if (ch === "(") { stack.push([]); i++; continue; }
+            if (ch === ")") {
+              var grp = stack.pop(); i++;
+              var m = /^\d+/.exec(s.slice(i)), n = 1;
+              if (m) { n = +m[0]; i += m[0].length; }
+              for (var k = 0; k < n; k++) Array.prototype.push.apply(stack[stack.length - 1], grp);
+              continue;
+            }
+            var mm = /^([URFDLBMESxyzurfdlb])(w?)(2|3)?('?)/.exec(s.slice(i));
+            if (!mm) { i++; continue; }
+            var base = mm[1];
+            if (mm[2] === "w") base = base.toLowerCase();
+            var amt = mm[3] === "2" ? 2 : mm[3] === "3" ? 3 : 1;
+            if (mm[4]) amt = (4 - amt) % 4 || 4;
+            if (amt === 4) amt = 0;
+            if (amt) stack[stack.length - 1].push(base + (amt === 1 ? "" : amt === 2 ? "2" : "'"));
+            i += mm[0].length;
+          }
+          while (stack.length > 1) { var g2 = stack.pop(); Array.prototype.push.apply(stack[stack.length - 1], g2); }
+          return stack[0];
+        }
+        function amountOf(mv) { return mv.slice(-1) === "2" ? 2 : mv.slice(-1) === "'" ? 3 : 1; }
+        function baseOf(mv) { return mv[0]; }
+        function invertMove(mv) { var a = amountOf(mv); return baseOf(mv) + (a === 1 ? "'" : a === 2 ? "2" : ""); }
+        function invert(moves) { return parse(moves).slice().reverse().map(invertMove); }
+        function format(moves) { return parse(moves).join(" "); }
+
+        function solved() { var s = new Array(54); for (var i = 0; i < 54; i++) s[i] = i; return s; }
+        function applyMove(state, mv) {
+          var perm = PERM[baseOf(mv)], n = amountOf(mv), s = state;
+          for (var k = 0; k < n; k++) { var t = new Array(54); for (var i = 0; i < 54; i++) t[perm[i]] = s[i]; s = t; }
+          return s;
+        }
+        function apply(state, moves) { var s = state.slice(); parse(moves).forEach(function (m) { s = applyMove(s, m); }); return s; }
+        function colorOf(id) { return Math.floor(id / 9); }
+        function isSolved(state) {
+          for (var f = 0; f < 6; f++) { var c = colorOf(state[f * 9 + 4]); for (var k = 0; k < 9; k++) if (colorOf(state[f * 9 + k]) !== c) return false; }
+          return true;
+        }
+        // 給求解器的 54 字元字串（依中心顏色命名各面，所以整顆轉過也沒關係）
+        function toFacelets(state) {
+          var centerFace = {};
+          for (var f = 0; f < 6; f++) centerFace[colorOf(state[f * 9 + 4])] = FACES[f];
+          return state.map(function (id) { return centerFace[colorOf(id)]; }).join("");
+        }
+        // 由「每格顏色」（0–5）建立狀態；同色的貼紙編號挑該色的中心
+        function fromColors(cols) { return cols.map(function (c) { return c * 9 + 4; }); }
+        function scramble(n, rnd) {
+          rnd = rnd || Math.random; n = n || 20; var out = [], last = -1, prev = -1;
+          while (out.length < n) {
+            var f = Math.floor(rnd() * 6);
+            if (f === last) continue;
+            if (f % 3 === last % 3 && f % 3 === prev % 3) continue;     // 避免 U D U 這種可合併的序列
+            out.push(FACES[f] + ["", "2", "'"][Math.floor(rnd() * 3)]); prev = last; last = f;
+          }
+          return out;
+        }
+
+        // ---- 展開圖（SVG 字串）----
+        // 版面：      U
+        //         L  F  R  B
+        //            D
+        function netSVG(state, opt) {
+          opt = opt || {}; var s = opt.size || 10, g = opt.gap || 1, mask = opt.mask, hl = opt.highlight;
+          var off = { U: [3, 0], L: [0, 3], F: [3, 3], R: [6, 3], B: [9, 3], D: [3, 6] }, out = [];
+          var W = 12 * s + 2 * g, H = 9 * s + 2 * g;
+          for (var f = 0; f < 6; f++) {
+            var o = off[FACES[f]];
+            for (var k = 0; k < 9; k++) {
+              var id = state[f * 9 + k], col = (mask && !mask(id)) ? "#5a5f68" : COLORS[colorOf(id)];
+              var x = g + (o[0] + k % 3) * s, y = g + (o[1] + Math.floor(k / 3)) * s;
+              out.push('<rect x="' + (x + 0.6) + '" y="' + (y + 0.6) + '" width="' + (s - 1.2) + '" height="' + (s - 1.2) + '" rx="' + (s * 0.15) +
+                '" fill="' + col + '" stroke="' + (hl && hl.indexOf(f * 9 + k) >= 0 ? "#ff3df2" : "#111") + '" stroke-width="' + (hl && hl.indexOf(f * 9 + k) >= 0 ? 2 : 0.8) + '"/>');
+            }
+          }
+          return '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;display:block">' + out.join("") + "</svg>";
+        }
+
+        var RBCore = { FACES: FACES, COLORS: COLORS, COLOR_NAMES: COLOR_NAMES, POS: POS, NRM: NRM, BASE: BASE, PERM: PERM,
+          cubieOf: cubieOf, rot: rot, parse: parse, invert: invert, invertMove: invertMove, format: format, amountOf: amountOf, baseOf: baseOf,
+          solved: solved, applyMove: applyMove, apply: apply, colorOf: colorOf, isSolved: isSolved, toFacelets: toFacelets, fromColors: fromColors,
+          scramble: scramble, netSVG: netSVG };
+        root.RBCore = RBCore;
+        if (typeof module !== "undefined" && module.exports) module.exports = RBCore;
+      })(typeof window !== "undefined" ? window : globalThis);
+
+      /* 魔術方塊介面：canvas 3D 方塊（可拖曳旋轉、動畫轉層）、公式播放器、記號練習、自由轉。
+       * 依賴 RBCore（rb_core.js）。頁面上 class="rb-w" 的元素依 data-cfg 自動初始化。
+       */
+      (function () {
+        "use strict";
+        if (window.RBUI) return;
+        var RC = window.RBCore;
+
+        // ---- 遮罩：只顯示這一步相關的塊（依貼紙的「原本位置」判斷）----
+        function pieceOf(id) { return RC.cubieOf(id); }
+        function nz(c) { return (c[0] ? 1 : 0) + (c[1] ? 1 : 0) + (c[2] ? 1 : 0); }
+        var MASKS = {
+          all: null,
+          cross: function (id) { var c = pieceOf(id); return nz(c) === 1 || (c[1] === -1 && nz(c) === 2); },
+          f1: function (id) { var c = pieceOf(id); return nz(c) === 1 || c[1] === -1; },
+          f2l: function (id) { var c = pieceOf(id); return nz(c) === 1 || c[1] <= 0; },
+          oll: function (id) { var c = pieceOf(id); return nz(c) === 1 || c[1] <= 0 || id < 9; },
+          ycross: function (id) { var c = pieceOf(id); return nz(c) === 1 || c[1] <= 0 || (id < 9 && nz(c) === 2); },
+          centers: function (id) { return nz(pieceOf(id)) === 1; },
+        };
+
+        var FACE_ZH = { U: "上", R: "右", F: "前", D: "下", L: "左", B: "後", M: "中間層（跟 L 同向）", E: "水平中層（跟 D 同向）", S: "前後中層（跟 F 同向）",
+          x: "整顆往前翻（跟 R 同向）", y: "整顆水平轉（跟 U 同向）", z: "整顆側轉（跟 F 同向）",
+          u: "上兩層", r: "右兩層", f: "前兩層", d: "下兩層", l: "左兩層", b: "後兩層" };
+        function describe(mv) {
+          var b = RC.baseOf(mv), a = RC.amountOf(mv);
+          var who = FACE_ZH[b] || b;
+          if ("URFDLBurfdlb".indexOf(b) >= 0) who += (b === b.toUpperCase() ? "面" : "");
+          return mv + "：" + who + (a === 2 ? "轉半圈" : a === 3 ? "逆時針轉 90°" : "順時針轉 90°");
+        }
+
+        // ---- 3D 繪圖 ----
+        function mat3(axis, ang) {
+          var c = Math.cos(ang), s = Math.sin(ang);
+          if (axis === 0) return [1, 0, 0, 0, c, -s, 0, s, c];
+          if (axis === 1) return [c, 0, s, 0, 1, 0, -s, 0, c];
+          return [c, -s, 0, s, c, 0, 0, 0, 1];
+        }
+        function mv3(m, v) { return [m[0] * v[0] + m[1] * v[1] + m[2] * v[2], m[3] * v[0] + m[4] * v[1] + m[5] * v[2], m[6] * v[0] + m[7] * v[1] + m[8] * v[2]]; }
+        function mm3(a, b) { var r = []; for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) r.push(a[i * 3] * b[j] + a[i * 3 + 1] * b[3 + j] + a[i * 3 + 2] * b[6 + j]); return r; }
+
+        // 每個小方塊（位置）與其 6 個面；外側的面對應到哪個貼紙
+        var CUBIES = [];
+        (function () {
+          var lookup = {};
+          for (var i = 0; i < 54; i++) { var c = RC.cubieOf(i), n = RC.NRM[i]; lookup[c.join(",") + "|" + n.join(",")] = i; }
+          for (var x = -1; x <= 1; x++) for (var y = -1; y <= 1; y++) for (var z = -1; z <= 1; z++) {
+            if (!x && !y && !z) continue;
+            var faces = [];
+            [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]].forEach(function (n) {
+              var k = [x, y, z].join(",") + "|" + n.join(",");
+              faces.push({ n: n, sticker: lookup[k] === undefined ? -1 : lookup[k] });
+            });
+            CUBIES.push({ c: [x, y, z], faces: faces });
+          }
+        })();
+        function quad(center, n, size) {     // 以 center 為中心、法向 n 的正方形四個頂點
+          var u = n[0] ? [0, 1, 0] : [1, 0, 0], v = n[2] ? [0, 1, 0] : [0, 0, 1];
+          var h = size / 2, pts = [];
+          [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(function (s) { pts.push([center[0] + (u[0] * s[0] + v[0] * s[1]) * h, center[1] + (u[1] * s[0] + v[1] * s[1]) * h, center[2] + (u[2] * s[0] + v[2] * s[1]) * h]); });
+          return pts;
+        }
+
+        function Cube3D(canvas, opt) {
+          opt = opt || {};
+          var self = this, ctx = canvas.getContext("2d");
+          this.canvas = canvas; this.state = RC.solved(); this.mask = null; this.anim = null;
+          this.yaw = opt.yaw === undefined ? -0.62 : opt.yaw; this.pitch = opt.pitch === undefined ? 0.5 : opt.pitch;
+          this.highlight = null;
+          function resize() {
+            var w = canvas.clientWidth || 300, dpr = Math.min(window.devicePixelRatio || 1, 2);
+            canvas.width = Math.round(w * dpr); canvas.height = Math.round(w * dpr); self.draw();
+          }
+          this.resize = resize;
+          this.draw = function () {
+            var W = canvas.width, H = canvas.height; if (!W) return;
+            ctx.clearRect(0, 0, W, H);
+            var view = mm3(mat3(0, self.pitch), mat3(1, self.yaw)), dist = 9.5, sc = W * 0.3;
+            function proj(p) { var q = mv3(view, p), zz = dist - q[2]; return [W / 2 + q[0] * sc * dist / zz / 2.2 * 1.0, H / 2 - q[1] * sc * dist / zz / 2.2, q[2]]; }
+            var a = self.anim, rotM = null;
+            if (a) rotM = mat3(a.axis, a.angle);
+            var items = CUBIES.map(function (cb) {
+              var moving = a && a.layers.indexOf(cb.c[a.axis]) >= 0;
+              var M = moving ? rotM : null;
+              var center = M ? mv3(M, cb.c) : cb.c;
+              return { cb: cb, M: M, depth: mv3(view, center)[2] };
+            }).sort(function (p, q) { return p.depth - q.depth; });
+            items.forEach(function (it) {
+              it.cb.faces.forEach(function (fc) {
+                var n = it.M ? mv3(it.M, fc.n) : fc.n, vn = mv3(view, n);
+                // 背面剔除（考慮透視：用面中心到相機的方向）
+                var ctr = [it.cb.c[0] + fc.n[0] * 0.5, it.cb.c[1] + fc.n[1] * 0.5, it.cb.c[2] + fc.n[2] * 0.5];
+                if (it.M) ctr = mv3(it.M, ctr);
+                var vc = mv3(view, ctr), toCam = [-vc[0], -vc[1], dist - vc[2]];
+                if (vn[0] * toCam[0] + vn[1] * toCam[1] + vn[2] * toCam[2] <= 0) return;
+                var body = quad([it.cb.c[0] + fc.n[0] * 0.5, it.cb.c[1] + fc.n[1] * 0.5, it.cb.c[2] + fc.n[2] * 0.5], fc.n, 1.0);
+                poly(body.map(function (p) { return proj(it.M ? mv3(it.M, p) : p); }), "#15171c", "#000");
+                if (fc.sticker >= 0) {
+                  var id = self.state[fc.sticker], col = (self.mask && !self.mask(id)) ? "#4b5059" : RC.COLORS[RC.colorOf(id)];
+                  var st = quad([it.cb.c[0] + fc.n[0] * 0.505, it.cb.c[1] + fc.n[1] * 0.505, it.cb.c[2] + fc.n[2] * 0.505], fc.n, 0.84);
+                  var hl = self.highlight && self.highlight.indexOf(fc.sticker) >= 0;
+                  poly(st.map(function (p) { return proj(it.M ? mv3(it.M, p) : p); }), col, hl ? "#ff3df2" : "rgba(0,0,0,0.35)", hl ? 3 : 1);
+                }
+              });
+            });
+          };
+          function poly(pts, fill, stroke, lw) {
+            ctx.beginPath(); pts.forEach(function (p, i) { if (i) ctx.lineTo(p[0], p[1]); else ctx.moveTo(p[0], p[1]); }); ctx.closePath();
+            ctx.fillStyle = fill; ctx.fill(); ctx.lineWidth = (lw || 1) * (canvas.width / 300); ctx.strokeStyle = stroke; ctx.stroke();
+          }
+          // 拖曳旋轉視角
+          var drag = null;
+          canvas.style.touchAction = "none"; canvas.style.cursor = "grab";
+          canvas.addEventListener("pointerdown", function (e) { drag = [e.clientX, e.clientY, self.yaw, self.pitch]; canvas.setPointerCapture(e.pointerId); });
+          canvas.addEventListener("pointermove", function (e) {
+            if (!drag) return;
+            self.yaw = drag[2] + (e.clientX - drag[0]) * 0.012;
+            self.pitch = Math.max(-1.4, Math.min(1.4, drag[3] + (e.clientY - drag[1]) * 0.012));
+            self.draw();
+          });
+          canvas.addEventListener("pointerup", function () { drag = null; });
+          canvas.addEventListener("dblclick", function () { self.yaw = opt.yaw === undefined ? -0.62 : opt.yaw; self.pitch = opt.pitch === undefined ? 0.5 : opt.pitch; self.draw(); });
+          if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+          setTimeout(resize, 0);
+        }
+        // 動畫轉一步；回傳 Promise
+        Cube3D.prototype.animateMove = function (mv, ms) {
+          var self = this, b = RC.BASE[RC.baseOf(mv)], amt = RC.amountOf(mv);
+          var total = b[2] * Math.PI / 2 * (amt === 3 ? -1 : amt), dur = (ms || 350) * (amt === 2 ? 1.5 : 1);
+          return new Promise(function (res) {
+            var t0 = null;
+            function step(ts) {
+              if (t0 === null) t0 = ts;
+              var u = Math.min(1, (ts - t0) / dur), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+              self.anim = { axis: b[0], layers: b[1], angle: total * e };
+              self.draw();
+              if (u < 1) requestAnimationFrame(step);
+              else { self.anim = null; self.state = RC.applyMove(self.state, mv); self.draw(); res(); }
+            }
+            requestAnimationFrame(step);
+          });
+        };
+
+        // ---- 共用小元件 ----
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function btn(t, title) { var b = el("button", "padding:5px 11px;margin:3px 4px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.92em", t); b.type = "button"; if (title) b.title = title; return b; }
+        function head(root, q) { if (q) root.appendChild(el("p", "margin:0 0 8px", q)); }
+        function canvasBox(root, maxw) {
+          var wrap = el("div", "display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start"), cv = el("canvas", "width:100%;max-width:" + (maxw || 320) + "px;aspect-ratio:1;display:block;border-radius:12px;background:radial-gradient(circle at 50% 40%,rgba(120,140,170,0.18),rgba(0,0,0,0) 70%)");
+          var left = el("div", "flex:1 1 260px;max-width:" + (maxw || 320) + "px"), right = el("div", "flex:1 1 220px;min-width:0");
+          left.appendChild(cv); wrap.appendChild(left); wrap.appendChild(right); root.appendChild(wrap);
+          left.appendChild(el("div", "font-size:0.78em;color:var(--text-muted);text-align:center;margin-top:2px", "拖曳可旋轉視角，雙擊恢復"));
+          return { cv: cv, right: right, left: left };
+        }
+
+        // ---- 公式播放器 ----
+        function mountPlayer(root, cfg) {
+          head(root, cfg.q);
+          var moves = RC.parse(cfg.alg), setup = cfg.setup !== undefined ? RC.parse(cfg.setup) : RC.invert(moves);
+          var box = canvasBox(root, cfg.maxw), cube = new Cube3D(box.cv, cfg.view || {});
+          cube.mask = cfg.mask ? MASKS[cfg.mask] : null;
+          var start = cfg.state ? cfg.state.slice() : RC.apply(RC.solved(), setup);
+          if (cfg.pre) start = RC.apply(start, cfg.pre);
+          cube.state = start.slice();
+          var algLine = el("div", "display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px"), chips = [];
+          moves.forEach(function (m, i) {
+            var c = el("span", "font-family:ui-monospace,Menlo,monospace;font-weight:700;padding:3px 8px;border-radius:7px;border:1px solid var(--border);cursor:pointer;min-width:22px;text-align:center", m);
+            c.onclick = function () { jump(i + 1); }; chips.push(c); algLine.appendChild(c);
+          });
+          var info = el("div", "min-height:2.6em;font-size:0.92em;line-height:1.5;margin-bottom:6px"), bar = el("div"), net = el("div", "max-width:230px;margin-top:8px");
+          var bReset = btn("⏮", "回到開始"), bPrev = btn("◀", "上一步"), bPlay = btn("▶ 播放"), bNext = btn("▶|", "下一步");
+          bar.appendChild(bReset); bar.appendChild(bPrev); bar.appendChild(bPlay); bar.appendChild(bNext);
+          var spdL = el("label", "display:block;font-size:0.85em;margin-top:6px", "速度 "), spd = el("input"); spd.type = "range"; spd.min = 0.4; spd.max = 2.5; spd.step = 0.1; spd.value = 1; spd.style.verticalAlign = "middle"; spdL.appendChild(spd);
+          box.right.appendChild(algLine); box.right.appendChild(info); box.right.appendChild(bar); box.right.appendChild(spdL);
+          if (cfg.net !== false) box.right.appendChild(net);
+          if (cfg.note) box.right.appendChild(el("div", "font-size:0.88em;color:var(--text-muted);margin-top:6px", cfg.note));
+          var k = 0, playing = false, busy = false;
+          function refresh() {
+            chips.forEach(function (c, i) { c.style.background = i < k ? "var(--accent-soft)" : i === k && playing ? "rgba(255,61,242,0.18)" : "transparent"; c.style.opacity = i < k ? 0.75 : 1; });
+            info.innerHTML = k === 0 ? (cfg.start || "起始狀態。按「播放」或點公式裡的任一步。") : "第 " + k + " / " + moves.length + " 步　" + describe(moves[k - 1]) +
+              (k === moves.length ? "<br><b>" + (cfg.done || "完成！") + "</b>" : "");
+            bPlay.textContent = playing ? "⏸ 暫停" : "▶ 播放";
+            if (cfg.net !== false) net.innerHTML = RC.netSVG(cube.state, { size: 18, mask: cube.mask });
+          }
+          function stateAt(n) { return RC.apply(start, moves.slice(0, n)); }
+          function jump(n) { if (busy) return; playing = false; k = n; cube.state = stateAt(n); cube.draw(); refresh(); }
+          function next() {
+            if (busy || k >= moves.length) return Promise.resolve(false);
+            busy = true; var mv = moves[k];
+            return cube.animateMove(mv, 380 / (+spd.value)).then(function () { k++; busy = false; refresh(); return true; });
+          }
+          function loop() { if (!playing) return; next().then(function (ok) { if (!ok || k >= moves.length) { playing = false; refresh(); return; } setTimeout(loop, 90 / (+spd.value)); }); }
+          bPlay.onclick = function () { if (playing) { playing = false; refresh(); return; } if (k >= moves.length) jump(0); playing = true; refresh(); setTimeout(loop, 150); };
+          bNext.onclick = function () { playing = false; next(); };
+          bPrev.onclick = function () { if (k > 0) jump(k - 1); };
+          bReset.onclick = function () { jump(0); };
+          refresh();
+        }
+
+        // ---- 記號練習：按按鈕轉 ----
+        function mountNotation(root, cfg) {
+          head(root, cfg.q);
+          var box = canvasBox(root, cfg.maxw), cube = new Cube3D(box.cv, cfg.view || {});
+          var groups = cfg.groups || [["U", "U'", "U2", "D", "D'", "D2"], ["R", "R'", "R2", "L", "L'", "L2"], ["F", "F'", "F2", "B", "B'", "B2"]];
+          var info = el("div", "min-height:2.6em;font-size:0.92em;margin-bottom:6px", "點按鈕看看每個記號怎麼轉。"), hist = el("div", "font-family:ui-monospace,monospace;font-size:0.9em;word-break:break-all;margin-top:6px;color:var(--text-muted)");
+          box.right.appendChild(info);
+          var queue = Promise.resolve(), done = [];
+          groups.forEach(function (g) {
+            var row = el("div");
+            g.forEach(function (m) {
+              var b = btn(m); b.style.fontFamily = "ui-monospace,monospace"; b.style.minWidth = "44px";
+              b.onclick = function () { queue = queue.then(function () { info.textContent = describe(m); done.push(m); hist.textContent = "已轉：" + done.join(" "); return cube.animateMove(m, 330); }); };
+              row.appendChild(b);
+            });
+            box.right.appendChild(row);
+          });
+          var rst = btn("↺ 復原"); rst.onclick = function () { queue = queue.then(function () { cube.state = RC.solved(); done = []; hist.textContent = ""; info.textContent = "已復原。"; cube.draw(); }); };
+          box.right.appendChild(rst); box.right.appendChild(hist);
+        }
+
+        // ---- 自由轉＋打亂＋（有求解器時）求解 ----
+        function mountFree(root, cfg) {
+          head(root, cfg.q);
+          var box = canvasBox(root, cfg.maxw), cube = new Cube3D(box.cv, cfg.view || {});
+          var info = el("div", "min-height:2.6em;font-size:0.92em;margin-bottom:6px", "可以打亂、自己轉，或讓電腦算出解法並播放。"), sol = el("div", "font-family:ui-monospace,monospace;word-break:break-word;margin-top:6px");
+          box.right.appendChild(info);
+          var row = el("div"), busy = false;
+          "U U' R R' F F' D D' L L' B B'".split(" ").forEach(function (m) {
+            var b = btn(m); b.style.fontFamily = "ui-monospace,monospace"; b.style.minWidth = "38px";
+            b.onclick = function () { if (busy) return; busy = true; cube.animateMove(m, 260).then(function () { busy = false; }); }; row.appendChild(b);
+          });
+          box.right.appendChild(row);
+          var bS = btn("🔀 打亂"), bSolve = btn("🧠 電腦求解"), bReset = btn("↺ 復原");
+          box.right.appendChild(bS); if (window.RBSolver) box.right.appendChild(bSolve); box.right.appendChild(bReset); box.right.appendChild(sol);
+          bS.onclick = function () { if (busy) return; var s = RC.scramble(20); cube.state = RC.apply(RC.solved(), s); cube.draw(); info.innerHTML = "打亂：<code>" + s.join(" ") + "</code>"; sol.textContent = ""; };
+          bReset.onclick = function () { if (busy) return; cube.state = RC.solved(); cube.draw(); info.textContent = "已復原。"; sol.textContent = ""; };
+          bSolve.onclick = function () {
+            if (busy) return;
+            if (RC.isSolved(cube.state)) { info.textContent = "已經是復原狀態。"; return; }
+            busy = true; info.textContent = window.RBSolver.ready() ? "計算中…" : "第一次使用要先建立查找表（約 1–3 秒）…";
+            setTimeout(function () {
+              var t0 = Date.now(), moves = window.RBSolver.solve(RC.toFacelets(cube.state), { timeLimit: 1200 });
+              info.innerHTML = "找到 <b>" + moves.length + " 步</b>的解（" + (Date.now() - t0) + " ms），播放中…";
+              sol.textContent = moves.join(" ");
+              var i = 0;
+              (function go() { if (i >= moves.length) { busy = false; info.innerHTML += " 完成！"; return; } cube.animateMove(moves[i++], 260).then(go); })();
+            }, 30);
+          };
+        }
+
+        // ---- 靜態展開圖：顯示公式作用後的樣子 ----
+        function mountNet(root, cfg) {
+          head(root, cfg.q);
+          var wrap = el("div", "display:flex;flex-wrap:wrap;gap:14px");
+          (cfg.items || []).forEach(function (it) {
+            var s = RC.apply(RC.solved(), it.setup || RC.invert(it.alg || ""));
+            var c = el("div", "flex:1 1 150px;max-width:200px;text-align:center;font-size:0.88em");
+            c.innerHTML = RC.netSVG(s, { size: 14, mask: it.mask ? MASKS[it.mask] : null }) + '<div style="margin-top:4px">' + (it.label || "") + "</div>" + (it.alg ? '<code style="font-size:0.85em">' + it.alg + "</code>" : "");
+            wrap.appendChild(c);
+          });
+          root.appendChild(wrap);
+        }
+
+        var INIT = { player: mountPlayer, notation: mountNotation, free: mountFree, net: mountNet };
+        function boot() {
+          document.querySelectorAll(".rb-w").forEach(function (root) {
+            if (root.__done) return; root.__done = 1;
+            var cfg = JSON.parse(root.getAttribute("data-cfg")), f = INIT[cfg.t];
+            if (f) f(root, cfg);
+          });
+        }
+        window.RBUI = { Cube3D: Cube3D, MASKS: MASKS, describe: describe, mountPlayer: mountPlayer, boot: boot, el: el, btn: btn };
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+      })();
+      </script>
+
+      <script>/* 魔術方塊求解器：Kociemba 兩階段演算法（自行實作）。
+       * 第一階段：把方塊帶進子群 G1 = <U, D, R2, L2, F2, B2>（角塊方向、邊塊方向、中層邊塊位置都歸位）。
+       * 第二階段：只用 G1 的轉動把方塊復原。
+       * 用法：RBSolver.init(); RBSolver.solve("UUUUUUUUURRR…", { timeLimit: 1500 }) → "R U2 F' …"
+       * facelet 字串依 URFDLB 各 9 格（Kociemba 慣例）。瀏覽器、Web Worker、Node 共用。
+       */
+      (function (root) {
+        "use strict";
+        var URF = 0, UFL = 1, ULB = 2, UBR = 3, DFR = 4, DLF = 5, DBL = 6, DRB = 7;
+        var UR = 0, UF = 1, UL = 2, UB = 3, DR = 4, DF = 5, DL = 6, DB = 7, FR = 8, FL = 9, BL = 10, BR = 11;
+        // ---- 角塊與邊塊在 facelet 上的位置 ----
+        var U = 0, R = 1, F = 2, D = 3, L = 4, B = 5;
+        var cornerFacelet = [[8, 9, 20], [6, 18, 38], [0, 36, 47], [2, 45, 11], [29, 26, 15], [27, 44, 24], [33, 53, 42], [35, 17, 51]];
+        var edgeFacelet = [[5, 10], [7, 19], [3, 37], [1, 46], [32, 16], [28, 25], [30, 43], [34, 52], [23, 12], [21, 41], [50, 39], [48, 14]];
+        var cornerColor = [[U, R, F], [U, F, L], [U, L, B], [U, B, R], [D, F, R], [D, L, F], [D, B, L], [D, R, B]];
+        var edgeColor = [[U, R], [U, F], [U, L], [U, B], [D, R], [D, F], [D, L], [D, B], [F, R], [F, L], [B, L], [B, R]];
+
+        function Cube(cp, co, ep, eo) {
+          this.cp = cp || [0, 1, 2, 3, 4, 5, 6, 7]; this.co = co || [0, 0, 0, 0, 0, 0, 0, 0];
+          this.ep = ep || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; this.eo = eo || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        }
+        Cube.prototype.clone = function () { return new Cube(this.cp.slice(), this.co.slice(), this.ep.slice(), this.eo.slice()); };
+        Cube.prototype.mul = function (b) {   // this * b（先做 this 再做 b）
+          var c = new Cube();
+          for (var i = 0; i < 8; i++) { c.cp[i] = this.cp[b.cp[i]]; c.co[i] = (this.co[b.cp[i]] + b.co[i]) % 3; }
+          for (var j = 0; j < 12; j++) { c.ep[j] = this.ep[b.ep[j]]; c.eo[j] = (this.eo[b.ep[j]] + b.eo[j]) % 2; }
+          return c;
+        };
+        var BASIC = [
+          new Cube([UBR, URF, UFL, ULB, DFR, DLF, DBL, DRB], [0, 0, 0, 0, 0, 0, 0, 0], [UB, UR, UF, UL, DR, DF, DL, DB, FR, FL, BL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+          new Cube([DFR, UFL, ULB, URF, DRB, DLF, DBL, UBR], [2, 0, 0, 1, 1, 0, 0, 2], [FR, UF, UL, UB, BR, DF, DL, DB, DR, FL, BL, UR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+          new Cube([UFL, DLF, ULB, UBR, URF, DFR, DBL, DRB], [1, 2, 0, 0, 2, 1, 0, 0], [UR, FL, UL, UB, DR, FR, DL, DB, UF, DF, BL, BR], [0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0]),
+          new Cube([URF, UFL, ULB, UBR, DLF, DBL, DRB, DFR], [0, 0, 0, 0, 0, 0, 0, 0], [UR, UF, UL, UB, DF, DL, DB, DR, FR, FL, BL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+          new Cube([URF, ULB, DBL, UBR, DFR, UFL, DLF, DRB], [0, 1, 2, 0, 0, 2, 1, 0], [UR, UF, BL, UB, DR, DF, FL, DB, FR, UL, DL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),
+          new Cube([URF, UFL, UBR, DRB, DFR, DLF, ULB, DBL], [0, 0, 1, 2, 0, 0, 2, 1], [UR, UF, UL, BR, DR, DF, DL, BL, FR, FL, UB, DB], [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1]),
+        ];
+        var MOVES = [];   // 18 種轉動：面 × 3 + (次數 − 1)
+        for (var f = 0; f < 6; f++) { var m = new Cube(); for (var k = 0; k < 3; k++) { m = m.mul(BASIC[f]); MOVES.push(m.clone()); } }
+        var MOVE_NAMES = []; "URFDLB".split("").forEach(function (fc) { MOVE_NAMES.push(fc, fc + "2", fc + "'"); });
+
+        // ---- facelet ↔ cubie ----
+        function fromFacelets(str) {
+          if (typeof str !== "string" || str.length !== 54) throw new Error("需要 54 格");
+          var col = [], map = {};
+          for (var f = 0; f < 6; f++) map[str[f * 9 + 4]] = f;
+          if (Object.keys(map).length !== 6) throw new Error("六個中心的顏色必須都不同");
+          for (var i = 0; i < 54; i++) { if (!(str[i] in map)) throw new Error("出現了不是中心顏色的格子"); col.push(map[str[i]]); }
+          var cnt = [0, 0, 0, 0, 0, 0]; col.forEach(function (c) { cnt[c]++; });
+          if (cnt.some(function (n) { return n !== 9; })) throw new Error("每種顏色都必須剛好 9 格");
+          var c = new Cube(), seenC = [], seenE = [];
+          for (var p = 0; p < 8; p++) {
+            var ori = -1; for (ori = 0; ori < 3; ori++) if (col[cornerFacelet[p][ori]] === U || col[cornerFacelet[p][ori]] === D) break;
+            if (ori === 3) throw new Error("有一個角塊沒有上下色（黃或白）");
+            var c1 = col[cornerFacelet[p][(ori + 1) % 3]], c2 = col[cornerFacelet[p][(ori + 2) % 3]], found = -1;
+            for (var j = 0; j < 8; j++) if (c1 === cornerColor[j][1] && c2 === cornerColor[j][2] && col[cornerFacelet[p][ori]] === cornerColor[j][0]) found = j;
+            if (found < 0) throw new Error("有一個角塊的顏色組合不存在");
+            c.cp[p] = found; c.co[p] = ori % 3; seenC.push(found);
+          }
+          for (var q = 0; q < 12; q++) {
+            var a = col[edgeFacelet[q][0]], b2 = col[edgeFacelet[q][1]], fe = -1;
+            for (var j2 = 0; j2 < 12; j2++) {
+              if (a === edgeColor[j2][0] && b2 === edgeColor[j2][1]) { fe = j2; c.eo[q] = 0; }
+              if (a === edgeColor[j2][1] && b2 === edgeColor[j2][0]) { fe = j2; c.eo[q] = 1; }
+            }
+            if (fe < 0) throw new Error("有一個邊塊的顏色組合不存在");
+            c.ep[q] = fe; seenE.push(fe);
+          }
+          if (new Set(seenC).size !== 8) throw new Error("角塊重複出現（可能有顏色辨識錯誤）");
+          if (new Set(seenE).size !== 12) throw new Error("邊塊重複出現（可能有顏色辨識錯誤）");
+          if (c.co.reduce(function (s, v) { return s + v; }, 0) % 3) throw new Error("有一個角塊被扭轉了（物理上轉不出來）");
+          if (c.eo.reduce(function (s, v) { return s + v; }, 0) % 2) throw new Error("有一個邊塊被翻面了（物理上轉不出來）");
+          if (parity(c.cp) !== parity(c.ep)) throw new Error("有兩個塊被對調了（物理上轉不出來）");
+          return c;
+        }
+        function parity(p) { var s = 0; for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) if (p[i] > p[j]) s++; return s % 2; }
+
+        // ---- 座標 ----
+        var Cnk = []; for (var n = 0; n < 13; n++) { Cnk[n] = []; for (var kk = 0; kk < 13; kk++) Cnk[n][kk] = kk > n ? 0 : kk === 0 ? 1 : Cnk[n - 1][kk - 1] + Cnk[n - 1][kk]; }
+        function getTwist(c) { var t = 0; for (var i = 0; i < 7; i++) t = 3 * t + c.co[i]; return t; }
+        function setTwist(c, t) { var s = 0; for (var i = 6; i >= 0; i--) { c.co[i] = t % 3; s += c.co[i]; t = Math.floor(t / 3); } c.co[7] = (3 - s % 3) % 3; }
+        function getFlip(c) { var t = 0; for (var i = 0; i < 11; i++) t = 2 * t + c.eo[i]; return t; }
+        function setFlip(c, t) { var s = 0; for (var i = 10; i >= 0; i--) { c.eo[i] = t & 1; s += c.eo[i]; t >>= 1; } c.eo[11] = s % 2; }
+        function getSlice(c) { var s = 0, k = 0; for (var j = 0; j < 12; j++) if (c.ep[j] >= 8) { k++; s += Cnk[j][k]; } return s; }
+        function setSlice(c, s) {
+          var pos = [], k = 4;
+          for (var j = 11; j >= 0 && k > 0; j--) if (Cnk[j][k] <= s) { s -= Cnk[j][k]; pos.push(j); k--; }
+          var other = 0, sl = 8; for (var q = 0; q < 12; q++) c.ep[q] = -1;
+          pos.forEach(function (p) { c.ep[p] = sl++; });
+          for (var q2 = 0; q2 < 12; q2++) if (c.ep[q2] < 0) c.ep[q2] = other++;
+        }
+        function rank(arr, n) { var r = 0; for (var i = 0; i < n; i++) { var s = 0; for (var j = i + 1; j < n; j++) if (arr[j] < arr[i]) s++; r = r * (n - i) + s; } return r; }
+        function unrank(r, n) {
+          var d = new Array(n), out = new Array(n), used = new Array(n).fill(false);
+          for (var i = n - 1; i >= 0; i--) { d[i] = r % (n - i); r = Math.floor(r / (n - i)); }
+          for (var k = 0; k < n; k++) { var c = d[k]; for (var v = 0; v < n; v++) if (!used[v]) { if (c === 0) { out[k] = v; used[v] = true; break; } c--; } }
+          return out;
+        }
+        var N_TWIST = 2187, N_FLIP = 2048, N_SLICE = 495, N_PERM8 = 40320, N_SLICEP = 24;
+        var P2MOVES = [0, 1, 2, 4, 7, 9, 10, 11, 13, 16];   // U U2 U' R2 F2 D D2 D' L2 B2
+        var tables = null;
+
+        function init() {
+          if (tables) return tables;
+          var t0 = Date.now(), i, m;
+          var twistMove = new Uint16Array(N_TWIST * 18), flipMove = new Uint16Array(N_FLIP * 18), sliceMove = new Uint16Array(N_SLICE * 18);
+          for (i = 0; i < N_TWIST; i++) { var a = new Cube(); setTwist(a, i); for (m = 0; m < 18; m++) twistMove[i * 18 + m] = getTwist(a.mul(MOVES[m])); }
+          for (i = 0; i < N_FLIP; i++) { var b = new Cube(); setFlip(b, i); for (m = 0; m < 18; m++) flipMove[i * 18 + m] = getFlip(b.mul(MOVES[m])); }
+          for (i = 0; i < N_SLICE; i++) { var c = new Cube(); setSlice(c, i); for (m = 0; m < 18; m++) sliceMove[i * 18 + m] = getSlice(c.mul(MOVES[m])); }
+          var cpMove = new Uint16Array(N_PERM8 * 10), udMove = new Uint16Array(N_PERM8 * 10), spMove = new Uint8Array(N_SLICEP * 10);
+          for (i = 0; i < N_PERM8; i++) {
+            var p = unrank(i, 8), cc = new Cube(); cc.cp = p.slice();
+            var ec = new Cube(); ec.ep = p.concat([8, 9, 10, 11]);
+            for (m = 0; m < 10; m++) {
+              var mv = MOVES[P2MOVES[m]];
+              cpMove[i * 10 + m] = rank(cc.mul(mv).cp, 8);
+              udMove[i * 10 + m] = rank(ec.mul(mv).ep, 8);
+            }
+          }
+          for (i = 0; i < N_SLICEP; i++) {
+            var q = unrank(i, 4), sc = new Cube(); sc.ep = [0, 1, 2, 3, 4, 5, 6, 7].concat(q.map(function (v) { return v + 8; }));
+            for (m = 0; m < 10; m++) spMove[i * 10 + m] = rank(sc.mul(MOVES[P2MOVES[m]]).ep.slice(8).map(function (v) { return v - 8; }), 4);
+          }
+          var SLICE_GOAL = getSlice(new Cube());
+          function bfs(size, start, step, nm) {
+            var dist = new Int8Array(size).fill(-1), frontier = [start], d = 0; dist[start] = 0;
+            while (frontier.length) {
+              var next = [];
+              for (var x = 0; x < frontier.length; x++) for (var mm = 0; mm < nm; mm++) { var y = step(frontier[x], mm); if (dist[y] < 0) { dist[y] = d + 1; next.push(y); } }
+              frontier = next; d++;
+            }
+            return dist;
+          }
+          var pSliceTwist = bfs(N_SLICE * N_TWIST, SLICE_GOAL * N_TWIST, function (s, mm) { var sl = (s / N_TWIST) | 0, tw = s % N_TWIST; return sliceMove[sl * 18 + mm] * N_TWIST + twistMove[tw * 18 + mm]; }, 18);
+          var pSliceFlip = bfs(N_SLICE * N_FLIP, SLICE_GOAL * N_FLIP, function (s, mm) { var sl = (s / N_FLIP) | 0, fl = s % N_FLIP; return sliceMove[sl * 18 + mm] * N_FLIP + flipMove[fl * 18 + mm]; }, 18);
+          var pCp = bfs(N_SLICEP * N_PERM8, 0, function (s, mm) { var sp = (s / N_PERM8) | 0, c2 = s % N_PERM8; return spMove[sp * 10 + mm] * N_PERM8 + cpMove[c2 * 10 + mm]; }, 10);
+          var pUd = bfs(N_SLICEP * N_PERM8, 0, function (s, mm) { var sp = (s / N_PERM8) | 0, c2 = s % N_PERM8; return spMove[sp * 10 + mm] * N_PERM8 + udMove[c2 * 10 + mm]; }, 10);
+          tables = { twistMove: twistMove, flipMove: flipMove, sliceMove: sliceMove, cpMove: cpMove, udMove: udMove, spMove: spMove,
+            pSliceTwist: pSliceTwist, pSliceFlip: pSliceFlip, pCp: pCp, pUd: pUd, SLICE_GOAL: SLICE_GOAL, ms: Date.now() - t0 };
+          return tables;
+        }
+
+        // 同一面不連續轉；相對面只允許一種順序（U 後可接 D，D 後不可接 U）
+        function allowed(f, last) { return last < 0 || (f !== last && f !== last - 3); }
+
+        function solveCube(cube, opt) {
+          opt = opt || {};
+          var T = init(), tLimit = opt.timeLimit === undefined ? 1500 : opt.timeLimit, maxLen = opt.maxLength || 30, t0 = Date.now();
+          var best = null, bestLen = maxLen + 1, path1 = [], path2 = [], timeUp = false, nodes = 0;
+          var tw0 = getTwist(cube), fl0 = getFlip(cube), sl0 = getSlice(cube);
+          if (tw0 === 0 && fl0 === 0 && sl0 === T.SLICE_GOAL && isSolvedCube(cube)) return [];
+
+          function h1(sl, tw, fl) { return Math.max(T.pSliceTwist[sl * N_TWIST + tw], T.pSliceFlip[sl * N_FLIP + fl]); }
+          function phase1(sl, tw, fl, depth, last) {
+            if ((++nodes & 4095) === 0 && best && Date.now() - t0 > tLimit) timeUp = true;
+            if (timeUp) return;
+            if (depth === 0) {
+              if (sl === T.SLICE_GOAL && tw === 0 && fl === 0 && (path1.length === 0 || P2MOVES.indexOf(path1[path1.length - 1]) < 0)) startPhase2();
+              return;
+            }
+            if (h1(sl, tw, fl) > depth) return;
+            for (var f = 0; f < 6; f++) {
+              if (!allowed(f, last)) continue;
+              for (var k = 0; k < 3; k++) {
+                var mv = f * 3 + k;
+                path1.push(mv);
+                phase1(T.sliceMove[sl * 18 + mv], T.twistMove[tw * 18 + mv], T.flipMove[fl * 18 + mv], depth - 1, f);
+                path1.pop();
+                if (timeUp) return;
+              }
+            }
+          }
+          function startPhase2() {
+            var c = cube; for (var i = 0; i < path1.length; i++) c = c.mul(MOVES[path1[i]]);
+            var cp = rank(c.cp, 8), ud = rank(c.ep.slice(0, 8), 8), sp = rank(c.ep.slice(8).map(function (v) { return v - 8; }), 4);
+            var room = bestLen - 1 - path1.length;
+            if (room < 0) return;
+            var last = path1.length ? Math.floor(path1[path1.length - 1] / 3) : -1;
+            for (var d2 = Math.max(T.pCp[sp * N_PERM8 + cp], T.pUd[sp * N_PERM8 + ud]); d2 <= room; d2++) {
+              path2.length = 0;
+              if (phase2(cp, ud, sp, d2, last)) {
+                best = path1.concat(path2); bestLen = best.length;
+                return;
+              }
+            }
+          }
+          function phase2(cp, ud, sp, depth, last) {
+            if (depth === 0) return cp === 0 && ud === 0 && sp === 0;
+            if (Math.max(T.pCp[sp * N_PERM8 + cp], T.pUd[sp * N_PERM8 + ud]) > depth) return false;
+            for (var j = 0; j < 10; j++) {
+              var mv = P2MOVES[j], f = Math.floor(mv / 3);
+              if (!allowed(f, last)) continue;
+              path2.push(mv);
+              if (phase2(T.cpMove[cp * 10 + j], T.udMove[ud * 10 + j], T.spMove[sp * 10 + j], depth - 1, f)) return true;
+              path2.pop();
+            }
+            return false;
+          }
+          for (var d1 = h1(sl0, tw0, fl0); d1 < bestLen && d1 <= 20; d1++) {
+            phase1(sl0, tw0, fl0, d1, -1);
+            if (timeUp) break;
+            if (best && Date.now() - t0 > tLimit) break;
+          }
+          return best ? best.map(function (m) { return MOVE_NAMES[m]; }) : null;
+        }
+        function isSolvedCube(c) {
+          for (var i = 0; i < 8; i++) if (c.cp[i] !== i || c.co[i]) return false;
+          for (var j = 0; j < 12; j++) if (c.ep[j] !== j || c.eo[j]) return false;
+          return true;
+        }
+        function solve(facelets, opt) { return solveCube(fromFacelets(facelets), opt); }
+        function applyMoves(cube, moves) {
+          moves.forEach(function (n) { cube = cube.mul(MOVES[MOVE_NAMES.indexOf(n)]); }); return cube;
+        }
+
+        var RBSolver = { init: init, solve: solve, solveCube: solveCube, fromFacelets: fromFacelets, Cube: Cube, MOVES: MOVES, MOVE_NAMES: MOVE_NAMES,
+          applyMoves: applyMoves, isSolvedCube: isSolvedCube, ready: function () { return !!tables; } };
+        root.RBSolver = RBSolver;
+        if (typeof module !== "undefined" && module.exports) module.exports = RBSolver;
+        // 當成 Web Worker 執行時：收到 {facelets, timeLimit} 就回傳解法
+        if (typeof self !== "undefined" && typeof window === "undefined" && typeof self.postMessage === "function" && typeof module === "undefined") {
+          self.onmessage = function (e) {
+            try {
+              if (e.data && e.data.init) { var tt = init(); self.postMessage({ ready: true, ms: tt.ms }); return; }
+              var t1 = Date.now(), sol = solve(e.data.facelets, { timeLimit: e.data.timeLimit || 1500 });
+              self.postMessage({ ok: true, moves: sol, ms: Date.now() - t1 });
+            } catch (err) { self.postMessage({ ok: false, error: String(err.message || err) }); }
+          };
+        }
+      })(typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : globalThis);
+
+      window.__rbSolverSrc = "/* \u9b54\u8853\u65b9\u584a\u6c42\u89e3\u5668\uff1aKociemba \u5169\u968e\u6bb5\u6f14\u7b97\u6cd5\uff08\u81ea\u884c\u5be6\u4f5c\uff09\u3002\n * \u7b2c\u4e00\u968e\u6bb5\uff1a\u628a\u65b9\u584a\u5e36\u9032\u5b50\u7fa4 G1 = <U, D, R2, L2, F2, B2>\uff08\u89d2\u584a\u65b9\u5411\u3001\u908a\u584a\u65b9\u5411\u3001\u4e2d\u5c64\u908a\u584a\u4f4d\u7f6e\u90fd\u6b78\u4f4d\uff09\u3002\n * \u7b2c\u4e8c\u968e\u6bb5\uff1a\u53ea\u7528 G1 \u7684\u8f49\u52d5\u628a\u65b9\u584a\u5fa9\u539f\u3002\n * \u7528\u6cd5\uff1aRBSolver.init(); RBSolver.solve(\"UUUUUUUUURRR\u2026\", { timeLimit: 1500 }) \u2192 \"R U2 F' \u2026\"\n * facelet \u5b57\u4e32\u4f9d URFDLB \u5404 9 \u683c\uff08Kociemba \u6163\u4f8b\uff09\u3002\u700f\u89bd\u5668\u3001Web Worker\u3001Node \u5171\u7528\u3002\n */\n(function (root) {\n  \"use strict\";\n  var URF = 0, UFL = 1, ULB = 2, UBR = 3, DFR = 4, DLF = 5, DBL = 6, DRB = 7;\n  var UR = 0, UF = 1, UL = 2, UB = 3, DR = 4, DF = 5, DL = 6, DB = 7, FR = 8, FL = 9, BL = 10, BR = 11;\n  // ---- \u89d2\u584a\u8207\u908a\u584a\u5728 facelet \u4e0a\u7684\u4f4d\u7f6e ----\n  var U = 0, R = 1, F = 2, D = 3, L = 4, B = 5;\n  var cornerFacelet = [[8, 9, 20], [6, 18, 38], [0, 36, 47], [2, 45, 11], [29, 26, 15], [27, 44, 24], [33, 53, 42], [35, 17, 51]];\n  var edgeFacelet = [[5, 10], [7, 19], [3, 37], [1, 46], [32, 16], [28, 25], [30, 43], [34, 52], [23, 12], [21, 41], [50, 39], [48, 14]];\n  var cornerColor = [[U, R, F], [U, F, L], [U, L, B], [U, B, R], [D, F, R], [D, L, F], [D, B, L], [D, R, B]];\n  var edgeColor = [[U, R], [U, F], [U, L], [U, B], [D, R], [D, F], [D, L], [D, B], [F, R], [F, L], [B, L], [B, R]];\n\n  function Cube(cp, co, ep, eo) {\n    this.cp = cp || [0, 1, 2, 3, 4, 5, 6, 7]; this.co = co || [0, 0, 0, 0, 0, 0, 0, 0];\n    this.ep = ep || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]; this.eo = eo || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];\n  }\n  Cube.prototype.clone = function () { return new Cube(this.cp.slice(), this.co.slice(), this.ep.slice(), this.eo.slice()); };\n  Cube.prototype.mul = function (b) {   // this * b\uff08\u5148\u505a this \u518d\u505a b\uff09\n    var c = new Cube();\n    for (var i = 0; i < 8; i++) { c.cp[i] = this.cp[b.cp[i]]; c.co[i] = (this.co[b.cp[i]] + b.co[i]) % 3; }\n    for (var j = 0; j < 12; j++) { c.ep[j] = this.ep[b.ep[j]]; c.eo[j] = (this.eo[b.ep[j]] + b.eo[j]) % 2; }\n    return c;\n  };\n  var BASIC = [\n    new Cube([UBR, URF, UFL, ULB, DFR, DLF, DBL, DRB], [0, 0, 0, 0, 0, 0, 0, 0], [UB, UR, UF, UL, DR, DF, DL, DB, FR, FL, BL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),\n    new Cube([DFR, UFL, ULB, URF, DRB, DLF, DBL, UBR], [2, 0, 0, 1, 1, 0, 0, 2], [FR, UF, UL, UB, BR, DF, DL, DB, DR, FL, BL, UR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),\n    new Cube([UFL, DLF, ULB, UBR, URF, DFR, DBL, DRB], [1, 2, 0, 0, 2, 1, 0, 0], [UR, FL, UL, UB, DR, FR, DL, DB, UF, DF, BL, BR], [0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0]),\n    new Cube([URF, UFL, ULB, UBR, DLF, DBL, DRB, DFR], [0, 0, 0, 0, 0, 0, 0, 0], [UR, UF, UL, UB, DF, DL, DB, DR, FR, FL, BL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),\n    new Cube([URF, ULB, DBL, UBR, DFR, UFL, DLF, DRB], [0, 1, 2, 0, 0, 2, 1, 0], [UR, UF, BL, UB, DR, DF, FL, DB, FR, UL, DL, BR], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]),\n    new Cube([URF, UFL, UBR, DRB, DFR, DLF, ULB, DBL], [0, 0, 1, 2, 0, 0, 2, 1], [UR, UF, UL, BR, DR, DF, DL, BL, FR, FL, UB, DB], [0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1]),\n  ];\n  var MOVES = [];   // 18 \u7a2e\u8f49\u52d5\uff1a\u9762 \u00d7 3 + (\u6b21\u6578 \u2212 1)\n  for (var f = 0; f < 6; f++) { var m = new Cube(); for (var k = 0; k < 3; k++) { m = m.mul(BASIC[f]); MOVES.push(m.clone()); } }\n  var MOVE_NAMES = []; \"URFDLB\".split(\"\").forEach(function (fc) { MOVE_NAMES.push(fc, fc + \"2\", fc + \"'\"); });\n\n  // ---- facelet \u2194 cubie ----\n  function fromFacelets(str) {\n    if (typeof str !== \"string\" || str.length !== 54) throw new Error(\"\u9700\u8981 54 \u683c\");\n    var col = [], map = {};\n    for (var f = 0; f < 6; f++) map[str[f * 9 + 4]] = f;\n    if (Object.keys(map).length !== 6) throw new Error(\"\u516d\u500b\u4e2d\u5fc3\u7684\u984f\u8272\u5fc5\u9808\u90fd\u4e0d\u540c\");\n    for (var i = 0; i < 54; i++) { if (!(str[i] in map)) throw new Error(\"\u51fa\u73fe\u4e86\u4e0d\u662f\u4e2d\u5fc3\u984f\u8272\u7684\u683c\u5b50\"); col.push(map[str[i]]); }\n    var cnt = [0, 0, 0, 0, 0, 0]; col.forEach(function (c) { cnt[c]++; });\n    if (cnt.some(function (n) { return n !== 9; })) throw new Error(\"\u6bcf\u7a2e\u984f\u8272\u90fd\u5fc5\u9808\u525b\u597d 9 \u683c\");\n    var c = new Cube(), seenC = [], seenE = [];\n    for (var p = 0; p < 8; p++) {\n      var ori = -1; for (ori = 0; ori < 3; ori++) if (col[cornerFacelet[p][ori]] === U || col[cornerFacelet[p][ori]] === D) break;\n      if (ori === 3) throw new Error(\"\u6709\u4e00\u500b\u89d2\u584a\u6c92\u6709\u4e0a\u4e0b\u8272\uff08\u9ec3\u6216\u767d\uff09\");\n      var c1 = col[cornerFacelet[p][(ori + 1) % 3]], c2 = col[cornerFacelet[p][(ori + 2) % 3]], found = -1;\n      for (var j = 0; j < 8; j++) if (c1 === cornerColor[j][1] && c2 === cornerColor[j][2] && col[cornerFacelet[p][ori]] === cornerColor[j][0]) found = j;\n      if (found < 0) throw new Error(\"\u6709\u4e00\u500b\u89d2\u584a\u7684\u984f\u8272\u7d44\u5408\u4e0d\u5b58\u5728\");\n      c.cp[p] = found; c.co[p] = ori % 3; seenC.push(found);\n    }\n    for (var q = 0; q < 12; q++) {\n      var a = col[edgeFacelet[q][0]], b2 = col[edgeFacelet[q][1]], fe = -1;\n      for (var j2 = 0; j2 < 12; j2++) {\n        if (a === edgeColor[j2][0] && b2 === edgeColor[j2][1]) { fe = j2; c.eo[q] = 0; }\n        if (a === edgeColor[j2][1] && b2 === edgeColor[j2][0]) { fe = j2; c.eo[q] = 1; }\n      }\n      if (fe < 0) throw new Error(\"\u6709\u4e00\u500b\u908a\u584a\u7684\u984f\u8272\u7d44\u5408\u4e0d\u5b58\u5728\");\n      c.ep[q] = fe; seenE.push(fe);\n    }\n    if (new Set(seenC).size !== 8) throw new Error(\"\u89d2\u584a\u91cd\u8907\u51fa\u73fe\uff08\u53ef\u80fd\u6709\u984f\u8272\u8fa8\u8b58\u932f\u8aa4\uff09\");\n    if (new Set(seenE).size !== 12) throw new Error(\"\u908a\u584a\u91cd\u8907\u51fa\u73fe\uff08\u53ef\u80fd\u6709\u984f\u8272\u8fa8\u8b58\u932f\u8aa4\uff09\");\n    if (c.co.reduce(function (s, v) { return s + v; }, 0) % 3) throw new Error(\"\u6709\u4e00\u500b\u89d2\u584a\u88ab\u626d\u8f49\u4e86\uff08\u7269\u7406\u4e0a\u8f49\u4e0d\u51fa\u4f86\uff09\");\n    if (c.eo.reduce(function (s, v) { return s + v; }, 0) % 2) throw new Error(\"\u6709\u4e00\u500b\u908a\u584a\u88ab\u7ffb\u9762\u4e86\uff08\u7269\u7406\u4e0a\u8f49\u4e0d\u51fa\u4f86\uff09\");\n    if (parity(c.cp) !== parity(c.ep)) throw new Error(\"\u6709\u5169\u500b\u584a\u88ab\u5c0d\u8abf\u4e86\uff08\u7269\u7406\u4e0a\u8f49\u4e0d\u51fa\u4f86\uff09\");\n    return c;\n  }\n  function parity(p) { var s = 0; for (var i = 0; i < p.length; i++) for (var j = i + 1; j < p.length; j++) if (p[i] > p[j]) s++; return s % 2; }\n\n  // ---- \u5ea7\u6a19 ----\n  var Cnk = []; for (var n = 0; n < 13; n++) { Cnk[n] = []; for (var kk = 0; kk < 13; kk++) Cnk[n][kk] = kk > n ? 0 : kk === 0 ? 1 : Cnk[n - 1][kk - 1] + Cnk[n - 1][kk]; }\n  function getTwist(c) { var t = 0; for (var i = 0; i < 7; i++) t = 3 * t + c.co[i]; return t; }\n  function setTwist(c, t) { var s = 0; for (var i = 6; i >= 0; i--) { c.co[i] = t % 3; s += c.co[i]; t = Math.floor(t / 3); } c.co[7] = (3 - s % 3) % 3; }\n  function getFlip(c) { var t = 0; for (var i = 0; i < 11; i++) t = 2 * t + c.eo[i]; return t; }\n  function setFlip(c, t) { var s = 0; for (var i = 10; i >= 0; i--) { c.eo[i] = t & 1; s += c.eo[i]; t >>= 1; } c.eo[11] = s % 2; }\n  function getSlice(c) { var s = 0, k = 0; for (var j = 0; j < 12; j++) if (c.ep[j] >= 8) { k++; s += Cnk[j][k]; } return s; }\n  function setSlice(c, s) {\n    var pos = [], k = 4;\n    for (var j = 11; j >= 0 && k > 0; j--) if (Cnk[j][k] <= s) { s -= Cnk[j][k]; pos.push(j); k--; }\n    var other = 0, sl = 8; for (var q = 0; q < 12; q++) c.ep[q] = -1;\n    pos.forEach(function (p) { c.ep[p] = sl++; });\n    for (var q2 = 0; q2 < 12; q2++) if (c.ep[q2] < 0) c.ep[q2] = other++;\n  }\n  function rank(arr, n) { var r = 0; for (var i = 0; i < n; i++) { var s = 0; for (var j = i + 1; j < n; j++) if (arr[j] < arr[i]) s++; r = r * (n - i) + s; } return r; }\n  function unrank(r, n) {\n    var d = new Array(n), out = new Array(n), used = new Array(n).fill(false);\n    for (var i = n - 1; i >= 0; i--) { d[i] = r % (n - i); r = Math.floor(r / (n - i)); }\n    for (var k = 0; k < n; k++) { var c = d[k]; for (var v = 0; v < n; v++) if (!used[v]) { if (c === 0) { out[k] = v; used[v] = true; break; } c--; } }\n    return out;\n  }\n  var N_TWIST = 2187, N_FLIP = 2048, N_SLICE = 495, N_PERM8 = 40320, N_SLICEP = 24;\n  var P2MOVES = [0, 1, 2, 4, 7, 9, 10, 11, 13, 16];   // U U2 U' R2 F2 D D2 D' L2 B2\n  var tables = null;\n\n  function init() {\n    if (tables) return tables;\n    var t0 = Date.now(), i, m;\n    var twistMove = new Uint16Array(N_TWIST * 18), flipMove = new Uint16Array(N_FLIP * 18), sliceMove = new Uint16Array(N_SLICE * 18);\n    for (i = 0; i < N_TWIST; i++) { var a = new Cube(); setTwist(a, i); for (m = 0; m < 18; m++) twistMove[i * 18 + m] = getTwist(a.mul(MOVES[m])); }\n    for (i = 0; i < N_FLIP; i++) { var b = new Cube(); setFlip(b, i); for (m = 0; m < 18; m++) flipMove[i * 18 + m] = getFlip(b.mul(MOVES[m])); }\n    for (i = 0; i < N_SLICE; i++) { var c = new Cube(); setSlice(c, i); for (m = 0; m < 18; m++) sliceMove[i * 18 + m] = getSlice(c.mul(MOVES[m])); }\n    var cpMove = new Uint16Array(N_PERM8 * 10), udMove = new Uint16Array(N_PERM8 * 10), spMove = new Uint8Array(N_SLICEP * 10);\n    for (i = 0; i < N_PERM8; i++) {\n      var p = unrank(i, 8), cc = new Cube(); cc.cp = p.slice();\n      var ec = new Cube(); ec.ep = p.concat([8, 9, 10, 11]);\n      for (m = 0; m < 10; m++) {\n        var mv = MOVES[P2MOVES[m]];\n        cpMove[i * 10 + m] = rank(cc.mul(mv).cp, 8);\n        udMove[i * 10 + m] = rank(ec.mul(mv).ep, 8);\n      }\n    }\n    for (i = 0; i < N_SLICEP; i++) {\n      var q = unrank(i, 4), sc = new Cube(); sc.ep = [0, 1, 2, 3, 4, 5, 6, 7].concat(q.map(function (v) { return v + 8; }));\n      for (m = 0; m < 10; m++) spMove[i * 10 + m] = rank(sc.mul(MOVES[P2MOVES[m]]).ep.slice(8).map(function (v) { return v - 8; }), 4);\n    }\n    var SLICE_GOAL = getSlice(new Cube());\n    function bfs(size, start, step, nm) {\n      var dist = new Int8Array(size).fill(-1), frontier = [start], d = 0; dist[start] = 0;\n      while (frontier.length) {\n        var next = [];\n        for (var x = 0; x < frontier.length; x++) for (var mm = 0; mm < nm; mm++) { var y = step(frontier[x], mm); if (dist[y] < 0) { dist[y] = d + 1; next.push(y); } }\n        frontier = next; d++;\n      }\n      return dist;\n    }\n    var pSliceTwist = bfs(N_SLICE * N_TWIST, SLICE_GOAL * N_TWIST, function (s, mm) { var sl = (s / N_TWIST) | 0, tw = s % N_TWIST; return sliceMove[sl * 18 + mm] * N_TWIST + twistMove[tw * 18 + mm]; }, 18);\n    var pSliceFlip = bfs(N_SLICE * N_FLIP, SLICE_GOAL * N_FLIP, function (s, mm) { var sl = (s / N_FLIP) | 0, fl = s % N_FLIP; return sliceMove[sl * 18 + mm] * N_FLIP + flipMove[fl * 18 + mm]; }, 18);\n    var pCp = bfs(N_SLICEP * N_PERM8, 0, function (s, mm) { var sp = (s / N_PERM8) | 0, c2 = s % N_PERM8; return spMove[sp * 10 + mm] * N_PERM8 + cpMove[c2 * 10 + mm]; }, 10);\n    var pUd = bfs(N_SLICEP * N_PERM8, 0, function (s, mm) { var sp = (s / N_PERM8) | 0, c2 = s % N_PERM8; return spMove[sp * 10 + mm] * N_PERM8 + udMove[c2 * 10 + mm]; }, 10);\n    tables = { twistMove: twistMove, flipMove: flipMove, sliceMove: sliceMove, cpMove: cpMove, udMove: udMove, spMove: spMove,\n      pSliceTwist: pSliceTwist, pSliceFlip: pSliceFlip, pCp: pCp, pUd: pUd, SLICE_GOAL: SLICE_GOAL, ms: Date.now() - t0 };\n    return tables;\n  }\n\n  // \u540c\u4e00\u9762\u4e0d\u9023\u7e8c\u8f49\uff1b\u76f8\u5c0d\u9762\u53ea\u5141\u8a31\u4e00\u7a2e\u9806\u5e8f\uff08U \u5f8c\u53ef\u63a5 D\uff0cD \u5f8c\u4e0d\u53ef\u63a5 U\uff09\n  function allowed(f, last) { return last < 0 || (f !== last && f !== last - 3); }\n\n  function solveCube(cube, opt) {\n    opt = opt || {};\n    var T = init(), tLimit = opt.timeLimit === undefined ? 1500 : opt.timeLimit, maxLen = opt.maxLength || 30, t0 = Date.now();\n    var best = null, bestLen = maxLen + 1, path1 = [], path2 = [], timeUp = false, nodes = 0;\n    var tw0 = getTwist(cube), fl0 = getFlip(cube), sl0 = getSlice(cube);\n    if (tw0 === 0 && fl0 === 0 && sl0 === T.SLICE_GOAL && isSolvedCube(cube)) return [];\n\n    function h1(sl, tw, fl) { return Math.max(T.pSliceTwist[sl * N_TWIST + tw], T.pSliceFlip[sl * N_FLIP + fl]); }\n    function phase1(sl, tw, fl, depth, last) {\n      if ((++nodes & 4095) === 0 && best && Date.now() - t0 > tLimit) timeUp = true;\n      if (timeUp) return;\n      if (depth === 0) {\n        if (sl === T.SLICE_GOAL && tw === 0 && fl === 0 && (path1.length === 0 || P2MOVES.indexOf(path1[path1.length - 1]) < 0)) startPhase2();\n        return;\n      }\n      if (h1(sl, tw, fl) > depth) return;\n      for (var f = 0; f < 6; f++) {\n        if (!allowed(f, last)) continue;\n        for (var k = 0; k < 3; k++) {\n          var mv = f * 3 + k;\n          path1.push(mv);\n          phase1(T.sliceMove[sl * 18 + mv], T.twistMove[tw * 18 + mv], T.flipMove[fl * 18 + mv], depth - 1, f);\n          path1.pop();\n          if (timeUp) return;\n        }\n      }\n    }\n    function startPhase2() {\n      var c = cube; for (var i = 0; i < path1.length; i++) c = c.mul(MOVES[path1[i]]);\n      var cp = rank(c.cp, 8), ud = rank(c.ep.slice(0, 8), 8), sp = rank(c.ep.slice(8).map(function (v) { return v - 8; }), 4);\n      var room = bestLen - 1 - path1.length;\n      if (room < 0) return;\n      var last = path1.length ? Math.floor(path1[path1.length - 1] / 3) : -1;\n      for (var d2 = Math.max(T.pCp[sp * N_PERM8 + cp], T.pUd[sp * N_PERM8 + ud]); d2 <= room; d2++) {\n        path2.length = 0;\n        if (phase2(cp, ud, sp, d2, last)) {\n          best = path1.concat(path2); bestLen = best.length;\n          return;\n        }\n      }\n    }\n    function phase2(cp, ud, sp, depth, last) {\n      if (depth === 0) return cp === 0 && ud === 0 && sp === 0;\n      if (Math.max(T.pCp[sp * N_PERM8 + cp], T.pUd[sp * N_PERM8 + ud]) > depth) return false;\n      for (var j = 0; j < 10; j++) {\n        var mv = P2MOVES[j], f = Math.floor(mv / 3);\n        if (!allowed(f, last)) continue;\n        path2.push(mv);\n        if (phase2(T.cpMove[cp * 10 + j], T.udMove[ud * 10 + j], T.spMove[sp * 10 + j], depth - 1, f)) return true;\n        path2.pop();\n      }\n      return false;\n    }\n    for (var d1 = h1(sl0, tw0, fl0); d1 < bestLen && d1 <= 20; d1++) {\n      phase1(sl0, tw0, fl0, d1, -1);\n      if (timeUp) break;\n      if (best && Date.now() - t0 > tLimit) break;\n    }\n    return best ? best.map(function (m) { return MOVE_NAMES[m]; }) : null;\n  }\n  function isSolvedCube(c) {\n    for (var i = 0; i < 8; i++) if (c.cp[i] !== i || c.co[i]) return false;\n    for (var j = 0; j < 12; j++) if (c.ep[j] !== j || c.eo[j]) return false;\n    return true;\n  }\n  function solve(facelets, opt) { return solveCube(fromFacelets(facelets), opt); }\n  function applyMoves(cube, moves) {\n    moves.forEach(function (n) { cube = cube.mul(MOVES[MOVE_NAMES.indexOf(n)]); }); return cube;\n  }\n\n  var RBSolver = { init: init, solve: solve, solveCube: solveCube, fromFacelets: fromFacelets, Cube: Cube, MOVES: MOVES, MOVE_NAMES: MOVE_NAMES,\n    applyMoves: applyMoves, isSolvedCube: isSolvedCube, ready: function () { return !!tables; } };\n  root.RBSolver = RBSolver;\n  if (typeof module !== \"undefined\" && module.exports) module.exports = RBSolver;\n  // \u7576\u6210 Web Worker \u57f7\u884c\u6642\uff1a\u6536\u5230 {facelets, timeLimit} \u5c31\u56de\u50b3\u89e3\u6cd5\n  if (typeof self !== \"undefined\" && typeof window === \"undefined\" && typeof self.postMessage === \"function\" && typeof module === \"undefined\") {\n    self.onmessage = function (e) {\n      try {\n        if (e.data && e.data.init) { var tt = init(); self.postMessage({ ready: true, ms: tt.ms }); return; }\n        var t1 = Date.now(), sol = solve(e.data.facelets, { timeLimit: e.data.timeLimit || 1500 });\n        self.postMessage({ ok: true, moves: sol, ms: Date.now() - t1 });\n      } catch (err) { self.postMessage({ ok: false, error: String(err.message || err) }); }\n    };\n  }\n})(typeof self !== \"undefined\" ? self : typeof window !== \"undefined\" ? window : globalThis);\n";
+      /* 相機解方塊：開相機（或上傳照片、手動輸入）→ 校正顏色 → 拍六面 → 辨識顏色 → 檢查 → 兩階段演算法求解 → 3D 動畫與逐步示意圖。
+       * 依賴 RBCore、RBUI、RBSolver（以及 window.__rbSolverSrc：在 Web Worker 中建表、求解）。
+       * 元素：<div class="rb-scan"></div>
+       */
+      (function () {
+        "use strict";
+        var RC = window.RBCore, UI = window.RBUI, el = UI.el, btn = UI.btn;
+        // 掃描順序與拿法（配色：U 黃、R 橘、F 綠、D 白、L 紅、B 藍）
+        var ORDER = [
+          { f: 0, name: "上（黃）", tip: "黃色中心朝向鏡頭，藍色中心朝上" },
+          { f: 1, name: "右（橘）", tip: "橘色中心朝向鏡頭，黃色中心朝上" },
+          { f: 2, name: "前（綠）", tip: "綠色中心朝向鏡頭，黃色中心朝上" },
+          { f: 3, name: "下（白）", tip: "白色中心朝向鏡頭，綠色中心朝上" },
+          { f: 4, name: "左（紅）", tip: "紅色中心朝向鏡頭，黃色中心朝上" },
+          { f: 5, name: "後（藍）", tip: "藍色中心朝向鏡頭，黃色中心朝上" },
+        ];
+        var UNKNOWN = -1;
+
+        // ---- 色彩：sRGB → Lab ----
+        function lab(rgb) {
+          var c = rgb.map(function (v) { v /= 255; return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+          var X = (c[0] * 0.4124 + c[1] * 0.3576 + c[2] * 0.1805) / 0.95047, Y = c[0] * 0.2126 + c[1] * 0.7152 + c[2] * 0.0722, Z = (c[0] * 0.0193 + c[1] * 0.1192 + c[2] * 0.9505) / 1.08883;
+          function g(t) { return t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116; }
+          var fx = g(X), fy = g(Y), fz = g(Z);
+          var sum = rgb[0] + rgb[1] + rgb[2] + 1;
+          // 後兩項是色度（R、G 佔總和的比例），不受明暗影響，用來分辨陰影下的紅與橘
+          return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz), rgb[0] / sum, rgb[1] / sum];
+        }
+        function dist(a, b) {
+          var dl = (a[0] - b[0]) * 0.35, lab2 = dl * dl + (a[1] - b[1]) * (a[1] - b[1]) + (a[2] - b[2]) * (a[2] - b[2]);
+          var cr = (a[3] - b[3]) * 160, cg = (a[4] - b[4]) * 160;
+          return Math.sqrt(lab2 + cr * cr + cg * cg);
+        }
+
+        // ---- 匈牙利演算法：n×n 成本矩陣的最小指派 ----
+        function hungarian(cost) {
+          var n = cost.length, INF = 1e18, u = new Array(n + 1).fill(0), v = new Array(n + 1).fill(0), p = new Array(n + 1).fill(0), way = new Array(n + 1).fill(0);
+          for (var i = 1; i <= n; i++) {
+            p[0] = i; var j0 = 0, minv = new Array(n + 1).fill(INF), used = new Array(n + 1).fill(false);
+            do {
+              used[j0] = true; var i0 = p[j0], delta = INF, j1 = 0;
+              for (var j = 1; j <= n; j++) if (!used[j]) {
+                var cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
+                if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }
+                if (minv[j] < delta) { delta = minv[j]; j1 = j; }
+              }
+              for (var jj = 0; jj <= n; jj++) { if (used[jj]) { u[p[jj]] += delta; v[jj] -= delta; } else minv[jj] -= delta; }
+              j0 = j1;
+            } while (p[j0] !== 0);
+            do { var jn = way[j0]; p[j0] = p[jn]; j0 = jn; } while (j0);
+          }
+          var ans = new Array(n); for (var k = 1; k <= n; k++) ans[p[k] - 1] = k - 1; return ans;
+        }
+        // 54 格依顏色樣本分成 6 色、每色 9 格；中心固定
+        function classify(samples, refs) {
+          var L = samples.map(function (s) { return s ? lab(s) : null; }), R = refs.map(lab), cost = [];
+          for (var i = 0; i < 54; i++) {
+            var row = [];
+            for (var slot = 0; slot < 54; slot++) {
+              var col = Math.floor(slot / 9), c;
+              if (i % 9 === 4) c = (col === Math.floor(i / 9)) ? 0 : 1e9;
+              else c = L[i] ? dist(L[i], R[col]) : 0;
+              row.push(c);
+            }
+            cost.push(row);
+          }
+          var a = hungarian(cost);
+          return a.map(function (slot) { return Math.floor(slot / 9); });
+        }
+        function nearest(sample, refs) { var L = lab(sample), best = 0, bd = 1e9; refs.forEach(function (r, k) { var d = dist(L, lab(r)); if (d < bd) { bd = d; best = k; } }); return best; }
+
+        // 在 canvas 影像上取 3×3 格的中位數顏色；box = {cx, cy, size}（以像素計）
+        function sampleGrid(ctx, box) {
+          var out = [], cell = box.size / 3;
+          for (var r = 0; r < 3; r++) for (var c = 0; c < 3; c++) {
+            var x0 = Math.round(box.cx - box.size / 2 + (c + 0.28) * cell), y0 = Math.round(box.cy - box.size / 2 + (r + 0.28) * cell), w = Math.max(2, Math.round(cell * 0.44));
+            var d = ctx.getImageData(x0, y0, w, w).data, R = [], G = [], B = [];
+            for (var i = 0; i < d.length; i += 4 * 3) { R.push(d[i]); G.push(d[i + 1]); B.push(d[i + 2]); }
+            out.push([med(R), med(G), med(B)]);
+          }
+          return out;
+        }
+        function med(a) { a.sort(function (x, y) { return x - y; }); return a[Math.floor(a.length / 2)]; }
+        function rgbCss(c) { return "rgb(" + c.map(Math.round).join(",") + ")"; }
+
+        // ---- 求解器：優先用 Web Worker ----
+        var worker = null, workerReady = false, pending = null;
+        function startWorker() {
+          if (worker || !window.__rbSolverSrc) return;
+          try {
+            worker = new Worker(URL.createObjectURL(new Blob([window.__rbSolverSrc], { type: "text/javascript" })));
+            worker.onmessage = function (e) { if (e.data.ready) { workerReady = true; return; } if (pending) { var p = pending; pending = null; p(e.data); } };
+            worker.onerror = function () { worker = null; if (pending) { var p = pending; pending = null; solveAsync(lastFacelets, p); } };
+            worker.postMessage({ init: true });
+          } catch (err) { worker = null; }
+        }
+        var lastFacelets = null;
+        function solveAsync(facelets, cb) {
+          lastFacelets = facelets;
+          if (worker) { pending = cb; worker.postMessage({ facelets: facelets, timeLimit: 1800 }); return; }
+          setTimeout(function () {
+            try { var t0 = Date.now(), m = window.RBSolver.solve(facelets, { timeLimit: 1500 }); cb({ ok: true, moves: m, ms: Date.now() - t0 }); }
+            catch (err) { cb({ ok: false, error: String(err.message || err) }); }
+          }, 30);
+        }
+
+        function mount(root) {
+          startWorker();
+          var faces = [null, null, null, null, null, null];   // 每面 9 個樣本 RGB
+          var colors = new Array(54).fill(UNKNOWN);            // 最後的顏色（0–5）
+          var calib = [null, null, null, null, null, null];    // 校正樣本
+          var current = 0, stream = null, video = null, live = null, src = "none", img = null, boxScale = 0.62, offset = [0, 0], paint = 0;
+          for (var f = 0; f < 6; f++) colors[f * 9 + 4] = f;
+
+          var sec = function (title) { var d = el("div", "border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:12px 0;background:var(--surface)"); d.appendChild(el("div", "font-weight:700;margin-bottom:8px", title)); root.appendChild(d); return d; };
+
+          // ① 來源
+          var s1 = sec("① 選擇輸入方式");
+          var bCam = btn("📷 開啟相機"), bUp = btn("🖼 上傳照片"), bMan = btn("✍️ 手動輸入（不用相機）");
+          var file = el("input"); file.type = "file"; file.accept = "image/*"; file.style.display = "none";
+          s1.appendChild(bCam); s1.appendChild(bUp); s1.appendChild(bMan); s1.appendChild(file);
+          var srcInfo = el("div", "font-size:0.88em;color:var(--text-muted);margin-top:6px", "相機需要在 https 網頁上、並允許瀏覽器使用相機；不行的話可以拍照後上傳，或直接手動輸入顏色。");
+          s1.appendChild(srcInfo);
+
+          // ② 取景與拍攝
+          var s2 = sec("② 對準方塊，逐面拍攝");
+          var stageWrap = el("div", "position:relative;max-width:480px;margin:auto;touch-action:none"), view = el("canvas", "width:100%;display:block;border-radius:10px;background:#111");
+          stageWrap.appendChild(view); s2.appendChild(stageWrap);
+          var tip = el("div", "text-align:center;margin:8px 0;font-size:1.02em"), faceBar = el("div", "display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0");
+          s2.appendChild(tip); s2.appendChild(faceBar);
+          var bShot = btn("📸 拍這一面"), bPrevF = btn("◀ 上一面"), bNextF = btn("下一面 ▶");
+          var ctrl = el("div", "text-align:center"); ctrl.appendChild(bPrevF); ctrl.appendChild(bShot); ctrl.appendChild(bNextF); s2.appendChild(ctrl);
+          var szL = el("label", "display:block;font-size:0.85em;margin-top:6px;text-align:center", "格線大小 "), sz = el("input"); sz.type = "range"; sz.min = 0.3; sz.max = 0.95; sz.step = 0.01; sz.value = boxScale; sz.style.verticalAlign = "middle"; szL.appendChild(sz); s2.appendChild(szL);
+          s2.appendChild(el("div", "font-size:0.85em;color:var(--text-muted);text-align:center", "讓方塊的一面剛好填滿格線（照片可以拖曳格線對位）。光線均勻、避免反光，效果最好。"));
+
+          // ③ 校正顏色
+          var s3 = sec("③ 校正顏色（建議）");
+          s3.appendChild(el("div", "font-size:0.88em;margin-bottom:6px", "把指定顏色的貼紙對準畫面<b>正中央那一格</b>，按下該顏色。沒校正時，會用六面中心塊的顏色當基準。"));
+          var calRow = el("div", "display:flex;flex-wrap:wrap;gap:8px"); s3.appendChild(calRow);
+          var calBtns = RC.COLOR_NAMES.map(function (nm, k) {
+            var b = btn(""); b.style.minWidth = "84px"; calRow.appendChild(b);
+            b.onclick = function () { var s = currentSamples(); if (!s) { msg3.textContent = "請先開啟相機或上傳照片。"; return; } calib[k] = s[4]; drawCal(); reclassify(); };
+            return b;
+          });
+          var msg3 = el("div", "font-size:0.85em;color:var(--text-muted);margin-top:6px"); s3.appendChild(msg3);
+          var bClrCal = btn("清除校正"); bClrCal.onclick = function () { calib = [null, null, null, null, null, null]; drawCal(); reclassify(); }; s3.appendChild(bClrCal);
+          function refs() { return calib.map(function (c, k) { return c || (faces[k] ? faces[k][4] : hexRgb(RC.COLORS[k])); }); }
+          function hexRgb(h) { return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
+          function drawCal() {
+            var R = refs();
+            calBtns.forEach(function (b, k) { b.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;border:1px solid #0006;background:' + rgbCss(R[k]) + '"></span> ' + RC.COLOR_NAMES[k] + (calib[k] ? " ✓" : ""); });
+          }
+
+          // ④ 檢查與修正
+          var s4 = sec("④ 檢查顏色，點格子可以修正");
+          var palette = el("div", "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"), netBox = el("div", "max-width:420px;margin:auto"), check = el("div", "margin-top:8px;font-size:0.92em");
+          s4.appendChild(palette); s4.appendChild(netBox); s4.appendChild(check);
+          RC.COLORS.forEach(function (c, k) {
+            var b = btn('<span style="display:inline-block;width:16px;height:16px;border-radius:4px;vertical-align:-3px;background:' + c + ';border:1px solid #0006"></span> ' + RC.COLOR_NAMES[k]);
+            b.onclick = function () { paint = k; markPal(); }; b.dataset.k = k; palette.appendChild(b);
+          });
+          function markPal() { palette.querySelectorAll("button").forEach(function (b) { b.style.outline = +b.dataset.k === paint ? "2px solid var(--accent)" : "none"; }); }
+          var bClear = btn("全部清空（手動輸入用）"), bDemo = btn("填入一個隨機打亂（試用）");
+          s4.appendChild(bClear); s4.appendChild(bDemo);
+
+          // ⑤ 求解
+          var s5 = sec("⑤ 求解");
+          var bSolve = btn("🧠 算出最短解"), out = el("div", "margin-top:10px"), steps = el("div", "display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:12px");
+          s5.appendChild(bSolve); s5.appendChild(el("div", "font-size:0.85em;color:var(--text-muted);margin-top:4px", "用 Kociemba 兩階段演算法搜尋，通常 1–2 秒內找到 18–21 步的解（最少步數的理論上限是 20 步）。解法以「黃色朝上、綠色朝前」的拿法表示。")); s5.appendChild(out); s5.appendChild(steps);
+
+          // ---- 畫面 ----
+          var vctx = view.getContext("2d");
+          function frameSize() { if (src === "cam" && video && video.videoWidth) return [video.videoWidth, video.videoHeight]; if (src === "img" && img) return [img.naturalWidth, img.naturalHeight]; return [640, 480]; }
+          function box() { var s = frameSize(), m = Math.min(s[0], s[1]) * boxScale; return { cx: s[0] / 2 + offset[0], cy: s[1] / 2 + offset[1], size: m }; }
+          function drawFrame() {
+            var s = frameSize(); if (view.width !== s[0]) { view.width = s[0]; view.height = s[1]; }
+            vctx.fillStyle = "#111"; vctx.fillRect(0, 0, view.width, view.height);
+            if (src === "cam" && video && video.videoWidth) vctx.drawImage(video, 0, 0);
+            else if (src === "img" && img) vctx.drawImage(img, 0, 0);
+            else { vctx.fillStyle = "#888"; vctx.font = Math.round(view.width / 24) + "px sans-serif"; vctx.textAlign = "center"; vctx.fillText("先在 ① 開啟相機或上傳照片", view.width / 2, view.height / 2); return null; }
+            var b = box(), samples = sampleGrid(vctx, b), R = refs(), cell = b.size / 3, lw = Math.max(2, view.width / 300);
+            for (var k = 0; k < 9; k++) {
+              var x = b.cx - b.size / 2 + (k % 3) * cell, y = b.cy - b.size / 2 + Math.floor(k / 3) * cell, guess = nearest(samples[k], R);
+              vctx.lineWidth = lw * 2; vctx.strokeStyle = "rgba(0,0,0,0.6)"; vctx.strokeRect(x + cell * 0.08, y + cell * 0.08, cell * 0.84, cell * 0.84);
+              vctx.lineWidth = lw; vctx.strokeStyle = RC.COLORS[guess]; vctx.strokeRect(x + cell * 0.08, y + cell * 0.08, cell * 0.84, cell * 0.84);
+              vctx.fillStyle = rgbCss(samples[k]); vctx.fillRect(x + cell * 0.4, y + cell * 0.4, cell * 0.2, cell * 0.2);
+            }
+            vctx.lineWidth = lw * 1.5; vctx.strokeStyle = "#fff"; vctx.strokeRect(b.cx - b.size / 2, b.cy - b.size / 2, b.size, b.size);
+            return samples;
+          }
+          function currentSamples() { return src === "none" ? null : drawFrame(); }
+          function tick() { if (src === "cam") { drawFrame(); live = requestAnimationFrame(function () { setTimeout(tick, 120); }); } }
+          // 拖曳格線（照片用）
+          var drag = null;
+          view.addEventListener("pointerdown", function (e) { drag = [e.clientX, e.clientY, offset[0], offset[1]]; view.setPointerCapture(e.pointerId); });
+          view.addEventListener("pointermove", function (e) { if (!drag) return; var k = view.width / view.clientWidth; offset = [drag[2] + (e.clientX - drag[0]) * k, drag[3] + (e.clientY - drag[1]) * k]; if (src !== "cam") drawFrame(); });
+          view.addEventListener("pointerup", function () { drag = null; });
+          sz.oninput = function () { boxScale = +sz.value; if (src !== "cam") drawFrame(); };
+
+          bCam.onclick = function () {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { srcInfo.textContent = "這個瀏覽器不支援網頁相機，請改用「上傳照片」或手動輸入。"; return; }
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 960 } }, audio: false }).then(function (st) {
+              stream = st; video = el("video"); video.playsInline = true; video.muted = true;
+              video.onloadedmetadata = function () { tick(); };
+              video.srcObject = st; video.play();
+              src = "cam"; offset = [0, 0]; srcInfo.textContent = "相機已開啟。";
+            }).catch(function (err) { srcInfo.textContent = "無法開啟相機（" + err.name + "）。請確認已允許使用相機，或改用「上傳照片」。"; });
+          };
+          bUp.onclick = function () { file.click(); };
+          file.onchange = function () {
+            if (!file.files[0]) return;
+            var r = new FileReader();
+            r.onload = function () { var im = new Image(); im.onload = function () { img = im; if (stream) { stream.getTracks().forEach(function (t) { t.stop(); }); stream = null; } src = "img"; offset = [0, 0]; drawFrame(); srcInfo.textContent = "已載入照片：" + ORDER[current].name + "。拖曳格線對位後按「拍這一面」。"; }; im.src = r.result; };
+            r.readAsDataURL(file.files[0]); file.value = "";
+          };
+          bMan.onclick = function () { s4.scrollIntoView({ behavior: "smooth" }); };
+
+          function showFace() {
+            tip.innerHTML = "第 " + (current + 1) + " / 6 面：<b>" + ORDER[current].name + "</b>　" + ORDER[current].tip;
+            faceBar.innerHTML = "";
+            ORDER.forEach(function (o, k) {
+              var d = el("div", "cursor:pointer;text-align:center;font-size:0.8em;padding:4px;border-radius:8px;border:2px solid " + (k === current ? "var(--accent)" : "transparent"));
+              var g = "";
+              for (var i = 0; i < 9; i++) { var c = colors[o.f * 9 + i]; g += '<span style="display:inline-block;width:12px;height:12px;margin:1px;border-radius:2px;background:' + (c < 0 ? "#555" : RC.COLORS[c]) + '"></span>' + (i % 3 === 2 ? "<br>" : ""); }
+              d.innerHTML = '<div style="line-height:0">' + g + "</div>" + o.name + (faces[o.f] ? " ✓" : "");
+              d.onclick = function () { current = k; showFace(); };
+              faceBar.appendChild(d);
+            });
+          }
+          bShot.onclick = function () {
+            var s = currentSamples(); if (!s) { tip.innerHTML = "請先在 ① 開啟相機或上傳照片。"; return; }
+            faces[ORDER[current].f] = s; reclassify();
+            if (current < 5) current++;
+            showFace();
+            if (src === "img") srcInfo.textContent = "請上傳下一面：" + ORDER[current].name + "。";
+          };
+          bPrevF.onclick = function () { current = (current + 5) % 6; showFace(); };
+          bNextF.onclick = function () { current = (current + 1) % 6; showFace(); };
+
+          function reclassify() {
+            drawCal();
+            var samples = [];
+            for (var f = 0; f < 6; f++) for (var k = 0; k < 9; k++) samples.push(faces[f] ? faces[f][k] : null);
+            if (faces.every(function (x) { return x; })) colors = classify(samples, refs());
+            else { var R = refs(); for (var f2 = 0; f2 < 6; f2++) if (faces[f2]) for (var k2 = 0; k2 < 9; k2++) colors[f2 * 9 + k2] = k2 === 4 ? f2 : nearest(faces[f2][k2], R); }
+            renderNet(); showFace();
+          }
+          function renderNet() {
+            var off = [[3, 0], [6, 3], [3, 3], [3, 6], [0, 3], [9, 3]], s = 30, svg = ['<svg viewBox="0 0 ' + (12 * s + 2) + " " + (9 * s + 2) + '" style="width:100%;display:block;touch-action:manipulation">'];
+            for (var f = 0; f < 6; f++) for (var k = 0; k < 9; k++) {
+              var i = f * 9 + k, x = 1 + (off[f][0] + k % 3) * s, y = 1 + (off[f][1] + Math.floor(k / 3)) * s, c = colors[i];
+              svg.push('<rect data-i="' + i + '" x="' + (x + 1) + '" y="' + (y + 1) + '" width="' + (s - 2) + '" height="' + (s - 2) + '" rx="4" fill="' + (c < 0 ? "#555" : RC.COLORS[c]) + '" stroke="#111" stroke-width="1.2" style="cursor:' + (k === 4 ? "default" : "pointer") + '"/>');
+              if (k === 4) svg.push('<text x="' + (x + s / 2) + '" y="' + (y + s / 2 + 4) + '" font-size="10" text-anchor="middle" fill="#0008">' + "URFDLB"[f] + "</text>");
+            }
+            netBox.innerHTML = svg.join("") + "</svg>";
+            netBox.querySelectorAll("rect").forEach(function (r) {
+              r.addEventListener("click", function () { var i = +r.getAttribute("data-i"); if (i % 9 === 4) return; colors[i] = paint; renderNet(); });
+            });
+            validate();
+          }
+          function validate() {
+            var cnt = [0, 0, 0, 0, 0, 0], unk = 0;
+            colors.forEach(function (c) { if (c < 0) unk++; else cnt[c]++; });
+            var parts = cnt.map(function (n, k) { return '<span style="color:' + (n === 9 ? "inherit" : "#e0605a") + '">' + RC.COLOR_NAMES[k] + " " + n + "</span>"; }).join("　");
+            var okMsg = "";
+            if (!unk && cnt.every(function (n) { return n === 9; })) {
+              try { window.RBSolver.fromFacelets(colors.map(function (c) { return "URFDLB"[c]; }).join("")); okMsg = '<div style="color:#4caf50;margin-top:4px">✓ 這是一個合法、轉得出來的狀態。</div>'; }
+              catch (err) { okMsg = '<div style="color:#e0605a;margin-top:4px">✗ ' + err.message + "。請檢查拍攝的方向，或點格子修正。</div>"; }
+            } else okMsg = '<div style="color:var(--text-muted);margin-top:4px">' + (unk ? "還有 " + unk + " 格未填。" : "每種顏色都要剛好 9 格。") + "</div>";
+            check.innerHTML = "各色數量：" + parts + okMsg;
+          }
+          bClear.onclick = function () { for (var i = 0; i < 54; i++) colors[i] = i % 9 === 4 ? Math.floor(i / 9) : UNKNOWN; faces = [null, null, null, null, null, null]; renderNet(); showFace(); };
+          bDemo.onclick = function () { var st = RC.apply(RC.solved(), RC.scramble(22)); colors = st.map(RC.colorOf); renderNet(); showFace(); };
+
+          bSolve.onclick = function () {
+            out.innerHTML = ""; steps.innerHTML = "";
+            if (colors.some(function (c) { return c < 0; })) { out.textContent = "還有格子沒有顏色。"; return; }
+            var fl = colors.map(function (c) { return "URFDLB"[c]; }).join(""), state = RC.fromColors(colors);
+            if (RC.isSolved(state)) { out.textContent = "已經是復原狀態了！"; return; }
+            out.textContent = (worker && !workerReady) || (!worker && !window.RBSolver.ready()) ? "第一次求解要先建立查找表（約 1–3 秒）…" : "搜尋中…";
+            bSolve.disabled = true;
+            solveAsync(fl, function (res) {
+              bSolve.disabled = false;
+              if (!res.ok) { out.innerHTML = '<span style="color:#e0605a">無法求解：' + res.error + "</span>"; return; }
+              var moves = res.moves;
+              if (!moves) { out.innerHTML = '<span style="color:#e0605a">這次沒有在時限內找到解，請再按一次。</span>'; return; }
+              out.innerHTML = "<div>找到 <b>" + moves.length + " 步</b>的解（" + res.ms + " ms）：</div>";
+              var pl = el("div", "margin-top:8px"); out.appendChild(pl);
+              UI.mountPlayer(pl, { alg: moves.join(" "), state: state, start: "掃描到的狀態。拿好方塊：黃色朝上、綠色朝前，照著一步一步轉。", done: "方塊復原了！", maxw: 340 });
+              // 逐步示意圖：每一步轉之前的狀態，標出要轉的那一層
+              var st = state;
+              moves.forEach(function (mv, k) {
+                var b = RC.BASE[RC.baseOf(mv)], hl = [];
+                for (var i = 0; i < 54; i++) if (b[1].indexOf(RC.cubieOf(i)[b[0]]) >= 0) hl.push(i);
+                var card = el("div", "border:1px solid var(--border);border-radius:10px;padding:6px;text-align:center;font-size:0.85em");
+                card.innerHTML = RC.netSVG(st, { size: 12, highlight: hl }) + '<div style="margin-top:4px"><b>第 ' + (k + 1) + " 步　" + mv + "</b><br>" + UI.describe(mv).split("：")[1] + "</div>";
+                steps.appendChild(card); st = RC.applyMove(st, mv);
+              });
+              var fin = el("div", "border:1px solid var(--border);border-radius:10px;padding:6px;text-align:center;font-size:0.85em");
+              fin.innerHTML = RC.netSVG(st, { size: 12 }) + "<div><b>完成</b></div>"; steps.appendChild(fin);
+            });
+          };
+
+          drawCal(); renderNet(); showFace(); markPal(); drawFrame();
+        }
+        function boot() { document.querySelectorAll(".rb-scan").forEach(function (r) { if (!r.__done) { r.__done = 1; mount(r); } }); }
+        window.RBScan = { classify: classify, lab: lab, hungarian: hungarian, sampleGrid: sampleGrid };
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot); else boot();
+      })();
+      </script>
+
+      <p>
+        魔術方塊看起來有 54 個小格子（貼紙），但真正會移動的是 <strong>26 個小方塊</strong>（簡稱「塊」）。把方塊拆開，裡面是一個十字形的軸心，六個中心塊用螺絲固定在軸心上，其餘的塊卡在中心塊之間。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>種類</th><th>數量</th><th>貼紙數</th><th>特性</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>中心塊</td><td>6</td><td>1</td><td><strong>永遠不會互相移動</strong>，只會原地轉；所以中心的顏色就是那一面「應該」的顏色</td></tr>
+          <tr><td>邊塊</td><td>12</td><td>2</td><td>夾在兩個中心之間；永遠是邊塊，不會變成角塊</td></tr>
+          <tr><td>角塊</td><td>8</td><td>3</td><td>在角落；永遠是角塊</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這帶來解方塊最重要的觀念：<strong>不是在「拼顏色」，而是在「把塊放回家」</strong>。例如一個白綠邊塊，它的家就在白色中心與綠色中心之間；一個白紅綠角塊，它的家就在白、紅、綠三個中心交會的角落。
+      </p>
+
+      <h2>標準配色</h2>
+
+      <p>
+        大部分市售方塊採用「西方配色」：<strong>白對黃、綠對藍、紅對橘</strong>。當白色在下、綠色朝前時，右邊是橘色、左邊是紅色。整門課都用這個拿法：<strong>白色在下、黃色在上、綠色朝前</strong>。
+      </p>
+
+      <div class="rb-w content-figure" style="text-align:left;max-width:720px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;free&quot;, &quot;q&quot;: &quot;這是一顆虛擬方塊。拖曳可以轉動視角，按下面的按鈕可以轉面；試試看「打亂」再「電腦求解」：&quot;}"></div>
+
+      <p>
+        轉一轉就會發現：不論怎麼轉，六個中心的相對位置都不會變——綠色永遠在白色和黃色之間、紅色永遠在綠色的對面的對面……這就是我們能「讀懂」一顆亂掉的方塊的原因。
+      </p>
+
+      <div class="callout">
+        <h3>🔍 小觀察</h3>
+        <p>
+          如果你的方塊中心是「白對黃、綠對藍、紅對橘」以外的配色（例如日本配色：白對藍），公式完全一樣能用，只是顏色名稱要自己替換。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          方塊由 6 個中心、12 個邊塊、8 個角塊組成；中心互不移動，決定每面顏色。解方塊的本質是把每個塊放回它的家並轉正。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🧊 方塊配色以「白色在下、黃色在上、綠色朝前」為準（大部分市售方塊的標準配色）。每個 3D 示範都可以拖曳旋轉視角。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>3×3 方塊有幾個邊塊、幾個角塊？</li>
+          <li>為什麼說中心塊決定了每一面的顏色？</li>
+          <li>標準配色中，綠色的對面是什麼顏色？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>轉動記號</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled">← 上一課</span>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-02.html">下一課：轉動記號 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
