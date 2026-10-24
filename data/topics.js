@@ -23466,6 +23466,219 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chip-floorplan",
+      category: "tech",
+      title: "晶片的分區規劃：Floorplan 怎麼排、怎麼連",
+      description:
+        "一顆 SoC 裡有哪些區域、為什麼這樣擺、彼此怎麼連，每課完整推導：CPU、GPU、NPU、多媒體、安全區、系統控制；SRAM 巨集、快取階層、DDR 與 HBM、記憶體修復；I/O 環與凸塊、高速 PHY、類比與隔離、溫度感測、射頻；匯流排、交叉開關、NoC、快取一致性、長線與中繼器、金屬層、資料流預算；電源域與開關、電源網格壓降、時脈與跨時脈域、DVFS、散熱；放置演算法、Rent 定律、測試與良率、手機 SoC 與 AI 加速器案例、chiplet 與 UCIe。附 floorplan 拼圖等互動工具。",
+      icon: "🧩",
+      url: "topics/chip-floorplan/index.html",
+      resources: [
+        {
+          title: "分區規劃互動工具箱",
+          description: "floorplan 拼圖、互連拓樸、長線延遲、電源壓降、良率與 chiplet 成本",
+          icon: "🧩",
+          url: "topics/chip-floorplan/guide.html"
+        },
+        {
+          title: "分區規劃公式速查",
+          description: "本課程的關鍵公式與名詞",
+          icon: "📖",
+          url: "topics/chip-floorplan/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜看懂一顆晶片",
+          courses: [
+            { title: "從晶片照片認區域", url: "topics/chip-floorplan/lesson-01.html" },
+            { title: "Floorplan 是什麼", url: "topics/chip-floorplan/lesson-02.html" },
+            { title: "階層式設計", url: "topics/chip-floorplan/lesson-03.html" },
+            { title: "晶片面積怎麼估", url: "topics/chip-floorplan/lesson-04.html" },
+            { title: "一顆 SoC 的典型區域地圖", url: "topics/chip-floorplan/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜運算區域",
+          courses: [
+            { title: "CPU 叢集與快取擺放", url: "topics/chip-floorplan/lesson-06.html" },
+            { title: "GPU：重複的運算單元與修復", url: "topics/chip-floorplan/lesson-07.html" },
+            { title: "NPU 與 AI 加速器：運算陣列與片上記憶體", url: "topics/chip-floorplan/lesson-08.html" },
+            { title: "DSP、影像處理器與影音編解碼", url: "topics/chip-floorplan/lesson-09.html" },
+            { title: "安全區與隔離設計", url: "topics/chip-floorplan/lesson-10.html" },
+            { title: "系統控制：電源管理、開機與除錯", url: "topics/chip-floorplan/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜記憶體區域",
+          courses: [
+            { title: "SRAM 巨集：為什麼記憶體是整齊的大方塊", url: "topics/chip-floorplan/lesson-12.html" },
+            { title: "快取階層與平均存取時間", url: "topics/chip-floorplan/lesson-13.html" },
+            { title: "記憶體控制器與 DDR 介面", url: "topics/chip-floorplan/lesson-14.html" },
+            { title: "HBM 與 2.5D 封裝", url: "topics/chip-floorplan/lesson-15.html" },
+            { title: "eFuse、OTP 與記憶體修復", url: "topics/chip-floorplan/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜周邊、I/O 與類比區",
+          courses: [
+            { title: "I/O 環與凸塊陣列", url: "topics/chip-floorplan/lesson-17.html" },
+            { title: "高速介面 PHY：為什麼都在邊緣", url: "topics/chip-floorplan/lesson-18.html" },
+            { title: "類比與混合訊號區", url: "topics/chip-floorplan/lesson-19.html" },
+            { title: "數位雜訊與類比區的隔離", url: "topics/chip-floorplan/lesson-20.html" },
+            { title: "溫度感測器與製程監測", url: "topics/chip-floorplan/lesson-21.html" },
+            { title: "射頻區域", url: "topics/chip-floorplan/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜怎麼連：晶片內部的互連",
+          courses: [
+            { title: "匯流排階層：AXI、AHB、APB", url: "topics/chip-floorplan/lesson-23.html" },
+            { title: "交叉開關與它的擴展極限", url: "topics/chip-floorplan/lesson-24.html" },
+            { title: "晶片內網路（NoC）", url: "topics/chip-floorplan/lesson-25.html" },
+            { title: "快取一致性互連", url: "topics/chip-floorplan/lesson-26.html" },
+            { title: "長線問題：線延遲與中繼器", url: "topics/chip-floorplan/lesson-27.html" },
+            { title: "金屬層分配", url: "topics/chip-floorplan/lesson-28.html" },
+            { title: "頻寬與延遲預算：從資料流反推擺放", url: "topics/chip-floorplan/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜電源與時脈",
+          courses: [
+            { title: "電源域與電壓島", url: "topics/chip-floorplan/lesson-30.html" },
+            { title: "電源開關、隔離單元與位準轉換器", url: "topics/chip-floorplan/lesson-31.html" },
+            { title: "電源網格與壓降", url: "topics/chip-floorplan/lesson-32.html" },
+            { title: "時脈域、時脈樹與跨時脈域同步", url: "topics/chip-floorplan/lesson-33.html" },
+            { title: "時脈閘控與動態調壓調頻（DVFS）", url: "topics/chip-floorplan/lesson-34.html" },
+            { title: "熱點與散熱", url: "topics/chip-floorplan/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜規劃方法與案例",
+          courses: [
+            { title: "規劃流程與二次放置", url: "topics/chip-floorplan/lesson-36.html" },
+            { title: "時序收斂與繞線擁塞", url: "topics/chip-floorplan/lesson-37.html" },
+            { title: "可測試性與良率", url: "topics/chip-floorplan/lesson-38.html" },
+            { title: "案例：一顆手機 SoC 的 floorplan", url: "topics/chip-floorplan/lesson-39.html" },
+            { title: "案例：一顆 AI 加速器的 floorplan", url: "topics/chip-floorplan/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜晶片之外",
+          courses: [
+            { title: "Chiplet 與 3D 堆疊", url: "topics/chip-floorplan/lesson-41.html" },
+            { title: "晶片間互連與未來趨勢", url: "topics/chip-floorplan/lesson-42.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "numerical-simulation",
+      category: "math",
+      title: "用 Python 做數值模擬：從差分到蝕刻腔與游泳池",
+      description:
+        "從零開始用 Python 做數值模擬，每課完整推導、每支程式都實際執行：誤差、驗證與確認、NumPy／SciPy／Matplotlib／Numba；有限差分、熱傳導與波動方程式、穩定性與 CFL、邊界條件、稀疏矩陣、網格加密；Navier–Stokes、投影法、方腔流與 Ghia 基準、渦度–流函數、晶格波茲曼法。兩個案例：電漿蝕刻腔（氣流、軸對稱、晶圓溫度、自由基與均勻度、Knudsen 數、設計比較）與游泳池水面波紋（色散、反射干涉、頻譜法、互動水池、池底焦散、效能）。",
+      icon: "🌊",
+      url: "topics/numerical-simulation/index.html",
+      resources: [
+        {
+          title: "數值模擬互動工具箱",
+          description: "熱傳導穩定性、波動 CFL、網格收斂、LBM 方腔流、蝕刻腔、水波色散、互動水池",
+          icon: "🌊",
+          url: "topics/numerical-simulation/guide.html"
+        },
+        {
+          title: "Python 範例下載",
+          description: "課程中所有實際執行過的 Python 程式",
+          icon: "🐍",
+          url: "topics/numerical-simulation/code.html"
+        },
+        {
+          title: "數值模擬公式速查",
+          description: "本課程的關鍵公式與名詞",
+          icon: "📖",
+          url: "topics/numerical-simulation/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜模擬的思考方式",
+          courses: [
+            { title: "為什麼要做數值模擬", url: "topics/numerical-simulation/lesson-01.html" },
+            { title: "模擬的工作流程", url: "topics/numerical-simulation/lesson-02.html" },
+            { title: "誤差從哪裡來", url: "topics/numerical-simulation/lesson-03.html" },
+            { title: "驗證與確認（V&V）", url: "topics/numerical-simulation/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜Python 工具箱",
+          courses: [
+            { title: "建立環境", url: "topics/numerical-simulation/lesson-05.html" },
+            { title: "NumPy 陣列與向量化", url: "topics/numerical-simulation/lesson-06.html" },
+            { title: "用 Matplotlib 看結果", url: "topics/numerical-simulation/lesson-07.html" },
+            { title: "SciPy：稀疏矩陣與常微分方程", url: "topics/numerical-simulation/lesson-08.html" },
+            { title: "加速：Numba 與 GPU", url: "topics/numerical-simulation/lesson-09.html" },
+            { title: "其他工具地圖", url: "topics/numerical-simulation/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜有限差分基本功",
+          courses: [
+            { title: "有限差分", url: "topics/numerical-simulation/lesson-11.html" },
+            { title: "一維熱傳導", url: "topics/numerical-simulation/lesson-12.html" },
+            { title: "穩定性與 CFL 條件", url: "topics/numerical-simulation/lesson-13.html" },
+            { title: "一維波動方程式", url: "topics/numerical-simulation/lesson-14.html" },
+            { title: "邊界條件", url: "topics/numerical-simulation/lesson-15.html" },
+            { title: "二維問題與稀疏矩陣", url: "topics/numerical-simulation/lesson-16.html" },
+            { title: "網格加密與 Richardson 外插", url: "topics/numerical-simulation/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜流體力學入門",
+          courses: [
+            { title: "Navier–Stokes 方程式的每一項", url: "topics/numerical-simulation/lesson-18.html" },
+            { title: "雷諾數與無因次化", url: "topics/numerical-simulation/lesson-19.html" },
+            { title: "投影法：讓速度場不可壓縮", url: "topics/numerical-simulation/lesson-20.html" },
+            { title: "頂蓋驅動方腔流：投影法", url: "topics/numerical-simulation/lesson-21.html" },
+            { title: "渦度–流函數法", url: "topics/numerical-simulation/lesson-22.html" },
+            { title: "晶格波茲曼法（LBM）", url: "topics/numerical-simulation/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜案例一：蝕刻腔（etching chamber）",
+          courses: [
+            { title: "問題定義：先把數字算清楚", url: "topics/numerical-simulation/lesson-24.html" },
+            { title: "幾何與邊界條件", url: "topics/numerical-simulation/lesson-25.html" },
+            { title: "二維流場：用 LBM 算氣流", url: "topics/numerical-simulation/lesson-26.html" },
+            { title: "軸對稱模型", url: "topics/numerical-simulation/lesson-27.html" },
+            { title: "晶圓溫度", url: "topics/numerical-simulation/lesson-28.html" },
+            { title: "自由基濃度與蝕刻均勻度", url: "topics/numerical-simulation/lesson-29.html" },
+            { title: "Knudsen 數：連續體什麼時候失效", url: "topics/numerical-simulation/lesson-30.html" },
+            { title: "結果分析與設計比較", url: "topics/numerical-simulation/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜案例二：游泳池的水面波紋",
+          courses: [
+            { title: "水波的模型：色散關係", url: "topics/numerical-simulation/lesson-32.html" },
+            { title: "一滴水掉下去", url: "topics/numerical-simulation/lesson-33.html" },
+            { title: "反射與干涉", url: "topics/numerical-simulation/lesson-34.html" },
+            { title: "色散與阻尼：頻譜法", url: "topics/numerical-simulation/lesson-35.html" },
+            { title: "互動水池", url: "topics/numerical-simulation/lesson-36.html" },
+            { title: "池底的光紋：焦散", url: "topics/numerical-simulation/lesson-37.html" },
+            { title: "效能：網格多大才跑得動", url: "topics/numerical-simulation/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜下一步",
+          courses: [
+            { title: "什麼時候該用 CFD 軟體", url: "topics/numerical-simulation/lesson-39.html" },
+            { title: "學習路線圖", url: "topics/numerical-simulation/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
