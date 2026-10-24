@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>數值模擬互動工具箱 ｜ Python 數值模擬 ｜ 博雅書院</title>
+<meta name="description" content="熱傳導穩定性、波動 CFL、網格收斂、LBM 方腔流、蝕刻腔、水波色散、互動水池">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數值模擬</a>
+      <span class="sep">/</span>
+      <span>數值模擬互動工具箱</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">參考資料</div>
+      <h1>數值模擬互動工具箱</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <script>
+      (function () {
+        if (window.__nmLib) return; window.__nmLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var _sl = slider; slider = function (root, lab, min, max, step, val, fmt, k, cb) { var u = _sl(root, lab, min, max, step, val, fmt, k, cb); var b = root.lastChild && root.lastChild.querySelector('b'); if (b) b.textContent = fmt(val); return u; };
+        var BL = '#3a6ea5', OR = '#e07a2f', GR = '#4caf50', RD = '#e0605a', PU = '#8e5bd1', GY = '#7a8590', TL = '#2a9d8f';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7'); root.appendChild(p); return p; }
+        function sci(v) { if (!isFinite(v)) return '∞'; if (v === 0) return '0'; var e = Math.floor(Math.log10(Math.abs(v))); if (e >= -2 && e <= 4) return (Math.round(v * 1000) / 1000).toString(); return (v / Math.pow(10, e)).toFixed(2) + '×10<sup>' + e + '</sup>'; }
+        function canvas(root, w, h) { var c = el('canvas', 'width:100%;max-width:' + w + 'px;display:block;margin:0 auto;border-radius:6px;image-rendering:pixelated;touch-action:none'); c.width = w; c.height = h; root.appendChild(c); return c; }
+        function visible(root) { var r = root.getBoundingClientRect(); return r.bottom > 0 && r.top < (window.innerHeight || 800) && !document.hidden; }
+        function loop(root, fn) { var on = true; function f() { if (!root.isConnected) return; if (on && visible(root)) fn(); requestAnimationFrame(f); } requestAnimationFrame(f); return function (v) { on = v; }; }
+        function viridis(t) { t = Math.max(0, Math.min(1, t)); var c = [[68, 1, 84], [59, 82, 139], [33, 145, 140], [94, 201, 98], [253, 231, 37]], s = t * 4, i = Math.min(3, Math.floor(s)), f = s - i;
+          return [c[i][0] + (c[i + 1][0] - c[i][0]) * f, c[i][1] + (c[i + 1][1] - c[i][1]) * f, c[i][2] + (c[i + 1][2] - c[i][2]) * f]; }
+        function playBar(root, onReset) { var bar = el('div'), p = btn('⏸ 暫停'), r = btn('↺ 重來'), st = { run: true }; p.onclick = function () { st.run = !st.run; p.textContent = st.run ? '⏸ 暫停' : '▶ 繼續'; };
+          r.onclick = function () { onReset(); }; bar.appendChild(p); bar.appendChild(r); root.appendChild(bar); return st; }
+
+        /* ---------- 一維熱傳導 ---------- */
+        function initHeat(root, cfg) {
+          head(root, cfg.q); var N = 40, r = cfg.r || 0.45, mode = 'ex', u, t, n, v = el('div'), inf;
+          var bar = el('div'); [['顯式 FTCS', 'ex'], ['隱式（後向尤拉）', 'im']].forEach(function (s) { var b = btn(s[0], s[1]); b.onclick = function () { mode = s[1]; mark(bar, mode); reset(); }; bar.appendChild(b); }); mark(bar, mode); root.appendChild(bar);
+          slider(root, '網格比 r = α Δt / Δx²', 0.1, 0.8, 0.01, r, f2, 'r', function (x) { r = x; reset(); });
+          root.appendChild(v); var st = playBar(root, reset); inf = info(root);
+          function reset() { u = []; for (var i = 0; i <= N; i++) u.push(Math.sin(Math.PI * i / N) + (i > 0 && i < N ? 1e-6 * (i % 2 ? 1 : -1) : 0)); t = 0; n = 0; }
+          function stepEx() { var w = u.slice(); for (var i = 1; i < N; i++) w[i] = u[i] + r * (u[i + 1] - 2 * u[i] + u[i - 1]); u = w; }
+          function stepIm() { var m = N - 1, a = -r, b = 1 + 2 * r, cp = [], dp = [];   // Thomas 演算法解三對角
+            for (var i = 0; i < m; i++) { var d = u[i + 1], den = b - (i ? a * cp[i - 1] : 0); cp.push(a / den); dp.push((d - (i ? a * dp[i - 1] : 0)) / den); }
+            var x = new Array(m); x[m - 1] = dp[m - 1]; for (i = m - 2; i >= 0; i--) x[i] = dp[i] - cp[i] * x[i + 1]; for (i = 0; i < m; i++) u[i + 1] = x[i]; }
+          function draw() { var dx = 1 / N, tt = n * r * dx * dx, ex = [], nu = [], mx = 0; for (var i = 0; i <= N; i++) { nu.push([i * dx, Math.max(-2, Math.min(2, u[i]))]); ex.push([i * dx, Math.sin(Math.PI * i * dx) * Math.exp(-Math.PI * Math.PI * tt)]); mx = Math.max(mx, Math.abs(u[i])); }
+            v.innerHTML = svgw('0 0 640 260', chart(640, 260, [{ d: ex, c: GY, n: '解析解', dash: '5 4' }, { d: nu, c: mode === 'ex' ? OR : BL, n: '數值解' }], { y0: -1.2, y1: 1.2, xl: 'x', yl: 'u' }));
+            inf.innerHTML = '第 ' + n + ' 步，t = ' + f2(tt * 1000) / 1000 + '，max|u| = <b>' + sci(mx) + '</b>　' + (mode === 'ex' ? (r <= 0.5 ? '✅ r ≤ 1/2：穩定，數值解跟著解析解衰減。' : '⚠️ r > 1/2：最高頻的鋸齒模態每步放大 |1 − 4r| = ' + f2(Math.abs(1 - 4 * r)) + ' 倍，很快就爆掉（第 13 課）。') : '隱式法對任何 r 都穩定；r 大時一步走得遠，但誤差也變大。'); }
+          reset(); loop(root, function () { if (st.run && n < 4000) { for (var k = 0; k < 2; k++) { mode === 'ex' ? stepEx() : stepIm(); n++; } } draw(); });
+        }
+
+        /* ---------- 一維波動方程式 ---------- */
+        function initWave(root, cfg) {
+          head(root, cfg.q); var N = 200, C = cfg.C || 0.9, w = 0.03, u, up, n, v = el('div'), inf;
+          slider(root, 'CFL 數 C = c Δt / Δx', 0.2, 1.1, 0.01, C, f2, 'c', function (x) { C = x; reset(); });
+          slider(root, '脈衝寬度', 0.01, 0.08, 0.005, w, f2, 'w', function (x) { w = x; reset(); });
+          root.appendChild(v); var st = playBar(root, reset); inf = info(root);
+          function g(x) { return Math.exp(-Math.pow((x - 0.3) / w, 2)); }
+          function reset() { u = []; up = []; for (var i = 0; i <= N; i++) { u.push(g(i / N)); }
+            // 往右跑的脈衝：前一步就是往左平移 cΔt
+            for (i = 0; i <= N; i++) up.push(g(i / N + C / N)); up[0] = up[N] = 0; u[0] = u[N] = 0; n = 0; }
+          function step() { var w2 = new Array(N + 1); w2[0] = w2[N] = 0; for (var i = 1; i < N; i++) w2[i] = 2 * u[i] - up[i] + C * C * (u[i + 1] - 2 * u[i] + u[i - 1]); up = u; u = w2; n++; }
+          function draw() { var d = [], e = [], mx = 0, t = n * C / N; for (var i = 0; i <= N; i++) { var x = i / N; d.push([x, Math.max(-2, Math.min(2, u[i]))]); mx = Math.max(mx, Math.abs(u[i])); e.push([x, t < 0.6 ? g(x - t) : NaN]); }
+            v.innerHTML = svgw('0 0 640 240', chart(640, 240, [{ d: e, c: GY, n: '精確（往右平移）', dash: '5 4' }, { d: d, c: C > 1 ? RD : BL, n: '跳蛙法' }], { y0: -1.2, y1: 1.3, xl: 'x', yl: 'u' }));
+            inf.innerHTML = '第 ' + n + ' 步，max|u| = <b>' + sci(mx) + '</b>　' + (C > 1 ? '⚠️ C > 1：數值的「資訊傳播速度」Δx/Δt 比真正的波速慢，違反 CFL 條件，高頻模態指數成長。' : C > 0.999 ? '✅ C = 1：一維跳蛙法剛好精確，脈衝形狀完全不變。' : '✅ 穩定；但 C < 1 時短波跑得比較慢（數值色散），脈衝後面拖出小波紋——把脈衝調窄更明顯。'); }
+          reset(); loop(root, function () { if (st.run && n < 1200) { step(); step(); } draw(); });
+        }
+
+        /* ---------- 網格收斂 ---------- */
+        function initConv(root, cfg) {
+          head(root, cfg.q); var fn = 'sin', v = el('div'), inf;
+          var F = { sin: [function (x) { return Math.sin(x); }, function (x) { return Math.cos(x); }, 'sin x'], exp: [function (x) { return Math.exp(x); }, function (x) { return Math.exp(x); }, 'eˣ'], atan: [function (x) { return Math.atan(5 * x); }, function (x) { return 5 / (1 + 25 * x * x); }, 'arctan 5x'] };
+          var bar = el('div'); Object.keys(F).forEach(function (k) { var b = btn(F[k][2], k); b.onclick = function () { fn = k; mark(bar, fn); draw(); }; bar.appendChild(b); }); mark(bar, fn); root.appendChild(bar);
+          root.appendChild(v); inf = info(root);
+          function draw() { var f = F[fn][0], d = F[fn][1](1), A = [], Bc = [], Cc = [];
+            for (var e = -1; e >= -13; e -= 0.25) { var h = Math.pow(10, e), x = 1;
+              A.push([e, Math.log10(Math.abs((f(x + h) - f(x)) / h - d) + 1e-18)]);
+              Bc.push([e, Math.log10(Math.abs((f(x + h) - f(x - h)) / (2 * h) - d) + 1e-18)]);
+              Cc.push([e, Math.log10(Math.abs((-f(x + 2 * h) + 8 * f(x + h) - 8 * f(x - h) + f(x - 2 * h)) / (12 * h) - d) + 1e-18)]); }
+            v.innerHTML = svgw('0 0 640 280', chart(640, 280, [{ d: A, c: OR, n: '前向差分（1 階）' }, { d: Bc, c: BL, n: '中央差分（2 階）' }, { d: Cc, c: PU, n: '四階中央差分' }], { x0: -13, x1: -1, y0: -14, y1: 0, xl: 'log₁₀ h', yl: 'log₁₀ 誤差' }));
+            inf.innerHTML = '在 x = 1 估計 (' + F[fn][2] + ")'。右半邊（h 大）是<b>截斷誤差</b>：斜率 1、2、4 就是方法的階數；左半邊（h 小）誤差反而變大，是<b>捨入誤差</b> ≈ ε/h（ε ≈ 2.2×10⁻¹⁶）。最佳 h 大約在 ε<sup>1/(p+1)</sup>（第 3、11 課）。"; }
+          draw();
+        }
+
+        /* ---------- D2Q9 晶格波茲曼：共用 ---------- */
+        var CX = [0, 1, 0, -1, 0, 1, -1, -1, 1], CY = [0, 0, 1, 0, -1, 1, 1, -1, -1], WT = [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36], OPP = [0, 3, 4, 1, 2, 7, 8, 5, 6];
+        function feqInto(f, k, rho, ux, uy) { var usq = 1.5 * (ux * ux + uy * uy); for (var i = 0; i < 9; i++) { var cu = 3 * (CX[i] * ux + CY[i] * uy); f[i * k[0] + k[1]] = WT[i] * rho * (1 + cu + 0.5 * cu * cu - usq); } }
+        function LBM(nx, ny) { var M = nx * ny, s = { nx: nx, ny: ny, f: new Float64Array(9 * M), g: new Float64Array(9 * M), rho: new Float64Array(M), ux: new Float64Array(M), uy: new Float64Array(M), type: new Uint8Array(M) };
+          for (var c = 0; c < M; c++) { s.rho[c] = 1; feqInto(s.f, [M, c], 1, 0, 0); } return s; }
+        // type：0 流體、1 牆、2 移動牆／進氣（速度 wx, wy）、3 出口（ρ=1）、4 晶圓（牆）
+        function lbmStep(s, tau, wx, wy) { var nx = s.nx, ny = s.ny, M = nx * ny, f = s.f, g = s.g, T = s.type, om = 1 / tau, i, c;
+          for (c = 0; c < M; c++) { var t = T[c];
+            if (t === 0) { var r = 0, mx = 0, my = 0; for (i = 0; i < 9; i++) { var fi = f[i * M + c]; r += fi; mx += CX[i] * fi; my += CY[i] * fi; }
+              var ux = mx / r, uy = my / r; s.rho[c] = r; s.ux[c] = ux; s.uy[c] = uy; var usq = 1.5 * (ux * ux + uy * uy);
+              for (i = 0; i < 9; i++) { var cu = 3 * (CX[i] * ux + CY[i] * uy); g[i * M + c] = f[i * M + c] - om * (f[i * M + c] - WT[i] * r * (1 + cu + 0.5 * cu * cu - usq)); } }
+            else if (t === 1 || t === 4) { for (i = 0; i < 9; i++) g[i * M + c] = f[OPP[i] * M + c]; }
+            else if (t === 2) { for (i = 0; i < 9; i++) g[i * M + c] = f[OPP[i] * M + c] + 6 * WT[i] * (CX[i] * wx + CY[i] * wy); }
+            else if (t === 3) { var nb = s.nb[c]; feqInto(g, [M, c], 1, s.ux[nb], s.uy[nb]); } }
+          for (i = 0; i < 9; i++) { var cx = CX[i], cy = CY[i], o = i * M;
+            for (var y = 0; y < ny; y++) { var yy = (y + cy + ny) % ny; for (var x = 0; x < nx; x++) { var xx = (x + cx + nx) % nx; f[o + yy * nx + xx] = g[o + y * nx + x]; } } } }
+
+        /* ---------- 頂蓋驅動方腔 ---------- */
+        var GHIA = [[1, 1], [0.9766, 0.84123], [0.9688, 0.78871], [0.9609, 0.73722], [0.9531, 0.68717], [0.8516, 0.23151], [0.7344, 0.00332], [0.6172, -0.13641], [0.5, -0.20581], [0.4531, -0.2109], [0.2813, -0.15662], [0.1719, -0.1015], [0.1016, -0.06434], [0.0703, -0.04775], [0.0625, -0.04192], [0.0547, -0.03717], [0, 0]];
+        function initCavity(root, cfg) {
+          head(root, cfg.q); var N = 50, U = 0.1, Re = 100, s, steps, cv = canvas(root, 300, 300), ctx = cv.getContext('2d'), img = ctx.createImageData(N, N), off = document.createElement('canvas'), ch = el('div'), inf;
+          off.width = N; off.height = N; var ox = off.getContext('2d');
+          slider(root, '雷諾數 Re = U L / ν', 10, 400, 10, Re, function (x) { return x; }, 're', function (x) { Re = x; reset(); });
+          var st = playBar(root, reset); root.appendChild(ch); inf = info(root);
+          function reset() { s = LBM(N, N); for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) { var c = y * N + x; s.type[c] = (x === 0 || x === N - 1 || y === 0) ? 1 : (y === N - 1 ? 2 : 0); } steps = 0; }
+          function tau() { return 3 * U * (N - 2) / Re + 0.5; }
+          function draw() { var M = N * N, mx = 0;
+            for (var y = 0; y < N; y++) for (var x = 0; x < N; x++) { var c = y * N + x, p = ((N - 1 - y) * N + x) * 4, col;
+              if (s.type[c]) col = s.type[c] === 2 ? [224, 96, 90] : [120, 130, 140]; else { var sp = Math.hypot(s.ux[c], s.uy[c]) / U; col = viridis(Math.sqrt(sp)); }
+              img.data[p] = col[0]; img.data[p + 1] = col[1]; img.data[p + 2] = col[2]; img.data[p + 3] = 255; }
+            ox.putImageData(img, 0, 0); ctx.imageSmoothingEnabled = false; ctx.drawImage(off, 0, 0, 300, 300);
+            ctx.strokeStyle = 'rgba(255,255,255,0.85)'; ctx.lineWidth = 1; var k = 300 / N;
+            for (y = 3; y < N - 1; y += 4) for (x = 3; x < N - 1; x += 4) { c = y * N + x; var vx = s.ux[c] / U, vy = s.uy[c] / U, L = Math.hypot(vx, vy); if (L < 0.02) continue; var px = (x + 0.5) * k, py = (N - 0.5 - y) * k, sc = 9 / Math.max(L, 0.25);
+              ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + vx * sc, py - vy * sc); ctx.stroke(); ctx.beginPath(); ctx.arc(px + vx * sc, py - vy * sc, 1.3, 0, 7); ctx.fillStyle = '#fff'; ctx.fill(); }
+            var prof = [], xc = Math.floor(N / 2); for (y = 1; y < N - 1; y++) { var u1 = (s.ux[y * N + xc - 1] + s.ux[y * N + xc]) / 2; prof.push([u1 / U, (y - 0.5) / (N - 2)]); } prof.push([1, 1]);
+            var pts = Re === 100 ? GHIA.map(function (q) { return { x: q[1], y: q[0], c: OR }; }) : [];
+            ch.innerHTML = svgw('0 0 640 240', chart(640, 240, [{ d: prof, c: BL, n: '中線 x = 0.5 的 u / U（LBM）' }], { x0: -0.5, x1: 1, y0: 0, y1: 1, xl: 'u / U', yl: 'y', pts: pts }).replace(/r="5"/g, 'r="3.5"'));
+            var ucen = (s.ux[(N / 2 - 1) * N + xc - 1] + s.ux[(N / 2) * N + xc] + s.ux[(N / 2 - 1) * N + xc] + s.ux[(N / 2) * N + xc - 1]) / 4 / U;
+            inf.innerHTML = 'τ = ' + f2(tau()) + '，第 ' + steps + ' 步。中心點 u/U = <b>' + f2(ucen * 1000) / 1000 + '</b>' + (Re === 100 ? '（Ghia 1982：−0.2058；橘點是 Ghia 的中線資料）' : '') + '。顏色是速度大小，白色箭頭是方向；Re 愈大，主渦愈往右下移、角落的二次渦愈明顯。'; }
+          reset(); loop(root, function () { if (st.run && steps < 60000) { var t = tau(); for (var k = 0; k < 40; k++) { lbmStep(s, t, U, 0); steps++; } } draw(); });
+        }
+
+        /* ---------- 蝕刻腔 ---------- */
+        function initChamber(root, cfg) {
+          head(root, cfg.q); var nx = 96, ny = 48, s, steps, c, coef, outlet = cfg.outlet || 'bottom', shower = 'wide', Pe = 3, Da = 2, uin = 0.03, ped = [26, 70], ph = 15;
+          var bar = el('div'), bar2 = el('div'); [['底部雙抽氣', 'bottom'], ['側壁雙抽氣', 'side'], ['只有右邊抽氣', 'one']].forEach(function (q) { var b = btn(q[0], q[1]); b.onclick = function () { outlet = q[1]; mark(bar, outlet); reset(); }; bar.appendChild(b); });
+          [['寬噴淋頭', 'wide'], ['窄噴淋頭（只蓋中央）', 'narrow']].forEach(function (q) { var b = btn(q[0], q[1]); b.onclick = function () { shower = q[1]; mark(bar2, shower); reset(); }; bar2.appendChild(b); });
+          root.appendChild(bar); root.appendChild(bar2); mark(bar, outlet); mark(bar2, shower);
+          slider(root, 'Péclet 數 Pe = U G / D（氣流 vs 擴散；低壓時小）', 0.1, 30, 0.1, Pe, f1, 'pe', function (x) { Pe = x; build(); });
+          slider(root, 'Damköhler 數 Da = k G / D（表面反應 vs 擴散；黏附係數大時大）', 0.1, 20, 0.1, Da, f1, 'da', function (x) { Da = x; build(); });
+          var cv = canvas(root, 576, 288), ctx = cv.getContext('2d'), img = ctx.createImageData(nx, ny), off = document.createElement('canvas'); off.width = nx; off.height = ny; var ox = off.getContext('2d');
+          var st = playBar(root, reset), ch = el('div'); root.appendChild(ch); var inf = info(root), gap = ny - 1 - ph;
+          function reset() { s = LBM(nx, ny); var T = s.type, sh = shower === 'wide' ? [17, 79] : [34, 62]; s.nb = new Int32Array(nx * ny);
+            for (var y = 0; y < ny; y++) for (var x = 0; x < nx; x++) { var k = y * nx + x, t = 0;
+              if (x === 0 || x === nx - 1 || y === 0 || y === ny - 1) t = 1;
+              if (y === ny - 1 && x >= sh[0] && x < sh[1]) t = 2;
+              if (x >= ped[0] && x < ped[1] && y < ph) t = (y === ph - 1) ? 4 : 1;
+              if (outlet === 'bottom' && y === 0 && ((x >= 2 && x < 18) || (x >= nx - 18 && x < nx - 2))) t = 3;
+              if (outlet === 'side' && (x === 0 || x === nx - 1) && y >= 2 && y < 13) t = 3;
+              if (outlet === 'one' && y === 0 && x >= nx - 24 && x < nx - 2) t = 3;
+              T[k] = t; if (t === 3) s.nb[k] = (y === 0 ? k + nx : (x === 0 ? k + 1 : k - 1)); }
+            c = new Float64Array(nx * ny); steps = 0; build(); }
+          function build() { // 穩態對流擴散的係數：aP c_P = Σ aN c_N + b（迎風、D = 1）
+            var T = s.type, sc = Pe / (uin * gap), k = Da / gap; coef = [];
+            for (var y = 1; y < ny - 1; y++) for (var x = 1; x < nx - 1; x++) { var p = y * nx + x; if (T[p] !== 0) continue; var aP = 0, nb = [], b = 0;
+              [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (d) { var q = p + d[0] + d[1] * nx, t = T[q];
+                if (t === 0) { var F = 0.5 * ((s.ux[p] + s.ux[q]) * d[0] + (s.uy[p] + s.uy[q]) * d[1]) * sc; aP += 1 + Math.max(F, 0); nb.push([q, 1 + Math.max(-F, 0)]); }
+                else if (t === 2) { aP += 2; b += 2 + sc * uin; }
+                else if (t === 3) { aP += Math.max((s.ux[p] * d[0] + s.uy[p] * d[1]) * sc, 0); }
+                else if (t === 4) { aP += k; } });
+              coef.push([p, aP, nb, b]); } }
+          function sor(n) { for (var it = 0; it < n; it++) for (var j = 0; j < coef.length; j++) { var e = coef[j], sum = e[3]; for (var m = 0; m < e[2].length; m++) sum += e[2][m][1] * c[e[2][m][0]]; c[e[0]] += 1.6 * (sum / e[1] - c[e[0]]); } }
+          function draw() { var T = s.type, ky = 576 / nx;
+            for (var y = 0; y < ny; y++) for (var x = 0; x < nx; x++) { var p = y * nx + x, q = ((ny - 1 - y) * nx + x) * 4, col, t = T[p];
+              col = t === 0 ? viridis(c[p]) : t === 2 ? [76, 175, 80] : t === 3 ? [20, 20, 20] : t === 4 ? [224, 96, 90] : [140, 148, 158];
+              img.data[q] = col[0]; img.data[q + 1] = col[1]; img.data[q + 2] = col[2]; img.data[q + 3] = 255; }
+            ox.putImageData(img, 0, 0); ctx.imageSmoothingEnabled = false; ctx.drawImage(off, 0, 0, 576, 288);
+            ctx.strokeStyle = 'rgba(255,255,255,0.8)'; ctx.fillStyle = '#fff';
+            for (y = 3; y < ny - 1; y += 4) for (x = 2; x < nx - 1; x += 4) { p = y * nx + x; if (T[p]) continue; var vx = s.ux[p] / uin, vy = s.uy[p] / uin, L = Math.hypot(vx, vy); if (L < 0.03) continue; var px = (x + 0.5) * ky, py = (ny - 0.5 - y) * ky, sc = 10 / Math.max(L, 0.5);
+              ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px + vx * sc, py - vy * sc); ctx.stroke(); ctx.beginPath(); ctx.arc(px + vx * sc, py - vy * sc, 1.4, 0, 7); ctx.fill(); }
+            var prof = [], sum = 0, mn = 1e9, mx = -1e9, n = 0, L1 = 0, R1 = 0; for (x = ped[0]; x < ped[1]; x++) { var r = c[ph * nx + x]; prof.push([(x - (ped[0] + ped[1] - 1) / 2) / ((ped[1] - ped[0]) / 2), r]); sum += r; n++; mn = Math.min(mn, r); mx = Math.max(mx, r); if (x < (ped[0] + ped[1]) / 2) L1 += r; else R1 += r; }
+            var mean = sum / n; prof = prof.map(function (q) { return [q[0], q[1] / mean]; });
+            ch.innerHTML = svgw('0 0 640 200', chart(640, 200, [{ d: prof, c: RD, n: '晶圓上的蝕刻速率 ÷ 平均' }], { x0: -1, x1: 1, y0: 0.5, y1: 1.5, xl: '晶圓位置（−1 左緣 … 0 中心 … 1 右緣）', hl: [{ y: 1, c: GY, n: '' }] }));
+            inf.innerHTML = '第 ' + steps + ' 步。平均濃度 ' + f2(mean) + '，不均勻度 (max−min)/(max+min) = <b>±' + f1((mx - mn) / (mx + mn) * 100) + '%</b>，左右差 ' + f1(Math.abs(L1 - R1) / (L1 + R1) * 200) + '%。<br>' +
+              '顏色是自由基濃度（黃高、紫低），綠色是噴淋頭、黑色是抽氣口、紅線是晶圓。Pe 小（低壓）時擴散主導、氣流形狀影響小；Da 大時晶圓吃得快，邊緣因為旁邊沒有晶圓搶粒子而偏快（第 29、31 課）。'; }
+          reset(); loop(root, function () { if (st.run && steps < 9000) { for (var k = 0; k < 30; k++) { lbmStep(s, 1.0, 0, -uin); steps++; } if (steps % 300 === 0) build(); } sor(6); draw(); });
+        }
+
+        /* ---------- 水波色散 ---------- */
+        function initDisp(root, cfg) {
+          head(root, cfg.q); var h = 2, sig = 1, v = el('div'), inf; var g = 9.81, rho = 1000;
+          slider(root, '水深 h（m）', 0.05, 5, 0.05, h, f2, 'h', function (x) { h = x; draw(); });
+          slider(root, '表面張力倍數（1 = 乾淨的水 0.072 N/m）', 0, 2, 0.05, sig, f2, 's', function (x) { sig = x; draw(); });
+          root.appendChild(v); inf = info(root);
+          function om(k) { return Math.sqrt((g * k + 0.072 * sig * k * k * k / rho) * Math.tanh(k * h)); }
+          function draw() { var cp = [], cg = [], mn = 1e9, lm = 0; for (var e = -3; e <= 2.001; e += 0.005) { var lam = Math.pow(10, e), k = 2 * Math.PI / lam, c = om(k) / k, dk = k * 1e-4, gg = (om(k + dk) - om(k - dk)) / (2 * dk);
+              cp.push([e, c]); cg.push([e, gg]); if (c < mn) { mn = c; lm = lam; } }
+            v.innerHTML = svgw('0 0 640 260', chart(640, 260, [{ d: cp, c: BL, n: '相速 c = ω/k' }, { d: cg, c: OR, n: '群速 c_g = dω/dk（能量跑的速度）' }], { x0: -3, x1: 2, y0: 0, xl: 'log₁₀ 波長（m）：−3 = 1 mm、0 = 1 m、2 = 100 m', yl: 'm/s', hl: [{ y: Math.sqrt(g * h), c: GY, n: '√(gh)' }] }));
+            inf.innerHTML = '最慢的波：波長 <b>' + (sig > 0 ? f2(lm * 100) + ' cm，相速 ' + f2(mn) + ' m/s' : '—（沒有表面張力時，波長愈短愈慢）') + '</b>。比它短的是<b>毛細波</b>（短的跑得快），比它長的是<b>重力波</b>（長的跑得快）；波長遠大於水深時，所有波都以 √(gh) = ' + f2(Math.sqrt(g * h)) + ' m/s 前進、不再色散（第 32 課）。'; }
+          draw();
+        }
+
+        /* ---------- 互動水池 ---------- */
+        function initPool(root, cfg) {
+          head(root, cfg.q); var N = 160, W = 480, e = new Float32Array(N * N), p = new Float32Array(N * N), damp = 0.004, caus = !!cfg.caustic, depth = 30, rain = false, n = 0;
+          var bar = el('div'), b1 = btn(caus ? '看水面' : '看池底光紋（焦散）'), b2 = btn('下雨'), b3 = btn('清空'); bar.appendChild(b1); bar.appendChild(b2); bar.appendChild(b3); root.appendChild(bar);
+          b1.onclick = function () { caus = !caus; b1.textContent = caus ? '看水面' : '看池底光紋（焦散）'; }; b2.onclick = function () { rain = !rain; b2.textContent = rain ? '停雨' : '下雨'; }; b3.onclick = function () { e.fill(0); p.fill(0); };
+          slider(root, '阻尼（每步損失的比例）', 0, 0.03, 0.001, damp, function (x) { return f1(x * 1000) / 10 + '%'; }, 'd', function (x) { damp = x; });
+          slider(root, '池深（影響焦散的聚焦）', 5, 80, 1, depth, function (x) { return x; }, 'z', function (x) { depth = x; });
+          var cv = canvas(root, W, W), ctx = cv.getContext('2d'), img = ctx.createImageData(N, N), off = document.createElement('canvas'); off.width = N; off.height = N; var ox = off.getContext('2d'), L = new Float32Array(N * N), inf = info(root);
+          function drop(x, y, a) { for (var j = -6; j <= 6; j++) for (var i = -6; i <= 6; i++) { var X = Math.round(x) + i, Y = Math.round(y) + j; if (X < 1 || Y < 1 || X >= N - 1 || Y >= N - 1) continue; var b = -a * Math.exp(-(i * i + j * j) / 6); e[Y * N + X] += b; p[Y * N + X] += b; } }
+          cv.addEventListener('pointerdown', function (ev) { var r = cv.getBoundingClientRect(); drop((ev.clientX - r.left) / r.width * N, (ev.clientY - r.top) / r.height * N, 1.2); });
+          function step() { var q = new Float32Array(N * N); for (var y = 1; y < N - 1; y++) for (var x = 1; x < N - 1; x++) { var k = y * N + x;
+              q[k] = (2 - damp) * e[k] - (1 - damp) * p[k] + 0.25 * (e[k + 1] + e[k - 1] + e[k + N] + e[k - N] - 4 * e[k]); }
+            for (var i = 0; i < N; i++) { q[i] = q[i + N]; q[(N - 1) * N + i] = q[(N - 2) * N + i]; q[i * N] = q[i * N + 1]; q[i * N + N - 1] = q[i * N + N - 2]; }   // 反射牆
+            p = e; e = q; n++; }
+          function draw() { var d = img.data, k, y, x;
+            if (caus) { L.fill(0); var s = depth * 0.25 * 0.6;
+              for (y = 1; y < N - 1; y++) for (x = 1; x < N - 1; x++) { k = y * N + x; var gx = (e[k + 1] - e[k - 1]) * 0.5, gy = (e[k + N] - e[k - N]) * 0.5, X = x + s * gx, Y = y + s * gy, ix = Math.floor(X), iy = Math.floor(Y), fx = X - ix, fy = Y - iy;
+                if (ix < 0 || iy < 0 || ix >= N - 1 || iy >= N - 1) continue; var j = iy * N + ix; L[j] += (1 - fx) * (1 - fy); L[j + 1] += fx * (1 - fy); L[j + N] += (1 - fx) * fy; L[j + N + 1] += fx * fy; }
+              for (k = 0; k < N * N; k++) { var v = Math.min(1, Math.max(0, (L[k] - 0.6) * 1.4)); d[k * 4] = 25 + 225 * v; d[k * 4 + 1] = 95 + 160 * v; d[k * 4 + 2] = 140 + 115 * v; d[k * 4 + 3] = 255; } }
+            else { for (y = 0; y < N; y++) for (x = 0; x < N; x++) { k = y * N + x; var gx2 = x > 0 && x < N - 1 ? e[k + 1] - e[k - 1] : 0, gy2 = y > 0 && y < N - 1 ? e[k + N] - e[k - N] : 0, sh = Math.max(-1, Math.min(1, (gx2 - gy2) * 8));
+                d[k * 4] = 40 + 50 * sh; d[k * 4 + 1] = 120 + 80 * sh; d[k * 4 + 2] = 180 + 60 * sh; d[k * 4 + 3] = 255; } }
+            ox.putImageData(img, 0, 0); ctx.imageSmoothingEnabled = true; ctx.drawImage(off, 0, 0, W, W);
+            inf.innerHTML = '點一下（或觸控）水面就會滴一滴水。第 ' + n + ' 步。' + (caus ? '池底光紋：每條垂直光線在水面依斜率折射後落到池底，數一數每格收到多少條；凸起的水面像透鏡把光聚在一起（第 37 課）。池深愈深，聚焦愈強。' : '光影用水面斜率上色。阻尼 0 時波會在池壁間一直反射；阻尼大時漣漪很快消失（第 33～36 課）。'); }
+          drop(N * 0.35, N * 0.4, 1.5); drop(N * 0.65, N * 0.6, 1.2);
+          loop(root, function () { if (rain && Math.random() < 0.15) drop(5 + Math.random() * (N - 10), 5 + Math.random() * (N - 10), 0.6 + Math.random()); step(); step(); draw(); });
+        }
+
+        var INIT = { heat: initHeat, wave: initWave, conv: initConv, cavity: initCavity, chamber: initChamber, disp: initDisp, pool: initPool };
+        function boot() { document.querySelectorAll('.nm-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+          var cfg = JSON.parse(root.getAttribute('data-cfg')); var fn = INIT[cfg.t]; if (fn) fn(root, cfg); }); }
+        if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+      })();
+      </script>
+
+      <p>
+        所有工具都在瀏覽器裡即時計算；模型是教學用的簡化版本。
+      </p>
+
+      <h2>1. 一維熱傳導：顯式與隱式（<a href="lesson-12.html">第 12 課</a>、<a href="lesson-13.html">第 13 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;heat&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>2. 一維波動方程式與 CFL（<a href="lesson-14.html">第 14 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;wave&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>3. 差分公式的網格收斂（<a href="lesson-03.html">第 3 課</a>、<a href="lesson-11.html">第 11 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;conv&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>4. LBM 頂蓋驅動方腔流（<a href="lesson-21.html">第 21 課</a>～<a href="lesson-23.html">第 23 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;cavity&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>5. 蝕刻腔：氣流與自由基（<a href="lesson-26.html">第 26 課</a>、<a href="lesson-29.html">第 29 課</a>、<a href="lesson-31.html">第 31 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;chamber&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>6. 水波色散關係（<a href="lesson-32.html">第 32 課</a>、<a href="lesson-35.html">第 35 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;disp&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+      <h2>7. 互動水池與焦散（<a href="lesson-33.html">第 33 課</a>、<a href="lesson-36.html">第 36 課</a>、<a href="lesson-37.html">第 37 課</a>）</h2>
+
+      <div class="nm-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;pool&quot;, &quot;q&quot;: &quot;&quot;}"></div>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <span class="disabled"></span>
+      <a href="index.html">回主題頁</a>
+      <span class="disabled"></span>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
