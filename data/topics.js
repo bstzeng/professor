@@ -23679,6 +23679,148 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "aging-inspection",
+      category: "tech",
+      title: "材料老化與結構安全檢查：飛機、橋樑、建築怎麼知道還安不安全",
+      description:
+        "材料為什麼會老化、怎麼研究、怎麼檢查、怎麼補強，每課完整推導：疲勞、腐蝕、應力腐蝕、潛變、混凝土碳化與氯離子；S-N 曲線、破壞力學、Paris 定律、加速老化、斷口分析、Weibull；目視、液滲、磁粉、渦電流、超音波、射線、熱像、聲射與 POD；飛機（彗星、阿囉哈、華航 611、檢查間隔、老舊飛機、複材、引擎）、橋樑（評等、氯離子、鋼橋疲勞、沖刷、倒塌案例、承載力）、建築（耐震評估、海砂屋、強度檢測、裂縫判讀、沉陷、地震案例）、壓力容器、核電壓力容器、管線、儲槽、風機葉片；修復與補強（補片、止裂孔、複材修補、陰極防蝕、外加預力、FRP、耐震補強、隔震）、健康監測、可靠度與檢查最佳化。",
+      icon: "🔩",
+      url: "topics/aging-inspection/index.html",
+      resources: [
+        {
+          title: "老化與檢查互動工具箱",
+          description: "疲勞、裂紋成長與檢查間隔、超音波、POD、氯離子、橋樑評等、裂縫判讀、振動監測、FRP 補強、檢查最佳化",
+          icon: "🔩",
+          url: "topics/aging-inspection/guide.html"
+        },
+        {
+          title: "老化與檢查公式速查",
+          description: "本課程的關鍵公式與名詞",
+          icon: "📖",
+          url: "topics/aging-inspection/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜材料為什麼會老化",
+          courses: [
+            { title: "老化、損傷與失效", url: "topics/aging-inspection/lesson-01.html" },
+            { title: "疲勞", url: "topics/aging-inspection/lesson-02.html" },
+            { title: "腐蝕", url: "topics/aging-inspection/lesson-03.html" },
+            { title: "應力腐蝕與氫脆", url: "topics/aging-inspection/lesson-04.html" },
+            { title: "潛變與高溫劣化", url: "topics/aging-inspection/lesson-05.html" },
+            { title: "混凝土與複合材料的老化", url: "topics/aging-inspection/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜實驗室怎麼研究老化",
+          courses: [
+            { title: "試片與標準試驗", url: "topics/aging-inspection/lesson-07.html" },
+            { title: "疲勞試驗與 Miner 法則", url: "topics/aging-inspection/lesson-08.html" },
+            { title: "破壞力學入門", url: "topics/aging-inspection/lesson-09.html" },
+            { title: "Paris 定律與剩餘壽命", url: "topics/aging-inspection/lesson-10.html" },
+            { title: "加速老化試驗", url: "topics/aging-inspection/lesson-11.html" },
+            { title: "斷面分析", url: "topics/aging-inspection/lesson-12.html" },
+            { title: "全尺寸試驗、拆解研究與壽命分散", url: "topics/aging-inspection/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜非破壞檢測（NDT）工具箱",
+          courses: [
+            { title: "目視檢測與內視鏡", url: "topics/aging-inspection/lesson-14.html" },
+            { title: "液滲檢測與磁粉檢測", url: "topics/aging-inspection/lesson-15.html" },
+            { title: "渦電流檢測", url: "topics/aging-inspection/lesson-16.html" },
+            { title: "超音波檢測", url: "topics/aging-inspection/lesson-17.html" },
+            { title: "射線檢測與工業 CT", url: "topics/aging-inspection/lesson-18.html" },
+            { title: "紅外線熱像、聲射與剪切干涉", url: "topics/aging-inspection/lesson-19.html" },
+            { title: "檢測的可靠度：POD 曲線", url: "topics/aging-inspection/lesson-20.html" },
+            { title: "方法怎麼選、怎麼組合", url: "topics/aging-inspection/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜飛機",
+          courses: [
+            { title: "設計哲學的演變", url: "topics/aging-inspection/lesson-22.html" },
+            { title: "案例：彗星客機", url: "topics/aging-inspection/lesson-23.html" },
+            { title: "案例：阿囉哈 243 號與華航 611", url: "topics/aging-inspection/lesson-24.html" },
+            { title: "檢查間隔怎麼訂", url: "topics/aging-inspection/lesson-25.html" },
+            { title: "維修計畫", url: "topics/aging-inspection/lesson-26.html" },
+            { title: "老舊飛機：廣泛疲勞損傷與有效壽命上限", url: "topics/aging-inspection/lesson-27.html" },
+            { title: "複合材料機身的老化與檢查", url: "topics/aging-inspection/lesson-28.html" },
+            { title: "引擎與壽命限制件", url: "topics/aging-inspection/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜橋樑",
+          courses: [
+            { title: "橋樑的種類與容易劣化的部位", url: "topics/aging-inspection/lesson-30.html" },
+            { title: "定期檢測與評等", url: "topics/aging-inspection/lesson-31.html" },
+            { title: "混凝土劣化：氯離子侵入", url: "topics/aging-inspection/lesson-32.html" },
+            { title: "鋼橋的疲勞與腐蝕", url: "topics/aging-inspection/lesson-33.html" },
+            { title: "沖刷", url: "topics/aging-inspection/lesson-34.html" },
+            { title: "案例：南方澳大橋、莫蘭迪橋、I-35W", url: "topics/aging-inspection/lesson-35.html" },
+            { title: "現場量測", url: "topics/aging-inspection/lesson-36.html" },
+            { title: "承載力評估與限重", url: "topics/aging-inspection/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜建築",
+          courses: [
+            { title: "結構安全與耐震評估", url: "topics/aging-inspection/lesson-38.html" },
+            { title: "海砂屋：氯離子含量檢測", url: "topics/aging-inspection/lesson-39.html" },
+            { title: "混凝土強度的現場檢測", url: "topics/aging-inspection/lesson-40.html" },
+            { title: "裂縫判讀", url: "topics/aging-inspection/lesson-41.html" },
+            { title: "傾斜與沉陷", url: "topics/aging-inspection/lesson-42.html" },
+            { title: "案例：921 地震、維冠大樓與震後緊急評估", url: "topics/aging-inspection/lesson-43.html" },
+            { title: "外牆與非結構構件", url: "topics/aging-inspection/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 G｜其他設施：壓力容器、管線、風機葉片",
+          courses: [
+            { title: "壓力容器與鍋爐", url: "topics/aging-inspection/lesson-45.html" },
+            { title: "核電廠壓力容器的中子脆化", url: "topics/aging-inspection/lesson-46.html" },
+            { title: "管線的腐蝕評估", url: "topics/aging-inspection/lesson-47.html" },
+            { title: "儲槽與風險基礎檢查", url: "topics/aging-inspection/lesson-48.html" },
+            { title: "風機葉片", url: "topics/aging-inspection/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 H｜修復與補強",
+          courses: [
+            { title: "補強的基本原則", url: "topics/aging-inspection/lesson-50.html" },
+            { title: "飛機金屬結構修補", url: "topics/aging-inspection/lesson-51.html" },
+            { title: "止裂孔與表面強化", url: "topics/aging-inspection/lesson-52.html" },
+            { title: "複合材料修補", url: "topics/aging-inspection/lesson-53.html" },
+            { title: "混凝土修復與電化學方法", url: "topics/aging-inspection/lesson-54.html" },
+            { title: "鋼構修復", url: "topics/aging-inspection/lesson-55.html" },
+            { title: "橋樑補強", url: "topics/aging-inspection/lesson-56.html" },
+            { title: "FRP 貼梁補強計算", url: "topics/aging-inspection/lesson-57.html" },
+            { title: "建築耐震補強", url: "topics/aging-inspection/lesson-58.html" },
+            { title: "隔震與制震", url: "topics/aging-inspection/lesson-59.html" },
+            { title: "補強後的驗證與生命週期成本", url: "topics/aging-inspection/lesson-60.html" },
+          ],
+        },
+        {
+          title: "模組 I｜結構健康監測與新技術",
+          courses: [
+            { title: "感測器", url: "topics/aging-inspection/lesson-61.html" },
+            { title: "振動監測", url: "topics/aging-inspection/lesson-62.html" },
+            { title: "無人機與影像 AI", url: "topics/aging-inspection/lesson-63.html" },
+            { title: "數位孿生與資料判讀", url: "topics/aging-inspection/lesson-64.html" },
+          ],
+        },
+        {
+          title: "模組 J｜風險與決策",
+          courses: [
+            { title: "剩餘壽命與可靠度指標", url: "topics/aging-inspection/lesson-65.html" },
+            { title: "檢查間隔最佳化", url: "topics/aging-inspection/lesson-66.html" },
+            { title: "修、補、還是拆", url: "topics/aging-inspection/lesson-67.html" },
+          ],
+        },
+      ],
     }
   ]
 };
