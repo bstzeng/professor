@@ -1,0 +1,257 @@
+# -*- coding: utf-8 -*-
+"""〈材料老化與結構安全檢查〉（ins_）共用：課程包裝與 INLIB 互動元件。
+
+逐步推導（steps）與數值驗證（check）沿用 md_common 的 MDLIB；本檔的 INLIB（class="in-w"）提供：
+  sn       S-N 曲線與 Miner 累積損傷
+  crack    Paris 定律裂紋成長與檢查間隔
+  ut       超音波 A 掃描：探頭移動、缺陷回波與底面回波
+  pod      偵測機率（POD）曲線與多次檢查漏報機率
+  chloride 氯離子擴散剖面與鋼筋開始鏽蝕的時間、碳化深度
+  nbi      橋樑構件狀況評等（0～9）與整體分類
+  crackid  裂縫型態判讀練習
+  modal    局部剛度損失對前三個模態頻率的影響（含溫度效應）
+  frp      FRP 貼片抗彎補強計算
+  risk     檢查間隔的總成本最佳化
+"""
+from md_common import make_with, S, steps, check, mw, star, MDLIB
+from cc_common import wdg, LS, M, D, KATEX
+from qt_common import BASEJS
+
+IN_NOTE = (u"本課程的數字與公式以教學用的代表值說明原理；實際的檢測、評估與補強設計須依適用的法規、規範與專業技師判斷。"
+           u"重大事故的說明依各國調查機關公開的結論摘要整理。")
+
+
+def iw(t, q=u"", **cfg):
+    cfg.update({"t": t, "q": q})
+    return wdg("in-w", cfg)
+
+
+INLIB = r"""
+(function () {
+  if (window.__inLib) return; window.__inLib = 1;
+""" + BASEJS + r"""
+  var _sl = slider; slider = function (root, lab, min, max, step, val, fmt, k, cb) { var u = _sl(root, lab, min, max, step, val, fmt, k, cb); var b = root.lastChild && root.lastChild.querySelector('b'); if (b) b.textContent = fmt(val); return u; };
+  var BL = '#3a6ea5', OR = '#e07a2f', GR = '#4caf50', RD = '#e0605a', PU = '#8e5bd1', GY = '#7a8590', TL = '#2a9d8f', GD = '#c9a227';
+  function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7'); root.appendChild(p); return p; }
+  function sci(v) { if (!isFinite(v)) return '∞'; if (v === 0) return '0'; var e = Math.floor(Math.log10(Math.abs(v))); if (e >= -2 && e <= 5) return (Math.round(v * 1000) / 1000).toLocaleString(); return (v / Math.pow(10, e)).toFixed(2) + '×10<sup>' + e + '</sup>'; }
+  function big(v) { if (!isFinite(v)) return '∞'; return Math.abs(v) < 1e6 ? Math.round(v).toLocaleString() : sci(v); }
+  function f3(v) { return (Math.round(v * 1000) / 1000).toString(); }
+  function erf(x) { var s = x < 0 ? -1 : 1; x = Math.abs(x); var t = 1 / (1 + 0.3275911 * x);
+    var y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x); return s * y; }
+  function erfinv(y) { var lo = 0, hi = 6; for (var i = 0; i < 80; i++) { var m = (lo + hi) / 2; if (erf(m) < y) lo = m; else hi = m; } return (lo + hi) / 2; }
+
+  /* ---------- S-N 曲線與 Miner ---------- */
+  function initSn(root, cfg) {
+    head(root, cfg.q); var mat = 'steel', S1 = 300, L1 = 5, S2 = 450, L2 = 4, v = el('div'), inf;
+    var MAT = { steel: { Sf: 1000, b: -0.085, Se: 250, n: '鋼（有疲勞限 250 MPa）' }, al: { Sf: 900, b: -0.102, Se: 0, n: '鋁合金（沒有明確的疲勞限）' } };
+    var bar = el('div'); [['鋼', 'steel'], ['鋁合金', 'al']].forEach(function (s) { var b = btn(s[0], s[1]); b.onclick = function () { mat = s[1]; mark(bar, mat); draw(); }; bar.appendChild(b); }); mark(bar, mat); root.appendChild(bar);
+    slider(root, '第一段應力振幅 S₁（MPa）', 100, 700, 10, S1, function (x) { return x; }, 's1', function (x) { S1 = x; draw(); });
+    slider(root, '第一段循環數 n₁（10 的次方）', 2, 8, 0.1, L1, function (x) { return '10^' + f1(x) + ' ≈ ' + big(Math.pow(10, x)); }, 'n1', function (x) { L1 = x; draw(); });
+    slider(root, '第二段應力振幅 S₂（MPa）', 100, 700, 10, S2, function (x) { return x; }, 's2', function (x) { S2 = x; draw(); });
+    slider(root, '第二段循環數 n₂（10 的次方）', 2, 8, 0.1, L2, function (x) { return '10^' + f1(x) + ' ≈ ' + big(Math.pow(10, x)); }, 'n2', function (x) { L2 = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function N(S) { var m = MAT[mat]; if (m.Se && S <= m.Se) return Infinity; return 0.5 * Math.pow(S / m.Sf, 1 / m.b); }
+    function draw() { var m = MAT[mat], d = [];
+      for (var e = 2; e <= 9.001; e += 0.05) { var S = m.Sf * Math.pow(2 * Math.pow(10, e), m.b); d.push([e, Math.max(S, m.Se)]); }
+      var N1 = N(S1), N2 = N(S2), D1 = Math.pow(10, L1) / N1, D2 = Math.pow(10, L2) / N2, Dt = D1 + D2;
+      var pts = []; if (isFinite(N1)) pts.push({ x: Math.log10(N1), y: S1, c: OR, n: 'N₁' }); if (isFinite(N2)) pts.push({ x: Math.log10(N2), y: S2, c: RD, n: 'N₂' });
+      v.innerHTML = svgw('0 0 640 260', chart(640, 260, [{ d: d, c: BL, n: m.n }], { x0: 2, x1: 9, y0: 0, y1: 800, xl: 'log₁₀ N（到失效的循環數）', yl: 'S（MPa）', hl: [{ y: S1, c: OR, n: 'S₁' }, { y: S2, c: RD, n: 'S₂' }], pts: pts }));
+      inf.innerHTML = 'N₁ = ' + big(N1) + '，N₂ = ' + big(N2) + '。累積損傷 D = n₁/N₁ + n₂/N₂ = ' + f3(D1) + ' + ' + f3(D2) + ' = <b>' + f3(Dt) + '</b>' +
+        (Dt >= 1 ? '　⚠️ D ≥ 1：Miner 法則預測已經失效。' : '　這組載重可以重複約 <b>' + f1(1 / Dt) + '</b> 次。') + '<br>Miner 法則忽略了先大後小、先小後大的順序效應；實際壽命的分散常達好幾倍（第 8、13 課）。'; }
+    draw();
+  }
+
+  /* ---------- Paris 定律與檢查間隔 ---------- */
+  function initCrack(root, cfg) {
+    head(root, cfg.q); var ds = 100, Kc = 30, a0 = 1, ad = 5, k = 2, C = 1e-11, m = 3, v = el('div'), inf;
+    slider(root, '應力範圍 Δσ（MPa，R = 0）', 50, 200, 5, ds, function (x) { return x; }, 'ds', function (x) { ds = x; draw(); });
+    slider(root, '破壞韌性 K_c（MPa√m）', 20, 80, 1, Kc, function (x) { return x; }, 'kc', function (x) { Kc = x; draw(); });
+    slider(root, '初始缺陷 a₀（mm）', 0.2, 3, 0.1, a0, f1, 'a0', function (x) { a0 = x; draw(); });
+    slider(root, '可以可靠偵測的裂紋 a_d（mm）', 1, 25, 0.5, ad, f1, 'ad', function (x) { ad = x; draw(); });
+    slider(root, '在臨界前要有幾次檢查機會', 1, 4, 1, k, function (x) { return x + ' 次'; }, 'k', function (x) { k = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function Nab(a1, a2) { a1 /= 1000; a2 /= 1000; return (Math.pow(a2, 1 - m / 2) - Math.pow(a1, 1 - m / 2)) / (C * Math.pow(ds * Math.sqrt(Math.PI), m) * (1 - m / 2)); }
+    function draw() { var ac = Math.pow(Kc / ds, 2) / Math.PI * 1000, Nc = Nab(a0, ac), d = [];
+      for (var i = 0; i <= 200; i++) { var a = a0 * Math.pow(ac / a0, i / 200); d.push([Nab(a0, a) / 1000, a]); }
+      var ok = ad < ac && ad > a0, Nd = ok ? Nab(a0, ad) : NaN, I = ok ? (Nc - Nd) / k : NaN, vl = [];
+      if (ok) for (var j = 0; j <= k; j++) vl.push({ x: (Nd + j * I) / 1000, c: j ? GR : TL, n: j ? '' : '可偵測' });
+      v.innerHTML = svgw('0 0 640 270', chart(640, 270, [{ d: d, c: RD, n: '裂紋長度 a（半長）' }], { x0: 0, y0: 0, y1: ac * 1.1, xl: '循環數（千次）', yl: 'a（mm）', hl: [{ y: ac, c: RD, n: '臨界 a_c' }, { y: ad, c: TL, n: 'a_d' }], vl: vl }));
+      inf.innerHTML = '臨界裂紋 a_c = (K_c/Δσ)²/π = <b>' + f1(ac) + ' mm</b>；從 a₀ 長到 a_c 要 <b>' + big(Nc) + '</b> 次循環。' +
+        (ok ? '從可偵測（' + f1(ad) + ' mm）到臨界還有 ' + big(Nc - Nd) + ' 次，要有 ' + k + ' 次檢查機會，<b>檢查間隔 = ' + big(I) + ' 次循環</b>（綠線）。' : '⚠️ 偵測門檻已經大於臨界長度（或小於初始缺陷），這種檢查方法保護不了這個結構。') +
+        '<br>Paris 定律 da/dN = C(ΔK)^m，C = 10⁻¹¹、m = 3（鋁合金的代表值），ΔK = Δσ√(πa)（第 10、25 課）。'; }
+    draw();
+  }
+
+  /* ---------- 超音波 A 掃描 ---------- */
+  function initUt(root, cfg) {
+    head(root, cfg.q); var T = 30, dep = 12, Lf = 12, xp = 58, vel = 5.92, xf = 60, sec = el('div'), v = el('div'), inf;
+    slider(root, '探頭位置（mm）', 0, 100, 1, xp, function (x) { return x; }, 'xp', function (x) { xp = x; draw(); });
+    slider(root, '鋼板厚度 T（mm）', 10, 50, 1, T, function (x) { return x; }, 'T', function (x) { T = x; dep = Math.min(dep, T - 2); draw(); });
+    slider(root, '缺陷深度（mm）', 2, 48, 1, dep, function (x) { return x; }, 'dep', function (x) { dep = Math.min(x, T - 2); draw(); });
+    slider(root, '缺陷長度（mm）', 2, 30, 1, Lf, function (x) { return x; }, 'lf', function (x) { Lf = x; draw(); });
+    root.appendChild(sec); root.appendChild(v); inf = info(root);
+    function draw() { var lo = Math.max(xp - 5, xf - Lf / 2), hi = Math.min(xp + 5, xf + Lf / 2), o = Math.max(0, hi - lo) / 10;
+      var tf = 2 * dep / vel, tb = 2 * T / vel, tmax = 2.3 * tb, d = [];
+      function g(t, t0, a) { return a * Math.exp(-Math.pow((t - t0) / 0.12, 2)); }
+      for (var i = 0; i <= 600; i++) { var t = tmax * i / 600; d.push([t, g(t, 0, 1) + g(t, tf, 0.9 * o) + g(t, tb, 0.8 * (1 - o) + 0.05) + g(t, 2 * tb, 0.4 * (1 - o) + 0.02)]); }
+      var s = 6, X = function (x) { return 20 + x * s; }, Y = function (y) { return 40 + y * 2.2; };
+      var h = ln(20, 40, 620, 40, GY, 1) + '<rect x="20" y="40" width="600" height="' + n1(T * 2.2) + '" fill="#7a8590" fill-opacity="0.18" stroke="#7a8590"/>' +
+        '<rect x="' + n1(X(xf - Lf / 2)) + '" y="' + n1(Y(dep) - 2) + '" width="' + n1(Lf * s) + '" height="4" fill="' + RD + '"/>' +
+        '<rect x="' + n1(X(xp - 8)) + '" y="18" width="' + 16 * s + '" height="20" rx="3" fill="' + BL + '"/>' + tx(X(xp), 32, '探頭', 10, '#fff') +
+        '<path d="M' + n1(X(xp - 5)) + ' 40 L' + n1(X(xp - 5)) + ' ' + n1(Y(T)) + ' L' + n1(X(xp + 5)) + ' ' + n1(Y(T)) + ' L' + n1(X(xp + 5)) + ' 40 Z" fill="' + BL + '" fill-opacity="0.15"/>';
+      sec.innerHTML = svgw('0 0 640 ' + Math.round(50 + T * 2.2), h);
+      v.innerHTML = svgw('0 0 640 230', chart(640, 230, [{ d: d, c: BL, n: 'A 掃描（回波振幅）' }], { x0: 0, x1: tmax, y0: 0, y1: 1.1, xl: '時間（µs）', vl: [{ x: tf, c: RD, n: '缺陷' }, { x: tb, c: GY, n: '底面' }] }));
+      inf.innerHTML = '聲速 5.92 mm/µs（鋼的縱波）。' + (o > 0 ? '缺陷回波在 t = ' + f2(tf) + ' µs → 深度 = v t / 2 = <b>' + f1(dep) + ' mm</b>；探頭有 ' + Math.round(o * 100) + '% 的聲束打到缺陷，底面回波相對變小。' : '聲束沒打到缺陷：只看到表面的發射脈衝和 ' + f2(tb) + ' µs 的底面回波（厚度 ' + T + ' mm）與它的二次回波。') +
+        '<br>移動探頭掃過缺陷，回波從出現到消失的距離可以估計缺陷長度（但要扣掉聲束寬度，第 17 課）。'; }
+    draw();
+  }
+
+  /* ---------- POD 曲線 ---------- */
+  function initPod(root, cfg) {
+    head(root, cfg.q); var a50 = 2, sg = 0.4, a = 2.5, n = 3, v = el('div'), inf;
+    slider(root, 'a₅₀：一半機率會被發現的裂紋長度（mm）', 0.5, 6, 0.1, a50, f1, 'a50', function (x) { a50 = x; draw(); });
+    slider(root, '分散程度 σ（愈小愈「陡」）', 0.1, 1, 0.05, sg, f2, 'sg', function (x) { sg = x; draw(); });
+    slider(root, '實際裂紋長度 a（mm）', 0.5, 10, 0.1, a, f1, 'a', function (x) { a = x; draw(); });
+    slider(root, '檢查次數 n', 1, 6, 1, n, function (x) { return x; }, 'n', function (x) { n = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function P(x) { return 1 / (1 + Math.exp(-(Math.log(x) - Math.log(a50)) / sg)); }
+    function draw() { var d = []; for (var x = 0.1; x <= 10.001; x += 0.05) d.push([x, P(x)]); var a90 = a50 * Math.exp(sg * Math.log(9)), p = P(a);
+      v.innerHTML = svgw('0 0 640 250', chart(640, 250, [{ d: d, c: BL, n: 'POD(a)' }], { x0: 0, x1: 10, y0: 0, y1: 1, xl: '裂紋長度 a（mm）', yl: 'POD', hl: [{ y: 0.9, c: GY, n: '90%' }], vl: [{ x: a90, c: OR, n: 'a₉₀' }], pts: [{ x: a, y: p, c: RD }] }));
+      inf.innerHTML = 'a₉₀ = a₅₀ · 9^σ = <b>' + f2(a90) + ' mm</b>（九成會被發現的長度）。長度 ' + f1(a) + ' mm 的裂紋：一次檢查發現的機率 ' + Math.round(p * 100) + '%，' + n + ' 次都漏掉的機率 (1 − POD)ⁿ = <b>' + f1(Math.pow(1 - p, n) * 100) + '%</b>' +
+        '（假設每次獨立；實際上同一個人、同一種方法常會重複漏掉同一種裂紋，第 20 課）。'; }
+    draw();
+  }
+
+  /* ---------- 氯離子擴散 ---------- */
+  function initChloride(root, cfg) {
+    head(root, cfg.q); var Cs = 3, Dc = 1, cov = 50, Ccr = 0.4, kc = 4, v = el('div'), inf;
+    slider(root, '表面氯離子濃度 C_s（% 膠結材重）', 0.5, 6, 0.1, Cs, f1, 'cs', function (x) { Cs = x; draw(); });
+    slider(root, '擴散係數 D（×10⁻¹² m²/s；好混凝土 0.1～1、普通 1～10）', 0.1, 10, 0.1, Dc, f1, 'd', function (x) { Dc = x; draw(); });
+    slider(root, '保護層厚度 c（mm）', 15, 100, 1, cov, function (x) { return x; }, 'c', function (x) { cov = x; draw(); });
+    slider(root, '開始鏽蝕的門檻 C_cr（% 膠結材重）', 0.2, 1, 0.05, Ccr, f2, 'cr', function (x) { Ccr = x; draw(); });
+    slider(root, '碳化係數 k（mm/√年）', 1, 8, 0.5, kc, f1, 'k', function (x) { kc = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function draw() { var D = Dc * 1e-12 * 3.156e7 * 1e6, S = [], cols = [GY, BL, OR, RD];   // mm²/年
+      [5, 20, 50, 100].forEach(function (t, i) { var d = []; for (var x = 0; x <= 120; x += 1) d.push([x, Cs * (1 - erf(x / (2 * Math.sqrt(D * t))))]); S.push({ d: d, c: cols[i], n: t + ' 年' }); });
+      var ti = Ccr < Cs ? Math.pow(cov / (2 * erfinv(1 - Ccr / Cs)), 2) / D : 0, tc = Math.pow(cov / kc, 2);
+      v.innerHTML = svgw('0 0 640 260', chart(640, 260, S, { x0: 0, x1: 120, y0: 0, y1: Cs * 1.05, xl: '離表面的深度（mm）', yl: '% 膠結材', hl: [{ y: Ccr, c: PU, n: '門檻 C_cr' }], vl: [{ x: cov, c: TL, n: '鋼筋' }] }));
+      inf.innerHTML = '氯離子在鋼筋位置達到門檻的時間 t = c² / (4D[erf⁻¹(1 − C_cr/C_s)]²) = <b>' + f1(ti) + ' 年</b>；碳化前緣到達鋼筋 t = (c/k)² = <b>' + f1(tc) + ' 年</b>。' +
+        '<br>保護層加倍，時間變成 4 倍（∝ c²）：這是規範要求海邊結構加厚保護層、用低滲透混凝土的原因（第 6、32 課）。'; }
+    draw();
+  }
+
+  /* ---------- 橋樑狀況評等 ---------- */
+  var NBI = ['已失效：無法使用、無法修復', '即將失效：嚴重劣化或斷面損失，已封閉交通，修復後也許可恢復輕度使用', '危急：嚴重劣化，鋼構可能有疲勞裂紋、混凝土有剪力裂縫，除非嚴密監控否則應封橋',
+    '嚴重：斷面損失、劣化嚴重，可能有局部破壞', '差：明顯的斷面損失、劣化、剝落或沖刷', '尚可：主要構件健全，但有輕微斷面損失、裂縫、剝落或沖刷', '滿意：構件有輕微劣化', '良好：有些小問題', '很好：沒有問題', '極佳'];
+  function initNbi(root, cfg) {
+    head(root, cfg.q); var r = { deck: 7, sup: 6, sub: 5 }, v = el('div'), inf, names = { deck: '橋面板', sup: '上部結構（梁、桁架）', sub: '下部結構（橋墩、橋台、基礎）' };
+    Object.keys(r).forEach(function (k) { slider(root, names[k] + '評等', 0, 9, 1, r[k], function (x) { return x; }, k, function (x) { r[k] = x; draw(); }); });
+    root.appendChild(v); inf = info(root);
+    function draw() { var rows = '', mn = 9;
+      Object.keys(r).forEach(function (k) { mn = Math.min(mn, r[k]); var c = r[k] >= 7 ? GR : r[k] >= 5 ? GD : RD;
+        rows += '<tr><td style="padding:4px 6px;border-bottom:1px solid var(--border)">' + names[k] + '</td><td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:center"><b style="color:' + c + '">' + r[k] + '</b></td><td style="padding:4px 6px;border-bottom:1px solid var(--border);font-size:0.9em">' + NBI[r[k]] + '</td></tr>'; });
+      v.innerHTML = '<table style="width:100%;border-collapse:collapse;margin-top:8px">' + rows + '</table>';
+      var cls = mn >= 7 ? ['良好（Good）', GR, '例行檢測與維護即可。'] : mn >= 5 ? ['尚可（Fair）', GD, '安排修復，追蹤劣化速度。'] : ['差（Poor）', RD, mn <= 2 ? '應封閉或嚴密監控，緊急處理。' : '需要修復或補強，評估是否限重；縮短檢測間隔。'];
+      inf.innerHTML = '整體分類取<b>最低</b>的那一項：<b style="color:' + cls[1] + '">' + cls[0] + '</b>（最低分 ' + mn + '）。' + cls[2] +
+        '<br>為什麼看最低分？橋是串聯系統，任何一個主要部分失效整座橋就不能用（第 31 課）。這是美國國家橋樑清冊（NBI）0～9 分制的簡化說明；台灣常用 D.E.R.&U. 評估法，概念相近。'; }
+    draw();
+  }
+
+  /* ---------- 裂縫型態判讀 ---------- */
+  var CK = [
+    { k: 'beam', c: 'M200 120 L200 92 M240 120 L240 86 M280 120 L280 82 M320 120 L320 82 M360 120 L360 86 M400 120 L400 92', a: 0, w: '梁跨中下緣、垂直、中央最密最長：<b>彎曲裂縫</b>。下緣受拉，裂縫垂直於拉應力。寬度在容許範圍內是 RC 梁的正常現象；變寬或延伸到受壓區就要注意。' },
+    { k: 'beam', c: 'M70 118 L118 66 M95 118 L140 68 M530 118 L482 66 M505 118 L460 68', a: 1, w: '靠近支承、約 45° 斜向、往跨中往上延伸：<b>剪力裂縫</b>。剪力在支承附近最大，主拉應力是斜的。剪力破壞是脆性的，比彎曲裂縫危險。' },
+    { k: 'wall', c: 'M170 50 L430 210 M430 50 L170 210 M200 50 L400 170 M400 50 L200 170', a: 2, w: '牆面 X 形交叉的斜裂縫：<b>地震反覆剪力</b>。地震時剪力方向來回改變，兩個方向的斜裂縫交叉。震後評估要量寬度並看是否貫穿。' },
+    { k: 'beam', c: 'M60 100 L540 100', rust: 1, a: 3, w: '沿著鋼筋方向的直線裂縫、帶鏽水：<b>鋼筋鏽蝕膨脹</b>。鐵鏽體積是鋼的 2～6 倍，把保護層撐裂，之後會剝落。常見於海砂屋與保護層不足的構件。' },
+    { k: 'wall', c: 'M190 70 L240 90 L230 130 L280 150 M240 90 L300 80 L330 120 L280 150 M330 120 L390 110 L410 160 L350 180 L280 150 M230 130 L210 180 L270 200 L350 180 M300 80 L320 50 M390 110 L420 80 M210 180 L180 200 M410 160 L440 190', a: 4, w: '不規則的網狀（龜甲狀）細裂縫：<b>乾縮或鹼骨材反應</b>。乾縮多在早期、寬度小；鹼骨材反應會持續膨脹、伴隨白色膠狀物，需要取樣確認。' },
+    { k: 'win', c: 'M360 105 L420 50 M270 175 L215 228', a: 5, w: '從開口的對角斜向延伸、方向一致：<b>不均勻沉陷</b>。右側基礎下陷，牆像一根深梁被剪歪，拉應力沿另一條對角線，裂縫的上端指向沉陷較大的一側。要配合水準測量與傾斜量測。' }];
+  var CKN = ['彎曲', '剪力', '地震反覆剪力', '鋼筋鏽蝕', '乾縮／鹼骨材', '不均勻沉陷'];
+  function initCrackid(root, cfg) {
+    head(root, cfg.q); var i = 0, score = 0, done = 0, v = el('div'), bar = el('div'), inf, nx = btn('下一題 →');
+    root.appendChild(v); root.appendChild(bar); inf = info(root); root.appendChild(nx);
+    CKN.forEach(function (n, j) { var b = btn(n, j); b.onclick = function () { if (bar.__ans) return; bar.__ans = 1; var ok = j === CK[i].a; if (ok) score++; done++;
+      b.style.background = ok ? 'rgba(76,175,80,0.25)' : 'rgba(224,96,90,0.25)'; inf.innerHTML = (ok ? '✅ 正確。' : '❌ 不對，答案是「' + CKN[CK[i].a] + '」。') + CK[i].w + '<br>得分 ' + score + ' / ' + done; }; bar.appendChild(b); });
+    nx.onclick = function () { i = (i + 1) % CK.length; show(); };
+    function show() { var c = CK[i], g = '';
+      if (c.k === 'beam') g = '<rect x="40" y="60" width="520" height="60" fill="#c9ccd1" stroke="#7a8590"/><path d="M60 120 L45 145 L75 145 Z M540 120 L525 145 L555 145 Z" fill="#7a8590"/>' + tx(300, 170, '簡支梁（上方受均布載重）', 12, 'var(--text-muted)');
+      else if (c.k === 'wall') g = '<rect x="150" y="30" width="300" height="200" fill="#d9d4cc" stroke="#7a8590"/>' + tx(300, 250, '鋼筋混凝土牆', 12, 'var(--text-muted)');
+      else g = '<rect x="150" y="30" width="300" height="200" fill="#d9d4cc" stroke="#7a8590"/><rect x="270" y="105" width="90" height="70" fill="#9fb8cf" stroke="#7a8590"/>' + tx(300, 250, '有窗戶的外牆（右側基礎下陷）', 12, 'var(--text-muted)');
+      if (c.rust) g += '<path d="M120 101 L119 118 M250 101 L251 119 M400 101 L399 117" stroke="#b5651d" stroke-width="3" opacity="0.7"/>';
+      g += '<path d="' + c.c + '" stroke="#333" stroke-width="2" fill="none"/>';
+      v.innerHTML = svgw('0 0 600 ' + (c.k === 'beam' ? 185 : 260), g) + '<p style="margin:4px 0;color:var(--text-muted)">第 ' + (i + 1) + ' / ' + CK.length + ' 題：這是什麼造成的裂縫？</p>';
+      bar.__ans = 0; bar.querySelectorAll('button').forEach(function (b) { b.style.background = 'var(--surface)'; }); inf.innerHTML = '選一個答案。'; }
+    show();
+  }
+
+  /* ---------- 振動頻率與損傷 ---------- */
+  function initModal(root, cfg) {
+    head(root, cfg.q); var xr = 0.5, dl = 30, dT = 0, noise = 0.3, v = el('div'), inf;
+    slider(root, '損傷位置 x / L', 0.05, 0.95, 0.01, xr, f2, 'x', function (x) { xr = x; draw(); });
+    slider(root, '損傷段的剛度損失（%，長度 5% L）', 0, 60, 1, dl, function (x) { return x + '%'; }, 'd', function (x) { dl = x; draw(); });
+    slider(root, '溫度變化 ΔT（°C）', -20, 20, 1, dT, function (x) { return x; }, 't', function (x) { dT = x; draw(); });
+    slider(root, '量測雜訊（±%）', 0.05, 1, 0.05, noise, f2, 'n', function (x) { noise = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function draw() { var W = 640, H = 230, g = '', base = 120, sc = 40, dmg = [], tot = [];
+      g += ln(60, base, W - 20, base, '#999') + '<rect x="60" y="' + n1(base - noise * sc) + '" width="' + (W - 80) + '" height="' + n1(2 * noise * sc) + '" fill="#7a8590" opacity="0.15"/>' + tx(W - 22, base - noise * sc - 4, '雜訊範圍', 9, GY, 'end');
+      for (var n = 1; n <= 3; n++) { var d = -(dl / 100) * 0.05 * Math.pow(Math.sin(n * Math.PI * xr), 2) * 100, t = -0.15 * dT, s = d + t; dmg.push(d); tot.push(s);
+        var x = 60 + (n - 1) * 190 + 30; g += '<rect x="' + x + '" y="' + n1(Math.min(base, base - d * sc)) + '" width="50" height="' + n1(Math.abs(d * sc)) + '" fill="' + RD + '"/>';
+        g += '<rect x="' + (x + 60) + '" y="' + n1(Math.min(base, base - s * sc)) + '" width="50" height="' + n1(Math.abs(s * sc)) + '" fill="' + BL + '"/>';
+        g += tx(x + 55, H - 10, '第 ' + n + ' 模態', 11) + tx(x + 25, base - d * sc + (d < 0 ? 12 : -4), f2(d) + '%', 9, RD) + tx(x + 85, base - s * sc + (s < 0 ? 12 : -4), f2(s) + '%', 9, BL); }
+      g += tx(70, 20, '紅：只有損傷　藍：損傷＋溫度', 10, 'var(--text-muted)', 'start');
+      v.innerHTML = svgw('0 0 ' + W + ' ' + H, g);
+      var det = dmg.some(function (d) { return Math.abs(d) > noise; });
+      inf.innerHTML = '頻率變化 Δf/f ≈ −δ (ℓ/L) sin²(nπx/L)。' + (det ? '至少一個模態的變化超過雜訊，<b>可以偵測到</b>；各模態下降比例的「型態」還能推估損傷位置。' : '所有模態的變化都在雜訊內，<b>偵測不到</b>：局部損傷對整體頻率的影響很小。') +
+        '<br>損傷在跨中（x = 0.5）時第 2 模態完全不受影響（那裡是它的反曲點）；溫度變化會讓所有模態一起改變，常比損傷的影響還大（第 46 課）。'; }
+    draw();
+  }
+
+  /* ---------- FRP 貼梁補強 ---------- */
+  function initFrp(root, cfg) {
+    head(root, cfg.q); var nl = 2, fc = 28, nb = 4, v = el('div'), inf, b = 300, h = 600, d = 540, fy = 420, Es = 200000, Ef = 230000, tf = 0.165, efu = 0.0167;
+    slider(root, 'FRP 層數 n（每層 0.165 mm，寬 300 mm）', 0, 5, 1, nl, function (x) { return x; }, 'n', function (x) { nl = x; draw(); });
+    slider(root, '混凝土強度 f\'c（MPa）', 20, 50, 1, fc, function (x) { return x; }, 'fc', function (x) { fc = x; draw(); });
+    slider(root, '拉力鋼筋（D25 根數）', 2, 6, 1, nb, function (x) { return x + ' 根'; }, 'nb', function (x) { nb = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function draw() { var As = nb * 507, Af = nl * tf * b, Ec = 4700 * Math.sqrt(fc), e0 = 1.7 * fc / Ec, b1w = Math.max(0.65, Math.min(0.85, 0.85 - 0.05 * (fc - 28) / 7));
+      var a0 = As * fy / (0.85 * fc * b), M0 = As * fy * (d - a0 / 2) / 1e6, efd = nl ? Math.min(0.41 * Math.sqrt(fc / (nl * Ef * tf)), 0.9 * efu) : 0, res;
+      function forces(c) { var efe = Math.min(efd, 0.003 * (h - c) / c), ec = Math.min(0.003, efe * c / (h - c)), mode = efe < efd - 1e-9 ? '混凝土壓碎' : 'FRP 剝離';
+        var b1 = ec >= 0.003 ? b1w : (4 * e0 - ec) / (6 * e0 - 2 * ec), a1 = ec >= 0.003 ? 0.85 : (3 * e0 * ec - ec * ec) / (3 * b1 * e0 * e0);
+        var es = efe * (d - c) / (h - c), fs = Math.min(Es * es, fy), C = a1 * fc * b1 * c * b, T = As * fs + Af * Ef * efe;
+        return { C: C, T: T, c: c, b1: b1, fs: fs, es: es, efe: efe, mode: mode }; }
+      if (nl) { var lo = 5, hi = d; for (var i = 0; i < 80; i++) { var mid = (lo + hi) / 2, r = forces(mid); if (r.C > r.T) hi = mid; else lo = mid; } res = forces((lo + hi) / 2); }
+      var Mn = nl ? (As * res.fs * (d - res.b1 * res.c / 2) + 0.85 * Af * Ef * res.efe * (h - res.b1 * res.c / 2)) / 1e6 : M0;
+      var rows = [['原梁 M_n', f1(M0) + ' kN·m'], ['補強後 M_n', f1(Mn) + ' kN·m'], ['提升', f1((Mn / M0 - 1) * 100) + '%']];
+      if (nl) rows.push(['FRP 有效應變 / 剝離限制', (res.efe * 1000).toFixed(2) + '‰ / ' + (efd * 1000).toFixed(2) + '‰'], ['破壞模式', res.mode], ['鋼筋應變', (res.es * 1000).toFixed(1) + '‰' + (res.es < 0.005 ? '（< 5‰，韌性不足）' : '')]);
+      v.innerHTML = '<table style="width:100%;border-collapse:collapse;margin-top:8px">' + rows.map(function (r) { return '<tr><td style="padding:4px 6px;border-bottom:1px solid var(--border)">' + r[0] + '</td><td style="padding:4px 6px;border-bottom:1px solid var(--border);text-align:right;font-family:ui-monospace,monospace">' + r[1] + '</td></tr>'; }).join('') + '</table>';
+      inf.innerHTML = '梁寬 300、高 600、有效深度 540 mm，fy = 420 MPa，FRP 彈性模數 230 GPa。' + (nl ? '層數加倍，強度並沒有加倍：剝離應變 ε_fd ∝ 1/√(n t_f)，貼愈厚愈容易剝下來。' : '把層數調上去看看。') +
+        '<br>簡化自 ACI 440.2R 的應變相容法（未計初始應變與強度折減係數）；實際設計還要檢查錨定、剪力與原梁的最低強度（第 57 課）。'; }
+    draw();
+  }
+
+  /* ---------- 檢查間隔最佳化 ---------- */
+  function initRisk(root, cfg) {
+    head(root, cfg.q); var Ci = 20, Lf = 4, eta = 25, beta = 3, v = el('div'), inf;
+    slider(root, '每次檢查的費用（萬元）', 1, 100, 1, Ci, function (x) { return x; }, 'ci', function (x) { Ci = x; draw(); });
+    slider(root, '失效的損失（萬元，10 的次方）', 2, 6, 0.1, Lf, function (x) { return big(Math.pow(10, x)); }, 'cf', function (x) { Lf = x; draw(); });
+    slider(root, '特徵壽命 η（年，兩次檢查之間沒被發現的劣化發展到失效）', 5, 60, 1, eta, function (x) { return x; }, 'eta', function (x) { eta = x; draw(); });
+    slider(root, '形狀參數 β（> 1 表示愈老愈容易壞）', 1, 5, 0.1, beta, f1, 'b', function (x) { beta = x; draw(); });
+    root.appendChild(v); inf = info(root);
+    function draw() { var Cf = Math.pow(10, Lf), d = [], best = [0, Infinity];
+      for (var T = 0.5; T <= 20.001; T += 0.1) { var F = 1 - Math.exp(-Math.pow(T / eta, beta)), c = (Ci + Cf * F) / T; d.push([T, c]); if (c < best[1]) best = [T, c]; }
+      var ymax = Math.min(d[0][1], best[1] * 4);
+      v.innerHTML = svgw('0 0 640 250', chart(640, 250, [{ d: d, c: BL, n: '每年的期望成本（檢查＋失效風險）' }], { x0: 0.5, x1: 20, y0: 0, y1: ymax, xl: '檢查間隔 T（年）', yl: '萬元／年', pts: [{ x: best[0], y: best[1], c: RD, n: 'T* ≈ ' + f1(best[0]) + ' 年' }] }));
+      inf.innerHTML = '每年成本 = [檢查費 + 失效損失 × F(T)] / T，F(T) = 1 − e^{−(T/η)^β} 是一個間隔內失效的機率。最佳間隔約 <b>' + f1(best[0]) + ' 年</b>，每年期望成本 ' + f1(best[1]) + ' 萬元。' +
+        '<br>失效損失愈大（例如可能有人員傷亡），最佳間隔愈短；β = 1（隨機失效、不會老化）時檢查沒有最佳點——定期檢查只對「會慢慢劣化」的東西有效（第 66 課）。'; }
+    draw();
+  }
+
+  var INIT = { sn: initSn, crack: initCrack, ut: initUt, pod: initPod, chloride: initChloride, nbi: initNbi, crackid: initCrackid, modal: initModal, frp: initFrp, risk: initRisk };
+  function boot() { document.querySelectorAll('.in-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+    var cfg = JSON.parse(root.getAttribute('data-cfg')); var fn = INIT[cfg.t]; if (fn) fn(root, cfg); }); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+"""
+
+
+def make(icon=u"🔩", note=IN_NOTE):
+    return make_with(icon, note, [("in-w", INLIB)])
