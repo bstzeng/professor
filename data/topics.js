@@ -36,6 +36,7 @@ window.SITE_DATA = {
     { id: "life", label: "生活與實用知識", icon: "🧭" },
     { id: "edu", label: "教育與家庭", icon: "🏡" },
     { id: "finance", label: "金融與經濟", icon: "💰" },
+    { id: "invest", label: "投資", icon: "📈" },
     { id: "religion", label: "宗教與哲學", icon: "🪷" },
     { id: "classics", label: "中國經典", icon: "🖌️" },
     { id: "wuxia", label: "小說", icon: "🗡️" },
@@ -23925,6 +23926,147 @@ window.SITE_DATA = {
             { title: "緬因州的虛構地圖與跨作品角色", url: "topics/stephen-king/lesson-35.html" },
             { title: "改編電影與影集：成功與失敗", url: "topics/stephen-king/lesson-36.html" },
             { title: "閱讀路線", url: "topics/stephen-king/lesson-37.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "stock-indicators",
+      category: "invest",
+      title: "股市常見指標與應用：技術、籌碼、基本面、總經與風險",
+      description:
+        "台股與美股常見指標完整解析，每個指標都附公式與計算範例：均線、MACD、DMI、SAR、一目均衡表、RSI、KD、CCI、乖離率、布林通道、ATR、OBV、MFI、VWAP、成交量分布、K 線與價格型態、費波納契；騰落線、VIX、Put/Call、融資維持率；三大法人、期權未平倉、融資融券、集保大戶；EPS、月營收、ROE、本益比、殖利率、現金流、F-Score、Z-Score；景氣燈號、PMI、利率、殖利率曲線、CAPE；夏普值、最大回撤、回測與凱利公式。附模擬 K 線圖、回測器與多種計算機。投資教育，非投資建議。",
+      icon: "📊",
+      url: "topics/stock-indicators/index.html",
+      resources: [
+        {
+          title: "指標互動工具箱",
+          description: "綜合 K 線圖、回測器、本益比河流圖、凱利公式、風險指標、選擇權未平倉、市場寬度、K 線與價格型態、費波納契、背離練習",
+          icon: "🧰",
+          url: "topics/stock-indicators/guide.html"
+        },
+        {
+          title: "指標公式速查",
+          description: "趨勢、擺盪、波動、量能、基本面、風險績效指標的公式與常用參數一覽",
+          icon: "🧮",
+          url: "topics/stock-indicators/formulas.html"
+        },
+        {
+          title: "指標名詞中英對照",
+          description: "技術、籌碼、基本面與總經指標的中英名稱對照",
+          icon: "📖",
+          url: "topics/stock-indicators/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎：K 線、成交量與指標的共同陷阱",
+          courses: [
+            { title: "K 線與價格資料", url: "topics/stock-indicators/lesson-01.html" },
+            { title: "成交量、成交值與週轉率", url: "topics/stock-indicators/lesson-02.html" },
+            { title: "指標的分類與共同陷阱", url: "topics/stock-indicators/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜趨勢指標",
+          courses: [
+            { title: "移動平均線：SMA、EMA、WMA", url: "topics/stock-indicators/lesson-04.html" },
+            { title: "葛蘭碧八大法則與均線扣抵", url: "topics/stock-indicators/lesson-05.html" },
+            { title: "MACD", url: "topics/stock-indicators/lesson-06.html" },
+            { title: "DMI、ADX 與 Aroon", url: "topics/stock-indicators/lesson-07.html" },
+            { title: "拋物線 SAR、Supertrend 與一目均衡表", url: "topics/stock-indicators/lesson-08.html" },
+            { title: "進階均線與通道：TRIX、HMA、KAMA、線性迴歸", url: "topics/stock-indicators/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜擺盪與動能指標",
+          courses: [
+            { title: "RSI 相對強弱指標", url: "topics/stock-indicators/lesson-10.html" },
+            { title: "KD 隨機指標", url: "topics/stock-indicators/lesson-11.html" },
+            { title: "威廉 %R、CCI 與終極擺盪指標", url: "topics/stock-indicators/lesson-12.html" },
+            { title: "動量、變動率與乖離率", url: "topics/stock-indicators/lesson-13.html" },
+            { title: "心理線、DPO 與背離的判讀", url: "topics/stock-indicators/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜波動指標",
+          courses: [
+            { title: "布林通道", url: "topics/stock-indicators/lesson-15.html" },
+            { title: "ATR、肯特納通道與唐奇安通道", url: "topics/stock-indicators/lesson-16.html" },
+            { title: "歷史波動率與隱含波動率", url: "topics/stock-indicators/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜量能指標",
+          courses: [
+            { title: "量價關係", url: "topics/stock-indicators/lesson-18.html" },
+            { title: "OBV、A/D 線與 Chaikin 資金流", url: "topics/stock-indicators/lesson-19.html" },
+            { title: "MFI 資金流量指標與 VWAP", url: "topics/stock-indicators/lesson-20.html" },
+            { title: "成交量分布（Volume Profile）", url: "topics/stock-indicators/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜型態與價位",
+          courses: [
+            { title: "支撐、壓力與缺口", url: "topics/stock-indicators/lesson-22.html" },
+            { title: "K 線型態", url: "topics/stock-indicators/lesson-23.html" },
+            { title: "經典價格型態", url: "topics/stock-indicators/lesson-24.html" },
+            { title: "費波納契與樞紐點", url: "topics/stock-indicators/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 G｜市場寬度與情緒",
+          courses: [
+            { title: "騰落線、漲跌比與新高新低", url: "topics/stock-indicators/lesson-26.html" },
+            { title: "McClellan 指標、TRIN 與站上均線比例", url: "topics/stock-indicators/lesson-27.html" },
+            { title: "VIX、台指 VIX 與 Put/Call Ratio", url: "topics/stock-indicators/lesson-28.html" },
+            { title: "情緒指標：恐懼貪婪指數、AAII 與融資維持率", url: "topics/stock-indicators/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜台股籌碼指標（附美股對照）",
+          courses: [
+            { title: "三大法人", url: "topics/stock-indicators/lesson-30.html" },
+            { title: "期貨與選擇權籌碼", url: "topics/stock-indicators/lesson-31.html" },
+            { title: "融資融券、券資比與借券賣出", url: "topics/stock-indicators/lesson-32.html" },
+            { title: "集保股權分散與大戶持股", url: "topics/stock-indicators/lesson-33.html" },
+            { title: "主力分點、當沖比率與內部人", url: "topics/stock-indicators/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 I｜基本面指標",
+          courses: [
+            { title: "EPS 與月營收", url: "topics/stock-indicators/lesson-35.html" },
+            { title: "三率與 ROE、ROA、杜邦分析", url: "topics/stock-indicators/lesson-36.html" },
+            { title: "本益比、本益比河流圖與 PEG", url: "topics/stock-indicators/lesson-37.html" },
+            { title: "股價淨值比、股價營收比與 EV/EBITDA", url: "topics/stock-indicators/lesson-38.html" },
+            { title: "殖利率、配息率與填息", url: "topics/stock-indicators/lesson-39.html" },
+            { title: "財務體質：負債、流動性與現金流", url: "topics/stock-indicators/lesson-40.html" },
+            { title: "經營效率與綜合評分：週轉率、F-Score、Z-Score", url: "topics/stock-indicators/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 J｜總體經濟與大盤估值",
+          courses: [
+            { title: "景氣燈號、領先指標、PMI 與外銷訂單", url: "topics/stock-indicators/lesson-42.html" },
+            { title: "利率、通膨與殖利率曲線", url: "topics/stock-indicators/lesson-43.html" },
+            { title: "資金與匯率：M1B、M2、新台幣與美元指數", url: "topics/stock-indicators/lesson-44.html" },
+            { title: "大盤估值：巴菲特指標、席勒 CAPE、股債利差", url: "topics/stock-indicators/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 K｜風險與績效指標",
+          courses: [
+            { title: "報酬與風險：CAGR、波動率、β、α、最大回撤、VaR", url: "topics/stock-indicators/lesson-46.html" },
+            { title: "風險調整後報酬：夏普值、索提諾、Calmar 與期望值", url: "topics/stock-indicators/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 L｜綜合應用",
+          courses: [
+            { title: "指標組合、多時間週期與選股流程", url: "topics/stock-indicators/lesson-48.html" },
+            { title: "回測入門：怎麼知道一個指標有沒有用", url: "topics/stock-indicators/lesson-49.html" },
+            { title: "資金控管、停損與常見迷思", url: "topics/stock-indicators/lesson-50.html" },
           ],
         },
       ],
