@@ -23821,6 +23821,113 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "stephen-king",
+      category: "wuxia",
+      title: "史蒂芬・金：恐怖大師與他最著名的故事",
+      description:
+        "認識史蒂芬・金的生平、寫作方法與筆名巴克曼；完整劇情（含結局）導讀《魔女嘉莉》《撒冷地》《鬼店》《末日逼近》《寵物墳場》《牠》《戰慄遊戲》《綠色奇蹟》、黑塔七部曲、《11/22/63》《安眠醫生》《機構》《童話》、荷莉・吉布尼系列與《刺激 1995》《站在我這邊》〈迷霧〉等中短篇；每課附改編電影與影集比較。附互動緬因州地圖、作品年表、黑塔人物圖與閱讀路線。",
+      icon: "📕",
+      url: "topics/stephen-king/index.html",
+      resources: [
+        {
+          title: "史蒂芬・金互動圖鑑",
+          description: "閱讀路線、作品年表、緬因州虛構地圖、生平年表、黑塔卡泰特與作品連結圖",
+          icon: "🗺️",
+          url: "topics/stephen-king/guide.html"
+        },
+        {
+          title: "史蒂芬・金名詞表",
+          description: "人物、地名、術語中英對照",
+          icon: "📖",
+          url: "topics/stephen-king/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識這位大師",
+          courses: [
+            { title: "從緬因州到《魔女嘉莉》", url: "topics/stephen-king/lesson-01.html" },
+            { title: "筆名、成癮與車禍", url: "topics/stephen-king/lesson-02.html" },
+            { title: "他怎麼寫恐怖", url: "topics/stephen-king/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜經典恐怖長篇",
+          courses: [
+            { title: "《魔女嘉莉》", url: "topics/stephen-king/lesson-04.html" },
+            { title: "《撒冷地》", url: "topics/stephen-king/lesson-05.html" },
+            { title: "《鬼店》", url: "topics/stephen-king/lesson-06.html" },
+            { title: "《末日逼近》", url: "topics/stephen-king/lesson-07.html" },
+            { title: "《死亡禁地》", url: "topics/stephen-king/lesson-08.html" },
+            { title: "《克莉絲汀》", url: "topics/stephen-king/lesson-09.html" },
+            { title: "《寵物墳場》", url: "topics/stephen-king/lesson-10.html" },
+            { title: "《牠》（上）：1958 年的失敗者俱樂部", url: "topics/stephen-king/lesson-11.html" },
+            { title: "《牠》（下）：27 年後的重返", url: "topics/stephen-king/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜沒有怪物的恐怖",
+          courses: [
+            { title: "《戰慄遊戲》", url: "topics/stephen-king/lesson-13.html" },
+            { title: "《傑羅德遊戲》與《桃樂絲》", url: "topics/stephen-king/lesson-14.html" },
+            { title: "《綠色奇蹟》", url: "topics/stephen-king/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜理查・巴克曼的代表作",
+          courses: [
+            { title: "《大競走》", url: "topics/stephen-king/lesson-16.html" },
+            { title: "《逃亡者》", url: "topics/stephen-king/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜黑塔系列",
+          courses: [
+            { title: "黑塔總覽與第一到第三部", url: "topics/stephen-king/lesson-18.html" },
+            { title: "第四部《巫師與玻璃球》", url: "topics/stephen-king/lesson-19.html" },
+            { title: "第五到第七部：卡拉之狼、蘇珊娜之歌、業之門", url: "topics/stephen-king/lesson-20.html" },
+            { title: "外傳與黑塔多重宇宙", url: "topics/stephen-king/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜2000 年後的代表作",
+          courses: [
+            { title: "《穹頂之下》", url: "topics/stephen-king/lesson-22.html" },
+            { title: "《11/22/63》", url: "topics/stephen-king/lesson-23.html" },
+            { title: "《安眠醫生》", url: "topics/stephen-king/lesson-24.html" },
+            { title: "《局外人》", url: "topics/stephen-king/lesson-25.html" },
+            { title: "《機構》", url: "topics/stephen-king/lesson-26.html" },
+            { title: "《童話》", url: "topics/stephen-king/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜荷莉・吉布尼系列",
+          courses: [
+            { title: "《賓士先生》三部曲", url: "topics/stephen-king/lesson-28.html" },
+            { title: "《荷莉》與《決不退縮》", url: "topics/stephen-king/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜經典中短篇",
+          courses: [
+            { title: "〈麗塔海華絲與蕭山克監獄的救贖〉", url: "topics/stephen-king/lesson-30.html" },
+            { title: "〈屍體〉", url: "topics/stephen-king/lesson-31.html" },
+            { title: "〈迷霧〉", url: "topics/stephen-king/lesson-32.html" },
+            { title: "〈玉米田的孩子〉等早期短篇", url: "topics/stephen-king/lesson-33.html" },
+            { title: "〈1922〉與〈蘭格利爾人〉", url: "topics/stephen-king/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 I｜金的宇宙與影響",
+          courses: [
+            { title: "緬因州的虛構地圖與跨作品角色", url: "topics/stephen-king/lesson-35.html" },
+            { title: "改編電影與影集：成功與失敗", url: "topics/stephen-king/lesson-36.html" },
+            { title: "閱讀路線", url: "topics/stephen-king/lesson-37.html" },
+          ],
+        },
+      ],
     }
   ]
 };
