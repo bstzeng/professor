@@ -24331,6 +24331,132 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "llm-skills",
+      category: "ai",
+      title: "LLM Skill 專區：讓 AI 代理多工、自主完成任務的技能收藏",
+      description:
+        "Agent Skills 完整介紹與收藏庫：SKILL.md 構造、漸進式載入、與 MCP／子代理／Hooks 的差別；怎麼寫出會被正確觸發、可測試的 Skill；Claude Code、Claude 應用程式與 API、Codex 的用法；操縱代理：子代理、平行分派與彙整、git worktree、編排模式；多工 Skill（平行研究、批次處理、多角度審查、跨 repo 修改）與自主完成 Skill（規劃驗證、測試迴圈、系統化除錯、進度檔、循環任務、PR 看守、完成定義、停止條件）；權限、提示注入與第三方 Skill 審核。附可一鍵複製的 Skill 收藏庫、Skill 產生器與互動模擬。",
+      icon: "🧩",
+      url: "topics/llm-skills/index.html",
+      resources: [
+        {
+          title: "Skill 收藏庫",
+          description: "多工、自主完成、實用工具、治理四類 Skill：自製範本可一鍵複製 SKILL.md，官方與社群 Skill 附來源與安裝方式",
+          icon: "📚",
+          url: "topics/llm-skills/library.html"
+        },
+        {
+          title: "Skill 工具箱",
+          description: "Skill 產生器、觸發模擬、依序與平行比較、自主迴圈模擬、漸進式載入計算",
+          icon: "🧰",
+          url: "topics/llm-skills/tools.html"
+        },
+        {
+          title: "SKILL.md 欄位與路徑速查",
+          description: "開放規格、Claude Code、Claude 應用程式與 API、Codex 的欄位、存放位置與呼叫方式對照",
+          icon: "🗂️",
+          url: "topics/llm-skills/fields.html"
+        },
+        {
+          title: "Skill 與代理名詞對照",
+          description: "Skill、代理、多工與安全的中英名詞",
+          icon: "📖",
+          url: "topics/llm-skills/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識 Skill",
+          courses: [
+            { title: "Skill 是什麼", url: "topics/llm-skills/lesson-01.html" },
+            { title: "一個 Skill 的構造", url: "topics/llm-skills/lesson-02.html" },
+            { title: "漸進式載入", url: "topics/llm-skills/lesson-03.html" },
+            { title: "Skill 和其他機制的差別", url: "topics/llm-skills/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜怎麼寫出好 Skill",
+          courses: [
+            { title: "描述決定會不會被觸發", url: "topics/llm-skills/lesson-05.html" },
+            { title: "內文怎麼寫", url: "topics/llm-skills/lesson-06.html" },
+            { title: "附帶腳本與參考資料", url: "topics/llm-skills/lesson-07.html" },
+            { title: "測試與改進", url: "topics/llm-skills/lesson-08.html" },
+            { title: "版本、分享與團隊共用", url: "topics/llm-skills/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜平台與安裝",
+          courses: [
+            { title: "Claude Code 的 Skill", url: "topics/llm-skills/lesson-10.html" },
+            { title: "Claude 網頁版、桌面版與 API 中的 Skill", url: "topics/llm-skills/lesson-11.html" },
+            { title: "Codex 的 Skill 與開放規格", url: "topics/llm-skills/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜操縱 Agent 的基礎",
+          courses: [
+            { title: "Agent 迴圈", url: "topics/llm-skills/lesson-13.html" },
+            { title: "子代理：把工作交出去", url: "topics/llm-skills/lesson-14.html" },
+            { title: "平行分派與彙整", url: "topics/llm-skills/lesson-15.html" },
+            { title: "隔離工作區：git worktree", url: "topics/llm-skills/lesson-16.html" },
+            { title: "常見的編排模式", url: "topics/llm-skills/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜多工類 Skill",
+          courses: [
+            { title: "平行研究與大量文件摘要", url: "topics/llm-skills/lesson-18.html" },
+            { title: "批次處理", url: "topics/llm-skills/lesson-19.html" },
+            { title: "多角度審查", url: "topics/llm-skills/lesson-20.html" },
+            { title: "跨多個 repo 的同步修改", url: "topics/llm-skills/lesson-21.html" },
+            { title: "比較矩陣", url: "topics/llm-skills/lesson-22.html" },
+            { title: "多工的成本控制", url: "topics/llm-skills/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜自主完成類 Skill",
+          courses: [
+            { title: "規劃 → 執行 → 驗證", url: "topics/llm-skills/lesson-24.html" },
+            { title: "測試驅動迴圈", url: "topics/llm-skills/lesson-25.html" },
+            { title: "系統化除錯", url: "topics/llm-skills/lesson-26.html" },
+            { title: "長任務與進度檔", url: "topics/llm-skills/lesson-27.html" },
+            { title: "定時與循環任務", url: "topics/llm-skills/lesson-28.html" },
+            { title: "PR 看守", url: "topics/llm-skills/lesson-29.html" },
+            { title: "完成的定義", url: "topics/llm-skills/lesson-30.html" },
+            { title: "停止條件與求助", url: "topics/llm-skills/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜實用工具類 Skill",
+          courses: [
+            { title: "程式碼審查與安全檢查", url: "topics/llm-skills/lesson-32.html" },
+            { title: "文件產出：Word、簡報、試算表、PDF", url: "topics/llm-skills/lesson-33.html" },
+            { title: "前端設計與網頁測試", url: "topics/llm-skills/lesson-34.html" },
+            { title: "Commit 訊息、PR 說明與變更紀錄", url: "topics/llm-skills/lesson-35.html" },
+            { title: "資料分析報告與會議紀錄", url: "topics/llm-skills/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜安全與治理",
+          courses: [
+            { title: "權限與沙箱", url: "topics/llm-skills/lesson-37.html" },
+            { title: "提示注入", url: "topics/llm-skills/lesson-38.html" },
+            { title: "人工確認點", url: "topics/llm-skills/lesson-39.html" },
+            { title: "審核第三方 Skill", url: "topics/llm-skills/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 I｜建立自己的收藏庫與實戰",
+          courses: [
+            { title: "怎麼評估一個 Skill 好不好用", url: "topics/llm-skills/lesson-41.html" },
+            { title: "團隊的 Skill 庫", url: "topics/llm-skills/lesson-42.html" },
+            { title: "實戰一：用多代理 Skill 完成一份研究報告", url: "topics/llm-skills/lesson-43.html" },
+            { title: "實戰二：從需求到合併 PR 的自主開發", url: "topics/llm-skills/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
