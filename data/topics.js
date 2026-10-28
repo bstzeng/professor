@@ -24070,6 +24070,139 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "ai-drug-discovery",
+      category: "biomed",
+      title: "AI 新藥研發：從預測癌症標靶到臨床試驗的完整流程",
+      description:
+        "新藥研發十個階段與失敗原因、藥物形式；癌症特徵、致癌與抑癌基因、訊號路徑、免疫檢查點與抗藥性；TCGA、DepMap、GTEx、單細胞與遺傳證據；怎麼預測癌症標靶：驅動突變、依賴性、合成致死、表面抗原、網路與知識圖譜、機器學習排序、可成藥性、LLM 文獻探勘、評分卡與實驗驗證；AlphaFold 與蛋白質語言模型；虛擬篩選、生成式化學、逆合成、主動學習；ADMET、自由能與抗體設計；藥動學、生物標記、數位病理、臨床試驗與法規；基利克、PARP、KRAS G12C、PROTAC、ADC 與 AI 新藥公司案例。附多種互動模擬。教育用途，非醫療建議。",
+      icon: "💊",
+      url: "topics/ai-drug-discovery/index.html",
+      resources: [
+        {
+          title: "新藥研發互動工具箱",
+          description: "研發漏斗、突變型態、依賴分數、表面抗原、網路傳播、標靶評分卡、AlphaFold 信心、分子指紋、類藥性、虛擬篩選、資料洩漏、主動學習、劑量反應、藥動學、存活曲線",
+          icon: "🧰",
+          url: "topics/ai-drug-discovery/guide.html"
+        },
+        {
+          title: "資料庫與工具速查",
+          description: "本課程提到的公開資料庫、平台與軟體工具，以及它們在流程中的位置",
+          icon: "🗂️",
+          url: "topics/ai-drug-discovery/resources.html"
+        },
+        {
+          title: "新藥研發名詞中英對照",
+          description: "新藥研發、癌症生物學與 AI 方法的中英名詞",
+          icon: "📖",
+          url: "topics/ai-drug-discovery/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜新藥研發全景",
+          courses: [
+            { title: "新藥是怎麼誕生的", url: "topics/ai-drug-discovery/lesson-01.html" },
+            { title: "為什麼九成的藥會失敗", url: "topics/ai-drug-discovery/lesson-02.html" },
+            { title: "藥物有哪些形式", url: "topics/ai-drug-discovery/lesson-03.html" },
+            { title: "AI 能插手的每一個環節", url: "topics/ai-drug-discovery/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜癌症生物學：標靶從哪裡來",
+          courses: [
+            { title: "癌症的特徵", url: "topics/ai-drug-discovery/lesson-05.html" },
+            { title: "致癌基因與抑癌基因", url: "topics/ai-drug-discovery/lesson-06.html" },
+            { title: "驅動突變與乘客突變", url: "topics/ai-drug-discovery/lesson-07.html" },
+            { title: "關鍵訊號路徑", url: "topics/ai-drug-discovery/lesson-08.html" },
+            { title: "腫瘤微環境與免疫檢查點", url: "topics/ai-drug-discovery/lesson-09.html" },
+            { title: "腫瘤異質性與抗藥性", url: "topics/ai-drug-discovery/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜找標靶的資料庫",
+          courses: [
+            { title: "腫瘤基因體資料：TCGA、ICGC、COSMIC、cBioPortal", url: "topics/ai-drug-discovery/lesson-11.html" },
+            { title: "DepMap：癌細胞活不下去的弱點", url: "topics/ai-drug-discovery/lesson-12.html" },
+            { title: "正常組織表現：GTEx 與人類蛋白質圖譜", url: "topics/ai-drug-discovery/lesson-13.html" },
+            { title: "單細胞、空間轉錄體與蛋白質體", url: "topics/ai-drug-discovery/lesson-14.html" },
+            { title: "遺傳證據：為什麼有基因支持的標靶比較容易成功", url: "topics/ai-drug-discovery/lesson-15.html" },
+            { title: "整合平台：Open Targets、ChEMBL、PDB 與臨床試驗資料", url: "topics/ai-drug-discovery/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜怎麼預測一個基因能不能當癌症標靶",
+          courses: [
+            { title: "從突變找驅動基因", url: "topics/ai-drug-discovery/lesson-17.html" },
+            { title: "依賴性分析：從 DepMap 找癌細胞專屬的弱點", url: "topics/ai-drug-discovery/lesson-18.html" },
+            { title: "合成致死", url: "topics/ai-drug-discovery/lesson-19.html" },
+            { title: "腫瘤專屬的表面抗原：ADC 與 CAR-T 的標靶", url: "topics/ai-drug-discovery/lesson-20.html" },
+            { title: "網路與知識圖譜", url: "topics/ai-drug-discovery/lesson-21.html" },
+            { title: "多體學整合與機器學習排序", url: "topics/ai-drug-discovery/lesson-22.html" },
+            { title: "可成藥性：這個蛋白質打得到嗎", url: "topics/ai-drug-discovery/lesson-23.html" },
+            { title: "LLM 與文獻探勘", url: "topics/ai-drug-discovery/lesson-24.html" },
+            { title: "標靶評分卡", url: "topics/ai-drug-discovery/lesson-25.html" },
+            { title: "實驗驗證：AI 預測要怎麼被證明", url: "topics/ai-drug-discovery/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜AI 與蛋白質結構",
+          courses: [
+            { title: "AlphaFold 革命", url: "topics/ai-drug-discovery/lesson-27.html" },
+            { title: "AlphaFold 3 與複合體預測：信心分數怎麼看", url: "topics/ai-drug-discovery/lesson-28.html" },
+            { title: "結構的限制：蛋白質會動", url: "topics/ai-drug-discovery/lesson-29.html" },
+            { title: "蛋白質語言模型", url: "topics/ai-drug-discovery/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜AI 找分子：從標靶到苗頭化合物",
+          courses: [
+            { title: "分子怎麼給電腦看", url: "topics/ai-drug-discovery/lesson-31.html" },
+            { title: "虛擬篩選與分子對接", url: "topics/ai-drug-discovery/lesson-32.html" },
+            { title: "QSAR 與性質預測", url: "topics/ai-drug-discovery/lesson-33.html" },
+            { title: "生成式化學：讓 AI 直接設計分子", url: "topics/ai-drug-discovery/lesson-34.html" },
+            { title: "合成可行性與 AI 逆合成", url: "topics/ai-drug-discovery/lesson-35.html" },
+            { title: "主動學習與「設計–合成–測試–分析」循環", url: "topics/ai-drug-discovery/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜先導優化與安全性",
+          courses: [
+            { title: "多目標優化", url: "topics/ai-drug-discovery/lesson-37.html" },
+            { title: "ADMET 預測", url: "topics/ai-drug-discovery/lesson-38.html" },
+            { title: "自由能微擾：物理計算與 AI 的結合", url: "topics/ai-drug-discovery/lesson-39.html" },
+            { title: "生物藥的 AI 設計", url: "topics/ai-drug-discovery/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜臨床前到臨床",
+          courses: [
+            { title: "劑量反應與藥動學", url: "topics/ai-drug-discovery/lesson-41.html" },
+            { title: "生物標記與病人分群", url: "topics/ai-drug-discovery/lesson-42.html" },
+            { title: "數位病理 AI", url: "topics/ai-drug-discovery/lesson-43.html" },
+            { title: "AI 與臨床試驗", url: "topics/ai-drug-discovery/lesson-44.html" },
+            { title: "臨床終點怎麼讀", url: "topics/ai-drug-discovery/lesson-45.html" },
+            { title: "法規、新方法與藥物再利用", url: "topics/ai-drug-discovery/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜完整案例",
+          courses: [
+            { title: "經典標靶藥：基利克與 PARP 抑制劑", url: "topics/ai-drug-discovery/lesson-47.html" },
+            { title: "「不可成藥」的突破：KRAS G12C、PROTAC、ADC", url: "topics/ai-drug-discovery/lesson-48.html" },
+            { title: "AI 新藥公司與管線", url: "topics/ai-drug-discovery/lesson-49.html" },
+            { title: "炒作與現實", url: "topics/ai-drug-discovery/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 J｜動手做",
+          courses: [
+            { title: "用公開資料走一次迷你流程", url: "topics/ai-drug-discovery/lesson-51.html" },
+            { title: "工具、職涯與課程總結", url: "topics/ai-drug-discovery/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
