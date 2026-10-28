@@ -24203,6 +24203,134 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "iss",
+      category: "tech",
+      title: "國際太空站 ISS：艙段、生活、科學任務與未來",
+      description:
+        "國際太空站完整導覽：禮炮號、天空實驗室、和平號到 ISS 的歷史與國際合作；俄羅斯段、節點艙、命運號、哥倫布號、希望號、穹頂、桁架與機械手臂；電力、散熱、空氣、水回收、姿態與軌道維持；太空人的作息、飲食、睡眠、衛生、運動、身體與心理變化、太空漫步與緊急狀況；聯盟號、太空梭、貨運船、龍飛船與星際客機；人體、生物、植物、物理、阿爾法磁譜儀與地球觀測等科學任務；重大事件、紀錄與私人太空人；延壽、離軌、商業太空站與天宮。附可點選的太空站圖與互動模擬。",
+      icon: "🛰️",
+      url: "topics/iss/index.html",
+      resources: [
+        {
+          title: "ISS 互動圖鑑",
+          description: "可點選的太空站示意圖、組裝時間軸、軌道與地面軌跡、一天作息、水與氧氣回收、軌道衰減",
+          icon: "🛰️",
+          url: "topics/iss/guide.html"
+        },
+        {
+          title: "ISS 艙段速查",
+          description: "各艙段的中英文名稱、負責國家、升空年份與功能",
+          icon: "🧩",
+          url: "topics/iss/modules.html"
+        },
+        {
+          title: "ISS 名詞中英對照",
+          description: "太空站、維生系統、太空船與太空生活的中英名詞",
+          icon: "📖",
+          url: "topics/iss/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識 ISS",
+          courses: [
+            { title: "國際太空站是什麼", url: "topics/iss/lesson-01.html" },
+            { title: "在 ISS 之前：禮炮號、天空實驗室、和平號", url: "topics/iss/lesson-02.html" },
+            { title: "一座國際合作的太空站", url: "topics/iss/lesson-03.html" },
+            { title: "組裝史：1998 到今天", url: "topics/iss/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜艙段導覽",
+          courses: [
+            { title: "整體配置：俄羅斯段與美國段", url: "topics/iss/lesson-05.html" },
+            { title: "俄羅斯段：曙光號、星辰號與新艙段", url: "topics/iss/lesson-06.html" },
+            { title: "美國段的節點艙：團結號、和諧號、寧靜號", url: "topics/iss/lesson-07.html" },
+            { title: "命運號實驗室與探索號氣閘艙", url: "topics/iss/lesson-08.html" },
+            { title: "歐洲哥倫布號實驗艙", url: "topics/iss/lesson-09.html" },
+            { title: "日本希望號（JEM）", url: "topics/iss/lesson-10.html" },
+            { title: "穹頂、李奧納多、BEAM 與 Bishop", url: "topics/iss/lesson-11.html" },
+            { title: "桁架、太陽能板與散熱板", url: "topics/iss/lesson-12.html" },
+            { title: "機械手臂與對接口", url: "topics/iss/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜維生與工程系統",
+          courses: [
+            { title: "電力：太陽能、電池與 92 分鐘的日夜", url: "topics/iss/lesson-14.html" },
+            { title: "散熱：把熱丟到太空", url: "topics/iss/lesson-15.html" },
+            { title: "空氣：氧氣、二氧化碳與通風", url: "topics/iss/lesson-16.html" },
+            { title: "水：昨天的咖啡變成今天的咖啡", url: "topics/iss/lesson-17.html" },
+            { title: "姿態控制、軌道抬升與躲避太空垃圾", url: "topics/iss/lesson-18.html" },
+            { title: "通訊、電腦與任務控制中心", url: "topics/iss/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜太空生活",
+          courses: [
+            { title: "一天的作息", url: "topics/iss/lesson-20.html" },
+            { title: "吃：太空食物", url: "topics/iss/lesson-21.html" },
+            { title: "睡：在牆上睡覺", url: "topics/iss/lesson-22.html" },
+            { title: "個人衛生與太空廁所", url: "topics/iss/lesson-23.html" },
+            { title: "運動：每天兩個半小時", url: "topics/iss/lesson-24.html" },
+            { title: "身體的變化", url: "topics/iss/lesson-25.html" },
+            { title: "輻射", url: "topics/iss/lesson-26.html" },
+            { title: "心理：隔離、團隊與想家", url: "topics/iss/lesson-27.html" },
+            { title: "太空漫步（EVA）", url: "topics/iss/lesson-28.html" },
+            { title: "緊急狀況：失火、失壓、有毒氣體", url: "topics/iss/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜交通與補給",
+          courses: [
+            { title: "載人往返：聯盟號與太空梭", url: "topics/iss/lesson-30.html" },
+            { title: "貨運船：進步號、ATV、HTV、天鵝座號、龍飛船", url: "topics/iss/lesson-31.html" },
+            { title: "商業載人時代：載人龍飛船與星際客機", url: "topics/iss/lesson-32.html" },
+            { title: "從發射到對接", url: "topics/iss/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜科學任務",
+          courses: [
+            { title: "為什麼要在微重力做實驗", url: "topics/iss/lesson-34.html" },
+            { title: "人體研究", url: "topics/iss/lesson-35.html" },
+            { title: "生物與醫學研究", url: "topics/iss/lesson-36.html" },
+            { title: "植物：太空種菜", url: "topics/iss/lesson-37.html" },
+            { title: "物理：燃燒、流體與冷原子", url: "topics/iss/lesson-38.html" },
+            { title: "天文與宇宙線：阿爾法磁譜儀與 NICER", url: "topics/iss/lesson-39.html" },
+            { title: "觀測地球", url: "topics/iss/lesson-40.html" },
+            { title: "技術驗證、商業與教育", url: "topics/iss/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜重大事件",
+          courses: [
+            { title: "哥倫比亞號事故對 ISS 的影響", url: "topics/iss/lesson-42.html" },
+            { title: "驚險時刻：科學號失控、冷卻液外洩與慢性漏氣", url: "topics/iss/lesson-43.html" },
+            { title: "星際客機事件：八天變成九個多月", url: "topics/iss/lesson-44.html" },
+            { title: "太空垃圾與反衛星試驗", url: "topics/iss/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜人物與紀錄",
+          courses: [
+            { title: "長期駐留與紀錄保持者", url: "topics/iss/lesson-46.html" },
+            { title: "太空觀光與私人太空人", url: "topics/iss/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜未來",
+          courses: [
+            { title: "老化與延壽：撐到 2030 年", url: "topics/iss/lesson-48.html" },
+            { title: "退役計畫：受控墜入尼莫點", url: "topics/iss/lesson-49.html" },
+            { title: "商業太空站", url: "topics/iss/lesson-50.html" },
+            { title: "其他國家的太空站：中國天宮與更多計畫", url: "topics/iss/lesson-51.html" },
+            { title: "ISS 的遺產：通往月球與火星的墊腳石", url: "topics/iss/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
