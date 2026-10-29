@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：動態陣列 ｜ 資料結構 ｜ 博雅書院</title>
+<meta name="description" content="Python 的 list 是怎麼做到「永遠放得下」的">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料結構</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜線性結構 · 第 7 課</div>
+      <h1>動態陣列</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解容量與長度的差別</li>
+          <li>理解倍增擴容策略</li>
+          <li>知道各種 list 操作的成本</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__dstLib) return; window.__dstLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var _sl = slider; slider = function (root, lab, min, max, step, val, fmt, k, cb) { var u = _sl(root, lab, min, max, step, val, fmt, k, cb); var b = root.lastChild && root.lastChild.querySelector('b'); if (b) b.textContent = fmt(val); return u; };
+        var BL = '#3a6ea5', OR = '#e07a2f', GN = '#2e9e5b', RD = '#e0505a', PU = '#8e5bd1', GY = '#9aa3ad', TL = '#2a9d8f', YL = '#d4a017', BR = '#a0704a';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root, items, cur, cb) { var b = el('div'); items.forEach(function (s) { var x = btn(s[0], s[1]); x.onclick = function () { cb(s[1]); mark(b, s[1]); }; b.appendChild(x); }); mark(b, cur); root.appendChild(b); return b; }
+        function bt(par, t, cb) { var b = btn(t); b.onclick = cb; par.appendChild(b); return b; }
+        function row(root) { var d = el('div'); root.appendChild(d); return d; }
+        function rng(seed) { var s = seed >>> 0; return function () { s = (s + 0x6D2B79F5) >>> 0; var t = s; t = Math.imul(t ^ t >>> 15, 1 | t); t = (t + Math.imul(t ^ t >>> 7, 61 | t)) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+        var R0 = rng(12345); function ri(a, b) { return a + Math.floor(R0() * (b - a + 1)); }
+        function box(x, y, w, h, fill, txt, tc, stroke) { return '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(w) + '" height="' + n1(h) + '" rx="4" fill="' + fill + '" stroke="' + (stroke || 'none') + '" stroke-width="2"/>' + (txt !== undefined && txt !== '' ? tx(x + w / 2, y + h / 2 + 4, txt, 12, tc || '#fff') : ''); }
+        var MK = '<defs><marker id="dstah" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#888"/></marker></defs>';
+        function arr(x1, y1, x2, y2, c, w) { return ln(x1, y1, x2, y2, c || '#888', w || 1.6, 'marker-end="url(#dstah)"'); }
+        function player(root, draw, ms) { var S = { list: [], k: 0, tm: null }, d = el('div'); root.appendChild(d);
+          function stop() { if (S.tm) { clearInterval(S.tm); S.tm = null; } }
+          function go(k) { S.k = Math.max(0, Math.min(S.list.length - 1, k)); if (S.list.length) draw(S.list[S.k], S.k, S.list.length); }
+          bt(d, '◀ 上一步', function () { stop(); go(S.k - 1); }); bt(d, '下一步 ▶', function () { stop(); go(S.k + 1); });
+          var pb = bt(d, '▶ 播放', function () { if (S.tm) { stop(); return; } if (S.k >= S.list.length - 1) go(0); S.tm = setInterval(function () { if (S.k >= S.list.length - 1) { stop(); return; } go(S.k + 1); }, ms || 350); });
+          bt(d, '跳到最後', function () { stop(); go(S.list.length - 1); });
+          S.go = go; S.load = function (list, play) { stop(); S.list = list; go(0); if (play && list.length > 1) pb.onclick(); }; S.stop = stop; return S; }
+        /* 樹的版面：中序排列 x、深度 y */
+        function treeSvg(root, hl, o) { o = o || {}; var L = [], md = 0; (function w(n, d) { if (!n) return; w(n.l, d + 1); L.push([n, d]); if (d > md) md = d; w(n.r, d + 1); })(root, 0);
+          var W = 680, dy = Math.min(56, 230 / Math.max(1, md)), H = 40 + md * dy + 30, g = '', r = L.length > 24 ? 11 : 15;
+          L.forEach(function (p, i) { p[0]._x = 20 + (i + 0.5) * 640 / L.length; p[0]._y = 26 + p[1] * dy; });
+          L.forEach(function (p) { var n = p[0]; [n.l, n.r].forEach(function (c) { if (c) g += ln(n._x, n._y, c._x, c._y, GY, 1.6); }); });
+          L.forEach(function (p) { var n = p[0], c = (hl && hl[n.v]) || BL; g += '<circle cx="' + n1(n._x) + '" cy="' + n1(n._y) + '" r="' + r + '" fill="' + c + '"/>' + tx(n._x, n._y + 4, n.v, r > 12 ? 11 : 9, '#fff');
+            if (o.h) g += tx(n._x + r + 2, n._y - r + 4, n.h, 9, 'var(--text-muted)', 'start'); });
+          if (!L.length) g = tx(340, 40, '（空的）', 13, 'var(--text-muted)');
+          return svgw('0 0 ' + W + ' ' + Math.max(H, 70), g); }
+
+        /* ---------- 動態陣列 ---------- */
+        function initDynarr(root, cfg) {
+          head(root, cfg.q); var mode = 'x2', n, cap, costs, v = el('div'), inf;
+          bar(root, [['容量 ×2', 'x2'], ['容量 ×1.5', 'x15'], ['每次 +4', 'p4']], mode, function (k) { mode = k; reset(); draw(); });
+          var d = row(root); bt(d, 'append ×1', function () { add(1); }); bt(d, 'append ×10', function () { add(10); }); bt(d, 'pop', function () { if (n) { n--; costs.push(1); } draw(); }); bt(d, '重來', function () { reset(); draw(); });
+          root.appendChild(v); inf = info(root);
+          function reset() { n = 0; cap = 1; costs = []; }
+          function add(k) { for (var i = 0; i < k && n < 300; i++) { var c = 1; if (n === cap) { c += n; cap = mode === 'x2' ? cap * 2 : mode === 'x15' ? Math.max(cap + 1, Math.ceil(cap * 1.5)) : cap + 4; } n++; costs.push(c); } draw(); }
+          function draw() { var g = '', show = Math.min(cap, 128), cw = Math.min(40, 640 / Math.min(show, 32)), per = Math.floor(640 / cw), rows = Math.ceil(show / per), i;
+            for (i = 0; i < show; i++) { var x = 20 + (i % per) * cw, y = 10 + Math.floor(i / per) * (cw + 4); g += box(x + 1, y, cw - 2, cw - 2, i < n ? BL : 'var(--surface)', cw > 22 && i < n ? i : '', '#fff', GY); }
+            var top = 18 + rows * (cw + 4), last = costs.slice(-60), mx = Math.max.apply(null, last.concat([1])), bw = 640 / 60;
+            g += tx(20, top + 6, '最近 ' + last.length + ' 次操作的成本（1 = 只寫入一格；高的長條 = 擴容時要搬移所有元素）', 10, 'var(--text-muted)', 'start');
+            last.forEach(function (c, j) { var h = c / mx * 90; g += '<rect x="' + n1(20 + j * bw) + '" y="' + n1(top + 110 - h) + '" width="' + n1(bw - 2) + '" height="' + n1(h) + '" fill="' + (c > 1 ? OR : GN) + '"/>'; });
+            v.innerHTML = svgw('0 0 680 ' + (top + 120), g); var tot = costs.reduce(function (a, b) { return a + b; }, 0);
+            inf.innerHTML = '元素個數 n = <b>' + n + '</b>，容量 = ' + cap + (cap > 128 ? '（只畫前 128 格）' : '') + '，使用率 ' + (cap ? Math.round(n / cap * 100) : 0) + '%。<br>總成本 ' + tot + '，平均每次操作 <b>' + (costs.length ? (tot / costs.length).toFixed(2) : 0) + '</b>。' +
+              (mode === 'p4' ? '每次只加 4 格：擴容越來越頻繁、每次搬得越來越多，平均成本會隨 n 線性成長——append 變成 O(n)。' : '容量按比例成長：偶爾一次很貴，但平均下來每次 append 只要常數成本——<b>攤銷 O(1)</b>。'); }
+          reset(); add(cfg.n0 || 13);
+        }
+
+        /* ---------- 鏈結串列 ---------- */
+        function initLinked(root, cfg) {
+          head(root, cfg.q); var dbl = !!cfg.dbl, L = [12, 7, 33, 5], nx = 40, last = '', hl = {}, idx = 2, v = el('div'), inf;
+          bar(root, [['單向串列', 0], ['雙向串列', 1]], dbl ? 1 : 0, function (k) { dbl = !!k; last = ''; hl = {}; draw(); });
+          var d = row(root); bt(d, '頭部插入', function () { op('hi'); }); bt(d, '尾部插入', function () { op('ti'); }); bt(d, '刪除頭部', function () { op('hd'); }); bt(d, '刪除尾部', function () { op('td'); });
+          var d2 = row(root); bt(d2, '插入到第 i 個位置', function () { op('ii'); }); bt(d2, '刪除第 i 個', function () { op('id'); }); bt(d2, '反轉', function () { op('rv'); });
+          slider(root, '位置 i（從 0 數）', 0, 8, 1, idx, String, 'i', function (x) { idx = x; });
+          root.appendChild(v); inf = info(root);
+          function op(t) { hl = {}; var val = nx; if (t === 'hi' || t === 'ti' || t === 'ii') { if (L.length >= 9) { last = '示範最多放 9 個節點。'; draw(); return; } nx = (nx * 7 + 13) % 90 + 1; }
+            if (!L.length && (t === 'hd' || t === 'td' || t === 'id' || t === 'rv')) { last = '串列是空的。'; draw(); return; }
+            if (t === 'hi') { L.unshift(val); hl[0] = OR; last = '新節點指向原本的頭，再把 head 指向新節點：<b>O(1)</b>，走訪 0 個節點。'; }
+            if (t === 'ti') { L.push(val); hl[L.length - 1] = OR; last = '有 tail 指標時，直接接在尾巴後面：<b>O(1)</b>。（沒有 tail 指標的話要從頭走到尾，O(n)。）'; }
+            if (t === 'hd') { L.shift(); last = 'head 改指向第二個節點：<b>O(1)</b>。'; }
+            if (t === 'td') { L.pop(); last = dbl ? '雙向串列：tail 的 prev 就是新的尾巴，<b>O(1)</b>。' : '單向串列：要找到「倒數第二個」節點，只能從頭走 <b>' + Math.max(0, L.length - 1) + '</b> 步：<b>O(n)</b>。這是單向串列最大的弱點。'; }
+            if (t === 'ii') { var i = Math.min(idx, L.length); L.splice(i, 0, val); hl[i] = OR; for (var j = 0; j < i; j++) hl[j] = YL; last = '先從頭走 <b>' + i + '</b> 步找到位置（黃色），再改兩個指標接上新節點。找位置 O(i)，接上去 O(1)。'; }
+            if (t === 'id') { if (idx >= L.length) { last = '沒有第 ' + idx + ' 個節點。'; draw(); return; } for (var k = 0; k < idx; k++) hl[k] = YL; L.splice(idx, 1); last = '走 ' + idx + ' 步找到前一個節點，讓它跳過要刪的節點：O(i)。'; }
+            if (t === 'rv') { L.reverse(); last = '一路走過去，把每個節點的 next 改指向前一個：O(n) 時間、O(1) 額外空間。'; }
+            draw(); }
+          function draw() { var g = MK, n = L.length, w = 52, gap = Math.min(22, (600 - n * w) / Math.max(1, n)), x0 = 70, y = 60;
+            g += tx(30, y + 22, 'head', 11, GN); if (n) g += arr(48, y + 18, x0 - 2, y + 18, GN);
+            L.forEach(function (val, i) { var x = x0 + i * (w + gap); g += box(x, y, w * 0.62, 36, hl[i] || BL, val) + box(x + w * 0.62, y, w * 0.38, 36, 'var(--surface)', '', '', GY);
+              if (i < n - 1) g += arr(x + w * 0.8, y + 12, x + w + gap - 1, y + 12, '#888'); else g += tx(x + w * 0.81, y + 22, '∅', 12, 'var(--text-muted)');
+              if (dbl && i > 0) g += arr(x + 2, y + 28, x - gap + 1, y + 28, PU);
+              g += tx(x + w / 2, y + 54, i, 10, 'var(--text-muted)'); });
+            if (n) { var xt = x0 + (n - 1) * (w + gap) + w / 2; g += tx(xt, y - 14, 'tail', 11, OR) + arr(xt, y - 10, xt, y - 1, OR); }
+            v.innerHTML = svgw('0 0 680 130', g);
+            inf.innerHTML = (last || '每個節點存一個值（藍）和指向下一個節點的指標（白格）。' + (dbl ? '雙向串列多一個指回前一個節點的指標（紫色箭頭）。' : '')) + '<br>目前長度 ' + n + '。'; }
+          draw();
+        }
+
+        /* ---------- 堆疊 ---------- */
+        var STP = { br: [['({[]})', '([)]', '((()', '{[()()]}', 'a*(b+c)-[d/e]'], '括號配對'], rpn: [['3 4 + 2 *', '5 1 2 + 4 * + 3 -', '2 3 4 * +', '7 2 -'], '後序運算式'] };
+        function initStack(root, cfg) {
+          head(root, cfg.q); var mode = cfg.mode || 'br', s = STP[mode][0][0], v = el('div'), inf, inp, pb;
+          var pr = row(root); function presets() { pr.innerHTML = ''; STP[mode][0].forEach(function (x) { bt(pr, x, function () { s = x; inp.value = x; run(); }); }); }
+          inp = el('input', 'width:100%;box-sizing:border-box;padding:5px 8px;margin:6px 0;font-family:ui-monospace,monospace;font-size:1em;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)'); inp.value = s; inp.oninput = function () { s = inp.value; run(); }; root.appendChild(inp);
+          var P = player(root, draw, 450); root.appendChild(v); inf = info(root);
+          function run() { var fr = [], st = [], ok = true, i, toks;
+            if (mode === 'br') { var pair = { ')': '(', ']': '[', '}': '{' }; fr.push({ st: [], i: -1, m: '從左到右讀字元：遇到左括號就 push，遇到右括號就 pop 出來比對。' });
+              for (i = 0; i < s.length && ok; i++) { var c = s[i];
+                if ('([{'.indexOf(c) >= 0) { st.push(c); fr.push({ st: st.slice(), i: i, m: '「' + c + '」是左括號：push。' }); }
+                else if (pair[c]) { if (!st.length) { ok = false; fr.push({ st: [], i: i, m: '讀到「' + c + '」但堆疊是空的：<b style="color:' + RD + '">不配對</b>（右括號太多）。', bad: 1 }); }
+                  else { var t = st.pop(); if (t !== pair[c]) { ok = false; fr.push({ st: st.slice(), i: i, m: 'pop 出「' + t + '」，但讀到的是「' + c + '」：<b style="color:' + RD + '">不配對</b>。', bad: 1 }); } else fr.push({ st: st.slice(), i: i, m: 'pop 出「' + t + '」，和「' + c + '」配成一對 ✓' }); } }
+                else fr.push({ st: st.slice(), i: i, m: '「' + c + '」不是括號，跳過。' }); }
+              if (ok) fr.push({ st: st.slice(), i: s.length, m: st.length ? '讀完了，但堆疊裡還剩 ' + st.length + ' 個左括號：<b style="color:' + RD + '">不配對</b>。' : '讀完了，堆疊是空的：<b style="color:' + GN + '">全部配對 ✓</b>' }); }
+            else { toks = s.trim().split(/\s+/); fr.push({ st: [], i: -1, m: '從左到右讀：數字就 push；運算子就 pop 兩個數、計算、把結果 push 回去。', toks: toks });
+              for (i = 0; i < toks.length && ok; i++) { var k = toks[i];
+                if (/^-?\d+(\.\d+)?$/.test(k)) { st.push(+k); fr.push({ st: st.slice(), i: i, m: 'push ' + k + '。', toks: toks }); }
+                else if ('+-*/'.indexOf(k) >= 0 && k.length === 1) { if (st.length < 2) { ok = false; fr.push({ st: st.slice(), i: i, m: '運算元不夠：<b style="color:' + RD + '">運算式有誤</b>。', toks: toks, bad: 1 }); break; }
+                  var b = st.pop(), a = st.pop(), r = k === '+' ? a + b : k === '-' ? a - b : k === '*' ? a * b : a / b; st.push(Math.round(r * 1e6) / 1e6); fr.push({ st: st.slice(), i: i, m: 'pop 出 ' + b + ' 和 ' + a + '，算 ' + a + ' ' + k + ' ' + b + ' = ' + st[st.length - 1] + '，push 回去。', toks: toks }); }
+                else { ok = false; fr.push({ st: st.slice(), i: i, m: '看不懂「' + k + '」。', toks: toks, bad: 1 }); } }
+              if (ok) fr.push({ st: st.slice(), i: toks.length, m: st.length === 1 ? '讀完了，答案是 <b>' + st[0] + '</b>。' : '讀完了，但堆疊裡有 ' + st.length + ' 個數：運算式有誤。', toks: toks }); }
+            P.load(fr, false); }
+          function draw(f, k, n) { var g = '', items = f.toks || s.split(''), cw = f.toks ? 46 : Math.min(30, 560 / Math.max(1, items.length));
+            items.forEach(function (c, i) { var x = 20 + i * cw; g += box(x, 14, cw - 3, 30, i === f.i ? (f.bad ? RD : OR) : i < f.i ? GY : 'var(--surface)', c === ' ' ? '␣' : c, i <= f.i ? '#fff' : 'currentColor', GY); });
+            g += tx(560, 190, '堆疊（上面是頂端）', 10, 'var(--text-muted)'); g += ln(510, 70, 510, 170, GY, 2) + ln(610, 70, 610, 170, GY, 2) + ln(510, 170, 610, 170, GY, 2);
+            f.st.slice(-5).forEach(function (x, j) { g += box(516, 140 - j * 24, 88, 22, j === Math.min(f.st.length, 5) - 1 ? PU : BL, x); });
+            if (f.st.length > 5) g += tx(560, 62, '… 共 ' + f.st.length + ' 個', 10, 'var(--text-muted)');
+            v.innerHTML = svgw('0 0 680 198', g); inf.innerHTML = '步驟 ' + (k + 1) + ' / ' + n + '：' + f.m; }
+          presets(); run();
+        }
+
+        /* ---------- 環狀緩衝區 ---------- */
+        function initRing(root, cfg) {
+          head(root, cfg.q); var C = 8, A = [], h = 0, cnt = 0, nx = 1, msg = '', v = el('div'), inf; for (var i = 0; i < C; i++) A.push(null);
+          var d = row(root); bt(d, 'enqueue（加到尾端）', function () { enq(1); }); bt(d, '連續 enqueue 3 個', function () { enq(3); }); bt(d, 'dequeue（從前端取出）', function () { if (!cnt) { msg = '佇列是空的，無法取出。'; } else { var x = A[h]; A[h] = null; h = (h + 1) % C; cnt--; msg = '取出 ' + x + '，head 往前移一格（到了尾端就繞回 0）。'; } draw(); });
+          root.appendChild(v); inf = info(root);
+          function enq(k) { for (var j = 0; j < k; j++) { if (cnt === C) { msg = '佇列滿了（' + C + ' 格都在用）：無法再加入。'; break; } A[(h + cnt) % C] = nx++; cnt++; msg = '加入 ' + (nx - 1) + ' 到位置 ' + ((h + cnt - 1) % C) + '。'; } draw(); }
+          function draw() { var g = MK, cx = 170, cy = 140, R = 95, tl = (h + cnt) % C;
+            for (var i = 0; i < C; i++) { var a = -Math.PI / 2 + i * 2 * Math.PI / C, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a); g += '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="22" fill="' + (A[i] !== null ? BL : 'var(--surface)') + '" stroke="' + GY + '" stroke-width="2"/>' + (A[i] !== null ? tx(x, y + 4, A[i], 12, '#fff') : '') + tx(cx + (R + 36) * Math.cos(a), cy + (R + 36) * Math.sin(a) + 4, i, 10, 'var(--text-muted)'); }
+            function pt(i, c, lab, off) { var a = -Math.PI / 2 + i * 2 * Math.PI / C, x = cx + (R - 24 - off) * Math.cos(a), y = cy + (R - 24 - off) * Math.sin(a); return arr(cx + 10 * Math.cos(a), cy + 10 * Math.sin(a), x, y, c, 2) + tx(cx + (R - 58 - off) * Math.cos(a) + (off ? 0 : 0), cy + (R - 58 - off) * Math.sin(a) + 4 + (off ? 10 : -6), lab, 10, c); }
+            g += pt(h, GN, 'head', 0) + pt(tl, OR, 'tail', 6);
+            for (i = 0; i < C; i++) { g += box(360 + i * 38, 120, 34, 34, A[i] !== null ? BL : 'var(--surface)', A[i] !== null ? A[i] : '', '#fff', GY) + tx(377 + i * 38, 170, i, 10, 'var(--text-muted)'); }
+            g += tx(360 + h * 38 + 17, 108, 'head', 10, GN) + tx(360 + tl * 38 + 17, 188, 'tail', 10, OR) + tx(512, 80, '實際的記憶體只是一段普通陣列', 11, 'var(--text-muted)');
+            v.innerHTML = svgw('0 0 680 280', g);
+            inf.innerHTML = (msg ? msg + '<br>' : '') + '元素個數 ' + cnt + ' / ' + C + '。head = ' + h + '（下一個要取出的位置），tail = (head + 個數) mod ' + C + ' = ' + tl + '（下一個要放入的位置）。enqueue 和 dequeue 都是 <b>O(1)</b>，而且不用搬動任何元素。'; }
+          enq(5); A[0] = null; A[1] = null; h = 2; cnt = 3; msg = ''; draw();
+        }
+
+        /* ---------- 雜湊表 ---------- */
+        function nextPrime(x) { for (;; x++) { var p = x > 1; for (var d = 2; d * d <= x; d++) if (x % d === 0) { p = false; break; } if (p) return x; } }
+        function initHash(root, cfg) {
+          head(root, cfg.q); var mode = cfg.mode || 'chain', m = 7, auto = false, keys = [], T, last = null, v = el('div'), inf, R = rng(7);
+          bar(root, [['鏈結法', 'chain'], ['線性探測（開放定址）', 'probe']], mode, function (k) { mode = k; rebuild(); draw(); });
+          var d = row(root); bt(d, '插入隨機鍵', function () { ins(Math.floor(R() * 1000)); draw(); }); bt(d, '插入 5 個', function () { for (var i = 0; i < 5; i++) ins(Math.floor(R() * 1000)); draw(); });
+          bt(d, '插入會碰撞的鍵', function () { var b = keys.length ? keys[keys.length - 1] : 3; var k = b + m * (1 + Math.floor(R() * 5)); ins(k % 1000 === k ? k : b); draw(); }); bt(d, '清空', function () { keys = []; m = 7; last = null; rebuild(); draw(); });
+          var ab = bt(d, '自動擴容：關', function () { auto = !auto; ab.textContent = '自動擴容：' + (auto ? '開' : '關'); if (auto) { grow(); draw(); } });
+          root.appendChild(v); inf = info(root);
+          function rebuild() { T = []; for (var i = 0; i < m; i++) T.push(mode === 'chain' ? [] : null); var ks = keys; keys = []; ks.forEach(function (k) { place(k); }); }
+          function place(k) { var hh = k % m, pr = [hh]; if (keys.indexOf(k) >= 0) return { dup: 1, h: hh, pr: pr };
+            if (mode === 'chain') { T[hh].push(k); keys.push(k); return { h: hh, pr: pr, len: T[hh].length }; }
+            if (keys.length >= m) return { full: 1, h: hh, pr: pr }; var i = hh; while (T[i] !== null) { i = (i + 1) % m; pr.push(i); } T[i] = k; keys.push(k); return { h: hh, pr: pr, at: i }; }
+          function grow() { var lim = mode === 'chain' ? 1 : 0.7; if (keys.length / m > lim) { var old = m; m = nextPrime(2 * m); rebuild(); last = { k: '', resize: old }; } }
+          function ins(k) { last = place(k); last.k = k; if (auto) { var r0 = last; grow(); if (last.resize) { last.k = r0.k; last.h0 = r0.h; } } }
+          function draw() { var g = '', a = keys.length / m, i;
+            if (mode === 'chain') { var rh = Math.min(30, 300 / m); for (i = 0; i < m; i++) { var y = 10 + i * rh, hot = last && !last.resize && last.h === i; g += box(20, y, 44, rh - 4, hot ? OR : PU, i) ;
+                T[i].forEach(function (k, j) { var x = 84 + j * 70; g += ln(x - 20, y + (rh - 4) / 2, x, y + (rh - 4) / 2, GY, 1.4) + box(x, y, 56, rh - 4, hot && k === last.k ? OR : BL, k); }); } v.innerHTML = svgw('0 0 680 ' + (20 + m * rh), g); }
+            else { var per = Math.min(m, 12), cw = 52; for (i = 0; i < m; i++) { var x2 = 20 + (i % per) * cw, y2 = 20 + Math.floor(i / per) * 70, pi = last && last.pr ? last.pr.indexOf(i) : -1;
+                g += box(x2, y2, cw - 6, 36, T[i] === null ? 'var(--surface)' : (last && T[i] === last.k ? OR : pi >= 0 ? YL : BL), T[i] === null ? '' : T[i], '#fff', GY) + tx(x2 + (cw - 6) / 2, y2 + 50, i, 10, 'var(--text-muted)'); if (pi >= 0 && !last.resize) g += tx(x2 + (cw - 6) / 2, y2 - 4, '探測 ' + (pi + 1), 9, OR); }
+              v.innerHTML = svgw('0 0 680 ' + (20 + Math.ceil(m / per) * 70), g); }
+            var s = '';
+            if (last) { if (last.resize) s = '負載因子太高，<b>重雜湊</b>：表格從 ' + last.resize + ' 格擴大到 ' + m + ' 格（取質數），所有鍵重新計算位置。'; else if (last.dup) s = '鍵 ' + last.k + ' 已經存在。'; else if (last.full) s = '表格滿了！開放定址法必須在填滿之前擴容。';
+              else s = '插入 ' + last.k + '：h(' + last.k + ') = ' + last.k + ' mod ' + m + ' = <b>' + last.h + '</b>。' + (mode === 'chain' ? (last.len > 1 ? '那一格已經有 ' + (last.len - 1) + ' 個鍵，<b>碰撞</b>，接在串列後面。' : '那一格是空的，直接放入。') : (last.pr.length > 1 ? '位置被佔用，往後探測了 ' + last.pr.length + ' 次（黃色），放在第 ' + last.at + ' 格。' : '那一格是空的，直接放入。')); }
+            var exp = mode === 'chain' ? '平均串列長度 = α，搜尋約 1 + α/2 次比較' : (a < 1 ? '成功搜尋平均約 ½(1 + 1/(1−α)) 次探測，失敗約 ½(1 + 1/(1−α)²) 次 ≈ ' + (0.5 * (1 + 1 / Math.pow(1 - a, 2))).toFixed(1) : '表格已滿');
+            inf.innerHTML = (s ? s + '<br>' : '') + '鍵數 n = ' + keys.length + '，表格大小 m = ' + m + '，負載因子 α = n/m = <b>' + a.toFixed(2) + '</b>。' + exp + '。'; }
+          rebuild(); [15, 22, 8, 31].forEach(ins); last = null; draw();
+        }
+
+        /* ---------- 二元搜尋樹 / AVL ---------- */
+        function nh(n) { return n ? n.h : 0; } function upd(n) { n.h = 1 + Math.max(nh(n.l), nh(n.r)); return n; }
+        function rotR(y) { var x = y.l; y.l = x.r; x.r = y; upd(y); return upd(x); } function rotL(x) { var y = x.r; x.r = y.l; y.l = x; upd(x); return upd(y); }
+        function bal(n, log) { upd(n); var b = nh(n.l) - nh(n.r);
+          if (b > 1) { if (nh(n.l.l) < nh(n.l.r)) { log.push('節點 ' + n.v + ' 左邊太重（左右型）：先在 ' + n.l.v + ' 左旋、再在 ' + n.v + ' 右旋'); n.l = rotL(n.l); } else log.push('節點 ' + n.v + ' 左邊太重（左左型）：右旋'); return rotR(n); }
+          if (b < -1) { if (nh(n.r.r) < nh(n.r.l)) { log.push('節點 ' + n.v + ' 右邊太重（右左型）：先在 ' + n.r.v + ' 右旋、再在 ' + n.v + ' 左旋'); n.r = rotR(n.r); } else log.push('節點 ' + n.v + ' 右邊太重（右右型）：左旋'); return rotL(n); } return n; }
+        function tins(n, v, avl, log) { if (!n) return { v: v, l: null, r: null, h: 1 }; if (v < n.v) n.l = tins(n.l, v, avl, log); else if (v > n.v) n.r = tins(n.r, v, avl, log); else { log.push(v + ' 已經在樹裡了'); return n; } return avl ? bal(n, log) : upd(n); }
+        function tdel(n, v, avl, log) { if (!n) { log.push('找不到 ' + v); return null; } if (v < n.v) n.l = tdel(n.l, v, avl, log); else if (v > n.v) n.r = tdel(n.r, v, avl, log);
+          else { if (!n.l || !n.r) { log.push(!n.l && !n.r ? v + ' 是葉子，直接刪除' : v + ' 只有一個子節點，讓子節點頂替它'); return n.l || n.r; } var m = n.r; while (m.l) m = m.l; log.push(v + ' 有兩個子節點：用右子樹中最小的 ' + m.v + '（中序後繼者）取代它，再刪掉原本的 ' + m.v); n.v = m.v; n.r = tdel(n.r, m.v, avl, []); }
+          return avl ? bal(n, log) : upd(n); }
+        function initBst(root, cfg) {
+          head(root, cfg.q); var avl = !!cfg.avl, T = null, val = 45, hl = {}, msg = '', v = el('div'), inf, R = rng(3);
+          bar(root, [['一般 BST', 0], ['AVL 樹（自動平衡）', 1]], avl ? 1 : 0, function (k) { avl = !!k; var vs = []; (function w(n) { if (!n) return; vs.push(n.v); w(n.l); w(n.r); })(T); T = null; vs.forEach(function (x) { T = tins(T, x, avl, []); }); hl = {}; msg = avl ? '用同樣的元素重建成 AVL 樹。' : '用同樣的元素重建成一般 BST。'; draw(); });
+          slider(root, '值', 1, 99, 1, val, String, 'v', function (x) { val = x; });
+          var d = row(root); bt(d, '插入', function () { one('i'); }); bt(d, '刪除', function () { one('d'); }); bt(d, '搜尋', function () { one('s'); });
+          var d2 = row(root); bt(d2, '隨機插入 7 個', function () { var log = []; for (var i = 0; i < 7; i++) T = tins(T, 1 + Math.floor(R() * 99), avl, log); hl = {}; msg = log.length ? log.slice(-3).join('；') : '插入了 7 個隨機數。'; draw(); });
+          bt(d2, '依序插入 1～15', function () { T = null; var log = []; for (var i = 1; i <= 15; i++) T = tins(T, i, avl, log); hl = {}; msg = avl ? '依序插入，AVL 一路旋轉保持平衡（共旋轉 ' + log.length + ' 次）。' : '依序插入：每個新節點都接在最右邊，樹<b>退化成一條鏈</b>，搜尋變成 O(n)。'; draw(); });
+          bt(d2, '清空', function () { T = null; hl = {}; msg = ''; draw(); }); root.appendChild(v); inf = info(root);
+          function one(t) { var log = []; hl = {}; var p = [], n = T; while (n) { p.push(n.v); if (val === n.v) break; n = val < n.v ? n.l : n.r; }
+            if (t === 'i') { T = tins(T, val, avl, log); hl[val] = OR; msg = '插入 ' + val + '：比較了 ' + p.length + ' 次找到位置。' + (log.length ? '<br>' + log.join('；') + '。' : ''); }
+            else if (t === 'd') { T = tdel(T, val, avl, log); msg = '刪除 ' + val + '：' + log.join('；') + '。'; }
+            else { p.forEach(function (x) { hl[x] = YL; }); if (n) hl[val] = GN; msg = '搜尋 ' + val + '：路徑 ' + (p.join(' → ') || '（空樹）') + '，' + (n ? '<b>找到了</b>' : '<b>不存在</b>') + '，比較 ' + p.length + ' 次。小於往左、大於往右。'; }
+            draw(); }
+          function cnt(n) { return n ? 1 + cnt(n.l) + cnt(n.r) : 0; }
+          function draw() { v.innerHTML = treeSvg(T, hl, { h: avl }); var c = cnt(T);
+            inf.innerHTML = (msg ? msg + '<br>' : '') + '節點數 n = ' + c + '，高度 = <b>' + nh(T) + '</b>（最矮可能是 ⌈log₂(n+1)⌉ = ' + Math.ceil(Math.log2(c + 1)) + '）。' + (avl ? '節點右上方的小數字是子樹高度；AVL 要求每個節點左右子樹高度差不超過 1。' : ''); }
+          [50, 30, 70, 20, 40, 60, 80].forEach(function (x) { T = tins(T, x, avl, []); }); draw();
+        }
+
+        /* ---------- 二元堆積 ---------- */
+        function initHeap(root, cfg) {
+          head(root, cfg.q); var A = [], v = el('div'), inf, R = rng(9);
+          var d = row(root); bt(d, '插入隨機數', function () { var x = 1 + Math.floor(R() * 99), fr = []; A.push(x); fr.push(snap([A.length - 1], '把 ' + x + ' 放到陣列最後面（樹的下一個空位）。')); up(A.length - 1, fr); fr.push(snap([], '完成，比較 ' + (fr.length - 2) + ' 次。插入是 O(log n)。')); P.load(fr, true); });
+          bt(d, '取出最小值', function () { if (!A.length) return; var fr = [], mn = A[0]; fr.push(snap([0], '最小值一定在根：' + mn + '。')); var l = A.pop(); if (A.length) { A[0] = l; fr.push(snap([0], '把最後一個元素 ' + l + ' 搬到根。')); down(0, fr); } fr.push(snap([], '取出了 ' + mn + '。取出是 O(log n)。')); P.load(fr, true); });
+          bt(d, '亂數陣列建堆', function () { A = []; for (var i = 0; i < 12; i++) A.push(1 + Math.floor(R() * 99)); var fr = [snap([], '隨便一個陣列。弗洛伊德建堆法：從最後一個有子節點的位置往前，每個都做一次「下沉」。')]; for (var j = Math.floor(A.length / 2) - 1; j >= 0; j--) { fr.push(snap([j], '對位置 ' + j + '（值 ' + A[j] + '）做下沉。')); down(j, fr); } fr.push(snap([], '建堆完成：總共只要 O(n)，比一個一個插入的 O(n log n) 快。')); P.load(fr, true); });
+          var P = player(root, draw, 450); root.appendChild(v); inf = info(root);
+          function snap(h, m) { return { a: A.slice(), h: h, m: m }; }
+          function up(i, fr) { while (i > 0) { var p = (i - 1) >> 1; if (A[p] <= A[i]) { fr.push(snap([i, p], A[i] + ' ≥ 父節點 ' + A[p] + '，停止上浮。')); return; } var t = A[p]; A[p] = A[i]; A[i] = t; fr.push(snap([p, i], A[p] + ' 比父節點 ' + A[i] + ' 小：交換（上浮）。')); i = p; } }
+          function down(i, fr) { var n = A.length; for (;;) { var l = 2 * i + 1, r = l + 1, s = i; if (l < n && A[l] < A[s]) s = l; if (r < n && A[r] < A[s]) s = r; if (s === i) { fr.push(snap([i], A[i] + ' 不大於子節點，停止下沉。')); return; } var t = A[s]; A[s] = A[i]; A[i] = t; fr.push(snap([i, s], A[s] + ' 比較小的子節點是 ' + A[i] + '：交換（下沉）。')); i = s; } }
+          function draw(f, k, n) { var a = f.a, g = '', i, N = a.length, P2 = []; for (i = 0; i < N; i++) { var dd = Math.floor(Math.log2(i + 1)), pos = i + 1 - Math.pow(2, dd), cnt = Math.pow(2, dd); P2.push([20 + (pos + 0.5) * 640 / cnt, 26 + dd * 50]); }
+            for (i = 1; i < N; i++) { var p = (i - 1) >> 1; g += ln(P2[p][0], P2[p][1], P2[i][0], P2[i][1], GY, 1.6); }
+            for (i = 0; i < N; i++) g += '<circle cx="' + n1(P2[i][0]) + '" cy="' + P2[i][1] + '" r="16" fill="' + (f.h.indexOf(i) >= 0 ? OR : BL) + '"/>' + tx(P2[i][0], P2[i][1] + 4, a[i], 11, '#fff');
+            var cw = Math.min(46, 640 / Math.max(N, 1)); for (i = 0; i < N; i++) g += box(20 + i * cw, 230, cw - 3, 30, f.h.indexOf(i) >= 0 ? OR : BL, a[i]) + tx(20 + i * cw + cw / 2, 274, i, 9, 'var(--text-muted)');
+            g += tx(20, 222, '同一個堆積在陣列中的樣子（i 的子節點在 2i+1、2i+2）', 10, 'var(--text-muted)', 'start');
+            v.innerHTML = svgw('0 0 680 282', g); inf.innerHTML = '步驟 ' + (k + 1) + ' / ' + n + '：' + f.m + '<br>最小堆積：每個節點都不大於它的子節點，所以最小值永遠在根。'; }
+          [20, 35, 41, 50, 62, 47, 80, 71].forEach(function (x) { A.push(x); }); P.load([snap([], '一個最小堆積。試試插入或取出。')], false);
+        }
+
+        /* ---------- 字典樹 ---------- */
+        var TW = { en: ['car', 'cart', 'care', 'cat', 'dog', 'dot', 'do'], zh: ['tea', 'team', 'ten', 'to', 'toy', 'in', 'inn'] };
+        function initTrie(root, cfg) {
+          head(root, cfg.q); var words = TW.en.slice(), pre = 'ca', v = el('div'), inf, iw, ip;
+          bar(root, [['範例一', 'en'], ['範例二', 'zh']], 'en', function (k) { words = TW[k].slice(); pre = k === 'en' ? 'ca' : 'te'; ip.value = pre; draw(); });
+          var r1 = el('div', 'display:flex;gap:6px;align-items:center;margin:6px 0;flex-wrap:wrap'); iw = el('input', 'width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)'); iw.placeholder = '新單字';
+          r1.appendChild(iw); bt(r1, '加入單字', function () { var w = iw.value.trim().toLowerCase().replace(/[^a-z]/g, ''); if (w && words.indexOf(w) < 0 && w.length <= 10 && words.length < 14) words.push(w); iw.value = ''; draw(); });
+          r1.appendChild(el('span', 'margin-left:10px', '前綴搜尋：')); ip = el('input', 'width:120px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)'); ip.value = pre; ip.oninput = function () { pre = ip.value.trim().toLowerCase(); draw(); }; r1.appendChild(ip); root.appendChild(r1);
+          root.appendChild(v); inf = info(root);
+          function draw() { var T = { c: '', k: {}, end: false }, nodes = 1; words.forEach(function (w) { var n = T; for (var i = 0; i < w.length; i++) { if (!n.k[w[i]]) { n.k[w[i]] = { c: w[i], k: {}, end: false }; nodes++; } n = n.k[w[i]]; } n.end = true; });
+            var leaves = 0, md = 0; (function lay(n, d) { var ks = Object.keys(n.k).sort(); n.d = d; if (d > md) md = d; if (!ks.length) { n.x = leaves++; return; } ks.forEach(function (c) { lay(n.k[c], d + 1); }); n.x = (n.k[ks[0]].x + n.k[ks[ks.length - 1]].x) / 2; })(T, 0);
+            var path = {}, n = T, ok = true; path[''] = 1; for (var i = 0; i < pre.length; i++) { if (!n.k[pre[i]]) { ok = false; break; } n = n.k[pre[i]]; n.hot = 1; }
+            var found = []; if (ok) (function col(m, s) { if (m.end) found.push(s); Object.keys(m.k).sort().forEach(function (c) { col(m.k[c], s + c); }); })(n, pre);
+            var sx = 640 / Math.max(leaves, 1), dy = Math.min(44, 250 / Math.max(md, 1)), g = '';
+            function X(m) { return 20 + (m.x + 0.5) * sx; } function Y(m) { return 22 + m.d * dy; }
+            (function ed(m) { Object.keys(m.k).forEach(function (c) { var ch = m.k[c]; g += ln(X(m), Y(m), X(ch), Y(ch), ch.hot ? OR : GY, ch.hot ? 3 : 1.5); ed(ch); }); })(T);
+            (function nd(m) { g += '<circle cx="' + n1(X(m)) + '" cy="' + n1(Y(m)) + '" r="13" fill="' + (m.hot ? OR : m === T ? GY : BL) + '"/>' + (m.end ? '<circle cx="' + n1(X(m)) + '" cy="' + n1(Y(m)) + '" r="16" fill="none" stroke="' + GN + '" stroke-width="2"/>' : '') + tx(X(m), Y(m) + 4, m === T ? '根' : m.c, 11, '#fff'); Object.keys(m.k).forEach(function (c) { nd(m.k[c]); }); })(T);
+            v.innerHTML = svgw('0 0 680 ' + (40 + md * dy), g); var tot = words.reduce(function (a, w) { return a + w.length; }, 0);
+            inf.innerHTML = '單字：' + words.join('、') + '。綠圈表示「到這裡是一個完整的單字」。<br>前綴「' + pre + '」：' + (pre ? (ok ? '沿著橘色路徑走 ' + pre.length + ' 步，底下的單字有 <b>' + (found.join('、') || '（無）') + '</b>。' : '走到一半就沒路了：<b>沒有</b>以它開頭的單字。') : '請輸入前綴。') + '<br>共 ' + nodes + ' 個節點（若各自存放要 ' + tot + ' 個字元）：共同前綴只存一次。查詢時間只和單字長度有關，和單字總數無關。'; }
+          draw();
+        }
+
+        /* ---------- 線段樹 ---------- */
+        function initSeg(root, cfg) {
+          head(root, cfg.q); var a = [5, 8, 6, 3, 2, 7, 2, 6], L = 2, Rr = 6, t = [], up = [], v = el('div'), inf, R = rng(5), msg = '';
+          slider(root, '區間左端 L', 0, 7, 1, L, String, 'L', function (x) { L = x; up = []; msg = ''; draw(); }); slider(root, '區間右端 R', 0, 7, 1, Rr, String, 'R', function (x) { Rr = x; up = []; msg = ''; draw(); });
+          var d = row(root); bt(d, '隨機修改一個元素', function () { var i = Math.floor(R() * 8), dv = 1 + Math.floor(R() * 5); a[i] += dv; build(); up = []; for (var p = 8 + i; p >= 1; p >>= 1) up.push(p); msg = 'a[' + i + '] 加 ' + dv + '：只要更新從葉子到根這條路徑上的 ' + up.length + ' 個節點（紫色），O(log n)。'; draw(); });
+          root.appendChild(v); inf = info(root);
+          function build() { for (var i = 0; i < 8; i++) t[8 + i] = a[i]; for (i = 7; i >= 1; i--) t[i] = t[2 * i] + t[2 * i + 1]; }
+          function draw() { var lo = Math.min(L, Rr), hi = Math.max(L, Rr), vis = [], used = [];
+            var s = (function q(nd, nl, nr) { vis.push(nd); if (hi < nl || nr < lo) return 0; if (lo <= nl && nr <= hi) { used.push(nd); return t[nd]; } var m = (nl + nr) >> 1; return q(2 * nd, nl, m) + q(2 * nd + 1, m + 1, nr); })(1, 0, 7);
+            var g = ''; for (var nd = 1; nd < 16; nd++) { var dd = Math.floor(Math.log2(nd)), pos = nd - Math.pow(2, dd), cnt = Math.pow(2, dd), w = 640 / cnt, x = 20 + pos * w, y = 14 + dd * 56, span = 8 / cnt, l0 = pos * span, r0 = l0 + span - 1;
+              var c = up.indexOf(nd) >= 0 ? PU : used.indexOf(nd) >= 0 ? OR : vis.indexOf(nd) >= 0 ? YL : 'var(--surface)'; g += box(x + 3, y, w - 6, 36, c, t[nd], c === 'var(--surface)' ? 'currentColor' : '#fff', GY) + tx(x + w / 2, y + 48, l0 === r0 ? 'a[' + l0 + ']' : '[' + l0 + '..' + r0 + ']', 9, 'var(--text-muted)'); }
+            v.innerHTML = svgw('0 0 680 240', g);
+            inf.innerHTML = (msg ? msg + '<br>' : '') + '查詢 a[' + lo + '..' + hi + '] 的和 = <b>' + s + '</b>。只用了 ' + used.length + ' 個節點（橘色）的值相加，總共拜訪 ' + vis.length + ' 個節點（黃色＋橘色）；直接相加要 ' + (hi - lo + 1) + ' 個數。陣列大到一百萬時，差別是約 40 次 vs. 一百萬次。'; }
+          build(); draw();
+        }
+
+        /* ---------- 聯集—尋找 ---------- */
+        function initUf(root, cfg) {
+          head(root, cfg.q); var N = 10, par, rk, byRank = true, comp = true, a = 1, b = 2, hl = {}, msg = '', v = el('div'), inf, R = rng(11);
+          var d0 = row(root); var rb = bt(d0, '按秩合併：開', function () { byRank = !byRank; rb.textContent = '按秩合併：' + (byRank ? '開' : '關'); }); var cb = bt(d0, '路徑壓縮：開', function () { comp = !comp; cb.textContent = '路徑壓縮：' + (comp ? '開' : '關'); });
+          slider(root, 'a', 0, N - 1, 1, a, String, 'a', function (x) { a = x; }); slider(root, 'b', 0, N - 1, 1, b, String, 'b', function (x) { b = x; });
+          var d = row(root); bt(d, 'union(a, b)', function () { un(a, b); draw(); }); bt(d, 'find(a)', function () { var p = path(a); hl = {}; p.forEach(function (x) { hl[x] = YL; }); hl[p[p.length - 1]] = GN; find(a); msg = 'find(' + a + ')：沿著父指標走 ' + (p.length - 1) + ' 步到根 ' + p[p.length - 1] + '。' + (comp && p.length > 2 ? '路徑壓縮：路上的節點直接改指向根。' : ''); draw(); });
+          bt(d, '隨機 union 3 次', function () { for (var i = 0; i < 3; i++) un(Math.floor(R() * N), Math.floor(R() * N)); draw(); }); bt(d, '最壞情況：串成一條', function () { reset(); var br = byRank, cp = comp; comp = false; for (var i = 1; i < N; i++) { var ra = find(0), rb2 = find(i); if (!byRank) par[ra] = rb2; else link(ra, rb2); } comp = cp; msg = br ? '按秩合併時，即使依序合併，樹也長不高。' : '關掉按秩合併、每次把舊的樹接到新元素下面：長出一條鏈，find 要走 n 步。'; hl = {}; draw(); });
+          bt(d, '重來', function () { reset(); draw(); }); root.appendChild(v); inf = info(root);
+          function reset() { par = []; rk = []; for (var i = 0; i < N; i++) { par.push(i); rk.push(0); } hl = {}; msg = ''; }
+          function path(x) { var p = [x]; while (par[x] !== x) { x = par[x]; p.push(x); } return p; }
+          function find(x) { var p = path(x), r = p[p.length - 1]; if (comp) p.forEach(function (y) { par[y] = r; }); return r; }
+          function link(x, y) { if (rk[x] < rk[y]) par[x] = y; else if (rk[x] > rk[y]) par[y] = x; else { par[y] = x; rk[x]++; } }
+          function un(x, y) { var rx = find(x), ry = find(y); hl = {}; hl[x] = OR; hl[y] = OR; if (rx === ry) { msg = x + ' 和 ' + y + ' 已經在同一組。'; return; } if (byRank) link(rx, ry); else par[rx] = ry; msg = 'union(' + x + ', ' + y + ')：把一棵樹的根接到另一棵的根下面。' + (byRank ? '（矮的接到高的下面）' : ''); }
+          function draw() { var ch = []; for (var i = 0; i < N; i++) ch.push([]); var roots = []; for (i = 0; i < N; i++) { if (par[i] === i) roots.push(i); else ch[par[i]].push(i); }
+            var pos = {}, col = 0, md = 0; function lay(x, dd) { if (dd > md) md = dd; if (!ch[x].length) { pos[x] = [col++, dd]; return; } ch[x].forEach(function (c) { lay(c, dd + 1); }); pos[x] = [(pos[ch[x][0]][0] + pos[ch[x][ch[x].length - 1]][0]) / 2, dd]; }
+            roots.forEach(function (r) { lay(r, 0); col += 0.6; }); var sx = 640 / col, dy = Math.min(50, 220 / Math.max(md, 1)), g = MK;
+            function P(x) { return [20 + (pos[x][0] + 0.5) * sx, 24 + pos[x][1] * dy]; }
+            for (i = 0; i < N; i++) if (par[i] !== i) { var p1 = P(i), p2 = P(par[i]); g += arr(p1[0], p1[1] - 15, p2[0], p2[1] + 15, '#888'); }
+            for (i = 0; i < N; i++) { var p = P(i); g += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="15" fill="' + (hl[i] || (par[i] === i ? PU : BL)) + '"/>' + tx(p[0], p[1] + 4, i, 11, '#fff'); }
+            v.innerHTML = svgw('0 0 680 ' + (50 + md * dy), g);
+            inf.innerHTML = (msg ? msg + '<br>' : '') + '目前有 <b>' + roots.length + '</b> 組，最高的樹高 ' + md + '。紫色是每組的代表（根），箭頭指向父節點。兩個技巧一起用，每次操作的攤銷成本是 O(α(n))——α 是反阿克曼函數，在宇宙範圍內不超過 5。'; }
+          reset(); un(1, 2); un(3, 4); un(1, 3); un(6, 7); hl = {}; msg = ''; draw();
+        }
+
+        /* ---------- 跳躍串列 ---------- */
+        function initSkip(root, cfg) {
+          head(root, cfg.q); var E = [], tg = 50, v = el('div'), inf, R = rng(21);
+          slider(root, '要搜尋的值', 1, 99, 1, tg, String, 'x', function (x) { tg = x; draw(); });
+          var d = row(root); bt(d, '插入隨機值', function () { if (E.length < 14) add(1 + Math.floor(R() * 99)); draw(); }); bt(d, '重來', function () { E = []; for (var i = 0; i < 9; i++) add(1 + Math.floor(R() * 99)); draw(); });
+          root.appendChild(v); inf = info(root);
+          function add(x) { if (E.some(function (e) { return e.v === x; })) return; var h = 1; while (h < 4 && R() < 0.5) h++; E.push({ v: x, h: h }); E.sort(function (p, q) { return p.v - q.v; }); }
+          function draw() { var H = 4, n = E.length, cw = 590 / (n + 1), g = MK, path = [], lvl = H - 1, pos = -1, steps = 0;
+            while (lvl >= 0) { var nxt = pos + 1; while (nxt < n && E[nxt].h <= lvl) nxt++; if (nxt < n && E[nxt].v <= tg) { path.push([nxt, lvl]); pos = nxt; steps++; if (E[nxt].v === tg) break; } else { path.push([pos, lvl, 'd']); lvl--; steps++; } }
+            var found = pos >= 0 && E[pos].v === tg; function X(i) { return 62 + (i + 1) * cw; } function Y(l) { return 30 + (H - 1 - l) * 44; }
+            for (var l = 0; l < H; l++) { var prev = -1; for (var i = 0; i < n; i++) if (E[i].h > l) { g += arr(X(prev) + 16, Y(l) + 12, X(i) - 16, Y(l) + 12, '#aaa'); prev = i; } g += ln(X(prev) + 16, Y(l) + 12, 660, Y(l) + 12, '#ddd', 1) + tx(14, Y(l) + 16, 'L' + l, 10, 'var(--text-muted)', 'start'); }
+            g += box(X(-1) - 16, Y(H - 1), 32, Y(0) - Y(H - 1) + 24, GY, '', '', 'none') + tx(X(-1), Y(0) + 40, 'head', 10, 'var(--text-muted)');
+            for (i = 0; i < n; i++) for (l = 0; l < E[i].h; l++) { var on = path.some(function (p) { return p[0] === i && p[1] === l; }); g += box(X(i) - 16, Y(l), 32, 24, on ? (found && i === pos ? GN : OR) : BL, E[i].v); }
+            v.innerHTML = svgw('0 0 680 ' + (Y(0) + 50), g);
+            inf.innerHTML = '搜尋 ' + tg + '：從最上層開始，下一個值不超過目標就往右走，否則往下一層（橘色是經過的節點）。走了 ' + steps + ' 步，' + (found ? '<b>找到了</b>。' : '<b>不存在</b>（停在比它小的最大值）。') + '<br>每個元素以 1/2 的機率「升一層」，平均高度 2，搜尋、插入、刪除期望都是 O(log n)。Redis 的有序集合就用跳躍串列。'; }
+          for (var i = 0; i < 9; i++) add(1 + Math.floor(R() * 99)); tg = E[5].v; setTimeout(function () { var e = root.querySelector('input[data-k="x"]'); if (e) { e.value = tg; e.dispatchEvent(new Event('input')); } }, 0); draw();
+        }
+
+        /* ---------- 格子搜尋 ---------- */
+        function initGrid(root, cfg) {
+          head(root, cfg.q); var alg = cfg.alg || 'bfs', seed = 4, mud = !!cfg.mud, C = 17, Rw = 10, G = [], S = [0, 0], Tg = [16, 9], v = el('div'), inf;
+          bar(root, [['BFS 廣度優先', 'bfs'], ['DFS 深度優先', 'dfs'], ['戴克斯特拉', 'dij'], ['A*', 'astar']], alg, function (k) { alg = k; run(); });
+          var d = row(root); bt(d, '🎲 換一張地圖', function () { seed++; gen(); run(); }); var mb = bt(d, mud ? '泥巴地：有' : '泥巴地：無', function () { mud = !mud; mb.textContent = mud ? '泥巴地：有' : '泥巴地：無'; gen(); run(); });
+          var P = player(root, draw, 40); root.appendChild(v); inf = info(root);
+          function cost(i) { return G[i] === 2 ? 5 : 1; }
+          function nb(i) { var x = i % C, y = Math.floor(i / C), r = []; [[1, 0], [0, 1], [-1, 0], [0, -1]].forEach(function (dd) { var nx = x + dd[0], ny = y + dd[1]; if (nx >= 0 && ny >= 0 && nx < C && ny < Rw && G[ny * C + nx] !== 1) r.push(ny * C + nx); }); return r; }
+          function gen() { for (var tries = 0; tries < 50; tries++) { var r = rng(seed * 97 + tries); G = []; for (var i = 0; i < C * Rw; i++) { var u = r(); G.push(u < 0.27 ? 1 : (mud && u < 0.45 ? 2 : 0)); } G[0] = 0; G[C * Rw - 1] = 0;
+              var seen = {}, q = [0]; seen[0] = 1; while (q.length) { var c = q.shift(); nb(c).forEach(function (n) { if (!seen[n]) { seen[n] = 1; q.push(n); } }); } if (seen[C * Rw - 1]) return; } }
+          function run() { var s = 0, t = C * Rw - 1, order = [], prev = {}, dist = {}, i, fr = [];
+            if (alg === 'bfs') { var q = [s]; prev[s] = -1; while (q.length) { var c = q.shift(); order.push(c); if (c === t) break; nb(c).forEach(function (n) { if (prev[n] === undefined) { prev[n] = c; q.push(n); } }); } }
+            else if (alg === 'dfs') { var st = [[s, -1]], seen = {}; while (st.length) { var p = st.pop(), c2 = p[0]; if (seen[c2]) continue; seen[c2] = 1; prev[c2] = p[1]; order.push(c2); if (c2 === t) break; var ns = nb(c2).reverse(); ns.forEach(function (n) { if (!seen[n]) st.push([n, c2]); }); } }
+            else { var open = {}, done = {}; dist[s] = 0; prev[s] = -1; open[s] = 1; var hh = function (x) { return alg === 'astar' ? Math.abs(x % C - C + 1) + Math.abs(Math.floor(x / C) - Rw + 1) : 0; };
+              while (true) { var best = -1; for (var k in open) { k = +k; if (best < 0 || dist[k] + hh(k) < dist[best] + hh(best)) best = k; } if (best < 0) break; delete open[best]; done[best] = 1; order.push(best); if (best === t) break;
+                nb(best).forEach(function (n) { if (done[n]) return; var nd = dist[best] + cost(n); if (dist[n] === undefined || nd < dist[n]) { dist[n] = nd; prev[n] = best; open[n] = 1; } }); } }
+            var path = []; if (prev[t] !== undefined) { for (var x = t; x !== -1; x = prev[x]) path.push(x); } var pc = 0; path.forEach(function (c) { if (c !== s) pc += cost(c); });
+            var step = Math.max(1, Math.ceil(order.length / 60)); for (i = step; i < order.length; i += step) fr.push({ k: i }); fr.push({ k: order.length, path: path, pc: pc });
+            P.order = order; P.load(fr, false); P.go(fr.length - 1); }
+          function draw(f, k, n) { var o = P.order, cs = 36, g = '', vis = {}, i; for (i = 0; i < f.k; i++) vis[o[i]] = i; var on = {}; (f.path || []).forEach(function (c) { on[c] = 1; });
+            for (i = 0; i < C * Rw; i++) { var x = 20 + (i % C) * cs, y = 6 + Math.floor(i / C) * cs, c = G[i] === 1 ? '#555' : G[i] === 2 ? BR : vis[i] !== undefined ? 'hsl(' + Math.round(200 + 90 * vis[i] / Math.max(1, o.length)) + ',60%,70%)' : 'var(--surface)';
+              if (on[i]) c = OR; if (i === 0) c = GN; if (i === C * Rw - 1) c = RD; g += '<rect x="' + x + '" y="' + y + '" width="' + (cs - 2) + '" height="' + (cs - 2) + '" rx="3" fill="' + c + '" stroke="var(--border)"/>' + (G[i] === 2 && vis[i] !== undefined && !on[i] ? '<circle cx="' + (x + cs / 2 - 1) + '" cy="' + (y + cs / 2 - 1) + '" r="5" fill="#d9c3f5"/>' : ''); }
+            v.innerHTML = svgw('0 0 652 372', g);
+            inf.innerHTML = '拜訪了 ' + f.k + ' 格' + (f.path ? '，路徑長 <b>' + (f.path.length - 1) + '</b> 步' + (mud ? '、成本 <b>' + f.pc + '</b>（泥巴格成本 5）' : '') : '') + '。綠 = 起點、紅 = 終點、深灰 = 牆、' + (mud ? '棕 = 泥巴（有圓點表示已拜訪）、' : '') + '藍紫色 = 已拜訪（越紫越晚）、橘 = 找到的路徑。<br>' +
+              { bfs: 'BFS 用<b>佇列</b>一圈一圈往外擴，保證找到<b>步數最少</b>的路徑' + (mud ? '，但它不管泥巴的成本' : '') + '。', dfs: 'DFS 用<b>堆疊</b>一路衝到底再回頭，找到的路徑通常繞很遠，不保證最短。', dij: '戴克斯特拉用<b>優先佇列</b>，每次擴展目前成本最低的格子，保證<b>成本最低</b>' + (mud ? '：會繞開泥巴' : '') + '。', astar: 'A* 在成本上加上「到終點的直線距離估計」，優先往目標方向找，拜訪的格子少得多，仍保證最佳。' }[alg]; }
+          gen(); run();
+        }
+
+        /* ---------- 拓撲排序 ---------- */
+        var TN = [['計概', 70, 60], ['程式設計', 230, 60], ['離散數學', 230, 200], ['資料結構', 390, 130], ['演算法', 540, 60], ['作業系統', 540, 200], ['畢業專題', 640, 130]], TE = [[0, 1], [1, 3], [2, 3], [3, 4], [2, 4], [3, 5], [4, 6], [5, 6]];
+        function initTopo(root, cfg) {
+          head(root, cfg.q); var cyc = false, v = el('div'), inf;
+          var d = row(root); var cb = bt(d, '加入一條造成循環的擋修（畢業專題 → 程式設計）', function () { cyc = !cyc; cb.textContent = cyc ? '移除循環' : '加入一條造成循環的擋修（畢業專題 → 程式設計）'; run(); });
+          var P = player(root, draw, 600); root.appendChild(v); inf = info(root);
+          function E() { return cyc ? TE.concat([[6, 1]]) : TE; }
+          function run() { var es = E(), n = TN.length, deg = [], q = [], out = [], fr = [], i; for (i = 0; i < n; i++) deg.push(0); es.forEach(function (e) { deg[e[1]]++; }); for (i = 0; i < n; i++) if (!deg[i]) q.push(i);
+            fr.push({ deg: deg.slice(), q: q.slice(), out: [], m: '先算每門課的入度（有幾門擋修）。入度為 0 的課可以馬上修，放進佇列。' });
+            while (q.length) { var u = q.shift(); out.push(u); var nw = []; es.forEach(function (e) { if (e[0] === u) { deg[e[1]]--; if (!deg[e[1]]) { q.push(e[1]); nw.push(TN[e[1]][0]); } } }); fr.push({ deg: deg.slice(), q: q.slice(), out: out.slice(), cur: u, m: '取出「' + TN[u][0] + '」排進順序，它擋修的課入度各減 1。' + (nw.length ? nw.join('、') + ' 的入度變成 0，加入佇列。' : '') }); }
+            fr.push({ deg: deg.slice(), q: [], out: out.slice(), m: out.length === n ? '完成！一份可行的修課順序：' + out.map(function (x) { return TN[x][0]; }).join(' → ') + '。' : '佇列空了，但還有 ' + (n - out.length) + ' 門課的入度不是 0：<b style="color:' + RD + '">有循環相依，無法排序</b>。' }); P.load(fr, false); }
+          function draw(f, k, n) { var g = MK; E().forEach(function (e) { var a = TN[e[0]], b = TN[e[1]], dx = b[1] - a[1], dy = b[2] - a[2], L = Math.hypot(dx, dy), bend = e[0] === 6 && e[1] === 1; if (bend) g += '<path d="M' + a[1] + ' ' + (a[2] + 22) + ' Q 440 300 ' + b[1] + ' ' + (b[2] + 26) + '" fill="none" stroke="' + RD + '" stroke-width="2" marker-end="url(#dstah)"/>'; else g += arr(a[1] + dx / L * 40, a[2] + dy / L * 24, b[1] - dx / L * 42, b[2] - dy / L * 26, '#888'); });
+            TN.forEach(function (t, i) { var c = f.out.indexOf(i) >= 0 ? GN : f.q.indexOf(i) >= 0 ? YL : BL; g += box(t[1] - 40, t[2] - 18, 80, 36, c, t[0], '#fff', i === f.cur ? '#333' : 'none') + tx(t[1] + 46, t[2] - 18, '入度 ' + f.deg[i], 10, f.deg[i] ? 'var(--text-muted)' : GN, 'start'); });
+            v.innerHTML = svgw('0 0 720 300', g); inf.innerHTML = '步驟 ' + (k + 1) + ' / ' + n + '：' + f.m + '<br>佇列：[' + f.q.map(function (x) { return TN[x][0]; }).join('、') + ']　已排好：' + (f.out.map(function (x) { return TN[x][0]; }).join(' → ') || '（無）'); }
+          run();
+        }
+
+        /* ---------- 排序 ---------- */
+        function frames(alg, a0) { var a = a0.slice(), n = a.length, F = [], c = 0, w = 0, done = {};
+          function f(h, m) { if (F.length < 2500) F.push({ a: a.slice(), h: h || [], c: c, w: w, m: m || '', d: Object.assign({}, done) }); }
+          function sw(i, j) { var t = a[i]; a[i] = a[j]; a[j] = t; w += 2; }
+          var i, j;
+          if (alg === 'bubble') { for (i = 0; i < n - 1; i++) { for (j = 0; j < n - 1 - i; j++) { c++; f([j, j + 1], '比較相鄰兩個'); if (a[j] > a[j + 1]) { sw(j, j + 1); f([j, j + 1], '前面比較大：交換'); } } done[n - 1 - i] = 1; } }
+          else if (alg === 'insert') { for (i = 1; i < n; i++) { j = i; while (j > 0) { c++; f([j - 1, j], '往左比較'); if (a[j - 1] > a[j]) { sw(j - 1, j); f([j - 1, j], '左邊比較大：交換'); j--; } else break; } } }
+          else if (alg === 'select') { for (i = 0; i < n - 1; i++) { var m = i; for (j = i + 1; j < n; j++) { c++; f([m, j], '找最小值'); if (a[j] < a[m]) m = j; } if (m !== i) { sw(i, m); f([i, m], '把最小值換到前面'); } done[i] = 1; } }
+          else if (alg === 'merge') { (function ms(l, r) { if (r - l < 1) return; var m = (l + r) >> 1; ms(l, m); ms(m + 1, r); var b = a.slice(l, r + 1), p = 0, q = m - l + 1, k = l; while (p <= m - l && q <= r - l) { c++; a[k] = b[p] <= b[q] ? b[p++] : b[q++]; w++; f([k], '合併 [' + l + '..' + r + ']'); k++; } while (p <= m - l) { a[k++] = b[p++]; w++; f([k - 1], '合併 [' + l + '..' + r + ']'); } while (q <= r - l) { a[k++] = b[q++]; w++; f([k - 1], '合併 [' + l + '..' + r + ']'); } })(0, n - 1); }
+          else if (alg === 'quick') { (function qs(l, r) { if (l >= r) { if (l === r) done[l] = 1; return; } var pv = a[r], s = l; for (j = l; j < r; j++) { c++; f([j, r], '和樞紐 ' + pv + ' 比較'); if (a[j] < pv) { sw(s, j); f([s, j], '比樞紐小：換到左邊'); s++; } } sw(s, r); done[s] = 1; f([s], '樞紐 ' + pv + ' 歸位'); qs(l, s - 1); qs(s + 1, r); })(0, n - 1); }
+          else if (alg === 'heap') { var sd = function (i, m) { for (;;) { var l = 2 * i + 1, r = l + 1, b = i; if (l < m) { c++; if (a[l] > a[b]) b = l; } if (r < m) { c++; if (a[r] > a[b]) b = r; } if (b === i) return; sw(i, b); f([i, b], '下沉'); i = b; } };
+            for (i = (n >> 1) - 1; i >= 0; i--) sd(i, n); f([], '建好最大堆積'); for (i = n - 1; i > 0; i--) { sw(0, i); done[i] = 1; f([0, i], '把最大的換到後面'); sd(0, i); } }
+          for (i = 0; i < n; i++) done[i] = 1; f([], '排好了！'); return F; }
+        var SN = { bubble: '氣泡', insert: '插入', select: '選擇', merge: '合併', quick: '快速', heap: '堆積' };
+        function initSort(root, cfg) {
+          head(root, cfg.q); var alg = cfg.alg || 'insert', kind = 'rand', seed = 1, N = 16, v = el('div'), inf;
+          bar(root, Object.keys(SN).map(function (k) { return [SN[k] + '排序', k]; }), alg, function (k) { alg = k; run(); });
+          bar(root, [['隨機', 'rand'], ['幾乎排好', 'near'], ['完全相反', 'rev']], kind, function (k) { kind = k; run(); });
+          var d = row(root); bt(d, '🎲 換一組', function () { seed++; run(); });
+          var P = player(root, draw, 60); root.appendChild(v); inf = info(root);
+          function data() { var r = rng(seed * 31), a = [], i; for (i = 0; i < N; i++) a.push(2 + Math.floor(r() * 38)); if (kind !== 'rand') a.sort(function (x, y) { return x - y; }); if (kind === 'rev') a.reverse(); if (kind === 'near') { var p = Math.floor(r() * (N - 1)); var t = a[p]; a[p] = a[p + 1]; a[p + 1] = t; p = Math.floor(r() * (N - 1)); t = a[p]; a[p] = a[p + 1]; a[p + 1] = t; } return a; }
+          function run() { P.load(frames(alg, data()), false); }
+          function draw(f, k, n) { var g = '', bw = 640 / N; f.a.forEach(function (x, i) { var h = x * 5.5; g += '<rect x="' + n1(20 + i * bw + 2) + '" y="' + n1(225 - h) + '" width="' + n1(bw - 4) + '" height="' + n1(h) + '" rx="2" fill="' + (f.h.indexOf(i) >= 0 ? OR : f.d[i] ? GN : BL) + '"/>' + tx(20 + i * bw + bw / 2, 240, x, 10, 'var(--text-muted)'); });
+            v.innerHTML = svgw('0 0 680 248', g);
+            inf.innerHTML = '步驟 ' + (k + 1) + ' / ' + n + '：' + f.m + '。比較 <b>' + f.c + '</b> 次、寫入 <b>' + f.w + '</b> 次。' + (k === n - 1 ? '<br>' + { bubble: '氣泡排序 O(n²)：簡單但最慢，幾乎只有教學用途。', insert: '插入排序 O(n²)，但對「幾乎排好」的資料接近 O(n)：試試「幾乎排好」。', select: '選擇排序永遠 O(n²) 次比較，但交換次數最少（≤ n−1）。', merge: '合併排序 O(n log n)，穩定，需要 O(n) 額外空間。', quick: '快速排序平均 O(n log n)、實務上很快；但樞紐選不好時（試試「完全相反」）退化成 O(n²)。', heap: '堆積排序 O(n log n)，只用 O(1) 額外空間，但不穩定、快取效率較差。' }[alg] : ''); }
+          run();
+        }
+
+        /* ---------- 二分搜尋 ---------- */
+        function initBsearch(root, cfg) {
+          head(root, cfg.q); var r = rng(17), A = [], x = 2, tg; for (var i = 0; i < 31; i++) { x += 1 + Math.floor(r() * 5); A.push(x); } tg = A[22];
+          slider(root, '要找的值', 1, A[30] + 3, 1, tg, String, 't', function (y) { tg = y; run(); });
+          var P = player(root, draw, 700); var v = el('div'); root.appendChild(v); var inf = info(root);
+          function run() { var lo = 0, hi = 30, fr = [], st = 0; fr.push({ lo: lo, hi: hi, m: -1, s: '陣列已經排好序。搜尋範圍是整個陣列 [0, 30]。' });
+            while (lo <= hi) { var m = (lo + hi) >> 1; st++; if (A[m] === tg) { fr.push({ lo: lo, hi: hi, m: m, ok: 1, s: '第 ' + st + ' 次：中間 A[' + m + '] = ' + A[m] + '，<b style="color:' + GN + '">找到了！</b>' }); break; }
+              if (A[m] < tg) { fr.push({ lo: lo, hi: hi, m: m, s: '第 ' + st + ' 次：中間 A[' + m + '] = ' + A[m] + ' < ' + tg + '，答案只可能在右半邊。' }); lo = m + 1; } else { fr.push({ lo: lo, hi: hi, m: m, s: '第 ' + st + ' 次：中間 A[' + m + '] = ' + A[m] + ' > ' + tg + '，答案只可能在左半邊。' }); hi = m - 1; } }
+            if (lo > hi) fr.push({ lo: lo, hi: hi, m: -1, s: '範圍空了：' + tg + ' <b>不在陣列裡</b>。它應該插在位置 ' + lo + '（這就是 bisect_left 的答案）。' });
+            var li = A.indexOf(tg); P.lin = li >= 0 ? li + 1 : 31; P.st = st; P.load(fr, false); }
+          function draw(f, k, n) { var g = '', cw = 640 / 31; A.forEach(function (y, i) { var inR = i >= f.lo && i <= f.hi, c = i === f.m ? (f.ok ? GN : OR) : inR ? BL : 'var(--surface)'; g += box(20 + i * cw + 1, 30, cw - 2, 34, c, '', '', GY) + tx(20 + i * cw + cw / 2, 52, y, 9, inR || i === f.m ? '#fff' : 'var(--text-muted)') + (i % 5 === 0 ? tx(20 + i * cw + cw / 2, 80, i, 8, 'var(--text-muted)') : ''); });
+            if (f.lo <= f.hi) g += tx(20 + f.lo * cw + cw / 2, 20, 'lo', 10, BL) + tx(20 + f.hi * cw + cw / 2, 20, 'hi', 10, BL);
+            v.innerHTML = svgw('0 0 680 90', g); inf.innerHTML = f.s + '<br>二分搜尋最多 ⌈log₂(31+1)⌉ = 5 次；從頭一個一個找要 ' + P.lin + ' 次。一百萬個元素也只要 20 次。'; }
+          run();
+        }
+
+        /* ---------- LRU ---------- */
+        function initLru(root, cfg) {
+          head(root, cfg.q); var cap = 3, L = [], log = [], hits = 0, tot = 0, tm = null, msg = '', v = el('div'), inf;
+          slider(root, '快取容量', 2, 6, 1, cap, String, 'c', function (x) { cap = x; reset(); draw(); });
+          var d = row(root); 'ABCDEF'.split('').forEach(function (k) { bt(d, '存取 ' + k, function () { acc(k); draw(); }); });
+          var d2 = row(root); bt(d2, '▶ 播放 A B C A D A B E A B C D', function () { reset(); var seq = 'ABCADABEABCD'.split(''), i = 0; if (tm) clearInterval(tm); tm = setInterval(function () { if (i >= seq.length) { clearInterval(tm); tm = null; return; } acc(seq[i++]); draw(); }, 500); }); bt(d2, '清空', function () { if (tm) { clearInterval(tm); tm = null; } reset(); draw(); });
+          root.appendChild(v); inf = info(root);
+          function reset() { L = []; log = []; hits = 0; tot = 0; msg = ''; }
+          function acc(k) { tot++; var i = L.indexOf(k); if (i >= 0) { hits++; L.splice(i, 1); L.unshift(k); log.push([k, 1]); msg = '存取 ' + k + '：<b style="color:' + GN + '">命中</b>，移到最前面（最近使用）。'; } else { L.unshift(k); log.push([k, 0]); msg = '存取 ' + k + '：<b style="color:' + RD + '">未命中</b>，從慢速儲存讀進來放在最前面。'; if (L.length > cap) { var e = L.pop(); msg += '快取滿了，淘汰最久沒用的 <b>' + e + '</b>。'; } } }
+          function draw() { var g = MK; g += tx(20, 22, '最近使用', 11, GN, 'start') + tx(640, 22, '最久沒用（下一個被淘汰）', 11, RD, 'end');
+            for (var i = 0; i < cap; i++) { var x = 30 + i * (600 / cap); g += box(x, 34, 600 / cap - 30, 44, L[i] ? (i === 0 ? OR : BL) : 'var(--surface)', L[i] || '', '#fff', GY); if (i < cap - 1) g += arr(x + 600 / cap - 28, 56, x + 600 / cap - 4, 56); }
+            log.slice(-16).forEach(function (p, j) { g += box(30 + j * 38, 100, 32, 28, p[1] ? GN : RD, p[0]); }); g += tx(30, 146, '存取紀錄（綠 = 命中、紅 = 未命中）', 10, 'var(--text-muted)', 'start');
+            v.innerHTML = svgw('0 0 680 156', g); inf.innerHTML = (msg ? msg + '<br>' : '') + '命中率 ' + hits + ' / ' + tot + (tot ? '（' + Math.round(hits / tot * 100) + '%）' : '') + '。實作：雜湊表（O(1) 找到節點）＋ 雙向鏈結串列（O(1) 移到最前面、刪除尾巴）。'; }
+          reset(); draw();
+        }
+
+        /* ---------- 布隆過濾器 ---------- */
+        var BW = ['apple', 'banana', 'cherry', 'grape', 'lemon', 'mango', 'peach', 'melon', 'kiwi', 'plum', 'pear', 'lime', 'fig', 'date', 'guava', 'olive'];
+        function fnv(s, seed) { var h = 2166136261 ^ seed; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; }
+        function initBloom(root, cfg) {
+          head(root, cfg.q); var m = 32, k = 3, nA = 4, qw = 'kiwi', v = el('div'), inf;
+          slider(root, '位元陣列大小 m', 16, 96, 8, m, String, 'm', function (x) { m = x; draw(); }); slider(root, '雜湊函數個數 k', 1, 6, 1, k, String, 'k', function (x) { k = x; draw(); }); slider(root, '已加入的水果數 n', 0, 8, 1, nA, String, 'n', function (x) { nA = x; draw(); });
+          var d = row(root); d.appendChild(el('span', 'font-size:0.88em;margin-right:4px', '查詢：')); BW.forEach(function (w) { bt(d, w, function () { qw = w; draw(); }); });
+          root.appendChild(v); inf = info(root);
+          function pos(w) { var a = fnv(w, 0), b = fnv(w, 99) | 1, p = []; for (var i = 0; i < k; i++) p.push((a + i * b) % m); return p; }
+          function draw() { var bits = [], i; for (i = 0; i < m; i++) bits.push(0); var added = BW.slice(0, nA); added.forEach(function (w) { pos(w).forEach(function (p) { bits[p] = 1; }); });
+            var qp = pos(qw), maybe = qp.every(function (p) { return bits[p]; }), per = Math.min(m, 32), cw = 640 / per, g = '';
+            for (i = 0; i < m; i++) { var x = 20 + (i % per) * cw, y = 10 + Math.floor(i / per) * 46, q = qp.indexOf(i) >= 0; g += box(x + 1, y, cw - 2, 26, bits[i] ? BL : 'var(--surface)', bits[i], bits[i] ? '#fff' : 'var(--text-muted)', q ? (bits[i] ? GN : RD) : GY) + (i % 4 === 0 ? tx(x + cw / 2, y + 38, i, 8, 'var(--text-muted)') : ''); }
+            v.innerHTML = svgw('0 0 680 ' + (16 + Math.ceil(m / per) * 46), g);
+            var fp = Math.pow(1 - Math.exp(-k * nA / m), k), isIn = added.indexOf(qw) >= 0, fps = 0, neg = 0; BW.slice(nA).forEach(function (w) { neg++; if (pos(w).every(function (p) { return bits[p]; })) fps++; });
+            inf.innerHTML = '已加入：' + (added.join('、') || '（無）') + '。<br>查詢「' + qw + '」的 ' + k + ' 個位置（框起來的格子）：' + (maybe ? '全部是 1 → <b>可能存在</b>' + (isIn ? '（確實加入過）' : '<b style="color:' + RD + '">——其實沒加入過，這是偽陽性！</b>') : '至少一個是 0 → <b style="color:' + GN + '">一定不存在</b>') + '。<br>' +
+              '理論偽陽性率 (1 − e^(−kn/m))^k ≈ <b>' + (fp * 100).toFixed(1) + '%</b>；沒加入過的 ' + neg + ' 種水果中，實際有 ' + fps + ' 個被誤判為「可能存在」。'; }
+          draw();
+        }
+
+        var INIT = { dynarr: initDynarr, linked: initLinked, stack: initStack, ring: initRing, hash: initHash, bst: initBst, heap: initHeap, trie: initTrie, seg: initSeg, uf: initUf, skip: initSkip, grid: initGrid, topo: initTopo, sort: initSort, bsearch: initBsearch, lru: initLru, bloom: initBloom };
+        function boot() { document.querySelectorAll('.dst-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+          var cfg = JSON.parse(root.getAttribute('data-cfg')); var fn = INIT[cfg.t]; if (fn) fn(root, cfg); }); }
+        if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+      })();
+      </script>
+
+      <p>
+        普通陣列的大小一開始就固定了。<strong>動態陣列</strong>在背後多配置一些空間（容量），長度不夠時再換一塊更大的記憶體。對使用者來說，它看起來可以無限長大。
+      </p>
+
+      <div class="dst-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;n0&quot;: 9, &quot;t&quot;: &quot;dynarr&quot;, &quot;q&quot;: &quot;注意「元素個數」和「容量」的差別。藍色是已使用的格子，白色是預留的空格：&quot;}"></div>
+
+      <h2>擴容的策略</h2>
+
+      <ul>
+        <li>成長倍數越大，擴容次數越少，但浪費的空間越多（最多浪費一半）。</li>
+        <li>Java 的 ArrayList 用 1.5 倍，C++ 的 vector 常見 2 倍，CPython 的 list 約 1.125 倍再加一點常數。</li>
+        <li>刪除很多元素後，有些實作會縮小容量，但要避免在臨界點附近反覆擴大縮小（通常縮到 1/4 才減半）。</li>
+      </ul>
+
+      <h2>自己寫一個</h2>
+
+      <div class="code-block">class DynArray:
+    def __init__(self):
+        self.cap, self.n = 1, 0
+        self.data = [None] * self.cap
+
+    def append(self, x):
+        if self.n == self.cap:            # 滿了：倍增
+            self.cap *= 2
+            new = [None] * self.cap
+            for i in range(self.n):       # 搬家 O(n)
+                new[i] = self.data[i]
+            self.data = new
+        self.data[self.n] = x
+        self.n += 1
+
+    def __getitem__(self, i):
+        return self.data[i]               # O(1)</div>
+
+      <div class="callout">
+        <h3>預先配置</h3>
+        <p>
+          如果事先知道大約要放多少元素，可以先配置好容量（例如 C++ 的 <code>reserve</code>），完全避免擴容。在 Python 中用串列推導式一次建好，通常也比一個一個 append 快。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          動態陣列區分長度與容量，滿了就配置更大的空間並搬移元素，看起來可無限成長。倍數越大擴容越少但浪費越多，Java 用 1.5 倍、C++ 常見 2 倍、CPython 略大於 1.125 倍。縮容要留遲滯避免抖動。事先知道大小時預先配置可避免擴容。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗂️ 本課程以圖解與互動為主，程式碼一律使用 Python，力求簡短好讀；互動圖中的資料皆為示意。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>容量 16、長度 16 的動態陣列再 append 一次會發生什麼事？</li>
+          <li>成長倍數越大有什麼優缺點？</li>
+          <li>為什麼縮容不在一半時就縮？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>鏈結串列</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：陣列</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：鏈結串列 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

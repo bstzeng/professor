@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：雙端佇列、單調堆疊與單調佇列 ｜ 資料結構 ｜ 博雅書院</title>
+<meta name="description" content="兩端都能進出，以及兩個面試常客技巧">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料結構</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜線性結構 · 第 12 課</div>
+      <h1>雙端佇列、單調堆疊與單調佇列</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解雙端佇列（deque）</li>
+          <li>用單調堆疊找「下一個更大的元素」</li>
+          <li>用單調佇列求滑動視窗最大值</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__mdLib) return; window.__mdLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var _sl = slider; slider = function (root, lab, min, max, step, val, fmt, k, cb) { var u = _sl(root, lab, min, max, step, val, fmt, k, cb); var b = root.lastChild && root.lastChild.querySelector('b'); if (b) b.textContent = fmt(val); return u; };
+        var TAGC = { '定義': '#3a6ea5', '代換': '#2a9d8f', '展開化簡': '#7a8590', '拆開重組': '#e07a2f', '對稱': '#8e5bd1', '圖形': '#c9a227',
+          '極限': '#1f9bb4', '已知公式': '#a0522d', '歸納': '#4caf50', '反證': '#e0605a', '移項': '#5c7cfa', '近似': '#d14f9c' };
+        function kat(node, s, disp) { if (window.katex) { try { katex.render(s, node, { displayMode: !!disp, throwOnError: false }); return; } catch (e) {} } node.textContent = s; }
+        function mathIn(node) { if (window.renderMathInElement) renderMathInElement(node, { delimiters: [{ left: '\\(', right: '\\)', display: false }, { left: '\\[', right: '\\]', display: true }] }); }
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7'); root.appendChild(p); return p; }
+        function view(W, H, x0, x1, y0, y1, pad) { pad = pad || 0; var o = {}; if (y1 === null) y1 = y0 + (x1 - x0) * (H - 2 * pad) / (W - 2 * pad);
+          o.x = function (v) { return pad + (v - x0) / (x1 - x0) * (W - 2 * pad); }; o.y = function (v) { return H - pad - (v - y0) / (y1 - y0) * (H - 2 * pad); };
+          o.path = function (pts, c, w, ex) { var d = ''; pts.forEach(function (p, i) { if (!isFinite(p[1])) return; d += (d ? 'L' : 'M') + n1(o.x(p[0])) + ' ' + n1(o.y(p[1])); });
+            return '<path d="' + d + '" fill="none" stroke="' + c + '" stroke-width="' + (w || 2) + '" ' + (ex || '') + '/>'; };
+          o.poly = function (pts, fill, stroke, op) { return '<polygon points="' + pts.map(function (p) { return n1(o.x(p[0])) + ',' + n1(o.y(p[1])); }).join(' ') + '" fill="' + fill + '" fill-opacity="' + (op === undefined ? 0.35 : op) + '" stroke="' + (stroke || fill) + '" stroke-width="1.2"/>'; };
+          o.rect = function (x, y, w, h, fill, op) { return o.poly([[x, y], [x + w, y], [x + w, y + h], [x, y + h]], fill, fill, op); };
+          o.dot = function (x, y, c, r) { return '<circle cx="' + n1(o.x(x)) + '" cy="' + n1(o.y(y)) + '" r="' + (r || 4) + '" fill="' + c + '"/>'; };
+          o.t = function (x, y, s, sz, c, anc) { return tx(o.x(x), o.y(y), s, sz || 12, c, anc); };
+          o.l = function (x1, y1, x2, y2, c, w, ex) { return ln(o.x(x1), o.y(y1), o.x(x2), o.y(y2), c, w, ex); };
+          o.axes = function () { return o.l(x0, 0, x1, 0, '#999', 1) + o.l(0, y0, 0, y1, '#999', 1); };
+          o.svg = function (g) { return svgw('0 0 ' + W + ' ' + H, g); };
+          return o; }
+        function samp(f, a, b, n) { var p = []; n = n || 200; for (var i = 0; i <= n; i++) { var x = a + (b - a) * i / n; p.push([x, f(x)]); } return p; }
+        var BL = '#3a6ea5', OR = '#e07a2f', GR = '#4caf50', RD = '#e0605a', PU = '#8e5bd1', TE = '#2a9d8f', GD = '#c9a227';
+        function fact(n) { var r = 1; for (var i = 2; i <= n; i++) r *= i; return r; }
+        function C(n, k) { var r = 1; for (var i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); }
+        function sig(v) { if (!isFinite(v)) return String(v); var a = Math.abs(v); if (a !== 0 && (a < 1e-4 || a >= 1e7)) return v.toExponential(5); return (Math.round(v * 1e6) / 1e6).toString(); }
+
+        /* ---------- 逐步推導播放器 ---------- */
+        function initSteps(root, cfg) {
+          head(root, cfg.q); var k = 1, list = el('div'), bar = el('div', 'margin-top:6px'); root.appendChild(list); root.appendChild(bar);
+          var bp = btn('◀ 上一步'), bn = btn('下一步 ▶'), ba = btn('全部顯示'), cnt = el('span', 'margin-left:6px;font-size:0.88em;color:var(--text-muted)');
+          bar.appendChild(bp); bar.appendChild(bn); bar.appendChild(ba); bar.appendChild(cnt);
+          var rows = cfg.s.map(function (s, i) {
+            var r = el('div', 'display:flex;gap:10px;align-items:flex-start;padding:8px 6px;border-bottom:1px dashed var(--border)');
+            var num = el('div', 'flex:none;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);text-align:center;line-height:26px;font-size:0.85em;font-weight:bold', String(i + 1));
+            var body = el('div', 'flex:1;min-width:0'), f = el('div', 'overflow-x:auto'), meta = el('div', 'font-size:0.85em;margin-top:2px');
+            kat(f, s[0], true);
+            var c = TAGC[s[1]] || '#7a8590';
+            meta.innerHTML = '<span style="display:inline-block;padding:1px 9px;border-radius:999px;border:1px solid ' + c + ';color:' + c + ';margin-right:8px">' + s[1] + '</span>';
+            var why = el('div', 'display:none;margin-top:6px;padding:8px 10px;border-radius:6px;background:var(--accent-soft);line-height:1.7', s[2]);
+            if (s[2]) { var wb = el('a', 'cursor:pointer;color:var(--accent);text-decoration:underline', '為什麼可以？'); wb.onclick = function () { why.style.display = why.style.display === 'none' ? 'block' : 'none'; }; meta.appendChild(wb); }
+            mathIn(why);
+            body.appendChild(f); body.appendChild(meta); body.appendChild(why); r.appendChild(num); r.appendChild(body); list.appendChild(r); return r; });
+          function show() { rows.forEach(function (r, i) { r.style.display = i < k ? 'flex' : 'none'; }); cnt.textContent = '第 ' + k + ' / ' + rows.length + ' 步'; }
+          bp.onclick = function () { if (k > 1) k--; show(); }; bn.onclick = function () { if (k < rows.length) k++; show(); }; ba.onclick = function () { k = rows.length; show(); };
+          show(); }
+
+        /* ---------- 數值驗證 ---------- */
+        function initCheck(root, cfg) {
+          head(root, cfg.q); var vals = {}, out = el('div', 'margin-top:8px'), names = cfg.v.map(function (v) { return v[0]; });
+          var fns = cfg.r.map(function (r) { return new Function(names.join(','), 'return (' + r[1] + ');'); });
+          cfg.v.forEach(function (v) { vals[v[0]] = v[2]; slider(root, v[1], v[3], v[4], v[5], v[2], function (x) { return sig(x); }, v[0], function (x) { vals[v[0]] = x; draw(); }); });
+          root.appendChild(out); var nt = cfg.n ? el('p', 'margin:6px 0 0;font-size:0.88em;color:var(--text-muted)', cfg.n) : null; if (nt) root.appendChild(nt);
+          function draw() { var args = names.map(function (n) { return vals[n]; }), rs = fns.map(function (f) { try { return f.apply(null, args); } catch (e) { return NaN; } });
+            var h = '<table style="width:100%;border-collapse:collapse">';
+            cfg.r.forEach(function (r, i) { var A0 = Math.abs(rs[0]), Ai = Math.abs(rs[i]), same = i > 0 && isFinite(rs[i]) && (Math.abs(rs[i] - rs[0]) <= 1e-9 * Math.max(A0, Ai) || (A0 < 1e-12 && Ai < 1e-12));
+              h += '<tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 4px">' + r[0] + '</td><td style="padding:6px 4px;text-align:right;font-family:monospace;font-weight:bold">' + sig(rs[i]) + '</td><td style="width:28px;text-align:center;color:' + (same ? GR : 'transparent') + '">' + (i > 0 ? '✓' : '') + '</td></tr>'; });
+            out.innerHTML = h + '</table>'; mathIn(out); }
+          draw(); }
+
+        /* ---------- 平方差 ---------- */
+        function initSqdiff(root, cfg) {
+          head(root, cfg.q); var a = 6, b = 2.5, t = 0, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'b（挖掉的小正方形邊長）', 0.5, 5, 0.5, b, f1, 'b', function (x) { b = x; draw(); });
+          slider(root, '把橘色那塊轉過來、疊到上面', 0, 1, 0.01, t, function (x) { return Math.round(x * 100) + '%'; }, 't', function (x) { t = x; draw(); });
+          function draw() { var V = view(480, 460, -1.6, 9, -1, null, 6), g = '';
+            g += V.poly([[a - b, a - b], [a, a - b], [a, a], [a - b, a]], '#999', '#999', 0.08) + V.t(a - b / 2, a - b / 2, '挖掉 b²', 11, 'var(--text-muted)');
+            g += V.rect(0, 0, a - b, a, BL);
+            var P0 = [[a - b, 0], [a, 0], [a, a - b], [a - b, a - b]], P1 = [[a - b, a], [a - b, a + b], [0, a + b], [0, a]];
+            g += V.poly(P0.map(function (p, i) { return [p[0] * (1 - t) + P1[i][0] * t, p[1] * (1 - t) + P1[i][1] * t]; }), OR);
+            g += V.t((a - b) / 2, -0.6, 'a − b', 12) + (t < 0.5 ? V.t(-0.3, a / 2, 'a', 12, null, 'end') : V.t(-0.3, (a + b) / 2, 'a + b', 12, GR, 'end'));
+            v.innerHTML = '<div style="max-width:400px;margin:auto">' + V.svg(g) + '</div>';
+            inf.innerHTML = 'a² − b² = ' + f2(a * a) + ' − ' + f2(b * b) + ' = <b>' + f2(a * a - b * b) + '</b>　　(a+b)(a−b) = ' + f1(a + b) + ' × ' + f1(a - b) + ' = <b>' + f2((a + b) * (a - b)) + '</b>' +
+              (t > 0.95 ? '<br>拼好了：藍色 (a−b)×a 加上橘色 (a−b)×b，合起來是寬 a−b、高 a+b 的長方形。' : '<br>大正方形 a² 挖掉角落的 b²，剩下一個 L 形。'); }
+          draw(); }
+
+        /* ---------- 配方：x² + bx ---------- */
+        function initCompsq(root, cfg) {
+          head(root, cfg.q); var x = 4, b = 3, t = 0, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'b', 1, 6, 0.5, b, f1, 'b', function (q) { b = q; draw(); });
+          slider(root, '把 bx 切成兩半、貼到兩邊', 0, 1, 0.01, t, function (q) { return Math.round(q * 100) + '%'; }, 't', function (q) { t = q; draw(); });
+          function draw() { var V = view(560, 360, -0.6, 11.5, -0.6, null, 6), g = '', h = b / 2;
+            g += V.rect(0, 0, x, x, BL) + V.t(x / 2, x / 2, 'x²', 14);
+            var r1a = [x + 0.4, 0], r1b = [x, 0], r2a = [x + 0.4 + h + 0.4, 0], r2b = [0, x];
+            var p1 = [r1a[0] * (1 - t) + r1b[0] * t, 0], p2 = [r2a[0] * (1 - t) + r2b[0] * t, r2b[1] * t];
+            g += V.rect(p1[0], p1[1], h, x, OR) + V.t(p1[0] + h / 2, x / 2, 'bx/2', 11);
+            var w2 = h * (1 - t) + x * t, h2 = x * (1 - t) + h * t;
+            g += V.rect(p2[0], p2[1], w2, h2, OR) + V.t(p2[0] + w2 / 2, p2[1] + h2 / 2, 'bx/2', 11);
+            if (t > 0.95) g += V.rect(x, x, h, h, GR, 0.15) + V.t(x + h / 2, x + h / 2, '(b/2)²', 11, GR);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = t > 0.95 ? 'x² + bx 拼成一個缺角的正方形，補上綠色的 (b/2)² = ' + f2(h * h) + '，就成了邊長 x + b/2 的正方形：<br><b>x² + bx + (b/2)² = (x + b/2)²</b>' : '把 bx 這條長方形從中間切成兩半，一半貼右邊、一半貼上面。'; }
+          draw(); }
+
+        /* ---------- 畢氏定理拼圖 ---------- */
+        function initPyth(root, cfg) {
+          head(root, cfg.q); var a = 3, b = 5, t = 0, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '直角邊 a', 1, 6, 0.5, a, f1, 'a', function (q) { a = q; draw(); });
+          slider(root, '把四個三角形重新排列', 0, 1, 0.01, t, function (q) { return Math.round(q * 100) + '%'; }, 't', function (q) { t = q; draw(); });
+          function lerp(P, Q) { return P.map(function (p, i) { return [p[0] * (1 - t) + Q[i][0] * t, p[1] * (1 - t) + Q[i][1] * t]; }); }
+          function draw() { var s = a + b, V = view(400, 400, -0.4, s + 0.4, -0.4, null, 6), g = '';
+            g += V.rect(0, 0, s, s, '#999', 0.05);
+            // 排法一：四個三角形繞一圈，中間留斜放的 c²
+            var A1 = [[[0, 0], [b, 0], [0, a]], [[b, 0], [s, 0], [s, b]], [[s, b], [s, s], [a, s]], [[a, s], [0, s], [0, a]]];
+            // 排法二：兩個三角形拼成 a×b 長方形，放兩組，留下 a² 與 b²
+            var A2 = [[[0, 0], [b, 0], [0, a]], [[b, a], [0, a], [b, 0]], [[b, a], [s, a], [b, s]], [[s, s], [b, s], [s, a]]];
+            [OR, OR, OR, OR].forEach(function (c, i) { g += V.poly(lerp(A1[i], A2[i]), c, c, 0.55); });
+            if (t < 0.05) g += V.t(s / 2, s / 2, 'c²', 16, BL);
+            if (t > 0.95) { g += V.t(b + a / 2, a / 2, 'a²', 15, BL) + V.t(b / 2, a + b / 2, 'b²', 15, BL); }
+            v.innerHTML = '<div style="max-width:360px;margin:auto">' + V.svg(g) + '</div>';
+            var c = Math.sqrt(a * a + b * b);
+            inf.innerHTML = '大正方形邊長 a + b，裡面四個一樣的直角三角形只是換位置，<b>剩下的空白面積不變</b>：' + (t < 0.5 ? '現在空白是斜放的正方形 c²。' : '現在空白是 a² 和 b² 兩塊。') +
+              '<br>a² + b² = ' + f2(a * a) + ' + ' + f2(b * b) + ' = ' + f2(a * a + b * b) + '　c = ' + f2(c) + '，c² = ' + f2(c * c); }
+          draw(); }
+
+        /* ---------- 圓面積：切披薩 ---------- */
+        function initPizza(root, cfg) {
+          head(root, cfg.q); var n = 8, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '切成幾片', 4, 64, 2, n, function (q) { return q + ' 片'; }, 'n', function (q) { n = q; draw(); });
+          function draw() { var V = view(640, 250, -1.15, 5.3, -1.15, null, 6), g = '', w = 2 * Math.sin(Math.PI / n), h = Math.cos(Math.PI / n), x0 = 1.35, y0 = -0.5;
+            g += '<circle cx="' + V.x(0) + '" cy="' + V.y(0) + '" r="' + (V.x(1) - V.x(0)) + '" fill="' + BL + '" fill-opacity="0.15" stroke="' + BL + '"/>';
+            for (var i = 0; i < n; i++) { var a0 = 2 * Math.PI * i / n; g += V.l(0, 0, Math.cos(a0), Math.sin(a0), BL, 0.8); }
+            for (var j = 0; j < n; j++) { var k = Math.floor(j / 2), tri = j % 2 === 0 ? [[x0 + k * w, y0], [x0 + (k + 1) * w, y0], [x0 + (k + 0.5) * w, y0 + h]] : [[x0 + (k + 0.5) * w, y0 + h], [x0 + (k + 1.5) * w, y0 + h], [x0 + (k + 1) * w, y0]];
+              g += V.poly(tri, j % 2 ? BL : OR, j % 2 ? BL : OR, 0.4); }
+            g += V.t(x0 + (n / 2 + 0.5) * w / 2, y0 - 0.3, '底 ≈ 半圓周 = πr', 11) + V.t(x0 - 0.08, y0 + h / 2, '高 ≈ r', 11, null, 'end');
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '切成 ' + n + ' 片後交錯排好：底邊約是半個圓周 πr，高是每片的高 r·cos(π/n) = ' + h.toFixed(4) + 'r。<br>片數愈多，高愈接近 r、底邊愈平，形狀愈接近長方形 → 面積 = πr × r = <b>πr²</b>。'; }
+          draw(); }
+
+        /* ---------- 阿基米德夾擠 π ---------- */
+        function initArchi(root, cfg) {
+          head(root, cfg.q); var k = 0, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '正多邊形邊數', 0, 6, 1, k, function (q) { return (6 * Math.pow(2, q)) + ' 邊'; }, 'k', function (q) { k = q; draw(); });
+          function draw() { var n = 6 * Math.pow(2, k), V = view(320, 320, -1.3, 1.3, -1.3, null, 6), g = '', pin = [], pout = [], R = 1 / Math.cos(Math.PI / n);
+            for (var i = 0; i < n; i++) { var a = 2 * Math.PI * i / n; pin.push([Math.cos(a), Math.sin(a)]); pout.push([R * Math.cos(a + Math.PI / n), R * Math.sin(a + Math.PI / n)]); }
+            g += V.poly(pout, OR, OR, 0.12) + '<circle cx="' + V.x(0) + '" cy="' + V.y(0) + '" r="' + (V.x(1) - V.x(0)) + '" fill="none" stroke="' + BL + '" stroke-width="2"/>' + V.poly(pin, GR, GR, 0.15);
+            var lo = n * Math.sin(Math.PI / n), hi = n * Math.tan(Math.PI / n);
+            v.innerHTML = '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><div style="flex:1;min-width:220px;max-width:320px">' + V.svg(g) + '</div><div style="flex:1;min-width:200px;line-height:2">' +
+              '內接 ' + n + ' 邊形周長／直徑：<b style="color:' + GR + '">' + lo.toFixed(6) + '</b><br>外切 ' + n + ' 邊形周長／直徑：<b style="color:' + OR + '">' + hi.toFixed(6) + '</b><br>π = 3.141593…</div></div>';
+            inf.innerHTML = 'π 被夾在兩者之間。阿基米德做到 96 邊形，得到 <b>3 10/71 < π < 3 1/7</b>（約 3.1408 到 3.1429）。'; }
+          draw(); }
+
+        /* ---------- 高斯配對 ---------- */
+        function initGauss(root, cfg) {
+          head(root, cfg.q); var n = 6, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'n', 2, 14, 1, n, function (q) { return q; }, 'n', function (q) { n = q; draw(); });
+          function draw() { var V = view(480, 460, -0.3, n + 1.3, -0.3, null, 6), g = '';
+            for (var i = 1; i <= n; i++) for (var j = 0; j < n + 1; j++) { var mine = j < i; g += V.rect(j, n - i, 0.9, 0.9, mine ? BL : OR, mine ? 0.55 : 0.35); }
+            v.innerHTML = '<div style="max-width:420px;margin:auto">' + V.svg(g) + '</div>';
+            inf.innerHTML = '藍色是 1 + 2 + … + ' + n + '，橘色是同樣的東西倒過來放。合起來是 ' + n + ' × ' + (n + 1) + ' 的長方形，所以和 = ' + n + ' × ' + (n + 1) + ' / 2 = <b>' + (n * (n + 1) / 2) + '</b>。'; }
+          draw(); }
+
+        /* ---------- 等比級數：正方形不斷對半 ---------- */
+        function initGeom(root, cfg) {
+          head(root, cfg.q); var k = 3, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '項數', 1, 12, 1, k, function (q) { return q; }, 'k', function (q) { k = q; draw(); });
+          function draw() { var V = view(320, 320, -0.05, 1.05, -0.05, null, 6), g = V.rect(0, 0, 1, 1, '#999', 0.05), x = 0, y = 0, w = 1, h = 1, s = 0;
+            for (var i = 0; i < k; i++) { var c = i % 2 ? OR : BL;
+              if (i % 2 === 0) { g += V.rect(x, y, w / 2, h, c, 0.5); x += w / 2; w /= 2; } else { g += V.rect(x, y, w, h / 2, c, 0.5); y += h / 2; h /= 2; }
+              s += Math.pow(0.5, i + 1); }
+            v.innerHTML = '<div style="max-width:320px;margin:auto">' + V.svg(g) + '</div>';
+            inf.innerHTML = '1/2 + 1/4 + … 共 ' + k + ' 項 = <b>' + s.toFixed(6) + '</b>，剩下的空白剛好是最後一項 ' + Math.pow(0.5, k).toFixed(6) + '。項數無限多時，空白趨近 0，和趨近 <b>1</b>。'; }
+          draw(); }
+
+        /* ---------- 巴斯卡三角形 ---------- */
+        function initPascal(root, cfg) {
+          head(root, cfg.q); var n = 6, k = 2, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          var uk; slider(root, '列 n', 1, 10, 1, n, function (q) { return q; }, 'n', function (q) { n = q; if (k > n) k = n; draw(); });
+          slider(root, '位置 k', 0, 10, 1, k, function (q) { return q; }, 'k', function (q) { k = Math.min(q, n); draw(); });
+          function draw() { var W = 640, H = 34 * 11 + 20, g = '';
+            for (var r = 0; r <= 10; r++) for (var c = 0; c <= r; c++) { var x = W / 2 + (c - r / 2) * 52, y = 24 + r * 34, on = r === n && c === k, inR = r === n;
+              g += '<rect x="' + (x - 22) + '" y="' + (y - 13) + '" width="44" height="24" rx="6" fill="' + (on ? OR : inR ? 'rgba(58,110,165,0.18)' : 'transparent') + '" stroke="var(--border)"/>' + tx(x, y + 4, C(r, c), 12, on ? '#fff' : 'currentColor'); }
+            v.innerHTML = svgw('0 0 ' + W + ' ' + H, g);
+            inf.innerHTML = '第 ' + n + ' 列第 ' + k + ' 個數 = <b>C(' + n + ', ' + k + ') = ' + C(n, k) + '</b>：從頂端走到這格、每步往左下或右下，共有這麼多條路；也就是 (a+b)<sup>' + n + '</sup> 展開後 a<sup>' + (n - k) + '</sup>b<sup>' + k + '</sup> 的係數。每個數 = 上面兩數相加。'; }
+          draw(); }
+
+        /* ---------- 複利與 e ---------- */
+        function initCompound(root, cfg) {
+          head(root, cfg.q); var L = 1, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '一年複利幾次 n（對數刻度）', 0, 6, 0.05, L, function (q) { return Math.round(Math.pow(10, q)).toLocaleString(); }, 'n', function (q) { L = q; draw(); });
+          function draw() { var d = []; for (var x = 0; x <= 6.001; x += 0.05) { var nn = Math.pow(10, x); d.push([x, Math.pow(1 + 1 / nn, nn)]); }
+            var nn = Math.round(Math.pow(10, L)), val = Math.pow(1 + 1 / nn, nn);
+            v.innerHTML = chart(640, 240, [{ d: d, c: BL, n: '(1 + 1/n)ⁿ' }], { y0: 2, y1: 2.8, xl: 'log₁₀ n', hl: [{ y: Math.E, c: RD, n: 'e = 2.71828…' }], pts: [{ x: L, y: val, c: OR, n: val.toFixed(6) }] });
+            inf.innerHTML = '年利率 100%、一年複利 ' + nn.toLocaleString() + ' 次，1 元變成 <b>' + val.toFixed(8) + '</b> 元。次數再多也不會無限長大，而是趨近 e = 2.718281828…'; }
+          draw(); }
+
+        /* ---------- 拋物線：根與頂點 ---------- */
+        function initParab(root, cfg) {
+          head(root, cfg.q); var a = 1, b = -2, c = -3, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'a', -3, 3, 0.25, a, f2, 'a', function (q) { a = q || 0.25; draw(); });
+          slider(root, 'b', -6, 6, 0.5, b, f1, 'b', function (q) { b = q; draw(); });
+          slider(root, 'c', -6, 6, 0.5, c, f1, 'c', function (q) { c = q; draw(); });
+          function draw() { var V = view(640, 300, -8, 8, -10, 10, 6), g = V.axes(), D = b * b - 4 * a * c, h = -b / (2 * a), k = c - b * b / (4 * a);
+            g += V.path(samp(function (x) { return a * x * x + b * x + c; }, -8, 8, 300), BL, 2.5);
+            g += V.l(h, -10, h, 10, PU, 1, 'stroke-dasharray="4 4"') + V.dot(h, k, PU, 5);
+            var txt = '頂點 (' + f2(h) + ', ' + f2(k) + ')，對稱軸 x = −b/2a = ' + f2(h) + '。判別式 b² − 4ac = ' + f2(D) + '：';
+            if (D >= 0) { var r1 = (-b + Math.sqrt(D)) / (2 * a), r2 = (-b - Math.sqrt(D)) / (2 * a); g += V.dot(r1, 0, OR, 5) + V.dot(r2, 0, OR, 5);
+              txt += '兩根 x = ' + f2(r1) + '、' + f2(r2) + '，剛好在對稱軸左右各 √D/2|a| = ' + f2(Math.sqrt(D) / (2 * Math.abs(a))) + ' 的地方；兩根和 ' + f2(r1 + r2) + ' = −b/a，積 ' + f2(r1 * r2) + ' = c/a。'; }
+            else txt += '小於 0，拋物線碰不到 x 軸，沒有實數根。';
+            v.innerHTML = V.svg(g); inf.innerHTML = txt; }
+          draw(); }
+
+        /* ---------- 和角公式 ---------- */
+        function initAnglesum(root, cfg) {
+          head(root, cfg.q); var al = 35, be = 25, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'α', 5, 60, 1, al, function (q) { return q + '°'; }, 'a', function (q) { al = q; draw(); });
+          slider(root, 'β', 5, 50, 1, be, function (q) { return q + '°'; }, 'b', function (q) { be = q; draw(); });
+          function draw() { var A = al * Math.PI / 180, B = be * Math.PI / 180, V = view(520, 420, -0.2, 1.3, -0.1, null, 6), g = '';
+            // 單位長的斜邊 OP 與 x 軸夾 α+β；先在 β 方向的直角三角形：OQ = cos β、QP = sin β
+            var Q = [Math.cos(B) * Math.cos(A), Math.cos(B) * Math.sin(A)], P = [Math.cos(A + B), Math.sin(A + B)];
+            g += V.l(0, 0, 1.2, 0, '#999') + V.l(0, 0, 0, 1.1, '#999');
+            g += V.l(0, 0, P[0], P[1], RD, 2.5) + V.l(0, 0, Q[0], Q[1], BL, 2) + V.l(Q[0], Q[1], P[0], P[1], OR, 2);
+            g += V.l(Q[0], 0, Q[0], Q[1], BL, 1.5, 'stroke-dasharray="4 3"') + V.l(P[0], Q[1], Q[0], Q[1], OR, 1.5, 'stroke-dasharray="4 3"') + V.l(P[0], 0, P[0], P[1], RD, 1.5, 'stroke-dasharray="4 3"');
+            g += V.t(Q[0] + 0.03, Q[1] / 2, 'cosβ·sinα', 10, BL, 'start') + V.t(P[0] - 0.02, (P[1] + Q[1]) / 2, 'sinβ·cosα', 10, OR, 'end') + V.t(P[0] / 2 - 0.02, P[1] / 2 + 0.06, '1', 12, RD);
+            v.innerHTML = '<div style="max-width:440px;margin:auto">' + V.svg(g) + '</div>';
+            var lhs = Math.sin(A + B), r1 = Math.sin(A) * Math.cos(B), r2 = Math.cos(A) * Math.sin(B);
+            inf.innerHTML = '紅色斜邊長 1、仰角 α+β，它的高度就是 sin(α+β) = <b>' + lhs.toFixed(4) + '</b>。<br>這個高度拆成兩段：藍色直角三角形的高 sinα·cosβ = ' + r1.toFixed(4) + '，加上橘色小三角形的高 cosα·sinβ = ' + r2.toFixed(4) + '，和 = <b>' + (r1 + r2).toFixed(4) + '</b>。'; }
+          draw(); }
+
+        /* ---------- 餘弦定理 ---------- */
+        function initCosine(root, cfg) {
+          head(root, cfg.q); var a = 4, b = 3, Cd = 90, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '夾角 C', 20, 160, 1, Cd, function (q) { return q + '°'; }, 'C', function (q) { Cd = q; draw(); });
+          function draw() { var Cr = Cd * Math.PI / 180, V = view(560, 300, -3.2, 4.8, -0.6, null, 6), g = '';
+            var Pa = [a, 0], Pb = [b * Math.cos(Cr), b * Math.sin(Cr)];
+            g += V.poly([[0, 0], Pa, Pb], BL, BL, 0.12) + V.l(0, 0, a, 0, BL, 2.5) + V.l(0, 0, Pb[0], Pb[1], GR, 2.5) + V.l(Pa[0], Pa[1], Pb[0], Pb[1], RD, 2.5);
+            g += V.l(Pb[0], Pb[1], Pb[0], 0, '#999', 1, 'stroke-dasharray="4 3"') + V.t(a / 2, -0.3, 'a', 12, BL) + V.t(Pb[0] / 2 - 0.2, Pb[1] / 2, 'b', 12, GR) + V.t((Pa[0] + Pb[0]) / 2 + 0.2, Pb[1] / 2, 'c', 12, RD);
+            v.innerHTML = V.svg(g);
+            var c2 = a * a + b * b - 2 * a * b * Math.cos(Cr);
+            inf.innerHTML = 'a² + b² = ' + f2(a * a + b * b) + '，修正項 −2ab·cosC = ' + f2(-2 * a * b * Math.cos(Cr)) + ' → c² = <b>' + f2(c2) + '</b>（量出來 c = ' + f2(Math.sqrt(c2)) + '）。' +
+              (Math.abs(Cd - 90) < 0.5 ? '<br>C = 90° 時 cos C = 0，修正項消失，就是畢氏定理。' : Cd < 90 ? '<br>C 小於 90°：c 比直角時短，修正項是負的。' : '<br>C 大於 90°：c 比直角時長，修正項是正的。'); }
+          draw(); }
+
+        /* ---------- sin x / x 夾擠 ---------- */
+        function initSqueeze(root, cfg) {
+          head(root, cfg.q); var x = 0.8, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'x（弧度）', 0.02, 1.4, 0.01, x, f2, 'x', function (q) { x = q; draw(); });
+          function draw() { var V = view(360, 370, -0.1, 1.15, -0.1, null, 6), g = '';
+            g += '<path d="M' + V.x(1) + ' ' + V.y(0) + ' A ' + (V.x(1) - V.x(0)) + ' ' + (V.y(0) - V.y(1)) + ' 0 0 0 ' + V.x(Math.cos(1.5)) + ' ' + V.y(Math.sin(1.5)) + '" fill="none" stroke="#999"/>';
+            var t = Math.min(Math.tan(x), 1.15);
+            g += V.poly([[0, 0], [1, 0], [1, t]], OR, OR, 0.18);
+            var sec = [[0, 0]]; for (var i = 0; i <= 30; i++) { var a = x * i / 30; sec.push([Math.cos(a), Math.sin(a)]); } g += V.poly(sec, BL, BL, 0.25);
+            g += V.poly([[0, 0], [1, 0], [Math.cos(x), Math.sin(x)]], GR, GR, 0.35);
+            v.innerHTML = '<div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center"><div style="flex:1;min-width:220px;max-width:360px">' + V.svg(g) + '</div><div style="flex:1;min-width:200px;line-height:2">' +
+              '<span style="color:' + GR + '">小三角形</span> ½sin x = ' + (Math.sin(x) / 2).toFixed(5) + '<br><span style="color:' + BL + '">扇形</span> ½x = ' + (x / 2).toFixed(5) + '<br><span style="color:' + OR + '">大三角形</span> ½tan x = ' + (Math.tan(x) / 2).toFixed(5) + '</div></div>';
+            inf.innerHTML = '三塊面積永遠由小到大：sin x ≤ x ≤ tan x。同除以 sin x 再取倒數：cos x ≤ sin x / x ≤ 1。<br>現在 cos x = ' + Math.cos(x).toFixed(5) + '，sin x / x = <b>' + (Math.sin(x) / x).toFixed(5) + '</b>。x → 0 時 cos x → 1，夾在中間的也只能 → 1。'; }
+          draw(); }
+
+        /* ---------- 割線變切線 ---------- */
+        function initSecant(root, cfg) {
+          head(root, cfg.q); var x0 = 1, h = 1.5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          var f = function (x) { return x * x; };
+          slider(root, 'h（兩點的距離）', 0.01, 2, 0.01, h, f2, 'h', function (q) { h = q; draw(); });
+          function draw() { var V = view(640, 300, -0.5, 3.5, -0.5, 9, 6), g = V.axes() + V.path(samp(f, -0.5, 3, 200), BL, 2.5), m = (f(x0 + h) - f(x0)) / h;
+            g += V.path([[-0.5, f(x0) + m * (-0.5 - x0)], [3.5, f(x0) + m * (3.5 - x0)]], OR, 1.8) + V.path([[-0.5, f(x0) + 2 * (-0.5 - x0)], [3.5, f(x0) + 2 * (3.5 - x0)]], RD, 1, 'stroke-dasharray="5 4"');
+            g += V.dot(x0, f(x0), RD, 5) + V.dot(x0 + h, f(x0 + h), OR, 5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = 'f(x) = x²，在 x = 1：割線斜率 [f(1+h) − f(1)] / h = (2h + h²)/h = 2 + h = <b>' + m.toFixed(4) + '</b>。h → 0 時斜率 → <b>2</b>，割線（橘）變成切線（紅虛線）。'; }
+          draw(); }
+
+        /* ---------- (aˣ)′ 與 eˣ ---------- */
+        function initEderiv(root, cfg) {
+          head(root, cfg.q); var a = 2, x = 0.5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '底數 a', 1.5, 4, 0.01, a, f2, 'a', function (q) { a = q; draw(); });
+          slider(root, 'x', -1, 1.5, 0.05, x, f2, 'x', function (q) { x = q; draw(); });
+          function draw() { var f = function (t) { return Math.pow(a, t); }, s = Math.log(a) * f(x), V = view(640, 280, -2, 2, -0.5, 7, 6), g = V.axes();
+            g += V.path(samp(f, -2, 2, 200), BL, 2.5) + V.path([[x - 1, f(x) - s], [x + 1, f(x) + s]], OR, 2) + V.dot(x, f(x), RD, 5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '斜率 ÷ 高度 = <b>' + (s / f(x)).toFixed(4) + '</b>，不管 x 在哪都一樣，這個比值等於 ln a。' + (Math.abs(a - Math.E) < 0.02 ? '<br>a ≈ e 時比值 = 1：<b>斜率就等於自己的高度</b>，(eˣ)′ = eˣ。' : '<br>把 a 調到 2.718 左右試試。'); }
+          draw(); }
+
+        /* ---------- (sin x)′ ---------- */
+        function initSinderiv(root, cfg) {
+          head(root, cfg.q); var x = 1, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'x', -3, 6, 0.05, x, f2, 'x', function (q) { x = q; draw(); });
+          function draw() { var V = view(640, 260, -3.3, 6.5, -1.6, 1.6, 6), g = V.axes(), s = Math.cos(x);
+            g += V.path(samp(Math.sin, -3.2, 6.4, 300), BL, 2.5) + V.path(samp(Math.cos, -3.2, 6.4, 300), GR, 1.5, 'stroke-dasharray="5 4"');
+            g += V.path([[x - 0.8, Math.sin(x) - 0.8 * s], [x + 0.8, Math.sin(x) + 0.8 * s]], OR, 2.2) + V.dot(x, Math.sin(x), RD, 5) + V.dot(x, s, GR, 5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = 'sin x 在這點的切線斜率 = <b>' + s.toFixed(4) + '</b>，綠點 cos x = ' + s.toFixed(4) + '。整條綠色虛線就是 sin x 每一點的斜率：<b>(sin x)′ = cos x</b>。'; }
+          draw(); }
+
+        /* ---------- 黎曼和與微積分基本定理 ---------- */
+        function initRiemann(root, cfg) {
+          head(root, cfg.q); var n = 8, X = 2, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          var f = function (x) { return 0.5 + 0.3 * x * x; };
+          slider(root, '長方形個數 n', 2, 80, 1, n, function (q) { return q; }, 'n', function (q) { n = q; draw(); });
+          slider(root, '右端 x', 0.4, 3, 0.05, X, f2, 'X', function (q) { X = q; draw(); });
+          function draw() { var V = view(640, 280, -0.2, 3.3, -0.3, 3.6, 6), g = V.axes(), dx = X / n, S = 0;
+            for (var i = 0; i < n; i++) { var h = f(i * dx + dx / 2); S += h * dx; g += V.rect(i * dx, 0, dx, h, BL, 0.3); }
+            g += V.path(samp(f, 0, 3.2, 200), OR, 2.5) + V.l(X, 0, X, f(X), RD, 2);
+            var exact = 0.5 * X + 0.1 * X * X * X;
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '長方形面積和 = ' + S.toFixed(5) + '，精確面積 A(x) = 0.5x + 0.1x³ = <b>' + exact.toFixed(5) + '</b>。<br>x 再往右推一小段 Δx，面積多出一條高 f(x) = ' + f(X).toFixed(3) + '、寬 Δx 的細條 → A′(x) = f(x)：<b>面積的變化率就是高度</b>。'; }
+          draw(); }
+
+        /* ---------- 球體積：阿基米德切片 ---------- */
+        function initSphere(root, cfg) {
+          head(root, cfg.q); var z = 0.5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '切在高度 z（半徑 r = 1）', 0, 0.99, 0.01, z, f2, 'z', function (q) { z = q; draw(); });
+          function draw() { var V = view(640, 200, -1.3, 4.4, -0.2, null, 6), g = '', s = Math.sqrt(1 - z * z);
+            g += V.path(samp(function (x) { return Math.sqrt(Math.max(0, 1 - x * x)); }, -1, 1, 120), BL, 2) + V.l(-1, 0, 1, 0, BL, 1.5);
+            g += V.l(-s, z, s, z, OR, 3) + V.t(0, z + 0.07, '圓半徑 √(r² − z²)', 10, OR);
+            var cx = 3; g += V.rect(cx - 1, 0, 2, 1, '#999', 0.06) + V.l(cx, 0, cx - 1, 1, GR, 1.5) + V.l(cx, 0, cx + 1, 1, GR, 1.5);
+            g += V.l(cx - 1, z, cx - z, z, OR, 3) + V.l(cx + z, z, cx + 1, z, OR, 3) + V.t(cx, z + 0.07, '圓環：外半徑 r、內半徑 z', 10, OR);
+            g += V.t(0, -0.12, '半球', 11) + V.t(cx, -0.12, '圓柱 − 圓錐', 11);
+            v.innerHTML = V.svg(g);
+            var a1 = Math.PI * (1 - z * z);
+            inf.innerHTML = '在高度 z 切一刀：半球的截面積 π(r² − z²) = <b>' + a1.toFixed(4) + '</b>，圓柱挖掉圓錐的截面積 πr² − πz² = <b>' + a1.toFixed(4) + '</b>。<br>每一層都一樣大，所以體積一樣：半球 = 圓柱 − 圓錐 = πr³ − ⅓πr³ = ⅔πr³ → 整顆球 <b>⁴⁄₃πr³</b>。'; }
+          draw(); }
+
+        /* ---------- 泰勒展開 ---------- */
+        function initTaylor(root, cfg) {
+          head(root, cfg.q); var fn = cfg.f || 'exp', N = 3, v = el('div'), bar = el('div'), inf = info(root); root.insertBefore(bar, inf); root.insertBefore(v, inf);
+          var F = { exp: [Math.exp, function (k) { return 1 / fact(k); }, 'eˣ', -3, 3, -1, 8],
+            sin: [Math.sin, function (k) { return k % 2 ? (k % 4 === 1 ? 1 : -1) / fact(k) : 0; }, 'sin x', -7, 7, -2, 2],
+            cos: [Math.cos, function (k) { return k % 2 ? 0 : (k % 4 === 0 ? 1 : -1) / fact(k); }, 'cos x', -7, 7, -2, 2],
+            ln: [function (x) { return Math.log(1 + x); }, function (k) { return k === 0 ? 0 : (k % 2 ? 1 : -1) / k; }, 'ln(1+x)', -0.99, 2, -3, 1.5] };
+          ['exp', 'sin', 'cos', 'ln'].forEach(function (k) { var b = btn(F[k][2], k); b.onclick = function () { fn = k; mark(bar, k); draw(); }; bar.appendChild(b); }); mark(bar, fn);
+          slider(root, '多項式次數', 0, 15, 1, N, function (q) { return q; }, 'N', function (q) { N = q; draw(); });
+          function draw() { var o = F[fn], V = view(640, 300, o[3], o[4], o[5], o[6], 6), g = V.axes();
+            var P = function (x) { var s = 0; for (var k = 0; k <= N; k++) s += o[1](k) * Math.pow(x, k); return s; };
+            g += V.path(samp(o[0], o[3], o[4], 300), BL, 3) + V.path(samp(function (x) { var y = P(x); return Math.abs(y) > 50 ? NaN : y; }, o[3], o[4], 300), OR, 2);
+            v.innerHTML = V.svg(g); var x1 = fn === 'ln' ? 0.5 : 1;
+            inf.innerHTML = '藍：' + o[2] + '　橘：' + N + ' 次泰勒多項式。在 x = ' + x1 + '：真值 ' + o[0](x1).toFixed(6) + '，多項式 ' + P(x1).toFixed(6) + '。' + (fn === 'ln' ? '<br>ln(1+x) 的級數只在 −1 < x ≤ 1 收斂：x > 1 那一側，次數愈高反而愈離譜。' : '<br>次數愈高，貼合的範圍愈寬。'); }
+          draw(); }
+
+        /* ---------- 巴塞爾問題 ---------- */
+        function initBasel(root, cfg) {
+          head(root, cfg.q); var N = 20, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '加到第 N 項', 1, 400, 1, N, function (q) { return q; }, 'N', function (q) { N = q; draw(); });
+          function draw() { var d = [], s = 0; for (var k = 1; k <= 400; k++) { s += 1 / (k * k); d.push([k, s]); } var sN = 0; for (k = 1; k <= N; k++) sN += 1 / (k * k);
+            v.innerHTML = chart(640, 240, [{ d: d, c: BL, n: '部分和' }], { y0: 1, y1: 1.7, xl: 'N', hl: [{ y: Math.PI * Math.PI / 6, c: RD, n: 'π²/6 = 1.644934…' }], pts: [{ x: N, y: sN, c: OR, n: sN.toFixed(6) }] });
+            inf.innerHTML = '1 + 1/4 + 1/9 + … 加到第 ' + N + ' 項 = <b>' + sN.toFixed(8) + '</b>，和 π²/6 還差 ' + (Math.PI * Math.PI / 6 - sN).toFixed(6) + '（大約 1/N）。收斂很慢，所以當年光靠加是看不出答案的。'; }
+          draw(); }
+
+        /* ---------- 斯特靈 ---------- */
+        function initStirling(root, cfg) {
+          head(root, cfg.q); var n = 10, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'n', 1, 60, 1, n, function (q) { return q; }, 'n', function (q) { n = q; draw(); });
+          function st(k) { return Math.sqrt(2 * Math.PI * k) * Math.pow(k / Math.E, k); }
+          function draw() { var d = []; for (var k = 1; k <= 60; k++) d.push([k, fact(k) / st(k)]);
+            v.innerHTML = chart(640, 220, [{ d: d, c: BL, n: 'n! ÷ 斯特靈近似' }], { y0: 1, y1: 1.09, xl: 'n', hl: [{ y: 1, c: RD, n: '1' }], pts: [{ x: n, y: fact(n) / st(n), c: OR, n: (fact(n) / st(n)).toFixed(5) }] });
+            inf.innerHTML = n + '! = ' + sig(fact(n)) + '，近似值 √(2πn)(n/e)ⁿ = ' + sig(st(n)) + '，比值 <b>' + (fact(n) / st(n)).toFixed(6) + '</b>（大約 1 + 1/(12n)）。n 愈大，相對誤差愈小。'; }
+          draw(); }
+
+        /* ---------- 二項分布 → 常態 ---------- */
+        function initBinom(root, cfg) {
+          head(root, cfg.q); var n = 10, p = 0.5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '試驗次數 n', 1, 100, 1, n, function (q) { return q; }, 'n', function (q) { n = q; draw(); });
+          slider(root, '成功機率 p', 0.05, 0.95, 0.05, p, f2, 'p', function (q) { p = q; draw(); });
+          function draw() { var mu = n * p, sd = Math.sqrt(n * p * (1 - p)), V = view(640, 260, -0.5, n + 0.5, 0, 0, 6), mx = 0, pm = [];
+            for (var k = 0; k <= n; k++) { var q = C(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k); pm.push(q); mx = Math.max(mx, q); }
+            V = view(640, 260, -0.5, n + 0.5, 0, mx * 1.15, 6); var g = '';
+            pm.forEach(function (q, k) { g += V.rect(k - 0.45, 0, 0.9, q, BL, 0.45); });
+            g += V.path(samp(function (x) { return Math.exp(-(x - mu) * (x - mu) / (2 * sd * sd)) / (sd * Math.sqrt(2 * Math.PI)); }, -0.5, n + 0.5, 300), RD, 2.5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '長條：二項分布 B(' + n + ', ' + p + ')；紅線：平均 np = ' + f2(mu) + '、標準差 √(np(1−p)) = ' + f2(sd) + ' 的常態曲線。n 愈大，兩者愈貼合。'; }
+          draw(); }
+
+        /* ---------- 高斯積分 ---------- */
+        function initGaussint(root, cfg) {
+          head(root, cfg.q); var L = 1, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '積分範圍 −L 到 L', 0.2, 4, 0.05, L, f2, 'L', function (q) { L = q; draw(); });
+          function draw() { var V = view(640, 240, -4.2, 4.2, -0.05, 1.15, 6), g = V.axes(), pts = [[-L, 0]], S = 0, N = 4000;
+            for (var i = 0; i <= 200; i++) { var x = -L + 2 * L * i / 200; pts.push([x, Math.exp(-x * x)]); } pts.push([L, 0]);
+            for (i = 0; i < N; i++) { var xm = -L + 2 * L * (i + 0.5) / N; S += Math.exp(-xm * xm) * 2 * L / N; }
+            g += V.poly(pts, BL, BL, 0.3) + V.path(samp(function (x) { return Math.exp(-x * x); }, -4.2, 4.2, 300), OR, 2.5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '∫ 從 −' + f2(L) + ' 到 ' + f2(L) + ' 的 e^(−x²) dx ≈ <b>' + S.toFixed(6) + '</b>，√π = 1.772454。範圍拉到 ±4 時已經幾乎一樣：曲線兩側掉得非常快。'; }
+          draw(); }
+
+        /* ---------- 貝氏定理：面積圖 ---------- */
+        function initBayes(root, cfg) {
+          head(root, cfg.q); var pr = 0.01, se = 0.9, fp = 0.05, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '盛行率 P(病)', 0.001, 0.3, 0.001, pr, function (q) { return (q * 100).toFixed(1) + '%'; }, 'pr', function (q) { pr = q; draw(); });
+          slider(root, '敏感度 P(陽性|病)', 0.5, 1, 0.01, se, function (q) { return Math.round(q * 100) + '%'; }, 'se', function (q) { se = q; draw(); });
+          slider(root, '偽陽性率 P(陽性|沒病)', 0.001, 0.3, 0.001, fp, function (q) { return (q * 100).toFixed(1) + '%'; }, 'fp', function (q) { fp = q; draw(); });
+          function draw() { var V = view(640, 220, 0, 1, 0, 1, 4), g = '', w1 = Math.max(pr, 0.02);
+            g += V.rect(0, 0, w1, 1, RD, 0.12) + V.rect(w1, 0, 1 - w1, 1, BL, 0.08);
+            g += V.rect(0, 1 - se, w1, se, RD, 0.6) + V.rect(w1, 1 - fp, 1 - w1, fp, BL, 0.55);
+            g += V.t(w1 / 2, 0.05, '有病', 10) + V.t(w1 + (1 - w1) / 2, 0.05, '沒病', 11);
+            v.innerHTML = V.svg(g);
+            var tp = pr * se, fpp = (1 - pr) * fp, post = tp / (tp + fpp);
+            inf.innerHTML = '深色是「驗出陽性」的人：紅 = 真陽性 ' + (tp * 100).toFixed(2) + '%，藍 = 偽陽性 ' + (fpp * 100).toFixed(2) + '%。<br>陽性的人裡真的有病的比例 = 紅 ÷ (紅 + 藍) = <b>' + (post * 100).toFixed(1) + '%</b>。（圖中有病那一欄的寬度有放大，方便看）'; }
+          draw(); }
+
+        /* ---------- 內積與夾角 ---------- */
+        function initDot(root, cfg) {
+          head(root, cfg.q); var t1 = 20, t2 = 75, r1 = 3, r2 = 2, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'a 的方向', 0, 180, 1, t1, function (q) { return q + '°'; }, 't1', function (q) { t1 = q; draw(); });
+          slider(root, 'b 的方向', 0, 180, 1, t2, function (q) { return q + '°'; }, 't2', function (q) { t2 = q; draw(); });
+          function draw() { var A = [r1 * Math.cos(t1 * Math.PI / 180), r1 * Math.sin(t1 * Math.PI / 180)], B = [r2 * Math.cos(t2 * Math.PI / 180), r2 * Math.sin(t2 * Math.PI / 180)];
+            var V = view(520, 260, -3.6, 3.6, -0.4, null, 6), g = V.axes(), d = A[0] * B[0] + A[1] * B[1], ua = [A[0] / r1, A[1] / r1], pr = d / r1;
+            g += V.l(0, 0, A[0], A[1], BL, 3) + V.l(0, 0, B[0], B[1], OR, 3) + V.l(B[0], B[1], ua[0] * pr, ua[1] * pr, '#999', 1, 'stroke-dasharray="4 3"') + V.l(0, 0, ua[0] * pr, ua[1] * pr, GR, 4);
+            v.innerHTML = V.svg(g); var th = Math.abs(t2 - t1);
+            inf.innerHTML = '分量相乘再相加：a·b = ' + f2(A[0]) + '×' + f2(B[0]) + ' + ' + f2(A[1]) + '×' + f2(B[1]) + ' = <b>' + f2(d) + '</b><br>長度與夾角：|a||b|cosθ = 3 × 2 × cos ' + th + '° = <b>' + f2(6 * Math.cos(th * Math.PI / 180)) + '</b>　（綠色是 b 投影到 a 上的長度）'; }
+          draw(); }
+
+        /* ---------- 行列式 = 面積 ---------- */
+        function initDet(root, cfg) {
+          head(root, cfg.q); var a = 3, b = 1, c = 1, d = 2, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          [['a', 'u 的 x 分量 a', a], ['b', 'u 的 y 分量 b', b], ['c', 'w 的 x 分量 c', c], ['d', 'w 的 y 分量 d', d]].forEach(function (s) {
+            slider(root, s[1], -3, 3, 0.25, s[2], f2, s[0], function (q) { if (s[0] === 'a') a = q; if (s[0] === 'b') b = q; if (s[0] === 'c') c = q; if (s[0] === 'd') d = q; draw(); }); });
+          function draw() { var V = view(480, 480, -6.5, 6.5, -6.5, null, 6), g = V.axes(), det = a * d - b * c;
+            g += V.poly([[0, 0], [a, b], [a + c, b + d], [c, d]], det >= 0 ? BL : RD, null, 0.3) + V.l(0, 0, a, b, BL, 3) + V.l(0, 0, c, d, OR, 3);
+            v.innerHTML = '<div style="max-width:400px;margin:auto">' + V.svg(g) + '</div>';
+            inf.innerHTML = 'det = ad − bc = ' + f2(a) + '×' + f2(d) + ' − ' + f2(b) + '×' + f2(c) + ' = <b>' + f2(det) + '</b>：平行四邊形面積 ' + f2(Math.abs(det)) + '。' + (det < 0 ? '負號表示 u 到 w 是順時針（方向翻轉）。' : det === 0 ? '兩向量共線，面積為 0。' : ''); }
+          draw(); }
+
+        /* ---------- 最小平方法 ---------- */
+        function initLsq(root, cfg) {
+          head(root, cfg.q); var P = [[1, 1.2], [2, 1.9], [3, 3.4], [4, 3.6], [5, 5.1], [6, 5.4]], n = P.length;
+          var sx = 0, sy = 0, sxx = 0, sxy = 0; P.forEach(function (p) { sx += p[0]; sy += p[1]; sxx += p[0] * p[0]; sxy += p[0] * p[1]; });
+          var mb = (n * sxy - sx * sy) / (n * sxx - sx * sx), cb = (sy - mb * sx) / n, m = 0.6, c = 0.5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '斜率 m', 0, 1.6, 0.01, m, f2, 'm', function (q) { m = q; draw(); });
+          slider(root, '截距 c', -1.5, 2, 0.01, c, f2, 'c', function (q) { c = q; draw(); });
+          function sse(mm, cc) { var s = 0; P.forEach(function (p) { var r = p[1] - (mm * p[0] + cc); s += r * r; }); return s; }
+          function draw() { var V = view(520, 460, 0, 7.2, 0, null, 6), g = V.axes();
+            P.forEach(function (p) { var yh = m * p[0] + c, r = p[1] - yh; g += V.rect(p[0], Math.min(yh, p[1]), Math.abs(r), Math.abs(r), OR, 0.25) + V.l(p[0], p[1], p[0], yh, RD, 1.5) + V.dot(p[0], p[1], BL, 5); });
+            g += V.path([[0, c], [7, m * 7 + c]], GR, 2.5);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '橘色方塊是每個點的誤差平方，總和 = <b>' + sse(m, c).toFixed(4) + '</b>。<br>法線方程算出的最佳解 m = ' + mb.toFixed(4) + '、c = ' + cb.toFixed(4) + '，總和 = <b>' + sse(mb, cb).toFixed(4) + '</b>；拉桿怎麼調都不會更小。'; }
+          draw(); }
+
+        /* ---------- 自由落體 ---------- */
+        function initFall(root, cfg) {
+          head(root, cfg.q); var T = 2, g0 = 9.8, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '時間 t（秒）', 0.2, 3, 0.05, T, f2, 't', function (q) { T = q; draw(); });
+          function draw() { var V = view(640, 260, -0.2, 3.3, -2, 32, 6), g = V.axes();
+            g += V.poly([[0, 0], [T, 0], [T, g0 * T]], BL, BL, 0.3) + V.path(samp(function (t) { return g0 * t; }, 0, 3.2, 10), BL, 2.5) + V.t(T / 2 + 0.3, g0 * T / 3, '面積 = 落下距離', 11, BL);
+            v.innerHTML = V.svg(g);
+            inf.innerHTML = '速度 v = gt 是一條直線。t = ' + f2(T) + ' 秒時，落下的距離 = 速度圖下的三角形面積 = ½ × t × gt = <b>' + f2(0.5 * g0 * T * T) + ' 公尺</b> = ½gt²。'; }
+          draw(); }
+
+        /* ---------- 向心加速度 ---------- */
+        function initCircular(root, cfg) {
+          head(root, cfg.q); var d = 30, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '轉過的角度 Δθ', 2, 60, 1, d, function (q) { return q + '°'; }, 'd', function (q) { d = q; draw(); });
+          function draw() { var th = d * Math.PI / 180, V = view(640, 320, -1.6, 4.6, -1.5, null, 6), g = '';
+            g += '<circle cx="' + V.x(0) + '" cy="' + V.y(0) + '" r="' + (V.x(1) - V.x(0)) + '" fill="none" stroke="#999"/>';
+            var p1 = [1, 0], p2 = [Math.cos(th), Math.sin(th)], v1 = [0, 0.8], v2 = [-0.8 * Math.sin(th), 0.8 * Math.cos(th)];
+            g += V.l(0, 0, p1[0], p1[1], '#999') + V.l(0, 0, p2[0], p2[1], '#999') + V.l(p1[0], p1[1], p1[0] + v1[0], p1[1] + v1[1], BL, 2.5) + V.l(p2[0], p2[1], p2[0] + v2[0], p2[1] + v2[1], OR, 2.5);
+            var o = [3, -0.9]; g += V.l(o[0], o[1], o[0] + v1[0], o[1] + v1[1], BL, 2.5) + V.l(o[0], o[1], o[0] + v2[0], o[1] + v2[1], OR, 2.5) + V.l(o[0] + v1[0], o[1] + v1[1], o[0] + v2[0], o[1] + v2[1], RD, 3);
+            g += V.t(o[0], o[1] - 0.25, '把兩個速度的尾巴接在一起', 10) + V.t(o[0] + (v1[0] + v2[0]) / 2 - 0.15, o[1] + (v1[1] + v2[1]) / 2, 'Δv', 12, RD, 'end');
+            v.innerHTML = V.svg(g);
+            var chord = 2 * Math.sin(th / 2);
+            inf.innerHTML = '速度三角形和位置三角形相似：|Δv| / v = 弦長 / r = ' + chord.toFixed(4) + '，而弧長 / r = Δθ = ' + th.toFixed(4) + '。<br>Δθ 愈小兩者愈接近，所以 |Δv| ≈ v·Δθ、Δt = rΔθ/v → a = |Δv|/Δt = <b>v²/r</b>，方向指向圓心。'; }
+          draw(); }
+
+        /* ---------- 單擺週期 ---------- */
+        function initPendulum(root, cfg) {
+          head(root, cfg.q); var A = 20, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, '擺幅', 1, 170, 1, A, function (q) { return q + '°'; }, 'A', function (q) { A = q; draw(); });
+          function ratio(deg) { var k = Math.sin(deg * Math.PI / 360), a = 1, b = Math.sqrt(1 - k * k); for (var i = 0; i < 20; i++) { var t = (a + b) / 2; b = Math.sqrt(a * b); a = t; } return 1 / a; }
+          function draw() { var d = []; for (var x = 1; x <= 170; x += 1) d.push([x, ratio(x)]);
+            v.innerHTML = chart(640, 230, [{ d: d, c: BL, n: '真實週期 ÷ 2π√(L/g)' }], { y0: 1, y1: 2.6, xl: '擺幅（度）', hl: [{ y: 1, c: RD, n: '小角度近似' }], pts: [{ x: A, y: ratio(A), c: OR, n: ratio(A).toFixed(4) }] });
+            inf.innerHTML = '擺幅 ' + A + '° 時，真實週期是近似公式的 <b>' + ratio(A).toFixed(4) + '</b> 倍（誤差 ' + ((ratio(A) - 1) * 100).toFixed(2) + '%）。15° 以內誤差不到 0.5%，這就是 sin θ ≈ θ 的代價。'; }
+          draw(); }
+
+        /* ---------- 平方和 ---------- */
+        function initSumsq(root, cfg) {
+          head(root, cfg.q); var n = 5, v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          slider(root, 'n', 1, 20, 1, n, function (q) { return q; }, 'n', function (q) { n = q; draw(); });
+          function draw() { var rows = '', s = 0; for (var k = 1; k <= n; k++) { s += k * k; rows += '<tr><td style="padding:2px 8px">' + k + '</td><td style="padding:2px 8px;text-align:right">' + s + '</td><td style="padding:2px 8px;text-align:right">' + (k * (k + 1) * (2 * k + 1) / 6) + '</td></tr>'; }
+            v.innerHTML = '<div style="max-height:260px;overflow:auto"><table style="border-collapse:collapse;font-family:monospace"><tr><th>n</th><th>1²+…+n²</th><th>n(n+1)(2n+1)/6</th></tr>' + rows + '</table></div>';
+            inf.innerHTML = '每一列兩邊都相等。但「試了 ' + n + ' 個都對」不是證明——要用歸納法說明：只要第 k 列對，第 k+1 列就一定對。'; }
+          draw(); }
+
+        /* ---------- 克卜勒第三定律 ---------- */
+        function initKepler(root, cfg) {
+          head(root, cfg.q); var v = el('div'), inf = info(root); root.insertBefore(v, inf);
+          var P = [['水星', 0.387, 0.241], ['金星', 0.723, 0.615], ['地球', 1, 1], ['火星', 1.524, 1.881], ['木星', 5.203, 11.86], ['土星', 9.537, 29.46]];
+          var rows = P.map(function (p) { return '<tr><td style="padding:3px 8px">' + p[0] + '</td><td style="padding:3px 8px;text-align:right">' + p[1] + '</td><td style="padding:3px 8px;text-align:right">' + p[2] + '</td><td style="padding:3px 8px;text-align:right"><b>' + (p[2] * p[2] / Math.pow(p[1], 3)).toFixed(3) + '</b></td></tr>'; }).join('');
+          v.innerHTML = '<table style="border-collapse:collapse;font-family:monospace;width:100%"><tr><th style="text-align:left">行星</th><th>半長軸 a（AU）</th><th>週期 T（年）</th><th>T² / a³</th></tr>' + rows + '</table>';
+          inf.innerHTML = '從水星到土星，距離差了 25 倍、週期差了 120 倍，T²/a³ 卻都是 1（用地球的年與 AU 當單位）。這正是 T² = 4π²a³/(GM) 的預測。'; }
+
+        var INIT = { steps: initSteps, check: initCheck, sqdiff: initSqdiff, compsq: initCompsq, pyth: initPyth, pizza: initPizza, archi: initArchi, gauss: initGauss,
+          geom: initGeom, pascal: initPascal, compound: initCompound, parab: initParab, anglesum: initAnglesum, cosine: initCosine, squeeze: initSqueeze,
+          secant: initSecant, ederiv: initEderiv, sinderiv: initSinderiv, riemann: initRiemann, sphere: initSphere, taylor: initTaylor, basel: initBasel,
+          stirling: initStirling, binom: initBinom, gaussint: initGaussint, bayes: initBayes, dot: initDot, det: initDet, lsq: initLsq, fall: initFall,
+          circular: initCircular, pendulum: initPendulum, sumsq: initSumsq, kepler: initKepler };
+        function boot() { document.querySelectorAll('.md-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+          var cfg = JSON.parse(root.getAttribute('data-cfg')); var f = INIT[cfg.t]; if (f) f(root, cfg); }); }
+        if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+      })();
+      </script>
+
+      <p>
+        <strong>雙端佇列（deque）</strong>兩端都能 O(1) 加入和取出，同時可以當堆疊和佇列用。Python 的 <code>collections.deque</code> 就是它。
+      </p>
+
+      <h2>單調堆疊：下一個更大的元素</h2>
+
+      <p>
+        對每個元素，找出它右邊第一個比它大的數。暴力法 O(n²)。用堆疊保存「還沒找到答案的元素」，而且讓堆疊裡的值<strong>由下往上遞減</strong>：
+      </p>
+
+      <div class="code-block">def next_greater(a):
+    ans = [-1] * len(a)
+    st = []                         # 存索引，對應的值由底到頂遞減
+    for i, x in enumerate(a):
+        while st and a[st[-1]] &lt; x: # x 就是它們等待的「下一個更大」
+            ans[st.pop()] = x
+        st.append(i)
+    return ans
+
+next_greater([2, 1, 5, 3, 4])       # [5, 5, -1, 4, -1]</div>
+
+      <p>
+        每個元素最多被 push 一次、pop 一次，所以總共 <strong>O(n)</strong>。股票「還要幾天才會漲過今天」、直方圖中最大矩形，都是這個技巧。
+      </p>
+
+      <h2>單調佇列：滑動視窗最大值</h2>
+
+      <p>
+        長度 n 的陣列，求每個長度 k 的視窗中的最大值。用雙端佇列保存「可能成為最大值」的元素索引，由前到後遞減：新元素進來時，把後面比它小的都踢掉（它們永遠不可能再是最大值）；前端超出視窗就移除。佇列前端永遠是目前視窗的最大值。總共 O(n)。
+      </p>
+
+      <div class="md-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;check&quot;, &quot;q&quot;: &quot;滑動視窗最大值的運算量：&quot;, &quot;v&quot;: [[&quot;n&quot;, &quot;陣列長度 n&quot;, 100000, 10, 1000000, 10], [&quot;k&quot;, &quot;視窗大小 k&quot;, 1000, 1, 100000, 1]], &quot;r&quot;: [[&quot;暴力法約 n·k&quot;, &quot;n*k&quot;], [&quot;單調佇列約 2n&quot;, &quot;2*n&quot;]], &quot;n&quot;: &quot;&quot;}"></div>
+
+      <div class="callout">
+        <h3>共同的想法</h3>
+        <p>
+          這兩個技巧的核心都是：<strong>及早丟掉不可能成為答案的候選者</strong>。保持結構裡的元素單調，每個元素只進出一次，就把 O(n²) 降成 O(n)。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          雙端佇列兩端都能 O(1) 進出，可兼作堆疊與佇列。單調堆疊讓堆疊值保持遞減，遇到更大的元素就彈出並記錄答案，以 O(n) 求下一個更大元素。單調佇列以遞減的雙端佇列維護視窗候選者，O(n) 求滑動視窗最大值。共同精神是及早丟掉不可能的候選者，每個元素只進出一次。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗂️ 本課程以圖解與互動為主，程式碼一律使用 Python，力求簡短好讀；互動圖中的資料皆為示意。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>手算 [3, 1, 4, 1, 5] 每個元素的下一個更大元素。</li>
+          <li>為什麼單調堆疊的總時間是 O(n)？</li>
+          <li>滑動視窗中，為什麼比新元素小的舊元素可以丟掉？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>雜湊表：平均 O(1) 的查詢</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：佇列與環狀緩衝區</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：雜湊表：平均 O(1) 的查詢 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
