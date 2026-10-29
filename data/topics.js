@@ -24835,6 +24835,137 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "surveying",
+      category: "tech",
+      title: "土木測量：從路邊的三腳架到衛星定位、光達與數位孿生",
+      description:
+        "路邊的三腳架到底在量什麼？從距離、角度、高差三個基本量出發：地球形狀與台灣的 TWD97 座標、誤差與平差、捲尺與電子測距、水準測量與地層下陷、經緯儀與全站儀、導線與交會、GPS 原理與 RTK、e-GNSS、地形與土方、施工放樣、道路曲線、隧道貫通、變形監測、地籍鑑界與都市計畫樁，到航空攝影、無人機、光達、InSAR 與 BIM。附整平、水準、導線、GPS 交會、等高線、土方、曲線放樣等互動工具，以及完整公式。",
+      icon: "📐",
+      url: "topics/surveying/index.html",
+      resources: [
+        {
+          title: "測量互動實驗室",
+          description: "整平、誤差模擬、電子測距、地球曲率與折光、水準測量、座標計算、閉合導線、GPS 交會、GNSS 精度、等高線、土方、圓曲線放樣",
+          icon: "🧪",
+          url: "topics/surveying/lab.html"
+        },
+        {
+          title: "測量公式總表",
+          description: "距離、水準、角度、座標、導線、GNSS、地形與工程測量的常用公式",
+          icon: "📋",
+          url: "topics/surveying/formulas.html"
+        },
+        {
+          title: "測量名詞中英對照",
+          description: "儀器、誤差、水準、角度、控制測量、GNSS、工程與地籍測量的名詞中英對照",
+          icon: "📖",
+          url: "topics/surveying/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜測量是什麼",
+          courses: [
+            { title: "路邊的三腳架到底是什麼", url: "topics/surveying/lesson-01.html" },
+            { title: "測量的三個基本量", url: "topics/surveying/lesson-02.html" },
+            { title: "測量的歷史：從拉繩到量地球", url: "topics/surveying/lesson-03.html" },
+            { title: "地球的形狀：橢球體與大地水準面", url: "topics/surveying/lesson-04.html" },
+            { title: "台灣的座標系統：TWD97 與二度分帶", url: "topics/surveying/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜誤差與精度",
+          courses: [
+            { title: "誤差的三種類型", url: "topics/surveying/lesson-06.html" },
+            { title: "精度、準確度與中誤差", url: "topics/surveying/lesson-07.html" },
+            { title: "誤差傳播", url: "topics/surveying/lesson-08.html" },
+            { title: "最小平方平差入門", url: "topics/surveying/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜距離測量",
+          courses: [
+            { title: "捲尺量距與改正", url: "topics/surveying/lesson-10.html" },
+            { title: "視距測量", url: "topics/surveying/lesson-11.html" },
+            { title: "電子測距：用光波的相位量距離", url: "topics/surveying/lesson-12.html" },
+            { title: "免稜鏡測距與大氣改正", url: "topics/surveying/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜水準測量",
+          courses: [
+            { title: "水準儀的原理：一條水平的視線", url: "topics/surveying/lesson-14.html" },
+            { title: "讀尺與計算高差", url: "topics/surveying/lesson-15.html" },
+            { title: "水準路線與閉合差", url: "topics/surveying/lesson-16.html" },
+            { title: "前後視距相等：一招消除三種誤差", url: "topics/surveying/lesson-17.html" },
+            { title: "三角高程測量", url: "topics/surveying/lesson-18.html" },
+            { title: "台灣的水準點與地層下陷監測", url: "topics/surveying/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜角度測量",
+          courses: [
+            { title: "經緯儀：水平角與垂直角", url: "topics/surveying/lesson-20.html" },
+            { title: "架設儀器：定心與整平", url: "topics/surveying/lesson-21.html" },
+            { title: "正倒鏡觀測：抵消儀器誤差", url: "topics/surveying/lesson-22.html" },
+            { title: "方位角與象限角", url: "topics/surveying/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜全站儀與控制測量",
+          courses: [
+            { title: "全站儀：測角 + 測距 + 電腦", url: "topics/surveying/lesson-24.html" },
+            { title: "座標正算與反算", url: "topics/surveying/lesson-25.html" },
+            { title: "導線測量", url: "topics/surveying/lesson-26.html" },
+            { title: "導線閉合差與分配", url: "topics/surveying/lesson-27.html" },
+            { title: "三角測量與三邊測量", url: "topics/surveying/lesson-28.html" },
+            { title: "交會法與自由設站", url: "topics/surveying/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜衛星定位 GNSS",
+          courses: [
+            { title: "GPS 原理：為什麼至少要 4 顆衛星", url: "topics/surveying/lesson-30.html" },
+            { title: "GNSS 的誤差來源", url: "topics/surveying/lesson-31.html" },
+            { title: "差分定位與 RTK：從公尺到公分", url: "topics/surveying/lesson-32.html" },
+            { title: "台灣的 e-GNSS 即時動態定位系統", url: "topics/surveying/lesson-33.html" },
+            { title: "靜態測量與 GNSS 控制網", url: "topics/surveying/lesson-34.html" },
+            { title: "GNSS 在工程上的應用", url: "topics/surveying/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜地形與工程測量",
+          courses: [
+            { title: "地形測量與等高線", url: "topics/surveying/lesson-36.html" },
+            { title: "面積與土方計算", url: "topics/surveying/lesson-37.html" },
+            { title: "施工放樣：把圖上的點放到地上", url: "topics/surveying/lesson-38.html" },
+            { title: "道路測量：中線、圓曲線與緩和曲線", url: "topics/surveying/lesson-39.html" },
+            { title: "縱斷面與橫斷面", url: "topics/surveying/lesson-40.html" },
+            { title: "隧道測量：兩端對挖為什麼能接得上", url: "topics/surveying/lesson-41.html" },
+            { title: "橋梁與建築物的變形監測", url: "topics/surveying/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 I｜地籍測量",
+          courses: [
+            { title: "地籍測量與鑑界：土地界線怎麼確定", url: "topics/surveying/lesson-43.html" },
+            { title: "地籍圖重測與數值地籍", url: "topics/surveying/lesson-44.html" },
+            { title: "都市計畫樁", url: "topics/surveying/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 J｜現代測量技術",
+          courses: [
+            { title: "航空攝影測量", url: "topics/surveying/lesson-46.html" },
+            { title: "無人機測量與正射影像", url: "topics/surveying/lesson-47.html" },
+            { title: "光達（LiDAR）與點雲", url: "topics/surveying/lesson-48.html" },
+            { title: "InSAR：用衛星雷達監測地層下陷", url: "topics/surveying/lesson-49.html" },
+            { title: "BIM、數位孿生與測量的未來", url: "topics/surveying/lesson-50.html" },
+          ],
+        },
+      ],
     }
   ]
 };
