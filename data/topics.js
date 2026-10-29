@@ -24711,6 +24711,130 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "data-structures",
+      category: "tech",
+      title: "資料結構：從陣列、雜湊表、樹到圖與實務設計",
+      description:
+        "一門有系統的資料結構課：複雜度與攤銷分析、陣列與鏈結串列、堆疊與佇列、雜湊表、二元搜尋樹與 AVL／紅黑樹、堆積與優先佇列、B 樹、字典樹、線段樹、樹狀陣列、聯集—尋找、跳躍串列、圖與搜尋、排序與二分搜尋，到 LRU 快取、布隆過濾器與快取局部性。每種結構都有圖解、Python 實作與可操作的互動元件。",
+      icon: "🗂️",
+      url: "topics/data-structures/index.html",
+      resources: [
+        {
+          title: "資料結構互動實驗室",
+          description: "動態陣列、鏈結串列、堆疊、環狀佇列、雜湊表、BST 與 AVL、堆積、字典樹、線段樹、聯集—尋找、跳躍串列、圖搜尋、拓撲排序、排序、二分搜尋、LRU、布隆過濾器",
+          icon: "🧪",
+          url: "topics/data-structures/lab.html"
+        },
+        {
+          title: "資料結構複雜度速查",
+          description: "各種資料結構與演算法的時間、空間複雜度一覽，以及 Python 對應的內建工具",
+          icon: "📋",
+          url: "topics/data-structures/complexity.html"
+        },
+        {
+          title: "資料結構名詞中英對照",
+          description: "資料結構與演算法常用名詞的中英對照",
+          icon: "📖",
+          url: "topics/data-structures/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎觀念",
+          courses: [
+            { title: "什麼是資料結構", url: "topics/data-structures/lesson-01.html" },
+            { title: "記憶體、位址與參考", url: "topics/data-structures/lesson-02.html" },
+            { title: "複雜度分析：大 O", url: "topics/data-structures/lesson-03.html" },
+            { title: "攤銷分析", url: "topics/data-structures/lesson-04.html" },
+            { title: "抽象資料型別", url: "topics/data-structures/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜線性結構",
+          courses: [
+            { title: "陣列", url: "topics/data-structures/lesson-06.html" },
+            { title: "動態陣列", url: "topics/data-structures/lesson-07.html" },
+            { title: "鏈結串列", url: "topics/data-structures/lesson-08.html" },
+            { title: "雙向與環狀鏈結串列", url: "topics/data-structures/lesson-09.html" },
+            { title: "堆疊", url: "topics/data-structures/lesson-10.html" },
+            { title: "佇列與環狀緩衝區", url: "topics/data-structures/lesson-11.html" },
+            { title: "雙端佇列、單調堆疊與單調佇列", url: "topics/data-structures/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜雜湊表",
+          courses: [
+            { title: "雜湊表：平均 O(1) 的查詢", url: "topics/data-structures/lesson-13.html" },
+            { title: "雜湊函數", url: "topics/data-structures/lesson-14.html" },
+            { title: "處理碰撞：鏈結法與開放定址", url: "topics/data-structures/lesson-15.html" },
+            { title: "負載因子與重雜湊", url: "topics/data-structures/lesson-16.html" },
+            { title: "雜湊表的應用與 Python 的 dict、set", url: "topics/data-structures/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜樹",
+          courses: [
+            { title: "樹的術語與表示法", url: "topics/data-structures/lesson-18.html" },
+            { title: "二元樹的走訪", url: "topics/data-structures/lesson-19.html" },
+            { title: "二元搜尋樹", url: "topics/data-structures/lesson-20.html" },
+            { title: "BST 的刪除與退化", url: "topics/data-structures/lesson-21.html" },
+            { title: "AVL 樹：靠旋轉保持平衡", url: "topics/data-structures/lesson-22.html" },
+            { title: "紅黑樹", url: "topics/data-structures/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜堆積與優先佇列",
+          courses: [
+            { title: "二元堆積", url: "topics/data-structures/lesson-24.html" },
+            { title: "建堆與堆積排序", url: "topics/data-structures/lesson-25.html" },
+            { title: "優先佇列的應用：Top-k 與合併", url: "topics/data-structures/lesson-26.html" },
+            { title: "雙堆積：動態中位數", url: "topics/data-structures/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜進階結構",
+          courses: [
+            { title: "B 樹與 B+ 樹：資料庫的索引", url: "topics/data-structures/lesson-28.html" },
+            { title: "字典樹（Trie）", url: "topics/data-structures/lesson-29.html" },
+            { title: "線段樹", url: "topics/data-structures/lesson-30.html" },
+            { title: "樹狀陣列（芬威克樹）", url: "topics/data-structures/lesson-31.html" },
+            { title: "聯集—尋找（並查集）", url: "topics/data-structures/lesson-32.html" },
+            { title: "跳躍串列", url: "topics/data-structures/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜圖",
+          courses: [
+            { title: "圖的表示法", url: "topics/data-structures/lesson-34.html" },
+            { title: "BFS 與 DFS", url: "topics/data-structures/lesson-35.html" },
+            { title: "拓撲排序", url: "topics/data-structures/lesson-36.html" },
+            { title: "最短路徑：戴克斯特拉與 A*", url: "topics/data-structures/lesson-37.html" },
+            { title: "最小生成樹：克魯斯克爾與普林", url: "topics/data-structures/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜排序與搜尋",
+          courses: [
+            { title: "二分搜尋", url: "topics/data-structures/lesson-39.html" },
+            { title: "基本排序：氣泡、選擇、插入", url: "topics/data-structures/lesson-40.html" },
+            { title: "合併排序與快速排序", url: "topics/data-structures/lesson-41.html" },
+            { title: "計數排序、基數排序與比較排序的極限", url: "topics/data-structures/lesson-42.html" },
+            { title: "實務上的排序：Timsort 與內省排序", url: "topics/data-structures/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜實務與設計",
+          courses: [
+            { title: "LRU 快取", url: "topics/data-structures/lesson-44.html" },
+            { title: "布隆過濾器", url: "topics/data-structures/lesson-45.html" },
+            { title: "不可變與持久化資料結構", url: "topics/data-structures/lesson-46.html" },
+            { title: "快取與記憶體局部性", url: "topics/data-structures/lesson-47.html" },
+            { title: "怎麼選資料結構：總整理", url: "topics/data-structures/lesson-48.html" },
+          ],
+        },
+      ],
     }
   ]
 };
