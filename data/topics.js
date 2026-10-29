@@ -24457,6 +24457,260 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "linear-algebra",
+      category: "math",
+      title: "線性代數：從向量、矩陣到特徵值、SVD 與 AI",
+      description:
+        "以幾何直覺與應用為主的線性代數：向量與方程組、矩陣即變換、向量空間與四個基本子空間、行列式、正交與最小平方、特徵值與對角化，一路到 SVD、影像壓縮、PCA、PageRank、電腦圖學與機器學習，附 2D 變換遊樂場等互動元件。",
+      icon: "🧮",
+      url: "topics/linear-algebra/index.html",
+      resources: [
+        {
+          title: "線性代數互動實驗室",
+          description: "2D 變換遊樂場、張成、高斯消去、投影、最小平方、馬可夫鏈、SVD 影像壓縮、PCA、PageRank、傅立葉、條件數",
+          icon: "🧪",
+          url: "topics/linear-algebra/lab.html"
+        },
+        {
+          title: "線性代數公式總表",
+          description: "向量、矩陣、行列式、投影、特徵值、SVD 的重要公式與性質一覽",
+          icon: "📋",
+          url: "topics/linear-algebra/formulas.html"
+        },
+        {
+          title: "線性代數名詞中英對照",
+          description: "向量、矩陣、子空間、特徵值、分解等名詞的中英對照",
+          icon: "📖",
+          url: "topics/linear-algebra/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜向量",
+          courses: [
+            { title: "向量是什麼", url: "topics/linear-algebra/lesson-01.html" },
+            { title: "向量加法與純量乘法", url: "topics/linear-algebra/lesson-02.html" },
+            { title: "內積：長度、角度與相似度", url: "topics/linear-algebra/lesson-03.html" },
+            { title: "外積：三維空間裡的垂直向量", url: "topics/linear-algebra/lesson-04.html" },
+            { title: "線性組合與張成", url: "topics/linear-algebra/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜線性方程組",
+          courses: [
+            { title: "方程組的三種圖像", url: "topics/linear-algebra/lesson-06.html" },
+            { title: "高斯消去法", url: "topics/linear-algebra/lesson-07.html" },
+            { title: "列梯形與簡化列梯形", url: "topics/linear-algebra/lesson-08.html" },
+            { title: "解的存在性與唯一性", url: "topics/linear-algebra/lesson-09.html" },
+            { title: "應用：電路、化學配平與交通流", url: "topics/linear-algebra/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜矩陣與線性變換",
+          courses: [
+            { title: "矩陣乘法的四種看法", url: "topics/linear-algebra/lesson-11.html" },
+            { title: "矩陣就是線性變換", url: "topics/linear-algebra/lesson-12.html" },
+            { title: "變換的合成就是矩陣相乘", url: "topics/linear-algebra/lesson-13.html" },
+            { title: "反矩陣：把變換倒回去", url: "topics/linear-algebra/lesson-14.html" },
+            { title: "LU 分解：把消去法存起來", url: "topics/linear-algebra/lesson-15.html" },
+            { title: "轉置與對稱矩陣", url: "topics/linear-algebra/lesson-16.html" },
+            { title: "分塊矩陣", url: "topics/linear-algebra/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜向量空間",
+          courses: [
+            { title: "向量空間與子空間", url: "topics/linear-algebra/lesson-18.html" },
+            { title: "線性獨立", url: "topics/linear-algebra/lesson-19.html" },
+            { title: "基底與維度", url: "topics/linear-algebra/lesson-20.html" },
+            { title: "四個基本子空間", url: "topics/linear-algebra/lesson-21.html" },
+            { title: "秩－零度定理", url: "topics/linear-algebra/lesson-22.html" },
+            { title: "座標與基底變換", url: "topics/linear-algebra/lesson-23.html" },
+            { title: "函數也是向量", url: "topics/linear-algebra/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜行列式",
+          courses: [
+            { title: "行列式：面積的放大倍率", url: "topics/linear-algebra/lesson-25.html" },
+            { title: "行列式的性質與計算", url: "topics/linear-algebra/lesson-26.html" },
+            { title: "克拉瑪法則", url: "topics/linear-algebra/lesson-27.html" },
+            { title: "行列式為 0 ⇔ 不可逆：大統整", url: "topics/linear-algebra/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜正交與投影",
+          courses: [
+            { title: "正交與正交補", url: "topics/linear-algebra/lesson-29.html" },
+            { title: "投影：找最近的點", url: "topics/linear-algebra/lesson-30.html" },
+            { title: "最小平方法", url: "topics/linear-algebra/lesson-31.html" },
+            { title: "格拉姆—施密特與 QR 分解", url: "topics/linear-algebra/lesson-32.html" },
+            { title: "正交矩陣：旋轉與鏡射", url: "topics/linear-algebra/lesson-33.html" },
+            { title: "傅立葉級數：對正交函數的投影", url: "topics/linear-algebra/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜特徵值與特徵向量",
+          courses: [
+            { title: "特徵向量：變換後方向不變的向量", url: "topics/linear-algebra/lesson-35.html" },
+            { title: "特徵多項式：怎麼求特徵值", url: "topics/linear-algebra/lesson-36.html" },
+            { title: "對角化", url: "topics/linear-algebra/lesson-37.html" },
+            { title: "矩陣的冪：費氏數列與馬可夫鏈", url: "topics/linear-algebra/lesson-38.html" },
+            { title: "微分方程與 e^{At}", url: "topics/linear-algebra/lesson-39.html" },
+            { title: "譜定理：對稱矩陣的完美結構", url: "topics/linear-algebra/lesson-40.html" },
+            { title: "正定矩陣與二次型", url: "topics/linear-algebra/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜SVD 與應用",
+          courses: [
+            { title: "奇異值分解（SVD）", url: "topics/linear-algebra/lesson-42.html" },
+            { title: "低秩近似與影像壓縮", url: "topics/linear-algebra/lesson-43.html" },
+            { title: "主成分分析（PCA）", url: "topics/linear-algebra/lesson-44.html" },
+            { title: "PageRank：Google 的特徵向量", url: "topics/linear-algebra/lesson-45.html" },
+            { title: "電腦圖學：齊次座標", url: "topics/linear-algebra/lesson-46.html" },
+            { title: "機器學習中的線性代數", url: "topics/linear-algebra/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜數值線性代數",
+          courses: [
+            { title: "條件數：問題本身有多敏感", url: "topics/linear-algebra/lesson-48.html" },
+            { title: "大型稀疏矩陣與 GPU", url: "topics/linear-algebra/lesson-49.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "discrete-math",
+      category: "math",
+      title: "離散數學：從邏輯、證明、計數到圖論與 P vs NP",
+      description:
+        "電腦科學的數學基礎：命題邏輯與量詞、各種證明方法與歸納法、集合函數與關係、數論到 RSA、排列組合與鴿籠排容、遞迴與大 O、離散機率、圖論演算法（歐拉、最短路徑、最小生成樹、配對、著色、網路流），一路到有限自動機與 P vs NP，附真值表、圖論遊樂場等互動元件。",
+      icon: "🔢",
+      url: "topics/discrete-math/index.html",
+      resources: [
+        {
+          title: "離散數學互動實驗室",
+          description: "真值表、骨牌、文氏圖、關係與哈斯圖、輾轉相除、模運算表、巴斯卡三角形、河內塔、遞迴、成長速度、對角線、生日問題、圖論演算法、有限自動機",
+          icon: "🧪",
+          url: "topics/discrete-math/lab.html"
+        },
+        {
+          title: "離散數學公式總表",
+          description: "邏輯定律、計數公式、數論定理、遞迴與圖論的重要公式一覽",
+          icon: "📋",
+          url: "topics/discrete-math/formulas.html"
+        },
+        {
+          title: "離散數學名詞中英對照",
+          description: "邏輯、證明、集合、數論、組合、圖論與計算的名詞中英對照",
+          icon: "📖",
+          url: "topics/discrete-math/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜邏輯",
+          courses: [
+            { title: "命題與真值表", url: "topics/discrete-math/lesson-01.html" },
+            { title: "邏輯等價與德摩根定律", url: "topics/discrete-math/lesson-02.html" },
+            { title: "條件句：逆、否、逆否", url: "topics/discrete-math/lesson-03.html" },
+            { title: "量詞：所有與存在", url: "topics/discrete-math/lesson-04.html" },
+            { title: "推論規則：從前提到結論", url: "topics/discrete-math/lesson-05.html" },
+            { title: "邏輯、程式與電路", url: "topics/discrete-math/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜證明方法",
+          courses: [
+            { title: "直接證明", url: "topics/discrete-math/lesson-07.html" },
+            { title: "反證法：√2 是無理數、質數有無限多個", url: "topics/discrete-math/lesson-08.html" },
+            { title: "逆否證明與分情況證明", url: "topics/discrete-math/lesson-09.html" },
+            { title: "數學歸納法", url: "topics/discrete-math/lesson-10.html" },
+            { title: "強歸納法與良序原理", url: "topics/discrete-math/lesson-11.html" },
+            { title: "錯誤的證明", url: "topics/discrete-math/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜集合、函數與關係",
+          courses: [
+            { title: "集合與集合運算", url: "topics/discrete-math/lesson-13.html" },
+            { title: "笛卡兒積與冪集", url: "topics/discrete-math/lesson-14.html" },
+            { title: "函數：單射、滿射、雙射", url: "topics/discrete-math/lesson-15.html" },
+            { title: "可數與不可數：康托爾的對角線", url: "topics/discrete-math/lesson-16.html" },
+            { title: "關係及其性質", url: "topics/discrete-math/lesson-17.html" },
+            { title: "等價關係與分割", url: "topics/discrete-math/lesson-18.html" },
+            { title: "偏序、哈斯圖與拓撲排序", url: "topics/discrete-math/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜數論",
+          courses: [
+            { title: "整除、質數與算術基本定理", url: "topics/discrete-math/lesson-20.html" },
+            { title: "最大公因數與輾轉相除法", url: "topics/discrete-math/lesson-21.html" },
+            { title: "同餘與模運算", url: "topics/discrete-math/lesson-22.html" },
+            { title: "模反元素與中國剩餘定理", url: "topics/discrete-math/lesson-23.html" },
+            { title: "費馬小定理與歐拉定理", url: "topics/discrete-math/lesson-24.html" },
+            { title: "RSA：數論變成密碼", url: "topics/discrete-math/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜組合計數",
+          courses: [
+            { title: "加法原理與乘法原理", url: "topics/discrete-math/lesson-26.html" },
+            { title: "排列與組合", url: "topics/discrete-math/lesson-27.html" },
+            { title: "二項式定理與巴斯卡三角形", url: "topics/discrete-math/lesson-28.html" },
+            { title: "重複組合：星與棒", url: "topics/discrete-math/lesson-29.html" },
+            { title: "鴿籠原理", url: "topics/discrete-math/lesson-30.html" },
+            { title: "排容原理與錯排", url: "topics/discrete-math/lesson-31.html" },
+            { title: "生成函數", url: "topics/discrete-math/lesson-32.html" },
+            { title: "卡特蘭數", url: "topics/discrete-math/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜遞迴與演算法分析",
+          courses: [
+            { title: "遞迴關係：河內塔與費氏數列", url: "topics/discrete-math/lesson-34.html" },
+            { title: "解線性遞迴：特徵方程式", url: "topics/discrete-math/lesson-35.html" },
+            { title: "大 O 與成長速度", url: "topics/discrete-math/lesson-36.html" },
+            { title: "分治法與主定理", url: "topics/discrete-math/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜離散機率",
+          courses: [
+            { title: "樣本空間與機率", url: "topics/discrete-math/lesson-38.html" },
+            { title: "條件機率與貝氏定理", url: "topics/discrete-math/lesson-39.html" },
+            { title: "期望值、線性性與指示變數", url: "topics/discrete-math/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜圖論",
+          courses: [
+            { title: "圖的基本概念與握手定理", url: "topics/discrete-math/lesson-41.html" },
+            { title: "歐拉路徑：柯尼斯堡七橋", url: "topics/discrete-math/lesson-42.html" },
+            { title: "漢米頓路徑與旅行推銷員問題", url: "topics/discrete-math/lesson-43.html" },
+            { title: "樹與生成樹", url: "topics/discrete-math/lesson-44.html" },
+            { title: "最短路徑：戴克斯特拉演算法", url: "topics/discrete-math/lesson-45.html" },
+            { title: "最小生成樹：克魯斯克爾與普林", url: "topics/discrete-math/lesson-46.html" },
+            { title: "二部圖與配對", url: "topics/discrete-math/lesson-47.html" },
+            { title: "圖著色與四色定理", url: "topics/discrete-math/lesson-48.html" },
+            { title: "平面圖與歐拉公式", url: "topics/discrete-math/lesson-49.html" },
+            { title: "網路流：最大流與最小割", url: "topics/discrete-math/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 I｜計算",
+          courses: [
+            { title: "布林代數與邏輯電路", url: "topics/discrete-math/lesson-51.html" },
+            { title: "有限自動機與正規語言", url: "topics/discrete-math/lesson-52.html" },
+            { title: "P 與 NP", url: "topics/discrete-math/lesson-53.html" },
+          ],
+        },
+      ],
     }
   ]
 };

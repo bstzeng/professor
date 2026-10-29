@@ -1,0 +1,100 @@
+# -*- coding: utf-8 -*-
+"""線性代數：參考頁——互動實驗室、公式總表、名詞中英對照。"""
+from la_common import LALIB, LS, lw, XF, WEATHER, KATEX, M
+
+LAB = {
+    "file": "lab.html", "title": u"線性代數互動實驗室", "h1": u"線性代數互動實驗室", "icon": u"🧪",
+    "description": u"2D 變換遊樂場、張成、高斯消去、投影、最小平方、馬可夫鏈、SVD 影像壓縮、PCA、PageRank、傅立葉、條件數",
+    "body": [
+        ("raw", u"<script>%s</script>" % LALIB),
+        ("p", u"把課程中的互動元件集中在這裡，方便隨時回來玩。每一個都附上對應的課。"),
+        ("h", u"1. 2D 變換遊樂場：行列式、特徵向量、奇異值（第 12、25、35、42 課）"), XF(u"", preset="sym", m=(2, 1, 1, 2), circ=True),
+        ("h", u"2. 線性組合與張成（第 5、19 課）"), lw("span"),
+        ("h", u"3. 高斯消去法（第 7～9 課）"), lw("gauss"),
+        ("h", u"4. 投影與格拉姆—施密特（第 30、32 課）"), lw("proj", gs=True),
+        ("h", u"5. 最小平方法（第 31 課）"), lw("lsq"),
+        ("h", u"6. 馬可夫鏈（第 38 課）"), WEATHER,
+        ("h", u"7. SVD 影像壓縮（第 43 課）"), lw("svd"),
+        ("h", u"8. 主成分分析（第 44 課）"), lw("pca"),
+        ("h", u"9. PageRank（第 45 課）"), lw("pagerank"),
+        ("h", u"10. 傅立葉級數（第 34 課）"), lw("fourier"),
+        ("h", u"11. 條件數（第 48 課）"), lw("cond"),
+    ],
+}
+
+FORMULAS = {
+    "file": "formulas.html", "title": u"線性代數公式總表", "h1": u"線性代數公式總表", "icon": u"📋",
+    "description": u"向量、矩陣、行列式、投影、特徵值、SVD 的重要公式與性質一覽",
+    "body": [
+        ("raw", KATEX),
+        ("t", [u"主題", u"公式", u"課"], [
+            [u"長度", M(r"\|\mathbf{v}\| = \sqrt{\mathbf{v}\cdot\mathbf{v}}"), LS(1)],
+            [u"內積", M(r"\mathbf{u}\cdot\mathbf{v} = \sum u_iv_i = \|\mathbf{u}\|\|\mathbf{v}\|\cos\theta"), LS(3)],
+            [u"柯西—舒瓦茲", M(r"|\mathbf{u}\cdot\mathbf{v}| \le \|\mathbf{u}\|\|\mathbf{v}\|"), LS(3)],
+            [u"外積長度", M(r"\|\mathbf{u}\times\mathbf{v}\| = \|\mathbf{u}\|\|\mathbf{v}\|\sin\theta"), LS(4)],
+            [u"矩陣乘法", M(r"(AB)_{ij} = \sum_k a_{ik}b_{kj}"), LS(11)],
+            [u"合成", M(r"A(B\mathbf{x}) = (AB)\mathbf{x}"), LS(13)],
+            [u"2×2 反矩陣", M(r"\begin{bmatrix}a&b\\c&d\end{bmatrix}^{-1} = \frac{1}{ad-bc}\begin{bmatrix}d&-b\\-c&a\end{bmatrix}"), LS(14)],
+            [u"乘積的逆與轉置", M(r"(AB)^{-1} = B^{-1}A^{-1},\; (AB)^{\mathsf T} = B^{\mathsf T}A^{\mathsf T}"), LS(14)],
+            [u"LU 分解", M(r"PA = LU"), LS(15)],
+            [u"秩—零度", M(r"\operatorname{rank}A + \dim N(A) = n"), LS(22)],
+            [u"基底變換", M(r"A_B = P^{-1}AP"), LS(23)],
+            [u"2×2 行列式", M(r"\det A = ad - bc"), LS(25)],
+            [u"行列式乘法", M(r"\det(AB) = \det A\det B,\; \det A^{\mathsf T} = \det A"), LS(26)],
+            [u"克拉瑪法則", M(r"x_i = \det A_i / \det A"), LS(27)],
+            [u"投影到直線", M(r"\mathbf{p} = \frac{\mathbf{a}\cdot\mathbf{b}}{\mathbf{a}\cdot\mathbf{a}}\mathbf{a}"), LS(30)],
+            [u"投影矩陣", M(r"P = A(A^{\mathsf T}A)^{-1}A^{\mathsf T},\; P^2 = P"), LS(30)],
+            [u"正規方程式", M(r"A^{\mathsf T}A\hat{\mathbf{x}} = A^{\mathsf T}\mathbf{b}"), LS(31)],
+            [u"QR 分解", M(r"A = QR,\; Q^{\mathsf T}Q = I"), LS(32)],
+            [u"正交矩陣", M(r"Q^{-1} = Q^{\mathsf T},\; \|Q\mathbf{x}\| = \|\mathbf{x}\|"), LS(33)],
+            [u"傅立葉係數", M(r"b_k = \frac1\pi\int_{-\pi}^{\pi} f(x)\sin kx\,dx"), LS(34)],
+            [u"特徵方程式", M(r"\det(A-\lambda I) = 0"), LS(36)],
+            [u"跡與行列式", M(r"\sum\lambda_i = \operatorname{tr}A,\; \prod\lambda_i = \det A"), LS(36)],
+            [u"對角化", M(r"A = PDP^{-1},\; A^k = PD^kP^{-1}"), LS(37)],
+            [u"比內公式", M(r"F_k = (\varphi^k - \psi^k)/\sqrt5"), LS(38)],
+            [u"矩陣指數", M(r"\mathbf{u}(t) = e^{At}\mathbf{u}(0) = Pe^{Dt}P^{-1}\mathbf{u}(0)"), LS(39)],
+            [u"譜定理", M(r"A = A^{\mathsf T} \Rightarrow A = Q\Lambda Q^{\mathsf T}"), LS(40)],
+            [u"二次型", M(r"\mathbf{x}^{\mathsf T}A\mathbf{x} > 0 \;\Leftrightarrow\; \lambda_i > 0"), LS(41)],
+            [u"SVD", M(r"A = U\Sigma V^{\mathsf T} = \sum\sigma_i\mathbf{u}_i\mathbf{v}_i^{\mathsf T}"), LS(42)],
+            [u"最佳低秩近似", M(r"A_k = \sum_{i\le k}\sigma_i\mathbf{u}_i\mathbf{v}_i^{\mathsf T}"), LS(43)],
+            [u"PageRank", M(r"\mathbf{r} = dM\mathbf{r} + \tfrac{1-d}{N}\mathbf{1}"), LS(45)],
+            [u"注意力", M(r"\mathrm{softmax}(QK^{\mathsf T}/\sqrt d)\,V"), LS(47)],
+            [u"條件數", M(r"\kappa = \sigma_{\max}/\sigma_{\min}"), LS(48)],
+        ]),
+    ],
+}
+
+GLOSSARY = {
+    "file": "glossary.html", "title": u"線性代數名詞中英對照", "h1": u"線性代數名詞中英對照", "icon": u"📖",
+    "description": u"向量、矩陣、子空間、特徵值、分解等名詞的中英對照",
+    "body": [
+        ("t", [u"中文", u"英文", u"課"], [
+            [u"向量", u"Vector", LS(1)], [u"純量", u"Scalar", LS(2)], [u"內積", u"Dot / Inner Product", LS(3)], [u"餘弦相似度", u"Cosine Similarity", LS(3)],
+            [u"外積（叉積）", u"Cross Product", LS(4)], [u"線性組合", u"Linear Combination", LS(5)], [u"張成", u"Span", LS(5)],
+            [u"增廣矩陣", u"Augmented Matrix", LS(7)], [u"高斯消去法", u"Gaussian Elimination", LS(7)], [u"樞紐", u"Pivot", LS(7)],
+            [u"列梯形／簡化列梯形", u"Row Echelon Form / Reduced Row Echelon Form", LS(8)], [u"自由變數", u"Free Variable", LS(8)], [u"秩", u"Rank", LS(8)],
+            [u"齊次方程組", u"Homogeneous System", LS(9)], [u"線性變換", u"Linear Transformation", LS(12)], [u"剪切", u"Shear", LS(12)],
+            [u"反矩陣", u"Inverse Matrix", LS(14)], [u"LU 分解", u"LU Decomposition", LS(15)], [u"喬列斯基分解", u"Cholesky Decomposition", LS(15)],
+            [u"轉置", u"Transpose", LS(16)], [u"對稱矩陣", u"Symmetric Matrix", LS(16)], [u"分塊矩陣", u"Block Matrix", LS(17)], [u"舒爾補", u"Schur Complement", LS(17)],
+            [u"向量空間", u"Vector Space", LS(18)], [u"子空間", u"Subspace", LS(18)], [u"線性獨立／相依", u"Linearly Independent / Dependent", LS(19)],
+            [u"基底", u"Basis", LS(20)], [u"維度", u"Dimension", LS(20)], [u"行空間", u"Column Space", LS(21)], [u"零空間", u"Null Space (Kernel)", LS(21)],
+            [u"列空間", u"Row Space", LS(21)], [u"左零空間", u"Left Null Space", LS(21)], [u"秩—零度定理", u"Rank–Nullity Theorem", LS(22)],
+            [u"相似矩陣", u"Similar Matrices", LS(23)], [u"行列式", u"Determinant", LS(25)], [u"克拉瑪法則", u"Cramer's Rule", LS(27)],
+            [u"奇異（不可逆）矩陣", u"Singular Matrix", LS(28)], [u"正交", u"Orthogonal", LS(29)], [u"正交補", u"Orthogonal Complement", LS(29)],
+            [u"標準正交基底", u"Orthonormal Basis", LS(29)], [u"投影", u"Projection", LS(30)], [u"最小平方法", u"Least Squares", LS(31)],
+            [u"正規方程式", u"Normal Equations", LS(31)], [u"格拉姆—施密特", u"Gram–Schmidt Process", LS(32)], [u"QR 分解", u"QR Decomposition", LS(32)],
+            [u"正交矩陣", u"Orthogonal Matrix", LS(33)], [u"豪斯霍爾德反射", u"Householder Reflection", LS(33)], [u"傅立葉級數", u"Fourier Series", LS(34)],
+            [u"特徵值／特徵向量", u"Eigenvalue / Eigenvector", LS(35)], [u"特徵多項式", u"Characteristic Polynomial", LS(36)], [u"跡", u"Trace", LS(36)],
+            [u"對角化", u"Diagonalization", LS(37)], [u"喬丹標準形", u"Jordan Normal Form", LS(37)], [u"馬可夫鏈", u"Markov Chain", LS(38)],
+            [u"穩定分布", u"Stationary Distribution", LS(38)], [u"矩陣指數", u"Matrix Exponential", LS(39)], [u"譜定理", u"Spectral Theorem", LS(40)],
+            [u"二次型", u"Quadratic Form", LS(41)], [u"正定", u"Positive Definite", LS(41)], [u"海森矩陣", u"Hessian Matrix", LS(41)],
+            [u"奇異值分解", u"Singular Value Decomposition (SVD)", LS(42)], [u"奇異值", u"Singular Value", LS(42)], [u"虛反矩陣", u"Pseudoinverse", LS(42)],
+            [u"低秩近似", u"Low-Rank Approximation", LS(43)], [u"主成分分析", u"Principal Component Analysis (PCA)", LS(44)], [u"冪迭代", u"Power Iteration", LS(45)],
+            [u"齊次座標", u"Homogeneous Coordinates", LS(46)], [u"注意力機制", u"Attention Mechanism", LS(47)], [u"條件數", u"Condition Number", LS(48)],
+            [u"病態", u"Ill-conditioned", LS(48)], [u"嶺回歸", u"Ridge Regression", LS(48)], [u"稀疏矩陣", u"Sparse Matrix", LS(49)],
+            [u"共軛梯度法", u"Conjugate Gradient Method", LS(49)], [u"預條件", u"Preconditioning", LS(49)],
+        ]),
+    ],
+}
+
+REFERENCES = [LAB, FORMULAS, GLOSSARY]
