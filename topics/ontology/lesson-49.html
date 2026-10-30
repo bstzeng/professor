@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：本體對齊、合併與版本管理 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="兩套本體說的是同一件事嗎？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Ontology 工程方法 · 第 49 課</div>
+      <h1>本體對齊、合併與版本管理</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解本體對齊的問題與方法</li>
+          <li>認識 SKOS 對應關係與 SSSOM</li>
+          <li>理解本體版本管理的做法</li>
+        </ul>
+      </div>
+
+      <p>
+        不同組織各自建立的本體，常常描述重疊的領域。要整合資料，就要找出兩邊概念的對應：這叫<strong>本體對齊</strong>（ontology alignment / matching）。
+      </p>
+
+      <h2>對齊的困難</h2>
+
+      <ul>
+        <li><strong>名稱不同、意思相同</strong>：Car 與 Automobile、「客戶」與「顧客」。</li>
+        <li><strong>名稱相同、意思不同</strong>：兩個系統的「客戶」，一個含潛在客戶，一個只算成交客戶。</li>
+        <li><strong>粒度不同</strong>：一邊有「轎車」「休旅車」，另一邊只有「汽車」。</li>
+        <li><strong>結構不同</strong>：一邊把地址當屬性，另一邊把地址當類別。</li>
+      </ul>
+
+      <h2>對齊的方法</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>依據</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>字串比對</td><td>標籤的編輯距離、同義詞（WordNet、UMLS）</td></tr>
+          <tr><td>結構比對</td><td>上下層類別、屬性是否相似</td></tr>
+          <tr><td>實例比對</td><td>兩個類別的實例重疊多少</td></tr>
+          <tr><td>邏輯驗證</td><td>對齊後合併，用推理機檢查是否產生不一致</td></tr>
+          <tr><td>嵌入與 LLM</td><td>把標籤與定義轉成向量比較相似度，再請 LLM 判斷（第 53 課）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        每年的 OAEI（本體對齊評估倡議）競賽會比較各種對齊系統，在解剖學、疾病、生物多樣性等資料集上的表現。
+      </p>
+
+      <h2>表達對應關係</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>關係</th><th>意思</th><th>強度</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>owl:equivalentClass</td><td>邏輯上完全等價</td><td>最強，會影響推理</td></tr>
+          <tr><td>rdfs:subClassOf</td><td>一邊是另一邊的子類別</td><td>強</td></tr>
+          <tr><td>skos:exactMatch</td><td>可以互換使用</td><td>不影響 OWL 推理</td></tr>
+          <tr><td>skos:closeMatch</td><td>相近，部分情況可互換</td><td>弱</td></tr>
+          <tr><td>skos:broadMatch／narrowMatch</td><td>較廣／較窄</td><td>弱</td></tr>
+          <tr><td>skos:relatedMatch</td><td>相關</td><td>最弱</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        生物醫學社群提出 <strong>SSSOM</strong>（Simple Standard for Sharing Ontological Mappings）：用一張 TSV 表格記錄對應關係，並註明信心分數、對應方法（人工、詞彙比對、LLM）、作者，讓對應本身也可追溯。
+      </p>
+
+      <div class="code-block"># 簡單的詞彙對齊：標籤正規化 + 字串相似度，輸出 SSSOM 風格的表格
+from difflib import SequenceMatcher
+import csv, sys
+
+A = {"a:Car": "Automobile", "a:Truck": "Lorry", "a:Customer": "Customer"}
+B = {"b:Auto": "automobile", "b:Truck": "truck", "b:Client": "client", "b:Buyer": "customer"}
+
+def norm(s): return s.lower().replace("_", " ").strip()
+
+rows = []
+for ia, la in A.items():
+    best = max(B.items(), key=lambda kv: SequenceMatcher(None, norm(la), norm(kv[1])).ratio())
+    score = SequenceMatcher(None, norm(la), norm(best[1])).ratio()
+    pred = "skos:exactMatch" if score &gt; 0.95 else "skos:closeMatch"
+    if score &gt; 0.6:
+        rows.append([ia, pred, best[0], "semapv:LexicalMatching", round(score, 2)])
+
+w = csv.writer(sys.stdout, delimiter="\t")
+w.writerow(["subject_id", "predicate_id", "object_id", "mapping_justification", "confidence"])
+w.writerows(rows)      # 注意：Truck 與 Lorry 是同義詞，純字串比對找不到——需要同義詞庫或嵌入</div>
+
+      <h2>版本管理</h2>
+
+      <ul>
+        <li><strong>版本 IRI</strong>：owl:versionIRI 讓每個發布版本都有固定的網址，使用者可以釘選特定版本。</li>
+        <li><strong>不要刪除，要棄用</strong>：不再使用的類別標記 owl:deprecated true，並以 obo:IAO_0100001（term replaced by）指向替代者；直接刪除會讓引用它的資料斷掉。</li>
+        <li><strong>語意差異</strong>：比較兩個版本時，除了文字 diff，還要比較推論結果的差異（例如某類別的上層類別變了），ROBOT diff 等工具可以做到。</li>
+        <li><strong>變更紀錄</strong>：每次發布附上新增、修改、棄用的術語清單。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          本體對齊要找出不同本體間概念的對應，困難在於同義異名、同名異義、粒度與結構差異。方法有字串、結構、實例比對、邏輯驗證與嵌入或 LLM，OAEI 競賽評估各系統。對應可用 owl:equivalentClass、subClassOf 或較寬鬆的 SKOS 對應關係表達，SSSOM 以表格記錄信心與方法。版本管理需使用版本 IRI、以 deprecated 棄用而非刪除、比較推論差異並保留變更紀錄。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>舉一個「名稱相同、意思不同」的企業資料例子。</li>
+          <li>什麼時候該用 skos:closeMatch 而不是 owl:equivalentClass？</li>
+          <li>為什麼不應該直接刪除本體中的類別？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>品質評估與常見陷阱</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：設計模式與重用</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：品質評估與常見陷阱 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

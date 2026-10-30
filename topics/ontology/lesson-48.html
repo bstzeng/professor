@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：設計模式與重用 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="不要從零開始：本體設計模式與常用詞彙">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Ontology 工程方法 · 第 48 課</div>
+      <h1>設計模式與重用</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識本體設計模式</li>
+          <li>認識應該優先重用的常用詞彙</li>
+          <li>理解重用的方式與取捨</li>
+        </ul>
+      </div>
+
+      <p>
+        軟體工程有設計模式；本體工程也有。<strong>本體設計模式</strong>（ODP）是針對反覆出現的建模問題、經過驗證的小型解法。
+      </p>
+
+      <h2>常見的設計模式</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>模式</th><th>解決的問題</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>N 元關係</strong></td><td>RDF 只有二元關係，「張三於 2020～2023 年在甲公司擔任經理」怎麼表示？</td><td>把關係變成一個個體（任職），再連到人、公司、職位、起訖時間</td></tr>
+          <tr><td><strong>部分–整體</strong></td><td>部件、成員、區域包含各有不同性質</td><td>分開定義 hasPart、hasMember、containedIn，並各自設定傳遞性</td></tr>
+          <tr><td><strong>角色</strong></td><td>病人、員工是暫時的</td><td>角色是依存於人的個體，有起訖時間（第 25、39 課）</td></tr>
+          <tr><td><strong>值分割</strong></td><td>「尺寸」只能是小中大</td><td>用列舉類別 owl:oneOf 或 SKOS 概念</td></tr>
+          <tr><td><strong>情境</strong>（Situation）</td><td>一個事件涉及多個參與者與角色</td><td>把情境當作個體，連到各參與者</td></tr>
+          <tr><td><strong>出處</strong></td><td>這筆資料從哪來</td><td>使用 PROV-O：Entity、Activity、Agent</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block"># N 元關係模式：任職（Employment）
+from rdflib import Graph, Namespace, Literal, RDF
+from rdflib.namespace import XSD
+EX = Namespace("http://example.org/hr#")
+g = Graph()
+
+job = EX.employment_42                       # 把「關係」變成一個個體
+g.add((job, RDF.type, EX.Employment))
+g.add((job, EX.employee, EX.ZhangSan))
+g.add((job, EX.employer, EX.CompanyA))
+g.add((job, EX.role, EX.Manager))
+g.add((job, EX.start, Literal("2020-03-01", datatype=XSD.date)))
+g.add((job, EX.end,   Literal("2023-06-30", datatype=XSD.date)))
+
+q = '''SELECT ?who ?org WHERE {
+  ?j a :Employment ; :employee ?who ; :employer ?org ; :start ?s ; :end ?e .
+  FILTER(?s &lt;= "2022-01-01"^^xsd:date &amp;&amp; ?e &gt;= "2022-01-01"^^xsd:date) }'''
+print(list(g.query(q, initNs={"": EX, "xsd": XSD})))      # 2022 年初誰在哪裡工作</div>
+
+      <h2>應該優先重用的詞彙</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>詞彙</th><th>領域</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Dublin Core（dcterms）</td><td>標題、作者、日期、主題等詮釋資料</td></tr>
+          <tr><td>FOAF</td><td>人與社群關係</td></tr>
+          <tr><td>SKOS</td><td>分類表、詞彙表、主題詞（broader、narrower、related）</td></tr>
+          <tr><td>schema.org</td><td>一般網路實體</td></tr>
+          <tr><td>PROV-O</td><td>資料出處</td></tr>
+          <tr><td>OWL-Time</td><td>時間點、時間區間</td></tr>
+          <tr><td>GeoSPARQL</td><td>地理空間</td></tr>
+          <tr><td>QUDT</td><td>量與單位</td></tr>
+          <tr><td>ORG</td><td>組織結構</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>重用的方式</h2>
+
+      <ul>
+        <li><strong>直接引用 IRI</strong>：最輕量，例如在你的資料中使用 dcterms:title。</li>
+        <li><strong>owl:imports 整個本體</strong>：完整，但可能帶進大量不需要的東西。</li>
+        <li><strong>模組抽取</strong>（如 MIREOT、SLME）：只抽出需要的類別及其上層，ROBOT extract 可以自動化。</li>
+        <li><strong>對齊</strong>：自己定義，再用 subClassOf 或 equivalentClass 對應到標準詞彙（第 49 課）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          本體設計模式是反覆出現的建模問題的驗證解法，例如 N 元關係（將關係個體化）、部分整體、角色、值分割、情境與出處。應優先重用 Dublin Core、FOAF、SKOS、schema.org、PROV-O、OWL-Time、GeoSPARQL、QUDT、ORG 等詞彙。重用方式包括直接引用 IRI、owl:imports、模組抽取與對齊，各有完整度與複雜度的取捨。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 N 元關係模式表示「病人在某日服用某藥物 500 毫克」。</li>
+          <li>什麼情況下應該用 SKOS 而不是 OWL 類別？</li>
+          <li>直接 import 一個大型本體有什麼缺點？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>本體對齊、合併與版本管理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：Protégé 與 Python 工具鏈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：本體對齊、合併與版本管理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

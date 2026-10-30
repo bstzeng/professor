@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 50 課：品質評估與常見陷阱 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="怎麼知道一個本體好不好？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 50 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Ontology 工程方法 · 第 50 課</div>
+      <h1>品質評估與常見陷阱</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識本體品質的評估面向</li>
+          <li>認識 OOPS! 等陷阱檢測</li>
+          <li>建立本體的品質檢查清單</li>
+        </ul>
+      </div>
+
+      <h2>評估的面向</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>面向</th><th>問題</th><th>方法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>邏輯正確</strong></td><td>一致嗎？有沒有不可滿足的類別？</td><td>推理機</td></tr>
+          <tr><td><strong>需求滿足</strong></td><td>能回答能力問題嗎？</td><td>SPARQL 測試（第 46 課）</td></tr>
+          <tr><td><strong>領域正確</strong></td><td>專家同意這些定義與關係嗎？</td><td>專家審查</td></tr>
+          <tr><td><strong>資料符合</strong></td><td>實際資料符合本體嗎？</td><td>SHACL 驗證（第 37 課）</td></tr>
+          <tr><td><strong>結構品質</strong></td><td>階層深度、每個類別的子類別數、孤兒類別</td><td>度量工具</td></tr>
+          <tr><td><strong>可用性</strong></td><td>有沒有標籤、定義、說明？命名一致嗎？</td><td>檢查清單</td></tr>
+          <tr><td><strong>實際效益</strong></td><td>應用有沒有因此變好？</td><td>任務導向評估：搜尋準確率、整合時間、問答正確率</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>OOPS!：本體陷阱掃描</h2>
+
+      <p>
+        馬德里理工大學的 OOPS!（OntOlogy Pitfall Scanner!）整理了四十多種常見陷阱，例如：
+      </p>
+
+      <ul>
+        <li>P04：建立了沒有連到任何東西的孤立元素。</li>
+        <li>P08：缺少標籤或說明。</li>
+        <li>P10：缺少互斥公理（第 25 課的經典錯誤）。</li>
+        <li>P11：缺少定義域或值域。</li>
+        <li>P13：缺少反向屬性。</li>
+        <li>P19：在定義域或值域中用多個類別，被誤解為「或」（實際是「且」）。</li>
+        <li>P24：遞迴定義。</li>
+        <li>P41：沒有宣告授權。</li>
+      </ul>
+
+      <div class="code-block"># 自製品質檢查：缺標籤、缺定義、沒有任何互斥公理、定義域多個類別
+from rdflib import Graph, RDF, RDFS, OWL
+from rdflib.namespace import SKOS
+
+g = Graph().parse("library.ttl")
+classes = set(g.subjects(RDF.type, OWL.Class))
+props   = set(g.subjects(RDF.type, OWL.ObjectProperty))
+
+no_label = [c for c in classes if (c, RDFS.label, None) not in g]
+no_def   = [c for c in classes if (c, SKOS.definition, None) not in g and (c, RDFS.comment, None) not in g]
+multi_domain = [p for p in props if len(list(g.objects(p, RDFS.domain))) &gt; 1]
+has_disjoint = any(g.triples((None, OWL.disjointWith, None))) or any(g.triples((None, RDF.type, OWL.AllDisjointClasses)))
+
+print(f"{len(classes)} 個類別；缺標籤 {len(no_label)}；缺定義 {len(no_def)}")
+print("定義域有多個類別（是交集，不是聯集！）：", multi_domain)
+if not has_disjoint:
+    print("警告：沒有任何互斥公理，推理機幾乎抓不到錯誤")</div>
+
+      <h2>品質檢查清單</h2>
+
+      <ol>
+        <li>推理機：一致，沒有不可滿足的類別。</li>
+        <li>每個類別與屬性都有標籤與文字定義。</li>
+        <li>兄弟類別之間是否該互斥？該宣告的都宣告了。</li>
+        <li>屬性的定義域、值域、特性（傳遞、函數性……）都經過思考。</li>
+        <li>所有能力問題的測試都通過。</li>
+        <li>有版本 IRI、授權、作者、變更紀錄。</li>
+        <li>重用了標準詞彙，而不是重新發明。</li>
+      </ol>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          本體品質從邏輯正確、需求滿足、領域正確、資料符合、結構品質、可用性與實際效益評估，方法包括推理機、能力問題測試、專家審查、SHACL 與度量工具。OOPS! 整理四十多種常見陷阱，如孤立元素、缺標籤、缺互斥、缺定義域值域、定義域多類別被誤解為聯集、缺授權。可用 rdflib 撰寫自製檢查，並依清單逐項確認。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼「定義域寫多個類別」是常見陷阱？</li>
+          <li>一個沒有任何互斥公理的本體會有什麼問題？</li>
+          <li>如何用「實際效益」評估一個企業本體？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>企業知識圖譜</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-49.html">← 上一課：本體對齊、合併與版本管理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-51.html">下一課：企業知識圖譜 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

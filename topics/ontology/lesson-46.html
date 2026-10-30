@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：方法論與能力問題 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="從需求出發：本體要回答哪些問題？">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Ontology 工程方法 · 第 46 課</div>
+      <h1>方法論與能力問題</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識主要的本體工程方法論</li>
+          <li>會寫能力問題並轉成 SPARQL 測試</li>
+          <li>理解本體開發的生命週期</li>
+        </ul>
+      </div>
+
+      <p>
+        建本體和寫軟體一樣，需要方法。最常見的失敗是：一開始就畫一棵大樹，想把「所有東西」都放進去，結果做了兩年沒人用。
+      </p>
+
+      <h2>主要方法論</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法論</th><th>年代</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Ontology 101</strong>（諾伊與麥吉尼斯，史丹佛）</td><td>2001</td><td>七步驟入門指南：決定範圍 → 考慮重用 → 列術語 → 定類別階層 → 定屬性 → 定屬性限制 → 建個體</td></tr>
+          <tr><td><strong>METHONTOLOGY</strong>（馬德里理工大學）</td><td>1997</td><td>借用軟體工程：規格、概念化、形式化、實作、維護，加上評估與文件</td></tr>
+          <tr><td><strong>NeOn</strong></td><td>2010 前後</td><td>九種情境，強調重用既有本體、非本體資源（資料庫綱要、詞彙表）</td></tr>
+          <tr><td><strong>敏捷方法</strong>（如 XD 極限設計、SAMOD）</td><td>2010 年代</td><td>小步快跑：一次處理幾個能力問題，以測試驅動開發</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>能力問題（Competency Questions）</h2>
+
+      <p>
+        格魯寧格與福克斯在 1995 年提出：本體的需求，就是它<strong>必須能回答的問題</strong>。例如一個圖書館本體：
+      </p>
+
+      <ol>
+        <li>某位作者寫過哪些書？</li>
+        <li>目前有哪些書逾期未還？逾期的讀者是誰？</li>
+        <li>某本書屬於哪些主題（含上層主題）？</li>
+        <li>哪些書有中譯本？譯者是誰？</li>
+      </ol>
+
+      <p>
+        能力問題決定了範圍（不在任何問題裡的概念可以先不做），也是最好的<strong>驗收測試</strong>：每個問題寫成一個 SPARQL 查詢，本體與測試資料要能給出預期答案。
+      </p>
+
+      <div class="code-block"># 把能力問題寫成自動化測試（pytest），每次修改本體都跑一次
+import pytest
+from rdflib import Graph
+import owlrl
+
+@pytest.fixture(scope="module")
+def kg():
+    g = Graph().parse("library.ttl").parse("test_data.ttl")
+    owlrl.DeductiveClosure(owlrl.OWLRL_Semantics).expand(g)   # 先物化推論結果
+    return g
+
+CQS = {
+    "CQ1 托爾金寫過哪些書": ('''SELECT ?b WHERE { ?b :writtenBy :Tolkien }''', {":LOTR", ":Hobbit"}),
+    "CQ3 魔戒的所有主題（含上層）": ('''SELECT ?t WHERE { :LOTR :subject/skos:broader* ?t }''',
+                                {":Fantasy", ":Fiction", ":Literature"}),
+}
+
+@pytest.mark.parametrize("name", CQS)
+def test_competency_question(kg, name):
+    q, expected = CQS[name]
+    ns = {"": "http://example.org/lib#", "skos": "http://www.w3.org/2004/02/skos/core#"}
+    got = {kg.qname(r[0]) for r in kg.query(q, initNs=ns)}
+    assert got == expected, name</div>
+
+      <h2>生命週期</h2>
+
+      <ol>
+        <li><strong>規格</strong>：目的、範圍、使用者、能力問題。</li>
+        <li><strong>知識擷取</strong>：訪談領域專家、讀文件、分析既有資料庫。</li>
+        <li><strong>概念化</strong>：列出術語，區分類別、屬性、個體。</li>
+        <li><strong>重用</strong>：找可以引用的現有本體（第 48 課）。</li>
+        <li><strong>形式化與實作</strong>：用 OWL 寫下來（第 47 課的 Protégé）。</li>
+        <li><strong>評估</strong>：推理機檢查一致性、跑能力問題測試、專家審查（第 50 課）。</li>
+        <li><strong>部署與維護</strong>：版本控制、變更管理（第 49 課）。</li>
+      </ol>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          本體工程需要方法，避免想涵蓋一切卻無人使用。主要方法論有七步驟的 Ontology 101、借用軟體工程的 METHONTOLOGY、強調重用的 NeOn 與測試驅動的敏捷方法。能力問題是本體必須回答的問題，決定範圍，也可寫成 SPARQL 自動化測試作為驗收。生命週期包括規格、知識擷取、概念化、重用、形式化、評估與維護。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為一個「醫院排班」本體寫出五個能力問題。</li>
+          <li>為什麼能力問題能幫助控制本體的範圍？</li>
+          <li>把能力問題寫成自動化測試有什麼好處？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Protégé 與 Python 工具鏈</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：政府與開放資料</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：Protégé 與 Python 工具鏈 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

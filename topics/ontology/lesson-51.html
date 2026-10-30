@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 51 課：企業知識圖譜 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="把散落在各系統的資料，用本體接起來">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 51 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜現代應用 · 第 51 課</div>
+      <h1>企業知識圖譜</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解企業知識圖譜的架構</li>
+          <li>比較 RDF 與屬性圖兩種技術路線</li>
+          <li>了解從資料到知識圖譜的建構流程</li>
+        </ul>
+      </div>
+
+      <p>
+        一家中大型企業可能有數百套系統：ERP、CRM、MES、HR、財務……每套系統對「客戶」「產品」「訂單」都有自己的定義。<strong>企業知識圖譜</strong>用一套共同的本體，把這些資料連成一張圖。
+      </p>
+
+      <h2>兩條技術路線</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>RDF 三元組資料庫</th><th>屬性圖資料庫</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>代表產品</td><td>GraphDB、Stardog、Amazon Neptune、Apache Jena</td><td>Neo4j、TigerGraph、Amazon Neptune、Memgraph</td></tr>
+          <tr><td>資料模型</td><td>三元組，IRI 全域識別</td><td>節點與邊都可帶屬性（鍵值對）</td></tr>
+          <tr><td>綱要</td><td>RDFS、OWL、SHACL</td><td>較鬆散，通常在應用層定義</td></tr>
+          <tr><td>查詢語言</td><td>SPARQL</td><td>Cypher、GQL（2024 年 ISO 標準）</td></tr>
+          <tr><td>推理</td><td>有，標準化</td><td>通常沒有，或需外掛</td></tr>
+          <tr><td>優勢</td><td>資料整合、標準、互通、推理</td><td>圖演算法（路徑、社群、中心性）、開發者友善</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        兩者正在接近：RDF 1.2 的 RDF-star 讓邊也能有屬性；屬性圖陣營也開始重視綱要。很多企業的做法是：<strong>用本體定義語意，用最適合的資料庫存放</strong>。
+      </p>
+
+      <h2>建構流程</h2>
+
+      <ol>
+        <li><strong>本體設計</strong>：從能力問題出發（第 46 課）。</li>
+        <li><strong>資料對應</strong>：把資料庫表格、CSV、API 對應到本體（R2RML、RML；或寫 Python ETL）。</li>
+        <li><strong>實體解析</strong>：判斷不同系統的「台積電」「TSMC」「台灣積體電路製造股份有限公司」是同一家公司。</li>
+        <li><strong>非結構化抽取</strong>：從文件、郵件、合約中用 NLP 或 LLM 抽取實體與關係。</li>
+        <li><strong>驗證與推理</strong>：SHACL 檢查品質，推理補充隱含關係。</li>
+        <li><strong>服務</strong>：搜尋、推薦、問答、分析、儀表板。</li>
+      </ol>
+
+      <div class="code-block"># 把兩個系統的資料（CRM、ERP）對應到同一個本體，並做簡單的實體解析
+import pandas as pd
+from rdflib import Graph, Namespace, Literal, RDF
+EX = Namespace("http://example.org/kg#")
+
+crm = pd.DataFrame({"cust_id": ["C01", "C02"], "name": ["台積電", "鴻海精密"], "tax_id": ["22099131", "04541302"]})
+erp = pd.DataFrame({"vendor": ["V9"], "vendor_name": ["台灣積體電路製造股份有限公司"], "vat": ["22099131"]})
+
+g = Graph()
+def company(tax_id):                       # 以統一編號作為實體解析的鍵 → 同一個 IRI
+    return EX["org/" + tax_id]
+
+for r in crm.itertuples():
+    c = company(r.tax_id)
+    g.add((c, RDF.type, EX.Organization)); g.add((c, EX.name, Literal(r.name)))
+    g.add((c, EX.crmId, Literal(r.cust_id)))
+for r in erp.itertuples():
+    c = company(r.vat)
+    g.add((c, RDF.type, EX.Organization)); g.add((c, EX.legalName, Literal(r.vendor_name)))
+    g.add((c, EX.erpVendorId, Literal(r.vendor)))
+
+# 同一家公司既是客戶也是供應商——跨系統才看得到的事實
+q = "SELECT ?c ?n WHERE { ?c :crmId ?x ; :erpVendorId ?y ; :name ?n }"
+print(list(g.query(q, initNs={"": EX})))</div>
+
+      <div class="callout">
+        <h3>實際案例</h3>
+        <ul>
+          <li><strong>搜尋與推薦</strong>：電商的產品知識圖譜（屬性、相容性、替代品）。</li>
+          <li><strong>金融</strong>：反洗錢與詐欺偵測，追蹤人、帳戶、公司之間的關係網。</li>
+          <li><strong>製藥</strong>：連結基因、疾病、藥物、臨床試驗，找出藥物再利用的機會。</li>
+          <li><strong>供應鏈</strong>：多層供應商的風險傳遞（第 63 課）。</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          企業知識圖譜以共同本體連結散落在 ERP、CRM、MES 等系統的資料。RDF 三元組資料庫以 SPARQL、標準化推理與互通見長；屬性圖資料庫以 Cypher 或 GQL 與圖演算法見長，兩者正互相靠近。建構流程包括本體設計、資料對應、實體解析、非結構化抽取、驗證推理與服務。應用涵蓋搜尋推薦、反洗錢、藥物再利用與供應鏈風險。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>RDF 資料庫和屬性圖資料庫各適合什麼情境？</li>
+          <li>為什麼實體解析是企業知識圖譜最困難的步驟之一？</li>
+          <li>舉一個「跨系統才看得到」的企業洞見。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Ontology 與大型語言模型：GraphRAG</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-50.html">← 上一課：品質評估與常見陷阱</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-52.html">下一課：Ontology 與大型語言模型：GraphRAG →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

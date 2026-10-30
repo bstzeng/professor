@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 42 課：Wikidata 與 DBpedia ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="全世界最大的開放知識圖譜">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 42 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜上層本體與領域本體 · 第 42 課</div>
+      <h1>Wikidata 與 DBpedia</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Wikidata 的資料模型</li>
+          <li>理解限定詞與參考來源</li>
+          <li>認識 DBpedia 與兩者的差別</li>
+        </ul>
+      </div>
+
+      <h2>Wikidata</h2>
+
+      <p>
+        Wikidata 2012 年由維基媒體基金會推出，是一個任何人都能編輯的結構化知識庫，存放了一億個以上的項目。它是維基百科各語言版本的資訊框、各種 AI 助理與搜尋引擎的重要資料來源。
+      </p>
+
+      <h2>資料模型</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元素</th><th>識別碼</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>項目（item）</td><td>Q 開頭</td><td>Q892 托爾金、Q15228 魔戒</td></tr>
+          <tr><td>屬性（property）</td><td>P 開頭</td><td>P50 作者、P569 出生日期、P31 是…的實例</td></tr>
+          <tr><td>陳述</td><td>項目 + 屬性 + 值</td><td>Q15228 P50 Q892</td></tr>
+          <tr><td>限定詞</td><td>附加在陳述上</td><td>「開始時間」「結束時間」「排名」</td></tr>
+          <tr><td>參考來源</td><td>附加在陳述上</td><td>「來自哪本書、哪個網站」</td></tr>
+          <tr><td>排名</td><td>首選／一般／不建議</td><td>同一屬性有多個值時，哪個是目前正確的</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這個模型比單純的 RDF 三元組豐富：每個陳述都可以有時間、來源與可信度，正好解決了第 25 課提到的時間與出處問題。匯出成 RDF 時，Wikidata 用具體化的方式表示陳述。
+      </p>
+
+      <h2>P31 與 P279</h2>
+
+      <p>
+        Wikidata 沒有強制使用 OWL，而是用兩個屬性表示類別結構：<strong>P31</strong>（是…的實例，對應 rdf:type）與 <strong>P279</strong>（是…的子類別，對應 rdfs:subClassOf）。因為是群眾協作，階層中常有不一致之處，研究者會用推理與 SHACL／ShEx 工具找出問題。
+      </p>
+
+      <div class="code-block">from SPARQLWrapper import SPARQLWrapper, JSON
+sp = SPARQLWrapper("https://query.wikidata.org/sparql", agent="ontology-course-demo")
+
+# 出生在台灣、職業是作家的人，依出生日期排序（含限定詞的寫法見 p:/ps:/pq:）
+sp.setQuery('''
+SELECT ?p ?pLabel ?birth WHERE {
+  ?p wdt:P31 wd:Q5 ;              # 是人類
+     wdt:P106 wd:Q36180 ;         # 職業：作家
+     wdt:P19/wdt:P17 wd:Q865 ;    # 出生地所屬國家：台灣（Q865）
+     wdt:P569 ?birth .
+  SERVICE wikibase:label { bd:serviceParam wikibase:language "zh-tw,zh,en". }
+} ORDER BY ?birth LIMIT 20''')
+sp.setReturnFormat(JSON)
+for b in sp.query().convert()["results"]["bindings"]:
+    print(b["birth"]["value"][:10], b["pLabel"]["value"])</div>
+
+      <h2>DBpedia</h2>
+
+      <p>
+        <strong>DBpedia</strong>（2007 年起，萊比錫大學與柏林自由大學等）用程式從維基百科的資訊框<strong>自動抽取</strong>結構化資料，並建立 DBpedia 本體。它是 LOD 雲的中心節點之一。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>Wikidata</th><th>DBpedia</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>資料來源</td><td>人工直接編輯（加上機器人）</td><td>從維基百科自動抽取</td></tr>
+          <tr><td>語言</td><td>單一知識庫、多語標籤</td><td>依維基百科語言版本分開抽取</td></tr>
+          <tr><td>出處</td><td>每個陳述可附參考來源</td><td>來自維基百科頁面</td></tr>
+          <tr><td>更新</td><td>即時</td><td>定期重新抽取</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Wikidata 2012 年推出，是可協作編輯的結構化知識庫，項目以 Q、屬性以 P 編號，陳述可附限定詞、參考來源與排名，解決時間與出處問題，類別結構以 P31（實例）與 P279（子類別）表示。可透過 SPARQL 端點查詢。DBpedia 自 2007 年從維基百科資訊框自動抽取資料並建立本體，是 LOD 雲中心節點；兩者在資料來源、多語處理、出處與更新方式上不同。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Wikidata 的 P31 和 P279 各對應 RDF 的什麼？</li>
+          <li>限定詞與參考來源解決了 RDF 三元組的什麼問題？</li>
+          <li>Wikidata 和 DBpedia 的資料來源有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>金融：FIBO</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-41.html">← 上一課：schema.org 與 Google 知識圖譜</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-43.html">下一課：金融：FIBO →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
