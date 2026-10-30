@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 37 課：SHACL：資料驗證 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="開放世界的本體，封閉世界的檢查">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 37 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜語意網技術 · 第 37 課</div>
+      <h1>SHACL：資料驗證</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SHACL 與 OWL 的分工</li>
+          <li>會寫基本的形狀（shape）</li>
+          <li>用 pySHACL 驗證資料</li>
+        </ul>
+      </div>
+
+      <p>
+        OWL 在開放世界中做推論，無法回答「這份資料是否完整、是否符合規格」（第 29 課）。2017 年 W3C 推出 <strong>SHACL</strong>（Shapes Constraint Language），專門用<strong>封閉世界</strong>的方式驗證 RDF 資料。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>OWL</th><th>SHACL</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>目的</td><td>描述概念、推論新知識</td><td>檢查資料是否符合約束</td></tr>
+          <tr><td>世界假設</td><td>開放</td><td>封閉</td></tr>
+          <tr><td>「每本書至少一位作者」遇到沒有作者的書</td><td>推論：它有某位未知的作者</td><td><strong>報錯</strong>：違反約束</td></tr>
+          <tr><td>「作者的值域是人」遇到作者是一本書</td><td>推論：那本書也是一個人</td><td><strong>報錯</strong>：值不是 Person</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>形狀</h2>
+
+      <p>
+        SHACL 用<strong>形狀</strong>描述資料應該長什麼樣子：
+      </p>
+
+      <ul>
+        <li><strong>目標</strong>：這個形狀要檢查哪些節點（例如所有 lib:Book 的實例）。</li>
+        <li><strong>屬性形狀</strong>：某個屬性的值要滿足什麼：個數（sh:minCount、sh:maxCount）、型別（sh:datatype、sh:class）、範圍（sh:minInclusive）、格式（sh:pattern）等。</li>
+        <li>違反時產生一份<strong>驗證報告</strong>，說明哪個節點、哪個屬性、違反了什麼。</li>
+      </ul>
+
+      <div class="code-block">from rdflib import Graph
+from pyshacl import validate
+
+data = Graph().parse(data='''
+@prefix lib: &lt;http://example.org/lib#&gt; .
+lib:LOTR   a lib:Book ; lib:title "The Lord of the Rings" ; lib:writtenBy lib:Tolkien ; lib:year 1954 .
+lib:Silmar a lib:Book ; lib:year "一九七七" .                 # 沒有書名、年份格式錯
+lib:Tolkien a lib:Person .
+''', format="turtle")
+
+shapes = Graph().parse(data='''
+@prefix sh:  &lt;http://www.w3.org/ns/shacl#&gt; .
+@prefix xsd: &lt;http://www.w3.org/2001/XMLSchema#&gt; .
+@prefix lib: &lt;http://example.org/lib#&gt; .
+lib:BookShape a sh:NodeShape ;
+    sh:targetClass lib:Book ;
+    sh:property [ sh:path lib:title ; sh:minCount 1 ; sh:datatype xsd:string ] ;
+    sh:property [ sh:path lib:writtenBy ; sh:minCount 1 ; sh:class lib:Person ] ;
+    sh:property [ sh:path lib:year ; sh:datatype xsd:integer ;
+                  sh:minInclusive 1450 ; sh:maxInclusive 2100 ] .
+''', format="turtle")
+
+conforms, report_graph, report_text = validate(data, shacl_graph=shapes, inference="rdfs")
+print(conforms)        # False
+print(report_text)     # 列出 Silmar 缺少書名、缺少作者、年份型別錯誤</div>
+
+      <h2>SHACL 的其他功能</h2>
+
+      <ul>
+        <li><strong>SHACL-SPARQL</strong>：用任意 SPARQL 查詢寫自訂約束（例如「借閱日期必須早於到期日」）。</li>
+        <li><strong>SHACL Rules</strong>：根據形狀產生新三元組。</li>
+        <li>形狀可以拿來<strong>自動產生表單與文件</strong>，因為它精確描述了資料的結構。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>ShEx</h3>
+        <p>
+          另一個類似的語言是 <strong>ShEx</strong>（Shape Expressions），Wikidata 用它來定義各種實體的資料綱要（EntitySchema）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          SHACL（2017）以封閉世界驗證 RDF 資料，和 OWL 的開放世界推論分工：同樣的約束，OWL 會推論、SHACL 會報錯。形狀由目標與屬性形狀組成，可約束個數、型別、類別、範圍與格式，違反時產生驗證報告。pySHACL 可在 Python 中驗證。SHACL 還支援 SPARQL 自訂約束、規則與自動產生表單；Wikidata 則用類似的 ShEx。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>同樣是「每本書至少一位作者」，OWL 和 SHACL 的處理方式有什麼不同？</li>
+          <li>寫一個 SHACL 屬性形狀：ISBN 必須恰好一個，且符合 13 位數字格式。</li>
+          <li>為什麼實務上 OWL 和 SHACL 常常一起使用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>鏈結資料與 LOD 雲</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-36.html">← 上一課：SPARQL：查詢知識圖譜</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-38.html">下一課：鏈結資料與 LOD 雲 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

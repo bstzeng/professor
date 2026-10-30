@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：推理服務：包含、一致性與實例檢查 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="推理機到底在「推」什麼？Tableau 演算法入門">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜邏輯基礎 · 第 28 課</div>
+      <h1>推理服務：包含、一致性與實例檢查</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識標準的推理服務</li>
+          <li>理解各服務之間的轉換</li>
+          <li>理解 Tableau 演算法的直覺</li>
+        </ul>
+      </div>
+
+      <p>
+        描述邏輯推理機提供幾種標準服務：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>服務</th><th>問題</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>概念可滿足性</strong></td><td>C 有可能有成員嗎？</td><td>找出定義有矛盾的類別（例如 素食者 ⊓ 吃肉的人）</td></tr>
+          <tr><td><strong>包含</strong></td><td>C ⊑ D 嗎？</td><td>自動分類（第 24 課）</td></tr>
+          <tr><td><strong>一致性</strong></td><td>整個知識庫有沒有矛盾？</td><td>品質檢查</td></tr>
+          <tr><td><strong>實例檢查</strong></td><td>個體 a 屬於 C 嗎？</td><td>自動歸類、查詢</td></tr>
+          <tr><td><strong>分類</strong></td><td>算出所有具名類別之間的包含階層</td><td>本體瀏覽與維護</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>它們可以互相轉換</h2>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[C \sqsubseteq D \iff C \sqcap \neg D \text{ 不可滿足}\]</div>
+
+      <p>
+        所以只要能判斷「可滿足性」，其他問題都能解。推理機的核心就是一個可滿足性檢查器。
+      </p>
+
+      <h2>Tableau 演算法的直覺</h2>
+
+      <p>
+        要檢查 C 是否可滿足，就試著<strong>建構</strong>一個 C 的成員：
+      </p>
+
+      <ol>
+        <li>先假設存在一個個體 x 屬於 C。</li>
+        <li>把 C 拆開：遇到 ⊓ 就把兩邊都加進 x 的標籤；遇到 ⊔ 就分岔，兩種可能都試；遇到 ∃R.D 就造一個新的 R-鄰居 y 屬於 D；遇到 ∀R.D 就把 D 加到所有 R-鄰居。</li>
+        <li>如果某個分支出現矛盾（x 同時屬於 A 和 ¬A），這個分支失敗。</li>
+        <li>所有分支都失敗 → 不可滿足；有一個分支走完沒有矛盾 → 可滿足（這個分支就是一個模型）。</li>
+      </ol>
+
+      <div class="code-block"># 極簡的 ALC tableau（只處理 ⊓、⊔、¬原子、∃、∀），判斷概念是否可滿足
+def sat(labels, depth=0):
+    labels = set(labels)
+    for c in list(labels):                       # 展開交集
+        if c[0] == "and": return sat(labels - {c} | {c[1], c[2]}, depth)
+    for c in list(labels):                       # 聯集：分岔
+        if c[0] == "or":
+            rest = labels - {c}
+            return sat(rest | {c[1]}, depth) or sat(rest | {c[2]}, depth)
+    atoms = {c[1] for c in labels if c[0] == "atom"}
+    if any(c[0] == "not" and c[1] in atoms for c in labels):
+        return False                             # 衝突：A 與 ¬A
+    for c in labels:                             # 存在：造一個鄰居
+        if c[0] == "some":
+            succ = {c[2]} | {d[2] for d in labels if d[0] == "all" and d[1] == c[1]}
+            if not sat(succ, depth + 1): return False
+    return True
+
+A = ("atom", "Meat")
+veg_meat = ("and", ("all", "eats", ("not", "Meat")), ("some", "eats", A))
+print(sat({veg_meat}))     # False：∀eats.¬Meat ⊓ ∃eats.Meat 不可滿足</div>
+
+      <h2>常用的推理機</h2>
+
+      <ul>
+        <li><strong>HermiT</strong>（牛津）：超 tableau 演算法，owlready2 內建。</li>
+        <li><strong>Pellet</strong>：支援 SWRL 規則與解釋。</li>
+        <li><strong>FaCT++</strong>、<strong>Konclude</strong>：高效能。</li>
+        <li><strong>ELK</strong>：專門處理 OWL 2 EL，數十萬概念的醫學本體幾秒內分類完成。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          推理機提供概念可滿足性、包含、一致性、實例檢查與分類等服務，它們可互相轉換，例如 C ⊑ D 等價於 C ⊓ ¬D 不可滿足，因此核心是可滿足性檢查。Tableau 演算法試著建構概念的成員：交集加入標籤、聯集分岔、存在造鄰居、全稱傳播，出現 A 與 ¬A 則該分支失敗。常用推理機有 HermiT、Pellet、FaCT++、Konclude 與專攻 EL 的 ELK。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>怎麼把「C ⊑ D 嗎？」轉換成可滿足性問題？</li>
+          <li>Tableau 遇到聯集時為什麼要分岔？</li>
+          <li>為什麼 ELK 能那麼快地分類大型醫學本體？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>開放世界與封閉世界假設</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：描述邏輯：從 ALC 到 SROIQ</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：開放世界與封閉世界假設 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

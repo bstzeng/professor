@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 52 課：Ontology 與大型語言模型：GraphRAG ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="讓 LLM 的回答有結構、有根據">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 52 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜現代應用 · 第 52 課</div>
+      <h1>Ontology 與大型語言模型：GraphRAG</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 LLM 的知識問題與 RAG</li>
+          <li>理解 GraphRAG 與知識圖譜增強的做法</li>
+          <li>了解本體在 AI 代理人中的角色</li>
+        </ul>
+      </div>
+
+      <p>
+        大型語言模型（LLM）擅長理解與生成語言，但有幾個根本問題：
+      </p>
+
+      <ul>
+        <li><strong>幻覺</strong>：一本正經地說錯。</li>
+        <li><strong>知識過時</strong>：只知道訓練資料截止前的事。</li>
+        <li><strong>不知道你的私有資料</strong>：公司內部的產品、客戶、流程。</li>
+        <li><strong>難以追溯</strong>：答案從哪裡來？</li>
+      </ul>
+
+      <h2>RAG：檢索增強生成</h2>
+
+      <p>
+        <strong>RAG</strong> 的做法是：先從資料庫檢索相關內容，再把它放進提示讓 LLM 回答。最常見的是把文件切塊、轉成向量，用語意相似度檢索。但向量 RAG 有弱點：遇到需要<strong>多步推理</strong>或<strong>彙整</strong>的問題（「我們有哪些供應商同時供貨給 A 廠和 B 廠，且位於颱風高風險區？」），文件片段很難拼出答案。
+      </p>
+
+      <h2>知識圖譜增強的幾種做法</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>做法</th><th>流程</th><th>適合</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Text-to-SPARQL／Cypher</strong></td><td>LLM 根據本體綱要，把問題翻譯成查詢語言，執行後再把結果寫成回答</td><td>結構化、精確的問題</td></tr>
+          <tr><td><strong>子圖檢索</strong></td><td>找出問題中的實體，取出它們周圍的子圖，轉成文字放進提示</td><td>關於特定實體的問題</td></tr>
+          <tr><td><strong>GraphRAG</strong>（微軟，2024）</td><td>用 LLM 從文件中抽取實體與關係建圖，再用社群偵測分群並為每群寫摘要；回答時用摘要處理「全域」問題</td><td>「這批文件的主要主題是什麼？」這類彙整問題</td></tr>
+          <tr><td><strong>混合</strong></td><td>向量檢索找文件、圖譜找關係、兩者合併</td><td>多數實務場景</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>本體的角色</h2>
+
+      <ul>
+        <li><strong>綱要即提示</strong>：把本體的類別與屬性放進提示，LLM 才知道可以查什麼、怎麼查。</li>
+        <li><strong>約束輸出</strong>：LLM 產生的查詢或抽取結果，可以用本體與 SHACL 驗證。</li>
+        <li><strong>消除歧義</strong>：「蘋果」是水果還是公司？實體連結到知識圖譜的 IRI 後就明確了。</li>
+        <li><strong>可追溯</strong>：答案中的每個事實都能指回圖中的三元組與它的出處。</li>
+        <li><strong>AI 代理人的工具</strong>：本體中定義的「動作」可以變成代理人能呼叫的工具（第 60、62 課）。</li>
+      </ul>
+
+      <div class="code-block"># Text-to-SPARQL：把本體綱要放進提示，請 Claude 產生查詢，再用 rdflib 執行並驗證
+import anthropic
+from rdflib import Graph
+
+g = Graph().parse("supply_chain.ttl")
+schema = '''
+Classes: :Supplier, :Plant, :Region, :Part
+Properties: :supplies (Supplier -&gt; Plant), :locatedIn (Supplier -&gt; Region),
+            :typhoonRisk (Region -&gt; xsd:string, values "high"/"medium"/"low")
+'''
+question = "哪些供應商同時供貨給 A 廠和 B 廠，而且位於颱風高風險區？"
+
+MODEL = "claude-..."            # 填入目前可用的 Claude 模型名稱
+client = anthropic.Anthropic()
+msg = client.messages.create(
+    model=MODEL, max_tokens=1024,
+    system="你把問題翻譯成 SPARQL。只能使用下列綱要中的類別與屬性，前綴 : 為 &lt;http://example.org/sc#&gt;。只輸出查詢本身。\n" + schema,
+    messages=[{"role": "user", "content": question}],
+)
+sparql = msg.content[0].text.strip().removeprefix("```sparql").removesuffix("```")
+
+try:
+    rows = list(g.query(sparql))                     # 語法錯誤會在這裡被抓到
+    print(rows)
+except Exception as e:
+    print("查詢無效，可把錯誤訊息回傳給模型修正：", e)</div>
+
+      <div class="callout">
+        <h3>注意</h3>
+        <p>
+          把 LLM 產生的查詢直接拿去執行時，要限制成<strong>唯讀</strong>、設定逾時與結果數上限，並檢查只用到綱要中存在的詞彙。這和 SQL 注入的防範道理相同。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LLM 有幻覺、知識過時、不知私有資料與難以追溯等問題，RAG 先檢索再生成，但向量 RAG 難處理多步推理與彙整。知識圖譜增強的做法包括 Text-to-SPARQL、子圖檢索、微軟 2024 年的 GraphRAG（抽取建圖、社群摘要）與混合方式。本體提供綱要提示、約束輸出、消除歧義、可追溯，並讓動作成為代理人工具。執行 LLM 產生的查詢須限制唯讀、逾時與詞彙。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>向量 RAG 在哪類問題上表現不好？為什麼？</li>
+          <li>GraphRAG 怎麼回答「這批文件的主要主題是什麼」？</li>
+          <li>為什麼要用本體或 SHACL 驗證 LLM 的輸出？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>用 LLM 輔助建構 Ontology</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-51.html">← 上一課：企業知識圖譜</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-53.html">下一課：用 LLM 輔助建構 Ontology →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

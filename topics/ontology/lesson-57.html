@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 57 課：Foundry 與前線部署工程師 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="把情報分析的方法帶進企業，以及一種特殊的銷售模式">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 57 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜Palantir：把 Ontology 變成作業系統 · 第 57 課</div>
+      <h1>Foundry 與前線部署工程師</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Foundry 平台的組成</li>
+          <li>理解前線部署工程師（FDE）模式</li>
+          <li>評估這種模式的優缺點</li>
+        </ul>
+      </div>
+
+      <p>
+        2010 年代，Palantir 把同樣的方法帶進企業：製造、能源、醫療、金融、航空。商業平台後來稱為 <strong>Foundry</strong>。
+      </p>
+
+      <h2>Foundry 的組成（簡化）</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>層</th><th>功能</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>資料連接</td><td>連到 ERP、MES、資料庫、檔案、串流、API 等數百種來源</td></tr>
+          <tr><td>資料整合</td><td>Pipeline Builder（視覺化）、Code Repositories（Python／PySpark、SQL、Java）建立轉換管線；有版本與血緣追蹤</td></tr>
+          <tr><td><strong>Ontology</strong></td><td>把整合後的資料對應成物件類型、屬性、連結；定義動作與函數</td></tr>
+          <tr><td>應用</td><td>Workshop（低程式碼建應用）、Quiver（分析）、Contour（表格分析）、地圖等</td></tr>
+          <tr><td>AI</td><td>模型整合與 AIP（第 62 課）</td></tr>
+          <tr><td>治理</td><td>權限、標記、稽核、資料血緣</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block"># Foundry 的資料轉換通常寫成 Python（PySpark）；以下是其轉換函式的寫法示意
+from transforms.api import transform_df, Input, Output     # Foundry 平台提供的套件
+from pyspark.sql import functions as F
+
+@transform_df(
+    Output("/Company/ontology/aircraft_status"),
+    maintenance=Input("/Company/raw/mro_work_orders"),
+    fleet=Input("/Company/raw/fleet_master"),
+)
+def compute(maintenance, fleet):
+    open_wo = (maintenance.filter(F.col("status") == "OPEN")
+                          .groupBy("tail_number").agg(F.count("*").alias("open_work_orders")))
+    return (fleet.join(open_wo, "tail_number", "left")
+                 .withColumn("available", F.coalesce(F.col("open_work_orders"), F.lit(0)) == 0))
+# 這張輸出表接著被對應為 Ontology 中的「飛機」物件類型（每列一架、tail_number 為主鍵）</div>
+
+      <h2>前線部署工程師（FDE）</h2>
+
+      <p>
+        Palantir 早期最有特色的做法，是派工程師直接進駐客戶現場，稱為<strong>前線部署工程師</strong>（Forward Deployed Engineer）。他們不只是安裝軟體，而是和客戶一起找出問題、整合資料、建立應用，再把在現場反覆出現的需求帶回產品。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>優點</th><th>缺點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>真正解決客戶的問題，建立深厚關係</td><td>成本高、毛利低，被批評「更像顧問公司」</td></tr>
+          <tr><td>產品從實戰中長出來（例如 Ontology 就是這樣成形的）</td><td>擴張速度受限於人力</td></tr>
+          <tr><td>客戶黏著度高，一旦用上很難離開</td><td>早期每個導入案都要很長時間才能看到成果</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        Palantir 後來的策略是把 FDE 的經驗不斷產品化，讓平台越來越能自助；2023 年的 AIP 訓練營（第 62 課）更把「幾個月的導入」壓縮成「幾天的實作」。FDE 這個職稱與模式，近年也被許多 AI 公司仿效。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Foundry 把情報分析的方法帶進企業，由資料連接、整合管線（Pipeline Builder 與 Python／PySpark 程式碼庫）、Ontology、應用（Workshop、Quiver 等）、AI 與治理組成。前線部署工程師進駐客戶現場解決問題並把需求帶回產品，優點是深度與黏著度、產品從實戰成形，缺點是成本高、擴張慢。Palantir 持續將其產品化，並以 AIP 訓練營縮短導入時間。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>在 Foundry 中，資料從原始系統到 Ontology 物件要經過哪些步驟？</li>
+          <li>FDE 模式為什麼被批評「像顧問公司」？</li>
+          <li>為什麼說 Palantir 的 Ontology 是「從現場長出來的」？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>上市、商業模式與估值爭論</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-56.html">← 上一課：Gotham：情報分析起家</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-58.html">下一課：上市、商業模式與估值爭論 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

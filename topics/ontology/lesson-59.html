@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 59 課：Palantir Ontology 的架構：物件、屬性與連結 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="語意元素：把資料變成「名詞」">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 59 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜Palantir：把 Ontology 變成作業系統 · 第 59 課</div>
+      <h1>Palantir Ontology 的架構：物件、屬性與連結</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解物件類型、屬性、連結類型</li>
+          <li>理解資料集與物件的對應</li>
+          <li>比較 Palantir Ontology 與 OWL 的建模方式</li>
+        </ul>
+      </div>
+
+      <p>
+        Palantir 的官方文件把 Ontology 的元素分為兩類：<strong>語意元素</strong>（semantic elements）——物件、屬性、連結；以及<strong>動能元素</strong>（kinetic elements）——動作、函數等（下一課）。
+      </p>
+
+      <h2>語意元素</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元素</th><th>說明</th><th>OWL 的近似對應</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>物件類型</strong>（object type）</td><td>一種實體或事件的綱要，例如飛機、航班、工單、客戶。每個物件類型有一個<strong>主鍵</strong>，並由一個或多個資料集提供資料</td><td>類別（owl:Class）</td></tr>
+          <tr><td><strong>物件</strong>（object）</td><td>物件類型的一個實例，對應資料集中的一列</td><td>個體</td></tr>
+          <tr><td><strong>屬性</strong>（property）</td><td>物件的特徵，有型別（字串、數字、日期、地理位置、時間序列等）</td><td>資料屬性</td></tr>
+          <tr><td><strong>連結類型</strong>（link type）</td><td>兩個物件類型之間的關係，有基數（一對一、一對多、多對多），例如「航班 由…執飛 飛機」</td><td>物件屬性</td></tr>
+          <tr><td><strong>介面</strong>（interface）</td><td>多個物件類型共有的形狀，例如「可維修的資產」</td><td>上層類別（但更接近程式語言的介面）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>和 OWL 的建模差異</h2>
+
+      <ul>
+        <li><strong>封閉世界、資料驅動</strong>：物件就是資料集裡的列，沒有的就是沒有（第 29 課的 CWA）。</li>
+        <li><strong>主鍵與型別嚴格</strong>：更像資料庫或程式語言的型別系統，而不是邏輯理論。</li>
+        <li><strong>沒有描述邏輯推理</strong>：不會自動推論「有子女的人是父母」；需要的話用函數或資料管線計算。</li>
+        <li><strong>面向應用</strong>：物件類型的設計以「使用者要在畫面上看到什麼、要做什麼決定」為準。</li>
+      </ul>
+
+      <p>
+        下面用 Python 寫一個<strong>極簡的模擬</strong>，幫助理解這些元素如何組合（這不是 Palantir 的程式碼）：
+      </p>
+
+      <div class="code-block"># 極簡模擬：物件類型、屬性、連結類型、物件集合（概念示意，不是 Palantir 的 API）
+from dataclasses import dataclass, field
+import pandas as pd
+
+@dataclass
+class ObjectType:
+    name: str
+    primary_key: str
+    backing: pd.DataFrame                       # 資料集：每一列 = 一個物件
+    def get(self, pk):   return self.backing.set_index(self.primary_key).loc[pk].to_dict()
+    def where(self, **kw):
+        d = self.backing
+        for k, v in kw.items(): d = d[d[k] == v]
+        return d
+
+@dataclass
+class LinkType:
+    name: str; source: ObjectType; target: ObjectType; fk: str     # 一對多：以外鍵實作
+    def follow(self, src_pk):
+        tgt = self.source.get(src_pk)[self.fk]
+        return self.target.get(tgt)
+
+aircraft = ObjectType("Aircraft", "tail", pd.DataFrame(
+    {"tail": ["B-101", "B-102"], "type": ["A321", "A321"], "seats": [194, 194], "status": ["可用", "可用"]}))
+flight = ObjectType("Flight", "flight_no", pd.DataFrame(
+    {"flight_no": ["CI-301", "CI-512"], "dest": ["成田", "新加坡"], "pax": [182, 188], "tail": ["B-101", "B-102"]}))
+operated_by = LinkType("operatedBy", flight, aircraft, fk="tail")
+
+print(operated_by.follow("CI-301"))           # 沿著連結：CI-301 由哪架飛機執飛
+print(flight.where(dest="成田"))               # 物件集合（object set）的篩選</div>
+
+      <div class="callout">
+        <h3>Ontology SDK</h3>
+        <p>
+          Palantir 提供 <strong>Ontology SDK</strong>（OSDK），會根據你的 Ontology 自動產生 TypeScript 或 Python 的型別化客戶端，讓外部應用以「物件」而不是「資料表」的方式存取資料。下一課會看到它的概念性寫法。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Palantir 官方文件將 Ontology 元素分為語意元素（物件、屬性、連結）與動能元素（動作、函數等）。物件類型有主鍵並由資料集支撐，物件對應資料列，屬性有嚴格型別，連結類型帶基數，介面描述共有形狀。和 OWL 相比，它採封閉世界、資料驅動、型別嚴格、不做描述邏輯推理、以應用為導向。OSDK 會依 Ontology 產生 TypeScript 或 Python 的型別化客戶端。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Palantir 的物件類型和 OWL 的類別有什麼相同與不同？</li>
+          <li>為什麼說 Palantir Ontology 比較接近封閉世界？</li>
+          <li>為一間醫院設計三個物件類型與兩個連結類型。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>動作、函數與寫回</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-58.html">← 上一課：上市、商業模式與估值爭論</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-60.html">下一課：動作、函數與寫回 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

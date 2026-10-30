@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 54 課：資料網格、語意層與數位孿生 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="本體在現代資料架構中的位置">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 54 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜現代應用 · 第 54 課</div>
+      <h1>資料網格、語意層與數位孿生</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解語意層與指標定義</li>
+          <li>理解資料網格與資料產品</li>
+          <li>理解數位孿生與本體的關係</li>
+        </ul>
+      </div>
+
+      <h2>語意層</h2>
+
+      <p>
+        同一間公司裡，財務部和業務部算出的「營收」常常不一樣：要不要扣退貨？用訂單日還是出貨日？<strong>語意層</strong>（semantic layer）把商業概念與指標的定義集中管理，所有報表與 AI 工具都透過它查詢。
+      </p>
+
+      <ul>
+        <li>例子：dbt 語意層（MetricFlow）、Cube、LookML 等。</li>
+        <li>它像是一個<strong>輕量的本體</strong>：定義實體（客戶、訂單）、維度、指標及它們的關係。</li>
+        <li>LLM 時代特別重要：讓 AI 透過語意層查詢，就不會自己發明「營收」的算法。</li>
+      </ul>
+
+      <h2>資料網格</h2>
+
+      <p>
+        德赫加尼（2019）提出<strong>資料網格</strong>（data mesh）：不再由中央資料團隊包辦所有資料，而是讓各業務領域把自己的資料當成<strong>資料產品</strong>來經營。四個原則：
+      </p>
+
+      <ol>
+        <li>領域擁有資料。</li>
+        <li>資料即產品（有負責人、文件、品質保證）。</li>
+        <li>自助式資料平台。</li>
+        <li><strong>聯邦式運算治理</strong>：全公司共用的標準（例如「客戶」的識別方式）由各領域共同制定，並以程式自動執行。</li>
+      </ol>
+
+      <p>
+        第 4 點正是本體的用武之地：共用的本體讓各領域的資料產品能互相連結。
+      </p>
+
+      <h2>數位孿生</h2>
+
+      <p>
+        <strong>數位孿生</strong>是實體世界（工廠、城市、供應鏈、組織）在數位世界中的即時對應。它需要三樣東西：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元素</th><th>內容</th><th>本體的角色</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>結構</td><td>有哪些東西、它們怎麼連接</td><td>類別、屬性、關係</td></tr>
+          <tr><td>狀態</td><td>即時感測資料與交易資料</td><td>把資料串流對應到物件</td></tr>
+          <tr><td>行為</td><td>能做什麼、會發生什麼</td><td>動作、規則、模擬模型</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        微軟 Azure Digital Twins 用 DTDL（Digital Twins Definition Language，以 JSON-LD 為基礎）定義孿生模型；工業界用資產管理殼（第 44 課）。而 Palantir 把它的 Ontology 稱為<strong>組織的數位孿生</strong>——不只描述機器，也描述訂單、人員、決策（第 61 課）。
+      </p>
+
+      <div class="code-block"># 一個極簡的「語意層」：指標只定義一次，任何人（或 AI）都透過它查詢
+import pandas as pd
+
+orders = pd.DataFrame({"order_id": [1, 2, 3, 4], "amount": [1000, 500, 800, 300],
+                       "status": ["shipped", "returned", "shipped", "cancelled"],
+                       "region": ["北", "北", "南", "南"]})
+
+METRICS = {   # 指標的唯一定義
+    "net_revenue": {"desc": "已出貨訂單金額（不含退貨與取消）",
+                    "filter": lambda d: d.status == "shipped", "agg": ("amount", "sum")},
+    "order_count": {"desc": "所有成立的訂單數（不含取消）",
+                    "filter": lambda d: d.status != "cancelled", "agg": ("order_id", "count")},
+}
+
+def query(metric, by=None):
+    m = METRICS[metric]; d = orders[m["filter"](orders)]
+    col, fn = m["agg"]
+    return d.groupby(by)[col].agg(fn) if by else d[col].agg(fn)
+
+print(query("net_revenue"))             # 1800
+print(query("net_revenue", by="region"))</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          語意層集中定義商業概念與指標（如 dbt MetricFlow、Cube、LookML），像輕量本體，讓報表與 AI 用同一套算法。資料網格主張領域擁有資料、資料即產品、自助平台與聯邦式運算治理，共用本體讓資料產品互相連結。數位孿生需要結構、狀態與行為，Azure 以 DTDL、工業界以資產管理殼定義，Palantir 則把 Ontology 稱為組織的數位孿生。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼不同部門算出的「營收」會不同？語意層怎麼解決？</li>
+          <li>資料網格的「聯邦式運算治理」和本體有什麼關係？</li>
+          <li>一個工廠的數位孿生需要哪三種元素？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Palantir 是誰</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-53.html">← 上一課：用 LLM 輔助建構 Ontology</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-55.html">下一課：Palantir 是誰 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

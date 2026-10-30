@@ -24966,6 +24966,157 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "ontology",
+      category: "ai",
+      title: "Ontology 深度解析：從亞里斯多德到語意網、知識圖譜、LLM 與 Palantir",
+      description:
+        "「存在的是什麼？」從亞里斯多德的範疇、波菲利之樹、共相之爭，到萊布尼茲、專家系統與格魯伯的定義；類別、屬性、公理、描述邏輯與推理機；RDF、OWL、SPARQL、SHACL 與鏈結資料；BFO、Gene Ontology、schema.org、Wikidata、FIBO；本體工程、企業知識圖譜、GraphRAG 與 LLM 輔助建構；最後深入 Palantir：Gotham、Foundry、物件與動作、AIP、案例與爭議。程式範例以 Python（rdflib、owlready2、pySHACL）為主，附十個互動工具。",
+      icon: "🕸️",
+      url: "topics/ontology/index.html",
+      resources: [
+        {
+          title: "Ontology 互動實驗室",
+          description: "分類法對照、波菲利之樹、三元組建構器、規則推理、描述邏輯分類器、開放與封閉世界、迷你 SPARQL、序列化格式、Palantir 式 Ontology 模擬與時間軸",
+          icon: "🧪",
+          url: "topics/ontology/lab.html"
+        },
+        {
+          title: "語法與邏輯速查",
+          description: "描述邏輯符號與 OWL 對照、RDFS 推論規則、Turtle、SPARQL、SHACL 與 Python 套件速查",
+          icon: "📋",
+          url: "topics/ontology/syntax.html"
+        },
+        {
+          title: "名詞中英對照",
+          description: "Ontology、語意網、描述邏輯、知識圖譜與 Palantir 相關名詞",
+          icon: "📖",
+          url: "topics/ontology/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是 Ontology",
+          courses: [
+            { title: "一個詞，兩個世界", url: "topics/ontology/lesson-01.html" },
+            { title: "為什麼需要 Ontology", url: "topics/ontology/lesson-02.html" },
+            { title: "詞彙表、分類法、知識圖譜與 Ontology", url: "topics/ontology/lesson-03.html" },
+            { title: "貫穿全課的範例：為圖書館建一個 Ontology", url: "topics/ontology/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜哲學起源",
+          courses: [
+            { title: "巴門尼德與柏拉圖：「存在」是什麼", url: "topics/ontology/lesson-05.html" },
+            { title: "亞里斯多德的〈範疇篇〉", url: "topics/ontology/lesson-06.html" },
+            { title: "波菲利之樹：屬加種差", url: "topics/ontology/lesson-07.html" },
+            { title: "中世紀的共相之爭與奧坎剃刀", url: "topics/ontology/lesson-08.html" },
+            { title: "「Ontology」一詞的誕生與沃爾夫的形上學", url: "topics/ontology/lesson-09.html" },
+            { title: "康德的範疇：我們用什麼框架理解世界", url: "topics/ontology/lesson-10.html" },
+            { title: "蒯因〈論有什麼〉：本體論承諾", url: "topics/ontology/lesson-11.html" },
+            { title: "當代分析形上學：殊相、共相、部分學與四維主義", url: "topics/ontology/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜從哲學走到電腦",
+          courses: [
+            { title: "萊布尼茲的夢：通用語言與推理演算", url: "topics/ontology/lesson-13.html" },
+            { title: "圖書分類與生物分類", url: "topics/ontology/lesson-14.html" },
+            { title: "AI 的知識表示：語意網路、框架與規則", url: "topics/ontology/lesson-15.html" },
+            { title: "專家系統與知識獲取瓶頸", url: "topics/ontology/lesson-16.html" },
+            { title: "Cyc 計畫：把常識全部寫下來", url: "topics/ontology/lesson-17.html" },
+            { title: "格魯伯的定義與 Ontology 工程的誕生", url: "topics/ontology/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜Ontology 的組成",
+          courses: [
+            { title: "類別與個體", url: "topics/ontology/lesson-19.html" },
+            { title: "階層與繼承：is-a 與 part-of", url: "topics/ontology/lesson-20.html" },
+            { title: "屬性：物件屬性與資料屬性", url: "topics/ontology/lesson-21.html" },
+            { title: "關係的性質：傳遞、對稱、反向、函數性", url: "topics/ontology/lesson-22.html" },
+            { title: "定義域、值域與限制條件", url: "topics/ontology/lesson-23.html" },
+            { title: "公理與推論：讓電腦自動分類", url: "topics/ontology/lesson-24.html" },
+            { title: "常見的建模錯誤", url: "topics/ontology/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜邏輯基礎",
+          courses: [
+            { title: "一階邏輯回顧", url: "topics/ontology/lesson-26.html" },
+            { title: "描述邏輯：從 ALC 到 SROIQ", url: "topics/ontology/lesson-27.html" },
+            { title: "推理服務：包含、一致性與實例檢查", url: "topics/ontology/lesson-28.html" },
+            { title: "開放世界與封閉世界假設", url: "topics/ontology/lesson-29.html" },
+            { title: "可判定性與複雜度：表達力的代價", url: "topics/ontology/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜語意網技術",
+          courses: [
+            { title: "柏納斯–李的語意網願景", url: "topics/ontology/lesson-31.html" },
+            { title: "RDF：三元組與 IRI", url: "topics/ontology/lesson-32.html" },
+            { title: "序列化格式：Turtle、JSON-LD 與其他", url: "topics/ontology/lesson-33.html" },
+            { title: "RDFS：最基本的綱要語言", url: "topics/ontology/lesson-34.html" },
+            { title: "OWL 2：完整的本體語言", url: "topics/ontology/lesson-35.html" },
+            { title: "SPARQL：查詢知識圖譜", url: "topics/ontology/lesson-36.html" },
+            { title: "SHACL：資料驗證", url: "topics/ontology/lesson-37.html" },
+            { title: "鏈結資料與 LOD 雲", url: "topics/ontology/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜上層本體與領域本體",
+          courses: [
+            { title: "上層本體：BFO、DOLCE、SUMO", url: "topics/ontology/lesson-39.html" },
+            { title: "生物醫學：Gene Ontology、SNOMED CT 與 OBO Foundry", url: "topics/ontology/lesson-40.html" },
+            { title: "schema.org 與 Google 知識圖譜", url: "topics/ontology/lesson-41.html" },
+            { title: "Wikidata 與 DBpedia", url: "topics/ontology/lesson-42.html" },
+            { title: "金融：FIBO", url: "topics/ontology/lesson-43.html" },
+            { title: "工程與製造：IFC/BIM 與工業 4.0", url: "topics/ontology/lesson-44.html" },
+            { title: "政府與開放資料", url: "topics/ontology/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜Ontology 工程方法",
+          courses: [
+            { title: "方法論與能力問題", url: "topics/ontology/lesson-46.html" },
+            { title: "Protégé 與 Python 工具鏈", url: "topics/ontology/lesson-47.html" },
+            { title: "設計模式與重用", url: "topics/ontology/lesson-48.html" },
+            { title: "本體對齊、合併與版本管理", url: "topics/ontology/lesson-49.html" },
+            { title: "品質評估與常見陷阱", url: "topics/ontology/lesson-50.html" },
+          ],
+        },
+        {
+          title: "模組 I｜現代應用",
+          courses: [
+            { title: "企業知識圖譜", url: "topics/ontology/lesson-51.html" },
+            { title: "Ontology 與大型語言模型：GraphRAG", url: "topics/ontology/lesson-52.html" },
+            { title: "用 LLM 輔助建構 Ontology", url: "topics/ontology/lesson-53.html" },
+            { title: "資料網格、語意層與數位孿生", url: "topics/ontology/lesson-54.html" },
+          ],
+        },
+        {
+          title: "模組 J｜Palantir：把 Ontology 變成作業系統",
+          courses: [
+            { title: "Palantir 是誰", url: "topics/ontology/lesson-55.html" },
+            { title: "Gotham：情報分析起家", url: "topics/ontology/lesson-56.html" },
+            { title: "Foundry 與前線部署工程師", url: "topics/ontology/lesson-57.html" },
+            { title: "上市、商業模式與估值爭論", url: "topics/ontology/lesson-58.html" },
+            { title: "Palantir Ontology 的架構：物件、屬性與連結", url: "topics/ontology/lesson-59.html" },
+            { title: "動作、函數與寫回", url: "topics/ontology/lesson-60.html" },
+            { title: "語意與動能：企業的數位孿生", url: "topics/ontology/lesson-61.html" },
+            { title: "AIP：讓 AI 在 Ontology 上工作", url: "topics/ontology/lesson-62.html" },
+            { title: "案例：國防、醫療、製造與危機應變", url: "topics/ontology/lesson-63.html" },
+            { title: "爭議與倫理", url: "topics/ontology/lesson-64.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "哲學的老問題，在 AI 時代的新答案", url: "topics/ontology/lesson-65.html" },
+          ],
+        },
+      ],
     }
   ]
 };

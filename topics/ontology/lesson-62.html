@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 62 課：AIP：讓 AI 在 Ontology 上工作 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="大型語言模型 + 物件 + 動作 + 人類核准">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 62 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 J｜Palantir：把 Ontology 變成作業系統 · 第 62 課</div>
+      <h1>AIP：讓 AI 在 Ontology 上工作</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 AIP 的架構與設計理念</li>
+          <li>理解 AI 代理人以動作為工具的模式</li>
+          <li>認識 AIP 訓練營的推廣方式</li>
+        </ul>
+      </div>
+
+      <p>
+        2023 年，Palantir 推出 <strong>AIP</strong>（Artificial Intelligence Platform）。它的核心論點是：大型語言模型本身不知道你的企業，也不應該直接存取你的資料庫；但如果讓它在 <strong>Ontology</strong> 上工作，它就能理解業務概念、查詢正確的資料、並透過受控的動作採取行動。
+      </p>
+
+      <h2>AIP 的組成（簡化）</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>元件</th><th>作用</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>模型接入</td><td>接入多家廠商的大型語言模型，以及客戶自己的模型</td></tr>
+          <tr><td>AIP Logic</td><td>用低程式碼方式組合 LLM、Ontology 查詢、函數與動作，建立 AI 功能</td></tr>
+          <tr><td>代理人（AIP Agent Studio 等）</td><td>建立能多步驟推理、呼叫工具的 AI 代理人</td></tr>
+          <tr><td>Ontology 作為工具</td><td>物件查詢、函數、動作都可以作為 LLM 的工具</td></tr>
+          <tr><td>安全與稽核</td><td>AI 只能看到使用者有權限看到的資料；每次呼叫都有紀錄</td></tr>
+          <tr><td>評估</td><td>對 AI 功能建立測試案例並評估表現</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>關鍵設計：AI 提建議，人做決定</h2>
+
+      <p>
+        在剛才的模擬中，「② AIP 產生建議」只是<strong>建議</strong>；要按「③ 核准」才會真正執行動作。這種「人在迴圈中」（human-in-the-loop）的設計，是在高風險場景（航空、醫療、國防）使用 AI 的關鍵。隨著信心累積，部分低風險動作可以逐步改為自動執行。
+      </p>
+
+      <div class="code-block"># 以「Ontology 動作」作為 Claude 的工具；AI 只能提出動作，由人核准後才執行
+import anthropic, json
+
+def affected_flights(tail):                  # 函數（唯讀）
+    return [{"flight": "CI-301", "pax": 182, "time": "08:30"}, {"flight": "CI-305", "pax": 160, "time": "14:10"}]
+def available_aircraft(min_seats):           # 函數（唯讀）
+    return [{"tail": "B-104", "seats": 194}, {"tail": "B-103", "seats": 307}]
+
+tools = [
+  {"name": "affected_flights", "description": "列出由某架飛機執飛的航班",
+   "input_schema": {"type": "object", "properties": {"tail": {"type": "string"}}, "required": ["tail"]}},
+  {"name": "available_aircraft", "description": "列出可用且座位數不少於 min_seats 的飛機",
+   "input_schema": {"type": "object", "properties": {"min_seats": {"type": "integer"}}, "required": ["min_seats"]}},
+  {"name": "propose_reassignment", "description": "提出改派方案（不會立即執行，需人工核准）",
+   "input_schema": {"type": "object", "properties": {"flight": {"type": "string"}, "tail": {"type": "string"}},
+                    "required": ["flight", "tail"]}},
+]
+READ_ONLY = {"affected_flights": affected_flights, "available_aircraft": available_aircraft}
+proposals = []
+
+MODEL = "claude-..."                         # 填入目前可用的 Claude 模型名稱
+client = anthropic.Anthropic()
+messages = [{"role": "user", "content": "B-101 停飛維修，請為受影響的航班提出改派方案。"}]
+while True:
+    msg = client.messages.create(model=MODEL, max_tokens=2048, tools=tools, messages=messages)
+    messages.append({"role": "assistant", "content": msg.content})
+    if msg.stop_reason != "tool_use":
+        break
+    results = []
+    for b in msg.content:
+        if b.type != "tool_use":
+            continue
+        if b.name in READ_ONLY:
+            out = READ_ONLY[b.name](**b.input)
+        else:                                 # 寫入類動作：只記錄為提案
+            proposals.append(b.input); out = {"status": "pending_human_approval"}
+        results.append({"type": "tool_result", "tool_use_id": b.id, "content": json.dumps(out, ensure_ascii=False)})
+    messages.append({"role": "user", "content": results})
+
+for p in proposals:                           # 人類核准後，才透過有驗證規則的動作真正執行
+    if input(f"核准 {p['flight']} 改由 {p['tail']} 執飛？(y/n) ") == "y":
+        print("執行動作 reassign_aircraft", p)</div>
+
+      <h2>AIP 訓練營</h2>
+
+      <p>
+        Palantir 推廣 AIP 的方式也很特別：<strong>訓練營</strong>（bootcamp）。客戶帶著自己的資料與問題，和 Palantir 工程師在一到數天內直接做出可用的 AI 應用。這取代了傳統漫長的試點與銷售流程，也是 2023 年後美國商業客戶快速成長的重要原因之一。
+      </p>
+
+      <div class="callout">
+        <h3>給學習者的啟示</h3>
+        <p>
+          不論是否使用 Palantir，「LLM + 明確的本體 + 受控的動作 + 人類核准 + 完整稽核」這個架構，已經是企業 AI 代理人設計的通用模式。第 52 課的 GraphRAG 與本課的動作工具，分別對應「讓 AI 讀懂」與「讓 AI 安全地做事」。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          AIP 於 2023 年推出，核心論點是讓 LLM 在 Ontology 上工作，以理解業務概念、查詢正確資料並透過受控動作行動。組成包括多模型接入、AIP Logic、代理人、以 Ontology 作為工具、安全稽核與評估。關鍵設計是 AI 提建議、人核准後執行，低風險動作再逐步自動化。AIP 訓練營讓客戶在數天內做出應用，帶動美國商業成長。LLM、本體、受控動作、人類核准與稽核已成企業 AI 代理人的通用模式。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 LLM 不應該直接存取企業的資料庫？</li>
+          <li>在上面的程式中，唯讀函數和寫入動作的處理方式有什麼不同？</li>
+          <li>AIP 訓練營和傳統的軟體銷售流程有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>案例：國防、醫療、製造與危機應變</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-61.html">← 上一課：語意與動能：企業的數位孿生</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-63.html">下一課：案例：國防、醫療、製造與危機應變 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 47 課：Protégé 與 Python 工具鏈 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="圖形化編輯、推理、程式化處理">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 47 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜Ontology 工程方法 · 第 47 課</div>
+      <h1>Protégé 與 Python 工具鏈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 Protégé 的主要功能</li>
+          <li>認識 Python 的本體工具</li>
+          <li>建立一套可自動化的工作流程</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>Protégé</strong> 是史丹佛大學開發的免費開源本體編輯器（最早可追溯到 1980 年代），是全世界最多人使用的 OWL 工具。
+      </p>
+
+      <h2>Protégé 的主要畫面</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>分頁</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Entities → Classes</td><td>建立類別階層；在右側用 Manchester 語法寫等價類別、上層類別、互斥</td></tr>
+          <tr><td>Object / Data Properties</td><td>建立屬性，勾選傳遞、對稱、函數性，設定定義域與值域</td></tr>
+          <tr><td>Individuals</td><td>建立個體與屬性值</td></tr>
+          <tr><td>Reasoner 選單</td><td>選擇 HermiT、Pellet、ELK，執行分類；推論出的階層以黃色顯示</td></tr>
+          <tr><td>DL Query</td><td>輸入類別運算式，查詢它的子類別與實例</td></tr>
+          <tr><td>Explanation</td><td>點一個推論結果的問號，看是哪些公理推出來的（除錯不一致時非常重要）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        另有網頁版 WebProtégé，適合多人協作編輯。
+      </p>
+
+      <h2>Python 工具</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>套件</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>rdflib</strong></td><td>RDF 圖的讀寫、SPARQL 查詢、序列化</td></tr>
+          <tr><td><strong>owlready2</strong></td><td>把 OWL 類別與個體對應成 Python 物件；內建 HermiT 與 Pellet</td></tr>
+          <tr><td><strong>owlrl</strong></td><td>在 rdflib 圖上做 RDFS 與 OWL 2 RL 的規則推理</td></tr>
+          <tr><td><strong>pySHACL</strong></td><td>SHACL 驗證</td></tr>
+          <tr><td><strong>pronto</strong></td><td>讀取 OBO 格式（生物醫學本體）</td></tr>
+          <tr><td><strong>SPARQLWrapper</strong></td><td>查詢遠端 SPARQL 端點</td></tr>
+          <tr><td><strong>morph-kgc</strong></td><td>用 RML 對應規則把 CSV、資料庫轉成 RDF</td></tr>
+          <tr><td><strong>py-horned-owl</strong>、<strong>ROBOT</strong>（Java）</td><td>大型本體的處理與自動化建置</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block"># owlready2：本體像 Python 物件一樣操作
+from owlready2 import get_ontology, sync_reasoner, default_world
+
+onto = get_ontology("file://library.owl").load()
+
+print(list(onto.classes()))                   # 所有類別
+print(onto.Novel.is_a)                        # 上層類別與限制
+print(onto.search(label="*Tolkien*"))         # 依標籤搜尋
+
+with onto:
+    sync_reasoner()                           # HermiT：一致性檢查 + 分類
+print(list(default_world.inconsistent_classes()))   # 不可滿足的類別（應為空）
+
+# 也可以直接用 SPARQL 查 owlready2 的資料庫
+print(list(default_world.sparql("SELECT ?b WHERE { ?b a &lt;http://example.org/lib#Novel&gt; }")))</div>
+
+      <h2>把本體當成程式碼管理</h2>
+
+      <ul>
+        <li>本體檔（Turtle 較適合 diff）放進 <strong>Git</strong>。</li>
+        <li>每次提交時，<strong>CI</strong> 自動執行：推理機一致性檢查、SHACL 驗證、能力問題測試、命名規則檢查。</li>
+        <li>用 ROBOT 或腳本自動產生發布版本與文件（例如 Widoco、pyLODE 產生 HTML 說明頁）。</li>
+        <li>OBO 社群的 <strong>ODK</strong>（Ontology Development Kit）把這套流程包成標準範本。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Protégé 是史丹佛開發的免費 OWL 編輯器，提供類別、屬性、個體編輯，推理機分類、DL Query 與推論解釋，另有網頁版協作。Python 工具包括 rdflib、owlready2、owlrl、pySHACL、pronto、SPARQLWrapper、morph-kgc 等。實務上應將本體當成程式碼管理：Git 版控，CI 自動做一致性檢查、SHACL 驗證與能力問題測試，並自動產生發布版本與文件。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Protégé 的 Explanation 功能為什麼對除錯很重要？</li>
+          <li>rdflib 和 owlready2 的定位有什麼不同？</li>
+          <li>設計一條本體專案的 CI 流程，至少包含哪些檢查？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>設計模式與重用</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-46.html">← 上一課：方法論與能力問題</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-48.html">下一課：設計模式與重用 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

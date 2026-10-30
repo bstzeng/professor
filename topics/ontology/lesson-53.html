@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 53 課：用 LLM 輔助建構 Ontology ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="從文件中抽取概念、關係與公理">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 53 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜現代應用 · 第 53 課</div>
+      <h1>用 LLM 輔助建構 Ontology</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解 LLM 在本體工程各階段的用途</li>
+          <li>會設計結構化的抽取流程</li>
+          <li>理解人類審查的必要性</li>
+        </ul>
+      </div>
+
+      <p>
+        傳統的本體建構最貴的部分是<strong>知識擷取</strong>：訪談專家、讀大量文件、整理術語。LLM 能大幅加速這些工作，但不能取代判斷。
+      </p>
+
+      <h2>LLM 可以幫忙的地方</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>階段</th><th>LLM 的工作</th><th>人類的工作</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>規格</td><td>根據使用情境草擬能力問題</td><td>確認優先順序與範圍</td></tr>
+          <tr><td>術語擷取</td><td>從手冊、法規、規格書中列出候選術語與定義</td><td>去除重複、確認意思</td></tr>
+          <tr><td>階層與關係</td><td>建議上下層關係、屬性、定義域值域</td><td>檢查是否混淆 is-a 與 part-of 等錯誤</td></tr>
+          <tr><td>公理</td><td>把自然語言規則轉成 OWL 公理（Manchester 語法）</td><td>用推理機驗證、檢查意外推論</td></tr>
+          <tr><td>對齊</td><td>判斷兩個概念是否對應（第 49 課）</td><td>審查低信心的結果</td></tr>
+          <tr><td>資料填充</td><td>從文件抽取個體與關係</td><td>以 SHACL 驗證、抽樣檢查</td></tr>
+          <tr><td>文件</td><td>為每個類別撰寫說明與範例</td><td>校對</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>結構化抽取</h2>
+
+      <p>
+        讓 LLM 輸出符合固定結構的 JSON（工具呼叫或 JSON Schema），比自由文字可靠得多。再用程式把 JSON 轉成 RDF，交給推理機與 SHACL 檢查。
+      </p>
+
+      <div class="code-block"># 用 Claude 的工具呼叫，從文件中抽取符合本體的實體與關係（結構化輸出）
+import anthropic, json
+from rdflib import Graph, Namespace, Literal, RDF, RDFS
+
+doc = "B-101 號機於 6 月 3 日在桃園機場執行 A 檢，技師陳大明發現左側發動機滑油壓力感測器異常，更換零件 P-8841 後放行。"
+
+tool = {"name": "record_maintenance",
+        "description": "記錄維修事件，所有欄位都必須出現在原文中",
+        "input_schema": {"type": "object", "properties": {
+            "aircraft": {"type": "string"}, "date": {"type": "string"}, "station": {"type": "string"},
+            "technician": {"type": "string"}, "finding": {"type": "string"},
+            "parts_replaced": {"type": "array", "items": {"type": "string"}}},
+            "required": ["aircraft", "finding"]}}
+
+MODEL = "claude-..."            # 填入目前可用的 Claude 模型名稱
+client = anthropic.Anthropic()
+msg = client.messages.create(model=MODEL, max_tokens=1024, tools=[tool],
+                             tool_choice={"type": "tool", "name": "record_maintenance"},
+                             messages=[{"role": "user", "content": doc}])
+data = next(b.input for b in msg.content if b.type == "tool_use")
+
+AV = Namespace("http://example.org/aviation#")
+g = Graph(); ev = AV["event/" + data["aircraft"] + "-" + data.get("date", "unknown")]
+g.add((ev, RDF.type, AV.MaintenanceEvent))
+g.add((ev, AV.onAircraft, AV["aircraft/" + data["aircraft"]]))
+g.add((ev, RDFS.comment, Literal(data["finding"], lang="zh-TW")))
+for p in data.get("parts_replaced", []):
+    g.add((ev, AV.replacedPart, AV["part/" + p]))
+print(g.serialize(format="turtle"))     # 接著交給 SHACL 驗證、人工抽樣審查</div>
+
+      <h2>常見問題</h2>
+
+      <ul>
+        <li><strong>表面相似</strong>：LLM 擅長命名，但容易把「部分」當成「子類別」、把角色當成類別。</li>
+        <li><strong>不一致</strong>：同一份文件問兩次，得到不同的階層；需要固定流程、合併與去重。</li>
+        <li><strong>過度生成</strong>：產生一大堆沒人需要的類別；用能力問題控制範圍。</li>
+        <li><strong>來源</strong>：每一筆抽取結果都要記錄來自哪份文件的哪一段（PROV-O）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>建議的工作方式</h3>
+        <p>
+          把 LLM 當成一位很勤快、讀很快、但需要被審查的助理：它產生候選，推理機與 SHACL 做自動檢查，領域專家做最後判斷。人類審查的負擔從「從零寫起」變成「審核與修正」。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LLM 可加速本體工程中最昂貴的知識擷取：草擬能力問題、擷取術語、建議階層與關係、把規則轉成 OWL 公理、對齊、資料填充與撰寫文件，人類負責確認、檢查與驗證。以工具呼叫或 JSON Schema 做結構化抽取，再轉成 RDF 交給推理機與 SHACL。常見問題有混淆部分與子類別、結果不一致、過度生成與缺乏出處，應以 LLM 產生候選、自動檢查、專家審核的流程進行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼結構化輸出比自由文字更適合本體抽取？</li>
+          <li>LLM 最容易犯的本體建模錯誤是什麼？</li>
+          <li>設計一個從法規條文建立本體的人機協作流程。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>資料網格、語意層與數位孿生</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-52.html">← 上一課：Ontology 與大型語言模型：GraphRAG</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-54.html">下一課：資料網格、語意層與數位孿生 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

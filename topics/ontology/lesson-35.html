@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 35 課：OWL 2：完整的本體語言 ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="類別運算式、屬性特性、等價、互斥、資料範圍">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 35 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜語意網技術 · 第 35 課</div>
+      <h1>OWL 2：完整的本體語言</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 OWL 2 的主要構造</li>
+          <li>區分 OWL 2 DL 與 OWL 2 Full</li>
+          <li>用 Python 建立 OWL 本體</li>
+        </ul>
+      </div>
+
+      <p>
+        <strong>OWL</strong>（Web Ontology Language）2004 年成為 W3C 標準，2009 年更新為 <strong>OWL 2</strong>。它以描述邏輯 SROIQ(D) 為基礎，提供完整的本體建模能力。
+      </p>
+
+      <h2>主要構造</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>類別</th><th>OWL 詞彙</th><th>描述邏輯</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>類別運算</td><td>owl:intersectionOf、unionOf、complementOf</td><td>⊓、⊔、¬</td></tr>
+          <tr><td>屬性限制</td><td>owl:someValuesFrom、allValuesFrom、hasValue</td><td>∃、∀、∃R.{a}</td></tr>
+          <tr><td>基數</td><td>owl:minQualifiedCardinality 等</td><td>≥n、≤n、=n</td></tr>
+          <tr><td>類別公理</td><td>owl:equivalentClass、disjointWith、AllDisjointClasses</td><td>≡、互斥</td></tr>
+          <tr><td>屬性特性</td><td>TransitiveProperty、SymmetricProperty、FunctionalProperty、inverseOf</td><td>S、I、F</td></tr>
+          <tr><td>屬性鏈</td><td>owl:propertyChainAxiom</td><td>R ∘ S ⊑ T</td></tr>
+          <tr><td>個體</td><td>owl:sameAs、differentFrom、AllDifferent</td><td>a = b、a ≠ b</td></tr>
+          <tr><td>列舉</td><td>owl:oneOf</td><td>{a, b, c}</td></tr>
+          <tr><td>鍵</td><td>owl:hasKey</td><td>以屬性值識別個體</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>OWL 2 DL vs. OWL 2 Full</h2>
+
+      <ul>
+        <li><strong>OWL 2 DL</strong>：遵守描述邏輯的限制（例如類別和個體分開、傳遞屬性不能有基數限制），推理<strong>可判定</strong>。實務上說「OWL」幾乎都是指這個。</li>
+        <li><strong>OWL 2 Full</strong>：允許任何 RDF 圖（類別也可以是個體、可以有屬性），表達力最大，但推理<strong>不可判定</strong>，很少使用。</li>
+      </ul>
+
+      <div class="code-block">from owlready2 import (get_ontology, Thing, AllDisjoint, TransitiveProperty,
+                       PropertyChain, sync_reasoner)
+
+onto = get_ontology("http://example.org/family.owl")
+with onto:
+    class Person(Thing): pass
+    class Man(Person): pass
+    class Woman(Person): pass
+    AllDisjoint([Man, Woman])                                   # 互斥
+    class has_parent(Person &gt;&gt; Person): pass
+    class has_brother(Person &gt;&gt; Man): pass
+    class has_uncle(Person &gt;&gt; Man): pass
+    has_uncle.property_chain.append(PropertyChain([has_parent, has_brother]))  # 角色鏈
+
+    ann, mary, tom = Woman("Ann"), Woman("Mary"), Man("Tom")
+    ann.has_parent = [mary]; mary.has_brother = [tom]
+
+sync_reasoner(infer_property_values=True)
+print(ann.has_uncle)          # [family.Tom]
+onto.save(file="family.owl", format="rdfxml")</div>
+
+      <div class="callout">
+        <h3>Manchester 語法</h3>
+        <p>
+          Protégé 介面中常看到更接近英文的 <strong>Manchester 語法</strong>：<code>Parent EquivalentTo: Person and (hasChild some Person)</code>。它和 OWL/XML、函數式語法、Turtle 都是同一個本體的不同寫法。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          OWL 2 以 SROIQ(D) 為基礎，提供類別運算（交聯補）、屬性限制（some、all、hasValue）、限定基數、等價與互斥公理、屬性特性、角色鏈、sameAs 與 differentFrom、列舉與鍵。OWL 2 DL 遵守描述邏輯限制，推理可判定；OWL 2 Full 允許任意 RDF 但不可判定。owlready2 可宣告互斥、角色鏈並以 HermiT 推理；Protégé 常用 Manchester 語法。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 OWL 怎麼表達「叔伯是父母的兄弟」？</li>
+          <li>OWL 2 DL 和 OWL 2 Full 最大的差別是什麼？</li>
+          <li>owl:hasKey 有什麼用途？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>SPARQL：查詢知識圖譜</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-34.html">← 上一課：RDFS：最基本的綱要語言</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-36.html">下一課：SPARQL：查詢知識圖譜 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

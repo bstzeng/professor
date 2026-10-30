@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：金融：FIBO ｜ Ontology ｜ 博雅書院</title>
+<meta name="description" content="讓銀行、監理機關說同一種語言">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">Ontology</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜上層本體與領域本體 · 第 43 課</div>
+      <h1>金融：FIBO</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解 FIBO 的緣起與範圍</li>
+          <li>理解金融本體在監理與風險管理的用途</li>
+          <li>認識金融領域的其他標準</li>
+        </ul>
+      </div>
+
+      <p>
+        2008 年金融危機時，監理機關發現一個驚人的事實：銀行無法快速回答「我們對雷曼兄弟及其所有子公司的總曝險是多少？」因為交易對手、法人、金融工具散落在數百個系統中，各自用不同的方式定義。
+      </p>
+
+      <p>
+        <strong>FIBO</strong>（Financial Industry Business Ontology）由企業資料管理協會（EDM Council）與物件管理組織（OMG）合作開發，用 OWL 定義金融業的概念。
+      </p>
+
+      <h2>FIBO 的模組</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>模組</th><th>內容</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>FND（基礎）</td><td>協議、契約、當事人、貨幣、日期等</td></tr>
+          <tr><td>BE（商業實體）</td><td>法人、公司、所有權與控制關係</td></tr>
+          <tr><td>FBC（金融商業與商務）</td><td>金融服務、監理機構、產品</td></tr>
+          <tr><td>SEC（證券）</td><td>股票、債券、證券識別碼</td></tr>
+          <tr><td>DER（衍生性商品）</td><td>選擇權、期貨、交換</td></tr>
+          <tr><td>LOAN（貸款）</td><td>房貸、消費貸款</td></tr>
+          <tr><td>IND（指數與指標）</td><td>利率、經濟指標</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>關鍵應用：法人與控制關係</h2>
+
+      <p>
+        要算出對某集團的總曝險，就要知道誰控制誰。在 FIBO 中，「控制」可以沿著所有權鏈推理：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{hasMajorityOwner} \sqsubseteq \text{isControlledBy},\qquad \text{isControlledBy} \circ \text{isControlledBy} \sqsubseteq \text{isUltimatelyControlledBy}\]</div>
+
+      <p>
+        全球法人識別碼（<strong>LEI</strong>，20 碼）制度在 2012 年後建立，每個參與金融交易的法人都有唯一的 LEI，並揭露直接與最終母公司。LEI 資料加上本體，就能自動算出集團結構。
+      </p>
+
+      <div class="code-block"># 用 SPARQL 屬性路徑沿著控制鏈找出最終母公司，並加總曝險
+from rdflib import Graph
+g = Graph().parse(data='''
+@prefix : &lt;http://example.org/fin#&gt; .
+:SubA  :isControlledBy :HoldCo .
+:SubB  :isControlledBy :SubA .
+:HoldCo :isControlledBy :ParentGroup .
+:Loan1 :borrower :SubB ; :exposure 120 .
+:Loan2 :borrower :SubA ; :exposure 80 .
+:Loan3 :borrower :OtherCorp ; :exposure 50 .
+''', format="turtle")
+q = '''
+SELECT (SUM(?e) AS ?total) WHERE {
+  ?loan :borrower ?b ; :exposure ?e .
+  ?b :isControlledBy* :ParentGroup .          # 零次或多次：集團內任何一家
+}'''
+print(list(g.query(q, initNs={"": "http://example.org/fin#"})))   # 200</div>
+
+      <h2>其他金融標準</h2>
+
+      <ul>
+        <li><strong>ISO 20022</strong>：金融訊息（跨境支付、證券交易）的資料模型與訊息標準。</li>
+        <li><strong>BIAN</strong>：銀行業服務架構。</li>
+        <li>監理科技（RegTech）：用本體把法規條文對應到資料，自動產生監理報表。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          2008 年金融危機暴露出銀行無法快速彙總對集團的曝險，因為各系統定義不一。FIBO 由 EDM Council 與 OMG 以 OWL 定義金融概念，分為基礎、商業實體、金融商業、證券、衍生性商品、貸款、指數等模組。控制關係可沿所有權鏈推理，搭配 2012 年後建立的 20 碼 LEI 制度即可自動算出集團結構與曝險。其他標準包括 ISO 20022、BIAN 與監理科技應用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🕸️ 本課程的程式範例以 Python 為主（rdflib、owlready2 等），Turtle 與 SPARQL 以字串形式出現在 Python 中；Palantir 相關內容依公開資料整理，產品與財務資訊以撰寫時為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>2008 年金融危機暴露了什麼樣的資料問題？</li>
+          <li>LEI 是什麼？和本體怎麼搭配？</li>
+          <li>為什麼「控制」關係適合用角色鏈或屬性路徑表示？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>工程與製造：IFC/BIM 與工業 4.0</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：Wikidata 與 DBpedia</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：工程與製造：IFC/BIM 與工業 4.0 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
