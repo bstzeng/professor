@@ -25991,6 +25991,131 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "workplace-small-talk",
+      category: "life",
+      title: "職場寒暄與關心同事：從電梯裡的 30 秒開始",
+      description:
+        "寒暄的價值與研究、開場延伸收尾的結構、內向者的策略、台灣職場文化；電梯、遇到主管、不熟同事、茶水間、會議前、午餐、下班、視訊的情境；16 課話題庫：天氣、美食、手搖飲、週末、旅行、運動、追劇、閱讀遊戲動漫、寵物植物、家庭、居家、通勤、科技 AI、輕鬆時事、公司話題、節日；追問、傾聽、記住細節、分享、稱讚感謝、結束對話；關心生病、喪事、喜事、壓力、新人、離職的同事與訊息寫法；地雷、說錯話、不想聊、跨文化與世代；30 天練習計畫。附台詞小抄、地雷清單、慰問範本與 3 個互動練習。",
+      icon: "💬",
+      url: "topics/workplace-small-talk/index.html",
+      resources: [
+        {
+          title: "寒暄練習室",
+          description: "情境對話模擬、話題抽卡、「這句話 OK 嗎？」測驗",
+          icon: "🧪",
+          url: "topics/workplace-small-talk/lab.html"
+        },
+        {
+          title: "寒暄台詞小抄",
+          description: "依情境整理、可以直接使用的開場、延伸與收尾句",
+          icon: "📝",
+          url: "topics/workplace-small-talk/cheatsheet.html"
+        },
+        {
+          title: "寒暄地雷清單",
+          description: "職場寒暄中不要說的話，以及可以改說什麼",
+          icon: "⚠️",
+          url: "topics/workplace-small-talk/taboo.html"
+        },
+        {
+          title: "慰問與祝賀範本",
+          description: "生病、喪事、喜事、離職、生日等情況的訊息範本",
+          icon: "💌",
+          url: "topics/workplace-small-talk/messages.html"
+        },
+        {
+          title: "寒暄的研究",
+          description: "課程中引用的社會心理學與組織行為研究",
+          icon: "🔬",
+          url: "topics/workplace-small-talk/research.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要寒暄",
+          courses: [
+            { title: "寒暄有什麼用", url: "topics/workplace-small-talk/lesson-01.html" },
+            { title: "寒暄的結構：開場、延伸、收尾", url: "topics/workplace-small-talk/lesson-02.html" },
+            { title: "內向的人怎麼寒暄", url: "topics/workplace-small-talk/lesson-03.html" },
+            { title: "台灣職場的寒暄文化", url: "topics/workplace-small-talk/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜短時間情境",
+          courses: [
+            { title: "電梯裡的 30 秒", url: "topics/workplace-small-talk/lesson-05.html" },
+            { title: "遇到主管或大老闆", url: "topics/workplace-small-talk/lesson-06.html" },
+            { title: "遇到不熟或別部門的同事", url: "topics/workplace-small-talk/lesson-07.html" },
+            { title: "茶水間與咖啡機旁", url: "topics/workplace-small-talk/lesson-08.html" },
+            { title: "會議開始前的空檔", url: "topics/workplace-small-talk/lesson-09.html" },
+            { title: "午餐時間", url: "topics/workplace-small-talk/lesson-10.html" },
+            { title: "通勤、停車場與下班時刻", url: "topics/workplace-small-talk/lesson-11.html" },
+            { title: "視訊會議開始前的閒聊", url: "topics/workplace-small-talk/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜話題庫",
+          courses: [
+            { title: "天氣與季節", url: "topics/workplace-small-talk/lesson-13.html" },
+            { title: "美食、午餐與外送", url: "topics/workplace-small-talk/lesson-14.html" },
+            { title: "咖啡、手搖飲與甜點", url: "topics/workplace-small-talk/lesson-15.html" },
+            { title: "週末與連假", url: "topics/workplace-small-talk/lesson-16.html" },
+            { title: "旅行", url: "topics/workplace-small-talk/lesson-17.html" },
+            { title: "運動與健身", url: "topics/workplace-small-talk/lesson-18.html" },
+            { title: "追劇、電影與音樂", url: "topics/workplace-small-talk/lesson-19.html" },
+            { title: "閱讀、遊戲與動漫", url: "topics/workplace-small-talk/lesson-20.html" },
+            { title: "寵物與植物", url: "topics/workplace-small-talk/lesson-21.html" },
+            { title: "家人與孩子：小心使用的話題", url: "topics/workplace-small-talk/lesson-22.html" },
+            { title: "居家、搬家與生活小事", url: "topics/workplace-small-talk/lesson-23.html" },
+            { title: "通勤、交通與城市生活", url: "topics/workplace-small-talk/lesson-24.html" },
+            { title: "科技、3C 與 AI", url: "topics/workplace-small-talk/lesson-25.html" },
+            { title: "輕鬆的時事：賽事、展覽與新開幕", url: "topics/workplace-small-talk/lesson-26.html" },
+            { title: "公司裡的安全話題", url: "topics/workplace-small-talk/lesson-27.html" },
+            { title: "節日與年度活動", url: "topics/workplace-small-talk/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 D｜讓對話接下去",
+          courses: [
+            { title: "開放式問題與追問", url: "topics/workplace-small-talk/lesson-29.html" },
+            { title: "傾聽與回應", url: "topics/workplace-small-talk/lesson-30.html" },
+            { title: "記住細節，下次再問", url: "topics/workplace-small-talk/lesson-31.html" },
+            { title: "分享自己的分寸", url: "topics/workplace-small-talk/lesson-32.html" },
+            { title: "稱讚與感謝的藝術", url: "topics/workplace-small-talk/lesson-33.html" },
+            { title: "如何優雅地結束對話", url: "topics/workplace-small-talk/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 E｜關心別人",
+          courses: [
+            { title: "察覺同事的狀態", url: "topics/workplace-small-talk/lesson-35.html" },
+            { title: "同事生病或請假回來", url: "topics/workplace-small-talk/lesson-36.html" },
+            { title: "家裡有事：生病、長照與喪事", url: "topics/workplace-small-talk/lesson-37.html" },
+            { title: "同事的喜事：結婚、生子、升遷、搬家", url: "topics/workplace-small-talk/lesson-38.html" },
+            { title: "壓力大或剛被罵之後", url: "topics/workplace-small-talk/lesson-39.html" },
+            { title: "新人的第一週", url: "topics/workplace-small-talk/lesson-40.html" },
+            { title: "同事離職或調職", url: "topics/workplace-small-talk/lesson-41.html" },
+            { title: "用訊息關心：LINE、Teams 與 Email", url: "topics/workplace-small-talk/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 F｜地雷與界線",
+          courses: [
+            { title: "不要問的話題", url: "topics/workplace-small-talk/lesson-43.html" },
+            { title: "說錯話怎麼補救", url: "topics/workplace-small-talk/lesson-44.html" },
+            { title: "對方不想聊的時候", url: "topics/workplace-small-talk/lesson-45.html" },
+            { title: "外籍同事與不同世代", url: "topics/workplace-small-talk/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "30 天練習計畫", url: "topics/workplace-small-talk/lesson-47.html" },
+          ],
+        },
+      ],
     }
   ]
 };
