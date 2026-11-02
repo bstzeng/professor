@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 5 課：座標轉換：機器人眼中的世界 ｜ 機器人與自動駕駛 ｜ 博雅書院</title>
+<meta name="description" content="「左前方兩公尺」對鏡頭、對手掌、對地圖，是三個不同的位置">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">機器人與自駕</a>
+      <span class="sep">/</span>
+      <span>第 5 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜運動學與動力學 · 第 5 課</div>
+      <h1>座標轉換：機器人眼中的世界</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解為什麼需要多個座標系</li>
+          <li>理解旋轉與平移的組合</li>
+          <li>用 Python 做座標轉換</li>
+        </ul>
+      </div>
+
+      <p>
+        機器人身上到處都是座標系：地圖有一個、車身有一個、每顆鏡頭各有一個、每個關節也各有一個。同一個杯子，在鏡頭座標中是「前方 0.5 公尺」，在手掌座標中可能是「右邊 0.1 公尺」。
+      </p>
+
+      <h2>轉換 = 先旋轉，再平移</h2>
+
+      <p>
+        要把一個點從 A 座標系轉到 B 座標系，只需要知道 A 相對 B 的兩件事：
+      </p>
+
+      <ul>
+        <li><strong>旋轉</strong>：A 的座標軸相對 B 轉了幾度。</li>
+        <li><strong>平移</strong>：A 的原點在 B 的哪裡。</li>
+      </ul>
+
+      <p>
+        把旋轉矩陣與平移向量合在一個 4×4 的<strong>齊次轉換矩陣</strong>裡，就能用一次矩陣乘法完成轉換；多個座標系串起來，就是矩陣連乘（本站《線性代數》課有完整介紹）。
+      </p>
+
+      <div class="code-block">import numpy as np
+
+def T(yaw_deg, tx, ty):
+    """2D 齊次轉換：先繞 z 軸旋轉 yaw，再平移 (tx, ty)"""
+    c, s = np.cos(np.radians(yaw_deg)), np.sin(np.radians(yaw_deg))
+    return np.array([[c, -s, tx],
+                     [s,  c, ty],
+                     [0,  0,  1]])
+
+world_T_car = T(30, 100, 50)       # 車在地圖上 (100, 50)，車頭朝 30 度
+car_T_cam   = T(0, 1.5, 0.3)       # 鏡頭在車頭前方 1.5 m、偏左 0.3 m
+
+cup_in_cam = np.array([4.0, -1.0, 1])          # 鏡頭看到：前方 4 m、右邊 1 m
+cup_in_world = world_T_car @ car_T_cam @ cup_in_cam
+print(cup_in_world[:2])                        # 這個行人在地圖上的位置</div>
+
+      <h2>在真實系統中</h2>
+
+      <ul>
+        <li>ROS（機器人作業系統）用一個叫 <strong>tf</strong> 的工具，隨時追蹤數十個座標系之間的關係。</li>
+        <li>自駕車出廠前要做<strong>感測器校正</strong>：精確量出每顆鏡頭、光達相對車身的位置與角度。誤差 1 度，在 50 公尺外就差將近 1 公尺。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          機器人身上有地圖、車身、鏡頭、關節等多個座標系，同一物體在不同座標系中的位置不同。座標轉換由旋轉與平移組成，可合併為 4×4 齊次轉換矩陣，多個座標系串接即為矩陣連乘。ROS 以 tf 追蹤數十個座標系的關係，自駕車出廠前須做感測器校正，角度誤差 1 度在 50 公尺外就差將近 1 公尺。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課程重直覺、輕推導，程式範例以 Python 為主。產業數字多來自 2025～2026 年的公司公告與研究機構彙整，各家數字常有出入，課中以「約」與資料日期標示；硬體規格以廠商公布值為準，實際可用效能通常低於標稱峰值。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼機器人需要多個座標系？</li>
+          <li>齊次轉換矩陣把哪兩件事合在一起？</li>
+          <li>鏡頭安裝角度差 1 度，在 100 公尺外大約差多少？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>正向運動學：關節角度決定手在哪裡</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-04.html">← 上一課：兩條技術路線：模組化 vs. 端到端</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-06.html">下一課：正向運動學：關節角度決定手在哪裡 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
