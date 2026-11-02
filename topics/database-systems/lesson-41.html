@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：NewSQL：Spanner、CockroachDB 與 TiDB ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="既要 SQL 與交易，也要水平擴展">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜分散式資料庫 · 第 41 課</div>
+      <h1>NewSQL：Spanner、CockroachDB 與 TiDB</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 NewSQL 的設計目標</li>
+          <li>理解 Spanner 的 TrueTime</li>
+          <li>比較主要的分散式 SQL 資料庫</li>
+        </ul>
+      </div>
+
+      <p>
+        2000 年代，大公司為了擴展放棄了 SQL 與交易，改用 NoSQL；但很快發現，沒有交易的應用程式非常難寫。<strong>NewSQL</strong>（分散式 SQL）的目標是：<strong>保留 SQL 與 ACID 交易，同時能像 NoSQL 一樣水平擴展</strong>。
+      </p>
+
+      <h2>共同架構</h2>
+
+      <ul>
+        <li>資料自動切成許多範圍分片，每片用 Raft 或 Paxos 複製到多個節點（第 39 課）。</li>
+        <li>跨分片的交易用兩階段提交，協調者與參與者本身都是共識群組（第 40 課）。</li>
+        <li>用 MVCC 提供快照讀取——這需要一個<strong>全域一致的時間戳記</strong>。</li>
+      </ul>
+
+      <h2>Spanner 的 TrueTime</h2>
+
+      <p>
+        2012 年 Google 發表 Spanner 論文。全球分布的機器時鐘不可能完全同步，Spanner 的做法是：每個資料中心配備 GPS 接收器與原子鐘，TrueTime API 回傳的不是一個時間點，而是一個<strong>誤差區間</strong>（通常數毫秒以內）。
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{TT.now()} = [\,t_{\text{earliest}},\; t_{\text{latest}}\,]\]</div>
+
+      <p>
+        提交交易時，Spanner 會<strong>等待</strong>直到確定時間戳記已經過去（commit wait），這樣就保證了全球的交易順序與真實時間一致（外部一致性）。代價是每次提交多等幾毫秒。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>資料庫</th><th>出身</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Google Spanner</td><td>Google，2012 年論文</td><td>TrueTime 硬體時鐘；Google Cloud 提供託管服務</td></tr>
+          <tr><td>CockroachDB</td><td>美國，前 Google 工程師創立</td><td>相容 PostgreSQL 協定；用混合邏輯時鐘取代原子鐘</td></tr>
+          <tr><td>TiDB</td><td>中國 PingCAP</td><td>相容 MySQL 協定；儲存層 TiKV 基於 RocksDB 與 Raft；TiFlash 提供欄式分析</td></tr>
+          <tr><td>YugabyteDB</td><td>美國</td><td>相容 PostgreSQL；開源</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>什麼時候需要</h3>
+        <p>
+          大多數應用程式，一台夠大的 PostgreSQL 加上讀取副本就足夠。只有在單機的寫入量或資料量確實撐不住、或需要跨地區的高可用與強一致時，分散式 SQL 的額外複雜度與延遲才值得。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          NewSQL 分散式 SQL 的目標是保留 SQL 與 ACID 交易並能水平擴展。共同架構是資料自動切成範圍分片、每片以 Raft 或 Paxos 複製，跨分片交易用以共識群組為協調者與參與者的兩階段提交，並以 MVCC 提供快照讀取，需要全域一致時間戳記。2012 年 Google Spanner 以 GPS 與原子鐘提供誤差區間的 TrueTime，提交時等待確定時間戳記已過以保證外部一致性。主要產品包括 Spanner、相容 PostgreSQL 並用混合邏輯時鐘的 CockroachDB、相容 MySQL 的 TiDB 與 YugabyteDB。多數應用一台 PostgreSQL 加讀取副本即足夠。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>NewSQL 想解決 NoSQL 的什麼問題？</li>
+          <li>TrueTime 為什麼回傳一個時間區間？commit wait 有什麼作用？</li>
+          <li>什麼情況下才需要使用分散式 SQL 資料庫？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>雲端資料庫：Aurora 為什麼把儲存和運算分開</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：分散式交易：兩階段提交</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：雲端資料庫：Aurora 為什麼把儲存和運算分開 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

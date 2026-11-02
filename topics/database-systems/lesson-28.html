@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 28 課：慢查詢調校案例 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="從症狀到解法：五個常見情境">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 28 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜查詢處理與最佳化 · 第 28 課</div>
+      <h1>慢查詢調校案例</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>建立系統化的調校流程</li>
+          <li>認識常見的慢查詢模式</li>
+          <li>知道何時該改架構而不是改查詢</li>
+        </ul>
+      </div>
+
+      <h2>調校流程</h2>
+
+      <ol>
+        <li><strong>找出慢查詢</strong>：開啟慢查詢日誌，或使用 pg_stat_statements 找出「總耗時」最高的查詢（不只是單次最慢的）。</li>
+        <li><strong>看計畫</strong>：EXPLAIN ANALYZE。</li>
+        <li><strong>找出瓶頸</strong>：估計錯誤？缺索引？排序溢出到磁碟？</li>
+        <li><strong>修改並驗證</strong>：一次只改一件事，比較前後的實際執行時間。</li>
+      </ol>
+
+      <h2>五個常見案例</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>症狀</th><th>原因</th><th>解法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>N+1 查詢</strong>：列出 100 位客戶，每位再各查一次訂單，共 101 次查詢</td><td>ORM 的延遲載入</td><td>一次 JOIN，或用 IN 一次取回所有訂單</td></tr>
+          <tr><td><strong>深分頁</strong>：<code>LIMIT 20 OFFSET 1000000</code> 越後面越慢</td><td>資料庫要先讀過並丟掉前一百萬筆</td><td>改用「鍵集分頁」：<code>WHERE id > 上一頁最後的 id ORDER BY id LIMIT 20</code></td></tr>
+          <tr><td><strong>函數讓索引失效</strong></td><td><code>WHERE LOWER(email) = …</code></td><td>建立函數索引，或存正規化後的欄位</td></tr>
+          <tr><td><strong>大量 COUNT(*)</strong>：首頁顯示「共 3,281,442 筆」</td><td>每次都要掃描</td><td>使用近似值、快取計數，或改設計</td></tr>
+          <tr><td><strong>OR 條件</strong>：<code>WHERE a = 1 OR b = 2</code></td><td>單一索引無法同時處理</td><td>拆成兩個查詢 UNION，或依賴資料庫的位元圖索引合併</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">import sqlite3, time
+db = sqlite3.connect(":memory:")
+db.execute("CREATE TABLE 訂單 (id INTEGER PRIMARY KEY, 客戶 INTEGER, 金額 INTEGER)")
+db.executemany("INSERT INTO 訂單 (客戶, 金額) VALUES (?, ?)", [(i % 5000, i % 997) for i in range(500_000)])
+
+t = time.time(); db.execute("SELECT * FROM 訂單 LIMIT 20 OFFSET 490000").fetchall(); print("OFFSET", time.time() - t)
+t = time.time(); db.execute("SELECT * FROM 訂單 WHERE id &gt; 490000 ORDER BY id LIMIT 20").fetchall(); print("鍵集", time.time() - t)
+
+t = time.time(); db.execute("SELECT SUM(金額) FROM 訂單 WHERE 客戶 = 42").fetchall(); print("無索引", time.time() - t)
+db.execute("CREATE INDEX idx_客戶 ON 訂單(客戶)")
+t = time.time(); db.execute("SELECT SUM(金額) FROM 訂單 WHERE 客戶 = 42").fetchall(); print("有索引", time.time() - t)</div>
+
+      <div class="callout">
+        <h3>何時該改架構</h3>
+        <p>
+          如果最佳化之後，查詢仍然需要掃描數億筆資料（例如即時的多維度報表），問題可能不在 SQL，而在架構：該用讀取副本、快取、實體化檢視，或把分析工作移到資料倉儲（第 49 課）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          調校流程為：以慢查詢日誌或 pg_stat_statements 找出總耗時最高的查詢、EXPLAIN ANALYZE 看計畫、找出瓶頸、一次改一件事並驗證。常見案例有 ORM 延遲載入造成的 N+1 查詢（改 JOIN 或 IN）、深分頁 OFFSET 越後越慢（改鍵集分頁）、函數使索引失效（函數索引）、大量 COUNT(*)（近似值或快取）與 OR 條件（拆 UNION 或位元圖合併）。若最佳化後仍需掃描數億筆，應考慮讀取副本、快取、實體化檢視或資料倉儲等架構改變。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是 N+1 查詢問題？怎麼解決？</li>
+          <li>為什麼 OFFSET 很大的分頁會很慢？鍵集分頁怎麼做？</li>
+          <li>什麼時候應該改架構，而不是繼續調整 SQL？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>ACID：交易的四個保證</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-27.html">← 上一課：查詢最佳化器：Join 順序與常見誤判</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-29.html">下一課：ACID：交易的四個保證 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

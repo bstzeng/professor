@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：列式儲存 vs. 欄式儲存 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="同樣的資料，兩種排法，速度差百倍">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜儲存與索引 · 第 17 課</div>
+      <h1>列式儲存 vs. 欄式儲存</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解列式與欄式儲存的差別</li>
+          <li>理解欄式儲存為何適合分析</li>
+          <li>理解壓縮與向量化執行</li>
+        </ul>
+      </div>
+
+      <p>
+        一張有 100 個欄位、十億筆資料的銷售表，資料在磁碟上可以怎麼排？
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>列式（row store）</th><th>欄式（column store）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>排法</td><td>一筆資料的所有欄位放在一起</td><td>同一個欄位的所有值放在一起</td></tr>
+          <tr><td>讀一筆完整的訂單</td><td>一次讀到</td><td>要從 100 個地方各讀一點</td></tr>
+          <tr><td>「每個月的營收總和」</td><td>要讀全部 100 個欄位</td><td>只讀「日期」與「金額」兩個欄位</td></tr>
+          <tr><td>適合</td><td>OLTP：常常讀寫整筆資料</td><td>OLAP：掃描大量資料的少數欄位</td></tr>
+          <tr><td>代表</td><td>PostgreSQL、MySQL</td><td>Snowflake、BigQuery、ClickHouse、DuckDB、Parquet 檔案</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>欄式儲存的三個優勢</h2>
+
+      <ol>
+        <li><strong>只讀需要的欄位</strong>：分析查詢通常只用幾個欄位，I/O 可以少一到兩個數量級。</li>
+        <li><strong>壓縮效果極好</strong>：同一欄的值型別相同、常常重複。例如「國家」欄只有幾十種值，可以用字典編碼；排序後的日期可以用差值編碼；連續相同的值可以用連續長度編碼。壓縮率常有 5～10 倍以上。</li>
+        <li><strong>向量化執行</strong>：一次處理一整批（例如 1,024 個）同型別的值，充分利用 CPU 的 SIMD 指令與快取。</li>
+      </ol>
+
+      <div class="code-block"># 連續長度編碼（RLE）：欄式儲存中排序後的欄位非常適合
+def rle(values):
+    out, prev, n = [], None, 0
+    for v in values:
+        if v == prev: n += 1
+        else:
+            if prev is not None: out.append((prev, n))
+            prev, n = v, 1
+    out.append((prev, n))
+    return out
+
+country = ["台灣"] * 50000 + ["日本"] * 30000 + ["美國"] * 20000
+print(rle(country))     # [('台灣', 50000), ('日本', 30000), ('美國', 20000)]：十萬個值只剩三組</div>
+
+      <div class="callout">
+        <h3>混合式</h3>
+        <p>
+          有些資料庫同時支援兩種（HTAP），例如 TiDB 的 TiFlash、SQL Server 的欄式索引：交易寫進列式儲存，再非同步複製一份欄式副本給分析用。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          列式儲存把一筆資料的所有欄位放在一起，適合常讀寫整筆資料的 OLTP（PostgreSQL、MySQL）；欄式儲存把同一欄位的值放在一起，適合掃描大量資料少數欄位的 OLAP（Snowflake、BigQuery、ClickHouse、DuckDB、Parquet）。欄式三大優勢是只讀需要的欄位、壓縮效果極好（字典、差值、連續長度編碼，常 5～10 倍以上）與向量化執行充分利用 SIMD 與快取。HTAP 混合式如 TiFlash 與 SQL Server 欄式索引同時支援兩種。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼「每個月營收總和」這種查詢在欄式儲存中特別快？</li>
+          <li>為什麼欄式儲存的壓縮效果比列式好？</li>
+          <li>什麼是向量化執行？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>B+ 樹索引：為什麼幾乎每個資料庫都用它</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：頁、緩衝池與資料的實際排列</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：B+ 樹索引：為什麼幾乎每個資料庫都用它 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

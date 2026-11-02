@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：複合索引、覆蓋索引與最左前綴 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="建對索引，比任何調校都有效">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜儲存與索引 · 第 21 課</div>
+      <h1>複合索引、覆蓋索引與最左前綴</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解複合索引的排序方式</li>
+          <li>掌握最左前綴原則</li>
+          <li>理解覆蓋索引與索引的代價</li>
+        </ul>
+      </div>
+
+      <h2>複合索引</h2>
+
+      <div class="code-block">CREATE INDEX idx_訂單 ON 訂單 (客戶編號, 下單日期, 金額);</div>
+
+      <p>
+        複合索引像電話簿：先依「客戶編號」排序，同一位客戶再依「下單日期」排序，再依「金額」排序。
+      </p>
+
+      <h2>最左前綴原則</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>查詢條件</th><th>能用到這個索引嗎</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>客戶編號 = 42</td><td>可以</td></tr>
+          <tr><td>客戶編號 = 42 AND 下單日期 >= '2026-01-01'</td><td>可以，而且非常有效</td></tr>
+          <tr><td>下單日期 >= '2026-01-01'（沒有客戶編號）</td><td><strong>通常不行</strong>：就像只知道名字、不知道姓氏，電話簿幫不上忙</td></tr>
+          <tr><td>客戶編號 = 42 AND 金額 > 1000（跳過下單日期）</td><td>只能用到客戶編號的部分</td></tr>
+          <tr><td>客戶編號 > 10 AND 下單日期 = '2026-01-01'</td><td>只有客戶編號能有效縮小範圍（範圍條件之後的欄位幫助有限）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        設計原則：<strong>等值條件的欄位放前面，範圍條件的欄位放後面</strong>；常一起出現的查詢條件，依選擇性與使用頻率排序。
+      </p>
+
+      <h2>覆蓋索引</h2>
+
+      <p>
+        如果查詢需要的所有欄位都在索引裡，資料庫只讀索引就能回答，不用再回到資料表（「回表」）：
+      </p>
+
+      <div class="code-block">SELECT 下單日期, 金額 FROM 訂單 WHERE 客戶編號 = 42;   -- 三個欄位都在索引中：Index Only Scan</div>
+
+      <h2>索引不是越多越好</h2>
+
+      <ul>
+        <li>每一次 INSERT、UPDATE、DELETE，都要同步更新所有相關的索引，寫入變慢。</li>
+        <li>索引佔用空間，也佔用緩衝池。</li>
+        <li>最佳化器選擇變多，也可能選錯。</li>
+        <li>原則：根據實際的查詢模式建索引，定期檢查沒被用到的索引並移除。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>讓索引失效的常見寫法</h3>
+        <ul>
+          <li>在索引欄位上套函數：<code>WHERE YEAR(下單日期) = 2026</code>（改成範圍條件，或建立函數索引）。</li>
+          <li>隱含型別轉換：欄位是文字，條件卻寫成數字。</li>
+          <li><code>LIKE '%關鍵字'</code>（開頭是萬用字元）。</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          複合索引如電話簿依序排序多個欄位，遵守最左前綴原則：有第一欄條件才能有效使用，跳過中間欄位或範圍條件後的欄位幫助有限，因此等值條件欄位放前、範圍條件欄位放後。覆蓋索引包含查詢需要的所有欄位，可只讀索引不回表（Index Only Scan）。索引會拖慢寫入、佔空間與緩衝池並增加最佳化器誤判機會，應依查詢模式建立並移除未使用者。在索引欄位套函數、隱含型別轉換與開頭萬用字元的 LIKE 會讓索引失效。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>索引 (A, B, C)，查詢只有 B = 1 的條件，能用到索引嗎？為什麼？</li>
+          <li>什麼是覆蓋索引？它為什麼快？</li>
+          <li>為什麼 <code>WHERE YEAR(日期) = 2026</code> 會讓索引失效？怎麼改寫？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>全文索引與倒排索引</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：LSM 樹：為寫入而生的設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：全文索引與倒排索引 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

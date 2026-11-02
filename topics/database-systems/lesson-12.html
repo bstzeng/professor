@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 12 課：DDL 與約束：讓資料庫幫你守規則 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="型別、NOT NULL、UNIQUE、CHECK、外鍵與 ALTER TABLE">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 12 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 12 課</div>
+      <h1>DDL 與約束：讓資料庫幫你守規則</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握建立與修改資料表</li>
+          <li>理解各種約束的作用</li>
+          <li>理解線上修改綱要的挑戰</li>
+        </ul>
+      </div>
+
+      <div class="code-block">CREATE TABLE 帳戶 (
+    帳號     BIGINT PRIMARY KEY,
+    戶名     TEXT        NOT NULL,
+    身分證   CHAR(10)    UNIQUE,
+    餘額     NUMERIC(14,2) NOT NULL DEFAULT 0 CHECK (餘額 &gt;= 0),
+    幣別     CHAR(3)     NOT NULL DEFAULT 'TWD',
+    開戶時間 TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+ALTER TABLE 帳戶 ADD COLUMN 狀態 TEXT NOT NULL DEFAULT '正常';</div>
+
+      <h2>選對型別</h2>
+
+      <ul>
+        <li><strong>金額用 NUMERIC（十進位），不要用 FLOAT</strong>：浮點數無法精確表示 0.1，累加後會出現分毫誤差。</li>
+        <li>時間盡量用帶時區的型別，存 UTC。</li>
+        <li>文字長度不確定時用 TEXT（PostgreSQL 中 TEXT 與 VARCHAR 效能相同）。</li>
+      </ul>
+
+      <h2>約束是最後一道防線</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>約束</th><th>保證</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>NOT NULL</td><td>一定要有值</td></tr>
+          <tr><td>UNIQUE</td><td>不能重複（資料庫會自動建立索引）</td></tr>
+          <tr><td>CHECK</td><td>符合條件，例如餘額不能是負數</td></tr>
+          <tr><td>FOREIGN KEY</td><td>參照的資料一定存在</td></tr>
+          <tr><td>EXCLUDE（PostgreSQL）</td><td>例如同一間會議室的預約時段不能重疊</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        應用程式也會檢查這些規則，但程式有 bug、有多個服務同時寫入、有人直接在資料庫下指令……只有資料庫的約束能保證「無論如何都成立」。
+      </p>
+
+      <h2>線上修改綱要</h2>
+
+      <p>
+        在一個一億筆、持續被寫入的大表上 ALTER TABLE，可能會鎖住整個表好幾個小時。實務上的做法：
+      </p>
+
+      <ul>
+        <li>新增可為 NULL 或有預設值的欄位，現代資料庫多半能瞬間完成（只改中繼資料）。</li>
+        <li>建索引用 <code>CREATE INDEX CONCURRENTLY</code>（PostgreSQL）。</li>
+        <li>大改動用工具（例如 gh-ost、pt-online-schema-change）建一個新表、背景複製資料、最後切換。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          DDL 以 CREATE TABLE 與 ALTER TABLE 建立與修改資料表。選型時金額應用 NUMERIC 而非無法精確表示 0.1 的 FLOAT，時間用帶時區型別存 UTC。約束包括 NOT NULL、UNIQUE（自動建索引）、CHECK（如餘額不能為負）、FOREIGN KEY 與 PostgreSQL 的 EXCLUDE（如時段不重疊），是無論程式如何都成立的最後防線。在大表上線上修改綱要可能長時間鎖表，可利用只改中繼資料的新增欄位、CREATE INDEX CONCURRENTLY，或 gh-ost 等工具背景複製後切換。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼金額不應該用 FLOAT 型別？</li>
+          <li>既然應用程式會檢查資料，為什麼資料庫還需要約束？</li>
+          <li>在大表上修改綱要有什麼風險？怎麼降低？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>檢視、預存程序與觸發器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-11.html">← 上一課：視窗函數：排名、移動平均與累計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-13.html">下一課：檢視、預存程序與觸發器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

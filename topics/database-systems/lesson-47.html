@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 47 課：時序資料庫：監控與物聯網 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="時間戳記＋數值，每秒數百萬筆">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 47 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 47 課</div>
+      <h1>時序資料庫：監控與物聯網</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解時序資料的特性</li>
+          <li>認識時序資料庫的最佳化</li>
+          <li>認識常見的時序資料庫</li>
+        </ul>
+      </div>
+
+      <h2>時序資料的特性</h2>
+
+      <ul>
+        <li><strong>幾乎只有附加</strong>：新資料不斷寫入，很少修改舊資料。</li>
+        <li><strong>依時間查詢</strong>：「過去一小時的 CPU 使用率」「上個月每天的平均溫度」。</li>
+        <li><strong>寫入量極大</strong>：一萬台伺服器、每台 100 個指標、每 10 秒一次，就是每秒十萬筆。</li>
+        <li><strong>越舊越不重要</strong>：最近的資料要精細，一年前的資料只需要每小時平均。</li>
+      </ul>
+
+      <h2>時序資料庫的最佳化</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>技術</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>依時間分區</td><td>每天（或每小時）一個分區；刪除舊資料只要丟掉整個分區</td></tr>
+          <tr><td>欄式與壓縮</td><td>時間戳記用差值的差值編碼、數值用 XOR 壓縮（Facebook Gorilla 論文），壓縮率可達十倍以上</td></tr>
+          <tr><td>降採樣</td><td>自動把舊資料彙總成較粗的粒度（例如 1 分鐘 → 1 小時）</td></tr>
+          <tr><td>保留政策</td><td>自動刪除超過期限的資料</td></tr>
+          <tr><td>連續彙總</td><td>預先計算常用的彙總，查詢時直接讀取</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">-- TimescaleDB（PostgreSQL 擴充）：依 5 分鐘分桶計算平均溫度
+SELECT time_bucket('5 minutes', 時間) AS 區間,
+       感測器編號,
+       AVG(溫度) AS 平均溫度
+FROM 感測器讀數
+WHERE 時間 &gt; now() - INTERVAL '1 day'
+GROUP BY 區間, 感測器編號
+ORDER BY 區間;</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>資料庫</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Prometheus</td><td>雲端原生監控的標準，拉取式收集，PromQL 查詢語言</td></tr>
+          <tr><td>InfluxDB</td><td>專門的時序資料庫</td></tr>
+          <tr><td>TimescaleDB</td><td>PostgreSQL 擴充，可以用完整的 SQL</td></tr>
+          <tr><td>ClickHouse</td><td>通用的欄式分析資料庫，也常用於時序與日誌</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          時序資料幾乎只有附加、依時間查詢、寫入量極大（一萬台伺服器各 100 指標每 10 秒即每秒十萬筆）且越舊越不重要。時序資料庫以依時間分區（刪舊資料只丟分區）、欄式與壓縮（差值的差值、XOR 壓縮，Facebook Gorilla 論文，十倍以上）、降採樣、保留政策與連續彙總最佳化。TimescaleDB 可用 time_bucket 依時間分桶彙總。常見產品有 Prometheus（PromQL）、InfluxDB、TimescaleDB 與 ClickHouse。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>時序資料有哪些特性？</li>
+          <li>為什麼「依時間分區」讓刪除舊資料變得很便宜？</li>
+          <li>什麼是降採樣？為什麼需要它？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>向量資料庫：AI 與 RAG 的基礎</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-46.html">← 上一課：圖資料庫：Neo4j 與圖查詢</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-48.html">下一課：向量資料庫：AI 與 RAG 的基礎 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

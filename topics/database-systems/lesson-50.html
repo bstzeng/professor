@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 50 課：資料庫安全：SQL 注入、權限與加密 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="最常見、也最容易避免的漏洞">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 50 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 H｜實務 · 第 50 課</div>
+      <h1>資料庫安全：SQL 注入、權限與加密</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SQL 注入的原理與防範</li>
+          <li>理解最小權限原則</li>
+          <li>認識加密與稽核</li>
+        </ul>
+      </div>
+
+      <h2>SQL 注入</h2>
+
+      <p>
+        把使用者輸入直接拼接進 SQL 字串，就給了攻擊者改寫查詢的機會：
+      </p>
+
+      <div class="code-block">import sqlite3
+db = sqlite3.connect(":memory:")
+db.executescript("CREATE TABLE 使用者 (帳號 TEXT, 密碼雜湊 TEXT); INSERT INTO 使用者 VALUES ('admin', 'x');")
+
+user_input = "' OR '1'='1"
+
+# 錯誤：字串拼接 —— 查詢變成 WHERE 帳號 = '' OR '1'='1'，回傳所有使用者
+bad = f"SELECT * FROM 使用者 WHERE 帳號 = '{user_input}'"
+print(db.execute(bad).fetchall())                       # [('admin', 'x')]
+
+# 正確：參數化查詢 —— 輸入永遠只被當成「資料」，不會被當成 SQL
+good = "SELECT * FROM 使用者 WHERE 帳號 = ?"
+print(db.execute(good, (user_input,)).fetchall())       # []</div>
+
+      <ul>
+        <li><strong>唯一可靠的解法：參數化查詢</strong>（預備陳述式）。資料庫先解析 SQL 的結構，再把參數當成純資料填入。</li>
+        <li>不要自己寫「過濾危險字元」的函式——總有漏網之魚。</li>
+        <li>ORM 預設會參數化，但使用原生 SQL 或動態組合欄位名稱、排序方向時仍要小心（欄位名稱無法參數化，要用白名單）。</li>
+      </ul>
+
+      <h2>權限：最小權限原則</h2>
+
+      <ul>
+        <li>應用程式用的帳號，只給它需要的權限（例如只能 SELECT、INSERT 特定的表），不要用超級使用者。</li>
+        <li>報表帳號只能讀取副本。</li>
+        <li>PostgreSQL 的<strong>資料列層級安全</strong>（RLS）：讓每個租戶只能看到自己的資料列，即使應用程式有 bug 也不會外洩。</li>
+      </ul>
+
+      <h2>加密與稽核</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>層面</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>傳輸中</td><td>強制 TLS 連線</td></tr>
+          <tr><td>靜態資料</td><td>磁碟加密、透明資料加密（TDE）</td></tr>
+          <tr><td>特別敏感的欄位</td><td>應用層加密（資料庫本身也看不到明文），密碼一律用 bcrypt、Argon2 等雜湊，而非加密</td></tr>
+          <tr><td>稽核</td><td>記錄誰在什麼時間存取或修改了哪些敏感資料</td></tr>
+          <tr><td>備份</td><td>備份檔同樣要加密與控管</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          把使用者輸入直接拼接進 SQL 會造成 SQL 注入，例如輸入 ' OR '1'='1 使查詢回傳所有使用者。唯一可靠的解法是參數化查詢，資料庫先解析結構再把參數當純資料填入；不要自寫過濾函式，ORM 預設參數化，但動態欄位名稱與排序方向須用白名單。權限應遵守最小權限原則，報表帳號只讀副本，PostgreSQL 資料列層級安全 RLS 可隔離租戶資料。加密與稽核包括強制 TLS、磁碟加密與 TDE、敏感欄位應用層加密、密碼以 bcrypt 或 Argon2 雜湊、稽核紀錄與加密備份。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼參數化查詢可以防止 SQL 注入？</li>
+          <li>為什麼欄位名稱無法參數化？要怎麼安全地處理？</li>
+          <li>密碼為什麼要「雜湊」而不是「加密」？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>選型指南：什麼情境用什麼資料庫</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-49.html">← 上一課：資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-51.html">下一課：選型指南：什麼情境用什麼資料庫 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

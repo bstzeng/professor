@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：雜湊索引 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="最快的等值查找，以及它做不到的事">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜儲存與索引 · 第 19 課</div>
+      <h1>雜湊索引</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解雜湊索引的原理</li>
+          <li>理解擴充雜湊與線性雜湊</li>
+          <li>知道雜湊索引的適用場景</li>
+        </ul>
+      </div>
+
+      <p>
+        雜湊索引用雜湊函數把鍵直接對應到「桶」（bucket），等值查找平均只需要一次存取：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{bucket} = h(\text{key}) \bmod B\]</div>
+
+      <h2>問題：桶滿了怎麼辦</h2>
+
+      <ul>
+        <li><strong>靜態雜湊</strong>：桶的數量固定，資料增加後溢出鏈越來越長，效能下降；要擴大就得全部重新雜湊。</li>
+        <li><strong>擴充雜湊</strong>（extendible hashing）：用一個目錄指向桶，桶滿了只分裂那一個桶，目錄需要時倍增。</li>
+        <li><strong>線性雜湊</strong>（linear hashing）：依序逐一分裂桶，不需要目錄，擴充過程平滑。</li>
+      </ul>
+
+      <h2>雜湊 vs. B+ 樹</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>雜湊索引</th><th>B+ 樹</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>等值查找（WHERE id = 5）</td><td>非常快</td><td>快</td></tr>
+          <tr><td>範圍查詢（BETWEEN、>、<）</td><td><strong>不支援</strong></td><td>支援</td></tr>
+          <tr><td>排序（ORDER BY）</td><td>不支援</td><td>支援</td></tr>
+          <tr><td>前綴查詢（LIKE 'abc%'）</td><td>不支援</td><td>支援</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        所以 B+ 樹是預設的索引。雜湊索引用在：記憶體中的資料結構（例如 Redis 的雜湊表、資料庫內部的雜湊連接與雜湊聚合）、只需要等值查找的場合。PostgreSQL 提供雜湊索引，MySQL InnoDB 有「自適應雜湊索引」——自動為常被查詢的 B+ 樹頁建立雜湊捷徑。
+      </p>
+
+      <div class="code-block">class ExtendibleHash:
+    """簡化的擴充雜湊：桶容量 cap；目錄大小 2^global_depth"""
+    def __init__(self, cap=2):
+        self.cap, self.gd = cap, 1
+        b0, b1 = {"ld": 1, "items": {}}, {"ld": 1, "items": {}}
+        self.dir = [b0, b1]
+
+    def _bucket(self, k): return self.dir[hash(k) &amp; ((1 &lt;&lt; self.gd) - 1)]
+
+    def put(self, k, v):
+        b = self._bucket(k)
+        if k in b["items"] or len(b["items"]) &lt; self.cap:
+            b["items"][k] = v; return
+        if b["ld"] == self.gd:                         # 目錄倍增
+            self.dir += self.dir; self.gd += 1
+        b["ld"] += 1                                    # 只分裂這一個桶
+        nb = {"ld": b["ld"], "items": {}}
+        for i, x in enumerate(self.dir):
+            if x is b and (i &gt;&gt; (b["ld"] - 1)) &amp; 1: self.dir[i] = nb
+        old, b["items"] = b["items"], {}
+        for kk, vv in old.items(): self._bucket(kk)["items"][kk] = vv
+        self.put(k, v)
+
+    def get(self, k): return self._bucket(k)["items"].get(k)</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          雜湊索引以 bucket = h(key) mod B 把鍵對應到桶，等值查找平均一次存取。靜態雜湊溢出鏈會變長且擴大須全部重新雜湊；擴充雜湊以目錄指向桶，只分裂滿的桶並在需要時倍增目錄；線性雜湊依序逐一分裂、不需目錄。雜湊索引等值查找極快，但不支援範圍查詢、排序與前綴查詢，因此 B+ 樹是預設索引；雜湊用於記憶體結構、雜湊連接與聚合，以及只需等值查找的場合，InnoDB 另有自適應雜湊索引。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼雜湊索引不能做範圍查詢？</li>
+          <li>擴充雜湊相比靜態雜湊解決了什麼問題？</li>
+          <li>什麼情況下適合使用雜湊索引？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>LSM 樹：為寫入而生的設計</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：B+ 樹索引：為什麼幾乎每個資料庫都用它</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：LSM 樹：為寫入而生的設計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

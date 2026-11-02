@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 39 課：共識演算法：Raft 的直覺 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="多台機器怎麼對「誰是主節點」「下一筆資料是什麼」達成一致">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 39 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜分散式資料庫 · 第 39 課</div>
+      <h1>共識演算法：Raft 的直覺</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解共識要解決的問題</li>
+          <li>理解 Raft 的領導者選舉與日誌複製</li>
+          <li>知道共識在資料庫中的用途</li>
+        </ul>
+      </div>
+
+      <p>
+        在分散式系統中，機器會當機、網路會延遲或斷線。<strong>共識演算法</strong>讓一組節點對一連串的決定（例如日誌的每一筆紀錄）達成一致，只要<strong>多數</strong>節點正常就能繼續運作。
+      </p>
+
+      <p>
+        1989 年蘭波特提出的 Paxos 是經典，但以難以理解著稱。2014 年翁加羅與奧斯特豪特提出 <strong>Raft</strong>，目標就是「好懂」，現在被廣泛採用（etcd、CockroachDB、TiKV、Consul 等）。
+      </p>
+
+      <h2>Raft 的三個角色</h2>
+
+      <ul>
+        <li><strong>領導者</strong>：接收所有寫入，把日誌複製給其他節點。</li>
+        <li><strong>跟隨者</strong>：被動接收領導者的日誌。</li>
+        <li><strong>候選人</strong>：領導者失聯時，想成為新領導者的節點。</li>
+      </ul>
+
+      <h2>領導者選舉</h2>
+
+      <ol>
+        <li>跟隨者在一段隨機的時間內沒收到領導者的心跳，就把「任期」加一，成為候選人，向其他節點拉票。</li>
+        <li>每個節點在一個任期內只投一票。</li>
+        <li>得到<strong>多數票</strong>的候選人成為領導者。隨機的逾時時間讓大家不容易同時參選、平票。</li>
+      </ol>
+
+      <h2>日誌複製</h2>
+
+      <ol>
+        <li>客戶端的寫入送到領導者，領導者把它附加到自己的日誌。</li>
+        <li>領導者把這筆紀錄送給所有跟隨者。</li>
+        <li><strong>多數</strong>節點確認寫入後，這筆紀錄就「已提交」，可以套用到狀態並回應客戶端。</li>
+        <li>新的領導者一定擁有所有已提交的紀錄（選舉規則保證：日誌不夠新的候選人拿不到票）。</li>
+      </ol>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{majority} = \left\lfloor \frac{n}{2} \right\rfloor + 1\]</div>
+
+      <p>
+        5 個節點可以容忍 2 個故障；3 個節點可以容忍 1 個。所以共識叢集通常是奇數個節點。
+      </p>
+
+      <div class="callout">
+        <h3>在資料庫中的用途</h3>
+        <p>
+          分散式資料庫通常把資料切成很多片，<strong>每一片各自用一個 Raft 群組</strong>複製到 3 或 5 個節點，確保任何一片在少數節點故障時仍能讀寫，而且不會出現兩個主節點（腦裂）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          共識演算法讓一組節點在機器當機與網路延遲下，對一連串決定達成一致，只要多數節點正常即可運作。1989 年蘭波特的 Paxos 難以理解，2014 年翁加羅與奧斯特豪特提出好懂的 Raft，被 etcd、CockroachDB、TiKV、Consul 採用。Raft 有領導者、跟隨者、候選人三種角色；領導者選舉以隨機逾時觸發、每任期一票、多數票當選；日誌複製在多數節點確認後即提交，選舉規則保證新領導者擁有所有已提交紀錄。多數為 ⌊n/2⌋ + 1，5 節點容忍 2 個故障。分散式資料庫通常每一片各用一個 Raft 群組。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Raft 的領導者是怎麼選出來的？為什麼逾時時間要隨機？</li>
+          <li>一筆寫入什麼時候算是「已提交」？</li>
+          <li>為什麼共識叢集通常使用奇數個節點？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>分散式交易：兩階段提交</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-38.html">← 上一課：CAP 與 PACELC</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-40.html">下一課：分散式交易：兩階段提交 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -25440,6 +25440,244 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "macro-policy",
+      category: "invest",
+      title: "總體經濟與貨幣政策：升降息、通膨、匯率怎麼影響你的股票",
+      description:
+        "GDP、通膨、就業、PMI 與台灣景氣燈號；貨幣創造、利率、殖利率曲線、信用利差、央行資產負債表；聯準會與台灣央行的工具、利率傳導、QE、前瞻指引、泰勒法則、通膨目標與菲利普曲線、日本與歐洲；財政赤字、乘數與財政主導；匯率、美元、經常帳、新台幣與壽險業、套息交易與關稅；1970 年代、日本泡沫、亞洲金融風暴、2008、疫情與 2022 升息、矽谷銀行；最後回到股價、類股輪動、資產配置與外資。附公式與 10 個互動工具。",
+      icon: "🏦",
+      url: "topics/macro-policy/index.html",
+      resources: [
+        {
+          title: "總經互動實驗室",
+          description: "通膨與購買力、貨幣創造、殖利率曲線、泰勒法則、房貸、利率與股價、乘數、利差與匯率、景氣燈號、菲利普曲線",
+          icon: "🧪",
+          url: "topics/macro-policy/lab.html"
+        },
+        {
+          title: "總經公式總表",
+          description: "GDP、通膨、貨幣、利率、債券、政策法則、財政、匯率與估值的常用公式",
+          icon: "📋",
+          url: "topics/macro-policy/formulas.html"
+        },
+        {
+          title: "總經名詞對照",
+          description: "總體經濟與貨幣政策常用名詞的中英對照",
+          icon: "📖",
+          url: "topics/macro-policy/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "總體經濟在問什麼", url: "topics/macro-policy/lesson-01.html" },
+            { title: "為什麼投資人要看總經", url: "topics/macro-policy/lesson-02.html" },
+            { title: "經濟的主角們", url: "topics/macro-policy/lesson-03.html" },
+            { title: "總經資料日曆：市場為什麼會在某些日子大動", url: "topics/macro-policy/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜經濟怎麼衡量",
+          courses: [
+            { title: "GDP：一個國家一年生產了多少", url: "topics/macro-policy/lesson-05.html" },
+            { title: "名目與實質、年增率與季增年率", url: "topics/macro-policy/lesson-06.html" },
+            { title: "通膨：CPI、PCE 與核心通膨", url: "topics/macro-policy/lesson-07.html" },
+            { title: "就業：非農就業、失業率與薪資", url: "topics/macro-policy/lesson-08.html" },
+            { title: "PMI 與領先指標：誰最早告訴你景氣要轉了", url: "topics/macro-policy/lesson-09.html" },
+            { title: "台灣的景氣對策信號", url: "topics/macro-policy/lesson-10.html" },
+            { title: "台灣經濟的引擎", url: "topics/macro-policy/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜貨幣、銀行與利率",
+          courses: [
+            { title: "貨幣是什麼：從金本位到法定貨幣", url: "topics/macro-policy/lesson-12.html" },
+            { title: "銀行怎麼「創造」貨幣", url: "topics/macro-policy/lesson-13.html" },
+            { title: "M1、M2 與貨幣供給", url: "topics/macro-policy/lesson-14.html" },
+            { title: "利率的種類", url: "topics/macro-policy/lesson-15.html" },
+            { title: "殖利率曲線：正斜率、平坦與倒掛", url: "topics/macro-policy/lesson-16.html" },
+            { title: "信用與信用利差：景氣的溫度計", url: "topics/macro-policy/lesson-17.html" },
+            { title: "央行的資產負債表：印鈔到底是怎麼印的", url: "topics/macro-policy/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜央行與貨幣政策",
+          courses: [
+            { title: "聯準會是誰：FOMC、理事會與點陣圖", url: "topics/macro-policy/lesson-19.html" },
+            { title: "政策工具：聯準會怎麼讓利率聽話", url: "topics/macro-policy/lesson-20.html" },
+            { title: "利率傳導：升息之後發生了什麼", url: "topics/macro-policy/lesson-21.html" },
+            { title: "量化寬鬆與量化緊縮", url: "topics/macro-policy/lesson-22.html" },
+            { title: "前瞻指引：央行說的話比做的事還重要", url: "topics/macro-policy/lesson-23.html" },
+            { title: "泰勒法則：利率「應該」是多少", url: "topics/macro-policy/lesson-24.html" },
+            { title: "通膨目標制與菲利普曲線", url: "topics/macro-policy/lesson-25.html" },
+            { title: "台灣央行：利率、準備率、信用管制與匯率", url: "topics/macro-policy/lesson-26.html" },
+            { title: "日本：零利率、負利率與殖利率曲線控制", url: "topics/macro-policy/lesson-27.html" },
+            { title: "歐洲央行與其他主要央行", url: "topics/macro-policy/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜財政政策",
+          courses: [
+            { title: "政府支出、稅收與財政赤字", url: "topics/macro-policy/lesson-29.html" },
+            { title: "乘數效果：政府花 1 元，經濟會增加多少", url: "topics/macro-policy/lesson-30.html" },
+            { title: "國債與利率：赤字會不會推高利率", url: "topics/macro-policy/lesson-31.html" },
+            { title: "財政與貨幣的互動", url: "topics/macro-policy/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜匯率與國際金融",
+          courses: [
+            { title: "匯率怎麼決定", url: "topics/macro-policy/lesson-33.html" },
+            { title: "美元為什麼是世界貨幣", url: "topics/macro-policy/lesson-34.html" },
+            { title: "經常帳與貿易順差：台灣為什麼長期大順差", url: "topics/macro-policy/lesson-35.html" },
+            { title: "新台幣：央行、外資與壽險業", url: "topics/macro-policy/lesson-36.html" },
+            { title: "套息交易與 2024 年 8 月的日圓平倉", url: "topics/macro-policy/lesson-37.html" },
+            { title: "關稅與貿易戰：對通膨、成長與匯率的影響", url: "topics/macro-policy/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 G｜危機與歷史",
+          courses: [
+            { title: "景氣循環：擴張、高峰、衰退、谷底", url: "topics/macro-policy/lesson-39.html" },
+            { title: "1970 年代：停滯性通膨與沃克的高利率", url: "topics/macro-policy/lesson-40.html" },
+            { title: "1990 年：日本泡沫破裂", url: "topics/macro-policy/lesson-41.html" },
+            { title: "1997 年：亞洲金融風暴", url: "topics/macro-policy/lesson-42.html" },
+            { title: "2008 年：全球金融海嘯", url: "topics/macro-policy/lesson-43.html" },
+            { title: "2020～2022：疫情、零利率與快速升息", url: "topics/macro-policy/lesson-44.html" },
+            { title: "2023 年：矽谷銀行倒閉", url: "topics/macro-policy/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總經與投資",
+          courses: [
+            { title: "利率與股價：為什麼升息時成長股跌最多", url: "topics/macro-policy/lesson-46.html" },
+            { title: "景氣循環與類股輪動", url: "topics/macro-policy/lesson-47.html" },
+            { title: "債券、通膨與資產配置", url: "topics/macro-policy/lesson-48.html" },
+            { title: "外資、匯率與台股", url: "topics/macro-policy/lesson-49.html" },
+            { title: "建立自己的總經儀表板與總結", url: "topics/macro-policy/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "database-systems",
+      category: "tech",
+      title: "資料庫系統原理：從 SQL、索引、交易到分散式與向量資料庫",
+      description:
+        "關聯模型、SQL、正規化；頁與緩衝池、列式與欄式、B+ 樹、LSM 樹、雜湊與倒排索引；查詢執行、連接演算法、最佳化器與 EXPLAIN；ACID、隔離等級、鎖、MVCC、死結、WAL 與復原；複製、分片、CAP、Raft、2PC、Spanner 與 Aurora；Redis、MongoDB、Cassandra、Neo4j、時序、向量資料庫與資料倉儲；資安與選型。以 Python 實作核心結構，附 10 個瀏覽器內互動工具。",
+      icon: "🗄️",
+      url: "topics/database-systems/index.html",
+      resources: [
+        {
+          title: "資料庫互動實驗室",
+          description: "查詢執行步驟、全表掃描與索引、B+ 樹、LSM 樹、連接演算法、隔離等級、MVCC、死結、WAL 復原、一致性雜湊",
+          icon: "🧪",
+          url: "topics/database-systems/lab.html"
+        },
+        {
+          title: "資料庫名詞對照",
+          description: "資料庫系統常用名詞的中英對照與簡短說明",
+          icon: "📖",
+          url: "topics/database-systems/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "為什麼需要資料庫", url: "topics/database-systems/lesson-01.html" },
+            { title: "資料庫系統的架構", url: "topics/database-systems/lesson-02.html" },
+            { title: "資料庫全景", url: "topics/database-systems/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜關聯模型與 SQL",
+          courses: [
+            { title: "關聯模型：資料表、主鍵與外鍵", url: "topics/database-systems/lesson-04.html" },
+            { title: "ER 模型：從需求畫出資料表", url: "topics/database-systems/lesson-05.html" },
+            { title: "正規化：1NF 到 BCNF", url: "topics/database-systems/lesson-06.html" },
+            { title: "SQL 基礎：SELECT、WHERE、ORDER BY", url: "topics/database-systems/lesson-07.html" },
+            { title: "JOIN：把資料表接起來", url: "topics/database-systems/lesson-08.html" },
+            { title: "聚合：GROUP BY 與 HAVING", url: "topics/database-systems/lesson-09.html" },
+            { title: "子查詢與 CTE", url: "topics/database-systems/lesson-10.html" },
+            { title: "視窗函數：排名、移動平均與累計", url: "topics/database-systems/lesson-11.html" },
+            { title: "DDL 與約束：讓資料庫幫你守規則", url: "topics/database-systems/lesson-12.html" },
+            { title: "檢視、預存程序與觸發器", url: "topics/database-systems/lesson-13.html" },
+            { title: "關聯代數：SQL 背後的數學", url: "topics/database-systems/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜儲存與索引",
+          courses: [
+            { title: "硬碟、SSD 與記憶體：為什麼 I/O 是一切的關鍵", url: "topics/database-systems/lesson-15.html" },
+            { title: "頁、緩衝池與資料的實際排列", url: "topics/database-systems/lesson-16.html" },
+            { title: "列式儲存 vs. 欄式儲存", url: "topics/database-systems/lesson-17.html" },
+            { title: "B+ 樹索引：為什麼幾乎每個資料庫都用它", url: "topics/database-systems/lesson-18.html" },
+            { title: "雜湊索引", url: "topics/database-systems/lesson-19.html" },
+            { title: "LSM 樹：為寫入而生的設計", url: "topics/database-systems/lesson-20.html" },
+            { title: "複合索引、覆蓋索引與最左前綴", url: "topics/database-systems/lesson-21.html" },
+            { title: "全文索引與倒排索引", url: "topics/database-systems/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜查詢處理與最佳化",
+          courses: [
+            { title: "一條 SQL 的旅程：解析、改寫、計畫、執行", url: "topics/database-systems/lesson-23.html" },
+            { title: "Join 演算法：巢狀迴圈、雜湊、排序合併", url: "topics/database-systems/lesson-24.html" },
+            { title: "統計資訊與成本估計", url: "topics/database-systems/lesson-25.html" },
+            { title: "看懂 EXPLAIN：查詢計畫實戰", url: "topics/database-systems/lesson-26.html" },
+            { title: "查詢最佳化器：Join 順序與常見誤判", url: "topics/database-systems/lesson-27.html" },
+            { title: "慢查詢調校案例", url: "topics/database-systems/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜交易與並行控制",
+          courses: [
+            { title: "ACID：交易的四個保證", url: "topics/database-systems/lesson-29.html" },
+            { title: "隔離等級與異常", url: "topics/database-systems/lesson-30.html" },
+            { title: "鎖與兩階段鎖定", url: "topics/database-systems/lesson-31.html" },
+            { title: "MVCC：讀不擋寫、寫不擋讀", url: "topics/database-systems/lesson-32.html" },
+            { title: "死結：怎麼發生、怎麼處理", url: "topics/database-systems/lesson-33.html" },
+            { title: "WAL 與當機復原", url: "topics/database-systems/lesson-34.html" },
+            { title: "備份、還原與時間點復原", url: "topics/database-systems/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜分散式資料庫",
+          courses: [
+            { title: "複製：主從、多主與複寫延遲", url: "topics/database-systems/lesson-36.html" },
+            { title: "分片：一致性雜湊與熱點", url: "topics/database-systems/lesson-37.html" },
+            { title: "CAP 與 PACELC", url: "topics/database-systems/lesson-38.html" },
+            { title: "共識演算法：Raft 的直覺", url: "topics/database-systems/lesson-39.html" },
+            { title: "分散式交易：兩階段提交", url: "topics/database-systems/lesson-40.html" },
+            { title: "NewSQL：Spanner、CockroachDB 與 TiDB", url: "topics/database-systems/lesson-41.html" },
+            { title: "雲端資料庫：Aurora 為什麼把儲存和運算分開", url: "topics/database-systems/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 G｜各種資料庫",
+          courses: [
+            { title: "鍵值資料庫與快取：Redis", url: "topics/database-systems/lesson-43.html" },
+            { title: "文件資料庫：MongoDB", url: "topics/database-systems/lesson-44.html" },
+            { title: "寬欄資料庫：Cassandra", url: "topics/database-systems/lesson-45.html" },
+            { title: "圖資料庫：Neo4j 與圖查詢", url: "topics/database-systems/lesson-46.html" },
+            { title: "時序資料庫：監控與物聯網", url: "topics/database-systems/lesson-47.html" },
+            { title: "向量資料庫：AI 與 RAG 的基礎", url: "topics/database-systems/lesson-48.html" },
+            { title: "資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB", url: "topics/database-systems/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 H｜實務",
+          courses: [
+            { title: "資料庫安全：SQL 注入、權限與加密", url: "topics/database-systems/lesson-50.html" },
+            { title: "選型指南：什麼情境用什麼資料庫", url: "topics/database-systems/lesson-51.html" },
+            { title: "總結：一個 App 從一台資料庫長大到全球規模", url: "topics/database-systems/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：查詢最佳化器：Join 順序與常見誤判 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="在天文數字般的計畫中，找出夠好的那一個">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜查詢處理與最佳化 · 第 27 課</div>
+      <h1>查詢最佳化器：Join 順序與常見誤判</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Join 順序的搜尋空間</li>
+          <li>認識動態規劃與啟發式搜尋</li>
+          <li>理解最佳化器的限制</li>
+        </ul>
+      </div>
+
+      <h2>搜尋空間爆炸</h2>
+
+      <p>
+        三個表的連接有 12 種順序（含左右）；十個表的連接，可能的樹狀結構超過一百億種。每一種再搭配不同的 Join 演算法與存取方法——最佳化器不可能全部算一遍。
+      </p>
+
+      <h2>System R 的動態規劃</h2>
+
+      <p>
+        1979 年 IBM System R 的論文（塞林格等人）奠定了現代最佳化器的基礎：
+      </p>
+
+      <ol>
+        <li>先找出每個單一表最便宜的存取方式（全表掃描或哪個索引）。</li>
+        <li>再找每一對表最便宜的連接方式。</li>
+        <li>再用兩表的最佳結果，擴展到三表……（動態規劃）。</li>
+        <li>只考慮「左深樹」，並保留「有趣的排序」（例如已經依連接鍵排好序的結果，後面可以省下排序）。</li>
+      </ol>
+
+      <p>
+        表的數量太多時（PostgreSQL 預設 12 個以上），改用基因演算法等啟發式方法。
+      </p>
+
+      <h2>最佳化器為什麼會選錯</h2>
+
+      <ul>
+        <li><strong>基數估計錯誤</strong>：最常見的原因（第 25 課），誤差在多層 Join 中會被乘上去。</li>
+        <li><strong>成本模型不準</strong>：不知道哪些資料已經在快取裡、SSD 與硬碟的差異。</li>
+        <li><strong>參數化查詢</strong>：同一個查詢對不同參數值，最佳計畫可能完全不同（例如熱門客戶有十萬筆訂單，一般客戶只有十筆）。</li>
+      </ul>
+
+      <h2>實務上的對策</h2>
+
+      <ul>
+        <li>保持統計資訊更新。</li>
+        <li>用 EXPLAIN ANALYZE 找出估計錯誤的地方。</li>
+        <li>改寫查詢（例如把複雜查詢拆成幾步、用 CTE 或暫存表）。</li>
+        <li>必要時使用提示（MySQL、Oracle 支援；PostgreSQL 需要擴充）或固定計畫——但要知道這是「繞過」問題。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          三表連接有 12 種順序，十表可能的樹狀結構超過一百億種，再搭配演算法與存取方法，最佳化器無法窮舉。1979 年 IBM System R 塞林格等人以動態規劃奠定基礎：先找單表最佳存取方式，再逐步擴展到兩表、三表，只考慮左深樹並保留有趣的排序；表太多時（PostgreSQL 預設 12 個以上）改用基因演算法。選錯的原因包括基數估計錯誤在多層 Join 中相乘、成本模型不準，以及參數化查詢對不同參數的最佳計畫不同。對策是更新統計、EXPLAIN ANALYZE、改寫查詢與必要時使用提示。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼最佳化器不能把所有計畫都算一遍？</li>
+          <li>System R 的動態規劃是怎麼運作的？</li>
+          <li>參數化查詢為什麼可能讓最佳化器選錯計畫？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>慢查詢調校案例</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：看懂 EXPLAIN：查詢計畫實戰</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：慢查詢調校案例 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

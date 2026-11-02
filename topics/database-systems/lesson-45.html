@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 45 課：寬欄資料庫：Cassandra ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="為海量寫入與多資料中心設計">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 45 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 45 課</div>
+      <h1>寬欄資料庫：Cassandra</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解寬欄資料模型</li>
+          <li>理解以查詢為中心的建模</li>
+          <li>理解可調一致性</li>
+        </ul>
+      </div>
+
+      <p>
+        Cassandra 最早由 Facebook 在 2008 年開發，結合了 Google Bigtable 的資料模型與亞馬遜 Dynamo 的分散式設計。它的設計目標是：<strong>海量寫入、沒有單點故障、跨資料中心</strong>。
+      </p>
+
+      <h2>資料模型</h2>
+
+      <ul>
+        <li><strong>分區鍵</strong>：決定資料在哪個節點（一致性雜湊，第 37 課）。</li>
+        <li><strong>叢集鍵</strong>：決定同一分區內資料的排序。</li>
+        <li>同一個分區內可以有大量的資料列，依叢集鍵排序存放——所以叫「寬」欄。</li>
+      </ul>
+
+      <div class="code-block">-- CQL（Cassandra 查詢語言，看起來像 SQL）
+CREATE TABLE 感測器讀數 (
+    感測器編號 text,
+    日期       date,
+    時間       timestamp,
+    溫度       double,
+    PRIMARY KEY ((感測器編號, 日期), 時間)     -- 分區鍵 (感測器, 日期)，叢集鍵 時間
+) WITH CLUSTERING ORDER BY (時間 DESC);
+
+SELECT * FROM 感測器讀數 WHERE 感測器編號 = 'S-17' AND 日期 = '2026-10-30' LIMIT 100;</div>
+
+      <h2>以查詢為中心的建模</h2>
+
+      <p>
+        關聯式資料庫先設計正規化的表，再寫查詢；Cassandra 反過來：<strong>先列出所有查詢，再為每一個查詢設計一張表</strong>。同一份資料常常存好幾份（反正規化），因為 Cassandra 不支援 JOIN，查詢也必須指定分區鍵。
+      </p>
+
+      <h2>可調一致性</h2>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[R + W > N \;\Rightarrow\; \text{read sees latest write}\]</div>
+
+      <p>
+        每筆資料複製 N 份（例如 3），寫入時要求 W 份確認、讀取時要求 R 份回應。R + W > N 時，讀到的節點中一定有最新的寫入。可以每次查詢自己選：<code>ONE</code>（最快）、<code>QUORUM</code>（多數）、<code>ALL</code>（最一致）。
+      </p>
+
+      <div class="callout">
+        <h3>使用者</h3>
+        <p>
+          Netflix、Apple、Discord 等都曾大規模使用 Cassandra 或相容的 ScyllaDB，存放訊息、觀看紀錄、時序資料。它擅長「寫很多、依鍵讀」，不擅長即時的彈性查詢與分析。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Cassandra 由 Facebook 在 2008 年開發，結合 Bigtable 的資料模型與 Dynamo 的分散式設計，目標是海量寫入、無單點故障與跨資料中心。分區鍵以一致性雜湊決定資料所在節點，叢集鍵決定分區內排序，同一分區可有大量依序存放的資料列。建模以查詢為中心：先列出查詢再為每個查詢設計一張表，常反正規化存多份，不支援 JOIN 且查詢須指定分區鍵。可調一致性中 R + W > N 時讀取可見最新寫入，可選 ONE、QUORUM、ALL。擅長寫多與依鍵讀，不擅長彈性查詢與分析。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Cassandra 的分區鍵和叢集鍵各有什麼作用？</li>
+          <li>為什麼 Cassandra 要「先列查詢、再設計表」？</li>
+          <li>N = 3 時，R 和 W 各設多少才能保證讀到最新資料？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>圖資料庫：Neo4j 與圖查詢</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-44.html">← 上一課：文件資料庫：MongoDB</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-46.html">下一課：圖資料庫：Neo4j 與圖查詢 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

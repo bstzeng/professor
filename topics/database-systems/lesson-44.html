@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：文件資料庫：MongoDB ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="用 JSON 存資料，綱要跟著程式一起演進">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 44 課</div>
+      <h1>文件資料庫：MongoDB</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解文件模型</li>
+          <li>比較嵌入與參照</li>
+          <li>評估文件資料庫的適用場景</li>
+        </ul>
+      </div>
+
+      <p>
+        文件資料庫把一筆資料存成一個 JSON（MongoDB 內部是二進位的 BSON）文件，裡面可以有巢狀的物件與陣列：
+      </p>
+
+      <div class="code-block">{
+  "_id": 1001,
+  "客戶": {"姓名": "王小明", "電話": "0912-345-678"},
+  "下單時間": "2026-10-30T10:15:00Z",
+  "明細": [
+    {"品名": "手沖咖啡壺", "數量": 1, "單價": 1280},
+    {"品名": "濾紙", "數量": 3, "單價": 120}
+  ],
+  "狀態": "已出貨"
+}</div>
+
+      <h2>嵌入 vs. 參照</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>嵌入（把相關資料放在同一個文件）</th><th>參照（存另一個文件的 id）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>讀取</td><td>一次讀到全部，不用 JOIN</td><td>要多次查詢或 $lookup</td></tr>
+          <tr><td>適合</td><td>一起讀寫、一對少、屬於父物件的資料（訂單明細）</td><td>一對很多、多對多、會被獨立更新的資料（商品、客戶）</td></tr>
+          <tr><td>風險</td><td>文件無限長大（MongoDB 單一文件上限 16 MB）；資料重複</td><td>效能類似關聯式 JOIN</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>優點與代價</h2>
+
+      <ul>
+        <li><strong>彈性綱要</strong>：不同文件可以有不同的欄位，新增欄位不需要 ALTER TABLE。</li>
+        <li><strong>與程式物件對應</strong>：一個文件就是程式中的一個物件，減少物件—關聯對應的麻煩。</li>
+        <li><strong>內建分片</strong>：設計之初就考慮水平擴展。</li>
+        <li><strong>代價</strong>：綱要的檢查從資料庫移到了應用程式；多對多關係與跨文件的查詢較不方便。MongoDB 從 4.0 版（2018 年）起支援多文件 ACID 交易。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>綱要還是存在</h3>
+        <p>
+          「無綱要」其實是「讀取時才套用綱要」：程式讀資料時仍要假設欄位存在、型別正確。實務上許多團隊會用 JSON Schema 驗證文件。另一方面，PostgreSQL 的 JSONB 型別也讓關聯式資料庫能存放與索引文件。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          文件資料庫把資料存成可巢狀物件與陣列的 JSON（MongoDB 內部為 BSON）。嵌入把相關資料放在同一文件，一次讀取不需 JOIN，適合一起讀寫、一對少的資料，但文件可能無限長大（上限 16 MB）；參照存另一文件 id，適合一對很多、多對多與獨立更新的資料。優點是彈性綱要、與程式物件對應、內建分片，代價是綱要檢查移到應用程式、多對多與跨文件查詢不便；MongoDB 4.0（2018 年）起支援多文件交易。無綱要其實是讀取時套用綱要，PostgreSQL 的 JSONB 也能存放與索引文件。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼情況下應該把資料嵌入，什麼情況下應該用參照？</li>
+          <li>「無綱要」真的沒有綱要嗎？</li>
+          <li>文件資料庫相比關聯式資料庫，最大的優點與代價是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>寬欄資料庫：Cassandra</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：鍵值資料庫與快取：Redis</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：寬欄資料庫：Cassandra →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：分散式交易：兩階段提交 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="跨越多個分片的轉帳，怎麼保證全有或全無">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜分散式資料庫 · 第 40 課</div>
+      <h1>分散式交易：兩階段提交</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解兩階段提交的流程</li>
+          <li>理解它的阻塞問題</li>
+          <li>認識 Saga 等替代方案</li>
+        </ul>
+      </div>
+
+      <p>
+        A 帳戶在分片 1、B 帳戶在分片 2。轉帳要同時修改兩個分片——如果分片 1 成功、分片 2 失敗呢？
+      </p>
+
+      <h2>兩階段提交（2PC）</h2>
+
+      <ol>
+        <li><strong>準備階段</strong>：協調者問所有參與者：「你們可以提交嗎？」每個參與者把修改寫入日誌、鎖住資源，回答「可以」或「不行」。回答「可以」之後，就不能反悔。</li>
+        <li><strong>提交階段</strong>：如果<strong>全部</strong>都說可以，協調者寫下「提交」的決定，通知所有參與者提交；只要有一個說不行，就通知全部中止。</li>
+      </ol>
+
+      <div class="code-block">def two_phase_commit(coordinator_log, participants, tx):
+    # 階段一：準備
+    votes = []
+    for p in participants:
+        votes.append(p.prepare(tx))          # 參與者寫好日誌、鎖住資源，回答 True／False
+    decision = "COMMIT" if all(votes) else "ABORT"
+    coordinator_log.append((tx, decision))   # 決定點：寫入協調者的日誌（持久化）
+    # 階段二：通知
+    for p in participants:
+        p.commit(tx) if decision == "COMMIT" else p.abort(tx)
+    return decision</div>
+
+      <h2>阻塞問題</h2>
+
+      <p>
+        如果協調者在參與者都回答「可以」之後當機，參與者既不能自行提交（說不定有人說不行），也不能自行中止（說不定協調者已經決定提交）——只能持有鎖、一直等到協調者恢復。解法：把協調者本身用共識演算法複製（例如 Spanner 讓每個參與者都是一個 Paxos 群組）。
+      </p>
+
+      <h2>替代方案：Saga</h2>
+
+      <p>
+        微服務架構中，各服務有自己的資料庫，常用 <strong>Saga</strong>：把一個大交易拆成一連串本地交易，每一步都定義對應的<strong>補償動作</strong>。例如訂機票＋訂飯店＋扣款，扣款失敗時，依序執行「取消飯店」「取消機票」。Saga 放棄了隔離性（中間狀態會被看見），換取不需要分散式鎖。
+      </p>
+
+      <div class="callout">
+        <h3>設計原則</h3>
+        <p>
+          分散式交易昂貴又複雜。好的資料模型與分片鍵設計，應該讓絕大多數交易只落在單一分片（例如同一位客戶的資料放在同一片）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          跨分片的轉帳需要分散式交易。兩階段提交 2PC 的準備階段由協調者詢問所有參與者能否提交，參與者寫日誌、鎖資源並回答，回答可以後不能反悔；提交階段若全部同意則寫下提交決定並通知提交，否則全部中止。協調者在決定前當機會使參與者持鎖阻塞，解法是以共識演算法複製協調者（如 Spanner）。微服務常用 Saga，把大交易拆成一連串本地交易並定義補償動作，放棄隔離性換取不需分散式鎖。好的分片設計應讓多數交易落在單一分片。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>兩階段提交的兩個階段各在做什麼？</li>
+          <li>為什麼協調者當機會讓參與者「卡住」？</li>
+          <li>Saga 和兩階段提交有什麼不同？各適合什麼情境？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>NewSQL：Spanner、CockroachDB 與 TiDB</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：共識演算法：Raft 的直覺</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：NewSQL：Spanner、CockroachDB 與 TiDB →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
