@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：LQR：最佳控制 ｜ 機器人與自動駕駛 ｜ 博雅書院</title>
+<meta name="description" content="在「快」與「省」之間，自動找出最好的平衡">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">機器人與自駕</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜控制：讓身體照著計畫動 · 第 13 課</div>
+      <h1>LQR：最佳控制</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解最佳控制的想法</li>
+          <li>理解 LQR 的兩個權重</li>
+          <li>知道 LQR 的應用</li>
+        </ul>
+      </div>
+
+      <p>
+        PID 要靠人調參數。如果我們有系統的狀態空間模型，可以直接問一個問題：<strong>怎樣的控制，最能兼顧「誤差小」與「用力少」？</strong>
+      </p>
+
+      <h2>兩個權重</h2>
+
+      <ul>
+        <li><strong>Q</strong>：你有多在乎誤差。Q 越大，控制器越拚命把狀態拉回目標。</li>
+        <li><strong>R</strong>：你有多在乎用力（耗能、馬達負擔）。R 越大，控制器越溫和。</li>
+      </ul>
+
+      <p>
+        <strong>LQR</strong>（線性二次調節器）會自動算出一組最佳的回授增益：根據目前所有的狀態（不只是誤差），算出最好的控制力。設計者只要決定「在乎什麼、在乎多少」。
+      </p>
+
+      <div class="code-block">import numpy as np
+from scipy.linalg import solve_continuous_are
+
+# 倒單擺的簡化線性模型：狀態 = [車位置, 車速, 桿角度, 桿角速度]
+A = np.array([[0, 1, 0, 0],
+              [0, 0, -1, 0],
+              [0, 0, 0, 1],
+              [0, 0, 21, 0]])
+B = np.array([[0], [1], [0], [-2]])
+
+Q = np.diag([1, 1, 10, 1])     # 最在乎桿子的角度
+R = np.array([[0.1]])          # 用力的成本
+
+P = solve_continuous_are(A, B, Q, R)
+K = np.linalg.inv(R) @ B.T @ P   # 最佳回授：u = -K x
+print(K)</div>
+
+      <h2>用在哪裡</h2>
+
+      <ul>
+        <li>平衡車、倒單擺、無人機的姿態控制。</li>
+        <li>人形機器人走路時，用簡化模型（例如把身體當成一個倒單擺）做 LQR 平衡控制。</li>
+        <li>它的限制：只適用於線性（或在工作點附近線性化）的系統，也不能直接處理「馬達最多只能出多少力」這種限制——這就需要下一課的 MPC。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          LQR 線性二次調節器在有狀態空間模型時，自動找出兼顧誤差小與用力少的最佳回授增益：Q 代表對誤差的在乎程度，R 代表對用力的在乎程度，控制力由全部狀態計算。可用 scipy 的 Riccati 方程求解器算出倒單擺的增益。LQR 用於平衡車、無人機與人形機器人的簡化平衡控制，但只適用線性系統，也不能直接處理出力上限等限制，需要 MPC。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課程重直覺、輕推導，程式範例以 Python 為主。產業數字多來自 2025～2026 年的公司公告與研究機構彙整，各家數字常有出入，課中以「約」與資料日期標示；硬體規格以廠商公布值為準，實際可用效能通常低於標稱峰值。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>LQR 的 Q 和 R 各代表什麼？</li>
+          <li>LQR 和 PID 最大的不同是什麼？</li>
+          <li>為什麼 LQR 不能直接處理「馬達最大出力」的限制？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>MPC：模型預測控制</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：狀態空間與穩定性</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：MPC：模型預測控制 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

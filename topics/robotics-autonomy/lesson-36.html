@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：記憶體容量與頻寬：真正的瓶頸 ｜ 機器人與自動駕駛 ｜ 博雅書院</title>
+<meta name="description" content="算力夠了，資料搬不過來也沒用">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">機器人與自駕</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜硬體需求深度分析 · 第 36 課</div>
+      <h1>記憶體容量與頻寬：真正的瓶頸</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解權重大小與記憶體容量的關係</li>
+          <li>理解為什麼頻寬常是瓶頸</li>
+          <li>了解邊緣裝置的記憶體選擇</li>
+        </ul>
+      </div>
+
+      <h2>容量：模型放不放得下</h2>
+
+      <p>
+        模型的權重大小 = 參數量 × 每個參數的位元組數。70 億參數用 FP16 要 14 GB，用 FP8 要 7 GB，用 FP4 約 3.5 GB。再加上影像特徵、中間計算結果與作業系統，記憶體至少要留兩倍以上的空間。
+      </p>
+
+      <h2>頻寬：每秒能搬多少資料</h2>
+
+      <p>
+        語言模型產生輸出時是<strong>一個 token 一個 token</strong>產生的，而每產生一個 token，都要把所有權重從記憶體讀一遍。所以：
+      </p>
+
+      <ul>
+        <li>7 GB 的模型，每秒產生 20 個動作 token，需要約 140 GB/s 的頻寬。</li>
+        <li>如果每秒要推論 5 次、每次 20 個 token，就需要約 700 GB/s。</li>
+        <li>Jetson AGX Thor 的頻寬約 273 GB/s；資料中心的 H100 約 3,350 GB/s，差了十幾倍。</li>
+      </ul>
+
+      <p>
+        這就是為什麼許多機器人模型在邊緣裝置上<strong>受限於記憶體頻寬，而不是算力</strong>（本站《一次 LLM 推論到底發生什麼》課程有完整說明）。
+      </p>
+
+      <h2>解決方法</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>效果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>量化（FP8、FP4、INT4）</td><td>權重變小，容量與頻寬需求同時下降，但可能損失一點準確度</td></tr>
+          <tr><td>快慢雙系統</td><td>大模型每秒只跑幾次，小模型負責高頻控制</td></tr>
+          <tr><td>一次輸出一整段動作</td><td>不必為每個動作重新讀一次權重（動作分塊、擴散與流匹配模型）</td></tr>
+          <tr><td>更小的專用模型</td><td>知識蒸餾，把大模型的能力壓進小模型</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>為什麼邊緣裝置不用 HBM</h2>
+
+      <p>
+        資料中心 GPU 用 HBM（高頻寬記憶體，第 14 課的美光、SK 海力士、三星都在生產），頻寬極高但昂貴、耗電、需要先進封裝。車用與機器人晶片多用 <strong>LPDDR5X</strong>：成本與功耗低得多，頻寬則低一個數量級。未來邊緣 AI 的競爭，很大一部分是記憶體技術的競爭。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          權重大小等於參數量乘以每參數位元組，70 億參數 FP16 需 14 GB、FP8 需 7 GB、FP4 約 3.5 GB，記憶體需留兩倍以上空間。逐 token 產生輸出時每個 token 都要讀一遍全部權重，7 GB 模型每秒 20 個 token 需約 140 GB/s，Jetson Thor 約 273 GB/s 而 H100 約 3,350 GB/s，因此邊緣裝置常受限於頻寬而非算力。解法有量化、快慢雙系統、一次輸出整段動作與知識蒸餾。邊緣晶片多用 LPDDR5X 而非昂貴耗電的 HBM。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🤖 本課程重直覺、輕推導，程式範例以 Python 為主。產業數字多來自 2025～2026 年的公司公告與研究機構彙整，各家數字常有出入，課中以「約」與資料日期標示；硬體規格以廠商公布值為準，實際可用效能通常低於標稱峰值。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>一個 30 億參數的模型用 FP8 需要多少記憶體？</li>
+          <li>為什麼產生動作 token 時，頻寬比算力更重要？</li>
+          <li>量化有什麼好處與代價？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>感測器資料量：每秒幾 Gb 的洪流</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：運算需求推算：機器人需要多大的晶片</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：感測器資料量：每秒幾 Gb 的洪流 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

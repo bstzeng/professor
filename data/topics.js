@@ -25214,6 +25214,232 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "three-body",
+      category: "fantasy",
+      title: "三體：黑暗森林、智子與宇宙社會學",
+      description:
+        "劉慈欣三部曲完整導讀（完整劇透）：文革與葉文潔、紅岸基地、科學邊界、三體遊戲與人列計算機、地球三體組織、古箏行動與智子；面壁者與破壁人、水滴與末日之戰、黑暗森林法則、猜疑鏈與技術爆炸、章北海與黑暗戰役；程心與雲天明、執劍人、廣播紀元、三個童話、二向箔、647 號小宇宙與回歸運動。再逐一檢驗科學設定：三體問題、智子與量子糾纏、強交互作用力、微波背景輻射、太陽重力透鏡、費米悖論、曲率驅動、維度與真空衰變、相對論與引力波，最後討論賽局理論、程心爭議與中國科幻。",
+      icon: "🪐",
+      url: "topics/three-body/index.html",
+      resources: [
+        {
+          title: "三體人物表",
+          description: "三部曲主要人物、身分與關鍵行動",
+          icon: "👥",
+          url: "topics/three-body/people.html"
+        },
+        {
+          title: "三體名詞表",
+          description: "概念、計畫、科技與紀元",
+          icon: "📖",
+          url: "topics/three-body/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "劉慈欣與三體三部曲", url: "topics/three-body/lesson-01.html" },
+            { title: "時間線總覽：從文革到時間的盡頭", url: "topics/three-body/lesson-02.html" },
+            { title: "改編作品：騰訊劇集、Netflix 版與動畫", url: "topics/three-body/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜第一部《三體》",
+          courses: [
+            { title: "文革與葉文潔的創傷", url: "topics/three-body/lesson-04.html" },
+            { title: "紅岸基地：向宇宙發出的那一封信", url: "topics/three-body/lesson-05.html" },
+            { title: "「科學邊界」與物理學家的自殺潮", url: "topics/three-body/lesson-06.html" },
+            { title: "倒計時與宇宙閃爍", url: "topics/three-body/lesson-07.html" },
+            { title: "三體遊戲（上）：亂紀元與恆紀元", url: "topics/three-body/lesson-08.html" },
+            { title: "三體遊戲（下）：人列計算機與牛頓", url: "topics/three-body/lesson-09.html" },
+            { title: "地球三體組織：降臨派、拯救派與倖存派", url: "topics/three-body/lesson-10.html" },
+            { title: "三體世界：脫水、極權與恐懼", url: "topics/three-body/lesson-11.html" },
+            { title: "古箏行動與審判日號", url: "topics/three-body/lesson-12.html" },
+            { title: "智子封鎖與「你們是蟲子」", url: "topics/three-body/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜第二部《黑暗森林》",
+          courses: [
+            { title: "面壁計畫：四位面壁者", url: "topics/three-body/lesson-14.html" },
+            { title: "破壁人：每個計畫是怎麼被識破的", url: "topics/three-body/lesson-15.html" },
+            { title: "羅輯與他想像中的莊顏", url: "topics/three-body/lesson-16.html" },
+            { title: "冬眠與兩百年後的世界", url: "topics/three-body/lesson-17.html" },
+            { title: "水滴與末日之戰", url: "topics/three-body/lesson-18.html" },
+            { title: "黑暗森林法則", url: "topics/three-body/lesson-19.html" },
+            { title: "宇宙社會學的兩條公理", url: "topics/three-body/lesson-20.html" },
+            { title: "猜疑鏈與技術爆炸", url: "topics/three-body/lesson-21.html" },
+            { title: "咒語應驗與威懾的建立", url: "topics/three-body/lesson-22.html" },
+            { title: "章北海與逃亡主義", url: "topics/three-body/lesson-23.html" },
+            { title: "黑暗戰役：人性在太空中的崩解", url: "topics/three-body/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜第三部《死神永生》",
+          courses: [
+            { title: "程心與雲天明", url: "topics/three-body/lesson-25.html" },
+            { title: "階梯計畫", url: "topics/three-body/lesson-26.html" },
+            { title: "執劍人交接與威懾失敗", url: "topics/three-body/lesson-27.html" },
+            { title: "澳洲大移民", url: "topics/three-body/lesson-28.html" },
+            { title: "廣播紀元：座標被公開了", url: "topics/three-body/lesson-29.html" },
+            { title: "雲天明的三個童話", url: "topics/three-body/lesson-30.html" },
+            { title: "掩體計畫、黑域與光速飛船之爭", url: "topics/three-body/lesson-31.html" },
+            { title: "二向箔：太陽系的二維化", url: "topics/three-body/lesson-32.html" },
+            { title: "藍色空間號、萬有引力號與銀河中的人類", url: "topics/three-body/lesson-33.html" },
+            { title: "647 號小宇宙", url: "topics/three-body/lesson-34.html" },
+            { title: "回歸運動與宇宙的終結", url: "topics/three-body/lesson-35.html" },
+            { title: "結局解析：三部曲到底在說什麼", url: "topics/three-body/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 E｜科學解析：哪些是真的，哪些是想像",
+          courses: [
+            { title: "三體問題：為什麼三顆星的運動無法預測", url: "topics/three-body/lesson-37.html" },
+            { title: "智子：展開質子與量子糾纏", url: "topics/three-body/lesson-38.html" },
+            { title: "水滴：強交互作用力材料", url: "topics/three-body/lesson-39.html" },
+            { title: "宇宙閃爍：微波背景輻射的真相", url: "topics/three-body/lesson-40.html" },
+            { title: "用太陽當放大器：可能嗎？", url: "topics/three-body/lesson-41.html" },
+            { title: "黑暗森林與費米悖論：外星人在哪裡？", url: "topics/three-body/lesson-42.html" },
+            { title: "光速飛船、曲率驅動與核脈衝", url: "topics/three-body/lesson-43.html" },
+            { title: "維度：降維打擊在物理上有意義嗎？", url: "topics/three-body/lesson-44.html" },
+            { title: "冬眠與相對論：跨越時間的兩種方法", url: "topics/three-body/lesson-45.html" },
+            { title: "引力波天線：用時空的漣漪廣播", url: "topics/three-body/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題與影響",
+          courses: [
+            { title: "宇宙社會學與賽局理論", url: "topics/three-body/lesson-47.html" },
+            { title: "程心爭議：愛與責任", url: "topics/three-body/lesson-48.html" },
+            { title: "中國科幻的崛起與三體的全球影響", url: "topics/three-body/lesson-49.html" },
+            { title: "總結：三體到底在說什麼", url: "topics/three-body/lesson-50.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "robotics-autonomy",
+      category: "tech",
+      title: "機器人與自動駕駛：從 PID、卡爾曼濾波到人形機器人，硬體需求與產業分析",
+      description:
+        "感知、規劃、控制：自駕分級、機器人種類、運動學與動力學、PID、LQR、MPC、全身控制；感測器、卡爾曼與粒子濾波、感測器融合、SLAM、BEV；路徑規劃、抓取、模仿與強化學習、端到端自駕、VLA 模型與世界模型。深入硬體需求：BOM 拆解、算力與記憶體頻寬推算、感測器資料量、致動器與減速器、電池、功能安全、雲端訓練、成本曲線與全球需求推算；產業分析：Waymo、百度、特斯拉、Figure、宇樹、工業與物流機器人、美中競爭、台灣供應鏈、市場預測與泡沫、法規與就業、5／10／15 年展望。附 11 個互動工具。",
+      icon: "🤖",
+      url: "topics/robotics-autonomy/index.html",
+      resources: [
+        {
+          title: "機器人互動實驗室",
+          description: "PID、卡爾曼濾波、逆向運動學、粒子濾波、路徑規劃，以及感測器資料量、算力、功耗、robotaxi 經濟學、人形回本與全球硬體需求計算器",
+          icon: "🧪",
+          url: "topics/robotics-autonomy/lab.html"
+        },
+        {
+          title: "機器人名詞對照",
+          description: "控制、感知、AI、硬體與產業名詞的中英對照",
+          icon: "📖",
+          url: "topics/robotics-autonomy/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "機器人和自駕車，其實是同一件事", url: "topics/robotics-autonomy/lesson-01.html" },
+            { title: "自動駕駛分級：L0 到 L5", url: "topics/robotics-autonomy/lesson-02.html" },
+            { title: "機器人的種類", url: "topics/robotics-autonomy/lesson-03.html" },
+            { title: "兩條技術路線：模組化 vs. 端到端", url: "topics/robotics-autonomy/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜運動學與動力學",
+          courses: [
+            { title: "座標轉換：機器人眼中的世界", url: "topics/robotics-autonomy/lesson-05.html" },
+            { title: "正向運動學：關節角度決定手在哪裡", url: "topics/robotics-autonomy/lesson-06.html" },
+            { title: "逆向運動學：要拿到杯子，關節要轉幾度？", url: "topics/robotics-autonomy/lesson-07.html" },
+            { title: "雅可比矩陣與奇異點", url: "topics/robotics-autonomy/lesson-08.html" },
+            { title: "動力學：關節需要多大的力", url: "topics/robotics-autonomy/lesson-09.html" },
+            { title: "會走路的機器人，與車輛的自行車模型", url: "topics/robotics-autonomy/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜控制：讓身體照著計畫動",
+          courses: [
+            { title: "PID 控制：最常用的控制器", url: "topics/robotics-autonomy/lesson-11.html" },
+            { title: "狀態空間與穩定性", url: "topics/robotics-autonomy/lesson-12.html" },
+            { title: "LQR：最佳控制", url: "topics/robotics-autonomy/lesson-13.html" },
+            { title: "MPC：模型預測控制", url: "topics/robotics-autonomy/lesson-14.html" },
+            { title: "力控制與阻抗控制：輕輕地拿東西", url: "topics/robotics-autonomy/lesson-15.html" },
+            { title: "全身控制：一邊平衡，一邊工作", url: "topics/robotics-autonomy/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜感知與定位：我周圍有什麼、我在哪裡",
+          courses: [
+            { title: "感測器全覽", url: "topics/robotics-autonomy/lesson-17.html" },
+            { title: "卡爾曼濾波：在雜訊中找出真相", url: "topics/robotics-autonomy/lesson-18.html" },
+            { title: "粒子濾波與蒙地卡羅定位", url: "topics/robotics-autonomy/lesson-19.html" },
+            { title: "感測器融合：純鏡頭 vs. 多感測器", url: "topics/robotics-autonomy/lesson-20.html" },
+            { title: "SLAM：一邊建地圖，一邊定位", url: "topics/robotics-autonomy/lesson-21.html" },
+            { title: "BEV 鳥瞰圖與佔據網格", url: "topics/robotics-autonomy/lesson-22.html" },
+            { title: "物件追蹤與行為預測", url: "topics/robotics-autonomy/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜規劃與決策",
+          courses: [
+            { title: "路徑搜尋：A*、Dijkstra 與 RRT", url: "topics/robotics-autonomy/lesson-24.html" },
+            { title: "軌跡最佳化：從路徑到可以開的軌跡", url: "topics/robotics-autonomy/lesson-25.html" },
+            { title: "決策：什麼時候變換車道、什麼時候讓行", url: "topics/robotics-autonomy/lesson-26.html" },
+            { title: "抓取規劃：機器人怎麼拿東西", url: "topics/robotics-autonomy/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜AI 與學習",
+          courses: [
+            { title: "模仿學習：看人做一次", url: "topics/robotics-autonomy/lesson-28.html" },
+            { title: "強化學習與從模擬到真實", url: "topics/robotics-autonomy/lesson-29.html" },
+            { title: "端到端自駕：從手寫規則到神經網路", url: "topics/robotics-autonomy/lesson-30.html" },
+            { title: "VLA 模型：讓機器人聽懂話、看懂世界、做出動作", url: "topics/robotics-autonomy/lesson-31.html" },
+            { title: "世界模型與合成資料", url: "topics/robotics-autonomy/lesson-32.html" },
+            { title: "資料飛輪：為什麼規模本身就是護城河", url: "topics/robotics-autonomy/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜硬體需求深度分析",
+          courses: [
+            { title: "硬體全景：一台機器人的錢花在哪裡", url: "topics/robotics-autonomy/lesson-34.html" },
+            { title: "運算需求推算：機器人需要多大的晶片", url: "topics/robotics-autonomy/lesson-35.html" },
+            { title: "記憶體容量與頻寬：真正的瓶頸", url: "topics/robotics-autonomy/lesson-36.html" },
+            { title: "感測器資料量：每秒幾 Gb 的洪流", url: "topics/robotics-autonomy/lesson-37.html" },
+            { title: "致動器：機器人的肌肉", url: "topics/robotics-autonomy/lesson-38.html" },
+            { title: "電力與電池：能撐多久", url: "topics/robotics-autonomy/lesson-39.html" },
+            { title: "散熱、可靠度與功能安全", url: "topics/robotics-autonomy/lesson-40.html" },
+            { title: "雲端訓練端：看不見的另一半硬體", url: "topics/robotics-autonomy/lesson-41.html" },
+            { title: "通訊：5G、V2X 與遠端協助", url: "topics/robotics-autonomy/lesson-42.html" },
+            { title: "成本曲線：硬體會便宜多快", url: "topics/robotics-autonomy/lesson-43.html" },
+            { title: "全球硬體需求推算", url: "topics/robotics-autonomy/lesson-44.html" },
+            { title: "硬體需求總表", url: "topics/robotics-autonomy/lesson-45.html" },
+          ],
+        },
+        {
+          title: "模組 H｜產業分析",
+          courses: [
+            { title: "產業鏈地圖", url: "topics/robotics-autonomy/lesson-46.html" },
+            { title: "Robotaxi 現況：誰真的在路上跑", url: "topics/robotics-autonomy/lesson-47.html" },
+            { title: "Robotaxi 單位經濟學", url: "topics/robotics-autonomy/lesson-48.html" },
+            { title: "人形機器人公司全覽", url: "topics/robotics-autonomy/lesson-49.html" },
+            { title: "人形機器人單位經濟學", url: "topics/robotics-autonomy/lesson-50.html" },
+            { title: "工業與物流機器人：已經成熟的那一半", url: "topics/robotics-autonomy/lesson-51.html" },
+            { title: "中國 vs. 美國：兩種優勢的競賽", url: "topics/robotics-autonomy/lesson-52.html" },
+            { title: "台灣在哪裡：機器人供應鏈分析", url: "topics/robotics-autonomy/lesson-53.html" },
+            { title: "市場預測與泡沫風險", url: "topics/robotics-autonomy/lesson-54.html" },
+            { title: "法規、安全、保險與就業衝擊", url: "topics/robotics-autonomy/lesson-55.html" },
+            { title: "未來展望與總結", url: "topics/robotics-autonomy/lesson-56.html" },
+          ],
+        },
+      ],
     }
   ]
 };
