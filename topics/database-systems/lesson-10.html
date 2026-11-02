@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：子查詢與 CTE ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="把複雜的查詢拆成好讀的步驟">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 10 課</div>
+      <h1>子查詢與 CTE</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握子查詢的幾種用法</li>
+          <li>理解相關子查詢</li>
+          <li>使用 CTE 與遞迴 CTE</li>
+        </ul>
+      </div>
+
+      <h2>子查詢</h2>
+
+      <div class="code-block">-- 純量子查詢：成績高於全體平均的選課
+SELECT * FROM 選課 WHERE 成績 &gt; (SELECT AVG(成績) FROM 選課);
+
+-- EXISTS：至少選了一門資料庫課的學生
+SELECT 姓名 FROM 學生 s
+WHERE EXISTS (SELECT 1 FROM 選課 e WHERE e.學號 = s.學號 AND e.課程 = '資料庫');</div>
+
+      <p>
+        第二個例子是<strong>相關子查詢</strong>：子查詢裡引用了外層的 s.學號。概念上每一位學生都要執行一次子查詢；但現代的最佳化器通常會把它改寫成「半連接」，效率和 JOIN 差不多。
+      </p>
+
+      <h2>CTE：WITH 子句</h2>
+
+      <div class="code-block">WITH 系所平均 AS (
+    SELECT s.系所, AVG(e.成績) AS 平均
+    FROM 學生 s JOIN 選課 e ON s.學號 = e.學號
+    GROUP BY s.系所
+)
+SELECT s.姓名, e.成績, a.平均
+FROM 學生 s
+JOIN 選課 e   ON s.學號 = e.學號
+JOIN 系所平均 a ON s.系所 = a.系所
+WHERE e.成績 &gt; a.平均;          -- 成績高於自己系所平均的人</div>
+
+      <p>
+        CTE 讓複雜的查詢像寫程式一樣，一步一步命名每個中間結果，可讀性大幅提升。
+      </p>
+
+      <h2>遞迴 CTE：走訪樹與圖</h2>
+
+      <div class="code-block">-- 員工(編號, 姓名, 主管編號)：找出某位主管底下的所有人（不論幾層）
+WITH RECURSIVE 部屬 AS (
+    SELECT 編號, 姓名, 1 AS 層級 FROM 員工 WHERE 主管編號 = 1
+    UNION ALL
+    SELECT e.編號, e.姓名, d.層級 + 1
+    FROM 員工 e JOIN 部屬 d ON e.主管編號 = d.編號
+)
+SELECT * FROM 部屬;</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          子查詢包括純量子查詢（如成績高於平均）與 EXISTS 子查詢；引用外層欄位的相關子查詢概念上逐列執行，但最佳化器常改寫成半連接。CTE 以 WITH 子句命名中間結果，使複雜查詢像程式一樣逐步可讀，例如先算系所平均再找高於平均者。遞迴 CTE（WITH RECURSIVE）以起始查詢加 UNION ALL 遞迴部分，可走訪樹與圖，例如找出某主管底下所有層級的部屬。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是相關子查詢？它的效能一定很差嗎？</li>
+          <li>CTE 相比子查詢有什麼好處？</li>
+          <li>用遞迴 CTE 可以解決哪些類型的問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>視窗函數：排名、移動平均與累計</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：聚合：GROUP BY 與 HAVING</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：視窗函數：排名、移動平均與累計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

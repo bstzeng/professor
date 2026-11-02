@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 16 課：頁、緩衝池與資料的實際排列 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="資料在磁碟上長什麼樣子">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 16 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜儲存與索引 · 第 16 課</div>
+      <h1>頁、緩衝池與資料的實際排列</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解頁的結構</li>
+          <li>理解緩衝池與替換策略</li>
+          <li>用 Python 實作簡化的緩衝池</li>
+        </ul>
+      </div>
+
+      <h2>頁：讀寫的基本單位</h2>
+
+      <p>
+        資料庫不會一次只讀一筆資料，而是以<strong>頁</strong>為單位（PostgreSQL 8 KB、MySQL InnoDB 16 KB、SQLite 預設 4 KB）。一頁裡放了許多資料列。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>頁的組成（簡化）</th><th>說明</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>頁標頭</td><td>頁的編號、剩餘空間、校驗碼、最後修改的日誌位置</td></tr>
+          <tr><td>槽目錄（slot directory）</td><td>每一筆資料在頁內的位置；從前面往後長</td></tr>
+          <tr><td>資料列</td><td>從後面往前長；中間是空白空間</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這種「槽頁」設計讓資料列可以是不同長度，刪除與更新時只要改槽目錄。資料列的實體位置用（頁號, 槽號）表示，PostgreSQL 稱為 ctid。
+      </p>
+
+      <h2>緩衝池</h2>
+
+      <p>
+        緩衝池是記憶體中的一大塊區域，快取磁碟上的頁。資料庫要讀一頁時，先看緩衝池裡有沒有（命中），沒有才去讀磁碟。
+      </p>
+
+      <ul>
+        <li><strong>命中率</strong>：線上交易系統通常希望 99% 以上。</li>
+        <li><strong>髒頁</strong>：在記憶體中被修改過、還沒寫回磁碟的頁。由背景程序定期寫回（安全性靠日誌保證，第 34 課）。</li>
+        <li><strong>替換策略</strong>：緩衝池滿時要踢掉哪一頁？最常見的是 LRU（最久沒用的）及其變形——因為一次全表掃描就可能把所有熱資料擠出去，InnoDB 把 LRU 分成新、舊兩段，PostgreSQL 使用 clock-sweep 演算法。</li>
+      </ul>
+
+      <div class="code-block">from collections import OrderedDict
+
+class BufferPool:
+    """簡化的 LRU 緩衝池"""
+    def __init__(self, capacity, disk):
+        self.cap, self.disk, self.pages = capacity, disk, OrderedDict()
+        self.hits = self.misses = 0
+
+    def get(self, page_no):
+        if page_no in self.pages:
+            self.hits += 1
+            self.pages.move_to_end(page_no)           # 最近用過的移到最後
+        else:
+            self.misses += 1
+            if len(self.pages) &gt;= self.cap:
+                self.pages.popitem(last=False)          # 踢掉最久沒用的（髒頁要先寫回）
+            self.pages[page_no] = self.disk[page_no]    # 從「磁碟」讀入
+        return self.pages[page_no]
+
+disk = {i: f"page-{i}" for i in range(1000)}
+bp = BufferPool(100, disk)
+for p in [1, 2, 3, 1, 2, 999, 1]: bp.get(p)
+print(bp.hits, bp.misses)     # 3 4</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          資料庫以頁為讀寫單位（PostgreSQL 8 KB、InnoDB 16 KB、SQLite 預設 4 KB），槽頁設計包含頁標頭、從前往後長的槽目錄與從後往前長的資料列，支援變長資料，資料位置以頁號與槽號表示。緩衝池在記憶體快取磁碟頁，線上系統希望命中率 99% 以上，髒頁由背景程序寫回、安全性靠日誌保證。替換策略以 LRU 及其變形為主，InnoDB 分新舊兩段、PostgreSQL 用 clock-sweep，以免全表掃描擠出熱資料。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼資料庫以「頁」而不是「列」為讀寫單位？</li>
+          <li>什麼是髒頁？它什麼時候被寫回磁碟？</li>
+          <li>為什麼單純的 LRU 會被全表掃描破壞？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>列式儲存 vs. 欄式儲存</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-15.html">← 上一課：硬碟、SSD 與記憶體：為什麼 I/O 是一切的關鍵</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-17.html">下一課：列式儲存 vs. 欄式儲存 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

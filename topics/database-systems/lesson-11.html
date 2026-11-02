@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 11 課：視窗函數：排名、移動平均與累計 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="不用把資料列合併，也能做跨列的計算">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 11 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 11 課</div>
+      <h1>視窗函數：排名、移動平均與累計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解視窗函數與 GROUP BY 的差別</li>
+          <li>掌握 PARTITION BY、ORDER BY 與視窗範圍</li>
+          <li>應用排名、前後列比較與移動平均</li>
+        </ul>
+      </div>
+
+      <p>
+        GROUP BY 把一組資料「壓扁」成一列；<strong>視窗函數</strong>則在保留每一列的同時，看見同一組的其他列。
+      </p>
+
+      <div class="code-block">SELECT 姓名, 系所, 成績,
+       RANK()       OVER (PARTITION BY 系所 ORDER BY 成績 DESC) AS 系內排名,
+       AVG(成績)    OVER (PARTITION BY 系所)                    AS 系所平均,
+       成績 - AVG(成績) OVER (PARTITION BY 系所)               AS 與平均差距
+FROM 成績表;</div>
+
+      <h2>三個組成</h2>
+
+      <ul>
+        <li><strong>PARTITION BY</strong>：把資料分成幾個「視窗」（類似 GROUP BY，但不壓扁）。</li>
+        <li><strong>ORDER BY</strong>：視窗內的排序。</li>
+        <li><strong>框架</strong>：視窗內要看哪幾列，例如 <code>ROWS BETWEEN 6 PRECEDING AND CURRENT ROW</code>（包含自己共 7 列）。</li>
+      </ul>
+
+      <h2>常用函數</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>函數</th><th>用途</th><th>例子</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ROW_NUMBER、RANK、DENSE_RANK</td><td>排名（處理同分的方式不同）</td><td>每個系的前三名</td></tr>
+          <tr><td>LAG、LEAD</td><td>取前一列、後一列的值</td><td>和昨天比，股價漲跌多少</td></tr>
+          <tr><td>SUM … OVER (ORDER BY …)</td><td>累計</td><td>今年到目前為止的累計營收</td></tr>
+          <tr><td>AVG … ROWS BETWEEN n PRECEDING</td><td>移動平均</td><td>股價的 5 日、20 日均線</td></tr>
+          <tr><td>NTILE</td><td>分成 n 等分</td><td>把客戶依消費金額分成十等分</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">-- 股價的 5 日均線與日報酬率
+SELECT 日期, 收盤價,
+       AVG(收盤價) OVER (ORDER BY 日期 ROWS BETWEEN 4 PRECEDING AND CURRENT ROW) AS 五日均線,
+       收盤價 / LAG(收盤價) OVER (ORDER BY 日期) - 1                              AS 日報酬
+FROM 股價 WHERE 代號 = '2330';</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          視窗函數在保留每一列的同時看見同組其他列，不像 GROUP BY 會壓扁資料。組成包括分割視窗的 PARTITION BY、視窗內排序的 ORDER BY 與指定範圍的框架（如 ROWS BETWEEN 6 PRECEDING AND CURRENT ROW）。常用函數有 ROW_NUMBER、RANK、DENSE_RANK 排名，LAG、LEAD 取前後列，SUM OVER 累計，AVG 搭配框架計算移動平均（如股價 5 日均線），NTILE 分等分。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>視窗函數和 GROUP BY 有什麼不同？</li>
+          <li>RANK 和 DENSE_RANK 在處理同分時有什麼差別？</li>
+          <li>寫出計算 20 日均線的 SQL。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>DDL 與約束：讓資料庫幫你守規則</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-10.html">← 上一課：子查詢與 CTE</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-12.html">下一課：DDL 與約束：讓資料庫幫你守規則 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

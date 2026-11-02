@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：看懂 EXPLAIN：查詢計畫實戰 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="資料庫到底打算怎麼做，以及實際做了什麼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜查詢處理與最佳化 · 第 26 課</div>
+      <h1>看懂 EXPLAIN：查詢計畫實戰</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>讀懂查詢計畫的樹狀結構</li>
+          <li>比較估計值與實際值</li>
+          <li>找出計畫中的效能問題</li>
+        </ul>
+      </div>
+
+      <div class="code-block">EXPLAIN ANALYZE
+SELECT c.姓名, SUM(o.金額)
+FROM 客戶 c JOIN 訂單 o ON o.客戶編號 = c.客戶編號
+WHERE o.下單日期 &gt;= '2026-10-01'
+GROUP BY c.姓名;</div>
+
+      <p>
+        PostgreSQL 的輸出（簡化）：
+      </p>
+
+      <div class="code-block">HashAggregate  (rows=1200) (actual rows=1187 time=85.2 ms)
+  -&gt;  Hash Join  (rows=48000) (actual rows=51320)
+        Hash Cond: (o.客戶編號 = c.客戶編號)
+        -&gt;  Index Scan using idx_下單日期 on 訂單 o  (rows=48000) (actual rows=51320)
+              Index Cond: (下單日期 &gt;= '2026-10-01')
+        -&gt;  Hash  (rows=20000)
+              -&gt;  Seq Scan on 客戶 c  (rows=20000) (actual rows=20000)</div>
+
+      <h2>怎麼讀</h2>
+
+      <ul>
+        <li><strong>由內往外、由下往上</strong>讀：最深層的運算子先執行。</li>
+        <li>這個計畫：用索引找出十月以後的訂單 → 把客戶表整個讀進雜湊表 → 雜湊連接 → 雜湊聚合。</li>
+        <li><code>rows=</code> 是<strong>估計</strong>值，<code>actual rows=</code> 是<strong>實際</strong>值（只有 EXPLAIN ANALYZE 才有，而且會真的執行查詢）。</li>
+      </ul>
+
+      <h2>常見的問題訊號</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>訊號</th><th>可能的原因與對策</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>估計與實際差 10 倍以上</td><td>統計資訊過時或欄位相關：執行 ANALYZE、建立延伸統計</td></tr>
+          <tr><td>大表上的 Seq Scan，但只回傳少量資料</td><td>缺少索引，或索引因函數、型別轉換而失效</td></tr>
+          <tr><td>Nested Loop 的外層實際筆數很大</td><td>基數低估：應該用 Hash Join</td></tr>
+          <tr><td>Sort 或 Hash 使用磁碟（external merge、Batches > 1）</td><td>工作記憶體不足：調大 work_mem 或減少資料量</td></tr>
+          <tr><td>Index Scan 後大量「回表」</td><td>考慮覆蓋索引</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>MySQL</h3>
+        <p>
+          MySQL 的 EXPLAIN 以表格呈現：注意 <code>type</code> 欄（ALL 代表全表掃描、ref／range 代表用到索引）、<code>key</code>（實際使用的索引）、<code>rows</code>（估計掃描筆數）與 <code>Extra</code>（Using filesort、Using temporary 常是效能警訊）。MySQL 8 也支援 EXPLAIN ANALYZE。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          EXPLAIN ANALYZE 顯示查詢計畫與實際執行結果，由內往外、由下往上閱讀，rows 為估計值、actual rows 為實際值（會真的執行查詢）。問題訊號包括估計與實際差 10 倍以上（執行 ANALYZE 或延伸統計）、大表 Seq Scan 只回傳少量資料（缺索引或索引失效）、外層筆數大的 Nested Loop（基數低估）、Sort 或 Hash 使用磁碟（調大 work_mem）與大量回表（考慮覆蓋索引）。MySQL 的 EXPLAIN 應注意 type、key、rows 與 Extra 欄位。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>EXPLAIN 和 EXPLAIN ANALYZE 有什麼不同？</li>
+          <li>計畫中估計筆數與實際筆數差很多，代表什麼？</li>
+          <li>看到「Using filesort」或排序使用磁碟時，可以怎麼處理？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>查詢最佳化器：Join 順序與常見誤判</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：統計資訊與成本估計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：查詢最佳化器：Join 順序與常見誤判 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

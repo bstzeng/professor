@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：全文索引與倒排索引 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="搜尋引擎的核心資料結構">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜儲存與索引 · 第 22 課</div>
+      <h1>全文索引與倒排索引</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解倒排索引的結構</li>
+          <li>理解中文斷詞的挑戰</li>
+          <li>認識相關性排序</li>
+        </ul>
+      </div>
+
+      <p>
+        B+ 樹適合「整個值」或「前綴」的查詢。但要找「內容包含『資料庫』這個詞的所有文章」，就需要<strong>倒排索引</strong>。
+      </p>
+
+      <h2>結構</h2>
+
+      <p>
+        正排：文章 → 包含哪些詞。倒排：<strong>詞 → 出現在哪些文章</strong>（以及位置）。
+      </p>
+
+      <div class="code-block">import re
+from collections import defaultdict
+
+docs = {1: "資料庫 索引 原理", 2: "倒排 索引 是 搜尋引擎 的 核心", 3: "資料庫 交易 與 日誌"}
+index = defaultdict(set)
+for doc_id, text in docs.items():
+    for term in text.split():              # 實務上需要斷詞、正規化、去除停用字
+        index[term].add(doc_id)
+
+def search(*terms):                        # AND 查詢 = 取交集
+    sets = [index.get(t, set()) for t in terms]
+    return set.intersection(*sets) if sets else set()
+
+print(search("索引"))              # {1, 2}
+print(search("資料庫", "索引"))    # {1}</div>
+
+      <h2>中文的挑戰：斷詞</h2>
+
+      <ul>
+        <li>英文用空白分隔單字，中文沒有。「台北市長」可以是「台北／市長」或「台北市／長」。</li>
+        <li>做法：用斷詞工具（例如 jieba、CKIP）依詞典與統計模型切詞；或用 <strong>n-gram</strong>（把文字切成每 2 個字一組：台北、北市、市長），不需要詞典但索引較大。</li>
+        <li>PostgreSQL 的全文檢索需要搭配中文斷詞擴充；Elasticsearch 也有對應的中文分析器。</li>
+      </ul>
+
+      <h2>相關性排序</h2>
+
+      <p>
+        找到所有包含關鍵字的文件後，要決定哪些排前面。經典的方法是 <strong>TF-IDF</strong> 與其改良 <strong>BM25</strong>：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{tfidf}(t,d) = \text{tf}(t,d) \times \log\frac{N}{\text{df}(t)}\]</div>
+
+      <ul>
+        <li>詞在這篇文章出現越多次（tf），越相關。</li>
+        <li>詞在越少文章出現（df 小），越有鑑別力——「的」出現在每篇文章，幾乎沒有價值。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>從關鍵字到語意</h3>
+        <p>
+          倒排索引只能比對「相同的詞」。搜尋「汽車」找不到只寫「轎車」的文章——這是向量搜尋要解決的問題（第 48 課）。現代搜尋系統常把兩者結合，稱為混合搜尋。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          倒排索引把詞對應到出現的文件與位置，AND 查詢即取交集，是搜尋引擎的核心。中文沒有空白分隔，需要以 jieba、CKIP 等工具依詞典與統計模型斷詞，或用 n-gram 切分（不需詞典但索引較大），PostgreSQL 與 Elasticsearch 都需中文分析擴充。相關性排序以 TF-IDF 與其改良 BM25 為經典：詞在文中出現越多越相關、出現的文件越少越有鑑別力。倒排索引只能比對相同詞，語意比對需要向量搜尋，現代系統常用混合搜尋。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>倒排索引和 B+ 樹索引各適合什麼查詢？</li>
+          <li>中文全文檢索為什麼需要斷詞？n-gram 有什麼優缺點？</li>
+          <li>TF-IDF 中的 IDF 代表什麼意義？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>一條 SQL 的旅程：解析、改寫、計畫、執行</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：複合索引、覆蓋索引與最左前綴</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：一條 SQL 的旅程：解析、改寫、計畫、執行 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

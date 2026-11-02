@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：ACID：交易的四個保證 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="原子性、一致性、隔離性、持久性">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜交易與並行控制 · 第 29 課</div>
+      <h1>ACID：交易的四個保證</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解交易的概念</li>
+          <li>理解 ACID 各自的意義</li>
+          <li>知道每個性質由哪些機制實現</li>
+        </ul>
+      </div>
+
+      <p>
+        轉帳：從 A 帳戶扣 1,000 元、在 B 帳戶加 1,000 元。如果扣款成功、入帳之前當機了呢？如果兩筆轉帳同時操作 A 帳戶呢？<strong>交易</strong>把一組操作包成一個不可分割的單位。
+      </p>
+
+      <div class="code-block">BEGIN;
+UPDATE 帳戶 SET 餘額 = 餘額 - 1000 WHERE 帳號 = 'A';
+UPDATE 帳戶 SET 餘額 = 餘額 + 1000 WHERE 帳號 = 'B';
+COMMIT;      -- 或 ROLLBACK：全部取消</div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>性質</th><th>保證</th><th>實現機制</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>原子性</strong>（Atomicity）</td><td>全部成功或全部不做，沒有「做一半」</td><td>日誌的復原（undo）</td></tr>
+          <tr><td><strong>一致性</strong>（Consistency）</td><td>交易前後，資料都滿足所有規則（約束、餘額不為負）</td><td>約束＋應用程式邏輯</td></tr>
+          <tr><td><strong>隔離性</strong>（Isolation）</td><td>同時執行的交易，彼此看起來像依序執行</td><td>鎖、MVCC（第 31、32 課）</td></tr>
+          <tr><td><strong>持久性</strong>（Durability）</td><td>一旦提交，就算立刻斷電也不會遺失</td><td>WAL 與強制寫入磁碟（第 34 課）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>一致性有點特別</h2>
+
+      <p>
+        A、I、D 是資料庫提供的機制；C 有一部分是<strong>應用程式</strong>的責任——資料庫不知道「轉帳前後總金額要相等」這種業務規則，除非你把它寫成約束。
+      </p>
+
+      <h2>持久性的代價</h2>
+
+      <p>
+        每次提交都要等日誌真正寫進磁碟（fsync），一次約 0.1～數毫秒。高寫入量的系統會用<strong>群組提交</strong>（把多個交易的日誌一起寫入）來分攤成本；也有些場景選擇非同步提交，用「可能遺失最後幾毫秒資料」換取速度。
+      </p>
+
+      <div class="callout">
+        <h3>BASE</h3>
+        <p>
+          許多 NoSQL 系統採用相對的 BASE 哲學：基本可用（Basically Available）、軟狀態（Soft state）、最終一致（Eventually consistent）——放寬一致性以換取可用性與擴展性（第 38 課）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          交易把一組操作包成不可分割的單位，以 BEGIN、COMMIT 或 ROLLBACK 界定。ACID 包括原子性（全做或全不做，由日誌 undo 實現）、一致性（交易前後滿足規則，由約束與應用程式邏輯實現）、隔離性（並行交易看似依序執行，由鎖與 MVCC 實現）與持久性（提交後斷電也不遺失，由 WAL 與強制寫入實現）。一致性部分是應用程式的責任。持久性的 fsync 成本以群組提交分攤，或以非同步提交換速度。NoSQL 常採 BASE 哲學放寬一致性。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用轉帳說明原子性與持久性。</li>
+          <li>為什麼說一致性有一部分是應用程式的責任？</li>
+          <li>什麼是群組提交？為什麼需要它？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>隔離等級與異常</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：慢查詢調校案例</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：隔離等級與異常 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

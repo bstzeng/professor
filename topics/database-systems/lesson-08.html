@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 8 課：JOIN：把資料表接起來 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="內連接、外連接、交叉連接，以及常見陷阱">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 8 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 8 課</div>
+      <h1>JOIN：把資料表接起來</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握各種 JOIN 的語意</li>
+          <li>理解 JOIN 造成的資料列倍增</li>
+          <li>避開常見的 JOIN 錯誤</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>類型</th><th>結果</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>INNER JOIN</strong></td><td>只保留兩邊都對得上的列</td></tr>
+          <tr><td><strong>LEFT JOIN</strong></td><td>保留左表所有列；右表對不上的填 NULL</td></tr>
+          <tr><td><strong>RIGHT JOIN</strong></td><td>保留右表所有列（等於把左右對調的 LEFT JOIN）</td></tr>
+          <tr><td><strong>FULL OUTER JOIN</strong></td><td>兩邊所有列都保留</td></tr>
+          <tr><td><strong>CROSS JOIN</strong></td><td>笛卡兒積：每一列和另一表的每一列配對</td></tr>
+          <tr><td><strong>自我連接</strong></td><td>表和自己連接，例如員工表找出每個人的主管</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">-- 每位學生和他的選課；沒選課的學生也要列出來
+SELECT s.姓名, e.課程, e.成績
+FROM 學生 s
+LEFT JOIN 選課 e ON s.學號 = e.學號;
+
+-- 找出「沒有選任何課」的學生（反連接）
+SELECT s.姓名
+FROM 學生 s
+LEFT JOIN 選課 e ON s.學號 = e.學號
+WHERE e.學號 IS NULL;</div>
+
+      <h2>常見陷阱</h2>
+
+      <ul>
+        <li><strong>資料列倍增</strong>：一位客戶有 3 張訂單、每張訂單有 4 項商品，連接後這位客戶會出現 12 列。此時再 SUM(訂單金額) 會被重複計算——先聚合再 JOIN，或小心使用 DISTINCT。</li>
+        <li><strong>LEFT JOIN 被 WHERE 變成 INNER JOIN</strong>：<code>LEFT JOIN 選課 e ON … WHERE e.成績 > 80</code>，沒選課的學生 e.成績 是 NULL，被 WHERE 濾掉了。條件要放在 ON 裡。</li>
+        <li><strong>忘了連接條件</strong>：變成 CROSS JOIN，一萬筆乘一萬筆就是一億筆。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>JOIN 在內部怎麼做</h3>
+        <p>
+          JOIN 是資料庫最昂貴的操作之一。內部有巢狀迴圈、雜湊、排序合併三種主要演算法，最佳化器會依資料量與索引選擇（第 24 課）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          JOIN 類型包括只保留對得上列的 INNER JOIN、保留左表所有列並以 NULL 補右表的 LEFT JOIN、RIGHT JOIN、保留雙方所有列的 FULL OUTER JOIN、笛卡兒積 CROSS JOIN 與自我連接。LEFT JOIN 加 WHERE 右表欄位 IS NULL 可找出沒有對應的資料（反連接）。常見陷阱有一對多連接造成資料列倍增使 SUM 重複計算、LEFT JOIN 的右表條件放在 WHERE 使其變成 INNER JOIN，以及忘了連接條件造成巨大的 CROSS JOIN。內部以巢狀迴圈、雜湊、排序合併三種演算法實作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>INNER JOIN 與 LEFT JOIN 的結果有什麼不同？</li>
+          <li>怎麼用 LEFT JOIN 找出「沒有訂單的客戶」？</li>
+          <li>為什麼把右表條件放在 WHERE 會讓 LEFT JOIN 變成 INNER JOIN？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>聚合：GROUP BY 與 HAVING</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-07.html">← 上一課：SQL 基礎：SELECT、WHERE、ORDER BY</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-09.html">下一課：聚合：GROUP BY 與 HAVING →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

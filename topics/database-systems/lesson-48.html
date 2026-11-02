@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 48 課：向量資料庫：AI 與 RAG 的基礎 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="用「意思」而不是「字面」找資料">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 48 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 48 課</div>
+      <h1>向量資料庫：AI 與 RAG 的基礎</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解向量嵌入與相似度</li>
+          <li>理解近似最近鄰搜尋與 HNSW</li>
+          <li>理解向量資料庫在 RAG 中的角色</li>
+        </ul>
+      </div>
+
+      <h2>向量嵌入</h2>
+
+      <p>
+        AI 模型可以把一段文字、一張圖片轉成一個高維向量（例如 768 或 1,536 維），意思相近的內容，向量也相近。「汽車」和「轎車」的向量很接近，即使字面完全不同。
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\cos(\mathbf{a}, \mathbf{b}) = \frac{\mathbf{a} \cdot \mathbf{b}}{\lVert \mathbf{a} \rVert\, \lVert \mathbf{b} \rVert}\]</div>
+
+      <h2>問題：怎麼在一億個向量中快速找到最接近的</h2>
+
+      <p>
+        暴力法要和每一個向量計算一次相似度——一億次。傳統的 B+ 樹在高維空間中失效（維度詛咒）。解法是<strong>近似最近鄰</strong>（ANN）：犧牲一點準確度（例如找到 95% 的真正最近鄰），換取快上千倍的速度。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>原理</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>HNSW</strong>（階層式可導航小世界圖）</td><td>把向量連成多層的圖，上層稀疏、下層稠密；從上層快速跳到大致區域，再往下層精細搜尋。目前最常用</td></tr>
+          <tr><td><strong>IVF</strong>（倒排檔案）</td><td>先用分群把向量分成很多群，查詢時只搜尋最近的幾群</td></tr>
+          <tr><td><strong>乘積量化</strong>（PQ）</td><td>把向量壓縮成很短的編碼，大幅減少記憶體</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">import numpy as np
+
+docs = ["資料庫索引的原理", "B+ 樹與磁碟 I/O", "今天天氣很好", "交易與隔離等級"]
+emb = np.random.default_rng(0).normal(size=(len(docs), 384))      # 實務上由嵌入模型產生
+emb /= np.linalg.norm(emb, axis=1, keepdims=True)                 # 正規化後，內積 = 餘弦相似度
+
+def search(query_vec, k=2):
+    scores = emb @ (query_vec / np.linalg.norm(query_vec))       # 暴力法：和每一個向量比
+    top = np.argsort(-scores)[:k]
+    return [(docs[i], float(scores[i])) for i in top]</div>
+
+      <h2>RAG：檢索增強生成</h2>
+
+      <ol>
+        <li>把公司文件切成段落，每段轉成向量存進向量資料庫。</li>
+        <li>使用者提問時，把問題也轉成向量，找出最相關的幾段。</li>
+        <li>把這幾段和問題一起交給大型語言模型，讓它根據資料回答。</li>
+      </ol>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>產品</th><th>類型</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>pgvector</td><td>PostgreSQL 擴充：向量與一般資料放在同一個資料庫</td></tr>
+          <tr><td>Milvus、Qdrant、Weaviate</td><td>開源的專用向量資料庫</td></tr>
+          <tr><td>Pinecone</td><td>雲端託管服務</td></tr>
+          <tr><td>Elasticsearch、OpenSearch</td><td>全文檢索加上向量，方便做混合搜尋</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          AI 模型可把文字或圖片轉成數百到上千維的向量，意思相近則向量相近，以餘弦相似度衡量。暴力搜尋要比較每個向量，B+ 樹在高維失效，因此用近似最近鄰 ANN 犧牲些許準確度換取快上千倍：最常用的 HNSW 以多層圖從稀疏上層跳到大致區域再往下精細搜尋，IVF 先分群再搜尋最近幾群，乘積量化壓縮向量節省記憶體。RAG 把文件段落轉成向量存入資料庫，提問時找出最相關段落交給語言模型回答。產品有 pgvector、Milvus、Qdrant、Weaviate、Pinecone 與 Elasticsearch。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼「汽車」和「轎車」的向量會很接近？</li>
+          <li>為什麼需要近似最近鄰搜尋，而不用 B+ 樹？</li>
+          <li>描述 RAG 的三個步驟。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-47.html">← 上一課：時序資料庫：監控與物聯網</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-49.html">下一課：資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

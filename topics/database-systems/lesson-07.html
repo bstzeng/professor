@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 7 課：SQL 基礎：SELECT、WHERE、ORDER BY ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="宣告式語言：說你要什麼，不說怎麼做">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 7 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 7 課</div>
+      <h1>SQL 基礎：SELECT、WHERE、ORDER BY</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>掌握 SELECT 的基本語法</li>
+          <li>理解 SQL 的邏輯執行順序</li>
+          <li>理解 NULL 的三值邏輯</li>
+        </ul>
+      </div>
+
+      <p>
+        SQL 起源於 1970 年代 IBM 的 System R 計畫（最初叫 SEQUEL），1979 年 Oracle 推出第一個商業化的 SQL 資料庫。它是<strong>宣告式</strong>語言：你描述想要的結果，資料庫決定怎麼取得。
+      </p>
+
+      <div class="code-block">SELECT 姓名, 系所
+FROM   學生
+WHERE  系所 IN ('資工', '電機') AND 姓名 LIKE '林%'
+ORDER BY 系所, 姓名 DESC
+LIMIT  10;</div>
+
+      <h2>邏輯執行順序</h2>
+
+      <p>
+        SQL 的寫法順序和「邏輯上」的執行順序不同。理解這個順序，就能避開很多錯誤（例如為什麼 WHERE 不能用 SELECT 裡取的別名）：
+      </p>
+
+      <ol>
+        <li>FROM／JOIN：決定資料來源</li>
+        <li>WHERE：過濾資料列</li>
+        <li>GROUP BY：分組</li>
+        <li>HAVING：過濾分組</li>
+        <li>SELECT：計算輸出欄位</li>
+        <li>ORDER BY：排序</li>
+        <li>LIMIT：取前幾筆</li>
+      </ol>
+
+      <h2>NULL：三值邏輯</h2>
+
+      <p>
+        NULL 代表「未知」或「不適用」，不是 0，也不是空字串。任何和 NULL 的比較，結果都是 UNKNOWN（第三種真假值）：
+      </p>
+
+      <ul>
+        <li><code>NULL = NULL</code> 的結果是 UNKNOWN，不是 TRUE。所以要用 <code>IS NULL</code>。</li>
+        <li>WHERE 只保留結果為 TRUE 的列，UNKNOWN 會被濾掉。</li>
+        <li><code>NOT IN</code> 的陷阱：如果子查詢結果中有 NULL，<code>x NOT IN (…)</code> 永遠不會是 TRUE，整個查詢可能回傳 0 筆。</li>
+      </ul>
+
+      <div class="code-block">import sqlite3
+db = sqlite3.connect(":memory:")
+db.executescript('''
+CREATE TABLE 學生 (學號 INTEGER PRIMARY KEY, 姓名 TEXT, 系所 TEXT);
+INSERT INTO 學生 VALUES (1,'王小明','資工'), (2,'林小華','電機'), (3,'陳大文',NULL);
+''')
+print(db.execute("SELECT 姓名 FROM 學生 WHERE 系所 = NULL").fetchall())   # []  永遠找不到
+print(db.execute("SELECT 姓名 FROM 學生 WHERE 系所 IS NULL").fetchall())  # [('陳大文',)]</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          SQL 起源於 1970 年代 IBM System R（最初稱 SEQUEL），1979 年 Oracle 推出第一個商業 SQL 資料庫，是宣告式語言。SELECT 搭配 WHERE、IN、LIKE、ORDER BY、LIMIT 使用。邏輯執行順序為 FROM／JOIN、WHERE、GROUP BY、HAVING、SELECT、ORDER BY、LIMIT，因此 WHERE 不能用 SELECT 的別名。NULL 代表未知，與之比較結果為 UNKNOWN，須用 IS NULL；WHERE 只保留 TRUE；子查詢含 NULL 時 NOT IN 可能永遠不成立。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 WHERE 子句不能使用 SELECT 中定義的別名？</li>
+          <li>為什麼 <code>WHERE 欄位 = NULL</code> 找不到任何資料？</li>
+          <li>NOT IN 遇到 NULL 會發生什麼事？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>JOIN：把資料表接起來</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-06.html">← 上一課：正規化：1NF 到 BCNF</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-08.html">下一課：JOIN：把資料表接起來 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

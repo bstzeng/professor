@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 36 課：複製：主從、多主與複寫延遲 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="同一份資料存在好幾台機器上">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 36 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜分散式資料庫 · 第 36 課</div>
+      <h1>複製：主從、多主與複寫延遲</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解複製的目的與架構</li>
+          <li>理解同步與非同步複製</li>
+          <li>理解複寫延遲造成的異常</li>
+        </ul>
+      </div>
+
+      <h2>為什麼要複製</h2>
+
+      <ul>
+        <li><strong>高可用</strong>：主機故障時，副本接手。</li>
+        <li><strong>擴展讀取</strong>：讀取分散到多個副本。</li>
+        <li><strong>地理分布</strong>：讓各地使用者讀取附近的副本。</li>
+      </ul>
+
+      <h2>三種架構</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>架構</th><th>做法</th><th>挑戰</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>單一主節點</strong>（主從）</td><td>所有寫入到主節點，再把日誌傳給從節點重播</td><td>主節點故障時要選出新主節點（容錯移轉）</td></tr>
+          <tr><td><strong>多主節點</strong></td><td>多個節點都能寫入，彼此同步</td><td>寫入衝突：兩地同時修改同一筆資料</td></tr>
+          <tr><td><strong>無主節點</strong>（Dynamo 式）</td><td>寫入送到多個節點，讀取也從多個節點讀，依法定人數判斷</td><td>需要處理版本衝突</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>同步 vs. 非同步</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>同步複製</th><th>非同步複製</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>提交時</td><td>等副本確認收到才回應</td><td>主節點寫完就回應</td></tr>
+          <tr><td>資料遺失</td><td>主節點故障也不遺失</td><td>可能遺失最後幾秒的資料</td></tr>
+          <tr><td>延遲</td><td>每次寫入都多一次網路往返</td><td>低</td></tr>
+          <tr><td>可用性</td><td>副本故障可能讓寫入卡住</td><td>高</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        實務上常用「半同步」：至少一個副本同步確認，其他非同步。
+      </p>
+
+      <h2>複寫延遲的異常</h2>
+
+      <ul>
+        <li><strong>讀不到自己的寫入</strong>：使用者剛修改了暱稱，重新整理頁面時讀到的是還沒同步的副本，暱稱又變回舊的。解法：使用者自己的資料從主節點讀。</li>
+        <li><strong>時光倒流</strong>：連續兩次讀取打到不同的副本，第二次反而讀到更舊的資料。解法：同一個使用者固定讀同一個副本。</li>
+        <li><strong>因果顛倒</strong>：先看到回覆，才看到原本的問題。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          複製的目的是高可用、擴展讀取與地理分布。架構有單一主節點（寫入主節點再傳日誌給從節點，需容錯移轉）、多主節點（多處可寫，須處理寫入衝突）與 Dynamo 式無主節點（多節點讀寫並依法定人數判斷）。同步複製不遺失資料但增加延遲並可能卡住寫入，非同步低延遲高可用但可能遺失最後幾秒，實務常用半同步。複寫延遲會造成讀不到自己的寫入、時光倒流與因果顛倒，可由主節點讀自身資料或固定讀同一副本解決。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>同步複製與非同步複製各有什麼優缺點？</li>
+          <li>什麼是「讀不到自己的寫入」？怎麼解決？</li>
+          <li>多主節點架構最大的挑戰是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>分片：一致性雜湊與熱點</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-35.html">← 上一課：備份、還原與時間點復原</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-37.html">下一課：分片：一致性雜湊與熱點 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

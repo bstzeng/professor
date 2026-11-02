@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：鍵值資料庫與快取：Redis ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="最簡單的資料模型，最快的速度">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 43 課</div>
+      <h1>鍵值資料庫與快取：Redis</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解鍵值模型</li>
+          <li>認識 Redis 的資料結構與用途</li>
+          <li>理解快取策略與失效問題</li>
+        </ul>
+      </div>
+
+      <p>
+        鍵值資料庫只有兩個操作：<code>GET(key)</code> 與 <code>PUT(key, value)</code>。沒有 JOIN、沒有複雜查詢，換來的是極致的速度與擴展性。
+      </p>
+
+      <h2>Redis</h2>
+
+      <p>
+        Redis（2009 年）把所有資料放在記憶體裡，一次操作通常在一毫秒以內。它不只是鍵值，還提供多種資料結構：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>結構</th><th>用途</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>字串</td><td>快取、計數器（INCR 是原子操作）</td></tr>
+          <tr><td>雜湊</td><td>存放物件的欄位（使用者資料）</td></tr>
+          <tr><td>串列</td><td>訊息佇列</td></tr>
+          <tr><td>集合、有序集合</td><td>排行榜（依分數排序）、標籤</td></tr>
+          <tr><td>串流（Stream）</td><td>事件紀錄、訊息佇列</td></tr>
+          <tr><td>HyperLogLog</td><td>用極少的記憶體估計相異值數量（例如每日不重複訪客）</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>快取策略</h2>
+
+      <div class="code-block">import json
+
+def get_user(user_id, cache, db):
+    """Cache-aside：先查快取，沒有再查資料庫並寫入快取"""
+    key = f"user:{user_id}"
+    if (hit := cache.get(key)) is not None:
+        return json.loads(hit)
+    user = db.query_one("SELECT * FROM 使用者 WHERE id = ?", user_id)
+    cache.set(key, json.dumps(user), ex=300)      # 5 分鐘後過期
+    return user
+
+def update_user(user_id, fields, cache, db):
+    db.update(user_id, fields)
+    cache.delete(f"user:{user_id}")               # 更新資料庫後「刪除」快取，而不是更新它</div>
+
+      <h2>快取的難題</h2>
+
+      <ul>
+        <li><strong>失效</strong>：資料更新了，快取裡的舊資料怎麼辦？常見做法是更新資料庫後刪除快取，並設定過期時間作為保險。電腦科學有句名言：「只有兩件難事：快取失效與命名。」</li>
+        <li><strong>快取擊穿</strong>：一個熱門的鍵過期瞬間，大量請求同時打到資料庫。解法：加鎖讓只有一個請求去重建，或提前更新。</li>
+        <li><strong>快取雪崩</strong>：大量鍵在同一時間過期。解法：過期時間加上隨機值。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>持久性</h3>
+        <p>
+          Redis 可以用快照（RDB）或附加日誌（AOF）把資料寫到磁碟，但它的設計重點是速度；需要強持久性的資料，主要存放處仍應是資料庫。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          鍵值資料庫只有 GET 與 PUT，沒有 JOIN 與複雜查詢，換取極致速度與擴展性。2009 年的 Redis 把資料放在記憶體，一次操作通常一毫秒內，提供字串（快取、原子計數器）、雜湊、串列（佇列）、集合與有序集合（排行榜）、串流與 HyperLogLog（估計相異值）。Cache-aside 策略先查快取再查資料庫並寫入快取，更新後刪除快取。快取難題包括失效、熱門鍵過期造成的擊穿（加鎖或提前更新）與大量鍵同時過期的雪崩（隨機過期時間）。Redis 可用 RDB 或 AOF 持久化，但強持久資料仍應存在資料庫。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Redis 為什麼這麼快？</li>
+          <li>為什麼更新資料後要「刪除」快取，而不是「更新」快取？</li>
+          <li>什麼是快取擊穿和快取雪崩？怎麼預防？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>文件資料庫：MongoDB</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：雲端資料庫：Aurora 為什麼把儲存和運算分開</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：文件資料庫：MongoDB →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

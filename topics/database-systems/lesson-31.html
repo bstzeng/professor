@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：鎖與兩階段鎖定 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="最經典的並行控制方法">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜交易與並行控制 · 第 31 課</div>
+      <h1>鎖與兩階段鎖定</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解共享鎖與排他鎖</li>
+          <li>理解兩階段鎖定的規則</li>
+          <li>理解鎖的粒度</li>
+        </ul>
+      </div>
+
+      <h2>兩種鎖</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>共享鎖（S，讀）</th><th>排他鎖（X，寫）</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>已有 S</strong></td><td>相容：可以多人同時讀</td><td>衝突：要等</td></tr>
+          <tr><td><strong>已有 X</strong></td><td>衝突：要等</td><td>衝突：要等</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>兩階段鎖定（2PL）</h2>
+
+      <p>
+        每個交易分成兩個階段：
+      </p>
+
+      <ol>
+        <li><strong>成長階段</strong>：只能取得鎖，不能釋放。</li>
+        <li><strong>收縮階段</strong>：一旦釋放了任何一個鎖，就不能再取得新的鎖。</li>
+      </ol>
+
+      <p>
+        可以證明：只要所有交易都遵守 2PL，執行結果一定是<strong>可序列化</strong>的。實務上用的是<strong>嚴格兩階段鎖定</strong>：所有排他鎖都持有到交易提交或中止才釋放，避免別人讀到未提交的資料（以及連鎖中止）。
+      </p>
+
+      <div class="code-block">import threading
+from collections import defaultdict
+
+class LockManager:
+    """簡化的鎖管理器：S／X 鎖，等待時阻塞"""
+    def __init__(self):
+        self.cv = threading.Condition()
+        self.shared = defaultdict(set)     # 資源 -&gt; 持有共享鎖的交易
+        self.excl = {}                     # 資源 -&gt; 持有排他鎖的交易
+
+    def lock_s(self, tx, res):
+        with self.cv:
+            while res in self.excl and self.excl[res] != tx: self.cv.wait()
+            self.shared[res].add(tx)
+
+    def lock_x(self, tx, res):
+        with self.cv:
+            while (res in self.excl and self.excl[res] != tx) or (self.shared[res] - {tx}):
+                self.cv.wait()
+            self.excl[res] = tx
+
+    def release_all(self, tx):              # 嚴格 2PL：提交時一次釋放
+        with self.cv:
+            for r in list(self.excl):
+                if self.excl[r] == tx: del self.excl[r]
+            for s in self.shared.values(): s.discard(tx)
+            self.cv.notify_all()</div>
+
+      <h2>鎖的粒度</h2>
+
+      <ul>
+        <li><strong>資料列鎖</strong>：並行度高，但鎖的數量多、管理成本高。</li>
+        <li><strong>頁鎖、表鎖</strong>：管理簡單，但並行度低。</li>
+        <li><strong>意向鎖</strong>：要鎖一列之前，先在表上放一個「意向排他鎖」，讓想鎖整個表的人不必檢查每一列。</li>
+        <li><strong>間隙鎖</strong>（InnoDB）：鎖住索引中兩個值之間的「空隙」，防止別人插入新資料（防止幻讀）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          共享鎖（讀）彼此相容，排他鎖（寫）與任何鎖衝突。兩階段鎖定 2PL 分為只能取得鎖的成長階段與釋放後不能再取得的收縮階段，所有交易遵守 2PL 即可保證可序列化；實務用嚴格 2PL，排他鎖持有到提交或中止，避免讀到未提交資料與連鎖中止。鎖管理器可用條件變數實作。鎖粒度有並行度高的資料列鎖、管理簡單的頁鎖表鎖，以及意向鎖與 InnoDB 防幻讀的間隙鎖。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>共享鎖和排他鎖的相容規則是什麼？</li>
+          <li>兩階段鎖定的兩個階段是什麼？為什麼它能保證可序列化？</li>
+          <li>什麼是意向鎖？它解決什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>MVCC：讀不擋寫、寫不擋讀</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：隔離等級與異常</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：MVCC：讀不擋寫、寫不擋讀 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

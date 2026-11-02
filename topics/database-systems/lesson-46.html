@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 46 課：圖資料庫：Neo4j 與圖查詢 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="當「關係」本身就是重點">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 46 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 46 課</div>
+      <h1>圖資料庫：Neo4j 與圖查詢</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解屬性圖模型</li>
+          <li>認識 Cypher 查詢語言</li>
+          <li>理解圖資料庫的適用場景</li>
+        </ul>
+      </div>
+
+      <p>
+        在關聯式資料庫中，「朋友的朋友的朋友」要做三次自我連接，每多一層就慢一大截。<strong>圖資料庫</strong>把關係直接存成指標，沿著邊走訪的成本與資料庫的總大小無關。
+      </p>
+
+      <h2>屬性圖模型</h2>
+
+      <ul>
+        <li><strong>節點</strong>：人、公司、帳戶，可以有標籤與屬性。</li>
+        <li><strong>邊</strong>：認識、任職於、轉帳給，有方向、類型與屬性（例如轉帳金額、時間）。</li>
+      </ul>
+
+      <h2>Cypher</h2>
+
+      <div class="code-block">// 找出和「王小明」在三層關係內、而且在同一家公司任職過的人
+MATCH (a:人 {姓名: '王小明'})-[:認識*1..3]-(b:人),
+      (a)-[:任職於]-&gt;(c:公司)&lt;-[:任職於]-(b)
+RETURN DISTINCT b.姓名, c.名稱;
+
+// 反洗錢：找出資金繞了一圈回到原帳戶的轉帳環
+MATCH p = (x:帳戶)-[:轉帳*3..6]-&gt;(x)
+WHERE all(t IN relationships(p) WHERE t.金額 &gt; 1000000)
+RETURN p;</div>
+
+      <p>
+        Cypher 以 ASCII 圖案描述要找的形狀：<code>(節點)-[邊]->(節點)</code>。2024 年 ISO 發布了圖查詢語言 <strong>GQL</strong> 標準，很大程度以 Cypher 為基礎。
+      </p>
+
+      <h2>適用場景</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>場景</th><th>為什麼適合圖</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>社群網路與推薦</td><td>朋友的朋友、買了這個的人也買了</td></tr>
+          <tr><td>詐欺與反洗錢</td><td>找出帳戶之間的環狀轉帳、共用的設備與地址</td></tr>
+          <tr><td>知識圖譜</td><td>實體與關係（本站《Ontology》課程）</td></tr>
+          <tr><td>網路與供應鏈</td><td>相依關係、影響範圍分析</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>不一定需要圖資料庫</h3>
+        <p>
+          如果關係的深度固定而且不深，關聯式資料庫加上遞迴 CTE（第 10 課）往往就夠了。圖資料庫的優勢在<strong>深度不固定的多層走訪</strong>與<strong>圖演算法</strong>（最短路徑、社群偵測、PageRank）。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          關聯式資料庫查詢多層關係需要多次自我連接，圖資料庫把關係存成指標，走訪成本與資料庫總大小無關。屬性圖模型由帶標籤與屬性的節點，以及有方向、類型與屬性的邊組成。Cypher 以 ASCII 圖案描述要找的形狀，可查詢多層關係與反洗錢的環狀轉帳，2024 年 ISO 發布以其為基礎的 GQL 標準。適用於社群推薦、詐欺與反洗錢、知識圖譜、網路與供應鏈。關係深度固定且淺時遞迴 CTE 即可，圖資料庫的優勢在深度不固定的走訪與圖演算法。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼圖資料庫查詢「朋友的朋友的朋友」比關聯式資料庫快？</li>
+          <li>舉一個適合用圖資料庫的業務場景，並說明原因。</li>
+          <li>什麼情況下不需要圖資料庫？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>時序資料庫：監控與物聯網</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-45.html">← 上一課：寬欄資料庫：Cassandra</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-47.html">下一課：時序資料庫：監控與物聯網 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

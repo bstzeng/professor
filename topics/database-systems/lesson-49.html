@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 49 課：資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="分析數十億筆資料的專用系統">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 49 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜各種資料庫 · 第 49 課</div>
+      <h1>資料倉儲與 OLAP：Snowflake、BigQuery、DuckDB</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解資料倉儲的架構與星狀綱要</li>
+          <li>認識現代雲端資料倉儲</li>
+          <li>理解資料湖與湖倉一體</li>
+        </ul>
+      </div>
+
+      <h2>為什麼不直接在交易資料庫上分析</h2>
+
+      <ul>
+        <li>分析查詢掃描大量資料，會拖慢線上交易。</li>
+        <li>交易資料庫是列式儲存，分析效率低（第 17 課）。</li>
+        <li>分析需要整合多個來源（訂單、會員、廣告、客服）。</li>
+      </ul>
+
+      <p>
+        所以把資料用 <strong>ETL／ELT</strong>（擷取、轉換、載入）定期搬到專門的<strong>資料倉儲</strong>。
+      </p>
+
+      <h2>星狀綱要</h2>
+
+      <ul>
+        <li><strong>事實表</strong>：中間的大表，記錄每一筆事件與數值（銷售明細：日期鍵、商品鍵、門市鍵、數量、金額）。</li>
+        <li><strong>維度表</strong>：周圍的小表，描述事件的背景（日期維度：年、季、月、星期、是否假日；商品維度：品牌、類別）。</li>
+        <li>刻意反正規化，讓分析查詢只需要少量、簡單的 JOIN。</li>
+      </ul>
+
+      <h2>現代雲端資料倉儲</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>產品</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Snowflake</td><td>儲存與運算分離，多個運算叢集共享同一份資料，依使用量計費</td></tr>
+          <tr><td>Google BigQuery</td><td>無伺服器，按掃描的資料量計費；源自 Google 的 Dremel 論文（2010）</td></tr>
+          <tr><td>Amazon Redshift</td><td>早期的雲端資料倉儲之一</td></tr>
+          <tr><td>ClickHouse</td><td>開源、極快的欄式資料庫，常用於即時分析與日誌</td></tr>
+          <tr><td>DuckDB</td><td>嵌入式分析資料庫（2019 年起），「分析界的 SQLite」，在筆電上就能快速分析數億筆資料</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="code-block">import duckdb
+# 直接查詢 Parquet 檔案，不需要先匯入
+duckdb.sql('''
+    SELECT 門市, date_trunc('month', 日期) AS 月份, SUM(金額) AS 營收
+    FROM 'sales/*.parquet'
+    WHERE 日期 &gt;= '2026-01-01'
+    GROUP BY ALL
+    ORDER BY 月份, 營收 DESC
+''').show()</div>
+
+      <h2>資料湖與湖倉一體</h2>
+
+      <ul>
+        <li><strong>資料湖</strong>：把所有原始資料（結構化、日誌、圖片）以便宜的格式（例如 Parquet）存在物件儲存（S3）上。</li>
+        <li>問題：缺乏交易、綱要管理，容易變成「資料沼澤」。</li>
+        <li><strong>湖倉一體</strong>（lakehouse）：用 Apache Iceberg、Delta Lake 等表格式，在資料湖上加入交易、綱要演進與時間旅行查詢，讓多種引擎（Spark、Trino、Snowflake、DuckDB）都能讀同一份資料。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          分析查詢會拖慢交易、列式儲存分析效率低且需整合多來源，因此以 ETL／ELT 搬到資料倉儲。星狀綱要以記錄事件與數值的事實表為中心，周圍是描述背景的維度表，刻意反正規化以簡化 JOIN。現代雲端資料倉儲有儲存運算分離的 Snowflake、按掃描量計費並源自 2010 年 Dremel 的 BigQuery、Redshift、開源極快的 ClickHouse，以及 2019 年起、可直接查詢 Parquet 的嵌入式 DuckDB。資料湖把原始資料以 Parquet 存在物件儲存，湖倉一體以 Iceberg、Delta Lake 加入交易、綱要演進與時間旅行。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼不在交易資料庫上直接做大型分析？</li>
+          <li>星狀綱要中的事實表與維度表各存什麼？</li>
+          <li>什麼是湖倉一體？它解決了資料湖的什麼問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>資料庫安全：SQL 注入、權限與加密</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-48.html">← 上一課：向量資料庫：AI 與 RAG 的基礎</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-50.html">下一課：資料庫安全：SQL 注入、權限與加密 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

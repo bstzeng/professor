@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：關聯代數：SQL 背後的數學 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="選擇、投影、連接：最佳化器思考的語言">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜關聯模型與 SQL · 第 14 課</div>
+      <h1>關聯代數：SQL 背後的數學</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識關聯代數的基本運算</li>
+          <li>把 SQL 轉成關聯代數</li>
+          <li>理解等價改寫與最佳化的關係</li>
+        </ul>
+      </div>
+
+      <p>
+        SQL 是給人寫的；資料庫內部會先把它轉成<strong>關聯代數</strong>——一組作用在資料表上、結果仍是資料表的運算。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>運算</th><th>符號</th><th>意思</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>選擇</td><td>\(\sigma_{\text{cond}}(R)\)</td><td>保留符合條件的列（WHERE）</td></tr>
+          <tr><td>投影</td><td>\(\pi_{A,B}(R)\)</td><td>只保留某些欄位（SELECT 的欄位）</td></tr>
+          <tr><td>連接</td><td>\(R \bowtie_{\text{cond}} S\)</td><td>JOIN</td></tr>
+          <tr><td>聯集、差集、交集</td><td>\(R \cup S,\; R - S,\; R \cap S\)</td><td>UNION、EXCEPT、INTERSECT</td></tr>
+          <tr><td>笛卡兒積</td><td>\(R \times S\)</td><td>CROSS JOIN</td></tr>
+          <tr><td>分組聚合</td><td>\(\gamma_{\text{dept},\,\text{AVG(score)}}(R)\)</td><td>GROUP BY</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>一個查詢的代數形式</h2>
+
+      <div class="code-block">SELECT 姓名 FROM 學生 s JOIN 選課 e ON s.學號 = e.學號 WHERE e.成績 &gt;= 90;</div>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\pi_{\text{name}}\left(\sigma_{\text{score} \ge 90}\left(\text{Student} \bowtie \text{Enroll}\right)\right)\]</div>
+
+      <h2>等價改寫：最佳化的基礎</h2>
+
+      <p>
+        同一個結果有很多種等價的代數式，成本可以差上千倍。最重要的一條規則是<strong>選擇下推</strong>：先過濾、再連接。
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\sigma_{\text{score} \ge 90}(S \bowtie E) \equiv S \bowtie \sigma_{\text{score} \ge 90}(E)\]</div>
+
+      <p>
+        如果選課有一百萬筆、成績 90 分以上只有五萬筆，先過濾再連接，Join 的輸入就少了 95%。
+      </p>
+
+      <div class="code-block"># 用 Python 實作三個基本運算（資料表 = 字典的串列）
+def select(R, pred):  return [r for r in R if pred(r)]
+def project(R, cols): return [{c: r[c] for c in cols} for r in R]
+def join(R, S, key):
+    idx = {}
+    for s in S: idx.setdefault(s[key], []).append(s)       # 雜湊連接（第 24 課）
+    return [{**r, **s} for r in R for s in idx.get(r[key], [])]
+
+students = [{"sid": 1, "name": "王小明"}, {"sid": 2, "name": "林小華"}]
+enroll   = [{"sid": 1, "course": "資料庫", "score": 92}, {"sid": 2, "course": "資料庫", "score": 78}]
+print(project(join(students, select(enroll, lambda e: e["score"] &gt;= 90), "sid"), ["name"]))</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          資料庫內部先把 SQL 轉成關聯代數：選擇 σ（WHERE）、投影 π（SELECT 欄位）、連接 ⋈（JOIN）、聯集差集交集（UNION、EXCEPT、INTERSECT）、笛卡兒積 ×（CROSS JOIN）與分組聚合 γ（GROUP BY），運算結果仍是資料表。同一結果有多種等價代數式，成本可差上千倍，最重要的改寫規則是選擇下推：先過濾再連接，可大幅縮小 Join 輸入。三個基本運算可用 Python 簡單實作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>把一個含 WHERE 與 JOIN 的 SQL 寫成關聯代數。</li>
+          <li>什麼是選擇下推？為什麼它能大幅提升效能？</li>
+          <li>為什麼資料庫要先把 SQL 轉成關聯代數？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>硬碟、SSD 與記憶體：為什麼 I/O 是一切的關鍵</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：檢視、預存程序與觸發器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：硬碟、SSD 與記憶體：為什麼 I/O 是一切的關鍵 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

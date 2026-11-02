@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：統計資訊與成本估計 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="最佳化器怎麼「猜」一個條件會篩出多少筆">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜查詢處理與最佳化 · 第 25 課</div>
+      <h1>統計資訊與成本估計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解選擇性與基數估計</li>
+          <li>認識直方圖與常見值</li>
+          <li>理解估計錯誤的後果</li>
+        </ul>
+      </div>
+
+      <p>
+        最佳化器要選計畫，必須先估計每一步會產生多少資料列（<strong>基數</strong>）。它依賴資料庫定期收集的<strong>統計資訊</strong>（PostgreSQL 的 ANALYZE、MySQL 的 ANALYZE TABLE）。
+      </p>
+
+      <h2>統計資訊包括</h2>
+
+      <ul>
+        <li>表的總筆數、總頁數。</li>
+        <li>每個欄位的相異值數量、NULL 的比例。</li>
+        <li><strong>最常見值</strong>（MCV）與它們的頻率。</li>
+        <li><strong>直方圖</strong>：把值的範圍切成多個桶，每桶的筆數大致相同。</li>
+      </ul>
+
+      <h2>選擇性估計</h2>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{sel}(A = c) \approx \frac{1}{\text{ndistinct}(A)} \qquad \text{sel}(A \lt c) \approx \frac{c - \min}{\max - \min}\]</div>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{sel}(p_1 \wedge p_2) \approx \text{sel}(p_1) \times \text{sel}(p_2) \quad \text{(independence)}\]</div>
+
+      <h2>獨立性假設的陷阱</h2>
+
+      <p>
+        「縣市 = 台北市」選擇性 10%，「郵遞區號 = 100」選擇性 0.5%。最佳化器假設兩者獨立，估計同時成立的比例是 0.05%；但實際上郵遞區號 100 一定在台北市，真實比例是 0.5%——低估了 10 倍。
+      </p>
+
+      <ul>
+        <li>低估 → 以為結果很少 → 選了巢狀迴圈 → 實際上要跑幾百萬次，查詢慢了上千倍。</li>
+        <li>解法：PostgreSQL 的「延伸統計」（CREATE STATISTICS）可以記錄欄位之間的相依；或改寫查詢、使用提示。</li>
+      </ul>
+
+      <div class="code-block"># 用等深直方圖估計範圍條件的選擇性
+import bisect, random
+values = sorted(random.gauss(50, 15) for _ in range(100_000))
+buckets = 20
+bounds = [values[i * len(values) // buckets] for i in range(buckets)] + [values[-1]]
+
+def est_less_than(c):
+    i = bisect.bisect_right(bounds, c) - 1                       # 落在第 i 個桶
+    if i &lt; 0: return 0.0
+    if i &gt;= buckets: return 1.0
+    lo, hi = bounds[i], bounds[i + 1]
+    frac = (c - lo) / (hi - lo) if hi &gt; lo else 0                # 桶內假設均勻分布
+    return (i + frac) / buckets
+
+real = sum(v &lt; 30 for v in values) / len(values)
+print(f"估計 {est_less_than(30):.3f}，實際 {real:.3f}")</div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          最佳化器依 ANALYZE 收集的統計資訊估計每步產生的資料列數（基數），統計包括總筆數與頁數、欄位相異值數與 NULL 比例、最常見值 MCV 與頻率，以及每桶筆數相近的直方圖。等值選擇性約為 1/相異值數，範圍條件依值域比例估計，多條件假設獨立而相乘。獨立性假設在相關欄位（如縣市與郵遞區號）會低估 10 倍，導致錯選巢狀迴圈而慢上千倍，可用 PostgreSQL 延伸統計 CREATE STATISTICS、改寫查詢或提示解決。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>資料庫收集哪些統計資訊？</li>
+          <li>為什麼「獨立性假設」會讓估計出錯？舉一個例子。</li>
+          <li>基數低估可能造成什麼樣的效能問題？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>看懂 EXPLAIN：查詢計畫實戰</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：Join 演算法：巢狀迴圈、雜湊、排序合併</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：看懂 EXPLAIN：查詢計畫實戰 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

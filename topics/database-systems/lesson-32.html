@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 32 課：MVCC：讀不擋寫、寫不擋讀 ｜ 資料庫系統原理 ｜ 博雅書院</title>
+<meta name="description" content="PostgreSQL 與 InnoDB 怎麼讓讀寫不互相等待">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資料庫系統原理</a>
+      <span class="sep">/</span>
+      <span>第 32 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜交易與並行控制 · 第 32 課</div>
+      <h1>MVCC：讀不擋寫、寫不擋讀</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解多版本並行控制的原理</li>
+          <li>理解快照與可見性規則</li>
+          <li>比較 PostgreSQL 與 InnoDB 的實作</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__dbsLib) return; window.__dbsLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#e07a2f', GN = '#2e9e5b', RD = '#e0505a', PU = '#8e5bd1', GY = '#9aa3ad', TL = '#2a9d8f', YL = '#d4a017';
+        var PAL = [BL, OR, GN, PU, RD, TL, YL, '#b0607a', '#5a8fd1', '#7a9e2e'];
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function row(root) { var d = el('div'); root.appendChild(d); return d; }
+        function bt(par, t, cb) { var b = btn(t); b.onclick = cb; par.appendChild(b); return b; }
+        function fx(v, d) { return (+v).toFixed(d === undefined ? 1 : d); }
+        function sl(root, lab, mn, mx, st, val, fmt, cb) { return slider(root, lab, mn, mx, st, val, fmt || function (x) { return x; }, null, cb); }
+        function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+        function cell(s, css) { return '<td style="padding:3px 8px;border-bottom:1px solid var(--border);' + (css || '') + '">' + s + '</td>'; }
+        function tbl(head, rows, cap) { return '<div style="overflow-x:auto;margin:4px 0">' + (cap ? '<div style="font-size:0.85em;color:var(--text-muted);margin:2px 0">' + cap + '</div>' : '') + '<table style="border-collapse:collapse;width:100%;font-size:0.86em"><tr>' + head.map(function (h) { return '<th style="padding:3px 8px;text-align:left;font-weight:normal;color:var(--text-muted);border-bottom:2px solid var(--border)">' + h + '</th>'; }).join('') + '</tr>' + rows.join('') + '</table></div>'; }
+        function rowsOf(R, cols) { return R.map(function (r) { return '<tr>' + cols.map(function (c) { var v = r[c]; return cell(v === null || v === undefined ? '<span style="color:' + RD + '">NULL</span>' : esc(v)); }).join('') + '</tr>'; }); }
+        function pre(s) { return '<pre style="margin:6px 0;padding:8px 12px;border-radius:8px;background:var(--surface);border:1px solid var(--border);font-size:0.86em;white-space:pre-wrap">' + esc(s) + '</pre>'; }
+        function rng(seed) { var s = seed >>> 0 || 1; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
+        function human(n) { var v; return n >= 1e8 ? (v = n / 1e8, fx(v, v >= 10 ? 0 : 1) + ' 億') : n >= 1e4 ? (v = n / 1e4, fx(v, v >= 100 ? 0 : 1) + ' 萬') : Math.round(n).toLocaleString(); }
+        function tm(ms) { return ms >= 3600000 ? fx(ms / 3600000, 1) + ' 小時' : ms >= 60000 ? fx(ms / 60000, 1) + ' 分鐘' : ms >= 1000 ? fx(ms / 1000, 2) + ' 秒' : ms >= 1 ? fx(ms, 1) + ' 毫秒' : fx(ms * 1000, 0) + ' 微秒'; }
+
+        /* ---------- 查詢執行步驟 ---------- */
+        var STU = [{ sid: 1, name: '王小明', dept: '資工' }, { sid: 2, name: '林小華', dept: '電機' }, { sid: 3, name: '陳大文', dept: '資工' }, { sid: 4, name: '張美玲', dept: '數學' }, { sid: 5, name: '李志強', dept: '電機' }];
+        var ENR = [{ sid: 1, course: '資料庫', score: 90 }, { sid: 1, course: '演算法', score: 85 }, { sid: 2, course: '資料庫', score: 78 }, { sid: 3, course: '資料庫', score: 92 }, { sid: 3, course: '作業系統', score: 88 }, { sid: 5, course: '演算法', score: 70 }];
+        function joinR(a, b, left) { var out = []; a.forEach(function (s) { var m = b.filter(function (e) { return e.sid === s.sid; }); if (m.length) m.forEach(function (e) { out.push({ sid: s.sid, name: s.name, dept: s.dept, course: e.course, score: e.score }); }); else if (left) out.push({ sid: s.sid, name: s.name, dept: s.dept, course: null, score: null }); }); return out; }
+        var QS = {
+          'WHERE 過濾': { sql: "SELECT name FROM 學生 WHERE dept = '資工';", steps: [
+            ['掃描（Seq Scan）學生', '從磁碟一頁一頁讀出所有資料列。', STU, ['sid', 'name', 'dept']],
+            ['過濾（Filter）dept = \'資工\'', '逐筆檢查條件，不符合的丟掉。若 dept 有索引，最佳化器可能改用索引直接找到這兩筆。', STU.filter(function (r) { return r.dept === '資工'; }), ['sid', 'name', 'dept']],
+            ['投影（Project）name', '只保留 SELECT 要的欄位。', STU.filter(function (r) { return r.dept === '資工'; }), ['name']]] },
+          'JOIN 連接': { sql: "SELECT s.name, e.course, e.score\nFROM 學生 s JOIN 選課 e ON s.sid = e.sid\nWHERE e.score >= 85;", steps: [
+            ['掃描 選課，並先過濾 score >= 85', '最佳化器把條件「下推」到連接之前，先縮小資料量（謂詞下推）。', ENR.filter(function (e) { return e.score >= 85; }), ['sid', 'course', 'score']],
+            ['建立雜湊表：學生（以 sid 為鍵）', '把較小的表放進記憶體的雜湊表，之後用 sid 直接查找。', STU, ['sid', 'name', 'dept']],
+            ['雜湊連接：用 選課.sid 探測雜湊表', '每一筆選課資料，用 sid 在雜湊表中找到對應的學生，組成新的一列。', joinR(STU, ENR.filter(function (e) { return e.score >= 85; })), ['sid', 'name', 'course', 'score']],
+            ['投影 name, course, score', '輸出結果。', joinR(STU, ENR.filter(function (e) { return e.score >= 85; })), ['name', 'course', 'score']]] },
+          'GROUP BY 分組': { sql: "SELECT s.dept, COUNT(*) AS 修課數, AVG(e.score) AS 平均\nFROM 學生 s JOIN 選課 e ON s.sid = e.sid\nGROUP BY s.dept\nORDER BY 平均 DESC;", steps: [
+            ['連接 學生 與 選課', '先得到每一筆修課紀錄與學生的系所。', joinR(STU, ENR), ['name', 'dept', 'course', 'score']],
+            ['分組（HashAggregate）依 dept', '用雜湊表把同一系所的資料放在一起，邊放邊累計筆數與總分。', (function () { var g = {}; joinR(STU, ENR).forEach(function (r) { (g[r.dept] = g[r.dept] || { dept: r.dept, n: 0, sum: 0 }); g[r.dept].n++; g[r.dept].sum += r.score; }); return Object.keys(g).map(function (k) { return { dept: k, '修課數': g[k].n, '總分': g[k].sum }; }); })(), ['dept', '修課數', '總分']],
+            ['計算 AVG 並排序', '平均 = 總分 ÷ 筆數，再依平均由高到低排序。', (function () { var g = {}; joinR(STU, ENR).forEach(function (r) { (g[r.dept] = g[r.dept] || { n: 0, s: 0 }); g[r.dept].n++; g[r.dept].s += r.score; }); return Object.keys(g).map(function (k) { return { dept: k, '修課數': g[k].n, '平均': fx(g[k].s / g[k].n, 2) }; }).sort(function (a, b) { return b['平均'] - a['平均']; }); })(), ['dept', '修課數', '平均']]] },
+          'LEFT JOIN 與 NULL': { sql: "SELECT s.name, e.course\nFROM 學生 s LEFT JOIN 選課 e ON s.sid = e.sid;", steps: [
+            ['掃描 學生（左表）', '左外連接會保留左表的每一筆。', STU, ['sid', 'name']],
+            ['逐筆找右表中 sid 相同的選課', '找到幾筆就產生幾列；張美玲沒有選課，仍保留一列，右邊欄位填 NULL。', joinR(STU, ENR, true), ['name', 'course']]] }
+        };
+        function initQexec(root, cfg) { head(root, cfg.q); var keys = Object.keys(QS), cur = cfg.k || keys[0], st = 0, v = el('div'), inf;
+          var b = row(root); keys.forEach(function (k) { var x = btn(k, k); x.onclick = function () { cur = k; st = 0; mark(b, k); draw(); }; b.appendChild(x); }); mark(b, cur);
+          var b2 = row(root); bt(b2, '◀ 上一步', function () { st = Math.max(0, st - 1); draw(); }); bt(b2, '下一步 ▶', function () { st = Math.min(QS[cur].steps.length - 1, st + 1); draw(); });
+          root.appendChild(v); inf = info(root);
+          function draw() { var Q = QS[cur], s = Q.steps[st];
+            v.innerHTML = pre(Q.sql) + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">' + Q.steps.map(function (x, i) { return '<span style="padding:2px 8px;border-radius:10px;font-size:0.82em;background:' + (i === st ? BL : 'var(--surface)') + ';color:' + (i === st ? '#fff' : 'var(--text-muted)') + ';border:1px solid var(--border)">' + (i + 1) + '. ' + x[0].split('（')[0].split('：')[0] + '</span>'; }).join('') + '</div>' + tbl(s[3], rowsOf(s[2], s[3]), '第 ' + (st + 1) + ' 步的輸出（' + s[2].length + ' 列）');
+            inf.innerHTML = '<b>第 ' + (st + 1) + '／' + Q.steps.length + ' 步：' + esc(s[0]) + '</b><br>' + s[1]; }
+          draw(); }
+
+        /* ---------- B+ 樹 ---------- */
+        var SEQ = [10, 20, 5, 6, 12, 30, 7, 17, 3, 25, 40, 1, 15, 8, 22, 35, 2, 27, 33, 45, 50, 11, 14, 18];
+        function initBptree(root, cfg) { head(root, cfg.q); var m = cfg.m || 3, T, idx, R = rng(5), last, v = el('div'), inf, ins = [];
+          var b = row(root); [['每個節點最多 3 個鍵', 3], ['最多 4 個鍵', 4]].forEach(function (p) { var x = btn(p[0], p[1]); x.onclick = function () { m = p[1]; mark(b, m); reset(); draw(); }; b.appendChild(x); }); mark(b, m);
+          var b2 = row(root); bt(b2, '插入下一個', function () { if (idx < SEQ.length) add(SEQ[idx++]); else add(Math.floor(R() * 99) + 1); draw(); }); bt(b2, '一次插入 8 個', function () { for (var i = 0; i < 8; i++) { if (idx < SEQ.length) add(SEQ[idx++]); else add(Math.floor(R() * 99) + 1); } draw(); }); bt(b2, '重設', function () { reset(); draw(); });
+          root.appendChild(v); inf = info(root);
+          function reset() { T = { leaf: true, keys: [] }; idx = 0; last = null; ins = []; R = rng(5); }
+          function insert(n, k) { if (n.leaf) { if (n.keys.indexOf(k) >= 0) return null; n.keys.push(k); n.keys.sort(function (a, b) { return a - b; }); if (n.keys.length <= m) return null; var h = Math.ceil((m + 1) / 2), r = { leaf: true, keys: n.keys.slice(h) }; n.keys = n.keys.slice(0, h); return { sep: r.keys[0], node: r }; }
+            var i = 0; while (i < n.keys.length && k >= n.keys[i]) i++; var res = insert(n.children[i], k); if (!res) return null;
+            n.keys.splice(i, 0, res.sep); n.children.splice(i + 1, 0, res.node); if (n.keys.length <= m) return null;
+            var mid = Math.floor(n.keys.length / 2), sep = n.keys[mid], r2 = { leaf: false, keys: n.keys.slice(mid + 1), children: n.children.slice(mid + 1) }; n.keys = n.keys.slice(0, mid); n.children = n.children.slice(0, mid + 1); return { sep: sep, node: r2 }; }
+          function add(k) { last = k; ins.push(k); var res = insert(T, k); if (res) T = { leaf: false, keys: [res.sep], children: [T, res.node] }; }
+          function draw() { var levels = [], leaves = [];
+            (function walk(n, d) { (levels[d] = levels[d] || []).push(n); if (n.leaf) leaves.push(n); else n.children.forEach(function (c) { walk(c, d + 1); }); })(T, 0);
+            var KW = 24, gap = 14, x = 10; leaves.forEach(function (n) { n.w = Math.max(1, n.keys.length) * KW + 8; n.x = x; x += n.w + gap; });
+            (function pos(n) { if (n.leaf) return; n.children.forEach(pos); n.w = Math.max(1, n.keys.length) * KW + 8; var c0 = n.children[0], c1 = n.children[n.children.length - 1]; n.x = (c0.x + c0.w / 2 + c1.x + c1.w / 2) / 2 - n.w / 2; })(T);
+            var W = Math.max(x, 300), H = levels.length * 64 + 10, g = '';
+            levels.forEach(function (L, d) { L.forEach(function (n) { var y = 10 + d * 64; if (!n.leaf) n.children.forEach(function (c, i) { g += ln(n.x + 4 + i * KW, y + 26, c.x + c.w / 2, y + 64, GY, 1); });
+              g += '<rect x="' + n1(n.x) + '" y="' + y + '" width="' + n.w + '" height="26" rx="4" fill="' + (n.leaf ? 'var(--surface)' : BL) + '" stroke="' + (n.leaf ? GN : BL) + '" stroke-width="1.5"/>';
+              n.keys.forEach(function (k, i) { g += tx(n.x + 4 + i * KW + KW / 2, y + 18, k, 12, n.leaf ? (k === last ? RD : 'currentColor') : '#fff') + (i ? ln(n.x + 4 + i * KW, y + 3, n.x + 4 + i * KW, y + 23, n.leaf ? 'var(--border)' : '#ffffff66', 1) : ''); }); }); });
+            for (var i = 0; i + 1 < leaves.length; i++) { var a = leaves[i], c = leaves[i + 1], yy = 10 + (levels.length - 1) * 64 + 13; g += ln(a.x + a.w, yy, c.x, yy, GN, 1.2, 'marker-end="url(#bpa)"'); }
+            g = '<defs><marker id="bpa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="' + GN + '"/></marker></defs>' + g;
+            v.innerHTML = '<div style="overflow-x:auto">' + svgw('0 0 ' + Math.max(W, 660) + ' ' + H, g).replace('width:100%', 'width:100%;min-width:' + Math.min(W, 900) + 'px') + '</div>';
+            var cnt = levels.reduce(function (s, L) { return s + L.length; }, 0);
+            inf.innerHTML = (last === null ? '按「插入下一個」開始。' : '剛插入 <b style="color:' + RD + '">' + last + '</b>。') + '目前 ' + ins.length + ' 個鍵、' + cnt + ' 個節點、樹高 <b>' + levels.length + '</b>。<br>藍色是內部節點（只放「路標」），綠框是葉節點（放所有的鍵，並用箭頭串成有序鏈結，方便範圍查詢）。節點滿了就從中間<b>分裂</b>，把一個鍵往上推；樹只會從根部長高，所以所有葉節點永遠在同一層。<br><span style="color:var(--text-muted);font-size:0.9em">真實資料庫的一個節點就是一頁（8～16 KB），能放數百個鍵，所以存一億筆資料的樹高通常只有 3～4 層。</span>'; }
+          reset(); draw(); }
+
+        /* ---------- 全表掃描 vs. 索引 ---------- */
+        function initScan(root, cfg) { head(root, cfg.q); var P = { n: 7, rb: 200, sel: -4, ssd: 1, cl: 0 }, v = el('div'), inf, ups = [];
+          var b = row(root); [['SSD', 1], ['傳統硬碟', 0]].forEach(function (p) { var x = btn(p[0], p[1]); x.onclick = function () { P.ssd = p[1]; mark(b, P.ssd); draw(); }; b.appendChild(x); }); mark(b, P.ssd);
+          var b2 = row(root); [['非叢集索引（二級索引）', 0], ['叢集索引（資料依索引順序存放）', 1]].forEach(function (p) { var x = btn(p[0], 'c' + p[1]); x.onclick = function () { P.cl = p[1]; mark(b2, 'c' + P.cl); draw(); }; b2.appendChild(x); }); mark(b2, 'c' + P.cl);
+          ups.push(sl(root, '資料表筆數', 3, 9, 0.5, P.n, function (x) { return human(Math.pow(10, x)); }, function (x) { P.n = x; draw(); }));
+          ups.push(sl(root, '每筆資料大小（位元組）', 50, 2000, 50, P.rb, null, function (x) { P.rb = x; draw(); }));
+          ups.push(sl(root, '查詢回傳的比例', -6, 0, 0.5, P.sel, function (x) { var p = Math.pow(10, x) * 100; return (p >= 1 ? fx(p, 0) : p >= 0.01 ? fx(p, 2) : p.toExponential(0)) + '%'; }, function (x) { P.sel = x; draw(); }));
+          root.appendChild(v); inf = info(root);
+          function cost(sel) { var N = Math.pow(10, P.n), pages = Math.ceil(N * P.rb / 8192), seq = P.ssd ? 2000 : 150, rnd = P.ssd ? 0.1 : 8, h = Math.max(1, Math.ceil(Math.log(N) / Math.log(400))), mt = Math.max(1, N * sel);
+            var full = pages * 8192 / (seq * 1e6) * 1000, idx = P.cl ? h * rnd + (mt * P.rb / 8192) * 8192 / (seq * 1e6) * 1000 : (h + mt) * rnd; return { full: full, idx: idx, pages: pages, h: h, mt: mt }; }
+          function draw() { var c = cost(Math.pow(10, P.sel)), mx = Math.max(c.full, c.idx), g = '';
+            [['全表掃描（循序讀取 ' + human(c.pages) + ' 頁）', c.full, OR], ['索引查詢（樹高 ' + c.h + '，回傳 ' + human(c.mt) + ' 筆）', c.idx, BL]].forEach(function (r, i) { var w = Math.max(2, Math.log10(r[1] * 1000 + 1) / Math.log10(mx * 1000 + 1) * 380); g += tx(250, 26 + i * 34, r[0], 11.5, 'currentColor', 'end') + '<rect x="260" y="' + (12 + i * 34) + '" width="' + n1(w) + '" height="22" rx="3" fill="' + r[2] + '"/>' + tx(266 + w, 28 + i * 34, tm(r[1]), 11, 'var(--text-muted)', 'start'); });
+            v.innerHTML = svgw('0 0 680 80', g);
+            var be = null; for (var e = -7; e <= 0; e += 0.05) { var cc = cost(Math.pow(10, e)); if (cc.idx > cc.full) { be = Math.pow(10, e) * 100; break; } }
+            inf.innerHTML = (c.idx < c.full ? '<b style="color:' + BL + '">索引較快</b>' : '<b style="color:' + OR + '">全表掃描反而較快</b>') + (Math.max(c.full, c.idx) / Math.min(c.full, c.idx) < 1.5 ? '（兩者差不多）。<br>' : '（約快 ' + fx(Math.max(c.full, c.idx) / Math.min(c.full, c.idx), 0) + ' 倍）。<br>') + (be !== null ? '在這組條件下，查詢回傳超過約 <b>' + (be >= 1 ? fx(be, 1) : be.toPrecision(2)) + '%</b> 的資料時，全表掃描就會比索引快。' : '在這組條件下，索引幾乎總是比較快。') +
+              (P.cl ? '叢集索引的資料依鍵值順序存放，找到起點後可以循序讀取，所以範圍查詢也很快。' : '非叢集索引每找到一筆，都要再跳到資料頁隨機讀一次——回傳的筆數一多，隨機讀取就比整個表循序讀還慢。') + '<br><span style="color:var(--text-muted);font-size:0.9em">粗估：頁大小 8 KB、索引每頁約 400 個鍵；SSD 隨機讀 0.1 毫秒、循序 2 GB/s；硬碟隨機讀 8 毫秒、循序 150 MB/s；不考慮快取（橫條為對數刻度）。</span>'; }
+          ups.forEach(function (u) { u(); }); }
+
+        /* ---------- Join 演算法 ---------- */
+        function initJoin(root, cfg) { head(root, cfg.q); var P = { r: 4, s: 6, b: 100 }, v = el('div'), inf, ups = [];
+          ups.push(sl(root, '外表 R 的筆數', 2, 8, 0.5, P.r, function (x) { return human(Math.pow(10, x)); }, function (x) { P.r = x; draw(); }));
+          ups.push(sl(root, '內表 S 的筆數', 2, 8, 0.5, P.s, function (x) { return human(Math.pow(10, x)); }, function (x) { P.s = x; draw(); }));
+          ups.push(sl(root, '可用記憶體（頁）', 3, 10000, 1, P.b, function (x) { return x.toLocaleString() + ' 頁'; }, function (x) { P.b = x; draw(); }));
+          root.appendChild(v); inf = info(root);
+          function draw() { var rr = Math.pow(10, P.r), rs = Math.pow(10, P.s), M = Math.ceil(rr / 50), N = Math.ceil(rs / 50), B = P.b, small = Math.min(M, N);
+            var pass = function (p) { return p <= B ? 1 : 1 + Math.ceil(Math.log(Math.ceil(p / B)) / Math.log(Math.max(2, B - 1))); };
+            var C = [['逐筆巢狀迴圈', M + rr * N, GY], ['區塊巢狀迴圈', M + Math.ceil(M / Math.max(1, B - 2)) * N, PU], ['索引巢狀迴圈（S 有索引）', M + rr * 4, TL], ['排序合併連接', (pass(M) > 1 ? 2 * M * pass(M) : 0) + (pass(N) > 1 ? 2 * N * pass(N) : 0) + M + N, OR], ['雜湊連接', small <= B - 2 ? M + N : 3 * (M + N), BL]];
+            var mx = Math.max.apply(null, C.map(function (c) { return c[1]; })), mn = Math.min.apply(null, C.map(function (c) { return c[1]; })), g = '';
+            C.forEach(function (c, i) { var w = Math.max(2, Math.log10(c[1] + 1) / Math.log10(mx + 1) * 270); g += tx(200, 24 + i * 30, c[0], 11.5, c[1] === mn ? GN : 'currentColor', 'end') + '<rect x="210" y="' + (10 + i * 30) + '" width="' + n1(w) + '" height="20" rx="3" fill="' + c[2] + '"/>' + tx(216 + w, 25 + i * 30, human(c[1]) + ' 次 I/O（約 ' + tm(c[1] * 0.1) + '）', 10.5, 'var(--text-muted)', 'start'); });
+            v.innerHTML = svgw('0 0 680 160', g); var best = C.filter(function (c) { return c[1] === mn; })[0][0];
+            inf.innerHTML = 'R 約 ' + human(M) + ' 頁、S 約 ' + human(N) + ' 頁。最省的是 <b style="color:' + GN + '">' + best + '</b>。<br>' + (small <= B - 2 ? '較小的表可以整個放進記憶體，雜湊連接只需把兩個表各讀一次。' : '記憶體放不下任何一個表，雜湊連接要先把兩個表依雜湊值分割寫回磁碟，成本約為三倍的讀寫。') + (rr <= 1000 ? '外表很小時，索引巢狀迴圈只要查幾次索引，常常是最快的。' : '') + '<br><span style="color:var(--text-muted);font-size:0.9em">以每頁 50 筆、每次 I/O 0.1 毫秒粗估，索引查一次約 4 次 I/O（橫條為對數刻度）。逐筆巢狀迴圈在大表上幾乎不可行。</span>'; }
+          ups.forEach(function (u) { u(); }); }
+
+        /* ---------- 隔離等級 ---------- */
+        var LV = ['讀未提交', '讀已提交', '可重複讀（快照）', '可序列化'];
+        var ISO = {
+          '髒讀': { steps: [['BEGIN', ''], ['UPDATE 帳戶 SET 餘額 = 0 WHERE id = A（原本 100，尚未提交）', ''], ['', 'SELECT 餘額 FROM 帳戶 WHERE id = A'], ['ROLLBACK', ''], ['', '用讀到的餘額做決定…']],
+            res: [[1, 'T2 讀到 0：讀到了一個「從未真正存在」的值（理論上的讀未提交；PostgreSQL 實際上把它當成讀已提交，不會發生）。'], [0, 'T2 讀到 100：只看得到已提交的資料。'], [0, 'T2 讀到 100。'], [0, 'T2 讀到 100。']] },
+          '不可重複讀': { steps: [['BEGIN；SELECT 餘額（讀到 100）', ''], ['', 'BEGIN；UPDATE 餘額 = 50；COMMIT'], ['SELECT 餘額（再讀一次）', ''], ['COMMIT', '']],
+            res: [[1, '第二次讀到 50：同一個交易裡，兩次讀同一筆資料結果不同。'], [1, '第二次讀到 50：讀已提交每個「語句」看到最新的已提交資料。'], [0, '第二次仍讀到 100：整個交易使用同一個快照。'], [0, '第二次仍讀到 100。']] },
+          '幻讀': { steps: [['BEGIN；SELECT COUNT(*) WHERE 分數 >= 90（得到 2）', ''], ['', 'BEGIN；INSERT 一筆分數 95；COMMIT'], ['SELECT COUNT(*) WHERE 分數 >= 90（再數一次）', ''], ['COMMIT', '']],
+            res: [[1, '第二次得到 3：多出一筆「幻影」資料。'], [1, '第二次得到 3。'], [0, '第二次仍得到 2：快照看不到之後才提交的新資料（PostgreSQL；MySQL 的可重複讀用間隙鎖達到類似效果）。'], [0, '第二次仍得到 2。']] },
+          '遺失更新': { steps: [['BEGIN；SELECT 庫存（讀到 10）', ''], ['', 'BEGIN；SELECT 庫存（讀到 10）'], ['UPDATE 庫存 = 9（程式算出 10 − 1）；COMMIT', ''], ['', 'UPDATE 庫存 = 9（程式算出 10 − 1）；COMMIT']],
+            res: [[1, '最後庫存 9：賣出兩件，卻只扣了一件。'], [1, '最後庫存 9：T1 的更新被 T2 覆蓋了。'], [0, 'T2 的 UPDATE 失敗並回報序列化錯誤（PostgreSQL），應用程式要重試。'], [0, 'T2 失敗並重試。']] },
+          '寫入偏斜': { steps: [['BEGIN；SELECT COUNT(*) 值班中的醫生（得到 2）', ''], ['', 'BEGIN；SELECT COUNT(*) 值班中的醫生（得到 2）'], ['UPDATE 醫生 A 下班；COMMIT', ''], ['', 'UPDATE 醫生 B 下班；COMMIT']],
+            res: [[1, '兩個人都下班了：違反「至少一人值班」的規則。'], [1, '違反規則。'], [1, '<b>仍然違反規則</b>：兩個交易改的是不同的資料列，快照隔離偵測不到衝突——這是快照隔離最有名的漏洞。'], [0, '其中一個交易在提交時被中止（PostgreSQL 的可序列化快照隔離 SSI 偵測到讀寫依賴）。']] }
+        };
+        function initIso(root, cfg) { head(root, cfg.q); var sc = cfg.s || '不可重複讀', lv = 1, v = el('div'), inf;
+          var b = row(root); Object.keys(ISO).forEach(function (k) { var x = btn(k, k); x.onclick = function () { sc = k; mark(b, k); draw(); }; b.appendChild(x); }); mark(b, sc);
+          var b2 = row(root); LV.forEach(function (k, i) { var x = btn(k, 'l' + i); x.onclick = function () { lv = i; mark(b2, 'l' + i); draw(); }; b2.appendChild(x); }); mark(b2, 'l' + lv);
+          root.appendChild(v); inf = info(root);
+          function draw() { var S = ISO[sc];
+            v.innerHTML = tbl(['時間', '交易 T1', '交易 T2'], S.steps.map(function (s, i) { return '<tr>' + cell(i + 1) + cell(esc(s[0]), s[0] ? 'color:' + BL : '') + cell(esc(s[1]), s[1] ? 'color:' + OR : '') + '</tr>'; })) +
+              tbl(['隔離等級', '是否發生「' + sc + '」'], LV.map(function (l, i) { var r = S.res[i]; return '<tr' + (i === lv ? ' style="background:var(--accent-soft)"' : '') + '>' + cell(l) + cell(r[0] ? '<span style="color:' + RD + '">會發生</span>' : '<span style="color:' + GN + '">不會</span>') + '</tr>'; }));
+            var r = S.res[lv]; inf.innerHTML = '<b>' + LV[lv] + '</b>：' + r[1]; }
+          draw(); }
+
+        /* ---------- MVCC ---------- */
+        var MV = [
+          ['初始狀態', '資料列 id=1 只有一個版本 v1（餘額 100），由已提交的交易 10 建立。', [[1, 100, 10, null]], [], ''],
+          ['T20 開始', 'T20 取得快照：看得到交易 19 以前已提交的資料。', [[1, 100, 10, null]], [['T20', 19]], ''],
+          ['T21 開始，UPDATE 餘額 = 80', 'MVCC 不會覆蓋舊資料，而是新增一個版本 v2（xmin = 21），並在 v1 標記 xmax = 21（被 21 取代）。', [[1, 100, 10, 21], [2, 80, 21, null]], [['T20', 19], ['T21', 'self']], ''],
+          ['T20 讀取餘額', '交易 21 還沒提交，T20 看不到 v2，讀到 v1 的 100。讀取不需要等待寫入——「讀不擋寫、寫不擋讀」。', [[1, 100, 10, 21], [2, 80, 21, null]], [['T20', 19], ['T21', 'self']], 'T20'],
+          ['T21 COMMIT', '交易 21 提交，v2 成為最新的已提交版本。', [[1, 100, 10, 21], [2, 80, 21, null]], [['T20', 19]], '', 21],
+          ['T20 再讀一次', '在可重複讀下，T20 仍使用開始時的快照（交易 21 不在快照內），所以還是讀到 100。若是讀已提交，每個語句會取新快照，就會讀到 80。', [[1, 100, 10, 21], [2, 80, 21, null]], [['T20', 19]], 'T20', 21],
+          ['T22 開始並讀取', 'T22 的快照包含交易 21，讀到 v2 的 80。同一時間，不同交易看到不同版本。', [[1, 100, 10, 21], [2, 80, 21, null]], [['T20', 19], ['T22', 21]], 'T22', 21],
+          ['T20、T22 結束後 VACUUM', '已經沒有任何交易需要 v1，清理程序（PostgreSQL 的 VACUUM、InnoDB 的 purge）把它回收。', [[2, 80, 21, null]], [], '', 21]];
+        function initMvcc(root, cfg) { head(root, cfg.q); var st = 0, v = el('div'), inf;
+          var b = row(root); bt(b, '◀ 上一步', function () { st = Math.max(0, st - 1); draw(); }); bt(b, '下一步 ▶', function () { st = Math.min(MV.length - 1, st + 1); draw(); });
+          root.appendChild(v); inf = info(root);
+          function draw() { var s = MV[st], g = '', committed = function (x) { return x === 10 || (x === 21 && s[5] === 21); };
+            s[2].forEach(function (ver, i) { var x = 40 + i * 300, vis = [];
+              s[3].forEach(function (t) { var snap = t[1]; var seen = t[1] === 'self' ? (ver[2] === 21) : (ver[2] <= snap && committed(ver[2]) && !(ver[3] !== null && ver[3] <= snap && committed(ver[3]))); if (t[1] === 'self' && ver[2] !== 21) seen = false; if (seen) vis.push(t[0]); });
+              var hl = s[4] && vis.indexOf(s[4]) >= 0;
+              g += '<rect x="' + x + '" y="20" width="250" height="90" rx="8" fill="var(--surface)" stroke="' + (hl ? RD : ver[3] === null ? GN : GY) + '" stroke-width="' + (hl ? 3 : 1.5) + '"/>' + tx(x + 12, 44, '版本 v' + ver[0] + '：餘額 ' + ver[1], 14, 'currentColor', 'start') + tx(x + 12, 66, 'xmin = ' + ver[2] + '（建立者）', 11.5, 'var(--text-muted)', 'start') + tx(x + 12, 86, 'xmax = ' + (ver[3] === null ? '—（目前有效）' : ver[3] + '（被取代）'), 11.5, 'var(--text-muted)', 'start') + tx(x + 12, 104, vis.length ? '看得到它的交易：' + vis.join('、') : '', 11, OR, 'start');
+              if (i) g += ln(x - 50, 65, x - 4, 65, GY, 1.5, 'stroke-dasharray="4 3"'); });
+            v.innerHTML = svgw('0 0 680 120', g) + '<div style="font-size:0.85em;color:var(--text-muted)">進行中的交易：' + (s[3].length ? s[3].map(function (t) { return t[0] + (t[1] === 'self' ? '（自己的修改看得到）' : '（快照：≤ 交易 ' + t[1] + '）'); }).join('；') : '無') + '</div>';
+            inf.innerHTML = '<b>第 ' + (st + 1) + '／' + MV.length + ' 步：' + s[0] + '</b><br>' + s[1]; }
+          draw(); }
+
+        /* ---------- 死結 ---------- */
+        var DL = { '兩個交易互相等待': [['T1', 'A'], ['T2', 'B'], ['T1', 'B'], ['T2', 'A']], '三個交易繞成一圈': [['T1', 'A'], ['T2', 'B'], ['T3', 'C'], ['T1', 'B'], ['T2', 'C'], ['T3', 'A']], '固定順序加鎖（不會死結）': [['T1', 'A'], ['T2', 'A'], ['T1', 'B'], ['T1', 'commit'], ['T2', 'B'], ['T2', 'commit']] };
+        function initDeadlock(root, cfg) { head(root, cfg.q); var sc = Object.keys(DL)[0], st, lk, wt, ab, pv, log, v = el('div'), inf;
+          var b = row(root); Object.keys(DL).forEach(function (k) { var x = btn(k, k); x.onclick = function () { sc = k; mark(b, k); reset(); draw(); }; b.appendChild(x); }); mark(b, sc);
+          var b2 = row(root); bt(b2, '下一步 ▶', function () { step(); draw(); }); bt(b2, '重設', function () { reset(); draw(); });
+          root.appendChild(v); inf = info(root);
+          function reset() { st = 0; lk = {}; wt = {}; ab = {}; pv = null; log = ['開始。每個交易依序要求鎖定資源。']; }
+          function cyc() { var seen = {}; for (var t in wt) { var path = [t], cur = t; while (wt[cur] && lk[wt[cur]] && lk[wt[cur]] !== cur) { cur = lk[wt[cur]]; if (cur === t) return path; if (path.indexOf(cur) >= 0) break; path.push(cur); } } return null; }
+          function release(t) { Object.keys(lk).forEach(function (r) { if (lk[r] === t) { delete lk[r]; var w = Object.keys(wt).filter(function (x) { return wt[x] === r; })[0]; if (w) { lk[r] = w; delete wt[w]; log.push(w + ' 取得等待中的 ' + r + '。'); } } }); delete wt[t]; }
+          function step() { if (pv) { log.push('中止 ' + pv + '（犧牲者），釋放它的鎖。'); ab[pv] = 1; release(pv); pv = null; return; } var S = DL[sc]; if (st >= S.length) { log.push('情境結束。'); return; } var a = S[st++], t = a[0], r = a[1];
+            if (ab[t]) { log.push(t + ' 已被中止，略過。'); return; }
+            if (r === 'commit') { log.push(t + ' 提交，釋放所有鎖。'); release(t); return; }
+            if (!lk[r]) { lk[r] = t; log.push(t + ' 鎖定 ' + r + '。'); }
+            else if (lk[r] === t) log.push(t + ' 已持有 ' + r + '。');
+            else { wt[t] = r; log.push(t + ' 要求 ' + r + '，但 ' + r + ' 被 ' + lk[r] + ' 持有 → <b>等待</b>。');
+              var c = cyc(); if (c) { var vic = t; log.push('<span style="color:' + RD + '">偵測到死結：' + c.join(' → ') + ' → ' + c[0] + '——等待圖出現環。按下一步，資料庫會選 ' + vic + ' 當犧牲者。</span>'); pv = vic; } } }
+          function draw() { var T = ['T1', 'T2', 'T3'].filter(function (t) { return DL[sc].some(function (a) { return a[0] === t; }); }), P = {}, g = '';
+            T.forEach(function (t, i) { var a = -Math.PI / 2 + i * 2 * Math.PI / T.length; P[t] = [340 + 120 * Math.cos(a), 110 + 80 * Math.sin(a)]; });
+            g += '<defs><marker id="dla" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="' + RD + '"/></marker></defs>';
+            Object.keys(wt).forEach(function (t) { var o = lk[wt[t]]; if (!o || !P[o]) return; var a = P[t], c = P[o], dx = c[0] - a[0], dy = c[1] - a[1], L = Math.hypot(dx, dy), ox = -dy / L * 8, oy = dx / L * 8; g += ln(a[0] + dx / L * 30 + ox, a[1] + dy / L * 30 + oy, c[0] - dx / L * 32 + ox, c[1] - dy / L * 32 + oy, RD, 2, 'marker-end="url(#dla)"') + tx((a[0] + c[0]) / 2 + ox * 2.6, (a[1] + c[1]) / 2 + oy * 2.6 + 4, '等 ' + wt[t], 11, RD); });
+            T.forEach(function (t) { var p = P[t]; g += '<circle cx="' + n1(p[0]) + '" cy="' + n1(p[1]) + '" r="28" fill="' + (ab[t] ? GY : BL) + '"/>' + tx(p[0], p[1] + 5, t + (ab[t] ? '✕' : ''), 14, '#fff'); });
+            var locks = Object.keys(lk).sort().map(function (r) { return r + '：' + lk[r]; }).join('　') || '（無）';
+            v.innerHTML = svgw('0 0 680 220', g) + '<div style="font-size:0.88em">目前持有的鎖：' + locks + '</div>';
+            inf.innerHTML = '<b>等待圖</b>：箭頭表示「誰在等誰」。圖中出現<b>環</b>，就是死結。<br>' + log.slice(-4).join('<br>'); }
+          reset(); draw(); }
+
+        /* ---------- WAL ---------- */
+        var WOPS = [['T1 開始', null], ['T1：A 從 100 改成 50', ['T1', 'A', 100, 50]], ['T1：B 從 200 改成 250', ['T1', 'B', 200, 250]], ['T2 開始', null], ['T2：C 從 10 改成 20', ['T2', 'C', 10, 20]], ['背景程序把 C 所在的資料頁寫入磁碟', 'flushC'], ['T1 COMMIT（日誌強制寫入磁碟）', 'commit'], ['T2：D 從 5 改成 6', ['T2', 'D', 5, 6]]];
+        function initWal(root, cfg) { head(root, cfg.q); var P = { k: 7 }, v = el('div'), inf, ups = [];
+          ups.push(sl(root, '在第幾步之後斷電', 0, WOPS.length, 1, P.k, null, function (x) { P.k = x; draw(); }));
+          root.appendChild(v); inf = info(root);
+          function draw() { var disk = { A: 100, B: 200, C: 10, D: 5 }, mem = { A: 100, B: 200, C: 10, D: 5 }, log = [], durable = 0, committed = {};
+            for (var i = 0; i < P.k; i++) { var o = WOPS[i][1]; if (Array.isArray(o)) { log.push(o); mem[o[1]] = o[3]; } else if (o === 'flushC') { durable = log.length; disk.C = mem.C; } else if (o === 'commit') { log.push(['T1', 'COMMIT']); durable = log.length; } }
+            var dl = log.slice(0, durable), redo = { A: disk.A, B: disk.B, C: disk.C, D: disk.D }; dl.forEach(function (r) { if (r[1] === 'COMMIT') committed[r[0]] = 1; else redo[r[1]] = r[3]; });
+            var fin = { A: redo.A, B: redo.B, C: redo.C, D: redo.D }; dl.slice().reverse().forEach(function (r) { if (r[1] !== 'COMMIT' && !committed[r[0]]) fin[r[1]] = r[2]; });
+            var ks = ['A', 'B', 'C', 'D'], line = function (o) { return ks.map(function (k) { return k + '=' + o[k]; }).join('  '); };
+            var steps = WOPS.map(function (w, i) { return '<div style="font-size:0.86em;' + (i < P.k ? '' : 'color:var(--text-muted);text-decoration:line-through') + '">' + (i + 1) + '. ' + w[0] + '</div>'; }).join('') + (P.k < WOPS.length ? '<div style="color:' + RD + ';font-weight:bold;margin:2px 0">⚡ 第 ' + P.k + ' 步後斷電</div>' : '<div style="color:' + RD + ';font-weight:bold">⚡ 全部執行完後斷電</div>');
+            var lg = log.map(function (r, i) { return '<span style="color:' + (i < durable ? GN : RD) + '">' + (r[1] === 'COMMIT' ? '&lt;' + r[0] + ' COMMIT&gt;' : '&lt;' + r[0] + ', ' + r[1] + ', 舊 ' + r[2] + ', 新 ' + r[3] + '&gt;') + '</span>'; }).join('<br>') || '（空）';
+            v.innerHTML = '<div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:240px">' + steps + '</div><div style="flex:1;min-width:240px;font-size:0.86em"><b>日誌</b>（綠：已在磁碟；紅：只在記憶體，斷電遺失）<br>' + lg + '</div></div>' +
+              '<table style="border-collapse:collapse;margin-top:8px;font-size:0.88em;width:100%"><tr>' + cell('斷電時磁碟上的資料頁') + cell(line(disk)) + '</tr><tr>' + cell('① 重做（Redo）：重播磁碟日誌') + cell(line(redo)) + '</tr><tr>' + cell('② 復原（Undo）：撤銷未提交交易') + cell('<b>' + line(fin) + '</b>') + '</tr></table>';
+            var ok1 = committed.T1 ? (fin.A === 50 && fin.B === 250) : (fin.A === 100 && fin.B === 200);
+            inf.innerHTML = (committed.T1 ? 'T1 的 COMMIT 已寫入磁碟日誌，所以 T1 的修改在復原後<b>一定保留</b>（持久性），即使 A、B 的資料頁從沒寫進磁碟。' : 'T1 還沒提交（或提交記錄還沒寫入磁碟），所以 T1 的修改被撤銷。') + ' T2 沒有提交，它的修改一律被撤銷——即使 C 的資料頁已經寫進磁碟，也會用日誌中的「舊值」改回來（原子性）。' + (ok1 ? '' : '') + '<br><span style="color:var(--text-muted);font-size:0.9em">WAL 規則：資料頁寫入磁碟之前，對應的日誌必須先寫入；交易提交時，日誌必須寫入磁碟。這個模型是 ARIES 演算法的簡化版。</span>'; }
+          ups.forEach(function (u) { u(); }); }
+
+        /* ---------- LSM 樹 ---------- */
+        function initLsm(root, cfg) { head(root, cfg.q); var MC = 4, R, mem, l0, l1, uw, dw, ver, msg, v = el('div'), inf;
+          var b = row(root); bt(b, '寫入 1 筆', function () { put(); draw(); }); bt(b, '寫入 10 筆', function () { for (var i = 0; i < 10; i++) put(); draw(); }); bt(b, '讀取一個鍵', function () { get(); draw(); }); bt(b, '重設', function () { reset(); draw(); });
+          root.appendChild(v); inf = info(root);
+          function reset() { R = rng(9); mem = {}; l0 = []; l1 = []; uw = 0; dw = 0; ver = 0; msg = '寫入先進記憶體中的 memtable。'; }
+          function put() { var k = 1 + Math.floor(R() * 30); mem[k] = ++ver; uw++; msg = '寫入鍵 ' + k + '：放進 memtable（記憶體，同時寫一筆 WAL）。';
+            if (Object.keys(mem).length >= MC) { var t = Object.keys(mem).map(Number).sort(function (a, b) { return a - b; }).map(function (k2) { return [k2, mem[k2]]; }); l0.unshift(t); dw += t.length; mem = {}; msg += ' memtable 滿了 → <b>寫成一個不可修改的有序檔案（SSTable）</b>放到 L0。';
+              if (l0.length >= 3) { var all = {}; l1.forEach(function (e) { all[e[0]] = e[1]; }); l0.slice().reverse().forEach(function (tb) { tb.forEach(function (e) { all[e[0]] = e[1]; }); }); l1 = Object.keys(all).map(Number).sort(function (a, b) { return a - b; }).map(function (k3) { return [k3, all[k3]]; }); dw += l1.length; l0 = []; msg += ' L0 累積 3 個檔案 → <b>合併（compaction）</b>到 L1：重複的鍵只留最新版本。'; } } }
+          function get() { var keys = {}; Object.keys(mem).forEach(function (k) { keys[k] = 1; }); l0.forEach(function (t) { t.forEach(function (e) { keys[e[0]] = 1; }); }); l1.forEach(function (e) { keys[e[0]] = 1; }); var ks = Object.keys(keys); if (!ks.length) { msg = '還沒有資料。'; return; }
+            var k = +ks[Math.floor(R() * ks.length)], n = 1, where = ''; if (mem[k]) where = 'memtable'; else { for (var i = 0; i < l0.length; i++) { n++; if (l0[i].some(function (e) { return e[0] === k; })) { where = 'L0 第 ' + (i + 1) + ' 個檔案'; break; } } if (!where) { n++; where = 'L1'; } }
+            msg = '讀取鍵 ' + k + '：依序查 memtable → L0（新到舊）→ L1，在 <b>' + where + '</b> 找到，共檢查了 ' + n + ' 個地方。實務上每個 SSTable 附有<b>布隆過濾器</b>，可以快速跳過不含此鍵的檔案。'; }
+          function box(x, y, w, t, c, items) { var s = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="34" rx="5" fill="var(--surface)" stroke="' + c + '" stroke-width="1.5"/>' + tx(x - 6, y + 21, t, 11, 'var(--text-muted)', 'end'); items.forEach(function (e, i) { if (i < Math.floor((w - 6) / 30)) s += tx(x + 18 + i * 30, y + 21, e[0], 11, 'currentColor'); }); if (items.length > Math.floor((w - 6) / 30)) s += tx(x + w - 10, y + 21, '…', 11, 'var(--text-muted)'); return s; }
+          function draw() { var g = '', mi = Object.keys(mem).map(Number).sort(function (a, b) { return a - b; }).map(function (k) { return [k]; });
+            g += box(150, 10, 140, 'memtable（記憶體）', OR, mi) + ln(80, 56, 660, 56, 'var(--border)', 1, 'stroke-dasharray="4 4"') + tx(660, 52, '↑ 記憶體　↓ 磁碟', 10, 'var(--text-muted)', 'end');
+            l0.forEach(function (t, i) { g += box(150 + i * 170, 66, 160, i === 0 ? 'L0（SSTable）' : '', BL, t); }); if (!l0.length) g += tx(160, 88, '（空）', 11, 'var(--text-muted)', 'start');
+            g += box(150, 112, 510, 'L1', GN, l1); if (!l1.length) g += tx(160, 134, '（空）', 11, 'var(--text-muted)', 'start');
+            v.innerHTML = svgw('0 0 680 156', g);
+            inf.innerHTML = msg + '<br>使用者寫入 ' + uw + ' 筆，實際寫入磁碟 ' + dw + ' 筆，<b>寫入放大</b>約 ' + (uw ? fx(dw / uw, 2) : '0') + ' 倍。<br><span style="color:var(--text-muted);font-size:0.9em">LSM 樹把隨機寫入變成循序寫入，寫入速度極快；代價是讀取可能要查多個檔案，以及合併造成的寫入放大。RocksDB、Cassandra、LevelDB 都用這種結構。</span>'; }
+          reset(); draw(); }
+
+        /* ---------- 一致性雜湊 ---------- */
+        function hsh(s) { var h = 2166136261; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } h ^= h >>> 13; h = Math.imul(h, 0x5bd1e995); h ^= h >>> 15; return (h >>> 0) / 4294967296; }
+        function initRing(root, cfg) { head(root, cfg.q); var P = { n: 4, vn: 1 }, v = el('div'), inf, ups = [];
+          ups.push(sl(root, '節點（伺服器）數量', 2, 10, 1, P.n, null, function (x) { P.n = x; draw(); }));
+          ups.push(sl(root, '每個節點的虛擬節點數', 1, 200, 1, P.vn, null, function (x) { P.vn = x; draw(); }));
+          root.appendChild(v); inf = info(root); var K = 2000;
+          function ring(n) { var pts = []; for (var i = 0; i < n; i++) for (var j = 0; j < P.vn; j++) pts.push([hsh('node' + i + '#' + j), i]); pts.sort(function (a, b) { return a[0] - b[0]; }); return pts; }
+          function own(pts, h) { for (var i = 0; i < pts.length; i++) if (pts[i][0] >= h) return pts[i][1]; return pts[0][1]; }
+          function draw() { var pts = ring(P.n), pts2 = ring(P.n + 1), cnt = new Array(P.n).fill(0), movedC = 0, movedM = 0, g = '', cx = 130, cy = 120, r = 95;
+            for (var k = 0; k < K; k++) { var h = hsh('key' + k), o = own(pts, h), o2 = own(pts2, h); cnt[o]++; if (o !== o2) movedC++; var mh = Math.floor(h * 1e9); if (mh % P.n !== mh % (P.n + 1)) movedM++; }
+            g += '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="var(--border)" stroke-width="6"/>';
+            for (var k2 = 0; k2 < 200; k2++) { var a0 = hsh('key' + k2) * 2 * Math.PI - Math.PI / 2; g += '<circle cx="' + n1(cx + r * Math.cos(a0)) + '" cy="' + n1(cy + r * Math.sin(a0)) + '" r="1.6" fill="' + PAL[own(pts, hsh('key' + k2)) % 10] + '" fill-opacity="0.6"/>'; }
+            pts.forEach(function (p) { var a = p[0] * 2 * Math.PI - Math.PI / 2; g += '<circle cx="' + n1(cx + r * Math.cos(a)) + '" cy="' + n1(cy + r * Math.sin(a)) + '" r="' + (P.vn > 30 ? 2.5 : 6) + '" fill="' + PAL[p[1] % 10] + '" stroke="#fff"/>'; });
+            var mx = Math.max.apply(null, cnt), ideal = K / P.n; cnt.forEach(function (c, i) { var y = 14 + i * 21, w = c / mx * 250; g += tx(330, y + 12, '節點 ' + (i + 1), 11, 'currentColor', 'end') + '<rect x="338" y="' + y + '" width="' + n1(w) + '" height="15" rx="3" fill="' + PAL[i % 10] + '"/>' + tx(344 + w, y + 12, c + ' 個鍵', 10, 'var(--text-muted)', 'start'); });
+            g += ln(338 + ideal / mx * 250, 8, 338 + ideal / mx * 250, 14 + P.n * 21, RD, 1, 'stroke-dasharray="4 3"');
+            v.innerHTML = svgw('0 0 680 ' + Math.max(240, 24 + P.n * 21), g); var sd = Math.sqrt(cnt.reduce(function (s, c) { return s + (c - ideal) * (c - ideal); }, 0) / P.n) / ideal * 100;
+            inf.innerHTML = K + ' 個鍵分到 ' + P.n + ' 台伺服器，負載的變異約 <b>' + fx(sd, 0) + '%</b>（紅色虛線為平均）。' + (P.vn < 10 ? '虛擬節點太少，分布很不平均——把虛擬節點數調高看看。' : '虛擬節點越多，分布越平均。') + '<br>如果<b>新增第 ' + (P.n + 1) + ' 台</b>伺服器：一致性雜湊只需搬移約 <b>' + fx(movedC / K * 100, 0) + '%</b> 的鍵（理想值約 ' + fx(100 / (P.n + 1), 0) + '%）；用「雜湊值除以伺服器數取餘數」的方法，則要搬移約 <b style="color:' + RD + '">' + fx(movedM / K * 100, 0) + '%</b>。'; }
+          ups.forEach(function (u) { u(); }); }
+
+        var INIT = { qexec: initQexec, bptree: initBptree, scan: initScan, join: initJoin, iso: initIso, mvcc: initMvcc, deadlock: initDeadlock, wal: initWal, lsm: initLsm, ring: initRing };
+        function boot() { document.querySelectorAll('.dbs-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+          var cfg = JSON.parse(root.getAttribute('data-cfg')); var fn = INIT[cfg.t]; if (fn) fn(root, cfg); }); }
+        if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+      })();
+      </script>
+
+      <p>
+        用鎖的話，讀取要等寫入完成、寫入要等讀取完成。<strong>MVCC</strong>（多版本並行控制）換一個思路：寫入時不覆蓋舊資料，而是建立<strong>新版本</strong>；每個交易根據自己的<strong>快照</strong>，看到某一個時間點的一致版本。
+      </p>
+
+      <div class="dbs-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;mvcc&quot;, &quot;q&quot;: &quot;一步一步看版本怎麼產生、不同交易看到哪個版本：&quot;}"></div>
+
+      <h2>可見性規則（簡化）</h2>
+
+      <p>
+        每個版本記錄 xmin（建立它的交易）與 xmax（刪除或取代它的交易）。一個版本對交易 T 可見，當且僅當：
+      </p>
+
+      <ul>
+        <li>建立它的交易已提交，且在 T 的快照之內；</li>
+        <li>而且，取代它的交易還沒提交，或不在 T 的快照之內。</li>
+      </ul>
+
+      <div class="code-block">def visible(version, snapshot, committed):
+    """snapshot：快照中「已提交且可見」的交易集合；committed：所有已提交的交易"""
+    created = version["xmin"] in snapshot
+    deleted = version["xmax"] is not None and version["xmax"] in snapshot
+    return created and not deleted
+
+versions = [{"val": 100, "xmin": 10, "xmax": 21}, {"val": 80, "xmin": 21, "xmax": None}]
+print([v["val"] for v in versions if visible(v, {10}, {10, 21})])        # 舊快照：[100]
+print([v["val"] for v in versions if visible(v, {10, 21}, {10, 21})])    # 新快照：[80]</div>
+
+      <h2>兩種實作</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th></th><th>PostgreSQL</th><th>MySQL InnoDB</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>新版本放哪裡</td><td>直接在資料表中新增一列（舊列標記 xmax）</td><td>資料表中只放最新版本，舊版本放在 undo 日誌，用指標串起來</td></tr>
+          <tr><td>清理</td><td>VACUUM 回收沒人看得到的舊列</td><td>purge 執行緒清理 undo</td></tr>
+          <tr><td>問題</td><td>更新頻繁的表會膨脹；長時間的交易讓 VACUUM 無法清理</td><td>長交易讓 undo 日誌變得很長，讀舊版本要沿著鏈結回溯</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <div class="callout">
+        <h3>長交易是 MVCC 的天敵</h3>
+        <p>
+          只要有一個交易開著不結束（例如程式忘了提交、或一個跑了幾小時的報表），所有比它新的舊版本都不能清理，資料庫會越來越大、越來越慢。監控並限制交易時間，是維運 PostgreSQL 的重要工作。
+        </p>
+      </div>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          MVCC 多版本並行控制在寫入時建立新版本而不覆蓋，每個交易依快照看到某時間點的一致版本，達到讀不擋寫、寫不擋讀。每個版本記錄建立者 xmin 與取代者 xmax，版本對交易可見的條件是建立者已提交且在快照內，取代者未提交或不在快照內。PostgreSQL 直接在表中新增列、以 VACUUM 回收，頻繁更新會膨脹；InnoDB 表中只放最新版、舊版放 undo 日誌、由 purge 清理，長交易使鏈結變長。長交易使舊版本無法清理，是 MVCC 的天敵。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🗄️ 本課程以原理為主，程式範例用 SQL 與 Python（以 Python 實作簡化版的 B+ 樹、WAL、LSM 樹等核心結構）。各資料庫的實際行為依產品與版本而異，文中以 PostgreSQL、MySQL（InnoDB）與 SQLite 為主要參考。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>MVCC 為什麼能做到「讀不擋寫、寫不擋讀」？</li>
+          <li>PostgreSQL 和 InnoDB 存放舊版本的方式有什麼不同？</li>
+          <li>為什麼長時間不結束的交易對 MVCC 資料庫有害？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>死結：怎麼發生、怎麼處理</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-31.html">← 上一課：鎖與兩階段鎖定</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-33.html">下一課：死結：怎麼發生、怎麼處理 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
