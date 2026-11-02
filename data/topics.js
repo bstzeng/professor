@@ -25117,6 +25117,103 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "global-top20",
+      category: "invest",
+      title: "全球市值前 20 大公司：它們做什麼、怎麼賺錢、未來 15 年會怎樣",
+      description:
+        "蘋果、輝達、微軟、Google、亞馬遜、台積電、SpaceX、沙烏地阿美、特斯拉、Meta、博通、禮來、波克夏、三星、美光、沃爾瑪、摩根大通、超微、Visa、艾克森美孚：一家一課，從你每天碰到的產品出發，講清楚它的產業位置、營收結構、營利模式、護城河、風險、和台灣的關係，以及 5 年、10 年、15 年的三種情境展望。附二十大比較總表、市值排行賽跑、營收結構、成長情境模擬、簡易估值、護城河雷達與「你的一天」互動工具。",
+      icon: "🏢",
+      url: "topics/global-top20/index.html",
+      resources: [
+        {
+          title: "互動實驗室",
+          description: "你的一天、市值排行賽跑、二十大比較總表、營收結構、成長情境模擬、簡易估值、護城河雷達",
+          icon: "🧪",
+          url: "topics/global-top20/lab.html"
+        },
+        {
+          title: "名詞對照",
+          description: "財務、產業與科技名詞的中英對照與白話解釋",
+          icon: "📖",
+          url: "topics/global-top20/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論：怎麼看一家大公司",
+          courses: [
+            { title: "市值是什麼？你今天碰到了幾家", url: "topics/global-top20/lesson-01.html" },
+            { title: "怎麼看懂一家公司：用早餐店來理解", url: "topics/global-top20/lesson-02.html" },
+            { title: "十種營利模式：這 20 家公司怎麼賺錢", url: "topics/global-top20/lesson-03.html" },
+            { title: "市值排行 35 年變遷", url: "topics/global-top20/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B1｜科技平台",
+          courses: [
+            { title: "蘋果：一支手機撐起的帝國", url: "topics/global-top20/lesson-05.html" },
+            { title: "微軟：從 Windows 到雲端與 AI", url: "topics/global-top20/lesson-06.html" },
+            { title: "Alphabet（Google）：全世界的入口", url: "topics/global-top20/lesson-07.html" },
+            { title: "亞馬遜：什麼都賣，也出租雲端", url: "topics/global-top20/lesson-08.html" },
+            { title: "Meta：三十幾億人的社群與廣告", url: "topics/global-top20/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 B2｜AI 與半導體",
+          courses: [
+            { title: "輝達：AI 時代的「賣鏟子的人」", url: "topics/global-top20/lesson-10.html" },
+            { title: "台積電：全世界的晶片工廠", url: "topics/global-top20/lesson-11.html" },
+            { title: "博通：看不見的連接者", url: "topics/global-top20/lesson-12.html" },
+            { title: "三星電子：從記憶體到冰箱的全能選手", url: "topics/global-top20/lesson-13.html" },
+            { title: "美光：AI 需要的記憶體", url: "topics/global-top20/lesson-14.html" },
+            { title: "超微：從瀕臨破產到挑戰輝達", url: "topics/global-top20/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 B3｜新經濟：電動車、機器人與太空",
+          courses: [
+            { title: "特斯拉：電動車、能源與機器人", url: "topics/global-top20/lesson-16.html" },
+            { title: "SpaceX：火箭、衛星網路與 AI", url: "topics/global-top20/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 B4｜醫療與金融",
+          courses: [
+            { title: "禮來：減重藥改變了一家百年藥廠", url: "topics/global-top20/lesson-18.html" },
+            { title: "波克夏：巴菲特打造的「公司的公司」", url: "topics/global-top20/lesson-19.html" },
+            { title: "摩根大通：美國最大的銀行", url: "topics/global-top20/lesson-20.html" },
+            { title: "Visa：每刷一次卡，它就收一點過路費", url: "topics/global-top20/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 B5｜零售與能源",
+          courses: [
+            { title: "沃爾瑪：全世界最大的零售商", url: "topics/global-top20/lesson-22.html" },
+            { title: "沙烏地阿美：全世界最賺錢的石油公司", url: "topics/global-top20/lesson-23.html" },
+            { title: "艾克森美孚：洛克斐勒標準石油的後代", url: "topics/global-top20/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 C｜二十大比較",
+          courses: [
+            { title: "二十大比較總表", url: "topics/global-top20/lesson-25.html" },
+            { title: "產業與地區：為什麼美國占了 16 家", url: "topics/global-top20/lesson-26.html" },
+            { title: "誰最會賺錢：利潤率與營利模式比較", url: "topics/global-top20/lesson-27.html" },
+            { title: "護城河與風險：誰最難被打敗", url: "topics/global-top20/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 D｜未來展望：5 年、10 年、15 年",
+          courses: [
+            { title: "怎麼看未來：情境分析", url: "topics/global-top20/lesson-29.html" },
+            { title: "影響未來 15 年的五大趨勢", url: "topics/global-top20/lesson-30.html" },
+            { title: "綜合展望：15 年後誰還在前 20？", url: "topics/global-top20/lesson-31.html" },
+            { title: "總結：從 20 家公司看世界", url: "topics/global-top20/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
