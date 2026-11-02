@@ -25678,6 +25678,319 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "weather-typhoon",
+      category: "science",
+      title: "氣象學與颱風預報：從一團空氣到颱風路徑",
+      description:
+        "大氣的組成與觀測；輻射收支、壓高公式、潛熱、飽和水氣壓、絕熱過程與雲底、大氣穩定度與 CAPE、雲雨形成；氣壓梯度力、科氏力、地轉風、邊界層、熱力風與噴流、渦度與羅士比波、全球環流與季風；鋒面、溫帶氣旋、寒流、梅雨、雷雨、龍捲風、焚風與台灣一年的天氣；颱風的形成、結構、強度、路徑、中央山脈的影響、西南氣流與共伴效應、警報與颱風假、經典颱風；原始方程、數值預報、參數化、資料同化、混沌與系集；AI 氣象模型、氣候變遷、聖嬰與空氣品質。附公式與 7 個互動工具。",
+      icon: "🌀",
+      url: "topics/weather-typhoon/index.html",
+      resources: [
+        {
+          title: "氣象互動實驗室",
+          description: "氣壓與高度、空氣塊抬升與雲底、科氏力、地轉風、颱風風場、颱風路徑、勞倫茲吸子與系集預報",
+          icon: "🧪",
+          url: "topics/weather-typhoon/lab.html"
+        },
+        {
+          title: "氣象公式總表",
+          description: "輻射、熱力學、動力學、颱風與數值預報的常用公式",
+          icon: "📋",
+          url: "topics/weather-typhoon/formulas.html"
+        },
+        {
+          title: "氣象名詞對照",
+          description: "氣象學與颱風常用名詞的中英對照",
+          icon: "📖",
+          url: "topics/weather-typhoon/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "天氣與氣候", url: "topics/weather-typhoon/lesson-01.html" },
+            { title: "大氣的組成與分層", url: "topics/weather-typhoon/lesson-02.html" },
+            { title: "怎麼觀測天氣：測站、探空、雷達、衛星", url: "topics/weather-typhoon/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜大氣熱力學",
+          courses: [
+            { title: "太陽輻射與地球的能量收支", url: "topics/weather-typhoon/lesson-04.html" },
+            { title: "氣壓、氣溫與理想氣體", url: "topics/weather-typhoon/lesson-05.html" },
+            { title: "水的三態與潛熱", url: "topics/weather-typhoon/lesson-06.html" },
+            { title: "濕度、露點與飽和", url: "topics/weather-typhoon/lesson-07.html" },
+            { title: "空氣上升為什麼會變冷：絕熱過程", url: "topics/weather-typhoon/lesson-08.html" },
+            { title: "大氣穩定度與對流", url: "topics/weather-typhoon/lesson-09.html" },
+            { title: "雲和雨怎麼形成", url: "topics/weather-typhoon/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜大氣動力學",
+          courses: [
+            { title: "氣壓梯度力：風從哪裡來", url: "topics/weather-typhoon/lesson-11.html" },
+            { title: "科氏力：地球自轉讓風轉彎", url: "topics/weather-typhoon/lesson-12.html" },
+            { title: "地轉風：沿著等壓線吹的風", url: "topics/weather-typhoon/lesson-13.html" },
+            { title: "摩擦、邊界層與熱力風", url: "topics/weather-typhoon/lesson-14.html" },
+            { title: "渦度與羅士比波", url: "topics/weather-typhoon/lesson-15.html" },
+            { title: "全球大氣環流", url: "topics/weather-typhoon/lesson-16.html" },
+            { title: "季風：東亞的大季節", url: "topics/weather-typhoon/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜天氣系統",
+          courses: [
+            { title: "氣團與鋒面", url: "topics/weather-typhoon/lesson-18.html" },
+            { title: "溫帶氣旋：中緯度的天氣製造機", url: "topics/weather-typhoon/lesson-19.html" },
+            { title: "高壓與寒流", url: "topics/weather-typhoon/lesson-20.html" },
+            { title: "梅雨與滯留鋒", url: "topics/weather-typhoon/lesson-21.html" },
+            { title: "午後雷陣雨與劇烈天氣", url: "topics/weather-typhoon/lesson-22.html" },
+            { title: "龍捲風與超大胞", url: "topics/weather-typhoon/lesson-23.html" },
+            { title: "焚風與地形效應", url: "topics/weather-typhoon/lesson-24.html" },
+            { title: "台灣一年的天氣", url: "topics/weather-typhoon/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜颱風",
+          courses: [
+            { title: "颱風是什麼", url: "topics/weather-typhoon/lesson-26.html" },
+            { title: "颱風怎麼形成", url: "topics/weather-typhoon/lesson-27.html" },
+            { title: "颱風的結構", url: "topics/weather-typhoon/lesson-28.html" },
+            { title: "颱風的強度：極限與快速增強", url: "topics/weather-typhoon/lesson-29.html" },
+            { title: "颱風的路徑：被誰帶著走", url: "topics/weather-typhoon/lesson-30.html" },
+            { title: "颱風遇上台灣：中央山脈的影響", url: "topics/weather-typhoon/lesson-31.html" },
+            { title: "颱風的雨：西南氣流與共伴效應", url: "topics/weather-typhoon/lesson-32.html" },
+            { title: "颱風警報與颱風假", url: "topics/weather-typhoon/lesson-33.html" },
+            { title: "經典颱風回顧", url: "topics/weather-typhoon/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜數值天氣預報",
+          courses: [
+            { title: "描述大氣的方程式", url: "topics/weather-typhoon/lesson-35.html" },
+            { title: "從理查森到超級電腦", url: "topics/weather-typhoon/lesson-36.html" },
+            { title: "解析度與參數化", url: "topics/weather-typhoon/lesson-37.html" },
+            { title: "資料同化：給模式一個好的起點", url: "topics/weather-typhoon/lesson-38.html" },
+            { title: "混沌與可預報度的極限", url: "topics/weather-typhoon/lesson-39.html" },
+            { title: "系集預報與機率", url: "topics/weather-typhoon/lesson-40.html" },
+            { title: "各國的預報模式比較", url: "topics/weather-typhoon/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 G｜AI 與氣候",
+          courses: [
+            { title: "AI 氣象模型", url: "topics/weather-typhoon/lesson-42.html" },
+            { title: "氣候變遷與極端天氣", url: "topics/weather-typhoon/lesson-43.html" },
+            { title: "聖嬰與反聖嬰", url: "topics/weather-typhoon/lesson-44.html" },
+            { title: "空氣品質與境外汙染", url: "topics/weather-typhoon/lesson-45.html" },
+            { title: "總結：自己看懂天氣圖與預報", url: "topics/weather-typhoon/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cold-war",
+      category: "history",
+      title: "冷戰史：從鐵幕到蘇聯解體",
+      description:
+        "雅爾達與波茨坦、長電報與圍堵、杜魯門主義與馬歇爾計畫、柏林封鎖與北約；國共內戰、韓戰、第七艦隊與中美共同防禦條約、台海危機與八二三砲戰、奠邊府、中蘇分裂；核武競賽、太空競賽、相互保證毀滅、U-2 與黑貓中隊、柏林圍牆、古巴飛彈危機、情報機構；去殖民化、越戰、中東與石油危機、拉丁美洲、非洲、阿富汗；布拉格之春、低盪、尼克森訪華與 2758 號決議、台灣關係法、改革開放、台灣的冷戰經濟；雷根、團結工聯、戈巴契夫、車諾比、1989、德國統一、蘇聯解體；冷戰文化、科技遺產、戒嚴與解嚴、俄烏戰爭與美中競爭。",
+      icon: "🧊",
+      url: "topics/cold-war/index.html",
+      resources: [
+        {
+          title: "冷戰大事年表",
+          description: "1945～1991 年冷戰的重要事件，以及同時期的台灣",
+          icon: "📅",
+          url: "topics/cold-war/timeline.html"
+        },
+        {
+          title: "冷戰人物表",
+          description: "冷戰時期的重要領導人與人物",
+          icon: "👥",
+          url: "topics/cold-war/people.html"
+        },
+        {
+          title: "冷戰名詞對照",
+          description: "冷戰史常用名詞的中英對照",
+          icon: "📖",
+          url: "topics/cold-war/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源",
+          courses: [
+            { title: "什麼是冷戰", url: "topics/cold-war/lesson-01.html" },
+            { title: "二戰的遺產：雅爾達與波茨坦", url: "topics/cold-war/lesson-02.html" },
+            { title: "鐵幕演說與圍堵政策", url: "topics/cold-war/lesson-03.html" },
+            { title: "杜魯門主義與馬歇爾計畫", url: "topics/cold-war/lesson-04.html" },
+            { title: "柏林封鎖與北約成立", url: "topics/cold-war/lesson-05.html" },
+            { title: "1949：蘇聯原子彈與中國易幟", url: "topics/cold-war/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜亞洲的熱戰",
+          courses: [
+            { title: "國共內戰與兩岸分治", url: "topics/cold-war/lesson-07.html" },
+            { title: "美國的「放手」與台灣的危機", url: "topics/cold-war/lesson-08.html" },
+            { title: "韓戰", url: "topics/cold-war/lesson-09.html" },
+            { title: "韓戰如何改變台灣", url: "topics/cold-war/lesson-10.html" },
+            { title: "台海危機：九三與八二三砲戰", url: "topics/cold-war/lesson-11.html" },
+            { title: "印度支那與奠邊府", url: "topics/cold-war/lesson-12.html" },
+            { title: "中蘇同盟與分裂", url: "topics/cold-war/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜恐怖平衡",
+          courses: [
+            { title: "氫彈與核武競賽", url: "topics/cold-war/lesson-14.html" },
+            { title: "史普尼克與太空競賽", url: "topics/cold-war/lesson-15.html" },
+            { title: "相互保證毀滅與嚇阻理論", url: "topics/cold-war/lesson-16.html" },
+            { title: "間諜戰與 U-2 事件", url: "topics/cold-war/lesson-17.html" },
+            { title: "柏林圍牆", url: "topics/cold-war/lesson-18.html" },
+            { title: "古巴飛彈危機", url: "topics/cold-war/lesson-19.html" },
+            { title: "情報機構：CIA、KGB 與史塔西", url: "topics/cold-war/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜第三世界",
+          courses: [
+            { title: "去殖民化與不結盟運動", url: "topics/cold-war/lesson-21.html" },
+            { title: "越戰", url: "topics/cold-war/lesson-22.html" },
+            { title: "中東：以阿戰爭與石油危機", url: "topics/cold-war/lesson-23.html" },
+            { title: "拉丁美洲：政變與革命", url: "topics/cold-war/lesson-24.html" },
+            { title: "非洲的代理戰爭", url: "topics/cold-war/lesson-25.html" },
+            { title: "蘇聯入侵阿富汗", url: "topics/cold-war/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜和解與轉折",
+          courses: [
+            { title: "匈牙利、布拉格之春與布里茲涅夫主義", url: "topics/cold-war/lesson-27.html" },
+            { title: "低盪與限武談判", url: "topics/cold-war/lesson-28.html" },
+            { title: "尼克森訪華與聯合國 2758 號決議", url: "topics/cold-war/lesson-29.html" },
+            { title: "美中建交與《台灣關係法》", url: "topics/cold-war/lesson-30.html" },
+            { title: "從文革到改革開放", url: "topics/cold-war/lesson-31.html" },
+            { title: "兩種經濟制度的競賽", url: "topics/cold-war/lesson-32.html" },
+            { title: "台灣的冷戰經濟", url: "topics/cold-war/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜終局",
+          courses: [
+            { title: "雷根與星戰計畫", url: "topics/cold-war/lesson-34.html" },
+            { title: "波蘭團結工聯", url: "topics/cold-war/lesson-35.html" },
+            { title: "戈巴契夫：開放與重建", url: "topics/cold-war/lesson-36.html" },
+            { title: "車諾比", url: "topics/cold-war/lesson-37.html" },
+            { title: "1989：奇蹟之年", url: "topics/cold-war/lesson-38.html" },
+            { title: "德國統一", url: "topics/cold-war/lesson-39.html" },
+            { title: "蘇聯解體", url: "topics/cold-war/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 G｜遺產",
+          courses: [
+            { title: "冷戰中的文化：宣傳、電影與運動", url: "topics/cold-war/lesson-41.html" },
+            { title: "冷戰的科技遺產", url: "topics/cold-war/lesson-42.html" },
+            { title: "台灣的戒嚴與解嚴", url: "topics/cold-war/lesson-43.html" },
+            { title: "冷戰之後：北約東擴到俄烏戰爭", url: "topics/cold-war/lesson-44.html" },
+            { title: "新冷戰？美中競爭與台灣", url: "topics/cold-war/lesson-45.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "legend-galactic-heroes",
+      category: "fantasy",
+      title: "銀河英雄傳說：帝國與同盟",
+      description:
+        "田中芳樹正傳十卷完整導讀（完整劇透）：作者與動畫、帝國同盟費沙與兩條迴廊、魯道夫與海尼森的前史；萊因哈特、楊威利、吉爾菲艾斯、帝國雙璧、奧貝斯坦、楊艦隊、同盟政客、費沙與地球教；黎明篇到落日篇與外傳逐卷導讀；亞斯提、伊謝爾倫、亞姆立札、李普休達特與威斯塔朗特、多利亞、要塞對要塞、巴米利恩、迴廊之戰、希瓦等經典戰役解析；民主與專制、戰略與戰術、與真實歷史的對照、地球教、忠誠與背叛、軍事設定與影響。",
+      icon: "🌌",
+      url: "topics/legend-galactic-heroes/index.html",
+      resources: [
+        {
+          title: "銀英傳人物表",
+          description: "銀河帝國、自由行星同盟與費沙、地球教的主要人物",
+          icon: "👥",
+          url: "topics/legend-galactic-heroes/people.html"
+        },
+        {
+          title: "銀英傳名詞表",
+          description: "銀英傳的地名、組織、作戰與設定",
+          icon: "📖",
+          url: "topics/legend-galactic-heroes/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "田中芳樹與《銀河英雄傳說》", url: "topics/legend-galactic-heroes/lesson-01.html" },
+            { title: "動畫：1988 年 OVA 與《Die Neue These》", url: "topics/legend-galactic-heroes/lesson-02.html" },
+            { title: "宇宙設定：帝國、同盟與費沙", url: "topics/legend-galactic-heroes/lesson-03.html" },
+            { title: "前史：魯道夫、海尼森與達貢會戰", url: "topics/legend-galactic-heroes/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜主要人物",
+          courses: [
+            { title: "萊因哈特・馮・羅嚴克拉姆", url: "topics/legend-galactic-heroes/lesson-05.html" },
+            { title: "楊威利", url: "topics/legend-galactic-heroes/lesson-06.html" },
+            { title: "吉爾菲艾斯與安妮羅傑", url: "topics/legend-galactic-heroes/lesson-07.html" },
+            { title: "帝國雙璧：米達麥亞與羅嚴塔爾", url: "topics/legend-galactic-heroes/lesson-08.html" },
+            { title: "奧貝斯坦", url: "topics/legend-galactic-heroes/lesson-09.html" },
+            { title: "楊艦隊：一群怪人的家", url: "topics/legend-galactic-heroes/lesson-10.html" },
+            { title: "同盟的政客與將領", url: "topics/legend-galactic-heroes/lesson-11.html" },
+            { title: "費沙與地球教", url: "topics/legend-galactic-heroes/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜正傳逐卷導讀",
+          courses: [
+            { title: "第一卷　黎明篇", url: "topics/legend-galactic-heroes/lesson-13.html" },
+            { title: "第二卷　野望篇", url: "topics/legend-galactic-heroes/lesson-14.html" },
+            { title: "第三卷　雌伏篇", url: "topics/legend-galactic-heroes/lesson-15.html" },
+            { title: "第四卷　策謀篇", url: "topics/legend-galactic-heroes/lesson-16.html" },
+            { title: "第五卷　風雲篇", url: "topics/legend-galactic-heroes/lesson-17.html" },
+            { title: "第六卷　飛翔篇", url: "topics/legend-galactic-heroes/lesson-18.html" },
+            { title: "第七卷　怒濤篇", url: "topics/legend-galactic-heroes/lesson-19.html" },
+            { title: "第八卷　亂離篇", url: "topics/legend-galactic-heroes/lesson-20.html" },
+            { title: "第九卷　回天篇", url: "topics/legend-galactic-heroes/lesson-21.html" },
+            { title: "第十卷　落日篇", url: "topics/legend-galactic-heroes/lesson-22.html" },
+            { title: "外傳：故事開始之前", url: "topics/legend-galactic-heroes/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜經典戰役解析",
+          courses: [
+            { title: "亞斯提會戰：各個擊破", url: "topics/legend-galactic-heroes/lesson-24.html" },
+            { title: "不流血攻佔伊謝爾倫", url: "topics/legend-galactic-heroes/lesson-25.html" },
+            { title: "亞姆立札會戰：焦土與補給", url: "topics/legend-galactic-heroes/lesson-26.html" },
+            { title: "李普休達特戰役與威斯塔朗特", url: "topics/legend-galactic-heroes/lesson-27.html" },
+            { title: "多利亞會戰與阿爾提米斯的首飾", url: "topics/legend-galactic-heroes/lesson-28.html" },
+            { title: "要塞對要塞：伊謝爾倫攻防", url: "topics/legend-galactic-heroes/lesson-29.html" },
+            { title: "巴米利恩會戰：縱深防禦與政治的勝利", url: "topics/legend-galactic-heroes/lesson-30.html" },
+            { title: "迴廊之戰：地形與決戰", url: "topics/legend-galactic-heroes/lesson-31.html" },
+            { title: "希瓦星域會戰：最後一戰", url: "topics/legend-galactic-heroes/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "民主與專制", url: "topics/legend-galactic-heroes/lesson-33.html" },
+            { title: "戰略與戰術：名將的條件", url: "topics/legend-galactic-heroes/lesson-34.html" },
+            { title: "與真實歷史的對照", url: "topics/legend-galactic-heroes/lesson-35.html" },
+            { title: "宗教與恐怖主義：地球教", url: "topics/legend-galactic-heroes/lesson-36.html" },
+            { title: "忠誠與背叛", url: "topics/legend-galactic-heroes/lesson-37.html" },
+            { title: "軍事設定：艦隊、要塞與戰機", url: "topics/legend-galactic-heroes/lesson-38.html" },
+            { title: "銀英傳的影響", url: "topics/legend-galactic-heroes/lesson-39.html" },
+            { title: "總結：英雄時代的落幕", url: "topics/legend-galactic-heroes/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
