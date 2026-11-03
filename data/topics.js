@@ -26823,6 +26823,425 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "roman-empire",
+      category: "history",
+      title: "羅馬帝國興衰：從共和到拜占庭",
+      description:
+        "建城神話、共和制度、統一義大利、布匿戰爭與漢尼拔、軍團；格拉古兄弟、馬略與蘇拉、斯巴達克斯、凱撒、安東尼與克麗奧佩脫拉；奧古斯都、羅馬和平、五賢帝、道路水道、城市生活、公民與奴隸、基督教的興起；三世紀危機、戴克里先、君士坦丁、東西分治、蠻族遷徙；阿提拉、汪達爾、476 年與羅馬滅亡的理論；查士丁尼、拜占庭、十字軍與 1453 年；羅馬法、建築、語言曆法與共和的教訓。含前 264 年到 1453 年的疆域互動地圖。",
+      icon: "🏛️",
+      url: "topics/roman-empire/index.html",
+      resources: [
+        {
+          title: "羅馬疆域地圖",
+          description: "從前 264 年到 1453 年，九個時期的羅馬與拜占庭疆域",
+          icon: "🗺️",
+          url: "topics/roman-empire/map.html"
+        },
+        {
+          title: "羅馬年表",
+          description: "從建城傳說到君士坦丁堡陷落",
+          icon: "🗓️",
+          url: "topics/roman-empire/timeline.html"
+        },
+        {
+          title: "羅馬人物表",
+          description: "主要的政治家、將軍與皇帝",
+          icon: "👥",
+          url: "topics/roman-empire/people.html"
+        },
+        {
+          title: "羅馬名詞表",
+          description: "羅馬史的制度、事件與用語",
+          icon: "📖",
+          url: "topics/roman-empire/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜王政與共和",
+          courses: [
+            { title: "羅馬：一千年的故事", url: "topics/roman-empire/lesson-01.html" },
+            { title: "建城神話與王政時代", url: "topics/roman-empire/lesson-02.html" },
+            { title: "共和的制度", url: "topics/roman-empire/lesson-03.html" },
+            { title: "統一義大利", url: "topics/roman-empire/lesson-04.html" },
+            { title: "第一次布匿戰爭", url: "topics/roman-empire/lesson-05.html" },
+            { title: "漢尼拔", url: "topics/roman-empire/lesson-06.html" },
+            { title: "征服地中海", url: "topics/roman-empire/lesson-07.html" },
+            { title: "羅馬軍團", url: "topics/roman-empire/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 B｜共和的崩潰",
+          courses: [
+            { title: "格拉古兄弟", url: "topics/roman-empire/lesson-09.html" },
+            { title: "馬略與蘇拉", url: "topics/roman-empire/lesson-10.html" },
+            { title: "斯巴達克斯、龐培與克拉蘇", url: "topics/roman-empire/lesson-11.html" },
+            { title: "凱撒征服高盧", url: "topics/roman-empire/lesson-12.html" },
+            { title: "渡過盧比孔河：內戰", url: "topics/roman-empire/lesson-13.html" },
+            { title: "三月十五日：凱撒遇刺", url: "topics/roman-empire/lesson-14.html" },
+            { title: "安東尼與克麗奧佩脫拉", url: "topics/roman-empire/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜帝國前期",
+          courses: [
+            { title: "奧古斯都與元首制", url: "topics/roman-empire/lesson-16.html" },
+            { title: "從提比略到圖密善", url: "topics/roman-empire/lesson-17.html" },
+            { title: "羅馬和平", url: "topics/roman-empire/lesson-18.html" },
+            { title: "五賢帝", url: "topics/roman-empire/lesson-19.html" },
+            { title: "道路、水道與工程", url: "topics/roman-empire/lesson-20.html" },
+            { title: "城市生活：浴場、競技場與龐貝", url: "topics/roman-empire/lesson-21.html" },
+            { title: "公民、奴隸與社會", url: "topics/roman-empire/lesson-22.html" },
+            { title: "基督教的興起", url: "topics/roman-empire/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜危機與轉型",
+          courses: [
+            { title: "三世紀危機", url: "topics/roman-empire/lesson-24.html" },
+            { title: "戴克里先與四帝共治", url: "topics/roman-empire/lesson-25.html" },
+            { title: "君士坦丁大帝", url: "topics/roman-empire/lesson-26.html" },
+            { title: "從背教者朱利安到狄奧多西", url: "topics/roman-empire/lesson-27.html" },
+            { title: "東西分治（395 年）", url: "topics/roman-empire/lesson-28.html" },
+            { title: "蠻族遷徙與哈德良堡之戰", url: "topics/roman-empire/lesson-29.html" },
+            { title: "410 年：羅馬被洗劫", url: "topics/roman-empire/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 E｜西羅馬的滅亡",
+          courses: [
+            { title: "阿提拉：上帝之鞭", url: "topics/roman-empire/lesson-31.html" },
+            { title: "汪達爾人與北非的失落", url: "topics/roman-empire/lesson-32.html" },
+            { title: "476 年：最後的皇帝", url: "topics/roman-empire/lesson-33.html" },
+            { title: "羅馬為什麼滅亡？", url: "topics/roman-empire/lesson-34.html" },
+            { title: "後繼的王國", url: "topics/roman-empire/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜拜占庭",
+          courses: [
+            { title: "查士丁尼與狄奧多拉", url: "topics/roman-empire/lesson-36.html" },
+            { title: "千年帝國：拜占庭的文明", url: "topics/roman-empire/lesson-37.html" },
+            { title: "十字軍與 1204 年", url: "topics/roman-empire/lesson-38.html" },
+            { title: "1453 年：君士坦丁堡陷落", url: "topics/roman-empire/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜羅馬的遺產",
+          courses: [
+            { title: "羅馬法", url: "topics/roman-empire/lesson-40.html" },
+            { title: "建築與工程的遺產", url: "topics/roman-empire/lesson-41.html" },
+            { title: "語言、曆法與文化", url: "topics/roman-empire/lesson-42.html" },
+            { title: "共和與帝制：羅馬的政治教訓", url: "topics/roman-empire/lesson-43.html" },
+            { title: "總結：羅馬留給我們什麼", url: "topics/roman-empire/lesson-44.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "immunology-vaccines",
+      category: "biomed",
+      title: "免疫系統與疫苗",
+      description:
+        "病原體、免疫器官與細胞、自我與非我、發炎；屏障、吞噬細胞、補體、NK 細胞與干擾素、發燒、模式識別受體；抗體、T 細胞、MHC、V(D)J 與克隆選擇、免疫耐受與記憶；天花與琴納、巴斯德、疫苗種類、mRNA 疫苗、群體免疫與 R₀、疫苗安全、反疫苗運動與台灣的 B 肝疫苗；過敏、自體免疫、免疫缺陷、HIV、移植、癌症免疫療法、細胞激素風暴；睡眠、壓力、運動營養、腸道菌與老化。含 SIR 模型、抗體反應與群體免疫互動模擬。",
+      icon: "🦠",
+      url: "topics/immunology-vaccines/index.html",
+      resources: [
+        {
+          title: "免疫實驗室",
+          description: "SIR 傳染病模型、初次與二次抗體反應、群體免疫模擬",
+          icon: "🧪",
+          url: "topics/immunology-vaccines/lab.html"
+        },
+        {
+          title: "免疫學的公式與數字",
+          description: "R₀、有效再生數、群體免疫門檻、抗體半衰期，以及常用的數字",
+          icon: "📋",
+          url: "topics/immunology-vaccines/formulas.html"
+        },
+        {
+          title: "免疫學名詞表",
+          description: "免疫系統與疫苗的術語",
+          icon: "📖",
+          url: "topics/immunology-vaccines/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜免疫的基礎",
+          courses: [
+            { title: "什麼是免疫系統", url: "topics/immunology-vaccines/lesson-01.html" },
+            { title: "病原體的種類", url: "topics/immunology-vaccines/lesson-02.html" },
+            { title: "免疫器官與免疫細胞", url: "topics/immunology-vaccines/lesson-03.html" },
+            { title: "自我與非我", url: "topics/immunology-vaccines/lesson-04.html" },
+            { title: "發炎反應", url: "topics/immunology-vaccines/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜先天免疫",
+          courses: [
+            { title: "第一道防線：屏障", url: "topics/immunology-vaccines/lesson-06.html" },
+            { title: "吞噬細胞", url: "topics/immunology-vaccines/lesson-07.html" },
+            { title: "補體系統", url: "topics/immunology-vaccines/lesson-08.html" },
+            { title: "自然殺手細胞與干擾素", url: "topics/immunology-vaccines/lesson-09.html" },
+            { title: "發燒", url: "topics/immunology-vaccines/lesson-10.html" },
+            { title: "模式識別受體", url: "topics/immunology-vaccines/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜後天免疫",
+          courses: [
+            { title: "B 細胞與抗體", url: "topics/immunology-vaccines/lesson-12.html" },
+            { title: "抗體的五種類型", url: "topics/immunology-vaccines/lesson-13.html" },
+            { title: "T 細胞：指揮官與殺手", url: "topics/immunology-vaccines/lesson-14.html" },
+            { title: "MHC 與抗原呈現", url: "topics/immunology-vaccines/lesson-15.html" },
+            { title: "克隆選擇與多樣性", url: "topics/immunology-vaccines/lesson-16.html" },
+            { title: "免疫耐受", url: "topics/immunology-vaccines/lesson-17.html" },
+            { title: "初次反應、二次反應與免疫記憶", url: "topics/immunology-vaccines/lesson-18.html" },
+            { title: "整合：一次感冒的全過程", url: "topics/immunology-vaccines/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜疫苗",
+          courses: [
+            { title: "天花與琴納", url: "topics/immunology-vaccines/lesson-20.html" },
+            { title: "巴斯德與疫苗的原理", url: "topics/immunology-vaccines/lesson-21.html" },
+            { title: "疫苗的種類", url: "topics/immunology-vaccines/lesson-22.html" },
+            { title: "mRNA 疫苗", url: "topics/immunology-vaccines/lesson-23.html" },
+            { title: "群體免疫與 R₀", url: "topics/immunology-vaccines/lesson-24.html" },
+            { title: "疫苗的安全與副作用", url: "topics/immunology-vaccines/lesson-25.html" },
+            { title: "反疫苗運動", url: "topics/immunology-vaccines/lesson-26.html" },
+            { title: "台灣的疫苗史", url: "topics/immunology-vaccines/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜免疫失調",
+          courses: [
+            { title: "過敏", url: "topics/immunology-vaccines/lesson-28.html" },
+            { title: "自體免疫疾病", url: "topics/immunology-vaccines/lesson-29.html" },
+            { title: "免疫缺陷", url: "topics/immunology-vaccines/lesson-30.html" },
+            { title: "HIV 與愛滋病", url: "topics/immunology-vaccines/lesson-31.html" },
+            { title: "器官移植與排斥", url: "topics/immunology-vaccines/lesson-32.html" },
+            { title: "癌症免疫療法", url: "topics/immunology-vaccines/lesson-33.html" },
+            { title: "細胞激素風暴與敗血症", url: "topics/immunology-vaccines/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生活與免疫",
+          courses: [
+            { title: "睡眠與免疫", url: "topics/immunology-vaccines/lesson-35.html" },
+            { title: "壓力與免疫", url: "topics/immunology-vaccines/lesson-36.html" },
+            { title: "運動、營養與「增強免疫力」", url: "topics/immunology-vaccines/lesson-37.html" },
+            { title: "腸道菌與免疫", url: "topics/immunology-vaccines/lesson-38.html" },
+            { title: "老化與免疫", url: "topics/immunology-vaccines/lesson-39.html" },
+            { title: "總結：與免疫系統和平共處", url: "topics/immunology-vaccines/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "behavioral-finance",
+      category: "invest",
+      title: "行為經濟學與投資心理",
+      description:
+        "理性人假設、系統一與系統二、啟發法；錨定、可得性、代表性、過度自信、確認偏誤、後見之明、賭徒謬誤與回歸平均；展望理論、損失趨避、機率加權、框架、稟賦效應、心理帳戶、沉沒成本與現時偏誤；處分效應、追高殺低、羊群、本土偏誤、過度交易、台股散戶的實證研究與 FOMO；鬱金香、南海、網路泡沫與迷因股，動能、反轉與效率市場的爭論；推力、自動化、檢查表與事前驗屍。含展望理論、心理帳戶與處分效應互動測驗。",
+      icon: "🧠",
+      url: "topics/behavioral-finance/index.html",
+      resources: [
+        {
+          title: "投資心理實驗室",
+          description: "直覺測驗、展望理論模型、心理帳戶情境、處分效應測試",
+          icon: "🧪",
+          url: "topics/behavioral-finance/lab.html"
+        },
+        {
+          title: "行為經濟學的公式與數字",
+          description: "價值函數、決策權重、雙曲折現、貝氏定理，以及經典研究的數字",
+          icon: "📋",
+          url: "topics/behavioral-finance/formulas.html"
+        },
+        {
+          title: "行為經濟學名詞表",
+          description: "行為經濟學與投資心理的術語",
+          icon: "📖",
+          url: "topics/behavioral-finance/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "理性人假設與它的問題", url: "topics/behavioral-finance/lesson-01.html" },
+            { title: "系統一與系統二", url: "topics/behavioral-finance/lesson-02.html" },
+            { title: "行為經濟學的誕生", url: "topics/behavioral-finance/lesson-03.html" },
+            { title: "啟發法與偏誤", url: "topics/behavioral-finance/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜判斷偏誤",
+          courses: [
+            { title: "錨定效應", url: "topics/behavioral-finance/lesson-05.html" },
+            { title: "可得性捷思", url: "topics/behavioral-finance/lesson-06.html" },
+            { title: "代表性捷思與忽略基率", url: "topics/behavioral-finance/lesson-07.html" },
+            { title: "過度自信", url: "topics/behavioral-finance/lesson-08.html" },
+            { title: "確認偏誤", url: "topics/behavioral-finance/lesson-09.html" },
+            { title: "後見之明與結果偏誤", url: "topics/behavioral-finance/lesson-10.html" },
+            { title: "賭徒謬誤與熱手", url: "topics/behavioral-finance/lesson-11.html" },
+            { title: "小數法則與回歸平均", url: "topics/behavioral-finance/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜展望理論",
+          courses: [
+            { title: "展望理論", url: "topics/behavioral-finance/lesson-13.html" },
+            { title: "損失趨避", url: "topics/behavioral-finance/lesson-14.html" },
+            { title: "機率加權", url: "topics/behavioral-finance/lesson-15.html" },
+            { title: "框架效應", url: "topics/behavioral-finance/lesson-16.html" },
+            { title: "稟賦效應與現狀偏誤", url: "topics/behavioral-finance/lesson-17.html" },
+            { title: "心理帳戶", url: "topics/behavioral-finance/lesson-18.html" },
+            { title: "沉沒成本與時間偏好", url: "topics/behavioral-finance/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜投資行為",
+          courses: [
+            { title: "處分效應", url: "topics/behavioral-finance/lesson-20.html" },
+            { title: "追高殺低與報酬落差", url: "topics/behavioral-finance/lesson-21.html" },
+            { title: "羊群效應", url: "topics/behavioral-finance/lesson-22.html" },
+            { title: "本土偏誤與熟悉偏誤", url: "topics/behavioral-finance/lesson-23.html" },
+            { title: "過度交易", url: "topics/behavioral-finance/lesson-24.html" },
+            { title: "散戶與法人", url: "topics/behavioral-finance/lesson-25.html" },
+            { title: "台股的實證研究", url: "topics/behavioral-finance/lesson-26.html" },
+            { title: "FOMO 與社群媒體", url: "topics/behavioral-finance/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜泡沫與市場",
+          courses: [
+            { title: "鬱金香狂熱", url: "topics/behavioral-finance/lesson-28.html" },
+            { title: "南海泡沫與牛頓", url: "topics/behavioral-finance/lesson-29.html" },
+            { title: "網路泡沫", url: "topics/behavioral-finance/lesson-30.html" },
+            { title: "迷因股與加密貨幣", url: "topics/behavioral-finance/lesson-31.html" },
+            { title: "動能與反轉", url: "topics/behavioral-finance/lesson-32.html" },
+            { title: "效率市場的爭論", url: "topics/behavioral-finance/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜對策",
+          courses: [
+            { title: "推力", url: "topics/behavioral-finance/lesson-34.html" },
+            { title: "自動化與定期定額", url: "topics/behavioral-finance/lesson-35.html" },
+            { title: "投資檢查表與決策日記", url: "topics/behavioral-finance/lesson-36.html" },
+            { title: "了解自己的偏誤", url: "topics/behavioral-finance/lesson-37.html" },
+            { title: "總結", url: "topics/behavioral-finance/lesson-38.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "battery-ev",
+      category: "tech",
+      title: "電池與電動車：從電化學到能源轉型",
+      description:
+        "氧化還原、電壓與容量、能量與功率、C 率；鋰離子的運作、NMC 與 LFP、石墨負極、電解液與 SEI、電芯形式、能量密度、BMS 與熱管理；熱失控、衰退、充電習慣、溫度與快充；固態、鈉離子、矽負極、4680 與刀片電池；馬達與逆變器、回生制動、續航、充電標準、台灣的換電與充電、特斯拉與比亞迪、總持有成本；關鍵礦產、回收、V2G、電網儲能、台灣產業與政策、生命週期碳排。含續航、充電曲線、能源成本與電池衰退互動模擬。",
+      icon: "🔋",
+      url: "topics/battery-ev/index.html",
+      resources: [
+        {
+          title: "電動車實驗室",
+          description: "續航計算、充電曲線、能源成本比較、電池衰退模擬",
+          icon: "🧪",
+          url: "topics/battery-ev/lab.html"
+        },
+        {
+          title: "電池與電動車的公式與數字",
+          description: "能量、功率、C 率、續航、行駛阻力與能源成本的公式，以及常用的數字",
+          icon: "📋",
+          url: "topics/battery-ev/formulas.html"
+        },
+        {
+          title: "電池與電動車名詞表",
+          description: "電池與電動車的術語",
+          icon: "📖",
+          url: "topics/battery-ev/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電化學基礎",
+          courses: [
+            { title: "電池是什麼", url: "topics/battery-ev/lesson-01.html" },
+            { title: "電壓與容量", url: "topics/battery-ev/lesson-02.html" },
+            { title: "能量與功率", url: "topics/battery-ev/lesson-03.html" },
+            { title: "電池的歷史", url: "topics/battery-ev/lesson-04.html" },
+            { title: "電池的單位與 C 率", url: "topics/battery-ev/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜鋰離子電池",
+          courses: [
+            { title: "鋰離子電池如何運作", url: "topics/battery-ev/lesson-06.html" },
+            { title: "正極材料", url: "topics/battery-ev/lesson-07.html" },
+            { title: "負極材料", url: "topics/battery-ev/lesson-08.html" },
+            { title: "電解液與 SEI", url: "topics/battery-ev/lesson-09.html" },
+            { title: "隔離膜與電芯形式", url: "topics/battery-ev/lesson-10.html" },
+            { title: "能量密度與成本", url: "topics/battery-ev/lesson-11.html" },
+            { title: "電池管理系統", url: "topics/battery-ev/lesson-12.html" },
+            { title: "電池包與熱管理", url: "topics/battery-ev/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜安全與壽命",
+          courses: [
+            { title: "熱失控", url: "topics/battery-ev/lesson-14.html" },
+            { title: "電池衰退", url: "topics/battery-ev/lesson-15.html" },
+            { title: "充電習慣", url: "topics/battery-ev/lesson-16.html" },
+            { title: "溫度的影響", url: "topics/battery-ev/lesson-17.html" },
+            { title: "快充的科學與代價", url: "topics/battery-ev/lesson-18.html" },
+            { title: "二手電池與健康檢查", url: "topics/battery-ev/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜新技術",
+          courses: [
+            { title: "固態電池", url: "topics/battery-ev/lesson-20.html" },
+            { title: "鈉離子電池", url: "topics/battery-ev/lesson-21.html" },
+            { title: "矽負極", url: "topics/battery-ev/lesson-22.html" },
+            { title: "大電芯與結構電池", url: "topics/battery-ev/lesson-23.html" },
+            { title: "正極的新路線", url: "topics/battery-ev/lesson-24.html" },
+            { title: "超級電容與其他儲能", url: "topics/battery-ev/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜電動車",
+          courses: [
+            { title: "馬達與逆變器", url: "topics/battery-ev/lesson-26.html" },
+            { title: "回生制動", url: "topics/battery-ev/lesson-27.html" },
+            { title: "續航", url: "topics/battery-ev/lesson-28.html" },
+            { title: "充電標準", url: "topics/battery-ev/lesson-29.html" },
+            { title: "台灣的電動車與充電環境", url: "topics/battery-ev/lesson-30.html" },
+            { title: "特斯拉", url: "topics/battery-ev/lesson-31.html" },
+            { title: "比亞迪與中國電動車", url: "topics/battery-ev/lesson-32.html" },
+            { title: "總持有成本", url: "topics/battery-ev/lesson-33.html" },
+            { title: "油電混合、插電式與增程式", url: "topics/battery-ev/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 F｜產業與電網",
+          courses: [
+            { title: "關鍵礦產與供應鏈", url: "topics/battery-ev/lesson-35.html" },
+            { title: "電池回收", url: "topics/battery-ev/lesson-36.html" },
+            { title: "車輛與電網", url: "topics/battery-ev/lesson-37.html" },
+            { title: "電網儲能", url: "topics/battery-ev/lesson-38.html" },
+            { title: "台灣的電池與電動車產業", url: "topics/battery-ev/lesson-39.html" },
+            { title: "各國政策與電動化的進程", url: "topics/battery-ev/lesson-40.html" },
+            { title: "電動車真的比較環保嗎", url: "topics/battery-ev/lesson-41.html" },
+            { title: "總結", url: "topics/battery-ev/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
