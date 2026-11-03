@@ -26422,6 +26422,407 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "infosec",
+      category: "tech",
+      title: "資訊安全與駭客攻防",
+      description:
+        "CIA 三要素、威脅模型、攻擊者與資安史、妨害電腦使用罪與負責任揭露；雜湊加鹽、密碼破解與撞庫、MFA 與 Passkey、HTTPS、Session 與 OAuth；OWASP Top 10、SQL 注入、XSS、CSRF、SSRF、存取控制、供應鏈與 API 安全；緩衝區溢位、橫向移動、惡意程式、勒索軟體、DDoS、中間人、物聯網與零日漏洞；釣魚與台灣常見詐騙、Equifax、SolarWinds、Log4Shell、xz 後門、國家級攻擊與隱私；零信任、偵測與應變、滲透測試與 CTF、安全開發、個人資安清單。含密碼強度、雜湊、SQL 注入、XSS 與釣魚辨識等互動模擬。",
+      icon: "🛡️",
+      url: "topics/infosec/index.html",
+      resources: [
+        {
+          title: "資安實驗室",
+          description: "密碼強度、雜湊與加鹽、SQL 注入模擬、XSS 跳脫、釣魚辨識測驗",
+          icon: "🧪",
+          url: "topics/infosec/lab.html"
+        },
+        {
+          title: "攻擊與防禦速查表",
+          description: "常見攻擊的原理、根本防禦與對應課程",
+          icon: "🛡️",
+          url: "topics/infosec/cheatsheet.html"
+        },
+        {
+          title: "資安名詞表",
+          description: "資訊安全常見的術語、縮寫與對應課程",
+          icon: "📖",
+          url: "topics/infosec/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜資安的基礎",
+          courses: [
+            { title: "什麼是資訊安全", url: "topics/infosec/lesson-01.html" },
+            { title: "威脅模型與風險", url: "topics/infosec/lesson-02.html" },
+            { title: "攻擊者是誰", url: "topics/infosec/lesson-03.html" },
+            { title: "資安簡史", url: "topics/infosec/lesson-04.html" },
+            { title: "資安與法律、倫理", url: "topics/infosec/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜密碼與身分",
+          courses: [
+            { title: "雜湊與加鹽", url: "topics/infosec/lesson-06.html" },
+            { title: "密碼如何被破解", url: "topics/infosec/lesson-07.html" },
+            { title: "多因素驗證與 Passkey", url: "topics/infosec/lesson-08.html" },
+            { title: "HTTPS 與憑證", url: "topics/infosec/lesson-09.html" },
+            { title: "Session、Cookie 與 Token", url: "topics/infosec/lesson-10.html" },
+            { title: "OAuth 與單一登入", url: "topics/infosec/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜網頁攻防",
+          courses: [
+            { title: "OWASP Top 10", url: "topics/infosec/lesson-12.html" },
+            { title: "SQL 注入", url: "topics/infosec/lesson-13.html" },
+            { title: "XSS 跨站腳本", url: "topics/infosec/lesson-14.html" },
+            { title: "CSRF 跨站請求偽造", url: "topics/infosec/lesson-15.html" },
+            { title: "SSRF 伺服器端請求偽造", url: "topics/infosec/lesson-16.html" },
+            { title: "存取控制失效", url: "topics/infosec/lesson-17.html" },
+            { title: "軟體供應鏈攻擊", url: "topics/infosec/lesson-18.html" },
+            { title: "API 安全", url: "topics/infosec/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統與網路",
+          courses: [
+            { title: "記憶體漏洞與緩衝區溢位", url: "topics/infosec/lesson-20.html" },
+            { title: "權限提升與橫向移動", url: "topics/infosec/lesson-21.html" },
+            { title: "惡意程式的種類", url: "topics/infosec/lesson-22.html" },
+            { title: "勒索軟體", url: "topics/infosec/lesson-23.html" },
+            { title: "DDoS 分散式阻斷服務", url: "topics/infosec/lesson-24.html" },
+            { title: "中間人攻擊與公共 Wi-Fi", url: "topics/infosec/lesson-25.html" },
+            { title: "家用網路與物聯網安全", url: "topics/infosec/lesson-26.html" },
+            { title: "零日漏洞與漏洞市場", url: "topics/infosec/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜社交工程與重大事件",
+          courses: [
+            { title: "釣魚與社交工程", url: "topics/infosec/lesson-28.html" },
+            { title: "台灣常見的詐騙", url: "topics/infosec/lesson-29.html" },
+            { title: "重大事件（一）：大規模外洩", url: "topics/infosec/lesson-30.html" },
+            { title: "重大事件（二）：SolarWinds、Log4Shell 與 xz 後門", url: "topics/infosec/lesson-31.html" },
+            { title: "國家級攻擊與網路戰", url: "topics/infosec/lesson-32.html" },
+            { title: "隱私與監控", url: "topics/infosec/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜防禦",
+          courses: [
+            { title: "縱深防禦與零信任", url: "topics/infosec/lesson-34.html" },
+            { title: "偵測：日誌、SIEM 與 SOC", url: "topics/infosec/lesson-35.html" },
+            { title: "事件應變", url: "topics/infosec/lesson-36.html" },
+            { title: "滲透測試、紅藍隊與 CTF", url: "topics/infosec/lesson-37.html" },
+            { title: "安全的軟體開發", url: "topics/infosec/lesson-38.html" },
+            { title: "個人資安檢查清單", url: "topics/infosec/lesson-39.html" },
+            { title: "總結與資安職涯", url: "topics/infosec/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "ghost-in-the-shell",
+      category: "anime",
+      title: "攻殼機動隊：Ghost 與 Shell 的哲學",
+      description:
+        "士郎正宗的原作漫畫、押井守的 1995 年電影與《Innocence》、神山健治的 S.A.C.、2nd GIG、Solid State Society、ARISE、SAC_2045 與好萊塢真人版（完整劇透）；電子腦、義體、網路潛入、思考戰車與公安九課；傀儡師、笑面男、Stand Alone Complex、個別十一人與塔奇克馬；素子、巴特、陀古沙與荒卷；記憶與身分、忒修斯之船、AI 能否擁有 Ghost、監控社會、賽博龐克、對《駭客任務》的影響與現實中的腦機介面。",
+      icon: "🧠",
+      url: "topics/ghost-in-the-shell/index.html",
+      resources: [
+        {
+          title: "攻殼機動隊作品年表",
+          description: "漫畫、電影、電視動畫與真人版的年份、創作者與世界線",
+          icon: "🎬",
+          url: "topics/ghost-in-the-shell/works.html"
+        },
+        {
+          title: "攻殼機動隊人物表",
+          description: "公安九課成員與主要對手",
+          icon: "👥",
+          url: "topics/ghost-in-the-shell/people.html"
+        },
+        {
+          title: "攻殼名詞表",
+          description: "《攻殼機動隊》的科技、組織、事件與哲學用語",
+          icon: "📖",
+          url: "topics/ghost-in-the-shell/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "《攻殼機動隊》是什麼", url: "topics/ghost-in-the-shell/lesson-01.html" },
+            { title: "士郎正宗與原作漫畫", url: "topics/ghost-in-the-shell/lesson-02.html" },
+            { title: "系列全景", url: "topics/ghost-in-the-shell/lesson-03.html" },
+            { title: "世界觀與年表", url: "topics/ghost-in-the-shell/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜世界觀與科技",
+          courses: [
+            { title: "電子腦：連上網路的大腦", url: "topics/ghost-in-the-shell/lesson-05.html" },
+            { title: "義體化與全身義體", url: "topics/ghost-in-the-shell/lesson-06.html" },
+            { title: "網路潛入、駭客與攻性防壁", url: "topics/ghost-in-the-shell/lesson-07.html" },
+            { title: "思考戰車：浮游者與塔奇克馬", url: "topics/ghost-in-the-shell/lesson-08.html" },
+            { title: "公安九課", url: "topics/ghost-in-the-shell/lesson-09.html" },
+            { title: "國際政治與難民", url: "topics/ghost-in-the-shell/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜押井守的電影",
+          courses: [
+            { title: "1995 年電影《攻殼機動隊》", url: "topics/ghost-in-the-shell/lesson-11.html" },
+            { title: "傀儡師：在網路中誕生的生命", url: "topics/ghost-in-the-shell/lesson-12.html" },
+            { title: "素子的融合與電影的結局", url: "topics/ghost-in-the-shell/lesson-13.html" },
+            { title: "押井美學：城市、水與沉默", url: "topics/ghost-in-the-shell/lesson-14.html" },
+            { title: "《攻殼機動隊 2 INNOCENCE》", url: "topics/ghost-in-the-shell/lesson-15.html" },
+            { title: "漫畫與電影的比較", url: "topics/ghost-in-the-shell/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜S.A.C. 系列與其後",
+          courses: [
+            { title: "S.A.C. 與神山健治", url: "topics/ghost-in-the-shell/lesson-17.html" },
+            { title: "笑面男事件", url: "topics/ghost-in-the-shell/lesson-18.html" },
+            { title: "Stand Alone Complex 的概念", url: "topics/ghost-in-the-shell/lesson-19.html" },
+            { title: "2nd GIG：個別十一人與難民", url: "topics/ghost-in-the-shell/lesson-20.html" },
+            { title: "Solid State Society", url: "topics/ghost-in-the-shell/lesson-21.html" },
+            { title: "塔奇克馬的覺醒與犧牲", url: "topics/ghost-in-the-shell/lesson-22.html" },
+            { title: "ARISE 與新劇場版", url: "topics/ghost-in-the-shell/lesson-23.html" },
+            { title: "SAC_2045：後人類與全球破產", url: "topics/ghost-in-the-shell/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜人物",
+          courses: [
+            { title: "草薙素子", url: "topics/ghost-in-the-shell/lesson-25.html" },
+            { title: "巴特", url: "topics/ghost-in-the-shell/lesson-26.html" },
+            { title: "陀古沙", url: "topics/ghost-in-the-shell/lesson-27.html" },
+            { title: "荒卷大輔與九課成員", url: "topics/ghost-in-the-shell/lesson-28.html" },
+            { title: "反派群像", url: "topics/ghost-in-the-shell/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題與影響",
+          courses: [
+            { title: "記憶與身分", url: "topics/ghost-in-the-shell/lesson-30.html" },
+            { title: "身體、心智與忒修斯之船", url: "topics/ghost-in-the-shell/lesson-31.html" },
+            { title: "AI 能否擁有 Ghost", url: "topics/ghost-in-the-shell/lesson-32.html" },
+            { title: "監控社會與資訊戰", url: "topics/ghost-in-the-shell/lesson-33.html" },
+            { title: "賽博龐克的系譜", url: "topics/ghost-in-the-shell/lesson-34.html" },
+            { title: "對《駭客任務》與好萊塢的影響", url: "topics/ghost-in-the-shell/lesson-35.html" },
+            { title: "現實中的腦機介面與義肢", url: "topics/ghost-in-the-shell/lesson-36.html" },
+            { title: "2017 年真人版與白人化爭議", url: "topics/ghost-in-the-shell/lesson-37.html" },
+            { title: "總結：《攻殼》留給我們的問題", url: "topics/ghost-in-the-shell/lesson-38.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "frieren",
+      category: "anime",
+      title: "葬送的芙莉蓮：勇者打倒魔王之後",
+      description:
+        "山田鐘人與阿部司的原作、Madhouse 的動畫；勇者一行、魔法體系、魔族的本質、女神與僧侶、大陸魔法協會與旅程的目的地；辛美爾之死、費倫與修塔爾克、庫瓦爾、斷頭台的阿烏拉、贊恩、一級魔法使考試，以及北方高原、黃金鄉與帝國篇概要（含漫畫劇透）；芙莉蓮、費倫、修塔爾克、辛美爾、芙拉梅與賽莉耶、一級魔法使與魔族群像；時間與壽命、記憶與後悔、無用的魔法、善意的傳承、無法理解的他者與後日談奇幻。",
+      icon: "🌸",
+      url: "topics/frieren/index.html",
+      resources: [
+        {
+          title: "芙莉蓮年表",
+          description: "以「打倒魔王」為基準的大致時間軸，以及作品的出版與動畫",
+          icon: "⏳",
+          url: "topics/frieren/timeline.html"
+        },
+        {
+          title: "芙莉蓮人物表",
+          description: "勇者一行、芙莉蓮一行、魔法使與魔族",
+          icon: "👥",
+          url: "topics/frieren/people.html"
+        },
+        {
+          title: "芙莉蓮名詞表",
+          description: "《葬送的芙莉蓮》的魔法、地名與用語",
+          icon: "📖",
+          url: "topics/frieren/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "「勇者打倒魔王之後」的故事", url: "topics/frieren/lesson-01.html" },
+            { title: "作者與連載", url: "topics/frieren/lesson-02.html" },
+            { title: "動畫：Madhouse 的改編", url: "topics/frieren/lesson-03.html" },
+            { title: "人物關係圖", url: "topics/frieren/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜世界觀",
+          courses: [
+            { title: "勇者一行", url: "topics/frieren/lesson-05.html" },
+            { title: "魔法體系", url: "topics/frieren/lesson-06.html" },
+            { title: "魔族的本質", url: "topics/frieren/lesson-07.html" },
+            { title: "女神與僧侶", url: "topics/frieren/lesson-08.html" },
+            { title: "大陸魔法協會與一級魔法使", url: "topics/frieren/lesson-09.html" },
+            { title: "旅程的地理與目的地", url: "topics/frieren/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜故事導讀",
+          courses: [
+            { title: "葬送：辛美爾之死", url: "topics/frieren/lesson-11.html" },
+            { title: "海塔與費倫", url: "topics/frieren/lesson-12.html" },
+            { title: "艾冷與修塔爾克", url: "topics/frieren/lesson-13.html" },
+            { title: "腐敗的賢老庫瓦爾", url: "topics/frieren/lesson-14.html" },
+            { title: "斷頭台的阿烏拉", url: "topics/frieren/lesson-15.html" },
+            { title: "僧侶贊恩", url: "topics/frieren/lesson-16.html" },
+            { title: "一級魔法使考試（一）：第一次試驗", url: "topics/frieren/lesson-17.html" },
+            { title: "一級魔法使考試（二）：迷宮與複製體", url: "topics/frieren/lesson-18.html" },
+            { title: "一級魔法使考試（三）：賽莉耶的面試", url: "topics/frieren/lesson-19.html" },
+            { title: "動畫之後（一）：北方高原的旅途", url: "topics/frieren/lesson-20.html" },
+            { title: "動畫之後（二）：黃金鄉篇", url: "topics/frieren/lesson-21.html" },
+            { title: "動畫之後（三）：帝國篇與連載現況", url: "topics/frieren/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人物",
+          courses: [
+            { title: "芙莉蓮", url: "topics/frieren/lesson-23.html" },
+            { title: "費倫", url: "topics/frieren/lesson-24.html" },
+            { title: "修塔爾克", url: "topics/frieren/lesson-25.html" },
+            { title: "辛美爾", url: "topics/frieren/lesson-26.html" },
+            { title: "芙拉梅與賽莉耶", url: "topics/frieren/lesson-27.html" },
+            { title: "一級魔法使群像", url: "topics/frieren/lesson-28.html" },
+            { title: "魔族群像", url: "topics/frieren/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "時間與壽命", url: "topics/frieren/lesson-30.html" },
+            { title: "記憶與後悔", url: "topics/frieren/lesson-31.html" },
+            { title: "無用的魔法", url: "topics/frieren/lesson-32.html" },
+            { title: "「換作是辛美爾，也會這麼做」", url: "topics/frieren/lesson-33.html" },
+            { title: "魔族與無法理解的他者", url: "topics/frieren/lesson-34.html" },
+            { title: "與傳統奇幻的比較", url: "topics/frieren/lesson-35.html" },
+            { title: "總結：為什麼我們需要芙莉蓮", url: "topics/frieren/lesson-36.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "sengoku-japan",
+      category: "history",
+      title: "日本戰國時代：從應仁之亂到天下統一",
+      description:
+        "室町幕府與應仁之亂、下剋上與戰國大名、足輕與鐵砲、戰國的經濟；北條、武田、上杉、川中島、今川、毛利、齋藤道三、九州三強與伊達政宗；織田信長（桶狹間、天下布武、信長包圍網、比叡山、長篠、石山合戰、安土城、本能寺）、豐臣秀吉（中國大返還、賤岳、小牧長久手、關白、太閤檢地與刀狩、朝鮮出兵）、德川家康（三方原、關原、江戶幕府、大坂之陣、幕藩體制與鎖國）；城、茶道與千利休、南蠻貿易、忍者、戰國與台灣、大河劇與遊戲。含 1560～1615 年勢力版圖互動地圖。",
+      icon: "🏯",
+      url: "topics/sengoku-japan/index.html",
+      resources: [
+        {
+          title: "戰國勢力版圖",
+          description: "1560 到 1615 年，八個時期的大名勢力範圍",
+          icon: "🗾",
+          url: "topics/sengoku-japan/map.html"
+        },
+        {
+          title: "戰國時代年表",
+          description: "從應仁之亂到元和偃武的重要事件",
+          icon: "🗓️",
+          url: "topics/sengoku-japan/timeline.html"
+        },
+        {
+          title: "戰國人物表",
+          description: "三英傑與主要大名、武將",
+          icon: "👥",
+          url: "topics/sengoku-japan/people.html"
+        },
+        {
+          title: "戰國名詞表",
+          description: "戰國時代的制度、事件與用語",
+          icon: "📖",
+          url: "topics/sengoku-japan/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜戰國時代的背景",
+          courses: [
+            { title: "戰國時代是什麼", url: "topics/sengoku-japan/lesson-01.html" },
+            { title: "室町幕府與應仁之亂", url: "topics/sengoku-japan/lesson-02.html" },
+            { title: "下剋上與戰國大名", url: "topics/sengoku-japan/lesson-03.html" },
+            { title: "足輕、長槍與鐵砲", url: "topics/sengoku-japan/lesson-04.html" },
+            { title: "戰國的經濟與社會", url: "topics/sengoku-japan/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜群雄割據",
+          courses: [
+            { title: "北條早雲與北條五代", url: "topics/sengoku-japan/lesson-06.html" },
+            { title: "武田信玄", url: "topics/sengoku-japan/lesson-07.html" },
+            { title: "上杉謙信", url: "topics/sengoku-japan/lesson-08.html" },
+            { title: "川中島之戰", url: "topics/sengoku-japan/lesson-09.html" },
+            { title: "今川義元與東海道", url: "topics/sengoku-japan/lesson-10.html" },
+            { title: "毛利元就", url: "topics/sengoku-japan/lesson-11.html" },
+            { title: "齋藤道三與美濃", url: "topics/sengoku-japan/lesson-12.html" },
+            { title: "九州三強：大友、龍造寺、島津", url: "topics/sengoku-japan/lesson-13.html" },
+            { title: "伊達政宗與奧州", url: "topics/sengoku-japan/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜織田信長",
+          courses: [
+            { title: "尾張的大傻瓜與桶狹間之戰", url: "topics/sengoku-japan/lesson-15.html" },
+            { title: "美濃攻略與「天下布武」", url: "topics/sengoku-japan/lesson-16.html" },
+            { title: "上洛與信長包圍網", url: "topics/sengoku-japan/lesson-17.html" },
+            { title: "姊川之戰與火燒比叡山", url: "topics/sengoku-japan/lesson-18.html" },
+            { title: "長篠之戰", url: "topics/sengoku-japan/lesson-19.html" },
+            { title: "石山合戰與一向一揆", url: "topics/sengoku-japan/lesson-20.html" },
+            { title: "安土城與信長的政策", url: "topics/sengoku-japan/lesson-21.html" },
+            { title: "本能寺之變", url: "topics/sengoku-japan/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜豐臣秀吉",
+          courses: [
+            { title: "從足輕到大名", url: "topics/sengoku-japan/lesson-23.html" },
+            { title: "中國大返還與山崎之戰", url: "topics/sengoku-japan/lesson-24.html" },
+            { title: "賤岳之戰與小牧・長久手之戰", url: "topics/sengoku-japan/lesson-25.html" },
+            { title: "關白與天下統一", url: "topics/sengoku-japan/lesson-26.html" },
+            { title: "太閤檢地與刀狩", url: "topics/sengoku-japan/lesson-27.html" },
+            { title: "文祿・慶長之役", url: "topics/sengoku-japan/lesson-28.html" },
+            { title: "秀吉的晚年與繼承問題", url: "topics/sengoku-japan/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜德川家康",
+          courses: [
+            { title: "忍耐的前半生", url: "topics/sengoku-japan/lesson-30.html" },
+            { title: "關原之戰", url: "topics/sengoku-japan/lesson-31.html" },
+            { title: "江戶幕府的建立", url: "topics/sengoku-japan/lesson-32.html" },
+            { title: "大坂之陣", url: "topics/sengoku-japan/lesson-33.html" },
+            { title: "幕藩體制與鎖國之路", url: "topics/sengoku-japan/lesson-34.html" },
+            { title: "戰國的終幕：英雄們的結局", url: "topics/sengoku-japan/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜文化與影響",
+          courses: [
+            { title: "戰國的城", url: "topics/sengoku-japan/lesson-36.html" },
+            { title: "茶道與千利休", url: "topics/sengoku-japan/lesson-37.html" },
+            { title: "南蠻貿易與天主教", url: "topics/sengoku-japan/lesson-38.html" },
+            { title: "忍者的真相", url: "topics/sengoku-japan/lesson-39.html" },
+            { title: "戰國時代與台灣", url: "topics/sengoku-japan/lesson-40.html" },
+            { title: "大河劇、遊戲與動漫中的戰國", url: "topics/sengoku-japan/lesson-41.html" },
+            { title: "總結：戰國時代教會我們什麼", url: "topics/sengoku-japan/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
