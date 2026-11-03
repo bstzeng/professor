@@ -27359,6 +27359,302 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "french-revolution",
+      category: "history",
+      title: "法國大革命與拿破崙：從巴士底獄到滑鐵盧",
+      description:
+        "舊制度、啟蒙思想、財政危機與三級會議；網球場誓言、巴士底獄、8 月 4 日之夜、人權宣言與教士公民組織法；瓦倫出逃、革命戰爭、8 月 10 日、九月屠殺、處決國王；吉倫特與山嶽派、羅伯斯比與恐怖統治、旺代、共和曆、熱月與督政府；拿破崙的崛起、霧月政變、民法典與宗教協定；加冕、奧斯特利茨、大陸封鎖、半島戰爭、遠征俄國、萊比錫、滑鐵盧與聖赫勒拿；維也納會議、革命的遺產與史學爭論。含歐洲勢力變化地圖、派系圖與年表。",
+      icon: "🇫🇷",
+      url: "topics/french-revolution/index.html",
+      resources: [
+        {
+          title: "地圖與年表",
+          description: "1789、1799、1812、1815 年的歐洲勢力圖、革命派系圖、大事年表與拿破崙戰役表",
+          icon: "🗺️",
+          url: "topics/french-revolution/maps-timeline.html"
+        },
+        {
+          title: "人物卡",
+          description: "革命與帝國時期的主要人物",
+          icon: "👤",
+          url: "topics/french-revolution/people.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/french-revolution/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜舊制度的危機",
+          courses: [
+            { title: "舊制度：三個等級的社會", url: "topics/french-revolution/lesson-01.html" },
+            { title: "啟蒙思想", url: "topics/french-revolution/lesson-02.html" },
+            { title: "國王破產了", url: "topics/french-revolution/lesson-03.html" },
+            { title: "路易十六與瑪麗・安東尼", url: "topics/french-revolution/lesson-04.html" },
+            { title: "麵包與饑荒", url: "topics/french-revolution/lesson-05.html" },
+            { title: "1789 年的三級會議", url: "topics/french-revolution/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜1789：革命爆發",
+          courses: [
+            { title: "國民議會與網球場誓言", url: "topics/french-revolution/lesson-07.html" },
+            { title: "攻佔巴士底獄", url: "topics/french-revolution/lesson-08.html" },
+            { title: "大恐慌與 8 月 4 日之夜", url: "topics/french-revolution/lesson-09.html" },
+            { title: "人權和公民權宣言", url: "topics/french-revolution/lesson-10.html" },
+            { title: "婦女進軍凡爾賽", url: "topics/french-revolution/lesson-11.html" },
+            { title: "教會國有化與教士公民組織法", url: "topics/french-revolution/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜從君主立憲到共和",
+          courses: [
+            { title: "1791 年憲法與瓦倫出逃", url: "topics/french-revolution/lesson-13.html" },
+            { title: "革命戰爭的開始", url: "topics/french-revolution/lesson-14.html" },
+            { title: "8 月 10 日：王權的終結", url: "topics/french-revolution/lesson-15.html" },
+            { title: "九月屠殺", url: "topics/french-revolution/lesson-16.html" },
+            { title: "國民公會與第一共和", url: "topics/french-revolution/lesson-17.html" },
+            { title: "審判與處決路易十六", url: "topics/french-revolution/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜恐怖統治",
+          courses: [
+            { title: "吉倫特派與山嶽派", url: "topics/french-revolution/lesson-19.html" },
+            { title: "公安委員會與羅伯斯比", url: "topics/french-revolution/lesson-20.html" },
+            { title: "旺代戰爭與內戰", url: "topics/french-revolution/lesson-21.html" },
+            { title: "恐怖統治", url: "topics/french-revolution/lesson-22.html" },
+            { title: "共和曆、理性崇拜與去基督教化", url: "topics/french-revolution/lesson-23.html" },
+            { title: "熱月政變與督政府", url: "topics/french-revolution/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜拿破崙崛起",
+          courses: [
+            { title: "科西嘉人與土倫之役", url: "topics/french-revolution/lesson-25.html" },
+            { title: "義大利戰役", url: "topics/french-revolution/lesson-26.html" },
+            { title: "埃及遠征", url: "topics/french-revolution/lesson-27.html" },
+            { title: "霧月政變", url: "topics/french-revolution/lesson-28.html" },
+            { title: "執政府：法典與行政", url: "topics/french-revolution/lesson-29.html" },
+            { title: "與教宗和解", url: "topics/french-revolution/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜帝國",
+          courses: [
+            { title: "1804 年加冕", url: "topics/french-revolution/lesson-31.html" },
+            { title: "奧斯特利茨：三皇會戰", url: "topics/french-revolution/lesson-32.html" },
+            { title: "普魯士、提爾西特與大陸封鎖", url: "topics/french-revolution/lesson-33.html" },
+            { title: "半島戰爭", url: "topics/french-revolution/lesson-34.html" },
+            { title: "帝國的頂點", url: "topics/french-revolution/lesson-35.html" },
+            { title: "1812 年：遠征俄國", url: "topics/french-revolution/lesson-36.html" },
+            { title: "萊比錫與第一次退位", url: "topics/french-revolution/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜結局與遺產",
+          courses: [
+            { title: "百日王朝與滑鐵盧", url: "topics/french-revolution/lesson-38.html" },
+            { title: "聖赫勒拿島", url: "topics/french-revolution/lesson-39.html" },
+            { title: "維也納會議與復辟", url: "topics/french-revolution/lesson-40.html" },
+            { title: "革命的遺產", url: "topics/french-revolution/lesson-41.html" },
+            { title: "歷史的評價與總結", url: "topics/french-revolution/lesson-42.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "demon-slayer",
+      category: "anime",
+      title: "鬼滅之刃全紀錄：呼吸法、劇情與人物完整解析",
+      description:
+        "吾峠呼世晴的原作、大正時代與 ufotable 的動畫；鬼與鬼舞辻無慘、鬼殺隊與產屋敷、呼吸法、日輪刀與階級、十二鬼月、斑紋與赫刀；從竈門家的悲劇、無限列車、遊郭、刀匠村到無限城與最終章（含漫畫結局劇透）；炭治郎、禰豆子、善逸、伊之助、九柱、上弦之鬼、繼國緣壹與黑死牟、無慘；家人、鬼的悲劇、傳承與和風元素。含呼吸法傳承圖、故事年表、九柱與十二鬼月圖鑑。",
+      icon: "👹",
+      url: "topics/demon-slayer/index.html",
+      resources: [
+        {
+          title: "鬼滅圖鑑",
+          description: "故事年表、呼吸法傳承圖、九柱與十二鬼月一覽",
+          icon: "📜",
+          url: "topics/demon-slayer/atlas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/demon-slayer/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "作品與作者", url: "topics/demon-slayer/lesson-01.html" },
+            { title: "大正時代", url: "topics/demon-slayer/lesson-02.html" },
+            { title: "動畫與「鬼滅現象」", url: "topics/demon-slayer/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜世界觀",
+          courses: [
+            { title: "鬼與鬼舞辻無慘", url: "topics/demon-slayer/lesson-04.html" },
+            { title: "鬼殺隊與產屋敷一族", url: "topics/demon-slayer/lesson-05.html" },
+            { title: "呼吸法", url: "topics/demon-slayer/lesson-06.html" },
+            { title: "日輪刀、階級與隊服", url: "topics/demon-slayer/lesson-07.html" },
+            { title: "十二鬼月", url: "topics/demon-slayer/lesson-08.html" },
+            { title: "斑紋、通透世界與赫刀", url: "topics/demon-slayer/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜故事導讀",
+          courses: [
+            { title: "竈門家的悲劇與最終選拔", url: "topics/demon-slayer/lesson-10.html" },
+            { title: "淺草、珠世與愈史郎", url: "topics/demon-slayer/lesson-11.html" },
+            { title: "鼓屋敷與那田蜘蛛山", url: "topics/demon-slayer/lesson-12.html" },
+            { title: "柱合會議與蝶屋敷", url: "topics/demon-slayer/lesson-13.html" },
+            { title: "無限列車篇", url: "topics/demon-slayer/lesson-14.html" },
+            { title: "遊郭篇", url: "topics/demon-slayer/lesson-15.html" },
+            { title: "刀匠村篇", url: "topics/demon-slayer/lesson-16.html" },
+            { title: "柱訓練篇", url: "topics/demon-slayer/lesson-17.html" },
+            { title: "無限城篇（一）：童磨與猗窩座", url: "topics/demon-slayer/lesson-18.html" },
+            { title: "無限城篇（二）：黑死牟", url: "topics/demon-slayer/lesson-19.html" },
+            { title: "最終決戰：直到黎明", url: "topics/demon-slayer/lesson-20.html" },
+            { title: "黎明：最後的試煉", url: "topics/demon-slayer/lesson-21.html" },
+            { title: "終章：現代的日本", url: "topics/demon-slayer/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人物",
+          courses: [
+            { title: "竈門炭治郎", url: "topics/demon-slayer/lesson-23.html" },
+            { title: "竈門禰豆子", url: "topics/demon-slayer/lesson-24.html" },
+            { title: "我妻善逸與嘴平伊之助", url: "topics/demon-slayer/lesson-25.html" },
+            { title: "栗花落香奈乎與不死川玄彌", url: "topics/demon-slayer/lesson-26.html" },
+            { title: "九柱（一）", url: "topics/demon-slayer/lesson-27.html" },
+            { title: "九柱（二）", url: "topics/demon-slayer/lesson-28.html" },
+            { title: "上弦之鬼：他們生前的故事", url: "topics/demon-slayer/lesson-29.html" },
+            { title: "繼國緣壹與黑死牟", url: "topics/demon-slayer/lesson-30.html" },
+            { title: "鬼舞辻無慘", url: "topics/demon-slayer/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "家人：鬼滅之刃的核心", url: "topics/demon-slayer/lesson-32.html" },
+            { title: "鬼的悲劇", url: "topics/demon-slayer/lesson-33.html" },
+            { title: "傳承與意志", url: "topics/demon-slayer/lesson-34.html" },
+            { title: "和風元素", url: "topics/demon-slayer/lesson-35.html" },
+            { title: "社會現象與總結", url: "topics/demon-slayer/lesson-36.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "souls-series",
+      category: "games",
+      title: "魂系列的故事與設計：從惡魔靈魂到艾爾登法環",
+      description:
+        "FromSoftware 與宮崎英高、魂系的機制與隱晦敘事；惡魔靈魂的波雷塔利亞；黑暗靈魂三部曲的初火、傳火、薪王與循環（含 DLC）；血源詛咒的血療、上位者與獵人夢境；隻狼的龍胤與四個結局；艾爾登法環的黃金律法、碎片戰爭、半神、瑪莉卡與拉達岡、六種結局、黃金樹幽影與黑夜君臨；難度哲學、關卡設計、戰鬥系統、非同步多人與類魂遊戲。主流玩家推論另行標註；含全系列劇透。",
+      icon: "🗡️",
+      url: "topics/souls-series/index.html",
+      resources: [
+        {
+          title: "魂系圖鑑",
+          description: "FromSoftware 作品年表、黑暗靈魂的王魂與世界蛇、交界地的黃金王朝",
+          icon: "🕯️",
+          url: "topics/souls-series/atlas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/souls-series/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "FromSoftware 與宮崎英高", url: "topics/souls-series/lesson-01.html" },
+            { title: "「魂系」是什麼", url: "topics/souls-series/lesson-02.html" },
+            { title: "隱晦敘事", url: "topics/souls-series/lesson-03.html" },
+            { title: "怎麼讀魂系的劇情", url: "topics/souls-series/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜惡魔靈魂",
+          courses: [
+            { title: "波雷塔利亞與無色濃霧", url: "topics/souls-series/lesson-05.html" },
+            { title: "古老者與惡魔", url: "topics/souls-series/lesson-06.html" },
+            { title: "兩個結局與重製版", url: "topics/souls-series/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜黑暗靈魂三部曲",
+          courses: [
+            { title: "黑暗靈魂 1：古龍時代與初火", url: "topics/souls-series/lesson-08.html" },
+            { title: "傳火與薪王", url: "topics/souls-series/lesson-09.html" },
+            { title: "羅德蘭的旅程", url: "topics/souls-series/lesson-10.html" },
+            { title: "太陽戰士與其他的 NPC", url: "topics/souls-series/lesson-11.html" },
+            { title: "深淵與亞爾特留斯", url: "topics/souls-series/lesson-12.html" },
+            { title: "傳火或黑暗", url: "topics/souls-series/lesson-13.html" },
+            { title: "黑暗靈魂 2：德蘭雷格與渴望王座", url: "topics/souls-series/lesson-14.html" },
+            { title: "三王冠與黑暗靈魂 2 的定位", url: "topics/souls-series/lesson-15.html" },
+            { title: "黑暗靈魂 3：洛斯里克與不願傳火的薪王", url: "topics/souls-series/lesson-16.html" },
+            { title: "灰燼與初火的薪王", url: "topics/souls-series/lesson-17.html" },
+            { title: "繪畫世界與環印城", url: "topics/souls-series/lesson-18.html" },
+            { title: "火的終焉", url: "topics/souls-series/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜血源詛咒",
+          courses: [
+            { title: "亞楠：獸化病與血療", url: "topics/souls-series/lesson-20.html" },
+            { title: "治癒教會、拜爾金沃斯與上位者", url: "topics/souls-series/lesson-21.html" },
+            { title: "夢境、月之魔物與獵人", url: "topics/souls-series/lesson-22.html" },
+            { title: "遠古獵人：漁村的罪", url: "topics/souls-series/lesson-23.html" },
+            { title: "三個結局與洞察的意義", url: "topics/souls-series/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜隻狼：暗影雙死",
+          courses: [
+            { title: "葦名國與戰國的影子", url: "topics/souls-series/lesson-25.html" },
+            { title: "龍胤、不死與忍者的忠義", url: "topics/souls-series/lesson-26.html" },
+            { title: "隻狼的四個結局", url: "topics/souls-series/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜艾爾登法環",
+          courses: [
+            { title: "交界地：黃金樹與艾爾登法環", url: "topics/souls-series/lesson-28.html" },
+            { title: "碎片戰爭", url: "topics/souls-series/lesson-29.html" },
+            { title: "半神們（一）", url: "topics/souls-series/lesson-30.html" },
+            { title: "半神們（二）", url: "topics/souls-series/lesson-31.html" },
+            { title: "瑪莉卡與拉達岡", url: "topics/souls-series/lesson-32.html" },
+            { title: "群星、死亡與外神", url: "topics/souls-series/lesson-33.html" },
+            { title: "褪色者與六種結局", url: "topics/souls-series/lesson-34.html" },
+            { title: "黃金樹幽影", url: "topics/souls-series/lesson-35.html" },
+            { title: "黑夜君臨與系列的新方向", url: "topics/souls-series/lesson-36.html" },
+            { title: "喬治・R・R・馬汀與交界地的前史", url: "topics/souls-series/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜遊戲設計",
+          courses: [
+            { title: "難度哲學", url: "topics/souls-series/lesson-38.html" },
+            { title: "關卡設計", url: "topics/souls-series/lesson-39.html" },
+            { title: "戰鬥系統", url: "topics/souls-series/lesson-40.html" },
+            { title: "非同步多人", url: "topics/souls-series/lesson-41.html" },
+            { title: "類魂遊戲的誕生與總結", url: "topics/souls-series/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
