@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：記憶體漏洞與緩衝區溢位 ｜ 資訊安全 ｜ 博雅書院</title>
+<meta name="description" content="寫超過格子的資料，改寫了程式的命運">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">資訊安全</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統與網路 · 第 20 課</div>
+      <h1>記憶體漏洞與緩衝區溢位</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解緩衝區溢位的原理</li>
+          <li>認識現代的緩解機制</li>
+          <li>理解記憶體安全語言的意義</li>
+        </ul>
+      </div>
+
+      <h2>原理</h2>
+
+      <p>
+        C 與 C++ 讓程式直接操作記憶體，效率很高，但<strong>不會自動檢查邊界</strong>。如果程式準備了一塊 64 位元組的空間（緩衝區）存放使用者輸入，卻沒有檢查輸入的長度，多出來的資料就會<strong>覆蓋</strong>到相鄰的記憶體。
+      </p>
+
+      <h2>堆疊溢位：改寫返回位址</h2>
+
+      <p>
+        函式被呼叫時，電腦會在「堆疊」上記下<strong>函式結束後要回到哪裡</strong>（返回位址），緊鄰著區域變數。攻擊者精心構造過長的輸入，就能把返回位址改成自己想要的位置——讓程式在函式結束時，跳去執行攻擊者準備的程式碼。
+      </p>
+
+      <div class="code-block">[ 緩衝區 64 bytes ][ 其他資料 ][ 返回位址 ]
+[ AAAA…（過長的輸入）…AAAA ][ 被覆蓋 ][ 攻擊者的位址 ]</div>
+
+      <p>
+        1988 年的莫里斯蠕蟲，就利用了 fingerd 程式中的緩衝區溢位（第 4 課）。
+      </p>
+
+      <h2>其他記憶體漏洞</h2>
+
+      <ul>
+        <li><strong>釋放後使用</strong>（use-after-free）：記憶體已經被釋放，程式卻還在使用它，攻擊者趁機在那裡放入自己的資料。瀏覽器的漏洞很多是這一類。</li>
+        <li>整數溢位：長度計算溢位，導致配置了過小的緩衝區。</li>
+        <li>越界讀取：讀到不該讀的記憶體，例如 2014 年的 <strong>Heartbleed</strong> 讓伺服器洩漏記憶體中的私鑰與密碼。</li>
+      </ul>
+
+      <h2>緩解機制</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>機制</th><th>做法</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>堆疊保護值（canary）</td><td>在返回位址前放一個隨機值，函式結束時檢查有沒有被改</td></tr>
+          <tr><td>不可執行記憶體（DEP／NX）</td><td>存放資料的區域不能當作程式碼執行</td></tr>
+          <tr><td>位址空間隨機化（ASLR）</td><td>每次執行時，程式與函式庫的位置都不同，攻擊者難以猜到要跳去哪裡</td></tr>
+          <tr><td>控制流程完整性（CFI）</td><td>限制程式只能跳到合法的位置</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        這些機制讓攻擊變難，但攻擊者也發展出串接既有程式片段（ROP）等繞過技巧——這是一場持續的軍備競賽。
+      </p>
+
+      <h2>記憶體安全語言</h2>
+
+      <p>
+        微軟與 Google 都曾統計，他們產品中約<strong>七成</strong>的嚴重漏洞屬於記憶體安全問題。因此業界開始轉向 <strong>Rust</strong>、Go、Java 等會自動檢查邊界或管理記憶體的語言；美國政府機關也建議新專案優先採用記憶體安全語言。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          C 與 C++ 不自動檢查邊界，輸入超過緩衝區時會覆蓋相鄰記憶體。堆疊溢位改寫緊鄰區域變數的返回位址，讓程式跳去執行攻擊者的程式碼，莫里斯蠕蟲即利用 fingerd 的溢位。其他記憶體漏洞有釋放後使用、整數溢位與越界讀取，如 2014 年 Heartbleed 洩漏私鑰。緩解機制有堆疊保護值、不可執行記憶體、位址空間隨機化與控制流程完整性，但攻擊者發展出 ROP 等繞過技巧。微軟與 Google 統計約七成嚴重漏洞屬記憶體安全問題，業界轉向 Rust 等記憶體安全語言。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛡️ 本課程只介紹攻擊的原理與防禦方法，所有示範都是在瀏覽器內的模擬，不會連線到任何系統。未經授權入侵他人系統是違法行為（刑法第 358～363 條妨害電腦使用罪）；想練習請使用合法的靶場與 CTF。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>緩衝區溢位如何讓攻擊者控制程式的流程？</li>
+          <li>ASLR 為什麼能讓攻擊變難？</li>
+          <li>為什麼業界推動改用記憶體安全的語言？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>權限提升與橫向移動</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：API 安全</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：權限提升與橫向移動 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
