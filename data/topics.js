@@ -27242,6 +27242,123 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "us-government",
+      category: "history",
+      title: "美國政府怎麼運作：三權、兩院與台灣比較",
+      description:
+        "共和、聯邦與分權制衡；制憲會議與康乃狄克妥協、憲法與修憲、聯邦主義、兩黨制；國會的列舉權力、眾議院與參議院、兩院權力分界、議長與多數黨領袖、委員會、立法流程、冗長辯論與 60 票、撥款與政府關門、監督與 CBO／GAO；總統權力與行政命令、選舉人團、白宮與總統行政辦公室、十五個部、獨立機構、文官、戰爭權、彈劾與繼任；聯邦法院、最高法院、司法審查與重要判例、法官任命、州法院；選舉、遊說、州與地方、媒體與改革；每課附「台灣怎麼做」，並以八課完整比較中華民國五權憲法、總統與行政院、立法院、監察考試司法三院、單一制、覆議罷免與公投。",
+      icon: "🦅",
+      url: "topics/us-government/index.html",
+      resources: [
+        {
+          title: "三權與兩院權力對照",
+          description: "眾議院、參議院、總統與法院各自擁有的權力，以及彼此之間的制衡",
+          icon: "⚖️",
+          url: "topics/us-government/powers.html"
+        },
+        {
+          title: "美國聯邦政府組織圖",
+          description: "立法、行政、司法三個部門底下的主要組織",
+          icon: "🏢",
+          url: "topics/us-government/org-chart.html"
+        },
+        {
+          title: "現況一覽",
+          description: "美國與台灣主要職位與國會席次的現況，標註時間",
+          icon: "📅",
+          url: "topics/us-government/current.html"
+        },
+        {
+          title: "美台制度對照表",
+          description: "總統、國會、行政、司法、監督工具與直接民主的完整對照",
+          icon: "🇹🇼",
+          url: "topics/us-government/compare.html"
+        },
+        {
+          title: "政府制度名詞表",
+          description: "美國與台灣政府制度的術語",
+          icon: "📖",
+          url: "topics/us-government/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜憲政基礎",
+          courses: [
+            { title: "美國政府的設計理念", url: "topics/us-government/lesson-01.html" },
+            { title: "制憲會議與兩院制的誕生", url: "topics/us-government/lesson-02.html" },
+            { title: "憲法的結構與修憲", url: "topics/us-government/lesson-03.html" },
+            { title: "分權與制衡總覽", url: "topics/us-government/lesson-04.html" },
+            { title: "聯邦主義：聯邦與州", url: "topics/us-government/lesson-05.html" },
+            { title: "政黨與兩黨制", url: "topics/us-government/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜國會：兩院",
+          courses: [
+            { title: "國會總覽", url: "topics/us-government/lesson-07.html" },
+            { title: "眾議院", url: "topics/us-government/lesson-08.html" },
+            { title: "參議院", url: "topics/us-government/lesson-09.html" },
+            { title: "兩院的權力分界", url: "topics/us-government/lesson-10.html" },
+            { title: "國會的領導結構", url: "topics/us-government/lesson-11.html" },
+            { title: "委員會制度", url: "topics/us-government/lesson-12.html" },
+            { title: "法案如何成為法律", url: "topics/us-government/lesson-13.html" },
+            { title: "冗長辯論與 60 票門檻", url: "topics/us-government/lesson-14.html" },
+            { title: "錢包的權力", url: "topics/us-government/lesson-15.html" },
+            { title: "國會的監督與支援機構", url: "topics/us-government/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜行政部門",
+          courses: [
+            { title: "總統的權力", url: "topics/us-government/lesson-17.html" },
+            { title: "選舉人團", url: "topics/us-government/lesson-18.html" },
+            { title: "白宮與總統行政辦公室", url: "topics/us-government/lesson-19.html" },
+            { title: "內閣與十五個部", url: "topics/us-government/lesson-20.html" },
+            { title: "獨立機構與管制委員會", url: "topics/us-government/lesson-21.html" },
+            { title: "聯邦文官體系", url: "topics/us-government/lesson-22.html" },
+            { title: "戰爭權與外交", url: "topics/us-government/lesson-23.html" },
+            { title: "彈劾", url: "topics/us-government/lesson-24.html" },
+            { title: "副總統與總統繼任", url: "topics/us-government/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 D｜司法部門",
+          courses: [
+            { title: "聯邦法院的三個層級", url: "topics/us-government/lesson-26.html" },
+            { title: "最高法院", url: "topics/us-government/lesson-27.html" },
+            { title: "司法審查", url: "topics/us-government/lesson-28.html" },
+            { title: "改變美國的判例", url: "topics/us-government/lesson-29.html" },
+            { title: "法官任命的政治", url: "topics/us-government/lesson-30.html" },
+            { title: "州法院與聯邦法院", url: "topics/us-government/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實際運作",
+          courses: [
+            { title: "選舉制度", url: "topics/us-government/lesson-32.html" },
+            { title: "遊說與利益團體", url: "topics/us-government/lesson-33.html" },
+            { title: "州與地方政府", url: "topics/us-government/lesson-34.html" },
+            { title: "媒體、民調與輿論", url: "topics/us-government/lesson-35.html" },
+            { title: "制度的爭議與改革", url: "topics/us-government/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 F｜與台灣比較",
+          courses: [
+            { title: "中華民國憲政體制概論", url: "topics/us-government/lesson-37.html" },
+            { title: "總統比較", url: "topics/us-government/lesson-38.html" },
+            { title: "行政院與美國內閣", url: "topics/us-government/lesson-39.html" },
+            { title: "立法院與美國國會", url: "topics/us-government/lesson-40.html" },
+            { title: "台灣「多出來」的機關", url: "topics/us-government/lesson-41.html" },
+            { title: "單一制與聯邦制", url: "topics/us-government/lesson-42.html" },
+            { title: "預算、覆議、彈劾、罷免與公投", url: "topics/us-government/lesson-43.html" },
+            { title: "總結：兩國制度大比較", url: "topics/us-government/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
