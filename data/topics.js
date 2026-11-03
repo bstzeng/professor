@@ -26116,6 +26116,312 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "sleep-science",
+      category: "biomed",
+      title: "睡眠的科學：從睡眠週期、生理時鐘到失眠與改善",
+      description:
+        "睡眠的功能與研究史、睡眠的測量；睡眠週期、兩歷程模型、生理時鐘與褪黑激素、時型、咖啡因、酒精與藥物、夢、一生的睡眠；睡眠與記憶、情緒、免疫、代謝、心血管、類淋巴系統、睡眠負債與疲勞駕駛；失眠與 CBT-I、睡眠呼吸中止、猝睡症、不寧腿、異睡症、時鐘失調、輪班、時差、安眠藥；睡眠衛生、光照、臥室、運動飲食、午睡、穿戴裝置與迷思；嬰幼兒、青少年、長者、女性與台灣人的睡眠。附公式與 5 個互動工具。",
+      icon: "😴",
+      url: "topics/sleep-science/index.html",
+      resources: [
+        {
+          title: "睡眠實驗室",
+          description: "睡眠週期圖、兩歷程模型、咖啡因殘留、睡眠負債與社交時差、時差調整計畫",
+          icon: "🧪",
+          url: "topics/sleep-science/lab.html"
+        },
+        {
+          title: "睡眠公式總表",
+          description: "睡眠效率、兩歷程模型、咖啡因代謝、社交時差、睡眠負債、呼吸中止指數",
+          icon: "📋",
+          url: "topics/sleep-science/formulas.html"
+        },
+        {
+          title: "睡眠名詞對照",
+          description: "睡眠科學常用名詞的中英對照",
+          icon: "📖",
+          url: "topics/sleep-science/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "為什麼要睡覺", url: "topics/sleep-science/lesson-01.html" },
+            { title: "睡眠研究簡史", url: "topics/sleep-science/lesson-02.html" },
+            { title: "怎麼測量睡眠", url: "topics/sleep-science/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜睡眠怎麼運作",
+          courses: [
+            { title: "睡眠週期：一夜的旅程", url: "topics/sleep-science/lesson-04.html" },
+            { title: "兩歷程模型：睡眠壓力與生理時鐘", url: "topics/sleep-science/lesson-05.html" },
+            { title: "生理時鐘、褪黑激素與光", url: "topics/sleep-science/lesson-06.html" },
+            { title: "晨型人與夜型人", url: "topics/sleep-science/lesson-07.html" },
+            { title: "腺苷與咖啡因", url: "topics/sleep-science/lesson-08.html" },
+            { title: "酒精、尼古丁與藥物", url: "topics/sleep-science/lesson-09.html" },
+            { title: "夢", url: "topics/sleep-science/lesson-10.html" },
+            { title: "一生的睡眠", url: "topics/sleep-science/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜睡眠與身心",
+          courses: [
+            { title: "睡眠與記憶", url: "topics/sleep-science/lesson-12.html" },
+            { title: "睡眠與情緒", url: "topics/sleep-science/lesson-13.html" },
+            { title: "睡眠與免疫", url: "topics/sleep-science/lesson-14.html" },
+            { title: "睡眠、食慾與代謝", url: "topics/sleep-science/lesson-15.html" },
+            { title: "睡眠與心血管", url: "topics/sleep-science/lesson-16.html" },
+            { title: "大腦的清潔系統", url: "topics/sleep-science/lesson-17.html" },
+            { title: "睡眠不足的代價", url: "topics/sleep-science/lesson-18.html" },
+            { title: "睡眠與長期健康", url: "topics/sleep-science/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜睡眠障礙",
+          courses: [
+            { title: "失眠", url: "topics/sleep-science/lesson-20.html" },
+            { title: "睡眠呼吸中止症與打鼾", url: "topics/sleep-science/lesson-21.html" },
+            { title: "猝睡症與白天過度嗜睡", url: "topics/sleep-science/lesson-22.html" },
+            { title: "不寧腿症候群與週期性肢體抽動", url: "topics/sleep-science/lesson-23.html" },
+            { title: "夢遊、說夢話與快速動眼期睡眠行為障礙", url: "topics/sleep-science/lesson-24.html" },
+            { title: "生理時鐘失調", url: "topics/sleep-science/lesson-25.html" },
+            { title: "輪班工作與睡眠", url: "topics/sleep-science/lesson-26.html" },
+            { title: "時差", url: "topics/sleep-science/lesson-27.html" },
+            { title: "安眠藥與褪黑激素", url: "topics/sleep-science/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 E｜改善睡眠",
+          courses: [
+            { title: "睡眠衛生：基本功", url: "topics/sleep-science/lesson-29.html" },
+            { title: "光照管理與藍光", url: "topics/sleep-science/lesson-30.html" },
+            { title: "臥室環境", url: "topics/sleep-science/lesson-31.html" },
+            { title: "運動、飲食與睡眠", url: "topics/sleep-science/lesson-32.html" },
+            { title: "午睡", url: "topics/sleep-science/lesson-33.html" },
+            { title: "睡眠追蹤裝置與 App", url: "topics/sleep-science/lesson-34.html" },
+            { title: "常見的睡眠迷思", url: "topics/sleep-science/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 F｜不同族群與總結",
+          courses: [
+            { title: "嬰幼兒的睡眠", url: "topics/sleep-science/lesson-36.html" },
+            { title: "青少年與上學時間", url: "topics/sleep-science/lesson-37.html" },
+            { title: "長者的睡眠", url: "topics/sleep-science/lesson-38.html" },
+            { title: "女性的睡眠", url: "topics/sleep-science/lesson-39.html" },
+            { title: "台灣人的睡眠", url: "topics/sleep-science/lesson-40.html" },
+            { title: "總結：打造你的睡眠計畫", url: "topics/sleep-science/lesson-41.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cthulhu-mythos",
+      category: "fantasy",
+      title: "克蘇魯神話：洛夫克拉夫特與宇宙恐怖",
+      description:
+        "洛夫克拉夫特的生平、宇宙恐怖與「不可名狀」、德雷斯與共享宇宙的形成；〈大袞〉〈克蘇魯的呼喚〉〈異域之色〉〈敦威治恐怖事件〉〈暗夜呢喃〉〈瘋狂山脈〉〈印斯茅斯疑雲〉〈魔女屋之夢〉〈查爾斯・德克斯特・沃德事件〉〈超越時間之影〉〈獵黑行者〉與夢境系列導讀（完整劇透）；外神、克蘇魯與舊日支配者、深潛者、古老者與修格斯、米・戈、伊斯之偉大種族；《死靈之書》與禁書、洛夫克拉夫特之國、拉萊耶與夢境；TRPG 與理智值、電玩、電影、動漫、文學繼承者、新世代的再詮釋與中文圈的克系熱；科學時代的恐懼、種族主義爭議與開源神話。",
+      icon: "🐙",
+      url: "topics/cthulhu-mythos/index.html",
+      resources: [
+        {
+          title: "洛夫克拉夫特作品年表",
+          description: "主要作品的寫作年份、發表與本課程的導讀",
+          icon: "📚",
+          url: "topics/cthulhu-mythos/works.html"
+        },
+        {
+          title: "神祇與生物表",
+          description: "外神、舊日支配者與神話中的種族",
+          icon: "🐙",
+          url: "topics/cthulhu-mythos/beings.html"
+        },
+        {
+          title: "克蘇魯名詞表",
+          description: "克蘇魯神話的地名、禁書、概念與流行用語",
+          icon: "📖",
+          url: "topics/cthulhu-mythos/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "洛夫克拉夫特其人", url: "topics/cthulhu-mythos/lesson-01.html" },
+            { title: "宇宙恐怖：人類在宇宙中毫無意義", url: "topics/cthulhu-mythos/lesson-02.html" },
+            { title: "克蘇魯神話是怎麼形成的", url: "topics/cthulhu-mythos/lesson-03.html" },
+            { title: "怎麼讀洛夫克拉夫特", url: "topics/cthulhu-mythos/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜經典作品導讀",
+          courses: [
+            { title: "〈大袞〉（1917）", url: "topics/cthulhu-mythos/lesson-05.html" },
+            { title: "〈克蘇魯的呼喚〉（1926）", url: "topics/cthulhu-mythos/lesson-06.html" },
+            { title: "〈異域之色〉（1927）", url: "topics/cthulhu-mythos/lesson-07.html" },
+            { title: "〈敦威治恐怖事件〉（1928）", url: "topics/cthulhu-mythos/lesson-08.html" },
+            { title: "〈暗夜呢喃〉（1930）", url: "topics/cthulhu-mythos/lesson-09.html" },
+            { title: "〈瘋狂山脈〉（1931）", url: "topics/cthulhu-mythos/lesson-10.html" },
+            { title: "〈印斯茅斯疑雲〉（1931）", url: "topics/cthulhu-mythos/lesson-11.html" },
+            { title: "〈魔女屋之夢〉（1932）", url: "topics/cthulhu-mythos/lesson-12.html" },
+            { title: "〈查爾斯・德克斯特・沃德事件〉（1927）", url: "topics/cthulhu-mythos/lesson-13.html" },
+            { title: "〈超越時間之影〉（1935）", url: "topics/cthulhu-mythos/lesson-14.html" },
+            { title: "〈獵黑行者〉（1935）", url: "topics/cthulhu-mythos/lesson-15.html" },
+            { title: "夢境系列：卡達斯與烏撒之貓", url: "topics/cthulhu-mythos/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜神祇與生物",
+          courses: [
+            { title: "外神：阿撒托斯與猶格・索托斯", url: "topics/cthulhu-mythos/lesson-17.html" },
+            { title: "奈亞拉托提普與莎布・尼古拉絲", url: "topics/cthulhu-mythos/lesson-18.html" },
+            { title: "克蘇魯與舊日支配者", url: "topics/cthulhu-mythos/lesson-19.html" },
+            { title: "深潛者與大袞", url: "topics/cthulhu-mythos/lesson-20.html" },
+            { title: "古老者與修格斯", url: "topics/cthulhu-mythos/lesson-21.html" },
+            { title: "米・戈與伊斯之偉大種族", url: "topics/cthulhu-mythos/lesson-22.html" },
+            { title: "食屍鬼、夢境生物與其他", url: "topics/cthulhu-mythos/lesson-23.html" },
+            { title: "德雷斯的分類與爭議", url: "topics/cthulhu-mythos/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜禁書與地理",
+          courses: [
+            { title: "《死靈之書》", url: "topics/cthulhu-mythos/lesson-25.html" },
+            { title: "其他禁書", url: "topics/cthulhu-mythos/lesson-26.html" },
+            { title: "洛夫克拉夫特之國：阿卡姆、印斯茅斯與敦威治", url: "topics/cthulhu-mythos/lesson-27.html" },
+            { title: "拉萊耶與南極：地球上的神話地理", url: "topics/cthulhu-mythos/lesson-28.html" },
+            { title: "夢境世界", url: "topics/cthulhu-mythos/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響",
+          courses: [
+            { title: "桌上角色扮演遊戲：《克蘇魯的呼喚》與理智值", url: "topics/cthulhu-mythos/lesson-30.html" },
+            { title: "電玩與桌遊", url: "topics/cthulhu-mythos/lesson-31.html" },
+            { title: "電影與影集", url: "topics/cthulhu-mythos/lesson-32.html" },
+            { title: "漫畫與動漫", url: "topics/cthulhu-mythos/lesson-33.html" },
+            { title: "文學的繼承者：從史蒂芬・金到新怪譚", url: "topics/cthulhu-mythos/lesson-34.html" },
+            { title: "新世代的再詮釋", url: "topics/cthulhu-mythos/lesson-35.html" },
+            { title: "中文圈的克蘇魯熱", url: "topics/cthulhu-mythos/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題與爭議",
+          courses: [
+            { title: "未知的恐懼與科學時代", url: "topics/cthulhu-mythos/lesson-37.html" },
+            { title: "洛夫克拉夫特的種族主義", url: "topics/cthulhu-mythos/lesson-38.html" },
+            { title: "開源神話：為什麼人人都能寫克蘇魯", url: "topics/cthulhu-mythos/lesson-39.html" },
+            { title: "總結：凝視深淵", url: "topics/cthulhu-mythos/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "gundam-uc",
+      category: "anime",
+      title: "機動戰士鋼彈：宇宙世紀全解析",
+      description:
+        "富野由悠季與 1979 年的《機動戰士鋼彈》、真實系機器人、鋼彈系列全景與觀看順序；太空殖民地與拉格朗日點、地球聯邦與吉翁、米諾夫斯基粒子、機動戰士與新人類；一年戰爭（阿姆羅、夏亞、拉拉、蘭巴・拉爾、08MS 小隊、0080）、0083、Z、ZZ、逆襲的夏亞、UC、閃光的哈薩維、F91、V 鋼彈（完整劇透）；主要人物論；戰爭與正義、新人類與相互理解、重力與特權、少年兵、人形兵器的工程學、鋼普拉，以及對日本與台灣的影響。",
+      icon: "🤖",
+      url: "topics/gundam-uc/index.html",
+      resources: [
+        {
+          title: "宇宙世紀年表",
+          description: "從宇宙世紀元年到 UC 0153 的主要事件與對應作品",
+          icon: "🗓️",
+          url: "topics/gundam-uc/timeline.html"
+        },
+        {
+          title: "宇宙世紀人物表",
+          description: "主要人物的陣營、登場作品、代表機體與結局",
+          icon: "👥",
+          url: "topics/gundam-uc/people.html"
+        },
+        {
+          title: "鋼彈名詞表",
+          description: "宇宙世紀的科技、組織、事件與用語",
+          icon: "📖",
+          url: "topics/gundam-uc/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "1979 年的《機動戰士鋼彈》", url: "topics/gundam-uc/lesson-01.html" },
+            { title: "超級系與真實系", url: "topics/gundam-uc/lesson-02.html" },
+            { title: "鋼彈系列全景", url: "topics/gundam-uc/lesson-03.html" },
+            { title: "宇宙世紀年表與觀看順序", url: "topics/gundam-uc/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜世界觀與科技",
+          courses: [
+            { title: "太空殖民地與拉格朗日點", url: "topics/gundam-uc/lesson-05.html" },
+            { title: "地球聯邦與吉翁公國", url: "topics/gundam-uc/lesson-06.html" },
+            { title: "米諾夫斯基粒子", url: "topics/gundam-uc/lesson-07.html" },
+            { title: "機動戰士：薩克、鋼彈與吉姆", url: "topics/gundam-uc/lesson-08.html" },
+            { title: "新人類", url: "topics/gundam-uc/lesson-09.html" },
+            { title: "戰艦與母艦：白色基地與姆塞", url: "topics/gundam-uc/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜一年戰爭",
+          courses: [
+            { title: "一年戰爭爆發：一週戰爭與殖民地墜落", url: "topics/gundam-uc/lesson-11.html" },
+            { title: "阿姆羅・雷與白色基地的旅程", url: "topics/gundam-uc/lesson-12.html" },
+            { title: "夏亞・阿茲納布爾", url: "topics/gundam-uc/lesson-13.html" },
+            { title: "拉拉・辛：新人類的悲劇", url: "topics/gundam-uc/lesson-14.html" },
+            { title: "敵人也是人：吉翁的配角群像", url: "topics/gundam-uc/lesson-15.html" },
+            { title: "外傳：《08MS 小隊》與《0080 口袋裡的戰爭》", url: "topics/gundam-uc/lesson-16.html" },
+            { title: "所羅門與阿・巴瓦・庫：一年戰爭的終結", url: "topics/gundam-uc/lesson-17.html" },
+            { title: "一年戰爭的意義", url: "topics/gundam-uc/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜戰後的宇宙世紀",
+          courses: [
+            { title: "《0083 星塵回憶錄》", url: "topics/gundam-uc/lesson-19.html" },
+            { title: "《機動戰士 Z 鋼彈》：格里普斯戰役", url: "topics/gundam-uc/lesson-20.html" },
+            { title: "《機動戰士鋼彈 ZZ》：第一次新吉翁戰爭", url: "topics/gundam-uc/lesson-21.html" },
+            { title: "《逆襲的夏亞》", url: "topics/gundam-uc/lesson-22.html" },
+            { title: "《機動戰士鋼彈 UC》：拉普拉斯之盒", url: "topics/gundam-uc/lesson-23.html" },
+            { title: "《閃光的哈薩維》", url: "topics/gundam-uc/lesson-24.html" },
+            { title: "《機動戰士鋼彈 F91》", url: "topics/gundam-uc/lesson-25.html" },
+            { title: "《機動戰士 V 鋼彈》", url: "topics/gundam-uc/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜人物",
+          courses: [
+            { title: "阿姆羅・雷", url: "topics/gundam-uc/lesson-27.html" },
+            { title: "夏亞・阿茲納布爾（下）：從紅色彗星到逆襲", url: "topics/gundam-uc/lesson-28.html" },
+            { title: "卡謬・維登", url: "topics/gundam-uc/lesson-29.html" },
+            { title: "哈曼・坎恩", url: "topics/gundam-uc/lesson-30.html" },
+            { title: "布萊特・諾亞", url: "topics/gundam-uc/lesson-31.html" },
+            { title: "薩比家族", url: "topics/gundam-uc/lesson-32.html" },
+            { title: "女性角色與配角群像", url: "topics/gundam-uc/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題與影響",
+          courses: [
+            { title: "戰爭沒有絕對的正義", url: "topics/gundam-uc/lesson-34.html" },
+            { title: "新人類與相互理解", url: "topics/gundam-uc/lesson-35.html" },
+            { title: "宇宙移民與地球的重力", url: "topics/gundam-uc/lesson-36.html" },
+            { title: "少年兵與戰爭中的孩子", url: "topics/gundam-uc/lesson-37.html" },
+            { title: "巨大人形兵器真的可行嗎？", url: "topics/gundam-uc/lesson-38.html" },
+            { title: "鋼普拉與萬代", url: "topics/gundam-uc/lesson-39.html" },
+            { title: "鋼彈對日本與台灣的影響", url: "topics/gundam-uc/lesson-40.html" },
+            { title: "鋼彈與《銀河英雄傳說》", url: "topics/gundam-uc/lesson-41.html" },
+            { title: "總結：宇宙世紀告訴我們什麼", url: "topics/gundam-uc/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
