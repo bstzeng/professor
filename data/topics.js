@@ -27655,6 +27655,189 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "jujutsu-kaisen",
+      category: "anime",
+      title: "咒術迴戰全紀錄：咒力、劇情與人物完整解析",
+      description:
+        "芥見下下的原作與 MAPPA 的動畫；咒力與咒靈、等級、術式、束縛、帳與天元、領域展開、反轉術式與黑閃、咒具與天與咒縛、御三家與上層；從第 0 集、宿儺之指、少年院、交流會、懷玉・玉折、澀谷事變、禪院家、死滅迴游到新宿決戰與第 271 話結局（含完整劇透）；虎杖、伏黑、釘崎、五條、宿儺、夏油與羂索、乙骨、二年級與特級咒靈；正確的死亡、愛與詛咒、致敬與爭議。含故事年表、人物關係圖、術式與人物圖鑑。",
+      icon: "👁️",
+      url: "topics/jujutsu-kaisen/index.html",
+      resources: [
+        {
+          title: "咒術圖鑑",
+          description: "故事年表、人物關係圖、術式與領域展開、人物圖鑑",
+          icon: "📜",
+          url: "topics/jujutsu-kaisen/atlas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/jujutsu-kaisen/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜世界設定",
+          courses: [
+            { title: "作品概要與芥見下下", url: "topics/jujutsu-kaisen/lesson-01.html" },
+            { title: "咒力與咒靈", url: "topics/jujutsu-kaisen/lesson-02.html" },
+            { title: "等級制度", url: "topics/jujutsu-kaisen/lesson-03.html" },
+            { title: "術式", url: "topics/jujutsu-kaisen/lesson-04.html" },
+            { title: "束縛", url: "topics/jujutsu-kaisen/lesson-05.html" },
+            { title: "結界與帳", url: "topics/jujutsu-kaisen/lesson-06.html" },
+            { title: "領域展開", url: "topics/jujutsu-kaisen/lesson-07.html" },
+            { title: "反轉術式與黑閃", url: "topics/jujutsu-kaisen/lesson-08.html" },
+            { title: "咒具與天與咒縛", url: "topics/jujutsu-kaisen/lesson-09.html" },
+            { title: "咒術界的政治", url: "topics/jujutsu-kaisen/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 B｜劇情",
+          courses: [
+            { title: "第 0 集：乙骨憂太與祈本里香", url: "topics/jujutsu-kaisen/lesson-11.html" },
+            { title: "宿儺之指", url: "topics/jujutsu-kaisen/lesson-12.html" },
+            { title: "咒胎戴天", url: "topics/jujutsu-kaisen/lesson-13.html" },
+            { title: "幼魚與逆罰", url: "topics/jujutsu-kaisen/lesson-14.html" },
+            { title: "京都姊妹校交流會", url: "topics/jujutsu-kaisen/lesson-15.html" },
+            { title: "起首雷同與八十八橋", url: "topics/jujutsu-kaisen/lesson-16.html" },
+            { title: "懷玉・玉折", url: "topics/jujutsu-kaisen/lesson-17.html" },
+            { title: "澀谷事變（一）：封印五條", url: "topics/jujutsu-kaisen/lesson-18.html" },
+            { title: "澀谷事變（二）：宿儺降臨", url: "topics/jujutsu-kaisen/lesson-19.html" },
+            { title: "澀谷事變（三）：七海、釘崎與真人", url: "topics/jujutsu-kaisen/lesson-20.html" },
+            { title: "禪院家滅門", url: "topics/jujutsu-kaisen/lesson-21.html" },
+            { title: "死滅迴游：規則", url: "topics/jujutsu-kaisen/lesson-22.html" },
+            { title: "死滅迴游：泳者們", url: "topics/jujutsu-kaisen/lesson-23.html" },
+            { title: "宿儺奪取伏黑", url: "topics/jujutsu-kaisen/lesson-24.html" },
+            { title: "人外魔境新宿決戰：五條 vs 宿儺", url: "topics/jujutsu-kaisen/lesson-25.html" },
+            { title: "最終決戰與結局", url: "topics/jujutsu-kaisen/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 C｜人物",
+          courses: [
+            { title: "虎杖悠仁", url: "topics/jujutsu-kaisen/lesson-27.html" },
+            { title: "伏黑惠", url: "topics/jujutsu-kaisen/lesson-28.html" },
+            { title: "釘崎野薔薇", url: "topics/jujutsu-kaisen/lesson-29.html" },
+            { title: "五條悟", url: "topics/jujutsu-kaisen/lesson-30.html" },
+            { title: "兩面宿儺", url: "topics/jujutsu-kaisen/lesson-31.html" },
+            { title: "夏油傑與羂索", url: "topics/jujutsu-kaisen/lesson-32.html" },
+            { title: "乙骨憂太", url: "topics/jujutsu-kaisen/lesson-33.html" },
+            { title: "禪院真希、狗卷棘與熊貓", url: "topics/jujutsu-kaisen/lesson-34.html" },
+            { title: "真人與特級咒靈", url: "topics/jujutsu-kaisen/lesson-35.html" },
+            { title: "其他重要人物", url: "topics/jujutsu-kaisen/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題與分析",
+          courses: [
+            { title: "「正確的死亡」", url: "topics/jujutsu-kaisen/lesson-37.html" },
+            { title: "致敬與影響", url: "topics/jujutsu-kaisen/lesson-38.html" },
+            { title: "爭議與評價", url: "topics/jujutsu-kaisen/lesson-39.html" },
+            { title: "總結", url: "topics/jujutsu-kaisen/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "retirement-insurance",
+      category: "invest",
+      title: "退休與保險規劃：勞保、勞退、保險怎麼配",
+      description:
+        "所得替代率、通膨、平均餘命與長壽風險、三層保障、4% 法則與複利；勞保老年年金的 A／B 式與請領年齡、勞保財務、勞退新制與自提節稅、舊制、國民年金、軍公教與自營業者、轉職時的年資；資產配置與水桶法、存股與 ETF、配息不等於報酬、提領策略、稅與補充保費、以房養老、安養信託與意定監護、理財陷阱與詐騙；健保的缺口、實支實付、重大傷病、失能、壽險、長照、儲蓄險與投資型保單、保單健檢、理賠與話術；25、35、50、65 歲的案例與照顧父母。含勞保、勞退、退休缺口、提領模擬、壽險需求等互動試算。",
+      icon: "🧓",
+      url: "topics/retirement-insurance/index.html",
+      resources: [
+        {
+          title: "試算工具",
+          description: "通膨、複利、勞保年金、勞退帳戶、退休缺口、提領模擬、壽險需求",
+          icon: "🧮",
+          url: "topics/retirement-insurance/tools.html"
+        },
+        {
+          title: "制度速查表",
+          description: "勞保、勞退、國保、健保與保險的重要數字與規定",
+          icon: "📋",
+          url: "topics/retirement-insurance/quick-reference.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/retirement-insurance/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜退休的基本算術",
+          courses: [
+            { title: "退休需要多少錢", url: "topics/retirement-insurance/lesson-01.html" },
+            { title: "通膨", url: "topics/retirement-insurance/lesson-02.html" },
+            { title: "你會活多久", url: "topics/retirement-insurance/lesson-03.html" },
+            { title: "退休金的三層保障", url: "topics/retirement-insurance/lesson-04.html" },
+            { title: "4% 法則與它的限制", url: "topics/retirement-insurance/lesson-05.html" },
+            { title: "越早開始差多少", url: "topics/retirement-insurance/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜政府與雇主那兩層",
+          courses: [
+            { title: "勞保老年給付", url: "topics/retirement-insurance/lesson-07.html" },
+            { title: "勞保年金公式拆解", url: "topics/retirement-insurance/lesson-08.html" },
+            { title: "幾歲請領", url: "topics/retirement-insurance/lesson-09.html" },
+            { title: "勞保會破產嗎", url: "topics/retirement-insurance/lesson-10.html" },
+            { title: "勞退新制", url: "topics/retirement-insurance/lesson-11.html" },
+            { title: "自提 6%", url: "topics/retirement-insurance/lesson-12.html" },
+            { title: "勞退舊制與新舊制的銜接", url: "topics/retirement-insurance/lesson-13.html" },
+            { title: "國民年金", url: "topics/retirement-insurance/lesson-14.html" },
+            { title: "軍公教、自營業者與農民", url: "topics/retirement-insurance/lesson-15.html" },
+            { title: "離職、轉職、出國時", url: "topics/retirement-insurance/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜自己準備的那一層",
+          courses: [
+            { title: "退休資產配置", url: "topics/retirement-insurance/lesson-17.html" },
+            { title: "存股與指數型 ETF", url: "topics/retirement-insurance/lesson-18.html" },
+            { title: "債券與配息型商品", url: "topics/retirement-insurance/lesson-19.html" },
+            { title: "提領策略", url: "topics/retirement-insurance/lesson-20.html" },
+            { title: "退休後的稅與健保補充保費", url: "topics/retirement-insurance/lesson-21.html" },
+            { title: "以房養老與賣房換屋", url: "topics/retirement-insurance/lesson-22.html" },
+            { title: "信託與意定監護", url: "topics/retirement-insurance/lesson-23.html" },
+            { title: "常見的退休理財陷阱", url: "topics/retirement-insurance/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜保險：保什麼、不保什麼",
+          courses: [
+            { title: "保險的本質", url: "topics/retirement-insurance/lesson-25.html" },
+            { title: "健保有給付什麼、沒給付什麼", url: "topics/retirement-insurance/lesson-26.html" },
+            { title: "醫療險", url: "topics/retirement-insurance/lesson-27.html" },
+            { title: "重大傷病險與癌症險", url: "topics/retirement-insurance/lesson-28.html" },
+            { title: "意外險與失能險", url: "topics/retirement-insurance/lesson-29.html" },
+            { title: "壽險", url: "topics/retirement-insurance/lesson-30.html" },
+            { title: "長照險與長照 2.0／3.0", url: "topics/retirement-insurance/lesson-31.html" },
+            { title: "儲蓄險、投資型保單、年金險", url: "topics/retirement-insurance/lesson-32.html" },
+            { title: "保單健檢", url: "topics/retirement-insurance/lesson-33.html" },
+            { title: "理賠實務", url: "topics/retirement-insurance/lesson-34.html" },
+            { title: "保費預算", url: "topics/retirement-insurance/lesson-35.html" },
+            { title: "保險話術拆解", url: "topics/retirement-insurance/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 E｜依人生階段配置",
+          courses: [
+            { title: "25 歲新鮮人", url: "topics/retirement-insurance/lesson-37.html" },
+            { title: "35 歲有房貸有小孩", url: "topics/retirement-insurance/lesson-38.html" },
+            { title: "50 歲衝刺期", url: "topics/retirement-insurance/lesson-39.html" },
+            { title: "65 歲退休後", url: "topics/retirement-insurance/lesson-40.html" },
+            { title: "照顧父母", url: "topics/retirement-insurance/lesson-41.html" },
+            { title: "總結", url: "topics/retirement-insurance/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };

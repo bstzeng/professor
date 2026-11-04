@@ -1,0 +1,208 @@
+# -*- coding: utf-8 -*-
+"""〈退休與保險規劃〉（rti_）共用：課程包裝與 RTLIB 互動元件（class="rt-w"）。
+
+  infl   通膨：今天的生活費，未來要多少
+  early  越早開始：25／35／45 歲開始投資的差距
+  labor  勞保老年年金：A／B 式、提前減給與延後增給、與一次請領比較
+  acct   勞退個人帳戶：雇主 6%、自提、報酬率、節稅
+  plan   退休缺口：勞保＋勞退＋自備資產，錢夠用到幾歲
+  mc     提領模擬：提領率、股票比例的成功率（蒙地卡羅）
+  life   壽險需求與保費預算
+"""
+from md_common import make_with
+from cc_common import wdg, LS, M, D, KATEX
+from qt_common import BASEJS
+
+RT_NOTE = (u"本課程介紹台灣的退休制度與保險觀念，不構成投資、保險或稅務建議，也不推薦任何特定商品或公司。"
+           u"制度的金額、費率與條件會隨法規調整，請以勞動部、勞保局、衛福部、金管會等官方最新公告為準；互動試算為簡化模型，只用來建立直覺。")
+F = D
+
+
+def rtw(t, q=u"", **cfg):
+    cfg.update({"t": t, "q": q})
+    return wdg("rt-w", cfg)
+
+
+RTLIB = r"""
+(function () {
+  if (window.__rtLib) return; window.__rtLib = 1;
+""" + BASEJS + r"""
+  var BL = '#3a6ea5', OR = '#e07a2f', GN = '#2e9e5b', RD = '#e0505a', PU = '#8e5bd1', GY = '#9aa3ad';
+  function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+  function sl(root, lab, mn, mx, st, val, fmt, cb) { return slider(root, lab, mn, mx, st, val, fmt, null, cb); }
+  function f0(x) { return Math.round(x).toLocaleString('en-US'); }
+  function nt(x) { return 'NT$ ' + f0(x); }
+  function wan(x) { var v = x / 10000; return (Math.abs(v) >= 100 ? f0(v) : (Math.round(v * 10) / 10).toLocaleString('en-US')) + ' 萬'; }
+  function note(s) { return '<br><span style="color:var(--text-muted);font-size:0.9em">' + s + '</span>'; }
+  function run(us) { us.forEach(function (u) { u(); }); }
+  function pct(x) { return x + '%'; }
+  function bars(rows, W) { /* rows: [label, value, color] */ var mx = 1, g = '', bw = W - 230; rows.forEach(function (r) { mx = Math.max(mx, Math.abs(r[1])); });
+    rows.forEach(function (r, i) { var y = 8 + i * 30, w = Math.abs(r[1]) / mx * bw; g += tx(150, y + 16, r[0], 12, 'currentColor', 'end') + '<rect x="158" y="' + y + '" width="' + n1(Math.max(w, 1)) + '" height="20" rx="3" fill="' + r[2] + '"/>' + tx(164 + w, y + 15, wan(r[1]), 11, 'currentColor', 'start'); });
+    return svgw('0 0 ' + W + ' ' + (rows.length * 30 + 12), g); }
+
+  /* ---------- 通膨 ---------- */
+  function initInfl(root, cfg) { head(root, cfg.q); var P = { m: 40000, r: 2, y: 30 }, v = el('div'), inf;
+    var us = [sl(root, '今天每月的生活費', 20000, 100000, 1000, P.m, nt, function (x) { P.m = x; draw(); }),
+      sl(root, '平均通膨率', 0.5, 5, 0.5, P.r, function (x) { return x + '%'; }, function (x) { P.r = x; draw(); }),
+      sl(root, '幾年後退休', 5, 40, 1, P.y, function (x) { return x + ' 年'; }, function (x) { P.y = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var A = [], B = [];
+      for (var t = 0; t <= 40; t++) { A.push([t, P.m * Math.pow(1 + P.r / 100, t) / 10000]); B.push([t, 100 / Math.pow(1 + P.r / 100, t)]); }
+      var fut = P.m * Math.pow(1 + P.r / 100, P.y), pp = 1 / Math.pow(1 + P.r / 100, P.y);
+      v.innerHTML = '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:6px"><div>' +
+        chart(340, 220, [{ d: A, c: OR, n: '同樣生活的月支出（萬）', w: 2.5 }], { x0: 0, x1: 40, y0: 0, xl: '年後', pts: [{ x: P.y, y: fut / 10000, c: RD, n: wan(fut) }] }) + '</div><div>' +
+        chart(340, 220, [{ d: B, c: BL, n: '今天的 100 元剩下的購買力', w: 2.5 }], { x0: 0, x1: 40, y0: 0, y1: 100, xl: '年後', pts: [{ x: P.y, y: pp * 100, c: RD, n: Math.round(pp * 100) + ' 元' }] }) + '</div></div>';
+      inf.innerHTML = '通膨 ' + P.r + '% 時，' + P.y + ' 年後要過同樣的生活，每月需要約 <b>' + nt(fut) + '</b>（今天的 ' + (fut / P.m).toFixed(2) + ' 倍）；今天的 100 元，到時只剩約 <b>' + Math.round(pp * 100) + ' 元</b>的購買力。' +
+        '<br>粗略的「<b>72 法則</b>」：72 ÷ 通膨率 ≈ 物價翻倍的年數。' + P.r + '% 時約 ' + Math.round(72 / P.r) + ' 年。' +
+        note('簡化模型：假設每年通膨率固定。台灣過去二十多年的消費者物價年增率多在 0～3% 之間，個人的通膨（例如醫療、房租）可能與平均不同。');
+    }
+    run(us); }
+
+  /* ---------- 越早開始 ---------- */
+  function fvm(p, r, n) { var i = r / 1200; return i === 0 ? p * n : p * (Math.pow(1 + i, n) - 1) / i; }
+  function initEarly(root, cfg) { head(root, cfg.q); var P = { p: 5000, r: 6, e: 65 }, v = el('div'), inf;
+    var us = [sl(root, '每月投入', 1000, 30000, 1000, P.p, nt, function (x) { P.p = x; draw(); }),
+      sl(root, '平均年報酬率', 0, 10, 0.5, P.r, function (x) { return x + '%'; }, function (x) { P.r = x; draw(); }),
+      sl(root, '投入到幾歲', 55, 70, 1, P.e, function (x) { return x + ' 歲'; }, function (x) { P.e = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var S = [], cols = [GN, BL, OR], st = [25, 35, 45], fin = [];
+      st.forEach(function (s, k) { var d = []; for (var a = 20; a <= P.e; a++) d.push([a, a < s ? 0 : fvm(P.p, P.r, (a - s) * 12) / 10000]); S.push({ d: d, c: cols[k], n: s + ' 歲開始', w: 2.5 }); fin.push(fvm(P.p, P.r, (P.e - s) * 12)); });
+      v.innerHTML = chart(680, 260, S, { x0: 20, x1: P.e, y0: 0, xl: '年齡', yl: '累積（萬）' });
+      var i = P.r / 1200, need35 = fin[0] / ((Math.pow(1 + i, (P.e - 35) * 12) - 1) / (i || 1e-9)), need45 = fin[0] / ((Math.pow(1 + i, (P.e - 45) * 12) - 1) / (i || 1e-9));
+      if (i === 0) { need35 = fin[0] / ((P.e - 35) * 12); need45 = fin[0] / ((P.e - 45) * 12); }
+      inf.innerHTML = '每月投入 ' + nt(P.p) + '、年報酬 ' + P.r + '%，到 ' + P.e + ' 歲：' +
+        '25 歲開始約 <b>' + wan(fin[0]) + '</b>（本金 ' + wan(P.p * 12 * (P.e - 25)) + '）；35 歲開始約 <b>' + wan(fin[1]) + '</b>；45 歲開始約 <b>' + wan(fin[2]) + '</b>。' +
+        '<br>想追上 25 歲開始的人：35 歲才開始，每月要投入約 <b>' + nt(need35) + '</b>；45 歲才開始，每月要約 <b>' + nt(need45) + '</b>。' +
+        note('簡化模型：每月固定投入、報酬率固定、未計稅費與通膨。實際報酬每年波動很大，過去的報酬也不保證未來。');
+    }
+    run(us); }
+
+  /* ---------- 勞保老年年金 ---------- */
+  function initLabor(root, cfg) { head(root, cfg.q); var P = { w: 45800, y: 30, a: 65 }, v = el('div'), inf;
+    var us = [sl(root, '平均月投保薪資（最高 60 個月平均）', 29500, 45800, 100, P.w, nt, function (x) { P.w = x; draw(); }),
+      sl(root, '投保年資', 15, 45, 1, P.y, function (x) { return x + ' 年'; }, function (x) { P.y = x; draw(); }),
+      sl(root, '開始請領的年齡（法定 65 歲）', 60, 70, 1, P.a, function (x) { return x + ' 歲'; }, function (x) { P.a = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var A = P.w * P.y * 0.00775 + 3000, B = P.w * P.y * 0.0155, base = Math.max(A, B), d = P.a - 65, m = base * (1 + 0.04 * d);
+      var mon = P.y <= 15 ? P.y : Math.min(45, 15 + 2 * (P.y - 15)), lump = P.w * mon, be = P.a + lump / (m * 12);
+      var C = [], L = []; for (var age = 60; age <= 95; age++) { C.push([age, age < P.a ? 0 : m * 12 * (age - P.a + 1) / 10000]); L.push([age, lump / 10000]); }
+      v.innerHTML = chart(680, 250, [{ d: L, c: GY, n: '一次請領（限 2009 年前已有年資者）', dash: '5 4' }, { d: C, c: BL, n: '年金累計領取', w: 2.5 }], { x0: 60, x1: 95, y0: 0, xl: '年齡', yl: '累計（萬）', vl: [{ x: Math.min(95, be), c: RD, n: '打平' }] });
+      inf.innerHTML = 'A 式：' + f0(P.w) + ' × ' + P.y + ' × 0.775% + 3,000 = ' + nt(A) + '<br>B 式：' + f0(P.w) + ' × ' + P.y + ' × 1.55% = ' + nt(B) +
+        '<br>擇優：<b>' + (B >= A ? 'B 式' : 'A 式') + '</b>' + (d ? '，' + (d < 0 ? '提前 ' + (-d) + ' 年請領，減給 ' + (-d * 4) + '%' : '延後 ' + d + ' 年請領，增給 ' + (d * 4) + '%') : '') + ' → 每月約 <b>' + nt(m) + '</b>（每年約 ' + wan(m * 12) + '）。' +
+        '<br>對照：若符合一次請領的資格，可領約 ' + mon + ' 個月 = ' + wan(lump) + '；年金大約在 <b>' + be.toFixed(1) + ' 歲</b>累計超過一次請領。台灣 65 歲的平均餘命約 20 年。' +
+        note('簡化：平均月投保薪資採最高 60 個月平均；一次請領的計算（前 15 年每年 1 個月、之後每年 2 個月、最多 45 個月，採退保前 3 年平均）只在 2009 年以前已有勞保年資時才能選擇，且條件另有規定。年金會隨物價指數累計成長超過 5% 時調整；未計利息與通膨。');
+    }
+    run(us); }
+
+  /* ---------- 勞退個人帳戶 ---------- */
+  function initAcct(root, cfg) { head(root, cfg.q); var P = { w: 45000, g: 2, a: 30, s: 0, r: 4, t: 12 }, v = el('div'), inf;
+    var us = [sl(root, '目前月薪', 29500, 150000, 500, P.w, nt, function (x) { P.w = x; draw(); }),
+      sl(root, '每年加薪', 0, 5, 0.5, P.g, function (x) { return x + '%'; }, function (x) { P.g = x; draw(); }),
+      sl(root, '目前年齡', 22, 55, 1, P.a, function (x) { return x + ' 歲'; }, function (x) { P.a = x; draw(); }),
+      sl(root, '自願提繳（自提）', 0, 6, 1, P.s, function (x) { return x + '%'; }, function (x) { P.s = x; draw(); }),
+      sl(root, '帳戶平均年報酬率', 1, 7, 0.5, P.r, function (x) { return x + '%'; }, function (x) { P.r = x; draw(); }),
+      sl(root, '綜合所得稅級距', 5, 40, 1, P.t, function (x) { return x + '%'; }, function (x) { P.t = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var tb = [5, 12, 20, 30, 40], tt = tb.reduce(function (b, x) { return Math.abs(x - P.t) < Math.abs(b - P.t) ? x : b; }, 5);
+      var i = P.r / 1200, e = 0, s = 0, w = P.w, E = [], T = [], n = (60 - P.a) * 12;
+      for (var k = 0; k <= n; k++) { if (k % 12 === 0) { E.push([P.a + k / 12, e / 10000]); T.push([P.a + k / 12, (e + s) / 10000]); if (k > 0) w *= 1 + P.g / 100; }
+        if (k === n) break; var cw = Math.min(w, 150000); e = e * (1 + i) + cw * 0.06; s = s * (1 + i) + cw * P.s / 100; }
+      var tot = e + s, yrs = 24, j = 0.02 / 12, pay = tot * j / (1 - Math.pow(1 + j, -yrs * 12)), tax = Math.min(P.w, 150000) * P.s / 100 * 12 * tt / 100;
+      v.innerHTML = chart(680, 250, (P.s ? [{ d: T, c: GN, n: '雇主 6% ＋ 自提 ' + P.s + '%', w: 2.5 }] : []).concat([{ d: E, c: BL, n: '只有雇主 6%', w: 2.5 }]), { x0: P.a, x1: 60, y0: 0, xl: '年齡', yl: '帳戶（萬）' });
+      inf.innerHTML = '到 60 歲，帳戶約 <b>' + wan(tot) + '</b>' + (P.s ? '（雇主提繳部分 ' + wan(e) + '、自提部分 ' + wan(s) + '）' : '') + '。' +
+        '<br>若年資滿 15 年選擇月領：以 60 歲平均餘命約 ' + yrs + ' 年粗估，每月約 <b>' + nt(pay) + '</b>；也可以一次領。' +
+        (P.s ? '<br>自提 ' + P.s + '%：今年每月少拿 ' + nt(Math.min(P.w, 150000) * P.s / 100) + '，但這筆錢<b>不計入當年度的薪資所得</b>，以 ' + tt + '% 級距估算，今年約省稅 <b>' + nt(tax) + '</b>。代價是錢要到 60 歲才能領。' : '<br>試著調高「自提」：看看帳戶與節稅的變化。') +
+        note('簡化模型：月提繳工資上限 15 萬元，薪資每年調整一次；報酬率固定（實際由勞動基金運用，每年盈虧不同，法律保證收益不低於當地銀行二年定存利率）。月領金額由勞保局依年金生命表與預定利率計算，這裡只是粗估。');
+    }
+    run(us); }
+
+  /* ---------- 退休缺口 ---------- */
+  function initPlan(root, cfg) { head(root, cfg.q); var P = { a: 35, ret: 65, die: 90, exp: 40000, inf: 2, lab: 20000, acc: 8000, have: 100, sv: 10000, r1: 5, r2: 3 }, v = el('div'), inf;
+    var us = [sl(root, '目前年齡', 22, 60, 1, P.a, function (x) { return x + ' 歲'; }, function (x) { P.a = x; draw(); }),
+      sl(root, '預計退休年齡', 55, 70, 1, P.ret, function (x) { return x + ' 歲'; }, function (x) { P.ret = x; draw(); }),
+      sl(root, '計畫活到', 80, 100, 1, P.die, function (x) { return x + ' 歲'; }, function (x) { P.die = x; draw(); }),
+      sl(root, '退休後每月生活費（今天的幣值）', 20000, 120000, 1000, P.exp, nt, function (x) { P.exp = x; draw(); }),
+      sl(root, '預估勞保年金（今天的幣值）', 0, 40000, 1000, P.lab, nt, function (x) { P.lab = x; draw(); }),
+      sl(root, '預估勞退月領（今天的幣值）', 0, 40000, 1000, P.acc, nt, function (x) { P.acc = x; draw(); }),
+      sl(root, '目前已有的退休資產', 0, 3000, 10, P.have, function (x) { return x + ' 萬'; }, function (x) { P.have = x; draw(); }),
+      sl(root, '每月再投入', 0, 80000, 1000, P.sv, nt, function (x) { P.sv = x; draw(); }),
+      sl(root, '退休前年報酬率', 0, 8, 0.5, P.r1, pct, function (x) { P.r1 = x; draw(); }),
+      sl(root, '退休後年報酬率', 0, 6, 0.5, P.r2, pct, function (x) { P.r2 = x; draw(); }),
+      sl(root, '通膨率', 0, 4, 0.5, P.inf, pct, function (x) { P.inf = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var ret = Math.max(P.ret, P.a + 1), die = Math.max(P.die, ret + 1), A = [], x = P.have * 10000, out = null, q = 1 + P.inf / 100;
+      var gap0 = Math.max(0, P.exp - P.lab - P.acc);
+      for (var age = P.a; age <= die; age++) { A.push([age, x / 10000]);
+        if (age < ret) x = x * (1 + P.r1 / 100) + P.sv * 12; else { var g = gap0 * 12 * Math.pow(q, age - P.a); x = x * (1 + P.r2 / 100) - g; if (x < 0 && out === null) out = age + 1; } }
+      var need = 0; for (var t = 0; t < die - ret; t++) need += gap0 * 12 * Math.pow(q, ret - P.a + t) / Math.pow(1 + P.r2 / 100, t);
+      var n = ret - P.a, fh = P.have * 10000 * Math.pow(1 + P.r1 / 100, n), r = P.r1 / 100, fa = r === 0 ? 12 * n : 12 * (Math.pow(1 + r, n) - 1) / r, req = Math.max(0, (need - fh) / fa);
+      v.innerHTML = chart(680, 260, [{ d: A, c: out ? RD : GN, n: '退休資產（名目，萬）', w: 2.5 }], { x0: P.a, x1: die, xl: '年齡', vl: [{ x: ret, c: BL, n: '退休' }], hl: [{ y: 0, c: GY, n: '' }] });
+      inf.innerHTML = '退休後每月的缺口（今天的幣值）：' + nt(P.exp) + ' − 勞保 ' + nt(P.lab) + ' − 勞退 ' + nt(P.acc) + ' = <b>' + nt(gap0) + '</b>。' +
+        '<br>要撐到 ' + die + ' 歲，' + ret + ' 歲退休時大約需要準備 <b>' + wan(need) + '</b>（名目）；照目前的計畫，屆時會有約 ' + wan(fh + P.sv * fa) + '。' +
+        (out ? '<br><b style="color:' + RD + '">資產約在 ' + out + ' 歲用完。</b>要撐到 ' + die + ' 歲，每月需投入約 <b>' + nt(req) + '</b>（目前 ' + nt(P.sv) + '），或延後退休、降低支出。' : '<br><b style="color:' + GN + '">資產足以撐到 ' + die + ' 歲。</b>' + (req < P.sv ? '理論上每月投入約 ' + nt(req) + ' 就夠，可保留一些安全邊際。' : '')) +
+        note('簡化模型：報酬率與通膨固定，勞保與勞退月領假設隨物價調整；未計稅費、醫療與長照的大額支出。實際規劃請預留安全邊際，並定期重算。');
+    }
+    run(us); }
+
+  /* ---------- 提領模擬（蒙地卡羅） ---------- */
+  function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function initMC(root, cfg) { head(root, cfg.q); var P = { c: 1500, w: 4, s: 60, y: 30 }, v = el('div'), inf;
+    var us = [sl(root, '退休時的資產', 300, 5000, 50, P.c, function (x) { return x + ' 萬'; }, function (x) { P.c = x; draw(); }),
+      sl(root, '第一年提領率（之後依通膨調整金額）', 2, 8, 0.5, P.w, pct, function (x) { P.w = x; draw(); }),
+      sl(root, '股票比例（其餘為債券）', 0, 100, 10, P.s, pct, function (x) { P.s = x; draw(); }),
+      sl(root, '提領年數', 15, 40, 1, P.y, function (x) { return x + ' 年'; }, function (x) { P.y = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var R = rng(20261104), N = 600, ok = 0, paths = [], st = P.s / 100;
+      function nrm() { var u = 1 - R(), w = R(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * w); }
+      for (var k = 0; k < N; k++) { var x = P.c, wd = P.c * P.w / 100, p = [x], dead = false;
+        for (var t = 0; t < P.y; t++) { var re = st * (0.06 + 0.17 * nrm()) + (1 - st) * (0.015 + 0.06 * nrm()); /* 實質報酬（扣除通膨） */
+          x = dead ? 0 : (x - wd) * (1 + re); if (x <= 0) { x = 0; dead = true; } p.push(x); }
+        if (!dead) ok++; paths.push(p); }
+      function q(t, f) { var a = paths.map(function (p) { return p[t]; }).sort(function (a, b) { return a - b; }); return a[Math.floor(f * (N - 1))]; }
+      var lo = [], md = [], hi = []; for (var t = 0; t <= P.y; t++) { lo.push([t, q(t, 0.1)]); md.push([t, q(t, 0.5)]); hi.push([t, q(t, 0.9)]); }
+      var sr = ok / N * 100, col = sr >= 90 ? GN : sr >= 75 ? OR : RD;
+      v.innerHTML = chart(680, 260, [{ d: hi, c: GY, n: '運氣好（前 10%）', dash: '5 4' }, { d: md, c: BL, n: '中位數', w: 2.5 }, { d: lo, c: RD, n: '運氣差（後 10%）', w: 2 }], { x0: 0, x1: P.y, y0: 0, xl: '退休後第幾年', yl: '資產（萬，今天的幣值）' });
+      inf.innerHTML = '每年提領 ' + wan(P.c * P.w / 100 * 10000) + '（每月約 ' + nt(P.c * P.w / 100 * 10000 / 12) + '，今天的幣值），股票 ' + P.s + '%：在 ' + N + ' 次模擬中，<b style="color:' + col + '">' + sr.toFixed(0) + '%</b> 撐過了 ' + P.y + ' 年。' +
+        '<br>試試：提領率從 4% 調到 6%，或股票比例調到 0% 與 100%——太保守會被通膨慢慢吃掉，太積極則會被「退休初期的大跌」重傷（報酬順序風險）。' +
+        note('教學模型：股票實質報酬（扣除通膨）假設平均 6%、波動 17%，債券平均 1.5%、波動 6%（略低於美國的長期歷史，以反映對未來較保守的看法），每年獨立隨機、常態分配；真實市場有肥尾、連續空頭與匯率等風險，結果只用來比較不同設定的相對差異。');
+    }
+    run(us); }
+
+  /* ---------- 壽險需求與保費預算 ---------- */
+  function initLife(root, cfg) { head(root, cfg.q); var P = { debt: 600, kid: 2, edu: 200, exp: 50, yr: 15, save: 150, ins: 200, inc: 100, prem: 8 }, v = el('div'), inf;
+    var us = [sl(root, '房貸與其他負債', 0, 3000, 10, P.debt, function (x) { return x + ' 萬'; }, function (x) { P.debt = x; draw(); }),
+      sl(root, '需要照顧的孩子', 0, 4, 1, P.kid, function (x) { return x + ' 人'; }, function (x) { P.kid = x; draw(); }),
+      sl(root, '每個孩子到獨立前的教育與生活費', 50, 600, 10, P.edu, function (x) { return x + ' 萬'; }, function (x) { P.edu = x; draw(); }),
+      sl(root, '家人每年的基本生活費（扣除配偶收入）', 0, 200, 5, P.exp, function (x) { return x + ' 萬'; }, function (x) { P.exp = x; draw(); }),
+      sl(root, '要照顧幾年', 0, 30, 1, P.yr, function (x) { return x + ' 年'; }, function (x) { P.yr = x; draw(); }),
+      sl(root, '現有存款與投資', 0, 3000, 10, P.save, function (x) { return x + ' 萬'; }, function (x) { P.save = x; draw(); }),
+      sl(root, '現有壽險保額（含團保）', 0, 3000, 10, P.ins, function (x) { return x + ' 萬'; }, function (x) { P.ins = x; draw(); }),
+      sl(root, '家庭年收入', 30, 500, 5, P.inc, function (x) { return x + ' 萬'; }, function (x) { P.inc = x; draw(); }),
+      sl(root, '全家每年保費', 0, 100, 1, P.prem, function (x) { return x + ' 萬'; }, function (x) { P.prem = x; draw(); })];
+    root.appendChild(v); inf = info(root);
+    function draw() { var need = P.debt + P.kid * P.edu + P.exp * P.yr, gap = need - P.save - P.ins, rt = P.prem / P.inc * 100;
+      v.innerHTML = bars([['負債', P.debt * 1e4, OR], ['孩子', P.kid * P.edu * 1e4, OR], ['家人生活費', P.exp * P.yr * 1e4, OR], ['需求合計', need * 1e4, RD], ['現有存款', P.save * 1e4, GN], ['現有保額', P.ins * 1e4, GN], ['缺口', Math.max(0, gap) * 1e4, gap > 0 ? RD : GY]], 680);
+      inf.innerHTML = '如果經濟支柱今天離開，家人需要約 <b>' + wan(need * 1e4) + '</b>；扣掉存款與現有保額，' + (gap > 0 ? '壽險保額還差約 <b>' + wan(gap * 1e4) + '</b>。用<b>定期壽險</b>補足缺口，通常是最省保費的方式。' : '<b>目前已足夠</b>，不一定需要再加買壽險。') +
+        '<br>保費佔家庭年收入 <b>' + rt.toFixed(1) + '%</b>' + (rt > 15 ? '——偏高，檢查是否買了太多儲蓄型商品。' : rt < 3 && gap > 0 ? '——偏低，而保障還有缺口。' : '。') + '常見的經驗法則（「雙十原則」）：保費約佔年收入 10% 以內、壽險保額約為年收入的 10 倍（此例約 ' + wan(P.inc * 10 * 1e4) + '）——只是粗略的起點。' +
+        note('簡化：未計通膨、投資報酬、遺屬年金（勞保、國保的遺屬給付）與喪葬費；沒有人需要依靠你的收入時，壽險的需求可能很低。');
+    }
+    run(us); }
+
+  var INIT = { infl: initInfl, early: initEarly, labor: initLabor, acct: initAcct, plan: initPlan, mc: initMC, life: initLife };
+  function boot() { document.querySelectorAll('.rt-w').forEach(function (root) { if (root.__done) return; root.__done = 1;
+    var cfg = JSON.parse(root.getAttribute('data-cfg')); var fn = INIT[cfg.t]; if (fn) fn(root, cfg); }); }
+  if (document.readyState === 'complete') boot(); else window.addEventListener('load', boot);
+})();
+"""
+
+
+def make(icon=u"🧓", note=RT_NOTE):
+    return make_with(icon, note, [("rt-w", RTLIB)])
+
+
+lesson = make()
+
+
+def TIP(*ps):
+    """「💡 實務提醒」框。"""
+    return ("note", u"💡 實務提醒", [("p", p) for p in ps])
