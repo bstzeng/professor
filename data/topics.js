@@ -27838,6 +27838,114 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "western-philosophy",
+      category: "history",
+      title: "西方哲學史：從蘇格拉底到現代",
+      description:
+        "哲學的三大問題與思想實驗；米利都學派、赫拉克利特與巴門尼德、畢達哥拉斯、原子論與詭辯家、蘇格拉底、柏拉圖、亞里斯多德、斯多噶、伊比鳩魯、懷疑論；奧古斯丁、經院哲學、阿奎那、奧坎；馬基維利、培根、笛卡兒、史賓諾莎、萊布尼茲、洛克、柏克萊、休謨、康德；霍布斯、洛克、盧梭、彌爾、黑格爾、馬克思；叔本華、齊克果、尼采、現象學、存在主義、分析哲學、科學哲學、後現代；羅爾斯與諾齊克、三大倫理學派、心靈哲學與 AI。每課附「東方怎麼說」對照，含哲學家時間軸、影響關係圖與思想實驗圖鑑。",
+      icon: "🏛️",
+      url: "topics/western-philosophy/index.html",
+      resources: [
+        {
+          title: "哲學圖鑑",
+          description: "哲學家時間軸、師承與影響關係圖、思想實驗圖鑑",
+          icon: "📜",
+          url: "topics/western-philosophy/atlas.html"
+        },
+        {
+          title: "東西方對照表",
+          description: "課程中「東方怎麼說」對照框的整理",
+          icon: "🀄",
+          url: "topics/western-philosophy/east-west.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/western-philosophy/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起點：哲學在問什麼",
+          courses: [
+            { title: "哲學是什麼", url: "topics/western-philosophy/lesson-01.html" },
+            { title: "米利都學派", url: "topics/western-philosophy/lesson-02.html" },
+            { title: "赫拉克利特與巴門尼德", url: "topics/western-philosophy/lesson-03.html" },
+            { title: "畢達哥拉斯", url: "topics/western-philosophy/lesson-04.html" },
+            { title: "原子論者與詭辯家", url: "topics/western-philosophy/lesson-05.html" },
+            { title: "蘇格拉底", url: "topics/western-philosophy/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜古典希臘與羅馬",
+          courses: [
+            { title: "柏拉圖：理型論與洞穴寓言", url: "topics/western-philosophy/lesson-07.html" },
+            { title: "柏拉圖的《理想國》", url: "topics/western-philosophy/lesson-08.html" },
+            { title: "亞里斯多德：邏輯學與四因說", url: "topics/western-philosophy/lesson-09.html" },
+            { title: "亞里斯多德的倫理學", url: "topics/western-philosophy/lesson-10.html" },
+            { title: "斯多噶學派", url: "topics/western-philosophy/lesson-11.html" },
+            { title: "伊比鳩魯", url: "topics/western-philosophy/lesson-12.html" },
+            { title: "懷疑論", url: "topics/western-philosophy/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜中世紀：信仰與理性",
+          courses: [
+            { title: "奧古斯丁", url: "topics/western-philosophy/lesson-14.html" },
+            { title: "經院哲學與共相之爭", url: "topics/western-philosophy/lesson-15.html" },
+            { title: "阿奎那：上帝存在的五路論證", url: "topics/western-philosophy/lesson-16.html" },
+            { title: "奧坎剃刀與中世紀的結束", url: "topics/western-philosophy/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜近代：知識從哪裡來",
+          courses: [
+            { title: "文藝復興與科學革命", url: "topics/western-philosophy/lesson-18.html" },
+            { title: "笛卡兒：我思故我在", url: "topics/western-philosophy/lesson-19.html" },
+            { title: "史賓諾莎：神即自然", url: "topics/western-philosophy/lesson-20.html" },
+            { title: "萊布尼茲", url: "topics/western-philosophy/lesson-21.html" },
+            { title: "洛克：心靈是白板", url: "topics/western-philosophy/lesson-22.html" },
+            { title: "柏克萊：存在就是被感知", url: "topics/western-philosophy/lesson-23.html" },
+            { title: "休謨：因果只是習慣", url: "topics/western-philosophy/lesson-24.html" },
+            { title: "康德（一）：哥白尼式的革命", url: "topics/western-philosophy/lesson-25.html" },
+            { title: "康德（二）：定言令式", url: "topics/western-philosophy/lesson-26.html" },
+            { title: "理性主義 vs 經驗主義總整理", url: "topics/western-philosophy/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜政治哲學：國家與自由",
+          courses: [
+            { title: "霍布斯：萬人對萬人的戰爭", url: "topics/western-philosophy/lesson-28.html" },
+            { title: "洛克與盧梭：社會契約", url: "topics/western-philosophy/lesson-29.html" },
+            { title: "彌爾：效益主義與自由的界線", url: "topics/western-philosophy/lesson-30.html" },
+            { title: "黑格爾：辯證法與歷史", url: "topics/western-philosophy/lesson-31.html" },
+            { title: "馬克思：異化與唯物史觀", url: "topics/western-philosophy/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜19～20 世紀：意義與語言",
+          courses: [
+            { title: "叔本華與齊克果", url: "topics/western-philosophy/lesson-33.html" },
+            { title: "尼采", url: "topics/western-philosophy/lesson-34.html" },
+            { title: "現象學：胡塞爾與海德格", url: "topics/western-philosophy/lesson-35.html" },
+            { title: "存在主義：沙特、卡繆、波娃", url: "topics/western-philosophy/lesson-36.html" },
+            { title: "分析哲學：弗雷格、羅素、維根斯坦", url: "topics/western-philosophy/lesson-37.html" },
+            { title: "科學哲學：波普與孔恩", url: "topics/western-philosophy/lesson-38.html" },
+            { title: "後現代：傅柯與德希達", url: "topics/western-philosophy/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜當代問題",
+          courses: [
+            { title: "正義論：羅爾斯 vs 諾齊克", url: "topics/western-philosophy/lesson-40.html" },
+            { title: "三大倫理學派對決", url: "topics/western-philosophy/lesson-41.html" },
+            { title: "心靈哲學與 AI，以及總結", url: "topics/western-philosophy/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
