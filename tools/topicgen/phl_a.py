@@ -51,7 +51,7 @@ TIMELINE = nvw({"t": "timeline", "q": u"哲學家時間軸（點選展開；依�
          ev(u"1975 年", u"傅柯《規訓與懲罰》", u"權力與知識。" + LS(39), "c"),
          ev(u"1980 年", u"瑟爾的「中文房間」", u"機器能理解嗎？" + LS(42), "c")]})
 
-INFLUENCE = nvw({"t": "graph", "h": 460, "q": u"師承與影響關係圖（點選哲學家查看說明；只列出主要的關係）：",
+INFLUENCE = nvw({"t": "graph", "h": 500, "q": u"師承與影響關係圖（點選哲學家查看說明；只列出主要的關係）：",
   "nodes": [
     node("soc", u"蘇格拉底", 90, 40, "#2e86c1", u"不斷提問的雅典人，自己沒有留下著作。" + LS(6), u"Socrates"),
     node("pla", u"柏拉圖", 250, 40, "#2e86c1", u"蘇格拉底的學生，理型論。" + LS(7), u"Plato"),
@@ -59,7 +59,7 @@ INFLUENCE = nvw({"t": "graph", "h": 460, "q": u"師承與影響關係圖（點�
     node("aug", u"奧古斯丁", 160, 130, "#7d6608", u"把柏拉圖主義帶進基督教。" + LS(14), u"Augustine"),
     node("aqu", u"阿奎那", 470, 130, "#7d6608", u"把亞里斯多德帶進基督教。" + LS(16), u"Aquinas"),
     node("des", u"笛卡兒", 110, 220, "#c0392b", u"理性主義的開端：我思故我在。" + LS(19), u"Descartes"),
-    node("spi", u"史賓諾莎", 230, 220, "#c0392b", u"神即自然。" + LS(20), u"Spinoza"),
+    node("spi", u"史賓諾莎", 245, 175, "#c0392b", u"神即自然。" + LS(20), u"Spinoza"),
     node("lei", u"萊布尼茲", 350, 220, "#c0392b", u"單子論。" + LS(21), u"Leibniz"),
     node("loc", u"洛克", 470, 220, "#c0392b", u"經驗主義：心靈是白板。" + LS(22), u"Locke"),
     node("hum", u"休謨", 580, 220, "#c0392b", u"經驗主義的極致：因果只是習慣。" + LS(24), u"Hume"),
@@ -69,13 +69,13 @@ INFLUENCE = nvw({"t": "graph", "h": 460, "q": u"師承與影響關係圖（點�
     node("mar", u"馬克思", 70, 400, "#8e44ad", u"把黑格爾的辯證法「倒過來」：唯物史觀。" + LS(32), u"Marx"),
     node("kie", u"齊克果", 200, 400, "#8e44ad", u"反對黑格爾的體系，強調個人的選擇。" + LS(33), u"Kierkegaard"),
     node("nie", u"尼采", 330, 400, "#8e44ad", u"上帝已死；年輕時深受叔本華影響。" + LS(34), u"Nietzsche"),
-    node("sar", u"沙特", 450, 400, "#424949", u"存在先於本質。" + LS(36), u"Sartre"),
-    node("wit", u"維根斯坦", 580, 400, "#424949", u"語言的界限就是世界的界限。" + LS(37), u"Wittgenstein"),
+    node("sar", u"沙特", 390, 470, "#424949", u"存在先於本質。" + LS(36), u"Sartre"),
+    node("wit", u"維根斯坦", 560, 470, "#424949", u"語言的界限就是世界的界限；年輕時讀過叔本華。" + LS(37), u"Wittgenstein"),
   ],
   "edges": [["soc", "pla", u"師生", "#2e86c1", False], ["pla", "ari", u"師生", "#2e86c1", False], ["pla", "aug", u"", "#7d6608", True], ["ari", "aqu", u"", "#7d6608", True],
             ["des", "spi", u"", "#c0392b", True], ["des", "lei", u"", "#c0392b", True], ["loc", "hum", u"", "#c0392b", True], ["lei", "kan", u"理性", "#c0392b", False], ["hum", "kan", u"喚醒", "#c0392b", False],
             ["kan", "heg", u"", "#8e44ad", False], ["kan", "sch", u"", "#8e44ad", False], ["heg", "mar", u"倒轉", "#8e44ad", False], ["heg", "kie", u"反對", "#8e44ad", True],
-            ["sch", "nie", u"", "#8e44ad", False], ["kie", "sar", u"", "#424949", True], ["nie", "sar", u"", "#424949", True]],
+            ["sch", "nie", u"", "#8e44ad", False], ["kie", "sar", u"", "#424949", True], ["nie", "sar", u"", "#424949", True], ["sch", "wit", u"", "#424949", True]],
   "hint": u"點選任一哲學家查看說明。實線表示直接的師承或關鍵影響，虛線表示思想上的繼承或對話。"})
 
 THOUGHT = nvw({"t": "cards", "q": u"思想實驗圖鑑（可依主題篩選或搜尋）：",
