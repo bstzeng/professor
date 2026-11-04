@@ -27655,6 +27655,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "jujutsu-kaisen",
+      category: "anime",
+      title: "咒術迴戰全紀錄：咒力、劇情與人物完整解析",
+      description:
+        "芥見下下的原作與 MAPPA 的動畫；咒力與咒靈、等級、術式、束縛、帳與天元、領域展開、反轉術式與黑閃、咒具與天與咒縛、御三家與上層；從第 0 集、宿儺之指、少年院、交流會、懷玉・玉折、澀谷事變、禪院家、死滅迴游到新宿決戰與第 271 話結局（含完整劇透）；虎杖、伏黑、釘崎、五條、宿儺、夏油與羂索、乙骨、二年級與特級咒靈；正確的死亡、愛與詛咒、致敬與爭議。含故事年表、人物關係圖、術式與人物圖鑑。",
+      icon: "👁️",
+      url: "topics/jujutsu-kaisen/index.html",
+      resources: [
+        {
+          title: "咒術圖鑑",
+          description: "故事年表、人物關係圖、術式與領域展開、人物圖鑑",
+          icon: "📜",
+          url: "topics/jujutsu-kaisen/atlas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/jujutsu-kaisen/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜世界設定",
+          courses: [
+            { title: "作品概要與芥見下下", url: "topics/jujutsu-kaisen/lesson-01.html" },
+            { title: "咒力與咒靈", url: "topics/jujutsu-kaisen/lesson-02.html" },
+            { title: "等級制度", url: "topics/jujutsu-kaisen/lesson-03.html" },
+            { title: "術式", url: "topics/jujutsu-kaisen/lesson-04.html" },
+            { title: "束縛", url: "topics/jujutsu-kaisen/lesson-05.html" },
+            { title: "結界與帳", url: "topics/jujutsu-kaisen/lesson-06.html" },
+            { title: "領域展開", url: "topics/jujutsu-kaisen/lesson-07.html" },
+            { title: "反轉術式與黑閃", url: "topics/jujutsu-kaisen/lesson-08.html" },
+            { title: "咒具與天與咒縛", url: "topics/jujutsu-kaisen/lesson-09.html" },
+            { title: "咒術界的政治", url: "topics/jujutsu-kaisen/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 B｜劇情",
+          courses: [
+            { title: "第 0 集：乙骨憂太與祈本里香", url: "topics/jujutsu-kaisen/lesson-11.html" },
+            { title: "宿儺之指", url: "topics/jujutsu-kaisen/lesson-12.html" },
+            { title: "咒胎戴天", url: "topics/jujutsu-kaisen/lesson-13.html" },
+            { title: "幼魚與逆罰", url: "topics/jujutsu-kaisen/lesson-14.html" },
+            { title: "京都姊妹校交流會", url: "topics/jujutsu-kaisen/lesson-15.html" },
+            { title: "起首雷同與八十八橋", url: "topics/jujutsu-kaisen/lesson-16.html" },
+            { title: "懷玉・玉折", url: "topics/jujutsu-kaisen/lesson-17.html" },
+            { title: "澀谷事變（一）：封印五條", url: "topics/jujutsu-kaisen/lesson-18.html" },
+            { title: "澀谷事變（二）：宿儺降臨", url: "topics/jujutsu-kaisen/lesson-19.html" },
+            { title: "澀谷事變（三）：七海、釘崎與真人", url: "topics/jujutsu-kaisen/lesson-20.html" },
+            { title: "禪院家滅門", url: "topics/jujutsu-kaisen/lesson-21.html" },
+            { title: "死滅迴游：規則", url: "topics/jujutsu-kaisen/lesson-22.html" },
+            { title: "死滅迴游：泳者們", url: "topics/jujutsu-kaisen/lesson-23.html" },
+            { title: "宿儺奪取伏黑", url: "topics/jujutsu-kaisen/lesson-24.html" },
+            { title: "人外魔境新宿決戰：五條 vs 宿儺", url: "topics/jujutsu-kaisen/lesson-25.html" },
+            { title: "最終決戰與結局", url: "topics/jujutsu-kaisen/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 C｜人物",
+          courses: [
+            { title: "虎杖悠仁", url: "topics/jujutsu-kaisen/lesson-27.html" },
+            { title: "伏黑惠", url: "topics/jujutsu-kaisen/lesson-28.html" },
+            { title: "釘崎野薔薇", url: "topics/jujutsu-kaisen/lesson-29.html" },
+            { title: "五條悟", url: "topics/jujutsu-kaisen/lesson-30.html" },
+            { title: "兩面宿儺", url: "topics/jujutsu-kaisen/lesson-31.html" },
+            { title: "夏油傑與羂索", url: "topics/jujutsu-kaisen/lesson-32.html" },
+            { title: "乙骨憂太", url: "topics/jujutsu-kaisen/lesson-33.html" },
+            { title: "禪院真希、狗卷棘與熊貓", url: "topics/jujutsu-kaisen/lesson-34.html" },
+            { title: "真人與特級咒靈", url: "topics/jujutsu-kaisen/lesson-35.html" },
+            { title: "其他重要人物", url: "topics/jujutsu-kaisen/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題與分析",
+          courses: [
+            { title: "「正確的死亡」", url: "topics/jujutsu-kaisen/lesson-37.html" },
+            { title: "致敬與影響", url: "topics/jujutsu-kaisen/lesson-38.html" },
+            { title: "爭議與評價", url: "topics/jujutsu-kaisen/lesson-39.html" },
+            { title: "總結", url: "topics/jujutsu-kaisen/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
