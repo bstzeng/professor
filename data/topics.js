@@ -27740,6 +27740,104 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "retirement-insurance",
+      category: "invest",
+      title: "退休與保險規劃：勞保、勞退、保險怎麼配",
+      description:
+        "所得替代率、通膨、平均餘命與長壽風險、三層保障、4% 法則與複利；勞保老年年金的 A／B 式與請領年齡、勞保財務、勞退新制與自提節稅、舊制、國民年金、軍公教與自營業者、轉職時的年資；資產配置與水桶法、存股與 ETF、配息不等於報酬、提領策略、稅與補充保費、以房養老、安養信託與意定監護、理財陷阱與詐騙；健保的缺口、實支實付、重大傷病、失能、壽險、長照、儲蓄險與投資型保單、保單健檢、理賠與話術；25、35、50、65 歲的案例與照顧父母。含勞保、勞退、退休缺口、提領模擬、壽險需求等互動試算。",
+      icon: "🧓",
+      url: "topics/retirement-insurance/index.html",
+      resources: [
+        {
+          title: "試算工具",
+          description: "通膨、複利、勞保年金、勞退帳戶、退休缺口、提領模擬、壽險需求",
+          icon: "🧮",
+          url: "topics/retirement-insurance/tools.html"
+        },
+        {
+          title: "制度速查表",
+          description: "勞保、勞退、國保、健保與保險的重要數字與規定",
+          icon: "📋",
+          url: "topics/retirement-insurance/quick-reference.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/retirement-insurance/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜退休的基本算術",
+          courses: [
+            { title: "退休需要多少錢", url: "topics/retirement-insurance/lesson-01.html" },
+            { title: "通膨", url: "topics/retirement-insurance/lesson-02.html" },
+            { title: "你會活多久", url: "topics/retirement-insurance/lesson-03.html" },
+            { title: "退休金的三層保障", url: "topics/retirement-insurance/lesson-04.html" },
+            { title: "4% 法則與它的限制", url: "topics/retirement-insurance/lesson-05.html" },
+            { title: "越早開始差多少", url: "topics/retirement-insurance/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜政府與雇主那兩層",
+          courses: [
+            { title: "勞保老年給付", url: "topics/retirement-insurance/lesson-07.html" },
+            { title: "勞保年金公式拆解", url: "topics/retirement-insurance/lesson-08.html" },
+            { title: "幾歲請領", url: "topics/retirement-insurance/lesson-09.html" },
+            { title: "勞保會破產嗎", url: "topics/retirement-insurance/lesson-10.html" },
+            { title: "勞退新制", url: "topics/retirement-insurance/lesson-11.html" },
+            { title: "自提 6%", url: "topics/retirement-insurance/lesson-12.html" },
+            { title: "勞退舊制與新舊制的銜接", url: "topics/retirement-insurance/lesson-13.html" },
+            { title: "國民年金", url: "topics/retirement-insurance/lesson-14.html" },
+            { title: "軍公教、自營業者與農民", url: "topics/retirement-insurance/lesson-15.html" },
+            { title: "離職、轉職、出國時", url: "topics/retirement-insurance/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜自己準備的那一層",
+          courses: [
+            { title: "退休資產配置", url: "topics/retirement-insurance/lesson-17.html" },
+            { title: "存股與指數型 ETF", url: "topics/retirement-insurance/lesson-18.html" },
+            { title: "債券與配息型商品", url: "topics/retirement-insurance/lesson-19.html" },
+            { title: "提領策略", url: "topics/retirement-insurance/lesson-20.html" },
+            { title: "退休後的稅與健保補充保費", url: "topics/retirement-insurance/lesson-21.html" },
+            { title: "以房養老與賣房換屋", url: "topics/retirement-insurance/lesson-22.html" },
+            { title: "信託與意定監護", url: "topics/retirement-insurance/lesson-23.html" },
+            { title: "常見的退休理財陷阱", url: "topics/retirement-insurance/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 D｜保險：保什麼、不保什麼",
+          courses: [
+            { title: "保險的本質", url: "topics/retirement-insurance/lesson-25.html" },
+            { title: "健保有給付什麼、沒給付什麼", url: "topics/retirement-insurance/lesson-26.html" },
+            { title: "醫療險", url: "topics/retirement-insurance/lesson-27.html" },
+            { title: "重大傷病險與癌症險", url: "topics/retirement-insurance/lesson-28.html" },
+            { title: "意外險與失能險", url: "topics/retirement-insurance/lesson-29.html" },
+            { title: "壽險", url: "topics/retirement-insurance/lesson-30.html" },
+            { title: "長照險與長照 2.0／3.0", url: "topics/retirement-insurance/lesson-31.html" },
+            { title: "儲蓄險、投資型保單、年金險", url: "topics/retirement-insurance/lesson-32.html" },
+            { title: "保單健檢", url: "topics/retirement-insurance/lesson-33.html" },
+            { title: "理賠實務", url: "topics/retirement-insurance/lesson-34.html" },
+            { title: "保費預算", url: "topics/retirement-insurance/lesson-35.html" },
+            { title: "保險話術拆解", url: "topics/retirement-insurance/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 E｜依人生階段配置",
+          courses: [
+            { title: "25 歲新鮮人", url: "topics/retirement-insurance/lesson-37.html" },
+            { title: "35 歲有房貸有小孩", url: "topics/retirement-insurance/lesson-38.html" },
+            { title: "50 歲衝刺期", url: "topics/retirement-insurance/lesson-39.html" },
+            { title: "65 歲退休後", url: "topics/retirement-insurance/lesson-40.html" },
+            { title: "照顧父母", url: "topics/retirement-insurance/lesson-41.html" },
+            { title: "總結", url: "topics/retirement-insurance/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
