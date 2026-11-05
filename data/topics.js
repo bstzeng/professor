@@ -27946,6 +27946,306 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "genetics-dna",
+      category: "science",
+      title: "基因與 DNA：從孟德爾到 CRISPR",
+      description:
+        "孟德爾、染色體、摩根的果蠅、DNA 是遺傳物質、雙股螺旋；核苷酸、複製、中心法則、剪接與遺傳密碼、蛋白質、基因調控、人類基因體與非編碼 DNA；發育的程式、同源基因、多基因遺傳與遺傳率、同卵雙胞胎、表觀遺傳、複製貓 CC 與 X 染色體去活化、複製動物、突變；地中海貧血、蠶豆症、癌症基因、台灣的新生兒與產前篩檢、消費型檢測、藥物基因學與 HLA-B*1502、粒線體與 Y 染色體；基因工程、PCR、基改作物、CRISPR、基因治療、賀建奎事件、DNA 鑑識、分子演化、尼安德塔人與澎湖的丹尼索瓦人。含遺傳格子、中心法則轉譯器與多基因模擬。",
+      icon: "🧬",
+      url: "topics/genetics-dna/index.html",
+      resources: [
+        {
+          title: "互動工具",
+          description: "遺傳格子、中心法則轉譯器、多基因模擬",
+          icon: "🧪",
+          url: "topics/genetics-dna/tools.html"
+        },
+        {
+          title: "遺傳密碼表",
+          description: "64 個密碼子與對應的胺基酸",
+          icon: "🔤",
+          url: "topics/genetics-dna/codon-table.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/genetics-dna/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜遺傳的發現",
+          courses: [
+            { title: "為什麼孩子像父母", url: "topics/genetics-dna/lesson-01.html" },
+            { title: "孟德爾的豌豆", url: "topics/genetics-dna/lesson-02.html" },
+            { title: "染色體", url: "topics/genetics-dna/lesson-03.html" },
+            { title: "摩根的果蠅", url: "topics/genetics-dna/lesson-04.html" },
+            { title: "DNA 才是遺傳物質", url: "topics/genetics-dna/lesson-05.html" },
+            { title: "雙股螺旋", url: "topics/genetics-dna/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜DNA 怎麼運作",
+          courses: [
+            { title: "四個字母的密碼", url: "topics/genetics-dna/lesson-07.html" },
+            { title: "DNA 複製", url: "topics/genetics-dna/lesson-08.html" },
+            { title: "中心法則", url: "topics/genetics-dna/lesson-09.html" },
+            { title: "遺傳密碼與轉譯", url: "topics/genetics-dna/lesson-10.html" },
+            { title: "蛋白質", url: "topics/genetics-dna/lesson-11.html" },
+            { title: "基因的開關", url: "topics/genetics-dna/lesson-12.html" },
+            { title: "人類基因體計畫", url: "topics/genetics-dna/lesson-13.html" },
+            { title: "「垃圾 DNA」不是垃圾", url: "topics/genetics-dna/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜從基因到長相",
+          courses: [
+            { title: "一顆受精卵怎麼變成一個人", url: "topics/genetics-dna/lesson-15.html" },
+            { title: "同源基因", url: "topics/genetics-dna/lesson-16.html" },
+            { title: "身高、膚色、眼睛顏色", url: "topics/genetics-dna/lesson-17.html" },
+            { title: "先天還是後天", url: "topics/genetics-dna/lesson-18.html" },
+            { title: "同卵雙胞胎", url: "topics/genetics-dna/lesson-19.html" },
+            { title: "表觀遺傳", url: "topics/genetics-dna/lesson-20.html" },
+            { title: "發育的隨機性", url: "topics/genetics-dna/lesson-21.html" },
+            { title: "複製動物", url: "topics/genetics-dna/lesson-22.html" },
+            { title: "突變", url: "topics/genetics-dna/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜基因與健康",
+          courses: [
+            { title: "單基因疾病", url: "topics/genetics-dna/lesson-24.html" },
+            { title: "多基因的疾病風險", url: "topics/genetics-dna/lesson-25.html" },
+            { title: "癌症是基因的疾病", url: "topics/genetics-dna/lesson-26.html" },
+            { title: "基因檢測：產前、新生兒與帶因", url: "topics/genetics-dna/lesson-27.html" },
+            { title: "消費型基因檢測", url: "topics/genetics-dna/lesson-28.html" },
+            { title: "藥物基因學", url: "topics/genetics-dna/lesson-29.html" },
+            { title: "粒線體 DNA 與母系祖先", url: "topics/genetics-dna/lesson-30.html" },
+            { title: "Y 染色體與父系祖先", url: "topics/genetics-dna/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜改寫基因",
+          courses: [
+            { title: "基因工程", url: "topics/genetics-dna/lesson-32.html" },
+            { title: "PCR", url: "topics/genetics-dna/lesson-33.html" },
+            { title: "基因改造作物", url: "topics/genetics-dna/lesson-34.html" },
+            { title: "CRISPR", url: "topics/genetics-dna/lesson-35.html" },
+            { title: "基因治療", url: "topics/genetics-dna/lesson-36.html" },
+            { title: "賀建奎事件", url: "topics/genetics-dna/lesson-37.html" },
+            { title: "鑑識與 DNA", url: "topics/genetics-dna/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 F｜演化與未來",
+          courses: [
+            { title: "DNA 裡的演化史", url: "topics/genetics-dna/lesson-39.html" },
+            { title: "尼安德塔人的基因還在我們身上", url: "topics/genetics-dna/lesson-40.html" },
+            { title: "基因決定論的迷思", url: "topics/genetics-dna/lesson-41.html" },
+            { title: "總結", url: "topics/genetics-dna/lesson-42.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "pharmacology",
+      category: "biomed",
+      title: "藥是怎麼作用的：生活中的藥理學",
+      description:
+        "劑量與毒性、受體、致效劑與拮抗劑、吸收分布代謝排除、肝腎、半衰期、治療窗、給藥途徑；止痛藥、鴉片類、抗生素與抗藥性、抗病毒藥、感冒藥、過敏藥、胃藥、降血壓、降血脂、降血糖與 GLP-1、抗凝血、安眠藥、抗憂鬱藥、生物製劑；副作用、交互作用、葡萄柚與酒精、嚴重藥物過敏與 HLA-B*1502、年長者多重用藥、孕婦與兒童、藥袋與仿單、保健食品與中藥；天然物與青蒿素、臨床試驗、安慰劑、學名藥與生物相似藥、台灣藥價；成癮的大腦與尼古丁、酒精、咖啡因。含血中濃度與劑量—反應模擬器。",
+      icon: "💊",
+      url: "topics/pharmacology/index.html",
+      resources: [
+        {
+          title: "模擬器",
+          description: "血中濃度模擬與劑量—反應曲線",
+          icon: "🧪",
+          url: "topics/pharmacology/tools.html"
+        },
+        {
+          title: "藥物類別速查",
+          description: "課程中介紹的藥物類別、作用與主要風險",
+          icon: "📋",
+          url: "topics/pharmacology/drug-classes.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/pharmacology/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜藥理學的基本觀念",
+          courses: [
+            { title: "什麼是藥", url: "topics/pharmacology/lesson-01.html" },
+            { title: "受體", url: "topics/pharmacology/lesson-02.html" },
+            { title: "致效劑與拮抗劑", url: "topics/pharmacology/lesson-03.html" },
+            { title: "藥進入身體之後", url: "topics/pharmacology/lesson-04.html" },
+            { title: "肝臟與腎臟", url: "topics/pharmacology/lesson-05.html" },
+            { title: "半衰期", url: "topics/pharmacology/lesson-06.html" },
+            { title: "劑量與效果", url: "topics/pharmacology/lesson-07.html" },
+            { title: "給藥途徑", url: "topics/pharmacology/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 B｜常見的藥",
+          courses: [
+            { title: "止痛藥（一）：乙醯胺酚", url: "topics/pharmacology/lesson-09.html" },
+            { title: "止痛藥（二）：消炎止痛藥", url: "topics/pharmacology/lesson-10.html" },
+            { title: "鴉片類止痛藥", url: "topics/pharmacology/lesson-11.html" },
+            { title: "抗生素", url: "topics/pharmacology/lesson-12.html" },
+            { title: "抗藥性", url: "topics/pharmacology/lesson-13.html" },
+            { title: "抗病毒藥", url: "topics/pharmacology/lesson-14.html" },
+            { title: "感冒藥", url: "topics/pharmacology/lesson-15.html" },
+            { title: "過敏藥", url: "topics/pharmacology/lesson-16.html" },
+            { title: "胃藥", url: "topics/pharmacology/lesson-17.html" },
+            { title: "降血壓藥", url: "topics/pharmacology/lesson-18.html" },
+            { title: "降血脂藥", url: "topics/pharmacology/lesson-19.html" },
+            { title: "降血糖藥", url: "topics/pharmacology/lesson-20.html" },
+            { title: "抗凝血藥", url: "topics/pharmacology/lesson-21.html" },
+            { title: "安眠藥與抗焦慮藥", url: "topics/pharmacology/lesson-22.html" },
+            { title: "抗憂鬱藥", url: "topics/pharmacology/lesson-23.html" },
+            { title: "疫苗與生物製劑", url: "topics/pharmacology/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 C｜安全用藥",
+          courses: [
+            { title: "副作用", url: "topics/pharmacology/lesson-25.html" },
+            { title: "藥物交互作用", url: "topics/pharmacology/lesson-26.html" },
+            { title: "葡萄柚、酒精、咖啡與藥", url: "topics/pharmacology/lesson-27.html" },
+            { title: "藥物過敏與嚴重皮膚反應", url: "topics/pharmacology/lesson-28.html" },
+            { title: "老人與多重用藥", url: "topics/pharmacology/lesson-29.html" },
+            { title: "孕婦、哺乳與兒童用藥", url: "topics/pharmacology/lesson-30.html" },
+            { title: "看懂藥袋與仿單", url: "topics/pharmacology/lesson-31.html" },
+            { title: "保健食品與中藥", url: "topics/pharmacology/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 D｜藥從哪裡來",
+          courses: [
+            { title: "從柳樹皮到阿斯匹靈", url: "topics/pharmacology/lesson-33.html" },
+            { title: "新藥開發與臨床試驗", url: "topics/pharmacology/lesson-34.html" },
+            { title: "安慰劑效應", url: "topics/pharmacology/lesson-35.html" },
+            { title: "原廠藥、學名藥與生物相似藥", url: "topics/pharmacology/lesson-36.html" },
+            { title: "台灣的藥價與健保給付", url: "topics/pharmacology/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 E｜成癮與濫用",
+          courses: [
+            { title: "成癮的大腦", url: "topics/pharmacology/lesson-38.html" },
+            { title: "尼古丁、酒精、咖啡因", url: "topics/pharmacology/lesson-39.html" },
+            { title: "總結", url: "topics/pharmacology/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "climate-change",
+      category: "science",
+      title: "氣候變遷：證據、模型與爭議",
+      description:
+        "天氣與氣候、能量收支、溫室效應的物理、碳循環、海洋、冰與反照率、回饋；溫度紀錄、基林曲線、冰芯、米蘭科維奇循環、古氣候事件、海平面與冰川、歸因科學；氣候模型、氣候敏感度、排放情境、模型的檢驗、IPCC 與不確定性；極端天氣、颱風、海洋酸化與珊瑚白化、生態系、糧食水與健康、臨界點、台灣的氣候變遷、氣候正義；減碳全貌、能源轉型、難減部門、碳移除、地球工程、碳定價與碳費、巴黎協定、台灣淨零；常見懷疑論點與真正的爭論。含二氧化碳與溫度、平衡暖化、碳預算互動工具。",
+      icon: "🌡️",
+      url: "topics/climate-change/index.html",
+      resources: [
+        {
+          title: "互動工具",
+          description: "二氧化碳與溫度、平衡暖化、碳預算",
+          icon: "🧪",
+          url: "topics/climate-change/tools.html"
+        },
+        {
+          title: "關鍵數字",
+          description: "課程中重要的數字整理",
+          icon: "🔢",
+          url: "topics/climate-change/key-numbers.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/climate-change/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜氣候系統",
+          courses: [
+            { title: "天氣與氣候", url: "topics/climate-change/lesson-01.html" },
+            { title: "地球的能量收支", url: "topics/climate-change/lesson-02.html" },
+            { title: "溫室效應的物理", url: "topics/climate-change/lesson-03.html" },
+            { title: "碳循環", url: "topics/climate-change/lesson-04.html" },
+            { title: "海洋", url: "topics/climate-change/lesson-05.html" },
+            { title: "冰與反照率", url: "topics/climate-change/lesson-06.html" },
+            { title: "回饋", url: "topics/climate-change/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜證據",
+          courses: [
+            { title: "溫度紀錄", url: "topics/climate-change/lesson-08.html" },
+            { title: "基林曲線", url: "topics/climate-change/lesson-09.html" },
+            { title: "冰芯", url: "topics/climate-change/lesson-10.html" },
+            { title: "冰期與間冰期", url: "topics/climate-change/lesson-11.html" },
+            { title: "過去的劇烈變化", url: "topics/climate-change/lesson-12.html" },
+            { title: "海平面上升", url: "topics/climate-change/lesson-13.html" },
+            { title: "冰川與海冰的消退", url: "topics/climate-change/lesson-14.html" },
+            { title: "怎麼知道是人類造成的", url: "topics/climate-change/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜氣候模型",
+          courses: [
+            { title: "氣候模型怎麼運作", url: "topics/climate-change/lesson-16.html" },
+            { title: "氣候敏感度", url: "topics/climate-change/lesson-17.html" },
+            { title: "排放情境與未來的預估", url: "topics/climate-change/lesson-18.html" },
+            { title: "模型準不準", url: "topics/climate-change/lesson-19.html" },
+            { title: "IPCC 報告怎麼寫出來的", url: "topics/climate-change/lesson-20.html" },
+            { title: "不確定性在哪裡", url: "topics/climate-change/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜影響",
+          courses: [
+            { title: "極端天氣", url: "topics/climate-change/lesson-22.html" },
+            { title: "颱風會變多還是變強", url: "topics/climate-change/lesson-23.html" },
+            { title: "海洋酸化與珊瑚白化", url: "topics/climate-change/lesson-24.html" },
+            { title: "生態系與物種", url: "topics/climate-change/lesson-25.html" },
+            { title: "糧食、水與健康", url: "topics/climate-change/lesson-26.html" },
+            { title: "臨界點", url: "topics/climate-change/lesson-27.html" },
+            { title: "台灣的氣候變遷", url: "topics/climate-change/lesson-28.html" },
+            { title: "誰受影響最大", url: "topics/climate-change/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜對策",
+          courses: [
+            { title: "減碳的全貌", url: "topics/climate-change/lesson-30.html" },
+            { title: "能源轉型", url: "topics/climate-change/lesson-31.html" },
+            { title: "交通、建築與工業的減碳", url: "topics/climate-change/lesson-32.html" },
+            { title: "碳捕捉與負排放", url: "topics/climate-change/lesson-33.html" },
+            { title: "地球工程", url: "topics/climate-change/lesson-34.html" },
+            { title: "碳定價", url: "topics/climate-change/lesson-35.html" },
+            { title: "巴黎協定與國際談判", url: "topics/climate-change/lesson-36.html" },
+            { title: "台灣的淨零路徑與碳費", url: "topics/climate-change/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜爭議",
+          courses: [
+            { title: "常見的懷疑論點與科學的回應", url: "topics/climate-change/lesson-38.html" },
+            { title: "真正還在爭論的問題", url: "topics/climate-change/lesson-39.html" },
+            { title: "總結", url: "topics/climate-change/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
