@@ -28049,6 +28049,102 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "pharmacology",
+      category: "biomed",
+      title: "藥是怎麼作用的：生活中的藥理學",
+      description:
+        "劑量與毒性、受體、致效劑與拮抗劑、吸收分布代謝排除、肝腎、半衰期、治療窗、給藥途徑；止痛藥、鴉片類、抗生素與抗藥性、抗病毒藥、感冒藥、過敏藥、胃藥、降血壓、降血脂、降血糖與 GLP-1、抗凝血、安眠藥、抗憂鬱藥、生物製劑；副作用、交互作用、葡萄柚與酒精、嚴重藥物過敏與 HLA-B*1502、年長者多重用藥、孕婦與兒童、藥袋與仿單、保健食品與中藥；天然物與青蒿素、臨床試驗、安慰劑、學名藥與生物相似藥、台灣藥價；成癮的大腦與尼古丁、酒精、咖啡因。含血中濃度與劑量—反應模擬器。",
+      icon: "💊",
+      url: "topics/pharmacology/index.html",
+      resources: [
+        {
+          title: "模擬器",
+          description: "血中濃度模擬與劑量—反應曲線",
+          icon: "🧪",
+          url: "topics/pharmacology/tools.html"
+        },
+        {
+          title: "藥物類別速查",
+          description: "課程中介紹的藥物類別、作用與主要風險",
+          icon: "📋",
+          url: "topics/pharmacology/drug-classes.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/pharmacology/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜藥理學的基本觀念",
+          courses: [
+            { title: "什麼是藥", url: "topics/pharmacology/lesson-01.html" },
+            { title: "受體", url: "topics/pharmacology/lesson-02.html" },
+            { title: "致效劑與拮抗劑", url: "topics/pharmacology/lesson-03.html" },
+            { title: "藥進入身體之後", url: "topics/pharmacology/lesson-04.html" },
+            { title: "肝臟與腎臟", url: "topics/pharmacology/lesson-05.html" },
+            { title: "半衰期", url: "topics/pharmacology/lesson-06.html" },
+            { title: "劑量與效果", url: "topics/pharmacology/lesson-07.html" },
+            { title: "給藥途徑", url: "topics/pharmacology/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 B｜常見的藥",
+          courses: [
+            { title: "止痛藥（一）：乙醯胺酚", url: "topics/pharmacology/lesson-09.html" },
+            { title: "止痛藥（二）：消炎止痛藥", url: "topics/pharmacology/lesson-10.html" },
+            { title: "鴉片類止痛藥", url: "topics/pharmacology/lesson-11.html" },
+            { title: "抗生素", url: "topics/pharmacology/lesson-12.html" },
+            { title: "抗藥性", url: "topics/pharmacology/lesson-13.html" },
+            { title: "抗病毒藥", url: "topics/pharmacology/lesson-14.html" },
+            { title: "感冒藥", url: "topics/pharmacology/lesson-15.html" },
+            { title: "過敏藥", url: "topics/pharmacology/lesson-16.html" },
+            { title: "胃藥", url: "topics/pharmacology/lesson-17.html" },
+            { title: "降血壓藥", url: "topics/pharmacology/lesson-18.html" },
+            { title: "降血脂藥", url: "topics/pharmacology/lesson-19.html" },
+            { title: "降血糖藥", url: "topics/pharmacology/lesson-20.html" },
+            { title: "抗凝血藥", url: "topics/pharmacology/lesson-21.html" },
+            { title: "安眠藥與抗焦慮藥", url: "topics/pharmacology/lesson-22.html" },
+            { title: "抗憂鬱藥", url: "topics/pharmacology/lesson-23.html" },
+            { title: "疫苗與生物製劑", url: "topics/pharmacology/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 C｜安全用藥",
+          courses: [
+            { title: "副作用", url: "topics/pharmacology/lesson-25.html" },
+            { title: "藥物交互作用", url: "topics/pharmacology/lesson-26.html" },
+            { title: "葡萄柚、酒精、咖啡與藥", url: "topics/pharmacology/lesson-27.html" },
+            { title: "藥物過敏與嚴重皮膚反應", url: "topics/pharmacology/lesson-28.html" },
+            { title: "老人與多重用藥", url: "topics/pharmacology/lesson-29.html" },
+            { title: "孕婦、哺乳與兒童用藥", url: "topics/pharmacology/lesson-30.html" },
+            { title: "看懂藥袋與仿單", url: "topics/pharmacology/lesson-31.html" },
+            { title: "保健食品與中藥", url: "topics/pharmacology/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 D｜藥從哪裡來",
+          courses: [
+            { title: "從柳樹皮到阿斯匹靈", url: "topics/pharmacology/lesson-33.html" },
+            { title: "新藥開發與臨床試驗", url: "topics/pharmacology/lesson-34.html" },
+            { title: "安慰劑效應", url: "topics/pharmacology/lesson-35.html" },
+            { title: "原廠藥、學名藥與生物相似藥", url: "topics/pharmacology/lesson-36.html" },
+            { title: "台灣的藥價與健保給付", url: "topics/pharmacology/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 E｜成癮與濫用",
+          courses: [
+            { title: "成癮的大腦", url: "topics/pharmacology/lesson-38.html" },
+            { title: "尼古丁、酒精、咖啡因", url: "topics/pharmacology/lesson-39.html" },
+            { title: "總結", url: "topics/pharmacology/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
