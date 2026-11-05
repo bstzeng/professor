@@ -27946,6 +27946,109 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "genetics-dna",
+      category: "science",
+      title: "基因與 DNA：從孟德爾到 CRISPR",
+      description:
+        "孟德爾、染色體、摩根的果蠅、DNA 是遺傳物質、雙股螺旋；核苷酸、複製、中心法則、剪接與遺傳密碼、蛋白質、基因調控、人類基因體與非編碼 DNA；發育的程式、同源基因、多基因遺傳與遺傳率、同卵雙胞胎、表觀遺傳、複製貓 CC 與 X 染色體去活化、複製動物、突變；地中海貧血、蠶豆症、癌症基因、台灣的新生兒與產前篩檢、消費型檢測、藥物基因學與 HLA-B*1502、粒線體與 Y 染色體；基因工程、PCR、基改作物、CRISPR、基因治療、賀建奎事件、DNA 鑑識、分子演化、尼安德塔人與澎湖的丹尼索瓦人。含遺傳格子、中心法則轉譯器與多基因模擬。",
+      icon: "🧬",
+      url: "topics/genetics-dna/index.html",
+      resources: [
+        {
+          title: "互動工具",
+          description: "遺傳格子、中心法則轉譯器、多基因模擬",
+          icon: "🧪",
+          url: "topics/genetics-dna/tools.html"
+        },
+        {
+          title: "遺傳密碼表",
+          description: "64 個密碼子與對應的胺基酸",
+          icon: "🔤",
+          url: "topics/genetics-dna/codon-table.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/genetics-dna/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜遺傳的發現",
+          courses: [
+            { title: "為什麼孩子像父母", url: "topics/genetics-dna/lesson-01.html" },
+            { title: "孟德爾的豌豆", url: "topics/genetics-dna/lesson-02.html" },
+            { title: "染色體", url: "topics/genetics-dna/lesson-03.html" },
+            { title: "摩根的果蠅", url: "topics/genetics-dna/lesson-04.html" },
+            { title: "DNA 才是遺傳物質", url: "topics/genetics-dna/lesson-05.html" },
+            { title: "雙股螺旋", url: "topics/genetics-dna/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜DNA 怎麼運作",
+          courses: [
+            { title: "四個字母的密碼", url: "topics/genetics-dna/lesson-07.html" },
+            { title: "DNA 複製", url: "topics/genetics-dna/lesson-08.html" },
+            { title: "中心法則", url: "topics/genetics-dna/lesson-09.html" },
+            { title: "遺傳密碼與轉譯", url: "topics/genetics-dna/lesson-10.html" },
+            { title: "蛋白質", url: "topics/genetics-dna/lesson-11.html" },
+            { title: "基因的開關", url: "topics/genetics-dna/lesson-12.html" },
+            { title: "人類基因體計畫", url: "topics/genetics-dna/lesson-13.html" },
+            { title: "「垃圾 DNA」不是垃圾", url: "topics/genetics-dna/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜從基因到長相",
+          courses: [
+            { title: "一顆受精卵怎麼變成一個人", url: "topics/genetics-dna/lesson-15.html" },
+            { title: "同源基因", url: "topics/genetics-dna/lesson-16.html" },
+            { title: "身高、膚色、眼睛顏色", url: "topics/genetics-dna/lesson-17.html" },
+            { title: "先天還是後天", url: "topics/genetics-dna/lesson-18.html" },
+            { title: "同卵雙胞胎", url: "topics/genetics-dna/lesson-19.html" },
+            { title: "表觀遺傳", url: "topics/genetics-dna/lesson-20.html" },
+            { title: "發育的隨機性", url: "topics/genetics-dna/lesson-21.html" },
+            { title: "複製動物", url: "topics/genetics-dna/lesson-22.html" },
+            { title: "突變", url: "topics/genetics-dna/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜基因與健康",
+          courses: [
+            { title: "單基因疾病", url: "topics/genetics-dna/lesson-24.html" },
+            { title: "多基因的疾病風險", url: "topics/genetics-dna/lesson-25.html" },
+            { title: "癌症是基因的疾病", url: "topics/genetics-dna/lesson-26.html" },
+            { title: "基因檢測：產前、新生兒與帶因", url: "topics/genetics-dna/lesson-27.html" },
+            { title: "消費型基因檢測", url: "topics/genetics-dna/lesson-28.html" },
+            { title: "藥物基因學", url: "topics/genetics-dna/lesson-29.html" },
+            { title: "粒線體 DNA 與母系祖先", url: "topics/genetics-dna/lesson-30.html" },
+            { title: "Y 染色體與父系祖先", url: "topics/genetics-dna/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 E｜改寫基因",
+          courses: [
+            { title: "基因工程", url: "topics/genetics-dna/lesson-32.html" },
+            { title: "PCR", url: "topics/genetics-dna/lesson-33.html" },
+            { title: "基因改造作物", url: "topics/genetics-dna/lesson-34.html" },
+            { title: "CRISPR", url: "topics/genetics-dna/lesson-35.html" },
+            { title: "基因治療", url: "topics/genetics-dna/lesson-36.html" },
+            { title: "賀建奎事件", url: "topics/genetics-dna/lesson-37.html" },
+            { title: "鑑識與 DNA", url: "topics/genetics-dna/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 F｜演化與未來",
+          courses: [
+            { title: "DNA 裡的演化史", url: "topics/genetics-dna/lesson-39.html" },
+            { title: "尼安德塔人的基因還在我們身上", url: "topics/genetics-dna/lesson-40.html" },
+            { title: "基因決定論的迷思", url: "topics/genetics-dna/lesson-41.html" },
+            { title: "總結", url: "topics/genetics-dna/lesson-42.html" },
+          ],
+        },
+      ],
     }
   ]
 };
