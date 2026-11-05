@@ -28145,6 +28145,107 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "climate-change",
+      category: "science",
+      title: "氣候變遷：證據、模型與爭議",
+      description:
+        "天氣與氣候、能量收支、溫室效應的物理、碳循環、海洋、冰與反照率、回饋；溫度紀錄、基林曲線、冰芯、米蘭科維奇循環、古氣候事件、海平面與冰川、歸因科學；氣候模型、氣候敏感度、排放情境、模型的檢驗、IPCC 與不確定性；極端天氣、颱風、海洋酸化與珊瑚白化、生態系、糧食水與健康、臨界點、台灣的氣候變遷、氣候正義；減碳全貌、能源轉型、難減部門、碳移除、地球工程、碳定價與碳費、巴黎協定、台灣淨零；常見懷疑論點與真正的爭論。含二氧化碳與溫度、平衡暖化、碳預算互動工具。",
+      icon: "🌡️",
+      url: "topics/climate-change/index.html",
+      resources: [
+        {
+          title: "互動工具",
+          description: "二氧化碳與溫度、平衡暖化、碳預算",
+          icon: "🧪",
+          url: "topics/climate-change/tools.html"
+        },
+        {
+          title: "關鍵數字",
+          description: "課程中重要的數字整理",
+          icon: "🔢",
+          url: "topics/climate-change/key-numbers.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/climate-change/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜氣候系統",
+          courses: [
+            { title: "天氣與氣候", url: "topics/climate-change/lesson-01.html" },
+            { title: "地球的能量收支", url: "topics/climate-change/lesson-02.html" },
+            { title: "溫室效應的物理", url: "topics/climate-change/lesson-03.html" },
+            { title: "碳循環", url: "topics/climate-change/lesson-04.html" },
+            { title: "海洋", url: "topics/climate-change/lesson-05.html" },
+            { title: "冰與反照率", url: "topics/climate-change/lesson-06.html" },
+            { title: "回饋", url: "topics/climate-change/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜證據",
+          courses: [
+            { title: "溫度紀錄", url: "topics/climate-change/lesson-08.html" },
+            { title: "基林曲線", url: "topics/climate-change/lesson-09.html" },
+            { title: "冰芯", url: "topics/climate-change/lesson-10.html" },
+            { title: "冰期與間冰期", url: "topics/climate-change/lesson-11.html" },
+            { title: "過去的劇烈變化", url: "topics/climate-change/lesson-12.html" },
+            { title: "海平面上升", url: "topics/climate-change/lesson-13.html" },
+            { title: "冰川與海冰的消退", url: "topics/climate-change/lesson-14.html" },
+            { title: "怎麼知道是人類造成的", url: "topics/climate-change/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜氣候模型",
+          courses: [
+            { title: "氣候模型怎麼運作", url: "topics/climate-change/lesson-16.html" },
+            { title: "氣候敏感度", url: "topics/climate-change/lesson-17.html" },
+            { title: "排放情境與未來的預估", url: "topics/climate-change/lesson-18.html" },
+            { title: "模型準不準", url: "topics/climate-change/lesson-19.html" },
+            { title: "IPCC 報告怎麼寫出來的", url: "topics/climate-change/lesson-20.html" },
+            { title: "不確定性在哪裡", url: "topics/climate-change/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜影響",
+          courses: [
+            { title: "極端天氣", url: "topics/climate-change/lesson-22.html" },
+            { title: "颱風會變多還是變強", url: "topics/climate-change/lesson-23.html" },
+            { title: "海洋酸化與珊瑚白化", url: "topics/climate-change/lesson-24.html" },
+            { title: "生態系與物種", url: "topics/climate-change/lesson-25.html" },
+            { title: "糧食、水與健康", url: "topics/climate-change/lesson-26.html" },
+            { title: "臨界點", url: "topics/climate-change/lesson-27.html" },
+            { title: "台灣的氣候變遷", url: "topics/climate-change/lesson-28.html" },
+            { title: "誰受影響最大", url: "topics/climate-change/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 E｜對策",
+          courses: [
+            { title: "減碳的全貌", url: "topics/climate-change/lesson-30.html" },
+            { title: "能源轉型", url: "topics/climate-change/lesson-31.html" },
+            { title: "交通、建築與工業的減碳", url: "topics/climate-change/lesson-32.html" },
+            { title: "碳捕捉與負排放", url: "topics/climate-change/lesson-33.html" },
+            { title: "地球工程", url: "topics/climate-change/lesson-34.html" },
+            { title: "碳定價", url: "topics/climate-change/lesson-35.html" },
+            { title: "巴黎協定與國際談判", url: "topics/climate-change/lesson-36.html" },
+            { title: "台灣的淨零路徑與碳費", url: "topics/climate-change/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 F｜爭議",
+          courses: [
+            { title: "常見的懷疑論點與科學的回應", url: "topics/climate-change/lesson-38.html" },
+            { title: "真正還在爭論的問題", url: "topics/climate-change/lesson-39.html" },
+            { title: "總結", url: "topics/climate-change/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
