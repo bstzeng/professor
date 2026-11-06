@@ -28246,6 +28246,242 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "classical-mechanics",
+      category: "science",
+      title: "古典力學：從牛頓到拉格朗日與哈密頓",
+      description:
+        "亞里斯多德、伽利略的斜面、克卜勒三大定律、牛頓的《原理》；運動學、拋體與空氣阻力、自由體圖、非慣性系的離心力與科氏力、颱風與傅科擺；功與能量、保守力與位能、動量與碰撞、火箭方程式、角動量；簡諧、阻尼與受迫振動、共振與塔科馬大橋、耦合振子、波動方程式；殼層定理、有效位能、完整推導克卜勒軌道、逃逸速度與霍曼轉移、潮汐、三體問題與拉格朗日點、海王星與水星；質心、轉動慣量、慣量張量、網球拍定理、陀螺與歲差；變分法與最速降線、最小作用量原理、諾特定理、哈密頓方程式與相空間、劉維爾定理、泊松括號與量子化、哈密頓—雅可比方程式；雙擺混沌、KAM 定理與古典力學的邊界。附五個互動模擬。",
+      icon: "🪐",
+      url: "topics/classical-mechanics/index.html",
+      resources: [
+        {
+          title: "古典力學公式速查表",
+          description: "運動學、守恆律、振動、軌道、剛體、拉格朗日與哈密頓的核心公式",
+          icon: "📐",
+          url: "topics/classical-mechanics/cheatsheet.html"
+        },
+        {
+          title: "古典力學年表",
+          description: "從亞里斯多德到 KAM 定理：人物與關鍵發現",
+          icon: "⏳",
+          url: "topics/classical-mechanics/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從亞里斯多德到牛頓",
+          courses: [
+            { title: "亞里斯多德的運動觀", url: "topics/classical-mechanics/lesson-01.html" },
+            { title: "伽利略的斜面", url: "topics/classical-mechanics/lesson-02.html" },
+            { title: "克卜勒三大定律", url: "topics/classical-mechanics/lesson-03.html" },
+            { title: "牛頓的《原理》", url: "topics/classical-mechanics/lesson-04.html" },
+            { title: "模組總結：力學成為第一門數學化的科學", url: "topics/classical-mechanics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜運動學與牛頓定律的完整運用",
+          courses: [
+            { title: "位置、速度、加速度", url: "topics/classical-mechanics/lesson-06.html" },
+            { title: "拋體運動與空氣阻力", url: "topics/classical-mechanics/lesson-07.html" },
+            { title: "摩擦力、張力與自由體圖", url: "topics/classical-mechanics/lesson-08.html" },
+            { title: "非慣性座標系", url: "topics/classical-mechanics/lesson-09.html" },
+            { title: "科氏力的真實世界", url: "topics/classical-mechanics/lesson-10.html" },
+            { title: "模組總結：牛頓力學能做什麼", url: "topics/classical-mechanics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜守恆律",
+          courses: [
+            { title: "功與動能定理", url: "topics/classical-mechanics/lesson-12.html" },
+            { title: "保守力與位能", url: "topics/classical-mechanics/lesson-13.html" },
+            { title: "動量守恆與碰撞", url: "topics/classical-mechanics/lesson-14.html" },
+            { title: "火箭方程式", url: "topics/classical-mechanics/lesson-15.html" },
+            { title: "角動量與力矩", url: "topics/classical-mechanics/lesson-16.html" },
+            { title: "模組總結：守恆律比力更基本", url: "topics/classical-mechanics/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜振動與波",
+          courses: [
+            { title: "簡諧運動", url: "topics/classical-mechanics/lesson-18.html" },
+            { title: "阻尼振動", url: "topics/classical-mechanics/lesson-19.html" },
+            { title: "受迫振動與共振", url: "topics/classical-mechanics/lesson-20.html" },
+            { title: "耦合振子與正規模態", url: "topics/classical-mechanics/lesson-21.html" },
+            { title: "從離散到連續", url: "topics/classical-mechanics/lesson-22.html" },
+            { title: "模組總結：振動是物理最常出現的模型", url: "topics/classical-mechanics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜重力與軌道力學",
+          courses: [
+            { title: "萬有引力與殼層定理", url: "topics/classical-mechanics/lesson-24.html" },
+            { title: "中心力問題", url: "topics/classical-mechanics/lesson-25.html" },
+            { title: "完整推導克卜勒軌道", url: "topics/classical-mechanics/lesson-26.html" },
+            { title: "逃逸速度與霍曼轉移", url: "topics/classical-mechanics/lesson-27.html" },
+            { title: "潮汐力", url: "topics/classical-mechanics/lesson-28.html" },
+            { title: "三體問題與拉格朗日點", url: "topics/classical-mechanics/lesson-29.html" },
+            { title: "模組總結：牛頓重力的完美與裂縫", url: "topics/classical-mechanics/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜剛體力學",
+          courses: [
+            { title: "質心與剛體的自由度", url: "topics/classical-mechanics/lesson-31.html" },
+            { title: "轉動慣量與平行軸定理", url: "topics/classical-mechanics/lesson-32.html" },
+            { title: "慣量張量與主軸", url: "topics/classical-mechanics/lesson-33.html" },
+            { title: "歐拉方程式與網球拍定理", url: "topics/classical-mechanics/lesson-34.html" },
+            { title: "陀螺與進動", url: "topics/classical-mechanics/lesson-35.html" },
+            { title: "模組總結：轉動比平移複雜得多", url: "topics/classical-mechanics/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜拉格朗日力學",
+          courses: [
+            { title: "為什麼需要新形式", url: "topics/classical-mechanics/lesson-37.html" },
+            { title: "變分法", url: "topics/classical-mechanics/lesson-38.html" },
+            { title: "最小作用量原理", url: "topics/classical-mechanics/lesson-39.html" },
+            { title: "用拉格朗日量解經典問題", url: "topics/classical-mechanics/lesson-40.html" },
+            { title: "諾特定理", url: "topics/classical-mechanics/lesson-41.html" },
+            { title: "模組總結：從力轉向能量和對稱", url: "topics/classical-mechanics/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜哈密頓力學",
+          courses: [
+            { title: "勒壤德轉換", url: "topics/classical-mechanics/lesson-43.html" },
+            { title: "哈密頓方程式與相空間", url: "topics/classical-mechanics/lesson-44.html" },
+            { title: "劉維爾定理", url: "topics/classical-mechanics/lesson-45.html" },
+            { title: "泊松括號", url: "topics/classical-mechanics/lesson-46.html" },
+            { title: "正則變換與哈密頓—雅可比方程式", url: "topics/classical-mechanics/lesson-47.html" },
+            { title: "模組總結：古典力學最抽象也最優雅的形式", url: "topics/classical-mechanics/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 I｜混沌與古典力學的邊界",
+          courses: [
+            { title: "雙擺與混沌", url: "topics/classical-mechanics/lesson-49.html" },
+            { title: "可積系統與 KAM 定理", url: "topics/classical-mechanics/lesson-50.html" },
+            { title: "古典力學的極限", url: "topics/classical-mechanics/lesson-51.html" },
+            { title: "課程總結", url: "topics/classical-mechanics/lesson-52.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "studio-ghibli",
+      category: "fantasy",
+      title: "吉卜力工作室全紀錄：宮崎駿與高畑勳的作品",
+      description:
+        "東映動畫與工會、《阿爾卑斯山的少女》、《未來少年柯南》、《卡里奧斯特羅城》、《風之谷》與 1985 年吉卜力成立；天空之城、龍貓、螢火蟲之墓、魔女宅急便、兒時的點點滴滴、紅豬、海潮之聲、平成狸合戰、心之谷、魔法公主、隔壁的山田君、神隱少女、貓的報恩、霍爾的移動城堡、地海戰記、崖上的波妞、借物少女艾莉緹、來自紅花坂、風起、輝耀姬物語、回憶中的瑪妮、紅烏龜、安雅與魔女、蒼鷺與少年的劇情、人物與幕後；2014 年製作部門暫停、奧斯卡、吉卜力公園與日本電視台收購；飛行、少女、自然、戰爭、食物、久石讓的音樂、製作流程、手繪與數位、宮崎駿與高畑勳，以及吉卜力對全球動畫的影響。含完整劇情（有暴雷）。",
+      icon: "🍃",
+      url: "topics/studio-ghibli/index.html",
+      resources: [
+        {
+          title: "吉卜力作品總表",
+          description: "所有長篇電影的年份、導演、原作與對應課程",
+          icon: "🎞️",
+          url: "topics/studio-ghibli/films.html"
+        },
+        {
+          title: "吉卜力人物表",
+          description: "導演、製作人、作曲家與重要幕後人員",
+          icon: "👥",
+          url: "topics/studio-ghibli/people.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜吉卜力之前",
+          courses: [
+            { title: "宮崎駿與高畑勳的相遇", url: "topics/studio-ghibli/lesson-01.html" },
+            { title: "電視動畫的歲月", url: "topics/studio-ghibli/lesson-02.html" },
+            { title: "《魯邦三世：卡里奧斯特羅城》", url: "topics/studio-ghibli/lesson-03.html" },
+            { title: "《風之谷》（1984）", url: "topics/studio-ghibli/lesson-04.html" },
+            { title: "1985 年：吉卜力成立", url: "topics/studio-ghibli/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜草創期（1986–1992）",
+          courses: [
+            { title: "《天空之城》（1986）", url: "topics/studio-ghibli/lesson-06.html" },
+            { title: "《龍貓》（1988）", url: "topics/studio-ghibli/lesson-07.html" },
+            { title: "《螢火蟲之墓》（1988）", url: "topics/studio-ghibli/lesson-08.html" },
+            { title: "《魔女宅急便》（1989）", url: "topics/studio-ghibli/lesson-09.html" },
+            { title: "《兒時的點點滴滴》（1991）", url: "topics/studio-ghibli/lesson-10.html" },
+            { title: "《紅豬》（1992）", url: "topics/studio-ghibli/lesson-11.html" },
+            { title: "模組總結：兩種導演，兩種世界", url: "topics/studio-ghibli/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜轉型期（1993–1999）",
+          courses: [
+            { title: "《海潮之聲》（1993）", url: "topics/studio-ghibli/lesson-13.html" },
+            { title: "《平成狸合戰》（1994）", url: "topics/studio-ghibli/lesson-14.html" },
+            { title: "《心之谷》（1995）", url: "topics/studio-ghibli/lesson-15.html" },
+            { title: "《魔法公主》（1997）", url: "topics/studio-ghibli/lesson-16.html" },
+            { title: "《隔壁的山田君》（1999）", url: "topics/studio-ghibli/lesson-17.html" },
+            { title: "模組總結：《魔法公主》如何改變吉卜力的規模", url: "topics/studio-ghibli/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜巔峰期（2001–2008）",
+          courses: [
+            { title: "《神隱少女》（2001）", url: "topics/studio-ghibli/lesson-19.html" },
+            { title: "奧斯卡與柏林金熊", url: "topics/studio-ghibli/lesson-20.html" },
+            { title: "《貓的報恩》（2002）", url: "topics/studio-ghibli/lesson-21.html" },
+            { title: "《霍爾的移動城堡》（2004）", url: "topics/studio-ghibli/lesson-22.html" },
+            { title: "《地海戰記》（2006）", url: "topics/studio-ghibli/lesson-23.html" },
+            { title: "《崖上的波妞》（2008）", url: "topics/studio-ghibli/lesson-24.html" },
+            { title: "模組總結：宮崎駿的「引退」與回歸", url: "topics/studio-ghibli/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜接班與告別（2010–2016）",
+          courses: [
+            { title: "《借物少女艾莉緹》（2010）", url: "topics/studio-ghibli/lesson-26.html" },
+            { title: "《來自紅花坂》（2011）", url: "topics/studio-ghibli/lesson-27.html" },
+            { title: "《風起》（2013）", url: "topics/studio-ghibli/lesson-28.html" },
+            { title: "《輝耀姬物語》（2013）", url: "topics/studio-ghibli/lesson-29.html" },
+            { title: "《回憶中的瑪妮》（2014）", url: "topics/studio-ghibli/lesson-30.html" },
+            { title: "《紅烏龜》（2016）", url: "topics/studio-ghibli/lesson-31.html" },
+            { title: "2014 年：製作部門暫停", url: "topics/studio-ghibli/lesson-32.html" },
+            { title: "模組總結：沒有接班人的工作室", url: "topics/studio-ghibli/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜重生期（2020–）",
+          courses: [
+            { title: "《安雅與魔女》（2020）", url: "topics/studio-ghibli/lesson-34.html" },
+            { title: "《蒼鷺與少年》（2023）", url: "topics/studio-ghibli/lesson-35.html" },
+            { title: "二度奧斯卡、吉卜力公園與日本電視台", url: "topics/studio-ghibli/lesson-36.html" },
+            { title: "模組總結：吉卜力的下一個時代", url: "topics/studio-ghibli/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜主題與創作分析",
+          courses: [
+            { title: "飛行", url: "topics/studio-ghibli/lesson-38.html" },
+            { title: "少女主角", url: "topics/studio-ghibli/lesson-39.html" },
+            { title: "自然與文明", url: "topics/studio-ghibli/lesson-40.html" },
+            { title: "戰爭與和平", url: "topics/studio-ghibli/lesson-41.html" },
+            { title: "食物場景", url: "topics/studio-ghibli/lesson-42.html" },
+            { title: "久石讓的音樂", url: "topics/studio-ghibli/lesson-43.html" },
+            { title: "模組總結：吉卜力的作品在說什麼", url: "topics/studio-ghibli/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 H｜幕後與遺產",
+          courses: [
+            { title: "製作流程", url: "topics/studio-ghibli/lesson-45.html" },
+            { title: "手繪與數位", url: "topics/studio-ghibli/lesson-46.html" },
+            { title: "宮崎駿與高畑勳", url: "topics/studio-ghibli/lesson-47.html" },
+            { title: "吉卜力對全球動畫的影響", url: "topics/studio-ghibli/lesson-48.html" },
+            { title: "課程總結：吉卜力的作品在講什麼", url: "topics/studio-ghibli/lesson-49.html" },
+          ],
+        },
+      ],
     }
   ]
 };
