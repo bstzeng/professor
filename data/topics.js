@@ -28368,6 +28368,120 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "studio-ghibli",
+      category: "fantasy",
+      title: "吉卜力工作室全紀錄：宮崎駿與高畑勳的作品",
+      description:
+        "東映動畫與工會、《阿爾卑斯山的少女》、《未來少年柯南》、《卡里奧斯特羅城》、《風之谷》與 1985 年吉卜力成立；天空之城、龍貓、螢火蟲之墓、魔女宅急便、兒時的點點滴滴、紅豬、海潮之聲、平成狸合戰、心之谷、魔法公主、隔壁的山田君、神隱少女、貓的報恩、霍爾的移動城堡、地海戰記、崖上的波妞、借物少女艾莉緹、來自紅花坂、風起、輝耀姬物語、回憶中的瑪妮、紅烏龜、安雅與魔女、蒼鷺與少年的劇情、人物與幕後；2014 年製作部門暫停、奧斯卡、吉卜力公園與日本電視台收購；飛行、少女、自然、戰爭、食物、久石讓的音樂、製作流程、手繪與數位、宮崎駿與高畑勳，以及吉卜力對全球動畫的影響。含完整劇情（有暴雷）。",
+      icon: "🍃",
+      url: "topics/studio-ghibli/index.html",
+      resources: [
+        {
+          title: "吉卜力作品總表",
+          description: "所有長篇電影的年份、導演、原作與對應課程",
+          icon: "🎞️",
+          url: "topics/studio-ghibli/films.html"
+        },
+        {
+          title: "吉卜力人物表",
+          description: "導演、製作人、作曲家與重要幕後人員",
+          icon: "👥",
+          url: "topics/studio-ghibli/people.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜吉卜力之前",
+          courses: [
+            { title: "宮崎駿與高畑勳的相遇", url: "topics/studio-ghibli/lesson-01.html" },
+            { title: "電視動畫的歲月", url: "topics/studio-ghibli/lesson-02.html" },
+            { title: "《魯邦三世：卡里奧斯特羅城》", url: "topics/studio-ghibli/lesson-03.html" },
+            { title: "《風之谷》（1984）", url: "topics/studio-ghibli/lesson-04.html" },
+            { title: "1985 年：吉卜力成立", url: "topics/studio-ghibli/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜草創期（1986–1992）",
+          courses: [
+            { title: "《天空之城》（1986）", url: "topics/studio-ghibli/lesson-06.html" },
+            { title: "《龍貓》（1988）", url: "topics/studio-ghibli/lesson-07.html" },
+            { title: "《螢火蟲之墓》（1988）", url: "topics/studio-ghibli/lesson-08.html" },
+            { title: "《魔女宅急便》（1989）", url: "topics/studio-ghibli/lesson-09.html" },
+            { title: "《兒時的點點滴滴》（1991）", url: "topics/studio-ghibli/lesson-10.html" },
+            { title: "《紅豬》（1992）", url: "topics/studio-ghibli/lesson-11.html" },
+            { title: "模組總結：兩種導演，兩種世界", url: "topics/studio-ghibli/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜轉型期（1993–1999）",
+          courses: [
+            { title: "《海潮之聲》（1993）", url: "topics/studio-ghibli/lesson-13.html" },
+            { title: "《平成狸合戰》（1994）", url: "topics/studio-ghibli/lesson-14.html" },
+            { title: "《心之谷》（1995）", url: "topics/studio-ghibli/lesson-15.html" },
+            { title: "《魔法公主》（1997）", url: "topics/studio-ghibli/lesson-16.html" },
+            { title: "《隔壁的山田君》（1999）", url: "topics/studio-ghibli/lesson-17.html" },
+            { title: "模組總結：《魔法公主》如何改變吉卜力的規模", url: "topics/studio-ghibli/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜巔峰期（2001–2008）",
+          courses: [
+            { title: "《神隱少女》（2001）", url: "topics/studio-ghibli/lesson-19.html" },
+            { title: "奧斯卡與柏林金熊", url: "topics/studio-ghibli/lesson-20.html" },
+            { title: "《貓的報恩》（2002）", url: "topics/studio-ghibli/lesson-21.html" },
+            { title: "《霍爾的移動城堡》（2004）", url: "topics/studio-ghibli/lesson-22.html" },
+            { title: "《地海戰記》（2006）", url: "topics/studio-ghibli/lesson-23.html" },
+            { title: "《崖上的波妞》（2008）", url: "topics/studio-ghibli/lesson-24.html" },
+            { title: "模組總結：宮崎駿的「引退」與回歸", url: "topics/studio-ghibli/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜接班與告別（2010–2016）",
+          courses: [
+            { title: "《借物少女艾莉緹》（2010）", url: "topics/studio-ghibli/lesson-26.html" },
+            { title: "《來自紅花坂》（2011）", url: "topics/studio-ghibli/lesson-27.html" },
+            { title: "《風起》（2013）", url: "topics/studio-ghibli/lesson-28.html" },
+            { title: "《輝耀姬物語》（2013）", url: "topics/studio-ghibli/lesson-29.html" },
+            { title: "《回憶中的瑪妮》（2014）", url: "topics/studio-ghibli/lesson-30.html" },
+            { title: "《紅烏龜》（2016）", url: "topics/studio-ghibli/lesson-31.html" },
+            { title: "2014 年：製作部門暫停", url: "topics/studio-ghibli/lesson-32.html" },
+            { title: "模組總結：沒有接班人的工作室", url: "topics/studio-ghibli/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜重生期（2020–）",
+          courses: [
+            { title: "《安雅與魔女》（2020）", url: "topics/studio-ghibli/lesson-34.html" },
+            { title: "《蒼鷺與少年》（2023）", url: "topics/studio-ghibli/lesson-35.html" },
+            { title: "二度奧斯卡、吉卜力公園與日本電視台", url: "topics/studio-ghibli/lesson-36.html" },
+            { title: "模組總結：吉卜力的下一個時代", url: "topics/studio-ghibli/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 G｜主題與創作分析",
+          courses: [
+            { title: "飛行", url: "topics/studio-ghibli/lesson-38.html" },
+            { title: "少女主角", url: "topics/studio-ghibli/lesson-39.html" },
+            { title: "自然與文明", url: "topics/studio-ghibli/lesson-40.html" },
+            { title: "戰爭與和平", url: "topics/studio-ghibli/lesson-41.html" },
+            { title: "食物場景", url: "topics/studio-ghibli/lesson-42.html" },
+            { title: "久石讓的音樂", url: "topics/studio-ghibli/lesson-43.html" },
+            { title: "模組總結：吉卜力的作品在說什麼", url: "topics/studio-ghibli/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 H｜幕後與遺產",
+          courses: [
+            { title: "製作流程", url: "topics/studio-ghibli/lesson-45.html" },
+            { title: "手繪與數位", url: "topics/studio-ghibli/lesson-46.html" },
+            { title: "宮崎駿與高畑勳", url: "topics/studio-ghibli/lesson-47.html" },
+            { title: "吉卜力對全球動畫的影響", url: "topics/studio-ghibli/lesson-48.html" },
+            { title: "課程總結：吉卜力的作品在講什麼", url: "topics/studio-ghibli/lesson-49.html" },
+          ],
+        },
+      ],
     }
   ]
 };
