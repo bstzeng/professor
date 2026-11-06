@@ -28246,6 +28246,128 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "classical-mechanics",
+      category: "science",
+      title: "古典力學：從牛頓到拉格朗日與哈密頓",
+      description:
+        "亞里斯多德、伽利略的斜面、克卜勒三大定律、牛頓的《原理》；運動學、拋體與空氣阻力、自由體圖、非慣性系的離心力與科氏力、颱風與傅科擺；功與能量、保守力與位能、動量與碰撞、火箭方程式、角動量；簡諧、阻尼與受迫振動、共振與塔科馬大橋、耦合振子、波動方程式；殼層定理、有效位能、完整推導克卜勒軌道、逃逸速度與霍曼轉移、潮汐、三體問題與拉格朗日點、海王星與水星；質心、轉動慣量、慣量張量、網球拍定理、陀螺與歲差；變分法與最速降線、最小作用量原理、諾特定理、哈密頓方程式與相空間、劉維爾定理、泊松括號與量子化、哈密頓—雅可比方程式；雙擺混沌、KAM 定理與古典力學的邊界。附五個互動模擬。",
+      icon: "🪐",
+      url: "topics/classical-mechanics/index.html",
+      resources: [
+        {
+          title: "古典力學公式速查表",
+          description: "運動學、守恆律、振動、軌道、剛體、拉格朗日與哈密頓的核心公式",
+          icon: "📐",
+          url: "topics/classical-mechanics/cheatsheet.html"
+        },
+        {
+          title: "古典力學年表",
+          description: "從亞里斯多德到 KAM 定理：人物與關鍵發現",
+          icon: "⏳",
+          url: "topics/classical-mechanics/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜從亞里斯多德到牛頓",
+          courses: [
+            { title: "亞里斯多德的運動觀", url: "topics/classical-mechanics/lesson-01.html" },
+            { title: "伽利略的斜面", url: "topics/classical-mechanics/lesson-02.html" },
+            { title: "克卜勒三大定律", url: "topics/classical-mechanics/lesson-03.html" },
+            { title: "牛頓的《原理》", url: "topics/classical-mechanics/lesson-04.html" },
+            { title: "模組總結：力學成為第一門數學化的科學", url: "topics/classical-mechanics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜運動學與牛頓定律的完整運用",
+          courses: [
+            { title: "位置、速度、加速度", url: "topics/classical-mechanics/lesson-06.html" },
+            { title: "拋體運動與空氣阻力", url: "topics/classical-mechanics/lesson-07.html" },
+            { title: "摩擦力、張力與自由體圖", url: "topics/classical-mechanics/lesson-08.html" },
+            { title: "非慣性座標系", url: "topics/classical-mechanics/lesson-09.html" },
+            { title: "科氏力的真實世界", url: "topics/classical-mechanics/lesson-10.html" },
+            { title: "模組總結：牛頓力學能做什麼", url: "topics/classical-mechanics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜守恆律",
+          courses: [
+            { title: "功與動能定理", url: "topics/classical-mechanics/lesson-12.html" },
+            { title: "保守力與位能", url: "topics/classical-mechanics/lesson-13.html" },
+            { title: "動量守恆與碰撞", url: "topics/classical-mechanics/lesson-14.html" },
+            { title: "火箭方程式", url: "topics/classical-mechanics/lesson-15.html" },
+            { title: "角動量與力矩", url: "topics/classical-mechanics/lesson-16.html" },
+            { title: "模組總結：守恆律比力更基本", url: "topics/classical-mechanics/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜振動與波",
+          courses: [
+            { title: "簡諧運動", url: "topics/classical-mechanics/lesson-18.html" },
+            { title: "阻尼振動", url: "topics/classical-mechanics/lesson-19.html" },
+            { title: "受迫振動與共振", url: "topics/classical-mechanics/lesson-20.html" },
+            { title: "耦合振子與正規模態", url: "topics/classical-mechanics/lesson-21.html" },
+            { title: "從離散到連續", url: "topics/classical-mechanics/lesson-22.html" },
+            { title: "模組總結：振動是物理最常出現的模型", url: "topics/classical-mechanics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜重力與軌道力學",
+          courses: [
+            { title: "萬有引力與殼層定理", url: "topics/classical-mechanics/lesson-24.html" },
+            { title: "中心力問題", url: "topics/classical-mechanics/lesson-25.html" },
+            { title: "完整推導克卜勒軌道", url: "topics/classical-mechanics/lesson-26.html" },
+            { title: "逃逸速度與霍曼轉移", url: "topics/classical-mechanics/lesson-27.html" },
+            { title: "潮汐力", url: "topics/classical-mechanics/lesson-28.html" },
+            { title: "三體問題與拉格朗日點", url: "topics/classical-mechanics/lesson-29.html" },
+            { title: "模組總結：牛頓重力的完美與裂縫", url: "topics/classical-mechanics/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜剛體力學",
+          courses: [
+            { title: "質心與剛體的自由度", url: "topics/classical-mechanics/lesson-31.html" },
+            { title: "轉動慣量與平行軸定理", url: "topics/classical-mechanics/lesson-32.html" },
+            { title: "慣量張量與主軸", url: "topics/classical-mechanics/lesson-33.html" },
+            { title: "歐拉方程式與網球拍定理", url: "topics/classical-mechanics/lesson-34.html" },
+            { title: "陀螺與進動", url: "topics/classical-mechanics/lesson-35.html" },
+            { title: "模組總結：轉動比平移複雜得多", url: "topics/classical-mechanics/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜拉格朗日力學",
+          courses: [
+            { title: "為什麼需要新形式", url: "topics/classical-mechanics/lesson-37.html" },
+            { title: "變分法", url: "topics/classical-mechanics/lesson-38.html" },
+            { title: "最小作用量原理", url: "topics/classical-mechanics/lesson-39.html" },
+            { title: "用拉格朗日量解經典問題", url: "topics/classical-mechanics/lesson-40.html" },
+            { title: "諾特定理", url: "topics/classical-mechanics/lesson-41.html" },
+            { title: "模組總結：從力轉向能量和對稱", url: "topics/classical-mechanics/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜哈密頓力學",
+          courses: [
+            { title: "勒壤德轉換", url: "topics/classical-mechanics/lesson-43.html" },
+            { title: "哈密頓方程式與相空間", url: "topics/classical-mechanics/lesson-44.html" },
+            { title: "劉維爾定理", url: "topics/classical-mechanics/lesson-45.html" },
+            { title: "泊松括號", url: "topics/classical-mechanics/lesson-46.html" },
+            { title: "正則變換與哈密頓—雅可比方程式", url: "topics/classical-mechanics/lesson-47.html" },
+            { title: "模組總結：古典力學最抽象也最優雅的形式", url: "topics/classical-mechanics/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 I｜混沌與古典力學的邊界",
+          courses: [
+            { title: "雙擺與混沌", url: "topics/classical-mechanics/lesson-49.html" },
+            { title: "可積系統與 KAM 定理", url: "topics/classical-mechanics/lesson-50.html" },
+            { title: "古典力學的極限", url: "topics/classical-mechanics/lesson-51.html" },
+            { title: "課程總結", url: "topics/classical-mechanics/lesson-52.html" },
+          ],
+        },
+      ],
     }
   ]
 };
