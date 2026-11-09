@@ -28482,6 +28482,135 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "reinforcement-learning",
+      category: "ai",
+      title: "強化學習：從吃角子老虎到 AlphaGo 與 RLHF",
+      description:
+        "代理人、環境、獎勵與信用分配；多臂吃角子老虎：增量更新、ε-貪婪、樂觀初始值、UCB、湯普森抽樣、遺憾與萊—羅賓斯下界、A/B 測試與情境式吃角子老虎；馬可夫決策過程、折扣、V 與 Q、貝爾曼方程式；策略評估與改進、價值迭代、壓縮映射；蒙地卡羅、時序差分、SARSA、Q-learning、懸崖行走、資格跡；函數近似與致命三角、DQN、經驗回放、Double DQN 與 Rainbow；策略梯度定理、REINFORCE、基線、Actor-Critic、PPO、SAC；MCTS、AlphaGo、AlphaZero、MuZero、AlphaStar；RLHF、DPO 與推理模型；獎勵駭客與未來。附六個互動模擬。",
+      icon: "🎰",
+      url: "topics/reinforcement-learning/index.html",
+      resources: [
+        {
+          title: "強化學習公式速查表",
+          description: "吃角子老虎、貝爾曼方程式、TD、Q-learning、策略梯度、PPO、RLHF 的核心公式",
+          icon: "📐",
+          url: "topics/reinforcement-learning/cheatsheet.html"
+        },
+        {
+          title: "強化學習年表",
+          description: "從桑代克的迷籠到推理模型",
+          icon: "⏳",
+          url: "topics/reinforcement-learning/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是強化學習",
+          courses: [
+            { title: "從嘗試錯誤中學習", url: "topics/reinforcement-learning/lesson-01.html" },
+            { title: "三種機器學習", url: "topics/reinforcement-learning/lesson-02.html" },
+            { title: "基本元素", url: "topics/reinforcement-learning/lesson-03.html" },
+            { title: "強化學習的歷史", url: "topics/reinforcement-learning/lesson-04.html" },
+            { title: "模組總結：延遲的獎勵", url: "topics/reinforcement-learning/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜吃角子老虎：探索與利用",
+          courses: [
+            { title: "多臂吃角子老虎問題", url: "topics/reinforcement-learning/lesson-06.html" },
+            { title: "估計動作價值", url: "topics/reinforcement-learning/lesson-07.html" },
+            { title: "ε-貪婪", url: "topics/reinforcement-learning/lesson-08.html" },
+            { title: "樂觀初始值", url: "topics/reinforcement-learning/lesson-09.html" },
+            { title: "UCB 信賴上界", url: "topics/reinforcement-learning/lesson-10.html" },
+            { title: "湯普森抽樣", url: "topics/reinforcement-learning/lesson-11.html" },
+            { title: "遺憾", url: "topics/reinforcement-learning/lesson-12.html" },
+            { title: "真實世界的吃角子老虎", url: "topics/reinforcement-learning/lesson-13.html" },
+            { title: "模組總結：探索與利用的兩難", url: "topics/reinforcement-learning/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜馬可夫決策過程",
+          courses: [
+            { title: "從吃角子老虎到連續決策", url: "topics/reinforcement-learning/lesson-15.html" },
+            { title: "馬可夫性質與 MDP", url: "topics/reinforcement-learning/lesson-16.html" },
+            { title: "回報與折扣因子", url: "topics/reinforcement-learning/lesson-17.html" },
+            { title: "策略、狀態價值與動作價值", url: "topics/reinforcement-learning/lesson-18.html" },
+            { title: "貝爾曼方程式", url: "topics/reinforcement-learning/lesson-19.html" },
+            { title: "貝爾曼最優方程式", url: "topics/reinforcement-learning/lesson-20.html" },
+            { title: "模組總結：一切都是貝爾曼方程式", url: "topics/reinforcement-learning/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜動態規劃：知道規則時怎麼算",
+          courses: [
+            { title: "策略評估", url: "topics/reinforcement-learning/lesson-22.html" },
+            { title: "策略改進定理", url: "topics/reinforcement-learning/lesson-23.html" },
+            { title: "策略迭代與價值迭代", url: "topics/reinforcement-learning/lesson-24.html" },
+            { title: "收斂性", url: "topics/reinforcement-learning/lesson-25.html" },
+            { title: "模組總結：完美的模型，以及維度的詛咒", url: "topics/reinforcement-learning/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜不知道規則時：從經驗中學",
+          courses: [
+            { title: "蒙地卡羅方法", url: "topics/reinforcement-learning/lesson-27.html" },
+            { title: "時序差分學習", url: "topics/reinforcement-learning/lesson-28.html" },
+            { title: "SARSA", url: "topics/reinforcement-learning/lesson-29.html" },
+            { title: "Q-learning", url: "topics/reinforcement-learning/lesson-30.html" },
+            { title: "懸崖行走", url: "topics/reinforcement-learning/lesson-31.html" },
+            { title: "n 步回報與資格跡", url: "topics/reinforcement-learning/lesson-32.html" },
+            { title: "模組總結：自舉的威力與風險", url: "topics/reinforcement-learning/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 F｜函數近似與深度 Q 網路",
+          courses: [
+            { title: "從表格到函數近似", url: "topics/reinforcement-learning/lesson-34.html" },
+            { title: "線性近似、梯度下降，以及致命三角", url: "topics/reinforcement-learning/lesson-35.html" },
+            { title: "DQN", url: "topics/reinforcement-learning/lesson-36.html" },
+            { title: "經驗回放與目標網路", url: "topics/reinforcement-learning/lesson-37.html" },
+            { title: "Double DQN、Dueling、Rainbow", url: "topics/reinforcement-learning/lesson-38.html" },
+            { title: "模組總結：深度學習與強化學習的結合", url: "topics/reinforcement-learning/lesson-39.html" },
+          ],
+        },
+        {
+          title: "模組 G｜策略梯度",
+          courses: [
+            { title: "直接學策略", url: "topics/reinforcement-learning/lesson-40.html" },
+            { title: "策略梯度定理與 REINFORCE", url: "topics/reinforcement-learning/lesson-41.html" },
+            { title: "基線與優勢函數", url: "topics/reinforcement-learning/lesson-42.html" },
+            { title: "Actor-Critic", url: "topics/reinforcement-learning/lesson-43.html" },
+            { title: "TRPO 與 PPO", url: "topics/reinforcement-learning/lesson-44.html" },
+            { title: "連續動作", url: "topics/reinforcement-learning/lesson-45.html" },
+            { title: "模組總結：價值方法與策略方法", url: "topics/reinforcement-learning/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 H｜規劃與搜尋：AlphaGo 的故事",
+          courses: [
+            { title: "模型式強化學習", url: "topics/reinforcement-learning/lesson-47.html" },
+            { title: "蒙地卡羅樹搜尋", url: "topics/reinforcement-learning/lesson-48.html" },
+            { title: "AlphaGo", url: "topics/reinforcement-learning/lesson-49.html" },
+            { title: "AlphaGo Zero 與 AlphaZero", url: "topics/reinforcement-learning/lesson-50.html" },
+            { title: "MuZero 與更多", url: "topics/reinforcement-learning/lesson-51.html" },
+          ],
+        },
+        {
+          title: "模組 I｜強化學習與大型語言模型",
+          courses: [
+            { title: "RLHF", url: "topics/reinforcement-learning/lesson-52.html" },
+            { title: "DPO 與推理模型", url: "topics/reinforcement-learning/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 J｜限制與未來",
+          courses: [
+            { title: "課程總結", url: "topics/reinforcement-learning/lesson-54.html" },
+          ],
+        },
+      ],
     }
   ]
 };

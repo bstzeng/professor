@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 38 課：Double DQN、Dueling、Rainbow ｜ 強化學習 ｜ 博雅書院</title>
+<meta name="description" content="一連串的改進">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">強化學習</a>
+      <span class="sep">/</span>
+      <span>第 38 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜函數近似與深度 Q 網路 · 第 38 課</div>
+      <h1>Double DQN、Dueling、Rainbow</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Q-learning 的高估問題與 Double DQN</li>
+          <li>理解 Dueling 架構</li>
+          <li>認識 Rainbow 的組合</li>
+        </ul>
+      </div>
+
+      <h2>高估偏差</h2>
+
+      <p>
+        Q-learning 的目標中有一個 \(\max\)。問題是：估計值都有雜訊，而<strong>對有雜訊的估計取最大值，會系統性地偏高</strong>。
+      </p>
+
+      <p>
+        例子：五台機器的真實價值都是 0，但估計值各有 ±1 的雜訊。取最大值，幾乎一定是正的——你以為找到了好機器，其實只是運氣。這種高估會透過自舉一路傳下去。
+      </p>
+
+      <h2>Double DQN（2015）</h2>
+
+      <p>
+        范・哈塞爾特的解法：把「<strong>選</strong>哪個動作」和「<strong>評估</strong>那個動作」分給兩個不同的網路：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[y = r + \gamma\,Q\!\left(s', \arg\max_{a'}Q(s', a'; \mathbf w);\ \mathbf w^-\right)\]</div>
+
+      <p>
+        用主網路選出最好的動作，再用目標網路評估它的價值。兩個網路的雜訊不同，一個網路「運氣好」高估的動作，另一個網路不一定也高估。只改了一行程式，高估問題大幅減少，分數明顯提升。
+      </p>
+
+      <h2>Dueling 架構（2016）</h2>
+
+      <p>
+        很多時候，<strong>選哪個動作不太重要</strong>（例如遊戲中前面什麼都沒有時），重要的是「現在這個局面好不好」。Dueling 網路把 Q 拆成兩部分：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[Q(s, a) = V(s) + \left[A(s, a) - \frac{1}{|\mathcal A|}\sum_{a'}A(s, a')\right]\]</div>
+
+      <p>
+        \(V(s)\) 是狀態的價值，\(A(s,a)\) 是<strong>優勢</strong>：這個動作比平均好多少。網路的後半段分成兩個分支各自計算。這讓網路不必為每個動作分別學習「局面好不好」。
+      </p>
+
+      <h2>Rainbow（2017）</h2>
+
+      <p>
+        DeepMind 把六個改進組合在一起：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>改進</th><th>做什麼</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Double DQN</td><td>減少高估</td></tr>
+          <tr><td>優先經驗回放</td><td>多抽 TD 誤差大的經驗（「出乎意料」的經驗更值得學）</td></tr>
+          <tr><td>Dueling</td><td>拆分 V 與 A</td></tr>
+          <tr><td>多步學習</td><td>用 n 步回報（第 32 課）</td></tr>
+          <tr><td>分布式強化學習</td><td>不只學回報的平均，而是學整個<strong>分布</strong></td></tr>
+          <tr><td>雜訊網路</td><td>在網路參數中加入可學習的雜訊，取代 ε-貪婪來探索</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        組合後的效果遠超過任何單一改進：原始 DQN 訓練了 2 億幀畫面，Rainbow 只用約 700 萬幀就達到同樣的最終表現。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          對有雜訊的估計取最大值會系統性偏高，如五台真實價值皆 0 的機器取最大估計幾乎必為正，高估會經自舉傳遞。Double DQN（2015）用主網路選動作、目標網路評估，雜訊不同而減少高估，只改一行。Dueling（2016）把 Q 拆成狀態價值 V 與減去平均的優勢 A，不必為每個動作分別學局面好壞。Rainbow（2017）組合 Double DQN、優先經驗回放、Dueling、多步學習、分布式強化學習與雜訊網路，只用約 700 萬幀（原始 DQN 用 2 億幀）就達到原始 DQN 的最終表現。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎰 本課的推導以直覺與主要步驟為主，省略部分數學嚴格性；互動模擬為教學用的小型版本，每次執行的隨機結果都會略有不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼對有雜訊的估計取最大值會偏高？</li>
+          <li>Double DQN 如何減少高估？</li>
+          <li>Dueling 架構中的「優勢」是什麼意思？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>模組總結：深度學習與強化學習的結合</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-37.html">← 上一課：經驗回放與目標網路</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-39.html">下一課：模組總結：深度學習與強化學習的結合 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 41 課：策略梯度定理與 REINFORCE ｜ 強化學習 ｜ 博雅書院</title>
+<meta name="description" content="完整推導">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">強化學習</a>
+      <span class="sep">/</span>
+      <span>第 41 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜策略梯度 · 第 41 課</div>
+      <h1>策略梯度定理與 REINFORCE</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>推導對數導數技巧</li>
+          <li>理解策略梯度定理</li>
+          <li>理解 REINFORCE 演算法</li>
+        </ul>
+      </div>
+
+      <h2>難題：怎麼對期望值微分</h2>
+
+      <p>
+        \(J(\boldsymbol\theta)\) 是一個期望值，而機率分布本身取決於 \(\boldsymbol\theta\)（策略改了，會走到不同的狀態），環境的轉移我們又不知道。要怎麼算梯度？
+      </p>
+
+      <h2>完整推導：對數導數技巧</h2>
+
+      <p>
+        一條軌跡 \(\tau = (s_0, a_0, s_1, a_1, \dots)\) 的機率是
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[P(\tau;\boldsymbol\theta) = p(s_0)\prod_t\pi(a_t|s_t;\boldsymbol\theta)\,p(s_{t+1}|s_t,a_t)\]</div>
+
+      <p>
+        期望回報 \(J = \sum_\tau P(\tau;\boldsymbol\theta)G(\tau)\)。對 \(\boldsymbol\theta\) 微分，並利用 \(\nabla P = P\,\nabla\ln P\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\nabla J = \sum_\tau\nabla P(\tau;\boldsymbol\theta)\,G(\tau) = \sum_\tau P(\tau;\boldsymbol\theta)\,\nabla\ln P(\tau;\boldsymbol\theta)\,G(\tau) = \mathbb{E}\left[\nabla\ln P(\tau;\boldsymbol\theta)\,G(\tau)\right]\]</div>
+
+      <p>
+        取對數後，乘積變成加總。而環境的轉移機率 \(p(s_0)\)、\(p(s_{t+1}|s_t,a_t)\) <strong>不含 \(\boldsymbol\theta\)</strong>，微分後消失：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\nabla\ln P(\tau;\boldsymbol\theta) = \sum_t\nabla\ln\pi(a_t|s_t;\boldsymbol\theta)\]</div>
+
+      <p>
+        <strong>不需要知道環境的模型</strong>，只需要知道自己的策略怎麼微分。再利用「動作不會影響它之前的獎勵」（因果性），把 \(G(\tau)\) 換成從那一步開始的回報 \(G_t\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\nabla_\theta J(\boldsymbol\theta) = \mathbb{E}_{\pi_\theta}\left[\sum_t\nabla_\theta\ln\pi(A_t|S_t;\boldsymbol\theta)\,G_t\right]\]</div>
+
+      <p>
+        這就是<strong>策略梯度定理</strong>（更一般的形式中，\(G_t\) 可以換成 \(q_\pi(S_t,A_t)\)）。
+      </p>
+
+      <h2>直覺</h2>
+
+      <p>
+        \(\nabla\ln\pi(a|s)\) 是「讓動作 \(a\) 變得更可能」的方向。乘上 \(G_t\)：回報高，就大力往那個方向推；回報低，就推得少（或反方向推）。<strong>好結果的動作被強化，壞結果的動作被削弱</strong>——正是桑代克的效果律（第 4 課）。
+      </p>
+
+      <h2>REINFORCE（威廉斯，1992）</h2>
+
+      <ol>
+        <li>用目前的策略玩一個完整的回合。</li>
+        <li>對每一步 \(t\)，算出 \(G_t\)。</li>
+        <li>更新：\(\boldsymbol\theta \leftarrow \boldsymbol\theta + \alpha\,G_t\nabla\ln\pi(A_t|S_t;\boldsymbol\theta)\)。</li>
+      </ol>
+
+      <p>
+        它是蒙地卡羅式的（要等回合結束），所以繼承了蒙地卡羅的大變異。下一課解決這個問題。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          J(θ) 是期望值，分布本身取決於 θ 且環境轉移未知，難以微分。對數導數技巧：軌跡機率是初始機率、策略與轉移的乘積，利用 ∇P=P∇lnP 得 ∇J=E[∇lnP(τ)G(τ)]，取對數後環境轉移不含 θ 而消失，只剩 Σ∇lnπ，不需環境模型；再依因果性換成 G_t，得策略梯度定理 ∇J=E[Σ∇lnπ(A_t|S_t)G_t]。直覺是好結果的動作被強化、壞的被削弱，即效果律。REINFORCE（威廉斯 1992）玩完回合後以 G_t∇lnπ 更新，蒙地卡羅式而變異大。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎰 本課的推導以直覺與主要步驟為主，省略部分數學嚴格性；互動模擬為教學用的小型版本，每次執行的隨機結果都會略有不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>推導中，為什麼環境的轉移機率會在微分後消失？</li>
+          <li>用一句話說明策略梯度定理的直覺。</li>
+          <li>REINFORCE 為什麼變異很大？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>基線與優勢函數</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-40.html">← 上一課：直接學策略</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-42.html">下一課：基線與優勢函數 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
