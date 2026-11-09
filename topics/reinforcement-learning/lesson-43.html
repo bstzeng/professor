@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 43 課：Actor-Critic ｜ 強化學習 ｜ 博雅書院</title>
+<meta name="description" content="演員與評論家">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">強化學習</a>
+      <span class="sep">/</span>
+      <span>第 43 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜策略梯度 · 第 43 課</div>
+      <h1>Actor-Critic</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Actor-Critic 的架構</li>
+          <li>理解用 TD 誤差估計優勢</li>
+          <li>認識 A2C 與 A3C</li>
+        </ul>
+      </div>
+
+      <h2>兩個網路</h2>
+
+      <p>
+        優勢函數需要 \(v_\pi(s)\)。何不用另一個網路去學它？
+      </p>
+
+      <ul>
+        <li><strong>演員</strong>（Actor）：策略網路 \(\pi(a|s;\boldsymbol\theta)\)，決定要做什麼。</li>
+        <li><strong>評論家</strong>（Critic）：價值網路 \(\hat v(s;\mathbf w)\)，評估演員做得好不好。</li>
+      </ul>
+
+      <p>
+        就像一個演員在舞台上表演，旁邊有一個評論家即時打分數。演員根據評論調整演技，評論家也從觀眾的反應（真實獎勵）中學會更準確地評分。
+      </p>
+
+      <h2>用 TD 誤差當優勢</h2>
+
+      <p>
+        不用等回合結束算 \(G_t\)，而是用 TD 的方式（第 28 課）：走一步之後，
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\delta_t = R_{t+1} + \gamma\hat v(S_{t+1};\mathbf w) - \hat v(S_t;\mathbf w)\]</div>
+
+      <p>
+        TD 誤差的期望值正好就是優勢 \(A_\pi(S_t, A_t)\)。於是：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\text{評論家：}\ \mathbf w \leftarrow \mathbf w + \alpha_w\,\delta_t\nabla\hat v(S_t;\mathbf w), \qquad \text{演員：}\ \boldsymbol\theta \leftarrow \boldsymbol\theta + \alpha_\theta\,\delta_t\nabla\ln\pi(A_t|S_t;\boldsymbol\theta)\]</div>
+
+      <p>
+        每一步都能學習，變異比 REINFORCE 小得多（代價是自舉帶來的偏差）。這又是廣義策略迭代：評論家做評估，演員做改進。
+      </p>
+
+      <h2>A3C 與 A2C</h2>
+
+      <p>
+        2016 年，DeepMind 提出 <strong>A3C</strong>（非同步優勢 Actor-Critic）：同時開很多個代理人（例如 16 個），在不同的遊戲副本中各自玩、各自計算梯度，非同步地更新同一組共享的參數。
+      </p>
+
+      <ul>
+        <li>不同代理人在不同的局面中，經驗自然地<strong>去相關</strong>，不需要經驗回放。</li>
+        <li>可以只用 CPU 平行訓練，比 DQN 快。</li>
+      </ul>
+
+      <p>
+        後來研究者發現，同步的版本 <strong>A2C</strong>（等所有代理人都走完一步，再一起更新）效果一樣好，而且更容易在 GPU 上實作。「多個環境平行收集經驗」從此成為策略梯度方法的標準做法。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Actor-Critic 用兩個網路：演員是策略網路決定動作，評論家是價值網路評估表現，演員依評論調整，評論家從真實獎勵學會評分。用 TD 誤差 δ=R+γv̂(S')−v̂(S) 估計優勢（其期望值即優勢），評論家以 δ∇v̂ 更新、演員以 δ∇lnπ 更新，每步學習、變異比 REINFORCE 小但有自舉偏差，也是廣義策略迭代。2016 年 A3C 開多個代理人在不同副本中非同步更新共享參數，經驗自然去相關、可用 CPU 平行；同步版 A2C 效果相同且易於 GPU 實作，多環境平行收集成為標準。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎰 本課的推導以直覺與主要步驟為主，省略部分數學嚴格性；互動模擬為教學用的小型版本，每次執行的隨機結果都會略有不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Actor-Critic 中，演員和評論家各負責什麼？</li>
+          <li>為什麼可以用 TD 誤差來代替優勢函數？</li>
+          <li>A3C 為什麼不需要經驗回放？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>TRPO 與 PPO</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-42.html">← 上一課：基線與優勢函數</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-44.html">下一課：TRPO 與 PPO →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

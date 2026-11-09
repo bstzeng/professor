@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 44 課：TRPO 與 PPO ｜ 強化學習 ｜ 博雅書院</title>
+<meta name="description" content="不要一步走太遠">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">強化學習</a>
+      <span class="sep">/</span>
+      <span>第 44 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 G｜策略梯度 · 第 44 課</div>
+      <h1>TRPO 與 PPO</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解策略更新步長的問題</li>
+          <li>理解 TRPO 的信賴域想法</li>
+          <li>理解 PPO 的裁剪目標</li>
+        </ul>
+      </div>
+
+      <h2>一步走太遠的災難</h2>
+
+      <p>
+        監督式學習中，學習率太大，頂多讓損失變大一點，下一步還能修回來。但在強化學習中，<strong>策略決定了你看到的資料</strong>：如果一次更新讓策略變得很差（例如機器人學會一直跌倒），之後收集到的全是跌倒的經驗，可能<strong>再也爬不回來</strong>。
+      </p>
+
+      <h2>TRPO（2015）</h2>
+
+      <p>
+        舒爾曼等人提出<strong>信賴域策略最佳化</strong>：每次更新時，要求新策略和舊策略的差異（用 KL 散度衡量）<strong>不超過一個小範圍</strong> \(\delta\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[\max_\theta\ \mathbb{E}\left[\frac{\pi_\theta(a|s)}{\pi_{\text{old}}(a|s)}A(s,a)\right] \quad\text{使得}\quad \mathbb{E}\left[\mathrm{KL}(\pi_{\text{old}}\|\pi_\theta)\right] \le \delta\]</div>
+
+      <p>
+        比值 \(\pi_\theta/\pi_{\text{old}}\) 讓我們可以用<strong>舊策略</strong>收集的資料，估計<strong>新策略</strong>的表現（重要性抽樣）。TRPO 很穩定，但需要計算二階導數，實作複雜。
+      </p>
+
+      <h2>PPO（2017）</h2>
+
+      <p>
+        同一團隊（當時在 OpenAI）提出<strong>近端策略最佳化</strong>，用一個簡單得多的方式達到類似的效果：直接<strong>裁剪</strong>比值。令 \(r_t(\theta) = \pi_\theta(a_t|s_t)/\pi_{\text{old}}(a_t|s_t)\)：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[L^{\text{CLIP}}(\theta) = \mathbb{E}\left[\min\left(r_t(\theta)A_t,\ \mathrm{clip}(r_t(\theta), 1-\epsilon, 1+\epsilon)\,A_t\right)\right]\]</div>
+
+      <p>
+        通常 \(\epsilon = 0.2\)。意思是：
+      </p>
+
+      <ul>
+        <li>一個動作的優勢是正的：可以讓它變得更可能，但機率最多只能變成原來的 1.2 倍——超過的部分不再給獎勵。</li>
+        <li>優勢是負的：可以讓它變得更不可能，但最多只能降到原來的 0.8 倍。</li>
+        <li>這讓策略「不會一步走太遠」，同一批資料可以安全地重複訓練好幾輪。</li>
+      </ul>
+
+      <h2>為什麼 PPO 成為標準</h2>
+
+      <ul>
+        <li>只需要一階梯度，幾十行程式就能實作。</li>
+        <li>對超參數不太敏感，在各種問題上都能穩定運作。</li>
+        <li>OpenAI Five（Dota 2）、許多機器人研究，以及 ChatGPT 的 RLHF（第 52 課）都使用 PPO。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          強化學習中策略決定看到的資料，一次更新讓策略變很差，之後的經驗全是失敗，可能再也爬不回來。TRPO（2015）要求新舊策略的 KL 散度不超過 δ，用比值 π_θ/π_old 以舊資料估計新策略（重要性抽樣），穩定但需二階導數。PPO（2017）直接把比值裁剪在 1±ε（通常 0.2）：優勢為正時機率最多變 1.2 倍、為負時最多降到 0.8 倍，同批資料可安全重複訓練。PPO 只需一階梯度、對超參數不敏感，被 OpenAI Five、機器人研究與 ChatGPT 的 RLHF 使用。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎰 本課的推導以直覺與主要步驟為主，省略部分數學嚴格性；互動模擬為教學用的小型版本，每次執行的隨機結果都會略有不同。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼在強化學習中，一次更新太大會特別危險？</li>
+          <li>TRPO 用什麼方式限制每次更新的大小？</li>
+          <li>PPO 的裁剪目標中，ε = 0.2 代表什麼意思？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>連續動作</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-43.html">← 上一課：Actor-Critic</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-45.html">下一課：連續動作 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
