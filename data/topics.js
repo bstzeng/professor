@@ -28611,6 +28611,136 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "particle-colliders",
+      category: "science",
+      title: "大型對撞機：從迴旋加速器到 LHC，以及怎麼從資料中找到新粒子",
+      description:
+        "德布羅意波長、質心能量、截面與亮度；迴旋加速器、Bevatron 與反質子、AdA 與 ISR、J/ψ 與十一月革命、SppS 與 W/Z、Tevatron 與頂夸克、LEP 與三代微中子、SSC、LHC 與 2008 年事故；射頻腔、超導磁鐵、聚焦、注入鏈、堆疊；粒子與物質作用、矽徑跡與動量、量能器、緲子系統、ATLAS 與 CMS、LHCb 與 ALICE、觸發系統、全球運算網格；卡爾曼濾波、頂點、粒子流、anti-kt 噴流、b 標記、消失的橫向能量、標記—探測法；卜瓦松與 p 值、不變質量、背景估計與 ABCD、輪廓似然、漸近公式與阿西莫夫、5σ、別處效應、CLs 與巴西圖、盲分析；事件產生器、Geant4、BDT 與深度學習、異常偵測；H→γγ 與 H→4ℓ 的完整分析、2012 年發現論文、希格斯性質；750 GeV、超對稱與 B 介子異常、高亮度 LHC 與 FCC。附六個互動模擬與論文清單。",
+      icon: "💥",
+      url: "topics/particle-colliders/index.html",
+      resources: [
+        {
+          title: "論文清單",
+          description: "希格斯發現、統計方法、重建演算法與歷史發現的原始論文",
+          icon: "📄",
+          url: "topics/particle-colliders/papers.html"
+        },
+        {
+          title: "LHC 關鍵數字",
+          description: "加速器、偵測器、資料與統計的常用數字",
+          icon: "🔢",
+          url: "topics/particle-colliders/numbers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要撞",
+          courses: [
+            { title: "想看更小的東西，就要更高的能量", url: "topics/particle-colliders/lesson-01.html" },
+            { title: "E = mc²", url: "topics/particle-colliders/lesson-02.html" },
+            { title: "打靶與對撞", url: "topics/particle-colliders/lesson-03.html" },
+            { title: "截面與亮度", url: "topics/particle-colliders/lesson-04.html" },
+            { title: "模組總結：能量與亮度", url: "topics/particle-colliders/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜對撞機的歷史",
+          courses: [
+            { title: "勞倫斯的迴旋加速器", url: "topics/particle-colliders/lesson-06.html" },
+            { title: "同步加速器與 Bevatron", url: "topics/particle-colliders/lesson-07.html" },
+            { title: "AdA 與 ISR", url: "topics/particle-colliders/lesson-08.html" },
+            { title: "SPEAR 與十一月革命", url: "topics/particle-colliders/lesson-09.html" },
+            { title: "SppS 與 W、Z 玻色子", url: "topics/particle-colliders/lesson-10.html" },
+            { title: "Tevatron 與頂夸克", url: "topics/particle-colliders/lesson-11.html" },
+            { title: "LEP", url: "topics/particle-colliders/lesson-12.html" },
+            { title: "HERA、RHIC 與 SSC", url: "topics/particle-colliders/lesson-13.html" },
+            { title: "LHC 的誕生", url: "topics/particle-colliders/lesson-14.html" },
+            { title: "模組總結：每一次躍進，換來了什麼", url: "topics/particle-colliders/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜加速器怎麼運作",
+          courses: [
+            { title: "射頻腔", url: "topics/particle-colliders/lesson-16.html" },
+            { title: "超導磁鐵", url: "topics/particle-colliders/lesson-17.html" },
+            { title: "聚焦與對撞", url: "topics/particle-colliders/lesson-18.html" },
+            { title: "注入鏈", url: "topics/particle-colliders/lesson-19.html" },
+            { title: "堆疊", url: "topics/particle-colliders/lesson-20.html" },
+            { title: "模組總結：同步輻射與環形、直線的取捨", url: "topics/particle-colliders/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜偵測器：把看不見的粒子變成訊號",
+          courses: [
+            { title: "粒子怎麼和物質作用", url: "topics/particle-colliders/lesson-22.html" },
+            { title: "徑跡偵測器", url: "topics/particle-colliders/lesson-23.html" },
+            { title: "電磁量能器與強子量能器", url: "topics/particle-colliders/lesson-24.html" },
+            { title: "緲子系統與微中子", url: "topics/particle-colliders/lesson-25.html" },
+            { title: "ATLAS 與 CMS", url: "topics/particle-colliders/lesson-26.html" },
+            { title: "LHCb 與 ALICE", url: "topics/particle-colliders/lesson-27.html" },
+            { title: "觸發系統", url: "topics/particle-colliders/lesson-28.html" },
+            { title: "資料量與全球運算網格", url: "topics/particle-colliders/lesson-29.html" },
+            { title: "模組總結：從撞擊到硬碟", url: "topics/particle-colliders/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 E｜重建：從電子訊號到「物理物件」",
+          courses: [
+            { title: "徑跡重建", url: "topics/particle-colliders/lesson-31.html" },
+            { title: "頂點重建", url: "topics/particle-colliders/lesson-32.html" },
+            { title: "粒子流", url: "topics/particle-colliders/lesson-33.html" },
+            { title: "噴流", url: "topics/particle-colliders/lesson-34.html" },
+            { title: "b 標記", url: "topics/particle-colliders/lesson-35.html" },
+            { title: "消失的橫向能量", url: "topics/particle-colliders/lesson-36.html" },
+            { title: "校正與效率", url: "topics/particle-colliders/lesson-37.html" },
+            { title: "模組總結：一個事件的完整樣貌", url: "topics/particle-colliders/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 F｜統計：怎麼確定真的找到了新東西",
+          courses: [
+            { title: "計數實驗與卜瓦松分布", url: "topics/particle-colliders/lesson-39.html" },
+            { title: "不變質量與峰值搜尋", url: "topics/particle-colliders/lesson-40.html" },
+            { title: "背景估計", url: "topics/particle-colliders/lesson-41.html" },
+            { title: "似然函數與干擾參數", url: "topics/particle-colliders/lesson-42.html" },
+            { title: "檢定統計量與漸近公式", url: "topics/particle-colliders/lesson-43.html" },
+            { title: "p 值與 5σ", url: "topics/particle-colliders/lesson-44.html" },
+            { title: "別處效應", url: "topics/particle-colliders/lesson-45.html" },
+            { title: "CLs 方法與排除上限", url: "topics/particle-colliders/lesson-46.html" },
+            { title: "系統誤差與盲分析", url: "topics/particle-colliders/lesson-47.html" },
+            { title: "模組總結：一份分析報告的完整骨架", url: "topics/particle-colliders/lesson-48.html" },
+          ],
+        },
+        {
+          title: "模組 G｜模擬與機器學習",
+          courses: [
+            { title: "事件產生器", url: "topics/particle-colliders/lesson-49.html" },
+            { title: "偵測器模擬", url: "topics/particle-colliders/lesson-50.html" },
+            { title: "從決策樹到深度學習", url: "topics/particle-colliders/lesson-51.html" },
+            { title: "異常偵測", url: "topics/particle-colliders/lesson-52.html" },
+            { title: "模組總結：模擬與資料的差距", url: "topics/particle-colliders/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 H｜完整案例：希格斯玻色子的發現",
+          courses: [
+            { title: "H → γγ", url: "topics/particle-colliders/lesson-54.html" },
+            { title: "H → ZZ → 4ℓ", url: "topics/particle-colliders/lesson-55.html" },
+            { title: "2012 年 7 月 4 日", url: "topics/particle-colliders/lesson-56.html" },
+            { title: "發現之後", url: "topics/particle-colliders/lesson-57.html" },
+          ],
+        },
+        {
+          title: "模組 I｜沒找到的東西與未來",
+          courses: [
+            { title: "750 GeV 雙光子超出", url: "topics/particle-colliders/lesson-58.html" },
+            { title: "超對稱、暗物質與 B 介子異常", url: "topics/particle-colliders/lesson-59.html" },
+            { title: "課程總結", url: "topics/particle-colliders/lesson-60.html" },
+          ],
+        },
+      ],
     }
   ]
 };
