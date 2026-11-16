@@ -28741,6 +28741,355 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "gravitational-waves",
+      category: "science",
+      title: "重力波：LIGO 怎麼量到比質子還小數百倍的位移",
+      description:
+        "時空的漣漪、愛因斯坦的預言與懷疑、教堂山與黏珠子；線性化重力、兩種偏振、四極公式、啾聲質量；赫爾斯—泰勒脈衝雙星；韋伯棒與錯誤的發現；邁克生干涉儀、共振腔、功率回收、隔振、熱雜訊、量子極限與壓縮光、超高真空；應變資料、匹配濾波、範本庫、偽警報率、時間平移、定位、貝氏參數估計、雜訊瞬變；GW150914、盲注入、2017 年諾貝爾獎、GW170817 與多信使天文學；黑洞族群、重力波速度、標準汽笛、脈衝星計時陣列；愛因斯坦望遠鏡與 LISA。附三個互動模擬。",
+      icon: "🌊",
+      url: "topics/gravitational-waves/index.html",
+      resources: [
+        {
+          title: "重要事件表",
+          description: "從 GW150914 到 GW250114 的代表性事件",
+          icon: "🌌",
+          url: "topics/gravitational-waves/events.html"
+        },
+        {
+          title: "論文清單",
+          description: "重力波的發現論文與經典理論、方法論文",
+          icon: "📄",
+          url: "topics/gravitational-waves/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜時空的漣漪",
+          courses: [
+            { title: "什麼是重力波", url: "topics/gravitational-waves/lesson-01.html" },
+            { title: "愛因斯坦的預言與懷疑", url: "topics/gravitational-waves/lesson-02.html" },
+            { title: "教堂山會議", url: "topics/gravitational-waves/lesson-03.html" },
+            { title: "重力波有多微弱", url: "topics/gravitational-waves/lesson-04.html" },
+            { title: "模組總結：最難量的東西", url: "topics/gravitational-waves/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜推導",
+          courses: [
+            { title: "線性化重力", url: "topics/gravitational-waves/lesson-06.html" },
+            { title: "重力波的波動方程式", url: "topics/gravitational-waves/lesson-07.html" },
+            { title: "兩種偏振", url: "topics/gravitational-waves/lesson-08.html" },
+            { title: "四極輻射公式", url: "topics/gravitational-waves/lesson-09.html" },
+            { title: "雙星的能量損失", url: "topics/gravitational-waves/lesson-10.html" },
+            { title: "模組總結：從方程式到波形", url: "topics/gravitational-waves/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜第一個間接證據",
+          courses: [
+            { title: "赫爾斯—泰勒脈衝雙星", url: "topics/gravitational-waves/lesson-12.html" },
+            { title: "軌道週期的衰減", url: "topics/gravitational-waves/lesson-13.html" },
+            { title: "1993 年諾貝爾獎", url: "topics/gravitational-waves/lesson-14.html" },
+            { title: "模組總結：知道它存在，但還沒聽到", url: "topics/gravitational-waves/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜早期的偵測嘗試",
+          courses: [
+            { title: "韋伯棒", url: "topics/gravitational-waves/lesson-16.html" },
+            { title: "1969 年的「發現」", url: "topics/gravitational-waves/lesson-17.html" },
+            { title: "模組總結：一個關於系統誤差的教訓", url: "topics/gravitational-waves/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜雷射干涉儀",
+          courses: [
+            { title: "邁克生干涉儀", url: "topics/gravitational-waves/lesson-19.html" },
+            { title: "4 公里的臂與共振腔", url: "topics/gravitational-waves/lesson-20.html" },
+            { title: "功率回收與訊號回收", url: "topics/gravitational-waves/lesson-21.html" },
+            { title: "雜訊的戰爭（一）", url: "topics/gravitational-waves/lesson-22.html" },
+            { title: "雜訊的戰爭（二）", url: "topics/gravitational-waves/lesson-23.html" },
+            { title: "雜訊的戰爭（三）", url: "topics/gravitational-waves/lesson-24.html" },
+            { title: "壓縮光", url: "topics/gravitational-waves/lesson-25.html" },
+            { title: "真空系統", url: "topics/gravitational-waves/lesson-26.html" },
+            { title: "模組總結：LIGO 的靈敏度曲線", url: "topics/gravitational-waves/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜資料分析：怎麼從雜訊中挖出訊號",
+          courses: [
+            { title: "應變資料長什麼樣子", url: "topics/gravitational-waves/lesson-28.html" },
+            { title: "匹配濾波", url: "topics/gravitational-waves/lesson-29.html" },
+            { title: "波形範本庫", url: "topics/gravitational-waves/lesson-30.html" },
+            { title: "訊雜比與偽警報率", url: "topics/gravitational-waves/lesson-31.html" },
+            { title: "時間平移", url: "topics/gravitational-waves/lesson-32.html" },
+            { title: "多台偵測器與定位", url: "topics/gravitational-waves/lesson-33.html" },
+            { title: "貝氏參數估計", url: "topics/gravitational-waves/lesson-34.html" },
+            { title: "雜訊瞬變與重力間諜", url: "topics/gravitational-waves/lesson-35.html" },
+            { title: "模組總結：一個事件的分析流程", url: "topics/gravitational-waves/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜發現",
+          courses: [
+            { title: "GW150914", url: "topics/gravitational-waves/lesson-37.html" },
+            { title: "論文怎麼寫", url: "topics/gravitational-waves/lesson-38.html" },
+            { title: "2017 年諾貝爾獎", url: "topics/gravitational-waves/lesson-39.html" },
+            { title: "GW170817", url: "topics/gravitational-waves/lesson-40.html" },
+            { title: "模組總結：一個新的天文學", url: "topics/gravitational-waves/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 H｜物理成果",
+          courses: [
+            { title: "黑洞的族群", url: "topics/gravitational-waves/lesson-42.html" },
+            { title: "重力波的速度等於光速", url: "topics/gravitational-waves/lesson-43.html" },
+            { title: "標準汽笛", url: "topics/gravitational-waves/lesson-44.html" },
+            { title: "脈衝星計時陣列", url: "topics/gravitational-waves/lesson-45.html" },
+            { title: "模組總結：二十年前不可能的觀測", url: "topics/gravitational-waves/lesson-46.html" },
+          ],
+        },
+        {
+          title: "模組 I｜未來",
+          courses: [
+            { title: "下一代偵測器", url: "topics/gravitational-waves/lesson-47.html" },
+            { title: "課程總結", url: "topics/gravitational-waves/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "neutrinos",
+      category: "science",
+      title: "微中子：追蹤幽靈粒子的一百年",
+      description:
+        "貝他衰變的能量危機、包立的信、費米的理論；柯溫與萊因斯、緲子與陶子微中子；太陽怎麼發光、戴維斯的氯實驗、三十年的太陽微中子之謎；完整推導振盪、超級神岡的上下不對稱、SNO 的重水、MSW 效應；契忍可夫與閃爍體偵測器、事件重建、地下實驗室、卡方與費爾德曼—卡辛斯；大亞灣與 θ₁₃、T2K 與 NOvA、質量順序、CP 破壞；超新星 1987A、冰立方與耀變體、地球微中子；KATRIN、馬約拉納與翹翹板、惰性微中子、宇宙學；DUNE、Hyper-K 與 JUNO。附三個互動模擬。",
+      icon: "👻",
+      url: "topics/neutrinos/index.html",
+      resources: [
+        {
+          title: "實驗總表",
+          description: "從薩凡納河到 JUNO：地點、技術與主要成果",
+          icon: "🔭",
+          url: "topics/neutrinos/experiments.html"
+        },
+        {
+          title: "論文清單",
+          description: "微中子物理的重要原始論文",
+          icon: "📄",
+          url: "topics/neutrinos/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜一個絕望的發明",
+          courses: [
+            { title: "貝他衰變的能量危機", url: "topics/neutrinos/lesson-01.html" },
+            { title: "包立的信", url: "topics/neutrinos/lesson-02.html" },
+            { title: "費米的理論", url: "topics/neutrinos/lesson-03.html" },
+            { title: "微中子有多難抓", url: "topics/neutrinos/lesson-04.html" },
+            { title: "模組總結：預言了，但抓不到", url: "topics/neutrinos/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜第一次抓到",
+          courses: [
+            { title: "柯溫與萊因斯", url: "topics/neutrinos/lesson-06.html" },
+            { title: "緲子微中子", url: "topics/neutrinos/lesson-07.html" },
+            { title: "陶子微中子", url: "topics/neutrinos/lesson-08.html" },
+            { title: "模組總結：三代微中子", url: "topics/neutrinos/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜太陽微中子之謎",
+          courses: [
+            { title: "太陽怎麼發光", url: "topics/neutrinos/lesson-10.html" },
+            { title: "戴維斯的氯實驗", url: "topics/neutrinos/lesson-11.html" },
+            { title: "只抓到三分之一", url: "topics/neutrinos/lesson-12.html" },
+            { title: "鎵實驗與神岡", url: "topics/neutrinos/lesson-13.html" },
+            { title: "模組總結：太陽錯了，還是微中子錯了？", url: "topics/neutrinos/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜振盪",
+          courses: [
+            { title: "微中子振盪", url: "topics/neutrinos/lesson-15.html" },
+            { title: "超級神岡", url: "topics/neutrinos/lesson-16.html" },
+            { title: "SNO", url: "topics/neutrinos/lesson-17.html" },
+            { title: "2015 年諾貝爾獎", url: "topics/neutrinos/lesson-18.html" },
+            { title: "物質效應", url: "topics/neutrinos/lesson-19.html" },
+            { title: "模組總結：微中子有質量", url: "topics/neutrinos/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜偵測器與資料分析",
+          courses: [
+            { title: "契忍可夫偵測器", url: "topics/neutrinos/lesson-21.html" },
+            { title: "液態閃爍體偵測器", url: "topics/neutrinos/lesson-22.html" },
+            { title: "事件重建", url: "topics/neutrinos/lesson-23.html" },
+            { title: "背景", url: "topics/neutrinos/lesson-24.html" },
+            { title: "振盪參數的擬合", url: "topics/neutrinos/lesson-25.html" },
+            { title: "模組總結：在極少的事件中量出參數", url: "topics/neutrinos/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜反應爐與加速器實驗",
+          courses: [
+            { title: "量出最後一個混合角", url: "topics/neutrinos/lesson-27.html" },
+            { title: "長基線加速器實驗", url: "topics/neutrinos/lesson-28.html" },
+            { title: "質量順序", url: "topics/neutrinos/lesson-29.html" },
+            { title: "CP 破壞", url: "topics/neutrinos/lesson-30.html" },
+            { title: "模組總結：PMNS 矩陣", url: "topics/neutrinos/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜微中子天文學",
+          courses: [
+            { title: "超新星 1987A", url: "topics/neutrinos/lesson-32.html" },
+            { title: "冰立方", url: "topics/neutrinos/lesson-33.html" },
+            { title: "第一個高能微中子源", url: "topics/neutrinos/lesson-34.html" },
+            { title: "地球微中子", url: "topics/neutrinos/lesson-35.html" },
+            { title: "模組總結：用微中子看宇宙", url: "topics/neutrinos/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜未解之謎",
+          courses: [
+            { title: "微中子的質量有多大", url: "topics/neutrinos/lesson-37.html" },
+            { title: "馬約拉納還是狄拉克", url: "topics/neutrinos/lesson-38.html" },
+            { title: "惰性微中子", url: "topics/neutrinos/lesson-39.html" },
+            { title: "宇宙學對微中子質量的限制", url: "topics/neutrinos/lesson-40.html" },
+            { title: "模組總結：標準模型之外的第一扇門", url: "topics/neutrinos/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 I｜未來",
+          courses: [
+            { title: "DUNE", url: "topics/neutrinos/lesson-42.html" },
+            { title: "Hyper-Kamiokande", url: "topics/neutrinos/lesson-43.html" },
+            { title: "JUNO", url: "topics/neutrinos/lesson-44.html" },
+            { title: "課程總結", url: "topics/neutrinos/lesson-45.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "dark-matter-energy",
+      category: "science",
+      title: "暗物質與暗能量：怎麼尋找看不見的東西",
+      description:
+        "宇宙的帳本、茲威基、薇拉・魯賓的自轉曲線；重力透鏡、子彈星系團、宇宙微波背景的聲學峰、大尺度結構、大爆炸核合成；WIMP 奇蹟、軸子、惰性微中子、原始黑洞、MOND；直接偵測與液態氙、微中子霧、DAMA 年度調制、ADMX；銀河中心超出、AMS-02 正電子、LHC 單噴流；加速膨脹與 Ia 型超新星、宇宙常數問題、第五元素；重子聲學振盪、弱透鏡、哈伯張力、DESI；MCMC、系統誤差、盲分析；歐幾里得與魯賓天文台。附三個互動模擬。",
+      icon: "🌑",
+      url: "topics/dark-matter-energy/index.html",
+      resources: [
+        {
+          title: "關鍵數字",
+          description: "宇宙組成、哈伯常數與暗物質的常用數字",
+          icon: "🔢",
+          url: "topics/dark-matter-energy/numbers.html"
+        },
+        {
+          title: "論文清單",
+          description: "暗物質與暗能量的重要原始論文",
+          icon: "📄",
+          url: "topics/dark-matter-energy/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜看不見的質量",
+          courses: [
+            { title: "宇宙的帳本", url: "topics/dark-matter-energy/lesson-01.html" },
+            { title: "茲威基與后髮座星系團", url: "topics/dark-matter-energy/lesson-02.html" },
+            { title: "薇拉・魯賓的自轉曲線", url: "topics/dark-matter-energy/lesson-03.html" },
+            { title: "完整推導：自轉速度與質量分布", url: "topics/dark-matter-energy/lesson-04.html" },
+            { title: "模組總結：一個被忽略了四十年的問題", url: "topics/dark-matter-energy/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜證據",
+          courses: [
+            { title: "重力透鏡", url: "topics/dark-matter-energy/lesson-06.html" },
+            { title: "子彈星系團", url: "topics/dark-matter-energy/lesson-07.html" },
+            { title: "宇宙微波背景的聲學峰", url: "topics/dark-matter-energy/lesson-08.html" },
+            { title: "大尺度結構與宇宙模擬", url: "topics/dark-matter-energy/lesson-09.html" },
+            { title: "大爆炸核合成", url: "topics/dark-matter-energy/lesson-10.html" },
+            { title: "模組總結：五條獨立的證據", url: "topics/dark-matter-energy/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜暗物質是什麼",
+          courses: [
+            { title: "不是什麼", url: "topics/dark-matter-energy/lesson-12.html" },
+            { title: "WIMP 與「奇蹟」", url: "topics/dark-matter-energy/lesson-13.html" },
+            { title: "軸子", url: "topics/dark-matter-energy/lesson-14.html" },
+            { title: "其他候選者", url: "topics/dark-matter-energy/lesson-15.html" },
+            { title: "修改重力", url: "topics/dark-matter-energy/lesson-16.html" },
+            { title: "模組總結：候選者的質量跨越九十個數量級", url: "topics/dark-matter-energy/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜直接偵測",
+          courses: [
+            { title: "原理：暗物質撞到原子核", url: "topics/dark-matter-energy/lesson-18.html" },
+            { title: "地下實驗室", url: "topics/dark-matter-energy/lesson-19.html" },
+            { title: "液態氙偵測器", url: "topics/dark-matter-energy/lesson-20.html" },
+            { title: "背景與「微中子霧」", url: "topics/dark-matter-energy/lesson-21.html" },
+            { title: "DAMA 的年度調制", url: "topics/dark-matter-energy/lesson-22.html" },
+            { title: "軸子偵測", url: "topics/dark-matter-energy/lesson-23.html" },
+            { title: "模組總結：排除曲線怎麼讀", url: "topics/dark-matter-energy/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜間接偵測與對撞機",
+          courses: [
+            { title: "銀河中心的伽瑪射線超出", url: "topics/dark-matter-energy/lesson-25.html" },
+            { title: "正電子超出", url: "topics/dark-matter-energy/lesson-26.html" },
+            { title: "LHC 上的暗物質搜尋", url: "topics/dark-matter-energy/lesson-27.html" },
+            { title: "三種方法的互補", url: "topics/dark-matter-energy/lesson-28.html" },
+            { title: "模組總結：至今沒有確定的訊號", url: "topics/dark-matter-energy/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜暗能量",
+          courses: [
+            { title: "宇宙膨脹在加速", url: "topics/dark-matter-energy/lesson-30.html" },
+            { title: "標準燭光", url: "topics/dark-matter-energy/lesson-31.html" },
+            { title: "2011 年諾貝爾獎", url: "topics/dark-matter-energy/lesson-32.html" },
+            { title: "宇宙常數與真空能量", url: "topics/dark-matter-energy/lesson-33.html" },
+            { title: "第五元素與動態暗能量", url: "topics/dark-matter-energy/lesson-34.html" },
+            { title: "模組總結：宇宙的七成是什麼？", url: "topics/dark-matter-energy/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜怎麼量暗能量",
+          courses: [
+            { title: "重子聲學振盪", url: "topics/dark-matter-energy/lesson-36.html" },
+            { title: "弱重力透鏡巡天", url: "topics/dark-matter-energy/lesson-37.html" },
+            { title: "哈伯張力", url: "topics/dark-matter-energy/lesson-38.html" },
+            { title: "DESI", url: "topics/dark-matter-energy/lesson-39.html" },
+            { title: "模組總結：ΛCDM 模型的裂縫？", url: "topics/dark-matter-energy/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜資料分析",
+          courses: [
+            { title: "宇宙學參數的擬合", url: "topics/dark-matter-energy/lesson-41.html" },
+            { title: "系統誤差", url: "topics/dark-matter-energy/lesson-42.html" },
+            { title: "盲分析", url: "topics/dark-matter-energy/lesson-43.html" },
+            { title: "模組總結：宇宙學的資料分析", url: "topics/dark-matter-energy/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜未來",
+          courses: [
+            { title: "新一代巡天", url: "topics/dark-matter-energy/lesson-45.html" },
+            { title: "課程總結", url: "topics/dark-matter-energy/lesson-46.html" },
+          ],
+        },
+      ],
     }
   ]
 };
