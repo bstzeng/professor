@@ -29432,6 +29432,229 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "manhattan-project",
+      category: "history",
+      title: "曼哈頓計畫：從核分裂的發現到原子彈與冷戰",
+      description:
+        "放射性、中子、費米、核分裂的發現與邁特納；西拉德、愛因斯坦的信、MAUD 報告、德國與日本與蘇聯的核計畫；臨界質量、鈾濃縮、芝加哥一號堆、鈽；格羅夫斯與歐本海默、橡樹嶺、漢福德、洛斯阿拉莫斯；小男孩、鈽的危機、內爆、三位一體試爆；投彈決策、廣島、長崎、輻射效應、日本投降的史學爭論；福克斯與羅森堡、蘇聯原子彈；氫彈、沙皇炸彈、第五福龍丸、古巴飛彈危機；歐本海默聽證會、大科學、核電與核醫、核不擴散。附三個互動模擬。",
+      icon: "☢️",
+      url: "topics/manhattan-project/index.html",
+      resources: [
+        {
+          title: "年表",
+          description: "從放射性的發現到新削減戰略武器條約到期",
+          icon: "📅",
+          url: "topics/manhattan-project/timeline.html"
+        },
+        {
+          title: "人物",
+          description: "本課程中出現的主要人物",
+          icon: "👥",
+          url: "topics/manhattan-project/people.html"
+        },
+        {
+          title: "延伸閱讀",
+          description: "原始文獻、經典歷史著作與研究",
+          icon: "📚",
+          url: "topics/manhattan-project/books.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜原子核的世紀",
+          courses: [
+            { title: "七年", url: "topics/manhattan-project/lesson-01.html" },
+            { title: "放射性與原子核", url: "topics/manhattan-project/lesson-02.html" },
+            { title: "費米與中子", url: "topics/manhattan-project/lesson-03.html" },
+            { title: "核分裂的發現", url: "topics/manhattan-project/lesson-04.html" },
+            { title: "模組總結：連鎖反應的可能", url: "topics/manhattan-project/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜從信件到計畫",
+          courses: [
+            { title: "西拉德與連鎖反應", url: "topics/manhattan-project/lesson-06.html" },
+            { title: "愛因斯坦的信", url: "topics/manhattan-project/lesson-07.html" },
+            { title: "英國的 MAUD 報告", url: "topics/manhattan-project/lesson-08.html" },
+            { title: "德國的核計畫", url: "topics/manhattan-project/lesson-09.html" },
+            { title: "日本與蘇聯", url: "topics/manhattan-project/lesson-10.html" },
+            { title: "模組總結：從恐懼到決心", url: "topics/manhattan-project/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜物理",
+          courses: [
+            { title: "臨界質量", url: "topics/manhattan-project/lesson-12.html" },
+            { title: "鈾的濃縮", url: "topics/manhattan-project/lesson-13.html" },
+            { title: "芝加哥一號堆", url: "topics/manhattan-project/lesson-14.html" },
+            { title: "鈽", url: "topics/manhattan-project/lesson-15.html" },
+            { title: "模組總結：兩條路", url: "topics/manhattan-project/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜工業規模",
+          courses: [
+            { title: "格羅夫斯與歐本海默", url: "topics/manhattan-project/lesson-17.html" },
+            { title: "橡樹嶺", url: "topics/manhattan-project/lesson-18.html" },
+            { title: "漢福德", url: "topics/manhattan-project/lesson-19.html" },
+            { title: "洛斯阿拉莫斯", url: "topics/manhattan-project/lesson-20.html" },
+            { title: "二十億美元、十三萬人", url: "topics/manhattan-project/lesson-21.html" },
+            { title: "模組總結：工業化的科學", url: "topics/manhattan-project/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜兩種炸彈",
+          courses: [
+            { title: "槍式設計：小男孩", url: "topics/manhattan-project/lesson-23.html" },
+            { title: "鈽的難題", url: "topics/manhattan-project/lesson-24.html" },
+            { title: "內爆設計", url: "topics/manhattan-project/lesson-25.html" },
+            { title: "三位一體試爆", url: "topics/manhattan-project/lesson-26.html" },
+            { title: "模組總結：「我成了死神」", url: "topics/manhattan-project/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜廣島與長崎",
+          courses: [
+            { title: "波茨坦與投彈的決定", url: "topics/manhattan-project/lesson-28.html" },
+            { title: "1945 年 8 月 6 日：廣島", url: "topics/manhattan-project/lesson-29.html" },
+            { title: "1945 年 8 月 9 日：長崎", url: "topics/manhattan-project/lesson-30.html" },
+            { title: "物理效應與傷害", url: "topics/manhattan-project/lesson-31.html" },
+            { title: "日本為什麼投降", url: "topics/manhattan-project/lesson-32.html" },
+            { title: "模組總結：兩座城市", url: "topics/manhattan-project/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜間諜與蘇聯",
+          courses: [
+            { title: "福克斯、霍爾與羅森堡", url: "topics/manhattan-project/lesson-34.html" },
+            { title: "1949：蘇聯的原子彈", url: "topics/manhattan-project/lesson-35.html" },
+            { title: "模組總結：壟斷的結束", url: "topics/manhattan-project/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜氫彈與軍備競賽",
+          courses: [
+            { title: "泰勒—烏拉姆設計", url: "topics/manhattan-project/lesson-37.html" },
+            { title: "常春藤麥克與沙皇炸彈", url: "topics/manhattan-project/lesson-38.html" },
+            { title: "比基尼與第五福龍丸", url: "topics/manhattan-project/lesson-39.html" },
+            { title: "古巴飛彈危機", url: "topics/manhattan-project/lesson-40.html" },
+            { title: "模組總結：七萬枚彈頭", url: "topics/manhattan-project/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 I｜遺產",
+          courses: [
+            { title: "歐本海默聽證會", url: "topics/manhattan-project/lesson-42.html" },
+            { title: "大科學", url: "topics/manhattan-project/lesson-43.html" },
+            { title: "核電與核醫", url: "topics/manhattan-project/lesson-44.html" },
+            { title: "不擴散與今天的核武", url: "topics/manhattan-project/lesson-45.html" },
+            { title: "課程總結：打開的盒子", url: "topics/manhattan-project/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "makoto-shinkai",
+      category: "anime",
+      title: "新海誠作品全紀錄：從《星之聲》到《鈴芽之旅》",
+      description:
+        "長野、Falcom 與一個人的動畫革命；天空、光與距離的風格；她與她的貓、星之聲、雲之彼端約定的地方、秒速5公分、追逐繁星的孩子、言葉之庭；災難三部曲你的名字、天氣之子、鈴芽之旅與 311；少年少女與大人、擦身而過與重逢；背景美術、CoMix Wave Films、影像分鏡、RADWIMPS、聖地巡禮；天空與天氣、日常的美、神話與信仰、災難的記憶；與宮崎駿的比較、小說與改編。含完整劇情（有暴雷）。",
+      icon: "🌠",
+      url: "topics/makoto-shinkai/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "各作品的年份、長度與主要資料",
+          icon: "🎬",
+          url: "topics/makoto-shinkai/works.html"
+        },
+        {
+          title: "名詞解釋",
+          description: "作品中的重要名詞與日文用語",
+          icon: "📖",
+          url: "topics/makoto-shinkai/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "新海誠是誰", url: "topics/makoto-shinkai/lesson-01.html" },
+            { title: "一個人的動畫革命", url: "topics/makoto-shinkai/lesson-02.html" },
+            { title: "新海誠的風格", url: "topics/makoto-shinkai/lesson-03.html" },
+            { title: "模組總結：認識新海誠", url: "topics/makoto-shinkai/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期作品",
+          courses: [
+            { title: "《她與她的貓》（1999）", url: "topics/makoto-shinkai/lesson-05.html" },
+            { title: "《星之聲》（2002）", url: "topics/makoto-shinkai/lesson-06.html" },
+            { title: "《雲之彼端，約定的地方》（2004）", url: "topics/makoto-shinkai/lesson-07.html" },
+            { title: "《秒速5公分》（2007）", url: "topics/makoto-shinkai/lesson-08.html" },
+            { title: "模組總結：失落的美學", url: "topics/makoto-shinkai/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜轉變",
+          courses: [
+            { title: "《追逐繁星的孩子》（2011）", url: "topics/makoto-shinkai/lesson-10.html" },
+            { title: "《言葉之庭》（2013）", url: "topics/makoto-shinkai/lesson-11.html" },
+            { title: "模組總結：從失落到相遇", url: "topics/makoto-shinkai/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜災難三部曲",
+          courses: [
+            { title: "《你的名字》（2016）", url: "topics/makoto-shinkai/lesson-13.html" },
+            { title: "《你的名字》的票房現象", url: "topics/makoto-shinkai/lesson-14.html" },
+            { title: "《天氣之子》（2019）", url: "topics/makoto-shinkai/lesson-15.html" },
+            { title: "《鈴芽之旅》與 311", url: "topics/makoto-shinkai/lesson-16.html" },
+            { title: "三部曲的共同主題", url: "topics/makoto-shinkai/lesson-17.html" },
+            { title: "模組總結：國民作家的誕生", url: "topics/makoto-shinkai/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜人物與關係",
+          courses: [
+            { title: "少年與少女", url: "topics/makoto-shinkai/lesson-19.html" },
+            { title: "大人們", url: "topics/makoto-shinkai/lesson-20.html" },
+            { title: "擦身而過與重逢", url: "topics/makoto-shinkai/lesson-21.html" },
+            { title: "模組總結：人與人之間", url: "topics/makoto-shinkai/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜幕後",
+          courses: [
+            { title: "背景美術", url: "topics/makoto-shinkai/lesson-23.html" },
+            { title: "CoMix Wave Films 與製作團隊", url: "topics/makoto-shinkai/lesson-24.html" },
+            { title: "劇本與分鏡", url: "topics/makoto-shinkai/lesson-25.html" },
+            { title: "RADWIMPS 與音樂", url: "topics/makoto-shinkai/lesson-26.html" },
+            { title: "取景地與聖地巡禮", url: "topics/makoto-shinkai/lesson-27.html" },
+            { title: "模組總結：作品是怎麼做出來的", url: "topics/makoto-shinkai/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 G｜主題",
+          courses: [
+            { title: "天空與天氣", url: "topics/makoto-shinkai/lesson-29.html" },
+            { title: "日常的美", url: "topics/makoto-shinkai/lesson-30.html" },
+            { title: "神話與信仰", url: "topics/makoto-shinkai/lesson-31.html" },
+            { title: "災難的記憶", url: "topics/makoto-shinkai/lesson-32.html" },
+            { title: "模組總結：貫穿的主題", url: "topics/makoto-shinkai/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 H｜比較與延伸",
+          courses: [
+            { title: "新海誠與宮崎駿", url: "topics/makoto-shinkai/lesson-34.html" },
+            { title: "小說、漫畫與改編", url: "topics/makoto-shinkai/lesson-35.html" },
+            { title: "課程總結：連結的故事", url: "topics/makoto-shinkai/lesson-36.html" },
+          ],
+        },
+      ],
     }
   ]
 };
