@@ -1,0 +1,145 @@
+# -*- coding: utf-8 -*-
+"""〈傅立葉分析與訊號處理〉（fou_）共用：課程包裝與 FOULIB 互動元件（class="fou-w"）。
+
+  synth   傅立葉級數合成：方波、鋸齒波、三角波，諧波數 → 吉布斯現象
+  alias   取樣與混疊：訊號頻率、取樣率 → 取樣點與「看起來」的頻率
+  fft     頻譜分析器：兩個正弦＋雜訊、視窗函數 → 頻譜
+  jpeg    8×8 DCT 壓縮：保留的係數數量 → 重建影像
+  kspace  MRI 的 k 空間：只保留中心或外圍 → 重建影像
+"""
+from cc_common import make_lesson, wdg, LS, M, D
+from qt_common import BASEJS
+
+FOU_NOTE = (u"本課的推導以主要步驟為主，省略部分數學嚴格性（例如收斂條件）；互動模擬為教學用的小型版本。")
+
+
+def X(tid, name, text=None):
+    return u'<a href="../%s/index.html">%s</a>' % (tid, text or u"〈%s〉" % name)
+
+
+def fow(cfg, maxw=680):
+    return wdg("fou-w", cfg, maxw)
+
+
+FOULIB = r"""
+(function () {
+  if (window.__fouLib) return; window.__fouLib = 1;
+""" + BASEJS + r"""
+  var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad';
+  function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+  function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+  function randn() { var u = 1 - Math.random(), v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+  function fft(re, im) { var n = re.length, i, j = 0, k, l, t; for (i = 1; i < n; i++) { var bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit; if (i < j) { t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for (l = 2; l <= n; l <<= 1) { var a = -2 * Math.PI / l, wr = Math.cos(a), wi = Math.sin(a); for (i = 0; i < n; i += l) { var cr = 1, ci = 0; for (k = 0; k < l / 2; k++) { var ur = re[i + k], ui = im[i + k], vr = re[i + k + l / 2] * cr - im[i + k + l / 2] * ci, vi = re[i + k + l / 2] * ci + im[i + k + l / 2] * cr;
+      re[i + k] = ur + vr; im[i + k] = ui + vi; re[i + k + l / 2] = ur - vr; im[i + k + l / 2] = ui - vi; var nr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = nr; } } } }
+
+  function initSynth(root, cfg) {
+    head(root, cfg.q); var P = { w: 'sq', n: 5 }, view = el('div'), inf;
+    var b = bar(root); [['方波', 'sq'], ['鋸齒波', 'saw'], ['三角波', 'tri']].forEach(function (o) { var x = btn(o[0], o[1]); x.onclick = function () { P.w = o[1]; mark(b, o[1]); draw(); }; b.appendChild(x); }); mark(b, 'sq');
+    var u = slider(root, '使用的正弦波數量（諧波數）', 1, 60, 1, P.n, function (x) { return x + ' 個'; }, null, function (x) { P.n = x; draw(); });
+    root.appendChild(view); inf = info(root);
+    function target(t) { var x = ((t % 1) + 1) % 1; if (P.w === 'sq') return x < 0.5 ? 1 : -1; if (P.w === 'saw') return 2 * x - 1 < 1 ? (x < 0.5 ? 2 * x : 2 * x - 2) : 0; return x < 0.25 ? 4 * x : x < 0.75 ? 2 - 4 * x : 4 * x - 4; }
+    function term(k, t) { if (P.w === 'sq') return k % 2 ? 4 / (Math.PI * k) * Math.sin(2 * Math.PI * k * t) : 0;
+      if (P.w === 'saw') return 2 / Math.PI * Math.pow(-1, k + 1) / k * Math.sin(2 * Math.PI * k * t);
+      return k % 2 ? 8 / (Math.PI * Math.PI) * Math.pow(-1, (k - 1) / 2) / (k * k) * Math.sin(2 * Math.PI * k * t) : 0; }
+    function draw() { var d1 = [], d2 = [], mx = 0, used = 0; for (var k = 1; used < P.n && k < 400; k++) { if (Math.abs(term(k, 0.123)) > 0 || P.w === 'saw') used++; }
+      var K = k - 1; for (var t = -0.5; t <= 1.5; t += 0.002) { var s = 0; for (k = 1; k <= K; k++) s += term(k, t); d1.push([t, target(t)]); d2.push([t, s]); if (t > 0 && t < 1) mx = Math.max(mx, s); }
+      view.innerHTML = chart(640, 230, [{ d: d1, c: GY, n: '目標波形', w: 1.5 }, { d: d2, c: BL, n: '前 ' + P.n + ' 個正弦波的和' }], { x0: -0.5, x1: 1.5, y0: -1.4, y1: 1.4, xl: '時間（週期）' });
+      inf.innerHTML = '加入的正弦波越多，越接近目標波形。' + (P.w === 'sq' ? '方波只有<b>奇數</b>次諧波，振幅按 1/k 減少。' : P.w === 'saw' ? '鋸齒波有<b>所有</b>次諧波，振幅按 1/k 減少。' : '三角波只有奇數次諧波，振幅按 <b>1/k²</b> 減少——收斂得快得多，因為它沒有跳躍。') +
+        (P.w !== 'tri' ? '<br>注意跳躍的地方：不管加多少個正弦波，總會<b>衝過頭約 9%</b>（最大值 ' + f2(mx) + '），只是衝過頭的區域越來越窄。這就是<b>吉布斯現象</b>（第 4 課）。' : ''); }
+    u();
+  }
+
+  function initAlias(root, cfg) {
+    head(root, cfg.q); var P = { f: 3, fs: 20 }, view = el('div'), inf;
+    var us = [slider(root, '訊號頻率', 0.5, 30, 0.5, P.f, function (x) { return f1(x) + ' Hz'; }, null, function (x) { P.f = x; draw(); }),
+      slider(root, '取樣率（每秒取幾個點）', 2, 40, 1, P.fs, function (x) { return x + ' Hz'; }, null, function (x) { P.fs = x; draw(); })];
+    root.appendChild(view); inf = info(root);
+    function draw() { var T = 1, d = [], s = [], fa = Math.abs(P.f - P.fs * Math.round(P.f / P.fs)), r = [];
+      for (var t = 0; t <= T; t += 0.001) { d.push([t, Math.cos(2 * Math.PI * P.f * t)]); r.push([t, Math.cos(2 * Math.PI * fa * t)]); }
+      for (var n = 0; n / P.fs <= T + 1e-9; n++) s.push({ x: n / P.fs, y: Math.cos(2 * Math.PI * P.f * n / P.fs), c: RD });
+      var ok = P.fs > 2 * P.f;
+      view.innerHTML = chart(640, 230, [{ d: d, c: GY, n: '真實訊號', w: 1.2 }, { d: r, c: ok ? GN : OR, n: ok ? '從取樣點重建' : '從取樣點「看起來」的訊號', dash: '6 4' }], { x0: 0, x1: T, y0: -1.3, y1: 1.3, xl: '時間（秒）', pts: s });
+      inf.innerHTML = '奈奎斯特頻率 = 取樣率的一半 = <b>' + f1(P.fs / 2) + ' Hz</b>。' + (ok ? '<br>訊號頻率低於奈奎斯特頻率：取樣點足以<b>完整地</b>還原原本的訊號。' :
+        '<br>訊號頻率<b>超過</b>奈奎斯特頻率：取樣點和一個 <b>' + f1(fa) + ' Hz</b> 的訊號一模一樣——高頻「偽裝」成了低頻。這叫<b>混疊</b>。') +
+        '<br>試試：訊號 19 Hz、取樣率 20 Hz——看起來像 1 Hz。這就是電影中車輪看起來倒轉或靜止的原因（攝影機每秒 24 格）。'; }
+    us.forEach(function (u) { u(); });
+  }
+
+  function initFFT(root, cfg) {
+    head(root, cfg.q); var P = { w: 'rect', f2: 52.3, a2: 0.03, nz: 0.02 }, view = el('div'), view2 = el('div'), inf;
+    var b = bar(root); [['矩形視窗（不處理）', 'rect'], ['漢恩視窗', 'hann']].forEach(function (o) { var x = btn(o[0], o[1]); x.onclick = function () { P.w = o[1]; mark(b, o[1]); draw(); }; b.appendChild(x); }); mark(b, 'rect');
+    var us = [slider(root, '第二個正弦波的頻率', 30, 90, 0.1, P.f2, function (x) { return f1(x) + ' Hz'; }, null, function (x) { P.f2 = x; draw(); }),
+      slider(root, '第二個正弦波的振幅（第一個是 1）', 0.001, 1, 0.001, P.a2, function (x) { return f2(x * 1000) / 1000; }, null, function (x) { P.a2 = x; draw(); }),
+      slider(root, '雜訊', 0, 1, 0.01, P.nz, function (x) { return f2(x); }, null, function (x) { P.nz = x; draw(); })];
+    root.appendChild(view); root.appendChild(view2); inf = info(root);
+    var N = 512, FS = 512;
+    function draw() { var re = [], im = [], t = [], seedn = []; for (var i = 0; i < N; i++) { var w = P.w === 'hann' ? 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (N - 1)) : 1;
+        var x = Math.sin(2 * Math.PI * 40.5 * i / FS) + P.a2 * Math.sin(2 * Math.PI * P.f2 * i / FS) + P.nz * randn(); t.push([i / FS, x]); re.push(x * w); im.push(0); }
+      fft(re, im); var sp = [], norm = P.w === 'hann' ? N / 4 : N / 2; for (var k = 0; k <= N / 2; k++) sp.push([k * FS / N, 20 * Math.log10(Math.sqrt(re[k] * re[k] + im[k] * im[k]) / norm + 1e-6)]);
+      view.innerHTML = chart(640, 150, [{ d: t.slice(0, 256), c: GY, n: '時間訊號（前 0.5 秒）', w: 1 }], { x0: 0, x1: 0.5, xl: '時間（秒）' });
+      view2.innerHTML = chart(640, 220, [{ d: sp, c: BL, n: '頻譜（分貝）', w: 1.3 }], { x0: 0, x1: 256, y0: -80, y1: 5, xl: '頻率（Hz）' });
+      inf.innerHTML = '訊號：一個 40.5 Hz、振幅 1 的正弦波，加上一個 ' + f1(P.f2) + ' Hz、振幅 ' + f2(P.a2 * 1000) / 1000 + ' 的正弦波，再加上雜訊。用 FFT 算出 512 點的頻譜。' +
+        '<br>40.5 Hz 剛好落在兩個頻率格子之間：' + (P.w === 'rect' ? '<b>矩形視窗</b>讓它的能量「漏」到很遠的頻率（<b>頻譜洩漏</b>），小的第二個訊號可能被淹沒。' : '<b>漢恩視窗</b>讓兩端平滑地降到零，洩漏大幅減少，小訊號露了出來，代價是峰變寬一點。') +
+        '<br>把第二個訊號的振幅調到 0.01（−40 分貝），比較兩種視窗下還看不看得到它。'; }
+    us.forEach(function (u) { u(); });
+  }
+
+  function makeImg(n) { var im = []; for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) { var v = 0.15 + 0.5 * (x / n);
+      var dx = x - n * 0.62, dy = y - n * 0.38; if (dx * dx + dy * dy < (n * 0.2) * (n * 0.2)) v = 0.9;
+      if (x > n * 0.12 && x < n * 0.42 && y > n * 0.55 && y < n * 0.88) v = 0.05 + 0.25 * ((Math.floor(x / 4) + Math.floor(y / 4)) % 2);
+      if (Math.abs(y - n * 0.18 - 0.2 * x) < 1.2) v = 1; im.push(v); } return im; }
+  function drawImg(im, n, px) { var g = ''; for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) { var v = Math.max(0, Math.min(1, im[y * n + x])), c = Math.round(v * 255); g += '<rect x="' + x * px + '" y="' + y * px + '" width="' + px + '" height="' + px + '" fill="rgb(' + c + ',' + c + ',' + c + ')"/>'; } return svgw('0 0 ' + n * px + ' ' + n * px, '<g shape-rendering="crispEdges">' + g + '</g>'); }
+
+  function initJPEG(root, cfg) {
+    head(root, cfg.q); var P = { k: 10 }, n = 64, img = makeImg(n), view = el('div', 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center'), inf;
+    var u = slider(root, '每個 8×8 區塊保留的係數（共 64 個）', 1, 64, 1, P.k, function (x) { return x + ' 個'; }, null, function (x) { P.k = x; draw(); });
+    root.appendChild(view); inf = info(root);
+    var C = []; for (var k = 0; k < 8; k++) { C.push([]); for (var i = 0; i < 8; i++) C[k].push((k === 0 ? Math.sqrt(1 / 8) : Math.sqrt(2 / 8)) * Math.cos((2 * i + 1) * k * Math.PI / 16)); }
+    var zz = []; for (var s = 0; s < 15; s++) for (var a = 0; a <= s; a++) { var b2 = s - a; if (a < 8 && b2 < 8) zz.push(s % 2 ? [a, b2] : [b2, a]); }
+    function draw() { var out = new Array(n * n).fill(0), err = 0;
+      for (var by = 0; by < n; by += 8) for (var bx = 0; bx < n; bx += 8) { var Fq = []; for (var u2 = 0; u2 < 8; u2++) { Fq.push([]); for (var v = 0; v < 8; v++) { var sum = 0; for (var y = 0; y < 8; y++) for (var x = 0; x < 8; x++) sum += C[u2][y] * C[v][x] * img[(by + y) * n + bx + x]; Fq[u2].push(sum); } }
+        var keep = {}; for (var q = 0; q < P.k; q++) keep[zz[q][0] + ',' + zz[q][1]] = 1;
+        for (var y2 = 0; y2 < 8; y2++) for (var x2 = 0; x2 < 8; x2++) { var s2 = 0; for (u2 = 0; u2 < 8; u2++) for (v = 0; v < 8; v++) if (keep[u2 + ',' + v]) s2 += C[u2][y2] * C[v][x2] * Fq[u2][v]; out[(by + y2) * n + bx + x2] = s2; var e = s2 - img[(by + y2) * n + bx + x2]; err += e * e; } }
+      var psnr = 10 * Math.log10(1 / (err / (n * n) + 1e-12));
+      view.innerHTML = '<div style="width:260px;text-align:center">' + drawImg(img, n, 4) + '<div style="font-size:0.85em;color:var(--text-muted)">原圖</div></div><div style="width:260px;text-align:center">' + drawImg(out, n, 4) + '<div style="font-size:0.85em;color:var(--text-muted)">只保留 ' + P.k + ' 個係數</div></div>';
+      inf.innerHTML = '每個 8×8 區塊做離散餘弦轉換，依「之」字形順序（低頻 → 高頻）只保留前 <b>' + P.k + '</b> 個係數，其他設為 0。資料量約剩 <b>' + Math.round(P.k / 64 * 100) + '%</b>，峰值訊雜比 <b>' + f1(psnr) + ' dB</b>（30 dB 以上通常看不太出差別）。' +
+        '<br>平滑的漸層只需要幾個低頻係數；銳利的邊緣與棋盤格需要高頻係數——保留太少時，會看到「方塊」與邊緣旁的「漣漪」，這就是 JPEG 壓縮過度時的樣子。'; }
+    u();
+  }
+
+  function dft2(re, im, n, inv) { var s = inv ? 1 : -1; function rows(a, b) { for (var y = 0; y < n; y++) { var r = [], q = []; for (var x = 0; x < n; x++) { r.push(a[y * n + x]); q.push(b[y * n + x]); }
+        if (inv) q = q.map(function (v) { return -v; }); fft(r, q); if (inv) q = q.map(function (v) { return -v; }); for (x = 0; x < n; x++) { a[y * n + x] = r[x]; b[y * n + x] = q[x]; } } }
+    function tr(a) { for (var y = 0; y < n; y++) for (var x = y + 1; x < n; x++) { var t = a[y * n + x]; a[y * n + x] = a[x * n + y]; a[x * n + y] = t; } }
+    rows(re, im); tr(re); tr(im); rows(re, im); tr(re); tr(im); if (inv) for (var i = 0; i < n * n; i++) { re[i] /= n * n; im[i] /= n * n; } }
+
+  function initK(root, cfg) {
+    head(root, cfg.q); var P = { m: 'c', r: 8 }, n = 64, img = makeImg(n), K = { re: img.slice(), im: new Array(n * n).fill(0) }, view = el('div', 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center'), inf;
+    dft2(K.re, K.im, n, false);
+    var b = bar(root); [['只保留中心（低頻）', 'c'], ['只保留外圍（高頻）', 'o']].forEach(function (o) { var x = btn(o[0], o[1]); x.onclick = function () { P.m = o[1]; mark(b, o[1]); draw(); }; b.appendChild(x); }); mark(b, 'c');
+    var u = slider(root, '分界半徑', 1, 32, 1, P.r, function (x) { return x; }, null, function (x) { P.r = x; draw(); });
+    root.appendChild(view); inf = info(root);
+    function draw() { var re = [], im = [], ks = [], kept = 0; for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) { var fy = y < n / 2 ? y : y - n, fx = x < n / 2 ? x : x - n, r = Math.sqrt(fx * fx + fy * fy), on = P.m === 'c' ? r <= P.r : r > P.r;
+        re.push(on ? K.re[y * n + x] : 0); im.push(on ? K.im[y * n + x] : 0); if (on) kept++; }
+      for (y = 0; y < n; y++) for (x = 0; x < n; x++) { var yy = (y + n / 2) % n, xx = (x + n / 2) % n, mag = Math.log(1 + Math.sqrt(re[yy * n + xx] * re[yy * n + xx] + im[yy * n + xx] * im[yy * n + xx])) / 7; ks.push(mag); }
+      var r2 = re.slice(), i2 = im.slice(); dft2(r2, i2, n, true); if (P.m === 'o') r2 = r2.map(function (v) { return 0.5 + 2 * v; });
+      view.innerHTML = '<div style="width:260px;text-align:center">' + drawImg(ks, n, 4) + '<div style="font-size:0.85em;color:var(--text-muted)">k 空間（量到的資料，對數亮度）</div></div><div style="width:260px;text-align:center">' + drawImg(r2, n, 4) + '<div style="font-size:0.85em;color:var(--text-muted)">重建的影像</div></div>';
+      inf.innerHTML = 'MRI 掃描量到的不是影像，而是影像的<b>二維傅立葉轉換</b>（k 空間）。保留了 ' + Math.round(kept / (n * n) * 100) + '% 的資料。' +
+        (P.m === 'c' ? '<br><b>中心</b>（低頻）決定了影像的<b>對比與大致形狀</b>：只要少量的中心資料，就能看出輪廓，但很模糊。' : '<br><b>外圍</b>（高頻）只帶有<b>邊緣與細節</b>：沒有中心時，只剩下輪廓線。') +
+        '<br>MRI 掃描時間長，就是因為要一行一行地填滿 k 空間。只掃中心可以加快速度，代價是解析度。'; }
+    u();
+  }
+
+  function initAll() { document.querySelectorAll('.fou-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+    ({ synth: initSynth, alias: initAlias, fft: initFFT, jpeg: initJPEG, kspace: initK })[cfg.t](w, cfg); }); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+})();
+"""
+
+lesson = make_lesson(u"🎵", FOU_NOTE, FOULIB, "fou-w")
+
+SYNTH = fow({"t": "synth", "q": u"用正弦波疊出任意波形"})
+ALIAS = fow({"t": "alias", "q": u"取樣與混疊：取樣太慢，高頻會偽裝成低頻"})
+FFTW = fow({"t": "fft", "q": u"頻譜分析器：用 FFT 看見訊號裡的頻率"})
+JPEG = fow({"t": "jpeg", "q": u"JPEG 的核心：8×8 離散餘弦轉換，只保留少數係數"})
+KSPACE = fow({"t": "kspace", "q": u"MRI 的 k 空間：低頻與高頻各帶了什麼資訊"})
