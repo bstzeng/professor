@@ -29655,6 +29655,341 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "black-holes",
+      category: "science",
+      title: "黑洞：從史瓦西解到事件視界望遠鏡",
+      description:
+        "米歇爾的暗星、史瓦西解、事件視界與奇異點、時間膨脹、光子球與 ISCO；錢德拉塞卡極限、中子星與脈衝星、超新星、歐本海默—史奈德塌縮；克爾解、能層與彭羅斯過程、無毛定理；天鵝座 X-1、吸積盤、類星體、噴流、人馬座 A*；事件視界望遠鏡的 VLBI、資料、影像重建、M87* 與人馬座 A*；重力波中的黑洞、質量間隙、中等質量黑洞；霍金輻射、黑洞熱力學、貝肯斯坦熵、資訊悖論、全像原理；原始黑洞、蟲洞、《星際效應》、早期宇宙的巨型黑洞。附四個互動模擬。",
+      icon: "🕳️",
+      url: "topics/black-holes/index.html",
+      resources: [
+        {
+          title: "公式與數字",
+          description: "史瓦西半徑、ISCO、霍金溫度等常用公式與數字",
+          icon: "🔢",
+          url: "topics/black-holes/numbers.html"
+        },
+        {
+          title: "論文清單",
+          description: "從米歇爾到事件視界望遠鏡",
+          icon: "📄",
+          url: "topics/black-holes/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "什麼是黑洞", url: "topics/black-holes/lesson-01.html" },
+            { title: "米歇爾與拉普拉斯的暗星", url: "topics/black-holes/lesson-02.html" },
+            { title: "模組總結：從暗星到相對論", url: "topics/black-holes/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜廣義相對論中的黑洞",
+          courses: [
+            { title: "等效原理與時空彎曲", url: "topics/black-holes/lesson-04.html" },
+            { title: "史瓦西解", url: "topics/black-holes/lesson-05.html" },
+            { title: "事件視界與奇異點", url: "topics/black-holes/lesson-06.html" },
+            { title: "時間膨脹與重力紅移", url: "topics/black-holes/lesson-07.html" },
+            { title: "光子球與最內穩定圓軌道", url: "topics/black-holes/lesson-08.html" },
+            { title: "模組總結：史瓦西黑洞的地圖", url: "topics/black-holes/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜黑洞怎麼形成",
+          courses: [
+            { title: "錢德拉塞卡極限", url: "topics/black-holes/lesson-10.html" },
+            { title: "中子星", url: "topics/black-holes/lesson-11.html" },
+            { title: "超新星與恆星級黑洞", url: "topics/black-holes/lesson-12.html" },
+            { title: "歐本海默—史奈德：1939 年的塌縮", url: "topics/black-holes/lesson-13.html" },
+            { title: "模組總結：恆星的三種結局", url: "topics/black-holes/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜旋轉與帶電",
+          courses: [
+            { title: "克爾解", url: "topics/black-holes/lesson-15.html" },
+            { title: "能層與彭羅斯過程", url: "topics/black-holes/lesson-16.html" },
+            { title: "無毛定理", url: "topics/black-holes/lesson-17.html" },
+            { title: "模組總結：理論的黑洞", url: "topics/black-holes/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜觀測證據",
+          courses: [
+            { title: "天鵝座 X-1", url: "topics/black-holes/lesson-19.html" },
+            { title: "吸積盤", url: "topics/black-holes/lesson-20.html" },
+            { title: "類星體與活躍星系核", url: "topics/black-holes/lesson-21.html" },
+            { title: "噴流", url: "topics/black-holes/lesson-22.html" },
+            { title: "人馬座 A*：銀河系中心的黑洞", url: "topics/black-holes/lesson-23.html" },
+            { title: "模組總結：黑洞真的存在", url: "topics/black-holes/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜事件視界望遠鏡",
+          courses: [
+            { title: "特長基線干涉", url: "topics/black-holes/lesson-25.html" },
+            { title: "地球大小的望遠鏡", url: "topics/black-holes/lesson-26.html" },
+            { title: "資料：飛機比網路快", url: "topics/black-holes/lesson-27.html" },
+            { title: "影像怎麼重建", url: "topics/black-holes/lesson-28.html" },
+            { title: "2019：M87*", url: "topics/black-holes/lesson-29.html" },
+            { title: "2022：人馬座 A* 與偏振", url: "topics/black-holes/lesson-30.html" },
+            { title: "模組總結：看見黑洞", url: "topics/black-holes/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜重力波中的黑洞",
+          courses: [
+            { title: "GW150914：聽見黑洞", url: "topics/black-holes/lesson-32.html" },
+            { title: "質量間隙與 GW190521", url: "topics/black-holes/lesson-33.html" },
+            { title: "中等質量黑洞", url: "topics/black-holes/lesson-34.html" },
+            { title: "模組總結：黑洞的人口普查", url: "topics/black-holes/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜量子黑洞",
+          courses: [
+            { title: "霍金輻射", url: "topics/black-holes/lesson-36.html" },
+            { title: "黑洞熱力學", url: "topics/black-holes/lesson-37.html" },
+            { title: "貝肯斯坦熵", url: "topics/black-holes/lesson-38.html" },
+            { title: "資訊悖論", url: "topics/black-holes/lesson-39.html" },
+            { title: "全像原理與 AdS/CFT", url: "topics/black-holes/lesson-40.html" },
+            { title: "模組總結：黑洞與量子重力", url: "topics/black-holes/lesson-41.html" },
+          ],
+        },
+        {
+          title: "模組 I｜延伸",
+          courses: [
+            { title: "原始黑洞", url: "topics/black-holes/lesson-42.html" },
+            { title: "蟲洞與時光機", url: "topics/black-holes/lesson-43.html" },
+            { title: "《星際效應》的卡岡圖雅", url: "topics/black-holes/lesson-44.html" },
+            { title: "早期宇宙的巨型黑洞", url: "topics/black-holes/lesson-45.html" },
+            { title: "課程總結：從暗星到影像", url: "topics/black-holes/lesson-46.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "exoplanets",
+      category: "science",
+      title: "系外行星：怎麼找到另一個地球",
+      description:
+        "從布魯諾到 1995；徑向速度法、高精度光譜儀、飛馬座 51 b 與熱木星、m sin i、恆星雜訊；凌日法、克卜勒、TESS、假陽性、凌日時間變分；脈衝星行星、重力微透鏡、直接成像、蓋亞天體測量；行星遷移、超級地球與半徑谷、TRAPPIST-1、比鄰星 b、η⊕；穿透光譜、韋伯與 WASP-39b、K2-18b 爭議、相位曲線；可居住帶、紅矮星、生物跡象；BLS、MCMC、機器學習、公民科學；PLATO、羅曼、宜居世界天文台、費米悖論。附四個互動模擬。",
+      icon: "🪐",
+      url: "topics/exoplanets/index.html",
+      resources: [
+        {
+          title: "公式與著名行星",
+          description: "常用公式，以及本課程提到的著名行星",
+          icon: "🪐",
+          url: "topics/exoplanets/planets.html"
+        },
+        {
+          title: "論文清單",
+          description: "從脈衝星行星到韋伯望遠鏡",
+          icon: "📄",
+          url: "topics/exoplanets/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "我們孤單嗎", url: "topics/exoplanets/lesson-01.html" },
+            { title: "從布魯諾到 1995", url: "topics/exoplanets/lesson-02.html" },
+            { title: "模組總結：一個新領域的誕生", url: "topics/exoplanets/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜徑向速度法",
+          courses: [
+            { title: "都卜勒效應", url: "topics/exoplanets/lesson-04.html" },
+            { title: "光譜儀的精度", url: "topics/exoplanets/lesson-05.html" },
+            { title: "飛馬座 51 b", url: "topics/exoplanets/lesson-06.html" },
+            { title: "m sin i：質量的下限", url: "topics/exoplanets/lesson-07.html" },
+            { title: "恆星的雜訊", url: "topics/exoplanets/lesson-08.html" },
+            { title: "模組總結：恆星的舞步", url: "topics/exoplanets/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜凌日法",
+          courses: [
+            { title: "凌日光變曲線", url: "topics/exoplanets/lesson-10.html" },
+            { title: "克卜勒任務", url: "topics/exoplanets/lesson-11.html" },
+            { title: "TESS", url: "topics/exoplanets/lesson-12.html" },
+            { title: "假陽性與驗證", url: "topics/exoplanets/lesson-13.html" },
+            { title: "凌日時間變分", url: "topics/exoplanets/lesson-14.html" },
+            { title: "模組總結：等待影子", url: "topics/exoplanets/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜其他方法",
+          courses: [
+            { title: "脈衝星行星", url: "topics/exoplanets/lesson-16.html" },
+            { title: "重力微透鏡", url: "topics/exoplanets/lesson-17.html" },
+            { title: "直接成像", url: "topics/exoplanets/lesson-18.html" },
+            { title: "天體測量與蓋亞", url: "topics/exoplanets/lesson-19.html" },
+            { title: "模組總結：五種眼睛", url: "topics/exoplanets/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜行星族群",
+          courses: [
+            { title: "熱木星之謎與行星遷移", url: "topics/exoplanets/lesson-21.html" },
+            { title: "超級地球與迷你海王星", url: "topics/exoplanets/lesson-22.html" },
+            { title: "TRAPPIST-1", url: "topics/exoplanets/lesson-23.html" },
+            { title: "比鄰星 b", url: "topics/exoplanets/lesson-24.html" },
+            { title: "η⊕：有多少個地球", url: "topics/exoplanets/lesson-25.html" },
+            { title: "模組總結：行星的動物園", url: "topics/exoplanets/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜大氣",
+          courses: [
+            { title: "穿透光譜", url: "topics/exoplanets/lesson-27.html" },
+            { title: "韋伯望遠鏡與 WASP-39b", url: "topics/exoplanets/lesson-28.html" },
+            { title: "K2-18b 與二甲基硫爭議", url: "topics/exoplanets/lesson-29.html" },
+            { title: "熱相位曲線", url: "topics/exoplanets/lesson-30.html" },
+            { title: "模組總結：讀懂一束穿過大氣的光", url: "topics/exoplanets/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜可居住性",
+          courses: [
+            { title: "可居住帶", url: "topics/exoplanets/lesson-32.html" },
+            { title: "潮汐鎖定與紅矮星", url: "topics/exoplanets/lesson-33.html" },
+            { title: "生物跡象", url: "topics/exoplanets/lesson-34.html" },
+            { title: "模組總結：可居住，不等於有生命", url: "topics/exoplanets/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 H｜資料分析",
+          courses: [
+            { title: "BLS：從雜訊中找凌日", url: "topics/exoplanets/lesson-36.html" },
+            { title: "用 MCMC 擬合參數", url: "topics/exoplanets/lesson-37.html" },
+            { title: "機器學習找行星", url: "topics/exoplanets/lesson-38.html" },
+            { title: "公民科學", url: "topics/exoplanets/lesson-39.html" },
+            { title: "模組總結：從雜訊到行星", url: "topics/exoplanets/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 I｜未來",
+          courses: [
+            { title: "PLATO、羅曼與 Ariel", url: "topics/exoplanets/lesson-41.html" },
+            { title: "宜居世界天文台", url: "topics/exoplanets/lesson-42.html" },
+            { title: "德雷克方程式與費米悖論", url: "topics/exoplanets/lesson-43.html" },
+            { title: "課程總結：從一顆到六千顆", url: "topics/exoplanets/lesson-44.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "telescopes-hubble-webb",
+      category: "science",
+      title: "從哈伯到韋伯：太空望遠鏡的故事",
+      description:
+        "口徑與解析度、大氣擾動與自適應光學、電磁波譜；史匹哲的夢想、哈伯的發射、磨錯的鏡子、五次維修任務；哈伯常數與距離階梯、哈伯深空、加速膨脹、創生之柱、彗星撞木星、星系中心黑洞；康普頓、錢德拉、史匹哲、普朗克、蓋亞；韋伯的紅外線、摺疊鈹鏡、遮陽板與 L2、四台儀器、預算與延期；344 個單點故障與鏡面對準；第一批影像、紅移 14 的星系、系外行星大氣、哈伯張力、小紅點；歐幾里得、羅曼、宜居世界天文台與極大望遠鏡。附四個互動模擬。",
+      icon: "🔭",
+      url: "topics/telescopes-hubble-webb/index.html",
+      resources: [
+        {
+          title: "太空望遠鏡一覽",
+          description: "本課程提到的太空望遠鏡與規格",
+          icon: "🛰️",
+          url: "topics/telescopes-hubble-webb/telescopes.html"
+        },
+        {
+          title: "文獻",
+          description: "從史匹哲的報告到韋伯的發現",
+          icon: "📄",
+          url: "topics/telescopes-hubble-webb/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜望遠鏡的物理",
+          courses: [
+            { title: "為什麼要把望遠鏡送上太空", url: "topics/telescopes-hubble-webb/lesson-01.html" },
+            { title: "口徑與解析度", url: "topics/telescopes-hubble-webb/lesson-02.html" },
+            { title: "大氣擾動", url: "topics/telescopes-hubble-webb/lesson-03.html" },
+            { title: "電磁波譜與大氣窗口", url: "topics/telescopes-hubble-webb/lesson-04.html" },
+            { title: "模組總結：好望遠鏡的條件", url: "topics/telescopes-hubble-webb/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜哈伯",
+          courses: [
+            { title: "史匹哲的夢想", url: "topics/telescopes-hubble-webb/lesson-06.html" },
+            { title: "發射：1990 年 4 月 24 日", url: "topics/telescopes-hubble-webb/lesson-07.html" },
+            { title: "球面像差：磨錯的鏡子", url: "topics/telescopes-hubble-webb/lesson-08.html" },
+            { title: "1993：第一次維修任務", url: "topics/telescopes-hubble-webb/lesson-09.html" },
+            { title: "五次維修任務", url: "topics/telescopes-hubble-webb/lesson-10.html" },
+            { title: "模組總結：從國恥到國寶", url: "topics/telescopes-hubble-webb/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜哈伯的發現",
+          courses: [
+            { title: "哈伯常數", url: "topics/telescopes-hubble-webb/lesson-12.html" },
+            { title: "哈伯深空", url: "topics/telescopes-hubble-webb/lesson-13.html" },
+            { title: "加速膨脹", url: "topics/telescopes-hubble-webb/lesson-14.html" },
+            { title: "創生之柱", url: "topics/telescopes-hubble-webb/lesson-15.html" },
+            { title: "舒梅克—李維九號撞木星", url: "topics/telescopes-hubble-webb/lesson-16.html" },
+            { title: "超大質量黑洞無所不在", url: "topics/telescopes-hubble-webb/lesson-17.html" },
+            { title: "模組總結：哈伯改變的宇宙", url: "topics/telescopes-hubble-webb/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜其他的大天文台",
+          courses: [
+            { title: "康普頓、錢德拉、史匹哲", url: "topics/telescopes-hubble-webb/lesson-19.html" },
+            { title: "克卜勒、蓋亞、普朗克與更多", url: "topics/telescopes-hubble-webb/lesson-20.html" },
+            { title: "模組總結：分工的太空望遠鏡", url: "topics/telescopes-hubble-webb/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜韋伯的設計",
+          courses: [
+            { title: "為什麼是紅外線", url: "topics/telescopes-hubble-webb/lesson-22.html" },
+            { title: "摺疊的主鏡", url: "topics/telescopes-hubble-webb/lesson-23.html" },
+            { title: "遮陽板與 L2", url: "topics/telescopes-hubble-webb/lesson-24.html" },
+            { title: "四台儀器", url: "topics/telescopes-hubble-webb/lesson-25.html" },
+            { title: "預算與延期", url: "topics/telescopes-hubble-webb/lesson-26.html" },
+            { title: "模組總結：一台望遠鏡的設計邏輯", url: "topics/telescopes-hubble-webb/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜發射與展開",
+          courses: [
+            { title: "2021 年聖誕節", url: "topics/telescopes-hubble-webb/lesson-28.html" },
+            { title: "344 個單點故障", url: "topics/telescopes-hubble-webb/lesson-29.html" },
+            { title: "鏡面對準", url: "topics/telescopes-hubble-webb/lesson-30.html" },
+            { title: "模組總結：一次就要成功", url: "topics/telescopes-hubble-webb/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜韋伯的發現",
+          courses: [
+            { title: "第一批影像", url: "topics/telescopes-hubble-webb/lesson-32.html" },
+            { title: "早期星系：太亮、太多", url: "topics/telescopes-hubble-webb/lesson-33.html" },
+            { title: "系外行星的大氣", url: "topics/telescopes-hubble-webb/lesson-34.html" },
+            { title: "哈伯張力的再確認", url: "topics/telescopes-hubble-webb/lesson-35.html" },
+            { title: "小紅點", url: "topics/telescopes-hubble-webb/lesson-36.html" },
+            { title: "模組總結：韋伯的前四年", url: "topics/telescopes-hubble-webb/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 H｜未來",
+          courses: [
+            { title: "羅曼與歐幾里得", url: "topics/telescopes-hubble-webb/lesson-38.html" },
+            { title: "宜居世界天文台與極大望遠鏡", url: "topics/telescopes-hubble-webb/lesson-39.html" },
+            { title: "課程總結：看得更遠，看得更早", url: "topics/telescopes-hubble-webb/lesson-40.html" },
+          ],
+        },
+      ],
     }
   ]
 };
