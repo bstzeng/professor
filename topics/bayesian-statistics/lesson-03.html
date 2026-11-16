@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 3 課：醫學檢驗的悖論 ｜ 貝氏統計 ｜ 博雅書院</title>
+<meta name="description" content="陽性不代表有病">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">貝氏統計</a>
+      <span class="sep">/</span>
+      <span>第 3 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜兩種機率 · 第 3 課</div>
+      <h1>醫學檢驗的悖論</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>用貝氏定理計算陽性預測值</li>
+          <li>在模擬中觀察盛行率的影響</li>
+          <li>理解為什麼醫生也常算錯</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__bayLib) return; window.__bayLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad', PU = '#8a5bb5';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+        function lgam(x) { var c = [76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155, 0.1208650973866179e-2, -0.5395239384953e-5], y = x, t = x + 5.5; t -= (x + 0.5) * Math.log(t); var s = 1.000000000190015; for (var j = 0; j < 6; j++) s += c[j] / ++y; return -t + Math.log(2.5066282746310005 * s / x); }
+        function lbeta(a, b) { return lgam(a) + lgam(b) - lgam(a + b); }
+        function bpdf(x, a, b) { if (x <= 0 || x >= 1) return 0; return Math.exp((a - 1) * Math.log(x) + (b - 1) * Math.log(1 - x) - lbeta(a, b)); }
+        function pct(v) { return (Math.round(v * 1000) / 10) + '%'; }
+
+        function initMed(root, cfg) {
+          head(root, cfg.q); var P = { prev: cfg.prev || 0.01, sens: cfg.sens || 0.9, spec: cfg.spec || 0.91 }, view = el('div'), inf;
+          var us = [slider(root, '盛行率（人群中真正有病的比例）', 0.001, 0.5, 0.001, P.prev, pct, null, function (x) { P.prev = x; draw(); }),
+            slider(root, '敏感度（有病的人驗出陽性的機率）', 0.5, 1, 0.01, P.sens, pct, null, function (x) { P.sens = x; draw(); }),
+            slider(root, '特異度（沒病的人驗出陰性的機率）', 0.5, 1, 0.005, P.spec, pct, null, function (x) { P.spec = x; draw(); })];
+          root.appendChild(view); inf = info(root);
+          function draw() { var N = 1000, sick = Math.round(N * P.prev), tp = Math.round(sick * P.sens), fn = sick - tp, healthy = N - sick, fp = Math.round(healthy * (1 - P.spec)), tn = healthy - fp;
+            var cells = []; for (var i = 0; i < tp; i++) cells.push(RD); for (i = 0; i < fn; i++) cells.push('#e9b3ae'); for (i = 0; i < fp; i++) cells.push(OR); for (i = 0; i < tn; i++) cells.push('#d6dbe1');
+            var g = '', cw = 15.5, cols = 40; cells.forEach(function (c, i) { var x = (i % cols) * cw + 6, y = Math.floor(i / cols) * cw + 6; g += '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="12" height="12" rx="3" fill="' + c + '"/>'; });
+            var lg = [[RD, '有病、陽性（' + tp + '）'], ['#e9b3ae', '有病、陰性（' + fn + '）'], [OR, '沒病、陽性（' + fp + '）'], ['#d6dbe1', '沒病、陰性（' + tn + '）']], ly = 25 * cw + 18;
+            lg.forEach(function (l, i) { g += '<rect x="' + (6 + i * 158) + '" y="' + ly + '" width="12" height="12" rx="3" fill="' + l[0] + '"/>' + tx(22 + i * 158, ly + 11, l[1], 12, null, 'start'); });
+            view.innerHTML = svgw('0 0 640 ' + (ly + 22), g);
+            var exact = P.prev * P.sens / (P.prev * P.sens + (1 - P.prev) * (1 - P.spec));
+            inf.innerHTML = '1000 人中，約 <b>' + sick + '</b> 人有病。驗出陽性的共 <b>' + (tp + fp) + '</b> 人，其中真的有病的只有 <b>' + tp + '</b> 人。' +
+              '<br>所以：<b>驗出陽性時，真的有病的機率 = ' + pct(exact) + '</b>（陽性預測值）。' +
+              (exact < 0.5 ? '<br>即使檢驗相當準確，因為疾病很罕見，<b>大部分的陽性是假警報</b>——沒病的人太多了，就算只有一小部分驗錯，也比真正有病的人多。' : '<br>盛行率夠高時，陽性結果就比較可信。'); }
+          us.forEach(function (u) { u(); });
+        }
+
+        function initBeta(root, cfg) {
+          head(root, cfg.q); var P = { a: cfg.a || 1, b: cfg.b || 1, n: cfg.n || 10, k: cfg.k || 7 }, view = el('div'), inf, uk;
+          var us = [slider(root, '先驗 a（想像中已看過的「成功」次數 + 1）', 0.5, 50, 0.5, P.a, f1, null, function (x) { P.a = x; draw(); }),
+            slider(root, '先驗 b（想像中已看過的「失敗」次數 + 1）', 0.5, 50, 0.5, P.b, f1, null, function (x) { P.b = x; draw(); }),
+            slider(root, '試驗次數 n', 0, 200, 1, P.n, function (x) { return x; }, null, function (x) { P.n = x; if (P.k > x) { P.k = x; } uk && uk(); draw(); })];
+          uk = slider(root, '成功次數 k', 0, 200, 1, P.k, function (x) { return x; }, null, function (x) { P.k = Math.min(x, P.n); draw(); });
+          root.appendChild(view); inf = info(root);
+          function interval(a, b) { var M = 2000, c = 0, lo = null, hi = null, tot = 0, xs = []; for (var i = 1; i < M; i++) { var x = i / M; xs.push(bpdf(x, a, b)); tot += xs[i - 1]; }
+            for (i = 1; i < M; i++) { c += xs[i - 1] / tot; if (lo === null && c >= 0.025) lo = i / M; if (hi === null && c >= 0.975) hi = i / M; } return [lo, hi]; }
+          function draw() { var k = Math.min(P.k, P.n), a2 = P.a + k, b2 = P.b + P.n - k, pr = [], li = [], po = [], ymax = 0, lmax = 0, L = [];
+            for (var i = 1; i < 400; i++) { var x = i / 400, l = P.n ? Math.exp(k * Math.log(x) + (P.n - k) * Math.log(1 - x) - lbeta(k + 1, P.n - k + 1)) : 1; L.push(l); }
+            for (i = 1; i < 400; i++) { x = i / 400; var p1 = bpdf(x, P.a, P.b), p2 = bpdf(x, a2, b2); pr.push([x, p1]); po.push([x, p2]); li.push([x, L[i - 1]]); ymax = Math.max(ymax, p2, Math.min(p1, 30), Math.min(L[i - 1], 30)); }
+            ymax = Math.min(ymax * 1.1, 30);
+            var ci = interval(a2, b2), mean = a2 / (a2 + b2);
+            view.innerHTML = chart(640, 250, [{ d: pr, c: GY, n: '先驗', w: 1.8, dash: '5,4' }, { d: li, c: GN, n: '似然（資料）', w: 1.6 }, { d: po, c: BL, n: '後驗', w: 2.4 }], { x0: 0, x1: 1, y0: 0, y1: ymax, xl: '成功機率 θ', vl: [{ x: ci[0], c: BL, n: '' }, { x: ci[1], c: BL, n: '' }] });
+            inf.innerHTML = '先驗 Beta(' + f1(P.a) + ', ' + f1(P.b) + ')，觀察到 ' + P.n + ' 次中成功 ' + k + ' 次 → 後驗 <b>Beta(' + f1(a2) + ', ' + f1(b2) + ')</b>。只要把成功次數加到 a、失敗次數加到 b。' +
+              '<br>後驗平均 = <b>' + f2(mean) + '</b>；95% 可信區間 = <b>[' + f2(ci[0]) + ', ' + f2(ci[1]) + ']</b>（θ 有 95% 的機率落在這裡）。' +
+              '<br>' + (P.n < 20 ? '資料少的時候，先驗的影響很明顯。把 n 調大，後驗會越來越窄，越來越貼近資料。' : '資料多了，先驗的影響越來越小：不同先驗的人，最後會得到差不多的結論。'); }
+          us.forEach(function (u) { u(); }); uk();
+        }
+
+        function initMCMC(root, cfg) {
+          head(root, cfg.q); var P = { s: 1, n: 2000 }, view = el('div'), view2 = el('div'), inf;
+          var b = bar(root); var rb = btn('重新執行'); rb.onclick = function () { draw(); }; b.appendChild(rb);
+          var us = [slider(root, '提議的步長', 0.05, 10, 0.05, P.s, f2, null, function (x) { P.s = x; draw(); }),
+            slider(root, '步數', 100, 20000, 100, P.n, function (x) { return x; }, null, function (x) { P.n = x; draw(); })];
+          root.appendChild(view); root.appendChild(view2); inf = info(root);
+          function tgt(x) { return 0.7 * Math.exp(-0.5 * (x + 1.5) * (x + 1.5) / 0.36) / 0.6 + 0.3 * Math.exp(-0.5 * (x - 2) * (x - 2) / 0.64) / 0.8; }
+          function randn() { var u = 1 - Math.random(), v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+          function draw() { var x = 4, acc = 0, ch = []; for (var i = 0; i < P.n; i++) { var y = x + P.s * randn(); if (Math.random() < tgt(y) / tgt(x)) { x = y; acc++; } ch.push(x); }
+            var tr = []; var st = Math.max(1, Math.floor(P.n / 600)); for (i = 0; i < P.n; i += st) tr.push([i, ch[i]]);
+            var bins = 60, lo = -5, hi = 5, h = new Array(bins).fill(0); ch.forEach(function (v) { var k = Math.floor((v - lo) / (hi - lo) * bins); if (k >= 0 && k < bins) h[k]++; });
+            var bw = (hi - lo) / bins, hd = [], td = [], Z = 0.7 * Math.sqrt(2 * Math.PI) + 0.3 * Math.sqrt(2 * Math.PI);
+            for (i = 0; i < bins; i++) { var c = lo + (i + 0.5) * bw, v2 = h[i] / (P.n * bw); hd.push([lo + i * bw, v2]); hd.push([lo + (i + 1) * bw, v2]); }
+            for (i = 0; i <= 200; i++) { var xx = lo + i * (hi - lo) / 200; td.push([xx, tgt(xx) / Z]); }
+            view.innerHTML = chart(640, 170, [{ d: tr, c: BL, n: '軌跡（每一步的位置）', w: 1 }], { x0: 0, x1: P.n, y0: -5, y1: 5, xl: '步數' });
+            view2.innerHTML = chart(640, 200, [{ d: hd, c: OR, n: '樣本的直方圖', w: 1.6 }, { d: td, c: GY, n: '真正的分布', w: 2, dash: '5,4' }], { x0: lo, x1: hi, y0: 0, y1: 0.75, xl: 'θ' });
+            var ar = acc / P.n;
+            inf.innerHTML = '接受率：<b>' + pct(ar) + '</b>。' + (P.s < 0.3 ? '<br>步長太<b>小</b>：幾乎每一步都被接受，但每步只移動一點點，像在原地踏步，很難跨到另一個峰。' : P.s > 4 ? '<br>步長太<b>大</b>：大部分的提議跳到機率很低的地方被拒絕，鏈常常卡在原地不動。' : '<br>步長適中：鏈能在兩個峰之間來回移動，直方圖逐漸逼近真正的分布。') +
+              '<br>鏈從 θ = 4 出發，開頭的一段還沒「找到」高機率的區域——實務上會丟掉這段（燒入期）。'; }
+          us.forEach(function (u) { u(); });
+        }
+
+        function binP(n, k) { var z = (Math.abs(k - n / 2) - 0.5) / Math.sqrt(n / 4); if (z < 0) return 1; var t = 1 / (1 + 0.2316419 * z), d = 0.3989423 * Math.exp(-z * z / 2), q = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))); return Math.min(1, 2 * q); }
+        function initLind(root, cfg) {
+          head(root, cfg.q); var P = { ln: 4, z: 2.2 }, view = el('div'), inf;
+          var us = [slider(root, '擲硬幣次數 n（以 10 為底的對數）', 1.5, 6, 0.1, P.ln, function (x) { return Math.round(Math.pow(10, x)).toLocaleString(); }, null, function (x) { P.ln = x; draw(); }),
+            slider(root, '正面次數偏離一半多少個標準差（z）', 0, 4, 0.05, P.z, f2, null, function (x) { P.z = x; draw(); })];
+          root.appendChild(view); inf = info(root);
+          function calc(n, z) { var k = Math.round(n / 2 + z * Math.sqrt(n) / 2); k = Math.max(0, Math.min(n, k));
+            var lb = lgam(n + 1) - lgam(k + 1) - lgam(n - k + 1), l0 = lb + n * Math.log(0.5), l1 = -Math.log(n + 1), bf01 = Math.exp(l0 - l1); return { k: k, p: binP(n, k), bf: bf01, post: bf01 / (1 + bf01) }; }
+          function draw() { var n = Math.round(Math.pow(10, P.ln)), r = calc(n, P.z), cur = [];
+            for (var i = 15; i <= 60; i++) { var nn = Math.round(Math.pow(10, i / 10)), rr = calc(nn, P.z); cur.push([i / 10, rr.post]); }
+            view.innerHTML = chart(640, 230, [{ d: cur, c: PU, n: 'H₀（硬幣公平）的後驗機率', w: 2.2 }], { x0: 1.5, x1: 6, y0: 0, y1: 1, xl: 'log₁₀(擲硬幣次數)', hl: [{ y: 0.5, c: GY, n: '' }], pts: [{ x: P.ln, y: r.post, c: RD, n: '' }] });
+            inf.innerHTML = '擲 <b>' + n.toLocaleString() + '</b> 次，正面 <b>' + r.k.toLocaleString() + '</b> 次（' + f2(r.k / n * 100) + '%）。' +
+              '<br>p 值 = <b>' + (r.p < 0.001 ? r.p.toExponential(1) : r.p.toFixed(3)) + '</b>' + (r.p < 0.05 ? '：小於 0.05，「拒絕硬幣公平的假設」。' : '：不顯著。') +
+              '<br>貝氏因子 BF₀₁ = <b>' + (r.bf > 1000 || r.bf < 0.001 ? r.bf.toExponential(1) : f2(r.bf)) + '</b>；先驗各半時，硬幣公平的後驗機率 = <b>' + pct(r.post) + '</b>。' +
+              (r.p < 0.05 && r.post > 0.5 ? '<br><b>林德利悖論</b>：p 值說「顯著」，貝氏分析卻說「硬幣多半是公平的」。固定 z，擲得越多次，H₀ 的後驗機率越高。' : '<br>固定 z（例如 2，p ≈ 0.05），把 n 往右拉，看 H₀ 的後驗機率怎麼變。'); }
+          us.forEach(function (u) { u(); });
+        }
+
+        function initAll() { document.querySelectorAll('.bay-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ medtest: initMed, beta: initBeta, mcmc: initMCMC, lindley: initLind })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <h2>一個題目</h2>
+
+      <p>
+        某種癌症在篩檢的人群中盛行率 1%。檢驗的敏感度 90%（有病的人 90% 驗出陽性），偽陽性率 9%（沒病的人 9% 也驗出陽性）。一位女士驗出陽性，她真的有癌症的機率是多少？
+      </p>
+
+      <p>
+        德國心理學家<strong>捷格仁澤</strong>多次拿類似的題目問醫生，據他的研究報告，許多醫生的答案在 70%～90% 之間。正確答案是——
+      </p>
+
+      <h2>計算</h2>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[P(\text{病}|+) = \frac{0.9\times0.01}{0.9\times0.01 + 0.09\times0.99} = \frac{0.009}{0.0981}\approx 9\%\]</div>
+
+      <p>
+        只有約 <strong>9%</strong>！
+      </p>
+
+      <div class="bay-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;medtest&quot;, &quot;q&quot;: &quot;醫學檢驗：驗出陽性，真的有病的機率是多少&quot;, &quot;prev&quot;: 0.01, &quot;sens&quot;: 0.9, &quot;spec&quot;: 0.91}"></div>
+
+      <h2>自然頻率</h2>
+
+      <p>
+        捷格仁澤發現：把機率改成<strong>人數</strong>（「自然頻率」）來講，大部分人都能算對。想像 1000 個人：
+      </p>
+
+      <ul>
+        <li>10 人有病，其中 9 人陽性。</li>
+        <li>990 人沒病，其中約 89 人也陽性。</li>
+        <li>陽性的共 98 人，真正有病的只有 9 人：9/98 ≈ 9%。</li>
+      </ul>
+
+      <p>
+        關鍵是<strong>基本率</strong>（盛行率）：沒病的人遠比有病的多，就算偽陽性率很小，乘上這麼多人，偽陽性的總數仍然壓過真陽性。忽略基本率，叫做<strong>基本率謬誤</strong>。
+      </p>
+
+      <h2>所以篩檢沒用嗎</h2>
+
+      <ul>
+        <li>陽性之後再做一次<strong>更準確</strong>的檢驗。這時第一次的後驗（9%），就成了第二次的<strong>先驗</strong>——貝氏更新可以一步一步疊加。</li>
+        <li>對<strong>高風險族群</strong>（盛行率高）篩檢，陽性的可信度就高得多。在模擬中把盛行率調到 20% 看看。</li>
+        <li>COVID-19 快篩也一樣：在疫情高峰時陽性很可信；在幾乎沒有病例的地方，陽性很多是假的。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          盛行率 1%、敏感度 90%、偽陽性率 9% 的檢驗，陽性時真正有病的機率只有約 9%，許多醫生卻答 70%～90%；用 1000 人的自然頻率思考，陽性 98 人中只有 9 人有病；關鍵是基本率，忽略它是基本率謬誤；解法是陽性後再做更準確的檢驗（前一次後驗變成先驗）、對高風險族群篩檢。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🎲 本課的推導以主要步驟為主；互動模擬為教學用的小型版本。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用自然頻率重算：盛行率 2%、敏感度 95%、偽陽性率 5%，陽性時有病的機率是多少？</li>
+          <li>什麼是基本率謬誤？</li>
+          <li>為什麼陽性之後再做一次檢驗很有效？用貝氏更新解釋。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>蒙提霍爾問題</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-02.html">← 上一課：貝氏定理</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-04.html">下一課：蒙提霍爾問題 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

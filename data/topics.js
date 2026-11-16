@@ -29090,6 +29090,348 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "fourier-signal",
+      category: "math",
+      title: "傅立葉分析與訊號處理：從聲音到 MRI",
+      description:
+        "傅立葉級數、正交性、吉布斯現象；傅立葉轉換、卷積定理、測不準關係、帕塞瓦爾；取樣定理、混疊、量化、DFT 與 CD 的 44.1 kHz；FFT 的推導與冷戰起源、視窗函數、頻譜圖；FIR/IIR 濾波器與 Z 轉換；音色、音高偵測、MP3 心理聲學、梅爾頻譜；二維轉換、JPEG 與 DCT、CNN；MRI 的 k 空間、CT 切片定理、DNA 的 51 號照片、FTIR、LIGO 匹配濾波；小波、壓縮感知、OFDM。附五個互動模擬。",
+      icon: "🎵",
+      url: "topics/fourier-signal/index.html",
+      resources: [
+        {
+          title: "公式表",
+          description: "傅立葉級數、轉換、DFT 與主要性質的速查表",
+          icon: "📐",
+          url: "topics/fourier-signal/formulas.html"
+        },
+        {
+          title: "論文與里程碑",
+          description: "從傅立葉到壓縮感知的原始文獻",
+          icon: "📄",
+          url: "topics/fourier-signal/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜所有訊號都是正弦波的和",
+          courses: [
+            { title: "傅立葉的大膽主張", url: "topics/fourier-signal/lesson-01.html" },
+            { title: "正交性", url: "topics/fourier-signal/lesson-02.html" },
+            { title: "傅立葉係數", url: "topics/fourier-signal/lesson-03.html" },
+            { title: "吉布斯現象", url: "topics/fourier-signal/lesson-04.html" },
+            { title: "模組總結：從時間到頻率", url: "topics/fourier-signal/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜傅立葉轉換",
+          courses: [
+            { title: "從級數到積分", url: "topics/fourier-signal/lesson-06.html" },
+            { title: "用複數寫", url: "topics/fourier-signal/lesson-07.html" },
+            { title: "重要的轉換對", url: "topics/fourier-signal/lesson-08.html" },
+            { title: "卷積定理", url: "topics/fourier-signal/lesson-09.html" },
+            { title: "測不準關係", url: "topics/fourier-signal/lesson-10.html" },
+            { title: "帕塞瓦爾定理", url: "topics/fourier-signal/lesson-11.html" },
+            { title: "模組總結：轉換的性質表", url: "topics/fourier-signal/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜數位化",
+          courses: [
+            { title: "取樣", url: "topics/fourier-signal/lesson-13.html" },
+            { title: "奈奎斯特—夏農取樣定理", url: "topics/fourier-signal/lesson-14.html" },
+            { title: "混疊", url: "topics/fourier-signal/lesson-15.html" },
+            { title: "量化與位元深度", url: "topics/fourier-signal/lesson-16.html" },
+            { title: "離散傅立葉轉換", url: "topics/fourier-signal/lesson-17.html" },
+            { title: "模組總結：CD 為什麼是 44.1 kHz", url: "topics/fourier-signal/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜FFT",
+          courses: [
+            { title: "DFT 太慢了", url: "topics/fourier-signal/lesson-19.html" },
+            { title: "庫利—圖基演算法", url: "topics/fourier-signal/lesson-20.html" },
+            { title: "視窗函數與頻譜洩漏", url: "topics/fourier-signal/lesson-21.html" },
+            { title: "頻譜圖", url: "topics/fourier-signal/lesson-22.html" },
+            { title: "模組總結：二十世紀最重要的演算法之一", url: "topics/fourier-signal/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜濾波器",
+          courses: [
+            { title: "低通、高通、帶通", url: "topics/fourier-signal/lesson-24.html" },
+            { title: "FIR 與 IIR", url: "topics/fourier-signal/lesson-25.html" },
+            { title: "Z 轉換", url: "topics/fourier-signal/lesson-26.html" },
+            { title: "降噪與等化器", url: "topics/fourier-signal/lesson-27.html" },
+            { title: "模組總結：在頻率上動手術", url: "topics/fourier-signal/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜聲音",
+          courses: [
+            { title: "音色與泛音", url: "topics/fourier-signal/lesson-29.html" },
+            { title: "音高偵測", url: "topics/fourier-signal/lesson-30.html" },
+            { title: "MP3 與心理聲學", url: "topics/fourier-signal/lesson-31.html" },
+            { title: "梅爾頻譜與語音辨識", url: "topics/fourier-signal/lesson-32.html" },
+            { title: "模組總結：聲音的頻率", url: "topics/fourier-signal/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜影像",
+          courses: [
+            { title: "二維傅立葉轉換", url: "topics/fourier-signal/lesson-34.html" },
+            { title: "JPEG 與離散餘弦轉換", url: "topics/fourier-signal/lesson-35.html" },
+            { title: "影像濾波：模糊與銳化", url: "topics/fourier-signal/lesson-36.html" },
+            { title: "卷積神經網路與傅立葉", url: "topics/fourier-signal/lesson-37.html" },
+            { title: "模組總結：影像的頻率", url: "topics/fourier-signal/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 H｜科學與醫學",
+          courses: [
+            { title: "MRI 與 k 空間", url: "topics/fourier-signal/lesson-39.html" },
+            { title: "CT 與傅立葉切片定理", url: "topics/fourier-signal/lesson-40.html" },
+            { title: "X 光繞射與 DNA", url: "topics/fourier-signal/lesson-41.html" },
+            { title: "傅立葉轉換紅外光譜", url: "topics/fourier-signal/lesson-42.html" },
+            { title: "匹配濾波：LIGO 怎麼從雜訊中找到訊號", url: "topics/fourier-signal/lesson-43.html" },
+            { title: "模組總結：看不見的東西", url: "topics/fourier-signal/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 I｜延伸",
+          courses: [
+            { title: "小波", url: "topics/fourier-signal/lesson-45.html" },
+            { title: "壓縮感知", url: "topics/fourier-signal/lesson-46.html" },
+            { title: "OFDM：Wi-Fi 與 4G/5G", url: "topics/fourier-signal/lesson-47.html" },
+            { title: "課程總結：傅立葉無所不在", url: "topics/fourier-signal/lesson-48.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "information-theory",
+      category: "math",
+      title: "資訊理論：從夏農的熵到壓縮、通訊與 LLM",
+      description:
+        "夏農 1948、資訊量與熵的推導、英文與中文的熵；信源編碼定理、霍夫曼、算術編碼、LZ77 與 ZIP、鴿籠原理、率—失真；互資訊、通道容量、夏農—哈特利；漢明碼、里德—所羅門、渦輪碼與 LDPC、極化碼與 5G；交叉熵、KL 散度、最大熵；交叉熵損失、語言模型即壓縮器、困惑度、資訊增益、VAE；馬克士威惡魔、蘭道爾原理、黑洞資訊悖論、量子資訊；一次性密碼本、密碼強度、柯氏複雜度。附四個互動模擬。",
+      icon: "📡",
+      url: "topics/information-theory/index.html",
+      resources: [
+        {
+          title: "公式表",
+          description: "熵、互資訊、容量、KL 散度等主要公式",
+          icon: "📐",
+          url: "topics/information-theory/formulas.html"
+        },
+        {
+          title: "論文清單",
+          description: "從夏農到極化碼的原始文獻",
+          icon: "📄",
+          url: "topics/information-theory/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是資訊",
+          courses: [
+            { title: "夏農的 1948 年", url: "topics/information-theory/lesson-01.html" },
+            { title: "資訊量", url: "topics/information-theory/lesson-02.html" },
+            { title: "熵", url: "topics/information-theory/lesson-03.html" },
+            { title: "位元", url: "topics/information-theory/lesson-04.html" },
+            { title: "英文與中文的熵", url: "topics/information-theory/lesson-05.html" },
+            { title: "模組總結：資訊是可以量的", url: "topics/information-theory/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜壓縮",
+          courses: [
+            { title: "信源編碼定理", url: "topics/information-theory/lesson-07.html" },
+            { title: "霍夫曼編碼", url: "topics/information-theory/lesson-08.html" },
+            { title: "算術編碼", url: "topics/information-theory/lesson-09.html" },
+            { title: "LZ77 與 ZIP", url: "topics/information-theory/lesson-10.html" },
+            { title: "隨機資料無法壓縮", url: "topics/information-theory/lesson-11.html" },
+            { title: "率—失真理論", url: "topics/information-theory/lesson-12.html" },
+            { title: "模組總結：壓縮的地圖", url: "topics/information-theory/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜通訊",
+          courses: [
+            { title: "雜訊通道", url: "topics/information-theory/lesson-14.html" },
+            { title: "互資訊", url: "topics/information-theory/lesson-15.html" },
+            { title: "通道容量與通道編碼定理", url: "topics/information-theory/lesson-16.html" },
+            { title: "夏農—哈特利定理", url: "topics/information-theory/lesson-17.html" },
+            { title: "模組總結：可靠與速度可以兼得", url: "topics/information-theory/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜錯誤更正碼",
+          courses: [
+            { title: "重複碼與奇偶檢查", url: "topics/information-theory/lesson-19.html" },
+            { title: "漢明碼", url: "topics/information-theory/lesson-20.html" },
+            { title: "里德—所羅門碼", url: "topics/information-theory/lesson-21.html" },
+            { title: "LDPC 與渦輪碼", url: "topics/information-theory/lesson-22.html" },
+            { title: "極化碼與 5G", url: "topics/information-theory/lesson-23.html" },
+            { title: "模組總結：追趕夏農的六十年", url: "topics/information-theory/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜機率的距離",
+          courses: [
+            { title: "交叉熵", url: "topics/information-theory/lesson-25.html" },
+            { title: "KL 散度", url: "topics/information-theory/lesson-26.html" },
+            { title: "最大熵原理", url: "topics/information-theory/lesson-27.html" },
+            { title: "模組總結：衡量模型的好壞", url: "topics/information-theory/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜資訊與機器學習",
+          courses: [
+            { title: "交叉熵損失", url: "topics/information-theory/lesson-29.html" },
+            { title: "語言模型即壓縮器", url: "topics/information-theory/lesson-30.html" },
+            { title: "困惑度", url: "topics/information-theory/lesson-31.html" },
+            { title: "決策樹與資訊增益", url: "topics/information-theory/lesson-32.html" },
+            { title: "VAE 與資訊瓶頸", url: "topics/information-theory/lesson-33.html" },
+            { title: "模組總結：學習就是壓縮", url: "topics/information-theory/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 G｜資訊與物理",
+          courses: [
+            { title: "熱力學熵與夏農熵", url: "topics/information-theory/lesson-35.html" },
+            { title: "馬克士威惡魔與西拉德引擎", url: "topics/information-theory/lesson-36.html" },
+            { title: "蘭道爾原理", url: "topics/information-theory/lesson-37.html" },
+            { title: "黑洞資訊悖論", url: "topics/information-theory/lesson-38.html" },
+            { title: "量子資訊", url: "topics/information-theory/lesson-39.html" },
+            { title: "模組總結：資訊是物理的", url: "topics/information-theory/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜資訊與密碼",
+          courses: [
+            { title: "完美保密與一次性密碼本", url: "topics/information-theory/lesson-41.html" },
+            { title: "熵與密碼強度", url: "topics/information-theory/lesson-42.html" },
+            { title: "模組總結：資訊與保密", url: "topics/information-theory/lesson-43.html" },
+          ],
+        },
+        {
+          title: "模組 I｜最後的思考",
+          courses: [
+            { title: "柯氏複雜度", url: "topics/information-theory/lesson-44.html" },
+            { title: "課程總結：一個位元改變世界", url: "topics/information-theory/lesson-45.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "bayesian-statistics",
+      category: "math",
+      title: "貝氏統計：用機率更新你的信念",
+      description:
+        "頻率派與貝氏派、貝氏定理推導、醫學檢驗悖論、蒙提霍爾、莎莉・克拉克案；Beta—二項式、常態—常態與卡爾曼濾波、卜瓦松—伽瑪、可信區間、先驗的選擇；貝葉斯與拉普拉斯、費雪、圖靈與恩尼格瑪、搜尋氫彈與法航 447；MCMC、吉布斯、HMC 與 NUTS、收斂診斷、變分推論；貝氏迴歸、八所學校階層模型、貝氏因子、奧坎剃刀；p 值與重現危機、林德利悖論、5σ；垃圾郵件、A/B 測試、天氣、選舉、臨床試驗、重力波；貝氏神經網路、高斯過程、貝氏大腦。附四個互動模擬。",
+      icon: "🎲",
+      url: "topics/bayesian-statistics/index.html",
+      resources: [
+        {
+          title: "公式表",
+          description: "貝氏定理、共軛模型、貝氏因子與 MCMC 的速查表",
+          icon: "📐",
+          url: "topics/bayesian-statistics/formulas.html"
+        },
+        {
+          title: "論文與書籍",
+          description: "從貝葉斯到 NUTS 的原始文獻",
+          icon: "📄",
+          url: "topics/bayesian-statistics/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜兩種機率",
+          courses: [
+            { title: "頻率派與貝氏派", url: "topics/bayesian-statistics/lesson-01.html" },
+            { title: "貝氏定理", url: "topics/bayesian-statistics/lesson-02.html" },
+            { title: "醫學檢驗的悖論", url: "topics/bayesian-statistics/lesson-03.html" },
+            { title: "蒙提霍爾問題", url: "topics/bayesian-statistics/lesson-04.html" },
+            { title: "模組總結：機率的直覺陷阱", url: "topics/bayesian-statistics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜貝氏推論",
+          courses: [
+            { title: "先驗、似然、後驗", url: "topics/bayesian-statistics/lesson-06.html" },
+            { title: "Beta—二項式模型", url: "topics/bayesian-statistics/lesson-07.html" },
+            { title: "常態—常態模型", url: "topics/bayesian-statistics/lesson-08.html" },
+            { title: "卜瓦松—伽瑪模型", url: "topics/bayesian-statistics/lesson-09.html" },
+            { title: "可信區間與信賴區間", url: "topics/bayesian-statistics/lesson-10.html" },
+            { title: "先驗怎麼選", url: "topics/bayesian-statistics/lesson-11.html" },
+            { title: "模組總結：貝氏推論的工具箱", url: "topics/bayesian-statistics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜歷史：被冷落的兩百年",
+          courses: [
+            { title: "貝葉斯與拉普拉斯", url: "topics/bayesian-statistics/lesson-13.html" },
+            { title: "費雪與冷宮", url: "topics/bayesian-statistics/lesson-14.html" },
+            { title: "圖靈與恩尼格瑪", url: "topics/bayesian-statistics/lesson-15.html" },
+            { title: "搜尋氫彈與潛艇", url: "topics/bayesian-statistics/lesson-16.html" },
+            { title: "模組總結：貝氏方法的復興", url: "topics/bayesian-statistics/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜計算：MCMC 革命",
+          courses: [
+            { title: "高維積分的困難", url: "topics/bayesian-statistics/lesson-18.html" },
+            { title: "MCMC：梅特羅波利斯演算法", url: "topics/bayesian-statistics/lesson-19.html" },
+            { title: "吉布斯取樣", url: "topics/bayesian-statistics/lesson-20.html" },
+            { title: "哈密頓蒙地卡羅", url: "topics/bayesian-statistics/lesson-21.html" },
+            { title: "收斂診斷", url: "topics/bayesian-statistics/lesson-22.html" },
+            { title: "變分推論", url: "topics/bayesian-statistics/lesson-23.html" },
+            { title: "模組總結：電腦讓貝氏成真", url: "topics/bayesian-statistics/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜模型",
+          courses: [
+            { title: "貝氏線性迴歸", url: "topics/bayesian-statistics/lesson-25.html" },
+            { title: "階層模型：八所學校", url: "topics/bayesian-statistics/lesson-26.html" },
+            { title: "貝氏因子", url: "topics/bayesian-statistics/lesson-27.html" },
+            { title: "貝氏奧坎剃刀", url: "topics/bayesian-statistics/lesson-28.html" },
+            { title: "模組總結：建立與比較模型", url: "topics/bayesian-statistics/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜p 值的爭議",
+          courses: [
+            { title: "p 值的誤用與重現危機", url: "topics/bayesian-statistics/lesson-30.html" },
+            { title: "林德利悖論", url: "topics/bayesian-statistics/lesson-31.html" },
+            { title: "粒子物理怎麼看", url: "topics/bayesian-statistics/lesson-32.html" },
+            { title: "模組總結：p 值與貝氏", url: "topics/bayesian-statistics/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜應用",
+          courses: [
+            { title: "垃圾郵件與單純貝氏", url: "topics/bayesian-statistics/lesson-34.html" },
+            { title: "貝氏 A/B 測試", url: "topics/bayesian-statistics/lesson-35.html" },
+            { title: "天氣預報與機率的評分", url: "topics/bayesian-statistics/lesson-36.html" },
+            { title: "選舉預測", url: "topics/bayesian-statistics/lesson-37.html" },
+            { title: "醫學診斷與臨床試驗", url: "topics/bayesian-statistics/lesson-38.html" },
+            { title: "重力波的參數估計", url: "topics/bayesian-statistics/lesson-39.html" },
+            { title: "模組總結：貝氏無所不在", url: "topics/bayesian-statistics/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 H｜貝氏與 AI",
+          courses: [
+            { title: "貝氏神經網路", url: "topics/bayesian-statistics/lesson-41.html" },
+            { title: "高斯過程與貝氏最佳化", url: "topics/bayesian-statistics/lesson-42.html" },
+            { title: "大腦是貝氏機器嗎", url: "topics/bayesian-statistics/lesson-43.html" },
+            { title: "課程總結：用機率更新你的信念", url: "topics/bayesian-statistics/lesson-44.html" },
+          ],
+        },
+      ],
     }
   ]
 };
