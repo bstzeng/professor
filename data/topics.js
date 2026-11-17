@@ -30570,6 +30570,195 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "options-black-scholes",
+      category: "finance",
+      title: "選擇權與 Black–Scholes",
+      description:
+        "衍生性商品的歷史、買權與賣權、損益圖與策略、買賣權平價；無套利複製、風險中性機率、多期二項樹、美式選擇權；巴舍利耶、布朗運動、幾何布朗運動、伊藤積分與伊藤引理、蒙地卡羅定價；Black–Scholes 方程式與公式、N(d₁) 與 N(d₂)、熱傳導方程式；希臘字母、Delta 避險、隱含波動度與微笑；台指選擇權與 2018 年選擇權之亂、VIX、1987 年股災、LTCM、肥尾與黑天鵝。附五個互動模擬。",
+      icon: "📈",
+      url: "topics/options-black-scholes/index.html",
+      resources: [
+        {
+          title: "公式表",
+          description: "本課程用到的主要公式",
+          icon: "🧮",
+          url: "topics/options-black-scholes/formulas.html"
+        },
+        {
+          title: "名詞表",
+          description: "中英對照的選擇權名詞",
+          icon: "📖",
+          url: "topics/options-black-scholes/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜衍生性商品基礎",
+          courses: [
+            { title: "什麼是衍生性商品", url: "topics/options-black-scholes/lesson-01.html" },
+            { title: "選擇權的基本", url: "topics/options-black-scholes/lesson-02.html" },
+            { title: "損益圖", url: "topics/options-black-scholes/lesson-03.html" },
+            { title: "選擇權策略", url: "topics/options-black-scholes/lesson-04.html" },
+            { title: "買賣權平價", url: "topics/options-black-scholes/lesson-05.html" },
+            { title: "模組總結：權利的價格", url: "topics/options-black-scholes/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜二項樹",
+          courses: [
+            { title: "無套利定價", url: "topics/options-black-scholes/lesson-07.html" },
+            { title: "風險中性機率", url: "topics/options-black-scholes/lesson-08.html" },
+            { title: "多期二項樹", url: "topics/options-black-scholes/lesson-09.html" },
+            { title: "美式選擇權與提前履約", url: "topics/options-black-scholes/lesson-10.html" },
+            { title: "從二項樹到連續時間", url: "topics/options-black-scholes/lesson-11.html" },
+            { title: "模組總結：二項樹", url: "topics/options-black-scholes/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜隨機微積分",
+          courses: [
+            { title: "隨機漫步與巴舍利耶", url: "topics/options-black-scholes/lesson-13.html" },
+            { title: "布朗運動", url: "topics/options-black-scholes/lesson-14.html" },
+            { title: "幾何布朗運動", url: "topics/options-black-scholes/lesson-15.html" },
+            { title: "伊藤積分", url: "topics/options-black-scholes/lesson-16.html" },
+            { title: "伊藤引理", url: "topics/options-black-scholes/lesson-17.html" },
+            { title: "蒙地卡羅定價", url: "topics/options-black-scholes/lesson-18.html" },
+            { title: "模組總結：隨機微積分", url: "topics/options-black-scholes/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜Black–Scholes",
+          courses: [
+            { title: "Black–Scholes 方程式", url: "topics/options-black-scholes/lesson-20.html" },
+            { title: "Black–Scholes 公式", url: "topics/options-black-scholes/lesson-21.html" },
+            { title: "N(d₁) 與 N(d₂) 的意義", url: "topics/options-black-scholes/lesson-22.html" },
+            { title: "布萊克、休斯與默頓", url: "topics/options-black-scholes/lesson-23.html" },
+            { title: "熱傳導方程式的連結", url: "topics/options-black-scholes/lesson-24.html" },
+            { title: "模組總結：一個公式", url: "topics/options-black-scholes/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜希臘字母與避險",
+          courses: [
+            { title: "Delta 與 Gamma", url: "topics/options-black-scholes/lesson-26.html" },
+            { title: "Theta、Vega 與 Rho", url: "topics/options-black-scholes/lesson-27.html" },
+            { title: "Delta 避險", url: "topics/options-black-scholes/lesson-28.html" },
+            { title: "隱含波動度與波動度微笑", url: "topics/options-black-scholes/lesson-29.html" },
+            { title: "模組總結：希臘字母", url: "topics/options-black-scholes/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實務與危機",
+          courses: [
+            { title: "台指選擇權", url: "topics/options-black-scholes/lesson-31.html" },
+            { title: "VIX 恐慌指數", url: "topics/options-black-scholes/lesson-32.html" },
+            { title: "1987 年黑色星期一", url: "topics/options-black-scholes/lesson-33.html" },
+            { title: "長期資本管理公司", url: "topics/options-black-scholes/lesson-34.html" },
+            { title: "模型的極限", url: "topics/options-black-scholes/lesson-35.html" },
+            { title: "課程總結：為不確定性定價", url: "topics/options-black-scholes/lesson-36.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "neuroscience",
+      category: "biomed",
+      title: "神經科學：大腦如何運作",
+      description:
+        "大腦的數字與腦區、從顱相學到卡哈爾；神經元、膜電位、動作電位與霍奇金—赫胥黎、髓鞘、突觸與羅威的夢、神經傳導物質、赫布與 LTP；視網膜、休伯爾與威澤爾、視錯覺、耳蝸、感覺小人與幻肢；運動皮質、小腦、基底核與帕金森、多巴胺與獎勵預測誤差、習慣與成癮；H.M.、記憶與間隔效應、位置細胞、杏仁核、蓋吉與前額葉；睡眠、意識的困難問題、裂腦人、阿茲海默症與中風；腦造影、腦機介面、大腦與 AI。附五個互動模擬。",
+      icon: "🧠",
+      url: "topics/neuroscience/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的神經科學名詞",
+          icon: "📖",
+          url: "topics/neuroscience/glossary.html"
+        },
+        {
+          title: "里程碑",
+          description: "重要的發現與諾貝爾獎",
+          icon: "📅",
+          url: "topics/neuroscience/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜大腦概觀",
+          courses: [
+            { title: "大腦是什麼", url: "topics/neuroscience/lesson-01.html" },
+            { title: "腦區的分工", url: "topics/neuroscience/lesson-02.html" },
+            { title: "神經科學簡史", url: "topics/neuroscience/lesson-03.html" },
+            { title: "模組總結：認識大腦", url: "topics/neuroscience/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜神經元",
+          courses: [
+            { title: "神經元的構造", url: "topics/neuroscience/lesson-05.html" },
+            { title: "膜電位", url: "topics/neuroscience/lesson-06.html" },
+            { title: "動作電位", url: "topics/neuroscience/lesson-07.html" },
+            { title: "傳導與髓鞘", url: "topics/neuroscience/lesson-08.html" },
+            { title: "突觸", url: "topics/neuroscience/lesson-09.html" },
+            { title: "神經傳導物質", url: "topics/neuroscience/lesson-10.html" },
+            { title: "可塑性與長期增益", url: "topics/neuroscience/lesson-11.html" },
+            { title: "模組總結：神經元", url: "topics/neuroscience/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜感覺",
+          courses: [
+            { title: "視網膜", url: "topics/neuroscience/lesson-13.html" },
+            { title: "視覺皮質", url: "topics/neuroscience/lesson-14.html" },
+            { title: "視錯覺與大腦的推論", url: "topics/neuroscience/lesson-15.html" },
+            { title: "聽覺", url: "topics/neuroscience/lesson-16.html" },
+            { title: "觸覺、痛覺與本體感覺", url: "topics/neuroscience/lesson-17.html" },
+            { title: "模組總結：感覺", url: "topics/neuroscience/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜運動與學習",
+          courses: [
+            { title: "運動皮質", url: "topics/neuroscience/lesson-19.html" },
+            { title: "小腦", url: "topics/neuroscience/lesson-20.html" },
+            { title: "基底核", url: "topics/neuroscience/lesson-21.html" },
+            { title: "多巴胺與獎勵預測誤差", url: "topics/neuroscience/lesson-22.html" },
+            { title: "習慣與成癮", url: "topics/neuroscience/lesson-23.html" },
+            { title: "模組總結：運動與學習", url: "topics/neuroscience/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜記憶與情緒",
+          courses: [
+            { title: "H.M. 的故事", url: "topics/neuroscience/lesson-25.html" },
+            { title: "記憶的種類與鞏固", url: "topics/neuroscience/lesson-26.html" },
+            { title: "海馬迴與位置細胞", url: "topics/neuroscience/lesson-27.html" },
+            { title: "杏仁核與恐懼", url: "topics/neuroscience/lesson-28.html" },
+            { title: "前額葉與決策", url: "topics/neuroscience/lesson-29.html" },
+            { title: "模組總結：記憶與情緒", url: "topics/neuroscience/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜意識與疾病",
+          courses: [
+            { title: "睡眠與夢", url: "topics/neuroscience/lesson-31.html" },
+            { title: "意識之謎", url: "topics/neuroscience/lesson-32.html" },
+            { title: "裂腦人", url: "topics/neuroscience/lesson-33.html" },
+            { title: "大腦的疾病", url: "topics/neuroscience/lesson-34.html" },
+            { title: "模組總結：意識與疾病", url: "topics/neuroscience/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 G｜前沿",
+          courses: [
+            { title: "腦造影", url: "topics/neuroscience/lesson-36.html" },
+            { title: "腦機介面", url: "topics/neuroscience/lesson-37.html" },
+            { title: "大腦與 AI，課程總結", url: "topics/neuroscience/lesson-38.html" },
+          ],
+        },
+      ],
     }
   ]
 };
