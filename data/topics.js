@@ -31123,6 +31123,182 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "obesity-glp1",
+      category: "biomed",
+      title: "肥胖、代謝與 GLP-1 減重藥",
+      description:
+        "BMI 與腰圍、肥胖是不是疾病；能量平衡、代謝適應、瘦體素、飢餓與飽足的荷爾蒙、為什麼會復胖；胰島素的發現、胰島素阻抗、代謝症候群；腸泌素效應、吉拉毒蜥、利拉魯肽、司美格魯肽（Ozempic、Wegovy）、替爾泊肽、心血管試驗與口服新藥；副作用、停藥復胖、缺貨與假藥、價格與健保、社會影響；飲食與運動、減重手術、環境與政策。附四個互動模擬。",
+      icon: "⚖️",
+      url: "topics/obesity-glp1/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的肥胖、代謝與藥物名詞",
+          icon: "📖",
+          url: "topics/obesity-glp1/glossary.html"
+        },
+        {
+          title: "藥物一覽",
+          description: "主要的 GLP-1 類藥物、核准年份與試驗結果",
+          icon: "💉",
+          url: "topics/obesity-glp1/drugs.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "肥胖是什麼", url: "topics/obesity-glp1/lesson-01.html" },
+            { title: "肥胖是疾病嗎", url: "topics/obesity-glp1/lesson-02.html" },
+            { title: "模組總結：重新認識肥胖", url: "topics/obesity-glp1/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜能量與代謝",
+          courses: [
+            { title: "能量平衡", url: "topics/obesity-glp1/lesson-04.html" },
+            { title: "代謝適應", url: "topics/obesity-glp1/lesson-05.html" },
+            { title: "脂肪組織", url: "topics/obesity-glp1/lesson-06.html" },
+            { title: "瘦體素", url: "topics/obesity-glp1/lesson-07.html" },
+            { title: "飢餓與飽足的荷爾蒙", url: "topics/obesity-glp1/lesson-08.html" },
+            { title: "為什麼減重會復胖", url: "topics/obesity-glp1/lesson-09.html" },
+            { title: "模組總結：能量與代謝", url: "topics/obesity-glp1/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜胰島素與糖尿病",
+          courses: [
+            { title: "胰島素的發現", url: "topics/obesity-glp1/lesson-11.html" },
+            { title: "第一型與第二型糖尿病", url: "topics/obesity-glp1/lesson-12.html" },
+            { title: "胰島素阻抗", url: "topics/obesity-glp1/lesson-13.html" },
+            { title: "代謝症候群", url: "topics/obesity-glp1/lesson-14.html" },
+            { title: "診斷：血糖、糖化血色素與耐糖試驗", url: "topics/obesity-glp1/lesson-15.html" },
+            { title: "模組總結：胰島素與糖尿病", url: "topics/obesity-glp1/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜GLP-1 的故事",
+          courses: [
+            { title: "腸泌素效應", url: "topics/obesity-glp1/lesson-17.html" },
+            { title: "毒蜥的唾液", url: "topics/obesity-glp1/lesson-18.html" },
+            { title: "利拉魯肽", url: "topics/obesity-glp1/lesson-19.html" },
+            { title: "司美格魯肽", url: "topics/obesity-glp1/lesson-20.html" },
+            { title: "替爾泊肽", url: "topics/obesity-glp1/lesson-21.html" },
+            { title: "不只是減重", url: "topics/obesity-glp1/lesson-22.html" },
+            { title: "下一代的藥物", url: "topics/obesity-glp1/lesson-23.html" },
+            { title: "模組總結：GLP-1 的故事", url: "topics/obesity-glp1/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜代價與爭議",
+          courses: [
+            { title: "副作用", url: "topics/obesity-glp1/lesson-25.html" },
+            { title: "停藥之後", url: "topics/obesity-glp1/lesson-26.html" },
+            { title: "缺貨、仿製與假藥", url: "topics/obesity-glp1/lesson-27.html" },
+            { title: "價格與健保", url: "topics/obesity-glp1/lesson-28.html" },
+            { title: "社會影響", url: "topics/obesity-glp1/lesson-29.html" },
+            { title: "模組總結：代價與爭議", url: "topics/obesity-glp1/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜其他方法與總結",
+          courses: [
+            { title: "飲食與運動的證據", url: "topics/obesity-glp1/lesson-31.html" },
+            { title: "減重手術", url: "topics/obesity-glp1/lesson-32.html" },
+            { title: "環境與行為", url: "topics/obesity-glp1/lesson-33.html" },
+            { title: "課程總結：重新理解體重", url: "topics/obesity-glp1/lesson-34.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "kyoto-animation",
+      category: "anime",
+      title: "京都動畫作品全紀錄：從宇治到全世界",
+      description:
+        "宇治的上色工作室、承包時代、Key 三部作、涼宮春日現象；幸運☆星、日常、K-ON!、冰菓、中二病與 Free!、吹響吧！上低音號、聲之形、紫羅蘭永恆花園；空氣感、演技作畫、光與色彩、聖地巡禮、音樂；正職員工與內部培養、導演們、京都動畫大賞；2019 年第一工作室事件、哀悼與重建；影響與批評。含部分劇情（有暴雷）。",
+      icon: "🎞️",
+      url: "topics/kyoto-animation/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "主要作品的年份、導演、原作與類型",
+          icon: "🎬",
+          url: "topics/kyoto-animation/works.html"
+        },
+        {
+          title: "京都動畫互動圖鑑",
+          description: "歷史年表、角色群像、聖地巡禮地圖、導演與創作者",
+          icon: "🗺️",
+          url: "topics/kyoto-animation/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論與崛起",
+          courses: [
+            { title: "京都動畫是誰", url: "topics/kyoto-animation/lesson-01.html" },
+            { title: "創業：宇治的家庭主婦們", url: "topics/kyoto-animation/lesson-02.html" },
+            { title: "承包時代", url: "topics/kyoto-animation/lesson-03.html" },
+            { title: "Key 三部作", url: "topics/kyoto-animation/lesson-04.html" },
+            { title: "涼宮春日現象", url: "topics/kyoto-animation/lesson-05.html" },
+            { title: "模組總結：導論與崛起", url: "topics/kyoto-animation/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜作品",
+          courses: [
+            { title: "幸運☆星與日常", url: "topics/kyoto-animation/lesson-07.html" },
+            { title: "K-ON! 輕音部", url: "topics/kyoto-animation/lesson-08.html" },
+            { title: "冰菓", url: "topics/kyoto-animation/lesson-09.html" },
+            { title: "自家品牌的作品", url: "topics/kyoto-animation/lesson-10.html" },
+            { title: "吹響吧！上低音號", url: "topics/kyoto-animation/lesson-11.html" },
+            { title: "聲之形", url: "topics/kyoto-animation/lesson-12.html" },
+            { title: "紫羅蘭永恆花園", url: "topics/kyoto-animation/lesson-13.html" },
+            { title: "角色群像", url: "topics/kyoto-animation/lesson-14.html" },
+            { title: "模組總結：作品", url: "topics/kyoto-animation/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜風格與技術",
+          courses: [
+            { title: "日常的演出", url: "topics/kyoto-animation/lesson-16.html" },
+            { title: "作畫：細膩的動作", url: "topics/kyoto-animation/lesson-17.html" },
+            { title: "光與色彩", url: "topics/kyoto-animation/lesson-18.html" },
+            { title: "聖地巡禮", url: "topics/kyoto-animation/lesson-19.html" },
+            { title: "音樂", url: "topics/kyoto-animation/lesson-20.html" },
+            { title: "模組總結：風格與技術", url: "topics/kyoto-animation/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜公司與人",
+          courses: [
+            { title: "正職員工與內部培養", url: "topics/kyoto-animation/lesson-22.html" },
+            { title: "導演與創作者們", url: "topics/kyoto-animation/lesson-23.html" },
+            { title: "京都動畫大賞與自家文庫", url: "topics/kyoto-animation/lesson-24.html" },
+            { title: "模組總結：公司與人", url: "topics/kyoto-animation/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜2019 年 7 月 18 日",
+          courses: [
+            { title: "第一工作室縱火事件", url: "topics/kyoto-animation/lesson-26.html" },
+            { title: "哀悼與支援", url: "topics/kyoto-animation/lesson-27.html" },
+            { title: "重建", url: "topics/kyoto-animation/lesson-28.html" },
+            { title: "模組總結：2019 年 7 月 18 日", url: "topics/kyoto-animation/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響與評價",
+          courses: [
+            { title: "京都動畫的影響", url: "topics/kyoto-animation/lesson-30.html" },
+            { title: "批評與爭議", url: "topics/kyoto-animation/lesson-31.html" },
+            { title: "課程總結：宇治的光", url: "topics/kyoto-animation/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
