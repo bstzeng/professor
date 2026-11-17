@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 40 課：冗餘、單點失效與共同原因 ｜ 工程災難 ｜ 博雅書院</title>
+<meta name="description" content="多一層防護的數學">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">工程災難</a>
+      <span class="sep">/</span>
+      <span>第 40 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 I｜教訓 · 第 40 課</div>
+      <h1>冗餘、單點失效與共同原因</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解冗餘與縱深防禦</li>
+          <li>理解單點失效</li>
+          <li>在模擬中體驗共同原因的影響</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__edaLib) return; window.__edaLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad', PU = '#8a5bb5';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+
+        function initFlutter(root, cfg) {
+          head(root, cfg.q); var P = { v: 40 }, view = el('div'), inf, Vc = 55;
+          var u = slider(root, '風速（公里／小時）', 0, 90, 1, P.v, function (x) { return x + ' km/h'; }, null, function (x) { P.v = x; draw(); });
+          root.appendChild(view); inf = info(root);
+          function draw() { var z = 0.05 * (1 - P.v / Vc), w = 2 * Math.PI * 0.2, d = [], th = 1, om = 0, dt = 0.05, mx = 0, gust = 0;
+            for (var i = 0; i < 2400; i++) { var t = i * dt, f = P.v > 5 ? 0.02 * Math.sin(1.7 * t) * P.v / 60 : 0; var acc = -2 * z * w * om - w * w * th + f; om += acc * dt; th += om * dt; th = Math.max(-40, Math.min(40, th)); if (i % 4 === 0) d.push([t, th]); mx = Math.max(mx, Math.abs(th)); }
+            view.innerHTML = chart(640, 230, [{ d: d, c: z < 0 ? RD : BL, n: '橋面的扭轉角（度）', w: 1.4 }], { x0: 0, x1: 120, y0: -Math.max(mx, 2) * 1.1, y1: Math.max(mx, 2) * 1.1, xl: '時間（秒）' });
+            inf.innerHTML = '風速 ' + P.v + ' km/h：總阻尼比 ≈ <b>' + f2(z * 100) + '%</b>。' +
+              (z < 0 ? '<br><b>顫振</b>：風不只是推動橋面，而是隨著橋面的扭轉改變對它的力，每一個循環都「餵」它更多能量——阻尼變成<b>負的</b>。振幅指數增長，直到結構破壞。塔科馬海峽吊橋在 1940 年 11 月 7 日，就是在約 64 km/h 的風中這樣扭斷的。' :
+                P.v > Vc * 0.8 ? '<br>接近臨界風速：風帶走的能量越來越少，振動衰減得越來越慢。' : '<br>結構本身與空氣的阻尼，讓振動逐漸衰減。') +
+              '<br><span style="font-size:0.9em;color:var(--text-muted)">（單一自由度的教學模型，臨界風速設為約 ' + Vc + ' km/h；真實的顫振分析需要風洞試驗。）</span>'; }
+          u();
+        }
+
+        function initFatigue(root, cfg) {
+          head(root, cfg.q); var P = { ds: 100, a0: 0.5, ins: 8000 }, view = el('div'), inf;
+          var us = [slider(root, '每次循環的應力範圍 Δσ（MPa）', 40, 200, 1, P.ds, function (x) { return x + ' MPa'; }, null, function (x) { P.ds = x; draw(); }),
+            slider(root, '初始裂紋長度（毫米）', 0.1, 3, 0.05, P.a0, function (x) { return f2(x) + ' mm'; }, null, function (x) { P.a0 = x; draw(); }),
+            slider(root, '檢查間隔（循環數，例如飛行次數）', 1000, 30000, 500, P.ins, function (x) { return x.toLocaleString() + ' 次'; }, null, function (x) { P.ins = x; draw(); })];
+          root.appendChild(view); inf = info(root);
+          var C = 5e-11, m = 3, Y = 1.12, KIC = 30, smaxRatio = 1.0, adet = 2;
+          function draw() { var smax = P.ds * smaxRatio, ac = Math.pow(KIC / (Y * smax), 2) / Math.PI * 1000, a = P.a0, N = 0, d = [[0, a]], dN = 50, det = null, ins = [];
+            while (a < ac && N < 400000) { var dK = Y * P.ds * Math.sqrt(Math.PI * a / 1000); a += C * Math.pow(dK, m) * dN * 1000; N += dN; if (N % 500 === 0) d.push([N, Math.min(a, ac * 1.05)]); if (det === null && a >= adet && N % P.ins < dN) det = N; }
+            for (var k = P.ins; k <= N; k += P.ins) ins.push({ x: k, c: GY, n: '' });
+            var fail = a >= ac ? N : null, firstIns = Math.ceil(Math.max(1, (function () { var aa = P.a0, nn = 0; while (aa < adet && nn < 400000) { aa += C * Math.pow(Y * P.ds * Math.sqrt(Math.PI * aa / 1000), m) * dN * 1000; nn += dN; } return nn; })()) / P.ins) * P.ins;
+            var caught = fail && firstIns < fail;
+            view.innerHTML = chart(640, 240, [{ d: d, c: RD, n: '裂紋長度（毫米）', w: 2.2 }], { x0: 0, x1: Math.max(N, P.ins) * 1.05, y0: 0, y1: Math.max(ac * 1.1, 3), xl: '循環數', hl: [{ y: ac, c: RD, n: '臨界長度：斷裂' }, { y: adet, c: GN, n: '檢查能發現的長度' }], vl: ins.length <= 30 ? ins : [] });
+            inf.innerHTML = '帕里斯定律：每次循環裂紋成長 da/dN = C(ΔK)^m，ΔK = YΔσ√(πa)。裂紋越長，長得越快。' +
+              '<br>臨界長度約 <b>' + f1(ac) + ' mm</b>；從 ' + f2(P.a0) + ' mm 長到斷裂需約 <b>' + (fail ? fail.toLocaleString() : '> 400,000') + '</b> 次循環。' +
+              (fail ? '<br>每 ' + P.ins.toLocaleString() + ' 次檢查一次（灰線）：' + (caught ? '<b>來得及</b>——在第 ' + firstIns.toLocaleString() + ' 次循環的檢查時，裂紋已超過 2 mm 可以被發現。' : '<b>來不及</b>——裂紋在下一次檢查之前就斷了。必須縮短檢查間隔。') : '') +
+              '<br>這就是「<b>損傷容限</b>」設計：假設裂紋一定存在，確保它在變危險之前一定會被檢查到。<span style="font-size:0.9em;color:var(--text-muted)">（材料參數為鋁合金的示意值。）</span>'; }
+          us.forEach(function (u) { u(); });
+        }
+
+        var FL = [[66, 0], [70, 1], [69, 0], [68, 0], [67, 0], [72, 0], [73, 0], [70, 0], [57, 1], [63, 1], [70, 1], [78, 0], [67, 0], [53, 2], [67, 0], [75, 0], [70, 0], [81, 0], [76, 0], [79, 0], [75, 2], [76, 0], [58, 1]];
+        function initOring(root, cfg) {
+          head(root, cfg.q); var P = { all: 0 }, view = el('div'), inf;
+          var b = bar(root); [['只看有損傷的發射（1986 年那一晚的圖）', 0], ['看全部 23 次發射', 1]].forEach(function (o) { var x = btn(o[0], o[1]); x.onclick = function () { P.all = o[1]; mark(b, o[1]); draw(); }; b.appendChild(x); }); mark(b, 0);
+          root.appendChild(view); inf = info(root);
+          var w0 = 0, w1 = 0; (function () { for (var it = 0; it < 50; it++) { var g0 = 0, g1 = 0, h00 = 0, h01 = 0, h11 = 0; FL.forEach(function (f) { var x = (f[0] - 32) / 1.8, y = f[1] > 0 ? 1 : 0, p = 1 / (1 + Math.exp(-(w0 + w1 * x))), wgt = p * (1 - p); g0 += y - p; g1 += (y - p) * x; h00 += wgt; h01 += wgt * x; h11 += wgt * x * x; });
+            var det = h00 * h11 - h01 * h01; w0 += (h11 * g0 - h01 * g1) / det; w1 += (-h01 * g0 + h00 * g1) / det; } })();
+          function draw() { var pts = FL.filter(function (f) { return P.all || f[1] > 0; }).map(function (f) { return { x: (f[0] - 32) / 1.8, y: f[1], c: f[1] ? RD : BL, n: '' }; }), cur = [];
+            for (var c = -4; c <= 30; c += 0.2) cur.push([c, 2.6 / (1 + Math.exp(-(w0 + w1 * c)))]);
+            var S = [{ d: [[-10, -1]], c: RD, n: '每次發射中有熱損傷的 O 型環數', w: 3 }]; if (P.all) S.push({ d: cur, c: PU, n: '邏輯迴歸：任何損傷的機率（× 2.6 顯示）', w: 1.6, dash: '5,4' });
+            view.innerHTML = chart(640, 240, S, { x0: -4, x1: 30, y0: -0.2, y1: 3, xl: '發射時的溫度（°C）', pts: pts, vl: [{ x: -0.6, c: RD, n: '預測溫度 31°F（−0.6°C）' }] });
+            var p31 = 1 / (1 + Math.exp(-(w0 + w1 * -0.6)));
+            inf.innerHTML = P.all ? '加上<b>沒有損傷</b>的 16 次發射（藍點），趨勢一目了然：溫度高於約 22°C（72°F）的發射中，只有一次有損傷；低於約 18°C 的四次發射，<b>全部</b>都有損傷。挑戰者號發射前的預測溫度約 −0.6°C（31°F），發射時氣溫約 2°C，都比過去最冷的發射（約 12°C）冷了十度以上。用邏輯迴歸外推到 31°F，損傷的機率約 <b>' + Math.round(p31 * 100) + '%</b>。' :
+              '1986 年 1 月 27 日晚上的電話會議中，討論的資料只有<b>發生過損傷</b>的 7 次發射。看起來，損傷在冷與熱的時候都發生——「溫度沒有明顯的關係」。' + '<br>按上面的另一個按鈕，加上沒有損傷的那些發射。' +
+              '<br><span style="font-size:0.9em;color:var(--text-muted)">資料：發射前 23 次飛行中，固態火箭助推器 O 型環出現熱損傷的數量（常用的教科書資料集）。</span>'; }
+          draw();
+        }
+
+        function initSwiss(root, cfg) {
+          head(root, cfg.q); var P = { n: 4, p: 0.1, c: 0 }, view = el('div'), inf;
+          var us = [slider(root, '防護層數', 1, 6, 1, P.n, function (x) { return x + ' 層'; }, null, function (x) { P.n = x; draw(); }),
+            slider(root, '每一層的漏洞機率', 0.01, 0.5, 0.01, P.p, function (x) { return Math.round(x * 100) + '%'; }, null, function (x) { P.p = x; draw(); }),
+            slider(root, '共同原因（例如同一個管理文化讓所有防護一起變弱）', 0, 1, 0.01, P.c, function (x) { return Math.round(x * 100) + '%'; }, null, function (x) { P.c = x; draw(); })];
+          root.appendChild(view); inf = info(root);
+          function draw() { var W = 640, H = 170, g = '', sp = (W - 120) / Math.max(1, P.n); var seed = 5; function r() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+            for (var i = 0; i < P.n; i++) { var x = 70 + i * sp; g += '<rect x="' + n1(x) + '" y="20" width="22" height="130" rx="6" fill="#f2c94c" stroke="#c9a227"/>'; var holes = Math.max(1, Math.round(P.p * 12)); for (var k = 0; k < holes; k++) { var y = 30 + r() * 110; g += '<ellipse cx="' + n1(x + 11) + '" cy="' + n1(y) + '" rx="6" ry="' + n1(4 + 8 * P.p) + '" fill="var(--surface)"/>'; } }
+            g += tx(30, 90, '危害', 11) + tx(W - 30, 90, '事故', 11, RD) + ln(45, 85, W - 50, 85, RD, 1.2, 'stroke-dasharray="4 4" marker-end="url(#ar)"');
+            view.innerHTML = svgw('0 0 ' + W + ' ' + H, g);
+            var pInd = Math.pow(P.p, P.n), pCom = P.p, pTot = (1 - P.c) * pInd + P.c * pCom;
+            inf.innerHTML = '如果每一層<b>獨立</b>，危害要穿過全部 ' + P.n + ' 層的機率是 ' + Math.round(P.p * 100) + '%^' + P.n + ' ≈ <b>' + (pInd < 1e-4 ? pInd.toExponential(1) : f2(pInd * 100) + '%') + '</b>。多一層防護，風險就乘上一個小數字——這是「縱深防禦」的力量。' +
+              '<br>但如果有 ' + Math.round(P.c * 100) + '% 的情況是<b>共同原因</b>讓所有的層一起失效（例如同一場海嘯淹沒了所有的備用發電機、同一個趕進度的文化讓所有的檢查都放水），整體的機率變成約 <b>' + (pTot < 1e-4 ? pTot.toExponential(1) : f2(pTot * 100) + '%') + '</b>。' +
+              (P.c > 0.05 ? '<br>共同原因讓多層防護的效果大打折扣——這是許多重大事故真正的原因。' : ''); }
+          us.forEach(function (u) { u(); });
+        }
+
+        function initAll() { document.querySelectorAll('.eda-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ flutter: initFlutter, fatigue: initFatigue, oring: initOring, swiss: initSwiss })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <h2>冗餘</h2>
+
+      <p>
+        如果一個元件失效的機率是 \(p\)，兩個<strong>獨立</strong>的元件同時失效的機率是 \(p^2\)。例如 \(p=0.01\)，兩個同時失效只有萬分之一。這是飛機有多套液壓系統、核電廠有多台發電機的原因。
+      </p>
+
+      <h2>單點失效</h2>
+
+      <p>
+        一個系統中，如果有<strong>任何一個</strong>元件失效就會讓整個系統失效，那個元件就是<strong>單點失效</strong>：737 MAX 的單一攻角感測器、Knight Capital 漏掉的那台伺服器。設計時要有系統地找出它們（例如失效模式與影響分析 FMEA、故障樹分析）。
+      </p>
+
+      <h2>共同原因</h2>
+
+      <p>
+        冗餘的數學有一個關鍵的假設：<strong>獨立</strong>。現實中，常常有一個原因同時打敗所有的備援：
+      </p>
+
+      <ul>
+        <li><strong>同一個環境</strong>：福島的發電機都在同一個高度（第 23 課）。</li>
+        <li><strong>同一個設計</strong>：亞利安 5 號的備援電腦執行同一套軟體（第 19 課）。</li>
+        <li><strong>同一個組織</strong>：博帕爾的安全系統都因為同一個省錢的決定而停用（第 35 課）。</li>
+        <li><strong>同一個供應商</strong>：全世界的電腦都使用同一個資安軟體（第 33 課）。</li>
+      </ul>
+
+      <div class="eda-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;swiss&quot;, &quot;q&quot;: &quot;瑞士乳酪模型：為什麼多層防護還是會失效&quot;}"></div>
+
+      <h2>多樣性</h2>
+
+      <p>
+        對抗共同原因的方法是<strong>多樣性</strong>：不同的位置、不同的原理、不同的團隊開發的軟體、不同的供應商。以及——不能讓同一個組織壓力同時削弱所有的防護層。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          兩個獨立元件同時失效機率是 p²，例如 p=0.01 時只有萬分之一，這是多套液壓與多台發電機的原因；任何一個失效就讓系統失效的是單點失效，如 737 MAX 的單一攻角感測器與 Knight Capital 漏掉的伺服器，要用 FMEA 與故障樹分析找出；冗餘數學假設獨立，但共同原因如同一環境（福島）、同一設計（亞利安 5 號）、同一組織（博帕爾）、同一供應商（CrowdStrike）會同時打敗所有備援；對抗方法是位置、原理、開發團隊與供應商的多樣性，並避免同一組織壓力削弱所有防護層。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">⚠️ 本課程討論真實的事故與罹難者，數字以官方調查報告與常見的估計為主；互動模擬為教學用的簡化模型。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>在模擬中，4 層防護、每層 10% 漏洞機率，獨立時事故機率是多少？加入 10% 共同原因後變成多少？</li>
+          <li>什麼是單點失效？舉本課程中的兩個例子。</li>
+          <li>對抗共同原因的方法是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>人因工程</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-39.html">← 上一課：偏差常態化與安全文化</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-41.html">下一課：人因工程 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

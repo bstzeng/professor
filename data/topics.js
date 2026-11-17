@@ -30191,6 +30191,205 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "engineering-disasters",
+      category: "tech",
+      title: "工程災難與事故調查",
+      description:
+        "安全規則是用血寫成的：瑞士乳酪模型與正常事故；塔科馬海峽吊橋的顫振、凱悅天橋、三豐百貨、921 東星大樓、莫蘭迪橋；自由輪、彗星客機、阿囉哈 243、華航 611 的疲勞；阿波羅 1 號、挑戰者號與費曼的冰水、哥倫比亞號、火星氣候探測者號、亞利安 5 號；三哩島、車諾比、福島、深水地平線；特內里費、法航 447、737 MAX；Therac-25、北美大停電、Knight Capital、CrowdStrike；博帕爾、高雄氣爆、泰坦號；偏差常態化、共同原因、人因工程。附四個互動模擬。",
+      icon: "⚠️",
+      url: "topics/engineering-disasters/index.html",
+      resources: [
+        {
+          title: "事故年表",
+          description: "依年份排列的所有案例與主要原因",
+          icon: "📅",
+          url: "topics/engineering-disasters/timeline.html"
+        },
+        {
+          title: "調查報告與延伸閱讀",
+          description: "重要的調查報告、書籍與本課程用到的概念",
+          icon: "📚",
+          url: "topics/engineering-disasters/reading.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "為什麼要研究失敗", url: "topics/engineering-disasters/lesson-01.html" },
+            { title: "事故調查的方法", url: "topics/engineering-disasters/lesson-02.html" },
+            { title: "模組總結：如何讀一場事故", url: "topics/engineering-disasters/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜結構",
+          courses: [
+            { title: "塔科馬海峽吊橋（1940）", url: "topics/engineering-disasters/lesson-04.html" },
+            { title: "凱悅酒店天橋（1981）", url: "topics/engineering-disasters/lesson-05.html" },
+            { title: "三豐百貨（1995）", url: "topics/engineering-disasters/lesson-06.html" },
+            { title: "921 大地震與東星大樓（1999）", url: "topics/engineering-disasters/lesson-07.html" },
+            { title: "熱那亞莫蘭迪橋（2018）", url: "topics/engineering-disasters/lesson-08.html" },
+            { title: "模組總結：結構為什麼會倒", url: "topics/engineering-disasters/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜材料與疲勞",
+          courses: [
+            { title: "自由輪：斷成兩半的船", url: "topics/engineering-disasters/lesson-10.html" },
+            { title: "彗星客機（1954）", url: "topics/engineering-disasters/lesson-11.html" },
+            { title: "阿囉哈航空 243 號（1988）", url: "topics/engineering-disasters/lesson-12.html" },
+            { title: "華航 611 號（2002）", url: "topics/engineering-disasters/lesson-13.html" },
+            { title: "模組總結：時間的敵人", url: "topics/engineering-disasters/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜太空",
+          courses: [
+            { title: "阿波羅 1 號（1967）", url: "topics/engineering-disasters/lesson-15.html" },
+            { title: "挑戰者號（1986）", url: "topics/engineering-disasters/lesson-16.html" },
+            { title: "費曼與冰水", url: "topics/engineering-disasters/lesson-17.html" },
+            { title: "哥倫比亞號（2003）", url: "topics/engineering-disasters/lesson-18.html" },
+            { title: "火星氣候探測者號與亞利安 5 號", url: "topics/engineering-disasters/lesson-19.html" },
+            { title: "模組總結：太空的教訓", url: "topics/engineering-disasters/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜能源",
+          courses: [
+            { title: "三哩島（1979）", url: "topics/engineering-disasters/lesson-21.html" },
+            { title: "車諾比（1986）", url: "topics/engineering-disasters/lesson-22.html" },
+            { title: "福島第一核電廠（2011）", url: "topics/engineering-disasters/lesson-23.html" },
+            { title: "深水地平線（2010）", url: "topics/engineering-disasters/lesson-24.html" },
+            { title: "模組總結：能源系統", url: "topics/engineering-disasters/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜航空",
+          courses: [
+            { title: "特內里費（1977）", url: "topics/engineering-disasters/lesson-26.html" },
+            { title: "法航 447（2009）", url: "topics/engineering-disasters/lesson-27.html" },
+            { title: "波音 737 MAX（2018–2019）", url: "topics/engineering-disasters/lesson-28.html" },
+            { title: "模組總結：人與機器", url: "topics/engineering-disasters/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜軟體",
+          courses: [
+            { title: "Therac-25（1985–1987）", url: "topics/engineering-disasters/lesson-30.html" },
+            { title: "2003 年北美大停電", url: "topics/engineering-disasters/lesson-31.html" },
+            { title: "Knight Capital（2012）", url: "topics/engineering-disasters/lesson-32.html" },
+            { title: "CrowdStrike（2024）", url: "topics/engineering-disasters/lesson-33.html" },
+            { title: "模組總結：軟體的失敗", url: "topics/engineering-disasters/lesson-34.html" },
+          ],
+        },
+        {
+          title: "模組 H｜化工與城市",
+          courses: [
+            { title: "博帕爾（1984）", url: "topics/engineering-disasters/lesson-35.html" },
+            { title: "高雄氣爆（2014）", url: "topics/engineering-disasters/lesson-36.html" },
+            { title: "泰坦號潛水器（2023）", url: "topics/engineering-disasters/lesson-37.html" },
+            { title: "模組總結：與社會的距離", url: "topics/engineering-disasters/lesson-38.html" },
+          ],
+        },
+        {
+          title: "模組 I｜教訓",
+          courses: [
+            { title: "偏差常態化與安全文化", url: "topics/engineering-disasters/lesson-39.html" },
+            { title: "冗餘、單點失效與共同原因", url: "topics/engineering-disasters/lesson-40.html" },
+            { title: "人因工程", url: "topics/engineering-disasters/lesson-41.html" },
+            { title: "課程總結：從失敗中學習", url: "topics/engineering-disasters/lesson-42.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "mamoru-hosoda",
+      category: "anime",
+      title: "細田守作品全紀錄：從《數碼寶貝》到《Scarlet》",
+      description:
+        "東映動畫的演出、數碼寶貝我們的戰爭遊戲、霍爾風波與航海王劇場版；跳躍吧！時空少女、夏日大作戰、狼的孩子雨和雪、怪物的孩子、未來的未來、龍與雀斑公主、Scarlet 永無止境的史嘉蕾；少女、父母與孩子、野獸；OZ 與 U、夏天與入道雲、現實與異界；地圖工作室、無影的角色、CG 與手繪、合作者、音樂、演員配音；與宮崎駿、新海誠的比較與評價。含完整劇情（有暴雷）。",
+      icon: "🌻",
+      url: "topics/mamoru-hosoda/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "導演作品的年份、原題、長度與主要資料",
+          icon: "🎬",
+          url: "topics/mamoru-hosoda/works.html"
+        },
+        {
+          title: "細田守互動圖鑑",
+          description: "作品年表、主角群像、夏日大作戰人物關係、另一個世界、合作者",
+          icon: "🗺️",
+          url: "topics/mamoru-hosoda/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論與早期",
+          courses: [
+            { title: "細田守是誰", url: "topics/mamoru-hosoda/lesson-01.html" },
+            { title: "東映動畫時代", url: "topics/mamoru-hosoda/lesson-02.html" },
+            { title: "數碼寶貝：我們的戰爭遊戲！", url: "topics/mamoru-hosoda/lesson-03.html" },
+            { title: "霍爾風波與航海王劇場版", url: "topics/mamoru-hosoda/lesson-04.html" },
+            { title: "模組總結：導演的養成", url: "topics/mamoru-hosoda/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜作品",
+          courses: [
+            { title: "跳躍吧！時空少女（2006）", url: "topics/mamoru-hosoda/lesson-06.html" },
+            { title: "夏日大作戰（2009）", url: "topics/mamoru-hosoda/lesson-07.html" },
+            { title: "狼的孩子雨和雪（2012）", url: "topics/mamoru-hosoda/lesson-08.html" },
+            { title: "怪物的孩子（2015）", url: "topics/mamoru-hosoda/lesson-09.html" },
+            { title: "未來的未來（2018）", url: "topics/mamoru-hosoda/lesson-10.html" },
+            { title: "龍與雀斑公主（2021）", url: "topics/mamoru-hosoda/lesson-11.html" },
+            { title: "Scarlet 永無止境的史嘉蕾（2025）", url: "topics/mamoru-hosoda/lesson-12.html" },
+            { title: "模組總結：七部長篇", url: "topics/mamoru-hosoda/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜人物",
+          courses: [
+            { title: "細田的少女們", url: "topics/mamoru-hosoda/lesson-14.html" },
+            { title: "父母與孩子", url: "topics/mamoru-hosoda/lesson-15.html" },
+            { title: "野獸與狼", url: "topics/mamoru-hosoda/lesson-16.html" },
+            { title: "模組總結：人物", url: "topics/mamoru-hosoda/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜世界",
+          courses: [
+            { title: "虛擬世界：從數碼寶貝到 U", url: "topics/mamoru-hosoda/lesson-18.html" },
+            { title: "夏天、入道雲與鄉下", url: "topics/mamoru-hosoda/lesson-19.html" },
+            { title: "現實與異界", url: "topics/mamoru-hosoda/lesson-20.html" },
+            { title: "模組總結：世界", url: "topics/mamoru-hosoda/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜幕後",
+          courses: [
+            { title: "地圖工作室", url: "topics/mamoru-hosoda/lesson-22.html" },
+            { title: "沒有影子的角色", url: "topics/mamoru-hosoda/lesson-23.html" },
+            { title: "CG 與手繪", url: "topics/mamoru-hosoda/lesson-24.html" },
+            { title: "合作者", url: "topics/mamoru-hosoda/lesson-25.html" },
+            { title: "音樂", url: "topics/mamoru-hosoda/lesson-26.html" },
+            { title: "配音：演員而非聲優", url: "topics/mamoru-hosoda/lesson-27.html" },
+            { title: "模組總結：幕後", url: "topics/mamoru-hosoda/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜比較與評價",
+          courses: [
+            { title: "細田守與宮崎駿", url: "topics/mamoru-hosoda/lesson-29.html" },
+            { title: "細田守與新海誠", url: "topics/mamoru-hosoda/lesson-30.html" },
+            { title: "評價與批評", url: "topics/mamoru-hosoda/lesson-31.html" },
+            { title: "課程總結：家族的導演", url: "topics/mamoru-hosoda/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
