@@ -31031,6 +31031,98 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cancer",
+      category: "biomed",
+      title: "癌症：從細胞到免疫療法",
+      description:
+        "癌症的定義、歷史與十大特徵；細胞週期、DNA 修復、致癌基因與 RAS、抑癌基因與 p53、端粒與海拉細胞、腫瘤的演化；吸菸、病毒（B 肝、HPV、幽門桿菌）、檳榔與砷、BRCA、運氣；影像與切片、TNM 分期、篩檢的偽陽性與過度診斷、液態切片；手術、放療與質子、化療、標靶治療與基利克、抗藥性、免疫檢查點、CAR-T 與 mRNA 疫苗；存活率的陷阱、安寧緩和醫療、飲食迷思、藥價與健保、台灣的癌症地圖。附五個互動模擬。",
+      icon: "🎗️",
+      url: "topics/cancer/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的癌症醫學名詞",
+          icon: "📖",
+          url: "topics/cancer/glossary.html"
+        },
+        {
+          title: "里程碑",
+          description: "從古埃及到個人化 mRNA 疫苗",
+          icon: "📅",
+          url: "topics/cancer/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "癌症是什麼", url: "topics/cancer/lesson-01.html" },
+            { title: "癌症簡史", url: "topics/cancer/lesson-02.html" },
+            { title: "癌症的特徵", url: "topics/cancer/lesson-03.html" },
+            { title: "模組總結：認識敵人", url: "topics/cancer/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜細胞與基因",
+          courses: [
+            { title: "細胞週期與檢查點", url: "topics/cancer/lesson-05.html" },
+            { title: "DNA 突變與修復", url: "topics/cancer/lesson-06.html" },
+            { title: "致癌基因", url: "topics/cancer/lesson-07.html" },
+            { title: "抑癌基因", url: "topics/cancer/lesson-08.html" },
+            { title: "端粒與永生", url: "topics/cancer/lesson-09.html" },
+            { title: "癌症是一場演化", url: "topics/cancer/lesson-10.html" },
+            { title: "模組總結：細胞與基因", url: "topics/cancer/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜成因",
+          courses: [
+            { title: "吸菸與流行病學", url: "topics/cancer/lesson-12.html" },
+            { title: "病毒與細菌", url: "topics/cancer/lesson-13.html" },
+            { title: "環境與化學物質", url: "topics/cancer/lesson-14.html" },
+            { title: "遺傳", url: "topics/cancer/lesson-15.html" },
+            { title: "運氣", url: "topics/cancer/lesson-16.html" },
+            { title: "模組總結：癌症從哪裡來", url: "topics/cancer/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜診斷與篩檢",
+          courses: [
+            { title: "從影像到切片", url: "topics/cancer/lesson-18.html" },
+            { title: "分期", url: "topics/cancer/lesson-19.html" },
+            { title: "篩檢的利與弊", url: "topics/cancer/lesson-20.html" },
+            { title: "液態切片與新的篩檢", url: "topics/cancer/lesson-21.html" },
+            { title: "模組總結：早期發現", url: "topics/cancer/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜治療",
+          courses: [
+            { title: "手術", url: "topics/cancer/lesson-23.html" },
+            { title: "放射治療", url: "topics/cancer/lesson-24.html" },
+            { title: "化學治療", url: "topics/cancer/lesson-25.html" },
+            { title: "標靶治療", url: "topics/cancer/lesson-26.html" },
+            { title: "抗藥性", url: "topics/cancer/lesson-27.html" },
+            { title: "免疫系統與癌症", url: "topics/cancer/lesson-28.html" },
+            { title: "免疫檢查點抑制劑", url: "topics/cancer/lesson-29.html" },
+            { title: "CAR-T、癌症疫苗與精準醫療", url: "topics/cancer/lesson-30.html" },
+            { title: "模組總結：治療", url: "topics/cancer/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜數字與社會",
+          courses: [
+            { title: "讀懂存活率", url: "topics/cancer/lesson-32.html" },
+            { title: "安寧緩和醫療", url: "topics/cancer/lesson-33.html" },
+            { title: "飲食與抗癌迷思", url: "topics/cancer/lesson-34.html" },
+            { title: "藥價與健保", url: "topics/cancer/lesson-35.html" },
+            { title: "台灣的癌症地圖", url: "topics/cancer/lesson-36.html" },
+            { title: "課程總結：認識癌症", url: "topics/cancer/lesson-37.html" },
+          ],
+        },
+      ],
     }
   ]
 };
