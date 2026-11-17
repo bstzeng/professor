@@ -29990,6 +29990,207 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "nuclear-fusion",
+      category: "science",
+      title: "核融合：從太陽到 ITER 與 NIF",
+      description:
+        "結合能、庫侖障壁與量子穿隧、伽莫夫峰、D-T 與無中子融合；質子—質子鏈、CNO 循環、太陽的自我調節；勞森判據推導、軔致輻射與反常輸運、Q 值；磁場中的帶電粒子、仿星器與 ZETA、托卡馬克與 T-3、TFTR 與 JET、不穩定性與破裂、ITER、W7-X；雷射內爆、NIF 與黑腔、2022 年點火、8.6 MJ 紀錄；中子與材料、氚增殖、偏濾器、高溫超導磁鐵；民間融合公司、EAST 與 KSTAR、永遠的三十年、冷融合；氫彈、μ 子催化、融合電廠。附三個互動模擬。",
+      icon: "☀️",
+      url: "topics/nuclear-fusion/index.html",
+      resources: [
+        {
+          title: "公式與設施",
+          description: "反應、點火條件與主要的融合裝置",
+          icon: "🔢",
+          url: "topics/nuclear-fusion/numbers.html"
+        },
+        {
+          title: "文獻",
+          description: "從恆星能源到點火",
+          icon: "📄",
+          url: "topics/nuclear-fusion/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "把太陽裝進瓶子", url: "topics/nuclear-fusion/lesson-01.html" },
+            { title: "結合能曲線", url: "topics/nuclear-fusion/lesson-02.html" },
+            { title: "庫侖障壁與量子穿隧", url: "topics/nuclear-fusion/lesson-03.html" },
+            { title: "選擇反應", url: "topics/nuclear-fusion/lesson-04.html" },
+            { title: "模組總結：融合的物理", url: "topics/nuclear-fusion/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜太陽",
+          courses: [
+            { title: "質子—質子鏈", url: "topics/nuclear-fusion/lesson-06.html" },
+            { title: "CNO 循環", url: "topics/nuclear-fusion/lesson-07.html" },
+            { title: "太陽為什麼不爆炸", url: "topics/nuclear-fusion/lesson-08.html" },
+            { title: "模組總結：恆星的融合", url: "topics/nuclear-fusion/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜點火條件",
+          courses: [
+            { title: "勞森判據", url: "topics/nuclear-fusion/lesson-10.html" },
+            { title: "能量的損失", url: "topics/nuclear-fusion/lesson-11.html" },
+            { title: "Q 值", url: "topics/nuclear-fusion/lesson-12.html" },
+            { title: "模組總結：點火的門檻", url: "topics/nuclear-fusion/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜磁約束",
+          courses: [
+            { title: "磁場中的帶電粒子", url: "topics/nuclear-fusion/lesson-14.html" },
+            { title: "早期的嘗試", url: "topics/nuclear-fusion/lesson-15.html" },
+            { title: "托卡馬克", url: "topics/nuclear-fusion/lesson-16.html" },
+            { title: "TFTR 與 JET", url: "topics/nuclear-fusion/lesson-17.html" },
+            { title: "不穩定性與破裂", url: "topics/nuclear-fusion/lesson-18.html" },
+            { title: "ITER", url: "topics/nuclear-fusion/lesson-19.html" },
+            { title: "仿星器的復興", url: "topics/nuclear-fusion/lesson-20.html" },
+            { title: "模組總結：磁的瓶子", url: "topics/nuclear-fusion/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜慣性約束",
+          courses: [
+            { title: "雷射內爆", url: "topics/nuclear-fusion/lesson-22.html" },
+            { title: "NIF 與間接驅動", url: "topics/nuclear-fusion/lesson-23.html" },
+            { title: "2022 年 12 月 5 日：點火", url: "topics/nuclear-fusion/lesson-24.html" },
+            { title: "之後的紀錄", url: "topics/nuclear-fusion/lesson-25.html" },
+            { title: "模組總結：一瞬間的太陽", url: "topics/nuclear-fusion/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜工程",
+          courses: [
+            { title: "中子與材料", url: "topics/nuclear-fusion/lesson-27.html" },
+            { title: "氚與鋰包層", url: "topics/nuclear-fusion/lesson-28.html" },
+            { title: "第一壁與偏濾器", url: "topics/nuclear-fusion/lesson-29.html" },
+            { title: "高溫超導磁鐵", url: "topics/nuclear-fusion/lesson-30.html" },
+            { title: "模組總結：從物理到工程", url: "topics/nuclear-fusion/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 G｜產業與爭議",
+          courses: [
+            { title: "民間融合公司", url: "topics/nuclear-fusion/lesson-32.html" },
+            { title: "中國、韓國、日本", url: "topics/nuclear-fusion/lesson-33.html" },
+            { title: "永遠的三十年", url: "topics/nuclear-fusion/lesson-34.html" },
+            { title: "冷融合", url: "topics/nuclear-fusion/lesson-35.html" },
+            { title: "模組總結：希望與懷疑", url: "topics/nuclear-fusion/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 H｜延伸",
+          courses: [
+            { title: "氫彈與融合", url: "topics/nuclear-fusion/lesson-37.html" },
+            { title: "μ 子催化與其他路線", url: "topics/nuclear-fusion/lesson-38.html" },
+            { title: "融合電廠長什麼樣子", url: "topics/nuclear-fusion/lesson-39.html" },
+            { title: "課程總結：把太陽裝進瓶子", url: "topics/nuclear-fusion/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "riemann-hypothesis",
+      category: "math",
+      title: "質數與黎曼猜想：數學最重要的未解問題",
+      description:
+        "質數無窮多、篩法、質數分布的不規則；高斯與勒讓德、對數積分、切比雪夫、1896 年質數定理；巴塞爾問題、歐拉乘積、解析延拓與 −1/12、函數方程、平凡零點與臨界帶；黎曼 1859 年的論文、顯式公式、黎曼猜想、質數的音樂；十兆個零點、哈代與臨界線上的比例、斯奎斯數、羅賓不等式、失敗的證明；蒙哥馬利與戴森、隨機矩陣、希爾伯特—波利亞與量子混沌；RSA、張益唐與有界間隙、哥德巴赫、L 函數與韋伊猜想、千禧年大獎。附五個互動模擬（ζ 零點即時計算）。",
+      icon: "🔢",
+      url: "topics/riemann-hypothesis/index.html",
+      resources: [
+        {
+          title: "公式表",
+          description: "質數定理、ζ 函數、顯式公式等主要公式",
+          icon: "📐",
+          url: "topics/riemann-hypothesis/formulas.html"
+        },
+        {
+          title: "文獻",
+          description: "從歐拉到張益唐",
+          icon: "📄",
+          url: "topics/riemann-hypothesis/papers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜質數",
+          courses: [
+            { title: "質數是什麼", url: "topics/riemann-hypothesis/lesson-01.html" },
+            { title: "埃拉托斯特尼篩法", url: "topics/riemann-hypothesis/lesson-02.html" },
+            { title: "質數分布的不規則", url: "topics/riemann-hypothesis/lesson-03.html" },
+            { title: "模組總結：數的原子", url: "topics/riemann-hypothesis/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜質數定理",
+          courses: [
+            { title: "高斯與勒讓德", url: "topics/riemann-hypothesis/lesson-05.html" },
+            { title: "對數積分", url: "topics/riemann-hypothesis/lesson-06.html" },
+            { title: "切比雪夫", url: "topics/riemann-hypothesis/lesson-07.html" },
+            { title: "1896：質數定理的證明", url: "topics/riemann-hypothesis/lesson-08.html" },
+            { title: "模組總結：質數的密度", url: "topics/riemann-hypothesis/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜ζ 函數",
+          courses: [
+            { title: "巴塞爾問題", url: "topics/riemann-hypothesis/lesson-10.html" },
+            { title: "歐拉乘積", url: "topics/riemann-hypothesis/lesson-11.html" },
+            { title: "解析延拓", url: "topics/riemann-hypothesis/lesson-12.html" },
+            { title: "函數方程", url: "topics/riemann-hypothesis/lesson-13.html" },
+            { title: "平凡零點與臨界帶", url: "topics/riemann-hypothesis/lesson-14.html" },
+            { title: "模組總結：ζ 函數的地圖", url: "topics/riemann-hypothesis/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜黎曼 1859",
+          courses: [
+            { title: "八頁的論文", url: "topics/riemann-hypothesis/lesson-16.html" },
+            { title: "顯式公式", url: "topics/riemann-hypothesis/lesson-17.html" },
+            { title: "黎曼猜想", url: "topics/riemann-hypothesis/lesson-18.html" },
+            { title: "零點是質數的音樂", url: "topics/riemann-hypothesis/lesson-19.html" },
+            { title: "模組總結：黎曼的遺產", url: "topics/riemann-hypothesis/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜證據與進展",
+          courses: [
+            { title: "數值驗證", url: "topics/riemann-hypothesis/lesson-21.html" },
+            { title: "哈代與臨界線上的比例", url: "topics/riemann-hypothesis/lesson-22.html" },
+            { title: "如果黎曼猜想成立", url: "topics/riemann-hypothesis/lesson-23.html" },
+            { title: "等價的命題", url: "topics/riemann-hypothesis/lesson-24.html" },
+            { title: "失敗的證明", url: "topics/riemann-hypothesis/lesson-25.html" },
+            { title: "模組總結：一百六十多年的進展", url: "topics/riemann-hypothesis/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜物理連結",
+          courses: [
+            { title: "蒙哥馬利與戴森", url: "topics/riemann-hypothesis/lesson-27.html" },
+            { title: "隨機矩陣", url: "topics/riemann-hypothesis/lesson-28.html" },
+            { title: "希爾伯特—波利亞猜想與量子混沌", url: "topics/riemann-hypothesis/lesson-29.html" },
+            { title: "模組總結：數學與物理的交會", url: "topics/riemann-hypothesis/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜延伸",
+          courses: [
+            { title: "RSA 與質數", url: "topics/riemann-hypothesis/lesson-31.html" },
+            { title: "孿生質數與張益唐", url: "topics/riemann-hypothesis/lesson-32.html" },
+            { title: "哥德巴赫猜想", url: "topics/riemann-hypothesis/lesson-33.html" },
+            { title: "推廣：L 函數與韋伊猜想", url: "topics/riemann-hypothesis/lesson-34.html" },
+            { title: "千禧年大獎", url: "topics/riemann-hypothesis/lesson-35.html" },
+            { title: "課程總結：質數的秘密", url: "topics/riemann-hypothesis/lesson-36.html" },
+          ],
+        },
+      ],
     }
   ]
 };
