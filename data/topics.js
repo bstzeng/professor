@@ -30759,6 +30759,278 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "christopher-nolan",
+      category: "fantasy",
+      title: "克里斯多福・諾蘭電影全紀錄：從《跟蹤》到《奧德賽》",
+      description:
+        "生平與風格；跟蹤、記憶拼圖的倒敘、針鋒相對、頂尖對決、黑暗騎士三部曲與希斯萊傑；全面啟動的夢中夢、星際效應的黑洞與米勒星球、天能的熵與迴文；敦克爾克大行動的三條時間線、奧本海默的黑白 IMAX 與七座奧斯卡、2026 年的奧德賽；喬納・諾蘭、季默與戈蘭森、IMAX 與底片、實景特效、剪輯與聲音；時間、記憶與內疚、評價、電影院。含完整劇情（有暴雷）。附三個互動模擬。",
+      icon: "🎬",
+      url: "topics/christopher-nolan/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "導演作品的年份、原名與重點",
+          icon: "🎬",
+          url: "topics/christopher-nolan/works.html"
+        },
+        {
+          title: "合作者",
+          description: "編劇、作曲、攝影、剪輯與常見的演員",
+          icon: "👥",
+          url: "topics/christopher-nolan/team.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "諾蘭是誰", url: "topics/christopher-nolan/lesson-01.html" },
+            { title: "諾蘭的風格", url: "topics/christopher-nolan/lesson-02.html" },
+            { title: "模組總結：一位作者", url: "topics/christopher-nolan/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期與蝙蝠俠",
+          courses: [
+            { title: "跟蹤（1998）", url: "topics/christopher-nolan/lesson-04.html" },
+            { title: "記憶拼圖（2000）", url: "topics/christopher-nolan/lesson-05.html" },
+            { title: "針鋒相對（2002）", url: "topics/christopher-nolan/lesson-06.html" },
+            { title: "頂尖對決（2006）", url: "topics/christopher-nolan/lesson-07.html" },
+            { title: "蝙蝠俠：開戰時刻（2005）", url: "topics/christopher-nolan/lesson-08.html" },
+            { title: "黑暗騎士（2008）", url: "topics/christopher-nolan/lesson-09.html" },
+            { title: "黑暗騎士：黎明昇起（2012）", url: "topics/christopher-nolan/lesson-10.html" },
+            { title: "模組總結：從獨立到大片", url: "topics/christopher-nolan/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜科學三部曲",
+          courses: [
+            { title: "全面啟動（2010）：夢中夢", url: "topics/christopher-nolan/lesson-12.html" },
+            { title: "全面啟動：陀螺與結局", url: "topics/christopher-nolan/lesson-13.html" },
+            { title: "全面啟動的音樂", url: "topics/christopher-nolan/lesson-14.html" },
+            { title: "星際效應（2014）：故事與科學顧問", url: "topics/christopher-nolan/lesson-15.html" },
+            { title: "星際效應：畫出黑洞", url: "topics/christopher-nolan/lesson-16.html" },
+            { title: "星際效應：米勒星球與時間膨脹", url: "topics/christopher-nolan/lesson-17.html" },
+            { title: "星際效應：蟲洞、超立方體與愛", url: "topics/christopher-nolan/lesson-18.html" },
+            { title: "天能（2020）：熵與逆轉", url: "topics/christopher-nolan/lesson-19.html" },
+            { title: "天能：迴文與鉗形作戰", url: "topics/christopher-nolan/lesson-20.html" },
+            { title: "天能：實拍與疫情中的上映", url: "topics/christopher-nolan/lesson-21.html" },
+            { title: "科學與電影", url: "topics/christopher-nolan/lesson-22.html" },
+            { title: "模組總結：科學三部曲", url: "topics/christopher-nolan/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜歷史與神話",
+          courses: [
+            { title: "敦克爾克大行動（2017）：三條時間線", url: "topics/christopher-nolan/lesson-24.html" },
+            { title: "敦克爾克大行動：滴答聲與實拍", url: "topics/christopher-nolan/lesson-25.html" },
+            { title: "奧本海默（2023）：故事", url: "topics/christopher-nolan/lesson-26.html" },
+            { title: "奧本海默：黑白 IMAX 與三位一體", url: "topics/christopher-nolan/lesson-27.html" },
+            { title: "奧本海默：芭本海默與奧斯卡", url: "topics/christopher-nolan/lesson-28.html" },
+            { title: "奧德賽（2026）", url: "topics/christopher-nolan/lesson-29.html" },
+            { title: "模組總結：歷史與神話", url: "topics/christopher-nolan/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 E｜幕後",
+          courses: [
+            { title: "喬納・諾蘭", url: "topics/christopher-nolan/lesson-31.html" },
+            { title: "配樂：季默與戈蘭森", url: "topics/christopher-nolan/lesson-32.html" },
+            { title: "攝影：普菲斯特與范・霍伊特瑪", url: "topics/christopher-nolan/lesson-33.html" },
+            { title: "IMAX 與底片", url: "topics/christopher-nolan/lesson-34.html" },
+            { title: "實景特效", url: "topics/christopher-nolan/lesson-35.html" },
+            { title: "剪輯與聲音", url: "topics/christopher-nolan/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主題與評價",
+          courses: [
+            { title: "時間、記憶與內疚", url: "topics/christopher-nolan/lesson-37.html" },
+            { title: "評價與批評", url: "topics/christopher-nolan/lesson-38.html" },
+            { title: "諾蘭與電影院", url: "topics/christopher-nolan/lesson-39.html" },
+            { title: "課程總結：時間的導演", url: "topics/christopher-nolan/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "jojo",
+      category: "anime",
+      title: "JoJo 的奇妙冒險：從幻影之血到 The JOJOLands",
+      description:
+        "荒木飛呂彥、JoJo 立與喬斯達家族；幻影之血、戰鬥潮流的波紋與柱之男；星塵鬥士的替身與五十天旅程、迪奧與世界；不滅鑽石的杜王町與吉良吉影；黃金之風的布加拉提小隊與緋紅之王；石之海的普奇神父與宇宙一巡；飆馬野郎、JOJOLion、The JOJOLands；替身的規則、名字的音樂、時間能力、波紋與旋轉、改編；人類讚歌與影響。含完整劇情（有暴雷）。",
+      icon: "⭐",
+      url: "topics/jojo/index.html",
+      resources: [
+        {
+          title: "JoJo 互動圖鑑",
+          description: "年表、喬斯達家族、替身圖鑑、星塵鬥士旅程地圖",
+          icon: "🗺️",
+          url: "topics/jojo/guide.html"
+        },
+        {
+          title: "名詞表",
+          description: "人物、能力與名詞中日英對照",
+          icon: "📖",
+          url: "topics/jojo/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "荒木飛呂彥與 JoJo", url: "topics/jojo/lesson-01.html" },
+            { title: "JoJo 的風格", url: "topics/jojo/lesson-02.html" },
+            { title: "喬斯達家族與宿命", url: "topics/jojo/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜第一部到第六部",
+          courses: [
+            { title: "幻影之血：喬納森與迪奧", url: "topics/jojo/lesson-04.html" },
+            { title: "幻影之血：波紋與齊貝林", url: "topics/jojo/lesson-05.html" },
+            { title: "幻影之血：結局", url: "topics/jojo/lesson-06.html" },
+            { title: "戰鬥潮流：喬瑟夫", url: "topics/jojo/lesson-07.html" },
+            { title: "戰鬥潮流：柱之男", url: "topics/jojo/lesson-08.html" },
+            { title: "戰鬥潮流：西薩、麗莎麗莎與究極生物", url: "topics/jojo/lesson-09.html" },
+            { title: "星塵鬥士：替身登場", url: "topics/jojo/lesson-10.html" },
+            { title: "星塵鬥士：旅程", url: "topics/jojo/lesson-11.html" },
+            { title: "星塵鬥士：夥伴們", url: "topics/jojo/lesson-12.html" },
+            { title: "星塵鬥士：迪奧與「世界」", url: "topics/jojo/lesson-13.html" },
+            { title: "星塵鬥士：結局", url: "topics/jojo/lesson-14.html" },
+            { title: "不滅鑽石：杜王町", url: "topics/jojo/lesson-15.html" },
+            { title: "不滅鑽石：仗助與夥伴", url: "topics/jojo/lesson-16.html" },
+            { title: "不滅鑽石：吉良吉影", url: "topics/jojo/lesson-17.html" },
+            { title: "不滅鑽石：結局與岸邊露伴", url: "topics/jojo/lesson-18.html" },
+            { title: "黃金之風：喬魯諾", url: "topics/jojo/lesson-19.html" },
+            { title: "黃金之風：布加拉提小隊", url: "topics/jojo/lesson-20.html" },
+            { title: "黃金之風：迪亞波羅與緋紅之王", url: "topics/jojo/lesson-21.html" },
+            { title: "黃金之風：鎮魂曲", url: "topics/jojo/lesson-22.html" },
+            { title: "石之海：徐倫與監獄", url: "topics/jojo/lesson-23.html" },
+            { title: "石之海：普奇神父與天國", url: "topics/jojo/lesson-24.html" },
+            { title: "石之海：天堂製造與宇宙一巡", url: "topics/jojo/lesson-25.html" },
+            { title: "模組總結：第一個宇宙", url: "topics/jojo/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 C｜新的宇宙",
+          courses: [
+            { title: "飆馬野郎：橫越美國的大賽馬", url: "topics/jojo/lesson-27.html" },
+            { title: "飆馬野郎：傑洛與喬尼", url: "topics/jojo/lesson-28.html" },
+            { title: "飆馬野郎：瓦倫泰總統與聖人遺體", url: "topics/jojo/lesson-29.html" },
+            { title: "JOJOLion：壁之眼與定助", url: "topics/jojo/lesson-30.html" },
+            { title: "JOJOLion：洛卡卡卡與岩人", url: "topics/jojo/lesson-31.html" },
+            { title: "The JOJOLands 與動畫的現在", url: "topics/jojo/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統",
+          courses: [
+            { title: "替身的規則", url: "topics/jojo/lesson-33.html" },
+            { title: "名字的音樂", url: "topics/jojo/lesson-34.html" },
+            { title: "時間能力的比較", url: "topics/jojo/lesson-35.html" },
+            { title: "波紋、旋轉與黃金", url: "topics/jojo/lesson-36.html" },
+            { title: "改編：動畫、真人、遊戲與聯名", url: "topics/jojo/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "人類讚歌", url: "topics/jojo/lesson-38.html" },
+            { title: "JoJo 的影響", url: "topics/jojo/lesson-39.html" },
+            { title: "課程總結：奇妙的冒險", url: "topics/jojo/lesson-40.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "minecraft-redstone",
+      category: "tech",
+      title: "Minecraft 紅石電路：用遊戲學計算機",
+      description:
+        "Minecraft 與紅石、訊號強度、紅石火把反相器、中繼器與比較器、活塞觀察者與遊戲刻；布林與夏農、基本邏輯閘與笛摩根、NAND 萬用閘、XOR、卡諾圖；二進位與二補數、半加器全加器、漣波進位加法器、解碼器與七段顯示器、多工器、ALU；回饋與記憶、RS 閂鎖、D 與 T 正反器、時脈、計數器、記憶體；馮紐曼架構、指令集、控制單元、執行程式、玩家的紅石電腦、速度與限制；從紅石到晶片、圖靈完備。附五個互動模擬，含一台可單步執行的迷你 CPU。",
+      icon: "🟥",
+      url: "topics/minecraft-redstone/index.html",
+      resources: [
+        {
+          title: "紅石元件表",
+          description: "主要紅石元件的行為與在電路中的角色",
+          icon: "🧱",
+          url: "topics/minecraft-redstone/parts.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程用到的數位邏輯與計算機名詞",
+          icon: "📖",
+          url: "topics/minecraft-redstone/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜紅石基礎",
+          courses: [
+            { title: "Minecraft 與紅石", url: "topics/minecraft-redstone/lesson-01.html" },
+            { title: "紅石粉與訊號強度", url: "topics/minecraft-redstone/lesson-02.html" },
+            { title: "紅石火把：反相器", url: "topics/minecraft-redstone/lesson-03.html" },
+            { title: "中繼器與比較器", url: "topics/minecraft-redstone/lesson-04.html" },
+            { title: "活塞、觀察者與遊戲刻", url: "topics/minecraft-redstone/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜邏輯閘",
+          courses: [
+            { title: "布林與夏農", url: "topics/minecraft-redstone/lesson-06.html" },
+            { title: "基本邏輯閘", url: "topics/minecraft-redstone/lesson-07.html" },
+            { title: "NAND 的萬用性", url: "topics/minecraft-redstone/lesson-08.html" },
+            { title: "XOR", url: "topics/minecraft-redstone/lesson-09.html" },
+            { title: "化簡：布林代數與卡諾圖", url: "topics/minecraft-redstone/lesson-10.html" },
+            { title: "模組總結：從紅石到邏輯", url: "topics/minecraft-redstone/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜組合電路",
+          courses: [
+            { title: "二進位", url: "topics/minecraft-redstone/lesson-12.html" },
+            { title: "半加器與全加器", url: "topics/minecraft-redstone/lesson-13.html" },
+            { title: "漣波進位加法器", url: "topics/minecraft-redstone/lesson-14.html" },
+            { title: "解碼器與七段顯示器", url: "topics/minecraft-redstone/lesson-15.html" },
+            { title: "多工器", url: "topics/minecraft-redstone/lesson-16.html" },
+            { title: "ALU：算術邏輯單元", url: "topics/minecraft-redstone/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜循序電路",
+          courses: [
+            { title: "回饋與記憶", url: "topics/minecraft-redstone/lesson-18.html" },
+            { title: "RS 閂鎖", url: "topics/minecraft-redstone/lesson-19.html" },
+            { title: "D 正反器與 T 正反器", url: "topics/minecraft-redstone/lesson-20.html" },
+            { title: "時脈", url: "topics/minecraft-redstone/lesson-21.html" },
+            { title: "計數器與暫存器", url: "topics/minecraft-redstone/lesson-22.html" },
+            { title: "記憶體", url: "topics/minecraft-redstone/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜建造 CPU",
+          courses: [
+            { title: "馮紐曼架構", url: "topics/minecraft-redstone/lesson-24.html" },
+            { title: "指令集與機器碼", url: "topics/minecraft-redstone/lesson-25.html" },
+            { title: "程式計數器與控制單元", url: "topics/minecraft-redstone/lesson-26.html" },
+            { title: "執行一個程式", url: "topics/minecraft-redstone/lesson-27.html" },
+            { title: "玩家的紅石電腦", url: "topics/minecraft-redstone/lesson-28.html" },
+            { title: "速度與限制", url: "topics/minecraft-redstone/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "從紅石到晶片", url: "topics/minecraft-redstone/lesson-30.html" },
+            { title: "圖靈完備", url: "topics/minecraft-redstone/lesson-31.html" },
+            { title: "課程總結：從一支火把到一台電腦", url: "topics/minecraft-redstone/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
