@@ -30390,6 +30390,186 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "group-theory",
+      category: "math",
+      title: "群論：對稱的數學",
+      description:
+        "對稱是動作：二面體群、群的公理；循環群與模算術、子群、置換與奇偶、拉格朗日定理、同構、同態、正規子群與商群；魔術方塊群與上帝之數、十五數字推盤、17 種壁紙群、230 種空間群與準晶體、正多面體、密碼學；三次方程式的恩怨、阿貝爾、伽羅瓦的決鬥、伽羅瓦群、A₅ 與五次方程式、尺規作圖；李群、諾特定理、SU(2) 與自旋、八重道與夸克、規範對稱；有限單群分類、怪獸月光。附五個互動元件。",
+      icon: "🔷",
+      url: "topics/group-theory/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的群論名詞與常見的群",
+          icon: "📖",
+          url: "topics/group-theory/glossary.html"
+        },
+        {
+          title: "年表",
+          description: "從三次方程式到怪獸月光",
+          icon: "📅",
+          url: "topics/group-theory/timeline.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜對稱",
+          courses: [
+            { title: "什麼是對稱", url: "topics/group-theory/lesson-01.html" },
+            { title: "正多邊形的對稱", url: "topics/group-theory/lesson-02.html" },
+            { title: "群的定義", url: "topics/group-theory/lesson-03.html" },
+            { title: "模組總結：對稱的語言", url: "topics/group-theory/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜基本概念",
+          courses: [
+            { title: "循環群與模算術", url: "topics/group-theory/lesson-05.html" },
+            { title: "子群與元素的階", url: "topics/group-theory/lesson-06.html" },
+            { title: "置換群", url: "topics/group-theory/lesson-07.html" },
+            { title: "拉格朗日定理", url: "topics/group-theory/lesson-08.html" },
+            { title: "同構", url: "topics/group-theory/lesson-09.html" },
+            { title: "同態與核", url: "topics/group-theory/lesson-10.html" },
+            { title: "正規子群與商群", url: "topics/group-theory/lesson-11.html" },
+            { title: "模組總結：群的工具箱", url: "topics/group-theory/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜例子",
+          courses: [
+            { title: "魔術方塊群", url: "topics/group-theory/lesson-13.html" },
+            { title: "十五數字推盤", url: "topics/group-theory/lesson-14.html" },
+            { title: "壁紙群", url: "topics/group-theory/lesson-15.html" },
+            { title: "晶體與準晶體", url: "topics/group-theory/lesson-16.html" },
+            { title: "正多面體的旋轉群", url: "topics/group-theory/lesson-17.html" },
+            { title: "密碼學中的群", url: "topics/group-theory/lesson-18.html" },
+            { title: "模組總結：群無所不在", url: "topics/group-theory/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜伽羅瓦",
+          courses: [
+            { title: "方程式的公式解", url: "topics/group-theory/lesson-20.html" },
+            { title: "魯菲尼與阿貝爾", url: "topics/group-theory/lesson-21.html" },
+            { title: "伽羅瓦的一生", url: "topics/group-theory/lesson-22.html" },
+            { title: "伽羅瓦群：根的對稱", url: "topics/group-theory/lesson-23.html" },
+            { title: "可解群與五次方程式", url: "topics/group-theory/lesson-24.html" },
+            { title: "尺規作圖", url: "topics/group-theory/lesson-25.html" },
+            { title: "模組總結：伽羅瓦的遺產", url: "topics/group-theory/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜物理",
+          courses: [
+            { title: "連續對稱與李群", url: "topics/group-theory/lesson-27.html" },
+            { title: "諾特定理", url: "topics/group-theory/lesson-28.html" },
+            { title: "旋轉、自旋與 SU(2)", url: "topics/group-theory/lesson-29.html" },
+            { title: "八重道與夸克", url: "topics/group-theory/lesson-30.html" },
+            { title: "規範對稱與標準模型", url: "topics/group-theory/lesson-31.html" },
+            { title: "模組總結：物理學的群", url: "topics/group-theory/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 F｜分類",
+          courses: [
+            { title: "有限單群的分類", url: "topics/group-theory/lesson-33.html" },
+            { title: "怪獸群與月光猜想", url: "topics/group-theory/lesson-34.html" },
+            { title: "群論的其他應用", url: "topics/group-theory/lesson-35.html" },
+            { title: "課程總結：對稱的力量", url: "topics/group-theory/lesson-36.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "topology",
+      category: "math",
+      title: "拓撲學：甜甜圈與咖啡杯",
+      description:
+        "橡皮幾何與同胚、柯尼斯堡七橋、拓撲不變量；莫比烏斯帶、克萊因瓶、射影平面、可定向性、尤拉示性數、曲面分類、高斯—博內定理；布勞威爾不動點、毛球定理、波蘇克—烏拉姆、火腿三明治；基本群、纏繞數與代數基本定理、覆蓋空間、同調、三維球面；紐結、三色著色、瓊斯多項式、DNA 與分子機器；龐加萊猜想、幾何化、裴瑞爾曼、拓撲資料分析、拓撲物態。附五個互動元件。",
+      icon: "🍩",
+      url: "topics/topology/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的拓撲學名詞",
+          icon: "📖",
+          url: "topics/topology/glossary.html"
+        },
+        {
+          title: "重要定理",
+          description: "本課程的定理一覽與年份",
+          icon: "📜",
+          url: "topics/topology/theorems.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是拓撲",
+          courses: [
+            { title: "橡皮幾何", url: "topics/topology/lesson-01.html" },
+            { title: "柯尼斯堡七橋", url: "topics/topology/lesson-02.html" },
+            { title: "拓撲不變量", url: "topics/topology/lesson-03.html" },
+            { title: "模組總結：拓撲的眼光", url: "topics/topology/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜曲面",
+          courses: [
+            { title: "莫比烏斯帶", url: "topics/topology/lesson-05.html" },
+            { title: "克萊因瓶與射影平面", url: "topics/topology/lesson-06.html" },
+            { title: "用正方形黏出曲面", url: "topics/topology/lesson-07.html" },
+            { title: "可定向性", url: "topics/topology/lesson-08.html" },
+            { title: "尤拉示性數", url: "topics/topology/lesson-09.html" },
+            { title: "曲面分類定理", url: "topics/topology/lesson-10.html" },
+            { title: "高斯—博內定理", url: "topics/topology/lesson-11.html" },
+            { title: "模組總結：曲面的世界", url: "topics/topology/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜不動點與向量場",
+          courses: [
+            { title: "布勞威爾不動點定理", url: "topics/topology/lesson-13.html" },
+            { title: "毛球定理", url: "topics/topology/lesson-14.html" },
+            { title: "波蘇克—烏拉姆定理", url: "topics/topology/lesson-15.html" },
+            { title: "火腿三明治定理", url: "topics/topology/lesson-16.html" },
+            { title: "模組總結：存在的力量", url: "topics/topology/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜代數拓撲",
+          courses: [
+            { title: "基本群", url: "topics/topology/lesson-18.html" },
+            { title: "纏繞數與代數基本定理", url: "topics/topology/lesson-19.html" },
+            { title: "覆蓋空間", url: "topics/topology/lesson-20.html" },
+            { title: "同調：數洞", url: "topics/topology/lesson-21.html" },
+            { title: "高維的球與流形", url: "topics/topology/lesson-22.html" },
+            { title: "模組總結：代數拓撲", url: "topics/topology/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜紐結",
+          courses: [
+            { title: "什麼是紐結", url: "topics/topology/lesson-24.html" },
+            { title: "瑞德麥斯特移動與三色著色", url: "topics/topology/lesson-25.html" },
+            { title: "瓊斯多項式", url: "topics/topology/lesson-26.html" },
+            { title: "DNA 與分子的紐結", url: "topics/topology/lesson-27.html" },
+            { title: "模組總結：紐結", url: "topics/topology/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜龐加萊猜想與應用",
+          courses: [
+            { title: "龐加萊猜想", url: "topics/topology/lesson-29.html" },
+            { title: "瑟斯頓的幾何化猜想", url: "topics/topology/lesson-30.html" },
+            { title: "裴瑞爾曼與里奇流", url: "topics/topology/lesson-31.html" },
+            { title: "拓撲資料分析", url: "topics/topology/lesson-32.html" },
+            { title: "拓撲物態", url: "topics/topology/lesson-33.html" },
+            { title: "課程總結：形狀的本質", url: "topics/topology/lesson-34.html" },
+          ],
+        },
+      ],
     }
   ]
 };
