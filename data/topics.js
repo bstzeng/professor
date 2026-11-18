@@ -31732,6 +31732,86 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "longevity",
+      category: "biomed",
+      title: "老化與長壽科學",
+      description:
+        "健康壽命、岡珀茲定律、老化的演化理論；老化的十二個特徵：DNA 損傷、端粒、表觀遺傳時鐘、蛋白質恆定與自噬、粒線體與營養感知、細胞衰老、幹細胞與發炎老化；熱量限制與猴子實驗、裸鼴鼠與格陵蘭鯊、daf-2、雷帕黴素、二甲雙胍與白藜蘆醇、清除衰老細胞、山中因子與重新編程；百歲人瑞與藍區爭議、運動、飲食睡眠與社交、失智與肌少症；抗老產業的炒作、延壽的倫理、台灣的超高齡社會。附岡珀茲存活曲線、端粒與動物壽命三個互動圖。",
+      icon: "⏳",
+      url: "topics/longevity/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的老化生物學名詞",
+          icon: "📖",
+          url: "topics/longevity/glossary.html"
+        },
+        {
+          title: "證據總覽",
+          description: "各種抗老方法在動物與人類的證據強度",
+          icon: "🔬",
+          url: "topics/longevity/evidence.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是老化",
+          courses: [
+            { title: "為什麼會老", url: "topics/longevity/lesson-01.html" },
+            { title: "岡珀茲定律", url: "topics/longevity/lesson-02.html" },
+            { title: "老化的演化理論", url: "topics/longevity/lesson-03.html" },
+            { title: "模組總結：什麼是老化", url: "topics/longevity/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜老化的機制",
+          courses: [
+            { title: "老化的特徵", url: "topics/longevity/lesson-05.html" },
+            { title: "DNA 損傷", url: "topics/longevity/lesson-06.html" },
+            { title: "端粒", url: "topics/longevity/lesson-07.html" },
+            { title: "表觀遺傳時鐘", url: "topics/longevity/lesson-08.html" },
+            { title: "蛋白質恆定與自噬", url: "topics/longevity/lesson-09.html" },
+            { title: "粒線體與營養感知", url: "topics/longevity/lesson-10.html" },
+            { title: "細胞衰老", url: "topics/longevity/lesson-11.html" },
+            { title: "幹細胞耗竭與慢性發炎", url: "topics/longevity/lesson-12.html" },
+            { title: "模組總結：老化的機制", url: "topics/longevity/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜延長壽命的實驗",
+          courses: [
+            { title: "熱量限制", url: "topics/longevity/lesson-14.html" },
+            { title: "長壽的動物", url: "topics/longevity/lesson-15.html" },
+            { title: "線蟲與長壽基因", url: "topics/longevity/lesson-16.html" },
+            { title: "雷帕黴素與 mTOR", url: "topics/longevity/lesson-17.html" },
+            { title: "二甲雙胍、NAD⁺ 與白藜蘆醇", url: "topics/longevity/lesson-18.html" },
+            { title: "清除衰老細胞", url: "topics/longevity/lesson-19.html" },
+            { title: "重新編程", url: "topics/longevity/lesson-20.html" },
+            { title: "模組總結：延長壽命的實驗", url: "topics/longevity/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人類",
+          courses: [
+            { title: "百歲人瑞與藍區", url: "topics/longevity/lesson-22.html" },
+            { title: "運動", url: "topics/longevity/lesson-23.html" },
+            { title: "飲食、睡眠與社會連結", url: "topics/longevity/lesson-24.html" },
+            { title: "失智與肌少症", url: "topics/longevity/lesson-25.html" },
+            { title: "模組總結：人類", url: "topics/longevity/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜產業與倫理",
+          courses: [
+            { title: "抗老產業與炒作", url: "topics/longevity/lesson-27.html" },
+            { title: "延長壽命的倫理", url: "topics/longevity/lesson-28.html" },
+            { title: "台灣的超高齡社會", url: "topics/longevity/lesson-29.html" },
+            { title: "課程總結：老得好", url: "topics/longevity/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
