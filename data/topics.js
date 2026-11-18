@@ -32330,6 +32330,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "tezuka",
+      category: "anime",
+      title: "手塚治虫全紀錄：漫畫之神的作品與影響",
+      description:
+        "寶塚的童年與昆蟲、戰爭與醫學、《新寶島》的電影式分鏡；原子小金剛、森林大帝與緞帶騎士、火之鳥、怪醫黑傑克、佛陀、三眼神童與多羅羅、阿道夫之謎、奇子與 MW；蟲製作與第一部電視動畫、有限動畫與低價承包、實驗動畫、倒閉與再起；生命的尊嚴、科技與人性、戰爭、明星系統；常盤莊、宮崎駿的批評、台灣的「怪醫秦博士」、手塚治虫文化賞與 PLUTO。",
+      icon: "🦾",
+      url: "topics/tezuka/index.html",
+      resources: [
+        {
+          title: "作品清單",
+          description: "本課程提到的漫畫與動畫",
+          icon: "📚",
+          url: "topics/tezuka/works.html"
+        },
+        {
+          title: "手塚互動圖鑑",
+          description: "生平年表、火之鳥各篇、明星系統與影響關係圖",
+          icon: "🗺️",
+          url: "topics/tezuka/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜生平",
+          courses: [
+            { title: "手塚治虫是誰", url: "topics/tezuka/lesson-01.html" },
+            { title: "寶塚的童年與昆蟲", url: "topics/tezuka/lesson-02.html" },
+            { title: "戰爭與醫學", url: "topics/tezuka/lesson-03.html" },
+            { title: "新寶島與電影式分鏡", url: "topics/tezuka/lesson-04.html" },
+            { title: "模組總結：生平", url: "topics/tezuka/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜代表作",
+          courses: [
+            { title: "原子小金剛", url: "topics/tezuka/lesson-06.html" },
+            { title: "森林大帝與緞帶騎士", url: "topics/tezuka/lesson-07.html" },
+            { title: "火之鳥（一）：結構", url: "topics/tezuka/lesson-08.html" },
+            { title: "火之鳥（二）：主題", url: "topics/tezuka/lesson-09.html" },
+            { title: "怪醫黑傑克", url: "topics/tezuka/lesson-10.html" },
+            { title: "佛陀", url: "topics/tezuka/lesson-11.html" },
+            { title: "三眼神童與多羅羅", url: "topics/tezuka/lesson-12.html" },
+            { title: "阿道夫之謎", url: "topics/tezuka/lesson-13.html" },
+            { title: "奇子與 MW", url: "topics/tezuka/lesson-14.html" },
+            { title: "模組總結：代表作", url: "topics/tezuka/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜動畫",
+          courses: [
+            { title: "蟲製作與電視動畫", url: "topics/tezuka/lesson-16.html" },
+            { title: "有限動畫與低價承包", url: "topics/tezuka/lesson-17.html" },
+            { title: "實驗動畫", url: "topics/tezuka/lesson-18.html" },
+            { title: "蟲製作的倒閉與重生", url: "topics/tezuka/lesson-19.html" },
+            { title: "模組總結：動畫", url: "topics/tezuka/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題",
+          courses: [
+            { title: "生命的尊嚴", url: "topics/tezuka/lesson-21.html" },
+            { title: "科技與人性", url: "topics/tezuka/lesson-22.html" },
+            { title: "戰爭", url: "topics/tezuka/lesson-23.html" },
+            { title: "明星系統", url: "topics/tezuka/lesson-24.html" },
+            { title: "模組總結：主題", url: "topics/tezuka/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響",
+          courses: [
+            { title: "常盤莊", url: "topics/tezuka/lesson-26.html" },
+            { title: "宮崎駿的評價", url: "topics/tezuka/lesson-27.html" },
+            { title: "台灣的手塚", url: "topics/tezuka/lesson-28.html" },
+            { title: "手塚的遺產", url: "topics/tezuka/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：漫畫之神", url: "topics/tezuka/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
