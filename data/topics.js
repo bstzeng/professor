@@ -31986,6 +31986,95 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "star-trek",
+      category: "fantasy",
+      title: "星艦迷航記全紀錄",
+      description:
+        "羅登貝瑞與「太空中的篷車隊」、星際聯邦與後稀缺社會；原初系列、可汗之怒、銀河飛龍、深太空九號、重返地球、企業號、凱爾文時間線、串流時代的奇異新世界與星艦學院；瓦肯、克林貢、羅慕倫、博格、卡達西與自治領、Q；曲速引擎與阿庫別瑞、傳送器與人格同一性、複製機與全像甲板、星艦設計；最高指導原則、烏乎拉與民權、DS9 的戰爭與道德、Data 與人工智慧；通訊器與手機、粉絲文化。附年表、艦橋人物、種族圖鑑、銀河地圖與曲速計算器。",
+      icon: "🖖",
+      url: "topics/star-trek/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "影集與電影的年份、主角與特色",
+          icon: "🎬",
+          url: "topics/star-trek/works.html"
+        },
+        {
+          title: "星艦互動圖鑑",
+          description: "作品年表、艦橋人物、種族、銀河地圖與曲速計算器",
+          icon: "🗺️",
+          url: "topics/star-trek/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "什麼是星艦迷航記", url: "topics/star-trek/lesson-01.html" },
+            { title: "金・羅登貝瑞", url: "topics/star-trek/lesson-02.html" },
+            { title: "星際聯邦", url: "topics/star-trek/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/star-trek/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜系列",
+          courses: [
+            { title: "原初系列", url: "topics/star-trek/lesson-05.html" },
+            { title: "電影時代", url: "topics/star-trek/lesson-06.html" },
+            { title: "銀河飛龍", url: "topics/star-trek/lesson-07.html" },
+            { title: "深太空九號", url: "topics/star-trek/lesson-08.html" },
+            { title: "重返地球", url: "topics/star-trek/lesson-09.html" },
+            { title: "企業號", url: "topics/star-trek/lesson-10.html" },
+            { title: "亞伯拉罕的重啟電影", url: "topics/star-trek/lesson-11.html" },
+            { title: "串流時代", url: "topics/star-trek/lesson-12.html" },
+            { title: "模組總結：系列", url: "topics/star-trek/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜種族與勢力",
+          courses: [
+            { title: "瓦肯人", url: "topics/star-trek/lesson-14.html" },
+            { title: "克林貢人", url: "topics/star-trek/lesson-15.html" },
+            { title: "羅慕倫人", url: "topics/star-trek/lesson-16.html" },
+            { title: "博格人", url: "topics/star-trek/lesson-17.html" },
+            { title: "卡達西與自治領", url: "topics/star-trek/lesson-18.html" },
+            { title: "Q 與其他存在", url: "topics/star-trek/lesson-19.html" },
+            { title: "模組總結：種族與勢力", url: "topics/star-trek/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜科技與科學",
+          courses: [
+            { title: "曲速引擎", url: "topics/star-trek/lesson-21.html" },
+            { title: "傳送器", url: "topics/star-trek/lesson-22.html" },
+            { title: "複製機與全像甲板", url: "topics/star-trek/lesson-23.html" },
+            { title: "星艦的設計", url: "topics/star-trek/lesson-24.html" },
+            { title: "星艦的科學可行嗎", url: "topics/star-trek/lesson-25.html" },
+            { title: "模組總結：科技與科學", url: "topics/star-trek/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "最高指導原則", url: "topics/star-trek/lesson-27.html" },
+            { title: "多元與民權", url: "topics/star-trek/lesson-28.html" },
+            { title: "戰爭與道德", url: "topics/star-trek/lesson-29.html" },
+            { title: "Data 與人工智慧", url: "topics/star-trek/lesson-30.html" },
+            { title: "模組總結：主題", url: "topics/star-trek/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響",
+          courses: [
+            { title: "對真實科技的影響", url: "topics/star-trek/lesson-32.html" },
+            { title: "粉絲文化", url: "topics/star-trek/lesson-33.html" },
+            { title: "課程總結：前人未至之地", url: "topics/star-trek/lesson-34.html" },
+          ],
+        },
+      ],
     }
   ]
 };
