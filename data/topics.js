@@ -32580,6 +32580,171 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "air-crashes",
+      category: "tech",
+      title: "空難全紀錄：70 起事故的背景、經過與改進",
+      description:
+        "空難調查與黑盒子、瑞士乳酪模型；50 起經典空難依原因分類——結構與材料（彗星、三義、日航 123、阿囉哈、蘇城、協和號、華航 611）、設計與維修（土航 981、美航 191、737 方向舵、秘魯 603、阿拉斯加 261）、人為因素與 CRM（東方 401、聯合 173、名古屋、卡利、關島、大園、新航 006、科爾根、韓亞 214）、自動化（吉姆利、太陽神、法航 447）、天氣（火山灰、微爆氣流、結冰、哈德遜河）、火災（加航 797、曼徹斯特、瓦盧傑、環球 800、瑞航 111）、相撞（大峽谷、特內里費、于伯林根）、擊落與恐攻（大韓 007、洛克比、九一一）；20 起近年事故（MH370、MH17、GE222、GE235、德國之翼、737 MAX、烏克蘭 752、MU5735、羽田相撞、濟州航空、華盛頓相撞、印度航空 171、UPS 2976 等），每一起都整理背景、經過、原因與後續改進；附事故總表、改進關係圖與台灣飛安史。",
+      icon: "🛩️",
+      url: "topics/air-crashes/index.html",
+      resources: [
+        {
+          title: "事故總表",
+          description: "依年份排列的事故、類別與一句話摘要",
+          icon: "📋",
+          url: "topics/air-crashes/table.html"
+        },
+        {
+          title: "飛安名詞",
+          description: "本課程常見的飛安名詞",
+          icon: "📚",
+          url: "topics/air-crashes/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事故圖鑑、瑞士乳酪模型與改進關係圖",
+          icon: "🗺️",
+          url: "topics/air-crashes/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "空難怎麼調查", url: "topics/air-crashes/lesson-01.html" },
+            { title: "瑞士乳酪模型", url: "topics/air-crashes/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜結構與材料",
+          courses: [
+            { title: "彗星客機", url: "topics/air-crashes/lesson-03.html" },
+            { title: "遠東航空 103 三義空難", url: "topics/air-crashes/lesson-04.html" },
+            { title: "日航 123", url: "topics/air-crashes/lesson-05.html" },
+            { title: "阿囉哈航空 243", url: "topics/air-crashes/lesson-06.html" },
+            { title: "聯合航空 811", url: "topics/air-crashes/lesson-07.html" },
+            { title: "聯合航空 232 蘇城", url: "topics/air-crashes/lesson-08.html" },
+            { title: "協和號 4590", url: "topics/air-crashes/lesson-09.html" },
+            { title: "華航 611 澎湖空難", url: "topics/air-crashes/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜設計與維修",
+          courses: [
+            { title: "土耳其航空 981", url: "topics/air-crashes/lesson-11.html" },
+            { title: "美國航空 191", url: "topics/air-crashes/lesson-12.html" },
+            { title: "737 方向舵之謎", url: "topics/air-crashes/lesson-13.html" },
+            { title: "伯根航空 301", url: "topics/air-crashes/lesson-14.html" },
+            { title: "秘魯航空 603", url: "topics/air-crashes/lesson-15.html" },
+            { title: "阿拉斯加航空 261", url: "topics/air-crashes/lesson-16.html" },
+            { title: "美國航空 587", url: "topics/air-crashes/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人為因素與組員資源管理",
+          courses: [
+            { title: "東方航空 401", url: "topics/air-crashes/lesson-18.html" },
+            { title: "聯合航空 173", url: "topics/air-crashes/lesson-19.html" },
+            { title: "亞維安卡 52", url: "topics/air-crashes/lesson-20.html" },
+            { title: "華航 140 名古屋空難", url: "topics/air-crashes/lesson-21.html" },
+            { title: "美國航空 965 卡利空難", url: "topics/air-crashes/lesson-22.html" },
+            { title: "大韓航空 801 關島空難", url: "topics/air-crashes/lesson-23.html" },
+            { title: "華航 676 大園空難", url: "topics/air-crashes/lesson-24.html" },
+            { title: "新航 006 桃園空難", url: "topics/air-crashes/lesson-25.html" },
+            { title: "科爾根航空 3407", url: "topics/air-crashes/lesson-26.html" },
+            { title: "韓亞航空 214", url: "topics/air-crashes/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜自動化與系統",
+          courses: [
+            { title: "吉姆利滑翔機", url: "topics/air-crashes/lesson-28.html" },
+            { title: "太陽神航空 522", url: "topics/air-crashes/lesson-29.html" },
+            { title: "法航 447", url: "topics/air-crashes/lesson-30.html" },
+            { title: "土耳其航空 1951", url: "topics/air-crashes/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜天氣與自然",
+          courses: [
+            { title: "英航 9 火山灰事件", url: "topics/air-crashes/lesson-32.html" },
+            { title: "佛羅里達航空 90", url: "topics/air-crashes/lesson-33.html" },
+            { title: "達美航空 191", url: "topics/air-crashes/lesson-34.html" },
+            { title: "美鷹航空 4184", url: "topics/air-crashes/lesson-35.html" },
+            { title: "哈德遜河奇蹟", url: "topics/air-crashes/lesson-36.html" },
+          ],
+        },
+        {
+          title: "模組 G｜火災與撤離",
+          courses: [
+            { title: "沙烏地航空 163", url: "topics/air-crashes/lesson-37.html" },
+            { title: "加航 797", url: "topics/air-crashes/lesson-38.html" },
+            { title: "曼徹斯特機場火災", url: "topics/air-crashes/lesson-39.html" },
+            { title: "瓦盧傑 592", url: "topics/air-crashes/lesson-40.html" },
+            { title: "環球航空 800", url: "topics/air-crashes/lesson-41.html" },
+            { title: "瑞士航空 111", url: "topics/air-crashes/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 H｜空中相撞與跑道",
+          courses: [
+            { title: "大峽谷空中相撞", url: "topics/air-crashes/lesson-43.html" },
+            { title: "特內里費空難", url: "topics/air-crashes/lesson-44.html" },
+            { title: "恰爾基達德里空中相撞", url: "topics/air-crashes/lesson-45.html" },
+            { title: "米蘭林納特空難", url: "topics/air-crashes/lesson-46.html" },
+            { title: "于伯林根空中相撞", url: "topics/air-crashes/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 I｜擊落與恐怖攻擊",
+          courses: [
+            { title: "大韓航空 007", url: "topics/air-crashes/lesson-48.html" },
+            { title: "印度航空 182", url: "topics/air-crashes/lesson-49.html" },
+            { title: "伊朗航空 655", url: "topics/air-crashes/lesson-50.html" },
+            { title: "洛克比空難", url: "topics/air-crashes/lesson-51.html" },
+            { title: "九一一事件", url: "topics/air-crashes/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 J｜近年事故（2014～2019）",
+          courses: [
+            { title: "馬航 MH370", url: "topics/air-crashes/lesson-53.html" },
+            { title: "馬航 MH17", url: "topics/air-crashes/lesson-54.html" },
+            { title: "復興航空 GE222 澎湖空難", url: "topics/air-crashes/lesson-55.html" },
+            { title: "亞洲航空 QZ8501", url: "topics/air-crashes/lesson-56.html" },
+            { title: "復興航空 GE235 基隆河空難", url: "topics/air-crashes/lesson-57.html" },
+            { title: "德國之翼 9525", url: "topics/air-crashes/lesson-58.html" },
+            { title: "LaMia 2933", url: "topics/air-crashes/lesson-59.html" },
+            { title: "獅子航空 610", url: "topics/air-crashes/lesson-60.html" },
+            { title: "衣索比亞航空 302", url: "topics/air-crashes/lesson-61.html" },
+          ],
+        },
+        {
+          title: "模組 K｜近年事故（2020～2025）",
+          courses: [
+            { title: "烏克蘭國際航空 752", url: "topics/air-crashes/lesson-62.html" },
+            { title: "印度快運 1344 卡利卡特", url: "topics/air-crashes/lesson-63.html" },
+            { title: "東方航空 MU5735", url: "topics/air-crashes/lesson-64.html" },
+            { title: "雪人航空 691 博卡拉", url: "topics/air-crashes/lesson-65.html" },
+            { title: "羽田跑道相撞", url: "topics/air-crashes/lesson-66.html" },
+            { title: "Voepass 2283", url: "topics/air-crashes/lesson-67.html" },
+            { title: "亞塞拜然航空 8243", url: "topics/air-crashes/lesson-68.html" },
+            { title: "濟州航空 2216 務安空難", url: "topics/air-crashes/lesson-69.html" },
+            { title: "華盛頓空中相撞", url: "topics/air-crashes/lesson-70.html" },
+            { title: "印度航空 171", url: "topics/air-crashes/lesson-71.html" },
+            { title: "UPS 2976 路易斯維爾", url: "topics/air-crashes/lesson-72.html" },
+          ],
+        },
+        {
+          title: "模組 L｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/air-crashes/lesson-73.html" },
+            { title: "台灣的飛安史", url: "topics/air-crashes/lesson-74.html" },
+          ],
+        },
+      ],
     }
   ]
 };
