@@ -32245,6 +32245,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "detective-fiction",
+      category: "wuxia",
+      title: "福爾摩斯與推理小說全紀錄",
+      description:
+        "愛倫坡與杜邦、推理的要素與公平；柯南・道爾與貝爾醫師、華生、溯因推理、經典案件、莫里亞蒂與萊辛巴赫、羅卡交換原理、改編；克莉絲蒂、東方快車與一個都不留、羅傑・艾克洛命案、諾克斯十誡與范達因二十條、昆恩的向讀者挑戰、卡爾的密室講義；漢密特與錢德勒、警察小說、心理懸疑與北歐黑色；江戶川亂步、橫溝正史、松本清張、島田莊司與新本格、宮部美幸、東野圭吾、湊佳苗；詭計圖鑑、華文推理與柯南。重大暴雷會事先提醒。",
+      icon: "🔍",
+      url: "topics/detective-fiction/index.html",
+      resources: [
+        {
+          title: "推理書單",
+          description: "本課程提到的經典作品",
+          icon: "📚",
+          url: "topics/detective-fiction/books.html"
+        },
+        {
+          title: "推理互動圖鑑",
+          description: "作品年表、名偵探、福爾摩斯的世界與詭計圖鑑",
+          icon: "🗺️",
+          url: "topics/detective-fiction/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源",
+          courses: [
+            { title: "推理小說是什麼", url: "topics/detective-fiction/lesson-01.html" },
+            { title: "愛倫坡與杜邦", url: "topics/detective-fiction/lesson-02.html" },
+            { title: "推理小說的要素", url: "topics/detective-fiction/lesson-03.html" },
+            { title: "模組總結：起源", url: "topics/detective-fiction/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜福爾摩斯",
+          courses: [
+            { title: "柯南・道爾", url: "topics/detective-fiction/lesson-05.html" },
+            { title: "血字的研究與貝克街", url: "topics/detective-fiction/lesson-06.html" },
+            { title: "華生", url: "topics/detective-fiction/lesson-07.html" },
+            { title: "演繹法", url: "topics/detective-fiction/lesson-08.html" },
+            { title: "經典案件", url: "topics/detective-fiction/lesson-09.html" },
+            { title: "莫里亞蒂與萊辛巴赫", url: "topics/detective-fiction/lesson-10.html" },
+            { title: "福爾摩斯與鑑識科學", url: "topics/detective-fiction/lesson-11.html" },
+            { title: "福爾摩斯的改編", url: "topics/detective-fiction/lesson-12.html" },
+            { title: "模組總結：福爾摩斯", url: "topics/detective-fiction/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜黃金時代",
+          courses: [
+            { title: "阿嘉莎・克莉絲蒂", url: "topics/detective-fiction/lesson-14.html" },
+            { title: "東方快車與一個都不留", url: "topics/detective-fiction/lesson-15.html" },
+            { title: "羅傑・艾克洛命案", url: "topics/detective-fiction/lesson-16.html" },
+            { title: "公平遊戲", url: "topics/detective-fiction/lesson-17.html" },
+            { title: "艾勒里・昆恩", url: "topics/detective-fiction/lesson-18.html" },
+            { title: "卡爾與密室", url: "topics/detective-fiction/lesson-19.html" },
+            { title: "模組總結：黃金時代", url: "topics/detective-fiction/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜冷硬派與其他",
+          courses: [
+            { title: "漢密特與錢德勒", url: "topics/detective-fiction/lesson-21.html" },
+            { title: "警察小說與心理懸疑", url: "topics/detective-fiction/lesson-22.html" },
+            { title: "模組總結：冷硬派與其他", url: "topics/detective-fiction/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜日本推理",
+          courses: [
+            { title: "江戶川亂步與橫溝正史", url: "topics/detective-fiction/lesson-24.html" },
+            { title: "松本清張與社會派", url: "topics/detective-fiction/lesson-25.html" },
+            { title: "新本格", url: "topics/detective-fiction/lesson-26.html" },
+            { title: "宮部美幸、東野圭吾與湊佳苗", url: "topics/detective-fiction/lesson-27.html" },
+            { title: "模組總結：日本推理", url: "topics/detective-fiction/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜詭計與總結",
+          courses: [
+            { title: "詭計圖鑑、華文推理與柯南", url: "topics/detective-fiction/lesson-29.html" },
+            { title: "課程總結：真相只有一個", url: "topics/detective-fiction/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
