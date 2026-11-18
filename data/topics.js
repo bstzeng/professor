@@ -31473,6 +31473,93 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "calculus",
+      category: "math",
+      title: "微積分：直覺與應用",
+      description:
+        "重直覺與應用的微積分：函數、芝諾悖論與極限、瞬間變化率；導數與切線、規則、連鎖律與反向傳播、e 與複利、三角函數；最佳化、相關變化率、牛頓法、線性近似與誤差傳遞、經濟學的邊際；黎曼和、微積分基本定理、換元與分部、體積與平均值、常態分布；斜率場、指數成長與半衰期、冷卻與藥物濃度、邏輯斯諦、簡諧振動與共振；泰勒展開與尤拉公式、梯度下降與 AI、牛頓與萊布尼茲。附割線切線、黎曼和、圍籬最佳化與斜率場四個互動工具。",
+      icon: "📈",
+      url: "topics/calculus/index.html",
+      resources: [
+        {
+          title: "公式速查",
+          description: "常用的導數、積分與級數",
+          icon: "🧮",
+          url: "topics/calculus/formulas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程用到的微積分名詞",
+          icon: "📖",
+          url: "topics/calculus/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜變化",
+          courses: [
+            { title: "微積分在做什麼", url: "topics/calculus/lesson-01.html" },
+            { title: "函數與圖形", url: "topics/calculus/lesson-02.html" },
+            { title: "極限的直覺", url: "topics/calculus/lesson-03.html" },
+            { title: "從平均變化率到瞬間變化率", url: "topics/calculus/lesson-04.html" },
+            { title: "模組總結：變化", url: "topics/calculus/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜導數",
+          courses: [
+            { title: "導數就是斜率", url: "topics/calculus/lesson-06.html" },
+            { title: "導數的規則", url: "topics/calculus/lesson-07.html" },
+            { title: "連鎖律", url: "topics/calculus/lesson-08.html" },
+            { title: "指數與 e", url: "topics/calculus/lesson-09.html" },
+            { title: "三角函數與週期", url: "topics/calculus/lesson-10.html" },
+            { title: "模組總結：導數", url: "topics/calculus/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜導數的應用",
+          courses: [
+            { title: "極值與最佳化", url: "topics/calculus/lesson-12.html" },
+            { title: "相關變化率", url: "topics/calculus/lesson-13.html" },
+            { title: "牛頓法", url: "topics/calculus/lesson-14.html" },
+            { title: "線性近似", url: "topics/calculus/lesson-15.html" },
+            { title: "經濟學中的邊際", url: "topics/calculus/lesson-16.html" },
+            { title: "模組總結：導數的應用", url: "topics/calculus/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜積分",
+          courses: [
+            { title: "累積與面積", url: "topics/calculus/lesson-18.html" },
+            { title: "微積分基本定理", url: "topics/calculus/lesson-19.html" },
+            { title: "積分的技巧", url: "topics/calculus/lesson-20.html" },
+            { title: "體積與平均值", url: "topics/calculus/lesson-21.html" },
+            { title: "機率與常態分布", url: "topics/calculus/lesson-22.html" },
+            { title: "模組總結：積分", url: "topics/calculus/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜微分方程入門",
+          courses: [
+            { title: "斜率場", url: "topics/calculus/lesson-24.html" },
+            { title: "指數成長與衰減", url: "topics/calculus/lesson-25.html" },
+            { title: "冷卻、藥物與族群", url: "topics/calculus/lesson-26.html" },
+            { title: "簡諧振動", url: "topics/calculus/lesson-27.html" },
+            { title: "模組總結：微分方程入門", url: "topics/calculus/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜更遠",
+          courses: [
+            { title: "級數與泰勒展開", url: "topics/calculus/lesson-29.html" },
+            { title: "偏導數與梯度", url: "topics/calculus/lesson-30.html" },
+            { title: "牛頓與萊布尼茲", url: "topics/calculus/lesson-31.html" },
+            { title: "課程總結：變化與累積", url: "topics/calculus/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
