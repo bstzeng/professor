@@ -31812,6 +31812,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "financial-crises",
+      category: "finance",
+      title: "金融泡沫與危機史：從鬱金香到矽谷銀行",
+      description:
+        "泡沫的定義與五個階段、槓桿與擠兌、明斯基的金融不穩定假說；鬱金香狂熱與史實、約翰・羅與密西西比、南海泡沫與牛頓、鐵路狂熱；1929 年股災、大蕭條、布列敦森林、拉美債務危機、1987 黑色星期一、日本泡沫、台灣錢淹腳目與 1990 年崩盤；亞洲金融風暴、LTCM、網路泡沫、2008 金融海嘯、歐債危機；加密貨幣與 FTX、GameStop、矽谷銀行；泡沫的心理學、監理的極限。附槓桿、擠兌、泡沫模擬與崩盤比較四個互動工具。",
+      icon: "🫧",
+      url: "topics/financial-crises/index.html",
+      resources: [
+        {
+          title: "危機年表",
+          description: "從鬱金香到矽谷銀行",
+          icon: "📅",
+          url: "topics/financial-crises/timeline.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程用到的金融名詞",
+          icon: "📖",
+          url: "topics/financial-crises/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "泡沫是什麼", url: "topics/financial-crises/lesson-01.html" },
+            { title: "槓桿與擠兌", url: "topics/financial-crises/lesson-02.html" },
+            { title: "明斯基", url: "topics/financial-crises/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/financial-crises/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期的泡沫",
+          courses: [
+            { title: "鬱金香狂熱", url: "topics/financial-crises/lesson-05.html" },
+            { title: "約翰・羅與密西西比泡沫", url: "topics/financial-crises/lesson-06.html" },
+            { title: "南海泡沫", url: "topics/financial-crises/lesson-07.html" },
+            { title: "鐵路狂熱", url: "topics/financial-crises/lesson-08.html" },
+            { title: "模組總結：早期的泡沫", url: "topics/financial-crises/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜二十世紀",
+          courses: [
+            { title: "1929 年股災", url: "topics/financial-crises/lesson-10.html" },
+            { title: "大蕭條", url: "topics/financial-crises/lesson-11.html" },
+            { title: "布列敦森林與美元", url: "topics/financial-crises/lesson-12.html" },
+            { title: "拉丁美洲債務危機", url: "topics/financial-crises/lesson-13.html" },
+            { title: "1987 年黑色星期一", url: "topics/financial-crises/lesson-14.html" },
+            { title: "日本泡沫經濟", url: "topics/financial-crises/lesson-15.html" },
+            { title: "台灣錢淹腳目", url: "topics/financial-crises/lesson-16.html" },
+            { title: "模組總結：二十世紀", url: "topics/financial-crises/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜全球化時代",
+          courses: [
+            { title: "亞洲金融風暴", url: "topics/financial-crises/lesson-18.html" },
+            { title: "長期資本管理公司", url: "topics/financial-crises/lesson-19.html" },
+            { title: "網路泡沫", url: "topics/financial-crises/lesson-20.html" },
+            { title: "2008 年金融海嘯", url: "topics/financial-crises/lesson-21.html" },
+            { title: "歐債危機", url: "topics/financial-crises/lesson-22.html" },
+            { title: "模組總結：全球化時代", url: "topics/financial-crises/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜新時代",
+          courses: [
+            { title: "加密貨幣與 FTX", url: "topics/financial-crises/lesson-24.html" },
+            { title: "GameStop 與迷因股", url: "topics/financial-crises/lesson-25.html" },
+            { title: "矽谷銀行", url: "topics/financial-crises/lesson-26.html" },
+            { title: "模組總結：新時代", url: "topics/financial-crises/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "泡沫的心理學", url: "topics/financial-crises/lesson-28.html" },
+            { title: "危機會再來嗎", url: "topics/financial-crises/lesson-29.html" },
+            { title: "課程總結：四百年的瘋狂", url: "topics/financial-crises/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
