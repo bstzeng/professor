@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：第一個 kernel ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="向量相加">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜CUDA 程式設計 · 第 13 課</div>
+      <h1>第一個 kernel</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>認識 CUDA 程式的結構</li>
+          <li>理解 kernel 與 host 的分工</li>
+          <li>寫出第一個 GPU 程式</li>
+        </ul>
+      </div>
+
+      <h2>主機與裝置</h2>
+
+      <p>
+        CUDA 程式分成兩部分：在 CPU 上執行的<strong>主機</strong>（host）程式，以及在 GPU 上執行的<strong>裝置</strong>（device）程式。在 GPU 上平行執行的函式叫做 <strong>kernel</strong>，用 <code>__global__</code> 標記。
+      </p>
+
+      <div class="code-block">// 每個執行緒負責一個元素
+__global__ void vecAdd(const float* a, const float* b, float* c, int n) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;   // 我是第幾號執行緒？
+    if (i &lt; n) c[i] = a[i] + b[i];                     // 超出範圍的執行緒不做事
+}
+
+int main() {
+    int n = 1 &lt;&lt; 20;                        // 約一百萬個元素
+    size_t bytes = n * sizeof(float);
+    float *a, *b, *c;                       // 指向 GPU 記憶體的指標
+    cudaMalloc(&amp;a, bytes); cudaMalloc(&amp;b, bytes); cudaMalloc(&amp;c, bytes);
+    // ……用 cudaMemcpy 把資料從 CPU 複製到 GPU……
+    int threads = 256;
+    int blocks = (n + threads - 1) / threads;   // 無條件進位
+    vecAdd&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;(a, b, c, n);    // 啟動約一百萬個執行緒
+    // ……用 cudaMemcpy 把結果複製回 CPU，最後 cudaFree……
+}</div>
+
+      <h2>重點</h2>
+
+      <ul>
+        <li><strong>沒有迴圈</strong>：CPU 版本會寫 for (i = 0; i < n; i++)；GPU 版本把迴圈「攤開」，每一圈由一個執行緒負責。</li>
+        <li><strong>&lt;&lt;&lt;blocks, threads&gt;&gt;&gt;</strong>：啟動 kernel 的特殊語法，指定要多少個區塊、每個區塊多少執行緒。</li>
+        <li><strong>邊界檢查</strong>：執行緒的總數會被進位成區塊大小的倍數，多出來的執行緒必須什麼都不做。</li>
+        <li><strong>記憶體的配置與複製</strong>：cudaMalloc、cudaMemcpy——資料必須先搬到 GPU。</li>
+      </ul>
+
+      <p>
+        這個 kernel 的運算強度很低（第 11 課），它的速度幾乎完全由記憶體頻寬決定。但它展示了 CUDA 最基本的模式：<strong>一個執行緒處理一筆資料</strong>。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          CUDA 程式分在 CPU 執行的主機程式與在 GPU 執行的裝置程式，GPU 上平行執行的函式叫 kernel 用 __global__ 標記；向量相加 kernel 用 blockIdx.x*blockDim.x＋threadIdx.x 算出自己的編號，i &lt; n 才計算；重點是沒有迴圈把迴圈攤開每圈一個執行緒、&lt;&lt;&lt;blocks, threads&gt;&gt;&gt; 指定區塊數與每區塊執行緒數、執行緒總數進位成區塊倍數多的要什麼都不做、cudaMalloc cudaMemcpy 先把資料搬到 GPU；這 kernel 運算強度低速度由頻寬決定，但展示了一個執行緒處理一筆資料的基本模式。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是 kernel？它和一般的函式有什麼不同？</li>
+          <li>為什麼 kernel 裡需要 if (i < n)？</li>
+          <li>CPU 版本的 for 迴圈到 GPU 版本變成了什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>執行緒、區塊與網格</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：模組總結：GPU 架構</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：執行緒、區塊與網格 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

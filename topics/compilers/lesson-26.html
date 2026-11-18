@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 26 課：呼叫慣例與堆疊框 ｜ 編譯器 ｜ 博雅書院</title>
+<meta name="description" content="函式之間的約定">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">編譯器</a>
+      <span class="sep">/</span>
+      <span>第 26 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜後端 · 第 26 課</div>
+      <h1>呼叫慣例與堆疊框</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解呼叫慣例</li>
+          <li>理解堆疊框的結構</li>
+          <li>了解緩衝區溢位的危險</li>
+        </ul>
+      </div>
+
+      <h2>約定</h2>
+
+      <p>
+        函式 A 呼叫函式 B，B 可能是另一個人、另一種語言、另一個編譯器編譯的。它們必須遵守共同的<strong>呼叫慣例</strong>：參數放在哪裡？回傳值放在哪裡？哪些暫存器由呼叫者保存、哪些由被呼叫者保存？這些規則屬於 <strong>ABI</strong>（應用程式二進位介面）。
+      </p>
+
+      <p>
+        例如在 Linux 的 x86-64 上，前六個整數參數依序放在 rdi、rsi、rdx、rcx、r8、r9 暫存器，回傳值放在 rax，其餘的參數放在堆疊上。
+      </p>
+
+      <h2>堆疊框</h2>
+
+      <p>
+        每次呼叫函式，就在<strong>呼叫堆疊</strong>上推入一個<strong>堆疊框</strong>，裡面有：
+      </p>
+
+      <div class="code-block">高位址
+  │ 呼叫者的堆疊框            │
+  │ 多出來的參數              │
+  │ 返回位址  ← 返回時跳回這裡 │
+  │ 保存的舊框架指標          │
+  │ 區域變數                  │
+  │ 保存的暫存器              │
+  ▼ （堆疊往低位址成長）</div>
+
+      <p>
+        函式返回時，彈出自己的堆疊框，跳回返回位址。遞迴之所以可行，就是因為每一次呼叫都有自己的堆疊框；遞迴太深時，堆疊用完，就是「堆疊溢位」（stack overflow）。
+      </p>
+
+      <h2>緩衝區溢位</h2>
+
+      <p>
+        區域陣列與返回位址都在堆疊上。如果程式把太長的輸入寫進一個區域陣列（C 語言不檢查邊界），就可能<strong>覆蓋返回位址</strong>，讓函式返回時跳到攻擊者指定的程式碼。這是歷史上最著名的攻擊手法之一（1988 年的莫里斯蠕蟲就利用了它）。現代的編譯器與作業系統用「堆疊金絲雀」、位址隨機化、不可執行的堆疊等方法防禦（見<a href="../infosec/index.html">〈資訊安全與駭客攻防〉</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          A 呼叫 B 可能是不同人語言編譯器編譯的，必須遵守共同呼叫慣例：參數回傳值放哪、哪些暫存器誰保存，屬於 ABI，Linux x86-64 前六個整數參數放 rdi rsi rdx rcx r8 r9 回傳值放 rax；每次呼叫在呼叫堆疊推入堆疊框，有多出參數返回位址舊框架指標區域變數保存的暫存器，返回時彈出並跳回，遞迴可行因每次有自己的框，太深堆疊用完是堆疊溢位；區域陣列與返回位址都在堆疊，C 不檢查邊界寫入太長可能覆蓋返回位址跳到攻擊者程式碼，1988 年莫里斯蠕蟲利用，現代用堆疊金絲雀位址隨機化不可執行堆疊防禦。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 互動工具實作了一個極小的算式語言（數字、變數、+ − × ÷ ^ 與括號），用來示範編譯器的各個階段。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是呼叫慣例？為什麼需要它？</li>
+          <li>堆疊框裡有哪些東西？</li>
+          <li>緩衝區溢位攻擊是怎麼運作的？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>組譯器與連結器</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-25.html">← 上一課：暫存器配置</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-27.html">下一課：組譯器與連結器 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

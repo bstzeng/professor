@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 14 課：執行緒、區塊與網格 ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="三層的組織">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 14 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜CUDA 程式設計 · 第 14 課</div>
+      <h1>執行緒、區塊與網格</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解執行緒的階層</li>
+          <li>學會計算全域索引</li>
+          <li>理解區塊如何對應到硬體</li>
+        </ul>
+      </div>
+
+      <h2>三層結構</h2>
+
+      <ul>
+        <li><strong>執行緒</strong>（thread）：最小的執行單位。</li>
+        <li><strong>區塊</strong>（block）：一群執行緒（最多 1,024 個），被分配到<strong>同一個 SM</strong> 上執行，可以使用共享記憶體與同步。</li>
+        <li><strong>網格</strong>（grid）：一次 kernel 啟動的所有區塊。</li>
+      </ul>
+
+      <p>
+        區塊與網格都可以是一維、二維或三維的，方便對應影像（二維）或體積資料（三維）。例如處理一張 1920×1080 的影像，可以用 16×16 的區塊，網格大小 120×68。
+      </p>
+
+      <div class="code-block">__global__ void brighten(unsigned char* img, int W, int H) {
+    int x = blockIdx.x * blockDim.x + threadIdx.x;
+    int y = blockIdx.y * blockDim.y + threadIdx.y;
+    if (x &lt; W &amp;&amp; y &lt; H) {
+        int v = img[y * W + x] + 40;
+        img[y * W + x] = v &gt; 255 ? 255 : v;
+    }
+}
+// 啟動：dim3 block(16, 16); dim3 grid((W + 15) / 16, (H + 15) / 16);</div>
+
+      <h2>區塊之間是獨立的</h2>
+
+      <p>
+        一個重要的規則：<strong>區塊之間不能假設執行的順序</strong>，也不能互相等待。GPU 會依照自己的 SM 數量，把區塊分批送上去執行。這讓同一個程式可以在只有幾個 SM 的筆電 GPU 上執行，也可以在有一百多個 SM 的資料中心 GPU 上執行——只是快慢不同。這叫做<strong>透明的可擴展性</strong>。
+      </p>
+
+      <p>
+        如果需要所有區塊都完成某一步，才能進行下一步，通常的做法是把它拆成<strong>兩次</strong> kernel 啟動。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          三層結構：執行緒是最小單位、區塊是一群執行緒最多 1,024 個分配到同一 SM 可用共享記憶體與同步、網格是一次啟動的所有區塊；區塊與網格可一二三維方便對應影像體積，1920×1080 影像用 16×16 區塊網格 120×68，二維 kernel 用 x y 兩個索引並檢查邊界；區塊之間不能假設執行順序也不能互相等待，GPU 依 SM 數分批執行，同程式能在少 SM 的筆電與一百多 SM 的資料中心 GPU 執行只是快慢不同叫透明可擴展性；需全部區塊完成才能下一步就拆成兩次 kernel 啟動。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>執行緒、區塊、網格的關係是什麼？</li>
+          <li>處理一張 1000×800 的影像，用 16×16 的區塊，網格要多大？</li>
+          <li>為什麼區塊之間不能互相等待？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>合併存取</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-13.html">← 上一課：第一個 kernel</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-15.html">下一課：合併存取 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

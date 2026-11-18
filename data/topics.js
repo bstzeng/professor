@@ -31299,6 +31299,782 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chemistry",
+      category: "science",
+      title: "化學：元素與化學鍵",
+      description:
+        "元素、化合物與混合物、原子結構與同位素、莫耳；軌域、電子組態、門得列夫與週期表、原子半徑、游離能與電負度、各族元素；離子鍵、共價鍵與路易斯結構、VSEPR 分子形狀、極性與氫鍵、金屬鍵、有機分子與手性；反應式、焓、活化能與催化劑、化學平衡與勒沙特列、熵與自由能；溶解度、酸鹼與 pH、緩衝與血液、氧化還原、電池與電解；塑膠與半導體、藥物、化學工業與環境。附互動週期表、3D 分子形狀、反應速率與滴定曲線。",
+      icon: "⚗️",
+      url: "topics/chemistry/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的化學名詞",
+          icon: "📖",
+          url: "topics/chemistry/glossary.html"
+        },
+        {
+          title: "週期表與數值",
+          description: "互動週期表、常用常數與 VSEPR 速查",
+          icon: "🧪",
+          url: "topics/chemistry/data.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜物質與原子",
+          courses: [
+            { title: "化學是什麼", url: "topics/chemistry/lesson-01.html" },
+            { title: "元素、化合物與混合物", url: "topics/chemistry/lesson-02.html" },
+            { title: "原子的結構與同位素", url: "topics/chemistry/lesson-03.html" },
+            { title: "莫耳與化學計量", url: "topics/chemistry/lesson-04.html" },
+            { title: "模組總結：物質與原子", url: "topics/chemistry/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電子與週期表",
+          courses: [
+            { title: "電子殼層與軌域", url: "topics/chemistry/lesson-06.html" },
+            { title: "電子組態", url: "topics/chemistry/lesson-07.html" },
+            { title: "週期表的結構", url: "topics/chemistry/lesson-08.html" },
+            { title: "週期趨勢", url: "topics/chemistry/lesson-09.html" },
+            { title: "各族元素巡禮", url: "topics/chemistry/lesson-10.html" },
+            { title: "模組總結：電子與週期表", url: "topics/chemistry/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜化學鍵",
+          courses: [
+            { title: "離子鍵", url: "topics/chemistry/lesson-12.html" },
+            { title: "共價鍵與路易斯結構", url: "topics/chemistry/lesson-13.html" },
+            { title: "分子的形狀", url: "topics/chemistry/lesson-14.html" },
+            { title: "極性與分子間作用力", url: "topics/chemistry/lesson-15.html" },
+            { title: "金屬鍵", url: "topics/chemistry/lesson-16.html" },
+            { title: "碳的化學", url: "topics/chemistry/lesson-17.html" },
+            { title: "模組總結：化學鍵", url: "topics/chemistry/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜化學反應",
+          courses: [
+            { title: "化學反應式", url: "topics/chemistry/lesson-19.html" },
+            { title: "化學反應的能量", url: "topics/chemistry/lesson-20.html" },
+            { title: "反應速率與催化劑", url: "topics/chemistry/lesson-21.html" },
+            { title: "化學平衡", url: "topics/chemistry/lesson-22.html" },
+            { title: "熵與自由能", url: "topics/chemistry/lesson-23.html" },
+            { title: "模組總結：化學反應", url: "topics/chemistry/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜溶液、酸鹼與氧化還原",
+          courses: [
+            { title: "溶液與溶解度", url: "topics/chemistry/lesson-25.html" },
+            { title: "酸、鹼與 pH", url: "topics/chemistry/lesson-26.html" },
+            { title: "緩衝溶液與人體", url: "topics/chemistry/lesson-27.html" },
+            { title: "氧化還原", url: "topics/chemistry/lesson-28.html" },
+            { title: "電化學", url: "topics/chemistry/lesson-29.html" },
+            { title: "模組總結：溶液、酸鹼與氧化還原", url: "topics/chemistry/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生活中的化學",
+          courses: [
+            { title: "材料的化學", url: "topics/chemistry/lesson-31.html" },
+            { title: "藥物與生物化學", url: "topics/chemistry/lesson-32.html" },
+            { title: "化學工業與環境", url: "topics/chemistry/lesson-33.html" },
+            { title: "課程總結：化學的世界觀", url: "topics/chemistry/lesson-34.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fluid-dynamics",
+      category: "science",
+      title: "流體力學與飛行：從白努利到音障",
+      description:
+        "壓力、浮力與帕斯卡原理、黏滯性與非牛頓流體、連續方程式；白努利定律與「等時間」迷思、雷諾數與亂流、普朗特的邊界層與流動分離、阻力、納維–斯托克斯與千禧年難題；升力的來源、翼型與攻角、失速、襟翼、翼尖渦流與誘導阻力；馬赫數、音障與震波、協和號與 X-59、高超音速與重返大氣層；風洞與 CFD；鳥與昆蟲、曲球與高爾夫球、血流、天氣與洋流。附文氏管、雷諾數、機翼升力與馬赫錐四個互動模擬。",
+      icon: "🌊",
+      url: "topics/fluid-dynamics/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的流體力學與空氣動力學名詞",
+          icon: "📖",
+          url: "topics/fluid-dynamics/glossary.html"
+        },
+        {
+          title: "重要的數",
+          description: "常用的物理量、無因次數與典型數值",
+          icon: "🔢",
+          url: "topics/fluid-dynamics/numbers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜流體的基本",
+          courses: [
+            { title: "什麼是流體", url: "topics/fluid-dynamics/lesson-01.html" },
+            { title: "壓力與浮力", url: "topics/fluid-dynamics/lesson-02.html" },
+            { title: "黏滯性", url: "topics/fluid-dynamics/lesson-03.html" },
+            { title: "連續方程式", url: "topics/fluid-dynamics/lesson-04.html" },
+            { title: "模組總結：流體的基本", url: "topics/fluid-dynamics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜流動",
+          courses: [
+            { title: "白努利定律", url: "topics/fluid-dynamics/lesson-06.html" },
+            { title: "白努利的誤用", url: "topics/fluid-dynamics/lesson-07.html" },
+            { title: "雷諾數", url: "topics/fluid-dynamics/lesson-08.html" },
+            { title: "邊界層與流動分離", url: "topics/fluid-dynamics/lesson-09.html" },
+            { title: "阻力", url: "topics/fluid-dynamics/lesson-10.html" },
+            { title: "納維–斯托克斯方程式", url: "topics/fluid-dynamics/lesson-11.html" },
+            { title: "模組總結：流動", url: "topics/fluid-dynamics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜升力與機翼",
+          courses: [
+            { title: "升力怎麼產生", url: "topics/fluid-dynamics/lesson-13.html" },
+            { title: "翼型與攻角", url: "topics/fluid-dynamics/lesson-14.html" },
+            { title: "失速", url: "topics/fluid-dynamics/lesson-15.html" },
+            { title: "襟翼與高升力裝置", url: "topics/fluid-dynamics/lesson-16.html" },
+            { title: "翼尖渦流與誘導阻力", url: "topics/fluid-dynamics/lesson-17.html" },
+            { title: "模組總結：升力與機翼", url: "topics/fluid-dynamics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜速度與聲音",
+          courses: [
+            { title: "音速與馬赫數", url: "topics/fluid-dynamics/lesson-19.html" },
+            { title: "音障與震波", url: "topics/fluid-dynamics/lesson-20.html" },
+            { title: "超音速客機", url: "topics/fluid-dynamics/lesson-21.html" },
+            { title: "高超音速與重返大氣層", url: "topics/fluid-dynamics/lesson-22.html" },
+            { title: "模組總結：速度與聲音", url: "topics/fluid-dynamics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實驗與計算",
+          courses: [
+            { title: "風洞", url: "topics/fluid-dynamics/lesson-24.html" },
+            { title: "計算流體力學", url: "topics/fluid-dynamics/lesson-25.html" },
+            { title: "模組總結：實驗與計算", url: "topics/fluid-dynamics/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜飛行以外",
+          courses: [
+            { title: "鳥、昆蟲與魚", url: "topics/fluid-dynamics/lesson-27.html" },
+            { title: "運動中的流體力學", url: "topics/fluid-dynamics/lesson-28.html" },
+            { title: "血流、天氣與地球", url: "topics/fluid-dynamics/lesson-29.html" },
+            { title: "課程總結：流動的世界", url: "topics/fluid-dynamics/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "calculus",
+      category: "math",
+      title: "微積分：直覺與應用",
+      description:
+        "重直覺與應用的微積分：函數、芝諾悖論與極限、瞬間變化率；導數與切線、規則、連鎖律與反向傳播、e 與複利、三角函數；最佳化、相關變化率、牛頓法、線性近似與誤差傳遞、經濟學的邊際；黎曼和、微積分基本定理、換元與分部、體積與平均值、常態分布；斜率場、指數成長與半衰期、冷卻與藥物濃度、邏輯斯諦、簡諧振動與共振；泰勒展開與尤拉公式、梯度下降與 AI、牛頓與萊布尼茲。附割線切線、黎曼和、圍籬最佳化與斜率場四個互動工具。",
+      icon: "📈",
+      url: "topics/calculus/index.html",
+      resources: [
+        {
+          title: "公式速查",
+          description: "常用的導數、積分與級數",
+          icon: "🧮",
+          url: "topics/calculus/formulas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程用到的微積分名詞",
+          icon: "📖",
+          url: "topics/calculus/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜變化",
+          courses: [
+            { title: "微積分在做什麼", url: "topics/calculus/lesson-01.html" },
+            { title: "函數與圖形", url: "topics/calculus/lesson-02.html" },
+            { title: "極限的直覺", url: "topics/calculus/lesson-03.html" },
+            { title: "從平均變化率到瞬間變化率", url: "topics/calculus/lesson-04.html" },
+            { title: "模組總結：變化", url: "topics/calculus/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜導數",
+          courses: [
+            { title: "導數就是斜率", url: "topics/calculus/lesson-06.html" },
+            { title: "導數的規則", url: "topics/calculus/lesson-07.html" },
+            { title: "連鎖律", url: "topics/calculus/lesson-08.html" },
+            { title: "指數與 e", url: "topics/calculus/lesson-09.html" },
+            { title: "三角函數與週期", url: "topics/calculus/lesson-10.html" },
+            { title: "模組總結：導數", url: "topics/calculus/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜導數的應用",
+          courses: [
+            { title: "極值與最佳化", url: "topics/calculus/lesson-12.html" },
+            { title: "相關變化率", url: "topics/calculus/lesson-13.html" },
+            { title: "牛頓法", url: "topics/calculus/lesson-14.html" },
+            { title: "線性近似", url: "topics/calculus/lesson-15.html" },
+            { title: "經濟學中的邊際", url: "topics/calculus/lesson-16.html" },
+            { title: "模組總結：導數的應用", url: "topics/calculus/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜積分",
+          courses: [
+            { title: "累積與面積", url: "topics/calculus/lesson-18.html" },
+            { title: "微積分基本定理", url: "topics/calculus/lesson-19.html" },
+            { title: "積分的技巧", url: "topics/calculus/lesson-20.html" },
+            { title: "體積與平均值", url: "topics/calculus/lesson-21.html" },
+            { title: "機率與常態分布", url: "topics/calculus/lesson-22.html" },
+            { title: "模組總結：積分", url: "topics/calculus/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜微分方程入門",
+          courses: [
+            { title: "斜率場", url: "topics/calculus/lesson-24.html" },
+            { title: "指數成長與衰減", url: "topics/calculus/lesson-25.html" },
+            { title: "冷卻、藥物與族群", url: "topics/calculus/lesson-26.html" },
+            { title: "簡諧振動", url: "topics/calculus/lesson-27.html" },
+            { title: "模組總結：微分方程入門", url: "topics/calculus/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜更遠",
+          courses: [
+            { title: "級數與泰勒展開", url: "topics/calculus/lesson-29.html" },
+            { title: "偏導數與梯度", url: "topics/calculus/lesson-30.html" },
+            { title: "牛頓與萊布尼茲", url: "topics/calculus/lesson-31.html" },
+            { title: "課程總結：變化與累積", url: "topics/calculus/lesson-32.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "gpu-computing",
+      category: "tech",
+      title: "GPU 與平行運算：從 CUDA 到 AI 晶片",
+      description:
+        "CPU 與 GPU、功耗牆、資料平行與 SIMT、阿姆達定律；從繪圖卡到 CUDA 與 AlexNet、SM 與 Tensor Core、warp 與分支發散、記憶體階層與 HBM、Roofline；kernel、執行緒與區塊、合併存取、共享記憶體與 tiling、同步與歸約、串流；矩陣乘法優化、低精度、FlashAttention、多 GPU 與 NVLink；CUDA 護城河、TPU 與其他加速器、資料中心功耗、台積電 CoWoS 與 HBM。附阿姆達定律、warp 分支、Roofline 與 tiling 四個互動模擬。",
+      icon: "🟩",
+      url: "topics/gpu-computing/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的 GPU 與平行運算名詞",
+          icon: "📖",
+          url: "topics/gpu-computing/glossary.html"
+        },
+        {
+          title: "CUDA 速查",
+          description: "常用的 CUDA 語法與內建變數",
+          icon: "🟩",
+          url: "topics/gpu-computing/cuda.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要平行",
+          courses: [
+            { title: "CPU 與 GPU", url: "topics/gpu-computing/lesson-01.html" },
+            { title: "功耗牆", url: "topics/gpu-computing/lesson-02.html" },
+            { title: "平行的種類", url: "topics/gpu-computing/lesson-03.html" },
+            { title: "阿姆達定律", url: "topics/gpu-computing/lesson-04.html" },
+            { title: "模組總結：為什麼要平行", url: "topics/gpu-computing/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜GPU 架構",
+          courses: [
+            { title: "從繪圖卡到通用計算", url: "topics/gpu-computing/lesson-06.html" },
+            { title: "SM、核心與 Tensor Core", url: "topics/gpu-computing/lesson-07.html" },
+            { title: "SIMT 與 warp", url: "topics/gpu-computing/lesson-08.html" },
+            { title: "分支發散", url: "topics/gpu-computing/lesson-09.html" },
+            { title: "記憶體階層", url: "topics/gpu-computing/lesson-10.html" },
+            { title: "Roofline 模型", url: "topics/gpu-computing/lesson-11.html" },
+            { title: "模組總結：GPU 架構", url: "topics/gpu-computing/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜CUDA 程式設計",
+          courses: [
+            { title: "第一個 kernel", url: "topics/gpu-computing/lesson-13.html" },
+            { title: "執行緒、區塊與網格", url: "topics/gpu-computing/lesson-14.html" },
+            { title: "合併存取", url: "topics/gpu-computing/lesson-15.html" },
+            { title: "共享記憶體與 tiling", url: "topics/gpu-computing/lesson-16.html" },
+            { title: "同步與原子操作", url: "topics/gpu-computing/lesson-17.html" },
+            { title: "串流與非同步", url: "topics/gpu-computing/lesson-18.html" },
+            { title: "模組總結：CUDA 程式設計", url: "topics/gpu-computing/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜矩陣乘法與 AI",
+          courses: [
+            { title: "矩陣乘法的優化", url: "topics/gpu-computing/lesson-20.html" },
+            { title: "Tensor Core 與低精度", url: "topics/gpu-computing/lesson-21.html" },
+            { title: "FlashAttention", url: "topics/gpu-computing/lesson-22.html" },
+            { title: "多 GPU 與互連", url: "topics/gpu-computing/lesson-23.html" },
+            { title: "模組總結：矩陣乘法與 AI", url: "topics/gpu-computing/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜生態與產業",
+          courses: [
+            { title: "CUDA 的護城河", url: "topics/gpu-computing/lesson-25.html" },
+            { title: "其他加速器", url: "topics/gpu-computing/lesson-26.html" },
+            { title: "資料中心與功耗", url: "topics/gpu-computing/lesson-27.html" },
+            { title: "台積電、CoWoS 與 HBM", url: "topics/gpu-computing/lesson-28.html" },
+            { title: "模組總結：生態與產業", url: "topics/gpu-computing/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：平行的世界", url: "topics/gpu-computing/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "compilers",
+      category: "tech",
+      title: "編譯器：程式碼怎麼變成機器碼",
+      description:
+        "葛麗絲・霍普與 FORTRAN、直譯與 JIT、編譯的流程；詞法分析、正規表示式與有限自動機、BNF 文法與歧義、遞迴下降剖析、優先順序與結合性、抽象語法樹；符號表與閉包、型別檢查、型別推論、錯誤訊息；三位址碼與控制流程圖、SSA、常數摺疊與死碼消除、迴圈最佳化與向量化、內聯與 PGO、LLVM；指令選擇、暫存器配置與圖著色、呼叫慣例與緩衝區溢位、連結器；垃圾回收、V8 與推測式最佳化、動手做迷你編譯器。附詞法分析、語法樹、最佳化與暫存器配置四個互動工具。",
+      icon: "🛠️",
+      url: "topics/compilers/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的編譯器名詞",
+          icon: "📖",
+          url: "topics/compilers/glossary.html"
+        },
+        {
+          title: "編譯器遊樂場",
+          description: "詞法分析、剖析、最佳化與暫存器配置的互動工具",
+          icon: "🛠️",
+          url: "topics/compilers/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "編譯器是什麼", url: "topics/compilers/lesson-01.html" },
+            { title: "直譯、編譯與 JIT", url: "topics/compilers/lesson-02.html" },
+            { title: "編譯的流程", url: "topics/compilers/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/compilers/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜前端",
+          courses: [
+            { title: "詞法分析", url: "topics/compilers/lesson-05.html" },
+            { title: "正規表示式與有限自動機", url: "topics/compilers/lesson-06.html" },
+            { title: "文法與 BNF", url: "topics/compilers/lesson-07.html" },
+            { title: "遞迴下降剖析", url: "topics/compilers/lesson-08.html" },
+            { title: "運算子的優先順序與結合性", url: "topics/compilers/lesson-09.html" },
+            { title: "抽象語法樹", url: "topics/compilers/lesson-10.html" },
+            { title: "模組總結：前端", url: "topics/compilers/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜語意",
+          courses: [
+            { title: "符號表與作用域", url: "topics/compilers/lesson-12.html" },
+            { title: "型別檢查", url: "topics/compilers/lesson-13.html" },
+            { title: "型別推論", url: "topics/compilers/lesson-14.html" },
+            { title: "錯誤訊息", url: "topics/compilers/lesson-15.html" },
+            { title: "模組總結：語意", url: "topics/compilers/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜中介碼與最佳化",
+          courses: [
+            { title: "中介表示與三位址碼", url: "topics/compilers/lesson-17.html" },
+            { title: "SSA 形式", url: "topics/compilers/lesson-18.html" },
+            { title: "常數摺疊與死碼消除", url: "topics/compilers/lesson-19.html" },
+            { title: "迴圈最佳化", url: "topics/compilers/lesson-20.html" },
+            { title: "內聯與跨程序最佳化", url: "topics/compilers/lesson-21.html" },
+            { title: "LLVM", url: "topics/compilers/lesson-22.html" },
+            { title: "模組總結：中介碼與最佳化", url: "topics/compilers/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜後端",
+          courses: [
+            { title: "指令選擇", url: "topics/compilers/lesson-24.html" },
+            { title: "暫存器配置", url: "topics/compilers/lesson-25.html" },
+            { title: "呼叫慣例與堆疊框", url: "topics/compilers/lesson-26.html" },
+            { title: "組譯器與連結器", url: "topics/compilers/lesson-27.html" },
+            { title: "模組總結：後端", url: "topics/compilers/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜執行期與實作",
+          courses: [
+            { title: "垃圾回收", url: "topics/compilers/lesson-29.html" },
+            { title: "JIT 與 V8", url: "topics/compilers/lesson-30.html" },
+            { title: "動手做一個小編譯器", url: "topics/compilers/lesson-31.html" },
+            { title: "課程總結：從原始碼到機器碼", url: "topics/compilers/lesson-32.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "longevity",
+      category: "biomed",
+      title: "老化與長壽科學",
+      description:
+        "健康壽命、岡珀茲定律、老化的演化理論；老化的十二個特徵：DNA 損傷、端粒、表觀遺傳時鐘、蛋白質恆定與自噬、粒線體與營養感知、細胞衰老、幹細胞與發炎老化；熱量限制與猴子實驗、裸鼴鼠與格陵蘭鯊、daf-2、雷帕黴素、二甲雙胍與白藜蘆醇、清除衰老細胞、山中因子與重新編程；百歲人瑞與藍區爭議、運動、飲食睡眠與社交、失智與肌少症；抗老產業的炒作、延壽的倫理、台灣的超高齡社會。附岡珀茲存活曲線、端粒與動物壽命三個互動圖。",
+      icon: "⏳",
+      url: "topics/longevity/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的老化生物學名詞",
+          icon: "📖",
+          url: "topics/longevity/glossary.html"
+        },
+        {
+          title: "證據總覽",
+          description: "各種抗老方法在動物與人類的證據強度",
+          icon: "🔬",
+          url: "topics/longevity/evidence.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜什麼是老化",
+          courses: [
+            { title: "為什麼會老", url: "topics/longevity/lesson-01.html" },
+            { title: "岡珀茲定律", url: "topics/longevity/lesson-02.html" },
+            { title: "老化的演化理論", url: "topics/longevity/lesson-03.html" },
+            { title: "模組總結：什麼是老化", url: "topics/longevity/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜老化的機制",
+          courses: [
+            { title: "老化的特徵", url: "topics/longevity/lesson-05.html" },
+            { title: "DNA 損傷", url: "topics/longevity/lesson-06.html" },
+            { title: "端粒", url: "topics/longevity/lesson-07.html" },
+            { title: "表觀遺傳時鐘", url: "topics/longevity/lesson-08.html" },
+            { title: "蛋白質恆定與自噬", url: "topics/longevity/lesson-09.html" },
+            { title: "粒線體與營養感知", url: "topics/longevity/lesson-10.html" },
+            { title: "細胞衰老", url: "topics/longevity/lesson-11.html" },
+            { title: "幹細胞耗竭與慢性發炎", url: "topics/longevity/lesson-12.html" },
+            { title: "模組總結：老化的機制", url: "topics/longevity/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜延長壽命的實驗",
+          courses: [
+            { title: "熱量限制", url: "topics/longevity/lesson-14.html" },
+            { title: "長壽的動物", url: "topics/longevity/lesson-15.html" },
+            { title: "線蟲與長壽基因", url: "topics/longevity/lesson-16.html" },
+            { title: "雷帕黴素與 mTOR", url: "topics/longevity/lesson-17.html" },
+            { title: "二甲雙胍、NAD⁺ 與白藜蘆醇", url: "topics/longevity/lesson-18.html" },
+            { title: "清除衰老細胞", url: "topics/longevity/lesson-19.html" },
+            { title: "重新編程", url: "topics/longevity/lesson-20.html" },
+            { title: "模組總結：延長壽命的實驗", url: "topics/longevity/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人類",
+          courses: [
+            { title: "百歲人瑞與藍區", url: "topics/longevity/lesson-22.html" },
+            { title: "運動", url: "topics/longevity/lesson-23.html" },
+            { title: "飲食、睡眠與社會連結", url: "topics/longevity/lesson-24.html" },
+            { title: "失智與肌少症", url: "topics/longevity/lesson-25.html" },
+            { title: "模組總結：人類", url: "topics/longevity/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜產業與倫理",
+          courses: [
+            { title: "抗老產業與炒作", url: "topics/longevity/lesson-27.html" },
+            { title: "延長壽命的倫理", url: "topics/longevity/lesson-28.html" },
+            { title: "台灣的超高齡社會", url: "topics/longevity/lesson-29.html" },
+            { title: "課程總結：老得好", url: "topics/longevity/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "financial-crises",
+      category: "finance",
+      title: "金融泡沫與危機史：從鬱金香到矽谷銀行",
+      description:
+        "泡沫的定義與五個階段、槓桿與擠兌、明斯基的金融不穩定假說；鬱金香狂熱與史實、約翰・羅與密西西比、南海泡沫與牛頓、鐵路狂熱；1929 年股災、大蕭條、布列敦森林、拉美債務危機、1987 黑色星期一、日本泡沫、台灣錢淹腳目與 1990 年崩盤；亞洲金融風暴、LTCM、網路泡沫、2008 金融海嘯、歐債危機；加密貨幣與 FTX、GameStop、矽谷銀行；泡沫的心理學、監理的極限。附槓桿、擠兌、泡沫模擬與崩盤比較四個互動工具。",
+      icon: "🫧",
+      url: "topics/financial-crises/index.html",
+      resources: [
+        {
+          title: "危機年表",
+          description: "從鬱金香到矽谷銀行",
+          icon: "📅",
+          url: "topics/financial-crises/timeline.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程用到的金融名詞",
+          icon: "📖",
+          url: "topics/financial-crises/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "泡沫是什麼", url: "topics/financial-crises/lesson-01.html" },
+            { title: "槓桿與擠兌", url: "topics/financial-crises/lesson-02.html" },
+            { title: "明斯基", url: "topics/financial-crises/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/financial-crises/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期的泡沫",
+          courses: [
+            { title: "鬱金香狂熱", url: "topics/financial-crises/lesson-05.html" },
+            { title: "約翰・羅與密西西比泡沫", url: "topics/financial-crises/lesson-06.html" },
+            { title: "南海泡沫", url: "topics/financial-crises/lesson-07.html" },
+            { title: "鐵路狂熱", url: "topics/financial-crises/lesson-08.html" },
+            { title: "模組總結：早期的泡沫", url: "topics/financial-crises/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜二十世紀",
+          courses: [
+            { title: "1929 年股災", url: "topics/financial-crises/lesson-10.html" },
+            { title: "大蕭條", url: "topics/financial-crises/lesson-11.html" },
+            { title: "布列敦森林與美元", url: "topics/financial-crises/lesson-12.html" },
+            { title: "拉丁美洲債務危機", url: "topics/financial-crises/lesson-13.html" },
+            { title: "1987 年黑色星期一", url: "topics/financial-crises/lesson-14.html" },
+            { title: "日本泡沫經濟", url: "topics/financial-crises/lesson-15.html" },
+            { title: "台灣錢淹腳目", url: "topics/financial-crises/lesson-16.html" },
+            { title: "模組總結：二十世紀", url: "topics/financial-crises/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜全球化時代",
+          courses: [
+            { title: "亞洲金融風暴", url: "topics/financial-crises/lesson-18.html" },
+            { title: "長期資本管理公司", url: "topics/financial-crises/lesson-19.html" },
+            { title: "網路泡沫", url: "topics/financial-crises/lesson-20.html" },
+            { title: "2008 年金融海嘯", url: "topics/financial-crises/lesson-21.html" },
+            { title: "歐債危機", url: "topics/financial-crises/lesson-22.html" },
+            { title: "模組總結：全球化時代", url: "topics/financial-crises/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜新時代",
+          courses: [
+            { title: "加密貨幣與 FTX", url: "topics/financial-crises/lesson-24.html" },
+            { title: "GameStop 與迷因股", url: "topics/financial-crises/lesson-25.html" },
+            { title: "矽谷銀行", url: "topics/financial-crises/lesson-26.html" },
+            { title: "模組總結：新時代", url: "topics/financial-crises/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "泡沫的心理學", url: "topics/financial-crises/lesson-28.html" },
+            { title: "危機會再來嗎", url: "topics/financial-crises/lesson-29.html" },
+            { title: "課程總結：四百年的瘋狂", url: "topics/financial-crises/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "bleach",
+      category: "anime",
+      title: "BLEACH 死神全紀錄",
+      description:
+        "現世、屍魂界與虛圈，死神、虛與滅却師；代行死神篇、屍魂界篇與藍染的背叛、破面篇與烏爾奇奧拉、空座決戰、完現術篇、千年血戰篇與靈王的真相；一護、露琪亞、織姬、茶渡、雨龍、藍染、浦原；斬魄刀與卍解、護廷十三隊、十刃、星十字騎士團、一護的身世；久保帶人的留白與卷首詩、動畫與千年血戰篇、鷺巢詩郎；影響、批評與總結。含完整劇情（有暴雷）。",
+      icon: "⚔️",
+      url: "topics/bleach/index.html",
+      resources: [
+        {
+          title: "用語表",
+          description: "作品中的重要用語",
+          icon: "📖",
+          url: "topics/bleach/terms.html"
+        },
+        {
+          title: "BLEACH 互動圖鑑",
+          description: "作品年表、人物、斬魄刀、護廷十三隊、一護的身世",
+          icon: "🗺️",
+          url: "topics/bleach/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "BLEACH 是什麼", url: "topics/bleach/lesson-01.html" },
+            { title: "三個世界", url: "topics/bleach/lesson-02.html" },
+            { title: "死神、虛與滅却師", url: "topics/bleach/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/bleach/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜篇章",
+          courses: [
+            { title: "代行死神篇", url: "topics/bleach/lesson-05.html" },
+            { title: "屍魂界篇", url: "topics/bleach/lesson-06.html" },
+            { title: "藍染的背叛", url: "topics/bleach/lesson-07.html" },
+            { title: "破面篇", url: "topics/bleach/lesson-08.html" },
+            { title: "空座決戰", url: "topics/bleach/lesson-09.html" },
+            { title: "完現術篇", url: "topics/bleach/lesson-10.html" },
+            { title: "千年血戰篇（上）", url: "topics/bleach/lesson-11.html" },
+            { title: "千年血戰篇（下）與結局", url: "topics/bleach/lesson-12.html" },
+            { title: "模組總結：篇章", url: "topics/bleach/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜人物",
+          courses: [
+            { title: "黑崎一護", url: "topics/bleach/lesson-14.html" },
+            { title: "朽木露琪亞", url: "topics/bleach/lesson-15.html" },
+            { title: "井上織姬與茶渡泰虎", url: "topics/bleach/lesson-16.html" },
+            { title: "石田雨龍", url: "topics/bleach/lesson-17.html" },
+            { title: "藍染惣右介", url: "topics/bleach/lesson-18.html" },
+            { title: "浦原喜助與四楓院夜一", url: "topics/bleach/lesson-19.html" },
+            { title: "模組總結：人物", url: "topics/bleach/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜能力體系",
+          courses: [
+            { title: "斬魄刀：始解與卍解", url: "topics/bleach/lesson-21.html" },
+            { title: "護廷十三隊", url: "topics/bleach/lesson-22.html" },
+            { title: "破面與十刃", url: "topics/bleach/lesson-23.html" },
+            { title: "星十字騎士團", url: "topics/bleach/lesson-24.html" },
+            { title: "一護的身世", url: "topics/bleach/lesson-25.html" },
+            { title: "模組總結：能力體系", url: "topics/bleach/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜製作",
+          courses: [
+            { title: "久保帶人的分鏡與留白", url: "topics/bleach/lesson-27.html" },
+            { title: "章首詩與時尚", url: "topics/bleach/lesson-28.html" },
+            { title: "動畫", url: "topics/bleach/lesson-29.html" },
+            { title: "音樂", url: "topics/bleach/lesson-30.html" },
+            { title: "模組總結：製作", url: "topics/bleach/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響與評價",
+          courses: [
+            { title: "BLEACH 的影響", url: "topics/bleach/lesson-32.html" },
+            { title: "批評與爭議", url: "topics/bleach/lesson-33.html" },
+            { title: "課程總結：BLEACH 的世界", url: "topics/bleach/lesson-34.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "star-trek",
+      category: "fantasy",
+      title: "星艦迷航記全紀錄",
+      description:
+        "羅登貝瑞與「太空中的篷車隊」、星際聯邦與後稀缺社會；原初系列、可汗之怒、銀河飛龍、深太空九號、重返地球、企業號、凱爾文時間線、串流時代的奇異新世界與星艦學院；瓦肯、克林貢、羅慕倫、博格、卡達西與自治領、Q；曲速引擎與阿庫別瑞、傳送器與人格同一性、複製機與全像甲板、星艦設計；最高指導原則、烏乎拉與民權、DS9 的戰爭與道德、Data 與人工智慧；通訊器與手機、粉絲文化。附年表、艦橋人物、種族圖鑑、銀河地圖與曲速計算器。",
+      icon: "🖖",
+      url: "topics/star-trek/index.html",
+      resources: [
+        {
+          title: "作品一覽",
+          description: "影集與電影的年份、主角與特色",
+          icon: "🎬",
+          url: "topics/star-trek/works.html"
+        },
+        {
+          title: "星艦互動圖鑑",
+          description: "作品年表、艦橋人物、種族、銀河地圖與曲速計算器",
+          icon: "🗺️",
+          url: "topics/star-trek/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "什麼是星艦迷航記", url: "topics/star-trek/lesson-01.html" },
+            { title: "金・羅登貝瑞", url: "topics/star-trek/lesson-02.html" },
+            { title: "星際聯邦", url: "topics/star-trek/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/star-trek/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜系列",
+          courses: [
+            { title: "原初系列", url: "topics/star-trek/lesson-05.html" },
+            { title: "電影時代", url: "topics/star-trek/lesson-06.html" },
+            { title: "銀河飛龍", url: "topics/star-trek/lesson-07.html" },
+            { title: "深太空九號", url: "topics/star-trek/lesson-08.html" },
+            { title: "重返地球", url: "topics/star-trek/lesson-09.html" },
+            { title: "企業號", url: "topics/star-trek/lesson-10.html" },
+            { title: "亞伯拉罕的重啟電影", url: "topics/star-trek/lesson-11.html" },
+            { title: "串流時代", url: "topics/star-trek/lesson-12.html" },
+            { title: "模組總結：系列", url: "topics/star-trek/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜種族與勢力",
+          courses: [
+            { title: "瓦肯人", url: "topics/star-trek/lesson-14.html" },
+            { title: "克林貢人", url: "topics/star-trek/lesson-15.html" },
+            { title: "羅慕倫人", url: "topics/star-trek/lesson-16.html" },
+            { title: "博格人", url: "topics/star-trek/lesson-17.html" },
+            { title: "卡達西與自治領", url: "topics/star-trek/lesson-18.html" },
+            { title: "Q 與其他存在", url: "topics/star-trek/lesson-19.html" },
+            { title: "模組總結：種族與勢力", url: "topics/star-trek/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜科技與科學",
+          courses: [
+            { title: "曲速引擎", url: "topics/star-trek/lesson-21.html" },
+            { title: "傳送器", url: "topics/star-trek/lesson-22.html" },
+            { title: "複製機與全像甲板", url: "topics/star-trek/lesson-23.html" },
+            { title: "星艦的設計", url: "topics/star-trek/lesson-24.html" },
+            { title: "星艦的科學可行嗎", url: "topics/star-trek/lesson-25.html" },
+            { title: "模組總結：科技與科學", url: "topics/star-trek/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜主題",
+          courses: [
+            { title: "最高指導原則", url: "topics/star-trek/lesson-27.html" },
+            { title: "多元與民權", url: "topics/star-trek/lesson-28.html" },
+            { title: "戰爭與道德", url: "topics/star-trek/lesson-29.html" },
+            { title: "Data 與人工智慧", url: "topics/star-trek/lesson-30.html" },
+            { title: "模組總結：主題", url: "topics/star-trek/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響",
+          courses: [
+            { title: "對真實科技的影響", url: "topics/star-trek/lesson-32.html" },
+            { title: "粉絲文化", url: "topics/star-trek/lesson-33.html" },
+            { title: "課程總結：前人未至之地", url: "topics/star-trek/lesson-34.html" },
+          ],
+        },
+      ],
     }
   ]
 };

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：矩陣乘法的優化 ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="從 1% 到 90% 的峰值">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜矩陣乘法與 AI · 第 20 課</div>
+      <h1>矩陣乘法的優化</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解矩陣乘法為什麼是 AI 的核心</li>
+          <li>了解逐步優化的過程</li>
+          <li>認識 cuBLAS 與 CUTLASS</li>
+        </ul>
+      </div>
+
+      <h2>AI 就是矩陣乘法</h2>
+
+      <p>
+        神經網路的全連接層、注意力機制中的 QKᵀ 與 softmax 後乘 V、卷積（可以轉換成矩陣乘法）——現代 AI 絕大部分的運算量，都是<strong>矩陣乘法</strong>（GEMM）。讓矩陣乘法跑得快，就是讓 AI 跑得快。
+      </p>
+
+      <h2>逐步優化</h2>
+
+      <p>
+        一個 N×N 的矩陣乘法需要 2N³ 次浮點運算。從最天真的寫法開始，工程師一步步優化，效能可以相差上百倍：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>版本</th><th>做法</th><th>大約的效能</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>天真版</td><td>每個執行緒算 C 的一個元素，直接從全域記憶體讀</td><td>峰值的幾個百分點</td></tr>
+          <tr><td>合併存取</td><td>調整索引，讓 warp 讀連續的位址</td><td>提升數倍</td></tr>
+          <tr><td>共享記憶體 tiling</td><td>一塊一塊載入並重複使用（第 16 課）</td><td>再提升數倍</td></tr>
+          <tr><td>暫存器 tiling</td><td>每個執行緒算一小塊（例如 8×8）C，資料留在暫存器</td><td>再提升</td></tr>
+          <tr><td>向量化載入、雙緩衝</td><td>一次讀 4 個 float；一邊算這塊，一邊載入下一塊</td><td>接近函式庫</td></tr>
+          <tr><td>Tensor Core</td><td>使用專用的矩陣單元與低精度</td><td>再快一個數量級</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        每一步都是在提高<strong>運算強度</strong>（第 11 課）：讓同一筆資料被用更多次，越來越靠近 Roofline 的右側。
+      </p>
+
+      <h2>函式庫</h2>
+
+      <p>
+        實務上，矩陣乘法由 NVIDIA 的 <strong>cuBLAS</strong> 等函式庫提供，針對每一代 GPU 與每一種矩陣形狀精心調校；<strong>CUTLASS</strong> 則把這些技巧做成可組合的模板，讓研究者寫出自己的融合 kernel。OpenAI 的 <strong>Triton</strong> 語言讓研究者用類似 Python 的語法寫出接近手寫 CUDA 效能的 kernel。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          神經網路全連接層、注意力的 QKᵀ 與乘 V、卷積都可轉成矩陣乘法 GEMM，讓它快就是讓 AI 快；N×N 需 2N³ 次運算，從天真版每執行緒算一元素直接讀全域記憶體只有峰值幾個百分點，經合併存取、共享記憶體 tiling、暫存器 tiling 每執行緒算一小塊、向量化載入與雙緩衝、Tensor Core 低精度，效能相差上百倍，每步都在提高運算強度靠近 Roofline 右側；實務用 cuBLAS 針對每代 GPU 與形狀調校，CUTLASS 做成可組合模板，OpenAI 的 Triton 用類 Python 語法寫出接近手寫 CUDA 的 kernel。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼說「AI 就是矩陣乘法」？</li>
+          <li>矩陣乘法的各個優化步驟有什麼共同點？</li>
+          <li>cuBLAS、CUTLASS 與 Triton 各是什麼？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Tensor Core 與低精度</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：模組總結：CUDA 程式設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：Tensor Core 與低精度 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
