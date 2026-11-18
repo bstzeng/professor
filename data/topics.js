@@ -32745,6 +32745,106 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "telephone-systems",
+      category: "tech",
+      title: "電話系統全解析：交換機、總機、語音選單與轉接的底層原理",
+      description:
+        "信令、交換與媒體；接線生與自動交換、64 kbps 與取樣、E1 與時槽、DTMF 與 7 號信令；企業總機、號碼規劃與 0800、語音選單設計、話務中心與 Erlang C、語音信箱與會議；網路電話、RTP、SIP、SDP、NAT 穿越、B2BUA 與 SBC、通話品質；轉接的原理——通話段與橋接、為什麼轉接時電話不會斷、保留的 re-INVITE、拍叉簧與時槽、REFER 與 Replaces、總機改接、轉接失敗；0204 付費語音資訊服務的商業模式、計費、管制與 2023 年終止；客服系統設計、高可用、雲端與 WebRTC、VoLTE 與 IMS、盜打與來電顯示偽造、錄音與緊急電話。",
+      icon: "☎️",
+      url: "topics/telephone-systems/index.html",
+      resources: [
+        {
+          title: "名詞對照",
+          description: "本課程常見的電話與網路電話名詞",
+          icon: "📚",
+          url: "topics/telephone-systems/terms.html"
+        },
+        {
+          title: "SIP 速查",
+          description: "SIP 請求、回應碼與保留／轉接的訊息流程",
+          icon: "📞",
+          url: "topics/telephone-systems/sip.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、取樣、按鍵音、通話段、語音選單、人力計算與 0204 計費",
+          icon: "🗺️",
+          url: "topics/telephone-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電話的基礎",
+          courses: [
+            { title: "一通電話的旅程", url: "topics/telephone-systems/lesson-01.html" },
+            { title: "交換機的本質", url: "topics/telephone-systems/lesson-02.html" },
+            { title: "聲音變成數字", url: "topics/telephone-systems/lesson-03.html" },
+            { title: "電路交換與時槽", url: "topics/telephone-systems/lesson-04.html" },
+            { title: "信令", url: "topics/telephone-systems/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜企業總機",
+          courses: [
+            { title: "企業總機（PBX）", url: "topics/telephone-systems/lesson-06.html" },
+            { title: "號碼規劃與路由", url: "topics/telephone-systems/lesson-07.html" },
+            { title: "語音選單（IVR）的設計", url: "topics/telephone-systems/lesson-08.html" },
+            { title: "話務中心", url: "topics/telephone-systems/lesson-09.html" },
+            { title: "語音信箱、會議與錄音", url: "topics/telephone-systems/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜網路電話與 SIP",
+          courses: [
+            { title: "網路電話（VoIP）", url: "topics/telephone-systems/lesson-11.html" },
+            { title: "SIP 入門", url: "topics/telephone-systems/lesson-12.html" },
+            { title: "信令與媒體分離", url: "topics/telephone-systems/lesson-13.html" },
+            { title: "防火牆與 NAT 穿越", url: "topics/telephone-systems/lesson-14.html" },
+            { title: "SIP 伺服器的角色", url: "topics/telephone-systems/lesson-15.html" },
+            { title: "通話品質", url: "topics/telephone-systems/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜轉接的原理",
+          courses: [
+            { title: "轉接、轉移與代接", url: "topics/telephone-systems/lesson-17.html" },
+            { title: "為什麼電話不會斷", url: "topics/telephone-systems/lesson-18.html" },
+            { title: "保留", url: "topics/telephone-systems/lesson-19.html" },
+            { title: "傳統電話的轉接", url: "topics/telephone-systems/lesson-20.html" },
+            { title: "SIP 的轉接", url: "topics/telephone-systems/lesson-21.html" },
+            { title: "兩種轉接架構", url: "topics/telephone-systems/lesson-22.html" },
+            { title: "轉接失敗怎麼辦", url: "topics/telephone-systems/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜付費語音資訊服務（0204）",
+          courses: [
+            { title: "0204 是什麼", url: "topics/telephone-systems/lesson-24.html" },
+            { title: "0204 的底層運作", url: "topics/telephone-systems/lesson-25.html" },
+            { title: "爭議與管制", url: "topics/telephone-systems/lesson-26.html" },
+            { title: "0204 的沒落與今天", url: "topics/telephone-systems/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜系統設計",
+          courses: [
+            { title: "設計一套客服電話系統", url: "topics/telephone-systems/lesson-28.html" },
+            { title: "高可用與容量規劃", url: "topics/telephone-systems/lesson-29.html" },
+            { title: "雲端話務中心與 CRM 整合", url: "topics/telephone-systems/lesson-30.html" },
+            { title: "手機的語音", url: "topics/telephone-systems/lesson-31.html" },
+            { title: "安全與詐騙", url: "topics/telephone-systems/lesson-32.html" },
+            { title: "法規與緊急電話", url: "topics/telephone-systems/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：一張圖看懂電話系統", url: "topics/telephone-systems/lesson-34.html" },
+          ],
+        },
+      ],
     }
   ]
 };
