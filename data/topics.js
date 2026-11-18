@@ -33437,6 +33437,95 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "airports",
+      category: "tech",
+      title: "機場是怎麼運作的：從報到、行李到跑道",
+      description:
+        "機場是一座城市、空側與陸側、跑道的編號與容量；報到、行李處理系統、安檢與液體規定、證照查驗與自動通關、登機門與空橋、轉機、免稅與非航空收入；過站作業與要徑、停機位分配、航空貨運站、機場消防救援；塔台與地面管制、時刻帶、延誤與流量管理、天氣、鳥擊防制；機場的收入、樞紐與航空聯盟、桃園機場第三航廈與第三跑道、聯外交通、噪音與松山機場；大規模延誤、CrowdStrike 當機、蓋威克無人機事件；世界著名機場比較。附過站甘特圖、跑道容量計算器與行李流程動畫。",
+      icon: "🛫",
+      url: "topics/airports/index.html",
+      resources: [
+        {
+          title: "機場名詞",
+          description: "本課程常見的機場名詞",
+          icon: "📚",
+          url: "topics/airports/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "過站甘特圖、跑道容量、行李流程與世界機場",
+          icon: "🗺️",
+          url: "topics/airports/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "機場是一座城市", url: "topics/airports/lesson-01.html" },
+            { title: "空側與陸側", url: "topics/airports/lesson-02.html" },
+            { title: "跑道", url: "topics/airports/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜旅客",
+          courses: [
+            { title: "報到", url: "topics/airports/lesson-04.html" },
+            { title: "行李處理系統", url: "topics/airports/lesson-05.html" },
+            { title: "安全檢查", url: "topics/airports/lesson-06.html" },
+            { title: "證照查驗與自動通關", url: "topics/airports/lesson-07.html" },
+            { title: "登機門與空橋", url: "topics/airports/lesson-08.html" },
+            { title: "轉機", url: "topics/airports/lesson-09.html" },
+            { title: "機場的商業", url: "topics/airports/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機坪與飛機",
+          courses: [
+            { title: "過站作業", url: "topics/airports/lesson-11.html" },
+            { title: "停機位分配", url: "topics/airports/lesson-12.html" },
+            { title: "航空貨運站", url: "topics/airports/lesson-13.html" },
+            { title: "機場消防救援", url: "topics/airports/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜空中與時刻",
+          courses: [
+            { title: "塔台與地面管制", url: "topics/airports/lesson-15.html" },
+            { title: "時刻帶", url: "topics/airports/lesson-16.html" },
+            { title: "跑道容量與延誤", url: "topics/airports/lesson-17.html" },
+            { title: "天氣與機場", url: "topics/airports/lesson-18.html" },
+            { title: "鳥擊防制", url: "topics/airports/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜經營與規劃",
+          courses: [
+            { title: "機場的收入", url: "topics/airports/lesson-20.html" },
+            { title: "樞紐機場與航空聯盟", url: "topics/airports/lesson-21.html" },
+            { title: "桃園機場的擴建", url: "topics/airports/lesson-22.html" },
+            { title: "聯外交通", url: "topics/airports/lesson-23.html" },
+            { title: "噪音與鄰居", url: "topics/airports/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜異常",
+          courses: [
+            { title: "大規模延誤與取消", url: "topics/airports/lesson-25.html" },
+            { title: "系統當機", url: "topics/airports/lesson-26.html" },
+            { title: "無人機入侵", url: "topics/airports/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "世界著名機場比較", url: "topics/airports/lesson-28.html" },
+            { title: "課程總結：一座 24 小時的城市", url: "topics/airports/lesson-29.html" },
+          ],
+        },
+      ],
     }
   ]
 };
