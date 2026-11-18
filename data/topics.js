@@ -32160,6 +32160,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "search-recommend",
+      category: "tech",
+      title: "搜尋引擎與推薦系統：從 PageRank 到 TikTok",
+      description:
+        "搜尋的歷史、網路爬蟲與 robots.txt、倒排索引、中文斷詞；TF-IDF 與 BM25、PageRank、SEO 與內容農場、學習排序、NDCG；自動完成與拼字校正、向量搜尋與嵌入、RAG 與 AI 搜尋、搜尋廣告與 GSP 拍賣；協同過濾、Netflix 大獎與矩陣分解、多階段推薦與雙塔模型、YouTube 與 TikTok、冷啟動與探索、A/B 測試；同溫層、隱私與 GDPR、Google 反壟斷案。附倒排索引、PageRank、向量搜尋與協同過濾四個互動工具。",
+      icon: "🔎",
+      url: "topics/search-recommend/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的資訊檢索與推薦系統名詞",
+          icon: "📖",
+          url: "topics/search-recommend/glossary.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "倒排索引、PageRank、向量搜尋與協同過濾",
+          icon: "🔎",
+          url: "topics/search-recommend/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜資訊檢索基礎",
+          courses: [
+            { title: "搜尋是什麼", url: "topics/search-recommend/lesson-01.html" },
+            { title: "搜尋的歷史", url: "topics/search-recommend/lesson-02.html" },
+            { title: "網路爬蟲", url: "topics/search-recommend/lesson-03.html" },
+            { title: "倒排索引", url: "topics/search-recommend/lesson-04.html" },
+            { title: "查詢處理與中文斷詞", url: "topics/search-recommend/lesson-05.html" },
+            { title: "模組總結：資訊檢索基礎", url: "topics/search-recommend/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜排序",
+          courses: [
+            { title: "TF-IDF 與 BM25", url: "topics/search-recommend/lesson-07.html" },
+            { title: "PageRank", url: "topics/search-recommend/lesson-08.html" },
+            { title: "連結作弊與 SEO", url: "topics/search-recommend/lesson-09.html" },
+            { title: "學習排序與點擊訊號", url: "topics/search-recommend/lesson-10.html" },
+            { title: "評估搜尋品質", url: "topics/search-recommend/lesson-11.html" },
+            { title: "模組總結：排序", url: "topics/search-recommend/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜現代搜尋",
+          courses: [
+            { title: "自動完成與拼字校正", url: "topics/search-recommend/lesson-13.html" },
+            { title: "向量搜尋與嵌入", url: "topics/search-recommend/lesson-14.html" },
+            { title: "RAG 與 AI 搜尋", url: "topics/search-recommend/lesson-15.html" },
+            { title: "搜尋廣告與競價", url: "topics/search-recommend/lesson-16.html" },
+            { title: "模組總結：現代搜尋", url: "topics/search-recommend/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜推薦系統",
+          courses: [
+            { title: "推薦是什麼", url: "topics/search-recommend/lesson-18.html" },
+            { title: "協同過濾", url: "topics/search-recommend/lesson-19.html" },
+            { title: "矩陣分解與 Netflix 大獎", url: "topics/search-recommend/lesson-20.html" },
+            { title: "深度推薦與多階段架構", url: "topics/search-recommend/lesson-21.html" },
+            { title: "YouTube 與 TikTok", url: "topics/search-recommend/lesson-22.html" },
+            { title: "冷啟動與探索", url: "topics/search-recommend/lesson-23.html" },
+            { title: "A/B 測試", url: "topics/search-recommend/lesson-24.html" },
+            { title: "模組總結：推薦系統", url: "topics/search-recommend/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜社會影響",
+          courses: [
+            { title: "同溫層與演算法放大", url: "topics/search-recommend/lesson-26.html" },
+            { title: "隱私與個人化", url: "topics/search-recommend/lesson-27.html" },
+            { title: "反壟斷：Google 案", url: "topics/search-recommend/lesson-28.html" },
+            { title: "模組總結：社會影響", url: "topics/search-recommend/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：資訊的守門人", url: "topics/search-recommend/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
