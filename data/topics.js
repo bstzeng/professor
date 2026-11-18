@@ -32845,6 +32845,127 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "rail-accidents",
+      category: "tech",
+      title: "鐵路事故全紀錄：31 起事故的背景、經過與改進",
+      description:
+        "閉塞、號誌、連鎖與列車自動防護；依原因分類的 31 起鐵路事故——號誌與閉塞（阿馬、昆汀希爾、三河島、克拉珀姆、台鐵造橋、溫州動車）、超速與彎道（福知山線、聖地牙哥、美鐵 188、普悠瑪號）、闖號誌（哈羅、摩爾門、拉德布羅克林、查茨沃斯）、車輛與軌道（鶴見、艾舍德 ICE、哈特菲爾德）、平交道與外物（太魯閣號）、火災（默東、卡普倫、大邱地鐵）、天災（斯里蘭卡海嘯列車、上越新幹線）、危險品與失控（烏法、拉克梅甘蒂克、東巴勒斯坦）、近年（希臘滕比、印度奧里薩邦、里斯本纜車、西班牙阿達穆斯），每一起整理背景、經過、原因與改進；附彎道超速計算器、改進關係圖與台灣鐵路安全史。",
+      icon: "🚆",
+      url: "topics/rail-accidents/index.html",
+      resources: [
+        {
+          title: "事故總表",
+          description: "依年份排列的事故與一句話摘要",
+          icon: "📋",
+          url: "topics/rail-accidents/table.html"
+        },
+        {
+          title: "鐵路安全名詞",
+          description: "本課程常見的鐵路安全名詞",
+          icon: "📚",
+          url: "topics/rail-accidents/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事故圖鑑、彎道超速計算器與改進關係圖",
+          icon: "🗺️",
+          url: "topics/rail-accidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "鐵路怎麼保持安全", url: "topics/rail-accidents/lesson-01.html" },
+            { title: "鐵路事故的調查與這門課", url: "topics/rail-accidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜號誌與閉塞",
+          courses: [
+            { title: "阿馬鐵路事故", url: "topics/rail-accidents/lesson-03.html" },
+            { title: "昆汀希爾鐵路事故", url: "topics/rail-accidents/lesson-04.html" },
+            { title: "三河島事故", url: "topics/rail-accidents/lesson-05.html" },
+            { title: "克拉珀姆交匯站事故", url: "topics/rail-accidents/lesson-06.html" },
+            { title: "台鐵造橋事故", url: "topics/rail-accidents/lesson-07.html" },
+            { title: "溫州動車事故", url: "topics/rail-accidents/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜超速與彎道",
+          courses: [
+            { title: "福知山線事故", url: "topics/rail-accidents/lesson-09.html" },
+            { title: "聖地牙哥德孔波斯特拉事故", url: "topics/rail-accidents/lesson-10.html" },
+            { title: "美鐵 188 費城出軌", url: "topics/rail-accidents/lesson-11.html" },
+            { title: "普悠瑪號事故", url: "topics/rail-accidents/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人為因素與闖號誌",
+          courses: [
+            { title: "哈羅與威爾德斯通事故", url: "topics/rail-accidents/lesson-13.html" },
+            { title: "摩爾門地鐵事故", url: "topics/rail-accidents/lesson-14.html" },
+            { title: "拉德布羅克林事故", url: "topics/rail-accidents/lesson-15.html" },
+            { title: "查茨沃斯事故", url: "topics/rail-accidents/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜車輛與軌道",
+          courses: [
+            { title: "鶴見事故", url: "topics/rail-accidents/lesson-17.html" },
+            { title: "艾舍德 ICE 事故", url: "topics/rail-accidents/lesson-18.html" },
+            { title: "哈特菲爾德事故", url: "topics/rail-accidents/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜平交道與外物",
+          courses: [
+            { title: "厄夫頓納維特事故", url: "topics/rail-accidents/lesson-20.html" },
+            { title: "太魯閣號事故", url: "topics/rail-accidents/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 G｜火災",
+          courses: [
+            { title: "默東鐵路事故", url: "topics/rail-accidents/lesson-22.html" },
+            { title: "卡普倫纜車火災", url: "topics/rail-accidents/lesson-23.html" },
+            { title: "大邱地鐵火災", url: "topics/rail-accidents/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 H｜天災",
+          courses: [
+            { title: "斯里蘭卡海嘯列車", url: "topics/rail-accidents/lesson-25.html" },
+            { title: "上越新幹線出軌", url: "topics/rail-accidents/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 I｜危險品與失控",
+          courses: [
+            { title: "烏法鐵路災難", url: "topics/rail-accidents/lesson-27.html" },
+            { title: "拉克梅甘蒂克事故", url: "topics/rail-accidents/lesson-28.html" },
+            { title: "東巴勒斯坦出軌事故", url: "topics/rail-accidents/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 J｜近年事故",
+          courses: [
+            { title: "希臘滕比事故", url: "topics/rail-accidents/lesson-30.html" },
+            { title: "印度奧里薩邦三車相撞", url: "topics/rail-accidents/lesson-31.html" },
+            { title: "里斯本光榮纜車事故", url: "topics/rail-accidents/lesson-32.html" },
+            { title: "西班牙阿達穆斯事故", url: "topics/rail-accidents/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/rail-accidents/lesson-34.html" },
+            { title: "台灣鐵路的安全史", url: "topics/rail-accidents/lesson-35.html" },
+          ],
+        },
+      ],
     }
   ]
 };
