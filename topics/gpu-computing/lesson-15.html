@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 15 課：合併存取 ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="一次搬一整排">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 15 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜CUDA 程式設計 · 第 15 課</div>
+      <h1>合併存取</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解記憶體交易</li>
+          <li>理解合併存取</li>
+          <li>認識常見的存取模式</li>
+        </ul>
+      </div>
+
+      <h2>記憶體一次搬一段</h2>
+
+      <p>
+        全域記憶體不是一個位元組一個位元組地讀取，而是以<strong>一段連續的區塊</strong>（例如 32 或 128 位元組）為單位。當一個 warp 的 32 個執行緒發出讀取請求，硬體會看它們要的位址落在幾段裡：
+      </p>
+
+      <ul>
+        <li><strong>合併存取</strong>：32 個執行緒讀取<strong>連續</strong>的 32 個 float（共 128 位元組）——只需要一次記憶體交易。</li>
+        <li><strong>跨步存取</strong>：執行緒 i 讀取第 i × 32 個元素——32 個請求落在 32 個不同的段，需要 32 次交易，頻寬利用率只剩約 1/32。</li>
+      </ul>
+
+      <h2>矩陣的列與行</h2>
+
+      <p>
+        C 語言的二維陣列是<strong>以列為主</strong>儲存的：同一列的元素在記憶體中相鄰。如果相鄰的執行緒處理同一列的相鄰元素，存取是合併的；如果相鄰的執行緒處理同一行（往下）的元素，就變成跨步存取。所以矩陣轉置是 GPU 程式設計的經典練習：要讀得合併、寫得也合併，必須借助共享記憶體（下一課）。
+      </p>
+
+      <h2>結構陣列與陣列結構</h2>
+
+      <div class="code-block">// 結構陣列（AoS）：x 之間隔著 y、z——跨步存取
+struct P { float x, y, z; };  P pts[N];
+// 陣列結構（SoA）：所有的 x 連在一起——合併存取
+struct Ps { float x[N], y[N], z[N]; };</div>
+
+      <p>
+        在 CPU 上，結構陣列很自然；在 GPU 上，陣列結構往往快得多。這是一個「資料布局決定效能」的好例子。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          全域記憶體以一段連續區塊（32 或 128 位元組）為單位讀取，硬體看一個 warp 的 32 個請求落在幾段；合併存取 32 執行緒讀連續 32 個 float 共 128 位元組只需一次交易，跨步存取 i×32 落在 32 段需 32 次交易頻寬利用約 1/32；C 二維陣列以列為主，相鄰執行緒處理同列相鄰元素是合併，處理同行往下是跨步，矩陣轉置是經典練習須借助共享記憶體；結構陣列 AoS 的 x 隔著 y z 是跨步，陣列結構 SoA 所有 x 連在一起是合併，GPU 上 SoA 往往快得多，資料布局決定效能。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是合併存取？為什麼它能提高效能？</li>
+          <li>跨步存取時，頻寬利用率大約會降到多少？</li>
+          <li>為什麼在 GPU 上「陣列結構」常比「結構陣列」快？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>共享記憶體與 tiling</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-14.html">← 上一課：執行緒、區塊與網格</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-16.html">下一課：共享記憶體與 tiling →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

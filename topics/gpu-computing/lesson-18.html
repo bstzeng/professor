@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：串流與非同步 ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="讓搬運與計算同時進行">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜CUDA 程式設計 · 第 18 課</div>
+      <h1>串流與非同步</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 kernel 的非同步啟動</li>
+          <li>理解 CUDA 串流</li>
+          <li>學會重疊資料傳輸與計算</li>
+        </ul>
+      </div>
+
+      <h2>非同步</h2>
+
+      <p>
+        CPU 啟動一個 kernel 後，<strong>不會等它算完</strong>，而是立刻繼續執行下一行。GPU 在背景工作。只有在需要結果（例如把資料複製回來）或明確呼叫同步函式時，CPU 才會等待。
+      </p>
+
+      <h2>串流</h2>
+
+      <p>
+        <strong>串流</strong>（stream）是一個工作佇列：同一個串流中的工作依序執行，不同串流中的工作可以<strong>同時</strong>進行。
+      </p>
+
+      <h2>重疊傳輸與計算</h2>
+
+      <p>
+        假設要處理一大批資料：傳上 GPU、計算、傳回。依序做的話，GPU 在傳輸時閒著，傳輸線在計算時閒著。把資料切成幾份，放在不同的串流：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>時間 →</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>串流 1</td><td>上傳</td><td>計算</td><td>下載</td><td></td><td></td></tr>
+          <tr><td>串流 2</td><td></td><td>上傳</td><td>計算</td><td>下載</td><td></td></tr>
+          <tr><td>串流 3</td><td></td><td></td><td>上傳</td><td>計算</td><td>下載</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        像工廠的生產線一樣，各階段同時進行，總時間大幅縮短。這需要 CPU 端使用「鎖定頁面」的記憶體（pinned memory），讓 GPU 能直接存取。
+      </p>
+
+      <h2>CUDA Graphs</h2>
+
+      <p>
+        對於重複執行、由許多小 kernel 組成的工作（例如神經網路的每一步），每次啟動 kernel 的開銷（數微秒）會累積起來。<strong>CUDA Graphs</strong> 把整串工作錄製成一張圖，之後一次啟動，大幅減少開銷——LLM 推論引擎常用這個技巧。
+      </p>
+
+      <h2>效能分析</h2>
+
+      <p>
+        最佳化之前，先<strong>測量</strong>：NVIDIA 的 Nsight Systems 可以畫出 CPU 與 GPU 的時間軸，看出哪裡在等待；Nsight Compute 可以分析單一 kernel 的記憶體與運算使用率。「不要猜，要量」是效能工程的第一原則。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          CPU 啟動 kernel 後不等它算完立刻往下，GPU 背景工作，需要結果或明確同步時才等；串流是工作佇列，同串流依序不同串流可同時；處理大批資料依序做 GPU 傳輸時閒著，切成幾份放不同串流讓上傳計算下載像生產線同時進行大幅縮短時間，需 CPU 端鎖定頁面記憶體；CUDA Graphs 把許多小 kernel 錄製成一張圖一次啟動減少數微秒的啟動開銷，LLM 推論引擎常用；最佳化前先測量，Nsight Systems 畫時間軸、Nsight Compute 分析單一 kernel，不要猜要量。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是 kernel 的非同步啟動？</li>
+          <li>如何用串流讓資料傳輸與計算重疊？</li>
+          <li>為什麼效能最佳化要「先測量」？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>模組總結：CUDA 程式設計</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：同步與原子操作</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：模組總結：CUDA 程式設計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

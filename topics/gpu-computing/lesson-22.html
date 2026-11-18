@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：FlashAttention ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="不寫進記憶體的注意力">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜矩陣乘法與 AI · 第 22 課</div>
+      <h1>FlashAttention</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解注意力機制的記憶體問題</li>
+          <li>理解 FlashAttention 的想法</li>
+          <li>體會「演算法配合硬體」的重要</li>
+        </ul>
+      </div>
+
+      <h2>注意力的瓶頸</h2>
+
+      <p>
+        Transformer 的自注意力計算 softmax(QKᵀ)V。對長度 N 的序列，QKᵀ 是一個 <strong>N × N</strong> 的矩陣。傳統的做法是：算出這個大矩陣、寫回全域記憶體、讀出來做 softmax、再寫回、再讀出來乘 V。當 N 是數萬，這個矩陣有數億個元素，大量的時間花在<strong>搬運</strong>，而不是計算。
+      </p>
+
+      <h2>FlashAttention 的想法</h2>
+
+      <p>
+        2022 年，史丹佛的道（Tri Dao）等人提出 <strong>FlashAttention</strong>：把 Q、K、V 切成小塊，一次載入一塊到晶片上的共享記憶體，在裡面完成乘法、softmax 與乘 V，<strong>從不把 N × N 的矩陣寫回全域記憶體</strong>。
+      </p>
+
+      <p>
+        難點在 softmax：它需要整列的最大值與總和，但我們一次只看到一小塊。解法是「<strong>線上 softmax</strong>」：一邊讀新的區塊，一邊更新目前的最大值與總和，並把之前的結果按比例修正。數學上與原本的結果完全相同。
+      </p>
+
+      <h2>效果</h2>
+
+      <ul>
+        <li>記憶體用量從 N² 降到與 N 成正比，讓更長的上下文成為可能。</li>
+        <li>速度提高數倍——運算量其實沒有減少，甚至略多，但搬運量大減。</li>
+        <li>後續的 FlashAttention-2、3 進一步配合新一代 GPU 的硬體特性。</li>
+      </ul>
+
+      <p>
+        FlashAttention 是「<strong>IO 感知</strong>」演算法的代表：在現代硬體上，計算很便宜，<strong>搬資料很貴</strong>。好的演算法要以記憶體的流動為中心來設計。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          自注意力 softmax(QKᵀ)V 對長度 N 的序列 QKᵀ 是 N×N 矩陣，傳統算出寫回讀出 softmax 再寫再讀乘 V，N 數萬時數億元素大量時間花在搬運；2022 年史丹佛 Tri Dao 等人提出 FlashAttention 把 QKV 切小塊載入共享記憶體在裡面完成乘法 softmax 乘 V，從不把 N×N 寫回全域記憶體；難點 softmax 需整列最大值與總和，用線上 softmax 邊讀邊更新並按比例修正，數學上完全相同；記憶體從 N² 降到與 N 成正比讓更長上下文可能，速度提高數倍（運算量沒減少但搬運大減），後續 2、3 版配合新硬體；它是 IO 感知演算法代表，計算便宜搬資料貴。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>傳統的注意力計算瓶頸在哪裡？</li>
+          <li>FlashAttention 如何避免寫回 N × N 的矩陣？</li>
+          <li>為什麼運算量沒有減少，速度卻變快了？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>多 GPU 與互連</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：Tensor Core 與低精度</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：多 GPU 與互連 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -31560,6 +31560,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "gpu-computing",
+      category: "tech",
+      title: "GPU 與平行運算：從 CUDA 到 AI 晶片",
+      description:
+        "CPU 與 GPU、功耗牆、資料平行與 SIMT、阿姆達定律；從繪圖卡到 CUDA 與 AlexNet、SM 與 Tensor Core、warp 與分支發散、記憶體階層與 HBM、Roofline；kernel、執行緒與區塊、合併存取、共享記憶體與 tiling、同步與歸約、串流；矩陣乘法優化、低精度、FlashAttention、多 GPU 與 NVLink；CUDA 護城河、TPU 與其他加速器、資料中心功耗、台積電 CoWoS 與 HBM。附阿姆達定律、warp 分支、Roofline 與 tiling 四個互動模擬。",
+      icon: "🟩",
+      url: "topics/gpu-computing/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的 GPU 與平行運算名詞",
+          icon: "📖",
+          url: "topics/gpu-computing/glossary.html"
+        },
+        {
+          title: "CUDA 速查",
+          description: "常用的 CUDA 語法與內建變數",
+          icon: "🟩",
+          url: "topics/gpu-computing/cuda.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要平行",
+          courses: [
+            { title: "CPU 與 GPU", url: "topics/gpu-computing/lesson-01.html" },
+            { title: "功耗牆", url: "topics/gpu-computing/lesson-02.html" },
+            { title: "平行的種類", url: "topics/gpu-computing/lesson-03.html" },
+            { title: "阿姆達定律", url: "topics/gpu-computing/lesson-04.html" },
+            { title: "模組總結：為什麼要平行", url: "topics/gpu-computing/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜GPU 架構",
+          courses: [
+            { title: "從繪圖卡到通用計算", url: "topics/gpu-computing/lesson-06.html" },
+            { title: "SM、核心與 Tensor Core", url: "topics/gpu-computing/lesson-07.html" },
+            { title: "SIMT 與 warp", url: "topics/gpu-computing/lesson-08.html" },
+            { title: "分支發散", url: "topics/gpu-computing/lesson-09.html" },
+            { title: "記憶體階層", url: "topics/gpu-computing/lesson-10.html" },
+            { title: "Roofline 模型", url: "topics/gpu-computing/lesson-11.html" },
+            { title: "模組總結：GPU 架構", url: "topics/gpu-computing/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜CUDA 程式設計",
+          courses: [
+            { title: "第一個 kernel", url: "topics/gpu-computing/lesson-13.html" },
+            { title: "執行緒、區塊與網格", url: "topics/gpu-computing/lesson-14.html" },
+            { title: "合併存取", url: "topics/gpu-computing/lesson-15.html" },
+            { title: "共享記憶體與 tiling", url: "topics/gpu-computing/lesson-16.html" },
+            { title: "同步與原子操作", url: "topics/gpu-computing/lesson-17.html" },
+            { title: "串流與非同步", url: "topics/gpu-computing/lesson-18.html" },
+            { title: "模組總結：CUDA 程式設計", url: "topics/gpu-computing/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜矩陣乘法與 AI",
+          courses: [
+            { title: "矩陣乘法的優化", url: "topics/gpu-computing/lesson-20.html" },
+            { title: "Tensor Core 與低精度", url: "topics/gpu-computing/lesson-21.html" },
+            { title: "FlashAttention", url: "topics/gpu-computing/lesson-22.html" },
+            { title: "多 GPU 與互連", url: "topics/gpu-computing/lesson-23.html" },
+            { title: "模組總結：矩陣乘法與 AI", url: "topics/gpu-computing/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜生態與產業",
+          courses: [
+            { title: "CUDA 的護城河", url: "topics/gpu-computing/lesson-25.html" },
+            { title: "其他加速器", url: "topics/gpu-computing/lesson-26.html" },
+            { title: "資料中心與功耗", url: "topics/gpu-computing/lesson-27.html" },
+            { title: "台積電、CoWoS 與 HBM", url: "topics/gpu-computing/lesson-28.html" },
+            { title: "模組總結：生態與產業", url: "topics/gpu-computing/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：平行的世界", url: "topics/gpu-computing/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 17 課：同步與原子操作 ｜ GPU 與平行運算 ｜ 博雅書院</title>
+<meta name="description" content="當執行緒需要合作">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">GPU</a>
+      <span class="sep">/</span>
+      <span>第 17 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜CUDA 程式設計 · 第 17 課</div>
+      <h1>同步與原子操作</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解區塊內的同步</li>
+          <li>理解競爭條件與原子操作</li>
+          <li>學會平行歸約</li>
+        </ul>
+      </div>
+
+      <h2>__syncthreads()</h2>
+
+      <p>
+        同一個區塊的執行緒，可以用 <code>__syncthreads()</code> 設下一道「柵欄」：所有執行緒都到達這裡，才一起往下走。上一課的 tiling 就需要它：必須等所有人都把資料載入共享記憶體，才能開始計算。
+      </p>
+
+      <p>
+        注意：如果 __syncthreads() 放在只有部分執行緒會進入的 if 裡面，其他執行緒永遠到不了柵欄，程式就會卡住或出錯。
+      </p>
+
+      <h2>競爭條件</h2>
+
+      <p>
+        如果一百萬個執行緒都執行 <code>count = count + 1</code>，結果幾乎不會是一百萬。因為「讀取—加一—寫回」不是一個不可分割的動作：兩個執行緒可能同時讀到 5，各自加一，都寫回 6——一次加法就消失了。這叫做<strong>競爭條件</strong>。
+      </p>
+
+      <h2>原子操作</h2>
+
+      <p>
+        <code>atomicAdd(&count, 1)</code> 保證「讀取—加一—寫回」不會被打斷。但如果大量執行緒同時對<strong>同一個位址</strong>做原子操作，它們必須排隊，效能會很差。
+      </p>
+
+      <h2>平行歸約</h2>
+
+      <p>
+        要加總 n 個數，更好的方法是<strong>樹狀歸約</strong>：第一輪，一半的執行緒各把兩個數相加；第二輪，再兩兩相加……經過 log₂n 輪就得到總和。在一個區塊內用共享記憶體完成，每個區塊得到一個部分和，最後再把各區塊的部分和加起來。
+      </p>
+
+      <div class="code-block">for (int s = blockDim.x / 2; s &gt; 0; s &gt;&gt;= 1) {
+    if (tid &lt; s) sdata[tid] += sdata[tid + s];
+    __syncthreads();
+}
+// 迴圈結束後，sdata[0] 就是這個區塊的總和</div>
+
+      <p>
+        注意：浮點數的加法不滿足結合律，平行歸約的結果可能和依序相加略有不同——這是平行計算中「結果不完全可重現」的來源之一。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          同區塊執行緒用 __syncthreads() 設柵欄，全部到達才一起往下，tiling 需要它，放在只有部分執行緒進入的 if 內會卡住；一百萬執行緒執行 count＝count＋1 結果幾乎不會是一百萬，讀取加一寫回可分割，兩執行緒同時讀 5 都寫回 6 叫競爭條件；atomicAdd 保證不被打斷，但大量執行緒對同位址原子操作要排隊效能差；加總用樹狀歸約，每輪一半執行緒兩兩相加 log₂n 輪得總和，區塊內用共享記憶體得部分和再合併；浮點加法不滿足結合律平行歸約結果可能與依序相加略不同，是不完全可重現的來源。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🟩 互動模擬為教學用的簡化模型；硬體數字為代表性的量級，實際依產品與世代而異。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>為什麼 __syncthreads() 不能放在只有部分執行緒會執行的 if 裡？</li>
+          <li>什麼是競爭條件？舉一個例子。</li>
+          <li>樹狀歸約加總 1,024 個數需要幾輪？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>串流與非同步</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-16.html">← 上一課：共享記憶體與 tiling</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-18.html">下一課：串流與非同步 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
