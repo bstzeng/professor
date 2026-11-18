@@ -32415,6 +32415,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "fallout",
+      category: "games",
+      title: "異塵餘生 Fallout 全紀錄：核子廢土的世界、作品與勢力",
+      description:
+        "永遠的 1950 年代與復古未來主義、資源戰爭與 2077 年的大戰、Vault-Tec 的避難所實驗、屍鬼與 FEV、瓶蓋與嗶嗶小子；從初代、《2》、黑島與 Van Buren、《3》、《新維加斯》、《4》、《76》到 Amazon 影集；鋼鐵兄弟會、英克雷、新加州共和國、凱撒軍團與豪斯先生、學院與合成人；戰爭從未改變、對 1950 年代美國的諷刺、灰色的選擇、真實的冷戰與核恐懼；S.P.E.C.I.A.L. 配點器、V.A.T.S.、多重解法與模組。重大暴雷會事先提醒。",
+      icon: "☢️",
+      url: "topics/fallout/index.html",
+      resources: [
+        {
+          title: "作品與名詞",
+          description: "歷代作品與常見名詞的中英對照",
+          icon: "📚",
+          url: "topics/fallout/terms.html"
+        },
+        {
+          title: "廢土互動圖鑑",
+          description: "發行年表、世界歷史、避難所、地圖、勢力與 S.P.E.C.I.A.L. 配點器",
+          icon: "🗺️",
+          url: "topics/fallout/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜世界觀",
+          courses: [
+            { title: "什麼是 Fallout", url: "topics/fallout/lesson-01.html" },
+            { title: "分歧的歷史", url: "topics/fallout/lesson-02.html" },
+            { title: "資源戰爭與大戰", url: "topics/fallout/lesson-03.html" },
+            { title: "避難所科技", url: "topics/fallout/lesson-04.html" },
+            { title: "輻射、FEV 與變種", url: "topics/fallout/lesson-05.html" },
+            { title: "廢土的生活", url: "topics/fallout/lesson-06.html" },
+            { title: "模組總結：世界觀", url: "topics/fallout/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜歷代作品",
+          courses: [
+            { title: "初代《異塵餘生》", url: "topics/fallout/lesson-08.html" },
+            { title: "《異塵餘生 2》", url: "topics/fallout/lesson-09.html" },
+            { title: "黑島的終結與品牌易主", url: "topics/fallout/lesson-10.html" },
+            { title: "《異塵餘生 3》", url: "topics/fallout/lesson-11.html" },
+            { title: "《新維加斯》", url: "topics/fallout/lesson-12.html" },
+            { title: "《異塵餘生 4》與《Fallout Shelter》", url: "topics/fallout/lesson-13.html" },
+            { title: "《異塵餘生 76》", url: "topics/fallout/lesson-14.html" },
+            { title: "影集", url: "topics/fallout/lesson-15.html" },
+            { title: "模組總結：歷代作品", url: "topics/fallout/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜勢力",
+          courses: [
+            { title: "鋼鐵兄弟會", url: "topics/fallout/lesson-17.html" },
+            { title: "英克雷", url: "topics/fallout/lesson-18.html" },
+            { title: "新加州共和國", url: "topics/fallout/lesson-19.html" },
+            { title: "凱撒軍團與豪斯先生", url: "topics/fallout/lesson-20.html" },
+            { title: "學院、鐵路與民兵", url: "topics/fallout/lesson-21.html" },
+            { title: "模組總結：勢力", url: "topics/fallout/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題",
+          courses: [
+            { title: "戰爭從未改變", url: "topics/fallout/lesson-23.html" },
+            { title: "笑容背後", url: "topics/fallout/lesson-24.html" },
+            { title: "灰色的選擇", url: "topics/fallout/lesson-25.html" },
+            { title: "真實的冷戰與核恐懼", url: "topics/fallout/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜設計",
+          courses: [
+            { title: "S.P.E.C.I.A.L.", url: "topics/fallout/lesson-27.html" },
+            { title: "V.A.T.S. 與多重解法", url: "topics/fallout/lesson-28.html" },
+            { title: "模組與社群", url: "topics/fallout/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：廢土的意義", url: "topics/fallout/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
