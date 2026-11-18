@@ -33081,6 +33081,102 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "payment-systems",
+      category: "finance",
+      title: "刷卡與轉帳是怎麼運作的：信用卡、ATM、轉帳與行動支付的底層",
+      description:
+        "錢是帳本上的紀錄；授權、清算、結算與風險；央行同資系統、財金公司與卡組織；信用卡的四方模型、卡號與 Luhn 檢查碼、晶片與感應、授權流程、清算與結算、交換費與刷卡回饋、3D 驗證、代碼化與手機錢包、預授權、盜刷與退單、循環信用；ATM 跨行提款、即時跨行轉帳、約定帳戶與限額、SWIFT 與國際匯款、支票與票據交換；悠遊卡離線扣款、電子支付儲值與信託、TWQR、網路金流；側錄與釣魚、ATM 解除分期詐騙、警示帳戶與人頭帳戶；Pix 與 UPI、央行數位貨幣、穩定幣。附六種流程的逐步動畫、卡號檢查碼與手續費拆分。",
+      icon: "💳",
+      url: "topics/payment-systems/index.html",
+      resources: [
+        {
+          title: "支付名詞",
+          description: "本課程常見的支付名詞",
+          icon: "📚",
+          url: "topics/payment-systems/terms.html"
+        },
+        {
+          title: "流程總覽",
+          description: "刷卡、清算、網路刷卡、ATM、轉帳與國際匯款的逐步流程",
+          icon: "🔁",
+          url: "topics/payment-systems/flows.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、卡號檢查碼與手續費拆分",
+          icon: "🗺️",
+          url: "topics/payment-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "錢在銀行裡是什麼", url: "topics/payment-systems/lesson-01.html" },
+            { title: "支付的四件事", url: "topics/payment-systems/lesson-02.html" },
+            { title: "台灣的支付基礎設施", url: "topics/payment-systems/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜信用卡",
+          courses: [
+            { title: "四方模型", url: "topics/payment-systems/lesson-04.html" },
+            { title: "卡號與檢查碼", url: "topics/payment-systems/lesson-05.html" },
+            { title: "磁條、晶片與感應", url: "topics/payment-systems/lesson-06.html" },
+            { title: "一筆刷卡的授權", url: "topics/payment-systems/lesson-07.html" },
+            { title: "清算與結算", url: "topics/payment-systems/lesson-08.html" },
+            { title: "手續費怎麼分", url: "topics/payment-systems/lesson-09.html" },
+            { title: "網路刷卡與 3D 驗證", url: "topics/payment-systems/lesson-10.html" },
+            { title: "代碼化與手機錢包", url: "topics/payment-systems/lesson-11.html" },
+            { title: "預授權", url: "topics/payment-systems/lesson-12.html" },
+            { title: "盜刷與爭議款", url: "topics/payment-systems/lesson-13.html" },
+            { title: "分期、紅利與信用額度", url: "topics/payment-systems/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜轉帳與 ATM",
+          courses: [
+            { title: "ATM 跨行提款", url: "topics/payment-systems/lesson-15.html" },
+            { title: "即時跨行轉帳", url: "topics/payment-systems/lesson-16.html" },
+            { title: "限額、約定帳戶與手續費", url: "topics/payment-systems/lesson-17.html" },
+            { title: "國際匯款與 SWIFT", url: "topics/payment-systems/lesson-18.html" },
+            { title: "支票與票據交換", url: "topics/payment-systems/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜行動支付與電子票證",
+          courses: [
+            { title: "悠遊卡怎麼離線扣款", url: "topics/payment-systems/lesson-20.html" },
+            { title: "電子支付帳戶", url: "topics/payment-systems/lesson-21.html" },
+            { title: "QR code 支付", url: "topics/payment-systems/lesson-22.html" },
+            { title: "網路商店的金流", url: "topics/payment-systems/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜安全與詐騙",
+          courses: [
+            { title: "側錄、釣魚與盜刷", url: "topics/payment-systems/lesson-24.html" },
+            { title: "ATM 解除分期與假網拍", url: "topics/payment-systems/lesson-25.html" },
+            { title: "警示帳戶、人頭帳戶與洗錢防制", url: "topics/payment-systems/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜趨勢",
+          courses: [
+            { title: "即時支付的全球浪潮", url: "topics/payment-systems/lesson-27.html" },
+            { title: "央行數位貨幣", url: "topics/payment-systems/lesson-28.html" },
+            { title: "穩定幣與加密貨幣支付", url: "topics/payment-systems/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：一張圖看懂錢的流動", url: "topics/payment-systems/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
