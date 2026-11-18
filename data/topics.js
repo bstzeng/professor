@@ -33268,6 +33268,444 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "human-experiments",
+      category: "biomed",
+      title: "人體實驗與醫學倫理：從暴行到受試者保護",
+      description:
+        "醫學為什麼需要人體試驗、受試者與病人；天花與黃熱病、納粹醫師的實驗、醫師審判與紐倫堡守則、731 部隊與戰後的交易、塔斯基吉梅毒研究、瓜地馬拉梅毒實驗、輻射人體實驗、MKUltra、威洛布魯克、海拉細胞、沙利竇邁；赫爾辛基宣言、比徹的揭露、貝爾蒙報告三原則、知情同意、倫理審查委員會、弱勢受試者、安慰劑倫理、台灣人體研究法與健保資料庫案；TGN1412、跨國臨床試驗、賀建奎基因編輯嬰兒、新冠人體挑戰試驗、資料與 AI 的研究倫理。附年表、案例圖鑑、規範關係圖與臨床試驗流程動畫。",
+      icon: "⚕️",
+      url: "topics/human-experiments/index.html",
+      resources: [
+        {
+          title: "倫理規範對照",
+          description: "紐倫堡守則、赫爾辛基宣言、貝爾蒙報告與台灣法規的對照",
+          icon: "📜",
+          url: "topics/human-experiments/codes.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、案例圖鑑、規範關係圖與臨床試驗流程",
+          icon: "🗺️",
+          url: "topics/human-experiments/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要談",
+          courses: [
+            { title: "醫學為什麼需要人體試驗", url: "topics/human-experiments/lesson-01.html" },
+            { title: "研究倫理的核心問題", url: "topics/human-experiments/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜黑暗的歷史",
+          courses: [
+            { title: "天花接種與黃熱病", url: "topics/human-experiments/lesson-03.html" },
+            { title: "納粹醫師的實驗", url: "topics/human-experiments/lesson-04.html" },
+            { title: "醫師審判與紐倫堡守則", url: "topics/human-experiments/lesson-05.html" },
+            { title: "731 部隊", url: "topics/human-experiments/lesson-06.html" },
+            { title: "戰後的交易", url: "topics/human-experiments/lesson-07.html" },
+            { title: "塔斯基吉梅毒研究", url: "topics/human-experiments/lesson-08.html" },
+            { title: "瓜地馬拉梅毒實驗", url: "topics/human-experiments/lesson-09.html" },
+            { title: "輻射人體實驗", url: "topics/human-experiments/lesson-10.html" },
+            { title: "MKUltra", url: "topics/human-experiments/lesson-11.html" },
+            { title: "威洛布魯克肝炎研究", url: "topics/human-experiments/lesson-12.html" },
+            { title: "海拉細胞", url: "topics/human-experiments/lesson-13.html" },
+            { title: "沙利竇邁", url: "topics/human-experiments/lesson-14.html" },
+            { title: "模組總結：黑暗的歷史", url: "topics/human-experiments/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜規範的建立",
+          courses: [
+            { title: "赫爾辛基宣言", url: "topics/human-experiments/lesson-16.html" },
+            { title: "比徹的揭露", url: "topics/human-experiments/lesson-17.html" },
+            { title: "貝爾蒙報告", url: "topics/human-experiments/lesson-18.html" },
+            { title: "知情同意", url: "topics/human-experiments/lesson-19.html" },
+            { title: "倫理審查委員會", url: "topics/human-experiments/lesson-20.html" },
+            { title: "弱勢的受試者", url: "topics/human-experiments/lesson-21.html" },
+            { title: "安慰劑的倫理", url: "topics/human-experiments/lesson-22.html" },
+            { title: "台灣的人體研究規範", url: "topics/human-experiments/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜當代議題",
+          courses: [
+            { title: "TGN1412 試驗災難", url: "topics/human-experiments/lesson-24.html" },
+            { title: "跨國臨床試驗", url: "topics/human-experiments/lesson-25.html" },
+            { title: "賀建奎事件", url: "topics/human-experiments/lesson-26.html" },
+            { title: "新冠疫苗與人體挑戰試驗", url: "topics/human-experiments/lesson-27.html" },
+            { title: "資料與 AI 的研究倫理", url: "topics/human-experiments/lesson-28.html" },
+            { title: "課程總結：從暴行到制度", url: "topics/human-experiments/lesson-29.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "mobile-networks",
+      category: "tech",
+      title: "手機是怎麼連上網的：基地台、SIM 卡、換手與 5G",
+      description:
+        "蜂巢的概念、基地台的構造、OFDM 與排程；SIM 卡與 IMSI、認證與加密、eSIM、號碼與攜碼；開機註冊、待機與省電、呼叫、換手、核心網路、封包的隧道與 IP、國際漫遊；簡訊、VoLTE、國家級警報的細胞廣播、手機定位；5G 的新特性、網路切片與邊緣運算、Open RAN、衛星直連手機；收訊不好的原因、跨年塞網、假基地台、SIM 卡挾持與信令漏洞、台灣的行動網路。附開機、呼叫、換手、簡訊、漫遊的流程動畫與換手模擬。",
+      icon: "📱",
+      url: "topics/mobile-networks/index.html",
+      resources: [
+        {
+          title: "行動通訊名詞",
+          description: "本課程常見的名詞",
+          icon: "📚",
+          url: "topics/mobile-networks/terms.html"
+        },
+        {
+          title: "流程總覽",
+          description: "開機註冊、呼叫、換手、簡訊與漫遊",
+          icon: "🔁",
+          url: "topics/mobile-networks/flows.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表與換手模擬",
+          icon: "🗺️",
+          url: "topics/mobile-networks/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "從開機到上網", url: "topics/mobile-networks/lesson-01.html" },
+            { title: "蜂巢的概念", url: "topics/mobile-networks/lesson-02.html" },
+            { title: "基地台的構造", url: "topics/mobile-networks/lesson-03.html" },
+            { title: "無線訊號怎麼傳資料", url: "topics/mobile-networks/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜身分",
+          courses: [
+            { title: "SIM 卡", url: "topics/mobile-networks/lesson-05.html" },
+            { title: "認證與加密", url: "topics/mobile-networks/lesson-06.html" },
+            { title: "eSIM", url: "topics/mobile-networks/lesson-07.html" },
+            { title: "號碼、身分與攜碼", url: "topics/mobile-networks/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜連線",
+          courses: [
+            { title: "開機註冊", url: "topics/mobile-networks/lesson-09.html" },
+            { title: "待機與省電", url: "topics/mobile-networks/lesson-10.html" },
+            { title: "有電話打來", url: "topics/mobile-networks/lesson-11.html" },
+            { title: "換手", url: "topics/mobile-networks/lesson-12.html" },
+            { title: "核心網路", url: "topics/mobile-networks/lesson-13.html" },
+            { title: "封包的路徑與 IP 位址", url: "topics/mobile-networks/lesson-14.html" },
+            { title: "出國漫遊", url: "topics/mobile-networks/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜服務",
+          courses: [
+            { title: "簡訊", url: "topics/mobile-networks/lesson-16.html" },
+            { title: "語音通話", url: "topics/mobile-networks/lesson-17.html" },
+            { title: "國家級警報", url: "topics/mobile-networks/lesson-18.html" },
+            { title: "手機定位", url: "topics/mobile-networks/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜5G 與未來",
+          courses: [
+            { title: "5G 的新特性", url: "topics/mobile-networks/lesson-20.html" },
+            { title: "網路切片與邊緣運算", url: "topics/mobile-networks/lesson-21.html" },
+            { title: "開放式無線接取網路", url: "topics/mobile-networks/lesson-22.html" },
+            { title: "衛星直連手機", url: "topics/mobile-networks/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜問題與安全",
+          courses: [
+            { title: "收訊不好的原因", url: "topics/mobile-networks/lesson-24.html" },
+            { title: "跨年塞網", url: "topics/mobile-networks/lesson-25.html" },
+            { title: "假基地台", url: "topics/mobile-networks/lesson-26.html" },
+            { title: "SIM 卡挾持與信令漏洞", url: "topics/mobile-networks/lesson-27.html" },
+            { title: "台灣的行動網路", url: "topics/mobile-networks/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：口袋裡的基地台網路", url: "topics/mobile-networks/lesson-29.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "airports",
+      category: "tech",
+      title: "機場是怎麼運作的：從報到、行李到跑道",
+      description:
+        "機場是一座城市、空側與陸側、跑道的編號與容量；報到、行李處理系統、安檢與液體規定、證照查驗與自動通關、登機門與空橋、轉機、免稅與非航空收入；過站作業與要徑、停機位分配、航空貨運站、機場消防救援；塔台與地面管制、時刻帶、延誤與流量管理、天氣、鳥擊防制；機場的收入、樞紐與航空聯盟、桃園機場第三航廈與第三跑道、聯外交通、噪音與松山機場；大規模延誤、CrowdStrike 當機、蓋威克無人機事件；世界著名機場比較。附過站甘特圖、跑道容量計算器與行李流程動畫。",
+      icon: "🛫",
+      url: "topics/airports/index.html",
+      resources: [
+        {
+          title: "機場名詞",
+          description: "本課程常見的機場名詞",
+          icon: "📚",
+          url: "topics/airports/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "過站甘特圖、跑道容量、行李流程與世界機場",
+          icon: "🗺️",
+          url: "topics/airports/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "機場是一座城市", url: "topics/airports/lesson-01.html" },
+            { title: "空側與陸側", url: "topics/airports/lesson-02.html" },
+            { title: "跑道", url: "topics/airports/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜旅客",
+          courses: [
+            { title: "報到", url: "topics/airports/lesson-04.html" },
+            { title: "行李處理系統", url: "topics/airports/lesson-05.html" },
+            { title: "安全檢查", url: "topics/airports/lesson-06.html" },
+            { title: "證照查驗與自動通關", url: "topics/airports/lesson-07.html" },
+            { title: "登機門與空橋", url: "topics/airports/lesson-08.html" },
+            { title: "轉機", url: "topics/airports/lesson-09.html" },
+            { title: "機場的商業", url: "topics/airports/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機坪與飛機",
+          courses: [
+            { title: "過站作業", url: "topics/airports/lesson-11.html" },
+            { title: "停機位分配", url: "topics/airports/lesson-12.html" },
+            { title: "航空貨運站", url: "topics/airports/lesson-13.html" },
+            { title: "機場消防救援", url: "topics/airports/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜空中與時刻",
+          courses: [
+            { title: "塔台與地面管制", url: "topics/airports/lesson-15.html" },
+            { title: "時刻帶", url: "topics/airports/lesson-16.html" },
+            { title: "跑道容量與延誤", url: "topics/airports/lesson-17.html" },
+            { title: "天氣與機場", url: "topics/airports/lesson-18.html" },
+            { title: "鳥擊防制", url: "topics/airports/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜經營與規劃",
+          courses: [
+            { title: "機場的收入", url: "topics/airports/lesson-20.html" },
+            { title: "樞紐機場與航空聯盟", url: "topics/airports/lesson-21.html" },
+            { title: "桃園機場的擴建", url: "topics/airports/lesson-22.html" },
+            { title: "聯外交通", url: "topics/airports/lesson-23.html" },
+            { title: "噪音與鄰居", url: "topics/airports/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜異常",
+          courses: [
+            { title: "大規模延誤與取消", url: "topics/airports/lesson-25.html" },
+            { title: "系統當機", url: "topics/airports/lesson-26.html" },
+            { title: "無人機入侵", url: "topics/airports/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "世界著名機場比較", url: "topics/airports/lesson-28.html" },
+            { title: "課程總結：一座 24 小時的城市", url: "topics/airports/lesson-29.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cyber-incidents",
+      category: "tech",
+      title: "資安事件全紀錄：29 起事件的背景、經過與改進",
+      description:
+        "攻擊鏈與事件調查；蠕蟲與病毒（莫里斯、ILOVEYOU、Slammer、Conficker）、國家級攻擊（震網、烏克蘭電網、NotPetya、SolarWinds、美國電信業者遭入侵）、勒索軟體（WannaCry、中油台塑、美國燃油管線、Kaseya、愛爾蘭衛生署、MOVEit、馬偕與彰基）、資料外洩（Yahoo、Equifax、萬豪、Capital One）、漏洞與供應鏈（心臟出血、Log4Shell、xz 後門、CrowdStrike 當機）、社交工程與金融（孟加拉央行、第一銀行 ATM、Twitter、Uber、Bybit），每一起整理背景、經過、原因與改進；附勒索軟體攻擊鏈動畫、改進關係圖與台灣的資安制度。",
+      icon: "🛡️",
+      url: "topics/cyber-incidents/index.html",
+      resources: [
+        {
+          title: "事件總表",
+          description: "依年份排列的事件與一句話摘要",
+          icon: "📋",
+          url: "topics/cyber-incidents/table.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事件圖鑑、攻擊鏈與改進關係圖",
+          icon: "🗺️",
+          url: "topics/cyber-incidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "攻擊鏈與事件調查", url: "topics/cyber-incidents/lesson-01.html" },
+            { title: "資安事件的年表", url: "topics/cyber-incidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜蠕蟲與病毒",
+          courses: [
+            { title: "莫里斯蠕蟲", url: "topics/cyber-incidents/lesson-03.html" },
+            { title: "ILOVEYOU", url: "topics/cyber-incidents/lesson-04.html" },
+            { title: "SQL Slammer", url: "topics/cyber-incidents/lesson-05.html" },
+            { title: "Conficker", url: "topics/cyber-incidents/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 C｜國家級攻擊",
+          courses: [
+            { title: "震網病毒", url: "topics/cyber-incidents/lesson-07.html" },
+            { title: "烏克蘭電網遭攻擊", url: "topics/cyber-incidents/lesson-08.html" },
+            { title: "NotPetya", url: "topics/cyber-incidents/lesson-09.html" },
+            { title: "SolarWinds", url: "topics/cyber-incidents/lesson-10.html" },
+            { title: "美國電信業者遭入侵", url: "topics/cyber-incidents/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜勒索軟體",
+          courses: [
+            { title: "WannaCry", url: "topics/cyber-incidents/lesson-12.html" },
+            { title: "中油與台塑遭勒索", url: "topics/cyber-incidents/lesson-13.html" },
+            { title: "美國燃油管線遭勒索", url: "topics/cyber-incidents/lesson-14.html" },
+            { title: "Kaseya", url: "topics/cyber-incidents/lesson-15.html" },
+            { title: "愛爾蘭衛生署", url: "topics/cyber-incidents/lesson-16.html" },
+            { title: "MOVEit", url: "topics/cyber-incidents/lesson-17.html" },
+            { title: "馬偕與彰基遭勒索", url: "topics/cyber-incidents/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜資料外洩",
+          courses: [
+            { title: "Yahoo 資料外洩", url: "topics/cyber-incidents/lesson-19.html" },
+            { title: "Equifax 資料外洩", url: "topics/cyber-incidents/lesson-20.html" },
+            { title: "萬豪酒店資料外洩", url: "topics/cyber-incidents/lesson-21.html" },
+            { title: "Capital One 資料外洩", url: "topics/cyber-incidents/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜漏洞與供應鏈",
+          courses: [
+            { title: "心臟出血漏洞", url: "topics/cyber-incidents/lesson-23.html" },
+            { title: "Log4Shell", url: "topics/cyber-incidents/lesson-24.html" },
+            { title: "xz 後門", url: "topics/cyber-incidents/lesson-25.html" },
+            { title: "CrowdStrike 全球當機", url: "topics/cyber-incidents/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜社交工程與金融",
+          courses: [
+            { title: "孟加拉央行竊案", url: "topics/cyber-incidents/lesson-27.html" },
+            { title: "第一銀行 ATM 盜領案", url: "topics/cyber-incidents/lesson-28.html" },
+            { title: "Twitter 帳號挾持", url: "topics/cyber-incidents/lesson-29.html" },
+            { title: "Uber 遭入侵", url: "topics/cyber-incidents/lesson-30.html" },
+            { title: "Bybit 竊案", url: "topics/cyber-incidents/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/cyber-incidents/lesson-32.html" },
+            { title: "台灣的資安事件與制度", url: "topics/cyber-incidents/lesson-33.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "space-accidents",
+      category: "tech",
+      title: "太空事故全紀錄：22 起事故的背景、經過與改進",
+      description:
+        "太空飛行的風險與事故調查；發射事故（尼德林災難、長征三號乙、阿爾坎塔拉、獵鷹 9 號發射台爆炸、星艦試飛）、載人太空船（阿波羅 1 號、聯盟 1 號、聯盟 11 號、阿波羅 13 號、挑戰者號、哥倫比亞號、聯盟 MS-10、維珍銀河、星際線號）、太空站與軌道（和平號、太空衣進水、衛星相撞、反衛星試驗）、無人任務（火星氣候探測者號、亞利安 5 號、瞳衛星、民間月球登陸器），每一起整理背景、經過、原因與改進；附年表、事故圖鑑、改進關係圖與救生系統。",
+      icon: "🚀",
+      url: "topics/space-accidents/index.html",
+      resources: [
+        {
+          title: "事故總表",
+          description: "依年份排列的事故與一句話摘要",
+          icon: "📋",
+          url: "topics/space-accidents/table.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事故圖鑑與改進關係圖",
+          icon: "🗺️",
+          url: "topics/space-accidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "太空為什麼危險", url: "topics/space-accidents/lesson-01.html" },
+            { title: "事故調查與太空安全", url: "topics/space-accidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜發射場與發射",
+          courses: [
+            { title: "尼德林災難", url: "topics/space-accidents/lesson-03.html" },
+            { title: "長征三號乙", url: "topics/space-accidents/lesson-04.html" },
+            { title: "阿爾坎塔拉發射台爆炸", url: "topics/space-accidents/lesson-05.html" },
+            { title: "獵鷹 9 號發射台爆炸", url: "topics/space-accidents/lesson-06.html" },
+            { title: "星艦試飛", url: "topics/space-accidents/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜載人太空船",
+          courses: [
+            { title: "阿波羅 1 號", url: "topics/space-accidents/lesson-08.html" },
+            { title: "聯盟 1 號", url: "topics/space-accidents/lesson-09.html" },
+            { title: "聯盟 11 號", url: "topics/space-accidents/lesson-10.html" },
+            { title: "阿波羅 13 號", url: "topics/space-accidents/lesson-11.html" },
+            { title: "挑戰者號", url: "topics/space-accidents/lesson-12.html" },
+            { title: "哥倫比亞號", url: "topics/space-accidents/lesson-13.html" },
+            { title: "聯盟 MS-10", url: "topics/space-accidents/lesson-14.html" },
+            { title: "維珍銀河試飛事故", url: "topics/space-accidents/lesson-15.html" },
+            { title: "星際線號", url: "topics/space-accidents/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜太空站與軌道",
+          courses: [
+            { title: "和平號的火災與碰撞", url: "topics/space-accidents/lesson-17.html" },
+            { title: "太空衣進水", url: "topics/space-accidents/lesson-18.html" },
+            { title: "衛星相撞", url: "topics/space-accidents/lesson-19.html" },
+            { title: "反衛星試驗", url: "topics/space-accidents/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜無人任務",
+          courses: [
+            { title: "火星氣候探測者號", url: "topics/space-accidents/lesson-21.html" },
+            { title: "亞利安 5 號", url: "topics/space-accidents/lesson-22.html" },
+            { title: "瞳衛星", url: "topics/space-accidents/lesson-23.html" },
+            { title: "民間月球登陸器", url: "topics/space-accidents/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "救生系統與訓練", url: "topics/space-accidents/lesson-25.html" },
+            { title: "改進總表", url: "topics/space-accidents/lesson-26.html" },
+            { title: "課程總結：向星空的代價", url: "topics/space-accidents/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
