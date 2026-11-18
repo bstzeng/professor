@@ -32845,6 +32845,429 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "rail-accidents",
+      category: "tech",
+      title: "鐵路事故全紀錄：31 起事故的背景、經過與改進",
+      description:
+        "閉塞、號誌、連鎖與列車自動防護；依原因分類的 31 起鐵路事故——號誌與閉塞（阿馬、昆汀希爾、三河島、克拉珀姆、台鐵造橋、溫州動車）、超速與彎道（福知山線、聖地牙哥、美鐵 188、普悠瑪號）、闖號誌（哈羅、摩爾門、拉德布羅克林、查茨沃斯）、車輛與軌道（鶴見、艾舍德 ICE、哈特菲爾德）、平交道與外物（太魯閣號）、火災（默東、卡普倫、大邱地鐵）、天災（斯里蘭卡海嘯列車、上越新幹線）、危險品與失控（烏法、拉克梅甘蒂克、東巴勒斯坦）、近年（希臘滕比、印度奧里薩邦、里斯本纜車、西班牙阿達穆斯），每一起整理背景、經過、原因與改進；附彎道超速計算器、改進關係圖與台灣鐵路安全史。",
+      icon: "🚆",
+      url: "topics/rail-accidents/index.html",
+      resources: [
+        {
+          title: "事故總表",
+          description: "依年份排列的事故與一句話摘要",
+          icon: "📋",
+          url: "topics/rail-accidents/table.html"
+        },
+        {
+          title: "鐵路安全名詞",
+          description: "本課程常見的鐵路安全名詞",
+          icon: "📚",
+          url: "topics/rail-accidents/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事故圖鑑、彎道超速計算器與改進關係圖",
+          icon: "🗺️",
+          url: "topics/rail-accidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "鐵路怎麼保持安全", url: "topics/rail-accidents/lesson-01.html" },
+            { title: "鐵路事故的調查與這門課", url: "topics/rail-accidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜號誌與閉塞",
+          courses: [
+            { title: "阿馬鐵路事故", url: "topics/rail-accidents/lesson-03.html" },
+            { title: "昆汀希爾鐵路事故", url: "topics/rail-accidents/lesson-04.html" },
+            { title: "三河島事故", url: "topics/rail-accidents/lesson-05.html" },
+            { title: "克拉珀姆交匯站事故", url: "topics/rail-accidents/lesson-06.html" },
+            { title: "台鐵造橋事故", url: "topics/rail-accidents/lesson-07.html" },
+            { title: "溫州動車事故", url: "topics/rail-accidents/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜超速與彎道",
+          courses: [
+            { title: "福知山線事故", url: "topics/rail-accidents/lesson-09.html" },
+            { title: "聖地牙哥德孔波斯特拉事故", url: "topics/rail-accidents/lesson-10.html" },
+            { title: "美鐵 188 費城出軌", url: "topics/rail-accidents/lesson-11.html" },
+            { title: "普悠瑪號事故", url: "topics/rail-accidents/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人為因素與闖號誌",
+          courses: [
+            { title: "哈羅與威爾德斯通事故", url: "topics/rail-accidents/lesson-13.html" },
+            { title: "摩爾門地鐵事故", url: "topics/rail-accidents/lesson-14.html" },
+            { title: "拉德布羅克林事故", url: "topics/rail-accidents/lesson-15.html" },
+            { title: "查茨沃斯事故", url: "topics/rail-accidents/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜車輛與軌道",
+          courses: [
+            { title: "鶴見事故", url: "topics/rail-accidents/lesson-17.html" },
+            { title: "艾舍德 ICE 事故", url: "topics/rail-accidents/lesson-18.html" },
+            { title: "哈特菲爾德事故", url: "topics/rail-accidents/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜平交道與外物",
+          courses: [
+            { title: "厄夫頓納維特事故", url: "topics/rail-accidents/lesson-20.html" },
+            { title: "太魯閣號事故", url: "topics/rail-accidents/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 G｜火災",
+          courses: [
+            { title: "默東鐵路事故", url: "topics/rail-accidents/lesson-22.html" },
+            { title: "卡普倫纜車火災", url: "topics/rail-accidents/lesson-23.html" },
+            { title: "大邱地鐵火災", url: "topics/rail-accidents/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 H｜天災",
+          courses: [
+            { title: "斯里蘭卡海嘯列車", url: "topics/rail-accidents/lesson-25.html" },
+            { title: "上越新幹線出軌", url: "topics/rail-accidents/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 I｜危險品與失控",
+          courses: [
+            { title: "烏法鐵路災難", url: "topics/rail-accidents/lesson-27.html" },
+            { title: "拉克梅甘蒂克事故", url: "topics/rail-accidents/lesson-28.html" },
+            { title: "東巴勒斯坦出軌事故", url: "topics/rail-accidents/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 J｜近年事故",
+          courses: [
+            { title: "希臘滕比事故", url: "topics/rail-accidents/lesson-30.html" },
+            { title: "印度奧里薩邦三車相撞", url: "topics/rail-accidents/lesson-31.html" },
+            { title: "里斯本光榮纜車事故", url: "topics/rail-accidents/lesson-32.html" },
+            { title: "西班牙阿達穆斯事故", url: "topics/rail-accidents/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/rail-accidents/lesson-34.html" },
+            { title: "台灣鐵路的安全史", url: "topics/rail-accidents/lesson-35.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "shipwrecks",
+      category: "tech",
+      title: "船難全紀錄：25 起船難的背景、經過與改進",
+      description:
+        "浮力、重心、穩心與自由液面；SOLAS、MARPOL、ISM 等海上安全公約；25 起船難依主題分類——救生與公約（鐵達尼號、愛爾蘭皇后號）、穩定性與翻覆（東方號、世越號、東方之星）、滾裝船艙門（自由企業先驅號、愛沙尼亞號）、超載與渡輪（太平輪、多尼亞帕茲號、喬拉號、薩拉姆 98、地中海移民船）、戰爭（盧西塔尼亞號、威廉古斯特洛夫號）、天氣（洞爺丸、埃爾法羅號）、碰撞（安德里亞多利亞號、歌詩達協和號）、油汙（托利峽谷號、艾克森瓦德茲號、威望號）、港口與其他（長賜號、大達利號、庫斯克號、貝葉斯號），每一起整理背景、經過、原因與改進；附穩定性模擬與改進關係圖。",
+      icon: "🚢",
+      url: "topics/shipwrecks/index.html",
+      resources: [
+        {
+          title: "船難總表",
+          description: "依年份排列的船難與一句話摘要",
+          icon: "📋",
+          url: "topics/shipwrecks/table.html"
+        },
+        {
+          title: "海事名詞",
+          description: "本課程常見的海事名詞",
+          icon: "📚",
+          url: "topics/shipwrecks/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、船難圖鑑、穩定性模擬與改進關係圖",
+          icon: "🗺️",
+          url: "topics/shipwrecks/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "船為什麼會浮，又為什麼會翻", url: "topics/shipwrecks/lesson-01.html" },
+            { title: "海上安全的規則與調查", url: "topics/shipwrecks/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜救生與公約",
+          courses: [
+            { title: "鐵達尼號", url: "topics/shipwrecks/lesson-03.html" },
+            { title: "愛爾蘭皇后號", url: "topics/shipwrecks/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 C｜穩定性與翻覆",
+          courses: [
+            { title: "東方號", url: "topics/shipwrecks/lesson-05.html" },
+            { title: "世越號", url: "topics/shipwrecks/lesson-06.html" },
+            { title: "長江東方之星", url: "topics/shipwrecks/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 D｜滾裝船艙門",
+          courses: [
+            { title: "自由企業先驅號", url: "topics/shipwrecks/lesson-08.html" },
+            { title: "愛沙尼亞號", url: "topics/shipwrecks/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 E｜超載與渡輪",
+          courses: [
+            { title: "太平輪", url: "topics/shipwrecks/lesson-10.html" },
+            { title: "多尼亞帕茲號", url: "topics/shipwrecks/lesson-11.html" },
+            { title: "喬拉號", url: "topics/shipwrecks/lesson-12.html" },
+            { title: "薩拉姆 98 號", url: "topics/shipwrecks/lesson-13.html" },
+            { title: "地中海移民船難", url: "topics/shipwrecks/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 F｜戰爭",
+          courses: [
+            { title: "盧西塔尼亞號", url: "topics/shipwrecks/lesson-15.html" },
+            { title: "威廉古斯特洛夫號", url: "topics/shipwrecks/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 G｜天氣",
+          courses: [
+            { title: "洞爺丸", url: "topics/shipwrecks/lesson-17.html" },
+            { title: "埃爾法羅號", url: "topics/shipwrecks/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 H｜碰撞與駕駛台",
+          courses: [
+            { title: "安德里亞多利亞號", url: "topics/shipwrecks/lesson-19.html" },
+            { title: "歌詩達協和號", url: "topics/shipwrecks/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 I｜油汙與環境",
+          courses: [
+            { title: "托利峽谷號", url: "topics/shipwrecks/lesson-21.html" },
+            { title: "艾克森瓦德茲號", url: "topics/shipwrecks/lesson-22.html" },
+            { title: "威望號", url: "topics/shipwrecks/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 J｜港口、航道與其他",
+          courses: [
+            { title: "長賜號卡住蘇伊士運河", url: "topics/shipwrecks/lesson-24.html" },
+            { title: "大達利號撞斷巴爾的摩大橋", url: "topics/shipwrecks/lesson-25.html" },
+            { title: "庫斯克號", url: "topics/shipwrecks/lesson-26.html" },
+            { title: "貝葉斯號", url: "topics/shipwrecks/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/shipwrecks/lesson-28.html" },
+            { title: "課程總結：海上安全的百年", url: "topics/shipwrecks/lesson-29.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "payment-systems",
+      category: "finance",
+      title: "刷卡與轉帳是怎麼運作的：信用卡、ATM、轉帳與行動支付的底層",
+      description:
+        "錢是帳本上的紀錄；授權、清算、結算與風險；央行同資系統、財金公司與卡組織；信用卡的四方模型、卡號與 Luhn 檢查碼、晶片與感應、授權流程、清算與結算、交換費與刷卡回饋、3D 驗證、代碼化與手機錢包、預授權、盜刷與退單、循環信用；ATM 跨行提款、即時跨行轉帳、約定帳戶與限額、SWIFT 與國際匯款、支票與票據交換；悠遊卡離線扣款、電子支付儲值與信託、TWQR、網路金流；側錄與釣魚、ATM 解除分期詐騙、警示帳戶與人頭帳戶；Pix 與 UPI、央行數位貨幣、穩定幣。附六種流程的逐步動畫、卡號檢查碼與手續費拆分。",
+      icon: "💳",
+      url: "topics/payment-systems/index.html",
+      resources: [
+        {
+          title: "支付名詞",
+          description: "本課程常見的支付名詞",
+          icon: "📚",
+          url: "topics/payment-systems/terms.html"
+        },
+        {
+          title: "流程總覽",
+          description: "刷卡、清算、網路刷卡、ATM、轉帳與國際匯款的逐步流程",
+          icon: "🔁",
+          url: "topics/payment-systems/flows.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、卡號檢查碼與手續費拆分",
+          icon: "🗺️",
+          url: "topics/payment-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "錢在銀行裡是什麼", url: "topics/payment-systems/lesson-01.html" },
+            { title: "支付的四件事", url: "topics/payment-systems/lesson-02.html" },
+            { title: "台灣的支付基礎設施", url: "topics/payment-systems/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜信用卡",
+          courses: [
+            { title: "四方模型", url: "topics/payment-systems/lesson-04.html" },
+            { title: "卡號與檢查碼", url: "topics/payment-systems/lesson-05.html" },
+            { title: "磁條、晶片與感應", url: "topics/payment-systems/lesson-06.html" },
+            { title: "一筆刷卡的授權", url: "topics/payment-systems/lesson-07.html" },
+            { title: "清算與結算", url: "topics/payment-systems/lesson-08.html" },
+            { title: "手續費怎麼分", url: "topics/payment-systems/lesson-09.html" },
+            { title: "網路刷卡與 3D 驗證", url: "topics/payment-systems/lesson-10.html" },
+            { title: "代碼化與手機錢包", url: "topics/payment-systems/lesson-11.html" },
+            { title: "預授權", url: "topics/payment-systems/lesson-12.html" },
+            { title: "盜刷與爭議款", url: "topics/payment-systems/lesson-13.html" },
+            { title: "分期、紅利與信用額度", url: "topics/payment-systems/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜轉帳與 ATM",
+          courses: [
+            { title: "ATM 跨行提款", url: "topics/payment-systems/lesson-15.html" },
+            { title: "即時跨行轉帳", url: "topics/payment-systems/lesson-16.html" },
+            { title: "限額、約定帳戶與手續費", url: "topics/payment-systems/lesson-17.html" },
+            { title: "國際匯款與 SWIFT", url: "topics/payment-systems/lesson-18.html" },
+            { title: "支票與票據交換", url: "topics/payment-systems/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜行動支付與電子票證",
+          courses: [
+            { title: "悠遊卡怎麼離線扣款", url: "topics/payment-systems/lesson-20.html" },
+            { title: "電子支付帳戶", url: "topics/payment-systems/lesson-21.html" },
+            { title: "QR code 支付", url: "topics/payment-systems/lesson-22.html" },
+            { title: "網路商店的金流", url: "topics/payment-systems/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜安全與詐騙",
+          courses: [
+            { title: "側錄、釣魚與盜刷", url: "topics/payment-systems/lesson-24.html" },
+            { title: "ATM 解除分期與假網拍", url: "topics/payment-systems/lesson-25.html" },
+            { title: "警示帳戶、人頭帳戶與洗錢防制", url: "topics/payment-systems/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜趨勢",
+          courses: [
+            { title: "即時支付的全球浪潮", url: "topics/payment-systems/lesson-27.html" },
+            { title: "央行數位貨幣", url: "topics/payment-systems/lesson-28.html" },
+            { title: "穩定幣與加密貨幣支付", url: "topics/payment-systems/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：一張圖看懂錢的流動", url: "topics/payment-systems/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "internet-backbone",
+      category: "tech",
+      title: "網際網路的骨幹：DNS、BGP、海底電纜與大斷線",
+      description:
+        "自治系統、付費轉送與對等互連、網路交換中心、IP 位址的分配；DNS 的階層、根伺服器與任播、一次查詢的旅程、TTL 與快取、快取下毒與 DNSSEC、Dyn 與 AWS 的 DNS 事故；BGP 的宣告與 AS 路徑、路徑選擇與商業政策、巴基斯坦與 YouTube 的劫持、2019 年路由洩漏、Facebook 斷線六小時、RPKI；海底電纜的構造、鋪設與維修、波長多工與光速極限、恆春地震斷纜、東加與紅海、馬祖斷纜與 2025 年宏泰 58 案；CDN 與任播、資料中心、Fastly 與 AWS 大斷線、IPv4 耗盡與 IPv6；ICANN 與網路治理、國家斷網、低軌衛星。附 DNS 查詢動畫、BGP 劫持模擬與延遲計算。",
+      icon: "🌐",
+      url: "topics/internet-backbone/index.html",
+      resources: [
+        {
+          title: "網路名詞",
+          description: "本課程常見的名詞",
+          icon: "📚",
+          url: "topics/internet-backbone/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事件圖鑑、DNS 查詢、BGP 模擬與延遲計算",
+          icon: "🗺️",
+          url: "topics/internet-backbone/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜網路的網路",
+          courses: [
+            { title: "網際網路是網路的網路", url: "topics/internet-backbone/lesson-01.html" },
+            { title: "網路業者的層級", url: "topics/internet-backbone/lesson-02.html" },
+            { title: "網路交換中心", url: "topics/internet-backbone/lesson-03.html" },
+            { title: "IP 位址從哪裡來", url: "topics/internet-backbone/lesson-04.html" },
+            { title: "一個封包的跨洋旅程", url: "topics/internet-backbone/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜DNS：網址怎麼查到伺服器",
+          courses: [
+            { title: "名稱的階層", url: "topics/internet-backbone/lesson-06.html" },
+            { title: "根伺服器", url: "topics/internet-backbone/lesson-07.html" },
+            { title: "一次查詢的旅程", url: "topics/internet-backbone/lesson-08.html" },
+            { title: "快取與存活時間", url: "topics/internet-backbone/lesson-09.html" },
+            { title: "DNS 的安全", url: "topics/internet-backbone/lesson-10.html" },
+            { title: "DNS 事故", url: "topics/internet-backbone/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜BGP：網路之間怎麼找路",
+          courses: [
+            { title: "路由宣告與 AS 路徑", url: "topics/internet-backbone/lesson-12.html" },
+            { title: "路徑選擇與路由政策", url: "topics/internet-backbone/lesson-13.html" },
+            { title: "路由劫持", url: "topics/internet-backbone/lesson-14.html" },
+            { title: "路由洩漏", url: "topics/internet-backbone/lesson-15.html" },
+            { title: "Facebook 斷線六小時", url: "topics/internet-backbone/lesson-16.html" },
+            { title: "路由安全", url: "topics/internet-backbone/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜海底電纜",
+          courses: [
+            { title: "海底電纜的構造", url: "topics/internet-backbone/lesson-18.html" },
+            { title: "鋪設、登陸與維修", url: "topics/internet-backbone/lesson-19.html" },
+            { title: "光纖與波長多工", url: "topics/internet-backbone/lesson-20.html" },
+            { title: "恆春地震斷纜", url: "topics/internet-backbone/lesson-21.html" },
+            { title: "東加火山與紅海斷纜", url: "topics/internet-backbone/lesson-22.html" },
+            { title: "台灣的海纜韌性", url: "topics/internet-backbone/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜CDN 與雲端",
+          courses: [
+            { title: "內容傳遞網路與任播", url: "topics/internet-backbone/lesson-24.html" },
+            { title: "資料中心與雲端區域", url: "topics/internet-backbone/lesson-25.html" },
+            { title: "大型雲端斷線", url: "topics/internet-backbone/lesson-26.html" },
+            { title: "IPv4 耗盡與 IPv6", url: "topics/internet-backbone/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜治理與未來",
+          courses: [
+            { title: "誰管理網際網路", url: "topics/internet-backbone/lesson-28.html" },
+            { title: "國家斷網與網路主權", url: "topics/internet-backbone/lesson-29.html" },
+            { title: "衛星網路", url: "topics/internet-backbone/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：封包跨越海洋的旅程", url: "topics/internet-backbone/lesson-31.html" },
+          ],
+        },
+      ],
     }
   ]
 };
