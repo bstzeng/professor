@@ -33268,6 +33268,175 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "human-experiments",
+      category: "biomed",
+      title: "人體實驗與醫學倫理：從暴行到受試者保護",
+      description:
+        "醫學為什麼需要人體試驗、受試者與病人；天花與黃熱病、納粹醫師的實驗、醫師審判與紐倫堡守則、731 部隊與戰後的交易、塔斯基吉梅毒研究、瓜地馬拉梅毒實驗、輻射人體實驗、MKUltra、威洛布魯克、海拉細胞、沙利竇邁；赫爾辛基宣言、比徹的揭露、貝爾蒙報告三原則、知情同意、倫理審查委員會、弱勢受試者、安慰劑倫理、台灣人體研究法與健保資料庫案；TGN1412、跨國臨床試驗、賀建奎基因編輯嬰兒、新冠人體挑戰試驗、資料與 AI 的研究倫理。附年表、案例圖鑑、規範關係圖與臨床試驗流程動畫。",
+      icon: "⚕️",
+      url: "topics/human-experiments/index.html",
+      resources: [
+        {
+          title: "倫理規範對照",
+          description: "紐倫堡守則、赫爾辛基宣言、貝爾蒙報告與台灣法規的對照",
+          icon: "📜",
+          url: "topics/human-experiments/codes.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、案例圖鑑、規範關係圖與臨床試驗流程",
+          icon: "🗺️",
+          url: "topics/human-experiments/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼要談",
+          courses: [
+            { title: "醫學為什麼需要人體試驗", url: "topics/human-experiments/lesson-01.html" },
+            { title: "研究倫理的核心問題", url: "topics/human-experiments/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜黑暗的歷史",
+          courses: [
+            { title: "天花接種與黃熱病", url: "topics/human-experiments/lesson-03.html" },
+            { title: "納粹醫師的實驗", url: "topics/human-experiments/lesson-04.html" },
+            { title: "醫師審判與紐倫堡守則", url: "topics/human-experiments/lesson-05.html" },
+            { title: "731 部隊", url: "topics/human-experiments/lesson-06.html" },
+            { title: "戰後的交易", url: "topics/human-experiments/lesson-07.html" },
+            { title: "塔斯基吉梅毒研究", url: "topics/human-experiments/lesson-08.html" },
+            { title: "瓜地馬拉梅毒實驗", url: "topics/human-experiments/lesson-09.html" },
+            { title: "輻射人體實驗", url: "topics/human-experiments/lesson-10.html" },
+            { title: "MKUltra", url: "topics/human-experiments/lesson-11.html" },
+            { title: "威洛布魯克肝炎研究", url: "topics/human-experiments/lesson-12.html" },
+            { title: "海拉細胞", url: "topics/human-experiments/lesson-13.html" },
+            { title: "沙利竇邁", url: "topics/human-experiments/lesson-14.html" },
+            { title: "模組總結：黑暗的歷史", url: "topics/human-experiments/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜規範的建立",
+          courses: [
+            { title: "赫爾辛基宣言", url: "topics/human-experiments/lesson-16.html" },
+            { title: "比徹的揭露", url: "topics/human-experiments/lesson-17.html" },
+            { title: "貝爾蒙報告", url: "topics/human-experiments/lesson-18.html" },
+            { title: "知情同意", url: "topics/human-experiments/lesson-19.html" },
+            { title: "倫理審查委員會", url: "topics/human-experiments/lesson-20.html" },
+            { title: "弱勢的受試者", url: "topics/human-experiments/lesson-21.html" },
+            { title: "安慰劑的倫理", url: "topics/human-experiments/lesson-22.html" },
+            { title: "台灣的人體研究規範", url: "topics/human-experiments/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜當代議題",
+          courses: [
+            { title: "TGN1412 試驗災難", url: "topics/human-experiments/lesson-24.html" },
+            { title: "跨國臨床試驗", url: "topics/human-experiments/lesson-25.html" },
+            { title: "賀建奎事件", url: "topics/human-experiments/lesson-26.html" },
+            { title: "新冠疫苗與人體挑戰試驗", url: "topics/human-experiments/lesson-27.html" },
+            { title: "資料與 AI 的研究倫理", url: "topics/human-experiments/lesson-28.html" },
+            { title: "課程總結：從暴行到制度", url: "topics/human-experiments/lesson-29.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "mobile-networks",
+      category: "tech",
+      title: "手機是怎麼連上網的：基地台、SIM 卡、換手與 5G",
+      description:
+        "蜂巢的概念、基地台的構造、OFDM 與排程；SIM 卡與 IMSI、認證與加密、eSIM、號碼與攜碼；開機註冊、待機與省電、呼叫、換手、核心網路、封包的隧道與 IP、國際漫遊；簡訊、VoLTE、國家級警報的細胞廣播、手機定位；5G 的新特性、網路切片與邊緣運算、Open RAN、衛星直連手機；收訊不好的原因、跨年塞網、假基地台、SIM 卡挾持與信令漏洞、台灣的行動網路。附開機、呼叫、換手、簡訊、漫遊的流程動畫與換手模擬。",
+      icon: "📱",
+      url: "topics/mobile-networks/index.html",
+      resources: [
+        {
+          title: "行動通訊名詞",
+          description: "本課程常見的名詞",
+          icon: "📚",
+          url: "topics/mobile-networks/terms.html"
+        },
+        {
+          title: "流程總覽",
+          description: "開機註冊、呼叫、換手、簡訊與漫遊",
+          icon: "🔁",
+          url: "topics/mobile-networks/flows.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表與換手模擬",
+          icon: "🗺️",
+          url: "topics/mobile-networks/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "從開機到上網", url: "topics/mobile-networks/lesson-01.html" },
+            { title: "蜂巢的概念", url: "topics/mobile-networks/lesson-02.html" },
+            { title: "基地台的構造", url: "topics/mobile-networks/lesson-03.html" },
+            { title: "無線訊號怎麼傳資料", url: "topics/mobile-networks/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜身分",
+          courses: [
+            { title: "SIM 卡", url: "topics/mobile-networks/lesson-05.html" },
+            { title: "認證與加密", url: "topics/mobile-networks/lesson-06.html" },
+            { title: "eSIM", url: "topics/mobile-networks/lesson-07.html" },
+            { title: "號碼、身分與攜碼", url: "topics/mobile-networks/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜連線",
+          courses: [
+            { title: "開機註冊", url: "topics/mobile-networks/lesson-09.html" },
+            { title: "待機與省電", url: "topics/mobile-networks/lesson-10.html" },
+            { title: "有電話打來", url: "topics/mobile-networks/lesson-11.html" },
+            { title: "換手", url: "topics/mobile-networks/lesson-12.html" },
+            { title: "核心網路", url: "topics/mobile-networks/lesson-13.html" },
+            { title: "封包的路徑與 IP 位址", url: "topics/mobile-networks/lesson-14.html" },
+            { title: "出國漫遊", url: "topics/mobile-networks/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜服務",
+          courses: [
+            { title: "簡訊", url: "topics/mobile-networks/lesson-16.html" },
+            { title: "語音通話", url: "topics/mobile-networks/lesson-17.html" },
+            { title: "國家級警報", url: "topics/mobile-networks/lesson-18.html" },
+            { title: "手機定位", url: "topics/mobile-networks/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜5G 與未來",
+          courses: [
+            { title: "5G 的新特性", url: "topics/mobile-networks/lesson-20.html" },
+            { title: "網路切片與邊緣運算", url: "topics/mobile-networks/lesson-21.html" },
+            { title: "開放式無線接取網路", url: "topics/mobile-networks/lesson-22.html" },
+            { title: "衛星直連手機", url: "topics/mobile-networks/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜問題與安全",
+          courses: [
+            { title: "收訊不好的原因", url: "topics/mobile-networks/lesson-24.html" },
+            { title: "跨年塞網", url: "topics/mobile-networks/lesson-25.html" },
+            { title: "假基地台", url: "topics/mobile-networks/lesson-26.html" },
+            { title: "SIM 卡挾持與信令漏洞", url: "topics/mobile-networks/lesson-27.html" },
+            { title: "台灣的行動網路", url: "topics/mobile-networks/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：口袋裡的基地台網路", url: "topics/mobile-networks/lesson-29.html" },
+          ],
+        },
+      ],
     }
   ]
 };
