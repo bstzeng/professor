@@ -31299,6 +31299,180 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chemistry",
+      category: "science",
+      title: "化學：元素與化學鍵",
+      description:
+        "元素、化合物與混合物、原子結構與同位素、莫耳；軌域、電子組態、門得列夫與週期表、原子半徑、游離能與電負度、各族元素；離子鍵、共價鍵與路易斯結構、VSEPR 分子形狀、極性與氫鍵、金屬鍵、有機分子與手性；反應式、焓、活化能與催化劑、化學平衡與勒沙特列、熵與自由能；溶解度、酸鹼與 pH、緩衝與血液、氧化還原、電池與電解；塑膠與半導體、藥物、化學工業與環境。附互動週期表、3D 分子形狀、反應速率與滴定曲線。",
+      icon: "⚗️",
+      url: "topics/chemistry/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的化學名詞",
+          icon: "📖",
+          url: "topics/chemistry/glossary.html"
+        },
+        {
+          title: "週期表與數值",
+          description: "互動週期表、常用常數與 VSEPR 速查",
+          icon: "🧪",
+          url: "topics/chemistry/data.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜物質與原子",
+          courses: [
+            { title: "化學是什麼", url: "topics/chemistry/lesson-01.html" },
+            { title: "元素、化合物與混合物", url: "topics/chemistry/lesson-02.html" },
+            { title: "原子的結構與同位素", url: "topics/chemistry/lesson-03.html" },
+            { title: "莫耳與化學計量", url: "topics/chemistry/lesson-04.html" },
+            { title: "模組總結：物質與原子", url: "topics/chemistry/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜電子與週期表",
+          courses: [
+            { title: "電子殼層與軌域", url: "topics/chemistry/lesson-06.html" },
+            { title: "電子組態", url: "topics/chemistry/lesson-07.html" },
+            { title: "週期表的結構", url: "topics/chemistry/lesson-08.html" },
+            { title: "週期趨勢", url: "topics/chemistry/lesson-09.html" },
+            { title: "各族元素巡禮", url: "topics/chemistry/lesson-10.html" },
+            { title: "模組總結：電子與週期表", url: "topics/chemistry/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜化學鍵",
+          courses: [
+            { title: "離子鍵", url: "topics/chemistry/lesson-12.html" },
+            { title: "共價鍵與路易斯結構", url: "topics/chemistry/lesson-13.html" },
+            { title: "分子的形狀", url: "topics/chemistry/lesson-14.html" },
+            { title: "極性與分子間作用力", url: "topics/chemistry/lesson-15.html" },
+            { title: "金屬鍵", url: "topics/chemistry/lesson-16.html" },
+            { title: "碳的化學", url: "topics/chemistry/lesson-17.html" },
+            { title: "模組總結：化學鍵", url: "topics/chemistry/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜化學反應",
+          courses: [
+            { title: "化學反應式", url: "topics/chemistry/lesson-19.html" },
+            { title: "化學反應的能量", url: "topics/chemistry/lesson-20.html" },
+            { title: "反應速率與催化劑", url: "topics/chemistry/lesson-21.html" },
+            { title: "化學平衡", url: "topics/chemistry/lesson-22.html" },
+            { title: "熵與自由能", url: "topics/chemistry/lesson-23.html" },
+            { title: "模組總結：化學反應", url: "topics/chemistry/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜溶液、酸鹼與氧化還原",
+          courses: [
+            { title: "溶液與溶解度", url: "topics/chemistry/lesson-25.html" },
+            { title: "酸、鹼與 pH", url: "topics/chemistry/lesson-26.html" },
+            { title: "緩衝溶液與人體", url: "topics/chemistry/lesson-27.html" },
+            { title: "氧化還原", url: "topics/chemistry/lesson-28.html" },
+            { title: "電化學", url: "topics/chemistry/lesson-29.html" },
+            { title: "模組總結：溶液、酸鹼與氧化還原", url: "topics/chemistry/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 F｜生活中的化學",
+          courses: [
+            { title: "材料的化學", url: "topics/chemistry/lesson-31.html" },
+            { title: "藥物與生物化學", url: "topics/chemistry/lesson-32.html" },
+            { title: "化學工業與環境", url: "topics/chemistry/lesson-33.html" },
+            { title: "課程總結：化學的世界觀", url: "topics/chemistry/lesson-34.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fluid-dynamics",
+      category: "science",
+      title: "流體力學與飛行：從白努利到音障",
+      description:
+        "壓力、浮力與帕斯卡原理、黏滯性與非牛頓流體、連續方程式；白努利定律與「等時間」迷思、雷諾數與亂流、普朗特的邊界層與流動分離、阻力、納維–斯托克斯與千禧年難題；升力的來源、翼型與攻角、失速、襟翼、翼尖渦流與誘導阻力；馬赫數、音障與震波、協和號與 X-59、高超音速與重返大氣層；風洞與 CFD；鳥與昆蟲、曲球與高爾夫球、血流、天氣與洋流。附文氏管、雷諾數、機翼升力與馬赫錐四個互動模擬。",
+      icon: "🌊",
+      url: "topics/fluid-dynamics/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的流體力學與空氣動力學名詞",
+          icon: "📖",
+          url: "topics/fluid-dynamics/glossary.html"
+        },
+        {
+          title: "重要的數",
+          description: "常用的物理量、無因次數與典型數值",
+          icon: "🔢",
+          url: "topics/fluid-dynamics/numbers.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜流體的基本",
+          courses: [
+            { title: "什麼是流體", url: "topics/fluid-dynamics/lesson-01.html" },
+            { title: "壓力與浮力", url: "topics/fluid-dynamics/lesson-02.html" },
+            { title: "黏滯性", url: "topics/fluid-dynamics/lesson-03.html" },
+            { title: "連續方程式", url: "topics/fluid-dynamics/lesson-04.html" },
+            { title: "模組總結：流體的基本", url: "topics/fluid-dynamics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜流動",
+          courses: [
+            { title: "白努利定律", url: "topics/fluid-dynamics/lesson-06.html" },
+            { title: "白努利的誤用", url: "topics/fluid-dynamics/lesson-07.html" },
+            { title: "雷諾數", url: "topics/fluid-dynamics/lesson-08.html" },
+            { title: "邊界層與流動分離", url: "topics/fluid-dynamics/lesson-09.html" },
+            { title: "阻力", url: "topics/fluid-dynamics/lesson-10.html" },
+            { title: "納維–斯托克斯方程式", url: "topics/fluid-dynamics/lesson-11.html" },
+            { title: "模組總結：流動", url: "topics/fluid-dynamics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜升力與機翼",
+          courses: [
+            { title: "升力怎麼產生", url: "topics/fluid-dynamics/lesson-13.html" },
+            { title: "翼型與攻角", url: "topics/fluid-dynamics/lesson-14.html" },
+            { title: "失速", url: "topics/fluid-dynamics/lesson-15.html" },
+            { title: "襟翼與高升力裝置", url: "topics/fluid-dynamics/lesson-16.html" },
+            { title: "翼尖渦流與誘導阻力", url: "topics/fluid-dynamics/lesson-17.html" },
+            { title: "模組總結：升力與機翼", url: "topics/fluid-dynamics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜速度與聲音",
+          courses: [
+            { title: "音速與馬赫數", url: "topics/fluid-dynamics/lesson-19.html" },
+            { title: "音障與震波", url: "topics/fluid-dynamics/lesson-20.html" },
+            { title: "超音速客機", url: "topics/fluid-dynamics/lesson-21.html" },
+            { title: "高超音速與重返大氣層", url: "topics/fluid-dynamics/lesson-22.html" },
+            { title: "模組總結：速度與聲音", url: "topics/fluid-dynamics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實驗與計算",
+          courses: [
+            { title: "風洞", url: "topics/fluid-dynamics/lesson-24.html" },
+            { title: "計算流體力學", url: "topics/fluid-dynamics/lesson-25.html" },
+            { title: "模組總結：實驗與計算", url: "topics/fluid-dynamics/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜飛行以外",
+          courses: [
+            { title: "鳥、昆蟲與魚", url: "topics/fluid-dynamics/lesson-27.html" },
+            { title: "運動中的流體力學", url: "topics/fluid-dynamics/lesson-28.html" },
+            { title: "血流、天氣與地球", url: "topics/fluid-dynamics/lesson-29.html" },
+            { title: "課程總結：流動的世界", url: "topics/fluid-dynamics/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
