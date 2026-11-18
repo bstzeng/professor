@@ -31645,6 +31645,93 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "compilers",
+      category: "tech",
+      title: "編譯器：程式碼怎麼變成機器碼",
+      description:
+        "葛麗絲・霍普與 FORTRAN、直譯與 JIT、編譯的流程；詞法分析、正規表示式與有限自動機、BNF 文法與歧義、遞迴下降剖析、優先順序與結合性、抽象語法樹；符號表與閉包、型別檢查、型別推論、錯誤訊息；三位址碼與控制流程圖、SSA、常數摺疊與死碼消除、迴圈最佳化與向量化、內聯與 PGO、LLVM；指令選擇、暫存器配置與圖著色、呼叫慣例與緩衝區溢位、連結器；垃圾回收、V8 與推測式最佳化、動手做迷你編譯器。附詞法分析、語法樹、最佳化與暫存器配置四個互動工具。",
+      icon: "🛠️",
+      url: "topics/compilers/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的編譯器名詞",
+          icon: "📖",
+          url: "topics/compilers/glossary.html"
+        },
+        {
+          title: "編譯器遊樂場",
+          description: "詞法分析、剖析、最佳化與暫存器配置的互動工具",
+          icon: "🛠️",
+          url: "topics/compilers/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "編譯器是什麼", url: "topics/compilers/lesson-01.html" },
+            { title: "直譯、編譯與 JIT", url: "topics/compilers/lesson-02.html" },
+            { title: "編譯的流程", url: "topics/compilers/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/compilers/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜前端",
+          courses: [
+            { title: "詞法分析", url: "topics/compilers/lesson-05.html" },
+            { title: "正規表示式與有限自動機", url: "topics/compilers/lesson-06.html" },
+            { title: "文法與 BNF", url: "topics/compilers/lesson-07.html" },
+            { title: "遞迴下降剖析", url: "topics/compilers/lesson-08.html" },
+            { title: "運算子的優先順序與結合性", url: "topics/compilers/lesson-09.html" },
+            { title: "抽象語法樹", url: "topics/compilers/lesson-10.html" },
+            { title: "模組總結：前端", url: "topics/compilers/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜語意",
+          courses: [
+            { title: "符號表與作用域", url: "topics/compilers/lesson-12.html" },
+            { title: "型別檢查", url: "topics/compilers/lesson-13.html" },
+            { title: "型別推論", url: "topics/compilers/lesson-14.html" },
+            { title: "錯誤訊息", url: "topics/compilers/lesson-15.html" },
+            { title: "模組總結：語意", url: "topics/compilers/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜中介碼與最佳化",
+          courses: [
+            { title: "中介表示與三位址碼", url: "topics/compilers/lesson-17.html" },
+            { title: "SSA 形式", url: "topics/compilers/lesson-18.html" },
+            { title: "常數摺疊與死碼消除", url: "topics/compilers/lesson-19.html" },
+            { title: "迴圈最佳化", url: "topics/compilers/lesson-20.html" },
+            { title: "內聯與跨程序最佳化", url: "topics/compilers/lesson-21.html" },
+            { title: "LLVM", url: "topics/compilers/lesson-22.html" },
+            { title: "模組總結：中介碼與最佳化", url: "topics/compilers/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜後端",
+          courses: [
+            { title: "指令選擇", url: "topics/compilers/lesson-24.html" },
+            { title: "暫存器配置", url: "topics/compilers/lesson-25.html" },
+            { title: "呼叫慣例與堆疊框", url: "topics/compilers/lesson-26.html" },
+            { title: "組譯器與連結器", url: "topics/compilers/lesson-27.html" },
+            { title: "模組總結：後端", url: "topics/compilers/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜執行期與實作",
+          courses: [
+            { title: "垃圾回收", url: "topics/compilers/lesson-29.html" },
+            { title: "JIT 與 V8", url: "topics/compilers/lesson-30.html" },
+            { title: "動手做一個小編譯器", url: "topics/compilers/lesson-31.html" },
+            { title: "課程總結：從原始碼到機器碼", url: "topics/compilers/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };

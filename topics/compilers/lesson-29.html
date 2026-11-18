@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 29 課：垃圾回收 ｜ 編譯器 ｜ 博雅書院</title>
+<meta name="description" content="自動管理記憶體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">編譯器</a>
+      <span class="sep">/</span>
+      <span>第 29 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜執行期與實作 · 第 29 課</div>
+      <h1>垃圾回收</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解手動與自動記憶體管理</li>
+          <li>認識主要的垃圾回收演算法</li>
+          <li>了解 Rust 的所有權</li>
+        </ul>
+      </div>
+
+      <h2>記憶體的兩種錯誤</h2>
+
+      <p>
+        在 C 語言中，用 malloc 配置的記憶體必須用 free 釋放。忘記釋放，就是<strong>記憶體洩漏</strong>；釋放之後又使用，就是<strong>懸置指標</strong>（use-after-free），可能造成當機或安全漏洞。據微軟與 Google 的統計，它們產品中約七成的嚴重安全漏洞與記憶體安全有關。
+      </p>
+
+      <h2>垃圾回收</h2>
+
+      <p>
+        <strong>垃圾回收</strong>（GC）由執行環境自動找出「不再被使用」的物件並回收。Java、C#、Go、JavaScript、Python 都使用 GC。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>方法</th><th>原理</th><th>特點</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>參考計數</td><td>每個物件記錄有幾個指標指向它，歸零就回收</td><td>即時；但無法回收「循環參考」（CPython 另有輔助的回收器）</td></tr>
+          <tr><td>標記—清除</td><td>從根（全域變數、堆疊）出發，標記所有可到達的物件，其餘清除</td><td>能處理循環；可能需要暫停程式</td></tr>
+          <tr><td>複製回收</td><td>把活著的物件複製到新的區域，舊區域整個清空</td><td>沒有碎片；需要兩倍空間</td></tr>
+          <tr><td>世代回收</td><td>大部分物件「年紀輕輕就死去」；頻繁回收年輕世代，少回收老世代</td><td>Java、.NET、V8 都使用</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>暫停的問題</h2>
+
+      <p>
+        早期的 GC 會「停止整個世界」，讓程式暫停數百毫秒，對遊戲與即時系統很不友善。現代的回收器（例如 Java 的 ZGC、Go 的回收器）大部分工作與程式<strong>同時</strong>進行，暫停時間可以壓到毫秒以下。
+      </p>
+
+      <h2>Rust 的第三條路</h2>
+
+      <p>
+        Rust 既沒有 GC，也不需要手動 free：每個值都有唯一的<strong>擁有者</strong>，擁有者離開作用域時自動釋放；借用的規則由編譯器的「借用檢查器」在編譯時驗證。這讓記憶體安全的檢查，從執行時移到了<strong>編譯時</strong>——正是編譯器能力的展現。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          C 用 malloc 配置須 free 釋放，忘記是記憶體洩漏、釋放後又使用是懸置指標，微軟與 Google 統計約七成嚴重漏洞與記憶體安全有關；垃圾回收由執行環境自動回收不再使用的物件（Java C# Go JavaScript Python）：參考計數歸零即回收但無法回收循環參考、標記清除從根標記可到達物件能處理循環可能暫停、複製回收無碎片需兩倍空間、世代回收利用大部分物件年輕就死（Java .NET V8）；早期 GC 停止整個世界數百毫秒，現代 ZGC 與 Go 大部分工作同時進行暫停壓到毫秒以下；Rust 每個值有唯一擁有者離開作用域自動釋放，借用檢查器在編譯時驗證，把記憶體安全檢查移到編譯時。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🛠️ 互動工具實作了一個極小的算式語言（數字、變數、+ − × ÷ ^ 與括號），用來示範編譯器的各個階段。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>記憶體洩漏與懸置指標各是什麼？</li>
+          <li>參考計數有什麼缺點？</li>
+          <li>Rust 如何在沒有垃圾回收的情況下保證記憶體安全？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>JIT 與 V8</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-28.html">← 上一課：模組總結：後端</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-30.html">下一課：JIT 與 V8 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
