@@ -32075,6 +32075,431 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "engines",
+      category: "tech",
+      title: "引擎原理：從蒸汽機到噴射引擎",
+      description:
+        "熱力學第一定律、P-V 圖與卡諾效率；紐科門與瓦特、高壓蒸汽與火車、蒸汽渦輪與發電廠；四行程與奧圖循環、點火與爆震、柴油引擎與柴油門、渦輪增壓、轉子與二行程、觸媒轉化器、變速箱與差速器；活塞螺旋槳、渦輪噴射、渦輪扇與旁通比、複循環發電、火箭引擎與比衝、衝壓與超燃衝壓；混合動力、氫與合成燃料、內燃機與電動車、排放法規。附 P-V 圖、四行程動畫、旁通比與火箭方程式四個互動模擬。",
+      icon: "🔥",
+      url: "topics/engines/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的熱力學與引擎名詞",
+          icon: "📖",
+          url: "topics/engines/glossary.html"
+        },
+        {
+          title: "引擎比較",
+          description: "效率、用途與發明年代",
+          icon: "⚙️",
+          url: "topics/engines/compare.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱與功",
+          courses: [
+            { title: "引擎是什麼", url: "topics/engines/lesson-01.html" },
+            { title: "能量與功", url: "topics/engines/lesson-02.html" },
+            { title: "P-V 圖與熱機循環", url: "topics/engines/lesson-03.html" },
+            { title: "卡諾效率的上限", url: "topics/engines/lesson-04.html" },
+            { title: "模組總結：熱與功", url: "topics/engines/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜蒸汽時代",
+          courses: [
+            { title: "紐科門與瓦特", url: "topics/engines/lesson-06.html" },
+            { title: "高壓蒸汽與火車", url: "topics/engines/lesson-07.html" },
+            { title: "蒸汽渦輪與發電廠", url: "topics/engines/lesson-08.html" },
+            { title: "模組總結：蒸汽時代", url: "topics/engines/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜汽車引擎",
+          courses: [
+            { title: "四行程與奧圖循環", url: "topics/engines/lesson-10.html" },
+            { title: "點火、燃油噴射與爆震", url: "topics/engines/lesson-11.html" },
+            { title: "柴油引擎", url: "topics/engines/lesson-12.html" },
+            { title: "渦輪增壓", url: "topics/engines/lesson-13.html" },
+            { title: "轉子引擎與其他設計", url: "topics/engines/lesson-14.html" },
+            { title: "排氣與觸媒轉化器", url: "topics/engines/lesson-15.html" },
+            { title: "變速箱與傳動", url: "topics/engines/lesson-16.html" },
+            { title: "模組總結：汽車引擎", url: "topics/engines/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜航空與火箭",
+          courses: [
+            { title: "活塞螺旋槳", url: "topics/engines/lesson-18.html" },
+            { title: "渦輪噴射引擎", url: "topics/engines/lesson-19.html" },
+            { title: "渦輪扇與旁通比", url: "topics/engines/lesson-20.html" },
+            { title: "燃氣渦輪與複循環發電", url: "topics/engines/lesson-21.html" },
+            { title: "火箭引擎", url: "topics/engines/lesson-22.html" },
+            { title: "衝壓與超燃衝壓", url: "topics/engines/lesson-23.html" },
+            { title: "模組總結：航空與火箭", url: "topics/engines/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜未來",
+          courses: [
+            { title: "混合動力", url: "topics/engines/lesson-25.html" },
+            { title: "氫與合成燃料", url: "topics/engines/lesson-26.html" },
+            { title: "內燃機與電動車", url: "topics/engines/lesson-27.html" },
+            { title: "排放與法規", url: "topics/engines/lesson-28.html" },
+            { title: "模組總結：未來", url: "topics/engines/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：火與動力", url: "topics/engines/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "search-recommend",
+      category: "tech",
+      title: "搜尋引擎與推薦系統：從 PageRank 到 TikTok",
+      description:
+        "搜尋的歷史、網路爬蟲與 robots.txt、倒排索引、中文斷詞；TF-IDF 與 BM25、PageRank、SEO 與內容農場、學習排序、NDCG；自動完成與拼字校正、向量搜尋與嵌入、RAG 與 AI 搜尋、搜尋廣告與 GSP 拍賣；協同過濾、Netflix 大獎與矩陣分解、多階段推薦與雙塔模型、YouTube 與 TikTok、冷啟動與探索、A/B 測試；同溫層、隱私與 GDPR、Google 反壟斷案。附倒排索引、PageRank、向量搜尋與協同過濾四個互動工具。",
+      icon: "🔎",
+      url: "topics/search-recommend/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的資訊檢索與推薦系統名詞",
+          icon: "📖",
+          url: "topics/search-recommend/glossary.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "倒排索引、PageRank、向量搜尋與協同過濾",
+          icon: "🔎",
+          url: "topics/search-recommend/playground.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜資訊檢索基礎",
+          courses: [
+            { title: "搜尋是什麼", url: "topics/search-recommend/lesson-01.html" },
+            { title: "搜尋的歷史", url: "topics/search-recommend/lesson-02.html" },
+            { title: "網路爬蟲", url: "topics/search-recommend/lesson-03.html" },
+            { title: "倒排索引", url: "topics/search-recommend/lesson-04.html" },
+            { title: "查詢處理與中文斷詞", url: "topics/search-recommend/lesson-05.html" },
+            { title: "模組總結：資訊檢索基礎", url: "topics/search-recommend/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜排序",
+          courses: [
+            { title: "TF-IDF 與 BM25", url: "topics/search-recommend/lesson-07.html" },
+            { title: "PageRank", url: "topics/search-recommend/lesson-08.html" },
+            { title: "連結作弊與 SEO", url: "topics/search-recommend/lesson-09.html" },
+            { title: "學習排序與點擊訊號", url: "topics/search-recommend/lesson-10.html" },
+            { title: "評估搜尋品質", url: "topics/search-recommend/lesson-11.html" },
+            { title: "模組總結：排序", url: "topics/search-recommend/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜現代搜尋",
+          courses: [
+            { title: "自動完成與拼字校正", url: "topics/search-recommend/lesson-13.html" },
+            { title: "向量搜尋與嵌入", url: "topics/search-recommend/lesson-14.html" },
+            { title: "RAG 與 AI 搜尋", url: "topics/search-recommend/lesson-15.html" },
+            { title: "搜尋廣告與競價", url: "topics/search-recommend/lesson-16.html" },
+            { title: "模組總結：現代搜尋", url: "topics/search-recommend/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜推薦系統",
+          courses: [
+            { title: "推薦是什麼", url: "topics/search-recommend/lesson-18.html" },
+            { title: "協同過濾", url: "topics/search-recommend/lesson-19.html" },
+            { title: "矩陣分解與 Netflix 大獎", url: "topics/search-recommend/lesson-20.html" },
+            { title: "深度推薦與多階段架構", url: "topics/search-recommend/lesson-21.html" },
+            { title: "YouTube 與 TikTok", url: "topics/search-recommend/lesson-22.html" },
+            { title: "冷啟動與探索", url: "topics/search-recommend/lesson-23.html" },
+            { title: "A/B 測試", url: "topics/search-recommend/lesson-24.html" },
+            { title: "模組總結：推薦系統", url: "topics/search-recommend/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜社會影響",
+          courses: [
+            { title: "同溫層與演算法放大", url: "topics/search-recommend/lesson-26.html" },
+            { title: "隱私與個人化", url: "topics/search-recommend/lesson-27.html" },
+            { title: "反壟斷：Google 案", url: "topics/search-recommend/lesson-28.html" },
+            { title: "模組總結：社會影響", url: "topics/search-recommend/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：資訊的守門人", url: "topics/search-recommend/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "detective-fiction",
+      category: "wuxia",
+      title: "福爾摩斯與推理小說全紀錄",
+      description:
+        "愛倫坡與杜邦、推理的要素與公平；柯南・道爾與貝爾醫師、華生、溯因推理、經典案件、莫里亞蒂與萊辛巴赫、羅卡交換原理、改編；克莉絲蒂、東方快車與一個都不留、羅傑・艾克洛命案、諾克斯十誡與范達因二十條、昆恩的向讀者挑戰、卡爾的密室講義；漢密特與錢德勒、警察小說、心理懸疑與北歐黑色；江戶川亂步、橫溝正史、松本清張、島田莊司與新本格、宮部美幸、東野圭吾、湊佳苗；詭計圖鑑、華文推理與柯南。重大暴雷會事先提醒。",
+      icon: "🔍",
+      url: "topics/detective-fiction/index.html",
+      resources: [
+        {
+          title: "推理書單",
+          description: "本課程提到的經典作品",
+          icon: "📚",
+          url: "topics/detective-fiction/books.html"
+        },
+        {
+          title: "推理互動圖鑑",
+          description: "作品年表、名偵探、福爾摩斯的世界與詭計圖鑑",
+          icon: "🗺️",
+          url: "topics/detective-fiction/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源",
+          courses: [
+            { title: "推理小說是什麼", url: "topics/detective-fiction/lesson-01.html" },
+            { title: "愛倫坡與杜邦", url: "topics/detective-fiction/lesson-02.html" },
+            { title: "推理小說的要素", url: "topics/detective-fiction/lesson-03.html" },
+            { title: "模組總結：起源", url: "topics/detective-fiction/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜福爾摩斯",
+          courses: [
+            { title: "柯南・道爾", url: "topics/detective-fiction/lesson-05.html" },
+            { title: "血字的研究與貝克街", url: "topics/detective-fiction/lesson-06.html" },
+            { title: "華生", url: "topics/detective-fiction/lesson-07.html" },
+            { title: "演繹法", url: "topics/detective-fiction/lesson-08.html" },
+            { title: "經典案件", url: "topics/detective-fiction/lesson-09.html" },
+            { title: "莫里亞蒂與萊辛巴赫", url: "topics/detective-fiction/lesson-10.html" },
+            { title: "福爾摩斯與鑑識科學", url: "topics/detective-fiction/lesson-11.html" },
+            { title: "福爾摩斯的改編", url: "topics/detective-fiction/lesson-12.html" },
+            { title: "模組總結：福爾摩斯", url: "topics/detective-fiction/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜黃金時代",
+          courses: [
+            { title: "阿嘉莎・克莉絲蒂", url: "topics/detective-fiction/lesson-14.html" },
+            { title: "東方快車與一個都不留", url: "topics/detective-fiction/lesson-15.html" },
+            { title: "羅傑・艾克洛命案", url: "topics/detective-fiction/lesson-16.html" },
+            { title: "公平遊戲", url: "topics/detective-fiction/lesson-17.html" },
+            { title: "艾勒里・昆恩", url: "topics/detective-fiction/lesson-18.html" },
+            { title: "卡爾與密室", url: "topics/detective-fiction/lesson-19.html" },
+            { title: "模組總結：黃金時代", url: "topics/detective-fiction/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜冷硬派與其他",
+          courses: [
+            { title: "漢密特與錢德勒", url: "topics/detective-fiction/lesson-21.html" },
+            { title: "警察小說與心理懸疑", url: "topics/detective-fiction/lesson-22.html" },
+            { title: "模組總結：冷硬派與其他", url: "topics/detective-fiction/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜日本推理",
+          courses: [
+            { title: "江戶川亂步與橫溝正史", url: "topics/detective-fiction/lesson-24.html" },
+            { title: "松本清張與社會派", url: "topics/detective-fiction/lesson-25.html" },
+            { title: "新本格", url: "topics/detective-fiction/lesson-26.html" },
+            { title: "宮部美幸、東野圭吾與湊佳苗", url: "topics/detective-fiction/lesson-27.html" },
+            { title: "模組總結：日本推理", url: "topics/detective-fiction/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜詭計與總結",
+          courses: [
+            { title: "詭計圖鑑、華文推理與柯南", url: "topics/detective-fiction/lesson-29.html" },
+            { title: "課程總結：真相只有一個", url: "topics/detective-fiction/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "tezuka",
+      category: "anime",
+      title: "手塚治虫全紀錄：漫畫之神的作品與影響",
+      description:
+        "寶塚的童年與昆蟲、戰爭與醫學、《新寶島》的電影式分鏡；原子小金剛、森林大帝與緞帶騎士、火之鳥、怪醫黑傑克、佛陀、三眼神童與多羅羅、阿道夫之謎、奇子與 MW；蟲製作與第一部電視動畫、有限動畫與低價承包、實驗動畫、倒閉與再起；生命的尊嚴、科技與人性、戰爭、明星系統；常盤莊、宮崎駿的批評、台灣的「怪醫秦博士」、手塚治虫文化賞與 PLUTO。",
+      icon: "🦾",
+      url: "topics/tezuka/index.html",
+      resources: [
+        {
+          title: "作品清單",
+          description: "本課程提到的漫畫與動畫",
+          icon: "📚",
+          url: "topics/tezuka/works.html"
+        },
+        {
+          title: "手塚互動圖鑑",
+          description: "生平年表、火之鳥各篇、明星系統與影響關係圖",
+          icon: "🗺️",
+          url: "topics/tezuka/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜生平",
+          courses: [
+            { title: "手塚治虫是誰", url: "topics/tezuka/lesson-01.html" },
+            { title: "寶塚的童年與昆蟲", url: "topics/tezuka/lesson-02.html" },
+            { title: "戰爭與醫學", url: "topics/tezuka/lesson-03.html" },
+            { title: "新寶島與電影式分鏡", url: "topics/tezuka/lesson-04.html" },
+            { title: "模組總結：生平", url: "topics/tezuka/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜代表作",
+          courses: [
+            { title: "原子小金剛", url: "topics/tezuka/lesson-06.html" },
+            { title: "森林大帝與緞帶騎士", url: "topics/tezuka/lesson-07.html" },
+            { title: "火之鳥（一）：結構", url: "topics/tezuka/lesson-08.html" },
+            { title: "火之鳥（二）：主題", url: "topics/tezuka/lesson-09.html" },
+            { title: "怪醫黑傑克", url: "topics/tezuka/lesson-10.html" },
+            { title: "佛陀", url: "topics/tezuka/lesson-11.html" },
+            { title: "三眼神童與多羅羅", url: "topics/tezuka/lesson-12.html" },
+            { title: "阿道夫之謎", url: "topics/tezuka/lesson-13.html" },
+            { title: "奇子與 MW", url: "topics/tezuka/lesson-14.html" },
+            { title: "模組總結：代表作", url: "topics/tezuka/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜動畫",
+          courses: [
+            { title: "蟲製作與電視動畫", url: "topics/tezuka/lesson-16.html" },
+            { title: "有限動畫與低價承包", url: "topics/tezuka/lesson-17.html" },
+            { title: "實驗動畫", url: "topics/tezuka/lesson-18.html" },
+            { title: "蟲製作的倒閉與重生", url: "topics/tezuka/lesson-19.html" },
+            { title: "模組總結：動畫", url: "topics/tezuka/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題",
+          courses: [
+            { title: "生命的尊嚴", url: "topics/tezuka/lesson-21.html" },
+            { title: "科技與人性", url: "topics/tezuka/lesson-22.html" },
+            { title: "戰爭", url: "topics/tezuka/lesson-23.html" },
+            { title: "明星系統", url: "topics/tezuka/lesson-24.html" },
+            { title: "模組總結：主題", url: "topics/tezuka/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響",
+          courses: [
+            { title: "常盤莊", url: "topics/tezuka/lesson-26.html" },
+            { title: "宮崎駿的評價", url: "topics/tezuka/lesson-27.html" },
+            { title: "台灣的手塚", url: "topics/tezuka/lesson-28.html" },
+            { title: "手塚的遺產", url: "topics/tezuka/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：漫畫之神", url: "topics/tezuka/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fallout",
+      category: "games",
+      title: "異塵餘生 Fallout 全紀錄：核子廢土的世界、作品與勢力",
+      description:
+        "永遠的 1950 年代與復古未來主義、資源戰爭與 2077 年的大戰、Vault-Tec 的避難所實驗、屍鬼與 FEV、瓶蓋與嗶嗶小子；從初代、《2》、黑島與 Van Buren、《3》、《新維加斯》、《4》、《76》到 Amazon 影集；鋼鐵兄弟會、英克雷、新加州共和國、凱撒軍團與豪斯先生、學院與合成人；戰爭從未改變、對 1950 年代美國的諷刺、灰色的選擇、真實的冷戰與核恐懼；S.P.E.C.I.A.L. 配點器、V.A.T.S.、多重解法與模組。重大暴雷會事先提醒。",
+      icon: "☢️",
+      url: "topics/fallout/index.html",
+      resources: [
+        {
+          title: "作品與名詞",
+          description: "歷代作品與常見名詞的中英對照",
+          icon: "📚",
+          url: "topics/fallout/terms.html"
+        },
+        {
+          title: "廢土互動圖鑑",
+          description: "發行年表、世界歷史、避難所、地圖、勢力與 S.P.E.C.I.A.L. 配點器",
+          icon: "🗺️",
+          url: "topics/fallout/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜世界觀",
+          courses: [
+            { title: "什麼是 Fallout", url: "topics/fallout/lesson-01.html" },
+            { title: "分歧的歷史", url: "topics/fallout/lesson-02.html" },
+            { title: "資源戰爭與大戰", url: "topics/fallout/lesson-03.html" },
+            { title: "避難所科技", url: "topics/fallout/lesson-04.html" },
+            { title: "輻射、FEV 與變種", url: "topics/fallout/lesson-05.html" },
+            { title: "廢土的生活", url: "topics/fallout/lesson-06.html" },
+            { title: "模組總結：世界觀", url: "topics/fallout/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜歷代作品",
+          courses: [
+            { title: "初代《異塵餘生》", url: "topics/fallout/lesson-08.html" },
+            { title: "《異塵餘生 2》", url: "topics/fallout/lesson-09.html" },
+            { title: "黑島的終結與品牌易主", url: "topics/fallout/lesson-10.html" },
+            { title: "《異塵餘生 3》", url: "topics/fallout/lesson-11.html" },
+            { title: "《新維加斯》", url: "topics/fallout/lesson-12.html" },
+            { title: "《異塵餘生 4》與《Fallout Shelter》", url: "topics/fallout/lesson-13.html" },
+            { title: "《異塵餘生 76》", url: "topics/fallout/lesson-14.html" },
+            { title: "影集", url: "topics/fallout/lesson-15.html" },
+            { title: "模組總結：歷代作品", url: "topics/fallout/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜勢力",
+          courses: [
+            { title: "鋼鐵兄弟會", url: "topics/fallout/lesson-17.html" },
+            { title: "英克雷", url: "topics/fallout/lesson-18.html" },
+            { title: "新加州共和國", url: "topics/fallout/lesson-19.html" },
+            { title: "凱撒軍團與豪斯先生", url: "topics/fallout/lesson-20.html" },
+            { title: "學院、鐵路與民兵", url: "topics/fallout/lesson-21.html" },
+            { title: "模組總結：勢力", url: "topics/fallout/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 D｜主題",
+          courses: [
+            { title: "戰爭從未改變", url: "topics/fallout/lesson-23.html" },
+            { title: "笑容背後", url: "topics/fallout/lesson-24.html" },
+            { title: "灰色的選擇", url: "topics/fallout/lesson-25.html" },
+            { title: "真實的冷戰與核恐懼", url: "topics/fallout/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜設計",
+          courses: [
+            { title: "S.P.E.C.I.A.L.", url: "topics/fallout/lesson-27.html" },
+            { title: "V.A.T.S. 與多重解法", url: "topics/fallout/lesson-28.html" },
+            { title: "模組與社群", url: "topics/fallout/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：廢土的意義", url: "topics/fallout/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
