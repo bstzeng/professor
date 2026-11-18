@@ -33177,6 +33177,97 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "internet-backbone",
+      category: "tech",
+      title: "網際網路的骨幹：DNS、BGP、海底電纜與大斷線",
+      description:
+        "自治系統、付費轉送與對等互連、網路交換中心、IP 位址的分配；DNS 的階層、根伺服器與任播、一次查詢的旅程、TTL 與快取、快取下毒與 DNSSEC、Dyn 與 AWS 的 DNS 事故；BGP 的宣告與 AS 路徑、路徑選擇與商業政策、巴基斯坦與 YouTube 的劫持、2019 年路由洩漏、Facebook 斷線六小時、RPKI；海底電纜的構造、鋪設與維修、波長多工與光速極限、恆春地震斷纜、東加與紅海、馬祖斷纜與 2025 年宏泰 58 案；CDN 與任播、資料中心、Fastly 與 AWS 大斷線、IPv4 耗盡與 IPv6；ICANN 與網路治理、國家斷網、低軌衛星。附 DNS 查詢動畫、BGP 劫持模擬與延遲計算。",
+      icon: "🌐",
+      url: "topics/internet-backbone/index.html",
+      resources: [
+        {
+          title: "網路名詞",
+          description: "本課程常見的名詞",
+          icon: "📚",
+          url: "topics/internet-backbone/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事件圖鑑、DNS 查詢、BGP 模擬與延遲計算",
+          icon: "🗺️",
+          url: "topics/internet-backbone/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜網路的網路",
+          courses: [
+            { title: "網際網路是網路的網路", url: "topics/internet-backbone/lesson-01.html" },
+            { title: "網路業者的層級", url: "topics/internet-backbone/lesson-02.html" },
+            { title: "網路交換中心", url: "topics/internet-backbone/lesson-03.html" },
+            { title: "IP 位址從哪裡來", url: "topics/internet-backbone/lesson-04.html" },
+            { title: "一個封包的跨洋旅程", url: "topics/internet-backbone/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜DNS：網址怎麼查到伺服器",
+          courses: [
+            { title: "名稱的階層", url: "topics/internet-backbone/lesson-06.html" },
+            { title: "根伺服器", url: "topics/internet-backbone/lesson-07.html" },
+            { title: "一次查詢的旅程", url: "topics/internet-backbone/lesson-08.html" },
+            { title: "快取與存活時間", url: "topics/internet-backbone/lesson-09.html" },
+            { title: "DNS 的安全", url: "topics/internet-backbone/lesson-10.html" },
+            { title: "DNS 事故", url: "topics/internet-backbone/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜BGP：網路之間怎麼找路",
+          courses: [
+            { title: "路由宣告與 AS 路徑", url: "topics/internet-backbone/lesson-12.html" },
+            { title: "路徑選擇與路由政策", url: "topics/internet-backbone/lesson-13.html" },
+            { title: "路由劫持", url: "topics/internet-backbone/lesson-14.html" },
+            { title: "路由洩漏", url: "topics/internet-backbone/lesson-15.html" },
+            { title: "Facebook 斷線六小時", url: "topics/internet-backbone/lesson-16.html" },
+            { title: "路由安全", url: "topics/internet-backbone/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜海底電纜",
+          courses: [
+            { title: "海底電纜的構造", url: "topics/internet-backbone/lesson-18.html" },
+            { title: "鋪設、登陸與維修", url: "topics/internet-backbone/lesson-19.html" },
+            { title: "光纖與波長多工", url: "topics/internet-backbone/lesson-20.html" },
+            { title: "恆春地震斷纜", url: "topics/internet-backbone/lesson-21.html" },
+            { title: "東加火山與紅海斷纜", url: "topics/internet-backbone/lesson-22.html" },
+            { title: "台灣的海纜韌性", url: "topics/internet-backbone/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜CDN 與雲端",
+          courses: [
+            { title: "內容傳遞網路與任播", url: "topics/internet-backbone/lesson-24.html" },
+            { title: "資料中心與雲端區域", url: "topics/internet-backbone/lesson-25.html" },
+            { title: "大型雲端斷線", url: "topics/internet-backbone/lesson-26.html" },
+            { title: "IPv4 耗盡與 IPv6", url: "topics/internet-backbone/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜治理與未來",
+          courses: [
+            { title: "誰管理網際網路", url: "topics/internet-backbone/lesson-28.html" },
+            { title: "國家斷網與網路主權", url: "topics/internet-backbone/lesson-29.html" },
+            { title: "衛星網路", url: "topics/internet-backbone/lesson-30.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "課程總結：封包跨越海洋的旅程", url: "topics/internet-backbone/lesson-31.html" },
+          ],
+        },
+      ],
     }
   ]
 };
