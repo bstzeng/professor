@@ -32966,6 +32966,121 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "shipwrecks",
+      category: "tech",
+      title: "船難全紀錄：25 起船難的背景、經過與改進",
+      description:
+        "浮力、重心、穩心與自由液面；SOLAS、MARPOL、ISM 等海上安全公約；25 起船難依主題分類——救生與公約（鐵達尼號、愛爾蘭皇后號）、穩定性與翻覆（東方號、世越號、東方之星）、滾裝船艙門（自由企業先驅號、愛沙尼亞號）、超載與渡輪（太平輪、多尼亞帕茲號、喬拉號、薩拉姆 98、地中海移民船）、戰爭（盧西塔尼亞號、威廉古斯特洛夫號）、天氣（洞爺丸、埃爾法羅號）、碰撞（安德里亞多利亞號、歌詩達協和號）、油汙（托利峽谷號、艾克森瓦德茲號、威望號）、港口與其他（長賜號、大達利號、庫斯克號、貝葉斯號），每一起整理背景、經過、原因與改進；附穩定性模擬與改進關係圖。",
+      icon: "🚢",
+      url: "topics/shipwrecks/index.html",
+      resources: [
+        {
+          title: "船難總表",
+          description: "依年份排列的船難與一句話摘要",
+          icon: "📋",
+          url: "topics/shipwrecks/table.html"
+        },
+        {
+          title: "海事名詞",
+          description: "本課程常見的海事名詞",
+          icon: "📚",
+          url: "topics/shipwrecks/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、船難圖鑑、穩定性模擬與改進關係圖",
+          icon: "🗺️",
+          url: "topics/shipwrecks/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "船為什麼會浮，又為什麼會翻", url: "topics/shipwrecks/lesson-01.html" },
+            { title: "海上安全的規則與調查", url: "topics/shipwrecks/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜救生與公約",
+          courses: [
+            { title: "鐵達尼號", url: "topics/shipwrecks/lesson-03.html" },
+            { title: "愛爾蘭皇后號", url: "topics/shipwrecks/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 C｜穩定性與翻覆",
+          courses: [
+            { title: "東方號", url: "topics/shipwrecks/lesson-05.html" },
+            { title: "世越號", url: "topics/shipwrecks/lesson-06.html" },
+            { title: "長江東方之星", url: "topics/shipwrecks/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 D｜滾裝船艙門",
+          courses: [
+            { title: "自由企業先驅號", url: "topics/shipwrecks/lesson-08.html" },
+            { title: "愛沙尼亞號", url: "topics/shipwrecks/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 E｜超載與渡輪",
+          courses: [
+            { title: "太平輪", url: "topics/shipwrecks/lesson-10.html" },
+            { title: "多尼亞帕茲號", url: "topics/shipwrecks/lesson-11.html" },
+            { title: "喬拉號", url: "topics/shipwrecks/lesson-12.html" },
+            { title: "薩拉姆 98 號", url: "topics/shipwrecks/lesson-13.html" },
+            { title: "地中海移民船難", url: "topics/shipwrecks/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 F｜戰爭",
+          courses: [
+            { title: "盧西塔尼亞號", url: "topics/shipwrecks/lesson-15.html" },
+            { title: "威廉古斯特洛夫號", url: "topics/shipwrecks/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 G｜天氣",
+          courses: [
+            { title: "洞爺丸", url: "topics/shipwrecks/lesson-17.html" },
+            { title: "埃爾法羅號", url: "topics/shipwrecks/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 H｜碰撞與駕駛台",
+          courses: [
+            { title: "安德里亞多利亞號", url: "topics/shipwrecks/lesson-19.html" },
+            { title: "歌詩達協和號", url: "topics/shipwrecks/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 I｜油汙與環境",
+          courses: [
+            { title: "托利峽谷號", url: "topics/shipwrecks/lesson-21.html" },
+            { title: "艾克森瓦德茲號", url: "topics/shipwrecks/lesson-22.html" },
+            { title: "威望號", url: "topics/shipwrecks/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 J｜港口、航道與其他",
+          courses: [
+            { title: "長賜號卡住蘇伊士運河", url: "topics/shipwrecks/lesson-24.html" },
+            { title: "大達利號撞斷巴爾的摩大橋", url: "topics/shipwrecks/lesson-25.html" },
+            { title: "庫斯克號", url: "topics/shipwrecks/lesson-26.html" },
+            { title: "貝葉斯號", url: "topics/shipwrecks/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 K｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/shipwrecks/lesson-28.html" },
+            { title: "課程總結：海上安全的百年", url: "topics/shipwrecks/lesson-29.html" },
+          ],
+        },
+      ],
     }
   ]
 };
