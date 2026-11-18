@@ -32075,6 +32075,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "engines",
+      category: "tech",
+      title: "引擎原理：從蒸汽機到噴射引擎",
+      description:
+        "熱力學第一定律、P-V 圖與卡諾效率；紐科門與瓦特、高壓蒸汽與火車、蒸汽渦輪與發電廠；四行程與奧圖循環、點火與爆震、柴油引擎與柴油門、渦輪增壓、轉子與二行程、觸媒轉化器、變速箱與差速器；活塞螺旋槳、渦輪噴射、渦輪扇與旁通比、複循環發電、火箭引擎與比衝、衝壓與超燃衝壓；混合動力、氫與合成燃料、內燃機與電動車、排放法規。附 P-V 圖、四行程動畫、旁通比與火箭方程式四個互動模擬。",
+      icon: "🔥",
+      url: "topics/engines/index.html",
+      resources: [
+        {
+          title: "名詞表",
+          description: "本課程用到的熱力學與引擎名詞",
+          icon: "📖",
+          url: "topics/engines/glossary.html"
+        },
+        {
+          title: "引擎比較",
+          description: "效率、用途與發明年代",
+          icon: "⚙️",
+          url: "topics/engines/compare.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱與功",
+          courses: [
+            { title: "引擎是什麼", url: "topics/engines/lesson-01.html" },
+            { title: "能量與功", url: "topics/engines/lesson-02.html" },
+            { title: "P-V 圖與熱機循環", url: "topics/engines/lesson-03.html" },
+            { title: "卡諾效率的上限", url: "topics/engines/lesson-04.html" },
+            { title: "模組總結：熱與功", url: "topics/engines/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜蒸汽時代",
+          courses: [
+            { title: "紐科門與瓦特", url: "topics/engines/lesson-06.html" },
+            { title: "高壓蒸汽與火車", url: "topics/engines/lesson-07.html" },
+            { title: "蒸汽渦輪與發電廠", url: "topics/engines/lesson-08.html" },
+            { title: "模組總結：蒸汽時代", url: "topics/engines/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜汽車引擎",
+          courses: [
+            { title: "四行程與奧圖循環", url: "topics/engines/lesson-10.html" },
+            { title: "點火、燃油噴射與爆震", url: "topics/engines/lesson-11.html" },
+            { title: "柴油引擎", url: "topics/engines/lesson-12.html" },
+            { title: "渦輪增壓", url: "topics/engines/lesson-13.html" },
+            { title: "轉子引擎與其他設計", url: "topics/engines/lesson-14.html" },
+            { title: "排氣與觸媒轉化器", url: "topics/engines/lesson-15.html" },
+            { title: "變速箱與傳動", url: "topics/engines/lesson-16.html" },
+            { title: "模組總結：汽車引擎", url: "topics/engines/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜航空與火箭",
+          courses: [
+            { title: "活塞螺旋槳", url: "topics/engines/lesson-18.html" },
+            { title: "渦輪噴射引擎", url: "topics/engines/lesson-19.html" },
+            { title: "渦輪扇與旁通比", url: "topics/engines/lesson-20.html" },
+            { title: "燃氣渦輪與複循環發電", url: "topics/engines/lesson-21.html" },
+            { title: "火箭引擎", url: "topics/engines/lesson-22.html" },
+            { title: "衝壓與超燃衝壓", url: "topics/engines/lesson-23.html" },
+            { title: "模組總結：航空與火箭", url: "topics/engines/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 E｜未來",
+          courses: [
+            { title: "混合動力", url: "topics/engines/lesson-25.html" },
+            { title: "氫與合成燃料", url: "topics/engines/lesson-26.html" },
+            { title: "內燃機與電動車", url: "topics/engines/lesson-27.html" },
+            { title: "排放與法規", url: "topics/engines/lesson-28.html" },
+            { title: "模組總結：未來", url: "topics/engines/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "課程總結：火與動力", url: "topics/engines/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
