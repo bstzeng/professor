@@ -33526,6 +33526,104 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cyber-incidents",
+      category: "tech",
+      title: "資安事件全紀錄：29 起事件的背景、經過與改進",
+      description:
+        "攻擊鏈與事件調查；蠕蟲與病毒（莫里斯、ILOVEYOU、Slammer、Conficker）、國家級攻擊（震網、烏克蘭電網、NotPetya、SolarWinds、美國電信業者遭入侵）、勒索軟體（WannaCry、中油台塑、美國燃油管線、Kaseya、愛爾蘭衛生署、MOVEit、馬偕與彰基）、資料外洩（Yahoo、Equifax、萬豪、Capital One）、漏洞與供應鏈（心臟出血、Log4Shell、xz 後門、CrowdStrike 當機）、社交工程與金融（孟加拉央行、第一銀行 ATM、Twitter、Uber、Bybit），每一起整理背景、經過、原因與改進；附勒索軟體攻擊鏈動畫、改進關係圖與台灣的資安制度。",
+      icon: "🛡️",
+      url: "topics/cyber-incidents/index.html",
+      resources: [
+        {
+          title: "事件總表",
+          description: "依年份排列的事件與一句話摘要",
+          icon: "📋",
+          url: "topics/cyber-incidents/table.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事件圖鑑、攻擊鏈與改進關係圖",
+          icon: "🗺️",
+          url: "topics/cyber-incidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "攻擊鏈與事件調查", url: "topics/cyber-incidents/lesson-01.html" },
+            { title: "資安事件的年表", url: "topics/cyber-incidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜蠕蟲與病毒",
+          courses: [
+            { title: "莫里斯蠕蟲", url: "topics/cyber-incidents/lesson-03.html" },
+            { title: "ILOVEYOU", url: "topics/cyber-incidents/lesson-04.html" },
+            { title: "SQL Slammer", url: "topics/cyber-incidents/lesson-05.html" },
+            { title: "Conficker", url: "topics/cyber-incidents/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 C｜國家級攻擊",
+          courses: [
+            { title: "震網病毒", url: "topics/cyber-incidents/lesson-07.html" },
+            { title: "烏克蘭電網遭攻擊", url: "topics/cyber-incidents/lesson-08.html" },
+            { title: "NotPetya", url: "topics/cyber-incidents/lesson-09.html" },
+            { title: "SolarWinds", url: "topics/cyber-incidents/lesson-10.html" },
+            { title: "美國電信業者遭入侵", url: "topics/cyber-incidents/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜勒索軟體",
+          courses: [
+            { title: "WannaCry", url: "topics/cyber-incidents/lesson-12.html" },
+            { title: "中油與台塑遭勒索", url: "topics/cyber-incidents/lesson-13.html" },
+            { title: "美國燃油管線遭勒索", url: "topics/cyber-incidents/lesson-14.html" },
+            { title: "Kaseya", url: "topics/cyber-incidents/lesson-15.html" },
+            { title: "愛爾蘭衛生署", url: "topics/cyber-incidents/lesson-16.html" },
+            { title: "MOVEit", url: "topics/cyber-incidents/lesson-17.html" },
+            { title: "馬偕與彰基遭勒索", url: "topics/cyber-incidents/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜資料外洩",
+          courses: [
+            { title: "Yahoo 資料外洩", url: "topics/cyber-incidents/lesson-19.html" },
+            { title: "Equifax 資料外洩", url: "topics/cyber-incidents/lesson-20.html" },
+            { title: "萬豪酒店資料外洩", url: "topics/cyber-incidents/lesson-21.html" },
+            { title: "Capital One 資料外洩", url: "topics/cyber-incidents/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜漏洞與供應鏈",
+          courses: [
+            { title: "心臟出血漏洞", url: "topics/cyber-incidents/lesson-23.html" },
+            { title: "Log4Shell", url: "topics/cyber-incidents/lesson-24.html" },
+            { title: "xz 後門", url: "topics/cyber-incidents/lesson-25.html" },
+            { title: "CrowdStrike 全球當機", url: "topics/cyber-incidents/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜社交工程與金融",
+          courses: [
+            { title: "孟加拉央行竊案", url: "topics/cyber-incidents/lesson-27.html" },
+            { title: "第一銀行 ATM 盜領案", url: "topics/cyber-incidents/lesson-28.html" },
+            { title: "Twitter 帳號挾持", url: "topics/cyber-incidents/lesson-29.html" },
+            { title: "Uber 遭入侵", url: "topics/cyber-incidents/lesson-30.html" },
+            { title: "Bybit 竊案", url: "topics/cyber-incidents/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "改進總表", url: "topics/cyber-incidents/lesson-32.html" },
+            { title: "台灣的資安事件與制度", url: "topics/cyber-incidents/lesson-33.html" },
+          ],
+        },
+      ],
     }
   ]
 };
