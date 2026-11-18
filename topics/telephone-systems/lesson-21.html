@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：SIP 的轉接 ｜ 電話系統 ｜ 博雅書院</title>
+<meta name="description" content="REFER、Replaces 與 NOTIFY">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">電話系統</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜轉接的原理 · 第 21 課</div>
+      <h1>SIP 的轉接</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 SIP 的 REFER 機制</li>
+          <li>理解 Replaces 如何實現先問再轉</li>
+          <li>理解 NOTIFY 的回報作用</li>
+        </ul>
+      </div>
+
+      <h2>請對方自己去撥</h2>
+
+      <p>
+        在點對點的 SIP 世界中，沒有一台交換機可以「改接」線路。SIP 的轉接用的是另一種思路：<strong>請對方自己去撥給新的人</strong>。這個請求就是 <strong>REFER</strong>（RFC 3515）。
+      </p>
+
+      <ul>
+        <li><strong>REFER</strong>：轉接者（客服 B）送給被轉者（來電者 A）的請求，裡面的 <code>Refer-To</code> 寫著要撥給誰（專員 C）。</li>
+        <li><strong>202 Accepted</strong>：A 同意照做。</li>
+        <li><strong>INVITE</strong>：A 的電話<strong>自動</strong>撥給 C——對 A 的使用者來說，什麼都不用做。</li>
+        <li><strong>NOTIFY</strong>：A 回報 B 轉接的進度（響鈴中、成功、失敗），內容是一小段 SIP 回應。</li>
+        <li><strong>BYE</strong>：B 得知成功後，掛掉自己與 A 的通話。</li>
+      </ul>
+
+      <div class="phn-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;sip&quot;, &quot;q&quot;: &quot;SIP 轉接的兩種方式（切換情境，再按「下一步」）：&quot;, &quot;sc&quot;: [{&quot;n&quot;: &quot;直接轉接（REFER）&quot;, &quot;p&quot;: [&quot;來電者 A&quot;, &quot;客服 B&quot;, &quot;專員 C&quot;], &quot;d&quot;: &quot;A 打給客服 B，B 要把 A 直接轉給專員 C。在 SIP 中，B 會「請 A 自己去撥給 C」。&quot;, &quot;m&quot;: [[0, 1, &quot;RTP 語音（A↔B）&quot;, &quot;A 與 B 通話中。&quot;, &quot;m&quot;], [1, 0, &quot;re-INVITE（保留）&quot;, &quot;B 先把 A 保留。&quot;, &quot;s&quot;], [0, 1, &quot;200 OK&quot;, &quot;A 同意被保留。&quot;, &quot;s&quot;], [1, 0, &quot;REFER（Refer-To: C）&quot;, &quot;B 送出 REFER：「請你去撥給 C」。&quot;, &quot;s&quot;], [0, 1, &quot;202 Accepted&quot;, &quot;A 的電話同意照做。&quot;, &quot;s&quot;], [0, 2, &quot;INVITE&quot;, &quot;A 的電話自動發出新的 INVITE 給 C——這是一通&lt;b&gt;新的&lt;/b&gt;電話，但 A 的使用者不需要做任何事。&quot;, &quot;s&quot;], [0, 1, &quot;NOTIFY（180 Ringing）&quot;, &quot;A 回報 B：「C 正在響鈴」。&quot;, &quot;s&quot;], [2, 0, &quot;200 OK&quot;, &quot;C 接起電話。&quot;, &quot;s&quot;], [0, 2, &quot;ACK&quot;, &quot;A 與 C 的通話建立。&quot;, &quot;s&quot;], [0, 2, &quot;RTP 語音（A↔C）&quot;, &quot;A 和 C 開始通話。&quot;, &quot;m&quot;], [0, 1, &quot;NOTIFY（200 OK）&quot;, &quot;A 回報 B：「轉接成功」。&quot;, &quot;s&quot;], [1, 0, &quot;BYE&quot;, &quot;B 掛掉自己與 A 的那通電話。&quot;, &quot;s&quot;], [0, 1, &quot;200 OK&quot;, &quot;轉接完成。&quot;, &quot;s&quot;]], &quot;e&quot;: &quot;A 的使用者覺得電話「沒有斷」，因為在 A 與 B 的通話結束之前，A 與 C 的通話就已經接上了；而且是電話機自動完成的。&quot;}, {&quot;n&quot;: &quot;先問再轉（Replaces）&quot;, &quot;p&quot;: [&quot;來電者 A&quot;, &quot;客服 B&quot;, &quot;專員 C&quot;], &quot;d&quot;: &quot;B 先打給 C 說明情況（諮詢），再把 A 轉過去。關鍵是 Replaces：讓 A 的新電話「取代」B 與 C 的那通電話。&quot;, &quot;m&quot;: [[0, 1, &quot;RTP 語音（A↔B）&quot;, &quot;A 與 B 通話中。&quot;, &quot;m&quot;], [1, 0, &quot;re-INVITE（保留）&quot;, &quot;B 把 A 保留。A 聽到等候音樂。&quot;, &quot;s&quot;], [1, 2, &quot;INVITE（諮詢）&quot;, &quot;B 另外撥一通電話給 C。&quot;, &quot;s&quot;], [2, 1, &quot;200 OK&quot;, &quot;C 接起。&quot;, &quot;s&quot;], [1, 2, &quot;RTP 語音（B↔C）&quot;, &quot;B 對 C 說：「有一位客戶要找你，是關於……」&quot;, &quot;m&quot;], [1, 0, &quot;REFER（Refer-To: C；Replaces=B↔C）&quot;, &quot;B 請 A 撥給 C，並附上 Replaces：「用你的新電話，取代我和 C 的那通」。&quot;, &quot;s&quot;], [0, 1, &quot;202 Accepted&quot;, &quot;A 同意。&quot;, &quot;s&quot;], [0, 2, &quot;INVITE（Replaces）&quot;, &quot;A 撥給 C，並說明要取代 B↔C 的通話。&quot;, &quot;s&quot;], [2, 0, &quot;200 OK&quot;, &quot;C 的電話自動接受——不會再響一次鈴。&quot;, &quot;s&quot;], [2, 1, &quot;BYE&quot;, &quot;C 自動掛掉被取代的 B↔C 通話。&quot;, &quot;s&quot;], [0, 2, &quot;RTP 語音（A↔C）&quot;, &quot;A 與 C 直接通話。&quot;, &quot;m&quot;], [0, 1, &quot;NOTIFY（200 OK）&quot;, &quot;A 回報 B 轉接成功。&quot;, &quot;s&quot;], [1, 0, &quot;BYE&quot;, &quot;B 掛掉與 A 的通話。&quot;, &quot;s&quot;]], &quot;e&quot;: &quot;Replaces 讓轉接看起來天衣無縫：C 不必再接一次電話，A 也不會聽到響鈴或斷線。&quot;}]}"></div><script>
+      (function () {
+        if (window.__phnLib) return; window.__phnLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        function box(css) { return el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em;' + (css || '')); }
+
+        /* ---------- 取樣與量化 ---------- */
+        function initPcm(root, cfg) { head(root, cfg.q); var P = { f: 1000, fs: 8000, b: 8 };
+          var bar = el('div', 'margin:4px 0'); [[4000, '4 kHz'], [8000, '8 kHz（電話）'], [16000, '16 kHz（高清語音）'], [44100, '44.1 kHz（CD）']].forEach(function (o) { var x = btn(o[1], o[0]); x.onclick = function () { P.fs = o[0]; mark(bar, o[0]); draw(); }; bar.appendChild(x); }); root.appendChild(bar); mark(bar, 8000);
+          var u1 = slider(root, '聲音的頻率', 200, 5000, 100, P.f, function (x) { return x + ' Hz'; }, null, function (x) { P.f = x; draw(); });
+          var u2 = slider(root, '每個樣本的位元數', 2, 8, 1, P.b, function (x) { return x + ' 位元（' + Math.pow(2, x) + ' 個等級）'; }, null, function (x) { P.b = x; draw(); });
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function draw() { var W = 640, H = 200, T = 2, X = function (t) { return 30 + t / T * 590; }, Y = function (v) { return 100 - v * 80; }, o = '';
+            o += '<line x1="30" y1="100" x2="620" y2="100" stroke="var(--border)"/>';
+            var d = ''; for (var i = 0; i <= 400; i++) { var t = i / 400 * T; d += (i ? 'L' : 'M') + n1(X(t)) + ',' + n1(Y(Math.sin(2 * Math.PI * P.f * t / 1000))); } o += '<path d="' + d + '" fill="none" stroke="#3a6ea5" stroke-width="2"/>';
+            var L = Math.pow(2, P.b), dt = 1000 / P.fs, s = '', pts = '';
+            for (var t = 0, k = 0; t <= T + 1e-9; t += dt, k++) { var v = Math.sin(2 * Math.PI * P.f * t / 1000), q = Math.round((v + 1) / 2 * (L - 1)) / (L - 1) * 2 - 1;
+              var x1 = X(t), x2 = X(Math.min(T, t + dt)); s += (k ? 'L' + n1(x1) + ',' + n1(Y(q)) : 'M' + n1(x1) + ',' + n1(Y(q))) + 'L' + n1(x2) + ',' + n1(Y(q));
+              if (P.fs <= 16000) pts += '<circle cx="' + n1(x1) + '" cy="' + n1(Y(q)) + '" r="3" fill="#d9822b"/>'; }
+            o += '<path d="' + s + '" fill="none" stroke="#d9822b" stroke-width="1.6" opacity="0.85"/>' + pts;
+            o += tx(325, 196, '時間（0～2 毫秒）', 11, 'var(--text-muted)');
+            view.innerHTML = svgw('0 0 640 200', o);
+            var rate = P.fs * P.b, ali = P.f > P.fs / 2;
+            inf.innerHTML = '藍線：原本的聲音；橘線：取樣並量化後的數位訊號。<br>位元率 = ' + P.fs.toLocaleString() + ' 次／秒 × ' + P.b + ' 位元 = <b>' + (rate / 1000).toFixed(1) + ' kbps</b>' + (P.fs === 8000 && P.b === 8 ? '——這正是傳統數位電話一路通話的 64 kbps。' : '。') +
+              (ali ? '<br><b style="color:#d0564f">取樣太慢了！</b>聲音頻率超過取樣率的一半（' + (P.fs / 2) + ' Hz），還原出來的會是錯誤的低頻聲音（混疊）。電話只傳 300～3,400 Hz，所以 8 kHz 取樣就夠了。' : '<br>取樣率至少要是聲音最高頻率的兩倍（取樣定理）。') +
+              (P.b <= 4 ? '<br>位元數太少，量化的誤差很大，聽起來會有明顯的雜音。' : ''); }
+          u1(); u2();
+        }
+
+        /* ---------- 按鍵音 DTMF ---------- */
+        function initDtmf(root, cfg) { head(root, cfg.q); var R = [697, 770, 852, 941], C = [1209, 1336, 1477, 1633], K = [['1', '2', '3', 'A'], ['4', '5', '6', 'B'], ['7', '8', '9', 'C'], ['*', '0', '#', 'D']];
+          var g = el('div', 'display:grid;grid-template-columns:70px repeat(4,1fr);gap:6px;max-width:420px'), inf = box(), ac = null;
+          g.appendChild(el('div')); C.forEach(function (c) { g.appendChild(el('div', 'text-align:center;font-size:0.8em;color:var(--text-muted)', c + ' Hz')); });
+          R.forEach(function (r, i) { g.appendChild(el('div', 'font-size:0.8em;color:var(--text-muted);align-self:center', r + ' Hz'));
+            C.forEach(function (c, j) { var b = btn(K[i][j]); b.style.cssText += ';padding:10px 0;font-size:1.1em;' + (j === 3 ? 'opacity:0.6' : ''); b.onclick = function () { play(r, c); inf.innerHTML = '按鍵 <b>' + K[i][j] + '</b> = 低頻 <b>' + r + ' Hz</b> ＋ 高頻 <b>' + c + ' Hz</b> 同時發出。<br>交換機或語音選單只要聽出這兩個頻率，就知道你按了哪一個鍵。' + (j === 3 ? '<br>A、B、C、D 這一欄在一般電話上沒有，主要用於軍方與專業設備。' : ''); }; g.appendChild(b); }); });
+          root.appendChild(g); root.appendChild(inf); inf.innerHTML = '點一個按鍵，看看它由哪兩個頻率組成（瀏覽器允許的話，也會發出聲音）。';
+          function play(a, b) { try { ac = ac || new (window.AudioContext || window.webkitAudioContext)(); var gn = ac.createGain(); gn.gain.value = 0.08; gn.connect(ac.destination);
+              [a, b].forEach(function (f) { var o = ac.createOscillator(); o.frequency.value = f; o.connect(gn); o.start(); o.stop(ac.currentTime + 0.25); }); } catch (e) {} }
+        }
+
+        /* ---------- SIP 時序圖 ---------- */
+        function initSip(root, cfg) { head(root, cfg.q); var sc = 0, st = 0;
+          var bar = el('div', 'margin:4px 0'); cfg.sc.forEach(function (s, i) { var x = btn(s.n, i); x.onclick = function () { sc = i; st = 0; mark(bar, i); draw(); }; bar.appendChild(x); }); if (cfg.sc.length > 1) root.appendChild(bar); mark(bar, 0);
+          var nav = el('div', 'margin:4px 0'), bp = btn('◀ 上一步'), bn = btn('下一步 ▶'), ba = btn('全部顯示'), br = btn('重來'); [bp, bn, ba, br].forEach(function (b) { nav.appendChild(b); }); root.appendChild(nav);
+          bp.onclick = function () { if (st > 0) st--; draw(); }; bn.onclick = function () { if (st < cfg.sc[sc].m.length) st++; draw(); }; ba.onclick = function () { st = cfg.sc[sc].m.length; draw(); }; br.onclick = function () { st = 0; draw(); };
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function draw() { var S = cfg.sc[sc], n = S.p.length, xs = [], rh = 30, H = 46 + S.m.length * rh + 10, o = '';
+            for (var i = 0; i < n; i++) xs.push(n === 1 ? 320 : 70 + i * 500 / (n - 1));
+            xs.forEach(function (x, i) { o += '<rect x="' + (x - 52) + '" y="6" width="104" height="26" rx="6" fill="var(--accent-soft)" stroke="var(--border)"/>' + tx(x, 24, S.p[i], 12, 'var(--text)') + '<line x1="' + x + '" y1="32" x2="' + x + '" y2="' + (H - 4) + '" stroke="var(--border)" stroke-dasharray="3 3"/>'; });
+            S.m.forEach(function (m, k) { if (k >= st) return; var y = 50 + k * rh, a = xs[m[0]], b = xs[m[1]], cur = k === st - 1, media = m[4] === 'm', c = media ? '#4a9a5e' : (cur ? '#d0564f' : '#3a6ea5'), dir = b > a ? 1 : -1;
+              o += '<line x1="' + a + '" y1="' + y + '" x2="' + (b - dir * 6) + '" y2="' + y + '" stroke="' + c + '" stroke-width="' + (cur ? 2.4 : 1.6) + '"' + (media ? ' stroke-dasharray="6 4"' : '') + '/>';
+              o += '<path d="M' + b + ',' + y + ' l' + (-dir * 8) + ',-4 l0,8 z" fill="' + c + '"/>';
+              if (media) o += '<path d="M' + a + ',' + y + ' l' + (dir * 8) + ',-4 l0,8 z" fill="' + c + '"/>';
+              o += tx((a + b) / 2, y - 5, m[2], 11, c); });
+            view.innerHTML = svgw('0 0 640 ' + H, o);
+            inf.innerHTML = st === 0 ? (S.d || '按「下一步」，一則一則地看訊息。') : '<b>第 ' + st + ' 步：' + S.m[st - 1][2] + '</b><br>' + S.m[st - 1][3] + (st === S.m.length && S.e ? '<br><br>' + S.e : ''); }
+          draw();
+        }
+
+        /* ---------- 兩段通話 ---------- */
+        function initLegs(root, cfg) { head(root, cfg.q); var st = 0;
+          var bar = el('div', 'margin:4px 0'); cfg.s.forEach(function (s, i) { var x = btn((i + 1) + '. ' + s.n, i); x.onclick = function () { st = i; mark(bar, i); draw(); }; bar.appendChild(x); }); root.appendChild(bar); mark(bar, 0);
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          var N = { A: [80, 130], S: [320, 130], B: [560, 60], C: [560, 200] };
+          function draw() { var S = cfg.s[st], o = '';
+            S.l.forEach(function (l) { var a = N[l[0]], b = N[l[1]], c = l[2] === 'a' ? '#3a6ea5' : l[2] === 'h' ? '#b8941f' : l[2] === 'x' ? '#bbb' : '#4a9a5e';
+              o += '<line x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '" stroke="' + c + '" stroke-width="' + (l[2] === 'x' ? 2 : 5) + '"' + (l[2] === 'x' ? ' stroke-dasharray="6 5"' : '') + ' stroke-linecap="round"/>';
+              o += tx((a[0] + b[0]) / 2, (a[1] + b[1]) / 2 - 10, l[3], 11, c); });
+            [['A', '來電者 A'], ['B', '客服 B'], ['C', '專員 C']].forEach(function (p) { var q = N[p[0]], on = S.on.indexOf(p[0]) >= 0;
+              o += '<circle cx="' + q[0] + '" cy="' + q[1] + '" r="24" fill="' + (on ? 'var(--accent-soft)' : 'var(--surface)') + '" stroke="' + (on ? '#3a6ea5' : 'var(--border)') + '" stroke-width="2"/>' + tx(q[0], q[1] + 5, p[0], 16, 'var(--text)') + tx(q[0], q[1] + 42, p[1], 11, 'var(--text-muted)'); });
+            o += '<rect x="262" y="104" width="116" height="52" rx="8" fill="#fdf3e0" stroke="#d9822b" stroke-width="2"/>' + tx(320, 126, '交換機', 13, '#8a5a1a') + tx(320, 144, '（PBX）', 11, '#8a5a1a');
+            if (S.mu) o += tx(200, 160, '♪ 等候音樂', 12, '#b8941f');
+            view.innerHTML = svgw('0 0 640 250', o); inf.innerHTML = S.d; }
+          draw();
+        }
+
+        /* ---------- 語音選單 ---------- */
+        function initIvr(root, cfg) { head(root, cfg.q); var D = 0, path = [], sec = 0, node;
+          var bar = el('div', 'margin:4px 0'); cfg.d.forEach(function (d, i) { var x = btn(d.n, i); x.onclick = function () { D = i; mark(bar, i); reset(); }; bar.appendChild(x); }); root.appendChild(bar); mark(bar, 0);
+          var wrap = el('div', 'display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start'), pad = el('div', 'display:grid;grid-template-columns:repeat(3,52px);gap:6px'), scr = el('div', 'flex:1;min-width:220px;padding:10px 12px;border-radius:8px;border:1px solid var(--border);line-height:1.7;font-size:0.93em');
+          ['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].forEach(function (k) { var b = btn(k); b.style.cssText += ';padding:10px 0;font-size:1.1em'; b.onclick = function () { press(k); }; pad.appendChild(b); });
+          wrap.appendChild(pad); wrap.appendChild(scr); root.appendChild(wrap); var inf = box(); root.appendChild(inf);
+          function say(t) { sec += Math.ceil(t.replace(/<[^>]+>/g, '').length / 4); }
+          function reset() { path = []; sec = 0; node = cfg.d[D].m; say(node.p); show(''); }
+          function press(k) { if (node.end) return; var g = cfg.d[D].g || {};
+            if (g[k] && !(node.o && node.o[k])) { var t = g[k]; if (t === 'back') { if (path.length) { path.pop(); node = cfg.d[D].m; path.forEach(function (p) { node = node.o[p]; }); } say(node.p); show('回到上一層。'); return; } if (t === 'repeat') { say(node.p); show('重聽一次。'); return; } node = t; path.push(k); say(node.p); show(''); return; }
+            if (node.any && /[0-9]/.test(k)) { path.push(k); sec += 1; show('（輸入中……）'); return; }
+            if ((!node.o || !node.o[k]) && node.k && node.k.indexOf(k) >= 0 && node.x) { path.push(k); node = node.x; say(node.p); show(''); return; }
+            if (!node.o || !node.o[k]) { say('輸入錯誤，請重新輸入。'); show('<span style="color:#d0564f">輸入錯誤，請重新輸入。</span>'); return; }
+            path.push(k); node = node.o[k]; say(node.p); show(''); }
+          function show(msg) { scr.innerHTML = (msg ? msg + '<br>' : '') + '🔊 ' + node.p + (node.end ? '<br><b>' + node.end + '</b>' : '');
+            inf.innerHTML = '按鍵路徑：<b>' + (path.join(' → ') || '（剛撥通）') + '</b>　｜　聽語音大約花了 <b>' + sec + ' 秒</b>' + (sec > 60 ? '<br><span style="color:#d0564f">已經超過一分鐘了——很多來電者會在這時候直接掛斷。</span>' : '') + '<br><span style="font-size:0.88em;color:var(--text-muted)">' + (cfg.d[D].h || '') + '</span>'; }
+          reset();
+        }
+
+        /* ---------- 話務中心人力（Erlang C） ---------- */
+        function initErl(root, cfg) { head(root, cfg.q); var P = { c: 300, h: 240, t: 20, s: 80 };
+          var u1 = slider(root, '每小時來電數', 30, 1500, 10, P.c, function (x) { return x + ' 通'; }, null, function (x) { P.c = x; draw(); });
+          var u2 = slider(root, '平均處理時間', 60, 900, 10, P.h, function (x) { return Math.floor(x / 60) + ' 分 ' + (x % 60) + ' 秒'; }, null, function (x) { P.h = x; draw(); });
+          var u3 = slider(root, '目標：多少秒內接起', 5, 60, 5, P.t, function (x) { return x + ' 秒'; }, null, function (x) { P.t = x; draw(); });
+          var u4 = slider(root, '目標：接起的比例', 60, 95, 5, P.s, function (x) { return x + '%'; }, null, function (x) { P.s = x; draw(); });
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function ec(N, A) { var B = 1; for (var k = 1; k <= N; k++) B = A * B / (k + A * B); return N * B / (N - A * (1 - B)); }
+          function draw() { var A = P.c * P.h / 3600, n0 = Math.floor(A) + 1, best = -1, h = '<table style="width:100%;border-collapse:collapse;font-size:0.9em"><tr><th style="text-align:left;padding:4px">人數</th><th>需要等待的機率</th><th>' + P.t + ' 秒內接起</th><th>平均等待</th><th>忙碌程度</th></tr>';
+            for (var N = n0; N < n0 + 10; N++) { var pw = ec(N, A), sl = 1 - pw * Math.exp(-(N - A) * P.t / P.h), asa = pw * P.h / (N - A), ok = sl * 100 >= P.s; if (ok && best < 0) best = N;
+              h += '<tr style="' + (N === best ? 'background:var(--accent-soft);font-weight:bold' : '') + '"><td style="padding:4px;border-top:1px solid var(--border)">' + N + ' 人</td><td style="text-align:center;border-top:1px solid var(--border)">' + (pw * 100).toFixed(1) + '%</td><td style="text-align:center;border-top:1px solid var(--border);color:' + (ok ? '#4a9a5e' : '#d0564f') + '">' + (sl * 100).toFixed(1) + '%</td><td style="text-align:center;border-top:1px solid var(--border)">' + asa.toFixed(1) + ' 秒</td><td style="text-align:center;border-top:1px solid var(--border)">' + (A / N * 100).toFixed(0) + '%</td></tr>'; }
+            view.innerHTML = h + '</table>';
+            inf.innerHTML = '話務量 A = 每小時來電數 × 平均處理時間 ÷ 3600 = <b>' + A.toFixed(1) + ' 厄朗</b>（相當於平均同時有 ' + A.toFixed(1) + ' 通電話在進行）。<br>' + (best > 0 ? '要達到「' + P.s + '% 的來電在 ' + P.t + ' 秒內接起」，至少需要 <b>' + best + ' 人</b>同時在線。' : '表中的人數還不夠，請降低目標或增加人力。') +
+              '<br>注意：人數只比話務量多一點點時，等待會非常長；再多加幾個人，等待就急劇縮短。這就是為什麼話務中心不能讓每個人都接近 100% 忙碌。<br><span style="font-size:0.88em;color:var(--text-muted)">使用 Erlang C 模型：假設來電隨機到達、來電者不會放棄等待。實務上還要再加上休息、訓練等「排班損耗」。</span>'; }
+          u1(); u2(); u3(); u4();
+        }
+
+        /* ---------- 0204 計費 ---------- */
+        function initPrem(root, cfg) { head(root, cfg.q); var P = { r: 60, m: 6, s: 50 };
+          var u1 = slider(root, '節目費率（每分鐘）', 10, 100, 5, P.r, function (x) { return x + ' 元'; }, null, function (x) { P.r = x; draw(); });
+          var u2 = slider(root, '通話時間', 0, 20, 0.5, P.m, function (x) { return x + ' 分鐘'; }, null, function (x) { P.m = x; draw(); });
+          var u3 = slider(root, '內容業者分到的比例（假設）', 20, 80, 5, P.s, function (x) { return x + '%'; }, null, function (x) { P.s = x; draw(); });
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function draw() { var pre = 20, sec = P.m * 60, capT = pre + 500 / P.r * 60, end = Math.min(sec, capT), fee = Math.max(0, end - pre) / 60 * P.r; fee = Math.min(500, fee);
+            var W = 580, x = function (t) { return 30 + t / 1200 * W; }, o = '';
+            o += '<rect x="' + x(0) + '" y="40" width="' + (x(pre) - x(0)) + '" height="26" fill="#4a9a5e"/>' + tx((x(0) + x(pre)) / 2, 34, '免費前言', 11, '#4a9a5e');
+            if (end > pre) o += '<rect x="' + x(pre) + '" y="40" width="' + (x(end) - x(pre)) + '" height="26" fill="#d9822b"/>';
+            if (capT <= 1200) o += '<line x1="' + x(capT) + '" y1="30" x2="' + x(capT) + '" y2="80" stroke="#d0564f" stroke-width="2"/>' + tx(x(capT), 94, '500 元上限：強制斷話', 11, '#d0564f');
+            for (var t = 0; t <= 1200; t += 300) o += tx(x(t), 112, (t / 60) + ' 分', 10, 'var(--text-muted)');
+            view.innerHTML = svgw('0 0 640 120', o);
+            var cut = sec > capT;
+            inf.innerHTML = '這通電話的費用：<b>' + Math.round(fee) + ' 元</b>' + (cut ? '（在 ' + Math.floor(capT / 60) + ' 分 ' + Math.round(capT % 60) + ' 秒時達到 500 元上限，<b>被強制斷話</b>）' : '') + '。<br>以每分鐘 ' + P.r + ' 元計，最多大約講 ' + (capT / 60).toFixed(1) + ' 分鐘就會被斷線。<br>假設內容業者分到 ' + P.s + '%：業者收入約 <b>' + Math.round(fee * P.s / 100) + ' 元</b>，電信業者約 <b>' + Math.round(fee * (100 - P.s) / 100) + ' 元</b>。<br><span style="font-size:0.88em;color:var(--text-muted)">費率上限依 NCC 公布的規定：每分鐘最高 100 元、每通最高 500 元；前言約 20 秒免費。實際的計費單位與分成比例依合約而定，這裡為示意。</span>'; }
+          u1(); u2(); u3();
+        }
+
+        function initAll() { document.querySelectorAll('.phn-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ pcm: initPcm, dtmf: initDtmf, sip: initSip, legs: initLegs, ivr: initIvr, erl: initErl, prem: initPrem })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <h2>Replaces：天衣無縫的先問再轉</h2>
+
+      <p>
+        先問再轉時，B 已經和 C 有一通通話。B 送給 A 的 REFER 會在 Refer-To 中附上 <strong>Replaces</strong> 參數（RFC 3891），指明 B↔C 那通通話的身分。A 撥給 C 時帶著 Replaces，C 的電話就知道：「這通新電話要<strong>取代</strong>我和 B 的那通」，於是自動接起、不再響鈴，並掛掉與 B 的通話。
+      </p>
+
+      <h2>為什麼不會斷？</h2>
+
+      <p>
+        在 REFER 方式中，A 與 B 的通話，要等到 A 與 C 的通話<strong>建立之後</strong>才結束（「先接再斷」）。A 的電話在背景完成了這一切；使用者感受到的，只是等候音樂之後換了一個人說話。
+      </p>
+
+      <h2>其他相關的標頭</h2>
+
+      <ul>
+        <li><strong>Referred-By</strong>：說明是誰要求這次轉接，讓 C 知道。</li>
+        <li><strong>Target-Dialog</strong> 等：協助驗證這次轉接是合法的。</li>
+        <li>安全上，被轉者的電話應該檢查 REFER 是否來自正在通話的對方，避免被陌生人任意「轉走」。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          點對點 SIP 沒有交換機可改接，轉接思路是請對方自己去撥給新的人這請求是 REFER RFC 3515：客服 B 送給來電者 A 的 REFER 中 Refer-To 寫要撥給專員 C、A 回 202 Accepted、A 的電話自動 INVITE 給 C 使用者不用做事、A 用 NOTIFY 回報進度響鈴成功失敗、B 得知成功後 BYE 掛掉與 A 的通話；先問再轉時 B 已和 C 通話，REFER 的 Refer-To 附 Replaces 參數 RFC 3891 指明 B↔C 通話身分，A 帶 Replaces 撥 C，C 知道要取代與 B 的那通自動接起不響鈴並掛掉與 B 的通話；REFER 方式 A 與 B 的通話要等 A 與 C 建立後才結束先接再斷所以不斷；Referred-By 說明誰要求轉接、Target-Dialog 協助驗證、被轉者應檢查 REFER 來自正在通話的對方。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">☎️ 本課程包含完整劇情（有暴雷）。人名、地名以台灣通行譯本為主，括號附原文；引文皆為簡短摘引並附出處。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>REFER 的意思是什麼？誰送給誰？</li>
+          <li>Replaces 解決了什麼問題？</li>
+          <li>為什麼在 REFER 方式中，來電者不會感覺到斷線？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>兩種轉接架構</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：傳統電話的轉接</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：兩種轉接架構 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
