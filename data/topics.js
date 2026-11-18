@@ -31897,6 +31897,95 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "bleach",
+      category: "anime",
+      title: "BLEACH 死神全紀錄",
+      description:
+        "現世、屍魂界與虛圈，死神、虛與滅却師；代行死神篇、屍魂界篇與藍染的背叛、破面篇與烏爾奇奧拉、空座決戰、完現術篇、千年血戰篇與靈王的真相；一護、露琪亞、織姬、茶渡、雨龍、藍染、浦原；斬魄刀與卍解、護廷十三隊、十刃、星十字騎士團、一護的身世；久保帶人的留白與卷首詩、動畫與千年血戰篇、鷺巢詩郎；影響、批評與總結。含完整劇情（有暴雷）。",
+      icon: "⚔️",
+      url: "topics/bleach/index.html",
+      resources: [
+        {
+          title: "用語表",
+          description: "作品中的重要用語",
+          icon: "📖",
+          url: "topics/bleach/terms.html"
+        },
+        {
+          title: "BLEACH 互動圖鑑",
+          description: "作品年表、人物、斬魄刀、護廷十三隊、一護的身世",
+          icon: "🗺️",
+          url: "topics/bleach/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜導論",
+          courses: [
+            { title: "BLEACH 是什麼", url: "topics/bleach/lesson-01.html" },
+            { title: "三個世界", url: "topics/bleach/lesson-02.html" },
+            { title: "死神、虛與滅却師", url: "topics/bleach/lesson-03.html" },
+            { title: "模組總結：導論", url: "topics/bleach/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜篇章",
+          courses: [
+            { title: "代行死神篇", url: "topics/bleach/lesson-05.html" },
+            { title: "屍魂界篇", url: "topics/bleach/lesson-06.html" },
+            { title: "藍染的背叛", url: "topics/bleach/lesson-07.html" },
+            { title: "破面篇", url: "topics/bleach/lesson-08.html" },
+            { title: "空座決戰", url: "topics/bleach/lesson-09.html" },
+            { title: "完現術篇", url: "topics/bleach/lesson-10.html" },
+            { title: "千年血戰篇（上）", url: "topics/bleach/lesson-11.html" },
+            { title: "千年血戰篇（下）與結局", url: "topics/bleach/lesson-12.html" },
+            { title: "模組總結：篇章", url: "topics/bleach/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜人物",
+          courses: [
+            { title: "黑崎一護", url: "topics/bleach/lesson-14.html" },
+            { title: "朽木露琪亞", url: "topics/bleach/lesson-15.html" },
+            { title: "井上織姬與茶渡泰虎", url: "topics/bleach/lesson-16.html" },
+            { title: "石田雨龍", url: "topics/bleach/lesson-17.html" },
+            { title: "藍染惣右介", url: "topics/bleach/lesson-18.html" },
+            { title: "浦原喜助與四楓院夜一", url: "topics/bleach/lesson-19.html" },
+            { title: "模組總結：人物", url: "topics/bleach/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜能力體系",
+          courses: [
+            { title: "斬魄刀：始解與卍解", url: "topics/bleach/lesson-21.html" },
+            { title: "護廷十三隊", url: "topics/bleach/lesson-22.html" },
+            { title: "破面與十刃", url: "topics/bleach/lesson-23.html" },
+            { title: "星十字騎士團", url: "topics/bleach/lesson-24.html" },
+            { title: "一護的身世", url: "topics/bleach/lesson-25.html" },
+            { title: "模組總結：能力體系", url: "topics/bleach/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 E｜製作",
+          courses: [
+            { title: "久保帶人的分鏡與留白", url: "topics/bleach/lesson-27.html" },
+            { title: "章首詩與時尚", url: "topics/bleach/lesson-28.html" },
+            { title: "動畫", url: "topics/bleach/lesson-29.html" },
+            { title: "音樂", url: "topics/bleach/lesson-30.html" },
+            { title: "模組總結：製作", url: "topics/bleach/lesson-31.html" },
+          ],
+        },
+        {
+          title: "模組 F｜影響與評價",
+          courses: [
+            { title: "BLEACH 的影響", url: "topics/bleach/lesson-32.html" },
+            { title: "批評與爭議", url: "topics/bleach/lesson-33.html" },
+            { title: "課程總結：BLEACH 的世界", url: "topics/bleach/lesson-34.html" },
+          ],
+        },
+      ],
     }
   ]
 };
