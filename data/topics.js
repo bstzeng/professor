@@ -32500,6 +32500,86 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "concentration-camps",
+      category: "history",
+      title: "集中營的歷史：從古巴到古拉格，從奧斯威辛到綠島",
+      description:
+        "集中營、滅絕營、勞改營與拘留營的區別；古巴的再集中、波耳戰爭、赫雷羅人與納馬人的種族滅絕；達豪、囚犯分類與卡波、紐倫堡法與水晶之夜、T4 安樂死、子彈大屠殺、萬湖會議、萊茵哈德行動、奧斯威辛、強迫勞動、反抗與救援（辛德勒、杉原千畝、何鳳山）、死亡行軍與解放；古拉格的起源、大清洗與科雷馬、索忍尼辛；日裔美國人拘留營、泰緬鐵路與金瓜石戰俘營、勞改與勞教、柬埔寨 S-21、北韓政治犯收容所、波士尼亞與新疆的爭議、台灣的綠島；紐倫堡大審、平庸之惡、倖存者證詞、紀念與否認。以史實為主，爭議議題並列各方說法。",
+      icon: "🕯️",
+      url: "topics/concentration-camps/index.html",
+      resources: [
+        {
+          title: "名詞與數字",
+          description: "本課程的重要名詞、人數估計與倖存者作品",
+          icon: "📚",
+          url: "topics/concentration-camps/terms.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、囚犯分類、營區地圖、「最終解決」關係圖與古拉格地點",
+          icon: "🗺️",
+          url: "topics/concentration-camps/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜起源",
+          courses: [
+            { title: "什麼是集中營", url: "topics/concentration-camps/lesson-01.html" },
+            { title: "古巴的「再集中」", url: "topics/concentration-camps/lesson-02.html" },
+            { title: "波耳戰爭的集中營", url: "topics/concentration-camps/lesson-03.html" },
+            { title: "赫雷羅人與納馬人", url: "topics/concentration-camps/lesson-04.html" },
+            { title: "模組總結：起源", url: "topics/concentration-camps/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜納粹集中營",
+          courses: [
+            { title: "達豪與最早的集中營", url: "topics/concentration-camps/lesson-06.html" },
+            { title: "集中營體系", url: "topics/concentration-camps/lesson-07.html" },
+            { title: "從紐倫堡法到水晶之夜", url: "topics/concentration-camps/lesson-08.html" },
+            { title: "T4 安樂死計畫", url: "topics/concentration-camps/lesson-09.html" },
+            { title: "東線的槍聲", url: "topics/concentration-camps/lesson-10.html" },
+            { title: "萬湖會議", url: "topics/concentration-camps/lesson-11.html" },
+            { title: "萊茵哈德行動", url: "topics/concentration-camps/lesson-12.html" },
+            { title: "奧斯威辛", url: "topics/concentration-camps/lesson-13.html" },
+            { title: "營中的日常與強迫勞動", url: "topics/concentration-camps/lesson-14.html" },
+            { title: "反抗與救援", url: "topics/concentration-camps/lesson-15.html" },
+            { title: "死亡行軍與解放", url: "topics/concentration-camps/lesson-16.html" },
+            { title: "模組總結：受害者與人數", url: "topics/concentration-camps/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 C｜蘇聯的古拉格",
+          courses: [
+            { title: "古拉格的起源", url: "topics/concentration-camps/lesson-18.html" },
+            { title: "大清洗與科雷馬", url: "topics/concentration-camps/lesson-19.html" },
+            { title: "索忍尼辛與古拉格的瓦解", url: "topics/concentration-camps/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜其他時代與地區",
+          courses: [
+            { title: "美國的日裔拘留營", url: "topics/concentration-camps/lesson-21.html" },
+            { title: "日本的戰俘營", url: "topics/concentration-camps/lesson-22.html" },
+            { title: "中國的勞改與勞教", url: "topics/concentration-camps/lesson-23.html" },
+            { title: "柬埔寨的 S-21", url: "topics/concentration-camps/lesson-24.html" },
+            { title: "北韓的政治犯收容所", url: "topics/concentration-camps/lesson-25.html" },
+            { title: "波士尼亞與新疆", url: "topics/concentration-camps/lesson-26.html" },
+            { title: "台灣的綠島", url: "topics/concentration-camps/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜審判與記憶",
+          courses: [
+            { title: "審判", url: "topics/concentration-camps/lesson-28.html" },
+            { title: "記憶", url: "topics/concentration-camps/lesson-29.html" },
+            { title: "課程總結：集中營為什麼會發生", url: "topics/concentration-camps/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
