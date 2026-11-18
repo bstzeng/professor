@@ -33624,6 +33624,88 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "space-accidents",
+      category: "tech",
+      title: "太空事故全紀錄：22 起事故的背景、經過與改進",
+      description:
+        "太空飛行的風險與事故調查；發射事故（尼德林災難、長征三號乙、阿爾坎塔拉、獵鷹 9 號發射台爆炸、星艦試飛）、載人太空船（阿波羅 1 號、聯盟 1 號、聯盟 11 號、阿波羅 13 號、挑戰者號、哥倫比亞號、聯盟 MS-10、維珍銀河、星際線號）、太空站與軌道（和平號、太空衣進水、衛星相撞、反衛星試驗）、無人任務（火星氣候探測者號、亞利安 5 號、瞳衛星、民間月球登陸器），每一起整理背景、經過、原因與改進；附年表、事故圖鑑、改進關係圖與救生系統。",
+      icon: "🚀",
+      url: "topics/space-accidents/index.html",
+      resources: [
+        {
+          title: "事故總表",
+          description: "依年份排列的事故與一句話摘要",
+          icon: "📋",
+          url: "topics/space-accidents/table.html"
+        },
+        {
+          title: "互動圖鑑",
+          description: "年表、事故圖鑑與改進關係圖",
+          icon: "🗺️",
+          url: "topics/space-accidents/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "太空為什麼危險", url: "topics/space-accidents/lesson-01.html" },
+            { title: "事故調查與太空安全", url: "topics/space-accidents/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜發射場與發射",
+          courses: [
+            { title: "尼德林災難", url: "topics/space-accidents/lesson-03.html" },
+            { title: "長征三號乙", url: "topics/space-accidents/lesson-04.html" },
+            { title: "阿爾坎塔拉發射台爆炸", url: "topics/space-accidents/lesson-05.html" },
+            { title: "獵鷹 9 號發射台爆炸", url: "topics/space-accidents/lesson-06.html" },
+            { title: "星艦試飛", url: "topics/space-accidents/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜載人太空船",
+          courses: [
+            { title: "阿波羅 1 號", url: "topics/space-accidents/lesson-08.html" },
+            { title: "聯盟 1 號", url: "topics/space-accidents/lesson-09.html" },
+            { title: "聯盟 11 號", url: "topics/space-accidents/lesson-10.html" },
+            { title: "阿波羅 13 號", url: "topics/space-accidents/lesson-11.html" },
+            { title: "挑戰者號", url: "topics/space-accidents/lesson-12.html" },
+            { title: "哥倫比亞號", url: "topics/space-accidents/lesson-13.html" },
+            { title: "聯盟 MS-10", url: "topics/space-accidents/lesson-14.html" },
+            { title: "維珍銀河試飛事故", url: "topics/space-accidents/lesson-15.html" },
+            { title: "星際線號", url: "topics/space-accidents/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜太空站與軌道",
+          courses: [
+            { title: "和平號的火災與碰撞", url: "topics/space-accidents/lesson-17.html" },
+            { title: "太空衣進水", url: "topics/space-accidents/lesson-18.html" },
+            { title: "衛星相撞", url: "topics/space-accidents/lesson-19.html" },
+            { title: "反衛星試驗", url: "topics/space-accidents/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜無人任務",
+          courses: [
+            { title: "火星氣候探測者號", url: "topics/space-accidents/lesson-21.html" },
+            { title: "亞利安 5 號", url: "topics/space-accidents/lesson-22.html" },
+            { title: "瞳衛星", url: "topics/space-accidents/lesson-23.html" },
+            { title: "民間月球登陸器", url: "topics/space-accidents/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "救生系統與訓練", url: "topics/space-accidents/lesson-25.html" },
+            { title: "改進總表", url: "topics/space-accidents/lesson-26.html" },
+            { title: "課程總結：向星空的代價", url: "topics/space-accidents/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
