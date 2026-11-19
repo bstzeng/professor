@@ -3,7 +3,7 @@
 from nv_common import *
 from casekit import make_case, F as _F
 
-lesson = nv_lesson(u"🚀")
+lesson = nv_lesson(u"🚀", NOTE_CASE)
 case = make_case(lesson)
 
 

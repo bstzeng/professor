@@ -2,7 +2,7 @@
 """〈集中營的歷史〉（kzl_）共用：課程包裝與互動元件（使用 nv_common 的 nv-w）。"""
 from nv_common import *
 
-lesson = nv_lesson(u"🕯️")
+lesson = nv_lesson(u"🕯️", NOTE_HIST)
 
 
 def X(tid, name, text=None):

@@ -112,8 +112,13 @@ def nvw(cfg, maxw=680):
     return wdg("nv-w", cfg, maxw)
 
 
-def nv_lesson(icon):
-    return make_lesson(icon, NV_NOTE, NVLIB, "nv-w")
+NOTE_CASE = u"本課程整理自公開的事故調查報告、新聞與文獻；部分數字各方說法不同，細節以官方最新公布為準。"
+NOTE_SYS = u"本課程以概念說明為主，流程與數字經過簡化；實際規格以各業者、主管機關與標準組織的文件為準。"
+NOTE_HIST = u"本課程整理自歷史研究與公開文獻；部分數字各方估計不同，課程中以學界常見的說法為準，並註明爭議。"
+
+
+def nv_lesson(icon, note=None):
+    return make_lesson(icon, note or NV_NOTE, NVLIB, "nv-w")
 
 
 def node(id_, label, x, y, c, d, en=None):

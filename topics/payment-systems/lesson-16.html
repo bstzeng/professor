@@ -224,8 +224,65 @@
           uh(); uw();
         }
 
+
+        /* ---------- 手機換手 ---------- */
+        function initHo(root, cfg) { head(root, cfg.q); var P = { x: 5, h: 3, f: 1 };
+          var u1 = slider(root, '手機的位置（從基地台 A 走向 B）', 0, 10, 0.1, P.x, function (x) { return x.toFixed(1) + ' 公里'; }, null, function (x) { P.x = x; draw(); });
+          var u2 = slider(root, '換手門檻（遲滯）', 0, 8, 0.5, P.h, function (x) { return x + ' dB'; }, null, function (x) { P.h = x; draw(); });
+          var l = el('label', 'display:block;font-size:0.9em;margin:4px 0'), c = document.createElement('input'); c.type = 'checkbox'; c.checked = true; l.appendChild(c); l.appendChild(document.createTextNode(' 加入訊號的隨機起伏（建築物遮蔽、多路徑）')); c.onchange = function () { P.f = c.checked ? 1 : 0; draw(); }; root.appendChild(l);
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function rs(d, k) { var v = -70 - 35 * Math.log(d + 0.2) / Math.LN10; if (P.f) v += 3.2 * Math.sin(d * 7.3 + k * 1.7) + 2.1 * Math.sin(d * 17.1 + k * 4.1); return v; }
+          function A(x) { return rs(x, 0); } function B(x) { return rs(10 - x, 1); }
+          function draw() { var X = function (x) { return 40 + x / 10 * 580; }, Y = function (v) { return 20 + (-40 - v) / 75 * 160; }, o = '', pa = '', pb = '', serv = 0, hos = [], segs = [];
+            for (var i = 0; i <= 400; i++) { var x = i / 40; pa += (i ? 'L' : 'M') + n1(X(x)) + ',' + n1(Y(A(x))); pb += (i ? 'L' : 'M') + n1(X(x)) + ',' + n1(Y(B(x)));
+              var sa = A(x), sb = B(x); if (serv === 0 && sb > sa + P.h) { serv = 1; hos.push(x); } else if (serv === 1 && sa > sb + P.h) { serv = 0; hos.push(x); } segs.push(serv); }
+            for (var j = 0; j < 400; j++) { o += '<rect x="' + n1(X(j / 40)) + '" y="186" width="' + n1(X((j + 1) / 40) - X(j / 40) + 0.3) + '" height="8" fill="' + (segs[j] ? '#d9822b' : '#3a6ea5') + '"/>'; }
+            o += '<path d="' + pa + '" fill="none" stroke="#3a6ea5" stroke-width="2"/><path d="' + pb + '" fill="none" stroke="#d9822b" stroke-width="2"/>';
+            hos.forEach(function (h) { o += '<line x1="' + n1(X(h)) + '" y1="20" x2="' + n1(X(h)) + '" y2="194" stroke="#d0564f" stroke-dasharray="3 3"/>'; });
+            o += '<line x1="' + n1(X(P.x)) + '" y1="14" x2="' + n1(X(P.x)) + '" y2="198" stroke="var(--text)" stroke-width="1.5"/>' + tx(X(P.x), 12, '📱', 12);
+            o += tx(44, 32, '基地台 A 的訊號', 11, '#3a6ea5', 'start') + tx(616, 32, '基地台 B 的訊號', 11, '#d9822b', 'end') + tx(330, 210, '下方色條：當時連線的基地台（藍色 A／橘色 B）', 10, 'var(--text-muted)');
+            view.innerHTML = svgw('0 0 640 216', o);
+            var cur = segs[Math.min(399, Math.round(P.x * 40))], n = hos.length;
+            inf.innerHTML = '目前位置：A 的訊號 ' + A(P.x).toFixed(0) + ' dBm，B 的訊號 ' + B(P.x).toFixed(0) + ' dBm，手機連在 <b>' + (cur ? '基地台 B' : '基地台 A') + '</b>。<br>從 A 走到 B 的整段路上，總共換手 <b>' + n + ' 次</b>' + (n > 1 ? '——<b style="color:#d0564f">來回切換（乒乓效應）</b>，浪費資源也容易斷線。試著提高換手門檻。' : '。') + (P.h >= 6 ? '<br>門檻太高時，手機會拖到訊號很差才換手，可能在換手前就斷線。' : '') +
+              '<br><span style="font-size:0.88em;color:var(--text-muted)">簡化模型：實際的換手由網路依手機回報的量測決定，還會考慮持續時間、負載與多個鄰近基地台。</span>'; }
+          u1(); u2();
+        }
+
+        /* ---------- 過站作業甘特圖 ---------- */
+        function initGantt(root, cfg) { head(root, cfg.q); var P = { d: 0, c: 0, b: 20 };
+          var u1 = slider(root, '班機晚到', 0, 40, 1, P.d, function (x) { return x + ' 分鐘'; }, null, function (x) { P.d = x; draw(); });
+          var u2 = slider(root, '清潔人手不足，多花', 0, 15, 1, P.c, function (x) { return x + ' 分鐘'; }, null, function (x) { P.c = x; draw(); });
+          var u3 = slider(root, '登機所需時間', 12, 35, 1, P.b, function (x) { return x + ' 分鐘'; }, null, function (x) { P.b = x; draw(); });
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function draw() { var T = cfg.tasks.map(function (t) { return { n: t[0], d: t[1], dep: t[2], c: t[3], k: t[4] || '' }; }), E = {}, S = {};
+            T.forEach(function (t) { if (t.k === 'clean') t.d += P.c; if (t.k === 'board') t.d = P.b; });
+            T.forEach(function (t, i) { var s = P.d; t.dep.forEach(function (j) { s = Math.max(s, E[j]); }); S[i] = s; E[i] = s + t.d; });
+            var end = Math.max.apply(null, Object.keys(E).map(function (k) { return E[k]; })), std = cfg.std, late = Math.max(0, end - std), W = 470, mx = Math.max(end, std) + 5, o = '';
+            var X = function (m) { return 150 + m / mx * W; };
+            for (var m = 0; m <= mx; m += 10) o += '<line x1="' + n1(X(m)) + '" y1="10" x2="' + n1(X(m)) + '" y2="' + (20 + T.length * 24) + '" stroke="var(--border)"/>' + tx(X(m), 8 + (20 + T.length * 24) + 10, m + '′', 10, 'var(--text-muted)');
+            T.forEach(function (t, i) { var y = 16 + i * 24; o += tx(144, y + 13, t.n, 11, 'var(--text)', 'end') + '<rect x="' + n1(X(S[i])) + '" y="' + y + '" width="' + n1(X(E[i]) - X(S[i])) + '" height="17" rx="3" fill="' + t.c + '"/>'; });
+            if (P.d) o += '<rect x="' + n1(X(0)) + '" y="12" width="' + n1(X(P.d) - X(0)) + '" height="' + (T.length * 24) + '" fill="#d0564f" opacity="0.08"/>';
+            o += '<line x1="' + n1(X(std)) + '" y1="6" x2="' + n1(X(std)) + '" y2="' + (20 + T.length * 24) + '" stroke="#d0564f" stroke-width="2"/>' + tx(X(std), 4 + 0, '', 10);
+            view.innerHTML = svgw('0 0 640 ' + (40 + T.length * 24), o);
+            inf.innerHTML = '預定的過站時間是 <b>' + std + ' 分鐘</b>（紅線）。這次全部作業在第 <b>' + end + ' 分鐘</b>完成，' + (late ? '<b style="color:#d0564f">延誤 ' + late + ' 分鐘</b>。' : '<b style="color:#4a9a5e">準時</b>。') +
+              '<br>有些作業可以同時進行（卸行李與清潔），有些必須等前一項完成（清潔與餐勤完成後才能登機）。最長的那一串作業叫做「<b>要徑</b>」：要徑上的任何延誤，都會直接延誤起飛；不在要徑上的作業，則有一些緩衝。<br>這架飛機的延誤，也會傳到它的下一個航班——這就是延誤的連鎖效應。'; }
+          u1(); u2(); u3();
+        }
+
+        /* ---------- 跑道容量 ---------- */
+        function initRwy(root, cfg) { head(root, cfg.q); var P = { s: 3, v: 140, r: 55 };
+          var u1 = slider(root, '進場的間隔距離', 2.5, 6, 0.5, P.s, function (x) { return x + ' 浬'; }, null, function (x) { P.s = x; draw(); });
+          var u2 = slider(root, '進場速度', 120, 170, 5, P.v, function (x) { return x + ' 節'; }, null, function (x) { P.v = x; draw(); });
+          var u3 = slider(root, '落地後佔用跑道的時間', 40, 90, 5, P.r, function (x) { return x + ' 秒'; }, null, function (x) { P.r = x; draw(); });
+          var view = el('div', 'margin-top:6px'), inf = box(); root.appendChild(view); root.appendChild(inf);
+          function draw() { var gap = P.s / P.v * 3600, eff = Math.max(gap, P.r), arr = 3600 / eff, mix = 3600 / (Math.max(gap, P.r + 60) + 0), o = '', mx = 60;
+            [['只降落', arr, '#3a6ea5'], ['降落與起飛交替（總起降架次，約）', 2 * Math.min(arr, 3600 / (P.r + 60 + 20)), '#4a9a5e']].forEach(function (r, i) { var y = 14 + i * 40, w = Math.min(r[1], mx) / mx * 380; o += tx(10, y + 15, r[0], 11, 'var(--text)', 'start') + '<rect x="220" y="' + y + '" width="' + n1(w) + '" height="22" fill="' + r[2] + '"/>' + tx(226 + w, y + 16, Math.round(r[1]) + ' 架次／小時', 11, 'var(--text)', 'start'); });
+            view.innerHTML = svgw('0 0 640 96', o);
+            inf.innerHTML = '兩架進場飛機之間相隔 ' + P.s + ' 浬，以 ' + P.v + ' 節的速度約 <b>' + Math.round(gap) + ' 秒</b>；落地的飛機要 ' + P.r + ' 秒才離開跑道。' + (P.r > gap ? '<b style="color:#d0564f">跑道佔用時間比間隔還長，成為瓶頸。</b>' : '') + '<br>一條跑道每小時約可降落 <b>' + Math.round(arr) + ' 架次</b>。間隔距離受<b>尾流</b>規定限制：大飛機後面的小飛機要隔得更遠；天氣不好時間隔也要拉大，容量隨之下降。<br><span style="font-size:0.88em;color:var(--text-muted)">簡化估算：實際容量還受到機型組合、滑行道設計、空域與管制程序等影響。</span>'; }
+          u1(); u2(); u3();
+        }
         function initAll() { document.querySelectorAll('.sys-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
-          ({ seq: initSeq, luhn: initLuhn, fee: initFee, bgp: initBgp, lat: initLat, curve: initCurve, stab: initStab })[cfg.t](w, cfg); }); }
+          ({ seq: initSeq, luhn: initLuhn, fee: initFee, bgp: initBgp, lat: initLat, curve: initCurve, stab: initStab, ho: initHo, gantt: initGantt, rwy: initRwy })[cfg.t](w, cfg); }); }
         if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
       })();
       </script>
@@ -258,7 +315,7 @@
         </p>
       </div>
 
-      <p style="color:var(--text-muted);font-size:0.9em">💳 本課程包含完整劇情（有暴雷）。人名、地名以台灣通行譯本為主，括號附原文；引文皆為簡短摘引並附出處。</p>
+      <p style="color:var(--text-muted);font-size:0.9em">💳 本課程以概念說明為主，流程與數字經過簡化；實際規格以各業者、主管機關與標準組織的文件為準。</p>
 
       <div class="self-check">
         <h3>檢查你的理解</h3>
