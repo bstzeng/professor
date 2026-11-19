@@ -34970,6 +34970,88 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "yu-yu-hakusho",
+      category: "anime",
+      title: "幽遊白書全紀錄：靈界偵探、暗黑武術會到魔界",
+      description:
+        "富堅義博的原作與 Studio Pierrot 的動畫；人間界、靈界、魔界與結界、靈力妖力與妖怪等級；幽助之死與復活、靈界偵探、三大秘寶、幻海的選拔、四聖獸與雪菜；暗黑武術會的對手、幻海與戶愚呂的過去、決賽與 100%、左京與冥獄界；仙水篇的領域能力者、黑之章與七個人格、魔族大隔世與雷禪附身；魔界三強、雷禪之死、魔界統一大會與煙鬼、大閻王的陰謀與結局（含完整劇透）；幽助、桑原、藏馬、飛影的人物解析、招式與能力體系、動畫主題曲、Netflix 真人版與對獵人的影響。含故事年表、人物關係圖、人物與招式圖鑑。",
+      icon: "👻",
+      url: "topics/yu-yu-hakusho/index.html",
+      resources: [
+        {
+          title: "幽遊白書圖鑑",
+          description: "故事年表、人物關係圖、人物圖鑑、招式與能力、暗黑武術會對戰",
+          icon: "📜",
+          url: "topics/yu-yu-hakusho/atlas.html"
+        },
+        {
+          title: "名詞表",
+          description: "本課程的重要名詞",
+          icon: "📖",
+          url: "topics/yu-yu-hakusho/glossary.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜作品與世界觀",
+          courses: [
+            { title: "幽遊白書是什麼", url: "topics/yu-yu-hakusho/lesson-01.html" },
+            { title: "富堅義博", url: "topics/yu-yu-hakusho/lesson-02.html" },
+            { title: "三個世界", url: "topics/yu-yu-hakusho/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜靈界偵探篇",
+          courses: [
+            { title: "幽助之死與復活", url: "topics/yu-yu-hakusho/lesson-04.html" },
+            { title: "靈界偵探", url: "topics/yu-yu-hakusho/lesson-05.html" },
+            { title: "三大秘寶", url: "topics/yu-yu-hakusho/lesson-06.html" },
+            { title: "幻海的選拔", url: "topics/yu-yu-hakusho/lesson-07.html" },
+            { title: "四聖獸與雪菜", url: "topics/yu-yu-hakusho/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜暗黑武術會篇",
+          courses: [
+            { title: "暗黑武術會", url: "topics/yu-yu-hakusho/lesson-09.html" },
+            { title: "從初戰到準決賽", url: "topics/yu-yu-hakusho/lesson-10.html" },
+            { title: "幻海之死", url: "topics/yu-yu-hakusho/lesson-11.html" },
+            { title: "決賽（上）", url: "topics/yu-yu-hakusho/lesson-12.html" },
+            { title: "決賽（下）", url: "topics/yu-yu-hakusho/lesson-13.html" },
+            { title: "大會的結局", url: "topics/yu-yu-hakusho/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜仙水篇",
+          courses: [
+            { title: "通往魔界的隧道", url: "topics/yu-yu-hakusho/lesson-15.html" },
+            { title: "領域之戰", url: "topics/yu-yu-hakusho/lesson-16.html" },
+            { title: "仙水忍", url: "topics/yu-yu-hakusho/lesson-17.html" },
+            { title: "幽助的第二次死亡", url: "topics/yu-yu-hakusho/lesson-18.html" },
+            { title: "仙水的結局", url: "topics/yu-yu-hakusho/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜魔界篇",
+          courses: [
+            { title: "魔界三強", url: "topics/yu-yu-hakusho/lesson-20.html" },
+            { title: "各自的路", url: "topics/yu-yu-hakusho/lesson-21.html" },
+            { title: "魔界統一大會", url: "topics/yu-yu-hakusho/lesson-22.html" },
+            { title: "結局", url: "topics/yu-yu-hakusho/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜人物、能力與影響",
+          courses: [
+            { title: "主角群（上）", url: "topics/yu-yu-hakusho/lesson-24.html" },
+            { title: "主角群（下）", url: "topics/yu-yu-hakusho/lesson-25.html" },
+            { title: "招式與能力", url: "topics/yu-yu-hakusho/lesson-26.html" },
+            { title: "動畫、影響與總結", url: "topics/yu-yu-hakusho/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
