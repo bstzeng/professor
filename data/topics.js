@@ -34638,6 +34638,338 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "anesthesia",
+      category: "biomed",
+      title: "麻醉：讓人安全地「關機」",
+      description:
+        "麻醉之前的手術、華岡青洲與 1846 年的乙醚示範、全身麻醉的四個目標、麻醉科醫師的工作；意識怎麼被關掉、吸入麻醉藥與溶解度、MAC、異丙酚與 K 他命、鴉片類止痛、肌肉鬆弛劑與拮抗、藥物動力學與情境敏感半衰期；呼吸道與插管、呼吸器與麻醉機、血壓與輸液、輸血；標準監測與脈搏血氧、二氧化碳波形、腦波與術中甦醒、低體溫；局部麻醉藥、半身麻醉與減痛分娩、超音波神經阻斷；麻醉安全、惡性高熱、空腹、年長者與兒童、一台手術的全紀錄。附吸入麻醉藥、情境敏感半衰期、缺氧時間、二氧化碳波形、局部麻醉藥劑量五個互動模擬。",
+      icon: "💉",
+      url: "topics/anesthesia/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "常用藥物、空腹時間、監測與 ASA 分級",
+          icon: "📋",
+          url: "topics/anesthesia/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/anesthesia/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "麻醉之前的手術", url: "topics/anesthesia/lesson-01.html" },
+            { title: "1846 年的乙醚示範", url: "topics/anesthesia/lesson-02.html" },
+            { title: "全身麻醉的目標", url: "topics/anesthesia/lesson-03.html" },
+            { title: "麻醉科醫師在做什麼", url: "topics/anesthesia/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜藥物怎麼讓人「關機」",
+          courses: [
+            { title: "意識是怎麼被關掉的", url: "topics/anesthesia/lesson-05.html" },
+            { title: "吸入麻醉藥", url: "topics/anesthesia/lesson-06.html" },
+            { title: "最低肺泡濃度", url: "topics/anesthesia/lesson-07.html" },
+            { title: "靜脈麻醉藥", url: "topics/anesthesia/lesson-08.html" },
+            { title: "鴉片類止痛藥", url: "topics/anesthesia/lesson-09.html" },
+            { title: "肌肉鬆弛劑", url: "topics/anesthesia/lesson-10.html" },
+            { title: "藥物動力學", url: "topics/anesthesia/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜呼吸與循環",
+          courses: [
+            { title: "呼吸道", url: "topics/anesthesia/lesson-12.html" },
+            { title: "呼吸器與麻醉機", url: "topics/anesthesia/lesson-13.html" },
+            { title: "血壓、心跳與輸液", url: "topics/anesthesia/lesson-14.html" },
+            { title: "失血與輸血", url: "topics/anesthesia/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜監測",
+          courses: [
+            { title: "標準監測", url: "topics/anesthesia/lesson-16.html" },
+            { title: "麻醉深度", url: "topics/anesthesia/lesson-17.html" },
+            { title: "體溫與低體溫", url: "topics/anesthesia/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜局部與區域麻醉",
+          courses: [
+            { title: "局部麻醉藥", url: "topics/anesthesia/lesson-19.html" },
+            { title: "半身麻醉與減痛分娩", url: "topics/anesthesia/lesson-20.html" },
+            { title: "神經阻斷與超音波導引", url: "topics/anesthesia/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜風險與安全",
+          courses: [
+            { title: "麻醉有多安全", url: "topics/anesthesia/lesson-22.html" },
+            { title: "惡性高熱與過敏反應", url: "topics/anesthesia/lesson-23.html" },
+            { title: "手術前為什麼要空腹", url: "topics/anesthesia/lesson-24.html" },
+            { title: "年長者、兒童與術後譫妄", url: "topics/anesthesia/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "一台手術的麻醉全紀錄", url: "topics/anesthesia/lesson-26.html" },
+            { title: "課程總結", url: "topics/anesthesia/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "traffic-flow",
+      category: "tech",
+      title: "塞車的科學：交通流與號誌",
+      description:
+        "需求與容量、流量速度密度、基本圖、車頭時距；瓶頸與容量下降、幽靈塞車、衝擊波、匯入與交織、拉鍊式匯入；號誌的週期與時相、黃燈與兩難區、韋伯斯特的號誌時制、綠波與時空圖、感應式與適應性號誌、現代圓環；匝道儀控、高乘載與調撥車道、國道計程電子收費、事故管理；誘發需求、布雷斯悖論、新加坡倫敦斯德哥爾摩紐約的壅塞定價、導航 App；公車與大眾運輸、台灣的機車與兩段式左轉、自動駕駛與車聯網。附基本圖、幽靈塞車、號誌延滯、綠波、匝道儀控五個互動模擬。",
+      icon: "🚦",
+      url: "topics/traffic-flow/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "交通流的公式、典型數字與對策",
+          icon: "📋",
+          url: "topics/traffic-flow/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/traffic-flow/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "為什麼會塞車", url: "topics/traffic-flow/lesson-01.html" },
+            { title: "流量、速度、密度", url: "topics/traffic-flow/lesson-02.html" },
+            { title: "基本圖", url: "topics/traffic-flow/lesson-03.html" },
+            { title: "車頭時距", url: "topics/traffic-flow/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜塞車是怎麼形成的",
+          courses: [
+            { title: "瓶頸", url: "topics/traffic-flow/lesson-05.html" },
+            { title: "幽靈塞車", url: "topics/traffic-flow/lesson-06.html" },
+            { title: "衝擊波", url: "topics/traffic-flow/lesson-07.html" },
+            { title: "匯入與交織", url: "topics/traffic-flow/lesson-08.html" },
+            { title: "拉鍊式匯入", url: "topics/traffic-flow/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜號誌",
+          courses: [
+            { title: "號誌的基本概念", url: "topics/traffic-flow/lesson-10.html" },
+            { title: "黃燈與全紅", url: "topics/traffic-flow/lesson-11.html" },
+            { title: "號誌時制的計算", url: "topics/traffic-flow/lesson-12.html" },
+            { title: "綠波", url: "topics/traffic-flow/lesson-13.html" },
+            { title: "感應式與適應性號誌", url: "topics/traffic-flow/lesson-14.html" },
+            { title: "圓環 vs 號誌路口", url: "topics/traffic-flow/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜高速公路",
+          courses: [
+            { title: "匝道儀控", url: "topics/traffic-flow/lesson-16.html" },
+            { title: "高乘載與彈性車道", url: "topics/traffic-flow/lesson-17.html" },
+            { title: "電子收費與計程收費", url: "topics/traffic-flow/lesson-18.html" },
+            { title: "事故管理與資訊", url: "topics/traffic-flow/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜需求與行為",
+          courses: [
+            { title: "為什麼拓寬道路反而更塞", url: "topics/traffic-flow/lesson-20.html" },
+            { title: "布雷斯悖論", url: "topics/traffic-flow/lesson-21.html" },
+            { title: "壅塞定價", url: "topics/traffic-flow/lesson-22.html" },
+            { title: "導航 App 改變了交通嗎", url: "topics/traffic-flow/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜大眾運輸與城市",
+          courses: [
+            { title: "一台公車等於幾台車", url: "topics/traffic-flow/lesson-24.html" },
+            { title: "機車與台灣的混合車流", url: "topics/traffic-flow/lesson-25.html" },
+            { title: "自動駕駛與車聯網的未來", url: "topics/traffic-flow/lesson-26.html" },
+            { title: "課程總結", url: "topics/traffic-flow/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "hydrogen-energy",
+      category: "tech",
+      title: "氫能與燃料電池",
+      description:
+        "氫在淨零中的角色、氫的性質、能源載體；灰氫與蒸汽甲烷重組、藍氫與碳捕捉、綠氫與電解水、鹼性 PEM 與固態氧化物電解槽、粉紅氫與天然氫、綠氫的成本；高壓與液態儲氫、氨與液態有機氫載體、管線與加氫站；燃料電池的原理與歷史、PEM 燃料電池與白金、效率熱與水管理、與鋰電池的比較；Mirai 與 Nexo、巴士卡車與氫能火車、船舶與航空、氫還原煉鋼、氨與煉油、混氫發電與季節性儲能、台灣興達混氫示範；安全、各國政策與氫能階梯。附電解水、燃料電池極化曲線、儲存密度、往返效率、綠氫成本五個互動模擬。",
+      icon: "💧",
+      url: "topics/hydrogen-energy/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "氫的性質、顏色、儲存與關鍵數字",
+          icon: "📋",
+          url: "topics/hydrogen-energy/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/hydrogen-energy/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "為什麼談氫能", url: "topics/hydrogen-energy/lesson-01.html" },
+            { title: "氫是什麼", url: "topics/hydrogen-energy/lesson-02.html" },
+            { title: "能源載體，不是能源", url: "topics/hydrogen-energy/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜氫怎麼來",
+          courses: [
+            { title: "灰氫", url: "topics/hydrogen-energy/lesson-04.html" },
+            { title: "藍氫", url: "topics/hydrogen-energy/lesson-05.html" },
+            { title: "綠氫：電解水", url: "topics/hydrogen-energy/lesson-06.html" },
+            { title: "電解槽的種類", url: "topics/hydrogen-energy/lesson-07.html" },
+            { title: "其他顏色的氫", url: "topics/hydrogen-energy/lesson-08.html" },
+            { title: "氫的成本", url: "topics/hydrogen-energy/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜儲存與運輸",
+          courses: [
+            { title: "高壓氣態儲氫", url: "topics/hydrogen-energy/lesson-10.html" },
+            { title: "液態氫", url: "topics/hydrogen-energy/lesson-11.html" },
+            { title: "氨與液態有機氫載體", url: "topics/hydrogen-energy/lesson-12.html" },
+            { title: "管線與加氫站", url: "topics/hydrogen-energy/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜燃料電池",
+          courses: [
+            { title: "燃料電池的原理", url: "topics/hydrogen-energy/lesson-14.html" },
+            { title: "質子交換膜燃料電池", url: "topics/hydrogen-energy/lesson-15.html" },
+            { title: "效率、熱與水管理", url: "topics/hydrogen-energy/lesson-16.html" },
+            { title: "燃料電池與鋰電池的比較", url: "topics/hydrogen-energy/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "氫能車", url: "topics/hydrogen-energy/lesson-18.html" },
+            { title: "巴士、卡車與火車", url: "topics/hydrogen-energy/lesson-19.html" },
+            { title: "船舶與航空", url: "topics/hydrogen-energy/lesson-20.html" },
+            { title: "鋼鐵：用氫還原鐵礦", url: "topics/hydrogen-energy/lesson-21.html" },
+            { title: "化工與煉油", url: "topics/hydrogen-energy/lesson-22.html" },
+            { title: "發電與季節性儲能", url: "topics/hydrogen-energy/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜挑戰與未來",
+          courses: [
+            { title: "安全", url: "topics/hydrogen-energy/lesson-24.html" },
+            { title: "台灣與全球的氫能政策", url: "topics/hydrogen-energy/lesson-25.html" },
+            { title: "總結：氫能適合用在哪裡", url: "topics/hydrogen-energy/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "eyes-vision",
+      category: "biomed",
+      title: "眼睛與視力：近視、眼鏡與雷射手術",
+      description:
+        "眼睛的光學：角膜與水晶體、調節、度數與驗光單、視網膜黃斑部與視力 1.0；近視、遠視與弱視、散光與圓錐角膜、老花、散瞳驗光；台灣的近視盛行率、天天戶外 120 與 3010、高度近視的眼底風險、低濃度阿托平與角膜塑型片、離焦鏡片與藍光迷思；眼鏡、隱形眼鏡與感染、LASIK／PRK／SMILE、植入式隱形眼鏡；白內障與人工水晶體、青光眼、黃斑部病變與抗 VEGF 注射、乾眼症、糖尿病視網膜病變與 AI 篩檢；色盲、暗適應與視錯覺。附度數與遠點、成像與矯正、散光、老花、眼軸長度五個互動模擬。",
+      icon: "👁️",
+      url: "topics/eyes-vision/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "度數換算、驗光單、近視盛行率與護眼重點",
+          icon: "📋",
+          url: "topics/eyes-vision/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/eyes-vision/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜眼睛的光學",
+          courses: [
+            { title: "眼睛是一台相機", url: "topics/eyes-vision/lesson-01.html" },
+            { title: "角膜與水晶體", url: "topics/eyes-vision/lesson-02.html" },
+            { title: "調節", url: "topics/eyes-vision/lesson-03.html" },
+            { title: "度數", url: "topics/eyes-vision/lesson-04.html" },
+            { title: "視網膜、黃斑部與視力", url: "topics/eyes-vision/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜屈光不正",
+          courses: [
+            { title: "近視", url: "topics/eyes-vision/lesson-06.html" },
+            { title: "遠視", url: "topics/eyes-vision/lesson-07.html" },
+            { title: "散光", url: "topics/eyes-vision/lesson-08.html" },
+            { title: "老花", url: "topics/eyes-vision/lesson-09.html" },
+            { title: "視力檢查與驗光", url: "topics/eyes-vision/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜台灣的近視問題",
+          courses: [
+            { title: "為什麼東亞的近視這麼多", url: "topics/eyes-vision/lesson-11.html" },
+            { title: "戶外活動與光線", url: "topics/eyes-vision/lesson-12.html" },
+            { title: "高度近視的風險", url: "topics/eyes-vision/lesson-13.html" },
+            { title: "兒童近視控制", url: "topics/eyes-vision/lesson-14.html" },
+            { title: "離焦鏡片與 3C 產品", url: "topics/eyes-vision/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜矯正",
+          courses: [
+            { title: "眼鏡", url: "topics/eyes-vision/lesson-16.html" },
+            { title: "隱形眼鏡", url: "topics/eyes-vision/lesson-17.html" },
+            { title: "雷射手術", url: "topics/eyes-vision/lesson-18.html" },
+            { title: "植入式隱形眼鏡", url: "topics/eyes-vision/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜常見眼疾",
+          courses: [
+            { title: "白內障與人工水晶體", url: "topics/eyes-vision/lesson-20.html" },
+            { title: "青光眼", url: "topics/eyes-vision/lesson-21.html" },
+            { title: "黃斑部病變與眼內注射", url: "topics/eyes-vision/lesson-22.html" },
+            { title: "乾眼症", url: "topics/eyes-vision/lesson-23.html" },
+            { title: "糖尿病視網膜病變與 AI 篩檢", url: "topics/eyes-vision/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜視覺的極限",
+          courses: [
+            { title: "色盲與色彩視覺", url: "topics/eyes-vision/lesson-25.html" },
+            { title: "夜視、對比與視錯覺", url: "topics/eyes-vision/lesson-26.html" },
+            { title: "課程總結", url: "topics/eyes-vision/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
