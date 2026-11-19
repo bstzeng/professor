@@ -33706,6 +33706,432 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "acoustics",
+      category: "science",
+      title: "聲學：聲音的物理——從振動、樂器到降噪耳機",
+      description:
+        "聲音是壓力波、頻率波長與聲速、分貝與 A 加權、耳蝸與等響曲線、音高音色與泛音；反射吸收與聲阻抗、繞射與干涉、拍頻、都卜勒效應、駐波與共振、音爆；弦樂器、管樂器、打擊樂器與編鐘、人聲與共振峰；麥克風、喇叭與音箱、分音器與耳機、主動降噪、立體聲與空間音訊；殘響時間與賽賓公式、音樂廳與錄音室、隔音與吸音、噪音與健康；超音波、聲納與深海聲道、次聲波。附泛音合成、分貝、都卜勒、駐波、殘響五個互動模擬。",
+      icon: "🔊",
+      url: "topics/acoustics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "常見聲音的分貝、聲速、殘響時間與公式",
+          icon: "📋",
+          url: "topics/acoustics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/acoustics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜聲音是什麼",
+          courses: [
+            { title: "聲音是空氣的振動", url: "topics/acoustics/lesson-01.html" },
+            { title: "頻率、波長與聲速", url: "topics/acoustics/lesson-02.html" },
+            { title: "分貝", url: "topics/acoustics/lesson-03.html" },
+            { title: "人耳怎麼聽", url: "topics/acoustics/lesson-04.html" },
+            { title: "音高、音色與泛音", url: "topics/acoustics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜聲音的行為",
+          courses: [
+            { title: "反射、吸收與穿透", url: "topics/acoustics/lesson-06.html" },
+            { title: "繞射與干涉", url: "topics/acoustics/lesson-07.html" },
+            { title: "都卜勒效應", url: "topics/acoustics/lesson-08.html" },
+            { title: "駐波與共振", url: "topics/acoustics/lesson-09.html" },
+            { title: "音爆與超音速", url: "topics/acoustics/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜樂器",
+          courses: [
+            { title: "弦樂器", url: "topics/acoustics/lesson-11.html" },
+            { title: "管樂器", url: "topics/acoustics/lesson-12.html" },
+            { title: "打擊樂器", url: "topics/acoustics/lesson-13.html" },
+            { title: "人聲", url: "topics/acoustics/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜電聲器材",
+          courses: [
+            { title: "麥克風", url: "topics/acoustics/lesson-15.html" },
+            { title: "喇叭", url: "topics/acoustics/lesson-16.html" },
+            { title: "分音器、低音砲與耳機", url: "topics/acoustics/lesson-17.html" },
+            { title: "主動降噪", url: "topics/acoustics/lesson-18.html" },
+            { title: "立體聲與空間音訊", url: "topics/acoustics/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜空間與環境",
+          courses: [
+            { title: "室內聲學：殘響時間", url: "topics/acoustics/lesson-20.html" },
+            { title: "音樂廳與錄音室", url: "topics/acoustics/lesson-21.html" },
+            { title: "隔音與吸音", url: "topics/acoustics/lesson-22.html" },
+            { title: "噪音與健康", url: "topics/acoustics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜聽不到的聲音",
+          courses: [
+            { title: "超音波", url: "topics/acoustics/lesson-24.html" },
+            { title: "聲納與水下聲學", url: "topics/acoustics/lesson-25.html" },
+            { title: "次聲波", url: "topics/acoustics/lesson-26.html" },
+            { title: "課程總結", url: "topics/acoustics/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "power-grid",
+      category: "tech",
+      title: "電從哪裡到插座：發電機、變壓器、馬達與電網",
+      description:
+        "電磁感應、直流與交流的電流戰爭、正弦波與有效值、實功虛功與功率因數、三相電；同步發電機與勵磁、60 Hz 與日本的兩種頻率、各種電廠、逆變器與再生能源；變壓器、高壓輸電、從 345 kV 到 110 V、斷路器與保護電驛、直流輸電與海纜；供需平衡與頻率、慣性備轉與低頻卸載、電壓與虛功、連鎖跳電與 N−1、北美 2003、台灣 815 與 303、伊比利半島 2025 大停電、儲能與電網形成型逆變器；有刷直流、感應、無刷與永磁同步、步進與伺服馬達、變頻器。附三相旋轉磁場、功率因數、變壓器、輸電損失、電網頻率五個互動模擬。",
+      icon: "⚡",
+      url: "topics/power-grid/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "台灣的電壓等級、常用公式與馬達比較",
+          icon: "📋",
+          url: "topics/power-grid/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/power-grid/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "電與磁的關係", url: "topics/power-grid/lesson-01.html" },
+            { title: "直流與交流", url: "topics/power-grid/lesson-02.html" },
+            { title: "交流電的數學", url: "topics/power-grid/lesson-03.html" },
+            { title: "功率：實功、虛功與功率因數", url: "topics/power-grid/lesson-04.html" },
+            { title: "三相電", url: "topics/power-grid/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜發電機",
+          courses: [
+            { title: "同步發電機", url: "topics/power-grid/lesson-06.html" },
+            { title: "為什麼台灣是 60 Hz", url: "topics/power-grid/lesson-07.html" },
+            { title: "各種電廠怎麼帶動發電機", url: "topics/power-grid/lesson-08.html" },
+            { title: "太陽光電與風機", url: "topics/power-grid/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜變壓器與輸配電",
+          courses: [
+            { title: "變壓器", url: "topics/power-grid/lesson-10.html" },
+            { title: "為什麼要高壓輸電", url: "topics/power-grid/lesson-11.html" },
+            { title: "從 345 kV 到 110 V", url: "topics/power-grid/lesson-12.html" },
+            { title: "斷路器、保護電驛與接地", url: "topics/power-grid/lesson-13.html" },
+            { title: "直流輸電與海底電纜", url: "topics/power-grid/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜電網的平衡",
+          courses: [
+            { title: "每一秒的供需平衡", url: "topics/power-grid/lesson-15.html" },
+            { title: "慣性、調頻與備轉容量", url: "topics/power-grid/lesson-16.html" },
+            { title: "電壓控制與虛功", url: "topics/power-grid/lesson-17.html" },
+            { title: "連鎖跳電", url: "topics/power-grid/lesson-18.html" },
+            { title: "大停電案例", url: "topics/power-grid/lesson-19.html" },
+            { title: "再生能源與儲能", url: "topics/power-grid/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜馬達",
+          courses: [
+            { title: "馬達的原理", url: "topics/power-grid/lesson-21.html" },
+            { title: "直流馬達與碳刷", url: "topics/power-grid/lesson-22.html" },
+            { title: "感應馬達", url: "topics/power-grid/lesson-23.html" },
+            { title: "無刷馬達與永磁同步馬達", url: "topics/power-grid/lesson-24.html" },
+            { title: "步進馬達與伺服馬達", url: "topics/power-grid/lesson-25.html" },
+            { title: "變頻器", url: "topics/power-grid/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "家裡的電：從插座回推到發電機", url: "topics/power-grid/lesson-27.html" },
+            { title: "課程總結", url: "topics/power-grid/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "medical-imaging",
+      category: "biomed",
+      title: "醫學影像原理：X 光、CT、MRI、超音波、PET",
+      description:
+        "電磁波譜與游離輻射、對比與顯影劑、解析度雜訊與偽影；倫琴與 X 光管、光電效應與康普頓散射、胸部 X 光、乳房攝影、骨密度、透視與血管攝影、介入性放射學、輻射劑量與背景輻射；CT 的發明、濾波反投影與迭代重建、CT 值與窗寬窗位、顯影劑時相、心臟 CT 與台灣的低劑量肺癌篩檢；MRI 的自旋與拉莫頻率、共振與訊號、T1 與 T2、梯度與 k 空間、擴散、功能性 MRI、MR 血管攝影與安全；超音波的回波、都卜勒與臨床用途；示蹤劑、PET 與 SPECT、PET-CT 與癌症分期；AI 判讀與檢查比較。附 CT 重建、窗寬窗位、T1／T2、超音波、劑量五個互動模擬。",
+      icon: "🩻",
+      url: "topics/medical-imaging/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "CT 值、MRI 訊號、常見劑量與同位素",
+          icon: "📋",
+          url: "topics/medical-imaging/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/medical-imaging/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "為什麼要「看見」身體裡面", url: "topics/medical-imaging/lesson-01.html" },
+            { title: "電磁波譜與穿透力", url: "topics/medical-imaging/lesson-02.html" },
+            { title: "對比：黑白是怎麼來的", url: "topics/medical-imaging/lesson-03.html" },
+            { title: "解析度、雜訊與偽影", url: "topics/medical-imaging/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜X 光",
+          courses: [
+            { title: "倫琴的發現與 X 光管", url: "topics/medical-imaging/lesson-05.html" },
+            { title: "X 光與人體的交互作用", url: "topics/medical-imaging/lesson-06.html" },
+            { title: "平片、乳房攝影與骨密度", url: "topics/medical-imaging/lesson-07.html" },
+            { title: "透視攝影與血管攝影", url: "topics/medical-imaging/lesson-08.html" },
+            { title: "輻射劑量", url: "topics/medical-imaging/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜電腦斷層（CT）",
+          courses: [
+            { title: "從投影到切片", url: "topics/medical-imaging/lesson-10.html" },
+            { title: "影像重建：濾波反投影", url: "topics/medical-imaging/lesson-11.html" },
+            { title: "CT 值與窗寬窗位", url: "topics/medical-imaging/lesson-12.html" },
+            { title: "顯影劑、心臟 CT 與低劑量篩檢", url: "topics/medical-imaging/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜磁振造影（MRI）",
+          courses: [
+            { title: "質子的自旋與磁場", url: "topics/medical-imaging/lesson-14.html" },
+            { title: "共振、激發與訊號", url: "topics/medical-imaging/lesson-15.html" },
+            { title: "T1 與 T2", url: "topics/medical-imaging/lesson-16.html" },
+            { title: "空間定位：梯度與 k 空間", url: "topics/medical-imaging/lesson-17.html" },
+            { title: "各種序列", url: "topics/medical-imaging/lesson-18.html" },
+            { title: "MRI 的安全", url: "topics/medical-imaging/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜超音波",
+          courses: [
+            { title: "壓電效應與回波", url: "topics/medical-imaging/lesson-20.html" },
+            { title: "B 模式、都卜勒與血流", url: "topics/medical-imaging/lesson-21.html" },
+            { title: "產檢、心臟與腹部超音波", url: "topics/medical-imaging/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜核子醫學",
+          courses: [
+            { title: "放射性示蹤劑", url: "topics/medical-imaging/lesson-23.html" },
+            { title: "PET 與 SPECT", url: "topics/medical-imaging/lesson-24.html" },
+            { title: "PET-CT 與癌症分期", url: "topics/medical-imaging/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "AI 判讀與影像的未來", url: "topics/medical-imaging/lesson-26.html" },
+            { title: "該做哪一種檢查", url: "topics/medical-imaging/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "displays",
+      category: "tech",
+      title: "螢幕與觸控：LCD、OLED、Micro LED",
+      description:
+        "從 CRT 到平面顯示器、像素與子像素、色域與色彩管理、亮度對比 HDR 與伽瑪；液晶與配向、偏光片與光閥、TN／IPS／VA、TFT 背板與 LTPO、背光與 Mini LED、量子點；OLED 的發光原理、AMOLED 與補償電路、蒸鍍與精細金屬遮罩、烙印與 PWM 閃爍、可摺疊螢幕；Micro LED 與巨量轉移、電子紙、AR／VR 與矽基 OLED；更新率與動態模糊、可變更新率、HDMI 與 DisplayPort；電阻式與電容式觸控、自電容與互電容、In-cell 與觸控筆；面板產業與台灣。附子像素、液晶光閥、色域、PWM、電容觸控五個互動模擬。",
+      icon: "📺",
+      url: "topics/displays/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "規格名詞、面板類型與色彩標準",
+          icon: "📋",
+          url: "topics/displays/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/displays/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "從陰極射線管到平面顯示器", url: "topics/displays/lesson-01.html" },
+            { title: "像素、子像素與解析度", url: "topics/displays/lesson-02.html" },
+            { title: "色彩：RGB、色域與色彩空間", url: "topics/displays/lesson-03.html" },
+            { title: "亮度、對比、HDR 與伽瑪", url: "topics/displays/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜LCD",
+          courses: [
+            { title: "液晶是什麼", url: "topics/displays/lesson-05.html" },
+            { title: "偏光片與液晶光閥", url: "topics/displays/lesson-06.html" },
+            { title: "TN、IPS、VA", url: "topics/displays/lesson-07.html" },
+            { title: "TFT 背板", url: "topics/displays/lesson-08.html" },
+            { title: "背光：從 CCFL 到 Mini LED", url: "topics/displays/lesson-09.html" },
+            { title: "量子點", url: "topics/displays/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜OLED",
+          courses: [
+            { title: "有機發光的原理", url: "topics/displays/lesson-11.html" },
+            { title: "主動矩陣 OLED 與背板", url: "topics/displays/lesson-12.html" },
+            { title: "蒸鍍與精細金屬遮罩", url: "topics/displays/lesson-13.html" },
+            { title: "烙印、壽命與 PWM 閃爍", url: "topics/displays/lesson-14.html" },
+            { title: "可摺疊螢幕", url: "topics/displays/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜新技術",
+          courses: [
+            { title: "Micro LED", url: "topics/displays/lesson-16.html" },
+            { title: "電子紙", url: "topics/displays/lesson-17.html" },
+            { title: "AR、VR 與微型顯示器", url: "topics/displays/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜驅動與畫面",
+          courses: [
+            { title: "更新率、反應時間與動態模糊", url: "topics/displays/lesson-19.html" },
+            { title: "可變更新率", url: "topics/displays/lesson-20.html" },
+            { title: "螢幕的介面", url: "topics/displays/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜觸控",
+          courses: [
+            { title: "電阻式與電容式觸控", url: "topics/displays/lesson-22.html" },
+            { title: "投射式電容與多點觸控", url: "topics/displays/lesson-23.html" },
+            { title: "In-cell、觸控筆與壓力感測", url: "topics/displays/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 G｜產業與總結",
+          courses: [
+            { title: "面板產業", url: "topics/displays/lesson-25.html" },
+            { title: "課程總結", url: "topics/displays/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cameras",
+      category: "tech",
+      title: "相機與計算攝影：從鏡頭到手機拍照",
+      description:
+        "針孔與暗箱、透鏡與焦距、視角與等效焦距、像差與手機鏡頭；光圈與 f 值、快門與果凍效應、ISO 與雜訊、曝光三角與 EV、景深與散景；底片、CCD 與 CMOS、光電二極體與像素合併、拜耳陣列與去馬賽克、感光元件尺寸、動態範圍、背照式堆疊式與全域快門；RAW 與 ISP、白平衡、降噪與銳利化、JPEG 與 HEIF；對比式與相位式對焦、光學與電子防手震；HDR 合成、夜景模式、人像模式與深度估計、多鏡頭與超解析度、AI 修圖與 C2PA；手機與單眼的差距。附焦段、曝光三角、景深、拜耳陣列、動態範圍五個互動模擬。",
+      icon: "📷",
+      url: "topics/cameras/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "光圈、快門、ISO 的級數，EV 值與焦段",
+          icon: "📋",
+          url: "topics/cameras/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/cameras/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜光與成像",
+          courses: [
+            { title: "針孔相機與暗箱", url: "topics/cameras/lesson-01.html" },
+            { title: "透鏡成像與焦距", url: "topics/cameras/lesson-02.html" },
+            { title: "視角與焦段", url: "topics/cameras/lesson-03.html" },
+            { title: "像差與多片鏡組", url: "topics/cameras/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜曝光",
+          courses: [
+            { title: "光圈與 f 值", url: "topics/cameras/lesson-05.html" },
+            { title: "快門與動態模糊", url: "topics/cameras/lesson-06.html" },
+            { title: "ISO 與雜訊", url: "topics/cameras/lesson-07.html" },
+            { title: "曝光三角與 EV 值", url: "topics/cameras/lesson-08.html" },
+            { title: "景深與散景", url: "topics/cameras/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜感光元件",
+          courses: [
+            { title: "從底片到 CCD 與 CMOS", url: "topics/cameras/lesson-10.html" },
+            { title: "光電二極體與像素", url: "topics/cameras/lesson-11.html" },
+            { title: "拜耳陣列與去馬賽克", url: "topics/cameras/lesson-12.html" },
+            { title: "感光元件尺寸", url: "topics/cameras/lesson-13.html" },
+            { title: "動態範圍與位元深度", url: "topics/cameras/lesson-14.html" },
+            { title: "背照式、堆疊式與全域快門", url: "topics/cameras/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜影像處理",
+          courses: [
+            { title: "RAW 與 ISP 的處理管線", url: "topics/cameras/lesson-16.html" },
+            { title: "白平衡與色彩", url: "topics/cameras/lesson-17.html" },
+            { title: "降噪與銳利化", url: "topics/cameras/lesson-18.html" },
+            { title: "JPEG、HEIF 與壓縮", url: "topics/cameras/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜對焦與防手震",
+          courses: [
+            { title: "自動對焦", url: "topics/cameras/lesson-20.html" },
+            { title: "光學與電子防手震", url: "topics/cameras/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜計算攝影",
+          courses: [
+            { title: "HDR：多張合成", url: "topics/cameras/lesson-22.html" },
+            { title: "夜景模式", url: "topics/cameras/lesson-23.html" },
+            { title: "人像模式", url: "topics/cameras/lesson-24.html" },
+            { title: "多鏡頭與數位變焦", url: "topics/cameras/lesson-25.html" },
+            { title: "AI 修圖與生成式影像", url: "topics/cameras/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "手機與單眼：差距在哪裡", url: "topics/cameras/lesson-27.html" },
+            { title: "課程總結", url: "topics/cameras/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
