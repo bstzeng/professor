@@ -34132,6 +34132,512 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "manufacturing",
+      category: "tech",
+      title: "東西是怎麼做出來的：製造工法",
+      description:
+        "選擇工法的三個問題、公差與配合、量測；鑄造、射出成型、吹塑押出與熱成型、玻璃與陶瓷；鍛造、軋延與抽線、沖壓與連續模、擠型；車床與銑床、CNC 與 G 碼、刀具與切削液、磨削放電與雷射、一體成形的手機外殼；焊接、螺絲鉚接與黏著、陽極處理電鍍與塗裝；3D 列印的原理與限制；模具、流水線與節拍時間、良率與統計製程管制、豐田生產方式、半導體與台灣的產業聚落。附公差疊加、射出成型、切削參數、3D 列印與開模、管制圖五個互動模擬。",
+      icon: "🏭",
+      url: "topics/manufacturing/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "工法比較、公差與刀具材料",
+          icon: "📋",
+          url: "topics/manufacturing/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/manufacturing/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "從設計到成品", url: "topics/manufacturing/lesson-01.html" },
+            { title: "公差與配合", url: "topics/manufacturing/lesson-02.html" },
+            { title: "量測", url: "topics/manufacturing/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜成形：讓材料流進形狀裡",
+          courses: [
+            { title: "鑄造", url: "topics/manufacturing/lesson-04.html" },
+            { title: "射出成型", url: "topics/manufacturing/lesson-05.html" },
+            { title: "吹塑、押出與熱成型", url: "topics/manufacturing/lesson-06.html" },
+            { title: "玻璃與陶瓷的成形", url: "topics/manufacturing/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜塑性加工：把金屬壓成形狀",
+          courses: [
+            { title: "鍛造", url: "topics/manufacturing/lesson-08.html" },
+            { title: "軋延與抽線", url: "topics/manufacturing/lesson-09.html" },
+            { title: "沖壓與彎折", url: "topics/manufacturing/lesson-10.html" },
+            { title: "擠型", url: "topics/manufacturing/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜切削：把多餘的去掉",
+          courses: [
+            { title: "車床與銑床", url: "topics/manufacturing/lesson-12.html" },
+            { title: "CNC 與 G 碼", url: "topics/manufacturing/lesson-13.html" },
+            { title: "刀具、切削力與切削液", url: "topics/manufacturing/lesson-14.html" },
+            { title: "磨削、放電加工與雷射切割", url: "topics/manufacturing/lesson-15.html" },
+            { title: "一體成形的手機外殼", url: "topics/manufacturing/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜接合與表面處理",
+          courses: [
+            { title: "焊接", url: "topics/manufacturing/lesson-17.html" },
+            { title: "螺絲、鉚接與黏著", url: "topics/manufacturing/lesson-18.html" },
+            { title: "表面處理", url: "topics/manufacturing/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜積層製造",
+          courses: [
+            { title: "3D 列印的原理", url: "topics/manufacturing/lesson-20.html" },
+            { title: "3D 列印能做什麼、不能做什麼", url: "topics/manufacturing/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 G｜量產",
+          courses: [
+            { title: "模具：量產的心臟", url: "topics/manufacturing/lesson-22.html" },
+            { title: "生產線與節拍時間", url: "topics/manufacturing/lesson-23.html" },
+            { title: "良率與統計製程管制", url: "topics/manufacturing/lesson-24.html" },
+            { title: "豐田生產方式與精實生產", url: "topics/manufacturing/lesson-25.html" },
+            { title: "半導體與台灣的精密製造", url: "topics/manufacturing/lesson-26.html" },
+            { title: "總結：一支手機的零件從哪裡來", url: "topics/manufacturing/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "materials-science",
+      category: "tech",
+      title: "材料科學：為什麼鋼硬、玻璃脆、塑膠會軟",
+      description:
+        "材料的四大家族、原子鍵與位能曲線、晶體結構與晶粒、缺陷；差排與加工硬化、四種強化機制、鐵與鋼、相圖與熱處理、不鏽鋼與鈍化、鋁鈦鎂、腐蝕與防蝕、疲勞與潛變；陶瓷的脆性與韌化、玻璃、強化玻璃與手機蓋板、水泥與混凝土；高分子、熱塑性與熱固性、常見塑膠與回收編號、橡膠的熵彈性與硫化、塑膠老化與回收；碳纖維複合材料、半導體與功能材料、奈米材料與石墨烯、生物材料；艾希比圖與選材。附晶體結構、應力應變、鐵碳相圖、艾希比圖、高分子與溫度五個互動模擬。",
+      icon: "🔬",
+      url: "topics/materials-science/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "常見材料的密度、剛性、強度與塑膠編號",
+          icon: "📋",
+          url: "topics/materials-science/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/materials-science/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "材料的四大家族", url: "topics/materials-science/lesson-01.html" },
+            { title: "原子鍵", url: "topics/materials-science/lesson-02.html" },
+            { title: "晶體結構", url: "topics/materials-science/lesson-03.html" },
+            { title: "缺陷", url: "topics/materials-science/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜金屬",
+          courses: [
+            { title: "差排", url: "topics/materials-science/lesson-05.html" },
+            { title: "強化金屬的四種方法", url: "topics/materials-science/lesson-06.html" },
+            { title: "鐵與鋼", url: "topics/materials-science/lesson-07.html" },
+            { title: "相圖與熱處理", url: "topics/materials-science/lesson-08.html" },
+            { title: "不鏽鋼為什麼不生鏽", url: "topics/materials-science/lesson-09.html" },
+            { title: "鋁、鈦與鎂", url: "topics/materials-science/lesson-10.html" },
+            { title: "腐蝕與防蝕", url: "topics/materials-science/lesson-11.html" },
+            { title: "疲勞與潛變", url: "topics/materials-science/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜陶瓷與玻璃",
+          courses: [
+            { title: "陶瓷", url: "topics/materials-science/lesson-13.html" },
+            { title: "玻璃", url: "topics/materials-science/lesson-14.html" },
+            { title: "強化玻璃與手機蓋板", url: "topics/materials-science/lesson-15.html" },
+            { title: "水泥與混凝土", url: "topics/materials-science/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜高分子",
+          courses: [
+            { title: "高分子是什麼", url: "topics/materials-science/lesson-17.html" },
+            { title: "熱塑性與熱固性", url: "topics/materials-science/lesson-18.html" },
+            { title: "常見塑膠", url: "topics/materials-science/lesson-19.html" },
+            { title: "橡膠為什麼有彈性", url: "topics/materials-science/lesson-20.html" },
+            { title: "塑膠的老化與回收", url: "topics/materials-science/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜複合與先進材料",
+          courses: [
+            { title: "複合材料", url: "topics/materials-science/lesson-22.html" },
+            { title: "半導體與功能材料", url: "topics/materials-science/lesson-23.html" },
+            { title: "奈米材料與石墨烯", url: "topics/materials-science/lesson-24.html" },
+            { title: "生物材料", url: "topics/materials-science/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "材料的選擇", url: "topics/materials-science/lesson-26.html" },
+            { title: "總結：一台腳踏車的材料", url: "topics/materials-science/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "car-chassis-safety",
+      category: "tech",
+      title: "汽車的底盤與安全：煞車、懸吊、轉向與安全氣囊",
+      description:
+        "主動與被動安全、輪胎與水漂、摩擦圓與重量轉移；煞車的能量與熱衰退、碟煞與鼓煞、液壓與真空助力、ABS、停車距離與兩秒法則、回生制動與線控煞車；懸吊的任務、彈簧與避震器、麥花臣與多連桿、主動與空氣懸吊；阿克曼轉向與內輪差、電動輔助與線控轉向、轉向不足與過度、側傾與翻車、車身穩定系統；碰撞的物理、潰縮區與安全車廂、安全帶、安全氣囊、兒童安全座椅、碰撞測試；ADAS、行人與機車安全。附停車距離、摩擦圓、懸吊、轉向特性、碰撞減速度五個互動模擬。",
+      icon: "🚗",
+      url: "topics/car-chassis-safety/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "停車距離、路面摩擦係數與保養檢查",
+          icon: "📋",
+          url: "topics/car-chassis-safety/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/car-chassis-safety/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "汽車的四個任務", url: "topics/car-chassis-safety/lesson-01.html" },
+            { title: "輪胎", url: "topics/car-chassis-safety/lesson-02.html" },
+            { title: "摩擦圓", url: "topics/car-chassis-safety/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜煞車",
+          courses: [
+            { title: "煞車的原理", url: "topics/car-chassis-safety/lesson-04.html" },
+            { title: "碟煞與鼓煞", url: "topics/car-chassis-safety/lesson-05.html" },
+            { title: "液壓系統與真空助力", url: "topics/car-chassis-safety/lesson-06.html" },
+            { title: "ABS", url: "topics/car-chassis-safety/lesson-07.html" },
+            { title: "煞車距離與反應時間", url: "topics/car-chassis-safety/lesson-08.html" },
+            { title: "回生制動與線控煞車", url: "topics/car-chassis-safety/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜懸吊",
+          courses: [
+            { title: "懸吊的任務", url: "topics/car-chassis-safety/lesson-10.html" },
+            { title: "彈簧與避震器", url: "topics/car-chassis-safety/lesson-11.html" },
+            { title: "懸吊的種類", url: "topics/car-chassis-safety/lesson-12.html" },
+            { title: "主動與空氣懸吊", url: "topics/car-chassis-safety/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜轉向與操控",
+          courses: [
+            { title: "轉向機構", url: "topics/car-chassis-safety/lesson-14.html" },
+            { title: "動力轉向與線控轉向", url: "topics/car-chassis-safety/lesson-15.html" },
+            { title: "轉向不足與轉向過度", url: "topics/car-chassis-safety/lesson-16.html" },
+            { title: "重心、側傾與翻車", url: "topics/car-chassis-safety/lesson-17.html" },
+            { title: "循跡控制與車身穩定系統", url: "topics/car-chassis-safety/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜被動安全",
+          courses: [
+            { title: "碰撞的物理", url: "topics/car-chassis-safety/lesson-19.html" },
+            { title: "潰縮區與安全車廂", url: "topics/car-chassis-safety/lesson-20.html" },
+            { title: "安全帶", url: "topics/car-chassis-safety/lesson-21.html" },
+            { title: "安全氣囊", url: "topics/car-chassis-safety/lesson-22.html" },
+            { title: "兒童安全座椅", url: "topics/car-chassis-safety/lesson-23.html" },
+            { title: "碰撞測試與星級評等", url: "topics/car-chassis-safety/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜主動安全與未來",
+          courses: [
+            { title: "ADAS", url: "topics/car-chassis-safety/lesson-25.html" },
+            { title: "行人保護與機車安全", url: "topics/car-chassis-safety/lesson-26.html" },
+            { title: "總結：一次緊急煞車的 2 秒", url: "topics/car-chassis-safety/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "phone-sensors",
+      category: "tech",
+      title: "手機裡的感測器：從加速度計到 Face ID 與 GPS",
+      description:
+        "感測器的共同架構與誤差、MEMS；加速度計、陀螺儀與科氏力、磁力計與校正、感測器融合與卡爾曼濾波、計步與跌倒偵測、氣壓計；環境光、近接感測、飛時測距與 LiDAR、Face ID 的結構光；電容式、光學式與超音波指紋、生物辨識的安全；MEMS 麥克風與波束成形、線性馬達與觸覺回饋；GPS 與相對論、多系統與雙頻定位、Wi-Fi 與藍牙定位、UWB 與室內定位；穿戴裝置的心率血氧與心電圖、感測器與隱私。附加速度計、陀螺儀漂移、感測器融合、指紋電容、GPS 定位五個互動模擬。",
+      icon: "📱",
+      url: "topics/phone-sensors/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "感測器的原理、用途與常見問題",
+          icon: "📋",
+          url: "topics/phone-sensors/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/phone-sensors/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "一支手機裡有幾個感測器", url: "topics/phone-sensors/lesson-01.html" },
+            { title: "從物理量到數字", url: "topics/phone-sensors/lesson-02.html" },
+            { title: "MEMS", url: "topics/phone-sensors/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜運動感測",
+          courses: [
+            { title: "加速度計", url: "topics/phone-sensors/lesson-04.html" },
+            { title: "陀螺儀", url: "topics/phone-sensors/lesson-05.html" },
+            { title: "磁力計", url: "topics/phone-sensors/lesson-06.html" },
+            { title: "感測器融合", url: "topics/phone-sensors/lesson-07.html" },
+            { title: "計步器與跌倒偵測", url: "topics/phone-sensors/lesson-08.html" },
+            { title: "氣壓計", url: "topics/phone-sensors/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光與距離",
+          courses: [
+            { title: "環境光感測器", url: "topics/phone-sensors/lesson-10.html" },
+            { title: "近接感測器", url: "topics/phone-sensors/lesson-11.html" },
+            { title: "飛時測距與 LiDAR", url: "topics/phone-sensors/lesson-12.html" },
+            { title: "Face ID", url: "topics/phone-sensors/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜生物辨識",
+          courses: [
+            { title: "電容式指紋辨識", url: "topics/phone-sensors/lesson-14.html" },
+            { title: "光學式螢幕下指紋", url: "topics/phone-sensors/lesson-15.html" },
+            { title: "超音波指紋", url: "topics/phone-sensors/lesson-16.html" },
+            { title: "生物辨識的安全", url: "topics/phone-sensors/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜聲音與觸覺",
+          courses: [
+            { title: "MEMS 麥克風與多麥克風降噪", url: "topics/phone-sensors/lesson-18.html" },
+            { title: "線性馬達與觸覺回饋", url: "topics/phone-sensors/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜定位",
+          courses: [
+            { title: "GPS 定位的原理", url: "topics/phone-sensors/lesson-20.html" },
+            { title: "更快、更準的衛星定位", url: "topics/phone-sensors/lesson-21.html" },
+            { title: "Wi-Fi、藍牙與基地台定位", url: "topics/phone-sensors/lesson-22.html" },
+            { title: "UWB 與室內定位", url: "topics/phone-sensors/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "穿戴裝置", url: "topics/phone-sensors/lesson-24.html" },
+            { title: "感測器與隱私", url: "topics/phone-sensors/lesson-25.html" },
+            { title: "課程總結", url: "topics/phone-sensors/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "fermentation",
+      category: "biomed",
+      title: "發酵與微生物：麵包、酒、醬油與腸道菌",
+      description:
+        "細菌、酵母與黴菌、巴斯德與酵素、生長曲線、發酵與呼吸；酒精發酵、麵包與麩質、啤酒與麥芽、葡萄酒、米酒清酒與並行複發酵、蒸餾與甲醇；優格、起司、泡菜與菌群演替、醋、康普茶；麴菌、醬油與鮮味、味噌與豆瓣醬、納豆臭豆腐與紅麴；腸道菌相、益生菌與益生元、抗生素與糞便菌叢移植；食物中毒與米酵菌酸事件、水活性與 pH 的保存原理、工業發酵與胰島素、精準發酵。附生長曲線、麵團發酵、酒精濃度、保存原理、優格 pH 五個互動模擬。",
+      icon: "🍞",
+      url: "topics/fermentation/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "發酵食品、微生物與保存的關鍵數字",
+          icon: "📋",
+          url: "topics/fermentation/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/fermentation/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "看不見的世界", url: "topics/fermentation/lesson-01.html" },
+            { title: "巴斯德與發酵的真相", url: "topics/fermentation/lesson-02.html" },
+            { title: "微生物怎麼生長", url: "topics/fermentation/lesson-03.html" },
+            { title: "發酵是什麼", url: "topics/fermentation/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜酵母",
+          courses: [
+            { title: "酒精發酵", url: "topics/fermentation/lesson-05.html" },
+            { title: "麵包", url: "topics/fermentation/lesson-06.html" },
+            { title: "啤酒", url: "topics/fermentation/lesson-07.html" },
+            { title: "葡萄酒", url: "topics/fermentation/lesson-08.html" },
+            { title: "米酒、清酒與紹興酒", url: "topics/fermentation/lesson-09.html" },
+            { title: "蒸餾", url: "topics/fermentation/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜乳酸菌與醋酸菌",
+          courses: [
+            { title: "優格與乳酸發酵", url: "topics/fermentation/lesson-11.html" },
+            { title: "起司", url: "topics/fermentation/lesson-12.html" },
+            { title: "泡菜與酸菜", url: "topics/fermentation/lesson-13.html" },
+            { title: "醋", url: "topics/fermentation/lesson-14.html" },
+            { title: "康普茶與發酵飲料", url: "topics/fermentation/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜黴菌與東亞發酵",
+          courses: [
+            { title: "麴菌", url: "topics/fermentation/lesson-16.html" },
+            { title: "醬油", url: "topics/fermentation/lesson-17.html" },
+            { title: "味噌與豆瓣醬", url: "topics/fermentation/lesson-18.html" },
+            { title: "納豆、臭豆腐與紅麴", url: "topics/fermentation/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜腸道與健康",
+          courses: [
+            { title: "腸道菌相", url: "topics/fermentation/lesson-20.html" },
+            { title: "益生菌與益生元", url: "topics/fermentation/lesson-21.html" },
+            { title: "抗生素與腸道菌", url: "topics/fermentation/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 F｜安全與產業",
+          courses: [
+            { title: "腐敗與食物中毒", url: "topics/fermentation/lesson-23.html" },
+            { title: "保存的原理", url: "topics/fermentation/lesson-24.html" },
+            { title: "工業發酵", url: "topics/fermentation/lesson-25.html" },
+            { title: "精準發酵與未來食品", url: "topics/fermentation/lesson-26.html" },
+            { title: "課程總結", url: "topics/fermentation/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "control-theory",
+      category: "tech",
+      title: "控制理論：回授是怎麼讓世界穩定的",
+      description:
+        "控制系統的元素、開迴路與閉迴路、正負回授、恆溫器與身體的恆定性、方塊圖與負回授放大器；一階與二階系統、階躍響應的指標、阻尼、延遲；比例、積分、微分控制、PID 調參與齊格勒—尼科爾斯法、積分飽和與 737 MAX 的教訓；不穩定、增益與相位、極點與根軌跡、調速器塔科馬吊橋與千禧橋；頻率響應、波德圖、相位與增益裕度；狀態空間與可控可觀性、前饋、LQR 與模型預測控制、數位控制；倒單擺平衡車與無人機、電網經濟與生態。附恆溫器、PID 調參、延遲、二階系統、倒單擺五個互動模擬。",
+      icon: "🎛️",
+      url: "topics/control-theory/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "PID、反應指標、阻尼與裕度",
+          icon: "📋",
+          url: "topics/control-theory/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/control-theory/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜回授無所不在",
+          courses: [
+            { title: "什麼是控制", url: "topics/control-theory/lesson-01.html" },
+            { title: "開迴路與閉迴路", url: "topics/control-theory/lesson-02.html" },
+            { title: "生活中的回授", url: "topics/control-theory/lesson-03.html" },
+            { title: "方塊圖", url: "topics/control-theory/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜動態系統",
+          courses: [
+            { title: "系統的反應", url: "topics/control-theory/lesson-05.html" },
+            { title: "時間常數、上升時間與超越量", url: "topics/control-theory/lesson-06.html" },
+            { title: "阻尼", url: "topics/control-theory/lesson-07.html" },
+            { title: "延遲", url: "topics/control-theory/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜PID 控制",
+          courses: [
+            { title: "比例控制", url: "topics/control-theory/lesson-09.html" },
+            { title: "積分控制", url: "topics/control-theory/lesson-10.html" },
+            { title: "微分控制", url: "topics/control-theory/lesson-11.html" },
+            { title: "PID 調參", url: "topics/control-theory/lesson-12.html" },
+            { title: "積分飽和與其他實務問題", url: "topics/control-theory/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜穩定性",
+          courses: [
+            { title: "什麼是不穩定", url: "topics/control-theory/lesson-14.html" },
+            { title: "增益太大的代價", url: "topics/control-theory/lesson-15.html" },
+            { title: "極點與穩定性", url: "topics/control-theory/lesson-16.html" },
+            { title: "案例：回授的失敗", url: "topics/control-theory/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜頻率的觀點",
+          courses: [
+            { title: "頻率響應", url: "topics/control-theory/lesson-18.html" },
+            { title: "波德圖", url: "topics/control-theory/lesson-19.html" },
+            { title: "相位裕度與增益裕度", url: "topics/control-theory/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 F｜進階",
+          courses: [
+            { title: "狀態空間", url: "topics/control-theory/lesson-21.html" },
+            { title: "前饋控制", url: "topics/control-theory/lesson-22.html" },
+            { title: "最佳控制與 MPC 入門", url: "topics/control-theory/lesson-23.html" },
+            { title: "數位控制與取樣", url: "topics/control-theory/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 G｜應用與總結",
+          courses: [
+            { title: "案例：倒單擺、平衡車與無人機", url: "topics/control-theory/lesson-25.html" },
+            { title: "案例：電網、經濟與生態", url: "topics/control-theory/lesson-26.html" },
+            { title: "課程總結", url: "topics/control-theory/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
