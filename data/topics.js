@@ -35052,6 +35052,322 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cell-energy",
+      category: "science",
+      title: "細胞與能量：生命的化學機器",
+      description:
+        "細胞的發現與細胞學說、原核與真核、胞器、細胞膜、擴散滲透與鈉鉀幫浦；水、醣類與脂質、蛋白質摺疊與 AlphaFold、酵素與米氏動力學、中心法則；ATP、糖解作用、檸檬酸循環、電子傳遞鏈與 ATP 合成酶、乳酸與發酵、β 氧化與酮體、內共生學說；光反應、卡爾文循環與 RuBisCO、C4 與 CAM 植物、地球的能量流；細胞骨架與分子馬達、細胞訊號、細胞週期與有絲分裂、減數分裂、細胞凋亡。附滲透、酵素速率、ATP 收支、光合作用速率、細胞週期五個互動模擬。",
+      icon: "🧫",
+      url: "topics/cell-energy/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "胞器、分子、能量收支與關鍵數字",
+          icon: "📋",
+          url: "topics/cell-energy/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/cell-energy/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜細胞",
+          courses: [
+            { title: "細胞的發現", url: "topics/cell-energy/lesson-01.html" },
+            { title: "原核與真核", url: "topics/cell-energy/lesson-02.html" },
+            { title: "胞器導覽", url: "topics/cell-energy/lesson-03.html" },
+            { title: "細胞膜", url: "topics/cell-energy/lesson-04.html" },
+            { title: "物質進出細胞", url: "topics/cell-energy/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜生命的分子",
+          courses: [
+            { title: "水", url: "topics/cell-energy/lesson-06.html" },
+            { title: "醣類與脂質", url: "topics/cell-energy/lesson-07.html" },
+            { title: "蛋白質", url: "topics/cell-energy/lesson-08.html" },
+            { title: "酵素", url: "topics/cell-energy/lesson-09.html" },
+            { title: "核酸與中心法則", url: "topics/cell-energy/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜能量",
+          courses: [
+            { title: "ATP", url: "topics/cell-energy/lesson-11.html" },
+            { title: "糖解作用", url: "topics/cell-energy/lesson-12.html" },
+            { title: "檸檬酸循環", url: "topics/cell-energy/lesson-13.html" },
+            { title: "電子傳遞鏈與 ATP 合成酶", url: "topics/cell-energy/lesson-14.html" },
+            { title: "沒有氧氣的時候", url: "topics/cell-energy/lesson-15.html" },
+            { title: "其他的燃料", url: "topics/cell-energy/lesson-16.html" },
+            { title: "粒線體的起源", url: "topics/cell-energy/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜光合作用",
+          courses: [
+            { title: "葉綠體與光反應", url: "topics/cell-energy/lesson-18.html" },
+            { title: "卡爾文循環", url: "topics/cell-energy/lesson-19.html" },
+            { title: "C4 與 CAM 植物", url: "topics/cell-energy/lesson-20.html" },
+            { title: "地球的能量流", url: "topics/cell-energy/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜細胞的生與死",
+          courses: [
+            { title: "細胞骨架與分子馬達", url: "topics/cell-energy/lesson-22.html" },
+            { title: "細胞訊號", url: "topics/cell-energy/lesson-23.html" },
+            { title: "細胞週期與有絲分裂", url: "topics/cell-energy/lesson-24.html" },
+            { title: "減數分裂", url: "topics/cell-energy/lesson-25.html" },
+            { title: "細胞凋亡", url: "topics/cell-energy/lesson-26.html" },
+            { title: "課程總結", url: "topics/cell-energy/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "developmental-biology",
+      category: "science",
+      title: "發育生物學：一個受精卵怎麼變成一個人",
+      description:
+        "預成論與漸成論、基因表現與表觀遺傳、模式生物；受精、卵裂與囊胚、原腸形成與三胚層、誘導與組織者、神經管與葉酸；形態發生素與法國國旗模型、果蠅分節、Hox 基因、左右不對稱、四肢與手指、心臟與眼睛；人類發育時間表、胎盤、SRY 與性別、致畸因子與沙利竇邁；幹細胞、胚胎幹細胞倫理、iPS 細胞、再生、類器官；演化發育生物學與老化。附形態發生素梯度、果蠅分節、Hox 突變、胚胎時間軸、細胞分化樹五個互動模擬。",
+      icon: "🥚",
+      url: "topics/developmental-biology/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "胚層、時間表、關鍵基因與幹細胞",
+          icon: "📋",
+          url: "topics/developmental-biology/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/developmental-biology/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基本問題",
+          courses: [
+            { title: "發育生物學在問什麼", url: "topics/developmental-biology/lesson-01.html" },
+            { title: "同樣的 DNA，不同的細胞", url: "topics/developmental-biology/lesson-02.html" },
+            { title: "模式生物", url: "topics/developmental-biology/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜早期胚胎",
+          courses: [
+            { title: "受精", url: "topics/developmental-biology/lesson-04.html" },
+            { title: "卵裂與囊胚", url: "topics/developmental-biology/lesson-05.html" },
+            { title: "原腸形成", url: "topics/developmental-biology/lesson-06.html" },
+            { title: "胚層的命運", url: "topics/developmental-biology/lesson-07.html" },
+            { title: "神經管", url: "topics/developmental-biology/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜身體的藍圖",
+          courses: [
+            { title: "形態發生素", url: "topics/developmental-biology/lesson-09.html" },
+            { title: "果蠅的分節", url: "topics/developmental-biology/lesson-10.html" },
+            { title: "Hox 基因", url: "topics/developmental-biology/lesson-11.html" },
+            { title: "左右不對稱", url: "topics/developmental-biology/lesson-12.html" },
+            { title: "四肢的發育", url: "topics/developmental-biology/lesson-13.html" },
+            { title: "器官的形成", url: "topics/developmental-biology/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人類的發育",
+          courses: [
+            { title: "人類胚胎發育時間表", url: "topics/developmental-biology/lesson-15.html" },
+            { title: "胎盤與胎兒", url: "topics/developmental-biology/lesson-16.html" },
+            { title: "性別的決定", url: "topics/developmental-biology/lesson-17.html" },
+            { title: "致畸因子與關鍵期", url: "topics/developmental-biology/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜幹細胞與再生",
+          courses: [
+            { title: "幹細胞", url: "topics/developmental-biology/lesson-19.html" },
+            { title: "胚胎幹細胞", url: "topics/developmental-biology/lesson-20.html" },
+            { title: "iPS 細胞", url: "topics/developmental-biology/lesson-21.html" },
+            { title: "再生", url: "topics/developmental-biology/lesson-22.html" },
+            { title: "類器官與再生醫學", url: "topics/developmental-biology/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜發育與演化",
+          courses: [
+            { title: "演化發育生物學", url: "topics/developmental-biology/lesson-24.html" },
+            { title: "總結", url: "topics/developmental-biology/lesson-25.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "nuclear-physics",
+      category: "science",
+      title: "核物理與放射性：原子核的世界",
+      description:
+        "拉塞福散射、質子中子與同位素、原子核的大小與密度、強核力與湯川介子、質量虧損與結合能曲線、穩定帶與魔數；居禮夫婦、α 衰變與量子穿隧、β 衰變與微中子、γ 射線與鎝-99m、衰變鏈與氡氣、半衰期；碳 14 定年、地球的年齡、游離輻射與屏蔽、西弗與背景輻射、確定效應與機率效應、偵測器；核分裂、核融合、恆星核合成與金的起源、超重元素與穩定島；核醫學與質子治療、工業應用、車諾比福島與輻射屋。附結合能曲線、核素圖、半衰期與定年、穿透力、輻射劑量五個互動模擬。",
+      icon: "☢️",
+      url: "topics/nuclear-physics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "衰變、同位素、劑量與關鍵數字",
+          icon: "📋",
+          url: "topics/nuclear-physics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/nuclear-physics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜原子核",
+          courses: [
+            { title: "發現原子核", url: "topics/nuclear-physics/lesson-01.html" },
+            { title: "質子、中子與同位素", url: "topics/nuclear-physics/lesson-02.html" },
+            { title: "原子核有多大、多密", url: "topics/nuclear-physics/lesson-03.html" },
+            { title: "強核力", url: "topics/nuclear-physics/lesson-04.html" },
+            { title: "質量虧損與結合能", url: "topics/nuclear-physics/lesson-05.html" },
+            { title: "結合能曲線", url: "topics/nuclear-physics/lesson-06.html" },
+            { title: "穩定核與核素圖", url: "topics/nuclear-physics/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜放射性衰變",
+          courses: [
+            { title: "放射性的發現", url: "topics/nuclear-physics/lesson-08.html" },
+            { title: "α 衰變", url: "topics/nuclear-physics/lesson-09.html" },
+            { title: "β 衰變與微中子", url: "topics/nuclear-physics/lesson-10.html" },
+            { title: "γ 射線", url: "topics/nuclear-physics/lesson-11.html" },
+            { title: "衰變鏈", url: "topics/nuclear-physics/lesson-12.html" },
+            { title: "半衰期", url: "topics/nuclear-physics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜定年、輻射與健康",
+          courses: [
+            { title: "碳 14 定年", url: "topics/nuclear-physics/lesson-14.html" },
+            { title: "更古老的時鐘", url: "topics/nuclear-physics/lesson-15.html" },
+            { title: "輻射與物質", url: "topics/nuclear-physics/lesson-16.html" },
+            { title: "輻射劑量", url: "topics/nuclear-physics/lesson-17.html" },
+            { title: "輻射對人體的影響", url: "topics/nuclear-physics/lesson-18.html" },
+            { title: "偵測輻射", url: "topics/nuclear-physics/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜核反應與元素的起源",
+          courses: [
+            { title: "核分裂與連鎖反應", url: "topics/nuclear-physics/lesson-20.html" },
+            { title: "核融合與恆星", url: "topics/nuclear-physics/lesson-21.html" },
+            { title: "恆星核合成", url: "topics/nuclear-physics/lesson-22.html" },
+            { title: "超重元素", url: "topics/nuclear-physics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "核醫學", url: "topics/nuclear-physics/lesson-24.html" },
+            { title: "工業、太空與考古", url: "topics/nuclear-physics/lesson-25.html" },
+            { title: "事故與迷思", url: "topics/nuclear-physics/lesson-26.html" },
+            { title: "課程總結", url: "topics/nuclear-physics/lesson-27.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "solar-system",
+      category: "science",
+      title: "太陽系：行星科學",
+      description:
+        "地心說到日心說與克卜勒定律、太陽系的規模、星雲假說、雪線、大遷移與尼斯模型；太陽的結構、黑子閃焰與太陽風、太陽週期與太空天氣；水星、金星的失控溫室效應、地球的適居條件、月球的巨大撞擊與潮汐、火星與火星探測；木星、伽利略衛星與潮汐加熱、土星與環、土衛二冰噴泉與土衛六甲烷湖、天王星與海王星；小行星帶與樣本取回、彗星與歐特雲、古柏帶與冥王星降級、撞擊與 DART；航海家號、尋找地外生命、第九行星。附克卜勒定律、比例尺、行星溫度、重力與一天、小行星撞擊五個互動模擬。",
+      icon: "🪐",
+      url: "topics/solar-system/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "行星數據、重要任務與關鍵數字",
+          icon: "📋",
+          url: "topics/solar-system/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動模擬",
+          icon: "🧪",
+          url: "topics/solar-system/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜太陽系的誕生",
+          courses: [
+            { title: "從地心說到日心說", url: "topics/solar-system/lesson-01.html" },
+            { title: "太陽系的規模", url: "topics/solar-system/lesson-02.html" },
+            { title: "星雲假說", url: "topics/solar-system/lesson-03.html" },
+            { title: "雪線", url: "topics/solar-system/lesson-04.html" },
+            { title: "行星的遷移", url: "topics/solar-system/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜太陽",
+          courses: [
+            { title: "太陽的結構與能量", url: "topics/solar-system/lesson-06.html" },
+            { title: "太陽活動", url: "topics/solar-system/lesson-07.html" },
+            { title: "太陽週期與太空天氣", url: "topics/solar-system/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜類地行星",
+          courses: [
+            { title: "水星", url: "topics/solar-system/lesson-09.html" },
+            { title: "金星", url: "topics/solar-system/lesson-10.html" },
+            { title: "地球", url: "topics/solar-system/lesson-11.html" },
+            { title: "月球", url: "topics/solar-system/lesson-12.html" },
+            { title: "火星", url: "topics/solar-system/lesson-13.html" },
+            { title: "火星探測", url: "topics/solar-system/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜巨行星",
+          courses: [
+            { title: "木星", url: "topics/solar-system/lesson-15.html" },
+            { title: "伽利略衛星", url: "topics/solar-system/lesson-16.html" },
+            { title: "土星與它的環", url: "topics/solar-system/lesson-17.html" },
+            { title: "土衛二與土衛六", url: "topics/solar-system/lesson-18.html" },
+            { title: "天王星與海王星", url: "topics/solar-system/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜小天體",
+          courses: [
+            { title: "小行星帶", url: "topics/solar-system/lesson-20.html" },
+            { title: "彗星與歐特雲", url: "topics/solar-system/lesson-21.html" },
+            { title: "古柏帶與冥王星", url: "topics/solar-system/lesson-22.html" },
+            { title: "撞擊", url: "topics/solar-system/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜探索",
+          courses: [
+            { title: "航海家號", url: "topics/solar-system/lesson-24.html" },
+            { title: "尋找地外生命", url: "topics/solar-system/lesson-25.html" },
+            { title: "第九行星之謎", url: "topics/solar-system/lesson-26.html" },
+            { title: "課程總結", url: "topics/solar-system/lesson-27.html" },
+          ],
+        },
+      ],
     }
   ]
 };
