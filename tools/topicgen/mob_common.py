@@ -3,7 +3,7 @@
 from nv_common import *
 from sysw_common import sw, M, SEQ
 
-lesson = nv_lesson(u"📱")
+lesson = nv_lesson(u"📱", NOTE_SYS)
 
 
 def X(tid, name, text=None):

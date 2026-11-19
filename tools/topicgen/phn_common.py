@@ -5,7 +5,7 @@ from nv_common import *
 from cc_common import wdg
 from qt_common import BASEJS
 
-lesson = nv_lesson(u"☎️")
+lesson = nv_lesson(u"☎️", NOTE_SYS)
 
 
 def X(tid, name, text=None):
