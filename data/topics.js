@@ -35368,6 +35368,428 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "aoe2-campaigns",
+      category: "games",
+      title: "世紀帝國二戰役全紀錄：從華勒斯到維京傳奇",
+      description:
+        "原版華勒斯、貞德、薩拉丁、成吉思汗、巴巴羅薩；征服者的阿提拉、熙德、蒙特蘇馬與征服者之戰；被遺忘的帝國、非洲王國、王公崛起；決定版的最後的可汗、西方霸主、公爵崛起、印度王朝、重返羅馬、山嶺王國、勝者與敗者、編年史：希臘之戰、三國、編年史：亞歷山大大帝、最後的酋長與維京傳奇。每個戰役的歷史背景、關卡流程、攻略重點與史實改編（含完整劇透）。附歷史年表與戰役總表。",
+      icon: "🏰",
+      url: "topics/aoe2-campaigns/index.html",
+      resources: [
+        {
+          title: "戰役圖鑑",
+          description: "所有戰役的歷史年表與總表",
+          icon: "📜",
+          url: "topics/aoe2-campaigns/atlas.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總論",
+          courses: [
+            { title: "戰役模式的演變", url: "topics/aoe2-campaigns/lesson-01.html" },
+          ],
+        },
+        {
+          title: "模組 B｜原版：帝王世紀（1999）",
+          courses: [
+            { title: "威廉·華勒斯", url: "topics/aoe2-campaigns/lesson-02.html" },
+            { title: "聖女貞德", url: "topics/aoe2-campaigns/lesson-03.html" },
+            { title: "薩拉丁", url: "topics/aoe2-campaigns/lesson-04.html" },
+            { title: "成吉思汗", url: "topics/aoe2-campaigns/lesson-05.html" },
+            { title: "巴巴羅薩", url: "topics/aoe2-campaigns/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 C｜征服者（2000）",
+          courses: [
+            { title: "匈人王阿提拉", url: "topics/aoe2-campaigns/lesson-07.html" },
+            { title: "熙德", url: "topics/aoe2-campaigns/lesson-08.html" },
+            { title: "蒙特蘇馬", url: "topics/aoe2-campaigns/lesson-09.html" },
+            { title: "征服者之戰", url: "topics/aoe2-campaigns/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 D｜被遺忘的帝國",
+          courses: [
+            { title: "阿拉里克一世", url: "topics/aoe2-campaigns/lesson-11.html" },
+            { title: "斯福爾扎", url: "topics/aoe2-campaigns/lesson-12.html" },
+            { title: "巴里", url: "topics/aoe2-campaigns/lesson-13.html" },
+            { title: "德古拉", url: "topics/aoe2-campaigns/lesson-14.html" },
+            { title: "普里特維拉傑", url: "topics/aoe2-campaigns/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 E｜非洲王國",
+          courses: [
+            { title: "塔里克·伊本·齊亞德", url: "topics/aoe2-campaigns/lesson-16.html" },
+            { title: "松迪亞塔", url: "topics/aoe2-campaigns/lesson-17.html" },
+            { title: "阿爾梅達", url: "topics/aoe2-campaigns/lesson-18.html" },
+            { title: "尤迪特", url: "topics/aoe2-campaigns/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜王公崛起",
+          courses: [
+            { title: "加查馬達", url: "topics/aoe2-campaigns/lesson-20.html" },
+            { title: "蘇利耶跋摩一世", url: "topics/aoe2-campaigns/lesson-21.html" },
+            { title: "莽應龍與黎利", url: "topics/aoe2-campaigns/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 G｜最後的可汗（決定版）",
+          courses: [
+            { title: "帕查庫特克", url: "topics/aoe2-campaigns/lesson-23.html" },
+            { title: "伊瓦伊洛", url: "topics/aoe2-campaigns/lesson-24.html" },
+            { title: "帖木兒", url: "topics/aoe2-campaigns/lesson-25.html" },
+            { title: "柯坦可汗", url: "topics/aoe2-campaigns/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 H｜西方霸主（2021）",
+          courses: [
+            { title: "愛德華一世「長腿」", url: "topics/aoe2-campaigns/lesson-27.html" },
+            { title: "勃艮第公爵", url: "topics/aoe2-campaigns/lesson-28.html" },
+            { title: "歐特維爾家族", url: "topics/aoe2-campaigns/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 I｜公爵崛起（2021）",
+          courses: [
+            { title: "雅德維加", url: "topics/aoe2-campaigns/lesson-30.html" },
+            { title: "楊·傑式卡", url: "topics/aoe2-campaigns/lesson-31.html" },
+            { title: "阿爾吉爾達斯與凱斯圖蒂斯", url: "topics/aoe2-campaigns/lesson-32.html" },
+          ],
+        },
+        {
+          title: "模組 J｜印度王朝（2022）",
+          courses: [
+            { title: "巴布爾", url: "topics/aoe2-campaigns/lesson-33.html" },
+            { title: "拉金德拉", url: "topics/aoe2-campaigns/lesson-34.html" },
+            { title: "提婆波羅", url: "topics/aoe2-campaigns/lesson-35.html" },
+          ],
+        },
+        {
+          title: "模組 K｜重返羅馬（2023）",
+          courses: [
+            { title: "古代近東與埃及", url: "topics/aoe2-campaigns/lesson-36.html" },
+            { title: "希臘與羅馬", url: "topics/aoe2-campaigns/lesson-37.html" },
+          ],
+        },
+        {
+          title: "模組 L｜山嶺王國（2023）",
+          courses: [
+            { title: "塔瑪爾女王", url: "topics/aoe2-campaigns/lesson-38.html" },
+            { title: "托羅斯大帝", url: "topics/aoe2-campaigns/lesson-39.html" },
+            { title: "伊斯瑪儀", url: "topics/aoe2-campaigns/lesson-40.html" },
+          ],
+        },
+        {
+          title: "模組 M｜勝者與敗者（2024）",
+          courses: [
+            { title: "勝者與敗者（上）", url: "topics/aoe2-campaigns/lesson-41.html" },
+            { title: "勝者與敗者（下）", url: "topics/aoe2-campaigns/lesson-42.html" },
+          ],
+        },
+        {
+          title: "模組 N｜編年史：希臘之戰（2024）",
+          courses: [
+            { title: "伊奧尼亞起義與波希戰爭", url: "topics/aoe2-campaigns/lesson-43.html" },
+            { title: "伯羅奔尼撒戰爭", url: "topics/aoe2-campaigns/lesson-44.html" },
+          ],
+        },
+        {
+          title: "模組 O｜三國（2025）",
+          courses: [
+            { title: "劉備", url: "topics/aoe2-campaigns/lesson-45.html" },
+            { title: "曹操", url: "topics/aoe2-campaigns/lesson-46.html" },
+            { title: "孫氏一族", url: "topics/aoe2-campaigns/lesson-47.html" },
+          ],
+        },
+        {
+          title: "模組 P｜編年史：亞歷山大大帝（2025）",
+          courses: [
+            { title: "從馬其頓到高加米拉", url: "topics/aoe2-campaigns/lesson-48.html" },
+            { title: "東征印度", url: "topics/aoe2-campaigns/lesson-49.html" },
+          ],
+        },
+        {
+          title: "模組 Q｜最後的酋長（2026）",
+          courses: [
+            { title: "勞塔羅", url: "topics/aoe2-campaigns/lesson-50.html" },
+            { title: "帕坎奇克：黃金國", url: "topics/aoe2-campaigns/lesson-51.html" },
+            { title: "阿拉里博亞", url: "topics/aoe2-campaigns/lesson-52.html" },
+          ],
+        },
+        {
+          title: "模組 R｜維京傳奇（2026）",
+          courses: [
+            { title: "哈拉爾·哈德拉達", url: "topics/aoe2-campaigns/lesson-53.html" },
+          ],
+        },
+        {
+          title: "模組 S｜總結",
+          courses: [
+            { title: "戰役中的歷史改編", url: "topics/aoe2-campaigns/lesson-54.html" },
+            { title: "總結", url: "topics/aoe2-campaigns/lesson-55.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "red-alert-saga",
+      category: "games",
+      title: "紅色警戒全劇情：一代、二代、三代與資料片",
+      description:
+        "終極動員令的兩條世界線、愛因斯坦刪除希特勒；紅警 1 盟軍與蘇聯戰役、史達林之死與凱恩現身、反擊戰、餘波、巨蟻任務、Retaliation 與重製版；紅警 2 的蘇聯入侵美國、心靈信標、超時空傳送莫斯科、艾菲爾鐵塔線圈與尤里的背叛；尤里的復仇兩條時光機戰役；紅警 3 刪除愛因斯坦、旭日帝國與三方結局；起義時刻的未來科技與百合子；真人過場影片的文化（含完整劇透）。附時間線與人物關係圖。",
+      icon: "☭",
+      url: "topics/red-alert-saga/index.html",
+      resources: [
+        {
+          title: "紅色警戒圖鑑",
+          description: "時間線與人物關係圖",
+          icon: "📜",
+          url: "topics/red-alert-saga/atlas.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜系列總覽",
+          courses: [
+            { title: "終極動員令的兩條世界線", url: "topics/red-alert-saga/lesson-01.html" },
+            { title: "愛因斯坦的握手", url: "topics/red-alert-saga/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜紅色警戒 1（1996）",
+          courses: [
+            { title: "時代背景", url: "topics/red-alert-saga/lesson-03.html" },
+            { title: "盟軍戰役（上）", url: "topics/red-alert-saga/lesson-04.html" },
+            { title: "盟軍戰役（下）", url: "topics/red-alert-saga/lesson-05.html" },
+            { title: "蘇聯戰役（上）", url: "topics/red-alert-saga/lesson-06.html" },
+            { title: "蘇聯戰役（下）", url: "topics/red-alert-saga/lesson-07.html" },
+            { title: "兩種結局，哪一個是正史", url: "topics/red-alert-saga/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜紅警 1 的資料片",
+          courses: [
+            { title: "反擊戰", url: "topics/red-alert-saga/lesson-09.html" },
+            { title: "餘波", url: "topics/red-alert-saga/lesson-10.html" },
+            { title: "巨蟻、主機版與重製版", url: "topics/red-alert-saga/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜紅色警戒 2（2000）",
+          courses: [
+            { title: "時代背景", url: "topics/red-alert-saga/lesson-12.html" },
+            { title: "盟軍戰役（上）", url: "topics/red-alert-saga/lesson-13.html" },
+            { title: "盟軍戰役（下）", url: "topics/red-alert-saga/lesson-14.html" },
+            { title: "蘇聯戰役（上）", url: "topics/red-alert-saga/lesson-15.html" },
+            { title: "蘇聯戰役（下）", url: "topics/red-alert-saga/lesson-16.html" },
+            { title: "單位與文化", url: "topics/red-alert-saga/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜尤里的復仇（2001）",
+          courses: [
+            { title: "尤里的陰謀", url: "topics/red-alert-saga/lesson-18.html" },
+            { title: "盟軍戰役", url: "topics/red-alert-saga/lesson-19.html" },
+            { title: "蘇聯戰役", url: "topics/red-alert-saga/lesson-20.html" },
+            { title: "尤里這個角色", url: "topics/red-alert-saga/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 F｜紅色警戒 3（2008）",
+          courses: [
+            { title: "新的時間線", url: "topics/red-alert-saga/lesson-22.html" },
+            { title: "盟軍戰役", url: "topics/red-alert-saga/lesson-23.html" },
+            { title: "蘇聯戰役", url: "topics/red-alert-saga/lesson-24.html" },
+            { title: "旭日帝國戰役", url: "topics/red-alert-saga/lesson-25.html" },
+            { title: "三方結局", url: "topics/red-alert-saga/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜起義時刻（2009）",
+          courses: [
+            { title: "三段短戰役", url: "topics/red-alert-saga/lesson-27.html" },
+            { title: "百合子", url: "topics/red-alert-saga/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 H｜總結",
+          courses: [
+            { title: "時間線與真人影片的文化", url: "topics/red-alert-saga/lesson-29.html" },
+            { title: "總結", url: "topics/red-alert-saga/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "tiberian-saga",
+      category: "games",
+      title: "泰伯倫系列全劇情：從終極動員令到泰伯倫黃昏",
+      description:
+        "泰伯倫、GDI、Nod 兄弟會與凱恩；終極動員令的第一次泰伯倫戰爭、賽斯之死、離子炮與隱密行動的恐龍任務；叛逆者的哈沃克；泰伯倫之日的 2030 年、麥克尼爾與斯拉維克、被遺忘者與塔西佗斯；烈焰風暴的 CABAL；泰伯倫戰爭的藍黃紅區、離子炮悲劇與斯克林；凱恩之怒的 LEGION 與馬西昂；泰伯倫黃昏的控制網路與凱恩的飛昇；喬·庫坎與兩條世界線（含完整劇透）。附時間軸與人物關係圖。",
+      icon: "☢️",
+      url: "topics/tiberian-saga/index.html",
+      resources: [
+        {
+          title: "泰伯倫圖鑑",
+          description: "時間軸與人物關係圖",
+          icon: "📜",
+          url: "topics/tiberian-saga/atlas.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總覽",
+          courses: [
+            { title: "泰伯倫世界線", url: "topics/tiberian-saga/lesson-01.html" },
+            { title: "凱恩", url: "topics/tiberian-saga/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜終極動員令（1995）",
+          courses: [
+            { title: "泰伯倫降臨", url: "topics/tiberian-saga/lesson-03.html" },
+            { title: "GDI 戰役", url: "topics/tiberian-saga/lesson-04.html" },
+            { title: "Nod 戰役", url: "topics/tiberian-saga/lesson-05.html" },
+            { title: "隱密行動", url: "topics/tiberian-saga/lesson-06.html" },
+            { title: "兩種結局與正史", url: "topics/tiberian-saga/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜叛逆者（2002）",
+          courses: [
+            { title: "突擊隊員哈沃克", url: "topics/tiberian-saga/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 D｜泰伯倫之日（1999）",
+          courses: [
+            { title: "時代背景", url: "topics/tiberian-saga/lesson-09.html" },
+            { title: "GDI 戰役", url: "topics/tiberian-saga/lesson-10.html" },
+            { title: "Nod 戰役", url: "topics/tiberian-saga/lesson-11.html" },
+            { title: "被遺忘者與塔西佗斯", url: "topics/tiberian-saga/lesson-12.html" },
+            { title: "結局與正史", url: "topics/tiberian-saga/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 E｜烈焰風暴（2000）",
+          courses: [
+            { title: "GDI 戰役", url: "topics/tiberian-saga/lesson-14.html" },
+            { title: "Nod 戰役", url: "topics/tiberian-saga/lesson-15.html" },
+            { title: "CABAL 的背叛", url: "topics/tiberian-saga/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 F｜泰伯倫戰爭（2007）",
+          courses: [
+            { title: "時代背景", url: "topics/tiberian-saga/lesson-17.html" },
+            { title: "GDI 戰役", url: "topics/tiberian-saga/lesson-18.html" },
+            { title: "Nod 戰役", url: "topics/tiberian-saga/lesson-19.html" },
+            { title: "斯克林", url: "topics/tiberian-saga/lesson-20.html" },
+            { title: "結局與謎團", url: "topics/tiberian-saga/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 G｜凱恩之怒（2008）",
+          courses: [
+            { title: "Nod 的秘史", url: "topics/tiberian-saga/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 H｜泰伯倫黃昏（2010）",
+          courses: [
+            { title: "時代背景", url: "topics/tiberian-saga/lesson-23.html" },
+            { title: "GDI 與 Nod 戰役", url: "topics/tiberian-saga/lesson-24.html" },
+            { title: "結局", url: "topics/tiberian-saga/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 I｜總結",
+          courses: [
+            { title: "凱恩與喬·庫坎", url: "topics/tiberian-saga/lesson-26.html" },
+            { title: "兩條世界線", url: "topics/tiberian-saga/lesson-27.html" },
+            { title: "總結", url: "topics/tiberian-saga/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "dune-games",
+      category: "games",
+      title: "沙丘魔堡系列遊戲全劇情：從 1992 到沙丘：覺醒",
+      description:
+        "Cryo 的沙丘（1992）冒險策略與綠化路線；沙丘魔堡 II 的皇帝比賽、三大家族、門塔特與即時戰略的誕生；沙丘魔堡 2000 的真人過場與伊萊拉夫人；沙丘帝王的刺客之戰、亞崔迪、哈肯能、歐鐸斯戰役、附庸勢力與皇帝蠕蟲；法蘭克·赫伯特之沙丘與 Cryo 破產；香料戰爭的七大勢力；沙丘：覺醒的平行時間線；遊戲與原著的差異與取消的作品（含完整劇透）。附遊戲年表與勢力圖鑑。",
+      icon: "🏜️",
+      url: "topics/dune-games/index.html",
+      resources: [
+        {
+          title: "沙丘遊戲圖鑑",
+          description: "遊戲年表與勢力圖鑑",
+          icon: "📜",
+          url: "topics/dune-games/atlas.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜總覽",
+          courses: [
+            { title: "沙丘遊戲的四十年", url: "topics/dune-games/lesson-01.html" },
+            { title: "遊戲與原著的差異", url: "topics/dune-games/lesson-02.html" },
+          ],
+        },
+        {
+          title: "模組 B｜沙丘（1992，Cryo）",
+          courses: [
+            { title: "沙丘（Cryo）", url: "topics/dune-games/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 C｜沙丘魔堡 II（1992）",
+          courses: [
+            { title: "皇帝的比賽", url: "topics/dune-games/lesson-04.html" },
+            { title: "三大家族的戰役", url: "topics/dune-games/lesson-05.html" },
+            { title: "即時戰略的始祖", url: "topics/dune-games/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 D｜沙丘魔堡 2000（1998）",
+          courses: [
+            { title: "真人過場與伊萊拉夫人", url: "topics/dune-games/lesson-07.html" },
+            { title: "三大家族的戰役", url: "topics/dune-games/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 E｜沙丘帝王（2001）",
+          courses: [
+            { title: "皇帝之死", url: "topics/dune-games/lesson-09.html" },
+            { title: "亞崔迪戰役", url: "topics/dune-games/lesson-10.html" },
+            { title: "哈肯能戰役", url: "topics/dune-games/lesson-11.html" },
+            { title: "歐鐸斯戰役", url: "topics/dune-games/lesson-12.html" },
+            { title: "附庸勢力與皇帝蠕蟲", url: "topics/dune-games/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 F｜其他改編",
+          courses: [
+            { title: "法蘭克·赫伯特之沙丘", url: "topics/dune-games/lesson-14.html" },
+            { title: "沙丘：香料戰爭", url: "topics/dune-games/lesson-15.html" },
+            { title: "沙丘：覺醒", url: "topics/dune-games/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 G｜總結",
+          courses: [
+            { title: "取消的作品與其他", url: "topics/dune-games/lesson-17.html" },
+            { title: "總結", url: "topics/dune-games/lesson-18.html" },
+          ],
+        },
+      ],
     }
   ]
 };
