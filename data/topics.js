@@ -35790,6 +35790,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "leverage-art",
+      category: "invest",
+      title: "開槓的藝術：股市槓桿的原理、工具與加減碼紀律",
+      description:
+        "槓桿的數學、波動拖累、最大回撤、凱利公式與斷頭的本質；融資、股票質押、正 2 槓桿型 ETF、台指期與微台、選擇權、美股保證金與三倍 ETF、信貸與房貸增貸的比較；用估值、跌幅、情緒、總經訊號判斷低點，用過熱訊號、均線、獲利目標判斷高點；槓桿階梯、波動率目標法、回撤控制、再平衡、壓力測試與投資心理；2000、2008、2020、2022 的回顧。附波動拖累、斷頭價、凱利、跌幅階梯、波動率目標、情境回測六個互動模擬（僅供教育，不構成投資建議）。",
+      icon: "⚖️",
+      url: "topics/leverage-art/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "工具比較、檔位範例與檢查清單",
+          icon: "📋",
+          url: "topics/leverage-art/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的六個互動模擬",
+          icon: "🧪",
+          url: "topics/leverage-art/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜槓桿的本質",
+          courses: [
+            { title: "槓桿是什麼", url: "topics/leverage-art/lesson-01.html" },
+            { title: "槓桿的數學", url: "topics/leverage-art/lesson-02.html" },
+            { title: "最大回撤", url: "topics/leverage-art/lesson-03.html" },
+            { title: "凱利公式與最適槓桿", url: "topics/leverage-art/lesson-04.html" },
+            { title: "斷頭的本質", url: "topics/leverage-art/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜槓桿的工具",
+          courses: [
+            { title: "融資融券", url: "topics/leverage-art/lesson-06.html" },
+            { title: "股票質押", url: "topics/leverage-art/lesson-07.html" },
+            { title: "槓桿型 ETF", url: "topics/leverage-art/lesson-08.html" },
+            { title: "期貨與微型台指期", url: "topics/leverage-art/lesson-09.html" },
+            { title: "選擇權當槓桿", url: "topics/leverage-art/lesson-10.html" },
+            { title: "美股的槓桿", url: "topics/leverage-art/lesson-11.html" },
+            { title: "信貸、房貸增貸與成本總比較", url: "topics/leverage-art/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜什麼時候是「低點」",
+          courses: [
+            { title: "為什麼抓不到最低點", url: "topics/leverage-art/lesson-13.html" },
+            { title: "估值訊號", url: "topics/leverage-art/lesson-14.html" },
+            { title: "跌幅訊號", url: "topics/leverage-art/lesson-15.html" },
+            { title: "情緒訊號", url: "topics/leverage-art/lesson-16.html" },
+            { title: "總經訊號", url: "topics/leverage-art/lesson-17.html" },
+            { title: "歷史上的低點", url: "topics/leverage-art/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜什麼時候是「高點」",
+          courses: [
+            { title: "高點的訊號", url: "topics/leverage-art/lesson-19.html" },
+            { title: "趨勢與均線", url: "topics/leverage-art/lesson-20.html" },
+            { title: "獲利了結的紀律", url: "topics/leverage-art/lesson-21.html" },
+            { title: "歷史上的高點", url: "topics/leverage-art/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜操作系統",
+          courses: [
+            { title: "槓桿階梯", url: "topics/leverage-art/lesson-23.html" },
+            { title: "波動率目標法", url: "topics/leverage-art/lesson-24.html" },
+            { title: "回撤控制", url: "topics/leverage-art/lesson-25.html" },
+            { title: "再平衡", url: "topics/leverage-art/lesson-26.html" },
+            { title: "現金流與壓力測試", url: "topics/leverage-art/lesson-27.html" },
+            { title: "心理與紀律", url: "topics/leverage-art/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "案例演練", url: "topics/leverage-art/lesson-29.html" },
+            { title: "總結", url: "topics/leverage-art/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
