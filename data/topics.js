@@ -35875,6 +35875,176 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "ai-image-prompting",
+      category: "ai",
+      title: "用提示詞製作照片：AI 影像的設計語言",
+      description:
+        "AI 圖像生成的原理與工具地圖（Midjourney、GPT Image、Nano Banana、Flux、Seedream、Ideogram 等）；提示詞的結構公式；人物、產品、場景與情緒的描述；景別、機位、構圖、鏡頭與景深、光線、色彩、底片質感等攝影語言；藝術媒材、設計風格與風格參照；比例與種子等參數、以圖生圖、角色一致性、局部重繪、文字排版與 ComfyUI 進階控制；商業攝影、人像品牌、社群簡報的實戰流程，以及著作權與倫理。附提示詞組合器、構圖格線、焦距景深、布光圖、配色盤、畫面比例六個互動工具。",
+      icon: "🖼️",
+      url: "topics/ai-image-prompting/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "景別、機位、鏡頭、光線、色彩、風格與參數的常用詞彙",
+          icon: "📋",
+          url: "topics/ai-image-prompting/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的六個互動工具",
+          icon: "🧪",
+          url: "topics/ai-image-prompting/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "AI 怎麼讀你的提示", url: "topics/ai-image-prompting/lesson-01.html" },
+            { title: "工具地圖", url: "topics/ai-image-prompting/lesson-02.html" },
+            { title: "提示詞的結構公式", url: "topics/ai-image-prompting/lesson-03.html" },
+            { title: "自然語言還是關鍵字", url: "topics/ai-image-prompting/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜主體與場景",
+          courses: [
+            { title: "人物", url: "topics/ai-image-prompting/lesson-05.html" },
+            { title: "產品與物件", url: "topics/ai-image-prompting/lesson-06.html" },
+            { title: "場景與環境", url: "topics/ai-image-prompting/lesson-07.html" },
+            { title: "情緒與故事", url: "topics/ai-image-prompting/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜攝影語言",
+          courses: [
+            { title: "景別", url: "topics/ai-image-prompting/lesson-09.html" },
+            { title: "機位與視角", url: "topics/ai-image-prompting/lesson-10.html" },
+            { title: "構圖", url: "topics/ai-image-prompting/lesson-11.html" },
+            { title: "鏡頭與景深", url: "topics/ai-image-prompting/lesson-12.html" },
+            { title: "光線", url: "topics/ai-image-prompting/lesson-13.html" },
+            { title: "色彩", url: "topics/ai-image-prompting/lesson-14.html" },
+            { title: "底片與相機質感", url: "topics/ai-image-prompting/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜風格",
+          courses: [
+            { title: "藝術媒材", url: "topics/ai-image-prompting/lesson-16.html" },
+            { title: "設計風格", url: "topics/ai-image-prompting/lesson-17.html" },
+            { title: "風格參照", url: "topics/ai-image-prompting/lesson-18.html" },
+            { title: "風格與倫理", url: "topics/ai-image-prompting/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜控制",
+          courses: [
+            { title: "參數", url: "topics/ai-image-prompting/lesson-20.html" },
+            { title: "以圖生圖與參考圖", url: "topics/ai-image-prompting/lesson-21.html" },
+            { title: "一致性", url: "topics/ai-image-prompting/lesson-22.html" },
+            { title: "修改與編輯", url: "topics/ai-image-prompting/lesson-23.html" },
+            { title: "文字與排版", url: "topics/ai-image-prompting/lesson-24.html" },
+            { title: "進階控制", url: "topics/ai-image-prompting/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實戰",
+          courses: [
+            { title: "商業攝影", url: "topics/ai-image-prompting/lesson-26.html" },
+            { title: "人像與品牌", url: "topics/ai-image-prompting/lesson-27.html" },
+            { title: "社群與簡報", url: "topics/ai-image-prompting/lesson-28.html" },
+            { title: "工作流程", url: "topics/ai-image-prompting/lesson-29.html" },
+            { title: "法律、倫理與總結", url: "topics/ai-image-prompting/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "ai-video-prompting",
+      category: "ai",
+      title: "用提示詞製作影片：AI 影片的導演語言",
+      description:
+        "AI 影片生成的原理與工具地圖（Veo、Kling、Seedance、Runway、海螺、Wan、Luma；Sora 已於 2026 年停止服務）；影片提示詞的結構與「一個鏡頭一件事」；文字、圖片與首尾幀三種起點；分鏡與鏡頭表、景別與剪接、推拉搖移與環繞升降等鏡頭運動、節奏、動作描述、表演與對白、類型風格；原生音訊、配樂與對嘴；角色與場景一致性、延長、影片編輯與動作控制；從劇本到分鏡、先圖後影、抽卡與成本、剪輯後製、規格與排錯；廣告、短影音、MV、微電影的實作與法律倫理。附提示詞組合器、景別、鏡頭運動、成本估算四個互動工具。",
+      icon: "🎬",
+      url: "topics/ai-video-prompting/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "鏡頭運動、景別、節奏、聲音、轉場與規格的常用詞彙",
+          icon: "📋",
+          url: "topics/ai-video-prompting/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動工具",
+          icon: "🧪",
+          url: "topics/ai-video-prompting/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "AI 影片怎麼生成", url: "topics/ai-video-prompting/lesson-01.html" },
+            { title: "工具地圖", url: "topics/ai-video-prompting/lesson-02.html" },
+            { title: "影片提示詞的結構", url: "topics/ai-video-prompting/lesson-03.html" },
+            { title: "三種起點", url: "topics/ai-video-prompting/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜導演語言",
+          courses: [
+            { title: "分鏡與鏡頭表", url: "topics/ai-video-prompting/lesson-05.html" },
+            { title: "景別與剪接", url: "topics/ai-video-prompting/lesson-06.html" },
+            { title: "鏡頭運動（上）", url: "topics/ai-video-prompting/lesson-07.html" },
+            { title: "鏡頭運動（下）", url: "topics/ai-video-prompting/lesson-08.html" },
+            { title: "節奏", url: "topics/ai-video-prompting/lesson-09.html" },
+            { title: "動作描述", url: "topics/ai-video-prompting/lesson-10.html" },
+            { title: "表演、表情與對白", url: "topics/ai-video-prompting/lesson-11.html" },
+            { title: "類型風格", url: "topics/ai-video-prompting/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜聲音",
+          courses: [
+            { title: "原生音訊", url: "topics/ai-video-prompting/lesson-13.html" },
+            { title: "配樂", url: "topics/ai-video-prompting/lesson-14.html" },
+            { title: "配音、多語言與對嘴", url: "topics/ai-video-prompting/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜一致性與控制",
+          courses: [
+            { title: "角色一致性", url: "topics/ai-video-prompting/lesson-16.html" },
+            { title: "場景與道具的一致性", url: "topics/ai-video-prompting/lesson-17.html" },
+            { title: "首尾幀與關鍵畫面", url: "topics/ai-video-prompting/lesson-18.html" },
+            { title: "延長與接續", url: "topics/ai-video-prompting/lesson-19.html" },
+            { title: "影片編輯", url: "topics/ai-video-prompting/lesson-20.html" },
+            { title: "動作控制", url: "topics/ai-video-prompting/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜製作流程",
+          courses: [
+            { title: "從劇本到分鏡", url: "topics/ai-video-prompting/lesson-22.html" },
+            { title: "先做圖、再做影片", url: "topics/ai-video-prompting/lesson-23.html" },
+            { title: "生成、挑選與迭代", url: "topics/ai-video-prompting/lesson-24.html" },
+            { title: "剪輯與後製", url: "topics/ai-video-prompting/lesson-25.html" },
+            { title: "規格", url: "topics/ai-video-prompting/lesson-26.html" },
+            { title: "常見問題排查", url: "topics/ai-video-prompting/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實戰與倫理",
+          courses: [
+            { title: "類型實作", url: "topics/ai-video-prompting/lesson-28.html" },
+            { title: "法律與倫理", url: "topics/ai-video-prompting/lesson-29.html" },
+            { title: "總結", url: "topics/ai-video-prompting/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
