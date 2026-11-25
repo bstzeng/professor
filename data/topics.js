@@ -36661,6 +36661,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "comp-arch",
+      category: "tech",
+      title: "計算機組織與架構：從指令到快取的處理器之旅",
+      description:
+        "馮紐曼架構、指令集與微架構、二補數與浮點數、從 C 到機器碼；RISC 與 CISC、RISC-V、x86 與 ARM、呼叫慣例；資料路徑、控制單元、五級管線、資料危障與轉送、分支預測、亂序執行、超純量與 VLIW；記憶體階層、快取組織與策略、虛擬記憶體與 TLB、DRAM 與 HBM、SSD；多核心、快取一致性、記憶體模型、SIMD 與 GPU、Amdahl 定律；效能量測、Spectre 與 Meltdown、現代處理器。附管線時序圖、快取、分支預測與 Amdahl 四個互動模擬。",
+      icon: "🖥️",
+      url: "topics/comp-arch/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "管線、快取、記憶體階層與公式",
+          icon: "📋",
+          url: "topics/comp-arch/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/comp-arch/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "馮紐曼架構", url: "topics/comp-arch/lesson-01.html" },
+            { title: "指令集：軟硬體的契約", url: "topics/comp-arch/lesson-02.html" },
+            { title: "電腦裡的數字", url: "topics/comp-arch/lesson-03.html" },
+            { title: "從 C 程式到機器碼", url: "topics/comp-arch/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜指令集",
+          courses: [
+            { title: "RISC 與 CISC", url: "topics/comp-arch/lesson-05.html" },
+            { title: "RISC-V 入門", url: "topics/comp-arch/lesson-06.html" },
+            { title: "x86 與 ARM", url: "topics/comp-arch/lesson-07.html" },
+            { title: "暫存器與函式呼叫", url: "topics/comp-arch/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜處理器設計",
+          courses: [
+            { title: "單週期資料路徑", url: "topics/comp-arch/lesson-09.html" },
+            { title: "控制單元", url: "topics/comp-arch/lesson-10.html" },
+            { title: "五級管線", url: "topics/comp-arch/lesson-11.html" },
+            { title: "資料危障與轉送", url: "topics/comp-arch/lesson-12.html" },
+            { title: "控制危障與分支預測", url: "topics/comp-arch/lesson-13.html" },
+            { title: "亂序執行", url: "topics/comp-arch/lesson-14.html" },
+            { title: "超純量與 VLIW", url: "topics/comp-arch/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜記憶體",
+          courses: [
+            { title: "記憶體階層", url: "topics/comp-arch/lesson-16.html" },
+            { title: "快取的組織", url: "topics/comp-arch/lesson-17.html" },
+            { title: "替換、寫入與預取", url: "topics/comp-arch/lesson-18.html" },
+            { title: "虛擬記憶體", url: "topics/comp-arch/lesson-19.html" },
+            { title: "TLB", url: "topics/comp-arch/lesson-20.html" },
+            { title: "DRAM 與 HBM", url: "topics/comp-arch/lesson-21.html" },
+            { title: "SSD 與儲存", url: "topics/comp-arch/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜平行",
+          courses: [
+            { title: "多核心", url: "topics/comp-arch/lesson-23.html" },
+            { title: "快取一致性", url: "topics/comp-arch/lesson-24.html" },
+            { title: "記憶體模型與同步", url: "topics/comp-arch/lesson-25.html" },
+            { title: "SIMD 與 GPU", url: "topics/comp-arch/lesson-26.html" },
+            { title: "Amdahl 定律", url: "topics/comp-arch/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實務",
+          courses: [
+            { title: "效能量測與瓶頸分析", url: "topics/comp-arch/lesson-28.html" },
+            { title: "Spectre 與 Meltdown", url: "topics/comp-arch/lesson-29.html" },
+            { title: "現代處理器與總結", url: "topics/comp-arch/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
