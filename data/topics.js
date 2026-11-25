@@ -38014,6 +38014,487 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "industrial-revolution",
+      category: "history",
+      title: "工業革命：蒸汽、工廠與現代世界的誕生",
+      description:
+        "為什麼是英國、農業革命與人口、馬爾薩斯陷阱；紡織機的連鎖發明、瓦特蒸汽機、焦炭與鋼鐵、工廠制度、運河、鐵路與標準時間、工具機與互換零件；童工與工時、都市化與霍亂、盧德運動與工會、工廠法、家庭與女性、恩格斯停滯；第二次工業革命、福特主義、德國化學工業、明治維新、台灣從加工出口區到晶圓代工；斯密與馬克思、帝國主義與鴉片戰爭、化石燃料與氣候、大分流、AI 時代。附馬爾薩斯陷阱、紡紗工時、蒸汽機效率與能源轉變四個互動模擬。",
+      icon: "🏭",
+      url: "topics/industrial-revolution/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、發明與人物",
+          icon: "📋",
+          url: "topics/industrial-revolution/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/industrial-revolution/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜背景",
+          courses: [
+            { title: "什麼是工業革命", url: "topics/industrial-revolution/lesson-01.html" },
+            { title: "為什麼是英國", url: "topics/industrial-revolution/lesson-02.html" },
+            { title: "農業革命與人口", url: "topics/industrial-revolution/lesson-03.html" },
+            { title: "馬爾薩斯陷阱", url: "topics/industrial-revolution/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜技術",
+          courses: [
+            { title: "紡織機的連鎖發明", url: "topics/industrial-revolution/lesson-05.html" },
+            { title: "瓦特與蒸汽機", url: "topics/industrial-revolution/lesson-06.html" },
+            { title: "煤與鋼鐵", url: "topics/industrial-revolution/lesson-07.html" },
+            { title: "工廠制度", url: "topics/industrial-revolution/lesson-08.html" },
+            { title: "運河", url: "topics/industrial-revolution/lesson-09.html" },
+            { title: "鐵路", url: "topics/industrial-revolution/lesson-10.html" },
+            { title: "工具機與互換零件", url: "topics/industrial-revolution/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜社會",
+          courses: [
+            { title: "童工與工時", url: "topics/industrial-revolution/lesson-12.html" },
+            { title: "都市化與霍亂", url: "topics/industrial-revolution/lesson-13.html" },
+            { title: "盧德運動與工會", url: "topics/industrial-revolution/lesson-14.html" },
+            { title: "工廠法", url: "topics/industrial-revolution/lesson-15.html" },
+            { title: "家庭與女性", url: "topics/industrial-revolution/lesson-16.html" },
+            { title: "生活水準的爭論", url: "topics/industrial-revolution/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜擴散",
+          courses: [
+            { title: "第二次工業革命", url: "topics/industrial-revolution/lesson-18.html" },
+            { title: "美國與大量生產", url: "topics/industrial-revolution/lesson-19.html" },
+            { title: "德國與化學工業", url: "topics/industrial-revolution/lesson-20.html" },
+            { title: "日本的工業化", url: "topics/industrial-revolution/lesson-21.html" },
+            { title: "台灣的工業化", url: "topics/industrial-revolution/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響",
+          courses: [
+            { title: "思想：從亞當・斯密到馬克思", url: "topics/industrial-revolution/lesson-23.html" },
+            { title: "帝國主義與全球分工", url: "topics/industrial-revolution/lesson-24.html" },
+            { title: "能源與氣候", url: "topics/industrial-revolution/lesson-25.html" },
+            { title: "大分流", url: "topics/industrial-revolution/lesson-26.html" },
+            { title: "第三與第四次工業革命", url: "topics/industrial-revolution/lesson-27.html" },
+            { title: "總結", url: "topics/industrial-revolution/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "critical-thinking",
+      category: "life",
+      title: "邏輯與批判思考：不被騙的思考工具",
+      description:
+        "論證的結構、演繹與歸納、有效與健全、條件推論、三段論與文氏圖；人身攻擊、稻草人、訴諸權威與群眾、滑坡與假兩難、循環論證、以偏概全、轉移焦點與訴諸情感；相關與因果、樣本偏差與倖存者偏差、平均數與辛普森悖論、相對風險與絕對風險、誤導的圖表、研究的可信度、基本比率；假新聞與橫向閱讀、深偽、詐騙話術、陰謀論、演算法與同溫層；鋼人論證、事前驗屍與更好的決策。附條件推論、文氏圖、謬誤測驗、倖存者偏差與誤導圖表五個互動練習。",
+      icon: "🧩",
+      url: "topics/critical-thinking/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "推論形式、謬誤與查證工具",
+          icon: "📋",
+          url: "topics/critical-thinking/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動練習",
+          icon: "🧪",
+          url: "topics/critical-thinking/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜論證",
+          courses: [
+            { title: "什麼是論證", url: "topics/critical-thinking/lesson-01.html" },
+            { title: "演繹與歸納", url: "topics/critical-thinking/lesson-02.html" },
+            { title: "有效與健全", url: "topics/critical-thinking/lesson-03.html" },
+            { title: "條件推論", url: "topics/critical-thinking/lesson-04.html" },
+            { title: "三段論與文氏圖", url: "topics/critical-thinking/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜謬誤",
+          courses: [
+            { title: "人身攻擊", url: "topics/critical-thinking/lesson-06.html" },
+            { title: "稻草人", url: "topics/critical-thinking/lesson-07.html" },
+            { title: "訴諸權威與訴諸群眾", url: "topics/critical-thinking/lesson-08.html" },
+            { title: "滑坡與假兩難", url: "topics/critical-thinking/lesson-09.html" },
+            { title: "循環論證與丐題", url: "topics/critical-thinking/lesson-10.html" },
+            { title: "以偏概全與軼事", url: "topics/critical-thinking/lesson-11.html" },
+            { title: "轉移焦點與訴諸情感", url: "topics/critical-thinking/lesson-12.html" },
+            { title: "謬誤總整理", url: "topics/critical-thinking/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜證據與統計",
+          courses: [
+            { title: "相關與因果", url: "topics/critical-thinking/lesson-14.html" },
+            { title: "樣本偏差與倖存者偏差", url: "topics/critical-thinking/lesson-15.html" },
+            { title: "平均數的陷阱", url: "topics/critical-thinking/lesson-16.html" },
+            { title: "相對風險與絕對風險", url: "topics/critical-thinking/lesson-17.html" },
+            { title: "誤導的圖表", url: "topics/critical-thinking/lesson-18.html" },
+            { title: "研究的可信度", url: "topics/critical-thinking/lesson-19.html" },
+            { title: "基本比率", url: "topics/critical-thinking/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜資訊時代",
+          courses: [
+            { title: "假新聞與橫向閱讀", url: "topics/critical-thinking/lesson-21.html" },
+            { title: "深偽與 AI 生成內容", url: "topics/critical-thinking/lesson-22.html" },
+            { title: "詐騙話術", url: "topics/critical-thinking/lesson-23.html" },
+            { title: "陰謀論", url: "topics/critical-thinking/lesson-24.html" },
+            { title: "演算法與同溫層", url: "topics/critical-thinking/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "好的辯論", url: "topics/critical-thinking/lesson-26.html" },
+            { title: "更好的決策", url: "topics/critical-thinking/lesson-27.html" },
+            { title: "總結", url: "topics/critical-thinking/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "nutrition",
+      category: "biomed",
+      title: "營養學：吃進去的每一口",
+      description:
+        "熱量與能量平衡、消化吸收與腸道菌、基礎代謝與每日總消耗、我的餐盤；醣類與升糖指數、膳食纖維、添加糖與含糖飲料、蛋白質與必需胺基酸、脂肪的種類、反式脂肪、Omega-3 與膽固醇；維生素、維生素 D 與鈣、鐵與貧血、鈉鉀與血壓、水、補充劑；孕期與嬰幼兒、兒童青少年、運動營養、老年與肌少症；減重飲食法、超加工食品、素食、怎麼看營養研究、保健食品與營養標示。附熱量計算、餐盤、血糖曲線與營養標示四個互動練習。",
+      icon: "🥗",
+      url: "topics/nutrition/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "熱量、建議量與飲食原則",
+          icon: "📋",
+          url: "topics/nutrition/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/nutrition/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "熱量與能量", url: "topics/nutrition/lesson-01.html" },
+            { title: "消化與吸收", url: "topics/nutrition/lesson-02.html" },
+            { title: "基礎代謝與每日總消耗", url: "topics/nutrition/lesson-03.html" },
+            { title: "我的餐盤", url: "topics/nutrition/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜巨量營養素",
+          courses: [
+            { title: "醣類與升糖指數", url: "topics/nutrition/lesson-05.html" },
+            { title: "膳食纖維", url: "topics/nutrition/lesson-06.html" },
+            { title: "糖與含糖飲料", url: "topics/nutrition/lesson-07.html" },
+            { title: "蛋白質與胺基酸", url: "topics/nutrition/lesson-08.html" },
+            { title: "蛋白質要吃多少", url: "topics/nutrition/lesson-09.html" },
+            { title: "脂肪的種類", url: "topics/nutrition/lesson-10.html" },
+            { title: "反式脂肪", url: "topics/nutrition/lesson-11.html" },
+            { title: "Omega-3 與膽固醇", url: "topics/nutrition/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜微量營養素",
+          courses: [
+            { title: "維生素", url: "topics/nutrition/lesson-13.html" },
+            { title: "維生素 D 與鈣", url: "topics/nutrition/lesson-14.html" },
+            { title: "鐵與貧血", url: "topics/nutrition/lesson-15.html" },
+            { title: "鈉、鉀與血壓", url: "topics/nutrition/lesson-16.html" },
+            { title: "水", url: "topics/nutrition/lesson-17.html" },
+            { title: "補充劑需不需要", url: "topics/nutrition/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人生階段",
+          courses: [
+            { title: "孕期與嬰幼兒", url: "topics/nutrition/lesson-19.html" },
+            { title: "兒童與青少年", url: "topics/nutrition/lesson-20.html" },
+            { title: "運動營養", url: "topics/nutrition/lesson-21.html" },
+            { title: "老年與肌少症", url: "topics/nutrition/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜熱門議題",
+          courses: [
+            { title: "減重原理與飲食法", url: "topics/nutrition/lesson-23.html" },
+            { title: "超加工食品", url: "topics/nutrition/lesson-24.html" },
+            { title: "素食", url: "topics/nutrition/lesson-25.html" },
+            { title: "營養研究怎麼看", url: "topics/nutrition/lesson-26.html" },
+            { title: "保健食品與營養標示", url: "topics/nutrition/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "總結", url: "topics/nutrition/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "animal-behavior",
+      category: "science",
+      title: "動物行為學：牠們為什麼這樣做",
+      description:
+        "廷伯根的四個問題、本能與信號刺激、印痕與敏感期、動物的學習；最適覓食與邊際價值定理、自私的獸群、偽裝警戒色與擬態、杜鵑與宿主的軍備競賽、遷徙與導航；蜜蜂的搖擺舞、鳥鳴的學習、累贅原則與誠實訊號、動物有語言嗎；性擇、配偶制度、親代照顧、親子衝突與兩性衝突；親屬選擇與漢彌爾頓法則、互惠利他、鷹鴿賽局與演化穩定策略、靈長類的社會、動物的文化與工具；鏡子測驗與動物意識、痛覺與動物福利。附最適覓食、蜜蜂舞蹈、漢彌爾頓法則與鷹鴿賽局四個互動模型。",
+      icon: "🐝",
+      url: "topics/animal-behavior/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "人物、理論與名詞",
+          icon: "📋",
+          url: "topics/animal-behavior/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模型",
+          icon: "🧪",
+          url: "topics/animal-behavior/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜行為從哪裡來",
+          courses: [
+            { title: "廷伯根的四個問題", url: "topics/animal-behavior/lesson-01.html" },
+            { title: "本能與固定行為模式", url: "topics/animal-behavior/lesson-02.html" },
+            { title: "印痕與關鍵期", url: "topics/animal-behavior/lesson-03.html" },
+            { title: "動物如何學習", url: "topics/animal-behavior/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜生存",
+          courses: [
+            { title: "最適覓食", url: "topics/animal-behavior/lesson-05.html" },
+            { title: "群體的安全", url: "topics/animal-behavior/lesson-06.html" },
+            { title: "偽裝、警戒色與擬態", url: "topics/animal-behavior/lesson-07.html" },
+            { title: "演化的軍備競賽", url: "topics/animal-behavior/lesson-08.html" },
+            { title: "遷徙與導航", url: "topics/animal-behavior/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜溝通",
+          courses: [
+            { title: "蜜蜂的舞蹈", url: "topics/animal-behavior/lesson-10.html" },
+            { title: "鳥鳴", url: "topics/animal-behavior/lesson-11.html" },
+            { title: "誠實的訊號", url: "topics/animal-behavior/lesson-12.html" },
+            { title: "動物有語言嗎", url: "topics/animal-behavior/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜性與家庭",
+          courses: [
+            { title: "性擇", url: "topics/animal-behavior/lesson-14.html" },
+            { title: "配偶制度", url: "topics/animal-behavior/lesson-15.html" },
+            { title: "親代照顧", url: "topics/animal-behavior/lesson-16.html" },
+            { title: "親子衝突與手足相爭", url: "topics/animal-behavior/lesson-17.html" },
+            { title: "兩性衝突", url: "topics/animal-behavior/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜社會與合作",
+          courses: [
+            { title: "親屬選擇", url: "topics/animal-behavior/lesson-19.html" },
+            { title: "互惠利他", url: "topics/animal-behavior/lesson-20.html" },
+            { title: "鷹鴿賽局", url: "topics/animal-behavior/lesson-21.html" },
+            { title: "靈長類的社會", url: "topics/animal-behavior/lesson-22.html" },
+            { title: "動物的文化與工具", url: "topics/animal-behavior/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜心智與福利",
+          courses: [
+            { title: "動物的智力與意識", url: "topics/animal-behavior/lesson-24.html" },
+            { title: "情緒、痛覺與動物福利", url: "topics/animal-behavior/lesson-25.html" },
+            { title: "總結", url: "topics/animal-behavior/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "film-language",
+      category: "fantasy",
+      title: "電影語言與剪輯：看懂鏡頭在說什麼",
+      description:
+        "電影的誕生、景別與鏡頭角度、構圖、鏡頭運動、焦距與景深、光與色彩；庫勒雪夫效應、180 度線、正反拍與視線、跳接與節奏、蒙太奇與匹配剪接、平行剪輯、長鏡頭；對白音效與擬音、配樂與主導動機、聲畫對位、沉默；三幕劇、希區考克的懸念與麥高芬、倒敘與非線性敘事、類型片、場面調度；分鏡表、調色、用手機拍短片、台灣新電影。附景別角度、焦距景深、180 度線與剪輯節奏四個互動練習。",
+      icon: "🎬",
+      url: "topics/film-language/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "鏡頭、剪輯與聲音的術語",
+          icon: "📋",
+          url: "topics/film-language/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/film-language/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜影像",
+          courses: [
+            { title: "電影的誕生", url: "topics/film-language/lesson-01.html" },
+            { title: "景別", url: "topics/film-language/lesson-02.html" },
+            { title: "鏡頭角度", url: "topics/film-language/lesson-03.html" },
+            { title: "構圖", url: "topics/film-language/lesson-04.html" },
+            { title: "鏡頭運動", url: "topics/film-language/lesson-05.html" },
+            { title: "焦距與景深", url: "topics/film-language/lesson-06.html" },
+            { title: "光與色彩", url: "topics/film-language/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜剪輯",
+          courses: [
+            { title: "庫勒雪夫效應", url: "topics/film-language/lesson-08.html" },
+            { title: "180 度線", url: "topics/film-language/lesson-09.html" },
+            { title: "正反拍與視線", url: "topics/film-language/lesson-10.html" },
+            { title: "跳接與節奏", url: "topics/film-language/lesson-11.html" },
+            { title: "蒙太奇", url: "topics/film-language/lesson-12.html" },
+            { title: "平行剪輯", url: "topics/film-language/lesson-13.html" },
+            { title: "長鏡頭", url: "topics/film-language/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜聲音",
+          courses: [
+            { title: "對白、音效與擬音", url: "topics/film-language/lesson-15.html" },
+            { title: "配樂", url: "topics/film-language/lesson-16.html" },
+            { title: "聲畫對位", url: "topics/film-language/lesson-17.html" },
+            { title: "沉默", url: "topics/film-language/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜敘事",
+          courses: [
+            { title: "三幕劇結構", url: "topics/film-language/lesson-19.html" },
+            { title: "懸念與驚奇", url: "topics/film-language/lesson-20.html" },
+            { title: "電影中的時間", url: "topics/film-language/lesson-21.html" },
+            { title: "類型片", url: "topics/film-language/lesson-22.html" },
+            { title: "場面調度", url: "topics/film-language/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實作與台灣",
+          courses: [
+            { title: "分鏡表", url: "topics/film-language/lesson-24.html" },
+            { title: "調色", url: "topics/film-language/lesson-25.html" },
+            { title: "用手機拍短片", url: "topics/film-language/lesson-26.html" },
+            { title: "台灣新電影與之後", url: "topics/film-language/lesson-27.html" },
+            { title: "總結", url: "topics/film-language/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "classical-music-history",
+      category: "music",
+      title: "西洋古典音樂史：從聖歌到電影配樂",
+      description:
+        "葛利果聖歌與記譜法、文藝復興複音、純律與平均律；巴洛克的數字低音與協奏曲、韋瓦第《四季》、巴哈與賦格、韓德爾《彌賽亞》、歌劇的誕生；奏鳴曲式、海頓、莫札特、交響樂團、鋼琴的崛起；貝多芬、舒伯特與藝術歌曲、蕭邦與李斯特、華格納與威爾第、布拉姆斯、國民樂派、馬勒；德布西、《春之祭》、荀貝格與十二音、極簡主義、電影與遊戲配樂；怎麼聽古典音樂與台灣的古典音樂。附可播放的純律平均律、賦格，以及奏鳴曲式與樂團編制四個互動練習。",
+      icon: "🎻",
+      url: "topics/classical-music-history/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "時期、作曲家與術語",
+          icon: "📋",
+          url: "topics/classical-music-history/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/classical-music-history/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜源頭",
+          courses: [
+            { title: "什麼是古典音樂", url: "topics/classical-music-history/lesson-01.html" },
+            { title: "聖歌與記譜法", url: "topics/classical-music-history/lesson-02.html" },
+            { title: "文藝復興的複音", url: "topics/classical-music-history/lesson-03.html" },
+            { title: "調律與平均律", url: "topics/classical-music-history/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜巴洛克",
+          courses: [
+            { title: "巴洛克：數字低音與協奏曲", url: "topics/classical-music-history/lesson-05.html" },
+            { title: "韋瓦第", url: "topics/classical-music-history/lesson-06.html" },
+            { title: "巴哈與賦格", url: "topics/classical-music-history/lesson-07.html" },
+            { title: "韓德爾", url: "topics/classical-music-history/lesson-08.html" },
+            { title: "歌劇的誕生", url: "topics/classical-music-history/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜古典",
+          courses: [
+            { title: "奏鳴曲式", url: "topics/classical-music-history/lesson-10.html" },
+            { title: "海頓", url: "topics/classical-music-history/lesson-11.html" },
+            { title: "莫札特", url: "topics/classical-music-history/lesson-12.html" },
+            { title: "交響樂團與交響曲", url: "topics/classical-music-history/lesson-13.html" },
+            { title: "鋼琴的崛起", url: "topics/classical-music-history/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜浪漫",
+          courses: [
+            { title: "貝多芬", url: "topics/classical-music-history/lesson-15.html" },
+            { title: "舒伯特與藝術歌曲", url: "topics/classical-music-history/lesson-16.html" },
+            { title: "蕭邦與李斯特", url: "topics/classical-music-history/lesson-17.html" },
+            { title: "華格納與威爾第", url: "topics/classical-music-history/lesson-18.html" },
+            { title: "布拉姆斯", url: "topics/classical-music-history/lesson-19.html" },
+            { title: "國民樂派", url: "topics/classical-music-history/lesson-20.html" },
+            { title: "馬勒", url: "topics/classical-music-history/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜20 世紀以後",
+          courses: [
+            { title: "德布西與印象主義", url: "topics/classical-music-history/lesson-22.html" },
+            { title: "春之祭", url: "topics/classical-music-history/lesson-23.html" },
+            { title: "荀貝格與無調性", url: "topics/classical-music-history/lesson-24.html" },
+            { title: "極簡主義", url: "topics/classical-music-history/lesson-25.html" },
+            { title: "電影與遊戲配樂", url: "topics/classical-music-history/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜聆聽與總結",
+          courses: [
+            { title: "怎麼聽古典音樂", url: "topics/classical-music-history/lesson-27.html" },
+            { title: "古典音樂在台灣與總結", url: "topics/classical-music-history/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
