@@ -36746,6 +36746,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "computer-graphics",
+      category: "tech",
+      title: "電腦圖學：從三角形到光線追蹤",
+      description:
+        "像素與 Gamma、向量與矩陣、座標系與齊次座標；平移旋轉縮放、MVP 矩陣、透視投影與四元數；三角形光柵化、深度緩衝、裁剪剔除、重心插值、反鋸齒與 GPU 渲染管線；Phong 光照、法線貼圖、紋理映射、mipmap、陰影貼圖與 PBR；光線求交、Whitted 遞迴光追、路徑追蹤、BVH、即時光追與 AI 降噪；遊戲引擎渲染流程、骨架動畫與電影 CG。附 3D 轉換、光柵化、Phong 光照與在瀏覽器即時計算的迷你光線追蹤器。",
+      icon: "🧊",
+      url: "topics/computer-graphics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "管線、公式、貼圖與術語",
+          icon: "📋",
+          url: "topics/computer-graphics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/computer-graphics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "像素、色彩與 Gamma", url: "topics/computer-graphics/lesson-01.html" },
+            { title: "向量與矩陣", url: "topics/computer-graphics/lesson-02.html" },
+            { title: "座標系", url: "topics/computer-graphics/lesson-03.html" },
+            { title: "齊次座標", url: "topics/computer-graphics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜轉換",
+          courses: [
+            { title: "基本轉換", url: "topics/computer-graphics/lesson-05.html" },
+            { title: "模型、視圖、投影", url: "topics/computer-graphics/lesson-06.html" },
+            { title: "透視投影", url: "topics/computer-graphics/lesson-07.html" },
+            { title: "四元數與旋轉", url: "topics/computer-graphics/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光柵化",
+          courses: [
+            { title: "三角形光柵化", url: "topics/computer-graphics/lesson-09.html" },
+            { title: "深度緩衝", url: "topics/computer-graphics/lesson-10.html" },
+            { title: "裁剪與剔除", url: "topics/computer-graphics/lesson-11.html" },
+            { title: "重心座標與插值", url: "topics/computer-graphics/lesson-12.html" },
+            { title: "反鋸齒", url: "topics/computer-graphics/lesson-13.html" },
+            { title: "GPU 渲染管線", url: "topics/computer-graphics/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜著色",
+          courses: [
+            { title: "光照模型", url: "topics/computer-graphics/lesson-15.html" },
+            { title: "法線貼圖", url: "topics/computer-graphics/lesson-16.html" },
+            { title: "紋理映射", url: "topics/computer-graphics/lesson-17.html" },
+            { title: "Mipmap", url: "topics/computer-graphics/lesson-18.html" },
+            { title: "陰影", url: "topics/computer-graphics/lesson-19.html" },
+            { title: "基於物理的渲染（PBR）", url: "topics/computer-graphics/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜光線追蹤",
+          courses: [
+            { title: "光線與物體求交", url: "topics/computer-graphics/lesson-21.html" },
+            { title: "遞迴的反射與折射", url: "topics/computer-graphics/lesson-22.html" },
+            { title: "路徑追蹤", url: "topics/computer-graphics/lesson-23.html" },
+            { title: "加速結構 BVH", url: "topics/computer-graphics/lesson-24.html" },
+            { title: "即時光線追蹤與降噪", url: "topics/computer-graphics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用與總結",
+          courses: [
+            { title: "遊戲引擎的渲染流程", url: "topics/computer-graphics/lesson-26.html" },
+            { title: "動畫、骨架與蒙皮", url: "topics/computer-graphics/lesson-27.html" },
+            { title: "電影 CG 與總結", url: "topics/computer-graphics/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
