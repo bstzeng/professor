@@ -36912,6 +36912,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "distributed-systems",
+      category: "tech",
+      title: "分散式系統與共識：讓很多台電腦像一台一樣可靠",
+      description:
+        "八個謬誤、部分失效、網路分割與不可靠的時鐘；Lamport 時鐘、向量時鐘、NTP 與 TrueTime、因果一致性；主從、多主與無主複製、Quorum、複製延遲、衝突解決與 CRDT；線性一致性、CAP 與 PACELC、最終一致性與一致性光譜；FLP 不可能結果、兩階段提交、Paxos、Raft、拜占庭容錯與區塊鏈共識；分割與一致性雜湊、Saga、Kafka 事件流、Spanner、DynamoDB、etcd 與大規模故障檢討。附 Raft 模擬器、Quorum、邏輯時鐘與兩階段提交四個互動模擬。",
+      icon: "🌐",
+      url: "topics/distributed-systems/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "一致性、共識、複製與年表",
+          icon: "📋",
+          url: "topics/distributed-systems/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/distributed-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼難",
+          courses: [
+            { title: "為什麼需要分散式系統", url: "topics/distributed-systems/lesson-01.html" },
+            { title: "部分失效", url: "topics/distributed-systems/lesson-02.html" },
+            { title: "網路延遲與分割", url: "topics/distributed-systems/lesson-03.html" },
+            { title: "時鐘不可靠", url: "topics/distributed-systems/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜時間與順序",
+          courses: [
+            { title: "Lamport 時鐘", url: "topics/distributed-systems/lesson-05.html" },
+            { title: "向量時鐘", url: "topics/distributed-systems/lesson-06.html" },
+            { title: "NTP 與 TrueTime", url: "topics/distributed-systems/lesson-07.html" },
+            { title: "因果一致性", url: "topics/distributed-systems/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜複製",
+          courses: [
+            { title: "主從複製", url: "topics/distributed-systems/lesson-09.html" },
+            { title: "多主與無主複製", url: "topics/distributed-systems/lesson-10.html" },
+            { title: "Quorum", url: "topics/distributed-systems/lesson-11.html" },
+            { title: "複製延遲", url: "topics/distributed-systems/lesson-12.html" },
+            { title: "衝突解決與 CRDT", url: "topics/distributed-systems/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜一致性",
+          courses: [
+            { title: "線性一致性", url: "topics/distributed-systems/lesson-14.html" },
+            { title: "CAP 與 PACELC", url: "topics/distributed-systems/lesson-15.html" },
+            { title: "最終一致性", url: "topics/distributed-systems/lesson-16.html" },
+            { title: "一致性模型的光譜", url: "topics/distributed-systems/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜共識",
+          courses: [
+            { title: "共識與 FLP 不可能結果", url: "topics/distributed-systems/lesson-18.html" },
+            { title: "兩階段提交", url: "topics/distributed-systems/lesson-19.html" },
+            { title: "Paxos", url: "topics/distributed-systems/lesson-20.html" },
+            { title: "Raft", url: "topics/distributed-systems/lesson-21.html" },
+            { title: "拜占庭容錯", url: "topics/distributed-systems/lesson-22.html" },
+            { title: "區塊鏈的共識", url: "topics/distributed-systems/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實戰",
+          courses: [
+            { title: "分割與再平衡", url: "topics/distributed-systems/lesson-24.html" },
+            { title: "分散式交易與 Saga", url: "topics/distributed-systems/lesson-25.html" },
+            { title: "事件流與 Kafka", url: "topics/distributed-systems/lesson-26.html" },
+            { title: "真實系統的案例", url: "topics/distributed-systems/lesson-27.html" },
+            { title: "故障檢討與總結", url: "topics/distributed-systems/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
