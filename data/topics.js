@@ -38334,6 +38334,84 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "film-language",
+      category: "fantasy",
+      title: "電影語言與剪輯：看懂鏡頭在說什麼",
+      description:
+        "電影的誕生、景別與鏡頭角度、構圖、鏡頭運動、焦距與景深、光與色彩；庫勒雪夫效應、180 度線、正反拍與視線、跳接與節奏、蒙太奇與匹配剪接、平行剪輯、長鏡頭；對白音效與擬音、配樂與主導動機、聲畫對位、沉默；三幕劇、希區考克的懸念與麥高芬、倒敘與非線性敘事、類型片、場面調度；分鏡表、調色、用手機拍短片、台灣新電影。附景別角度、焦距景深、180 度線與剪輯節奏四個互動練習。",
+      icon: "🎬",
+      url: "topics/film-language/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "鏡頭、剪輯與聲音的術語",
+          icon: "📋",
+          url: "topics/film-language/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/film-language/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜影像",
+          courses: [
+            { title: "電影的誕生", url: "topics/film-language/lesson-01.html" },
+            { title: "景別", url: "topics/film-language/lesson-02.html" },
+            { title: "鏡頭角度", url: "topics/film-language/lesson-03.html" },
+            { title: "構圖", url: "topics/film-language/lesson-04.html" },
+            { title: "鏡頭運動", url: "topics/film-language/lesson-05.html" },
+            { title: "焦距與景深", url: "topics/film-language/lesson-06.html" },
+            { title: "光與色彩", url: "topics/film-language/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜剪輯",
+          courses: [
+            { title: "庫勒雪夫效應", url: "topics/film-language/lesson-08.html" },
+            { title: "180 度線", url: "topics/film-language/lesson-09.html" },
+            { title: "正反拍與視線", url: "topics/film-language/lesson-10.html" },
+            { title: "跳接與節奏", url: "topics/film-language/lesson-11.html" },
+            { title: "蒙太奇", url: "topics/film-language/lesson-12.html" },
+            { title: "平行剪輯", url: "topics/film-language/lesson-13.html" },
+            { title: "長鏡頭", url: "topics/film-language/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 C｜聲音",
+          courses: [
+            { title: "對白、音效與擬音", url: "topics/film-language/lesson-15.html" },
+            { title: "配樂", url: "topics/film-language/lesson-16.html" },
+            { title: "聲畫對位", url: "topics/film-language/lesson-17.html" },
+            { title: "沉默", url: "topics/film-language/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜敘事",
+          courses: [
+            { title: "三幕劇結構", url: "topics/film-language/lesson-19.html" },
+            { title: "懸念與驚奇", url: "topics/film-language/lesson-20.html" },
+            { title: "電影中的時間", url: "topics/film-language/lesson-21.html" },
+            { title: "類型片", url: "topics/film-language/lesson-22.html" },
+            { title: "場面調度", url: "topics/film-language/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實作與台灣",
+          courses: [
+            { title: "分鏡表", url: "topics/film-language/lesson-24.html" },
+            { title: "調色", url: "topics/film-language/lesson-25.html" },
+            { title: "用手機拍短片", url: "topics/film-language/lesson-26.html" },
+            { title: "台灣新電影與之後", url: "topics/film-language/lesson-27.html" },
+            { title: "總結", url: "topics/film-language/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
