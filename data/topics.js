@@ -37926,6 +37926,94 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cooking-science",
+      category: "life",
+      title: "烹飪的科學：廚房裡的物理與化學",
+      description:
+        "味覺與嗅覺、熱的傳遞、水與沸點、酸鹼與鹽；肌肉構造、蛋白質變性與熟度、梅納反應、煎牛排的迷思、燉煮與膠原蛋白、溫泉蛋；澱粉的糊化與老化、麩質與麵包、酵母發酵、膨鬆劑、麵條的 Q 彈；發煙點與油炸、乳化與美乃滋、巧克力調溫、鍋氣；蔬菜的顏色、焦糖化與糖、辣味與香料、酵素褐變；鍋具材質、刀與磨刀、舒肥與壓力鍋；危險溫度帶與食物中毒、剩菜保存。附牛排熱傳、乳化、糖的溫度與細菌生長四個互動模擬。",
+      icon: "🍳",
+      url: "topics/cooking-science/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "溫度、反應與安全",
+          icon: "📋",
+          url: "topics/cooking-science/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/cooking-science/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "味覺與嗅覺", url: "topics/cooking-science/lesson-01.html" },
+            { title: "熱怎麼傳進食物", url: "topics/cooking-science/lesson-02.html" },
+            { title: "水在烹飪中的角色", url: "topics/cooking-science/lesson-03.html" },
+            { title: "酸鹼與鹽", url: "topics/cooking-science/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜肉與蛋",
+          courses: [
+            { title: "肌肉的構造", url: "topics/cooking-science/lesson-05.html" },
+            { title: "蛋白質變性與熟度", url: "topics/cooking-science/lesson-06.html" },
+            { title: "梅納反應", url: "topics/cooking-science/lesson-07.html" },
+            { title: "煎牛排與靜置", url: "topics/cooking-science/lesson-08.html" },
+            { title: "燉煮與膠原蛋白", url: "topics/cooking-science/lesson-09.html" },
+            { title: "蛋的凝固溫度", url: "topics/cooking-science/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜澱粉與麵粉",
+          courses: [
+            { title: "澱粉的糊化與老化", url: "topics/cooking-science/lesson-11.html" },
+            { title: "麩質與麵包", url: "topics/cooking-science/lesson-12.html" },
+            { title: "發酵與酵母", url: "topics/cooking-science/lesson-13.html" },
+            { title: "蛋糕與膨鬆劑", url: "topics/cooking-science/lesson-14.html" },
+            { title: "麵條的 Q 彈", url: "topics/cooking-science/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜油脂與乳化",
+          courses: [
+            { title: "油的發煙點與油炸", url: "topics/cooking-science/lesson-16.html" },
+            { title: "乳化與美乃滋", url: "topics/cooking-science/lesson-17.html" },
+            { title: "奶油與巧克力的結晶", url: "topics/cooking-science/lesson-18.html" },
+            { title: "鍋氣", url: "topics/cooking-science/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜蔬果、糖與香料",
+          courses: [
+            { title: "蔬菜的顏色", url: "topics/cooking-science/lesson-20.html" },
+            { title: "焦糖化與糖", url: "topics/cooking-science/lesson-21.html" },
+            { title: "香料與辣味", url: "topics/cooking-science/lesson-22.html" },
+            { title: "褐變", url: "topics/cooking-science/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜工具與技法",
+          courses: [
+            { title: "鍋具的材質", url: "topics/cooking-science/lesson-24.html" },
+            { title: "刀與磨刀", url: "topics/cooking-science/lesson-25.html" },
+            { title: "舒肥與壓力鍋", url: "topics/cooking-science/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜食品安全",
+          courses: [
+            { title: "細菌與危險溫度帶", url: "topics/cooking-science/lesson-27.html" },
+            { title: "隔夜菜、冷藏與總結", url: "topics/cooking-science/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
