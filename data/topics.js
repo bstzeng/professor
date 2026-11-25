@@ -38170,6 +38170,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "nutrition",
+      category: "biomed",
+      title: "營養學：吃進去的每一口",
+      description:
+        "熱量與能量平衡、消化吸收與腸道菌、基礎代謝與每日總消耗、我的餐盤；醣類與升糖指數、膳食纖維、添加糖與含糖飲料、蛋白質與必需胺基酸、脂肪的種類、反式脂肪、Omega-3 與膽固醇；維生素、維生素 D 與鈣、鐵與貧血、鈉鉀與血壓、水、補充劑；孕期與嬰幼兒、兒童青少年、運動營養、老年與肌少症；減重飲食法、超加工食品、素食、怎麼看營養研究、保健食品與營養標示。附熱量計算、餐盤、血糖曲線與營養標示四個互動練習。",
+      icon: "🥗",
+      url: "topics/nutrition/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "熱量、建議量與飲食原則",
+          icon: "📋",
+          url: "topics/nutrition/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/nutrition/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "熱量與能量", url: "topics/nutrition/lesson-01.html" },
+            { title: "消化與吸收", url: "topics/nutrition/lesson-02.html" },
+            { title: "基礎代謝與每日總消耗", url: "topics/nutrition/lesson-03.html" },
+            { title: "我的餐盤", url: "topics/nutrition/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜巨量營養素",
+          courses: [
+            { title: "醣類與升糖指數", url: "topics/nutrition/lesson-05.html" },
+            { title: "膳食纖維", url: "topics/nutrition/lesson-06.html" },
+            { title: "糖與含糖飲料", url: "topics/nutrition/lesson-07.html" },
+            { title: "蛋白質與胺基酸", url: "topics/nutrition/lesson-08.html" },
+            { title: "蛋白質要吃多少", url: "topics/nutrition/lesson-09.html" },
+            { title: "脂肪的種類", url: "topics/nutrition/lesson-10.html" },
+            { title: "反式脂肪", url: "topics/nutrition/lesson-11.html" },
+            { title: "Omega-3 與膽固醇", url: "topics/nutrition/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜微量營養素",
+          courses: [
+            { title: "維生素", url: "topics/nutrition/lesson-13.html" },
+            { title: "維生素 D 與鈣", url: "topics/nutrition/lesson-14.html" },
+            { title: "鐵與貧血", url: "topics/nutrition/lesson-15.html" },
+            { title: "鈉、鉀與血壓", url: "topics/nutrition/lesson-16.html" },
+            { title: "水", url: "topics/nutrition/lesson-17.html" },
+            { title: "補充劑需不需要", url: "topics/nutrition/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人生階段",
+          courses: [
+            { title: "孕期與嬰幼兒", url: "topics/nutrition/lesson-19.html" },
+            { title: "兒童與青少年", url: "topics/nutrition/lesson-20.html" },
+            { title: "運動營養", url: "topics/nutrition/lesson-21.html" },
+            { title: "老年與肌少症", url: "topics/nutrition/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜熱門議題",
+          courses: [
+            { title: "減重原理與飲食法", url: "topics/nutrition/lesson-23.html" },
+            { title: "超加工食品", url: "topics/nutrition/lesson-24.html" },
+            { title: "素食", url: "topics/nutrition/lesson-25.html" },
+            { title: "營養研究怎麼看", url: "topics/nutrition/lesson-26.html" },
+            { title: "保健食品與營養標示", url: "topics/nutrition/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "總結", url: "topics/nutrition/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
