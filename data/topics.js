@@ -37406,6 +37406,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "optimization",
+      category: "math",
+      title: "作業研究與最佳化：在限制中找到最好的決策",
+      description:
+        "決策變數、目標與限制；建模、線性與非線性、局部與全域；線性規劃的圖解法、單形法與內點法、對偶與影子價格、敏感度分析、運輸與指派問題；整數規劃與分支定界、背包問題與動態規劃、旅行推銷員與 2-opt、排程與要徑法、NP 困難與近似演算法；最短路徑、最大流最小割、最小生成樹、供應鏈網路設計；梯度下降、牛頓法、凸最佳化、拉格朗日與 KKT、SGD 與 Adam；EOQ 與報童問題、排隊與模擬、隨機規劃、模擬退火與基因演算法、航空排班與車輛路徑。附線性規劃、背包、旅行推銷員與梯度下降四個互動模擬。",
+      icon: "🎯",
+      url: "topics/optimization/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "問題類型、演算法、公式與里程碑",
+          icon: "📋",
+          url: "topics/optimization/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/optimization/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜建模",
+          courses: [
+            { title: "什麼是最佳化", url: "topics/optimization/lesson-01.html" },
+            { title: "把現實問題寫成數學", url: "topics/optimization/lesson-02.html" },
+            { title: "線性與非線性", url: "topics/optimization/lesson-03.html" },
+            { title: "可行解與最佳解", url: "topics/optimization/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜線性規劃",
+          courses: [
+            { title: "圖解法", url: "topics/optimization/lesson-05.html" },
+            { title: "單形法", url: "topics/optimization/lesson-06.html" },
+            { title: "對偶與影子價格", url: "topics/optimization/lesson-07.html" },
+            { title: "敏感度分析", url: "topics/optimization/lesson-08.html" },
+            { title: "運輸問題", url: "topics/optimization/lesson-09.html" },
+            { title: "指派問題", url: "topics/optimization/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜整數與組合",
+          courses: [
+            { title: "整數規劃與分支定界", url: "topics/optimization/lesson-11.html" },
+            { title: "背包問題", url: "topics/optimization/lesson-12.html" },
+            { title: "旅行推銷員問題", url: "topics/optimization/lesson-13.html" },
+            { title: "排程問題", url: "topics/optimization/lesson-14.html" },
+            { title: "NP 困難與近似演算法", url: "topics/optimization/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜網路",
+          courses: [
+            { title: "最短路徑", url: "topics/optimization/lesson-16.html" },
+            { title: "最大流與最小割", url: "topics/optimization/lesson-17.html" },
+            { title: "最小生成樹", url: "topics/optimization/lesson-18.html" },
+            { title: "供應鏈網路設計", url: "topics/optimization/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜連續最佳化",
+          courses: [
+            { title: "梯度下降", url: "topics/optimization/lesson-20.html" },
+            { title: "牛頓法", url: "topics/optimization/lesson-21.html" },
+            { title: "凸最佳化", url: "topics/optimization/lesson-22.html" },
+            { title: "拉格朗日乘數與 KKT 條件", url: "topics/optimization/lesson-23.html" },
+            { title: "機器學習中的最佳化", url: "topics/optimization/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜不確定性與實務",
+          courses: [
+            { title: "存貨模型", url: "topics/optimization/lesson-25.html" },
+            { title: "排隊與模擬", url: "topics/optimization/lesson-26.html" },
+            { title: "隨機規劃與啟發式演算法", url: "topics/optimization/lesson-27.html" },
+            { title: "實務案例與總結", url: "topics/optimization/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
