@@ -36045,6 +36045,102 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "fundamental-research",
+      category: "invest",
+      title: "基本面研究實戰：從產業到個股的研究方法",
+      description:
+        "拿到一家公司，從零開始研究到下判斷的完整方法：研究流程、台股與美股的第一手資料、篩選；商業模式、營收拆解、單位經濟與營運槓桿、護城河的數據驗證、經營團隊與治理紅旗、讀年報與法說會；五力分析、供應鏈交叉驗證、景氣循環、同業比較、總經敏感度、趨勢與炒作；半導體、金融、循環產業、零售、軟體平台、生技、公用事業與營建的研究重點；盈餘品質、自由現金流、資產負債表的隱藏風險與財報造假案例；財務模型、三情境、DCF、反向 DCF、相對估值與特殊情況；投資論點、追蹤與常見錯誤。附營收拆解、營運槓桿、盈餘品質、三情境 EPS、DCF 敏感度、反向 DCF 六個互動模擬（僅供教育，不構成投資建議）。",
+      icon: "🔎",
+      url: "topics/fundamental-research/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "各產業關鍵指標、資料來源、排雷清單與投資論點範本",
+          icon: "📋",
+          url: "topics/fundamental-research/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的六個互動模擬",
+          icon: "🧪",
+          url: "topics/fundamental-research/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜研究的框架",
+          courses: [
+            { title: "基本面研究在回答什麼", url: "topics/fundamental-research/lesson-01.html" },
+            { title: "研究流程總覽", url: "topics/fundamental-research/lesson-02.html" },
+            { title: "資料來源地圖", url: "topics/fundamental-research/lesson-03.html" },
+            { title: "篩選股票", url: "topics/fundamental-research/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜看懂生意",
+          courses: [
+            { title: "商業模式拆解", url: "topics/fundamental-research/lesson-05.html" },
+            { title: "營收拆解", url: "topics/fundamental-research/lesson-06.html" },
+            { title: "單位經濟學與成本結構", url: "topics/fundamental-research/lesson-07.html" },
+            { title: "護城河實務", url: "topics/fundamental-research/lesson-08.html" },
+            { title: "經營團隊與公司治理", url: "topics/fundamental-research/lesson-09.html" },
+            { title: "讀年報與法說會", url: "topics/fundamental-research/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜產業分析",
+          courses: [
+            { title: "產業結構", url: "topics/fundamental-research/lesson-11.html" },
+            { title: "供應鏈研究", url: "topics/fundamental-research/lesson-12.html" },
+            { title: "產業生命週期與景氣循環", url: "topics/fundamental-research/lesson-13.html" },
+            { title: "競爭者比較", url: "topics/fundamental-research/lesson-14.html" },
+            { title: "總經變數怎麼影響個股", url: "topics/fundamental-research/lesson-15.html" },
+            { title: "產業趨勢與顛覆", url: "topics/fundamental-research/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜不同產業的研究重點",
+          courses: [
+            { title: "半導體與電子", url: "topics/fundamental-research/lesson-17.html" },
+            { title: "金融股", url: "topics/fundamental-research/lesson-18.html" },
+            { title: "景氣循環型產業", url: "topics/fundamental-research/lesson-19.html" },
+            { title: "消費與零售", url: "topics/fundamental-research/lesson-20.html" },
+            { title: "軟體與網路平台", url: "topics/fundamental-research/lesson-21.html" },
+            { title: "生技醫療", url: "topics/fundamental-research/lesson-22.html" },
+            { title: "公用事業、電信與營建資產股", url: "topics/fundamental-research/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜財報深挖與排雷",
+          courses: [
+            { title: "盈餘品質", url: "topics/fundamental-research/lesson-24.html" },
+            { title: "資本支出與自由現金流", url: "topics/fundamental-research/lesson-25.html" },
+            { title: "資產負債表的隱藏風險", url: "topics/fundamental-research/lesson-26.html" },
+            { title: "財報造假案例", url: "topics/fundamental-research/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜預測與估值實作",
+          courses: [
+            { title: "建立財務模型", url: "topics/fundamental-research/lesson-28.html" },
+            { title: "情境分析", url: "topics/fundamental-research/lesson-29.html" },
+            { title: "DCF 實作", url: "topics/fundamental-research/lesson-30.html" },
+            { title: "反向 DCF", url: "topics/fundamental-research/lesson-31.html" },
+            { title: "相對估值實務", url: "topics/fundamental-research/lesson-32.html" },
+            { title: "特殊情況", url: "topics/fundamental-research/lesson-33.html" },
+          ],
+        },
+        {
+          title: "模組 G｜論點、追蹤與紀律",
+          courses: [
+            { title: "寫投資論點", url: "topics/fundamental-research/lesson-34.html" },
+            { title: "追蹤與更新", url: "topics/fundamental-research/lesson-35.html" },
+            { title: "研究者常犯的錯與總結", url: "topics/fundamental-research/lesson-36.html" },
+          ],
+        },
+      ],
     }
   ]
 };

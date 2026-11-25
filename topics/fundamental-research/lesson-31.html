@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 31 課：反向 DCF ｜ 基本面研究實戰 ｜ 博雅書院</title>
+<meta name="description" content="市場已經假設了什麼">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">基本面研究實戰</a>
+      <span class="sep">/</span>
+      <span>第 31 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 F｜預測與估值實作 · 第 31 課</div>
+      <h1>反向 DCF</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解反向 DCF 的思路</li>
+          <li>學會判斷市場預期是否合理</li>
+          <li>把反向 DCF 用在投資決策</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__fdrLib) return; window.__fdrLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad', PU = '#8a5bb5', TL = '#2a9d8f';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+        function small(s) { return '<br><span style="font-size:0.88em;color:var(--text-muted)">' + s + '</span>'; }
+        function presets(root, list, cb, k0) { var b = bar(root); list.forEach(function (o, i) { var x = btn(o[0], i); x.onclick = function () { mark(b, i); cb(o, i); }; b.appendChild(x); }); mark(b, k0 === undefined ? 0 : k0); return b; }
+        function setS(root, k, v) { var s = root.querySelector('input[data-k="' + k + '"]'); if (s) s.value = v; }
+        function pct(v) { return (v >= 0 ? '+' : '') + f1(v * 100) + '%'; }
+        function rect(x, y, w, h, f, st) { return '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(Math.max(w, 0)) + '" height="' + n1(Math.max(h, 0)) + '" rx="6" fill="' + f + '"' + (st ? ' stroke="' + st + '"' : '') + '/>'; }
+        function box(x, y, w, h, t1, t2, c) { return rect(x, y, w, h, 'var(--surface)', c) + tx(x + w / 2, y + 17, t1, 10.5, 'var(--text-muted)') + tx(x + w / 2, y + 37, t2, 13.5, c); }
+        function tbl(head_, rows) { var s = '<table style="border-collapse:collapse;width:100%;font-size:0.86em;margin-top:6px"><tr>' + head_.map(function (h) { return '<th style="border:1px solid var(--border);padding:3px 5px;background:var(--accent-soft)">' + h + '</th>'; }).join('') + '</tr>';
+          rows.forEach(function (r) { s += '<tr>' + r.map(function (c, j) { return '<td style="border:1px solid var(--border);padding:3px 5px;text-align:' + (j ? 'right' : 'left') + '">' + c + '</td>'; }).join('') + '</tr>'; }); return s + '</table>'; }
+
+        /* 1. 營收拆解樹：營收 = 銷量 ×（高階占比 × 高階單價 +（1 − 占比）× 一般單價） */
+        function initRevtree(root, cfg) { head(root, cfg.q); var P = { u: 0, p: 0, m: 30 }, view = el('div');
+          var B = { U: 100, Ph: 3, Pl: 1, gh: 0.6, gl: 0.3, m: 0.3 }; // 銷量（萬件）、單價（千元）、毛利率
+          var u1 = slider(root, '銷量變化', -30, 30, 1, P.u, function (x) { return (x >= 0 ? '+' : '') + x + '%'; }, null, function (x) { P.u = x; draw(); });
+          var u2 = slider(root, '兩種產品的單價變化（漲價／降價）', -20, 20, 1, P.p, function (x) { return (x >= 0 ? '+' : '') + x + '%'; }, null, function (x) { P.p = x; draw(); });
+          var u3 = slider(root, '高階產品占銷量的比例（產品組合）', 10, 60, 1, P.m, function (x) { return x + '%（原本 30%）'; }, null, function (x) { P.m = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function calc(U, k, m) { var ph = B.Ph * k, pl = B.Pl * k, rh = U * m * ph, rl = U * (1 - m) * pl;
+            // 漲價時單位成本不變
+            var ch = B.Ph * (1 - B.gh), cl = B.Pl * (1 - B.gl), gp = U * m * (ph - ch), gl = U * (1 - m) * (pl - cl);
+            return { R: rh + rl, rh: rh, rl: rl, G: gp + gl, asp: (rh + rl) / U }; }
+          function draw() { var b = calc(B.U, 1, B.m), U = B.U * (1 + P.u / 100), k = 1 + P.p / 100, m = P.m / 100, n = calc(U, k, m);
+            var vol = calc(U, 1, B.m).R - b.R, prc = calc(U, k, B.m).R - calc(U, 1, B.m).R, mix = n.R - calc(U, k, B.m).R;
+            var o = box(230, 6, 180, 48, '營收（億元）', f1(n.R / 10) + '（' + pct(n.R / b.R - 1) + '）', BL);
+            o += ln(320, 54, 120, 78, GY) + ln(320, 54, 320, 78, GY) + ln(320, 54, 520, 78, GY);
+            o += box(40, 78, 160, 48, '銷量（萬件）', f1(U) + '（' + pct(U / B.U - 1) + '）', OR) + box(240, 78, 160, 48, '平均單價（千元）', f2(n.asp) + '（' + pct(n.asp / b.asp - 1) + '）', PU) + box(440, 78, 160, 48, '毛利（億元）', f1(n.G / 10) + '（' + pct(n.G / b.G - 1) + '）', GN);
+            o += ln(320, 126, 250, 146, GY) + ln(320, 126, 390, 146, GY);
+            o += box(160, 146, 160, 48, '單價變化', pct(k - 1), PU) + box(330, 146, 160, 48, '高階占比', Math.round(m * 100) + '%', PU);
+            var W = 520, tot = Math.abs(vol) + Math.abs(prc) + Math.abs(mix) || 1, x = 60;
+            o += tx(60, 222, '營收變化的來源：', 10.5, 'var(--text)', 'start');
+            [[vol, '銷量', OR], [prc, '價格', PU], [mix, '組合', TL]].forEach(function (q) { var w = W * Math.abs(q[0]) / tot; if (w > 0.5) { o += rect(x, 230, w, 22, q[2]) + (w > 60 ? tx(x + w / 2, 245, q[1] + ' ' + (q[0] >= 0 ? '+' : '') + f1(q[0] / 10), 10, '#fff') : ''); x += w; } });
+            view.innerHTML = svgw('0 0 640 262', o);
+            inf.innerHTML = '營收變化 ' + pct(n.R / b.R - 1) + '：銷量貢獻 <b>' + (vol >= 0 ? '+' : '') + f1(vol / 10) + '</b>、價格貢獻 <b>' + (prc >= 0 ? '+' : '') + f1(prc / 10) + '</b>、產品組合貢獻 <b>' + (mix >= 0 ? '+' : '') + f1(mix / 10) + '</b>（億元）。<br>毛利率：' + f1(b.G / b.R * 100) + '% → <b>' + f1(n.G / n.R * 100) + '%</b>。' + (P.p !== 0 ? '漲價（或降價）幾乎全部落在毛利上，因為成本不變。' : '') + (P.m > 30 ? '高階產品比例提高，即使銷量不變，平均單價與毛利率都會上升——這就是「產品組合改善」。' : P.m < 30 ? '高階產品比例下降，平均單價與毛利率被拉低。' : '') + '<br>研究時要問：營收成長來自<b>賣更多</b>、<b>賣更貴</b>，還是<b>賣更好的</b>？三者的持續性完全不同。' + small('虛構公司：高階產品單價 3,000 元、毛利率 60%；一般產品 1,000 元、毛利率 30%；假設單位成本不變。'); }
+          u1(); u2(); u3();
+        }
+
+        /* 2. 營運槓桿 */
+        function initOplev(root, cfg) { head(root, cfg.q); var P = { r: 10, f: 35 }, view = el('div');
+          var u1 = slider(root, '營收變化', -30, 30, 1, P.r, function (x) { return (x >= 0 ? '+' : '') + x + '%'; }, null, function (x) { P.r = x; draw(); });
+          var u2 = slider(root, '固定成本（占原本營收的比例）', 10, 45, 1, P.f, function (x) { return x + '%'; }, null, function (x) { P.f = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function draw() { var cm = 0.5, op = function (F, r) { return 100 * (1 + r) * cm - F; }, F = P.f, Fl = 15;
+            var s1 = [], s2 = [], r; for (r = -30; r <= 30; r += 1) { s1.push([r, (op(F, r / 100) / op(F, 0) - 1) * 100]); s2.push([r, (op(Fl, r / 100) / op(Fl, 0) - 1) * 100]); }
+            view.innerHTML = chart(640, 240, [{ d: s2, c: GY, n: '固定成本 15%' }, { d: s1, c: RD, n: '你設定的公司' }, { d: [[-30, -30], [30, 30]], c: BL, n: '營收', dash: '4 3', w: 1.2 }], { x0: -30, x1: 30, y0: -200, y1: 200, xl: '營收變化（%）', yl: '營業利益變化（%）', vl: [{ x: P.r, c: OR, n: '' }] });
+            var b = op(F, 0), n = op(F, P.r / 100), dol = 100 * cm / b, be = (F / cm / 100 - 1) * 100;
+            inf.innerHTML = '邊際貢獻率 50%（每 100 元營收扣掉變動成本後剩 50 元），固定成本 ' + F + ' 元，原本的營業利益 <b>' + f1(b) + '</b>。<br>營收 ' + pct(P.r / 100) + ' → 營業利益 ' + f1(n) + '（<b>' + (b > 0 ? pct(n / b - 1) : '—') + '</b>）。營運槓桿度（DOL）= 邊際貢獻 ÷ 營業利益 = <b>' + f1(dol) + ' 倍</b>：營收每變動 1%，利益變動約 ' + f1(dol) + '%。<br>損益兩平點：營收' + (be <= 0 ? '下跌 <b>' + f1(-be) + '%</b>' : '') + ' 時營業利益歸零。固定成本越高，景氣好時獲利暴增、景氣差時虧損也來得更快——晶圓代工、面板、航空都是高營運槓桿的產業。' + small('簡化：固定成本在範圍內不變，邊際貢獻率不變；縱軸以 ±200% 為界。'); }
+          u1(); u2();
+        }
+
+        /* 3. 三情境 EPS */
+        function initScen(root, cfg) { head(root, cfg.q);
+          var S = [{ n: '悲觀', g: -10, gm: 38, ox: 20, p: 25, c: RD }, { n: '基本', g: 8, gm: 42, ox: 18, p: 50, c: BL }, { n: '樂觀', g: 20, gm: 46, ox: 17, p: 25, c: GN }], k = 1, view = el('div'), pe = 15;
+          presets(root, S.map(function (s) { return ['調整「' + s.n + '」情境']; }), function (o, i) { k = i; setS(root, 'g', S[i].g); setS(root, 'gm', S[i].gm); setS(root, 'ox', S[i].ox); setS(root, 'p', S[i].p); u1(); u2(); u3(); u4(); }, 1);
+          var u1 = slider(root, '明年營收成長率', -30, 40, 1, S[1].g, function (x) { return (x >= 0 ? '+' : '') + x + '%'; }, 'g', function (x) { S[k].g = x; draw(); });
+          var u2 = slider(root, '毛利率', 25, 55, 1, S[1].gm, function (x) { return x + '%'; }, 'gm', function (x) { S[k].gm = x; draw(); });
+          var u3 = slider(root, '營業費用率', 10, 30, 1, S[1].ox, function (x) { return x + '%'; }, 'ox', function (x) { S[k].ox = x; draw(); });
+          var u4 = slider(root, '這個情境的機率', 0, 100, 5, S[1].p, function (x) { return x + '%'; }, 'p', function (x) { S[k].p = x; draw(); });
+          var u5 = slider(root, '合理本益比', 8, 30, 1, pe, function (x) { return x + ' 倍'; }, null, function (x) { pe = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function draw() { var R0 = 1000, sh = 50, tax = 0.2, rows = [], ev = 0, tp = 0, o = '', mx = 0;
+            S.forEach(function (s) { var R = R0 * (1 + s.g / 100), op = R * (s.gm - s.ox) / 100, ni = op * (1 - tax); s.eps = ni / sh; mx = Math.max(mx, Math.abs(s.eps)); });
+            var psum = S.reduce(function (a, s) { return a + s.p; }, 0) || 1;
+            S.forEach(function (s, i) { ev += s.eps * s.p / psum; var R = R0 * (1 + s.g / 100); rows.push([s.n, f1(R), f1(R * s.gm / 100), f1(R * (s.gm - s.ox) / 100), '<b>' + f2(s.eps) + '</b>', f1(s.eps * pe), Math.round(s.p / psum * 100) + '%']);
+              var h = 110 * Math.abs(s.eps) / (mx || 1), x = 130 + i * 140; o += rect(x, s.eps >= 0 ? 130 - h : 130, 80, h, s.c) + tx(x + 40, s.eps >= 0 ? 124 - h : 146 + h, f2(s.eps) + ' 元', 11, s.c) + tx(x + 40, 162, s.n, 11, 'var(--text)'); });
+            o += ln(110, 130, 560, 130, GY);
+            view.innerHTML = svgw('0 0 640 170', o) + tbl(['情境', '營收', '毛利', '營業利益', 'EPS（元）', '股價 = EPS × 本益比', '機率'], rows);
+            inf.innerHTML = '機率加權的 EPS = <b>' + f2(ev) + ' 元</b>；乘上 ' + pe + ' 倍本益比，機率加權的合理價約 <b>' + f1(ev * pe) + ' 元</b>（悲觀 ' + f1(S[0].eps * pe) + '～樂觀 ' + f1(S[2].eps * pe) + '）。<br>以基本情境來看，毛利率每差 1 個百分點，EPS 就差約 <b>' + f1(100 / Math.max(S[1].gm - S[1].ox, 1)) + '%</b>；營業利益率越薄，毛利率與費用率的影響就越大。研究的重點，是找出<b>最影響結果的兩三個變數</b>，並寫下你為什麼這樣假設。' + (Math.abs(psum - 100) > 0.5 ? small('三個情境的機率合計 ' + psum + '%，已自動換算成 100%。') : '') + small('虛構公司：今年營收 1,000 億元、股本 50 億股、稅率 20%，不計業外損益。'); }
+          u1(); u2(); u3(); u4(); u5();
+        }
+
+        /* 4. DCF 與敏感度 */
+        function initDcf(root, cfg) { head(root, cfg.q); var P = { f: 10, g: 12, w: 9, t: 2.5, px: 250 }, view = el('div');
+          var u1 = slider(root, '今年每股自由現金流', 2, 30, 0.5, P.f, function (x) { return x + ' 元'; }, null, function (x) { P.f = x; draw(); });
+          var u2 = slider(root, '未來 5 年的年成長率', -5, 30, 1, P.g, function (x) { return x + '%'; }, null, function (x) { P.g = x; draw(); });
+          var u3 = slider(root, '折現率（WACC）', 6, 14, 0.5, P.w, function (x) { return x + '%'; }, null, function (x) { P.w = x; draw(); });
+          var u4 = slider(root, '永續成長率', 0, 4, 0.5, P.t, function (x) { return x + '%'; }, null, function (x) { P.t = x; draw(); });
+          var u5 = slider(root, '目前股價', 50, 600, 5, P.px, function (x) { return x + ' 元'; }, null, function (x) { P.px = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function val(f, g, w, t) { var pv = 0, c = f, i; for (i = 1; i <= 10; i++) { var gi = i <= 5 ? g : g + (t - g) * (i - 5) / 5; c *= 1 + gi; pv += c / Math.pow(1 + w, i); } var tv = c * (1 + t) / (w - t); return { pv: pv, tv: tv / Math.pow(1 + w, 10), v: pv + tv / Math.pow(1 + w, 10) }; }
+          function draw() { var r = val(P.f, P.g / 100, P.w / 100, P.t / 100), o = '', W = 520, sh = r.pv / r.v;
+            o += rect(60, 10, W * sh, 30, BL) + rect(60 + W * sh, 10, W * (1 - sh), 30, PU) + tx(60 + W * sh / 2, 30, '前 10 年 ' + Math.round(sh * 100) + '%', 11, '#fff') + tx(60 + W * sh + W * (1 - sh) / 2, 30, '終值 ' + Math.round((1 - sh) * 100) + '%', 11, '#fff');
+            var rows = [], ws = [-1, -0.5, 0, 0.5, 1], ts = [-1, -0.5, 0, 0.5, 1];
+            ws.forEach(function (dw) { var w = P.w + dw, row = ['WACC ' + f1(w) + '%']; ts.forEach(function (dt) { var t = P.t + dt; if (t >= w - 0.5 || t < -1) { row.push('—'); return; } var v = val(P.f, P.g / 100, w / 100, t / 100).v; var c = v >= P.px ? GN : RD; row.push('<span style="color:' + c + ';' + (dw === 0 && dt === 0 ? 'font-weight:bold;text-decoration:underline' : '') + '">' + Math.round(v) + '</span>'); }); rows.push(row); });
+            view.innerHTML = svgw('0 0 640 50', o) + tbl(['每股價值（元）'].concat(ts.map(function (d) { return '永續 ' + f1(P.t + d) + '%'; })), rows);
+            var mos = 1 - P.px / r.v;
+            inf.innerHTML = '每股內在價值約 <b>' + Math.round(r.v) + ' 元</b>：前 10 年現金流的現值 ' + Math.round(r.pv) + ' 元，終值的現值 ' + Math.round(r.tv) + ' 元。' + '<br>目前股價 ' + P.px + ' 元，' + (mos >= 0 ? '安全邊際 <b>' + Math.round(mos * 100) + '%</b>。' : '比估計的價值高 <b>' + Math.round(-mos * 100) + '%</b>。') + '<br>表格是<b>敏感度分析</b>：折現率差 1 個百分點、永續成長率差 1 個百分點，價值可能差三到五成。終值常占總價值的一半以上——DCF 的結果高度依賴你對遠期的假設，所以要看一個<b>區間</b>，而不是一個數字。' + small('第 1～5 年以設定的成長率成長，第 6～10 年線性降到永續成長率，之後以永續成長率成長；綠色 ≥ 目前股價、紅色 < 目前股價。'); }
+          u1(); u2(); u3(); u4(); u5();
+        }
+
+        /* 5. 反向 DCF */
+        function initRdcf(root, cfg) { head(root, cfg.q); var P = { px: 600, f: 15, w: 9, t: 2.5 }, view = el('div');
+          var u1 = slider(root, '目前股價', 100, 1500, 10, P.px, function (x) { return x + ' 元'; }, null, function (x) { P.px = x; draw(); });
+          var u2 = slider(root, '今年每股自由現金流', 2, 60, 1, P.f, function (x) { return x + ' 元'; }, null, function (x) { P.f = x; draw(); });
+          var u3 = slider(root, '折現率', 6, 14, 0.5, P.w, function (x) { return x + '%'; }, null, function (x) { P.w = x; draw(); });
+          var u4 = slider(root, '10 年後的永續成長率', 0, 4, 0.5, P.t, function (x) { return x + '%'; }, null, function (x) { P.t = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function val(g, w, t) { var pv = 0, c = P.f, i; for (i = 1; i <= 10; i++) { c *= 1 + g; pv += c / Math.pow(1 + w, i); } return pv + c * (1 + t) / (w - t) / Math.pow(1 + w, 10); }
+          function draw() { var w = P.w / 100, t = P.t / 100, lo = -0.5, hi = 1.5, i, g;
+            if (t >= w) { view.innerHTML = ''; inf.innerHTML = '永續成長率必須低於折現率。'; return; }
+            if (val(hi, w, t) < P.px) g = NaN; else if (val(lo, w, t) > P.px) g = -Infinity; else { for (i = 0; i < 80; i++) { g = (lo + hi) / 2; if (val(g, w, t) > P.px) hi = g; else lo = g; } }
+            var d = [[0, P.f]], c = P.f; if (isFinite(g)) for (i = 1; i <= 10; i++) { c *= 1 + g; d.push([i, c]); }
+            view.innerHTML = isFinite(g) ? chart(640, 220, [{ d: d, c: PU, n: '隱含的每股自由現金流' }], { x0: 0, x1: 10, y0: 0, xl: '年', yl: '每股自由現金流（元）' }) : '';
+            var cagr = isFinite(g) ? g : null;
+            inf.innerHTML = (cagr === null ? (g === -Infinity ? '即使現金流每年衰退 50%，價值仍高於股價——市場的預期非常悲觀。' : '股價隱含的成長率超過每年 150%，幾乎不可能達成。') : '股價 ' + P.px + ' 元隱含：未來 10 年每股自由現金流每年成長約 <b>' + f1(cagr * 100) + '%</b>，10 年後達到 <b>' + f1(c) + ' 元</b>（今年的 ' + f1(c / P.f) + ' 倍）。') + '<br>反向 DCF 不去猜「合理價」，而是問：<b>市場已經假設了什麼？</b>接著判斷這個假設是保守還是過度樂觀——對照公司過去的成長率、產業的天花板、競爭對手的表現。' + small('前 10 年固定成長率，之後以永續成長率成長；用二分法求解。'); }
+          u1(); u2(); u3(); u4();
+        }
+
+        /* 6. 盈餘品質 */
+        function initEq(root, cfg) { head(root, cfg.q);
+          var C = [
+            { n: '健康的公司', ni: [10, 11, 12, 13, 14], cfo: [11, 12, 13.5, 14, 15.5], ar: [45, 46, 44, 45, 46], inv: [50, 52, 49, 51, 50], m: '營業現金流長期略高於淨利（折舊加回），應收帳款與存貨天數穩定。' },
+            { n: '應收帳款暴增', ni: [10, 12, 15, 18, 21], cfo: [10, 9, 7, 4, 1], ar: [45, 60, 85, 115, 150], inv: [50, 52, 55, 56, 58], m: '淨利快速成長，現金卻越收越少——營收可能來自放寬收款條件、塞貨給經銷商，甚至是虛構的客戶（博達案就是虛增應收帳款）。' },
+            { n: '存貨堆積', ni: [10, 11, 12, 12, 11], cfo: [10, 8, 6, 3, -1], ar: [45, 47, 48, 50, 52], inv: [50, 65, 85, 110, 140], m: '存貨天數不斷上升：產品可能賣不掉，未來要提列跌價損失；景氣循環股在高峰時常見這個訊號。' },
+            { n: '費用資本化', ni: [10, 12, 14, 16, 18], cfo: [11, 13, 15, 17, 19], ar: [45, 45, 46, 45, 46], inv: [50, 50, 51, 50, 50], capex: [5, 9, 13, 17, 21], m: '營業現金流看起來很健康，但資本支出也同步暴增：把本來該當費用的支出「資本化」放進投資活動，營業現金流就被美化了（世界通訊案的手法）。要看<b>自由現金流</b>。' }];
+          var k = 0, view = el('div');
+          presets(root, C.map(function (c) { return [c.n]; }), function (o, i) { k = i; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function draw() { var c = C[k], yrs = [1, 2, 3, 4, 5], s = [{ d: yrs.map(function (y, i) { return [y, c.ni[i]]; }), c: BL, n: '淨利' }, { d: yrs.map(function (y, i) { return [y, c.cfo[i]]; }), c: GN, n: '營業現金流' }];
+            if (c.capex) s.push({ d: yrs.map(function (y, i) { return [y, c.cfo[i] - c.capex[i]]; }), c: RD, n: '自由現金流', dash: '5 3' });
+            var cn = c.ni.reduce(function (a, b) { return a + b; }, 0), cc = c.cfo.reduce(function (a, b) { return a + b; }, 0);
+            var lg = s.map(function (q) { return '<span style="color:' + q.c + '">■ ' + q.n + '</span>'; }).join('　');
+            view.innerHTML = chart(640, 220, s, { x0: 1, x1: 5, y0: Math.min(-2, Math.min.apply(null, s.map(function (q) { return Math.min.apply(null, q.d.map(function (p) { return p[1]; })); }))), y1: 24, xl: '年', yl: '億元' }) + '<div style="font-size:0.85em;text-align:center">' + lg + '</div>' + tbl(['', '第 1 年', '第 2 年', '第 3 年', '第 4 年', '第 5 年'], [['應收帳款天數'].concat(c.ar), ['存貨天數'].concat(c.inv), ['營業現金流 ÷ 淨利'].concat(c.ni.map(function (v, i) { return f2(c.cfo[i] / v); }))]);
+            inf.innerHTML = '五年累計：淨利 ' + cn + ' 億、營業現金流 ' + f1(cc) + ' 億（比例 <b>' + f2(cc / cn) + '</b>）。<br>' + c.m + small('虛構的四家公司。簡單的檢查：營業現金流 ÷ 淨利長期低於 1、應收帳款或存貨天數持續上升、資本支出異常成長，都值得追問。'); }
+          draw();
+        }
+
+        function initAll() { document.querySelectorAll('.fdr-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ revtree: initRevtree, oplev: initOplev, scen: initScen, dcf: initDcf, rdcf: initRdcf, eq: initEq })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <div class="fdr-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;rdcf&quot;, &quot;q&quot;: &quot;反向 DCF：現在的股價隱含了多少成長？&quot;}"></div>
+
+      <h2>把問題倒過來</h2>
+
+      <p>
+        一般的 DCF 要你預測未來的成長，再算出價值——但預測本來就很難。<strong>反向 DCF</strong> 把問題倒過來：以現在的股價為已知，求出<strong>市場隱含的成長率</strong>。
+      </p>
+
+      <h2>怎麼判斷</h2>
+
+      <p>
+        得到隱含的成長率後，拿它和這些東西比較：
+      </p>
+
+      <ul>
+        <li>公司過去五到十年的實際成長率。</li>
+        <li>產業的成長率與天花板：公司要成長到多大才符合這個預期？市占需要多少？</li>
+        <li>競爭對手的表現。</li>
+        <li>歷史上，能長期維持這種成長率的公司有多少？</li>
+      </ul>
+
+      <p>
+        如果股價隱含未來十年每年成長 25%，而這家公司過去五年的成長是 10%、產業成長只有 5%，那市場的預期可能過度樂觀；反過來，如果一家穩定成長 8% 的公司，股價只隱含 0% 的成長，可能是被低估了。
+      </p>
+
+      <h2>優點</h2>
+
+      <ul>
+        <li>不需要你自己猜一個精確的成長率。</li>
+        <li>迫使你面對市場的預期——這正是「預期差」的核心（見<a href="lesson-01.html">第 1 課</a>）。</li>
+        <li>對高成長、高估值的公司特別有用：可以看清楚股價需要多完美的表現才合理。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          一般 DCF 要預測成長預測很難，反向 DCF 以現在股價為已知求市場隱含成長率；判斷和公司過去五到十年實際成長比、產業成長天花板公司要多大市占多少、競爭對手、歷史上能維持此成長的公司多少；隱含 25% 但過去 10% 產業 5% 可能過度樂觀、穩定成長 8% 隱含 0% 可能低估；優點不需自己猜精確成長率、面對市場預期是預期差核心、對高成長高估值公司看清股價需要多完美表現。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔎 本課程僅供教育用途，不構成任何投資建議，也不推薦任何個股；課中提到的真實公司只用來說明研究方法的結構，數字範例除特別註明外皆為虛構。法規、申報期限與資料網站以撰寫時（2026 年 11 月）為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>反向 DCF 和一般 DCF 的思路有什麼不同？</li>
+          <li>得到隱含成長率後，要拿它和哪些東西比較？</li>
+          <li>為什麼反向 DCF 對高估值的公司特別有用？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>相對估值實務</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-30.html">← 上一課：DCF 實作</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-32.html">下一課：相對估值實務 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
