@@ -37325,6 +37325,87 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "mechanical-design",
+      category: "tech",
+      title: "機械設計與機構學：讓東西動起來",
+      description:
+        "機器與機構、自由度與 Grübler 公式、運動副、設計流程與 FMEA；四連桿與 Grashof 條件、曲柄滑塊、凸輪運動曲線、齒輪的種類與漸開線、齒輪比與齒輪系、行星齒輪、皮帶鏈條與棘輪；軸承與壽命、軸與聯軸器、螺紋與預緊力、彈簧、離合器與煞車、密封與挑戰者號；應力與安全係數、疲勞破壞、公差與配合、表面粗糙度、製圖與 CAD/CAE；腳踏車變速、機械錶、機器手臂與減速機；從設計到製造。附四連桿、凸輪、齒輪系與行星齒輪四個互動動畫。",
+      icon: "⚙️",
+      url: "topics/mechanical-design/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、機構、元件與設計數據",
+          icon: "📋",
+          url: "topics/mechanical-design/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/mechanical-design/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "機器與機構", url: "topics/mechanical-design/lesson-01.html" },
+            { title: "自由度", url: "topics/mechanical-design/lesson-02.html" },
+            { title: "運動副", url: "topics/mechanical-design/lesson-03.html" },
+            { title: "從需求到設計", url: "topics/mechanical-design/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜機構",
+          courses: [
+            { title: "四連桿機構", url: "topics/mechanical-design/lesson-05.html" },
+            { title: "曲柄滑塊機構", url: "topics/mechanical-design/lesson-06.html" },
+            { title: "凸輪", url: "topics/mechanical-design/lesson-07.html" },
+            { title: "齒輪的種類", url: "topics/mechanical-design/lesson-08.html" },
+            { title: "齒輪比與齒輪系", url: "topics/mechanical-design/lesson-09.html" },
+            { title: "行星齒輪", url: "topics/mechanical-design/lesson-10.html" },
+            { title: "皮帶、鏈條與棘輪", url: "topics/mechanical-design/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機械元件",
+          courses: [
+            { title: "軸承", url: "topics/mechanical-design/lesson-12.html" },
+            { title: "軸與聯軸器", url: "topics/mechanical-design/lesson-13.html" },
+            { title: "螺絲與螺紋", url: "topics/mechanical-design/lesson-14.html" },
+            { title: "彈簧", url: "topics/mechanical-design/lesson-15.html" },
+            { title: "離合器與煞車", url: "topics/mechanical-design/lesson-16.html" },
+            { title: "密封", url: "topics/mechanical-design/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜設計原理",
+          courses: [
+            { title: "應力與安全係數", url: "topics/mechanical-design/lesson-18.html" },
+            { title: "疲勞破壞", url: "topics/mechanical-design/lesson-19.html" },
+            { title: "公差與配合", url: "topics/mechanical-design/lesson-20.html" },
+            { title: "表面粗糙度", url: "topics/mechanical-design/lesson-21.html" },
+            { title: "機械製圖與 CAD", url: "topics/mechanical-design/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "腳踏車變速系統", url: "topics/mechanical-design/lesson-23.html" },
+            { title: "機械錶", url: "topics/mechanical-design/lesson-24.html" },
+            { title: "機器手臂與減速機", url: "topics/mechanical-design/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "從設計到製造", url: "topics/mechanical-design/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
