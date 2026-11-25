@@ -37244,6 +37244,87 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "water-environment",
+      category: "tech",
+      title: "水利與環境工程：從水庫到汙水廠",
+      description:
+        "水文循環與台灣的降雨、逕流與集水區、地下水與地層下陷；水庫的設計與營運、淤積（石門、曾文）、重力壩拱壩土石壩、越域引水與海水淡化、2021 年大旱與限水、水權；淨水流程、管網與漏水、水質標準、硬水與家用淨水；汙水下水道、活性汙泥、汙泥處理、工業廢水、河川整治；重現期、堤防分洪與抽水站、都市排水與出流管制、海綿城市、土石流；空汙防制、焚化與循環經濟、氣候調適。附水庫水量平衡、重現期、淨水流程與都市化洪峰四個互動模擬。",
+      icon: "💧",
+      url: "topics/water-environment/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "數據、公式、流程與事件",
+          icon: "📋",
+          url: "topics/water-environment/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/water-environment/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜水循環",
+          courses: [
+            { title: "水文循環與台灣的降雨", url: "topics/water-environment/lesson-01.html" },
+            { title: "逕流與集水區", url: "topics/water-environment/lesson-02.html" },
+            { title: "地下水", url: "topics/water-environment/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜水資源",
+          courses: [
+            { title: "水庫的設計與營運", url: "topics/water-environment/lesson-04.html" },
+            { title: "水庫淤積", url: "topics/water-environment/lesson-05.html" },
+            { title: "水壩的種類", url: "topics/water-environment/lesson-06.html" },
+            { title: "越域引水與海水淡化", url: "topics/water-environment/lesson-07.html" },
+            { title: "缺水與限水", url: "topics/water-environment/lesson-08.html" },
+            { title: "水權與分配", url: "topics/water-environment/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜自來水",
+          courses: [
+            { title: "淨水流程", url: "topics/water-environment/lesson-10.html" },
+            { title: "管網與漏水", url: "topics/water-environment/lesson-11.html" },
+            { title: "水質標準", url: "topics/water-environment/lesson-12.html" },
+            { title: "硬水與家用淨水", url: "topics/water-environment/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜汙水",
+          courses: [
+            { title: "汙水下水道", url: "topics/water-environment/lesson-14.html" },
+            { title: "生物處理與活性汙泥", url: "topics/water-environment/lesson-15.html" },
+            { title: "汙泥處理", url: "topics/water-environment/lesson-16.html" },
+            { title: "工業廢水", url: "topics/water-environment/lesson-17.html" },
+            { title: "河川整治", url: "topics/water-environment/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜防洪",
+          courses: [
+            { title: "洪水頻率與重現期", url: "topics/water-environment/lesson-19.html" },
+            { title: "堤防與抽水站", url: "topics/water-environment/lesson-20.html" },
+            { title: "都市排水與滯洪池", url: "topics/water-environment/lesson-21.html" },
+            { title: "海綿城市", url: "topics/water-environment/lesson-22.html" },
+            { title: "颱風與土石流", url: "topics/water-environment/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜環境",
+          courses: [
+            { title: "空氣汙染防制", url: "topics/water-environment/lesson-24.html" },
+            { title: "廢棄物與焚化", url: "topics/water-environment/lesson-25.html" },
+            { title: "氣候調適與總結", url: "topics/water-environment/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
