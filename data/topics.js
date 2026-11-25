@@ -38253,6 +38253,87 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "animal-behavior",
+      category: "science",
+      title: "動物行為學：牠們為什麼這樣做",
+      description:
+        "廷伯根的四個問題、本能與信號刺激、印痕與敏感期、動物的學習；最適覓食與邊際價值定理、自私的獸群、偽裝警戒色與擬態、杜鵑與宿主的軍備競賽、遷徙與導航；蜜蜂的搖擺舞、鳥鳴的學習、累贅原則與誠實訊號、動物有語言嗎；性擇、配偶制度、親代照顧、親子衝突與兩性衝突；親屬選擇與漢彌爾頓法則、互惠利他、鷹鴿賽局與演化穩定策略、靈長類的社會、動物的文化與工具；鏡子測驗與動物意識、痛覺與動物福利。附最適覓食、蜜蜂舞蹈、漢彌爾頓法則與鷹鴿賽局四個互動模型。",
+      icon: "🐝",
+      url: "topics/animal-behavior/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "人物、理論與名詞",
+          icon: "📋",
+          url: "topics/animal-behavior/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模型",
+          icon: "🧪",
+          url: "topics/animal-behavior/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜行為從哪裡來",
+          courses: [
+            { title: "廷伯根的四個問題", url: "topics/animal-behavior/lesson-01.html" },
+            { title: "本能與固定行為模式", url: "topics/animal-behavior/lesson-02.html" },
+            { title: "印痕與關鍵期", url: "topics/animal-behavior/lesson-03.html" },
+            { title: "動物如何學習", url: "topics/animal-behavior/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜生存",
+          courses: [
+            { title: "最適覓食", url: "topics/animal-behavior/lesson-05.html" },
+            { title: "群體的安全", url: "topics/animal-behavior/lesson-06.html" },
+            { title: "偽裝、警戒色與擬態", url: "topics/animal-behavior/lesson-07.html" },
+            { title: "演化的軍備競賽", url: "topics/animal-behavior/lesson-08.html" },
+            { title: "遷徙與導航", url: "topics/animal-behavior/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜溝通",
+          courses: [
+            { title: "蜜蜂的舞蹈", url: "topics/animal-behavior/lesson-10.html" },
+            { title: "鳥鳴", url: "topics/animal-behavior/lesson-11.html" },
+            { title: "誠實的訊號", url: "topics/animal-behavior/lesson-12.html" },
+            { title: "動物有語言嗎", url: "topics/animal-behavior/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜性與家庭",
+          courses: [
+            { title: "性擇", url: "topics/animal-behavior/lesson-14.html" },
+            { title: "配偶制度", url: "topics/animal-behavior/lesson-15.html" },
+            { title: "親代照顧", url: "topics/animal-behavior/lesson-16.html" },
+            { title: "親子衝突與手足相爭", url: "topics/animal-behavior/lesson-17.html" },
+            { title: "兩性衝突", url: "topics/animal-behavior/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜社會與合作",
+          courses: [
+            { title: "親屬選擇", url: "topics/animal-behavior/lesson-19.html" },
+            { title: "互惠利他", url: "topics/animal-behavior/lesson-20.html" },
+            { title: "鷹鴿賽局", url: "topics/animal-behavior/lesson-21.html" },
+            { title: "靈長類的社會", url: "topics/animal-behavior/lesson-22.html" },
+            { title: "動物的文化與工具", url: "topics/animal-behavior/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜心智與福利",
+          courses: [
+            { title: "動物的智力與意識", url: "topics/animal-behavior/lesson-24.html" },
+            { title: "情緒、痛覺與動物福利", url: "topics/animal-behavior/lesson-25.html" },
+            { title: "總結", url: "topics/animal-behavior/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
