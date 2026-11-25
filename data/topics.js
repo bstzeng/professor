@@ -38014,6 +38014,84 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "industrial-revolution",
+      category: "history",
+      title: "工業革命：蒸汽、工廠與現代世界的誕生",
+      description:
+        "為什麼是英國、農業革命與人口、馬爾薩斯陷阱；紡織機的連鎖發明、瓦特蒸汽機、焦炭與鋼鐵、工廠制度、運河、鐵路與標準時間、工具機與互換零件；童工與工時、都市化與霍亂、盧德運動與工會、工廠法、家庭與女性、恩格斯停滯；第二次工業革命、福特主義、德國化學工業、明治維新、台灣從加工出口區到晶圓代工；斯密與馬克思、帝國主義與鴉片戰爭、化石燃料與氣候、大分流、AI 時代。附馬爾薩斯陷阱、紡紗工時、蒸汽機效率與能源轉變四個互動模擬。",
+      icon: "🏭",
+      url: "topics/industrial-revolution/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、發明與人物",
+          icon: "📋",
+          url: "topics/industrial-revolution/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/industrial-revolution/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜背景",
+          courses: [
+            { title: "什麼是工業革命", url: "topics/industrial-revolution/lesson-01.html" },
+            { title: "為什麼是英國", url: "topics/industrial-revolution/lesson-02.html" },
+            { title: "農業革命與人口", url: "topics/industrial-revolution/lesson-03.html" },
+            { title: "馬爾薩斯陷阱", url: "topics/industrial-revolution/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜技術",
+          courses: [
+            { title: "紡織機的連鎖發明", url: "topics/industrial-revolution/lesson-05.html" },
+            { title: "瓦特與蒸汽機", url: "topics/industrial-revolution/lesson-06.html" },
+            { title: "煤與鋼鐵", url: "topics/industrial-revolution/lesson-07.html" },
+            { title: "工廠制度", url: "topics/industrial-revolution/lesson-08.html" },
+            { title: "運河", url: "topics/industrial-revolution/lesson-09.html" },
+            { title: "鐵路", url: "topics/industrial-revolution/lesson-10.html" },
+            { title: "工具機與互換零件", url: "topics/industrial-revolution/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜社會",
+          courses: [
+            { title: "童工與工時", url: "topics/industrial-revolution/lesson-12.html" },
+            { title: "都市化與霍亂", url: "topics/industrial-revolution/lesson-13.html" },
+            { title: "盧德運動與工會", url: "topics/industrial-revolution/lesson-14.html" },
+            { title: "工廠法", url: "topics/industrial-revolution/lesson-15.html" },
+            { title: "家庭與女性", url: "topics/industrial-revolution/lesson-16.html" },
+            { title: "生活水準的爭論", url: "topics/industrial-revolution/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜擴散",
+          courses: [
+            { title: "第二次工業革命", url: "topics/industrial-revolution/lesson-18.html" },
+            { title: "美國與大量生產", url: "topics/industrial-revolution/lesson-19.html" },
+            { title: "德國與化學工業", url: "topics/industrial-revolution/lesson-20.html" },
+            { title: "日本的工業化", url: "topics/industrial-revolution/lesson-21.html" },
+            { title: "台灣的工業化", url: "topics/industrial-revolution/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響",
+          courses: [
+            { title: "思想：從亞當・斯密到馬克思", url: "topics/industrial-revolution/lesson-23.html" },
+            { title: "帝國主義與全球分工", url: "topics/industrial-revolution/lesson-24.html" },
+            { title: "能源與氣候", url: "topics/industrial-revolution/lesson-25.html" },
+            { title: "大分流", url: "topics/industrial-revolution/lesson-26.html" },
+            { title: "第三與第四次工業革命", url: "topics/industrial-revolution/lesson-27.html" },
+            { title: "總結", url: "topics/industrial-revolution/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
