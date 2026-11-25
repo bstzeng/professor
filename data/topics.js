@@ -37078,6 +37078,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "digital-comm",
+      category: "tech",
+      title: "數位通訊與錯誤更正碼：在雜訊中可靠地傳遞資訊",
+      description:
+        "類比與數位、取樣與量化、頻寬與頻譜、雜訊與 SNR；AM/FM、ASK/FSK/PSK、QAM 與星座圖、脈衝成形與符號間干擾、匹配濾波器、位元錯誤率；夏農通道容量、多路徑衰落、等化器與同步；同位元與 CRC、漢明碼、Reed–Solomon、卷積碼與 Viterbi、Turbo 碼、LDPC 與 Polar 碼；OFDM、MIMO 與波束成形、多工技術、Wi-Fi 演進、5G 與 6G；航海家號的深空通訊。附星座圖、BER 曲線、漢明碼與 OFDM 四個互動模擬。",
+      icon: "📡",
+      url: "topics/digital-comm/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、調變、編碼與系統",
+          icon: "📋",
+          url: "topics/digital-comm/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/digital-comm/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜訊號基礎",
+          courses: [
+            { title: "類比與數位", url: "topics/digital-comm/lesson-01.html" },
+            { title: "取樣與量化", url: "topics/digital-comm/lesson-02.html" },
+            { title: "頻寬與頻譜", url: "topics/digital-comm/lesson-03.html" },
+            { title: "雜訊與訊號雜訊比", url: "topics/digital-comm/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜調變",
+          courses: [
+            { title: "AM、FM 與 PM", url: "topics/digital-comm/lesson-05.html" },
+            { title: "ASK、FSK 與 PSK", url: "topics/digital-comm/lesson-06.html" },
+            { title: "QAM 與星座圖", url: "topics/digital-comm/lesson-07.html" },
+            { title: "脈衝成形與符號間干擾", url: "topics/digital-comm/lesson-08.html" },
+            { title: "匹配濾波器", url: "topics/digital-comm/lesson-09.html" },
+            { title: "位元錯誤率", url: "topics/digital-comm/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜通道",
+          courses: [
+            { title: "夏農的通道容量", url: "topics/digital-comm/lesson-11.html" },
+            { title: "多路徑衰落", url: "topics/digital-comm/lesson-12.html" },
+            { title: "等化器", url: "topics/digital-comm/lesson-13.html" },
+            { title: "同步", url: "topics/digital-comm/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜錯誤更正碼",
+          courses: [
+            { title: "同位元與 CRC", url: "topics/digital-comm/lesson-15.html" },
+            { title: "漢明碼", url: "topics/digital-comm/lesson-16.html" },
+            { title: "Reed–Solomon 碼", url: "topics/digital-comm/lesson-17.html" },
+            { title: "卷積碼與 Viterbi 解碼", url: "topics/digital-comm/lesson-18.html" },
+            { title: "Turbo 碼", url: "topics/digital-comm/lesson-19.html" },
+            { title: "LDPC 碼", url: "topics/digital-comm/lesson-20.html" },
+            { title: "Polar 碼", url: "topics/digital-comm/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜現代系統",
+          courses: [
+            { title: "OFDM", url: "topics/digital-comm/lesson-22.html" },
+            { title: "MIMO 與波束成形", url: "topics/digital-comm/lesson-23.html" },
+            { title: "多工技術", url: "topics/digital-comm/lesson-24.html" },
+            { title: "Wi-Fi 的演進", url: "topics/digital-comm/lesson-25.html" },
+            { title: "5G 與 6G", url: "topics/digital-comm/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜深空與總結",
+          courses: [
+            { title: "深空通訊", url: "topics/digital-comm/lesson-27.html" },
+            { title: "總結", url: "topics/digital-comm/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
