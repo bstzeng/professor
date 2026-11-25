@@ -37489,6 +37489,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "optics-lasers",
+      category: "science",
+      title: "光學與雷射：從彩虹到 EUV 光刻",
+      description:
+        "粒子與波之爭、電磁波譜、光速與折射率；反射、司乃耳定律、全反射與光纖、透鏡成像、像差、眼睛與眼鏡、望遠鏡與顯微鏡；楊氏雙狹縫與單光子干涉、薄膜干涉、繞射與解析度極限、光柵與光譜、偏振與馬呂斯定律、雙折射與 LCD、藍天與夕陽的散射；光電效應、光子與光壓、LED 與太陽能電池；受激輻射、共振腔、各種雷射、雷射應用、全像術；光纖通訊與矽光子、EUV 光刻、超穎材料。附折射與全反射、透鏡成像、雙狹縫與偏振四個互動模擬。",
+      icon: "🔦",
+      url: "topics/optics-lasers/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、數據、雷射與里程碑",
+          icon: "📋",
+          url: "topics/optics-lasers/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/optics-lasers/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜光是什麼",
+          courses: [
+            { title: "光的本質之爭", url: "topics/optics-lasers/lesson-01.html" },
+            { title: "電磁波譜", url: "topics/optics-lasers/lesson-02.html" },
+            { title: "光速與折射率", url: "topics/optics-lasers/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜幾何光學",
+          courses: [
+            { title: "反射與平面鏡", url: "topics/optics-lasers/lesson-04.html" },
+            { title: "折射與司乃耳定律", url: "topics/optics-lasers/lesson-05.html" },
+            { title: "全反射與光纖", url: "topics/optics-lasers/lesson-06.html" },
+            { title: "透鏡與成像公式", url: "topics/optics-lasers/lesson-07.html" },
+            { title: "像差", url: "topics/optics-lasers/lesson-08.html" },
+            { title: "眼睛與眼鏡", url: "topics/optics-lasers/lesson-09.html" },
+            { title: "望遠鏡與顯微鏡", url: "topics/optics-lasers/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜波動光學",
+          courses: [
+            { title: "干涉與楊氏雙狹縫", url: "topics/optics-lasers/lesson-11.html" },
+            { title: "薄膜干涉", url: "topics/optics-lasers/lesson-12.html" },
+            { title: "繞射與解析度極限", url: "topics/optics-lasers/lesson-13.html" },
+            { title: "繞射光柵與光譜", url: "topics/optics-lasers/lesson-14.html" },
+            { title: "偏振", url: "topics/optics-lasers/lesson-15.html" },
+            { title: "雙折射與 LCD", url: "topics/optics-lasers/lesson-16.html" },
+            { title: "散射", url: "topics/optics-lasers/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜量子光學",
+          courses: [
+            { title: "光電效應", url: "topics/optics-lasers/lesson-18.html" },
+            { title: "光子", url: "topics/optics-lasers/lesson-19.html" },
+            { title: "LED 與太陽能電池", url: "topics/optics-lasers/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜雷射",
+          courses: [
+            { title: "受激輻射", url: "topics/optics-lasers/lesson-21.html" },
+            { title: "共振腔與增益介質", url: "topics/optics-lasers/lesson-22.html" },
+            { title: "雷射的種類", url: "topics/optics-lasers/lesson-23.html" },
+            { title: "雷射的應用", url: "topics/optics-lasers/lesson-24.html" },
+            { title: "全像術", url: "topics/optics-lasers/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜前沿",
+          courses: [
+            { title: "光纖通訊與光子晶片", url: "topics/optics-lasers/lesson-26.html" },
+            { title: "EUV 光刻的光學", url: "topics/optics-lasers/lesson-27.html" },
+            { title: "超穎材料與總結", url: "topics/optics-lasers/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
