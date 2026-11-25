@@ -37831,6 +37831,101 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "legal-life",
+      category: "life",
+      title: "生活法律入門：台灣人一定要懂的法律",
+      description:
+        "法律體系、民法與刑法、法院與調解、小額訴訟；契約成立、定型化契約與審閱期、網購七天解除權、詐欺與標錯價、保證人、借錢利息與本票；租屋契約、押金與修繕、提前解約、買房的履約保證與瑕疵；勞動契約與承攬、加班費、特休、資遣與解僱、勞保與勞退、職場性騷擾；車禍處理、過失與和解、強制險、損害賠償；誹謗與公然侮辱、個資與偷拍、著作權與 AI；夫妻財產、繼承與特留分、限定繼承與遺囑；刑事程序與緘默權。附加班費、特休、繼承試算與事故流程四個互動工具。",
+      icon: "⚖️",
+      url: "topics/legal-life/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "期限、數字與求助管道",
+          icon: "📋",
+          url: "topics/legal-life/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動工具",
+          icon: "🧪",
+          url: "topics/legal-life/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜法律的基礎",
+          courses: [
+            { title: "法律的體系", url: "topics/legal-life/lesson-01.html" },
+            { title: "民法與刑法", url: "topics/legal-life/lesson-02.html" },
+            { title: "法院與訴訟", url: "topics/legal-life/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜契約與消費",
+          courses: [
+            { title: "契約怎麼成立", url: "topics/legal-life/lesson-04.html" },
+            { title: "定型化契約", url: "topics/legal-life/lesson-05.html" },
+            { title: "網購與七天鑑賞期", url: "topics/legal-life/lesson-06.html" },
+            { title: "詐欺、錯誤與標錯價", url: "topics/legal-life/lesson-07.html" },
+            { title: "保證人", url: "topics/legal-life/lesson-08.html" },
+            { title: "借錢、利息與本票", url: "topics/legal-life/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜租屋與房屋",
+          courses: [
+            { title: "租賃契約", url: "topics/legal-life/lesson-10.html" },
+            { title: "押金與修繕", url: "topics/legal-life/lesson-11.html" },
+            { title: "提前解約", url: "topics/legal-life/lesson-12.html" },
+            { title: "買房子的法律", url: "topics/legal-life/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜勞動",
+          courses: [
+            { title: "勞動契約", url: "topics/legal-life/lesson-14.html" },
+            { title: "工時與加班費", url: "topics/legal-life/lesson-15.html" },
+            { title: "特別休假", url: "topics/legal-life/lesson-16.html" },
+            { title: "資遣與解僱", url: "topics/legal-life/lesson-17.html" },
+            { title: "勞保與勞退", url: "topics/legal-life/lesson-18.html" },
+            { title: "職場性騷擾", url: "topics/legal-life/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜交通",
+          courses: [
+            { title: "車禍處理", url: "topics/legal-life/lesson-20.html" },
+            { title: "過失責任與和解", url: "topics/legal-life/lesson-21.html" },
+            { title: "強制險與任意險", url: "topics/legal-life/lesson-22.html" },
+            { title: "損害賠償", url: "topics/legal-life/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜網路與言論",
+          courses: [
+            { title: "誹謗與公然侮辱", url: "topics/legal-life/lesson-24.html" },
+            { title: "個資與隱私", url: "topics/legal-life/lesson-25.html" },
+            { title: "著作權", url: "topics/legal-life/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜家庭與繼承",
+          courses: [
+            { title: "婚姻與夫妻財產", url: "topics/legal-life/lesson-27.html" },
+            { title: "繼承", url: "topics/legal-life/lesson-28.html" },
+            { title: "拋棄繼承、限定繼承與遺囑", url: "topics/legal-life/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜刑事程序與總結",
+          courses: [
+            { title: "刑事程序與總結", url: "topics/legal-life/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
