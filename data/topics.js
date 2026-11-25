@@ -36661,6 +36661,1002 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "comp-arch",
+      category: "tech",
+      title: "計算機組織與架構：從指令到快取的處理器之旅",
+      description:
+        "馮紐曼架構、指令集與微架構、二補數與浮點數、從 C 到機器碼；RISC 與 CISC、RISC-V、x86 與 ARM、呼叫慣例；資料路徑、控制單元、五級管線、資料危障與轉送、分支預測、亂序執行、超純量與 VLIW；記憶體階層、快取組織與策略、虛擬記憶體與 TLB、DRAM 與 HBM、SSD；多核心、快取一致性、記憶體模型、SIMD 與 GPU、Amdahl 定律；效能量測、Spectre 與 Meltdown、現代處理器。附管線時序圖、快取、分支預測與 Amdahl 四個互動模擬。",
+      icon: "🖥️",
+      url: "topics/comp-arch/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "管線、快取、記憶體階層與公式",
+          icon: "📋",
+          url: "topics/comp-arch/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/comp-arch/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "馮紐曼架構", url: "topics/comp-arch/lesson-01.html" },
+            { title: "指令集：軟硬體的契約", url: "topics/comp-arch/lesson-02.html" },
+            { title: "電腦裡的數字", url: "topics/comp-arch/lesson-03.html" },
+            { title: "從 C 程式到機器碼", url: "topics/comp-arch/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜指令集",
+          courses: [
+            { title: "RISC 與 CISC", url: "topics/comp-arch/lesson-05.html" },
+            { title: "RISC-V 入門", url: "topics/comp-arch/lesson-06.html" },
+            { title: "x86 與 ARM", url: "topics/comp-arch/lesson-07.html" },
+            { title: "暫存器與函式呼叫", url: "topics/comp-arch/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜處理器設計",
+          courses: [
+            { title: "單週期資料路徑", url: "topics/comp-arch/lesson-09.html" },
+            { title: "控制單元", url: "topics/comp-arch/lesson-10.html" },
+            { title: "五級管線", url: "topics/comp-arch/lesson-11.html" },
+            { title: "資料危障與轉送", url: "topics/comp-arch/lesson-12.html" },
+            { title: "控制危障與分支預測", url: "topics/comp-arch/lesson-13.html" },
+            { title: "亂序執行", url: "topics/comp-arch/lesson-14.html" },
+            { title: "超純量與 VLIW", url: "topics/comp-arch/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜記憶體",
+          courses: [
+            { title: "記憶體階層", url: "topics/comp-arch/lesson-16.html" },
+            { title: "快取的組織", url: "topics/comp-arch/lesson-17.html" },
+            { title: "替換、寫入與預取", url: "topics/comp-arch/lesson-18.html" },
+            { title: "虛擬記憶體", url: "topics/comp-arch/lesson-19.html" },
+            { title: "TLB", url: "topics/comp-arch/lesson-20.html" },
+            { title: "DRAM 與 HBM", url: "topics/comp-arch/lesson-21.html" },
+            { title: "SSD 與儲存", url: "topics/comp-arch/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜平行",
+          courses: [
+            { title: "多核心", url: "topics/comp-arch/lesson-23.html" },
+            { title: "快取一致性", url: "topics/comp-arch/lesson-24.html" },
+            { title: "記憶體模型與同步", url: "topics/comp-arch/lesson-25.html" },
+            { title: "SIMD 與 GPU", url: "topics/comp-arch/lesson-26.html" },
+            { title: "Amdahl 定律", url: "topics/comp-arch/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實務",
+          courses: [
+            { title: "效能量測與瓶頸分析", url: "topics/comp-arch/lesson-28.html" },
+            { title: "Spectre 與 Meltdown", url: "topics/comp-arch/lesson-29.html" },
+            { title: "現代處理器與總結", url: "topics/comp-arch/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "computer-graphics",
+      category: "tech",
+      title: "電腦圖學：從三角形到光線追蹤",
+      description:
+        "像素與 Gamma、向量與矩陣、座標系與齊次座標；平移旋轉縮放、MVP 矩陣、透視投影與四元數；三角形光柵化、深度緩衝、裁剪剔除、重心插值、反鋸齒與 GPU 渲染管線；Phong 光照、法線貼圖、紋理映射、mipmap、陰影貼圖與 PBR；光線求交、Whitted 遞迴光追、路徑追蹤、BVH、即時光追與 AI 降噪；遊戲引擎渲染流程、骨架動畫與電影 CG。附 3D 轉換、光柵化、Phong 光照與在瀏覽器即時計算的迷你光線追蹤器。",
+      icon: "🧊",
+      url: "topics/computer-graphics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "管線、公式、貼圖與術語",
+          icon: "📋",
+          url: "topics/computer-graphics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/computer-graphics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "像素、色彩與 Gamma", url: "topics/computer-graphics/lesson-01.html" },
+            { title: "向量與矩陣", url: "topics/computer-graphics/lesson-02.html" },
+            { title: "座標系", url: "topics/computer-graphics/lesson-03.html" },
+            { title: "齊次座標", url: "topics/computer-graphics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜轉換",
+          courses: [
+            { title: "基本轉換", url: "topics/computer-graphics/lesson-05.html" },
+            { title: "模型、視圖、投影", url: "topics/computer-graphics/lesson-06.html" },
+            { title: "透視投影", url: "topics/computer-graphics/lesson-07.html" },
+            { title: "四元數與旋轉", url: "topics/computer-graphics/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光柵化",
+          courses: [
+            { title: "三角形光柵化", url: "topics/computer-graphics/lesson-09.html" },
+            { title: "深度緩衝", url: "topics/computer-graphics/lesson-10.html" },
+            { title: "裁剪與剔除", url: "topics/computer-graphics/lesson-11.html" },
+            { title: "重心座標與插值", url: "topics/computer-graphics/lesson-12.html" },
+            { title: "反鋸齒", url: "topics/computer-graphics/lesson-13.html" },
+            { title: "GPU 渲染管線", url: "topics/computer-graphics/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜著色",
+          courses: [
+            { title: "光照模型", url: "topics/computer-graphics/lesson-15.html" },
+            { title: "法線貼圖", url: "topics/computer-graphics/lesson-16.html" },
+            { title: "紋理映射", url: "topics/computer-graphics/lesson-17.html" },
+            { title: "Mipmap", url: "topics/computer-graphics/lesson-18.html" },
+            { title: "陰影", url: "topics/computer-graphics/lesson-19.html" },
+            { title: "基於物理的渲染（PBR）", url: "topics/computer-graphics/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜光線追蹤",
+          courses: [
+            { title: "光線與物體求交", url: "topics/computer-graphics/lesson-21.html" },
+            { title: "遞迴的反射與折射", url: "topics/computer-graphics/lesson-22.html" },
+            { title: "路徑追蹤", url: "topics/computer-graphics/lesson-23.html" },
+            { title: "加速結構 BVH", url: "topics/computer-graphics/lesson-24.html" },
+            { title: "即時光線追蹤與降噪", url: "topics/computer-graphics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用與總結",
+          courses: [
+            { title: "遊戲引擎的渲染流程", url: "topics/computer-graphics/lesson-26.html" },
+            { title: "動畫、骨架與蒙皮", url: "topics/computer-graphics/lesson-27.html" },
+            { title: "電影 CG 與總結", url: "topics/computer-graphics/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "computer-vision",
+      category: "ai",
+      title: "電腦視覺：從像素到理解世界",
+      description:
+        "影像的形成、色彩空間、直方圖、卷積與濾波、Canny 邊緣偵測；Harris 與 SIFT 特徵點、RANSAC、單應性與全景拼接、光流、Hough 轉換；CNN、ImageNet 與 ResNet、遷移學習、資料增強、Vision Transformer、CLIP、自監督學習；物件偵測、影像分割與 Segment Anything、姿態估計、人臉辨識與倫理、OCR、影片追蹤；立體視覺、SLAM、NeRF 與 3D 高斯；自駕車、醫療、工業應用、對抗樣本與偏誤。附卷積核、邊緣偵測、IoU 與 NMS、立體深度四個互動模擬。",
+      icon: "👁️",
+      url: "topics/computer-vision/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "方法、模型年表、任務與指標",
+          icon: "📋",
+          url: "topics/computer-vision/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/computer-vision/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜影像基礎",
+          courses: [
+            { title: "電腦怎麼「看」", url: "topics/computer-vision/lesson-01.html" },
+            { title: "像素與色彩空間", url: "topics/computer-vision/lesson-02.html" },
+            { title: "直方圖與對比", url: "topics/computer-vision/lesson-03.html" },
+            { title: "卷積與濾波", url: "topics/computer-vision/lesson-04.html" },
+            { title: "邊緣偵測", url: "topics/computer-vision/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜經典方法",
+          courses: [
+            { title: "特徵點", url: "topics/computer-vision/lesson-06.html" },
+            { title: "特徵比對與 RANSAC", url: "topics/computer-vision/lesson-07.html" },
+            { title: "影像拼接與單應性", url: "topics/computer-vision/lesson-08.html" },
+            { title: "光流", url: "topics/computer-vision/lesson-09.html" },
+            { title: "Hough 轉換", url: "topics/computer-vision/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜深度學習",
+          courses: [
+            { title: "CNN 怎麼看圖", url: "topics/computer-vision/lesson-11.html" },
+            { title: "ImageNet 與經典網路", url: "topics/computer-vision/lesson-12.html" },
+            { title: "遷移學習", url: "topics/computer-vision/lesson-13.html" },
+            { title: "資料增強", url: "topics/computer-vision/lesson-14.html" },
+            { title: "Vision Transformer", url: "topics/computer-vision/lesson-15.html" },
+            { title: "CLIP 與圖文對齊", url: "topics/computer-vision/lesson-16.html" },
+            { title: "自監督學習", url: "topics/computer-vision/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜視覺任務",
+          courses: [
+            { title: "物件偵測", url: "topics/computer-vision/lesson-18.html" },
+            { title: "影像分割", url: "topics/computer-vision/lesson-19.html" },
+            { title: "姿態估計", url: "topics/computer-vision/lesson-20.html" },
+            { title: "人臉辨識與倫理", url: "topics/computer-vision/lesson-21.html" },
+            { title: "文字辨識 OCR", url: "topics/computer-vision/lesson-22.html" },
+            { title: "影片理解與追蹤", url: "topics/computer-vision/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜3D 視覺",
+          courses: [
+            { title: "立體視覺與深度", url: "topics/computer-vision/lesson-24.html" },
+            { title: "SLAM", url: "topics/computer-vision/lesson-25.html" },
+            { title: "NeRF 與 3D 高斯", url: "topics/computer-vision/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用與倫理",
+          courses: [
+            { title: "電腦視覺的應用", url: "topics/computer-vision/lesson-27.html" },
+            { title: "偏誤、隱私與總結", url: "topics/computer-vision/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "distributed-systems",
+      category: "tech",
+      title: "分散式系統與共識：讓很多台電腦像一台一樣可靠",
+      description:
+        "八個謬誤、部分失效、網路分割與不可靠的時鐘；Lamport 時鐘、向量時鐘、NTP 與 TrueTime、因果一致性；主從、多主與無主複製、Quorum、複製延遲、衝突解決與 CRDT；線性一致性、CAP 與 PACELC、最終一致性與一致性光譜；FLP 不可能結果、兩階段提交、Paxos、Raft、拜占庭容錯與區塊鏈共識；分割與一致性雜湊、Saga、Kafka 事件流、Spanner、DynamoDB、etcd 與大規模故障檢討。附 Raft 模擬器、Quorum、邏輯時鐘與兩階段提交四個互動模擬。",
+      icon: "🌐",
+      url: "topics/distributed-systems/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "一致性、共識、複製與年表",
+          icon: "📋",
+          url: "topics/distributed-systems/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/distributed-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜為什麼難",
+          courses: [
+            { title: "為什麼需要分散式系統", url: "topics/distributed-systems/lesson-01.html" },
+            { title: "部分失效", url: "topics/distributed-systems/lesson-02.html" },
+            { title: "網路延遲與分割", url: "topics/distributed-systems/lesson-03.html" },
+            { title: "時鐘不可靠", url: "topics/distributed-systems/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜時間與順序",
+          courses: [
+            { title: "Lamport 時鐘", url: "topics/distributed-systems/lesson-05.html" },
+            { title: "向量時鐘", url: "topics/distributed-systems/lesson-06.html" },
+            { title: "NTP 與 TrueTime", url: "topics/distributed-systems/lesson-07.html" },
+            { title: "因果一致性", url: "topics/distributed-systems/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜複製",
+          courses: [
+            { title: "主從複製", url: "topics/distributed-systems/lesson-09.html" },
+            { title: "多主與無主複製", url: "topics/distributed-systems/lesson-10.html" },
+            { title: "Quorum", url: "topics/distributed-systems/lesson-11.html" },
+            { title: "複製延遲", url: "topics/distributed-systems/lesson-12.html" },
+            { title: "衝突解決與 CRDT", url: "topics/distributed-systems/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜一致性",
+          courses: [
+            { title: "線性一致性", url: "topics/distributed-systems/lesson-14.html" },
+            { title: "CAP 與 PACELC", url: "topics/distributed-systems/lesson-15.html" },
+            { title: "最終一致性", url: "topics/distributed-systems/lesson-16.html" },
+            { title: "一致性模型的光譜", url: "topics/distributed-systems/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜共識",
+          courses: [
+            { title: "共識與 FLP 不可能結果", url: "topics/distributed-systems/lesson-18.html" },
+            { title: "兩階段提交", url: "topics/distributed-systems/lesson-19.html" },
+            { title: "Paxos", url: "topics/distributed-systems/lesson-20.html" },
+            { title: "Raft", url: "topics/distributed-systems/lesson-21.html" },
+            { title: "拜占庭容錯", url: "topics/distributed-systems/lesson-22.html" },
+            { title: "區塊鏈的共識", url: "topics/distributed-systems/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜實戰",
+          courses: [
+            { title: "分割與再平衡", url: "topics/distributed-systems/lesson-24.html" },
+            { title: "分散式交易與 Saga", url: "topics/distributed-systems/lesson-25.html" },
+            { title: "事件流與 Kafka", url: "topics/distributed-systems/lesson-26.html" },
+            { title: "真實系統的案例", url: "topics/distributed-systems/lesson-27.html" },
+            { title: "故障檢討與總結", url: "topics/distributed-systems/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "motors-power-electronics",
+      category: "tech",
+      title: "馬達與電力電子：從玩具車到電動車的動力",
+      description:
+        "勞倫茲力與電磁感應、磁路與稀土磁鐵、轉矩轉速與功率、損耗與效率；有刷直流、步進、無刷直流、永磁同步、感應、開關磁阻與伺服馬達，以及選型；MOSFET、IGBT、碳化矽與氮化鎵、PWM；降壓、升壓、返馳式、整流與功率因數校正、逆變器與變頻器；向量控制、PID 調速與回生制動；電動車電驅、家電與工業自動化、無人機與機器人。附直流馬達特性曲線、三相旋轉磁場、PWM 與轉換器效率四個互動模擬。",
+      icon: "⚙️",
+      url: "topics/motors-power-electronics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "馬達比較、轉換器公式與元件",
+          icon: "📋",
+          url: "topics/motors-power-electronics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/motors-power-electronics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電磁基礎",
+          courses: [
+            { title: "電磁力與感應", url: "topics/motors-power-electronics/lesson-01.html" },
+            { title: "磁路與磁性材料", url: "topics/motors-power-electronics/lesson-02.html" },
+            { title: "轉矩、轉速與功率", url: "topics/motors-power-electronics/lesson-03.html" },
+            { title: "效率與損耗", url: "topics/motors-power-electronics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜各種馬達",
+          courses: [
+            { title: "有刷直流馬達", url: "topics/motors-power-electronics/lesson-05.html" },
+            { title: "步進馬達", url: "topics/motors-power-electronics/lesson-06.html" },
+            { title: "無刷直流馬達（BLDC）", url: "topics/motors-power-electronics/lesson-07.html" },
+            { title: "永磁同步馬達（PMSM）", url: "topics/motors-power-electronics/lesson-08.html" },
+            { title: "感應馬達", url: "topics/motors-power-electronics/lesson-09.html" },
+            { title: "開關磁阻馬達", url: "topics/motors-power-electronics/lesson-10.html" },
+            { title: "伺服馬達與編碼器", url: "topics/motors-power-electronics/lesson-11.html" },
+            { title: "馬達的選型", url: "topics/motors-power-electronics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜電力電子元件",
+          courses: [
+            { title: "二極體與 MOSFET", url: "topics/motors-power-electronics/lesson-13.html" },
+            { title: "IGBT", url: "topics/motors-power-electronics/lesson-14.html" },
+            { title: "碳化矽與氮化鎵", url: "topics/motors-power-electronics/lesson-15.html" },
+            { title: "PWM", url: "topics/motors-power-electronics/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜轉換器",
+          courses: [
+            { title: "降壓轉換器（Buck）", url: "topics/motors-power-electronics/lesson-17.html" },
+            { title: "升壓轉換器（Boost）", url: "topics/motors-power-electronics/lesson-18.html" },
+            { title: "返馳式轉換器", url: "topics/motors-power-electronics/lesson-19.html" },
+            { title: "整流與功率因數校正", url: "topics/motors-power-electronics/lesson-20.html" },
+            { title: "逆變器", url: "topics/motors-power-electronics/lesson-21.html" },
+            { title: "變頻器", url: "topics/motors-power-electronics/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜控制",
+          courses: [
+            { title: "向量控制（FOC）", url: "topics/motors-power-electronics/lesson-23.html" },
+            { title: "PID 調速", url: "topics/motors-power-electronics/lesson-24.html" },
+            { title: "回生制動", url: "topics/motors-power-electronics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用",
+          courses: [
+            { title: "電動車的電驅系統", url: "topics/motors-power-electronics/lesson-26.html" },
+            { title: "家電與工業自動化", url: "topics/motors-power-electronics/lesson-27.html" },
+            { title: "無人機、機器人與總結", url: "topics/motors-power-electronics/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "digital-comm",
+      category: "tech",
+      title: "數位通訊與錯誤更正碼：在雜訊中可靠地傳遞資訊",
+      description:
+        "類比與數位、取樣與量化、頻寬與頻譜、雜訊與 SNR；AM/FM、ASK/FSK/PSK、QAM 與星座圖、脈衝成形與符號間干擾、匹配濾波器、位元錯誤率；夏農通道容量、多路徑衰落、等化器與同步；同位元與 CRC、漢明碼、Reed–Solomon、卷積碼與 Viterbi、Turbo 碼、LDPC 與 Polar 碼；OFDM、MIMO 與波束成形、多工技術、Wi-Fi 演進、5G 與 6G；航海家號的深空通訊。附星座圖、BER 曲線、漢明碼與 OFDM 四個互動模擬。",
+      icon: "📡",
+      url: "topics/digital-comm/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、調變、編碼與系統",
+          icon: "📋",
+          url: "topics/digital-comm/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/digital-comm/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜訊號基礎",
+          courses: [
+            { title: "類比與數位", url: "topics/digital-comm/lesson-01.html" },
+            { title: "取樣與量化", url: "topics/digital-comm/lesson-02.html" },
+            { title: "頻寬與頻譜", url: "topics/digital-comm/lesson-03.html" },
+            { title: "雜訊與訊號雜訊比", url: "topics/digital-comm/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜調變",
+          courses: [
+            { title: "AM、FM 與 PM", url: "topics/digital-comm/lesson-05.html" },
+            { title: "ASK、FSK 與 PSK", url: "topics/digital-comm/lesson-06.html" },
+            { title: "QAM 與星座圖", url: "topics/digital-comm/lesson-07.html" },
+            { title: "脈衝成形與符號間干擾", url: "topics/digital-comm/lesson-08.html" },
+            { title: "匹配濾波器", url: "topics/digital-comm/lesson-09.html" },
+            { title: "位元錯誤率", url: "topics/digital-comm/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜通道",
+          courses: [
+            { title: "夏農的通道容量", url: "topics/digital-comm/lesson-11.html" },
+            { title: "多路徑衰落", url: "topics/digital-comm/lesson-12.html" },
+            { title: "等化器", url: "topics/digital-comm/lesson-13.html" },
+            { title: "同步", url: "topics/digital-comm/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜錯誤更正碼",
+          courses: [
+            { title: "同位元與 CRC", url: "topics/digital-comm/lesson-15.html" },
+            { title: "漢明碼", url: "topics/digital-comm/lesson-16.html" },
+            { title: "Reed–Solomon 碼", url: "topics/digital-comm/lesson-17.html" },
+            { title: "卷積碼與 Viterbi 解碼", url: "topics/digital-comm/lesson-18.html" },
+            { title: "Turbo 碼", url: "topics/digital-comm/lesson-19.html" },
+            { title: "LDPC 碼", url: "topics/digital-comm/lesson-20.html" },
+            { title: "Polar 碼", url: "topics/digital-comm/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜現代系統",
+          courses: [
+            { title: "OFDM", url: "topics/digital-comm/lesson-22.html" },
+            { title: "MIMO 與波束成形", url: "topics/digital-comm/lesson-23.html" },
+            { title: "多工技術", url: "topics/digital-comm/lesson-24.html" },
+            { title: "Wi-Fi 的演進", url: "topics/digital-comm/lesson-25.html" },
+            { title: "5G 與 6G", url: "topics/digital-comm/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜深空與總結",
+          courses: [
+            { title: "深空通訊", url: "topics/digital-comm/lesson-27.html" },
+            { title: "總結", url: "topics/digital-comm/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "thermo-heat",
+      category: "science",
+      title: "熱力學與熱傳：從引擎到冷氣",
+      description:
+        "溫度、熱與功；熱力學四大定律、理想氣體、比熱與潛熱、熵；卡諾、奧圖與狄塞爾、布雷頓（噴射引擎、複循環）、朗肯（蒸汽電廠）、冷凍循環與熱泵 COP；冷氣與變頻、冰箱、熱泵熱水器、除濕機；傳導與熱阻、建築隔熱、對流、輻射與黑體、熱交換器、熱管與均溫板、沸騰與凝結；CPU 與 GPU 散熱、資料中心液冷、電池熱管理；能量的品質與節能。附熱機循環、冷氣 COP、牆壁隔熱與晶片散熱四個互動模擬。",
+      icon: "🌡️",
+      url: "topics/thermo-heat/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "定律、循環、熱傳公式與材料數據",
+          icon: "📋",
+          url: "topics/thermo-heat/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/thermo-heat/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱力學定律",
+          courses: [
+            { title: "溫度、熱與功", url: "topics/thermo-heat/lesson-01.html" },
+            { title: "第零與第一定律", url: "topics/thermo-heat/lesson-02.html" },
+            { title: "理想氣體", url: "topics/thermo-heat/lesson-03.html" },
+            { title: "比熱、潛熱與焓", url: "topics/thermo-heat/lesson-04.html" },
+            { title: "第二定律與熵", url: "topics/thermo-heat/lesson-05.html" },
+            { title: "第三定律", url: "topics/thermo-heat/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜循環",
+          courses: [
+            { title: "卡諾循環", url: "topics/thermo-heat/lesson-07.html" },
+            { title: "奧圖與狄塞爾循環", url: "topics/thermo-heat/lesson-08.html" },
+            { title: "布雷頓循環", url: "topics/thermo-heat/lesson-09.html" },
+            { title: "朗肯循環", url: "topics/thermo-heat/lesson-10.html" },
+            { title: "冷凍循環", url: "topics/thermo-heat/lesson-11.html" },
+            { title: "熱泵與 COP", url: "topics/thermo-heat/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜生活應用",
+          courses: [
+            { title: "冷氣與變頻冷氣", url: "topics/thermo-heat/lesson-13.html" },
+            { title: "冰箱", url: "topics/thermo-heat/lesson-14.html" },
+            { title: "熱泵熱水器", url: "topics/thermo-heat/lesson-15.html" },
+            { title: "除濕機與濕空氣", url: "topics/thermo-heat/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜熱傳",
+          courses: [
+            { title: "傳導與傅立葉定律", url: "topics/thermo-heat/lesson-17.html" },
+            { title: "保溫與隔熱", url: "topics/thermo-heat/lesson-18.html" },
+            { title: "對流與牛頓冷卻定律", url: "topics/thermo-heat/lesson-19.html" },
+            { title: "輻射與黑體", url: "topics/thermo-heat/lesson-20.html" },
+            { title: "熱交換器", url: "topics/thermo-heat/lesson-21.html" },
+            { title: "散熱片與熱管", url: "topics/thermo-heat/lesson-22.html" },
+            { title: "沸騰與凝結", url: "topics/thermo-heat/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜散熱工程",
+          courses: [
+            { title: "CPU 與 GPU 散熱", url: "topics/thermo-heat/lesson-24.html" },
+            { title: "資料中心的冷卻", url: "topics/thermo-heat/lesson-25.html" },
+            { title: "電池的熱管理", url: "topics/thermo-heat/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "能源效率與節能", url: "topics/thermo-heat/lesson-27.html" },
+            { title: "總結", url: "topics/thermo-heat/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "water-environment",
+      category: "tech",
+      title: "水利與環境工程：從水庫到汙水廠",
+      description:
+        "水文循環與台灣的降雨、逕流與集水區、地下水與地層下陷；水庫的設計與營運、淤積（石門、曾文）、重力壩拱壩土石壩、越域引水與海水淡化、2021 年大旱與限水、水權；淨水流程、管網與漏水、水質標準、硬水與家用淨水；汙水下水道、活性汙泥、汙泥處理、工業廢水、河川整治；重現期、堤防分洪與抽水站、都市排水與出流管制、海綿城市、土石流；空汙防制、焚化與循環經濟、氣候調適。附水庫水量平衡、重現期、淨水流程與都市化洪峰四個互動模擬。",
+      icon: "💧",
+      url: "topics/water-environment/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "數據、公式、流程與事件",
+          icon: "📋",
+          url: "topics/water-environment/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/water-environment/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜水循環",
+          courses: [
+            { title: "水文循環與台灣的降雨", url: "topics/water-environment/lesson-01.html" },
+            { title: "逕流與集水區", url: "topics/water-environment/lesson-02.html" },
+            { title: "地下水", url: "topics/water-environment/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜水資源",
+          courses: [
+            { title: "水庫的設計與營運", url: "topics/water-environment/lesson-04.html" },
+            { title: "水庫淤積", url: "topics/water-environment/lesson-05.html" },
+            { title: "水壩的種類", url: "topics/water-environment/lesson-06.html" },
+            { title: "越域引水與海水淡化", url: "topics/water-environment/lesson-07.html" },
+            { title: "缺水與限水", url: "topics/water-environment/lesson-08.html" },
+            { title: "水權與分配", url: "topics/water-environment/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜自來水",
+          courses: [
+            { title: "淨水流程", url: "topics/water-environment/lesson-10.html" },
+            { title: "管網與漏水", url: "topics/water-environment/lesson-11.html" },
+            { title: "水質標準", url: "topics/water-environment/lesson-12.html" },
+            { title: "硬水與家用淨水", url: "topics/water-environment/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜汙水",
+          courses: [
+            { title: "汙水下水道", url: "topics/water-environment/lesson-14.html" },
+            { title: "生物處理與活性汙泥", url: "topics/water-environment/lesson-15.html" },
+            { title: "汙泥處理", url: "topics/water-environment/lesson-16.html" },
+            { title: "工業廢水", url: "topics/water-environment/lesson-17.html" },
+            { title: "河川整治", url: "topics/water-environment/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜防洪",
+          courses: [
+            { title: "洪水頻率與重現期", url: "topics/water-environment/lesson-19.html" },
+            { title: "堤防與抽水站", url: "topics/water-environment/lesson-20.html" },
+            { title: "都市排水與滯洪池", url: "topics/water-environment/lesson-21.html" },
+            { title: "海綿城市", url: "topics/water-environment/lesson-22.html" },
+            { title: "颱風與土石流", url: "topics/water-environment/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜環境",
+          courses: [
+            { title: "空氣汙染防制", url: "topics/water-environment/lesson-24.html" },
+            { title: "廢棄物與焚化", url: "topics/water-environment/lesson-25.html" },
+            { title: "氣候調適與總結", url: "topics/water-environment/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "mechanical-design",
+      category: "tech",
+      title: "機械設計與機構學：讓東西動起來",
+      description:
+        "機器與機構、自由度與 Grübler 公式、運動副、設計流程與 FMEA；四連桿與 Grashof 條件、曲柄滑塊、凸輪運動曲線、齒輪的種類與漸開線、齒輪比與齒輪系、行星齒輪、皮帶鏈條與棘輪；軸承與壽命、軸與聯軸器、螺紋與預緊力、彈簧、離合器與煞車、密封與挑戰者號；應力與安全係數、疲勞破壞、公差與配合、表面粗糙度、製圖與 CAD/CAE；腳踏車變速、機械錶、機器手臂與減速機；從設計到製造。附四連桿、凸輪、齒輪系與行星齒輪四個互動動畫。",
+      icon: "⚙️",
+      url: "topics/mechanical-design/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、機構、元件與設計數據",
+          icon: "📋",
+          url: "topics/mechanical-design/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/mechanical-design/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "機器與機構", url: "topics/mechanical-design/lesson-01.html" },
+            { title: "自由度", url: "topics/mechanical-design/lesson-02.html" },
+            { title: "運動副", url: "topics/mechanical-design/lesson-03.html" },
+            { title: "從需求到設計", url: "topics/mechanical-design/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜機構",
+          courses: [
+            { title: "四連桿機構", url: "topics/mechanical-design/lesson-05.html" },
+            { title: "曲柄滑塊機構", url: "topics/mechanical-design/lesson-06.html" },
+            { title: "凸輪", url: "topics/mechanical-design/lesson-07.html" },
+            { title: "齒輪的種類", url: "topics/mechanical-design/lesson-08.html" },
+            { title: "齒輪比與齒輪系", url: "topics/mechanical-design/lesson-09.html" },
+            { title: "行星齒輪", url: "topics/mechanical-design/lesson-10.html" },
+            { title: "皮帶、鏈條與棘輪", url: "topics/mechanical-design/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機械元件",
+          courses: [
+            { title: "軸承", url: "topics/mechanical-design/lesson-12.html" },
+            { title: "軸與聯軸器", url: "topics/mechanical-design/lesson-13.html" },
+            { title: "螺絲與螺紋", url: "topics/mechanical-design/lesson-14.html" },
+            { title: "彈簧", url: "topics/mechanical-design/lesson-15.html" },
+            { title: "離合器與煞車", url: "topics/mechanical-design/lesson-16.html" },
+            { title: "密封", url: "topics/mechanical-design/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜設計原理",
+          courses: [
+            { title: "應力與安全係數", url: "topics/mechanical-design/lesson-18.html" },
+            { title: "疲勞破壞", url: "topics/mechanical-design/lesson-19.html" },
+            { title: "公差與配合", url: "topics/mechanical-design/lesson-20.html" },
+            { title: "表面粗糙度", url: "topics/mechanical-design/lesson-21.html" },
+            { title: "機械製圖與 CAD", url: "topics/mechanical-design/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "腳踏車變速系統", url: "topics/mechanical-design/lesson-23.html" },
+            { title: "機械錶", url: "topics/mechanical-design/lesson-24.html" },
+            { title: "機器手臂與減速機", url: "topics/mechanical-design/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "從設計到製造", url: "topics/mechanical-design/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "optimization",
+      category: "math",
+      title: "作業研究與最佳化：在限制中找到最好的決策",
+      description:
+        "決策變數、目標與限制；建模、線性與非線性、局部與全域；線性規劃的圖解法、單形法與內點法、對偶與影子價格、敏感度分析、運輸與指派問題；整數規劃與分支定界、背包問題與動態規劃、旅行推銷員與 2-opt、排程與要徑法、NP 困難與近似演算法；最短路徑、最大流最小割、最小生成樹、供應鏈網路設計；梯度下降、牛頓法、凸最佳化、拉格朗日與 KKT、SGD 與 Adam；EOQ 與報童問題、排隊與模擬、隨機規劃、模擬退火與基因演算法、航空排班與車輛路徑。附線性規劃、背包、旅行推銷員與梯度下降四個互動模擬。",
+      icon: "🎯",
+      url: "topics/optimization/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "問題類型、演算法、公式與里程碑",
+          icon: "📋",
+          url: "topics/optimization/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/optimization/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜建模",
+          courses: [
+            { title: "什麼是最佳化", url: "topics/optimization/lesson-01.html" },
+            { title: "把現實問題寫成數學", url: "topics/optimization/lesson-02.html" },
+            { title: "線性與非線性", url: "topics/optimization/lesson-03.html" },
+            { title: "可行解與最佳解", url: "topics/optimization/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜線性規劃",
+          courses: [
+            { title: "圖解法", url: "topics/optimization/lesson-05.html" },
+            { title: "單形法", url: "topics/optimization/lesson-06.html" },
+            { title: "對偶與影子價格", url: "topics/optimization/lesson-07.html" },
+            { title: "敏感度分析", url: "topics/optimization/lesson-08.html" },
+            { title: "運輸問題", url: "topics/optimization/lesson-09.html" },
+            { title: "指派問題", url: "topics/optimization/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜整數與組合",
+          courses: [
+            { title: "整數規劃與分支定界", url: "topics/optimization/lesson-11.html" },
+            { title: "背包問題", url: "topics/optimization/lesson-12.html" },
+            { title: "旅行推銷員問題", url: "topics/optimization/lesson-13.html" },
+            { title: "排程問題", url: "topics/optimization/lesson-14.html" },
+            { title: "NP 困難與近似演算法", url: "topics/optimization/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜網路",
+          courses: [
+            { title: "最短路徑", url: "topics/optimization/lesson-16.html" },
+            { title: "最大流與最小割", url: "topics/optimization/lesson-17.html" },
+            { title: "最小生成樹", url: "topics/optimization/lesson-18.html" },
+            { title: "供應鏈網路設計", url: "topics/optimization/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜連續最佳化",
+          courses: [
+            { title: "梯度下降", url: "topics/optimization/lesson-20.html" },
+            { title: "牛頓法", url: "topics/optimization/lesson-21.html" },
+            { title: "凸最佳化", url: "topics/optimization/lesson-22.html" },
+            { title: "拉格朗日乘數與 KKT 條件", url: "topics/optimization/lesson-23.html" },
+            { title: "機器學習中的最佳化", url: "topics/optimization/lesson-24.html" },
+          ],
+        },
+        {
+          title: "模組 F｜不確定性與實務",
+          courses: [
+            { title: "存貨模型", url: "topics/optimization/lesson-25.html" },
+            { title: "排隊與模擬", url: "topics/optimization/lesson-26.html" },
+            { title: "隨機規劃與啟發式演算法", url: "topics/optimization/lesson-27.html" },
+            { title: "實務案例與總結", url: "topics/optimization/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "optics-lasers",
+      category: "science",
+      title: "光學與雷射：從彩虹到 EUV 光刻",
+      description:
+        "粒子與波之爭、電磁波譜、光速與折射率；反射、司乃耳定律、全反射與光纖、透鏡成像、像差、眼睛與眼鏡、望遠鏡與顯微鏡；楊氏雙狹縫與單光子干涉、薄膜干涉、繞射與解析度極限、光柵與光譜、偏振與馬呂斯定律、雙折射與 LCD、藍天與夕陽的散射；光電效應、光子與光壓、LED 與太陽能電池；受激輻射、共振腔、各種雷射、雷射應用、全像術；光纖通訊與矽光子、EUV 光刻、超穎材料。附折射與全反射、透鏡成像、雙狹縫與偏振四個互動模擬。",
+      icon: "🔦",
+      url: "topics/optics-lasers/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、數據、雷射與里程碑",
+          icon: "📋",
+          url: "topics/optics-lasers/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/optics-lasers/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜光是什麼",
+          courses: [
+            { title: "光的本質之爭", url: "topics/optics-lasers/lesson-01.html" },
+            { title: "電磁波譜", url: "topics/optics-lasers/lesson-02.html" },
+            { title: "光速與折射率", url: "topics/optics-lasers/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜幾何光學",
+          courses: [
+            { title: "反射與平面鏡", url: "topics/optics-lasers/lesson-04.html" },
+            { title: "折射與司乃耳定律", url: "topics/optics-lasers/lesson-05.html" },
+            { title: "全反射與光纖", url: "topics/optics-lasers/lesson-06.html" },
+            { title: "透鏡與成像公式", url: "topics/optics-lasers/lesson-07.html" },
+            { title: "像差", url: "topics/optics-lasers/lesson-08.html" },
+            { title: "眼睛與眼鏡", url: "topics/optics-lasers/lesson-09.html" },
+            { title: "望遠鏡與顯微鏡", url: "topics/optics-lasers/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜波動光學",
+          courses: [
+            { title: "干涉與楊氏雙狹縫", url: "topics/optics-lasers/lesson-11.html" },
+            { title: "薄膜干涉", url: "topics/optics-lasers/lesson-12.html" },
+            { title: "繞射與解析度極限", url: "topics/optics-lasers/lesson-13.html" },
+            { title: "繞射光柵與光譜", url: "topics/optics-lasers/lesson-14.html" },
+            { title: "偏振", url: "topics/optics-lasers/lesson-15.html" },
+            { title: "雙折射與 LCD", url: "topics/optics-lasers/lesson-16.html" },
+            { title: "散射", url: "topics/optics-lasers/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜量子光學",
+          courses: [
+            { title: "光電效應", url: "topics/optics-lasers/lesson-18.html" },
+            { title: "光子", url: "topics/optics-lasers/lesson-19.html" },
+            { title: "LED 與太陽能電池", url: "topics/optics-lasers/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜雷射",
+          courses: [
+            { title: "受激輻射", url: "topics/optics-lasers/lesson-21.html" },
+            { title: "共振腔與增益介質", url: "topics/optics-lasers/lesson-22.html" },
+            { title: "雷射的種類", url: "topics/optics-lasers/lesson-23.html" },
+            { title: "雷射的應用", url: "topics/optics-lasers/lesson-24.html" },
+            { title: "全像術", url: "topics/optics-lasers/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜前沿",
+          courses: [
+            { title: "光纖通訊與光子晶片", url: "topics/optics-lasers/lesson-26.html" },
+            { title: "EUV 光刻的光學", url: "topics/optics-lasers/lesson-27.html" },
+            { title: "超穎材料與總結", url: "topics/optics-lasers/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "probability",
+      category: "math",
+      title: "機率論：從擲骰子到中央極限定理",
+      description:
+        "樣本空間與事件、柯摩哥洛夫公理、排列組合與樂透、條件機率與檢察官謬誤、貝氏定理與醫學檢驗、獨立性與共因失效；隨機變數、期望值的線性、變異數與 σ/√n、二項、幾何（抽卡與保底）、卜瓦松；密度函數、均勻與指數、常態與厚尾、Gamma 與 Beta、變數變換；聯合分布、相關不等於因果、迴歸到平均、條件期望、多元常態；柴比雪夫、大數法則、中央極限定理、動差生成函數；生日問題、蒙提霍爾、賭徒謬誤與破產、聖彼得堡悖論、保險與 AI。附二項與卜瓦松、中央極限定理、生日問題與蒙提霍爾四個互動模擬。",
+      icon: "🎲",
+      url: "topics/probability/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、分布與經典問題",
+          icon: "📋",
+          url: "topics/probability/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/probability/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "樣本空間與事件", url: "topics/probability/lesson-01.html" },
+            { title: "機率公理", url: "topics/probability/lesson-02.html" },
+            { title: "計數方法", url: "topics/probability/lesson-03.html" },
+            { title: "條件機率", url: "topics/probability/lesson-04.html" },
+            { title: "貝氏定理", url: "topics/probability/lesson-05.html" },
+            { title: "獨立性", url: "topics/probability/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜離散隨機變數",
+          courses: [
+            { title: "隨機變數", url: "topics/probability/lesson-07.html" },
+            { title: "期望值", url: "topics/probability/lesson-08.html" },
+            { title: "變異數", url: "topics/probability/lesson-09.html" },
+            { title: "二項分布", url: "topics/probability/lesson-10.html" },
+            { title: "幾何分布與負二項分布", url: "topics/probability/lesson-11.html" },
+            { title: "卜瓦松分布", url: "topics/probability/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜連續分布",
+          courses: [
+            { title: "機率密度函數", url: "topics/probability/lesson-13.html" },
+            { title: "均勻分布與指數分布", url: "topics/probability/lesson-14.html" },
+            { title: "常態分布", url: "topics/probability/lesson-15.html" },
+            { title: "Gamma 與 Beta 分布", url: "topics/probability/lesson-16.html" },
+            { title: "變數變換", url: "topics/probability/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜多變數",
+          courses: [
+            { title: "聯合分布", url: "topics/probability/lesson-18.html" },
+            { title: "共變異數與相關係數", url: "topics/probability/lesson-19.html" },
+            { title: "條件期望", url: "topics/probability/lesson-20.html" },
+            { title: "多元常態分布", url: "topics/probability/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜極限定理",
+          courses: [
+            { title: "馬可夫與柴比雪夫不等式", url: "topics/probability/lesson-22.html" },
+            { title: "大數法則", url: "topics/probability/lesson-23.html" },
+            { title: "中央極限定理", url: "topics/probability/lesson-24.html" },
+            { title: "動差生成函數", url: "topics/probability/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜悖論與應用",
+          courses: [
+            { title: "生日問題", url: "topics/probability/lesson-26.html" },
+            { title: "蒙提霍爾問題", url: "topics/probability/lesson-27.html" },
+            { title: "賭徒謬誤與賭徒破產", url: "topics/probability/lesson-28.html" },
+            { title: "聖彼得堡悖論", url: "topics/probability/lesson-29.html" },
+            { title: "機率的應用與總結", url: "topics/probability/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };

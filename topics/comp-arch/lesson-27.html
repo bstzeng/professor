@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 27 課：Amdahl 定律 ｜ 計算機組織與架構 ｜ 博雅書院</title>
+<meta name="description" content="平行化的極限">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">計算機組織與架構</a>
+      <span class="sep">/</span>
+      <span>第 27 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜平行 · 第 27 課</div>
+      <h1>Amdahl 定律</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Amdahl 定律</li>
+          <li>理解 Gustafson 定律</li>
+          <li>思考平行化的策略</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__kcaLib) return; window.__kcaLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad', PU = '#8a5bb5', TL = '#2a9d8f', YL = '#c9a227';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+        function small(s) { return '<br><span style="font-size:0.88em;color:var(--text-muted)">' + s + '</span>'; }
+        function presets(root, list, cb, k0) { var b = bar(root); list.forEach(function (o, i) { var x = btn(o, i); x.onclick = function () { mark(b, i); cb(i); }; b.appendChild(x); }); mark(b, k0 === undefined ? 0 : k0); return b; }
+        function setS(root, k, v) { var s = root.querySelector('input[data-k="' + k + '"]'); if (s) s.value = v; }
+        function rc(x, y, w, h, f, st, rx) { return '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(Math.max(w, 0)) + '" height="' + n1(Math.max(h, 0)) + '" rx="' + (rx === undefined ? 4 : rx) + '" fill="' + f + '"' + (st ? ' stroke="' + st + '"' : '') + '/>'; }
+        function ci(x, y, r, f, st, sw) { return '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="' + n1(r) + '" fill="' + f + '"' + (st ? ' stroke="' + st + '" stroke-width="' + (sw || 1.5) + '"' : '') + '/>'; }
+        function pa(d, c, w, f, ex) { return '<path d="' + d + '" fill="' + (f || 'none') + '" stroke="' + c + '" stroke-width="' + (w || 1.5) + '" ' + (ex || '') + '/>'; }
+        function poly(pts) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + n1(p[0]) + ' ' + n1(p[1]); }).join(' '); }
+        function tbl(h, rows) { var s = '<table style="border-collapse:collapse;width:100%;font-size:0.86em;margin-top:6px"><tr>' + h.map(function (x) { return '<th style="border:1px solid var(--border);padding:3px 5px;background:var(--accent-soft)">' + x + '</th>'; }).join('') + '</tr>';
+          rows.forEach(function (r) { s += '<tr>' + r.map(function (c, j) { return '<td style="border:1px solid var(--border);padding:3px 5px;text-align:' + (j ? 'center' : 'left') + '">' + c + '</td>'; }).join('') + '</tr>'; }); return s + '</table>'; }
+        function rng(seed) { var a = (seed || 1) >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+        function gauss(r) { var u = Math.max(r(), 1e-9), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+        function pct(v) { return f1(v * 100) + '%'; }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+        /* 1. 管線時序圖 */
+        function initPipe(root, cfg) { head(root, cfg.q); var P = { k: 1, fw: 0, ok: 0 }, view = el('div', 'overflow-x:auto');
+          var PR = [
+            [['add x1, x2, x3'], ['sub x4, x5, x6'], ['and x7, x8, x9'], ['or x10, x11, x12'], ['xor x13, x14, x15']],
+            [['add x1, x2, x3'], ['sub x4, x1, x5', 0], ['and x6, x4, x7', 1], ['or x8, x1, x9', 0]],
+            [['lw x1, 0(x2)', -1, 'L'], ['add x3, x1, x4', 0], ['sub x5, x3, x6', 1], ['or x7, x8, x9']],
+            [['beq x1, x2, L', -1, 'B'], ['add x3, x4, x5'], ['sub x6, x7, x8'], ['or x9, x10, x11']]];
+          presets(root, ['無相依', 'ALU 結果相依', '載入後立刻使用', '分支'], function (i) { P.k = i; draw(); }, 1);
+          var b2 = bar(root), t1 = btn('', 'f'), t2 = btn('', 'p'); b2.appendChild(t1); b2.appendChild(t2);
+          t1.onclick = function () { P.fw = 1 - P.fw; draw(); }; t2.onclick = function () { P.ok = 1 - P.ok; draw(); };
+          root.appendChild(view); var inf = info(root);
+          function draw() { var ins = PR[P.k], n = ins.length, f = [], d = [], e = [], m = [], w = [], i, st = 0, note = '';
+            t1.textContent = '資料轉送：' + (P.fw ? '開' : '關'); t2.textContent = '分支預測：' + (P.ok ? '猜對' : '猜錯'); t2.style.display = P.k === 3 ? '' : 'none';
+            for (i = 0; i < n; i++) { var x = ins[i];
+              f[i] = i ? d[i - 1] : 1;
+              if (i && ins[i - 1][2] === 'B' && !P.ok) f[i] = Math.max(f[i], e[i - 1] + 1);
+              d[i] = Math.max(f[i] + 1, i ? e[i - 1] : 0); e[i] = Math.max(d[i] + 1, i ? m[i - 1] : 0);
+              if (x[1] !== undefined && x[1] >= 0) { var j = x[1]; e[i] = Math.max(e[i], P.fw ? (ins[j][2] === 'L' ? m[j] + 1 : e[j] + 1) : w[j] + 1); }
+              m[i] = e[i] + 1; w[i] = m[i] + 1; }
+            var T = w[n - 1], h = '<table style="border-collapse:collapse;font-size:0.8em;font-family:monospace"><tr><th style="padding:2px 6px;text-align:left">指令＼週期</th>';
+            for (var c = 1; c <= T; c++) h += '<th style="padding:2px 4px;min-width:30px">' + c + '</th>'; h += '</tr>';
+            var col = { IF: '#dbe8f5', ID: '#e3dcf2', EX: '#f7e0c8', MEM: '#d7efe0', WB: '#f4d6d4' };
+            for (i = 0; i < n; i++) { h += '<tr><td style="padding:2px 6px;white-space:nowrap">' + ins[i][0] + '</td>';
+              for (c = 1; c <= T; c++) { var s = '', bg = '';
+                if (c === f[i]) s = 'IF'; else if (c > f[i] && c < d[i]) s = '·'; else if (c === d[i]) s = 'ID'; else if (c > d[i] && c < e[i]) { s = '停'; st++; } else if (c === e[i]) s = 'EX'; else if (c === m[i]) s = 'MEM'; else if (c === w[i]) s = 'WB';
+                bg = col[s] || (s ? '#eee' : ''); h += '<td style="padding:2px;text-align:center;border:1px solid var(--border);' + (bg ? 'background:' + bg + ';color:#222' : '') + '">' + s + '</td>'; }
+              h += '</tr>'; }
+            view.innerHTML = h + '</table>';
+            var ideal = n + 4, pen = T - ideal;
+            if (P.k === 1) note = P.fw ? '開啟轉送後，EX 算出的結果直接送到下一道指令的 EX，<b>不必停頓</b>。' : '沒有轉送時，相依的指令要等前一道指令<b>寫回（WB）</b>暫存器後才能讀取，只好停頓。';
+            if (P.k === 2) note = P.fw ? '載入指令要到 MEM 階段才拿到資料，即使有轉送，緊接著使用也必須停頓 <b>1 個週期</b>——這叫「載入使用危障」，編譯器常會重排指令來填補。' : '沒有轉送時，載入使用的停頓更長。';
+            if (P.k === 3) note = P.ok ? '預測正確：管線照常流動，沒有任何損失。' : '分支在 EX 階段才確定方向；猜錯時，已經抓進來的指令要被清除，下一道正確的指令晚了 2 個週期才開始。';
+            if (P.k === 0) note = '五道互不相依的指令：每個週期完成一道，第 5 個週期之後管線填滿。';
+            inf.innerHTML = '總共 <b>' + T + '</b> 個週期（理想值 ' + ideal + '），損失 <b>' + pen + '</b> 個週期；平均每道指令 CPI ≈ <b>' + f2((T - 4) / n) + '</b>。<br>' + note + small('簡化的五級管線：暫存器在同一週期先寫後讀；分支在 EX 階段決定。「停」是停頓（bubble），「·」是在 IF 等待。'); }
+          draw();
+        }
+
+        /* 2. 快取命中率 */
+        function initCache(root, cfg) { head(root, cfg.q); var P = { pat: 0, L: 16, a: 0 }, view = el('div');
+          presets(root, ['依序走訪陣列', '兩個陣列交錯', '矩陣按行走訪', '隨機'], function (i) { P.pat = i; draw(); });
+          var ab = presets(root, ['直接對映', '2 路', '4 路', '全關聯'], function (i) { P.a = i; draw(); });
+          var u1 = slider(root, '快取行數（每行 16 位元組）', 2, 6, 1, 4, function (x) { return Math.pow(2, x) + ' 行（' + Math.pow(2, x) * 16 + ' 位元組）'; }, null, function (x) { P.L = Math.pow(2, x); draw(); });
+          root.appendChild(view); var inf = info(root);
+          function trace(k) { var a = [], i, r = rng(5), rep;
+            for (rep = 0; rep < 2; rep++) {
+              if (k === 0) for (i = 0; i < 128; i++) a.push(i * 4);
+              if (k === 1) for (i = 0; i < 64; i++) { a.push(i * 4); a.push(4096 + i * 4); }
+              if (k === 2) for (var c = 0; c < 8; c++) for (i = 0; i < 16; i++) a.push(i * 64 + c * 4);
+              if (k === 3) for (i = 0; i < 128; i++) a.push(Math.floor(r() * 1024) * 4); }
+            return a; }
+          function sim(tr, L, as) { var A = as === 3 ? L : Math.min(Math.pow(2, as), L), S = L / A, sets = [], h = 0, i;
+            for (i = 0; i < S; i++) sets.push([]);
+            tr.forEach(function (ad) { var b = ad >> 4, s = sets[b % S], t = Math.floor(b / S), j = s.indexOf(t);
+              if (j >= 0) { h++; s.splice(j, 1); s.push(t); } else { s.push(t); if (s.length > A) s.shift(); } });
+            return h / tr.length; }
+          function draw() { var tr = trace(P.pat), rows = [], names = ['直接對映', '2 路', '4 路', '全關聯'];
+            for (var a = 0; a < 4; a++) { var r = [names[a]]; for (var e = 2; e <= 6; e++) { var v = sim(tr, Math.pow(2, e), a), on = a === P.a && Math.pow(2, e) === P.L; r.push((on ? '<b style="color:' + BL + '">' : '') + pct(v) + (on ? '</b>' : '')); } rows.push(r); }
+            view.innerHTML = tbl(['命中率', '4 行', '8 行', '16 行', '32 行', '64 行'], rows);
+            var hr = sim(tr, P.L, P.a), amat = 1 + (1 - hr) * 100;
+            var msg = ['依序存取有很好的<b>空間區域性</b>：每次失誤載入 16 位元組，接下來 3 次都會命中；第二輪如果整個陣列放得下，就全部命中。', '兩個陣列的位址相差 4096，剛好落在同一組：直接對映時互相踢出（<b>衝突失誤</b>），增加關聯度就能解決。', '矩陣按「行」（column）走訪，每次跳 64 位元組，空間區域性很差；快取夠大才能留住所有用過的區塊。', '隨機存取幾乎沒有區域性，命中率主要取決於快取能裝下多大比例的資料。'][P.pat];
+            inf.innerHTML = '目前設定的命中率 <b>' + pct(hr) + '</b>；若命中 1 個週期、失誤要多花 100 個週期，平均存取時間 ≈ <b>' + f1(amat) + '</b> 個週期。<br>' + msg + small('LRU 替換；每種存取模式重複兩輪；位址以位元組計。'); }
+          u1();
+        }
+
+        /* 3. 分支預測器 */
+        function initBp(root, cfg) { head(root, cfg.q); var P = { pat: 0, pr: 2 }, view = el('div');
+          presets(root, ['迴圈（跑 4 次）', '交替', '90% 跳躍', '隨機'], function (i) { P.pat = i; draw(); });
+          presets(root, ['永遠猜跳', '1 位元', '2 位元計數器', '兩層（看歷史）'], function (i) { P.pr = i; draw(); }, 2);
+          root.appendChild(view); var inf = info(root);
+          function seq(k) { var a = [], r = rng(11), i; for (i = 0; i < 200; i++) a.push(k === 0 ? (i % 4 !== 3) : k === 1 ? (i % 2 === 0) : k === 2 ? r() < 0.9 : r() < 0.5); return a; }
+          function run(o, p) { var c = 2, last = true, hist = 0, tab = [2, 2, 2, 2, 2, 2, 2, 2], res = [];
+            o.forEach(function (t) { var g;
+              if (p === 0) g = true; else if (p === 1) g = last; else if (p === 2) g = c >= 2; else g = tab[hist] >= 2;
+              res.push(g === t); last = t; c = clamp(c + (t ? 1 : -1), 0, 3);
+              if (p === 3) { tab[hist] = clamp(tab[hist] + (t ? 1 : -1), 0, 3); hist = ((hist << 1) | (t ? 1 : 0)) & 7; } });
+            return res; }
+          function draw() { var o = seq(P.pat), names = ['永遠猜跳', '1 位元', '2 位元計數器', '兩層（看歷史）'], rows = [];
+            names.forEach(function (nm, p) { var r = run(o, p), a = r.filter(Boolean).length / r.length; rows.push([(p === P.pr ? '<b>' : '') + nm + (p === P.pr ? '</b>' : ''), pct(a)]); });
+            var r = run(o, P.pr), s = '<div style="font-family:monospace;font-size:0.85em;margin-top:6px;line-height:1.9">';
+            for (var i = 0; i < 40; i++) s += '<span style="display:inline-block;width:15px;text-align:center;border-radius:3px;margin:1px;color:#fff;background:' + (r[i] ? GN : RD) + '">' + (o[i] ? 'T' : 'N') + '</span>';
+            view.innerHTML = tbl(['預測器', '準確率（200 次）'], rows) + s + '</div><div style="font-size:0.8em;color:var(--text-muted)">前 40 次的實際結果（T＝跳、N＝不跳）；綠色＝猜對、紅色＝猜錯</div>';
+            inf.innerHTML = ['迴圈的分支「跳、跳、跳、不跳」：2 位元計數器只會在迴圈結束時猜錯一次；1 位元則每次結束與重新開始都會錯兩次。看得到過去 3 次結果的兩層預測器，能完全學會這個模式。', '交替的模式讓計數器型預測器表現很差，但兩層預測器靠「歷史」就能完全猜中。', '大多數時候都會跳的分支，即使是簡單的預測器也很準。', '真正隨機的分支無法預測，任何預測器都只有約 50%。'][P.pat] + small('兩層預測器：用最近 3 次的結果，選擇 8 個 2 位元計數器中的一個。'); }
+          draw();
+        }
+
+        /* 4. Amdahl 定律 */
+        function initAmdahl(root, cfg) { head(root, cfg.q); var P = { p: 90, n: 16 }, view = el('div');
+          var u1 = slider(root, '可以平行化的比例 p', 0, 99, 1, P.p, function (x) { return x + '%'; }, null, function (x) { P.p = x; draw(); });
+          var u2 = slider(root, '核心數 N', 1, 64, 1, P.n, function (x) { return x; }, null, function (x) { P.n = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function sp(p, n) { return 1 / ((1 - p) + p / n); }
+          function draw() { var S = [], ps = [[0.5, GY], [0.9, OR], [0.99, GN]];
+            ps.forEach(function (q) { var d = []; for (var n = 1; n <= 64; n++) d.push([n, sp(q[0], n)]); S.push({ d: d, c: q[1], n: 'p = ' + q[0] * 100 + '%', w: 1.2, dash: '4 3' }); });
+            var dd = []; for (var n = 1; n <= 64; n++) dd.push([n, sp(P.p / 100, n)]); S.push({ d: dd, c: BL, n: '目前 p' });
+            view.innerHTML = chart(640, 240, S, { x0: 1, x1: 64, y0: 0, y1: 40, xl: '核心數', yl: '加速比', vl: [{ x: P.n, c: RD, n: '' }] });
+            var s = sp(P.p / 100, P.n), lim = P.p >= 100 ? Infinity : 1 / (1 - P.p / 100);
+            inf.innerHTML = '用 ' + P.n + ' 個核心，加速 <b>' + f2(s) + ' 倍</b>（每個核心的效率 ' + pct(s / P.n) + '）。核心再多，最多也只能加速 <b>' + f1(lim) + ' 倍</b>——因為那 ' + (100 - P.p) + '% 無法平行的部分，永遠要依序執行。' + small('加速比 = 1 ÷ [(1 − p) + p ÷ N]；虛線為 p = 50%、90%、99% 的對照。'); }
+          u1(); u2();
+        }
+
+        function initAll() { document.querySelectorAll('.kca-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ pipe: initPipe, cache: initCache, bp: initBp, amdahl: initAmdahl })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <div class="kca-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;amdahl&quot;, &quot;q&quot;: &quot;Amdahl 定律：平行化的極限：&quot;}"></div>
+
+      <h2>Amdahl 定律</h2>
+
+      <p>
+        1967 年，Gene Amdahl 指出：如果程式中可以平行化的比例是 p，用 N 個核心時的加速比是：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[S(N) = \frac{1}{(1-p) + \dfrac{p}{N}}\]</div>
+
+      <p>
+        即使 p = 95%，核心再多也最多只能加速 20 倍——剩下 5% 無法平行的部分成了瓶頸。這提醒我們：<strong>優化要先找出最慢、最難平行化的部分</strong>。
+      </p>
+
+      <h2>Gustafson 定律</h2>
+
+      <p>
+        1988 年，John Gustafson 提出另一個角度：實際上，有了更多核心，我們通常會<strong>處理更大的問題</strong>（更高解析度的模擬、更大的模型），而不是更快地處理同樣的問題。問題變大時，可平行的部分通常增加得更多，加速比就能隨核心數增長。超級電腦與 AI 訓練，大多屬於這種情況。
+      </p>
+
+      <h2>其他的限制</h2>
+
+      <ul>
+        <li><strong>同步與通訊</strong>：核心之間交換資料需要時間。</li>
+        <li><strong>負載不平衡</strong>：最慢的核心決定完成時間。</li>
+        <li><strong>記憶體頻寬</strong>：所有核心共用同一組記憶體通道。</li>
+      </ul>
+
+      <p>
+        同樣的道理也適用於工作與組織：增加人手不一定能等比例加快進度——《人月神話》說：「為延誤的軟體專案增加人手，只會讓它更延誤。」
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Amdahl 定律加速比為 1 除以（1−p）加 p/N，p = 95% 時最多加速 20 倍，優化要先處理難平行的部分；Gustafson 定律指出核心增加時問題規模也變大，加速比可隨核心數成長；其他限制有同步通訊、負載不平衡與記憶體頻寬。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🖥️ 本課的數字多為教學用的簡化例子；互動元件是示意模型，實際的設計與計算請以專業文件與標準為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>用 Amdahl 定律計算：p = 90%、N 無限大時的最大加速比。</li>
+          <li>Gustafson 定律和 Amdahl 定律的觀點有什麼不同？</li>
+          <li>除了不可平行的部分，還有哪些因素限制平行加速？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>效能量測與瓶頸分析</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-26.html">← 上一課：SIMD 與 GPU</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-28.html">下一課：效能量測與瓶頸分析 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
