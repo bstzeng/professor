@@ -37657,6 +37657,363 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "psychology",
+      category: "biomed",
+      title: "心理學導論：大腦怎麼理解世界",
+      description:
+        "心理學的歷史、研究方法與再現性危機；韋伯定律與訊號偵測、視錯覺與完形、注意力與看不見的大猩猩、Stroop 效應、意識與睡眠；古典與操作制約、觀察學習、記憶系統、遺忘曲線與間隔重複、假記憶與目擊證詞；捷思與認知偏誤、框架效應與損失規避、確認偏誤、問題解決、智力與佛林效應；認知發展與依附、動機與心流、情緒理論、壓力；從眾、服從、旁觀者效應、說服與詐騙；五大人格、憂鬱與焦慮、思覺失調、心理治療。附視錯覺、Stroop 測驗、遺忘曲線與訊號偵測四個互動實驗。",
+      icon: "🧠",
+      url: "topics/psychology/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "經典實驗、名詞與偏誤",
+          icon: "📋",
+          url: "topics/psychology/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動實驗",
+          icon: "🧪",
+          url: "topics/psychology/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜心理學是什麼",
+          courses: [
+            { title: "從哲學到實驗科學", url: "topics/psychology/lesson-01.html" },
+            { title: "研究方法", url: "topics/psychology/lesson-02.html" },
+            { title: "再現性危機", url: "topics/psychology/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜感覺與知覺",
+          courses: [
+            { title: "感覺閾值與韋伯定律", url: "topics/psychology/lesson-04.html" },
+            { title: "視錯覺與完形原則", url: "topics/psychology/lesson-05.html" },
+            { title: "注意力", url: "topics/psychology/lesson-06.html" },
+            { title: "自動化與 Stroop 效應", url: "topics/psychology/lesson-07.html" },
+            { title: "意識、睡眠與夢", url: "topics/psychology/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜學習與記憶",
+          courses: [
+            { title: "古典制約", url: "topics/psychology/lesson-09.html" },
+            { title: "操作制約", url: "topics/psychology/lesson-10.html" },
+            { title: "觀察學習", url: "topics/psychology/lesson-11.html" },
+            { title: "記憶的三個階段", url: "topics/psychology/lesson-12.html" },
+            { title: "遺忘與有效的學習", url: "topics/psychology/lesson-13.html" },
+            { title: "記憶的不可靠", url: "topics/psychology/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜思考與決策",
+          courses: [
+            { title: "捷思與認知偏誤", url: "topics/psychology/lesson-15.html" },
+            { title: "框架效應與損失規避", url: "topics/psychology/lesson-16.html" },
+            { title: "確認偏誤與動機性推理", url: "topics/psychology/lesson-17.html" },
+            { title: "問題解決與創造力", url: "topics/psychology/lesson-18.html" },
+            { title: "智力", url: "topics/psychology/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜發展、動機與情緒",
+          courses: [
+            { title: "認知發展與依附", url: "topics/psychology/lesson-20.html" },
+            { title: "動機", url: "topics/psychology/lesson-21.html" },
+            { title: "情緒", url: "topics/psychology/lesson-22.html" },
+            { title: "壓力與因應", url: "topics/psychology/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜社會心理",
+          courses: [
+            { title: "從眾", url: "topics/psychology/lesson-24.html" },
+            { title: "服從權威", url: "topics/psychology/lesson-25.html" },
+            { title: "旁觀者效應與助人行為", url: "topics/psychology/lesson-26.html" },
+            { title: "態度與說服", url: "topics/psychology/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜人格與心理健康",
+          courses: [
+            { title: "人格", url: "topics/psychology/lesson-28.html" },
+            { title: "憂鬱症與焦慮症", url: "topics/psychology/lesson-29.html" },
+            { title: "思覺失調症與其他疾病", url: "topics/psychology/lesson-30.html" },
+            { title: "心理治療與總結", url: "topics/psychology/lesson-31.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "microeconomics",
+      category: "invest",
+      title: "個體經濟學：價格、選擇與市場",
+      description:
+        "稀少性與機會成本、邊際思考、比較利益、誘因；需求、供給、均衡與曲線移動（衛生紙之亂、蛋荒）、價格彈性、消費者剩餘與生產者剩餘、稅負歸宿；價格上限（口罩實名制、油價凍漲）、最低工資、補貼與健保藥價；效用與預算、所得效果與替代效果、成本、短期與長期、規模經濟；完全競爭、獨占與差別取價、寡占與賽局、品牌、平台經濟（外送併購案）；外部性與碳費、公共財與公地悲劇、資訊不對稱、行為經濟學與推力。附供需、課稅、價格管制與獨占四個互動模擬。",
+      icon: "⚖️",
+      url: "topics/microeconomics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "名詞、公式與台灣案例",
+          icon: "📋",
+          url: "topics/microeconomics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/microeconomics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基本觀念",
+          courses: [
+            { title: "稀少性與機會成本", url: "topics/microeconomics/lesson-01.html" },
+            { title: "邊際思考", url: "topics/microeconomics/lesson-02.html" },
+            { title: "比較利益與貿易", url: "topics/microeconomics/lesson-03.html" },
+            { title: "誘因", url: "topics/microeconomics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜供給與需求",
+          courses: [
+            { title: "需求", url: "topics/microeconomics/lesson-05.html" },
+            { title: "供給", url: "topics/microeconomics/lesson-06.html" },
+            { title: "均衡與曲線移動", url: "topics/microeconomics/lesson-07.html" },
+            { title: "價格彈性", url: "topics/microeconomics/lesson-08.html" },
+            { title: "消費者剩餘與生產者剩餘", url: "topics/microeconomics/lesson-09.html" },
+            { title: "稅負歸宿", url: "topics/microeconomics/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜價格管制",
+          courses: [
+            { title: "價格上限", url: "topics/microeconomics/lesson-11.html" },
+            { title: "價格下限與最低工資", url: "topics/microeconomics/lesson-12.html" },
+            { title: "補貼與健保藥價", url: "topics/microeconomics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜消費者與廠商",
+          courses: [
+            { title: "效用與預算限制", url: "topics/microeconomics/lesson-14.html" },
+            { title: "所得效果與替代效果", url: "topics/microeconomics/lesson-15.html" },
+            { title: "生產與成本", url: "topics/microeconomics/lesson-16.html" },
+            { title: "短期與長期", url: "topics/microeconomics/lesson-17.html" },
+            { title: "規模經濟", url: "topics/microeconomics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜市場結構",
+          courses: [
+            { title: "完全競爭", url: "topics/microeconomics/lesson-19.html" },
+            { title: "獨占與差別取價", url: "topics/microeconomics/lesson-20.html" },
+            { title: "寡占與賽局", url: "topics/microeconomics/lesson-21.html" },
+            { title: "獨占性競爭與品牌", url: "topics/microeconomics/lesson-22.html" },
+            { title: "平台經濟", url: "topics/microeconomics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜市場失靈",
+          courses: [
+            { title: "外部性與碳費", url: "topics/microeconomics/lesson-24.html" },
+            { title: "公共財與搭便車", url: "topics/microeconomics/lesson-25.html" },
+            { title: "資訊不對稱", url: "topics/microeconomics/lesson-26.html" },
+            { title: "行為經濟學的修正", url: "topics/microeconomics/lesson-27.html" },
+            { title: "總結", url: "topics/microeconomics/lesson-28.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "legal-life",
+      category: "life",
+      title: "生活法律入門：台灣人一定要懂的法律",
+      description:
+        "法律體系、民法與刑法、法院與調解、小額訴訟；契約成立、定型化契約與審閱期、網購七天解除權、詐欺與標錯價、保證人、借錢利息與本票；租屋契約、押金與修繕、提前解約、買房的履約保證與瑕疵；勞動契約與承攬、加班費、特休、資遣與解僱、勞保與勞退、職場性騷擾；車禍處理、過失與和解、強制險、損害賠償；誹謗與公然侮辱、個資與偷拍、著作權與 AI；夫妻財產、繼承與特留分、限定繼承與遺囑；刑事程序與緘默權。附加班費、特休、繼承試算與事故流程四個互動工具。",
+      icon: "⚖️",
+      url: "topics/legal-life/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "期限、數字與求助管道",
+          icon: "📋",
+          url: "topics/legal-life/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動工具",
+          icon: "🧪",
+          url: "topics/legal-life/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜法律的基礎",
+          courses: [
+            { title: "法律的體系", url: "topics/legal-life/lesson-01.html" },
+            { title: "民法與刑法", url: "topics/legal-life/lesson-02.html" },
+            { title: "法院與訴訟", url: "topics/legal-life/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜契約與消費",
+          courses: [
+            { title: "契約怎麼成立", url: "topics/legal-life/lesson-04.html" },
+            { title: "定型化契約", url: "topics/legal-life/lesson-05.html" },
+            { title: "網購與七天鑑賞期", url: "topics/legal-life/lesson-06.html" },
+            { title: "詐欺、錯誤與標錯價", url: "topics/legal-life/lesson-07.html" },
+            { title: "保證人", url: "topics/legal-life/lesson-08.html" },
+            { title: "借錢、利息與本票", url: "topics/legal-life/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜租屋與房屋",
+          courses: [
+            { title: "租賃契約", url: "topics/legal-life/lesson-10.html" },
+            { title: "押金與修繕", url: "topics/legal-life/lesson-11.html" },
+            { title: "提前解約", url: "topics/legal-life/lesson-12.html" },
+            { title: "買房子的法律", url: "topics/legal-life/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜勞動",
+          courses: [
+            { title: "勞動契約", url: "topics/legal-life/lesson-14.html" },
+            { title: "工時與加班費", url: "topics/legal-life/lesson-15.html" },
+            { title: "特別休假", url: "topics/legal-life/lesson-16.html" },
+            { title: "資遣與解僱", url: "topics/legal-life/lesson-17.html" },
+            { title: "勞保與勞退", url: "topics/legal-life/lesson-18.html" },
+            { title: "職場性騷擾", url: "topics/legal-life/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜交通",
+          courses: [
+            { title: "車禍處理", url: "topics/legal-life/lesson-20.html" },
+            { title: "過失責任與和解", url: "topics/legal-life/lesson-21.html" },
+            { title: "強制險與任意險", url: "topics/legal-life/lesson-22.html" },
+            { title: "損害賠償", url: "topics/legal-life/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜網路與言論",
+          courses: [
+            { title: "誹謗與公然侮辱", url: "topics/legal-life/lesson-24.html" },
+            { title: "個資與隱私", url: "topics/legal-life/lesson-25.html" },
+            { title: "著作權", url: "topics/legal-life/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜家庭與繼承",
+          courses: [
+            { title: "婚姻與夫妻財產", url: "topics/legal-life/lesson-27.html" },
+            { title: "繼承", url: "topics/legal-life/lesson-28.html" },
+            { title: "拋棄繼承、限定繼承與遺囑", url: "topics/legal-life/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 H｜刑事程序與總結",
+          courses: [
+            { title: "刑事程序與總結", url: "topics/legal-life/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "cooking-science",
+      category: "life",
+      title: "烹飪的科學：廚房裡的物理與化學",
+      description:
+        "味覺與嗅覺、熱的傳遞、水與沸點、酸鹼與鹽；肌肉構造、蛋白質變性與熟度、梅納反應、煎牛排的迷思、燉煮與膠原蛋白、溫泉蛋；澱粉的糊化與老化、麩質與麵包、酵母發酵、膨鬆劑、麵條的 Q 彈；發煙點與油炸、乳化與美乃滋、巧克力調溫、鍋氣；蔬菜的顏色、焦糖化與糖、辣味與香料、酵素褐變；鍋具材質、刀與磨刀、舒肥與壓力鍋；危險溫度帶與食物中毒、剩菜保存。附牛排熱傳、乳化、糖的溫度與細菌生長四個互動模擬。",
+      icon: "🍳",
+      url: "topics/cooking-science/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "溫度、反應與安全",
+          icon: "📋",
+          url: "topics/cooking-science/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/cooking-science/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "味覺與嗅覺", url: "topics/cooking-science/lesson-01.html" },
+            { title: "熱怎麼傳進食物", url: "topics/cooking-science/lesson-02.html" },
+            { title: "水在烹飪中的角色", url: "topics/cooking-science/lesson-03.html" },
+            { title: "酸鹼與鹽", url: "topics/cooking-science/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜肉與蛋",
+          courses: [
+            { title: "肌肉的構造", url: "topics/cooking-science/lesson-05.html" },
+            { title: "蛋白質變性與熟度", url: "topics/cooking-science/lesson-06.html" },
+            { title: "梅納反應", url: "topics/cooking-science/lesson-07.html" },
+            { title: "煎牛排與靜置", url: "topics/cooking-science/lesson-08.html" },
+            { title: "燉煮與膠原蛋白", url: "topics/cooking-science/lesson-09.html" },
+            { title: "蛋的凝固溫度", url: "topics/cooking-science/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜澱粉與麵粉",
+          courses: [
+            { title: "澱粉的糊化與老化", url: "topics/cooking-science/lesson-11.html" },
+            { title: "麩質與麵包", url: "topics/cooking-science/lesson-12.html" },
+            { title: "發酵與酵母", url: "topics/cooking-science/lesson-13.html" },
+            { title: "蛋糕與膨鬆劑", url: "topics/cooking-science/lesson-14.html" },
+            { title: "麵條的 Q 彈", url: "topics/cooking-science/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜油脂與乳化",
+          courses: [
+            { title: "油的發煙點與油炸", url: "topics/cooking-science/lesson-16.html" },
+            { title: "乳化與美乃滋", url: "topics/cooking-science/lesson-17.html" },
+            { title: "奶油與巧克力的結晶", url: "topics/cooking-science/lesson-18.html" },
+            { title: "鍋氣", url: "topics/cooking-science/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜蔬果、糖與香料",
+          courses: [
+            { title: "蔬菜的顏色", url: "topics/cooking-science/lesson-20.html" },
+            { title: "焦糖化與糖", url: "topics/cooking-science/lesson-21.html" },
+            { title: "香料與辣味", url: "topics/cooking-science/lesson-22.html" },
+            { title: "褐變", url: "topics/cooking-science/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜工具與技法",
+          courses: [
+            { title: "鍋具的材質", url: "topics/cooking-science/lesson-24.html" },
+            { title: "刀與磨刀", url: "topics/cooking-science/lesson-25.html" },
+            { title: "舒肥與壓力鍋", url: "topics/cooking-science/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 G｜食品安全",
+          courses: [
+            { title: "細菌與危險溫度帶", url: "topics/cooking-science/lesson-27.html" },
+            { title: "隔夜菜、冷藏與總結", url: "topics/cooking-science/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
