@@ -37657,6 +37657,97 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "psychology",
+      category: "biomed",
+      title: "心理學導論：大腦怎麼理解世界",
+      description:
+        "心理學的歷史、研究方法與再現性危機；韋伯定律與訊號偵測、視錯覺與完形、注意力與看不見的大猩猩、Stroop 效應、意識與睡眠；古典與操作制約、觀察學習、記憶系統、遺忘曲線與間隔重複、假記憶與目擊證詞；捷思與認知偏誤、框架效應與損失規避、確認偏誤、問題解決、智力與佛林效應；認知發展與依附、動機與心流、情緒理論、壓力；從眾、服從、旁觀者效應、說服與詐騙；五大人格、憂鬱與焦慮、思覺失調、心理治療。附視錯覺、Stroop 測驗、遺忘曲線與訊號偵測四個互動實驗。",
+      icon: "🧠",
+      url: "topics/psychology/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "經典實驗、名詞與偏誤",
+          icon: "📋",
+          url: "topics/psychology/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動實驗",
+          icon: "🧪",
+          url: "topics/psychology/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜心理學是什麼",
+          courses: [
+            { title: "從哲學到實驗科學", url: "topics/psychology/lesson-01.html" },
+            { title: "研究方法", url: "topics/psychology/lesson-02.html" },
+            { title: "再現性危機", url: "topics/psychology/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜感覺與知覺",
+          courses: [
+            { title: "感覺閾值與韋伯定律", url: "topics/psychology/lesson-04.html" },
+            { title: "視錯覺與完形原則", url: "topics/psychology/lesson-05.html" },
+            { title: "注意力", url: "topics/psychology/lesson-06.html" },
+            { title: "自動化與 Stroop 效應", url: "topics/psychology/lesson-07.html" },
+            { title: "意識、睡眠與夢", url: "topics/psychology/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜學習與記憶",
+          courses: [
+            { title: "古典制約", url: "topics/psychology/lesson-09.html" },
+            { title: "操作制約", url: "topics/psychology/lesson-10.html" },
+            { title: "觀察學習", url: "topics/psychology/lesson-11.html" },
+            { title: "記憶的三個階段", url: "topics/psychology/lesson-12.html" },
+            { title: "遺忘與有效的學習", url: "topics/psychology/lesson-13.html" },
+            { title: "記憶的不可靠", url: "topics/psychology/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜思考與決策",
+          courses: [
+            { title: "捷思與認知偏誤", url: "topics/psychology/lesson-15.html" },
+            { title: "框架效應與損失規避", url: "topics/psychology/lesson-16.html" },
+            { title: "確認偏誤與動機性推理", url: "topics/psychology/lesson-17.html" },
+            { title: "問題解決與創造力", url: "topics/psychology/lesson-18.html" },
+            { title: "智力", url: "topics/psychology/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜發展、動機與情緒",
+          courses: [
+            { title: "認知發展與依附", url: "topics/psychology/lesson-20.html" },
+            { title: "動機", url: "topics/psychology/lesson-21.html" },
+            { title: "情緒", url: "topics/psychology/lesson-22.html" },
+            { title: "壓力與因應", url: "topics/psychology/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜社會心理",
+          courses: [
+            { title: "從眾", url: "topics/psychology/lesson-24.html" },
+            { title: "服從權威", url: "topics/psychology/lesson-25.html" },
+            { title: "旁觀者效應與助人行為", url: "topics/psychology/lesson-26.html" },
+            { title: "態度與說服", url: "topics/psychology/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 G｜人格與心理健康",
+          courses: [
+            { title: "人格", url: "topics/psychology/lesson-28.html" },
+            { title: "憂鬱症與焦慮症", url: "topics/psychology/lesson-29.html" },
+            { title: "思覺失調症與其他疾病", url: "topics/psychology/lesson-30.html" },
+            { title: "心理治療與總結", url: "topics/psychology/lesson-31.html" },
+          ],
+        },
+      ],
     }
   ]
 };
