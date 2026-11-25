@@ -36829,6 +36829,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "computer-vision",
+      category: "ai",
+      title: "電腦視覺：從像素到理解世界",
+      description:
+        "影像的形成、色彩空間、直方圖、卷積與濾波、Canny 邊緣偵測；Harris 與 SIFT 特徵點、RANSAC、單應性與全景拼接、光流、Hough 轉換；CNN、ImageNet 與 ResNet、遷移學習、資料增強、Vision Transformer、CLIP、自監督學習；物件偵測、影像分割與 Segment Anything、姿態估計、人臉辨識與倫理、OCR、影片追蹤；立體視覺、SLAM、NeRF 與 3D 高斯；自駕車、醫療、工業應用、對抗樣本與偏誤。附卷積核、邊緣偵測、IoU 與 NMS、立體深度四個互動模擬。",
+      icon: "👁️",
+      url: "topics/computer-vision/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "方法、模型年表、任務與指標",
+          icon: "📋",
+          url: "topics/computer-vision/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/computer-vision/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜影像基礎",
+          courses: [
+            { title: "電腦怎麼「看」", url: "topics/computer-vision/lesson-01.html" },
+            { title: "像素與色彩空間", url: "topics/computer-vision/lesson-02.html" },
+            { title: "直方圖與對比", url: "topics/computer-vision/lesson-03.html" },
+            { title: "卷積與濾波", url: "topics/computer-vision/lesson-04.html" },
+            { title: "邊緣偵測", url: "topics/computer-vision/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜經典方法",
+          courses: [
+            { title: "特徵點", url: "topics/computer-vision/lesson-06.html" },
+            { title: "特徵比對與 RANSAC", url: "topics/computer-vision/lesson-07.html" },
+            { title: "影像拼接與單應性", url: "topics/computer-vision/lesson-08.html" },
+            { title: "光流", url: "topics/computer-vision/lesson-09.html" },
+            { title: "Hough 轉換", url: "topics/computer-vision/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜深度學習",
+          courses: [
+            { title: "CNN 怎麼看圖", url: "topics/computer-vision/lesson-11.html" },
+            { title: "ImageNet 與經典網路", url: "topics/computer-vision/lesson-12.html" },
+            { title: "遷移學習", url: "topics/computer-vision/lesson-13.html" },
+            { title: "資料增強", url: "topics/computer-vision/lesson-14.html" },
+            { title: "Vision Transformer", url: "topics/computer-vision/lesson-15.html" },
+            { title: "CLIP 與圖文對齊", url: "topics/computer-vision/lesson-16.html" },
+            { title: "自監督學習", url: "topics/computer-vision/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜視覺任務",
+          courses: [
+            { title: "物件偵測", url: "topics/computer-vision/lesson-18.html" },
+            { title: "影像分割", url: "topics/computer-vision/lesson-19.html" },
+            { title: "姿態估計", url: "topics/computer-vision/lesson-20.html" },
+            { title: "人臉辨識與倫理", url: "topics/computer-vision/lesson-21.html" },
+            { title: "文字辨識 OCR", url: "topics/computer-vision/lesson-22.html" },
+            { title: "影片理解與追蹤", url: "topics/computer-vision/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜3D 視覺",
+          courses: [
+            { title: "立體視覺與深度", url: "topics/computer-vision/lesson-24.html" },
+            { title: "SLAM", url: "topics/computer-vision/lesson-25.html" },
+            { title: "NeRF 與 3D 高斯", url: "topics/computer-vision/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用與倫理",
+          courses: [
+            { title: "電腦視覺的應用", url: "topics/computer-vision/lesson-27.html" },
+            { title: "偏誤、隱私與總結", url: "topics/computer-vision/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
