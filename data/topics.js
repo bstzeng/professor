@@ -36995,6 +36995,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "motors-power-electronics",
+      category: "tech",
+      title: "馬達與電力電子：從玩具車到電動車的動力",
+      description:
+        "勞倫茲力與電磁感應、磁路與稀土磁鐵、轉矩轉速與功率、損耗與效率；有刷直流、步進、無刷直流、永磁同步、感應、開關磁阻與伺服馬達，以及選型；MOSFET、IGBT、碳化矽與氮化鎵、PWM；降壓、升壓、返馳式、整流與功率因數校正、逆變器與變頻器；向量控制、PID 調速與回生制動；電動車電驅、家電與工業自動化、無人機與機器人。附直流馬達特性曲線、三相旋轉磁場、PWM 與轉換器效率四個互動模擬。",
+      icon: "⚙️",
+      url: "topics/motors-power-electronics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "馬達比較、轉換器公式與元件",
+          icon: "📋",
+          url: "topics/motors-power-electronics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/motors-power-electronics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電磁基礎",
+          courses: [
+            { title: "電磁力與感應", url: "topics/motors-power-electronics/lesson-01.html" },
+            { title: "磁路與磁性材料", url: "topics/motors-power-electronics/lesson-02.html" },
+            { title: "轉矩、轉速與功率", url: "topics/motors-power-electronics/lesson-03.html" },
+            { title: "效率與損耗", url: "topics/motors-power-electronics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜各種馬達",
+          courses: [
+            { title: "有刷直流馬達", url: "topics/motors-power-electronics/lesson-05.html" },
+            { title: "步進馬達", url: "topics/motors-power-electronics/lesson-06.html" },
+            { title: "無刷直流馬達（BLDC）", url: "topics/motors-power-electronics/lesson-07.html" },
+            { title: "永磁同步馬達（PMSM）", url: "topics/motors-power-electronics/lesson-08.html" },
+            { title: "感應馬達", url: "topics/motors-power-electronics/lesson-09.html" },
+            { title: "開關磁阻馬達", url: "topics/motors-power-electronics/lesson-10.html" },
+            { title: "伺服馬達與編碼器", url: "topics/motors-power-electronics/lesson-11.html" },
+            { title: "馬達的選型", url: "topics/motors-power-electronics/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜電力電子元件",
+          courses: [
+            { title: "二極體與 MOSFET", url: "topics/motors-power-electronics/lesson-13.html" },
+            { title: "IGBT", url: "topics/motors-power-electronics/lesson-14.html" },
+            { title: "碳化矽與氮化鎵", url: "topics/motors-power-electronics/lesson-15.html" },
+            { title: "PWM", url: "topics/motors-power-electronics/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜轉換器",
+          courses: [
+            { title: "降壓轉換器（Buck）", url: "topics/motors-power-electronics/lesson-17.html" },
+            { title: "升壓轉換器（Boost）", url: "topics/motors-power-electronics/lesson-18.html" },
+            { title: "返馳式轉換器", url: "topics/motors-power-electronics/lesson-19.html" },
+            { title: "整流與功率因數校正", url: "topics/motors-power-electronics/lesson-20.html" },
+            { title: "逆變器", url: "topics/motors-power-electronics/lesson-21.html" },
+            { title: "變頻器", url: "topics/motors-power-electronics/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜控制",
+          courses: [
+            { title: "向量控制（FOC）", url: "topics/motors-power-electronics/lesson-23.html" },
+            { title: "PID 調速", url: "topics/motors-power-electronics/lesson-24.html" },
+            { title: "回生制動", url: "topics/motors-power-electronics/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜應用",
+          courses: [
+            { title: "電動車的電驅系統", url: "topics/motors-power-electronics/lesson-26.html" },
+            { title: "家電與工業自動化", url: "topics/motors-power-electronics/lesson-27.html" },
+            { title: "無人機、機器人與總結", url: "topics/motors-power-electronics/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
