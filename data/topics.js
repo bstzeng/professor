@@ -37572,6 +37572,91 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "probability",
+      category: "math",
+      title: "機率論：從擲骰子到中央極限定理",
+      description:
+        "樣本空間與事件、柯摩哥洛夫公理、排列組合與樂透、條件機率與檢察官謬誤、貝氏定理與醫學檢驗、獨立性與共因失效；隨機變數、期望值的線性、變異數與 σ/√n、二項、幾何（抽卡與保底）、卜瓦松；密度函數、均勻與指數、常態與厚尾、Gamma 與 Beta、變數變換；聯合分布、相關不等於因果、迴歸到平均、條件期望、多元常態；柴比雪夫、大數法則、中央極限定理、動差生成函數；生日問題、蒙提霍爾、賭徒謬誤與破產、聖彼得堡悖論、保險與 AI。附二項與卜瓦松、中央極限定理、生日問題與蒙提霍爾四個互動模擬。",
+      icon: "🎲",
+      url: "topics/probability/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、分布與經典問題",
+          icon: "📋",
+          url: "topics/probability/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/probability/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "樣本空間與事件", url: "topics/probability/lesson-01.html" },
+            { title: "機率公理", url: "topics/probability/lesson-02.html" },
+            { title: "計數方法", url: "topics/probability/lesson-03.html" },
+            { title: "條件機率", url: "topics/probability/lesson-04.html" },
+            { title: "貝氏定理", url: "topics/probability/lesson-05.html" },
+            { title: "獨立性", url: "topics/probability/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜離散隨機變數",
+          courses: [
+            { title: "隨機變數", url: "topics/probability/lesson-07.html" },
+            { title: "期望值", url: "topics/probability/lesson-08.html" },
+            { title: "變異數", url: "topics/probability/lesson-09.html" },
+            { title: "二項分布", url: "topics/probability/lesson-10.html" },
+            { title: "幾何分布與負二項分布", url: "topics/probability/lesson-11.html" },
+            { title: "卜瓦松分布", url: "topics/probability/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜連續分布",
+          courses: [
+            { title: "機率密度函數", url: "topics/probability/lesson-13.html" },
+            { title: "均勻分布與指數分布", url: "topics/probability/lesson-14.html" },
+            { title: "常態分布", url: "topics/probability/lesson-15.html" },
+            { title: "Gamma 與 Beta 分布", url: "topics/probability/lesson-16.html" },
+            { title: "變數變換", url: "topics/probability/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜多變數",
+          courses: [
+            { title: "聯合分布", url: "topics/probability/lesson-18.html" },
+            { title: "共變異數與相關係數", url: "topics/probability/lesson-19.html" },
+            { title: "條件期望", url: "topics/probability/lesson-20.html" },
+            { title: "多元常態分布", url: "topics/probability/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜極限定理",
+          courses: [
+            { title: "馬可夫與柴比雪夫不等式", url: "topics/probability/lesson-22.html" },
+            { title: "大數法則", url: "topics/probability/lesson-23.html" },
+            { title: "中央極限定理", url: "topics/probability/lesson-24.html" },
+            { title: "動差生成函數", url: "topics/probability/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 F｜悖論與應用",
+          courses: [
+            { title: "生日問題", url: "topics/probability/lesson-26.html" },
+            { title: "蒙提霍爾問題", url: "topics/probability/lesson-27.html" },
+            { title: "賭徒謬誤與賭徒破產", url: "topics/probability/lesson-28.html" },
+            { title: "聖彼得堡悖論", url: "topics/probability/lesson-29.html" },
+            { title: "機率的應用與總結", url: "topics/probability/lesson-30.html" },
+          ],
+        },
+      ],
     }
   ]
 };
