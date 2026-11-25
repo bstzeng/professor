@@ -38092,6 +38092,84 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "critical-thinking",
+      category: "life",
+      title: "邏輯與批判思考：不被騙的思考工具",
+      description:
+        "論證的結構、演繹與歸納、有效與健全、條件推論、三段論與文氏圖；人身攻擊、稻草人、訴諸權威與群眾、滑坡與假兩難、循環論證、以偏概全、轉移焦點與訴諸情感；相關與因果、樣本偏差與倖存者偏差、平均數與辛普森悖論、相對風險與絕對風險、誤導的圖表、研究的可信度、基本比率；假新聞與橫向閱讀、深偽、詐騙話術、陰謀論、演算法與同溫層；鋼人論證、事前驗屍與更好的決策。附條件推論、文氏圖、謬誤測驗、倖存者偏差與誤導圖表五個互動練習。",
+      icon: "🧩",
+      url: "topics/critical-thinking/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "推論形式、謬誤與查證工具",
+          icon: "📋",
+          url: "topics/critical-thinking/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的五個互動練習",
+          icon: "🧪",
+          url: "topics/critical-thinking/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜論證",
+          courses: [
+            { title: "什麼是論證", url: "topics/critical-thinking/lesson-01.html" },
+            { title: "演繹與歸納", url: "topics/critical-thinking/lesson-02.html" },
+            { title: "有效與健全", url: "topics/critical-thinking/lesson-03.html" },
+            { title: "條件推論", url: "topics/critical-thinking/lesson-04.html" },
+            { title: "三段論與文氏圖", url: "topics/critical-thinking/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜謬誤",
+          courses: [
+            { title: "人身攻擊", url: "topics/critical-thinking/lesson-06.html" },
+            { title: "稻草人", url: "topics/critical-thinking/lesson-07.html" },
+            { title: "訴諸權威與訴諸群眾", url: "topics/critical-thinking/lesson-08.html" },
+            { title: "滑坡與假兩難", url: "topics/critical-thinking/lesson-09.html" },
+            { title: "循環論證與丐題", url: "topics/critical-thinking/lesson-10.html" },
+            { title: "以偏概全與軼事", url: "topics/critical-thinking/lesson-11.html" },
+            { title: "轉移焦點與訴諸情感", url: "topics/critical-thinking/lesson-12.html" },
+            { title: "謬誤總整理", url: "topics/critical-thinking/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 C｜證據與統計",
+          courses: [
+            { title: "相關與因果", url: "topics/critical-thinking/lesson-14.html" },
+            { title: "樣本偏差與倖存者偏差", url: "topics/critical-thinking/lesson-15.html" },
+            { title: "平均數的陷阱", url: "topics/critical-thinking/lesson-16.html" },
+            { title: "相對風險與絕對風險", url: "topics/critical-thinking/lesson-17.html" },
+            { title: "誤導的圖表", url: "topics/critical-thinking/lesson-18.html" },
+            { title: "研究的可信度", url: "topics/critical-thinking/lesson-19.html" },
+            { title: "基本比率", url: "topics/critical-thinking/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 D｜資訊時代",
+          courses: [
+            { title: "假新聞與橫向閱讀", url: "topics/critical-thinking/lesson-21.html" },
+            { title: "深偽與 AI 生成內容", url: "topics/critical-thinking/lesson-22.html" },
+            { title: "詐騙話術", url: "topics/critical-thinking/lesson-23.html" },
+            { title: "陰謀論", url: "topics/critical-thinking/lesson-24.html" },
+            { title: "演算法與同溫層", url: "topics/critical-thinking/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "好的辯論", url: "topics/critical-thinking/lesson-26.html" },
+            { title: "更好的決策", url: "topics/critical-thinking/lesson-27.html" },
+            { title: "總結", url: "topics/critical-thinking/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
