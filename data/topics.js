@@ -36141,6 +36141,526 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "shijing",
+      category: "classics",
+      title: "詩經：中國詩歌的源頭",
+      description:
+        "《詩經》的成書、風雅頌與賦比興、四言與重章疊句、兩千年的解讀；精讀〈關雎〉〈蒹葭〉〈靜女〉〈氓〉〈桃夭〉〈子衿〉等愛情婚姻之歌，〈七月〉〈碩鼠〉〈伐檀〉〈采薇〉〈無衣〉〈黍離〉〈蓼莪〉等勞動、戰爭與社會之詩，以及雅頌中的宴飲、周族史詩、怨刺與祭祀；孔子論詩、成語名句、名物與對後世的影響。每課附原文、白話與字詞，附時間軸與十五國風卡片。",
+      icon: "🌾",
+      url: "topics/shijing/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "篇章索引、名句與成語、名物",
+          icon: "📋",
+          url: "topics/shijing/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜認識《詩經》",
+          courses: [
+            { title: "三百篇從哪裡來", url: "topics/shijing/lesson-01.html" },
+            { title: "風、雅、頌", url: "topics/shijing/lesson-02.html" },
+            { title: "賦、比、興", url: "topics/shijing/lesson-03.html" },
+            { title: "四言與重章疊句", url: "topics/shijing/lesson-04.html" },
+            { title: "兩千年的解讀", url: "topics/shijing/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜國風：愛情與婚姻",
+          courses: [
+            { title: "關雎", url: "topics/shijing/lesson-06.html" },
+            { title: "蒹葭", url: "topics/shijing/lesson-07.html" },
+            { title: "靜女", url: "topics/shijing/lesson-08.html" },
+            { title: "氓", url: "topics/shijing/lesson-09.html" },
+            { title: "桃夭與摽有梅", url: "topics/shijing/lesson-10.html" },
+            { title: "子衿與采葛", url: "topics/shijing/lesson-11.html" },
+            { title: "鄭衛之風", url: "topics/shijing/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜國風：勞動、戰爭與社會",
+          courses: [
+            { title: "七月", url: "topics/shijing/lesson-13.html" },
+            { title: "碩鼠", url: "topics/shijing/lesson-14.html" },
+            { title: "伐檀", url: "topics/shijing/lesson-15.html" },
+            { title: "采薇", url: "topics/shijing/lesson-16.html" },
+            { title: "無衣與擊鼓", url: "topics/shijing/lesson-17.html" },
+            { title: "黍離", url: "topics/shijing/lesson-18.html" },
+            { title: "蓼莪", url: "topics/shijing/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 D｜雅與頌",
+          courses: [
+            { title: "鹿鳴、伐木與常棣", url: "topics/shijing/lesson-20.html" },
+            { title: "周人的史詩", url: "topics/shijing/lesson-21.html" },
+            { title: "小雅中的怨與刺", url: "topics/shijing/lesson-22.html" },
+            { title: "文王與蕩", url: "topics/shijing/lesson-23.html" },
+            { title: "周頌", url: "topics/shijing/lesson-24.html" },
+            { title: "魯頌與商頌", url: "topics/shijing/lesson-25.html" },
+          ],
+        },
+        {
+          title: "模組 E｜影響與總結",
+          courses: [
+            { title: "孔子論詩", url: "topics/shijing/lesson-26.html" },
+            { title: "成語與名句", url: "topics/shijing/lesson-27.html" },
+            { title: "從《詩經》到流行歌", url: "topics/shijing/lesson-28.html" },
+            { title: "名物", url: "topics/shijing/lesson-29.html" },
+            { title: "總結", url: "topics/shijing/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "yuan-drama",
+      category: "classics",
+      title: "元曲與古典戲曲：從關漢卿到〈牡丹亭〉",
+      description:
+        "中國戲曲的形成、元雜劇的體制與散曲；〈竇娥冤〉〈救風塵〉〈西廂記〉〈漢宮秋〉〈梧桐雨〉〈趙氏孤兒〉、包公戲與〈倩女離魂〉；〈天淨沙・秋思〉〈山坡羊・潼關懷古〉；南戲〈琵琶記〉、湯顯祖〈牡丹亭〉、洪昇〈長生殿〉、孔尚任〈桃花扇〉、李漁的戲劇理論；崑曲、京劇、唱念做打、行當臉譜與台灣的戲曲。附戲曲時間軸與行當卡片。",
+      icon: "🎭",
+      url: "topics/yuan-drama/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "劇作家、劇目、術語與行當",
+          icon: "📋",
+          url: "topics/yuan-drama/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜戲曲的誕生",
+          courses: [
+            { title: "從瓦舍勾欄到元雜劇", url: "topics/yuan-drama/lesson-01.html" },
+            { title: "元雜劇的體制", url: "topics/yuan-drama/lesson-02.html" },
+            { title: "散曲：小令與套數", url: "topics/yuan-drama/lesson-03.html" },
+            { title: "元曲四大家與《錄鬼簿》", url: "topics/yuan-drama/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜元雜劇名作",
+          courses: [
+            { title: "竇娥冤（上）", url: "topics/yuan-drama/lesson-05.html" },
+            { title: "竇娥冤（下）", url: "topics/yuan-drama/lesson-06.html" },
+            { title: "救風塵與不伏老", url: "topics/yuan-drama/lesson-07.html" },
+            { title: "西廂記（上）", url: "topics/yuan-drama/lesson-08.html" },
+            { title: "西廂記（下）", url: "topics/yuan-drama/lesson-09.html" },
+            { title: "漢宮秋與梧桐雨", url: "topics/yuan-drama/lesson-10.html" },
+            { title: "趙氏孤兒", url: "topics/yuan-drama/lesson-11.html" },
+            { title: "包公戲與倩女離魂", url: "topics/yuan-drama/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜元散曲",
+          courses: [
+            { title: "天淨沙・秋思", url: "topics/yuan-drama/lesson-13.html" },
+            { title: "山坡羊・潼關懷古", url: "topics/yuan-drama/lesson-14.html" },
+            { title: "散曲的潑辣與幽默", url: "topics/yuan-drama/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜明清傳奇",
+          courses: [
+            { title: "南戲與琵琶記", url: "topics/yuan-drama/lesson-16.html" },
+            { title: "牡丹亭（上）", url: "topics/yuan-drama/lesson-17.html" },
+            { title: "牡丹亭（下）", url: "topics/yuan-drama/lesson-18.html" },
+            { title: "長生殿", url: "topics/yuan-drama/lesson-19.html" },
+            { title: "桃花扇", url: "topics/yuan-drama/lesson-20.html" },
+            { title: "李漁與戲劇理論", url: "topics/yuan-drama/lesson-21.html" },
+            { title: "崑曲", url: "topics/yuan-drama/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜戲曲的舞台",
+          courses: [
+            { title: "從崑曲到京劇", url: "topics/yuan-drama/lesson-23.html" },
+            { title: "唱念做打", url: "topics/yuan-drama/lesson-24.html" },
+            { title: "臉譜與服裝", url: "topics/yuan-drama/lesson-25.html" },
+            { title: "台灣的戲曲與總結", url: "topics/yuan-drama/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "shishuo-xinyu",
+      category: "classics",
+      title: "世說新語：魏晉風流",
+      description:
+        "劉義慶與三十六門、門閥社會、清談與玄學；曹操與楊修、孔融與管寧、嵇康與竹林七賢、王導、謝安、王羲之父子、桓溫與陶侃、謝道韞、石崇鬥富、支遁、周處；言語、雅量、任誕、容止、品藻與書畫；傷逝與深情、魏晉風度與成語。每課附原文與白話，附時代時間軸與門閥人物關係圖。",
+      icon: "🍃",
+      url: "topics/shishuo-xinyu/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "三十六門、人物與成語",
+          icon: "📋",
+          url: "topics/shishuo-xinyu/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜時代與書",
+          courses: [
+            { title: "劉義慶與《世說新語》", url: "topics/shishuo-xinyu/lesson-01.html" },
+            { title: "門閥社會", url: "topics/shishuo-xinyu/lesson-02.html" },
+            { title: "清談與玄學", url: "topics/shishuo-xinyu/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜人物群像",
+          courses: [
+            { title: "曹操與楊修", url: "topics/shishuo-xinyu/lesson-04.html" },
+            { title: "漢末的名士與少年", url: "topics/shishuo-xinyu/lesson-05.html" },
+            { title: "嵇康", url: "topics/shishuo-xinyu/lesson-06.html" },
+            { title: "阮籍、劉伶與王戎", url: "topics/shishuo-xinyu/lesson-07.html" },
+            { title: "王導與東晉的建立", url: "topics/shishuo-xinyu/lesson-08.html" },
+            { title: "謝安", url: "topics/shishuo-xinyu/lesson-09.html" },
+            { title: "王羲之父子", url: "topics/shishuo-xinyu/lesson-10.html" },
+            { title: "桓溫與陶侃", url: "topics/shishuo-xinyu/lesson-11.html" },
+            { title: "謝道韞與賢媛", url: "topics/shishuo-xinyu/lesson-12.html" },
+            { title: "石崇與王愷", url: "topics/shishuo-xinyu/lesson-13.html" },
+            { title: "支遁與名僧", url: "topics/shishuo-xinyu/lesson-14.html" },
+            { title: "周處除三害", url: "topics/shishuo-xinyu/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 C｜主題",
+          courses: [
+            { title: "言語機鋒", url: "topics/shishuo-xinyu/lesson-16.html" },
+            { title: "雅量", url: "topics/shishuo-xinyu/lesson-17.html" },
+            { title: "任誕與簡傲", url: "topics/shishuo-xinyu/lesson-18.html" },
+            { title: "容止", url: "topics/shishuo-xinyu/lesson-19.html" },
+            { title: "品藻與清談家", url: "topics/shishuo-xinyu/lesson-20.html" },
+            { title: "書畫與藝術", url: "topics/shishuo-xinyu/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 D｜影響與總結",
+          courses: [
+            { title: "傷逝與深情", url: "topics/shishuo-xinyu/lesson-22.html" },
+            { title: "魏晉風度與後世", url: "topics/shishuo-xinyu/lesson-23.html" },
+            { title: "總結", url: "topics/shishuo-xinyu/lesson-24.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "mencius",
+      category: "classics",
+      title: "孟子：性善、仁政與大丈夫",
+      description:
+        "孟子的生平與《孟子》地位的升降；不忍人之心、四端、牛山之木、與告子的辯論、良知良能、與荀子的比較；義利之辨、仁政、與民同樂、民貴君輕、誅一夫、井田、王霸、闢楊墨；浩然之氣、大丈夫、天將降大任、魚與熊掌、盡信書不如無書、反求諸己；孟子的論辯術與寓言；附講《大學》三綱領八條目、朱熹與王陽明的格物之爭、《中庸》與四書。附時間軸與成語卡片。",
+      icon: "📘",
+      url: "topics/mencius/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "七篇、名句與四書",
+          icon: "📋",
+          url: "topics/mencius/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜孟子其人",
+          courses: [
+            { title: "孟子的一生", url: "topics/mencius/lesson-01.html" },
+            { title: "戰國的遊說者", url: "topics/mencius/lesson-02.html" },
+            { title: "《孟子》這本書", url: "topics/mencius/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜人性論",
+          courses: [
+            { title: "不忍人之心", url: "topics/mencius/lesson-04.html" },
+            { title: "四端", url: "topics/mencius/lesson-05.html" },
+            { title: "牛山之木", url: "topics/mencius/lesson-06.html" },
+            { title: "孟子與告子", url: "topics/mencius/lesson-07.html" },
+            { title: "良知良能與盡心知性", url: "topics/mencius/lesson-08.html" },
+            { title: "孟子與荀子", url: "topics/mencius/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜政治思想",
+          courses: [
+            { title: "王何必曰利", url: "topics/mencius/lesson-10.html" },
+            { title: "仁政", url: "topics/mencius/lesson-11.html" },
+            { title: "與民同樂", url: "topics/mencius/lesson-12.html" },
+            { title: "民為貴，君為輕", url: "topics/mencius/lesson-13.html" },
+            { title: "聞誅一夫紂矣", url: "topics/mencius/lesson-14.html" },
+            { title: "井田與經濟", url: "topics/mencius/lesson-15.html" },
+            { title: "王道與霸道", url: "topics/mencius/lesson-16.html" },
+            { title: "闢楊墨", url: "topics/mencius/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜修身",
+          courses: [
+            { title: "浩然之氣", url: "topics/mencius/lesson-18.html" },
+            { title: "大丈夫", url: "topics/mencius/lesson-19.html" },
+            { title: "天將降大任", url: "topics/mencius/lesson-20.html" },
+            { title: "魚與熊掌", url: "topics/mencius/lesson-21.html" },
+            { title: "盡信書不如無書", url: "topics/mencius/lesson-22.html" },
+            { title: "反求諸己", url: "topics/mencius/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜辯論的藝術",
+          courses: [
+            { title: "孟子的論辯術", url: "topics/mencius/lesson-24.html" },
+            { title: "孟子的寓言", url: "topics/mencius/lesson-25.html" },
+            { title: "孟子的成語與文章", url: "topics/mencius/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜《大學》與《中庸》",
+          courses: [
+            { title: "大學：三綱領與八條目", url: "topics/mencius/lesson-27.html" },
+            { title: "格物致知之爭", url: "topics/mencius/lesson-28.html" },
+            { title: "中庸", url: "topics/mencius/lesson-29.html" },
+            { title: "四書與科舉，以及總結", url: "topics/mencius/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "sunzi-art-of-war",
+      category: "classics",
+      title: "孫子兵法與兵家：十三篇、戰例與策略思考",
+      description:
+        "孫武與孫臏、春秋戰國的戰爭、銀雀山漢簡；十三篇逐篇精讀：計、作戰、謀攻、形、勢、虛實、軍爭、九變、行軍、地形、九地、火攻、用間；以柏舉、桂陵馬陵、長平、井陘、赤壁、淝水印證；《吳子》《孫臏兵法》《武經七書》與三十六計；商業與賽局的應用、在西方的傳播。附兵書戰例時間軸與十三篇卡片。",
+      icon: "⚔️",
+      url: "topics/sunzi-art-of-war/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "十三篇要旨、名句與戰例",
+          icon: "📋",
+          url: "topics/sunzi-art-of-war/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜背景",
+          courses: [
+            { title: "孫武與孫臏", url: "topics/sunzi-art-of-war/lesson-01.html" },
+            { title: "春秋戰國的戰爭", url: "topics/sunzi-art-of-war/lesson-02.html" },
+            { title: "十三篇的結構與流傳", url: "topics/sunzi-art-of-war/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜十三篇逐篇",
+          courses: [
+            { title: "計篇", url: "topics/sunzi-art-of-war/lesson-04.html" },
+            { title: "作戰篇", url: "topics/sunzi-art-of-war/lesson-05.html" },
+            { title: "謀攻篇", url: "topics/sunzi-art-of-war/lesson-06.html" },
+            { title: "形篇", url: "topics/sunzi-art-of-war/lesson-07.html" },
+            { title: "勢篇", url: "topics/sunzi-art-of-war/lesson-08.html" },
+            { title: "虛實篇", url: "topics/sunzi-art-of-war/lesson-09.html" },
+            { title: "軍爭篇", url: "topics/sunzi-art-of-war/lesson-10.html" },
+            { title: "九變篇", url: "topics/sunzi-art-of-war/lesson-11.html" },
+            { title: "行軍篇", url: "topics/sunzi-art-of-war/lesson-12.html" },
+            { title: "地形篇", url: "topics/sunzi-art-of-war/lesson-13.html" },
+            { title: "九地篇", url: "topics/sunzi-art-of-war/lesson-14.html" },
+            { title: "火攻篇", url: "topics/sunzi-art-of-war/lesson-15.html" },
+            { title: "用間篇", url: "topics/sunzi-art-of-war/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 C｜戰例印證",
+          courses: [
+            { title: "柏舉之戰", url: "topics/sunzi-art-of-war/lesson-17.html" },
+            { title: "桂陵與馬陵", url: "topics/sunzi-art-of-war/lesson-18.html" },
+            { title: "長平之戰", url: "topics/sunzi-art-of-war/lesson-19.html" },
+            { title: "井陘之戰", url: "topics/sunzi-art-of-war/lesson-20.html" },
+            { title: "赤壁之戰", url: "topics/sunzi-art-of-war/lesson-21.html" },
+            { title: "淝水之戰", url: "topics/sunzi-art-of-war/lesson-22.html" },
+            { title: "知己知彼為什麼難", url: "topics/sunzi-art-of-war/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 D｜其他兵書",
+          courses: [
+            { title: "吳子", url: "topics/sunzi-art-of-war/lesson-24.html" },
+            { title: "孫臏兵法", url: "topics/sunzi-art-of-war/lesson-25.html" },
+            { title: "六韜、尉繚子與武經七書", url: "topics/sunzi-art-of-war/lesson-26.html" },
+            { title: "三十六計", url: "topics/sunzi-art-of-war/lesson-27.html" },
+          ],
+        },
+        {
+          title: "模組 E｜現代應用",
+          courses: [
+            { title: "商場如戰場", url: "topics/sunzi-art-of-war/lesson-28.html" },
+            { title: "孫子在西方", url: "topics/sunzi-art-of-war/lesson-29.html" },
+            { title: "總結", url: "topics/sunzi-art-of-war/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "hundred-schools",
+      category: "classics",
+      title: "諸子百家：儒道以外的思想",
+      description:
+        "士的興起、稷下學宮與九流十家；墨家的兼愛、非攻、墨辯與止楚攻宋；法家的管仲、商鞅變法、申不害與慎到、韓非子的法術勢與寓言、李斯與外儒內法；荀子的性惡、勸學、天論與禮論；惠施與公孫龍、鄒衍的五德終始、蘇秦張儀與《戰國策》、農家與小說家、楊朱、《呂氏春秋》與《淮南子》；百家的沉寂與近代復興。附諸子時間軸與師承論敵關係圖。",
+      icon: "🏯",
+      url: "topics/hundred-schools/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "各家人物、主張與名句",
+          icon: "📋",
+          url: "topics/hundred-schools/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜百家爭鳴",
+          courses: [
+            { title: "士的興起", url: "topics/hundred-schools/lesson-01.html" },
+            { title: "稷下學宮", url: "topics/hundred-schools/lesson-02.html" },
+            { title: "九流十家", url: "topics/hundred-schools/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜墨家",
+          courses: [
+            { title: "墨子其人", url: "topics/hundred-schools/lesson-04.html" },
+            { title: "兼愛", url: "topics/hundred-schools/lesson-05.html" },
+            { title: "非攻", url: "topics/hundred-schools/lesson-06.html" },
+            { title: "尚賢、尚同與節用", url: "topics/hundred-schools/lesson-07.html" },
+            { title: "天志、明鬼與非命", url: "topics/hundred-schools/lesson-08.html" },
+            { title: "墨辯", url: "topics/hundred-schools/lesson-09.html" },
+            { title: "止楚攻宋與墨家的消失", url: "topics/hundred-schools/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜法家",
+          courses: [
+            { title: "法家的先驅", url: "topics/hundred-schools/lesson-11.html" },
+            { title: "商鞅變法", url: "topics/hundred-schools/lesson-12.html" },
+            { title: "申不害與慎到", url: "topics/hundred-schools/lesson-13.html" },
+            { title: "韓非子", url: "topics/hundred-schools/lesson-14.html" },
+            { title: "五蠹、說難與孤憤", url: "topics/hundred-schools/lesson-15.html" },
+            { title: "韓非子的寓言", url: "topics/hundred-schools/lesson-16.html" },
+            { title: "李斯、秦朝與外儒內法", url: "topics/hundred-schools/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜荀子",
+          courses: [
+            { title: "荀子其人與性惡論", url: "topics/hundred-schools/lesson-18.html" },
+            { title: "勸學", url: "topics/hundred-schools/lesson-19.html" },
+            { title: "天論與禮論", url: "topics/hundred-schools/lesson-20.html" },
+            { title: "荀子的兩個學生", url: "topics/hundred-schools/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜名家、陰陽家、縱橫家與其他",
+          courses: [
+            { title: "惠施與莊子", url: "topics/hundred-schools/lesson-22.html" },
+            { title: "公孫龍", url: "topics/hundred-schools/lesson-23.html" },
+            { title: "陰陽家", url: "topics/hundred-schools/lesson-24.html" },
+            { title: "縱橫家與《戰國策》", url: "topics/hundred-schools/lesson-25.html" },
+            { title: "農家與小說家", url: "topics/hundred-schools/lesson-26.html" },
+            { title: "楊朱", url: "topics/hundred-schools/lesson-27.html" },
+            { title: "雜家", url: "topics/hundred-schools/lesson-28.html" },
+          ],
+        },
+        {
+          title: "模組 F｜諸子之後",
+          courses: [
+            { title: "百家的沉寂與復興", url: "topics/hundred-schools/lesson-29.html" },
+            { title: "總結", url: "topics/hundred-schools/lesson-30.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "zhiguai-novels",
+      category: "classics",
+      title: "志怪與奇書：山海經、聊齋與明清小說",
+      description:
+        "《山海經》的異獸與神話；《搜神記》與六朝志怪、唐傳奇的黃粱南柯與聶隱娘；蒲松齡與《聊齋誌異》的聶小倩、畫皮、嬰寧、促織、嶗山道士、席方平，以及紀昀《閱微草堂筆記》；《封神演義》《東周列國志》、楊家將與說唐；三言二拍、《金瓶梅》、《儒林外史》、《鏡花緣》、《三俠五義》與晚清譴責小說；中國小說的演變與現代改編。附小說史時間軸與山海經異獸卡片。",
+      icon: "🦊",
+      url: "topics/zhiguai-novels/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "作品、作者與名篇索引",
+          icon: "📋",
+          url: "topics/zhiguai-novels/table.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜山海經",
+          courses: [
+            { title: "《山海經》是什麼書", url: "topics/zhiguai-novels/lesson-01.html" },
+            { title: "異獸圖鑑", url: "topics/zhiguai-novels/lesson-02.html" },
+            { title: "神話人物", url: "topics/zhiguai-novels/lesson-03.html" },
+            { title: "巫書還是地理書", url: "topics/zhiguai-novels/lesson-04.html" },
+            { title: "現代的山海經", url: "topics/zhiguai-novels/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜六朝志怪與唐傳奇",
+          courses: [
+            { title: "搜神記", url: "topics/zhiguai-novels/lesson-06.html" },
+            { title: "六朝的其他志怪", url: "topics/zhiguai-novels/lesson-07.html" },
+            { title: "唐傳奇（上）", url: "topics/zhiguai-novels/lesson-08.html" },
+            { title: "唐傳奇（下）", url: "topics/zhiguai-novels/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜聊齋誌異",
+          courses: [
+            { title: "蒲松齡", url: "topics/zhiguai-novels/lesson-10.html" },
+            { title: "聶小倩", url: "topics/zhiguai-novels/lesson-11.html" },
+            { title: "畫皮", url: "topics/zhiguai-novels/lesson-12.html" },
+            { title: "嬰寧", url: "topics/zhiguai-novels/lesson-13.html" },
+            { title: "促織", url: "topics/zhiguai-novels/lesson-14.html" },
+            { title: "嶗山道士", url: "topics/zhiguai-novels/lesson-15.html" },
+            { title: "席方平與科舉諷刺", url: "topics/zhiguai-novels/lesson-16.html" },
+            { title: "閱微草堂筆記", url: "topics/zhiguai-novels/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜明清小說：神魔與歷史",
+          courses: [
+            { title: "封神演義（上）", url: "topics/zhiguai-novels/lesson-18.html" },
+            { title: "封神演義（下）", url: "topics/zhiguai-novels/lesson-19.html" },
+            { title: "東周列國志", url: "topics/zhiguai-novels/lesson-20.html" },
+            { title: "楊家將與說唐", url: "topics/zhiguai-novels/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜明清小說：世情與諷刺",
+          courses: [
+            { title: "三言二拍", url: "topics/zhiguai-novels/lesson-22.html" },
+            { title: "金瓶梅", url: "topics/zhiguai-novels/lesson-23.html" },
+            { title: "儒林外史（上）", url: "topics/zhiguai-novels/lesson-24.html" },
+            { title: "儒林外史（下）", url: "topics/zhiguai-novels/lesson-25.html" },
+            { title: "鏡花緣", url: "topics/zhiguai-novels/lesson-26.html" },
+            { title: "三俠五義", url: "topics/zhiguai-novels/lesson-27.html" },
+            { title: "晚清譴責小說（上）", url: "topics/zhiguai-novels/lesson-28.html" },
+            { title: "晚清譴責小說（下）", url: "topics/zhiguai-novels/lesson-29.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "中國小說的演變", url: "topics/zhiguai-novels/lesson-30.html" },
+            { title: "從書頁到螢幕", url: "topics/zhiguai-novels/lesson-31.html" },
+            { title: "總結", url: "topics/zhiguai-novels/lesson-32.html" },
+          ],
+        },
+      ],
     }
   ]
 };
