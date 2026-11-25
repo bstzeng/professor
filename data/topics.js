@@ -37748,6 +37748,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "microeconomics",
+      category: "invest",
+      title: "個體經濟學：價格、選擇與市場",
+      description:
+        "稀少性與機會成本、邊際思考、比較利益、誘因；需求、供給、均衡與曲線移動（衛生紙之亂、蛋荒）、價格彈性、消費者剩餘與生產者剩餘、稅負歸宿；價格上限（口罩實名制、油價凍漲）、最低工資、補貼與健保藥價；效用與預算、所得效果與替代效果、成本、短期與長期、規模經濟；完全競爭、獨占與差別取價、寡占與賽局、品牌、平台經濟（外送併購案）；外部性與碳費、公共財與公地悲劇、資訊不對稱、行為經濟學與推力。附供需、課稅、價格管制與獨占四個互動模擬。",
+      icon: "⚖️",
+      url: "topics/microeconomics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "名詞、公式與台灣案例",
+          icon: "📋",
+          url: "topics/microeconomics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/microeconomics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基本觀念",
+          courses: [
+            { title: "稀少性與機會成本", url: "topics/microeconomics/lesson-01.html" },
+            { title: "邊際思考", url: "topics/microeconomics/lesson-02.html" },
+            { title: "比較利益與貿易", url: "topics/microeconomics/lesson-03.html" },
+            { title: "誘因", url: "topics/microeconomics/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜供給與需求",
+          courses: [
+            { title: "需求", url: "topics/microeconomics/lesson-05.html" },
+            { title: "供給", url: "topics/microeconomics/lesson-06.html" },
+            { title: "均衡與曲線移動", url: "topics/microeconomics/lesson-07.html" },
+            { title: "價格彈性", url: "topics/microeconomics/lesson-08.html" },
+            { title: "消費者剩餘與生產者剩餘", url: "topics/microeconomics/lesson-09.html" },
+            { title: "稅負歸宿", url: "topics/microeconomics/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜價格管制",
+          courses: [
+            { title: "價格上限", url: "topics/microeconomics/lesson-11.html" },
+            { title: "價格下限與最低工資", url: "topics/microeconomics/lesson-12.html" },
+            { title: "補貼與健保藥價", url: "topics/microeconomics/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜消費者與廠商",
+          courses: [
+            { title: "效用與預算限制", url: "topics/microeconomics/lesson-14.html" },
+            { title: "所得效果與替代效果", url: "topics/microeconomics/lesson-15.html" },
+            { title: "生產與成本", url: "topics/microeconomics/lesson-16.html" },
+            { title: "短期與長期", url: "topics/microeconomics/lesson-17.html" },
+            { title: "規模經濟", url: "topics/microeconomics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜市場結構",
+          courses: [
+            { title: "完全競爭", url: "topics/microeconomics/lesson-19.html" },
+            { title: "獨占與差別取價", url: "topics/microeconomics/lesson-20.html" },
+            { title: "寡占與賽局", url: "topics/microeconomics/lesson-21.html" },
+            { title: "獨占性競爭與品牌", url: "topics/microeconomics/lesson-22.html" },
+            { title: "平台經濟", url: "topics/microeconomics/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 F｜市場失靈",
+          courses: [
+            { title: "外部性與碳費", url: "topics/microeconomics/lesson-24.html" },
+            { title: "公共財與搭便車", url: "topics/microeconomics/lesson-25.html" },
+            { title: "資訊不對稱", url: "topics/microeconomics/lesson-26.html" },
+            { title: "行為經濟學的修正", url: "topics/microeconomics/lesson-27.html" },
+            { title: "總結", url: "topics/microeconomics/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
