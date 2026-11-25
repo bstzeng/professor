@@ -37161,6 +37161,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "thermo-heat",
+      category: "science",
+      title: "熱力學與熱傳：從引擎到冷氣",
+      description:
+        "溫度、熱與功；熱力學四大定律、理想氣體、比熱與潛熱、熵；卡諾、奧圖與狄塞爾、布雷頓（噴射引擎、複循環）、朗肯（蒸汽電廠）、冷凍循環與熱泵 COP；冷氣與變頻、冰箱、熱泵熱水器、除濕機；傳導與熱阻、建築隔熱、對流、輻射與黑體、熱交換器、熱管與均溫板、沸騰與凝結；CPU 與 GPU 散熱、資料中心液冷、電池熱管理；能量的品質與節能。附熱機循環、冷氣 COP、牆壁隔熱與晶片散熱四個互動模擬。",
+      icon: "🌡️",
+      url: "topics/thermo-heat/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "定律、循環、熱傳公式與材料數據",
+          icon: "📋",
+          url: "topics/thermo-heat/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動模擬",
+          icon: "🧪",
+          url: "topics/thermo-heat/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱力學定律",
+          courses: [
+            { title: "溫度、熱與功", url: "topics/thermo-heat/lesson-01.html" },
+            { title: "第零與第一定律", url: "topics/thermo-heat/lesson-02.html" },
+            { title: "理想氣體", url: "topics/thermo-heat/lesson-03.html" },
+            { title: "比熱、潛熱與焓", url: "topics/thermo-heat/lesson-04.html" },
+            { title: "第二定律與熵", url: "topics/thermo-heat/lesson-05.html" },
+            { title: "第三定律", url: "topics/thermo-heat/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜循環",
+          courses: [
+            { title: "卡諾循環", url: "topics/thermo-heat/lesson-07.html" },
+            { title: "奧圖與狄塞爾循環", url: "topics/thermo-heat/lesson-08.html" },
+            { title: "布雷頓循環", url: "topics/thermo-heat/lesson-09.html" },
+            { title: "朗肯循環", url: "topics/thermo-heat/lesson-10.html" },
+            { title: "冷凍循環", url: "topics/thermo-heat/lesson-11.html" },
+            { title: "熱泵與 COP", url: "topics/thermo-heat/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜生活應用",
+          courses: [
+            { title: "冷氣與變頻冷氣", url: "topics/thermo-heat/lesson-13.html" },
+            { title: "冰箱", url: "topics/thermo-heat/lesson-14.html" },
+            { title: "熱泵熱水器", url: "topics/thermo-heat/lesson-15.html" },
+            { title: "除濕機與濕空氣", url: "topics/thermo-heat/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜熱傳",
+          courses: [
+            { title: "傳導與傅立葉定律", url: "topics/thermo-heat/lesson-17.html" },
+            { title: "保溫與隔熱", url: "topics/thermo-heat/lesson-18.html" },
+            { title: "對流與牛頓冷卻定律", url: "topics/thermo-heat/lesson-19.html" },
+            { title: "輻射與黑體", url: "topics/thermo-heat/lesson-20.html" },
+            { title: "熱交換器", url: "topics/thermo-heat/lesson-21.html" },
+            { title: "散熱片與熱管", url: "topics/thermo-heat/lesson-22.html" },
+            { title: "沸騰與凝結", url: "topics/thermo-heat/lesson-23.html" },
+          ],
+        },
+        {
+          title: "模組 E｜散熱工程",
+          courses: [
+            { title: "CPU 與 GPU 散熱", url: "topics/thermo-heat/lesson-24.html" },
+            { title: "資料中心的冷卻", url: "topics/thermo-heat/lesson-25.html" },
+            { title: "電池的熱管理", url: "topics/thermo-heat/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜總結",
+          courses: [
+            { title: "能源效率與節能", url: "topics/thermo-heat/lesson-27.html" },
+            { title: "總結", url: "topics/thermo-heat/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
