@@ -38412,6 +38412,89 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "classical-music-history",
+      category: "music",
+      title: "西洋古典音樂史：從聖歌到電影配樂",
+      description:
+        "葛利果聖歌與記譜法、文藝復興複音、純律與平均律；巴洛克的數字低音與協奏曲、韋瓦第《四季》、巴哈與賦格、韓德爾《彌賽亞》、歌劇的誕生；奏鳴曲式、海頓、莫札特、交響樂團、鋼琴的崛起；貝多芬、舒伯特與藝術歌曲、蕭邦與李斯特、華格納與威爾第、布拉姆斯、國民樂派、馬勒；德布西、《春之祭》、荀貝格與十二音、極簡主義、電影與遊戲配樂；怎麼聽古典音樂與台灣的古典音樂。附可播放的純律平均律、賦格，以及奏鳴曲式與樂團編制四個互動練習。",
+      icon: "🎻",
+      url: "topics/classical-music-history/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "時期、作曲家與術語",
+          icon: "📋",
+          url: "topics/classical-music-history/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/classical-music-history/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜源頭",
+          courses: [
+            { title: "什麼是古典音樂", url: "topics/classical-music-history/lesson-01.html" },
+            { title: "聖歌與記譜法", url: "topics/classical-music-history/lesson-02.html" },
+            { title: "文藝復興的複音", url: "topics/classical-music-history/lesson-03.html" },
+            { title: "調律與平均律", url: "topics/classical-music-history/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜巴洛克",
+          courses: [
+            { title: "巴洛克：數字低音與協奏曲", url: "topics/classical-music-history/lesson-05.html" },
+            { title: "韋瓦第", url: "topics/classical-music-history/lesson-06.html" },
+            { title: "巴哈與賦格", url: "topics/classical-music-history/lesson-07.html" },
+            { title: "韓德爾", url: "topics/classical-music-history/lesson-08.html" },
+            { title: "歌劇的誕生", url: "topics/classical-music-history/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜古典",
+          courses: [
+            { title: "奏鳴曲式", url: "topics/classical-music-history/lesson-10.html" },
+            { title: "海頓", url: "topics/classical-music-history/lesson-11.html" },
+            { title: "莫札特", url: "topics/classical-music-history/lesson-12.html" },
+            { title: "交響樂團與交響曲", url: "topics/classical-music-history/lesson-13.html" },
+            { title: "鋼琴的崛起", url: "topics/classical-music-history/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜浪漫",
+          courses: [
+            { title: "貝多芬", url: "topics/classical-music-history/lesson-15.html" },
+            { title: "舒伯特與藝術歌曲", url: "topics/classical-music-history/lesson-16.html" },
+            { title: "蕭邦與李斯特", url: "topics/classical-music-history/lesson-17.html" },
+            { title: "華格納與威爾第", url: "topics/classical-music-history/lesson-18.html" },
+            { title: "布拉姆斯", url: "topics/classical-music-history/lesson-19.html" },
+            { title: "國民樂派", url: "topics/classical-music-history/lesson-20.html" },
+            { title: "馬勒", url: "topics/classical-music-history/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜20 世紀以後",
+          courses: [
+            { title: "德布西與印象主義", url: "topics/classical-music-history/lesson-22.html" },
+            { title: "春之祭", url: "topics/classical-music-history/lesson-23.html" },
+            { title: "荀貝格與無調性", url: "topics/classical-music-history/lesson-24.html" },
+            { title: "極簡主義", url: "topics/classical-music-history/lesson-25.html" },
+            { title: "電影與遊戲配樂", url: "topics/classical-music-history/lesson-26.html" },
+          ],
+        },
+        {
+          title: "模組 F｜聆聽與總結",
+          courses: [
+            { title: "怎麼聽古典音樂", url: "topics/classical-music-history/lesson-27.html" },
+            { title: "古典音樂在台灣與總結", url: "topics/classical-music-history/lesson-28.html" },
+          ],
+        },
+      ],
     }
   ]
 };
