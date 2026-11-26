@@ -39027,6 +39027,87 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "aircraft-design",
+      category: "tech",
+      title: "空氣動力學與飛機設計：讓幾百噸的金屬飛上天",
+      description:
+        "四力與飛行史、標準大氣與空速、升力的真正成因（破除等時間迷思）、翼型與 NACA、攻角與升力係數；寄生阻力與邊界層、誘導阻力與翼尖小翼、阻力極曲線與升阻比、失速與襟翼縫翼；螺旋槳、渦輪扇與旁通比、推力比油耗；爬升與升限、Breguet 航程、V1 與起降、轉彎與 V-n 圖；重心與中性點、三軸操縱面、線傳飛控與 737 MAX；設計流程、重量估算與複合材料、翼負載與推重比、音障與協和號、無人機與 eVTOL、永續航空燃料與氫能。附升力、阻力、航程與起飛距離四個互動練習。",
+      icon: "✈️",
+      url: "topics/aircraft-design/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、典型值與速度",
+          icon: "📋",
+          url: "topics/aircraft-design/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/aircraft-design/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜飛行原理",
+          courses: [
+            { title: "四力與飛行的歷史", url: "topics/aircraft-design/lesson-01.html" },
+            { title: "大氣與標準大氣", url: "topics/aircraft-design/lesson-02.html" },
+            { title: "升力是怎麼來的", url: "topics/aircraft-design/lesson-03.html" },
+            { title: "翼型", url: "topics/aircraft-design/lesson-04.html" },
+            { title: "攻角與升力係數", url: "topics/aircraft-design/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜阻力",
+          courses: [
+            { title: "寄生阻力", url: "topics/aircraft-design/lesson-06.html" },
+            { title: "誘導阻力", url: "topics/aircraft-design/lesson-07.html" },
+            { title: "阻力極曲線與升阻比", url: "topics/aircraft-design/lesson-08.html" },
+            { title: "失速與高升力裝置", url: "topics/aircraft-design/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜推進",
+          courses: [
+            { title: "螺旋槳", url: "topics/aircraft-design/lesson-10.html" },
+            { title: "渦輪扇發動機", url: "topics/aircraft-design/lesson-11.html" },
+            { title: "推力與油耗", url: "topics/aircraft-design/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜飛行性能",
+          courses: [
+            { title: "爬升與升限", url: "topics/aircraft-design/lesson-13.html" },
+            { title: "巡航與航程", url: "topics/aircraft-design/lesson-14.html" },
+            { title: "起飛與降落", url: "topics/aircraft-design/lesson-15.html" },
+            { title: "轉彎與負載因數", url: "topics/aircraft-design/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜穩定與操控",
+          courses: [
+            { title: "重心與中性點", url: "topics/aircraft-design/lesson-17.html" },
+            { title: "操縱面與三軸", url: "topics/aircraft-design/lesson-18.html" },
+            { title: "飛控與線傳飛控", url: "topics/aircraft-design/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜飛機設計",
+          courses: [
+            { title: "設計流程", url: "topics/aircraft-design/lesson-20.html" },
+            { title: "重量估算", url: "topics/aircraft-design/lesson-21.html" },
+            { title: "翼負載與推重比", url: "topics/aircraft-design/lesson-22.html" },
+            { title: "超音速與音障", url: "topics/aircraft-design/lesson-23.html" },
+            { title: "無人機與電動飛行", url: "topics/aircraft-design/lesson-24.html" },
+            { title: "航空的未來", url: "topics/aircraft-design/lesson-25.html" },
+            { title: "總結", url: "topics/aircraft-design/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
