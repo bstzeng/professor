@@ -38647,6 +38647,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "rf-antennas",
+      category: "tech",
+      title: "天線與射頻工程：看不見的電磁波工程",
+      description:
+        "射頻頻段、分貝與 dBm、電磁波與近場遠場；傳輸線與反射、駐波比與回波損耗、史密斯圖、阻抗匹配、S 參數；天線的輻射原理、半波偶極、增益與指向性、場型與極化、單極與貼片天線、陣列與波束成形、相位陣列雷達；Friis 鏈路預算、熱雜訊與雜訊指數、LNA 與功率放大器、混頻與超外差、軟體定義無線電、SAW／BAW 濾波器；手機天線與 MIMO、5G 毫米波、衛星碟形與低軌相位陣列、電磁相容、射頻量測。附史密斯圖、偶極場型、陣列波束與鏈路預算四個互動練習。",
+      icon: "📡",
+      url: "topics/rf-antennas/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、換算與典型值",
+          icon: "📋",
+          url: "topics/rf-antennas/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/rf-antennas/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "射頻與頻段", url: "topics/rf-antennas/lesson-01.html" },
+            { title: "分貝與 dBm", url: "topics/rf-antennas/lesson-02.html" },
+            { title: "電磁波與波長", url: "topics/rf-antennas/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜傳輸線與匹配",
+          courses: [
+            { title: "傳輸線與反射", url: "topics/rf-antennas/lesson-04.html" },
+            { title: "阻抗與駐波比", url: "topics/rf-antennas/lesson-05.html" },
+            { title: "史密斯圖", url: "topics/rf-antennas/lesson-06.html" },
+            { title: "阻抗匹配", url: "topics/rf-antennas/lesson-07.html" },
+            { title: "S 參數", url: "topics/rf-antennas/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜天線",
+          courses: [
+            { title: "天線如何輻射", url: "topics/rf-antennas/lesson-09.html" },
+            { title: "偶極天線", url: "topics/rf-antennas/lesson-10.html" },
+            { title: "增益與指向性", url: "topics/rf-antennas/lesson-11.html" },
+            { title: "場型與極化", url: "topics/rf-antennas/lesson-12.html" },
+            { title: "單極與貼片天線", url: "topics/rf-antennas/lesson-13.html" },
+            { title: "陣列與波束成形", url: "topics/rf-antennas/lesson-14.html" },
+            { title: "相位陣列雷達", url: "topics/rf-antennas/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜射頻系統",
+          courses: [
+            { title: "鏈路預算", url: "topics/rf-antennas/lesson-16.html" },
+            { title: "雜訊與雜訊指數", url: "topics/rf-antennas/lesson-17.html" },
+            { title: "射頻放大器", url: "topics/rf-antennas/lesson-18.html" },
+            { title: "混頻器與超外差接收機", url: "topics/rf-antennas/lesson-19.html" },
+            { title: "射頻濾波器", url: "topics/rf-antennas/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "手機天線", url: "topics/rf-antennas/lesson-21.html" },
+            { title: "5G 毫米波", url: "topics/rf-antennas/lesson-22.html" },
+            { title: "衛星與碟形天線", url: "topics/rf-antennas/lesson-23.html" },
+            { title: "電磁相容", url: "topics/rf-antennas/lesson-24.html" },
+            { title: "射頻量測", url: "topics/rf-antennas/lesson-25.html" },
+            { title: "總結", url: "topics/rf-antennas/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
