@@ -38875,6 +38875,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "hvac-refrigeration",
+      category: "tech",
+      title: "冷凍空調與熱泵：搬運熱量的工程",
+      description:
+        "熱力學第二定律、相變與潛熱、壓焓圖、卡諾 COP；蒸氣壓縮循環、壓縮機、冷凝器與蒸發器、膨脹閥、COP／EER／CSPF 與能效標示；冷媒的演進、臭氧洞與蒙特婁議定書、吉佳利修正案與天然冷媒；空氣線圖與露點、除濕、熱負荷、冷氣選購與安裝、變頻、中央空調與冰水主機、冰蓄冷；熱泵熱水器、冷鏈、資料中心液冷、通風與二氧化碳、省電迷思、輻射冷卻等未來技術。附 COP、空氣線圖、房間熱負荷與定頻變頻四個互動練習。",
+      icon: "❄️",
+      url: "topics/hvac-refrigeration/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、單位與節能守則",
+          icon: "📋",
+          url: "topics/hvac-refrigeration/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/hvac-refrigeration/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱力學基礎",
+          courses: [
+            { title: "把熱往高處搬", url: "topics/hvac-refrigeration/lesson-01.html" },
+            { title: "相變與潛熱", url: "topics/hvac-refrigeration/lesson-02.html" },
+            { title: "壓焓圖", url: "topics/hvac-refrigeration/lesson-03.html" },
+            { title: "卡諾循環與 COP 上限", url: "topics/hvac-refrigeration/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜冷凍循環",
+          courses: [
+            { title: "蒸氣壓縮循環", url: "topics/hvac-refrigeration/lesson-05.html" },
+            { title: "壓縮機", url: "topics/hvac-refrigeration/lesson-06.html" },
+            { title: "冷凝器與蒸發器", url: "topics/hvac-refrigeration/lesson-07.html" },
+            { title: "膨脹裝置", url: "topics/hvac-refrigeration/lesson-08.html" },
+            { title: "能效標示", url: "topics/hvac-refrigeration/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜冷媒",
+          courses: [
+            { title: "冷媒的演進", url: "topics/hvac-refrigeration/lesson-10.html" },
+            { title: "臭氧層與蒙特婁議定書", url: "topics/hvac-refrigeration/lesson-11.html" },
+            { title: "溫室效應與新一代冷媒", url: "topics/hvac-refrigeration/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜空調",
+          courses: [
+            { title: "空氣線圖", url: "topics/hvac-refrigeration/lesson-13.html" },
+            { title: "除濕與再熱", url: "topics/hvac-refrigeration/lesson-14.html" },
+            { title: "熱負荷", url: "topics/hvac-refrigeration/lesson-15.html" },
+            { title: "冷氣的選購與安裝", url: "topics/hvac-refrigeration/lesson-16.html" },
+            { title: "變頻技術", url: "topics/hvac-refrigeration/lesson-17.html" },
+            { title: "中央空調與冰水主機", url: "topics/hvac-refrigeration/lesson-18.html" },
+            { title: "冰蓄冷與區域供冷", url: "topics/hvac-refrigeration/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜熱泵與應用",
+          courses: [
+            { title: "熱泵", url: "topics/hvac-refrigeration/lesson-20.html" },
+            { title: "冷凍冷藏與冷鏈", url: "topics/hvac-refrigeration/lesson-21.html" },
+            { title: "資料中心冷卻", url: "topics/hvac-refrigeration/lesson-22.html" },
+            { title: "通風與室內空氣品質", url: "topics/hvac-refrigeration/lesson-23.html" },
+            { title: "省電與節能", url: "topics/hvac-refrigeration/lesson-24.html" },
+            { title: "未來的冷卻技術", url: "topics/hvac-refrigeration/lesson-25.html" },
+            { title: "總結", url: "topics/hvac-refrigeration/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
