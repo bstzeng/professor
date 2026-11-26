@@ -39412,6 +39412,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "microbiology",
+      category: "biomed",
+      title: "微生物學：看不見的世界如何塑造生命與健康",
+      description:
+        "雷文霍克與巴斯德的鵝頸瓶、細菌構造與革蘭氏染色、沃斯的古菌與三域、真菌與黃麴毒素、瘧疾與藻華、病毒與噬菌體；生長曲線與危險溫度帶、柯霍的純培養與洋菜、化學自營與大氧化事件；基因水平轉移與格里菲斯實驗、CRISPR 從鹽田到諾貝爾獎、重組胰島素與 Taq 聚合酶；塞麥爾維斯與柯霍法則、免疫與天花根除、結核病與都治計畫、D 值與滅菌、盤尼西林的發現、抗藥性與超級細菌、抗病毒藥物；腸道微生物群、發酵與腐敗、食物中毒、氮循環與活性污泥、工業發酵、新興傳染病與同一健康。附細菌構造、生長曲線、滅菌與抗藥性演化四個互動練習。",
+      icon: "🦠",
+      url: "topics/microbiology/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "分類、方法與數字",
+          icon: "📋",
+          url: "topics/microbiology/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/microbiology/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜微生物的世界",
+          courses: [
+            { title: "看不見的世界", url: "topics/microbiology/lesson-01.html" },
+            { title: "細菌的構造", url: "topics/microbiology/lesson-02.html" },
+            { title: "古菌與生命之樹", url: "topics/microbiology/lesson-03.html" },
+            { title: "真菌：酵母與黴菌", url: "topics/microbiology/lesson-04.html" },
+            { title: "原生生物與藻類", url: "topics/microbiology/lesson-05.html" },
+            { title: "病毒", url: "topics/microbiology/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜生長與代謝",
+          courses: [
+            { title: "細菌的生長", url: "topics/microbiology/lesson-07.html" },
+            { title: "培養與無菌技術", url: "topics/microbiology/lesson-08.html" },
+            { title: "微生物的代謝多樣性", url: "topics/microbiology/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜遺傳與生物技術",
+          courses: [
+            { title: "細菌的遺傳與基因轉移", url: "topics/microbiology/lesson-10.html" },
+            { title: "CRISPR：細菌的免疫系統", url: "topics/microbiology/lesson-11.html" },
+            { title: "微生物與生物技術", url: "topics/microbiology/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜微生物與疾病",
+          courses: [
+            { title: "病原論與柯霍法則", url: "topics/microbiology/lesson-13.html" },
+            { title: "人體的防禦與疫苗", url: "topics/microbiology/lesson-14.html" },
+            { title: "重要的病原菌", url: "topics/microbiology/lesson-15.html" },
+            { title: "消毒與滅菌", url: "topics/microbiology/lesson-16.html" },
+            { title: "抗生素的發現", url: "topics/microbiology/lesson-17.html" },
+            { title: "抗藥性", url: "topics/microbiology/lesson-18.html" },
+            { title: "病毒感染與抗病毒藥物", url: "topics/microbiology/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜微生物與人類",
+          courses: [
+            { title: "人體微生物群", url: "topics/microbiology/lesson-20.html" },
+            { title: "食品微生物：發酵與腐敗", url: "topics/microbiology/lesson-21.html" },
+            { title: "食物中毒與食品安全", url: "topics/microbiology/lesson-22.html" },
+            { title: "環境微生物與物質循環", url: "topics/microbiology/lesson-23.html" },
+            { title: "工業與能源微生物", url: "topics/microbiology/lesson-24.html" },
+            { title: "新興傳染病與同一健康", url: "topics/microbiology/lesson-25.html" },
+            { title: "總結", url: "topics/microbiology/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
