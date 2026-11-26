@@ -39184,6 +39184,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "organic-chemistry",
+      category: "science",
+      title: "有機化學：碳的化學與生命、藥物、材料",
+      description:
+        "維勒合成尿素與碳的特別、混成軌域與分子形狀、結構式與骨架式、IUPAC 命名；烷類構形、環己烷椅式、掌性與 R/S、沙利竇邁與不對稱合成；官能基總覽、烯炔與反式脂肪、苯與芳香性、鹵化物與臭氧層、醇酚醚與 ALDH2、醛酮與梅納反應、羧酸酯醯胺與肥皂、胺與生物鹼；pKa 與酸鹼、反應機構與彎箭頭、SN1 與 SN2、E1 與 E2、馬可尼可夫加成、逆合成與諾貝爾獎反應；聚合物與塑膠回收、從柳樹皮到阿斯匹靈與盤尼西林、IR／NMR／質譜鑑定。附官能基、掌性、pKa 與 SN1／SN2 四個互動練習。",
+      icon: "⚗️",
+      url: "topics/organic-chemistry/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "官能基、反應與光譜",
+          icon: "📋",
+          url: "topics/organic-chemistry/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/organic-chemistry/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜碳的世界",
+          courses: [
+            { title: "有機化學是什麼", url: "topics/organic-chemistry/lesson-01.html" },
+            { title: "混成軌域與分子形狀", url: "topics/organic-chemistry/lesson-02.html" },
+            { title: "結構式與分子的表示法", url: "topics/organic-chemistry/lesson-03.html" },
+            { title: "有機化合物的命名", url: "topics/organic-chemistry/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜分子的形狀與立體化學",
+          courses: [
+            { title: "烷類與構形", url: "topics/organic-chemistry/lesson-05.html" },
+            { title: "環烷與環己烷的椅式", url: "topics/organic-chemistry/lesson-06.html" },
+            { title: "立體化學與掌性", url: "topics/organic-chemistry/lesson-07.html" },
+            { title: "鏡像異構物與藥物", url: "topics/organic-chemistry/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜官能基",
+          courses: [
+            { title: "官能基總覽", url: "topics/organic-chemistry/lesson-09.html" },
+            { title: "烯類與炔類", url: "topics/organic-chemistry/lesson-10.html" },
+            { title: "芳香族化合物", url: "topics/organic-chemistry/lesson-11.html" },
+            { title: "鹵化物", url: "topics/organic-chemistry/lesson-12.html" },
+            { title: "醇、酚與醚", url: "topics/organic-chemistry/lesson-13.html" },
+            { title: "醛與酮", url: "topics/organic-chemistry/lesson-14.html" },
+            { title: "羧酸、酯與醯胺", url: "topics/organic-chemistry/lesson-15.html" },
+            { title: "胺與含氮化合物", url: "topics/organic-chemistry/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜反應與機構",
+          courses: [
+            { title: "酸與鹼：pKa", url: "topics/organic-chemistry/lesson-17.html" },
+            { title: "反應機構與箭頭推移", url: "topics/organic-chemistry/lesson-18.html" },
+            { title: "親核取代：SN1 與 SN2", url: "topics/organic-chemistry/lesson-19.html" },
+            { title: "脫去反應：E1 與 E2", url: "topics/organic-chemistry/lesson-20.html" },
+            { title: "加成反應", url: "topics/organic-chemistry/lesson-21.html" },
+            { title: "有機合成與逆合成", url: "topics/organic-chemistry/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用與鑑定",
+          courses: [
+            { title: "聚合物與塑膠", url: "topics/organic-chemistry/lesson-23.html" },
+            { title: "藥物與天然物", url: "topics/organic-chemistry/lesson-24.html" },
+            { title: "光譜鑑定：IR、NMR 與質譜", url: "topics/organic-chemistry/lesson-25.html" },
+            { title: "總結", url: "topics/organic-chemistry/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
