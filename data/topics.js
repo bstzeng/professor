@@ -38571,6 +38571,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "dsp-filters",
+      category: "tech",
+      title: "數位濾波器與 z 轉換：從取樣到即時處理",
+      description:
+        "類比與數位、取樣定理、混疊、量化與抖動、離散 LTI 系統；差分方程、卷積、FIR 與 IIR、z 轉換、轉移函數與頻率響應、極點零點與穩定性；移動平均、窗函數設計、線性相位；巴特沃斯等類比原型、雙線性轉換、定點與有限精度；FFT 與頻譜分析、多速率處理、音訊等化器、心電圖去雜訊、適應濾波與主動降噪、影像濾波、在晶片上即時實作。附混疊、極點零點、移動平均與窗函數四個互動練習。",
+      icon: "📶",
+      url: "topics/dsp-filters/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、性質與選擇",
+          icon: "📋",
+          url: "topics/dsp-filters/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/dsp-filters/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜取樣",
+          courses: [
+            { title: "類比與數位訊號", url: "topics/dsp-filters/lesson-01.html" },
+            { title: "取樣定理", url: "topics/dsp-filters/lesson-02.html" },
+            { title: "混疊", url: "topics/dsp-filters/lesson-03.html" },
+            { title: "量化", url: "topics/dsp-filters/lesson-04.html" },
+            { title: "離散訊號與系統", url: "topics/dsp-filters/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜系統",
+          courses: [
+            { title: "差分方程", url: "topics/dsp-filters/lesson-06.html" },
+            { title: "卷積", url: "topics/dsp-filters/lesson-07.html" },
+            { title: "脈衝響應：FIR 與 IIR", url: "topics/dsp-filters/lesson-08.html" },
+            { title: "z 轉換", url: "topics/dsp-filters/lesson-09.html" },
+            { title: "轉移函數與頻率響應", url: "topics/dsp-filters/lesson-10.html" },
+            { title: "極點、零點與穩定性", url: "topics/dsp-filters/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜FIR 濾波器",
+          courses: [
+            { title: "移動平均", url: "topics/dsp-filters/lesson-12.html" },
+            { title: "窗函數設計", url: "topics/dsp-filters/lesson-13.html" },
+            { title: "線性相位", url: "topics/dsp-filters/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜IIR 濾波器",
+          courses: [
+            { title: "類比原型", url: "topics/dsp-filters/lesson-15.html" },
+            { title: "雙線性轉換", url: "topics/dsp-filters/lesson-16.html" },
+            { title: "有限精度與數值問題", url: "topics/dsp-filters/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "FFT 與頻譜", url: "topics/dsp-filters/lesson-18.html" },
+            { title: "頻譜分析的實務", url: "topics/dsp-filters/lesson-19.html" },
+            { title: "多速率處理", url: "topics/dsp-filters/lesson-20.html" },
+            { title: "音訊等化器", url: "topics/dsp-filters/lesson-21.html" },
+            { title: "心電圖去雜訊", url: "topics/dsp-filters/lesson-22.html" },
+            { title: "適應濾波", url: "topics/dsp-filters/lesson-23.html" },
+            { title: "影像濾波", url: "topics/dsp-filters/lesson-24.html" },
+            { title: "在晶片上實作", url: "topics/dsp-filters/lesson-25.html" },
+            { title: "總結", url: "topics/dsp-filters/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };

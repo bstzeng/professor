@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：在晶片上實作 ｜ 數位濾波器 ｜ 博雅書院</title>
+<meta name="description" content="從 Python 到即時系統">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">數位濾波器</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜應用 · 第 25 課</div>
+      <h1>在晶片上實作</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>了解濾波器的實作平台</li>
+          <li>學會規劃即時處理的預算</li>
+          <li>了解從設計到部署的流程</li>
+        </ul>
+      </div>
+
+      <h2>平台的選擇</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>平台</th><th>特色</th><th>適合</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>一般 MCU（Cortex-M4/M7）</td><td>有單週期乘加指令與 SIMD，CMSIS-DSP 函式庫</td><td>感測器、音訊、馬達控制（見<a href="../embedded-systems/index.html">〈嵌入式系統〉</a>）</td></tr>
+          <tr><td>DSP 晶片</td><td>針對乘加與資料搬移最佳化，平行的記憶體存取</td><td>專業音訊、通訊</td></tr>
+          <tr><td>FPGA</td><td>硬體平行、每個時脈處理一個樣本</td><td>雷達、高速通訊、超低延遲</td></tr>
+          <tr><td>GPU</td><td>大量平行</td><td>影像、大批次的頻譜分析（見<a href="../gpu-computing/index.html">〈GPU 運算〉</a>）</td></tr>
+          <tr><td>一般電腦</td><td>NumPy／SciPy</td><td>設計、模擬、離線分析</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>乘加運算</h2>
+
+      <p>
+        濾波的核心運算是<strong>乘加</strong>（MAC）：累加器 += 係數 × 樣本。DSP 架構為此特別設計：單一週期完成一次乘加、硬體迴圈、環形定址（自動處理延遲線的繞回）、較寬的累加器避免溢位（<a href="lesson-17.html">第 17 課</a>）。
+      </p>
+
+      <h2>即時的預算</h2>
+
+      <p>
+        以 48 kHz 的音訊為例，每個樣本只有約 <strong>20.8 μs</strong>。如果 MCU 以 200 MHz 運作，大約只有 4,000 個時脈週期，要完成所有的濾波、等化、效果。一個 64 抽頭的 FIR 約需 64 次乘加，一個二階節約 5 次——算一算就知道能放多少個濾波器。實務上通常以<strong>區塊</strong>（例如每次 64 個樣本）處理，用 DMA 雙緩衝搬資料，降低每個樣本的額外負擔，代價是增加延遲。
+      </p>
+
+      <h2>從設計到部署</h2>
+
+      <ol>
+        <li>在 Python 或 MATLAB 中設計濾波器，檢查頻率響應、相位與穩定性。</li>
+        <li>用真實的錄音資料模擬，確認效果。</li>
+        <li>量化係數（例如 Q15），重新檢查頻率響應與穩定性（<a href="lesson-17.html">第 17 課</a>）。</li>
+        <li>在目標平台上實作（例如 CMSIS-DSP 的 arm_biquad_cascade 函式）。</li>
+        <li>用已知的輸入（脈衝、正弦掃頻）測試，和模擬結果逐點比較。</li>
+        <li>量測執行時間，確認在預算之內。</li>
+      </ol>
+
+      <h2>延遲</h2>
+
+      <p>
+        即時系統還要注意總延遲：線性相位 FIR 的群延遲、區塊處理的緩衝、ADC 與 DAC 本身的延遲。樂手監聽、助聽器、主動降噪對延遲非常敏感（降噪可能需要微秒等級），通常要 IIR 或非常短的區塊。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          平台有 Cortex-M4/M7 有單週期乘加與 SIMD 用 CMSIS-DSP、DSP 晶片針對乘加最佳化、FPGA 硬體平行超低延遲、GPU 大量平行、電腦 NumPy SciPy 設計模擬；核心運算是乘加 MAC，DSP 有單週期 MAC、硬體迴圈、環形定址、寬累加器；48 kHz 每樣本約 20.8 μs，200 MHz 約 4,000 週期，64 抽頭 FIR 約 64 次、二階節約 5 次，常以區塊與 DMA 雙緩衝處理但增加延遲；流程為設計檢查、真實資料模擬、量化重查、平台實作、已知輸入比較、量測執行時間；樂手監聽助聽器主動降噪對延遲敏感。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">📶 本課以直觀與實作為主，數學推導力求精簡；嚴謹的證明與更完整的設計方法請參考數位訊號處理的教科書。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>48 kHz 的音訊，每個樣本有多少時間可以處理？</li>
+          <li>為什麼 DSP 晶片特別擅長濾波？</li>
+          <li>區塊處理有什麼好處與代價？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>總結</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：影像濾波</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
