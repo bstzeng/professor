@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 21 課：看門狗與可靠性 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="當機了怎麼辦">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 21 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統 · 第 21 課</div>
+      <h1>看門狗與可靠性</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解看門狗計時器的作用</li>
+          <li>了解常見的故障來源</li>
+          <li>學會可靠性的設計原則</li>
+        </ul>
+      </div>
+
+      <h2>看門狗</h2>
+
+      <p>
+        <strong>看門狗計時器</strong>（Watchdog）是一個獨立的倒數計時器：程式必須定期「餵狗」（重設計時器）；如果程式卡死、跑飛而沒有餵狗，時間一到，看門狗就會<strong>重置</strong>整個 MCU，讓系統重新開始。對於沒有人在旁邊按重開機的設備（例如路邊的感測器、太空船），看門狗是最後一道防線。
+      </p>
+
+      <h2>正確地餵狗</h2>
+
+      <ul>
+        <li><strong>不要在計時器中斷裡餵狗</strong>：主程式卡死時，中斷可能還在正常執行，看門狗就失去作用了。</li>
+        <li><strong>確認每個任務都活著</strong>：在 RTOS 中，每個任務定期回報，監控任務確認全部都正常才餵狗（<a href="lesson-19.html">第 19 課</a>）。</li>
+        <li><strong>視窗看門狗</strong>：太早餵狗也算錯誤，可以抓到「跑飛到錯誤的迴圈裡不斷餵狗」的情況。</li>
+        <li><strong>記錄重置原因</strong>：開機時讀取重置原因的暫存器，知道是看門狗、斷電還是軟體重置，方便追查問題。</li>
+      </ul>
+
+      <h2>故障從哪裡來</h2>
+
+      <ul>
+        <li><strong>軟體錯誤</strong>：陣列越界、空指標、堆疊溢位、競爭條件（<a href="lesson-08.html">第 8 課</a>）。</li>
+        <li><strong>電源問題</strong>：電壓下降時 MCU 行為異常——開啟<strong>欠壓偵測</strong>（Brown-out），電壓不足時保持在重置狀態。</li>
+        <li><strong>電磁干擾</strong>：馬達、繼電器、靜電放電造成的雜訊。</li>
+        <li><strong>宇宙射線</strong>：高能粒子可能翻轉記憶體中的位元（單一事件翻轉），在航太與高海拔特別重要；可用錯誤更正碼（ECC）記憶體保護。</li>
+        <li><strong>Flash 寫入壽命</strong>：每個 Flash 區塊只能抹寫約一萬到十萬次，頻繁寫入設定值要做<strong>磨損平均</strong>。</li>
+      </ul>
+
+      <h2>可靠性的原則</h2>
+
+      <ul>
+        <li><strong>防禦式程式設計</strong>：檢查所有的輸入與回傳值，switch 一定要有 default。</li>
+        <li><strong>安全狀態</strong>：任何錯誤發生時，系統要進入安全的狀態（例如馬達停止、加熱器關閉）。</li>
+        <li><strong>不使用動態記憶體</strong>：許多安全規範（例如汽車業的 MISRA C）限制或禁止 malloc，避免記憶體碎片與不可預測的行為。</li>
+        <li><strong>靜態分析與測試</strong>：在電腦上跑單元測試、用工具檢查程式碼。</li>
+        <li><strong>功能安全標準</strong>：汽車（ISO 26262）、工業（IEC 61508）、醫療（IEC 62304）都有嚴格的開發流程要求。</li>
+      </ul>
+
+      <p>
+        歷史的教訓：1980 年代的 Therac-25 放射治療機，因為軟體的競爭條件與缺乏硬體連鎖保護，造成數名病人遭受過量輻射（見<a href="../engineering-disasters/index.html">〈工程災難〉</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          看門狗是獨立倒數計時器，程式須定期餵狗，卡死跑飛未餵就重置 MCU，是無人設備最後防線；不要在計時器中斷中餵狗、RTOS 中確認每任務活著再餵、視窗看門狗抓太早餵、開機記錄重置原因；故障來源有軟體錯誤、電源問題（開欠壓偵測）、電磁干擾、宇宙射線單一事件翻轉（用 ECC）、Flash 寫入壽命約一萬到十萬次需磨損平均；原則為防禦式程式設計、錯誤時進入安全狀態、不用動態記憶體（MISRA C）、靜態分析與測試、功能安全標準 ISO 26262 IEC 61508 IEC 62304；Therac-25 因競爭條件與缺乏硬體連鎖致病人過量輻射。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>看門狗計時器的作用是什麼？</li>
+          <li>為什麼不應該在計時器中斷裡餵狗？</li>
+          <li>列出三種嵌入式系統的故障來源。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>Bootloader 與韌體更新</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-20.html">← 上一課：低功耗設計</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-22.html">下一課：Bootloader 與韌體更新 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

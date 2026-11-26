@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 13 課：UART ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="最簡單的序列通訊">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 13 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 C｜通訊 · 第 13 課</div>
+      <h1>UART</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解非同步序列通訊</li>
+          <li>了解 UART 的資料格式與鮑率</li>
+          <li>學會用 UART 除錯</li>
+        </ul>
+      </div>
+
+      <h2>兩條線</h2>
+
+      <p>
+        <strong>UART</strong>（通用非同步收發器）只用兩條線：TX（傳送）與 RX（接收），交叉連接（我的 TX 接你的 RX）。沒有共用的時脈線，雙方事先約定好<strong>鮑率</strong>（每秒傳送的位元數，例如 9600、115200），各自用自己的時脈去「對時」。
+      </p>
+
+      <h2>一個字元的旅程</h2>
+
+      <ol>
+        <li><strong>閒置</strong>：線路保持高電位。</li>
+        <li><strong>起始位元</strong>：拉低一個位元的時間，通知對方「要開始了」。</li>
+        <li><strong>資料位元</strong>：通常 8 位元，從最低位元開始傳。</li>
+        <li><strong>同位元</strong>（可選）：簡單的錯誤檢查。</li>
+        <li><strong>停止位元</strong>：回到高電位 1 或 2 個位元的時間。</li>
+      </ol>
+
+      <p>
+        常見的設定寫成「115200 8N1」：鮑率 115200、8 個資料位元、沒有同位元、1 個停止位元。每個字元實際要傳 10 個位元，所以 115200 鮑大約每秒能傳 11,520 個位元組。
+      </p>
+
+      <h2>時脈誤差</h2>
+
+      <p>
+        因為雙方各自計時，兩邊的時脈誤差加起來要小於約 2%～3%，否則在一個字元的最後幾個位元會取樣錯誤。使用不精確的內部 RC 振盪器時，高鮑率可能出問題。
+      </p>
+
+      <h2>電氣準位</h2>
+
+      <ul>
+        <li><strong>TTL／CMOS 準位</strong>：MCU 直接輸出的 0／3.3 V（或 5 V）。</li>
+        <li><strong>RS-232</strong>：舊式電腦序列埠，用正負十幾伏特，而且邏輯相反，需要轉換晶片。</li>
+        <li><strong>RS-485</strong>：用差動訊號，可以傳到上千公尺、多個裝置共用匯流排，工業設備（例如 Modbus 協定）常用。</li>
+        <li><strong>USB 轉 UART</strong>：今天電腦大多透過 USB 轉序列的轉換器與 MCU 溝通。</li>
+      </ul>
+
+      <h2>最好的除錯工具</h2>
+
+      <p>
+        把訊息透過 UART 印到電腦的終端機（printf 除錯），是嵌入式最常用的除錯方法之一（<a href="lesson-23.html">第 23 課</a>）。注意：在時間要求嚴格的程式中，大量輸出會拖慢系統，而且不要在 ISR 中呼叫 printf（<a href="lesson-08.html">第 8 課</a>）。接收時，建議用中斷或 DMA 把資料放進<strong>環形緩衝區</strong>，主迴圈再慢慢處理。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          UART 只用 TX 與 RX 兩條線交叉連接，沒有共用時脈，雙方約定鮑率如 9600 115200 各自對時；一個字元為閒置高電位、起始位元拉低、通常 8 個資料位元從最低位開始、可選同位元、停止位元，115200 8N1 每字元 10 位元約每秒 11,520 位元組；雙方時脈誤差合計須小於約 2%～3%；準位有 TTL/CMOS、正負十幾伏且邏輯相反的 RS-232、差動可傳上千公尺多點的 RS-485（Modbus）、USB 轉 UART；printf 除錯最常用但會拖慢系統不可在 ISR 中呼叫，接收用中斷或 DMA 放環形緩衝區。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>「115200 8N1」代表什麼？</li>
+          <li>為什麼 UART 對雙方時脈的準確度有要求？</li>
+          <li>RS-485 和 TTL 準位的 UART 有什麼不同？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>I²C</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-12.html">← 上一課：DAC 與類比輸出</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-14.html">下一課：I²C →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

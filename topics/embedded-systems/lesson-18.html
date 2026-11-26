@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 18 課：狀態機與主迴圈 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="不用作業系統也能多工">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 18 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統 · 第 18 課</div>
+      <h1>狀態機與主迴圈</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解超級迴圈架構</li>
+          <li>學會用有限狀態機設計程式</li>
+          <li>學會非阻塞的程式寫法</li>
+        </ul>
+      </div>
+
+      <h2>超級迴圈</h2>
+
+      <p>
+        最簡單的嵌入式程式架構：初始化之後，進入一個永遠執行的 <code>while (1)</code> 迴圈，依序檢查與處理每一件事。這叫做<strong>超級迴圈</strong>。只要每一件事都處理得夠快、不卡住，就能「看起來」同時做很多事。
+      </p>
+
+      <h2>阻塞的問題</h2>
+
+      <p>
+        如果程式寫成「點亮 LED → delay(500) → 關掉 → delay(500)」，在等待的 1 秒內，按鍵、通訊都無法處理。解法是<strong>非阻塞</strong>的寫法：記錄上次切換的時間，每次經過迴圈時檢查「時間到了沒」，到了才切換，沒到就立刻去做別的事（<a href="lesson-09.html">第 9 課</a>）。
+      </p>
+
+      <h2>有限狀態機</h2>
+
+      <p>
+        許多裝置的行為可以用<strong>狀態</strong>與<strong>事件</strong>描述。以一台自動販賣機為例：
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>目前狀態</th><th>事件</th><th>動作</th><th>下一個狀態</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>等待投幣</td><td>投入硬幣</td><td>累加金額</td><td>已投幣</td></tr>
+          <tr><td>已投幣</td><td>金額足夠且按下按鈕</td><td>送出商品、計算找零</td><td>找零中</td></tr>
+          <tr><td>已投幣</td><td>按下退幣</td><td>退回硬幣</td><td>等待投幣</td></tr>
+          <tr><td>找零中</td><td>找零完成</td><td>—</td><td>等待投幣</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        用 <code>switch (state)</code> 實作，每個狀態只處理它關心的事件。狀態機讓複雜的邏輯變得清楚、容易測試，也能避免「同時處於兩種模式」的錯誤。按鍵的長按與雙擊（<a href="lesson-07.html">第 7 課</a>）、通訊協定的解析、電源管理的模式切換，都很適合用狀態機。
+      </p>
+
+      <h2>事件驅動</h2>
+
+      <p>
+        結合中斷：ISR 只負責把「事件」放進佇列（<a href="lesson-08.html">第 8 課</a>），主迴圈從佇列取出事件，交給狀態機處理。沒有事件時，主迴圈可以讓 CPU 進入睡眠（<a href="lesson-20.html">第 20 課</a>）。這種架構簡單、可靠，許多量產的產品都是這樣寫的。
+      </p>
+
+      <h2>什麼時候不夠用</h2>
+
+      <p>
+        當工作越來越多、彼此的時間要求差異很大（例如同時要處理網路協定、檔案系統與即時控制），手動切割成小步驟就變得非常困難——這時就需要即時作業系統（<a href="lesson-19.html">第 19 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          超級迴圈在初始化後進入 while (1) 依序處理每件事，只要不卡住就看似同時多工；delay 阻塞會使等待期間無法處理按鍵通訊，應用記錄時間檢查是否到期的非阻塞寫法；有限狀態機以狀態與事件描述行為，如自動販賣機的等待投幣、已投幣、找零中，用 switch 實作使邏輯清楚可測，適合按鍵、協定解析、電源模式；事件驅動架構由 ISR 放事件進佇列、主迴圈交給狀態機、無事件時睡眠；工作多且時間要求差異大時需要 RTOS。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是超級迴圈？它有什麼限制？</li>
+          <li>為什麼要用非阻塞的寫法？</li>
+          <li>用狀態機描述一個紅綠燈的行為。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>即時作業系統</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-17.html">← 上一課：無線通訊</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-19.html">下一課：即時作業系統 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

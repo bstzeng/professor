@@ -38495,6 +38495,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "embedded-systems",
+      category: "tech",
+      title: "嵌入式系統與微控制器：讓程式動起實體世界",
+      description:
+        "微控制器的架構、交叉編譯與開機流程、記憶體映射暫存器與 volatile、位元操作；GPIO、按鍵彈跳、中斷、計時器、PWM、ADC、DAC；UART、I²C、SPI、CAN、USB、低功耗藍牙與物聯網；狀態機、RTOS 與優先權反轉、低功耗設計、看門狗與可靠性、Bootloader 與 OTA；除錯工具、嵌入式資安與智慧溫控器實作。附 PWM、ADC 量化、按鍵去彈跳、輪詢與中斷四個互動練習。",
+      icon: "🔌",
+      url: "topics/embedded-systems/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "位元操作、週邊與通訊",
+          icon: "📋",
+          url: "topics/embedded-systems/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/embedded-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "什麼是嵌入式系統", url: "topics/embedded-systems/lesson-01.html" },
+            { title: "微控制器的架構", url: "topics/embedded-systems/lesson-02.html" },
+            { title: "開發流程與工具鏈", url: "topics/embedded-systems/lesson-03.html" },
+            { title: "暫存器與記憶體映射", url: "topics/embedded-systems/lesson-04.html" },
+            { title: "C 語言的位元操作", url: "topics/embedded-systems/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜週邊",
+          courses: [
+            { title: "GPIO", url: "topics/embedded-systems/lesson-06.html" },
+            { title: "按鍵與彈跳", url: "topics/embedded-systems/lesson-07.html" },
+            { title: "中斷", url: "topics/embedded-systems/lesson-08.html" },
+            { title: "計時器", url: "topics/embedded-systems/lesson-09.html" },
+            { title: "PWM", url: "topics/embedded-systems/lesson-10.html" },
+            { title: "ADC", url: "topics/embedded-systems/lesson-11.html" },
+            { title: "DAC 與類比輸出", url: "topics/embedded-systems/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜通訊",
+          courses: [
+            { title: "UART", url: "topics/embedded-systems/lesson-13.html" },
+            { title: "I²C", url: "topics/embedded-systems/lesson-14.html" },
+            { title: "SPI", url: "topics/embedded-systems/lesson-15.html" },
+            { title: "CAN 與 USB", url: "topics/embedded-systems/lesson-16.html" },
+            { title: "無線通訊", url: "topics/embedded-systems/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統",
+          courses: [
+            { title: "狀態機與主迴圈", url: "topics/embedded-systems/lesson-18.html" },
+            { title: "即時作業系統", url: "topics/embedded-systems/lesson-19.html" },
+            { title: "低功耗設計", url: "topics/embedded-systems/lesson-20.html" },
+            { title: "看門狗與可靠性", url: "topics/embedded-systems/lesson-21.html" },
+            { title: "Bootloader 與韌體更新", url: "topics/embedded-systems/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實務",
+          courses: [
+            { title: "除錯工具", url: "topics/embedded-systems/lesson-23.html" },
+            { title: "嵌入式資安", url: "topics/embedded-systems/lesson-24.html" },
+            { title: "實作案例：智慧溫控器", url: "topics/embedded-systems/lesson-25.html" },
+            { title: "總結", url: "topics/embedded-systems/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };

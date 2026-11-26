@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 19 課：即時作業系統 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="RTOS 與排程">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 19 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統 · 第 19 課</div>
+      <h1>即時作業系統</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解即時系統的意義</li>
+          <li>了解 RTOS 的任務與排程</li>
+          <li>理解同步機制與優先權反轉</li>
+        </ul>
+      </div>
+
+      <h2>即時不等於快</h2>
+
+      <p>
+        <strong>即時系統</strong>的重點是<strong>在期限內</strong>完成，而且可以預測。<strong>硬即時</strong>：錯過期限就是失敗（安全氣囊、心律調節器、飛控）；<strong>軟即時</strong>：偶爾遲到可以容忍（影音播放）。
+      </p>
+
+      <h2>RTOS</h2>
+
+      <p>
+        <strong>即時作業系統</strong>（RTOS）讓程式拆成多個<strong>任務</strong>（執行緒），每個任務有自己的堆疊與優先權，看起來像是同時執行。常見的有 <strong>FreeRTOS</strong>（最普及，現由 AWS 維護）、Zephyr、ThreadX、RT-Thread 等。它們通常只有幾 KB，比 Linux 小得多（見<a href="../os-dev/index.html">〈作業系統開發〉</a>）。
+      </p>
+
+      <h2>搶先式排程</h2>
+
+      <p>
+        大多數 RTOS 使用<strong>固定優先權的搶先式排程</strong>：永遠執行「準備好」的任務中優先權最高的那一個；高優先權的任務一旦準備好（例如等待的資料到了），會立刻搶走 CPU。相同優先權的任務則輪流執行。SysTick 計時器提供排程用的「滴答」（<a href="lesson-09.html">第 9 課</a>）。
+      </p>
+
+      <h2>任務之間的溝通</h2>
+
+      <ul>
+        <li><strong>佇列</strong>：一個任務放入資料、另一個取出，最常用也最安全。</li>
+        <li><strong>號誌</strong>（Semaphore）：通知事件發生，例如 ISR 通知某個任務「資料到了」。</li>
+        <li><strong>互斥鎖</strong>（Mutex）：保護共用資源（例如同一個 UART），同時只能一個任務使用。</li>
+        <li><strong>事件旗標、任務通知</strong>等。</li>
+      </ul>
+
+      <h2>優先權反轉</h2>
+
+      <p>
+        低優先權任務 L 拿著鎖；高優先權任務 H 也需要這個鎖，只好等待；這時中優先權任務 M 搶走了 L 的 CPU，L 無法釋放鎖——結果 H 被 M 間接卡住。1997 年 NASA 的<strong>火星探路者號</strong>在火星上不斷重開機，就是這個問題造成的。工程師從地球上傳指令，開啟互斥鎖的<strong>優先權繼承</strong>（讓持有鎖的 L 暫時升到 H 的優先權），才解決了問題。
+      </p>
+
+      <h2>RTOS 的常見錯誤</h2>
+
+      <ul>
+        <li><strong>堆疊溢位</strong>：每個任務的堆疊大小要估算清楚，並開啟溢位檢查。</li>
+        <li><strong>死結</strong>：兩個任務各拿一個鎖、互相等待對方。</li>
+        <li><strong>在 ISR 中呼叫不允許的 API</strong>：要用專門的「FromISR」版本。</li>
+        <li><strong>過度設計</strong>：簡單的產品用狀態機就夠了（<a href="lesson-18.html">第 18 課</a>）。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          即時系統重點是在期限內完成且可預測，硬即時錯過即失敗（安全氣囊心律調節器飛控），軟即時偶爾遲到可容忍；RTOS 讓程式拆成有自己堆疊與優先權的任務，常見 FreeRTOS（AWS 維護）、Zephyr、ThreadX、RT-Thread 只有幾 KB；固定優先權搶先式排程永遠執行就緒中最高優先權者，同優先權輪流，SysTick 提供滴答；溝通有佇列、號誌、互斥鎖、事件旗標；優先權反轉為 L 持鎖 H 等待 M 搶 CPU，1997 年火星探路者號不斷重開機，地球上傳開啟優先權繼承解決；常見錯誤為堆疊溢位、死結、ISR 呼叫非 FromISR API、過度設計。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>硬即時和軟即時有什麼不同？</li>
+          <li>搶先式排程是怎麼運作的？</li>
+          <li>什麼是優先權反轉？火星探路者號如何解決？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>低功耗設計</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-18.html">← 上一課：狀態機與主迴圈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-20.html">下一課：低功耗設計 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
