@@ -38951,6 +38951,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "geotechnical",
+      category: "tech",
+      title: "大地工程與土壤力學：站在土上的工程",
+      description:
+        "土壤的三相、粒徑分類、阿太堡限度；有效應力原理、滲流與流砂、壓密沉陷、莫爾－庫倫剪力強度、標準貫入與圓錐貫入試驗；邊坡穩定、蘭金土壓力、擋土牆與加勁擋土、地錨、順向坡與國道 3 號七堵崩塌；淺基礎承載力、樁基礎與負摩擦力、深開挖與連續壁、隧道與雪山隧道、台北盆地；土壤液化、921 與台南地震、土石流與莫拉克、地層下陷、地盤改良、填海造陸與離岸風電基礎、大地監測。附有效應力、壓密、邊坡穩定與液化評估四個互動練習。",
+      icon: "⛰️",
+      url: "topics/geotechnical/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、典型值與防災查詢",
+          icon: "📋",
+          url: "topics/geotechnical/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/geotechnical/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜土壤",
+          courses: [
+            { title: "大地工程是什麼", url: "topics/geotechnical/lesson-01.html" },
+            { title: "土壤的三相", url: "topics/geotechnical/lesson-02.html" },
+            { title: "粒徑與土壤分類", url: "topics/geotechnical/lesson-03.html" },
+            { title: "稠度與阿太堡限度", url: "topics/geotechnical/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜土壤力學",
+          courses: [
+            { title: "有效應力", url: "topics/geotechnical/lesson-05.html" },
+            { title: "滲流與流砂", url: "topics/geotechnical/lesson-06.html" },
+            { title: "壓密與沉陷", url: "topics/geotechnical/lesson-07.html" },
+            { title: "剪力強度", url: "topics/geotechnical/lesson-08.html" },
+            { title: "地質調查與試驗", url: "topics/geotechnical/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜邊坡與擋土",
+          courses: [
+            { title: "邊坡穩定", url: "topics/geotechnical/lesson-10.html" },
+            { title: "土壓力", url: "topics/geotechnical/lesson-11.html" },
+            { title: "擋土牆與加勁擋土", url: "topics/geotechnical/lesson-12.html" },
+            { title: "順向坡", url: "topics/geotechnical/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜基礎",
+          courses: [
+            { title: "淺基礎與承載力", url: "topics/geotechnical/lesson-14.html" },
+            { title: "樁基礎", url: "topics/geotechnical/lesson-15.html" },
+            { title: "深開挖與連續壁", url: "topics/geotechnical/lesson-16.html" },
+            { title: "隧道", url: "topics/geotechnical/lesson-17.html" },
+            { title: "台北盆地與軟弱地盤", url: "topics/geotechnical/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜災害與對策",
+          courses: [
+            { title: "土壤液化", url: "topics/geotechnical/lesson-19.html" },
+            { title: "921 與台南地震", url: "topics/geotechnical/lesson-20.html" },
+            { title: "土石流", url: "topics/geotechnical/lesson-21.html" },
+            { title: "地層下陷", url: "topics/geotechnical/lesson-22.html" },
+            { title: "地盤改良", url: "topics/geotechnical/lesson-23.html" },
+            { title: "填海造陸與離岸風電基礎", url: "topics/geotechnical/lesson-24.html" },
+            { title: "監測與觀測", url: "topics/geotechnical/lesson-25.html" },
+            { title: "總結", url: "topics/geotechnical/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
