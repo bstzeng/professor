@@ -39336,6 +39336,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "analytical-chemistry",
+      category: "science",
+      title: "分析化學：有什麼？有多少？可靠嗎？",
+      description:
+        "分析流程與取樣、準確度與精密度、有效數字與不確定度、t 分布與檢量線、偵測極限與方法確效（Theranos 的教訓）；重量分析與凱氏定氮（三聚氰胺）、酸鹼滴定與指示劑、EDTA 與水硬度、氧化還原與 COD、pH 計與血糖機；比爾定律、UV-Vis、FTIR、AAS 與 ICP-MS、螢光與拉曼；層析與解析度、GC 與洛夫洛克的 ECD、HPLC、質譜與同位素峰、LC-MS/MS 與新生兒篩檢；2011 年塑化劑事件、運動禁藥、水俁病與 RCA、法醫毒物與 DNA、ISO 17025 與管制圖。附滴定曲線、檢量線、層析與質譜四個互動練習。",
+      icon: "🧪",
+      url: "topics/analytical-chemistry/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、方法與數字",
+          icon: "📋",
+          url: "topics/analytical-chemistry/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/analytical-chemistry/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜分析的基礎",
+          courses: [
+            { title: "分析化學是什麼", url: "topics/analytical-chemistry/lesson-01.html" },
+            { title: "誤差：準確度與精密度", url: "topics/analytical-chemistry/lesson-02.html" },
+            { title: "有效數字與不確定度", url: "topics/analytical-chemistry/lesson-03.html" },
+            { title: "統計與檢量線", url: "topics/analytical-chemistry/lesson-04.html" },
+            { title: "偵測極限與方法確效", url: "topics/analytical-chemistry/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜古典分析與電化學",
+          courses: [
+            { title: "重量分析", url: "topics/analytical-chemistry/lesson-06.html" },
+            { title: "酸鹼滴定", url: "topics/analytical-chemistry/lesson-07.html" },
+            { title: "錯合滴定", url: "topics/analytical-chemistry/lesson-08.html" },
+            { title: "氧化還原滴定", url: "topics/analytical-chemistry/lesson-09.html" },
+            { title: "電化學分析與 pH 計", url: "topics/analytical-chemistry/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光譜分析",
+          courses: [
+            { title: "比爾定律", url: "topics/analytical-chemistry/lesson-11.html" },
+            { title: "紫外光－可見光光譜", url: "topics/analytical-chemistry/lesson-12.html" },
+            { title: "紅外光譜", url: "topics/analytical-chemistry/lesson-13.html" },
+            { title: "原子光譜：AAS 與 ICP", url: "topics/analytical-chemistry/lesson-14.html" },
+            { title: "螢光與拉曼光譜", url: "topics/analytical-chemistry/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜分離與質譜",
+          courses: [
+            { title: "層析原理", url: "topics/analytical-chemistry/lesson-16.html" },
+            { title: "氣相層析", url: "topics/analytical-chemistry/lesson-17.html" },
+            { title: "高效液相層析", url: "topics/analytical-chemistry/lesson-18.html" },
+            { title: "質譜", url: "topics/analytical-chemistry/lesson-19.html" },
+            { title: "串聯技術：GC-MS 與 LC-MS", url: "topics/analytical-chemistry/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜分析化學與社會",
+          courses: [
+            { title: "食品安全", url: "topics/analytical-chemistry/lesson-21.html" },
+            { title: "運動禁藥檢測", url: "topics/analytical-chemistry/lesson-22.html" },
+            { title: "環境分析", url: "topics/analytical-chemistry/lesson-23.html" },
+            { title: "法醫鑑識化學", url: "topics/analytical-chemistry/lesson-24.html" },
+            { title: "實驗室品質管理", url: "topics/analytical-chemistry/lesson-25.html" },
+            { title: "總結", url: "topics/analytical-chemistry/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
