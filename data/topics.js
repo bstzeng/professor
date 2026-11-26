@@ -39108,6 +39108,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "differential-equations",
+      category: "math",
+      title: "微分方程：用方程式描述變化的世界",
+      description:
+        "微分方程的意義與分類、斜率場與平衡解、可分離方程與碳 14 定年、積分因子與暫態穩態、邏輯斯諦成長與漁業崩潰、冷卻定律與混合問題、存在與唯一性；歐拉法、龍格－庫塔法、剛性方程與隱式方法；彈簧振子、阻尼比與台北 101 阻尼器、強迫振動與共振、RLC 電路類比；聯立系統與特徵值、相平面與平衡點分類、捕食者與獵物、SIR 模型與 R₀、極限環與范德波爾、勞侖茲混沌與蝴蝶效應；冪級數與特殊函數、邊界值問題與駐波、熱方程、波動方程、拉普拉斯轉換。附斜率場、數值方法、阻尼共振與捕食者獵物四個互動練習。",
+      icon: "∂",
+      url: "topics/differential-equations/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "常見方程、解法與分類",
+          icon: "📋",
+          url: "topics/differential-equations/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/differential-equations/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜一階方程",
+          courses: [
+            { title: "什麼是微分方程", url: "topics/differential-equations/lesson-01.html" },
+            { title: "斜率場", url: "topics/differential-equations/lesson-02.html" },
+            { title: "可分離方程", url: "topics/differential-equations/lesson-03.html" },
+            { title: "線性一階方程與積分因子", url: "topics/differential-equations/lesson-04.html" },
+            { title: "人口成長與邏輯斯諦方程", url: "topics/differential-equations/lesson-05.html" },
+            { title: "冷卻定律與混合問題", url: "topics/differential-equations/lesson-06.html" },
+            { title: "存在與唯一性", url: "topics/differential-equations/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜數值方法",
+          courses: [
+            { title: "歐拉法", url: "topics/differential-equations/lesson-08.html" },
+            { title: "龍格－庫塔法", url: "topics/differential-equations/lesson-09.html" },
+            { title: "剛性方程", url: "topics/differential-equations/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜二階方程與振動",
+          courses: [
+            { title: "彈簧振子", url: "topics/differential-equations/lesson-11.html" },
+            { title: "阻尼振動", url: "topics/differential-equations/lesson-12.html" },
+            { title: "強迫振動與共振", url: "topics/differential-equations/lesson-13.html" },
+            { title: "RLC 電路", url: "topics/differential-equations/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統與非線性",
+          courses: [
+            { title: "聯立方程與矩陣", url: "topics/differential-equations/lesson-15.html" },
+            { title: "相平面與平衡點", url: "topics/differential-equations/lesson-16.html" },
+            { title: "捕食者與獵物", url: "topics/differential-equations/lesson-17.html" },
+            { title: "SIR 傳染病模型", url: "topics/differential-equations/lesson-18.html" },
+            { title: "非線性與極限環", url: "topics/differential-equations/lesson-19.html" },
+            { title: "混沌與勞侖茲方程", url: "topics/differential-equations/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜進階主題",
+          courses: [
+            { title: "冪級數解", url: "topics/differential-equations/lesson-21.html" },
+            { title: "邊界值問題", url: "topics/differential-equations/lesson-22.html" },
+            { title: "熱方程", url: "topics/differential-equations/lesson-23.html" },
+            { title: "波動方程", url: "topics/differential-equations/lesson-24.html" },
+            { title: "用拉普拉斯轉換解方程", url: "topics/differential-equations/lesson-25.html" },
+            { title: "總結", url: "topics/differential-equations/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
