@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 25 課：實作案例：智慧溫控器 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="把所有東西組合起來">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 25 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 E｜實務 · 第 25 課</div>
+      <h1>實作案例：智慧溫控器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>把課程的知識整合成一個產品</li>
+          <li>練習系統架構設計</li>
+          <li>理解產品化的考量</li>
+        </ul>
+      </div>
+
+      <h2>需求</h2>
+
+      <p>
+        設計一個電池供電的智慧溫控器：量測室溫與濕度、顯示在小螢幕上、按鍵設定目標溫度、透過繼電器控制暖氣或冷氣、用低功耗藍牙讓手機查看與設定、電池要用一年以上。
+      </p>
+
+      <h2>硬體選擇</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>功能</th><th>選擇</th><th>相關課程</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>MCU</td><td>內建 BLE 的低功耗 MCU（例如 nRF52 系列）</td><td><a href="lesson-02.html">第 2 課</a>、<a href="lesson-17.html">第 17 課</a></td></tr>
+          <tr><td>溫濕度</td><td>I²C 數位感測器</td><td><a href="lesson-14.html">第 14 課</a></td></tr>
+          <tr><td>顯示</td><td>SPI 介面的電子紙或低功耗 LCD</td><td><a href="lesson-15.html">第 15 課</a></td></tr>
+          <tr><td>按鍵</td><td>3 顆，GPIO 加內部上拉</td><td><a href="lesson-06.html">第 6 課</a>、<a href="lesson-07.html">第 7 課</a></td></tr>
+          <tr><td>控制輸出</td><td>GPIO 經電晶體驅動繼電器，加保護二極體</td><td><a href="lesson-06.html">第 6 課</a></td></tr>
+          <tr><td>電源</td><td>兩顆 AA 電池，低靜態電流的穩壓器</td><td><a href="lesson-20.html">第 20 課</a></td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>軟體架構</h2>
+
+      <ul>
+        <li><strong>事件驅動 ＋ 狀態機</strong>（<a href="lesson-18.html">第 18 課</a>）：狀態有「待機」「設定中」「加熱中」「冷卻中」。</li>
+        <li><strong>RTC 每 30 秒喚醒</strong>：讀溫濕度、執行控制邏輯，其餘時間深度睡眠。</li>
+        <li><strong>按鍵中斷喚醒</strong>：去彈跳後更新設定（<a href="lesson-07.html">第 7 課</a>）。</li>
+        <li><strong>遲滯控制</strong>：目標 24 °C 時，低於 23.5 °C 才開暖氣、高於 24.5 °C 才關，避免繼電器頻繁開關（見<a href="../control-theory/index.html">〈控制理論〉</a>）。</li>
+        <li><strong>BLE</strong>：自訂的 GATT 服務提供溫度、目標值與模式。</li>
+        <li><strong>看門狗與安全狀態</strong>：感測器讀取失敗時關閉輸出（<a href="lesson-21.html">第 21 課</a>）。</li>
+        <li><strong>OTA</strong>：預留 A/B 分區（<a href="lesson-22.html">第 22 課</a>）。</li>
+      </ul>
+
+      <h2>電池壽命估算</h2>
+
+      <p>
+        睡眠 3 μA；每 30 秒醒來量測 20 ms（3 mA）；BLE 廣播每 2 秒一次、每次約 3 ms、平均 8 mA；電子紙每 5 分鐘更新一次、每次約 1 秒、5 mA。粗略計算平均電流約 3 + 2 + 12 + 17 ≈ 34 μA，兩顆 AA（約 2,500 mAh）理論上可以用好幾年——但繼電器線圈很耗電，要選<strong>閂鎖型</strong>繼電器（只在切換時耗電）。
+      </p>
+
+      <h2>從原型到產品</h2>
+
+      <ul>
+        <li><strong>原型</strong>：開發板加模組，快速驗證功能。</li>
+        <li><strong>電路板設計</strong>：把元件畫在自己的電路板上，注意天線與接地（<a href="lesson-17.html">第 17 課</a>）。</li>
+        <li><strong>法規認證</strong>：無線（NCC）、安規、電磁相容。</li>
+        <li><strong>量產測試</strong>：每一台出廠前自動測試與燒錄唯一的金鑰（<a href="lesson-24.html">第 24 課</a>）。</li>
+        <li><strong>長期維護</strong>：更新、客服與零件停產的對策。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          電池供電智慧溫控器需量溫濕度、顯示、按鍵設定、繼電器控制、BLE 手機設定、電池一年以上；硬體為內建 BLE 低功耗 MCU、I²C 溫濕度感測器、SPI 電子紙、GPIO 按鍵、電晶體驅動繼電器加保護二極體、低靜態電流穩壓器；軟體為事件驅動加狀態機、RTC 每 30 秒喚醒、按鍵中斷去彈跳、遲滯控制避免頻繁開關、GATT 服務、看門狗與感測失敗關閉輸出、A/B 分區 OTA；平均電流約 34 μA，繼電器需選閂鎖型；產品化需原型、電路板、NCC 等認證、量產測試燒金鑰、長期維護。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>溫控器為什麼要用遲滯控制？</li>
+          <li>為了省電，溫控器的軟體採用了什麼架構？</li>
+          <li>從原型到量產產品，還需要哪些步驟？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>總結</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-24.html">← 上一課：嵌入式資安</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-26.html">下一課：總結 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

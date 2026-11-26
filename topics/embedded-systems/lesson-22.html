@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 22 課：Bootloader 與韌體更新 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="出廠後還能修好">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 22 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統 · 第 22 課</div>
+      <h1>Bootloader 與韌體更新</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 Bootloader 的角色</li>
+          <li>了解 OTA 更新的流程</li>
+          <li>學會設計安全可靠的更新機制</li>
+        </ul>
+      </div>
+
+      <h2>Bootloader</h2>
+
+      <p>
+        <strong>Bootloader</strong> 是開機時最先執行的一小段程式，放在 Flash 的開頭。它決定要直接跳到主程式（應用程式），還是進入更新模式：從 UART、USB、CAN 或無線接收新的韌體，寫入 Flash 的應用程式區。許多 MCU 在出廠時就在 ROM 中內建了 Bootloader，可以透過 UART 或 USB 燒錄（<a href="lesson-03.html">第 3 課</a>）。
+      </p>
+
+      <h2>跳到應用程式</h2>
+
+      <p>
+        Bootloader 確認應用程式有效（例如檢查 CRC）之後，關閉中斷與週邊，把<strong>向量表</strong>的位置改到應用程式的開頭，設定堆疊指標，再跳到應用程式的重置處理函式。
+      </p>
+
+      <h2>OTA 更新</h2>
+
+      <p>
+        <strong>空中更新</strong>（OTA）讓已經賣出去的產品透過網路更新韌體：修正錯誤、修補漏洞、增加功能。汽車、手機、智慧家電都在使用。
+      </p>
+
+      <h2>不能變成磚頭</h2>
+
+      <p>
+        更新到一半斷電、網路中斷，或新版韌體有嚴重的錯誤，裝置可能就此無法開機（「變磚」）。可靠的設計：
+      </p>
+
+      <ul>
+        <li><strong>A/B 雙分區</strong>：Flash 中保留兩個應用程式區。新韌體下載到「另一個」分區，完整驗證後才切換；如果新版開機失敗（例如看門狗重置多次，<a href="lesson-21.html">第 21 課</a>），自動<strong>回滾</strong>到舊版。</li>
+        <li><strong>完整性檢查</strong>：CRC 或雜湊值，確認資料沒有損壞。</li>
+        <li><strong>Bootloader 本身不更新</strong>（或極少更新），確保永遠有一條「回家的路」。</li>
+        <li><strong>電量檢查</strong>：電池電量不足時不進行更新。</li>
+      </ul>
+
+      <h2>安全開機與簽章</h2>
+
+      <p>
+        如果任何人都能上傳韌體，攻擊者就能植入惡意程式。<strong>安全開機</strong>使用<strong>數位簽章</strong>：廠商用私鑰簽署韌體，裝置用內建的公鑰驗證，簽章不符就拒絕執行（見<a href="../cryptography/index.html">〈密碼學〉</a>）。還要防止<strong>降版攻擊</strong>（刻意安裝有漏洞的舊版），通常用一個只能增加的版本計數器。開源的 MCUboot 是常見的安全 Bootloader 實作（<a href="lesson-24.html">第 24 課</a>）。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Bootloader 是開機最先執行放在 Flash 開頭的程式，決定跳到應用程式或從 UART USB CAN 無線接收新韌體寫入，許多 MCU ROM 內建；跳轉前驗 CRC、關中斷週邊、改向量表位置、設堆疊指標再跳到重置函式；OTA 空中更新用於汽車手機家電；避免變磚的設計有 A/B 雙分區下載到另一分區驗證後切換失敗自動回滾、CRC 雜湊完整性、Bootloader 本身不更新、電量檢查；安全開機以私鑰簽署公鑰驗證，防降版攻擊用只能增加的版本計數器，MCUboot 是常見實作。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>Bootloader 的主要工作是什麼？</li>
+          <li>A/B 雙分區如何避免更新失敗變磚？</li>
+          <li>為什麼韌體需要數位簽章？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>除錯工具</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-21.html">← 上一課：看門狗與可靠性</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-23.html">下一課：除錯工具 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

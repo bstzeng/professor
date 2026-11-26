@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 9 課：計時器 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="MCU 的心跳">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 9 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜週邊 · 第 9 課</div>
+      <h1>計時器</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解計時器的運作</li>
+          <li>學會計算預除頻與重載值</li>
+          <li>認識計時器的各種用途</li>
+        </ul>
+      </div>
+
+      <h2>一個會數數的電路</h2>
+
+      <p>
+        <strong>計時器</strong>是一個由時脈驅動、不斷加一（或減一）的計數器。計數到設定的上限時<strong>溢位</strong>，歸零重來，並可以產生中斷。因為它由硬體計數，時間非常精準，也不佔用 CPU。
+      </p>
+
+      <h2>計算週期</h2>
+
+      <p>
+        計時器的時脈先經過<strong>預除頻器</strong>（Prescaler，PSC）除頻，再由計數器數到<strong>自動重載值</strong>（ARR）：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[f_{\text{update}} = \frac{f_{\text{clk}}}{(\text{PSC}+1)(\text{ARR}+1)}\]</div>
+
+      <p>
+        例如時脈 72 MHz，想要每 1 ms 中斷一次：PSC = 71（除成 1 MHz），ARR = 999（數 1000 下）→ 1 kHz。
+      </p>
+
+      <h2>計時器的用途</h2>
+
+      <ul>
+        <li><strong>週期性的工作</strong>：每 1 ms 掃描按鍵、每 10 ms 執行控制迴圈。</li>
+        <li><strong>系統時基</strong>：Cortex-M 內建的 <strong>SysTick</strong> 計時器常用來產生 1 ms 的「滴答」，作為 delay 函式與 RTOS 排程的基礎（<a href="lesson-19.html">第 19 課</a>）。</li>
+        <li><strong>PWM 輸出</strong>（<a href="lesson-10.html">第 10 課</a>）。</li>
+        <li><strong>輸入擷取</strong>：記錄外部訊號邊緣發生的時刻，用來量測頻率、脈波寬度（例如超音波測距、遙控器的紅外線訊號）。</li>
+        <li><strong>編碼器介面</strong>：讀取馬達編碼器的位置與方向。</li>
+        <li><strong>觸發其他週邊</strong>：例如定時觸發 ADC 取樣，讓取樣間隔精確（<a href="lesson-11.html">第 11 課</a>）。</li>
+      </ul>
+
+      <h2>不要用忙碌等待</h2>
+
+      <p>
+        初學者常寫 <code>for (i = 0; i &lt; 100000; i++);</code> 來延遲。這種延遲的時間取決於時脈與編譯器的最佳化（甚至可能被整個最佳化掉），而且 CPU 在等待時什麼都不能做。用計時器的中斷或「記錄時間戳、檢查是否到期」的<strong>非阻塞</strong>寫法，系統才能同時處理多件事。
+      </p>
+
+      <h2>溢位的陷阱</h2>
+
+      <p>
+        用 32 位元的毫秒計數器，大約 49.7 天後會溢位歸零。比較時間時要寫成 <code>(now - start) &gt;= interval</code>（利用無號數的環繞特性），而不是 <code>now &gt;= start + interval</code>，才不會在溢位時出錯——歷史上有不少設備在連續運作約 49.7 天後當機，就是這個原因。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          計時器是由時脈驅動不斷計數的硬體，到上限溢位歸零並可產生中斷，精準且不佔 CPU；更新頻率 = 時脈 ÷ ((PSC+1)(ARR+1))，72 MHz 例 PSC 71 ARR 999 得 1 kHz；用途有週期性工作、SysTick 1 ms 系統時基、PWM、輸入擷取量頻率脈寬、編碼器介面、定時觸發 ADC；忙碌等待時間不準可能被最佳化掉且 CPU 不能做別的事，應用中斷或非阻塞時間戳；32 位元毫秒計數約 49.7 天溢位，應寫 (now - start) >= interval。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>時脈 48 MHz，要產生 1 kHz 的中斷，PSC 與 ARR 可以怎麼設？</li>
+          <li>計時器的輸入擷取可以用來做什麼？</li>
+          <li>為什麼比較時間要寫成 (now - start) >= interval？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>PWM</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-08.html">← 上一課：中斷</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-10.html">下一課：PWM →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

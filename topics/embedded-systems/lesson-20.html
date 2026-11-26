@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 20 課：低功耗設計 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="一顆電池用十年">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 20 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 D｜系統 · 第 20 課</div>
+      <h1>低功耗設計</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 MCU 的功耗來源</li>
+          <li>認識睡眠模式</li>
+          <li>學會估算電池壽命</li>
+        </ul>
+      </div>
+
+      <h2>功耗從哪裡來</h2>
+
+      <p>
+        CMOS 電路的功耗主要有兩部分：<strong>動態功耗</strong>（電晶體切換時對電容充放電，大約與時脈頻率與電壓的平方成正比）與<strong>靜態功耗</strong>（漏電流）。降低時脈、降低電壓、關掉不用的週邊時脈，都能省電。
+      </p>
+
+      <h2>睡眠模式</h2>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>模式（名稱依晶片而異）</th><th>狀態</th><th>典型電流</th><th>喚醒</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>執行</td><td>CPU 全速運作</td><td>數 mA～數十 mA</td><td>—</td></tr>
+          <tr><td>睡眠</td><td>CPU 停止，週邊照常</td><td>約 1 mA</td><td>任何中斷，幾乎立刻</td></tr>
+          <tr><td>停止</td><td>大部分時脈關閉，RAM 保留</td><td>數 μA</td><td>外部中斷、RTC，數 μs</td></tr>
+          <tr><td>待機／關機</td><td>幾乎全部關閉，RAM 消失</td><td>1 μA 以下</td><td>特定腳位或 RTC，等同重新開機</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <p>
+        Cortex-M 用 <code>WFI</code>（等待中斷）指令讓 CPU 進入睡眠。
+      </p>
+
+      <h2>盡快做完、盡量睡覺</h2>
+
+      <p>
+        低功耗的核心策略：大部分的時間都在最深的睡眠，偶爾醒來<strong>快速</strong>做完工作（量測、傳送），再回去睡。例如一個溫度感測器每分鐘醒來 10 ms，執行時 5 mA、睡眠時 2 μA：
+      </p>
+
+      <div style="overflow-x:auto;margin:0 0 16px">\[I_{\text{avg}} \approx 5\,\text{mA}\times\frac{10\,\text{ms}}{60\,\text{s}} + 2\,\mu\text{A} \approx 0.83 + 2 = 2.8\,\mu\text{A}\]</div>
+
+      <p>
+        一顆 220 mAh 的 CR2032 鈕扣電池，理論上可以用大約 220 ÷ 0.0028 ≈ 78,000 小時——將近 9 年。（實際上還要考慮電池的自放電、溫度與脈衝電流的影響。）
+      </p>
+
+      <h2>容易忽略的耗電</h2>
+
+      <ul>
+        <li><strong>浮接的輸入腳位</strong>：會造成漏電，不用的腳位要設成類比或固定電位（<a href="lesson-06.html">第 6 課</a>）。</li>
+        <li><strong>上拉電阻</strong>：按鍵按住時，電流會一直流過上拉電阻。</li>
+        <li><strong>電源 IC 的靜態電流</strong>：穩壓器本身的耗電可能比睡眠中的 MCU 還大。</li>
+        <li><strong>LED 與感測器</strong>：不用時要切斷電源。</li>
+        <li><strong>無線的連線間隔</strong>：BLE 的間隔太短，耗電大增（<a href="lesson-17.html">第 17 課</a>）。</li>
+      </ul>
+
+      <h2>量測功耗</h2>
+
+      <p>
+        睡眠時的微安培與執行時的毫安培相差上千倍，普通的電錶很難量準。工程師使用專門的電源分析儀或電流量測工具，觀察每一次醒來的電流波形，找出浪費電的地方。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          CMOS 功耗有與頻率及電壓平方成正比的動態功耗和漏電的靜態功耗，降時脈電壓關週邊時脈可省電；睡眠 CPU 停週邊照常約 1 mA、停止大部分時脈關閉 RAM 保留數 μA、待機幾乎全關 RAM 消失 1 μA 以下等同重開機，Cortex-M 用 WFI；策略是盡快做完盡量睡覺，每分鐘醒 10 ms 執行 5 mA 睡眠 2 μA 平均約 2.8 μA，220 mAh CR2032 理論約 78,000 小時近 9 年；容易忽略浮接腳位、上拉電阻、穩壓器靜態電流、LED 感測器、BLE 連線間隔；需專門工具量測電流波形。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script><script>window.addEventListener("load",function(){if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:"\\[",right:"\\]",display:true},{left:"\\(",right:"\\)",display:false}]});});</script>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>動態功耗和哪些因素有關？</li>
+          <li>一個裝置每 10 秒醒來 5 ms、執行時 10 mA、睡眠 1 μA，平均電流約多少？</li>
+          <li>列出兩個容易被忽略的耗電來源。</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>看門狗與可靠性</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-19.html">← 上一課：即時作業系統</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-21.html">下一課：看門狗與可靠性 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

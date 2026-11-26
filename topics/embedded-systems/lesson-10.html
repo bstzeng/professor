@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 10 課：PWM ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="用數位做出類比">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 10 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 B｜週邊 · 第 10 課</div>
+      <h1>PWM</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解 PWM 的原理</li>
+          <li>了解 PWM 的應用</li>
+          <li>了解 PWM 頻率的選擇</li>
+        </ul>
+      </div>
+
+      <script>
+      (function () {
+        if (window.__kemLib) return; window.__kemLib = 1;
+
+        function btn(t, k) { var b = document.createElement('button'); b.type = 'button'; b.textContent = t; if (k !== undefined) b.setAttribute('data-k', k);
+          b.style.cssText = 'padding:4px 10px;margin:4px 6px 0 0;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;font:inherit;font-size:0.9em'; return b; }
+        function mark(bar, k) { bar.querySelectorAll('button').forEach(function (b) { var on = b.getAttribute('data-k') === String(k); b.style.background = on ? 'var(--accent-soft)' : 'var(--surface)'; b.style.fontWeight = on ? 'bold' : 'normal'; }); }
+        function head(root, q) { if (q) { var p = document.createElement('p'); p.style.margin = '0 0 8px'; p.innerHTML = q; root.appendChild(p); } }
+        function el(tag, css, html) { var e = document.createElement(tag); if (css) e.style.cssText = css; if (html !== undefined) e.innerHTML = html; return e; }
+        function n1(v) { return Math.round(v * 10) / 10; }
+        function f1(v) { return (Math.round(v * 10) / 10).toString(); }
+        function f2(v) { return (Math.round(v * 100) / 100).toString(); }
+        function tx(x, y, s, sz, c, anc) { return '<text x="' + n1(x) + '" y="' + n1(y) + '" font-size="' + sz + '" fill="' + (c || 'currentColor') + '" text-anchor="' + (anc || 'middle') + '">' + s + '</text>'; }
+        function ln(x1, y1, x2, y2, c, w, ex) { return '<line x1="' + n1(x1) + '" y1="' + n1(y1) + '" x2="' + n1(x2) + '" y2="' + n1(y2) + '" stroke="' + c + '" stroke-width="' + (w || 1) + '" ' + (ex || '') + '/>'; }
+        function svgw(vb, inner) { return '<svg viewBox="' + vb + '" style="width:100%;display:block;color:var(--text)">' + inner + '</svg>'; }
+        function slider(root, lab, min, max, step, val, fmt, k, cb) { var l = el('label', 'display:block;font-size:0.88em;margin-top:6px', lab + '：<b></b>'); var s = document.createElement('input');
+          s.type = 'range'; s.min = min; s.max = max; s.step = step; s.value = val; s.style.cssText = 'width:100%;display:block'; if (k) s.setAttribute('data-k', k); l.appendChild(s); root.appendChild(l);
+          function u() { l.querySelector('b').textContent = fmt(+s.value); cb(+s.value); } s.addEventListener('input', u); return u; }
+        function nice(lo, hi, n) { var span = hi - lo || 1, st = Math.pow(10, Math.floor(Math.log10(span / n))), e = span / n / st; st *= e >= 5 ? 5 : e >= 2 ? 2 : 1; var t = [], v = Math.ceil(lo / st - 1e-9) * st; for (; v <= hi + 1e-9; v += st) t.push(Math.round(v / st) * st); return t; }
+        function fmtT(v) { var a = Math.abs(v); return a >= 1e6 ? f1(v / 1e6) + 'M' : a >= 1e4 ? f1(v / 1e3) + 'k' : (Math.round(v * 100) / 100).toString(); }
+        var CID = 0;
+        function chart(W, H, S, o) { o = o || {}; var L = 48, R = 12, T = 22, B = 34, xs = [], ys = [];
+          S.forEach(function (s) { s.d.forEach(function (p) { xs.push(p[0]); if (isFinite(p[1])) ys.push(p[1]); }); });
+          var x0 = o.x0 !== undefined ? o.x0 : Math.min.apply(null, xs), x1 = o.x1 !== undefined ? o.x1 : Math.max.apply(null, xs);
+          var y0 = o.y0 !== undefined ? o.y0 : Math.min(0, Math.min.apply(null, ys)), y1 = o.y1 !== undefined ? o.y1 : Math.max.apply(null, ys) * 1.08 || 1;
+          function sx(v) { return L + (v - x0) / (x1 - x0 || 1) * (W - L - R); } function sy(v) { return H - B - (v - y0) / (y1 - y0 || 1) * (H - T - B); }
+          var id = 'qc' + (++CID), g = '<clipPath id="' + id + '"><rect x="' + L + '" y="' + (T - 2) + '" width="' + (W - L - R) + '" height="' + (H - T - B + 4) + '"/></clipPath>';
+          nice(y0, y1, 4).forEach(function (v) { g += ln(L, sy(v), W - R, sy(v), 'var(--border)', 0.6, 'stroke-dasharray="2 3"') + tx(L - 5, sy(v) + 3, fmtT(v), 9, 'var(--text-muted)', 'end'); });
+          nice(x0, x1, 6).forEach(function (v) { g += tx(sx(v), H - B + 14, fmtT(v), 9, 'var(--text-muted)'); });
+          g += ln(L, T - 4, L, H - B, '#999') + ln(L, H - B, W - R, H - B, '#999');
+          if (o.xl) g += tx((L + W - R) / 2, H - 4, o.xl, 9.5, 'var(--text-muted)');
+          if (o.yl) g += tx(L - 40, T - 8, o.yl, 9.5, 'var(--text-muted)', 'start');
+          (o.hl || []).forEach(function (h) { g += ln(L, sy(h.y), W - R, sy(h.y), h.c, 1, 'stroke-dasharray="5 4"') + tx(W - R - 2, sy(h.y) - 4, h.n, 9, h.c, 'end'); });
+          (o.vl || []).forEach(function (h) { g += ln(sx(h.x), T, sx(h.x), H - B, h.c, 1, 'stroke-dasharray="5 4"') + tx(sx(h.x) + 3, H - B - 6, h.n, 9, h.c, 'start'); });
+          S.forEach(function (s) { var d = '', m = 'M'; s.d.forEach(function (p) { if (!isFinite(p[1])) { m = 'M'; return; } d += m + n1(sx(p[0])) + ' ' + n1(sy(Math.max(Math.min(p[1], y1 + (y1 - y0)), y0 - (y1 - y0)))); m = 'L'; });
+            g += '<path clip-path="url(#' + id + ')" d="' + d + '" fill="none" stroke="' + s.c + '" stroke-width="' + (s.w || 2) + '"' + (s.dash ? ' stroke-dasharray="' + s.dash + '"' : '') + '/>'; });
+          (o.pts || []).forEach(function (p) { g += '<circle cx="' + n1(sx(p.x)) + '" cy="' + n1(sy(Math.min(p.y, y1))) + '" r="5" fill="' + p.c + '"/>' + (p.n ? tx(sx(p.x) + 8, sy(Math.min(p.y, y1)) - 6, p.n, 10, p.c, 'start') : ''); });
+          var lx = L + 8, ly = T + 2; S.forEach(function (s) { if (!s.n) return; g += ln(lx, ly, lx + 16, ly, s.c, 2.5, s.dash ? 'stroke-dasharray="' + s.dash + '"' : '') + tx(lx + 20, ly + 4, s.n, 9.5, 'currentColor', 'start'); lx += 34 + s.n.length * 10.5; if (lx > W - 120) { lx = L + 8; ly += 15; } });
+          return svgw('0 0 ' + W + ' ' + H, g); }
+        function rexp(m) { return -Math.log(1 - Math.random()) * m; }
+
+        var BL = '#3a6ea5', OR = '#d9822b', RD = '#d0564f', GN = '#4a9a5e', GY = '#9aa3ad', PU = '#8a5bb5', TL = '#2a9d8f', YL = '#c9a227';
+        function info(root) { var p = el('div', 'margin-top:8px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);line-height:1.7;font-size:0.93em'); root.appendChild(p); return p; }
+        function bar(root) { var b = el('div', 'margin:4px 0'); root.appendChild(b); return b; }
+        function small(s) { return '<br><span style="font-size:0.88em;color:var(--text-muted)">' + s + '</span>'; }
+        function presets(root, list, cb, k0) { var b = bar(root); list.forEach(function (o, i) { var x = btn(o, i); x.onclick = function () { mark(b, i); cb(i); }; b.appendChild(x); }); mark(b, k0 === undefined ? 0 : k0); return b; }
+        function setS(root, k, v) { var s = root.querySelector('input[data-k="' + k + '"]'); if (s) s.value = v; }
+        function rc(x, y, w, h, f, st, rx) { return '<rect x="' + n1(x) + '" y="' + n1(y) + '" width="' + n1(Math.max(w, 0)) + '" height="' + n1(Math.max(h, 0)) + '" rx="' + (rx === undefined ? 4 : rx) + '" fill="' + f + '"' + (st ? ' stroke="' + st + '"' : '') + '/>'; }
+        function ci(x, y, r, f, st, sw) { return '<circle cx="' + n1(x) + '" cy="' + n1(y) + '" r="' + n1(r) + '" fill="' + f + '"' + (st ? ' stroke="' + st + '" stroke-width="' + (sw || 1.5) + '"' : '') + '/>'; }
+        function pa(d, c, w, f, ex) { return '<path d="' + d + '" fill="' + (f || 'none') + '" stroke="' + c + '" stroke-width="' + (w || 1.5) + '" ' + (ex || '') + '/>'; }
+        function poly(pts) { return pts.map(function (p, i) { return (i ? 'L' : 'M') + n1(p[0]) + ' ' + n1(p[1]); }).join(' '); }
+        function tbl(h, rows) { var s = '<table style="border-collapse:collapse;width:100%;font-size:0.86em;margin-top:6px"><tr>' + h.map(function (x) { return '<th style="border:1px solid var(--border);padding:3px 5px;background:var(--accent-soft)">' + x + '</th>'; }).join('') + '</tr>';
+          rows.forEach(function (r) { s += '<tr>' + r.map(function (c, j) { return '<td style="border:1px solid var(--border);padding:3px 5px;text-align:' + (j ? 'center' : 'left') + '">' + c + '</td>'; }).join('') + '</tr>'; }); return s + '</table>'; }
+        function rng(seed) { var a = (seed || 1) >>> 0; return function () { a = (a + 0x6D2B79F5) >>> 0; var t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+        function gauss(r) { var u = Math.max(r(), 1e-9), v = r(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); }
+        function pct(v) { return f1(v * 100) + '%'; }
+        function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+        /* 1. PWM */
+        function initPwm(root, cfg) { head(root, cfg.q); var P = { d: 30, f: 1000 }, view = el('div');
+          var g = el('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px'); root.appendChild(g);
+          var us = [slider(g, '工作週期（Duty cycle）', 0, 100, 1, P.d, function (x) { return x + '%'; }, 'd', function (x) { P.d = x; draw(); }), slider(g, 'PWM 頻率', 50, 20000, 50, P.f, function (x) { return x >= 1000 ? f1(x / 1000) + ' kHz' : x + ' Hz'; }, 'f', function (x) { P.f = x; draw(); })];
+          root.appendChild(view); var inf = info(root);
+          function draw() { var o = '', X0 = 40, W = 420, hi = 30, lo = 110, per = W / 4, d = P.d / 100, path = 'M' + X0 + ' ' + lo;
+            for (var k = 0; k < 4; k++) { var x = X0 + k * per; if (d > 0) path += ' L' + n1(x) + ' ' + hi + ' L' + n1(x + per * d) + ' ' + hi + ' L' + n1(x + per * d) + ' ' + lo; path += ' L' + n1(x + per) + ' ' + lo; }
+            o += ln(X0, lo, X0 + W, lo, 'var(--border)', 1) + pa(path, BL, 2.5) + tx(X0 - 6, hi + 4, '3.3V', 10, 'var(--text-muted)', 'end') + tx(X0 - 6, lo + 4, '0V', 10, 'var(--text-muted)', 'end');
+            var avg = lo - (lo - hi) * d; o += ln(X0, avg, X0 + W, avg, OR, 2, 'stroke-dasharray="6 4"') + tx(X0 + W + 4, avg + 4, '平均 ' + f2(3.3 * d) + 'V', 10.5, OR, 'start');
+            o += tx(X0 + per / 2, 136, '一個週期 = ' + (1000 / P.f >= 1 ? f2(1000 / P.f) + ' ms' : f1(1e6 / P.f) + ' μs'), 10, 'var(--text-muted)');
+            var b = Math.round(255 * Math.pow(d, 0.6)); o += ci(570, 50, 28, 'rgb(' + b + ',' + Math.round(b * 0.85) + ',30)', '#999', 1.5) + tx(570, 96, 'LED 亮度', 10, 'var(--text)');
+            var ang = d * 300; o += ci(570, 135, 22, 'none', 'var(--text-muted)', 1.5) + ln(570, 135, 570 + 20 * Math.sin(ang * Math.PI / 180), 135 - 20 * Math.cos(ang * Math.PI / 180), RD, 3) + tx(570, 172, '馬達轉速 ≈ ' + Math.round(d * 100) + '%', 10, 'var(--text)');
+            view.innerHTML = svgw('0 0 640 180', o);
+            var flick = P.f < 100 ? '<span style="color:' + RD + '">頻率太低，LED 會肉眼可見地閃爍、馬達會抖動！</span>' : P.f < 20000 ? 'LED 已經不會閃爍；但這個頻率落在人耳聽得到的範圍，馬達可能發出「嗡嗡」聲，所以馬達驅動常用 20 kHz 以上。' : '頻率夠高，眼睛和馬達都只「感覺」到平均值。';
+            inf.innerHTML = '腳位只能輸出 0 或 3.3 V，但快速地開關，讓「開」的時間占 <b>' + P.d + '%</b>，等效的平均電壓就是 3.3 × ' + f2(d) + ' = <b>' + f2(3.3 * d) + ' V</b>。<br>' + flick + small('LED 亮度用人眼近似的非線性感受示意；實際的馬達轉速還受到負載與驅動電路影響。'); }
+          us.forEach(function (u) { u(); });
+        }
+
+        /* 2. ADC 量化 */
+        function initAdc(root, cfg) { head(root, cfg.q); var P = { n: 3, fs: 16 }, view = el('div');
+          var g = el('div', 'display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:0 12px'); root.appendChild(g);
+          var us = [slider(g, 'ADC 解析度', 1, 12, 1, P.n, function (x) { return x + ' 位元（' + Math.pow(2, x) + ' 階）'; }, 'n', function (x) { P.n = x; draw(); }), slider(g, '一個週期取樣幾點', 4, 64, 1, P.fs, function (x) { return x + ' 點'; }, 'fs', function (x) { P.fs = x; draw(); })];
+          root.appendChild(view); var inf = info(root);
+          function draw() { var L = Math.pow(2, P.n), a = [], q = [], e = 0, M = 0;
+            for (var t = 0; t <= 1.0001; t += 0.002) a.push([t, 1.65 + 1.5 * Math.sin(2 * Math.PI * t)]);
+            for (var k = 0; k <= P.fs; k++) { var tt = k / P.fs, v = 1.65 + 1.5 * Math.sin(2 * Math.PI * tt), code = Math.min(L - 1, Math.floor(v / 3.3 * L)), qv = (code + 0.5) * 3.3 / L; q.push([tt, qv]); if (k < P.fs) q.push([(k + 1) / P.fs, qv]); e += (v - qv) * (v - qv); M = Math.max(M, Math.abs(v - qv)); }
+            view.innerHTML = chart(640, 240, [{ d: a, c: GY, n: '真實的類比電壓', w: 1.5 }, { d: q, c: BL, n: 'ADC 讀到的數值（取樣並保持）', w: 2.2 }], { x0: 0, x1: 1, y0: 0, y1: 3.3, xl: '時間（一個週期）', yl: '電壓（V）' });
+            var lsb = 3.3 / L;
+            inf.innerHTML = '<b>' + P.n + ' 位元</b>的 ADC 把 0～3.3 V 切成 <b>' + L + '</b> 階，每一階（1 LSB）= 3.3 ÷ ' + L + ' = <b>' + (lsb >= 0.01 ? f2(lsb) + ' V' : f2(lsb * 1000) + ' mV') + '</b>；最大量化誤差約半階。理想的訊雜比約 6.02 × ' + P.n + ' + 1.76 ≈ <b>' + f1(6.02 * P.n + 1.76) + ' dB</b>。<br>' +
+              (P.fs < 8 ? '<span style="color:' + OR + '">取樣點太少，波形的形狀幾乎看不出來——取樣率至少要大於訊號最高頻率的兩倍（取樣定理）。</span>' : '每多 1 個位元，階數加倍、誤差減半。常見的 MCU 內建 10～12 位元 ADC；音訊常用 16～24 位元。') + small('示意：輸入為 0.15～3.15 V 的正弦波；實際的 ADC 還有雜訊、非線性與參考電壓誤差。'); }
+          us.forEach(function (u) { u(); });
+        }
+
+        /* 3. 按鍵彈跳 */
+        function initBounce(root, cfg) { head(root, cfg.q); var P = { db: 0, seed: 3 }, view = el('div'), sig = [];
+          var bb = bar(root), nb = btn('🔁 再按一次按鍵'); bb.appendChild(nb); nb.onclick = function () { P.seed++; build(); draw(); };
+          var u1 = slider(root, '去彈跳等待時間', 0, 30, 1, P.db, function (x) { return x === 0 ? '0（不處理）' : x + ' ms'; }, 'db', function (x) { P.db = x; draw(); });
+          root.appendChild(view); var inf = info(root);
+          function build() { var r = rng(P.seed * 131 + 7), s = []; for (var t = 0; t < 100; t += 0.25) s.push(0);
+            function bounce(t0, to) { var t = t0, n = 4 + Math.floor(r() * 6), st = to; for (var i = 0; i < n; i++) { var w = 0.3 + r() * (1.6 - i * 0.12); for (var k = Math.round(t / 0.25); k < Math.round((t + w) / 0.25) && k < s.length; k++) s[k] = st; t += w; st = 1 - st; } for (var k2 = Math.round(t / 0.25); k2 < s.length; k2++) s[k2] = to; return t; }
+            var a = 10 + r() * 6; bounce(a, 1); var b2 = 55 + r() * 10; for (var k = Math.round((a + 8) / 0.25); k < Math.round(b2 / 0.25); k++) s[k] = 1; bounce(b2, 0); sig = s; }
+          function draw() { var o = '', X0 = 30, W = 590, raw = '', deb = '', st = 0, cand = 0, since = 0, presses = 0, rawP = 0, prev = 0;
+            function X(i) { return X0 + i * 0.25 / 100 * W; }
+            sig.forEach(function (v, i) { raw += (i ? 'L' : 'M') + n1(X(i)) + ' ' + (v ? 30 : 70); if (v === 1 && prev === 0) rawP++; prev = v;
+              if (P.db === 0) { if (v !== st) { st = v; if (v === 1) presses++; } } else { if (v !== cand) { cand = v; since = 0; } else since += 0.25; if (cand !== st && since >= P.db) { st = cand; if (st === 1) presses++; } }
+              deb += (i ? 'L' : 'M') + n1(X(i)) + ' ' + (st ? 110 : 150); });
+            o += tx(X0, 20, '按鍵腳位的原始訊號', 10.5, 'var(--text-muted)', 'start') + pa(raw, RD, 1.8) + tx(X0, 100, '程式判斷的狀態', 10.5, 'var(--text-muted)', 'start') + pa(deb, GN, 2.2);
+            [0, 20, 40, 60, 80, 100].forEach(function (t) { o += tx(X0 + t / 100 * W, 172, t + ' ms', 9.5, 'var(--text-muted)'); });
+            view.innerHTML = svgw('0 0 640 180', o);
+            inf.innerHTML = '你只按了 <b>1</b> 次，但機械接點在接觸與放開的瞬間會彈跳好幾次：原始訊號出現了 <b>' + rawP + '</b> 次上升緣。程式判斷為 <b>' + presses + '</b> 次按下' + (presses === 1 ? '，<span style="color:' + GN + '">✔ 正確</span>。' : '，<span style="color:' + RD + '">✘ 錯誤</span>。') + '<br>' +
+              (P.db === 0 ? '每一次變化都當真，一次按鍵就會被當成好多次。' : P.db < 5 ? '等待時間太短，有些彈跳還是會漏網。' : P.db > 25 ? '雖然正確，但反應變慢了；快速連按時可能漏掉。' : '<b>軟體去彈跳</b>：狀態改變後，等它穩定一段時間（常見 5～20 ms）才承認。') + small('彈跳的次數與時間為隨機示意；也可以用 RC 濾波加上施密特觸發器做硬體去彈跳。'); }
+          build(); u1();
+        }
+
+        /* 4. 輪詢與中斷 */
+        function initIrq(root, cfg) { head(root, cfg.q); var P = { T: 20, seed: 1 }, view = el('div');
+          var u1 = slider(root, '輪詢的間隔', 1, 50, 1, P.T, function (x) { return x + ' ms'; }, 'T', function (x) { P.T = x; draw(); });
+          var bb = bar(root), nb = btn('🎲 換一組事件'); bb.appendChild(nb); nb.onclick = function () { P.seed++; draw(); };
+          root.appendChild(view); var inf = info(root);
+          function draw() { var r = rng(P.seed * 97 + 5), ev = []; for (var i = 0; i < 6; i++) ev.push(5 + r() * 185); ev.sort(function (a, b) { return a - b; });
+            var o = '', X0 = 30, W = 590; function X(t) { return X0 + t / 200 * W; }
+            o += tx(X0, 16, '外部事件（例如感測器送來資料）', 10.5, 'var(--text-muted)', 'start') + tx(X0, 76, '輪詢：每 ' + P.T + ' ms 檢查一次', 10.5, 'var(--text-muted)', 'start') + tx(X0, 136, '中斷：事件一發生，硬體立刻通知 CPU', 10.5, 'var(--text-muted)', 'start');
+            for (var t = 0; t <= 200; t += P.T) o += ln(X(t), 84, X(t), 104, GY, 1.2);
+            var lp = 0, mx = 0; ev.forEach(function (e) { var pt = Math.ceil(e / P.T) * P.T, lat = pt - e; lp += lat; mx = Math.max(mx, lat);
+              o += pa('M' + n1(X(e)) + ' 24 l-5 -8 l10 0 Z', RD, 1, RD) + ln(X(e), 26, X(e), 50, RD, 1.5) + rc(X(e), 88, Math.max(1.5, X(pt) - X(e)), 12, 'rgba(230,126,34,0.45)', null, 0) + ci(X(pt), 94, 4, OR) + rc(X(e), 146, Math.max(2, X(e + 0.6) - X(e)), 14, GN, null, 0) + ln(X(e), 140, X(e), 166, GN, 1.5); });
+            [0, 50, 100, 150, 200].forEach(function (t) { o += tx(X(t), 186, t + ' ms', 9.5, 'var(--text-muted)'); });
+            view.innerHTML = svgw('0 0 640 194', o);
+            inf.innerHTML = '輪詢：平均延遲 <b>' + f1(lp / ev.length) + ' ms</b>、最壞 <b>' + f1(mx) + ' ms</b>（橘色），而且 CPU 在 200 ms 內醒來檢查了 <b>' + Math.floor(200 / P.T + 1) + '</b> 次，其中大多數什麼都沒有。<br>中斷：延遲通常只有<b>微秒</b>等級（綠色），沒有事件時 CPU 可以去做別的事，甚至進入睡眠省電。<br>代價：中斷服務程式（ISR）要寫得很短、注意共用變數（加 volatile、關中斷保護），否則會出現難以重現的錯誤。' + small('數字為示意；實際的中斷延遲取決於 MCU、時脈與優先權設定。'); }
+          u1();
+        }
+
+        function initAll() { document.querySelectorAll('.kem-w').forEach(function (w) { if (w.__d) return; w.__d = 1; var cfg = JSON.parse(w.getAttribute('data-cfg'));
+          ({ pwm: initPwm, adc: initAdc, bounce: initBounce, irq: initIrq })[cfg.t](w, cfg); }); }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll); else initAll();
+      })();
+      </script>
+
+      <h2>快速開關</h2>
+
+      <p>
+        MCU 的腳位只能輸出高或低，但如果用很快的速度開關，負載（LED、馬達）只會「感受」到平均的效果。<strong>脈波寬度調變</strong>（PWM）就是固定頻率、改變每個週期中「開」的比例（<strong>工作週期</strong>）。
+      </p>
+
+      <div class="kem-w content-figure" style="text-align:left;max-width:680px;margin-left:auto;margin-right:auto" data-cfg="{&quot;t&quot;: &quot;pwm&quot;, &quot;q&quot;: &quot;PWM：用開關做出「中間值」&quot;}"></div>
+
+      <h2>用計時器產生 PWM</h2>
+
+      <p>
+        計時器從 0 數到 ARR（<a href="lesson-09.html">第 9 課</a>）；另外設定一個<strong>比較值</strong>（CCR）：計數值小於 CCR 時輸出高，大於時輸出低。工作週期 = CCR ÷ (ARR + 1)。ARR 越大，工作週期的<strong>解析度</strong>越細，但在相同的時脈下 PWM 頻率就越低——兩者要取捨。
+      </p>
+
+      <h2>應用</h2>
+
+      <ul>
+        <li><strong>LED 調光</strong>：頻率通常要高於數百 Hz 以避免閃爍；手機螢幕的 PWM 調光頻率過低，有些人會覺得眼睛不舒服。</li>
+        <li><strong>直流馬達調速</strong>：配合 H 橋驅動電路，還能控制正反轉（見<a href="../motors-power-electronics/index.html">〈馬達與電力電子〉</a>）。</li>
+        <li><strong>伺服馬達</strong>：用 50 Hz、1～2 ms 的脈波寬度指定角度。</li>
+        <li><strong>蜂鳴器與聲音</strong>：改變頻率發出不同音高。</li>
+        <li><strong>電源轉換</strong>：切換式電源用 PWM 控制開關，效率遠高於線性穩壓。</li>
+        <li><strong>簡易 DAC</strong>：PWM 加上 RC 低通濾波，得到平滑的類比電壓（<a href="lesson-12.html">第 12 課</a>）。</li>
+      </ul>
+
+      <h2>互補輸出與死區</h2>
+
+      <p>
+        驅動 H 橋或三相馬達時，上下兩個開關不能同時導通，否則電源會直接短路（貫穿）。進階的計時器提供<strong>互補輸出</strong>與<strong>死區時間</strong>：一個關掉後，等一小段時間才打開另一個。
+      </p>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          MCU 腳位只能高低，快速開關讓負載感受平均效果，PWM 固定頻率改變工作週期；計時器數到 ARR，計數小於 CCR 輸出高，工作週期 = CCR ÷ (ARR+1)，ARR 越大解析度越細但頻率越低；應用有 LED 調光（數百 Hz 以上避免閃爍）、配 H 橋的直流馬達調速、50 Hz 1～2 ms 伺服馬達、蜂鳴器、切換式電源、PWM 加 RC 低通的簡易 DAC；H 橋需互補輸出與死區時間避免上下同時導通的貫穿短路。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>工作週期 25% 的 3.3 V PWM，平均電壓是多少？</li>
+          <li>PWM 的頻率和解析度之間有什麼取捨？</li>
+          <li>為什麼驅動 H 橋需要死區時間？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>ADC</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-09.html">← 上一課：計時器</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-11.html">下一課：ADC →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

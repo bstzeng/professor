@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>第 4 課：暫存器與記憶體映射 ｜ 嵌入式系統 ｜ 博雅書院</title>
+<meta name="description" content="用寫記憶體控制硬體">
+<link rel="stylesheet" href="../../css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="../../index.html" class="brand">🏛 博雅書院</a>
+    <nav class="site-nav">
+      <a href="../../index.html">首頁</a>
+      <a href="../../index.html#topics">主題</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <nav class="breadcrumb">
+      <a href="../../index.html">首頁</a>
+      <span class="sep">/</span>
+      <a href="index.html">嵌入式系統</a>
+      <span class="sep">/</span>
+      <span>第 4 課</span>
+    </nav>
+
+    <header class="lesson-header">
+      <div class="eyebrow">模組 A｜基礎 · 第 4 課</div>
+      <h1>暫存器與記憶體映射</h1>
+    </header>
+
+    <article class="lesson-content">
+
+      <div class="callout">
+        <h3>這一課的目標</h3>
+        <ul>
+          <li>理解記憶體映射 I/O</li>
+          <li>學會閱讀暫存器說明</li>
+          <li>理解 volatile 的意義</li>
+        </ul>
+      </div>
+
+      <h2>一切都是位址</h2>
+
+      <p>
+        在 Cortex-M 中，所有的東西都在同一個 32 位元（4 GB）的位址空間中：Flash 在某一段位址、RAM 在另一段，而每一個週邊的控制<strong>暫存器</strong>也有固定的位址。寫入某個位址，就等於對硬體下指令——這叫做<strong>記憶體映射 I/O</strong>。
+      </p>
+
+      <div class="table-wrap" style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr><th>區域（典型的 Cortex-M）</th><th>位址範圍</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>程式碼（Flash）</td><td>0x0000_0000 起</td></tr>
+          <tr><td>SRAM</td><td>0x2000_0000 起</td></tr>
+          <tr><td>週邊</td><td>0x4000_0000 起</td></tr>
+          <tr><td>Cortex-M 系統控制（NVIC、SysTick）</td><td>0xE000_0000 起</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h2>讀懂暫存器</h2>
+
+      <p>
+        參考手冊會描述每個暫存器的每一個位元：例如某個 GPIO 埠的「輸出資料暫存器」，第 5 個位元控制第 5 支腳的高低。寫程式時：
+      </p>
+
+      <p>
+        <code>#define GPIOA_ODR (*(volatile uint32_t *)0x40020014)</code><br><code>GPIOA_ODR |= (1u &lt;&lt; 5);   // 讓 PA5 輸出高電位</code>
+      </p>
+
+      <p>
+        實務上，廠商會提供標頭檔（例如 CMSIS），把暫存器整理成結構，寫成 <code>GPIOA-&gt;ODR |= (1u &lt;&lt; 5);</code>。
+      </p>
+
+      <h2>volatile</h2>
+
+      <p>
+        編譯器為了最佳化，可能會假設「沒有人改過的變數值不會變」，因而省略重複的讀取，或者把連續的寫入合併。但硬體暫存器的值可能隨時被硬體改變（例如一個狀態位元），寫入也有副作用。<strong>volatile</strong> 告訴編譯器：每一次讀寫都必須真的去存取記憶體，不能最佳化掉。被中斷服務程式修改的全域變數也要宣告為 volatile（<a href="lesson-08.html">第 8 課</a>）。
+      </p>
+
+      <h2>讀－改－寫的陷阱</h2>
+
+      <p>
+        <code>|=</code> 其實是三個步驟：讀出、修改、寫回。如果在讀出與寫回之間發生中斷，而中斷也修改了同一個暫存器，中斷的修改就會被覆蓋。許多 MCU 提供專門的「設定／清除」暫存器（例如 STM32 的 BSRR），或位元帶（bit-banding），讓單一的寫入就能原子地改變一個位元。
+      </p>
+
+      <h2>資料手冊與參考手冊</h2>
+
+      <ul>
+        <li><strong>資料手冊</strong>（Datasheet）：電氣特性、腳位、封裝、電壓與電流的極限。</li>
+        <li><strong>參考手冊</strong>（Reference Manual）：每個週邊的運作方式與暫存器的詳細說明，常常超過一千頁。</li>
+        <li><strong>勘誤表</strong>（Errata）：晶片已知的錯誤與解決方法——遇到怪問題時一定要查。</li>
+      </ul>
+
+      <div class="callout">
+        <h3>🧭 這一課的重點</h3>
+        <p>
+          Cortex-M 所有東西在同一 32 位元位址空間，Flash 約 0x0000_0000、SRAM 0x2000_0000、週邊 0x4000_0000、系統控制 0xE000_0000，寫入週邊暫存器位址就是對硬體下指令即記憶體映射 I/O；參考手冊描述每個位元，可用指標巨集或 CMSIS 結構操作；volatile 告訴編譯器每次讀寫都要真的存取不可最佳化，ISR 修改的全域變數也要 volatile；|= 是讀改寫三步，中間被中斷可能覆蓋，可用設定清除暫存器如 BSRR 或 bit-banding 原子操作；資料手冊講電氣特性、參考手冊講週邊暫存器、勘誤表列晶片已知錯誤。
+        </p>
+      </div>
+
+      <p style="color:var(--text-muted);font-size:0.9em">🔌 本課以 ARM Cortex-M 等常見的 32 位元微控制器為主要例子；暫存器名稱與細節依晶片與廠商而異，實作時請以晶片的資料手冊與參考手冊為準。</p>
+
+      <div class="self-check">
+        <h3>檢查你的理解</h3>
+        <ol>
+          <li>什麼是記憶體映射 I/O？</li>
+          <li>為什麼硬體暫存器要用 volatile 存取？</li>
+          <li>讀－改－寫為什麼可能出問題？怎麼避免？</li>
+        </ol>
+      </div>
+
+      <h2>下一課預告</h2>
+
+      <p>
+        下一課：<strong>C 語言的位元操作</strong>。
+      </p>
+
+    </article>
+
+    <nav class="lesson-nav">
+      <a href="lesson-03.html">← 上一課：開發流程與工具鏈</a>
+      <a href="index.html">回主題頁</a>
+      <a href="lesson-05.html">下一課：C 語言的位元操作 →</a>
+    </nav>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <p>&copy; <span id="year"></span> 博雅書院</p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>

@@ -38495,6 +38495,999 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "embedded-systems",
+      category: "tech",
+      title: "嵌入式系統與微控制器：讓程式動起實體世界",
+      description:
+        "微控制器的架構、交叉編譯與開機流程、記憶體映射暫存器與 volatile、位元操作；GPIO、按鍵彈跳、中斷、計時器、PWM、ADC、DAC；UART、I²C、SPI、CAN、USB、低功耗藍牙與物聯網；狀態機、RTOS 與優先權反轉、低功耗設計、看門狗與可靠性、Bootloader 與 OTA；除錯工具、嵌入式資安與智慧溫控器實作。附 PWM、ADC 量化、按鍵去彈跳、輪詢與中斷四個互動練習。",
+      icon: "🔌",
+      url: "topics/embedded-systems/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "位元操作、週邊與通訊",
+          icon: "📋",
+          url: "topics/embedded-systems/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/embedded-systems/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "什麼是嵌入式系統", url: "topics/embedded-systems/lesson-01.html" },
+            { title: "微控制器的架構", url: "topics/embedded-systems/lesson-02.html" },
+            { title: "開發流程與工具鏈", url: "topics/embedded-systems/lesson-03.html" },
+            { title: "暫存器與記憶體映射", url: "topics/embedded-systems/lesson-04.html" },
+            { title: "C 語言的位元操作", url: "topics/embedded-systems/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜週邊",
+          courses: [
+            { title: "GPIO", url: "topics/embedded-systems/lesson-06.html" },
+            { title: "按鍵與彈跳", url: "topics/embedded-systems/lesson-07.html" },
+            { title: "中斷", url: "topics/embedded-systems/lesson-08.html" },
+            { title: "計時器", url: "topics/embedded-systems/lesson-09.html" },
+            { title: "PWM", url: "topics/embedded-systems/lesson-10.html" },
+            { title: "ADC", url: "topics/embedded-systems/lesson-11.html" },
+            { title: "DAC 與類比輸出", url: "topics/embedded-systems/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 C｜通訊",
+          courses: [
+            { title: "UART", url: "topics/embedded-systems/lesson-13.html" },
+            { title: "I²C", url: "topics/embedded-systems/lesson-14.html" },
+            { title: "SPI", url: "topics/embedded-systems/lesson-15.html" },
+            { title: "CAN 與 USB", url: "topics/embedded-systems/lesson-16.html" },
+            { title: "無線通訊", url: "topics/embedded-systems/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統",
+          courses: [
+            { title: "狀態機與主迴圈", url: "topics/embedded-systems/lesson-18.html" },
+            { title: "即時作業系統", url: "topics/embedded-systems/lesson-19.html" },
+            { title: "低功耗設計", url: "topics/embedded-systems/lesson-20.html" },
+            { title: "看門狗與可靠性", url: "topics/embedded-systems/lesson-21.html" },
+            { title: "Bootloader 與韌體更新", url: "topics/embedded-systems/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實務",
+          courses: [
+            { title: "除錯工具", url: "topics/embedded-systems/lesson-23.html" },
+            { title: "嵌入式資安", url: "topics/embedded-systems/lesson-24.html" },
+            { title: "實作案例：智慧溫控器", url: "topics/embedded-systems/lesson-25.html" },
+            { title: "總結", url: "topics/embedded-systems/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "dsp-filters",
+      category: "tech",
+      title: "數位濾波器與 z 轉換：從取樣到即時處理",
+      description:
+        "類比與數位、取樣定理、混疊、量化與抖動、離散 LTI 系統；差分方程、卷積、FIR 與 IIR、z 轉換、轉移函數與頻率響應、極點零點與穩定性；移動平均、窗函數設計、線性相位；巴特沃斯等類比原型、雙線性轉換、定點與有限精度；FFT 與頻譜分析、多速率處理、音訊等化器、心電圖去雜訊、適應濾波與主動降噪、影像濾波、在晶片上即時實作。附混疊、極點零點、移動平均與窗函數四個互動練習。",
+      icon: "📶",
+      url: "topics/dsp-filters/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、性質與選擇",
+          icon: "📋",
+          url: "topics/dsp-filters/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/dsp-filters/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜取樣",
+          courses: [
+            { title: "類比與數位訊號", url: "topics/dsp-filters/lesson-01.html" },
+            { title: "取樣定理", url: "topics/dsp-filters/lesson-02.html" },
+            { title: "混疊", url: "topics/dsp-filters/lesson-03.html" },
+            { title: "量化", url: "topics/dsp-filters/lesson-04.html" },
+            { title: "離散訊號與系統", url: "topics/dsp-filters/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜系統",
+          courses: [
+            { title: "差分方程", url: "topics/dsp-filters/lesson-06.html" },
+            { title: "卷積", url: "topics/dsp-filters/lesson-07.html" },
+            { title: "脈衝響應：FIR 與 IIR", url: "topics/dsp-filters/lesson-08.html" },
+            { title: "z 轉換", url: "topics/dsp-filters/lesson-09.html" },
+            { title: "轉移函數與頻率響應", url: "topics/dsp-filters/lesson-10.html" },
+            { title: "極點、零點與穩定性", url: "topics/dsp-filters/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜FIR 濾波器",
+          courses: [
+            { title: "移動平均", url: "topics/dsp-filters/lesson-12.html" },
+            { title: "窗函數設計", url: "topics/dsp-filters/lesson-13.html" },
+            { title: "線性相位", url: "topics/dsp-filters/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜IIR 濾波器",
+          courses: [
+            { title: "類比原型", url: "topics/dsp-filters/lesson-15.html" },
+            { title: "雙線性轉換", url: "topics/dsp-filters/lesson-16.html" },
+            { title: "有限精度與數值問題", url: "topics/dsp-filters/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "FFT 與頻譜", url: "topics/dsp-filters/lesson-18.html" },
+            { title: "頻譜分析的實務", url: "topics/dsp-filters/lesson-19.html" },
+            { title: "多速率處理", url: "topics/dsp-filters/lesson-20.html" },
+            { title: "音訊等化器", url: "topics/dsp-filters/lesson-21.html" },
+            { title: "心電圖去雜訊", url: "topics/dsp-filters/lesson-22.html" },
+            { title: "適應濾波", url: "topics/dsp-filters/lesson-23.html" },
+            { title: "影像濾波", url: "topics/dsp-filters/lesson-24.html" },
+            { title: "在晶片上實作", url: "topics/dsp-filters/lesson-25.html" },
+            { title: "總結", url: "topics/dsp-filters/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "rf-antennas",
+      category: "tech",
+      title: "天線與射頻工程：看不見的電磁波工程",
+      description:
+        "射頻頻段、分貝與 dBm、電磁波與近場遠場；傳輸線與反射、駐波比與回波損耗、史密斯圖、阻抗匹配、S 參數；天線的輻射原理、半波偶極、增益與指向性、場型與極化、單極與貼片天線、陣列與波束成形、相位陣列雷達；Friis 鏈路預算、熱雜訊與雜訊指數、LNA 與功率放大器、混頻與超外差、軟體定義無線電、SAW／BAW 濾波器；手機天線與 MIMO、5G 毫米波、衛星碟形與低軌相位陣列、電磁相容、射頻量測。附史密斯圖、偶極場型、陣列波束與鏈路預算四個互動練習。",
+      icon: "📡",
+      url: "topics/rf-antennas/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、換算與典型值",
+          icon: "📋",
+          url: "topics/rf-antennas/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/rf-antennas/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "射頻與頻段", url: "topics/rf-antennas/lesson-01.html" },
+            { title: "分貝與 dBm", url: "topics/rf-antennas/lesson-02.html" },
+            { title: "電磁波與波長", url: "topics/rf-antennas/lesson-03.html" },
+          ],
+        },
+        {
+          title: "模組 B｜傳輸線與匹配",
+          courses: [
+            { title: "傳輸線與反射", url: "topics/rf-antennas/lesson-04.html" },
+            { title: "阻抗與駐波比", url: "topics/rf-antennas/lesson-05.html" },
+            { title: "史密斯圖", url: "topics/rf-antennas/lesson-06.html" },
+            { title: "阻抗匹配", url: "topics/rf-antennas/lesson-07.html" },
+            { title: "S 參數", url: "topics/rf-antennas/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜天線",
+          courses: [
+            { title: "天線如何輻射", url: "topics/rf-antennas/lesson-09.html" },
+            { title: "偶極天線", url: "topics/rf-antennas/lesson-10.html" },
+            { title: "增益與指向性", url: "topics/rf-antennas/lesson-11.html" },
+            { title: "場型與極化", url: "topics/rf-antennas/lesson-12.html" },
+            { title: "單極與貼片天線", url: "topics/rf-antennas/lesson-13.html" },
+            { title: "陣列與波束成形", url: "topics/rf-antennas/lesson-14.html" },
+            { title: "相位陣列雷達", url: "topics/rf-antennas/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜射頻系統",
+          courses: [
+            { title: "鏈路預算", url: "topics/rf-antennas/lesson-16.html" },
+            { title: "雜訊與雜訊指數", url: "topics/rf-antennas/lesson-17.html" },
+            { title: "射頻放大器", url: "topics/rf-antennas/lesson-18.html" },
+            { title: "混頻器與超外差接收機", url: "topics/rf-antennas/lesson-19.html" },
+            { title: "射頻濾波器", url: "topics/rf-antennas/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用",
+          courses: [
+            { title: "手機天線", url: "topics/rf-antennas/lesson-21.html" },
+            { title: "5G 毫米波", url: "topics/rf-antennas/lesson-22.html" },
+            { title: "衛星與碟形天線", url: "topics/rf-antennas/lesson-23.html" },
+            { title: "電磁相容", url: "topics/rf-antennas/lesson-24.html" },
+            { title: "射頻量測", url: "topics/rf-antennas/lesson-25.html" },
+            { title: "總結", url: "topics/rf-antennas/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "classic-ml",
+      category: "ai",
+      title: "經典機器學習：從線性迴歸到梯度提升",
+      description:
+        "機器學習的類型、資料與特徵、訓練驗證測試；線性迴歸、梯度下降、多項式與過擬合、L1／L2 正則化、偏差與變異；邏輯迴歸、k 近鄰、單純貝氏、支持向量機與核技巧、決策樹、隨機森林與梯度提升、混淆矩陣與 ROC；k-means、階層分群與 DBSCAN、主成分分析、異常偵測；特徵工程、交叉驗證與超參數、資料洩漏、不平衡資料、可解釋性與演算法公平。附過擬合、決策樹、ROC 與 k-means 四個互動練習。",
+      icon: "🤖",
+      url: "topics/classic-ml/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "模型、指標與實務守則",
+          icon: "📋",
+          url: "topics/classic-ml/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/classic-ml/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "什麼是機器學習", url: "topics/classic-ml/lesson-01.html" },
+            { title: "學習的類型", url: "topics/classic-ml/lesson-02.html" },
+            { title: "資料與特徵", url: "topics/classic-ml/lesson-03.html" },
+            { title: "訓練、驗證與測試", url: "topics/classic-ml/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜迴歸",
+          courses: [
+            { title: "線性迴歸", url: "topics/classic-ml/lesson-05.html" },
+            { title: "梯度下降", url: "topics/classic-ml/lesson-06.html" },
+            { title: "多項式與過擬合", url: "topics/classic-ml/lesson-07.html" },
+            { title: "正則化", url: "topics/classic-ml/lesson-08.html" },
+            { title: "偏差與變異", url: "topics/classic-ml/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜分類",
+          courses: [
+            { title: "邏輯迴歸", url: "topics/classic-ml/lesson-10.html" },
+            { title: "k 近鄰", url: "topics/classic-ml/lesson-11.html" },
+            { title: "單純貝氏", url: "topics/classic-ml/lesson-12.html" },
+            { title: "支持向量機", url: "topics/classic-ml/lesson-13.html" },
+            { title: "決策樹", url: "topics/classic-ml/lesson-14.html" },
+            { title: "隨機森林與梯度提升", url: "topics/classic-ml/lesson-15.html" },
+            { title: "評估分類模型", url: "topics/classic-ml/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜非監督學習",
+          courses: [
+            { title: "k-means 分群", url: "topics/classic-ml/lesson-17.html" },
+            { title: "階層分群與 DBSCAN", url: "topics/classic-ml/lesson-18.html" },
+            { title: "主成分分析", url: "topics/classic-ml/lesson-19.html" },
+            { title: "異常偵測", url: "topics/classic-ml/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實務",
+          courses: [
+            { title: "特徵工程", url: "topics/classic-ml/lesson-21.html" },
+            { title: "交叉驗證與超參數", url: "topics/classic-ml/lesson-22.html" },
+            { title: "資料洩漏", url: "topics/classic-ml/lesson-23.html" },
+            { title: "不平衡資料", url: "topics/classic-ml/lesson-24.html" },
+            { title: "可解釋性與公平", url: "topics/classic-ml/lesson-25.html" },
+            { title: "總結", url: "topics/classic-ml/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "chemical-engineering",
+      category: "tech",
+      title: "化學工程與單元操作：把實驗室的反應變成工廠",
+      description:
+        "單元操作的概念、質量平衡、能量平衡與潛熱、因次分析與無因次數；流體輸送與泵、熱交換器、質傳與擴散；蒸餾與相對揮發度、McCabe-Thiele 圖解法、吸收與碳捕捉、萃取與超臨界流體、結晶與乾燥、膜分離與海水淡化；反應動力學、CSTR 與 PFR、觸媒與哈伯法、放大；程序控制、程序安全（博帕爾、高雄氣爆）、石化與塑膠、半導體化學品、生化工程、綠色化學、製程模擬、台灣的化學工業。附熱交換器、蒸餾塔板數、反應器比較與 PID 液位控制四個互動練習。",
+      icon: "⚗️",
+      url: "topics/chemical-engineering/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、數值與單元操作",
+          icon: "📋",
+          url: "topics/chemical-engineering/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/chemical-engineering/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "化學工程是什麼", url: "topics/chemical-engineering/lesson-01.html" },
+            { title: "質量平衡", url: "topics/chemical-engineering/lesson-02.html" },
+            { title: "能量平衡", url: "topics/chemical-engineering/lesson-03.html" },
+            { title: "單位與因次分析", url: "topics/chemical-engineering/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜輸送",
+          courses: [
+            { title: "流體輸送與泵", url: "topics/chemical-engineering/lesson-05.html" },
+            { title: "熱傳與熱交換器", url: "topics/chemical-engineering/lesson-06.html" },
+            { title: "質傳與擴散", url: "topics/chemical-engineering/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜分離",
+          courses: [
+            { title: "蒸餾原理", url: "topics/chemical-engineering/lesson-08.html" },
+            { title: "McCabe-Thiele 圖解法", url: "topics/chemical-engineering/lesson-09.html" },
+            { title: "吸收與汽提", url: "topics/chemical-engineering/lesson-10.html" },
+            { title: "萃取", url: "topics/chemical-engineering/lesson-11.html" },
+            { title: "結晶與乾燥", url: "topics/chemical-engineering/lesson-12.html" },
+            { title: "膜分離與海水淡化", url: "topics/chemical-engineering/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜反應",
+          courses: [
+            { title: "反應動力學", url: "topics/chemical-engineering/lesson-14.html" },
+            { title: "理想反應器", url: "topics/chemical-engineering/lesson-15.html" },
+            { title: "觸媒", url: "topics/chemical-engineering/lesson-16.html" },
+            { title: "放大", url: "topics/chemical-engineering/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜工廠",
+          courses: [
+            { title: "程序控制", url: "topics/chemical-engineering/lesson-18.html" },
+            { title: "程序安全", url: "topics/chemical-engineering/lesson-19.html" },
+            { title: "石化與塑膠", url: "topics/chemical-engineering/lesson-20.html" },
+            { title: "半導體化學品", url: "topics/chemical-engineering/lesson-21.html" },
+            { title: "生化工程與發酵", url: "topics/chemical-engineering/lesson-22.html" },
+            { title: "綠色化學與減碳", url: "topics/chemical-engineering/lesson-23.html" },
+            { title: "製程模擬與最佳化", url: "topics/chemical-engineering/lesson-24.html" },
+            { title: "化工與台灣", url: "topics/chemical-engineering/lesson-25.html" },
+            { title: "總結", url: "topics/chemical-engineering/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "hvac-refrigeration",
+      category: "tech",
+      title: "冷凍空調與熱泵：搬運熱量的工程",
+      description:
+        "熱力學第二定律、相變與潛熱、壓焓圖、卡諾 COP；蒸氣壓縮循環、壓縮機、冷凝器與蒸發器、膨脹閥、COP／EER／CSPF 與能效標示；冷媒的演進、臭氧洞與蒙特婁議定書、吉佳利修正案與天然冷媒；空氣線圖與露點、除濕、熱負荷、冷氣選購與安裝、變頻、中央空調與冰水主機、冰蓄冷；熱泵熱水器、冷鏈、資料中心液冷、通風與二氧化碳、省電迷思、輻射冷卻等未來技術。附 COP、空氣線圖、房間熱負荷與定頻變頻四個互動練習。",
+      icon: "❄️",
+      url: "topics/hvac-refrigeration/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、單位與節能守則",
+          icon: "📋",
+          url: "topics/hvac-refrigeration/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/hvac-refrigeration/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜熱力學基礎",
+          courses: [
+            { title: "把熱往高處搬", url: "topics/hvac-refrigeration/lesson-01.html" },
+            { title: "相變與潛熱", url: "topics/hvac-refrigeration/lesson-02.html" },
+            { title: "壓焓圖", url: "topics/hvac-refrigeration/lesson-03.html" },
+            { title: "卡諾循環與 COP 上限", url: "topics/hvac-refrigeration/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜冷凍循環",
+          courses: [
+            { title: "蒸氣壓縮循環", url: "topics/hvac-refrigeration/lesson-05.html" },
+            { title: "壓縮機", url: "topics/hvac-refrigeration/lesson-06.html" },
+            { title: "冷凝器與蒸發器", url: "topics/hvac-refrigeration/lesson-07.html" },
+            { title: "膨脹裝置", url: "topics/hvac-refrigeration/lesson-08.html" },
+            { title: "能效標示", url: "topics/hvac-refrigeration/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜冷媒",
+          courses: [
+            { title: "冷媒的演進", url: "topics/hvac-refrigeration/lesson-10.html" },
+            { title: "臭氧層與蒙特婁議定書", url: "topics/hvac-refrigeration/lesson-11.html" },
+            { title: "溫室效應與新一代冷媒", url: "topics/hvac-refrigeration/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜空調",
+          courses: [
+            { title: "空氣線圖", url: "topics/hvac-refrigeration/lesson-13.html" },
+            { title: "除濕與再熱", url: "topics/hvac-refrigeration/lesson-14.html" },
+            { title: "熱負荷", url: "topics/hvac-refrigeration/lesson-15.html" },
+            { title: "冷氣的選購與安裝", url: "topics/hvac-refrigeration/lesson-16.html" },
+            { title: "變頻技術", url: "topics/hvac-refrigeration/lesson-17.html" },
+            { title: "中央空調與冰水主機", url: "topics/hvac-refrigeration/lesson-18.html" },
+            { title: "冰蓄冷與區域供冷", url: "topics/hvac-refrigeration/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜熱泵與應用",
+          courses: [
+            { title: "熱泵", url: "topics/hvac-refrigeration/lesson-20.html" },
+            { title: "冷凍冷藏與冷鏈", url: "topics/hvac-refrigeration/lesson-21.html" },
+            { title: "資料中心冷卻", url: "topics/hvac-refrigeration/lesson-22.html" },
+            { title: "通風與室內空氣品質", url: "topics/hvac-refrigeration/lesson-23.html" },
+            { title: "省電與節能", url: "topics/hvac-refrigeration/lesson-24.html" },
+            { title: "未來的冷卻技術", url: "topics/hvac-refrigeration/lesson-25.html" },
+            { title: "總結", url: "topics/hvac-refrigeration/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "geotechnical",
+      category: "tech",
+      title: "大地工程與土壤力學：站在土上的工程",
+      description:
+        "土壤的三相、粒徑分類、阿太堡限度；有效應力原理、滲流與流砂、壓密沉陷、莫爾－庫倫剪力強度、標準貫入與圓錐貫入試驗；邊坡穩定、蘭金土壓力、擋土牆與加勁擋土、地錨、順向坡與國道 3 號七堵崩塌；淺基礎承載力、樁基礎與負摩擦力、深開挖與連續壁、隧道與雪山隧道、台北盆地；土壤液化、921 與台南地震、土石流與莫拉克、地層下陷、地盤改良、填海造陸與離岸風電基礎、大地監測。附有效應力、壓密、邊坡穩定與液化評估四個互動練習。",
+      icon: "⛰️",
+      url: "topics/geotechnical/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、典型值與防災查詢",
+          icon: "📋",
+          url: "topics/geotechnical/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/geotechnical/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜土壤",
+          courses: [
+            { title: "大地工程是什麼", url: "topics/geotechnical/lesson-01.html" },
+            { title: "土壤的三相", url: "topics/geotechnical/lesson-02.html" },
+            { title: "粒徑與土壤分類", url: "topics/geotechnical/lesson-03.html" },
+            { title: "稠度與阿太堡限度", url: "topics/geotechnical/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜土壤力學",
+          courses: [
+            { title: "有效應力", url: "topics/geotechnical/lesson-05.html" },
+            { title: "滲流與流砂", url: "topics/geotechnical/lesson-06.html" },
+            { title: "壓密與沉陷", url: "topics/geotechnical/lesson-07.html" },
+            { title: "剪力強度", url: "topics/geotechnical/lesson-08.html" },
+            { title: "地質調查與試驗", url: "topics/geotechnical/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜邊坡與擋土",
+          courses: [
+            { title: "邊坡穩定", url: "topics/geotechnical/lesson-10.html" },
+            { title: "土壓力", url: "topics/geotechnical/lesson-11.html" },
+            { title: "擋土牆與加勁擋土", url: "topics/geotechnical/lesson-12.html" },
+            { title: "順向坡", url: "topics/geotechnical/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜基礎",
+          courses: [
+            { title: "淺基礎與承載力", url: "topics/geotechnical/lesson-14.html" },
+            { title: "樁基礎", url: "topics/geotechnical/lesson-15.html" },
+            { title: "深開挖與連續壁", url: "topics/geotechnical/lesson-16.html" },
+            { title: "隧道", url: "topics/geotechnical/lesson-17.html" },
+            { title: "台北盆地與軟弱地盤", url: "topics/geotechnical/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜災害與對策",
+          courses: [
+            { title: "土壤液化", url: "topics/geotechnical/lesson-19.html" },
+            { title: "921 與台南地震", url: "topics/geotechnical/lesson-20.html" },
+            { title: "土石流", url: "topics/geotechnical/lesson-21.html" },
+            { title: "地層下陷", url: "topics/geotechnical/lesson-22.html" },
+            { title: "地盤改良", url: "topics/geotechnical/lesson-23.html" },
+            { title: "填海造陸與離岸風電基礎", url: "topics/geotechnical/lesson-24.html" },
+            { title: "監測與觀測", url: "topics/geotechnical/lesson-25.html" },
+            { title: "總結", url: "topics/geotechnical/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "aircraft-design",
+      category: "tech",
+      title: "空氣動力學與飛機設計：讓幾百噸的金屬飛上天",
+      description:
+        "四力與飛行史、標準大氣與空速、升力的真正成因（破除等時間迷思）、翼型與 NACA、攻角與升力係數；寄生阻力與邊界層、誘導阻力與翼尖小翼、阻力極曲線與升阻比、失速與襟翼縫翼；螺旋槳、渦輪扇與旁通比、推力比油耗；爬升與升限、Breguet 航程、V1 與起降、轉彎與 V-n 圖；重心與中性點、三軸操縱面、線傳飛控與 737 MAX；設計流程、重量估算與複合材料、翼負載與推重比、音障與協和號、無人機與 eVTOL、永續航空燃料與氫能。附升力、阻力、航程與起飛距離四個互動練習。",
+      icon: "✈️",
+      url: "topics/aircraft-design/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、典型值與速度",
+          icon: "📋",
+          url: "topics/aircraft-design/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/aircraft-design/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜飛行原理",
+          courses: [
+            { title: "四力與飛行的歷史", url: "topics/aircraft-design/lesson-01.html" },
+            { title: "大氣與標準大氣", url: "topics/aircraft-design/lesson-02.html" },
+            { title: "升力是怎麼來的", url: "topics/aircraft-design/lesson-03.html" },
+            { title: "翼型", url: "topics/aircraft-design/lesson-04.html" },
+            { title: "攻角與升力係數", url: "topics/aircraft-design/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜阻力",
+          courses: [
+            { title: "寄生阻力", url: "topics/aircraft-design/lesson-06.html" },
+            { title: "誘導阻力", url: "topics/aircraft-design/lesson-07.html" },
+            { title: "阻力極曲線與升阻比", url: "topics/aircraft-design/lesson-08.html" },
+            { title: "失速與高升力裝置", url: "topics/aircraft-design/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜推進",
+          courses: [
+            { title: "螺旋槳", url: "topics/aircraft-design/lesson-10.html" },
+            { title: "渦輪扇發動機", url: "topics/aircraft-design/lesson-11.html" },
+            { title: "推力與油耗", url: "topics/aircraft-design/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜飛行性能",
+          courses: [
+            { title: "爬升與升限", url: "topics/aircraft-design/lesson-13.html" },
+            { title: "巡航與航程", url: "topics/aircraft-design/lesson-14.html" },
+            { title: "起飛與降落", url: "topics/aircraft-design/lesson-15.html" },
+            { title: "轉彎與負載因數", url: "topics/aircraft-design/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 E｜穩定與操控",
+          courses: [
+            { title: "重心與中性點", url: "topics/aircraft-design/lesson-17.html" },
+            { title: "操縱面與三軸", url: "topics/aircraft-design/lesson-18.html" },
+            { title: "飛控與線傳飛控", url: "topics/aircraft-design/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 F｜飛機設計",
+          courses: [
+            { title: "設計流程", url: "topics/aircraft-design/lesson-20.html" },
+            { title: "重量估算", url: "topics/aircraft-design/lesson-21.html" },
+            { title: "翼負載與推重比", url: "topics/aircraft-design/lesson-22.html" },
+            { title: "超音速與音障", url: "topics/aircraft-design/lesson-23.html" },
+            { title: "無人機與電動飛行", url: "topics/aircraft-design/lesson-24.html" },
+            { title: "航空的未來", url: "topics/aircraft-design/lesson-25.html" },
+            { title: "總結", url: "topics/aircraft-design/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "differential-equations",
+      category: "math",
+      title: "微分方程：用方程式描述變化的世界",
+      description:
+        "微分方程的意義與分類、斜率場與平衡解、可分離方程與碳 14 定年、積分因子與暫態穩態、邏輯斯諦成長與漁業崩潰、冷卻定律與混合問題、存在與唯一性；歐拉法、龍格－庫塔法、剛性方程與隱式方法；彈簧振子、阻尼比與台北 101 阻尼器、強迫振動與共振、RLC 電路類比；聯立系統與特徵值、相平面與平衡點分類、捕食者與獵物、SIR 模型與 R₀、極限環與范德波爾、勞侖茲混沌與蝴蝶效應；冪級數與特殊函數、邊界值問題與駐波、熱方程、波動方程、拉普拉斯轉換。附斜率場、數值方法、阻尼共振與捕食者獵物四個互動練習。",
+      icon: "∂",
+      url: "topics/differential-equations/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "常見方程、解法與分類",
+          icon: "📋",
+          url: "topics/differential-equations/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/differential-equations/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜一階方程",
+          courses: [
+            { title: "什麼是微分方程", url: "topics/differential-equations/lesson-01.html" },
+            { title: "斜率場", url: "topics/differential-equations/lesson-02.html" },
+            { title: "可分離方程", url: "topics/differential-equations/lesson-03.html" },
+            { title: "線性一階方程與積分因子", url: "topics/differential-equations/lesson-04.html" },
+            { title: "人口成長與邏輯斯諦方程", url: "topics/differential-equations/lesson-05.html" },
+            { title: "冷卻定律與混合問題", url: "topics/differential-equations/lesson-06.html" },
+            { title: "存在與唯一性", url: "topics/differential-equations/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 B｜數值方法",
+          courses: [
+            { title: "歐拉法", url: "topics/differential-equations/lesson-08.html" },
+            { title: "龍格－庫塔法", url: "topics/differential-equations/lesson-09.html" },
+            { title: "剛性方程", url: "topics/differential-equations/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜二階方程與振動",
+          courses: [
+            { title: "彈簧振子", url: "topics/differential-equations/lesson-11.html" },
+            { title: "阻尼振動", url: "topics/differential-equations/lesson-12.html" },
+            { title: "強迫振動與共振", url: "topics/differential-equations/lesson-13.html" },
+            { title: "RLC 電路", url: "topics/differential-equations/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜系統與非線性",
+          courses: [
+            { title: "聯立方程與矩陣", url: "topics/differential-equations/lesson-15.html" },
+            { title: "相平面與平衡點", url: "topics/differential-equations/lesson-16.html" },
+            { title: "捕食者與獵物", url: "topics/differential-equations/lesson-17.html" },
+            { title: "SIR 傳染病模型", url: "topics/differential-equations/lesson-18.html" },
+            { title: "非線性與極限環", url: "topics/differential-equations/lesson-19.html" },
+            { title: "混沌與勞侖茲方程", url: "topics/differential-equations/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜進階主題",
+          courses: [
+            { title: "冪級數解", url: "topics/differential-equations/lesson-21.html" },
+            { title: "邊界值問題", url: "topics/differential-equations/lesson-22.html" },
+            { title: "熱方程", url: "topics/differential-equations/lesson-23.html" },
+            { title: "波動方程", url: "topics/differential-equations/lesson-24.html" },
+            { title: "用拉普拉斯轉換解方程", url: "topics/differential-equations/lesson-25.html" },
+            { title: "總結", url: "topics/differential-equations/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "organic-chemistry",
+      category: "science",
+      title: "有機化學：碳的化學與生命、藥物、材料",
+      description:
+        "維勒合成尿素與碳的特別、混成軌域與分子形狀、結構式與骨架式、IUPAC 命名；烷類構形、環己烷椅式、掌性與 R/S、沙利竇邁與不對稱合成；官能基總覽、烯炔與反式脂肪、苯與芳香性、鹵化物與臭氧層、醇酚醚與 ALDH2、醛酮與梅納反應、羧酸酯醯胺與肥皂、胺與生物鹼；pKa 與酸鹼、反應機構與彎箭頭、SN1 與 SN2、E1 與 E2、馬可尼可夫加成、逆合成與諾貝爾獎反應；聚合物與塑膠回收、從柳樹皮到阿斯匹靈與盤尼西林、IR／NMR／質譜鑑定。附官能基、掌性、pKa 與 SN1／SN2 四個互動練習。",
+      icon: "⚗️",
+      url: "topics/organic-chemistry/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "官能基、反應與光譜",
+          icon: "📋",
+          url: "topics/organic-chemistry/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/organic-chemistry/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜碳的世界",
+          courses: [
+            { title: "有機化學是什麼", url: "topics/organic-chemistry/lesson-01.html" },
+            { title: "混成軌域與分子形狀", url: "topics/organic-chemistry/lesson-02.html" },
+            { title: "結構式與分子的表示法", url: "topics/organic-chemistry/lesson-03.html" },
+            { title: "有機化合物的命名", url: "topics/organic-chemistry/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜分子的形狀與立體化學",
+          courses: [
+            { title: "烷類與構形", url: "topics/organic-chemistry/lesson-05.html" },
+            { title: "環烷與環己烷的椅式", url: "topics/organic-chemistry/lesson-06.html" },
+            { title: "立體化學與掌性", url: "topics/organic-chemistry/lesson-07.html" },
+            { title: "鏡像異構物與藥物", url: "topics/organic-chemistry/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜官能基",
+          courses: [
+            { title: "官能基總覽", url: "topics/organic-chemistry/lesson-09.html" },
+            { title: "烯類與炔類", url: "topics/organic-chemistry/lesson-10.html" },
+            { title: "芳香族化合物", url: "topics/organic-chemistry/lesson-11.html" },
+            { title: "鹵化物", url: "topics/organic-chemistry/lesson-12.html" },
+            { title: "醇、酚與醚", url: "topics/organic-chemistry/lesson-13.html" },
+            { title: "醛與酮", url: "topics/organic-chemistry/lesson-14.html" },
+            { title: "羧酸、酯與醯胺", url: "topics/organic-chemistry/lesson-15.html" },
+            { title: "胺與含氮化合物", url: "topics/organic-chemistry/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜反應與機構",
+          courses: [
+            { title: "酸與鹼：pKa", url: "topics/organic-chemistry/lesson-17.html" },
+            { title: "反應機構與箭頭推移", url: "topics/organic-chemistry/lesson-18.html" },
+            { title: "親核取代：SN1 與 SN2", url: "topics/organic-chemistry/lesson-19.html" },
+            { title: "脫去反應：E1 與 E2", url: "topics/organic-chemistry/lesson-20.html" },
+            { title: "加成反應", url: "topics/organic-chemistry/lesson-21.html" },
+            { title: "有機合成與逆合成", url: "topics/organic-chemistry/lesson-22.html" },
+          ],
+        },
+        {
+          title: "模組 E｜應用與鑑定",
+          courses: [
+            { title: "聚合物與塑膠", url: "topics/organic-chemistry/lesson-23.html" },
+            { title: "藥物與天然物", url: "topics/organic-chemistry/lesson-24.html" },
+            { title: "光譜鑑定：IR、NMR 與質譜", url: "topics/organic-chemistry/lesson-25.html" },
+            { title: "總結", url: "topics/organic-chemistry/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "solid-state-physics",
+      category: "science",
+      title: "固態物理：晶體、聲子、能帶與量子材料",
+      description:
+        "晶格與基底、14 種布拉維晶格與最密堆積、米勒指數、倒晶格與布里淵區；勞厄與布拉格父子的 X 光繞射、謝赫特曼的準晶、差排與金屬強度；聲子色散與光學支、愛因斯坦與德拜熱容、熱傳導與熱膨脹；德魯德與索末菲自由電子、費米能階、布洛赫定理、能隙的形成、金屬／半導體／絕緣體、有效質量與電洞、霍爾效應；摻雜與 p-n 接面、藍光 LED 與太陽能、磁性與巨磁阻、超導與 BCS、石墨烯與魔角、量子霍爾效應與拓撲絕緣體、摩爾定律。附布拉格繞射、聲子色散、德拜熱容與能帶四個互動練習。",
+      icon: "💎",
+      url: "topics/solid-state-physics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、結構與材料常數",
+          icon: "📋",
+          url: "topics/solid-state-physics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/solid-state-physics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜晶體結構",
+          courses: [
+            { title: "固態物理是什麼", url: "topics/solid-state-physics/lesson-01.html" },
+            { title: "晶體與晶格", url: "topics/solid-state-physics/lesson-02.html" },
+            { title: "布拉維晶格與常見結構", url: "topics/solid-state-physics/lesson-03.html" },
+            { title: "米勒指數", url: "topics/solid-state-physics/lesson-04.html" },
+            { title: "倒晶格與布里淵區", url: "topics/solid-state-physics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜繞射與真實晶體",
+          courses: [
+            { title: "X 光繞射與布拉格定律", url: "topics/solid-state-physics/lesson-06.html" },
+            { title: "準晶與非晶", url: "topics/solid-state-physics/lesson-07.html" },
+            { title: "晶體缺陷", url: "topics/solid-state-physics/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜晶格振動",
+          courses: [
+            { title: "晶格振動與聲子", url: "topics/solid-state-physics/lesson-09.html" },
+            { title: "固體的熱容", url: "topics/solid-state-physics/lesson-10.html" },
+            { title: "熱傳導與熱膨脹", url: "topics/solid-state-physics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜固體中的電子",
+          courses: [
+            { title: "自由電子模型", url: "topics/solid-state-physics/lesson-12.html" },
+            { title: "費米能階與費米－狄拉克分布", url: "topics/solid-state-physics/lesson-13.html" },
+            { title: "布洛赫定理與週期位能", url: "topics/solid-state-physics/lesson-14.html" },
+            { title: "能帶的形成", url: "topics/solid-state-physics/lesson-15.html" },
+            { title: "金屬、絕緣體與半導體", url: "topics/solid-state-physics/lesson-16.html" },
+            { title: "有效質量與電洞", url: "topics/solid-state-physics/lesson-17.html" },
+            { title: "霍爾效應", url: "topics/solid-state-physics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜半導體與新奇材料",
+          courses: [
+            { title: "摻雜與 p-n 接面", url: "topics/solid-state-physics/lesson-19.html" },
+            { title: "光學性質與 LED", url: "topics/solid-state-physics/lesson-20.html" },
+            { title: "磁性", url: "topics/solid-state-physics/lesson-21.html" },
+            { title: "超導概要", url: "topics/solid-state-physics/lesson-22.html" },
+            { title: "石墨烯與二維材料", url: "topics/solid-state-physics/lesson-23.html" },
+            { title: "量子霍爾效應與拓撲材料", url: "topics/solid-state-physics/lesson-24.html" },
+            { title: "固態物理與現代科技", url: "topics/solid-state-physics/lesson-25.html" },
+            { title: "總結", url: "topics/solid-state-physics/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "analytical-chemistry",
+      category: "science",
+      title: "分析化學：有什麼？有多少？可靠嗎？",
+      description:
+        "分析流程與取樣、準確度與精密度、有效數字與不確定度、t 分布與檢量線、偵測極限與方法確效（Theranos 的教訓）；重量分析與凱氏定氮（三聚氰胺）、酸鹼滴定與指示劑、EDTA 與水硬度、氧化還原與 COD、pH 計與血糖機；比爾定律、UV-Vis、FTIR、AAS 與 ICP-MS、螢光與拉曼；層析與解析度、GC 與洛夫洛克的 ECD、HPLC、質譜與同位素峰、LC-MS/MS 與新生兒篩檢；2011 年塑化劑事件、運動禁藥、水俁病與 RCA、法醫毒物與 DNA、ISO 17025 與管制圖。附滴定曲線、檢量線、層析與質譜四個互動練習。",
+      icon: "🧪",
+      url: "topics/analytical-chemistry/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、方法與數字",
+          icon: "📋",
+          url: "topics/analytical-chemistry/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/analytical-chemistry/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜分析的基礎",
+          courses: [
+            { title: "分析化學是什麼", url: "topics/analytical-chemistry/lesson-01.html" },
+            { title: "誤差：準確度與精密度", url: "topics/analytical-chemistry/lesson-02.html" },
+            { title: "有效數字與不確定度", url: "topics/analytical-chemistry/lesson-03.html" },
+            { title: "統計與檢量線", url: "topics/analytical-chemistry/lesson-04.html" },
+            { title: "偵測極限與方法確效", url: "topics/analytical-chemistry/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜古典分析與電化學",
+          courses: [
+            { title: "重量分析", url: "topics/analytical-chemistry/lesson-06.html" },
+            { title: "酸鹼滴定", url: "topics/analytical-chemistry/lesson-07.html" },
+            { title: "錯合滴定", url: "topics/analytical-chemistry/lesson-08.html" },
+            { title: "氧化還原滴定", url: "topics/analytical-chemistry/lesson-09.html" },
+            { title: "電化學分析與 pH 計", url: "topics/analytical-chemistry/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光譜分析",
+          courses: [
+            { title: "比爾定律", url: "topics/analytical-chemistry/lesson-11.html" },
+            { title: "紫外光－可見光光譜", url: "topics/analytical-chemistry/lesson-12.html" },
+            { title: "紅外光譜", url: "topics/analytical-chemistry/lesson-13.html" },
+            { title: "原子光譜：AAS 與 ICP", url: "topics/analytical-chemistry/lesson-14.html" },
+            { title: "螢光與拉曼光譜", url: "topics/analytical-chemistry/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜分離與質譜",
+          courses: [
+            { title: "層析原理", url: "topics/analytical-chemistry/lesson-16.html" },
+            { title: "氣相層析", url: "topics/analytical-chemistry/lesson-17.html" },
+            { title: "高效液相層析", url: "topics/analytical-chemistry/lesson-18.html" },
+            { title: "質譜", url: "topics/analytical-chemistry/lesson-19.html" },
+            { title: "串聯技術：GC-MS 與 LC-MS", url: "topics/analytical-chemistry/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜分析化學與社會",
+          courses: [
+            { title: "食品安全", url: "topics/analytical-chemistry/lesson-21.html" },
+            { title: "運動禁藥檢測", url: "topics/analytical-chemistry/lesson-22.html" },
+            { title: "環境分析", url: "topics/analytical-chemistry/lesson-23.html" },
+            { title: "法醫鑑識化學", url: "topics/analytical-chemistry/lesson-24.html" },
+            { title: "實驗室品質管理", url: "topics/analytical-chemistry/lesson-25.html" },
+            { title: "總結", url: "topics/analytical-chemistry/lesson-26.html" },
+          ],
+        },
+      ],
+    },
+    {
+      id: "microbiology",
+      category: "biomed",
+      title: "微生物學：看不見的世界如何塑造生命與健康",
+      description:
+        "雷文霍克與巴斯德的鵝頸瓶、細菌構造與革蘭氏染色、沃斯的古菌與三域、真菌與黃麴毒素、瘧疾與藻華、病毒與噬菌體；生長曲線與危險溫度帶、柯霍的純培養與洋菜、化學自營與大氧化事件；基因水平轉移與格里菲斯實驗、CRISPR 從鹽田到諾貝爾獎、重組胰島素與 Taq 聚合酶；塞麥爾維斯與柯霍法則、免疫與天花根除、結核病與都治計畫、D 值與滅菌、盤尼西林的發現、抗藥性與超級細菌、抗病毒藥物；腸道微生物群、發酵與腐敗、食物中毒、氮循環與活性污泥、工業發酵、新興傳染病與同一健康。附細菌構造、生長曲線、滅菌與抗藥性演化四個互動練習。",
+      icon: "🦠",
+      url: "topics/microbiology/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "分類、方法與數字",
+          icon: "📋",
+          url: "topics/microbiology/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/microbiology/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜微生物的世界",
+          courses: [
+            { title: "看不見的世界", url: "topics/microbiology/lesson-01.html" },
+            { title: "細菌的構造", url: "topics/microbiology/lesson-02.html" },
+            { title: "古菌與生命之樹", url: "topics/microbiology/lesson-03.html" },
+            { title: "真菌：酵母與黴菌", url: "topics/microbiology/lesson-04.html" },
+            { title: "原生生物與藻類", url: "topics/microbiology/lesson-05.html" },
+            { title: "病毒", url: "topics/microbiology/lesson-06.html" },
+          ],
+        },
+        {
+          title: "模組 B｜生長與代謝",
+          courses: [
+            { title: "細菌的生長", url: "topics/microbiology/lesson-07.html" },
+            { title: "培養與無菌技術", url: "topics/microbiology/lesson-08.html" },
+            { title: "微生物的代謝多樣性", url: "topics/microbiology/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜遺傳與生物技術",
+          courses: [
+            { title: "細菌的遺傳與基因轉移", url: "topics/microbiology/lesson-10.html" },
+            { title: "CRISPR：細菌的免疫系統", url: "topics/microbiology/lesson-11.html" },
+            { title: "微生物與生物技術", url: "topics/microbiology/lesson-12.html" },
+          ],
+        },
+        {
+          title: "模組 D｜微生物與疾病",
+          courses: [
+            { title: "病原論與柯霍法則", url: "topics/microbiology/lesson-13.html" },
+            { title: "人體的防禦與疫苗", url: "topics/microbiology/lesson-14.html" },
+            { title: "重要的病原菌", url: "topics/microbiology/lesson-15.html" },
+            { title: "消毒與滅菌", url: "topics/microbiology/lesson-16.html" },
+            { title: "抗生素的發現", url: "topics/microbiology/lesson-17.html" },
+            { title: "抗藥性", url: "topics/microbiology/lesson-18.html" },
+            { title: "病毒感染與抗病毒藥物", url: "topics/microbiology/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜微生物與人類",
+          courses: [
+            { title: "人體微生物群", url: "topics/microbiology/lesson-20.html" },
+            { title: "食品微生物：發酵與腐敗", url: "topics/microbiology/lesson-21.html" },
+            { title: "食物中毒與食品安全", url: "topics/microbiology/lesson-22.html" },
+            { title: "環境微生物與物質循環", url: "topics/microbiology/lesson-23.html" },
+            { title: "工業與能源微生物", url: "topics/microbiology/lesson-24.html" },
+            { title: "新興傳染病與同一健康", url: "topics/microbiology/lesson-25.html" },
+            { title: "總結", url: "topics/microbiology/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
