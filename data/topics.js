@@ -38799,6 +38799,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "chemical-engineering",
+      category: "tech",
+      title: "化學工程與單元操作：把實驗室的反應變成工廠",
+      description:
+        "單元操作的概念、質量平衡、能量平衡與潛熱、因次分析與無因次數；流體輸送與泵、熱交換器、質傳與擴散；蒸餾與相對揮發度、McCabe-Thiele 圖解法、吸收與碳捕捉、萃取與超臨界流體、結晶與乾燥、膜分離與海水淡化；反應動力學、CSTR 與 PFR、觸媒與哈伯法、放大；程序控制、程序安全（博帕爾、高雄氣爆）、石化與塑膠、半導體化學品、生化工程、綠色化學、製程模擬、台灣的化學工業。附熱交換器、蒸餾塔板數、反應器比較與 PID 液位控制四個互動練習。",
+      icon: "⚗️",
+      url: "topics/chemical-engineering/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、數值與單元操作",
+          icon: "📋",
+          url: "topics/chemical-engineering/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/chemical-engineering/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "化學工程是什麼", url: "topics/chemical-engineering/lesson-01.html" },
+            { title: "質量平衡", url: "topics/chemical-engineering/lesson-02.html" },
+            { title: "能量平衡", url: "topics/chemical-engineering/lesson-03.html" },
+            { title: "單位與因次分析", url: "topics/chemical-engineering/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜輸送",
+          courses: [
+            { title: "流體輸送與泵", url: "topics/chemical-engineering/lesson-05.html" },
+            { title: "熱傳與熱交換器", url: "topics/chemical-engineering/lesson-06.html" },
+            { title: "質傳與擴散", url: "topics/chemical-engineering/lesson-07.html" },
+          ],
+        },
+        {
+          title: "模組 C｜分離",
+          courses: [
+            { title: "蒸餾原理", url: "topics/chemical-engineering/lesson-08.html" },
+            { title: "McCabe-Thiele 圖解法", url: "topics/chemical-engineering/lesson-09.html" },
+            { title: "吸收與汽提", url: "topics/chemical-engineering/lesson-10.html" },
+            { title: "萃取", url: "topics/chemical-engineering/lesson-11.html" },
+            { title: "結晶與乾燥", url: "topics/chemical-engineering/lesson-12.html" },
+            { title: "膜分離與海水淡化", url: "topics/chemical-engineering/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜反應",
+          courses: [
+            { title: "反應動力學", url: "topics/chemical-engineering/lesson-14.html" },
+            { title: "理想反應器", url: "topics/chemical-engineering/lesson-15.html" },
+            { title: "觸媒", url: "topics/chemical-engineering/lesson-16.html" },
+            { title: "放大", url: "topics/chemical-engineering/lesson-17.html" },
+          ],
+        },
+        {
+          title: "模組 E｜工廠",
+          courses: [
+            { title: "程序控制", url: "topics/chemical-engineering/lesson-18.html" },
+            { title: "程序安全", url: "topics/chemical-engineering/lesson-19.html" },
+            { title: "石化與塑膠", url: "topics/chemical-engineering/lesson-20.html" },
+            { title: "半導體化學品", url: "topics/chemical-engineering/lesson-21.html" },
+            { title: "生化工程與發酵", url: "topics/chemical-engineering/lesson-22.html" },
+            { title: "綠色化學與減碳", url: "topics/chemical-engineering/lesson-23.html" },
+            { title: "製程模擬與最佳化", url: "topics/chemical-engineering/lesson-24.html" },
+            { title: "化工與台灣", url: "topics/chemical-engineering/lesson-25.html" },
+            { title: "總結", url: "topics/chemical-engineering/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
