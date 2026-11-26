@@ -38723,6 +38723,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "classic-ml",
+      category: "ai",
+      title: "經典機器學習：從線性迴歸到梯度提升",
+      description:
+        "機器學習的類型、資料與特徵、訓練驗證測試；線性迴歸、梯度下降、多項式與過擬合、L1／L2 正則化、偏差與變異；邏輯迴歸、k 近鄰、單純貝氏、支持向量機與核技巧、決策樹、隨機森林與梯度提升、混淆矩陣與 ROC；k-means、階層分群與 DBSCAN、主成分分析、異常偵測；特徵工程、交叉驗證與超參數、資料洩漏、不平衡資料、可解釋性與演算法公平。附過擬合、決策樹、ROC 與 k-means 四個互動練習。",
+      icon: "🤖",
+      url: "topics/classic-ml/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "模型、指標與實務守則",
+          icon: "📋",
+          url: "topics/classic-ml/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/classic-ml/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜基礎",
+          courses: [
+            { title: "什麼是機器學習", url: "topics/classic-ml/lesson-01.html" },
+            { title: "學習的類型", url: "topics/classic-ml/lesson-02.html" },
+            { title: "資料與特徵", url: "topics/classic-ml/lesson-03.html" },
+            { title: "訓練、驗證與測試", url: "topics/classic-ml/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜迴歸",
+          courses: [
+            { title: "線性迴歸", url: "topics/classic-ml/lesson-05.html" },
+            { title: "梯度下降", url: "topics/classic-ml/lesson-06.html" },
+            { title: "多項式與過擬合", url: "topics/classic-ml/lesson-07.html" },
+            { title: "正則化", url: "topics/classic-ml/lesson-08.html" },
+            { title: "偏差與變異", url: "topics/classic-ml/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜分類",
+          courses: [
+            { title: "邏輯迴歸", url: "topics/classic-ml/lesson-10.html" },
+            { title: "k 近鄰", url: "topics/classic-ml/lesson-11.html" },
+            { title: "單純貝氏", url: "topics/classic-ml/lesson-12.html" },
+            { title: "支持向量機", url: "topics/classic-ml/lesson-13.html" },
+            { title: "決策樹", url: "topics/classic-ml/lesson-14.html" },
+            { title: "隨機森林與梯度提升", url: "topics/classic-ml/lesson-15.html" },
+            { title: "評估分類模型", url: "topics/classic-ml/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜非監督學習",
+          courses: [
+            { title: "k-means 分群", url: "topics/classic-ml/lesson-17.html" },
+            { title: "階層分群與 DBSCAN", url: "topics/classic-ml/lesson-18.html" },
+            { title: "主成分分析", url: "topics/classic-ml/lesson-19.html" },
+            { title: "異常偵測", url: "topics/classic-ml/lesson-20.html" },
+          ],
+        },
+        {
+          title: "模組 E｜實務",
+          courses: [
+            { title: "特徵工程", url: "topics/classic-ml/lesson-21.html" },
+            { title: "交叉驗證與超參數", url: "topics/classic-ml/lesson-22.html" },
+            { title: "資料洩漏", url: "topics/classic-ml/lesson-23.html" },
+            { title: "不平衡資料", url: "topics/classic-ml/lesson-24.html" },
+            { title: "可解釋性與公平", url: "topics/classic-ml/lesson-25.html" },
+            { title: "總結", url: "topics/classic-ml/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
