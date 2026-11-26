@@ -39260,6 +39260,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "solid-state-physics",
+      category: "science",
+      title: "固態物理：晶體、聲子、能帶與量子材料",
+      description:
+        "晶格與基底、14 種布拉維晶格與最密堆積、米勒指數、倒晶格與布里淵區；勞厄與布拉格父子的 X 光繞射、謝赫特曼的準晶、差排與金屬強度；聲子色散與光學支、愛因斯坦與德拜熱容、熱傳導與熱膨脹；德魯德與索末菲自由電子、費米能階、布洛赫定理、能隙的形成、金屬／半導體／絕緣體、有效質量與電洞、霍爾效應；摻雜與 p-n 接面、藍光 LED 與太陽能、磁性與巨磁阻、超導與 BCS、石墨烯與魔角、量子霍爾效應與拓撲絕緣體、摩爾定律。附布拉格繞射、聲子色散、德拜熱容與能帶四個互動練習。",
+      icon: "💎",
+      url: "topics/solid-state-physics/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "公式、結構與材料常數",
+          icon: "📋",
+          url: "topics/solid-state-physics/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/solid-state-physics/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜晶體結構",
+          courses: [
+            { title: "固態物理是什麼", url: "topics/solid-state-physics/lesson-01.html" },
+            { title: "晶體與晶格", url: "topics/solid-state-physics/lesson-02.html" },
+            { title: "布拉維晶格與常見結構", url: "topics/solid-state-physics/lesson-03.html" },
+            { title: "米勒指數", url: "topics/solid-state-physics/lesson-04.html" },
+            { title: "倒晶格與布里淵區", url: "topics/solid-state-physics/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜繞射與真實晶體",
+          courses: [
+            { title: "X 光繞射與布拉格定律", url: "topics/solid-state-physics/lesson-06.html" },
+            { title: "準晶與非晶", url: "topics/solid-state-physics/lesson-07.html" },
+            { title: "晶體缺陷", url: "topics/solid-state-physics/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜晶格振動",
+          courses: [
+            { title: "晶格振動與聲子", url: "topics/solid-state-physics/lesson-09.html" },
+            { title: "固體的熱容", url: "topics/solid-state-physics/lesson-10.html" },
+            { title: "熱傳導與熱膨脹", url: "topics/solid-state-physics/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 D｜固體中的電子",
+          courses: [
+            { title: "自由電子模型", url: "topics/solid-state-physics/lesson-12.html" },
+            { title: "費米能階與費米－狄拉克分布", url: "topics/solid-state-physics/lesson-13.html" },
+            { title: "布洛赫定理與週期位能", url: "topics/solid-state-physics/lesson-14.html" },
+            { title: "能帶的形成", url: "topics/solid-state-physics/lesson-15.html" },
+            { title: "金屬、絕緣體與半導體", url: "topics/solid-state-physics/lesson-16.html" },
+            { title: "有效質量與電洞", url: "topics/solid-state-physics/lesson-17.html" },
+            { title: "霍爾效應", url: "topics/solid-state-physics/lesson-18.html" },
+          ],
+        },
+        {
+          title: "模組 E｜半導體與新奇材料",
+          courses: [
+            { title: "摻雜與 p-n 接面", url: "topics/solid-state-physics/lesson-19.html" },
+            { title: "光學性質與 LED", url: "topics/solid-state-physics/lesson-20.html" },
+            { title: "磁性", url: "topics/solid-state-physics/lesson-21.html" },
+            { title: "超導概要", url: "topics/solid-state-physics/lesson-22.html" },
+            { title: "石墨烯與二維材料", url: "topics/solid-state-physics/lesson-23.html" },
+            { title: "量子霍爾效應與拓撲材料", url: "topics/solid-state-physics/lesson-24.html" },
+            { title: "固態物理與現代科技", url: "topics/solid-state-physics/lesson-25.html" },
+            { title: "總結", url: "topics/solid-state-physics/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
