@@ -39488,6 +39488,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "telegraph",
+      category: "tech",
+      title: "電報：維多利亞時代的網際網路",
+      description:
+        "驛站、烽火與夏普的光學電報（布朗兄弟的第一起「駭客」）、從厄斯特到亨利的電磁學、庫克與惠斯通及塔威爾案；摩斯 1844 年的示範、摩斯電碼的頻率設計與 SOS、電報員文化、大地回路與卡林頓事件、西聯壟斷、標準時間；1858 年大西洋電纜的狂歡與失敗、克耳文的平方定律、大東方號、全紅線與切纜戰、黑維塞與電報方程式；路透社與倒金字塔、Cable 與股價收報機、電報體與商業密碼本、埃姆斯與齊默曼電報、天氣預報、中文電碼與韻目代日；丁日昌與劉銘傳的台灣電報、四工與博多碼、馬可尼與鐵達尼號、最後一封電報。附摩斯電碼、海底電纜訊號、電報費與韻目代日四個互動練習。",
+      icon: "📠",
+      url: "topics/telegraph/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、電碼與術語",
+          icon: "📋",
+          url: "topics/telegraph/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/telegraph/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電之前的通訊",
+          courses: [
+            { title: "訊息跑不贏馬的年代", url: "topics/telegraph/lesson-01.html" },
+            { title: "夏普的光學電報", url: "topics/telegraph/lesson-02.html" },
+            { title: "從電學到電報", url: "topics/telegraph/lesson-03.html" },
+            { title: "庫克與惠斯通", url: "topics/telegraph/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜摩斯與電報網",
+          courses: [
+            { title: "摩斯的電報", url: "topics/telegraph/lesson-05.html" },
+            { title: "摩斯電碼的設計", url: "topics/telegraph/lesson-06.html" },
+            { title: "電報員", url: "topics/telegraph/lesson-07.html" },
+            { title: "電報線與電報局", url: "topics/telegraph/lesson-08.html" },
+            { title: "西聯公司", url: "topics/telegraph/lesson-09.html" },
+            { title: "電報、鐵路與標準時間", url: "topics/telegraph/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜跨越海洋",
+          courses: [
+            { title: "1858 年大西洋電纜", url: "topics/telegraph/lesson-11.html" },
+            { title: "克耳文與懷特豪斯", url: "topics/telegraph/lesson-12.html" },
+            { title: "大東方號與 1866 年電纜", url: "topics/telegraph/lesson-13.html" },
+            { title: "紅線環繞地球", url: "topics/telegraph/lesson-14.html" },
+            { title: "電報方程式與黑維塞", url: "topics/telegraph/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜電報改變世界",
+          courses: [
+            { title: "新聞業", url: "topics/telegraph/lesson-16.html" },
+            { title: "金融", url: "topics/telegraph/lesson-17.html" },
+            { title: "一字千金", url: "topics/telegraph/lesson-18.html" },
+            { title: "戰爭與外交", url: "topics/telegraph/lesson-19.html" },
+            { title: "天氣預報的誕生", url: "topics/telegraph/lesson-20.html" },
+            { title: "中文怎麼打電報", url: "topics/telegraph/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜從有線到無線，以及電報的退場",
+          courses: [
+            { title: "台灣與中國的電報", url: "topics/telegraph/lesson-22.html" },
+            { title: "多工與電傳打字機", url: "topics/telegraph/lesson-23.html" },
+            { title: "馬可尼與無線電報", url: "topics/telegraph/lesson-24.html" },
+            { title: "電報的退場", url: "topics/telegraph/lesson-25.html" },
+            { title: "總結", url: "topics/telegraph/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
