@@ -39792,6 +39792,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "vhs-video",
+      category: "tech",
+      title: "錄影帶與格式戰爭：從 VHS 到串流",
+      description:
+        "直播時代的電視、Ampex 四磁頭錄影機、螺旋掃描、U-matic 與失敗的先驅；Betamax 對 VHS、錄影時間之爭、網路效應與贏者全拿、Betamax 案與時間平移；首次銷售原則與錄影帶出租、百視達與拆帳、封面與分級、發行窗口、請倒帶與閃爍的 12:00；台灣的錄影帶店與第四台、盜版與著作權、MTV 包廂、V8 與婚禮錄影；雷射影碟、VCD、DVD、郵寄 DVD 的 Netflix、百視達的倒閉與最後一家店、VHS 的停產與數位化。附螺旋掃描、格式戰爭、租片經濟學與錄影模式四個互動練習。",
+      icon: "📺",
+      url: "topics/vhs-video/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、規格與名詞",
+          icon: "📋",
+          url: "topics/vhs-video/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/vhs-video/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜錄影技術",
+          courses: [
+            { title: "直播的電視", url: "topics/vhs-video/lesson-01.html" },
+            { title: "Ampex 錄影機", url: "topics/vhs-video/lesson-02.html" },
+            { title: "螺旋掃描", url: "topics/vhs-video/lesson-03.html" },
+            { title: "家用錄影機的前夜", url: "topics/vhs-video/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜格式戰爭",
+          courses: [
+            { title: "Betamax", url: "topics/vhs-video/lesson-05.html" },
+            { title: "VHS", url: "topics/vhs-video/lesson-06.html" },
+            { title: "錄影時間之爭", url: "topics/vhs-video/lesson-07.html" },
+            { title: "網路效應", url: "topics/vhs-video/lesson-08.html" },
+            { title: "Betamax 案", url: "topics/vhs-video/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜錄影帶店",
+          courses: [
+            { title: "錄影帶出租業", url: "topics/vhs-video/lesson-10.html" },
+            { title: "百視達", url: "topics/vhs-video/lesson-11.html" },
+            { title: "封面、預告與分級", url: "topics/vhs-video/lesson-12.html" },
+            { title: "錄影帶養活電影業", url: "topics/vhs-video/lesson-13.html" },
+            { title: "請倒帶", url: "topics/vhs-video/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜台灣的錄影帶時代",
+          courses: [
+            { title: "台灣的錄影帶店與第四台", url: "topics/vhs-video/lesson-15.html" },
+            { title: "盜版與著作權", url: "topics/vhs-video/lesson-16.html" },
+            { title: "MTV 包廂", url: "topics/vhs-video/lesson-17.html" },
+            { title: "家庭錄影與 V8", url: "topics/vhs-video/lesson-18.html" },
+            { title: "錄影機的其他用途", url: "topics/vhs-video/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜退場",
+          courses: [
+            { title: "雷射影碟", url: "topics/vhs-video/lesson-20.html" },
+            { title: "VCD", url: "topics/vhs-video/lesson-21.html" },
+            { title: "DVD", url: "topics/vhs-video/lesson-22.html" },
+            { title: "郵寄 DVD 的 Netflix", url: "topics/vhs-video/lesson-23.html" },
+            { title: "串流與百視達的倒閉", url: "topics/vhs-video/lesson-24.html" },
+            { title: "最後一台錄影機", url: "topics/vhs-video/lesson-25.html" },
+            { title: "總結", url: "topics/vhs-video/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
