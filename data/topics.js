@@ -39868,6 +39868,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "typewriter",
+      category: "tech",
+      title: "打字機：機械化的寫字與中文的挑戰",
+      description:
+        "手寫與速記、為盲人造的寫字機器與尼采的寫字球、肖爾斯的 1868 年專利、雷明頓與 Shift 鍵；QWERTY 由來的兩種說法、德沃夏克鍵盤、路徑依賴的經濟學爭論、盲打與 1888 年的比賽；女性打字員、打字池與複寫紙、作家與打字機、IBM Selectric、打字機鑑識與地下出版；漢字的難題、舒式華文打字機、字盤的排列、林語堂的明快打字機、和文打字機、打字行與鋼板油印；修正液、文書處理機、印表機、CR／LF 與 Courier、倉頡與注音輸入法、打字機懷舊。附鍵盤配置、打字速度、複寫紙與中文字盤四個互動練習。",
+      icon: "⌨️",
+      url: "topics/typewriter/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、鍵盤與名詞",
+          icon: "📋",
+          url: "topics/typewriter/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/typewriter/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜打字機的誕生",
+          courses: [
+            { title: "手寫的速度", url: "topics/typewriter/lesson-01.html" },
+            { title: "早期的寫字機器", url: "topics/typewriter/lesson-02.html" },
+            { title: "肖爾斯的打字機", url: "topics/typewriter/lesson-03.html" },
+            { title: "雷明頓", url: "topics/typewriter/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜鍵盤",
+          courses: [
+            { title: "QWERTY 的由來", url: "topics/typewriter/lesson-05.html" },
+            { title: "德沃夏克鍵盤", url: "topics/typewriter/lesson-06.html" },
+            { title: "路徑依賴", url: "topics/typewriter/lesson-07.html" },
+            { title: "盲打與打字比賽", url: "topics/typewriter/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜打字與社會",
+          courses: [
+            { title: "女性打字員", url: "topics/typewriter/lesson-09.html" },
+            { title: "打字池與副本", url: "topics/typewriter/lesson-10.html" },
+            { title: "作家與打字機", url: "topics/typewriter/lesson-11.html" },
+            { title: "電動打字機", url: "topics/typewriter/lesson-12.html" },
+            { title: "打字機與政治", url: "topics/typewriter/lesson-13.html" },
+          ],
+        },
+        {
+          title: "模組 D｜中文打字機",
+          courses: [
+            { title: "漢字的難題", url: "topics/typewriter/lesson-14.html" },
+            { title: "周厚坤與舒震東", url: "topics/typewriter/lesson-15.html" },
+            { title: "字盤", url: "topics/typewriter/lesson-16.html" },
+            { title: "林語堂的明快打字機", url: "topics/typewriter/lesson-17.html" },
+            { title: "和文打字機", url: "topics/typewriter/lesson-18.html" },
+            { title: "打字行與鋼板油印", url: "topics/typewriter/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜退場與遺產",
+          courses: [
+            { title: "修正液", url: "topics/typewriter/lesson-20.html" },
+            { title: "文書處理機", url: "topics/typewriter/lesson-21.html" },
+            { title: "個人電腦與印表機", url: "topics/typewriter/lesson-22.html" },
+            { title: "打字機留下的東西", url: "topics/typewriter/lesson-23.html" },
+            { title: "中文輸入法", url: "topics/typewriter/lesson-24.html" },
+            { title: "打字機的懷舊", url: "topics/typewriter/lesson-25.html" },
+            { title: "總結", url: "topics/typewriter/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
