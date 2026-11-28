@@ -40020,6 +40020,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "analog-tv",
+      category: "tech",
+      title: "映像管與類比電視：電子束畫出的一個世紀",
+      description:
+        "尼普科夫圓盤與貝爾德的機械電視、法恩斯沃斯與 RCA 的電子電視、映像管與蔭罩、掃描與視覺暫留；隔行掃描、NTSC／PAL／SECAM、與黑白相容的彩色訊號、VHF／UHF 與八木天線、雪花與鬼影；1962 年台視開播、老三台、彩色化與台灣電視工業、測試圖與收播、第四台與有線電視法；遙控器、又重又深的映像管、消磁、光線槍與拍一拍；電漿與液晶、數位電視、2012 年類比停播、含鉛玻璃回收、CRT 懷舊與串流時代。附掃描、彩色相容、頻道天線與雪花鬼影四個互動練習。",
+      icon: "📺",
+      url: "topics/analog-tv/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、制式與頻道",
+          icon: "📋",
+          url: "topics/analog-tv/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/analog-tv/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜電視的誕生",
+          courses: [
+            { title: "機械電視", url: "topics/analog-tv/lesson-01.html" },
+            { title: "電子電視", url: "topics/analog-tv/lesson-02.html" },
+            { title: "映像管的原理", url: "topics/analog-tv/lesson-03.html" },
+            { title: "掃描與視覺暫留", url: "topics/analog-tv/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜類比訊號",
+          courses: [
+            { title: "隔行掃描", url: "topics/analog-tv/lesson-05.html" },
+            { title: "NTSC、PAL 與 SECAM", url: "topics/analog-tv/lesson-06.html" },
+            { title: "彩色電視的相容", url: "topics/analog-tv/lesson-07.html" },
+            { title: "VHF、UHF 與天線", url: "topics/analog-tv/lesson-08.html" },
+            { title: "雪花與鬼影", url: "topics/analog-tv/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜台灣的電視",
+          courses: [
+            { title: "台視開播", url: "topics/analog-tv/lesson-10.html" },
+            { title: "老三台", url: "topics/analog-tv/lesson-11.html" },
+            { title: "彩色電視與電視機普及", url: "topics/analog-tv/lesson-12.html" },
+            { title: "測試圖與收播", url: "topics/analog-tv/lesson-13.html" },
+            { title: "第四台與有線電視", url: "topics/analog-tv/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜映像管生活",
+          courses: [
+            { title: "遙控器", url: "topics/analog-tv/lesson-15.html" },
+            { title: "又重又深的映像管", url: "topics/analog-tv/lesson-16.html" },
+            { title: "消磁與磁鐵", url: "topics/analog-tv/lesson-17.html" },
+            { title: "電視遊樂器與光線槍", url: "topics/analog-tv/lesson-18.html" },
+            { title: "拍一拍就好", url: "topics/analog-tv/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜退場",
+          courses: [
+            { title: "液晶與電漿", url: "topics/analog-tv/lesson-20.html" },
+            { title: "數位電視", url: "topics/analog-tv/lesson-21.html" },
+            { title: "類比停播", url: "topics/analog-tv/lesson-22.html" },
+            { title: "映像管的回收", url: "topics/analog-tv/lesson-23.html" },
+            { title: "映像管的懷舊", url: "topics/analog-tv/lesson-24.html" },
+            { title: "電視的未來", url: "topics/analog-tv/lesson-25.html" },
+            { title: "總結", url: "topics/analog-tv/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
