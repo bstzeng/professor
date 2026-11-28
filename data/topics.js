@@ -40172,6 +40172,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "removable-storage",
+      category: "tech",
+      title: "磁碟片、光碟與 MP3：可以拿在手上的資料",
+      description:
+        "8 吋、5.25 吋與 3.5 吋磁碟片、1.44 MB 怎麼算、磁記錄原理、開機磁區病毒與 CIH、存檔圖示；Zip 與死亡之喀、磁光碟與 MD、硬碟從 RAMAC 到 SSD；CD 的誕生、雷射與凹坑、錯誤更正與交錯、CD-ROM、燒錄與台灣光碟片、DVD、藍光與 HD DVD；MP3 與心理聲學、Napster 與 Kuro 案、iPod、快閃記憶體與 USB 隨身碟；雲端儲存、消失的光碟機、數位黑暗時代、3-2-1 備份、復古媒體與 DNA 儲存。附光碟凹坑、刮傷與錯誤更正、MP3 位元率與容量比較四個互動練習。",
+      icon: "💾",
+      url: "topics/removable-storage/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、容量與規格",
+          icon: "📋",
+          url: "topics/removable-storage/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/removable-storage/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜磁碟片",
+          courses: [
+            { title: "8 吋磁碟片", url: "topics/removable-storage/lesson-01.html" },
+            { title: "5.25 吋與 3.5 吋", url: "topics/removable-storage/lesson-02.html" },
+            { title: "磁記錄的原理", url: "topics/removable-storage/lesson-03.html" },
+            { title: "開機片與病毒", url: "topics/removable-storage/lesson-04.html" },
+            { title: "存檔圖示", url: "topics/removable-storage/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜更大的磁碟",
+          courses: [
+            { title: "Zip 與大容量軟碟", url: "topics/removable-storage/lesson-06.html" },
+            { title: "磁光碟與 MD", url: "topics/removable-storage/lesson-07.html" },
+            { title: "硬碟的演進", url: "topics/removable-storage/lesson-08.html" },
+          ],
+        },
+        {
+          title: "模組 C｜光碟",
+          courses: [
+            { title: "CD 的誕生", url: "topics/removable-storage/lesson-09.html" },
+            { title: "雷射與凹坑", url: "topics/removable-storage/lesson-10.html" },
+            { title: "錯誤更正", url: "topics/removable-storage/lesson-11.html" },
+            { title: "CD-ROM 與多媒體", url: "topics/removable-storage/lesson-12.html" },
+            { title: "燒錄光碟", url: "topics/removable-storage/lesson-13.html" },
+            { title: "DVD", url: "topics/removable-storage/lesson-14.html" },
+            { title: "藍光與 HD DVD", url: "topics/removable-storage/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜數位音樂與隨身碟",
+          courses: [
+            { title: "MP3", url: "topics/removable-storage/lesson-16.html" },
+            { title: "Napster 與 Kuro", url: "topics/removable-storage/lesson-17.html" },
+            { title: "iPod", url: "topics/removable-storage/lesson-18.html" },
+            { title: "USB 隨身碟", url: "topics/removable-storage/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜雲端之後",
+          courses: [
+            { title: "雲端儲存", url: "topics/removable-storage/lesson-20.html" },
+            { title: "消失的光碟機", url: "topics/removable-storage/lesson-21.html" },
+            { title: "數位黑暗時代", url: "topics/removable-storage/lesson-22.html" },
+            { title: "如何保存數位資料", url: "topics/removable-storage/lesson-23.html" },
+            { title: "懷舊與復古媒體", url: "topics/removable-storage/lesson-24.html" },
+            { title: "儲存的未來", url: "topics/removable-storage/lesson-25.html" },
+            { title: "總結", url: "topics/removable-storage/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
