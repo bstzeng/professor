@@ -39564,6 +39564,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "pagers-mobile",
+      category: "tech",
+      title: "呼叫器與大哥大：從嗶嗶聲到手機的年代",
+      description:
+        "找人的難題、單向廣播與位址碼、呼叫器的起源與台灣的 BB Call；公用電話與電話卡、530 與 0748 的數字暗語、傳呼小姐與排隊理論、呼叫器與各行各業；1973 年第一通手機電話、DynaTAC 磚頭機、蜂巢網路、1989 年台灣大哥大與黑金剛、盜拷與竊聽；GSM 與 SIM 卡、1997 年電信自由化、簡訊與 160 字、Nokia 的興衰；PHS、二哥大、2G 與 3G 關閉、醫院裡至今仍在用的呼叫器、推播通知的演化。附數字暗語、傳呼台話務、蜂巢網路與簡訊字數四個互動練習。",
+      icon: "📟",
+      url: "topics/pagers-mobile/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、規格與名詞",
+          icon: "📋",
+          url: "topics/pagers-mobile/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/pagers-mobile/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜行動通訊前夜",
+          courses: [
+            { title: "找人的難題", url: "topics/pagers-mobile/lesson-01.html" },
+            { title: "無線電呼叫的原理", url: "topics/pagers-mobile/lesson-02.html" },
+            { title: "呼叫器的起源", url: "topics/pagers-mobile/lesson-03.html" },
+            { title: "台灣的 BB Call", url: "topics/pagers-mobile/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜呼叫器文化",
+          courses: [
+            { title: "收到 call 之後", url: "topics/pagers-mobile/lesson-05.html" },
+            { title: "數字暗語", url: "topics/pagers-mobile/lesson-06.html" },
+            { title: "中文呼叫器與傳呼小姐", url: "topics/pagers-mobile/lesson-07.html" },
+            { title: "呼叫器與各行各業", url: "topics/pagers-mobile/lesson-08.html" },
+            { title: "單向的優點", url: "topics/pagers-mobile/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜大哥大",
+          courses: [
+            { title: "第一通手機電話", url: "topics/pagers-mobile/lesson-10.html" },
+            { title: "磚頭手機", url: "topics/pagers-mobile/lesson-11.html" },
+            { title: "蜂巢網路", url: "topics/pagers-mobile/lesson-12.html" },
+            { title: "台灣的大哥大", url: "topics/pagers-mobile/lesson-13.html" },
+            { title: "盜拷與竊聽", url: "topics/pagers-mobile/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜數位化",
+          courses: [
+            { title: "GSM 與 SIM 卡", url: "topics/pagers-mobile/lesson-15.html" },
+            { title: "電信自由化", url: "topics/pagers-mobile/lesson-16.html" },
+            { title: "簡訊的誕生", url: "topics/pagers-mobile/lesson-17.html" },
+            { title: "Nokia 的時代", url: "topics/pagers-mobile/lesson-18.html" },
+            { title: "呼叫器的退場", url: "topics/pagers-mobile/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜之後的故事",
+          courses: [
+            { title: "PHS 與小靈通", url: "topics/pagers-mobile/lesson-20.html" },
+            { title: "二哥大", url: "topics/pagers-mobile/lesson-21.html" },
+            { title: "2G 與 3G 的關閉", url: "topics/pagers-mobile/lesson-22.html" },
+            { title: "呼叫器還活著的地方", url: "topics/pagers-mobile/lesson-23.html" },
+            { title: "懷舊與記憶", url: "topics/pagers-mobile/lesson-24.html" },
+            { title: "從呼叫器到即時通訊", url: "topics/pagers-mobile/lesson-25.html" },
+            { title: "總結", url: "topics/pagers-mobile/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
