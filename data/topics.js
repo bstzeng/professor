@@ -39716,6 +39716,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "cassette-walkman",
+      category: "tech",
+      title: "卡帶與隨身聽：口袋裡的音樂革命",
+      description:
+        "留聲機與唱片、鋼絲錄音、德國磁帶與交流偏壓、磁頭與帶速；飛利浦卡帶與免費授權、A 面與 B 面、嘶聲與杜比降噪、一般帶鉻帶金屬帶、雙卡翻錄與世代損失；Walkman 的誕生、Walkman 效應與聽力保護、自製合輯、鉛筆捲帶與吃帶、8 軌帶與汽車音響；校園民歌與台灣唱片業、盜版卡帶與著作權法、語言學習錄音帶、卡帶與政治、家庭錄音爭議；CD、MD、MP3 與串流、最後的卡帶工廠、卡帶復興、資料中心的 LTO 磁帶。附帶速、杜比、翻錄世代與合輯規劃四個互動練習。",
+      icon: "📼",
+      url: "topics/cassette-walkman/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、規格與磁帶類型",
+          icon: "📋",
+          url: "topics/cassette-walkman/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/cassette-walkman/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜錄音的起源",
+          courses: [
+            { title: "留聲機", url: "topics/cassette-walkman/lesson-01.html" },
+            { title: "鋼絲錄音", url: "topics/cassette-walkman/lesson-02.html" },
+            { title: "德國的磁帶錄音機", url: "topics/cassette-walkman/lesson-03.html" },
+            { title: "磁帶錄音的原理", url: "topics/cassette-walkman/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜卡帶",
+          courses: [
+            { title: "飛利浦的小盒子", url: "topics/cassette-walkman/lesson-05.html" },
+            { title: "卡帶的規格", url: "topics/cassette-walkman/lesson-06.html" },
+            { title: "嘶聲與杜比", url: "topics/cassette-walkman/lesson-07.html" },
+            { title: "一般帶、鉻帶與金屬帶", url: "topics/cassette-walkman/lesson-08.html" },
+            { title: "雙卡與翻錄", url: "topics/cassette-walkman/lesson-09.html" },
+          ],
+        },
+        {
+          title: "模組 C｜隨身聽",
+          courses: [
+            { title: "Walkman 的誕生", url: "topics/cassette-walkman/lesson-10.html" },
+            { title: "耳機與私人空間", url: "topics/cassette-walkman/lesson-11.html" },
+            { title: "合輯", url: "topics/cassette-walkman/lesson-12.html" },
+            { title: "鉛筆與捲帶", url: "topics/cassette-walkman/lesson-13.html" },
+            { title: "汽車音響與 8 軌帶", url: "topics/cassette-walkman/lesson-14.html" },
+          ],
+        },
+        {
+          title: "模組 D｜社會與台灣",
+          courses: [
+            { title: "校園民歌與唱片業", url: "topics/cassette-walkman/lesson-15.html" },
+            { title: "盜版卡帶", url: "topics/cassette-walkman/lesson-16.html" },
+            { title: "語言學習錄音帶", url: "topics/cassette-walkman/lesson-17.html" },
+            { title: "錄音帶與政治", url: "topics/cassette-walkman/lesson-18.html" },
+            { title: "家庭錄音正在殺死音樂", url: "topics/cassette-walkman/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜退場與重生",
+          courses: [
+            { title: "CD 的挑戰", url: "topics/cassette-walkman/lesson-20.html" },
+            { title: "MD 迷你光碟", url: "topics/cassette-walkman/lesson-21.html" },
+            { title: "MP3 與 iPod", url: "topics/cassette-walkman/lesson-22.html" },
+            { title: "最後的卡帶工廠", url: "topics/cassette-walkman/lesson-23.html" },
+            { title: "卡帶復興", url: "topics/cassette-walkman/lesson-24.html" },
+            { title: "磁帶還沒有死", url: "topics/cassette-walkman/lesson-25.html" },
+            { title: "總結", url: "topics/cassette-walkman/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
