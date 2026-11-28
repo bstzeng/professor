@@ -40096,6 +40096,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "dialup-bbs-fax",
+      category: "tech",
+      title: "撥接上網、BBS 與傳真：電話線上的資料",
+      description:
+        "比電話還早的 1843 年傳真、新聞照片與氣象傳真、行程編碼與 Group 3、傳真王國日本、辦公室的傳真機；電話線的頻寬與夏農極限、聲耦合器與卡特電話判決、調變與 AT 指令、鮑率與星座圖、握手聲、56K；第一個 BBS、FidoNet、台灣學術網路與校園 BBS、批踢踢、推文與 ANSI；HiNet 與 Seednet、計時與佔線、AOL 試用光碟、早期網頁、ICQ／MSN／即時通；ADSL、光纖到府、傳真的長尾與最後的撥接。附傳真編碼、數據機握手、下載時間與 BBS 推文四個互動練習。",
+      icon: "📠",
+      url: "topics/dialup-bbs-fax/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、速度與術語",
+          icon: "📋",
+          url: "topics/dialup-bbs-fax/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/dialup-bbs-fax/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜傳真",
+          courses: [
+            { title: "比電話還早的傳真", url: "topics/dialup-bbs-fax/lesson-01.html" },
+            { title: "新聞照片與氣象傳真", url: "topics/dialup-bbs-fax/lesson-02.html" },
+            { title: "傳真機的原理", url: "topics/dialup-bbs-fax/lesson-03.html" },
+            { title: "傳真王國日本", url: "topics/dialup-bbs-fax/lesson-04.html" },
+            { title: "辦公室裡的傳真機", url: "topics/dialup-bbs-fax/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜數據機",
+          courses: [
+            { title: "電話線的限制", url: "topics/dialup-bbs-fax/lesson-06.html" },
+            { title: "聲耦合器", url: "topics/dialup-bbs-fax/lesson-07.html" },
+            { title: "調變", url: "topics/dialup-bbs-fax/lesson-08.html" },
+            { title: "鮑率與位元率", url: "topics/dialup-bbs-fax/lesson-09.html" },
+            { title: "握手的聲音", url: "topics/dialup-bbs-fax/lesson-10.html" },
+            { title: "56K", url: "topics/dialup-bbs-fax/lesson-11.html" },
+          ],
+        },
+        {
+          title: "模組 C｜BBS",
+          courses: [
+            { title: "第一個 BBS", url: "topics/dialup-bbs-fax/lesson-12.html" },
+            { title: "FidoNet", url: "topics/dialup-bbs-fax/lesson-13.html" },
+            { title: "台灣學術網路與校園 BBS", url: "topics/dialup-bbs-fax/lesson-14.html" },
+            { title: "批踢踢", url: "topics/dialup-bbs-fax/lesson-15.html" },
+            { title: "推文、鄉民與 ANSI", url: "topics/dialup-bbs-fax/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜撥接上網",
+          courses: [
+            { title: "撥接上網的開始", url: "topics/dialup-bbs-fax/lesson-17.html" },
+            { title: "計時、佔線與斷線", url: "topics/dialup-bbs-fax/lesson-18.html" },
+            { title: "美國線上與試用光碟", url: "topics/dialup-bbs-fax/lesson-19.html" },
+            { title: "早期的網頁", url: "topics/dialup-bbs-fax/lesson-20.html" },
+            { title: "即時通訊", url: "topics/dialup-bbs-fax/lesson-21.html" },
+          ],
+        },
+        {
+          title: "模組 E｜寬頻之後",
+          courses: [
+            { title: "ADSL", url: "topics/dialup-bbs-fax/lesson-22.html" },
+            { title: "光纖到府", url: "topics/dialup-bbs-fax/lesson-23.html" },
+            { title: "傳真還活著", url: "topics/dialup-bbs-fax/lesson-24.html" },
+            { title: "還在撥接的人", url: "topics/dialup-bbs-fax/lesson-25.html" },
+            { title: "總結", url: "topics/dialup-bbs-fax/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
