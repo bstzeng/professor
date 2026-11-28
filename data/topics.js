@@ -39944,6 +39944,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "slide-rule",
+      category: "tech",
+      title: "計算尺與機械計算機：電腦出現之前的計算",
+      description:
+        "航海表與計算錯誤、算盤與 1946 年的比賽、納皮爾的對數與骨籌、對數表；甘特與奧特雷德的計算尺、C／D 尺的原理、各種刻度與 E6B、有效數字與小數點、工程師的象徵、阿波羅的計算尺；帕斯卡加法器、萊布尼茲步進輪與二進位、算術計、巴貝奇差分機與愛達、手搖計算機、集中營裡設計的 Curta；哈佛的女性計算員、曼哈頓計畫的計算、NASA 的關鍵少數；電子計算機與 Intel 4004、HP-35、價格戰、計算機進教室、珠心算與對數思考。附對數表、虛擬計算尺、帕斯卡加法器與差分機四個互動練習。",
+      icon: "📏",
+      url: "topics/slide-rule/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、刻度與公式",
+          icon: "📋",
+          url: "topics/slide-rule/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/slide-rule/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜計算的苦工",
+          courses: [
+            { title: "算錯的代價", url: "topics/slide-rule/lesson-01.html" },
+            { title: "算盤", url: "topics/slide-rule/lesson-02.html" },
+            { title: "納皮爾的對數", url: "topics/slide-rule/lesson-03.html" },
+            { title: "對數表", url: "topics/slide-rule/lesson-04.html" },
+          ],
+        },
+        {
+          title: "模組 B｜計算尺",
+          courses: [
+            { title: "計算尺的發明", url: "topics/slide-rule/lesson-05.html" },
+            { title: "計算尺的原理", url: "topics/slide-rule/lesson-06.html" },
+            { title: "各種刻度", url: "topics/slide-rule/lesson-07.html" },
+            { title: "有效數字與小數點", url: "topics/slide-rule/lesson-08.html" },
+            { title: "工程師的象徵", url: "topics/slide-rule/lesson-09.html" },
+            { title: "阿波羅與計算尺", url: "topics/slide-rule/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜機械計算機",
+          courses: [
+            { title: "帕斯卡加法器", url: "topics/slide-rule/lesson-11.html" },
+            { title: "萊布尼茲", url: "topics/slide-rule/lesson-12.html" },
+            { title: "算術計", url: "topics/slide-rule/lesson-13.html" },
+            { title: "巴貝奇的差分機", url: "topics/slide-rule/lesson-14.html" },
+            { title: "手搖計算機", url: "topics/slide-rule/lesson-15.html" },
+            { title: "Curta", url: "topics/slide-rule/lesson-16.html" },
+          ],
+        },
+        {
+          title: "模組 D｜人類計算員",
+          courses: [
+            { title: "「Computer」是一種職業", url: "topics/slide-rule/lesson-17.html" },
+            { title: "曼哈頓計畫的計算", url: "topics/slide-rule/lesson-18.html" },
+            { title: "NASA 的人類計算員", url: "topics/slide-rule/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜電子取代",
+          courses: [
+            { title: "電子計算機的誕生", url: "topics/slide-rule/lesson-20.html" },
+            { title: "HP-35", url: "topics/slide-rule/lesson-21.html" },
+            { title: "口袋計算機的價格戰", url: "topics/slide-rule/lesson-22.html" },
+            { title: "計算機進教室", url: "topics/slide-rule/lesson-23.html" },
+            { title: "算盤與心算的延續", url: "topics/slide-rule/lesson-24.html" },
+            { title: "計算尺留下的東西", url: "topics/slide-rule/lesson-25.html" },
+            { title: "總結", url: "topics/slide-rule/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
