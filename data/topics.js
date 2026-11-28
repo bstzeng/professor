@@ -39640,6 +39640,82 @@ window.SITE_DATA = {
           ],
         },
       ],
+    },
+    {
+      id: "film-photography",
+      category: "tech",
+      title: "底片與暗房：銀鹽攝影的一百五十年",
+      description:
+        "暗箱與尼埃普斯的第一張照片、達蓋爾銀版法、塔爾博特的負片與潛影、濕版與乾版、鹵化銀的化學；柯達的「你按快門」、布朗尼與快照、135 與 120、ISO 與顆粒、特性曲線與寬容度；三層乳劑與減法混色、正片與柯達克羅姆、顯影停影定影、放大機與區域系統、沖印店與即可拍；拍立得、電影膠卷、X 光底片、膠卷回收的間諜衛星；柯達發明數位相機、柯達破產與富士轉型、手機攝影、底片復興與照片保存。附 ISO 與顆粒、特性曲線、減法混色與顯影溫度四個互動練習。",
+      icon: "🎞️",
+      url: "topics/film-photography/index.html",
+      resources: [
+        {
+          title: "速查表",
+          description: "年表、格式與藥液",
+          icon: "📋",
+          url: "topics/film-photography/table.html"
+        },
+        {
+          title: "互動實驗室",
+          description: "本課程的四個互動練習",
+          icon: "🧪",
+          url: "topics/film-photography/guide.html"
+        }
+      ],
+      modules: [
+        {
+          title: "模組 A｜銀鹽的誕生",
+          courses: [
+            { title: "暗箱與第一張照片", url: "topics/film-photography/lesson-01.html" },
+            { title: "達蓋爾銀版法", url: "topics/film-photography/lesson-02.html" },
+            { title: "塔爾博特與負片", url: "topics/film-photography/lesson-03.html" },
+            { title: "濕版與乾版", url: "topics/film-photography/lesson-04.html" },
+            { title: "鹵化銀的化學", url: "topics/film-photography/lesson-05.html" },
+          ],
+        },
+        {
+          title: "模組 B｜柯達的時代",
+          courses: [
+            { title: "你按快門，其餘交給我們", url: "topics/film-photography/lesson-06.html" },
+            { title: "布朗尼與大眾攝影", url: "topics/film-photography/lesson-07.html" },
+            { title: "135 與 120", url: "topics/film-photography/lesson-08.html" },
+            { title: "ISO 與顆粒", url: "topics/film-photography/lesson-09.html" },
+            { title: "曝光寬容度", url: "topics/film-photography/lesson-10.html" },
+          ],
+        },
+        {
+          title: "模組 C｜色彩與暗房",
+          courses: [
+            { title: "彩色底片", url: "topics/film-photography/lesson-11.html" },
+            { title: "正片與幻燈片", url: "topics/film-photography/lesson-12.html" },
+            { title: "黑白暗房", url: "topics/film-photography/lesson-13.html" },
+            { title: "放大機與相紙", url: "topics/film-photography/lesson-14.html" },
+            { title: "沖印店與一小時快洗", url: "topics/film-photography/lesson-15.html" },
+          ],
+        },
+        {
+          title: "模組 D｜特殊用途",
+          courses: [
+            { title: "拍立得", url: "topics/film-photography/lesson-16.html" },
+            { title: "電影膠卷", url: "topics/film-photography/lesson-17.html" },
+            { title: "X 光底片", url: "topics/film-photography/lesson-18.html" },
+            { title: "從太空拍下的膠卷", url: "topics/film-photography/lesson-19.html" },
+          ],
+        },
+        {
+          title: "模組 E｜數位取代",
+          courses: [
+            { title: "柯達發明了數位相機", url: "topics/film-photography/lesson-20.html" },
+            { title: "柯達與富士", url: "topics/film-photography/lesson-21.html" },
+            { title: "手機攝影與沖印店的消失", url: "topics/film-photography/lesson-22.html" },
+            { title: "底片的復興", url: "topics/film-photography/lesson-23.html" },
+            { title: "照片的保存", url: "topics/film-photography/lesson-24.html" },
+            { title: "暗房留下的東西", url: "topics/film-photography/lesson-25.html" },
+            { title: "總結", url: "topics/film-photography/lesson-26.html" },
+          ],
+        },
+      ],
     }
   ]
 };
